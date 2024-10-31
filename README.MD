@@ -1,14 +1,14 @@
 ## CONTENTS:
-[1. uAthena Ideology](1-uAthena-Ideology)  
-[2. uAthena Goals](2-uAthena-Goals)  
-[3. uAthena Objectives](3-uAthena-Objectives)  
-[4. Authors](4-Authors)  
-[4.1. The eAthena Team](41-The-eAthena-Team)  
-[4.1.1. Developers](411-Developers)  
-[4.1.2. Mods/Admins](412-Mods/Admins)  
-[4.1.3. Ex-Developers and Honorable Mentions](413-Ex-Developers-and-Honorable-Mentions)  
-[4.2. The uAthena Team](42-The-uAthena-Team)  
-[4.2.1. UaRO Team](421-UaRO-Team)  
+[1. uAthena Ideology](#1-uathena-ideology)  
+[2. uAthena Goals](#2-uathena-goals)  
+[3. uAthena Objectives](#3-uathena-objectives)  
+[4. Authors](#4-authors)  
+[4.1. The eAthena Team](#41-the-eathena-team)  
+[4.1.1. Developers](#411-developers)  
+[4.1.2. Mods/Admins](#412-modsadmins)  
+[4.1.3. Ex-Developers and Honorable Mentions](#413-ex-developers-and-honorable-mentions)  
+[4.2. The uAthena Team](#42-the-uathena-teamm)  
+[4.2.1. UaRO Team](#421-uaro-team)  
 
 ____
 
