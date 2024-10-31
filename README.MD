@@ -2,14 +2,15 @@
 [1. uAthena Ideology](#1-uathena-ideology)  
 [2. uAthena Goals](#2-uathena-goals)  
 [3. uAthena Objectives](#3-uathena-objectives)  
-[4. Authors](#4-authors)  
-[4.1. The eAthena Team](#41-the-eathena-team)  
-[4.1.1. Developers](#411-developers)  
-[4.1.2. Mods/Admins](#412-modsadmins)  
-[4.1.3. Ex-Developers and Honorable Mentions](#413-ex-developers-and-honorable-mentions)  
-[4.1.4. From eAthena/authors.txt](#414-from-eathenaauthorstxt)  
-[4.2. The uAthena Team](#42-the-uathena-team)  
-[4.2.1. UaRO Team](#421-uaro-team)  
+[4. Installation](#4-installation)  
+[5. Authors](#4-authors)  
+[5.1. The eAthena Team](#41-the-eathena-team)  
+[5.1.1. Developers](#411-developers)  
+[5.1.2. Mods/Admins](#412-modsadmins)  
+[5.1.3. Ex-Developers and Honorable Mentions](#413-ex-developers-and-honorable-mentions)  
+[5.1.4. From eAthena/authors.txt](#414-from-eathenaauthorstxt)  
+[5.2. The uAthena Team](#42-the-uathena-team)  
+[5.2.1. UaRO Team](#421-uaro-team)  
 
     
 
@@ -31,21 +32,28 @@
 
 - uAthena respects and preserves the authorship of the original and backported code/content. An "Authors" section is created in this `README.md` file. If you know of a lost author’s name or nickname for code/content/segment, please contact any member of the uAthena project to have the name added to the appropriate list.
 
+
 # 2. uAthena Goals
 
 1. Maintaining game balance in its base form or ideologically close to it.
 2. Expanding the Ragnarok Online setting.
 3. Enhancing playability.
 
+
 # 3. uAthena Objectives
 
-Development objectives for uAthena are maintained in the `TODO.md` file  
+Development objectives for uAthena are maintained in the `TODO.txt` file  
 
-# 4. Authors
 
-## 4.1. The eAthena Team
+# 4. Installation
 
-### 4.1.1. Developers
+Installation instructions are provided in the `INSTALLATION.txt` file  
+
+# 5. Authors
+
+## 5.1. The eAthena Team
+
+### 5.1.1. Developers
 
 Wallex  
 Lupus  
@@ -65,7 +73,7 @@ Valaris
 Lance  
 Komurka  
 
-### 4.1.2. Mods/Admins
+### 5.1.2. Mods/Admins
 
 Massdriller  
 Deviant  
@@ -75,7 +83,7 @@ SantaPoring
 Davidchak  
 Valaris  
 
-### 4.1.3. Ex-Developers and Honorable Mentions
+### 5.1.3. Ex-Developers and Honorable Mentions
 
 RoVeRT  
 AppleGirl  
@@ -104,7 +112,7 @@ Azndragon
 Nasedo  
 Sirius  
 
-### 4.1.4. From [eAthena/authors.txt](https://github.com/eathena/eathena-authors/blob/master/authors.txt)
+### 5.1.4. From [eAthena/authors.txt](https://github.com/eathena/eathena-authors/blob/master/authors.txt)
 
 FlavioJS ( Flávio J. Saraiva )  
 Paradox924x ( Nikunj Mehta )  
@@ -189,9 +197,9 @@ Zido ( Zido )
 ZoDIaC ( ZoDIaC )  
 
 
-## 4.2. The uAthena Team
+## 5.2. The uAthena Team
 
-### 4.2.1. UaRO Team
+### 5.2.1. UaRO Team
 
 Serhii Pechenin (moeng/Sergio/pixel/fbsd61)  
 kwebmn  
