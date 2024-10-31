@@ -7,11 +7,11 @@
 [4.1.1. Developers](#411-developers)  
 [4.1.2. Mods/Admins](#412-modsadmins)  
 [4.1.3. Ex-Developers and Honorable Mentions](#413-ex-developers-and-honorable-mentions)  
-[4.1.4. From eAthena/authors.txt]()__
+[4.1.4. From eAthena/authors.txt](#414-from-eathenaauthorstxt)  
 [4.2. The uAthena Team](#42-the-uathena-team)  
 [4.2.1. UaRO Team](#421-uaro-team)  
 
-____
+    
 
 # 1. uAthena Ideology
 
@@ -39,7 +39,7 @@ ____
 
 # 3. uAthena Objectives
 
-___Development objectives for uAthena are maintained in the `TODO.md` file___
+  _Development objectives for uAthena are maintained in the `TODO.md` file  _
 
 # 4. Authors
 
@@ -106,87 +106,87 @@ Sirius
 
 ### 4.1.4. From [eAthena/authors.txt](https://github.com/eathena/eathena-authors/blob/master/authors.txt)
 
-FlavioJS ( Flávio J. Saraiva )__
-Paradox924x ( Nikunj Mehta )__
-ancyker ( ancyker )__
-ai4rei ( ai4rei )__
-ajarn ( ajarn )__
-Akaru ( Akaru )__
-akrus ( akrus )__
-amber ( amber )__
-Aria ( Aria )__
-arutema ( arutema )__
-blackhole89 ( blackhole89 )__
-brianluau ( brianluau )__
-celest ( celest )__
-CIA-2 ( CIA-2 )__
-clownisius ( clownisius )__
-codemaster ( codemaster )__
-davidsiaw ( davidsiaw )__
-DracoRPG ( DracoRPG )__
-DZeroX ( DZeroX )__
-eaac ( eaac )__
-Euph ( Euph )__
-Evera ( Evera )__
-Fredzilla ( Fredzilla )__
-foruken ( foruken )__
-Gepard ( Gepard )__
-Harbin ( Harbin )__
-Inkfish ( Inkfish )__
-jmanfffreak ( jmanfffreak )__
-Kargha ( Kargha )__
-KarLaeda ( KarLaeda )__
-Kayla ( Kayla )__
-Kevin ( Kevin )__
-killercube ( killercube )__
-Kisuka ( Kisuka )__
-kobra_k88 ( kobra_k88 )__
-Komurka ( Komurka )__
-L0ne_W0lf ( L0ne_W0lf )__
-Lance ( Lance )__
-littlewolf ( littlewolf )__
-Lupus ( Lupus )__
-LuzZza ( LuzZza )__
-Mass ( Mass )__
-massdriller ( massdriller )__
-MasterOfMuppets ( MasterOfMuppets )__
-mc_cameri ( mc_cameri )__
-mksm ( mksm )__
-mousejstr ( mousejstr )__
-musashiden ( musashiden )__
-nana ( nana )__
-Nasedo ( Nasedo )__
-Nexon ( Nexon )__
-nsstrunks ( nsstrunks )__
-Playtester ( Playtester )__
-Poki#3 ( Poki#3 )__
-reddozen ( reddozen )__
-samuray22 ( samuray22 )__
-Sara ( Sara )__
-shadow ( shadow )__
-shadoweathena ( shadoweathena )__
-shadowlady ( shadowlady )__
-Shinigami ( Shinigami )__
-shinomori ( shinomori )__
-SinSloth ( SinSloth )__
-sirius ( sirius )__
-SketchyPhoenix ( SketchyPhoenix )__
-Skotlex ( Skotlex )__
-spira ( spira )__
-theultramage ( ultramage )__
-toms ( toms )__
-ultramage ( ultramage )__
-Valaris ( Valaris )__
-veider ( veider )__
-Vicious ( Vicious )__
-wizputer ( wizputer )__
-yomanda ( yomanda )__
-Yommy ( Yommy )__
-zapbomb ( zapbomb )__
-Zephiris ( Zephiris )__
-zephyrus ( Zephyrus )__
-Zido ( Zido )__
-ZoDIaC ( ZoDIaC )__
+FlavioJS ( Flávio J. Saraiva )  
+Paradox924x ( Nikunj Mehta )  
+ancyker ( ancyker )  
+ai4rei ( ai4rei )  
+ajarn ( ajarn )  
+Akaru ( Akaru )  
+akrus ( akrus )  
+amber ( amber )  
+Aria ( Aria )  
+arutema ( arutema )  
+blackhole89 ( blackhole89 )  
+brianluau ( brianluau )  
+celest ( celest )  
+CIA-2 ( CIA-2 )  
+clownisius ( clownisius )  
+codemaster ( codemaster )  
+davidsiaw ( davidsiaw )  
+DracoRPG ( DracoRPG )  
+DZeroX ( DZeroX )  
+eaac ( eaac )  
+Euph ( Euph )  
+Evera ( Evera )  
+Fredzilla ( Fredzilla )  
+foruken ( foruken )  
+Gepard ( Gepard )  
+Harbin ( Harbin )  
+Inkfish ( Inkfish )  
+jmanfffreak ( jmanfffreak )  
+Kargha ( Kargha )  
+KarLaeda ( KarLaeda )  
+Kayla ( Kayla )  
+Kevin ( Kevin )  
+killercube ( killercube )  
+Kisuka ( Kisuka )  
+kobra_k88 ( kobra_k88 )  
+Komurka ( Komurka )  
+L0ne_W0lf ( L0ne_W0lf )  
+Lance ( Lance )  
+littlewolf ( littlewolf )  
+Lupus ( Lupus )  
+LuzZza ( LuzZza )  
+Mass ( Mass )  
+massdriller ( massdriller )  
+MasterOfMuppets ( MasterOfMuppets )  
+mc_cameri ( mc_cameri )  
+mksm ( mksm )  
+mousejstr ( mousejstr )  
+musashiden ( musashiden )  
+nana ( nana )  
+Nasedo ( Nasedo )  
+Nexon ( Nexon )  
+nsstrunks ( nsstrunks )  
+Playtester ( Playtester )  
+Poki#3 ( Poki#3 )  
+reddozen ( reddozen )  
+samuray22 ( samuray22 )  
+Sara ( Sara )  
+shadow ( shadow )  
+shadoweathena ( shadoweathena )  
+shadowlady ( shadowlady )  
+Shinigami ( Shinigami )  
+shinomori ( shinomori )  
+SinSloth ( SinSloth )  
+sirius ( sirius )  
+SketchyPhoenix ( SketchyPhoenix )  
+Skotlex ( Skotlex )  
+spira ( spira )  
+theultramage ( ultramage )  
+toms ( toms )  
+ultramage ( ultramage )  
+Valaris ( Valaris )  
+veider ( veider )  
+Vicious ( Vicious )  
+wizputer ( wizputer )  
+yomanda ( yomanda )  
+Yommy ( Yommy )  
+zapbomb ( zapbomb )  
+Zephiris ( Zephiris )  
+zephyrus ( Zephyrus )  
+Zido ( Zido )  
+ZoDIaC ( ZoDIaC )  
 
 
 ## 4.2. The uAthena Team
