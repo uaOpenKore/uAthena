@@ -3,14 +3,14 @@
 [2. uAthena Goals](#2-uathena-goals)  
 [3. uAthena Objectives](#3-uathena-objectives)  
 [4. Installation](#4-installation)  
-[5. Authors](#4-authors)  
-[5.1. The eAthena Team](#41-the-eathena-team)  
-[5.1.1. Developers](#411-developers)  
-[5.1.2. Mods/Admins](#412-modsadmins)  
-[5.1.3. Ex-Developers and Honorable Mentions](#413-ex-developers-and-honorable-mentions)  
-[5.1.4. From eAthena/authors.txt](#414-from-eathenaauthorstxt)  
-[5.2. The uAthena Team](#42-the-uathena-team)  
-[5.2.1. UaRO Team](#421-uaro-team)  
+[5. Authors](#5-authors)  
+[5.1. The eAthena Team](#51-the-eathena-team)  
+[5.1.1. Developers](#511-developers)  
+[5.1.2. Mods/Admins](#512-modsadmins)  
+[5.1.3. Ex-Developers and Honorable Mentions](#513-ex-developers-and-honorable-mentions)  
+[5.1.4. From eAthena/authors.txt](#514-from-eathenaauthorstxt)  
+[5.2. The uAthena Team](#52-the-uathena-team)  
+[5.2.1. UaRO Team](#521-uaro-team)  
 
     
 
