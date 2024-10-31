@@ -39,7 +39,7 @@
 
 # 3. uAthena Objectives
 
-  _Development objectives for uAthena are maintained in the `TODO.md` file  _
+Development objectives for uAthena are maintained in the `TODO.md` file  
 
 # 4. Authors
 
