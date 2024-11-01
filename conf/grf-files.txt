@@ -1,14 +1,17 @@
 //-----------------------------------------
 // GRF List
 //-----------------------------------------
-
-grf: C:\Program Files\Gravity\RO\data.grf
-grf: C:\Program Files\Gravity\RO\sdata.grf
-
+//grf: C:\Program Files\Gravity\RO\data.grf
+//grf: C:\Program Files\Gravity\RO\sdata.grf
 // You may add more in this format
 // grf: <data file path>
 
 //------ Others ---------------------------
 
 // Data Directory
-//data_dir: C:\Program Files\Gravity\RO\
+data_dir: /GRF/data
+
+// FOR linux! Recomendation:
+// make dir like /GRF/data or share in host-system
+// and copy (all maps) *.gat files in this dir, like: /GRF/data/*.gat
+
