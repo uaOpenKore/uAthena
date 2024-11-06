@@ -1,16 +1,14 @@
 // Installation CentOS 7 x32 with building custom vanilla kernel 5.4+
 // DOC updated 2024/10/29
-// Recommended: CPU: 3, RAM: 2Gb, HDD: 20Gb, without swap part
-// Minimum: 2/1/15/1
-// Used: 4/5/60/1
+// Recommended: CPU: 2, RAM: 3Gb, HDD: 40Gb, without swap part (file 1G)
+// Minimum: 2/2/15/2
+// Max: 4/4/60/1
 
 0. get iso
 http://fastmirror.pp.ua/centos-altarch/7.9.2009/isos/i386/CentOS-7-i386-Minimal-2009.iso
 https://vault.centos.org/altarch/7/isos/i386/CentOS-7-i386-Minimal-2009.iso
 
-edit repos
-~~~~
-CentOS-Base.repo
+my.repo
 ++++
 [base]
 name=CentOS-$releasever - Base
@@ -18,14 +16,12 @@ baseurl=http://vault.centos.org/altarch/$releasever/os/$basearch/
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 
-#released updates
 [updates]
 name=CentOS-$releasever - Updates
 baseurl=http://vault.centos.org/altarch/$releasever/updates/$basearch/
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 
-#additional packages that may be useful
 [extras]
 name=CentOS-$releasever - Extras
 baseurl=http://vault.centos.org/altarch/$releasever/extras/$basearch/
@@ -33,7 +29,6 @@ gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 enabled=1
 
-#additional packages that extend functionality of existing packages
 [centosplus]
 name=CentOS-$releasever - Plus
 baseurl=http://vault.centos.org/altarch/$releasever/centosplus/$basearch/
@@ -41,9 +36,6 @@ gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 
-======
-CentOS-fasttrack.repo
-++++
 [fasttrack]
 name=CentOS-7 - fasttrack
 baseurl=http://vault.centos.org/altarch/$releasever/fasttrack/$basearch/
@@ -53,13 +45,14 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 
 ~~~~
 
-1. yum install dnf -y
-1.1. dnf erase plymouth* abrt*
+1. yum install dnf* mc -y
+1.1. dnf remove plymouth* abrt* dracut-config-rescue
+1.2. rm -f /boot/*rescue*
+1.3. ~ you might have to remove the rescue entry from /boot/loader/entries
 2. systemctl disable firewalld
 3. /etc/selinux/config -> disabled
 -4. dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm (not supported :-( )
 5. dnf install https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm
-6. dnf install mc
 7. enable repos -> /etc/yum.repos.d (change mysql to 5.5)
 7.1. dnf update -y
 7.2. dnf install qemu-guest-agent
@@ -78,13 +71,13 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 10.6. /etc/sysctl.conf - > vm.swappiness = 10
 10.7. reboot
 
-========
-11.1. dnf install rpmdevtools dnf-auto* yum-*
+11.1. dnf install rpmdevtools dnf-auto* yum-* attr texinfo libacl-devel
 11.2. ~# rpmdev-setuptree
 ~extended:
 11.3. dnf install bpftool kernel-cross-headers kernel-modules-extra kernel-modules-internal perf perl-generators perl-interpreter python3-perf mock python2-koj* python3-devel
 11.4. useradd mockbuild
-11.5. usermod -G mock mockbuild
+11.5. useradd mock
+11.6. usermod -G mock mockbuild
 
 ~~~~
 ~for installing tar 1.30 create user and build from this user
@@ -93,16 +86,16 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 12.3. cd
 12.4. curl -O https://vault.centos.org/8.0.1905/BaseOS/Source/SPackages/tar-1.30-4.el8.src.rpm
 12.5. exit
-12.6. dnf builddep ./tar-1.30-4.el8.src.rpm -y
+12.6. dnf builddep /home/pix/tar-1.30-4.el8.src.rpm -y
 12.7. su pix
-12.8. rpm -i ./tar-1.30-4.el8.src.rpm
-12.9. rpmbuild -ba ~/rpmbuild/SPECS/tar.spec
+12.8. rpm -i /home/pix/tar-1.30-4.el8.src.rpm
+12.9. rpmbuild -ba /home/pix/rpmbuild/SPECS/tar.spec
 12.10. exit
 12.11. dnf install /home/pix/rpmbuild/RPMS/i686/tar-1.30-4.el7.i686.rpm
 
 ~~~
 
-13. skip if want install kernel from RPM
+13.
 13.0 curl -O https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.4.284.tar.xz
 13.1. unpack -> /usr/src/kernels/
 13.2. cp /boot/config-3.10.0-1160.62.1.el7.centos.plus.i686 /usr/src/kernels/linux-5.4.284/.config
@@ -110,20 +103,24 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 13.4. make menuconfig
 13.5.
 ~~~
-~for MultiThreading making
-~edit file scripts/package/mkspec (for rpm-pkg):
-~$S      $MAKE %{?_smp_mflags} KBUILD_BUILD_VERSION=%{release}
-~like to: $S      $MAKE %{?_smp_mflags} -j4 KBUILD_BUILD_VERSION=%{release}
-~or
-~ edit Makefile (for classic build):
-~ MAKEFLAGS += -rR
-~ like to: MAKEFLAGS += -rR -j4
-~~~
+
 13.6.
-SET: General Setup-> (5.4.284-my) Build ID Salt
-DISABLE: 64-bit kernel
-enable: Processor type and features -> High Mem Support (64GB) ---- it is PAE
-change: General setup->Compiler optimization level (Optimize for performance -> (-Os))
+FOR 5.4.284
+ENABLE / SET:
+General setup >  Local version : (clear)
+General setup >  Build ID Salt : (clear)
+General setup > Compiler optimization level (Optimize for performance -> (-Os))
+64-bit kernel : DISABLE
+Processor type and features > Processor family :
+    AMD: Opteron/Athlon64/Hammer/K8
+    INTEL: Core 2/newer Xeon
+    Universal: 586/K5/5x86/6x86/6x86MX
+Processor type and features > Generic x86 support : ENABLE
+Processor type and features > AMD microcode loading support : ENABLE
+Processor type and features -> High Mem Support :
+    4GB
+    3GB: Off
+
 DISABLE ERRORS (modules):
 (drivers/dma/dw-edma/dw-edma-v0-core.o) DEVICE DRIVERS->DMA Engine support->Synopsys DesignWare eDMA PCIe driver && Synopsys DesignWare eDMA controller driver
 (drivers/fpga/dfl.o) DEVICE DRIVERS->FPGA Configuration Framework->FPGA Device Feature List (DFL) support
@@ -144,13 +141,12 @@ DISABLE ERRORS (modules):
 (drivers/net/wireless/intel/iwlwifi/pcie/rx.o) Device Drivers > Network device support > Wireless LAN -> Intel Wireless WiFi Next Gen AGN - Wireless-N/Advanced-N/Ultimate-N (iwlwifi)
 
 
-13.7. make rpm-pkg
+13.7. make rpm-pkg -j4
 13.8. dnf install ~/rpmbuild/RPMS/i386/kernel*
 13.9. reboot in 5.4 (U can edit default in /boot/grub2/grub.conf)
 13.10. /etc/default/grub -> GRUB_DEFAULT=0
 13.11. dnf remove kernel*3.10*
 
-14.1. rebuild VBox guest-addon (if need)
 
 
 
