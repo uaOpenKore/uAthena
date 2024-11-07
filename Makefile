@@ -10,10 +10,10 @@ CC = gcc -pipe
 MAKE = make
 # MAKE = gmake
 
-OPT = -g
+OPT = +g
 OPT += -O2
 # OPT += -O3
-# OPT += -mmmx
+# OPT += -march=generic
 # OPT += -msse
 # OPT += -msse2
 # OPT += -msse3

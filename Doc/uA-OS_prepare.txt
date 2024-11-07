@@ -115,7 +115,7 @@ General setup > Compiler optimization level (Optimize for performance -> (-Os))
 Processor type and features > Processor family :
     AMD: Opteron/Athlon64/Hammer/K8
     INTEL: Core 2/newer Xeon
-    Universal: 586/K5/5x86/6x86/6x86MX
+    Universal(i686): Pentium-Pro
 Processor type and features > Generic x86 support : ENABLE
 Processor type and features > AMD microcode loading support : ENABLE
 Processor type and features -> High Mem Support : (Off)

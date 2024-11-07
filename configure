@@ -3,7 +3,7 @@
 ## I know this is not a clean way to check for some stuff
 ## and edit the Makefile, but hey, it does work!
 
-#    Configure script for eAthena
+#    Configure script for uAthena
 #    Copyright (C) 2005  dontBR
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -22,12 +22,12 @@
 
 
 # Default variables
-status_mmx="No"
-status_sse="No"
-status_sse2="No"
-status_sse3="No"
-status_pcre="No"
-prefix='/opt/eathena/'
+status_debug="No"
+status_cpu="Yes"
+status_Os="Yes"
+#status_sse3="No"
+status_pcre="Yes"
+prefix='/opt/uathena/'
 
 # Functions
 function check_sed {
@@ -100,14 +100,14 @@ function check_mysql_headers {
 
 function optimize {
 	case $@ in
-		mmx )	status_mmx="Yes" ;;
-		sse )	status_sse="Yes" ;;
-		sse2 )	status_sse2="Yes" ;;
-		sse3 )	status_sse3="Yes" ;;
-		all )	status_mmx="Yes"
-			status_sse="Yes"
-			status_sse2="Yes"
-			status_sse3="Yes" ;;
+		debug )	status_debug="No" ;;
+		cpu )	status_cpu="Yes" ;;
+		Os )	status_Os="Yes" ;;
+#		sse3 )	status_sse3="Yes" ;;
+		all )	status_debug="No"
+			status_cpu="Yes"
+			status_Os="Yes"
+#			status_sse3="Yes" ;;
 	esac
 }
 
@@ -115,18 +115,18 @@ function make_changes {
 	if [ "$maker" != "make" ]; then
 		sed -e 's,MAKE = make,MAKE = '$maker',g' Makefile -i
 	fi
-	if [ "$status_mmx" = "Yes" ]; then
-		sed -e 's,# OPT += -mmmx,OPT += -mmmx,g' Makefile -i
+	if [ "$status_debug" = "Yes" ]; then
+		sed -e 's,OPT += +g,OPT += -g ,g' Makefile -i
 	fi
-	if [ "$status_sse" = "Yes" ]; then
-		sed -e 's,# OPT += -msse,OPT += -msse,g' Makefile -i
+	if [ "$status_cpu" = "Yes" ]; then
+		sed -e 's,# OPT += -march=generic,OPT += -march=native,g' Makefile -i
 	fi
-	if [ "$status_sse2" = "Yes" ]; then
-		sed -e 's,# OPT += -msse2,OPT += -msse2,g' Makefile -i
+	if [ "$status_Os" = "Yes" ]; then
+		sed -e 's,OPT += -O2,OPT += -Os ,g' Makefile -i
 	fi
-	if [ "$status_sse3" = "Yes" ]; then
-		sed -e 's,# OPT += -msse3,OPT += -msse3,g' Makefile -i
-	fi
+#	if [ "$status_sse3" = "Yes" ]; then
+#		sed -e 's,# OPT += -msse3,OPT += -msse3,g' Makefile -i
+#	fi
 	if [ "$status_pcre" = "Yes" ]; then
 		sed -e 's,# OPT += -DPCRE_SUPPORT,OPT += -DPCRE_SUPPORT,g' Makefile -i
 	fi
@@ -141,14 +141,14 @@ function opt_check_pcre {
 		echo "yes"
 		status_pcre="Yes"
 	else
-		echo "Error: PCRE not found."
+		echo "Error: PCRE not found.(need pcre-devel)"
 		status_pcre="No"
 	fi
 }
 
 function make_report {
 	echo "Configuration report:"
-	echo eAthena
+	echo uAthena
 
 	echo
 	echo Enable PCRE support..... : $status_pcre
@@ -156,16 +156,16 @@ function make_report {
 	echo Enable MMX optimization. : $status_mmx
 	echo Enable SSE optimization. : $status_sse
 	echo Enable SSE2 optimization : $status_sse2
-	echo Enable SSE3 optimization : $status_sse3
+#	echo Enable SSE3 optimization : $status_sse3
 	echo
 	echo MySQL headers path...... : $mysql_headers_path
 	echo
-	echo eAthena will be installed in $prefix
-	echo Please type \'make txt\' or \'make sql\' now to compile eAthena.
+	echo uAthena will be installed in $prefix
+	echo Please type \'make txt\' or \'make sql\' now to compile uAthena.
 }
 
 function helptext {
-	echo "eAthena Configure Script version 0.1"
+	echo "uAthena Configure Script version 0.1"
 	echo
 	echo "Options:"
 	echo
@@ -184,30 +184,30 @@ function helptext {
 	echo "		For example:"
 	echo "		./configure -p /usr/"
 	echo "		This will create /usr/bin/login-server,"
-	echo "		/usr/etc/eathena/save/account.txt, etc"
-	echo "		Default is /opt/eathena/"
+	echo "		/usr/etc/uathena/save/account.txt, etc"
+	echo "		Default is /opt/uathena/"
 	echo
-	echo "Report bugs (about the configure script) to dontBR at the eAthena Support Board."
+	echo "Report bugs (about the configure script) to dontBR at the uAthena Support Board."
 }
 
 function make_installable {
 	echo	-e ''										>>	Makefile
 	echo	-e 'install:	conf/%.conf conf/%.txt'					>>	Makefile
 	echo	-e '		$(shell mkdir -p '$prefix'bin/)'				>>	Makefile
-	echo	-e '		$(shell mkdir -p '$prefix'etc/eathena/)'			>>	Makefile
-	echo	-e '		$(shell mkdir -p '$prefix'var/log/eathena/)'			>>	Makefile
-	echo	-e '		$(shell mv save '$prefix'etc/eathena/save)'			>>	Makefile
-	echo	-e '		$(shell mv db '$prefix'etc/eathena/db)'			>>	Makefile
-	echo	-e '		$(shell mv conf '$prefix'etc/eathena/conf)'			>>	Makefile
-	echo	-e '		$(shell mv npc '$prefix'etc/eathena/npc)'			>>	Makefile
-	echo	-e '		$(shell mv log/* '$prefix'var/log/eathena/)'			>>	Makefile
+	echo	-e '		$(shell mkdir -p '$prefix'etc/uathena/)'			>>	Makefile
+	echo	-e '		$(shell mkdir -p '$prefix'var/log/uathena/)'			>>	Makefile
+	echo	-e '		$(shell mv save '$prefix'etc/uathena/save)'			>>	Makefile
+	echo	-e '		$(shell mv db '$prefix'etc/uathena/db)'			>>	Makefile
+	echo	-e '		$(shell mv conf '$prefix'etc/uathena/conf)'			>>	Makefile
+	echo	-e '		$(shell mv npc '$prefix'etc/uathena/npc)'			>>	Makefile
+	echo	-e '		$(shell mv log/* '$prefix'var/log/uathena/)'			>>	Makefile
 	echo	-e '		$(shell cp *-server* '$prefix'bin/)'				>>	Makefile
 	echo	-e '		$(shell cp ladmin '$prefix'bin/)'				>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'etc/eathena/save/ '$prefix'bin/)'	>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'etc/eathena/db/ '$prefix'bin/)'	>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'etc/eathena/conf/ '$prefix'bin/)'	>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'etc/eathena/npc/ '$prefix'bin/)'	>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'var/log/eathena/ '$prefix'bin/log)'	>>	Makefile
+	echo	-e '		$(shell ln -s '$prefix'etc/uathena/save/ '$prefix'bin/)'	>>	Makefile
+	echo	-e '		$(shell ln -s '$prefix'etc/uathena/db/ '$prefix'bin/)'	>>	Makefile
+	echo	-e '		$(shell ln -s '$prefix'etc/uathena/conf/ '$prefix'bin/)'	>>	Makefile
+	echo	-e '		$(shell ln -s '$prefix'etc/uathena/npc/ '$prefix'bin/)'	>>	Makefile
+	echo	-e '		$(shell ln -s '$prefix'var/log/uathena/ '$prefix'bin/log)'	>>	Makefile
 	echo			''								>>	Makefile
 	echo	-e 'bin-clean:'									>>	Makefile
 	echo	-e '		$(shell rm '$prefix'bin/login-server*)'			>>	Makefile
@@ -222,8 +222,8 @@ function make_installable {
 	echo	-e '		$(shell rm '$prefix'bin/conf)'					>>	Makefile
 	echo	-e '		$(shell rm '$prefix'bin/npc)'					>>	Makefile
 	echo	-e '		$(shell rm '$prefix'bin/log)'					>>	Makefile
-	echo	-e '		$(shell rm -rf '$prefix'etc/eathena)'				>>	Makefile
-	echo	-e '		$(shell rm -rf '$prefix'var/log/eathena)'			>>	Makefile
+	echo	-e '		$(shell rm -rf '$prefix'etc/uathena)'				>>	Makefile
+	echo	-e '		$(shell rm -rf '$prefix'var/log/uathena)'			>>	Makefile
 }
 
 
@@ -240,7 +240,7 @@ done
 
 
 # Execution
-echo "eAthena configure script"
+echo "uAthena configure script"
 echo "Note: This is ALPHA software! Do NOT use it on a production server!"
 echo
 echo "Checking for dependencies.."
