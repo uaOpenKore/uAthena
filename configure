@@ -25,7 +25,7 @@
 status_debug="No"
 status_cpu="Yes"
 status_Os="Yes"
-#status_sse3="No"
+status_mysql="Yes"
 status_pcre="Yes"
 prefix='/opt/uathena/'
 
@@ -103,11 +103,11 @@ function optimize {
 		debug )	status_debug="No" ;;
 		cpu )	status_cpu="Yes" ;;
 		Os )	status_Os="Yes" ;;
-#		sse3 )	status_sse3="Yes" ;;
+		mysql )	status_mysql="Yes" ;;
 		all )	status_debug="No"
 			status_cpu="Yes"
 			status_Os="Yes"
-#			status_sse3="Yes" ;;
+			status_mysql="Yes" ;;
 	esac
 }
 
@@ -124,9 +124,10 @@ function make_changes {
 	if [ "$status_cpu" = "Yes" ]; then
 		sed -e 's,# OPT += -march=generic,OPT += -march=native,g' Makefile -i
 	fi
-#	if [ "$status_sse3" = "Yes" ]; then
-#		sed -e 's,# OPT += -msse3,OPT += -msse3,g' Makefile -i
-#	fi
+	if [ "$status_mysql" = "Yes" ]; then
+		sed -e 's,# CFLAGS += -I/usr/include/mysql -I/usr/include,CFLAGS += -I/usr/include/mysql -I/usr/include,g' Makefile -i
+		sed -e 's,# LIBS += -L/usr/lib/mysql -lmysqlclient,LIBS += -L/usr/lib/mysql -lmysqlclient,g' Makefile -i
+	fi
 	if [ "$status_pcre" = "Yes" ]; then
 		sed -e 's,# OPT += -DPCRE_SUPPORT,OPT += -DPCRE_SUPPORT,g' Makefile -i
 		sed -e 's,# LIBS += -L/usr/lib -lpcre,LIBS += -L/usr/lib -lpcre,g' Makefile -i
@@ -158,7 +159,7 @@ function make_report {
 	echo Enable debug optimization : $status_debug
 	echo Enable cpu optimization.. : $status_cpu
 	echo Enable Os optimization... : $status_Os
-#	echo Enable SSE3 optimization : $status_sse3
+	echo Enable MySQL optimization : $status_mysql
 	echo
 	echo MySQL headers path....... : $mysql_headers_path
 	echo
