@@ -31,7 +31,7 @@ OPT += -Wall -Wno-sign-compare
 
 # LIBS += -lgc
 # LIBS += -ldmalloc
-# LIBS += -L/usr/local/lib -lpcre
+# LIBS += -L/usr/lib -lpcre
 
 PLATFORM = $(shell uname)
 
@@ -83,8 +83,8 @@ ifdef SQLFLAG
       CFLAGS += $(shell $(MYSQLFLAG_CONFIG) $(MYSQLFLAG_CONFIG_ARGUMENT))
       LIBS += $(shell $(MYSQLFLAG_CONFIG) --libs)
     else
-      CFLAGS += -I/usr/local/include/mysql
-      LIBS += -L/usr/local/lib/mysql -lmysqlclient
+      CFLAGS += -I/usr/include/mysql
+      LIBS += -L/usr/lib/mysql -lmysqlclient
     endif
   endif
 endif

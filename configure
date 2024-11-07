@@ -84,9 +84,9 @@ int main(){
 
 function check_mysql_headers {
 	echo -n "Checking for MySQL headers... "
-	if [ -d /usr/local/lib/mysql ]; then		# Default
+	if [ -d /usr/lib/mysql ]; then		# Default
 		echo "yes"
-		mysql_headers_path='/usr/local/lib/mysql'
+		mysql_headers_path='/usr/lib/mysql'
 	else
 		if [ -d /usr/include/mysql ]; then	# Gentoo/Debian/?
 			echo "yes"
@@ -130,14 +130,14 @@ function make_changes {
 	if [ "$status_pcre" = "Yes" ]; then
 		sed -e 's,# OPT += -DPCRE_SUPPORT,OPT += -DPCRE_SUPPORT,g' Makefile -i
 	fi
-	if [ "$mysql_headers_path" != "/usr/local/lib/mysql" ] && [ "$mysql_headers_path" != "Not found." ]; then
-		sed -e 's,LIBS += -L/usr/local/lib/mysql -lmysqlclient,LIBS += -L'$mysql_headers_path' -lmysqlclient,g' Makefile -i
+	if [ "$mysql_headers_path" != "/usr/lib/mysql" ] && [ "$mysql_headers_path" != "Not found." ]; then
+		sed -e 's,LIBS += -L/usr/lib/mysql -lmysqlclient,LIBS += -L'$mysql_headers_path' -lmysqlclient,g' Makefile -i
 	fi
 }
 
 function opt_check_pcre {
 	echo -n "Checking for PCRE... "
-	if [ -f /usr/local/lib/pcre.h ]; then
+	if [ -f /usr/lib/pcre.h ]; then
 		echo "yes"
 		status_pcre="Yes"
 	else
@@ -182,9 +182,9 @@ function helptext {
 	echo "	-p	Root directory where eA is going to be installed."
 	echo "		DON'T FORGET THE LAST SLASH!"
 	echo "		For example:"
-	echo "		./configure -p /usr/local/"
-	echo "		This will create /usr/local/bin/login-server,"
-	echo "		/usr/local/etc/eathena/save/account.txt, etc"
+	echo "		./configure -p /usr/"
+	echo "		This will create /usr/bin/login-server,"
+	echo "		/usr/etc/eathena/save/account.txt, etc"
 	echo "		Default is /opt/eathena/"
 	echo
 	echo "Report bugs (about the configure script) to dontBR at the eAthena Support Board."
