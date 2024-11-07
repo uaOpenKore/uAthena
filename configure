@@ -115,14 +115,14 @@ function make_changes {
 	if [ "$maker" != "make" ]; then
 		sed -e 's,MAKE = make,MAKE = '$maker',g' Makefile -i
 	fi
+	if [ "$status_Os" = "Yes" ]; then
+		sed -e 's,OPT = -O2,OPT = -Os ,g' Makefile -i
+	fi
 	if [ "$status_debug" = "Yes" ]; then
-		sed -e 's,OPT += +g,OPT += -g ,g' Makefile -i
+		sed -e 's,# OPT += -g,OPT += -g ,g' Makefile -i
 	fi
 	if [ "$status_cpu" = "Yes" ]; then
 		sed -e 's,# OPT += -march=generic,OPT += -march=native,g' Makefile -i
-	fi
-	if [ "$status_Os" = "Yes" ]; then
-		sed -e 's,OPT += -O2,OPT += -Os ,g' Makefile -i
 	fi
 #	if [ "$status_sse3" = "Yes" ]; then
 #		sed -e 's,# OPT += -msse3,OPT += -msse3,g' Makefile -i
