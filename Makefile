@@ -33,7 +33,7 @@ OPT += -Wall -Wno-sign-compare
 # LIBS += -ldmalloc
 # LIBS += -L/usr/lib -lpcre
 
-# CFLAGS += -I/usr/include/mysql -I/usr/include
+# OPT += -I/usr/include/mysql -I/usr/include
 # LIBS += -L/usr/lib/mysql -lmysqlclient
 
 PLATFORM = $(shell uname)

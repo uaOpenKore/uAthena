@@ -1,4 +1,7 @@
 #!/bin/bash
+
+##MoEng comment: I really don't like this configuration script, the Makefile, and the make.sh scripts. For now, I'm trying to stick to the original.
+
 ## NOTE:
 ## I know this is not a clean way to check for some stuff
 ## and edit the Makefile, but hey, it does work!
@@ -125,7 +128,7 @@ function make_changes {
 		sed -e 's,# OPT += -march=generic,OPT += -march=native,g' Makefile -i
 	fi
 	if [ "$status_mysql" = "Yes" ]; then
-		sed -e 's,# CFLAGS += -I/usr/include/mysql -I/usr/include,CFLAGS += -I/usr/include/mysql -I/usr/include,g' Makefile -i
+		sed -e 's,# OPT += -I/usr/include/mysql -I/usr/include,OPT += -I/usr/include/mysql -I/usr/include,g' Makefile -i
 		sed -e 's,# LIBS += -L/usr/lib/mysql -lmysqlclient,LIBS += -L/usr/lib/mysql -lmysqlclient,g' Makefile -i
 	fi
 	if [ "$status_pcre" = "Yes" ]; then
