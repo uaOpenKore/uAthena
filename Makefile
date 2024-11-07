@@ -89,10 +89,10 @@ ifdef SQLFLAG
   endif
 endif
 
-ifneq ($(findstring -lz,$(LIBS)), -lz)
+ifneq ($(findstring "[[:space:]]-lz[[:space:]]",$(LIBS)), -lz)
    LIBS += -lz
 endif
-ifneq ($(findstring -lm,$(LIBS)), -lm)
+ifneq ($(findstring "[[:space:]]-lm[[:space:]]",$(LIBS)), -lm)
    LIBS += -lm
 endif
 
