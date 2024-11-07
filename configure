@@ -153,9 +153,9 @@ function make_report {
 	echo
 	echo Enable PCRE support..... : $status_pcre
 	echo
-	echo Enable MMX optimization. : $status_mmx
-	echo Enable SSE optimization. : $status_sse
-	echo Enable SSE2 optimization : $status_sse2
+	echo Enable debug optimization. : $status_debug
+	echo Enable cpu optimization. : $status_cpu
+	echo Enable Os optimization : $status_Os
 #	echo Enable SSE3 optimization : $status_sse3
 	echo
 	echo MySQL headers path...... : $mysql_headers_path
