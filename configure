@@ -3,7 +3,7 @@
 ## I know this is not a clean way to check for some stuff
 ## and edit the Makefile, but hey, it does work!
 
-#    Configure script for uAthena
+#    Configure script for eAthena
 #    Copyright (C) 2005  dontBR
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -129,6 +129,8 @@ function make_changes {
 #	fi
 	if [ "$status_pcre" = "Yes" ]; then
 		sed -e 's,# OPT += -DPCRE_SUPPORT,OPT += -DPCRE_SUPPORT,g' Makefile -i
+		sed -e 's,# LIBS += -L/usr/lib -lpcre,LIBS += -L/usr/lib -lpcre,g' Makefile -i
+
 	fi
 	if [ "$mysql_headers_path" != "/usr/lib/mysql" ] && [ "$mysql_headers_path" != "Not found." ]; then
 		sed -e 's,LIBS += -L/usr/lib/mysql -lmysqlclient,LIBS += -L'$mysql_headers_path' -lmysqlclient,g' Makefile -i
@@ -151,14 +153,14 @@ function make_report {
 	echo uAthena
 
 	echo
-	echo Enable PCRE support..... : $status_pcre
+	echo Enable PCRE support...... : $status_pcre
 	echo
-	echo Enable debug optimization. : $status_debug
-	echo Enable cpu optimization. : $status_cpu
-	echo Enable Os optimization : $status_Os
+	echo Enable debug optimization : $status_debug
+	echo Enable cpu optimization.. : $status_cpu
+	echo Enable Os optimization... : $status_Os
 #	echo Enable SSE3 optimization : $status_sse3
 	echo
-	echo MySQL headers path...... : $mysql_headers_path
+	echo MySQL headers path....... : $mysql_headers_path
 	echo
 	echo uAthena will be installed in $prefix
 	echo Please type \'make txt\' or \'make sql\' now to compile uAthena.

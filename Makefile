@@ -82,10 +82,9 @@ ifdef SQLFLAG
       endif
       CFLAGS += $(shell $(MYSQLFLAG_CONFIG) $(MYSQLFLAG_CONFIG_ARGUMENT))
       LIBS += $(shell $(MYSQLFLAG_CONFIG) --libs)
-    else
-      CFLAGS += -I/usr/include/mysql
-      LIBS += -L/usr/lib/mysql -lmysqlclient
     endif
+    CFLAGS += -I/usr/include/mysql -I/usr/include
+    LIBS += -L/usr/lib/mysql -lmysqlclient
   endif
 endif
 
