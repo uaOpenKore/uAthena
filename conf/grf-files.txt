@@ -14,5 +14,6 @@ data_dir: /GRF/
 // FOR linux! Recomendation:
 // make dir like /GRF/data/ or share from host-system
 // and copy (all maps) *.gat files in this: /GRF/data/*.gat
+// READ: https://github.com/uaOpenKore/uGATs/blob/main/README.md
 // archive gat-files - https://drive.google.com/file/d/1MWIJXgjKE0l8fxZHm9yY4LgzL8ET9voF/view?usp=sharing
 

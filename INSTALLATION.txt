@@ -10,11 +10,26 @@
 1.1. git clone git@github.com:uaOpenKore/uAthena.git
 1.1. git clone gh repo clone uaOpenKore/uAthena
 
-2.
-./configure
-make
-make sql
+2. cd uAthena
+2.1. ./configure
+2.2. make
+2.3. make sql
+~2.4. make install
 
+3. add GAT files
+3.1. Read: conf/grf-files.txt
+3.2. READ: https://github.com/uaOpenKore/uGATs/blob/main/README.md
+
+
+~~~ TODO:
+~4. install sql dumps
+~5. first setup configs
+~6. starting uAthena
+~7. for update (exe,sql migrations)
+~8. backup
+~9. bin-clean & uninstall & remove
+
+~~~ OLD ~~~
 3. правим конфиги:
 3.1. СУБД: inter_athena.conf
 3.2. battle/client.conf:
@@ -22,19 +37,8 @@ area_size: 35
 display_version: no
 3.3. ??? battle/skill.conf
 skill_delay_attack_enable: no
-3.4. !!! map_athena.conf
-read_map_from_cache: 0
-3.5. !!! grf-files.txt
-data_dir: /root/grf/
-3.5.1. закинуть гат файлы! /root/grf/data/
-3.5.2. скопировать файлы (симлинки?)
-airport.gat -> y_airport.gat
-airport.gat -> lhz_airport.gat
-airplane.gat -> airplane_01.gat
+
 3.6. заменить стартовое оружие Main Gunch [4] (мы же не полные упыри) char_athena.conf
 start_weapon: 1208
 
-Что еще?
-по базам правок не было
-можно отключить пакеты меньше 16 - battle/client.conf - packet_ver_flag: 1920
-Остальное всё по вкусу :)
+

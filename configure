@@ -30,7 +30,9 @@ status_cpu="Yes"
 status_Os="Yes"
 status_mysql="Yes"
 status_pcre="Yes"
+
 prefix='/opt/uathena/'
+#Don't use a prefix like '/'
 
 # Functions
 function check_sed {
@@ -167,7 +169,12 @@ function make_report {
 	echo MySQL headers path....... : $mysql_headers_path
 	echo
 	echo uAthena will be installed in $prefix
-	echo Please type \'make txt\' or \'make sql\' now to compile uAthena.
+	echo Please type \'make\' and \'make sql\' now to compile uAthena.
+	echo -e ""
+	echo Attention:
+	echo For the initial installation, use \'make install\'.
+	echo After subsequent compilations, use \'make update\'
+	echo to update executable files in the $prefix directory..
 }
 
 function helptext {
@@ -197,39 +204,39 @@ function helptext {
 }
 
 function make_installable {
-	echo	-e ''										>>	Makefile
-	echo	-e 'install:	conf/%.conf conf/%.txt'					>>	Makefile
-	echo	-e '		$(shell mkdir -p '$prefix'bin/)'				>>	Makefile
-	echo	-e '		$(shell mkdir -p '$prefix'etc/uathena/)'			>>	Makefile
-	echo	-e '		$(shell mkdir -p '$prefix'var/log/uathena/)'			>>	Makefile
-	echo	-e '		$(shell mv save '$prefix'etc/uathena/save)'			>>	Makefile
-	echo	-e '		$(shell mv db '$prefix'etc/uathena/db)'			>>	Makefile
-	echo	-e '		$(shell mv conf '$prefix'etc/uathena/conf)'			>>	Makefile
-	echo	-e '		$(shell mv npc '$prefix'etc/uathena/npc)'			>>	Makefile
-	echo	-e '		$(shell mv log/* '$prefix'var/log/uathena/)'			>>	Makefile
-	echo	-e '		$(shell cp *-server* '$prefix'bin/)'				>>	Makefile
-	echo	-e '		$(shell cp ladmin '$prefix'bin/)'				>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'etc/uathena/save/ '$prefix'bin/)'	>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'etc/uathena/db/ '$prefix'bin/)'	>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'etc/uathena/conf/ '$prefix'bin/)'	>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'etc/uathena/npc/ '$prefix'bin/)'	>>	Makefile
-	echo	-e '		$(shell ln -s '$prefix'var/log/uathena/ '$prefix'bin/log)'	>>	Makefile
-	echo			''								>>	Makefile
-	echo	-e 'bin-clean:'									>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/login-server*)'			>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/char-server*)'				>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/map-server*)'				>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/ladmin)'				>>	Makefile
-	echo	 		''								>>	Makefile
-	echo	-e 'uninstall:'									>>	Makefile
-	echo	-e '		bin-clean'							>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/save)'					>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/db)'					>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/conf)'					>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/npc)'					>>	Makefile
-	echo	-e '		$(shell rm '$prefix'bin/log)'					>>	Makefile
-	echo	-e '		$(shell rm -rf '$prefix'etc/uathena)'				>>	Makefile
-	echo	-e '		$(shell rm -rf '$prefix'var/log/uathena)'			>>	Makefile
+	echo	-e ''														>> Makefile
+	echo	-e 'install:'												>> Makefile
+	echo	-e '		$(shell mkdir -p '$prefix'bin/)'				>> Makefile
+	echo	-e '		$(shell mkdir -p '$prefix'log/)'				>> Makefile
+	echo	-e '		$(shell mkdir -p '$prefix'backup/)'				>> Makefile
+	echo	-e '		$(shell cp dumps '$prefix'dumps)'				>> Makefile
+	echo	-e '		$(shell cp save  '$prefix'save)'				>> Makefile
+	echo	-e '		$(shell cp db    '$prefix'db)'					>> Makefile
+	echo	-e '		$(shell cp conf  '$prefix'conf)'				>> Makefile
+	echo	-e '		$(shell cp npc   '$prefix'npc)'					>> Makefile
+	echo	-e '		$(shell cp *-server* '$prefix'bin/)'			>> Makefile
+#	echo	-e '		$(shell cp ladmin '$prefix'bin/)'				>> Makefile
+	echo	-e '		$(shell ln -s '$prefix'save/    '$prefix'bin/)'	>> Makefile
+	echo	-e '		$(shell ln -s '$prefix'db/      '$prefix'bin/)'	>> Makefile
+	echo	-e '		$(shell ln -s '$prefix'conf/    '$prefix'bin/)'	>> Makefile
+	echo	-e '		$(shell ln -s '$prefix'npc/     '$prefix'bin/)'	>> Makefile
+	echo	-e '		$(shell ln -s '$prefix'bin/log/ '$prefix')'		>> Makefile
+	echo	-e ''												>> Makefile
+	echo	-e 'bin-clean:'										>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/login-server*)'	>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/char-server*)'	>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/map-server*)'	>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/ladmin)'		>> Makefile
+	echo	-e ''													>> Makefile
+	echo	-e 'uninstall:'											>> Makefile
+	echo	-e '		bin-clean'									>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/save)'				>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/db)'				>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/conf)'				>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/npc)'				>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/log)'				>> Makefile
+	echo	-e '		$(shell rm -rf '$prefix'etc/uathena)'		>> Makefile
+	echo	-e '		$(shell rm -rf '$prefix'var/log/uathena)'	>> Makefile
 }
 
 
