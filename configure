@@ -221,7 +221,7 @@ function make_installable {
 	echo	-e '		$(shell ln -s '$prefix'conf/    '$prefix'bin/)'		>> Makefile
 	echo	-e '		$(shell ln -s '$prefix'npc/     '$prefix'bin/)'		>> Makefile
 	echo	-e '		$(shell ln -s '$prefix'bin/log/ '$prefix')'			>> Makefile
-	echo	-e '		$(shell cp scripts/ua*.service /etc/systemd/user/)'	>> Makefile
+	echo	-e '		$(shell cp scripts/uA*.service /etc/systemd/user/)'	>> Makefile
 	echo	-e '		$(shell systemctl daemon-reload)'
 	echo	-e '		$(shell cp scripts/ua-*.sh '$prefix'bin/)'			>> Makefile
 	echo	-e ''												>> Makefile
