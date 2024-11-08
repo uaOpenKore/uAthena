@@ -226,9 +226,7 @@ function make_installable {
 	echo	-e '		$(shell cp scripts/ua-*.sh '$prefix'bin/)'			>> Makefile
 	echo	-e ''												>> Makefile
 	echo	-e 'bin-clean:'										>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/login-server*)'	>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/char-server*)'	>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/map-server*)'	>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/*-server*)'	>> Makefile
 	echo	-e '		$(shell rm '$prefix'bin/ladmin)'		>> Makefile
 	echo	-e ''													>> Makefile
 	echo	-e 'uninstall:'											>> Makefile
