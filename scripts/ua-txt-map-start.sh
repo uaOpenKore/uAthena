@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SERVER="char"
-uAtype="_sql"
-CONFS="./conf/char_athena.conf ./conf/inter_athena.conf"
+SERVER="map"
+uAtype=""
+CONFS="./conf/login_athena.conf"
 
 
 DaTi=$(date +"%Y%m%d-%H%M%S%u")
