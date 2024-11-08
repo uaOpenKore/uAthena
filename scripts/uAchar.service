@@ -9,7 +9,7 @@ Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service
 
 [Service]
 Type=simple
-PIDFile=/opt/uathena/bin/PID-char-sql.pid
+PIDFile=/opt/uathena/bin/PID-char.pid
 WorkingDirectory=/opt/uathena/bin/
 
 User=root
