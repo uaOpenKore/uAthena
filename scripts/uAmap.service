@@ -1,0 +1,26 @@
+[Unit]
+Description=uAthena Map MySQL server
+After=network.target
+After=uAchar.target
+Requires=uAchar.service
+Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service
+
+
+[Service]
+Type=simple
+PIDFile=/opt/uathena/bin/PID-map-sql.pid
+WorkingDirectory=/opt/uathena/bin/
+
+User=root
+Group=root
+
+OOMScoreAdjust=-500
+
+ExecStart=/opt/uathena/bin/ua-sql-map-start.sh
+ExecStop=/opt/uathena/bin/ua-sql-map-stop.sh
+ExecReload=/opt/uathena/bin/ua-sql-map-restart.sh
+TimeoutSec=300
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

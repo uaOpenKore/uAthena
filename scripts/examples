@@ -1,0 +1,20 @@
+/home/process/payment-prod-flower-start.sh
+#!/bin/bash
+
+echo "$$" > /home/process/payment-flower-prod.pid
+cd /home/flower/
+
+celery flower --broker redis://redis-adminka.648vzje6.perprice.com:6379/1 --address=0.0.0.0 --port=61789 --persistent=True --db=/home/flower/payment-prod.db
+
+
+/home/process/payment-prod-flower-stop.sh
+#!/bin/bash
+
+pid_s=$(ps -ao pid,pgid,cmd | grep "payment" |grep "prod" |grep "start" | grep "flower" |grep -v "testprod" |awk -e '{print $2}')
+
+if [[ "$pid_s" > "0"  ]]
+then
+ kill -2 -"$pid_s"
+fi
+
+rm -f /home/process/payment-flower-prod.pid

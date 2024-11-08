@@ -1,0 +1,27 @@
+[Unit]
+Description=uAthena Char TXT server
+After=network.target
+After=uAlogin-txt.target
+Requires=uAlogin-txt.service
+Before=uAmap-txt.service
+Conflicts=uAlogin.service uAchar.service uAmap.service
+
+
+[Service]
+Type=simple
+PIDFile=/opt/uathena/bin/PID-char-txt.pid
+WorkingDirectory=/opt/uathena/bin/
+
+User=root
+Group=root
+
+OOMScoreAdjust=-500
+
+ExecStart=/opt/uathena/bin/ua-txt-char-start.sh
+ExecStop=/opt/uathena/bin/ua-txt-char-stop.sh
+ExecReload=/opt/uathena/bin/ua-txt-char-restart.sh
+TimeoutSec=300
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

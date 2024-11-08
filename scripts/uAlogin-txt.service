@@ -1,0 +1,26 @@
+[Unit]
+Description=uAthena Login MySQL server
+After=network.target
+Requires=network.service
+Before=uAchar-txt.service
+Conflicts=uAlogin.service uAchar.service uAmap.service
+
+
+[Service]
+Type=simple
+PIDFile=/opt/uathena/bin/PID-login-txt.pid
+WorkingDirectory=/opt/uathena/bin/
+
+User=root
+Group=root
+
+OOMScoreAdjust=-500
+
+ExecStart=/opt/uathena/bin/ua-txt-login-start.sh
+ExecStop=/opt/uathena/bin/ua-txt-login-stop.sh
+ExecReload=/opt/uathena/bin/ua-txt-login-restart.sh
+TimeoutSec=300
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
