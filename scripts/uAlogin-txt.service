@@ -1,6 +1,6 @@
 [Unit]
 Description=uAthena Login MySQL server
-After=network.target
+After=network.service
 Requires=network.service
 Before=uAchar-txt.service
 Conflicts=uAlogin.service uAchar.service uAmap.service

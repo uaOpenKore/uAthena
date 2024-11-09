@@ -1,7 +1,7 @@
 [Unit]
 Description=uAthena Char TXT server
-After=network.target
-After=uAlogin-txt.target
+After=network.service
+After=uAlogin-txt.service
 Requires=uAlogin-txt.service
 Before=uAmap-txt.service
 Conflicts=uAlogin.service uAchar.service uAmap.service

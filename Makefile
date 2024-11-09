@@ -103,22 +103,16 @@ endif
 .PHONY: txt sql common login login_sql char char_sql map map_sql ladmin converters \
 	addons plugins tools webserver clean zlib depend
 
-all: txt
+all: txt sql
 
-txt : Makefile.cache conf common login char map ladmin
+txt : Makefile.cache common login char map
 
 ifdef SQLFLAG
-sql: Makefile.cache conf common login_sql char_sql map_sql
+sql: Makefile.cache common login_sql char_sql map_sql
 else
 sql:
 	$(MAKE) SQLFLAG=1 $@
 endif
-
-conf:
-	cp -r conf-tmpl conf
-	rm -rf conf/.svn conf/*/.svn
-	cp -r save-tmpl save
-	rm -rf save/.svn
 
 common: src/common/GNUmakefile
 	$(MAKE) -C src/$@ $(MKDEF)

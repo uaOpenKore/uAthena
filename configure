@@ -183,24 +183,32 @@ function helptext {
 	echo "Options:"
 	echo
 	echo "	-h	Display this help message and exit."
-	echo "	-d	Enter debug mode."
-	echo "	-o	Turn on optimization flags."
-	echo "		Supported:"
-	echo "		mmx"
-	echo "		sse"
-	echo "		sse2"
-	echo "		sse3"
-	echo "		all"
-	echo "	-e	Enable PCRE support."
-	echo "	-p	Root directory where uA is going to be installed."
-	echo "		DON'T FORGET THE LAST SLASH!"
-	echo "		For example:"
-	echo "		./configure -p /usr/"
-	echo "		This will create /usr/bin/login-server,"
-	echo "		/usr/etc/uathena/save/account.txt, etc"
+#	echo "	-d	Enter debug mode."
+#	echo "	-o	Turn on optimization flags."
+#	echo "		Supported:"
+#	echo "		mmx"
+#	echo "		sse"
+#	echo "		sse2"
+#	echo "		sse3"
+#	echo "		all"
+#	echo "	-e	Enable PCRE support."
+#	echo "	-p	Root directory where uA is going to be installed."
+#	echo "		DON'T FORGET THE LAST SLASH!"
+#	echo "		For example:"
+#	echo "		./configure -p /usr/"
+#	echo "		This will create /usr/bin/login-server,"
+#	echo "		/usr/etc/uathena/save/account.txt, etc"
 	echo "		Default is /opt/uathena/ (DON\'T CHANGE IT!!!)"
+	echo "		Use ./configure && make - use for building source code."
+	echo "		make install - use only for the initial installation of uAthena!"
+	echo "		make update - for subsequent updates of uAthena!!!"
+	echo "		make backup - deletes the previous backup and creates a new one (sql & txt)."
+	echo "		make uninstall - will perform a backup and remove the entire current projec."
+	echo "		make erase - performs make uninstall and deletes backups."
+	echo "		make clean - clears the source directory of build files."
+
 	echo
-	echo "Report bugs (about the configure script) to dontBR at the uAthena Support Board."
+#	echo "Report bugs (about the configure script) to dontBR at the uAthena Support Board."
 }
 
 function make_installable {
@@ -214,7 +222,6 @@ function make_installable {
 	echo	-e '		$(shell cp -r conf  '$prefix')'						>> Makefile
 	echo	-e '		$(shell cp -r npc   '$prefix')'						>> Makefile
 	echo	-e '		$(shell cp *-server* '$prefix'bin/)'				>> Makefile
-#	echo	-e '		$(shell cp ladmin '$prefix'bin/)'					>> Makefile
 	echo	-e '		$(shell ln -s '$prefix'save/    '$prefix'bin/)'		>> Makefile
 	echo	-e '		$(shell ln -s '$prefix'db/      '$prefix'bin/)'		>> Makefile
 	echo	-e '		$(shell ln -s '$prefix'conf/    '$prefix'bin/)'		>> Makefile
@@ -226,17 +233,22 @@ function make_installable {
 	echo	-e ''												>> Makefile
 	echo	-e 'bin-clean:'										>> Makefile
 	echo	-e '		$(shell rm '$prefix'bin/*-server*)' 	>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/ladmin)'		>> Makefile
 	echo	-e ''													>> Makefile
 	echo	-e 'uninstall:'											>> Makefile
+	echo	-e '		backup'										>> Makefile
 	echo	-e '		bin-clean'									>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/save)'				>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/db)'				>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/conf)'				>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/npc)'				>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/log)'				>> Makefile
-	echo	-e '		$(shell rm -rf '$prefix'etc/uathena)'		>> Makefile
+	echo	-e '		$(shell rm -fr '$prefix'bin/save)'				>> Makefile
+	echo	-e '		$(shell rm -fr '$prefix'bin/db)'				>> Makefile
+	echo	-e '		$(shell rm -fr '$prefix'bin/conf)'				>> Makefile
+	echo	-e '		$(shell rm -fr '$prefix'bin/npc)'				>> Makefile
+	echo	-e '		$(shell rm -fr '$prefix'bin)'				>> Makefile
+	echo	-e '		$(shell rm -f /etc/systemd/system/uA*)'		>> Makefile
 	echo	-e '		$(shell rm -rf '$prefix'var/log/uathena)'	>> Makefile
+	echo	-e ''									>> Makefile
+	echo	-e 'erase:'								>> Makefile
+	echo	-e '		uninstall'				 	>> Makefile
+	echo	-e '		$(shell rm -rf '$prefix')' 	>> Makefile
+	echo	-e ''									>> Makefile
 }
 
 
