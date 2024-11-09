@@ -208,10 +208,10 @@ function make_installable {
 	echo	-e 'install:'													>> Makefile
 	echo	-e '		$(shell mkdir -p '$prefix'bin/log/)'				>> Makefile
 	echo	-e '		$(shell mkdir -p '$prefix'backup/)'					>> Makefile
-	echo	-e '		$(shell cp -r dumps '$prefix')'					>> Makefile
-	echo	-e '		$(shell cp -r save  '$prefix')'					>> Makefile
+	echo	-e '		$(shell cp -r dumps '$prefix')'						>> Makefile
+	echo	-e '		$(shell cp -r save  '$prefix')'						>> Makefile
 	echo	-e '		$(shell cp -r db    '$prefix')'						>> Makefile
-	echo	-e '		$(shell cp -r conf  '$prefix')'					>> Makefile
+	echo	-e '		$(shell cp -r conf  '$prefix')'						>> Makefile
 	echo	-e '		$(shell cp -r npc   '$prefix')'						>> Makefile
 	echo	-e '		$(shell cp *-server* '$prefix'bin/)'				>> Makefile
 #	echo	-e '		$(shell cp ladmin '$prefix'bin/)'					>> Makefile
@@ -225,7 +225,7 @@ function make_installable {
 	echo	-e '		$(shell cp scripts/ua-*.sh '$prefix'bin/)'			>> Makefile
 	echo	-e ''												>> Makefile
 	echo	-e 'bin-clean:'										>> Makefile
-	echo	-e '		$(shell rm '$prefix'bin/*-server*)'	>> Makefile
+	echo	-e '		$(shell rm '$prefix'bin/*-server*)' 	>> Makefile
 	echo	-e '		$(shell rm '$prefix'bin/ladmin)'		>> Makefile
 	echo	-e ''													>> Makefile
 	echo	-e 'uninstall:'											>> Makefile
