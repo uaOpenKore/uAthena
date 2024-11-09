@@ -1,19 +1,15 @@
 #!/bin/bash
 
-SERVER="char"
-uAtype="_sql"
-CONFS="./conf/char_athena.conf ./conf/inter_athena.conf"
+SERVER="$1"
 
+if [ "$2" -eq "sql" ]; then
+ uAtype="_sql"
+fi
 
 DaTi=$(date +"%Y%m%d-%H%M%S%u")
 PID="./PID-${SERVER}.pid"
 
 #cd /opt/uathena/bin/
-
-if [ ! -f $CONFS ]; then
- echo "Check for files: $CONFS"
- exit 2;
-fi
 
 if [ -f $PID ]; then
  fPID=$(cat $PID)
@@ -29,5 +25,4 @@ fi
 echo "$$" >${PID}
 echo "START - ${DaTi}" >> ./log/${SERVER}.log
 ./${SERVER}-server${uAtype} 2>&1 2>./log/${SERVER}${uAtype}-${DaTi}
-mv ./log/${SERVER} /log/${SERVER}${uAtype}-${DaTi}.log
-
+mv ./log/${SERVER}.log /log/${SERVER}${uAtype}-${DaTi}.log

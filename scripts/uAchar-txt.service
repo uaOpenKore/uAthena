@@ -9,7 +9,7 @@ Conflicts=uAlogin.service uAchar.service uAmap.service
 
 [Service]
 Type=simple
-PIDFile=/opt/uathena/bin/PID-char-txt.pid
+PIDFile=/opt/uathena/bin/PID-char.pid
 WorkingDirectory=/opt/uathena/bin/
 
 User=root
@@ -17,10 +17,10 @@ Group=root
 
 OOMScoreAdjust=-500
 
-ExecStart=/opt/uathena/bin/ua-txt-char-start.sh
-ExecStop=/opt/uathena/bin/ua-txt-char-stop.sh
-ExecReload=/opt/uathena/bin/ua-txt-char-restart.sh
-TimeoutSec=300
+ExecStart=/opt/uathena/bin/ua-start.sh char
+ExecStop=/opt/uathena/bin/ua-stop.sh char
+ExecReload=/opt/uathena/bin/ua-restart.sh char
+TimeoutSec=5
 Restart=always
 
 [Install]

@@ -16,9 +16,9 @@ Group=root
 
 OOMScoreAdjust=-500
 
-ExecStart=/opt/uathena/bin/ua-sql-login-start.sh
-ExecStop=/opt/uathena/bin/ua-sql-login-stop.sh
-ExecReload=/opt/uathena/bin/ua-sql-login-restart.sh
+ExecStart=/opt/uathena/bin/ua-start.sh login sql
+ExecStop=/opt/uathena/bin/ua-stop.sh login
+ExecReload=/opt/uathena/bin/ua-restart.sh login sql
 TimeoutSec=300
 Restart=always
 

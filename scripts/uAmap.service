@@ -16,9 +16,9 @@ Group=root
 
 OOMScoreAdjust=-500
 
-ExecStart=/opt/uathena/bin/ua-sql-map-start.sh
-ExecStop=/opt/uathena/bin/ua-sql-map-stop.sh
-ExecReload=/opt/uathena/bin/ua-sql-map-restart.sh
+ExecStart=/opt/uathena/bin/ua-start.sh map sql
+ExecStop=/opt/uathena/bin/ua-stop.sh map
+ExecReload=/opt/uathena/bin/ua-restart.sh map sql
 TimeoutSec=300
 Restart=always
 
