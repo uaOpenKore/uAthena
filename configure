@@ -206,14 +206,13 @@ function helptext {
 function make_installable {
 	echo	-e ''															>> Makefile
 	echo	-e 'install:'													>> Makefile
-	echo	-e '		$(shell mkdir -p '$prefix'bin/log/'					>> Makefile
-	echo	-e '		$(shell mkdir -p '$prefix'log/)'					>> Makefile
+	echo	-e '		$(shell mkdir -p '$prefix'bin/log/)'				>> Makefile
 	echo	-e '		$(shell mkdir -p '$prefix'backup/)'					>> Makefile
-	echo	-e '		$(shell cp dumps '$prefix'dumps)'					>> Makefile
-	echo	-e '		$(shell cp save  '$prefix'save)'					>> Makefile
-	echo	-e '		$(shell cp db    '$prefix'db)'						>> Makefile
-	echo	-e '		$(shell cp conf  '$prefix'conf)'					>> Makefile
-	echo	-e '		$(shell cp npc   '$prefix'npc)'						>> Makefile
+	echo	-e '		$(shell cp -r dumps '$prefix')'					>> Makefile
+	echo	-e '		$(shell cp -r save  '$prefix')'					>> Makefile
+	echo	-e '		$(shell cp -r db    '$prefix')'						>> Makefile
+	echo	-e '		$(shell cp -r conf  '$prefix')'					>> Makefile
+	echo	-e '		$(shell cp -r npc   '$prefix')'						>> Makefile
 	echo	-e '		$(shell cp *-server* '$prefix'bin/)'				>> Makefile
 #	echo	-e '		$(shell cp ladmin '$prefix'bin/)'					>> Makefile
 	echo	-e '		$(shell ln -s '$prefix'save/    '$prefix'bin/)'		>> Makefile
@@ -221,7 +220,7 @@ function make_installable {
 	echo	-e '		$(shell ln -s '$prefix'conf/    '$prefix'bin/)'		>> Makefile
 	echo	-e '		$(shell ln -s '$prefix'npc/     '$prefix'bin/)'		>> Makefile
 	echo	-e '		$(shell ln -s '$prefix'bin/log/ '$prefix')'			>> Makefile
-	echo	-e '		$(shell cp scripts/uA*.service /etc/systemd/user/)'	>> Makefile
+	echo	-e '		$(shell cp scripts/uA*.service /etc/systemd/system/)'	>> Makefile
 	echo	-e '		$(shell systemctl daemon-reload)'
 	echo	-e '		$(shell cp scripts/ua-*.sh '$prefix'bin/)'			>> Makefile
 	echo	-e ''												>> Makefile
