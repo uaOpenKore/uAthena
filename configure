@@ -175,6 +175,15 @@ function make_report {
 	echo For the initial installation, use \'make install\'.
 	echo After subsequent compilations, use \'make update\'
 	echo to update executable files in the $prefix directory..
+	echo "!!!"
+	echo "	Default is /opt/uathena/ (DON\'T CHANGE IT!!!)"
+	echo "	Use ./configure && make - use for building source code."
+	echo "	make install - use only for the initial installation of uAthena!"
+	echo "	make update - for subsequent updates of uAthena!!!"
+	echo "	make backup - deletes the previous backup and creates a new one (sql & txt)."
+	echo "	make uninstall - will perform a backup and remove the entire current projec."
+	echo "	make erase - performs make uninstall and deletes backups."
+	echo "	make clean - clears the source directory of build files."
 }
 
 function helptext {
@@ -247,13 +256,15 @@ echo -e ''									>> Makefile
 echo -e 'erase:'							>> Makefile
 echo -e '		uninstall'				 	>> Makefile
 echo -e '		$(shell rm -rf '$prefix')' 	>> Makefile
-echo -e ''									>> Makefile
-echo -e 'backup:'							>> Makefile
-echo -e '		'	>> Makefile
-echo -e '		'	>> Makefile
+echo -e ''																		>> Makefile
+echo -e 'backup:'																>> Makefile
+echo -e '		$(shell rm -rf  '$prefix'backup/*)'								>> Makefile
+echo -e '		$(shell /opt/uathena/dumps/dumps.sh backup)'					>> Makefile
+echo -e '		$(shell cp -rf /opt/uathena/save /opt/uathena/backup/)'			>> Makefile
+echo -e '		$(shell cp /opt/uathena/dumps/backup/* /opt/uathena/backup/)'	>> Makefile
 echo -e ''									>> Makefile
 echo -e 'update:'							>> Makefile
-echo -e '		'	>> Makefile
+echo -e '		backup'	>> Makefile
 echo -e '		'	>> Makefile
 echo -e ''									>> Makefile
 }
