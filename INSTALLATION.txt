@@ -13,8 +13,7 @@
 2. cd uAthena
 2.1. ./configure
 2.2. make
-2.3. make sql
-~2.4. make install
+2.3. make install
 
 3. add GAT files
 3.1. Read: conf/grf-files.txt
@@ -23,6 +22,14 @@
 
 ~~~ TODO:
 ~4. install sql dumps
+~-create
+~-install
+~-make
+~-test
+~-update
+~-backup
+~converter
+
 ~5. first setup configs
 ~6. starting uAthena
 ~7. for update (exe,sql migrations)
