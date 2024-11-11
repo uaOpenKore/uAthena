@@ -22,7 +22,7 @@ function make_dumps {
   TABLES=`mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e 'show tables'`
   for x in $TABLES
    do
-    mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD $DB $x --extended-insert=FALSE --single-transaction >./tables/${x}.sql
+    mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD $DB $x --extended-insert=FALSE --skip-dump-date --single-transaction >./tables/${x}.sql
    done
  }
 
@@ -41,12 +41,12 @@ function install_first {
 
 function create_db {
   mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e 'drop database test'
+  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "create database ragnarok"
      if [ $? -ne 0 ]
       then
        echo "Problem connecting to database"
        exit 1
       fi
-  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "create database ragnarok"
   mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "create user 'ragnarok'@'%' identified by 'ragnarok'"
   mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "create user 'ragnarok'@'localhost' identified by 'ragnarok'"
   mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "grant all on ragnarok.* to 'ragnarok'@'%'"
