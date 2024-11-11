@@ -833,7 +833,7 @@ CREATE TABLE `login` (
   `state` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`account_id`),
   KEY `name` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2000000 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2000001 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1689,4 +1689,4 @@ CREATE TABLE `zenylog` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-10 22:36:15
+-- Dump completed on 2024-11-11 18:42:09

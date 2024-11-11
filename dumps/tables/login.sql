@@ -39,7 +39,7 @@ CREATE TABLE `login` (
   `state` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`account_id`),
   KEY `name` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2000000 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2000001 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,7 @@ CREATE TABLE `login` (
 
 LOCK TABLES `login` WRITE;
 /*!40000 ALTER TABLE `login` DISABLE KEYS */;
-INSERT INTO `login` VALUES (1,'s1','p1','0000-00-00 00:00:00','S',0,'athena@athena.com',0,0,0,'',0,0,0);
+INSERT INTO `login` VALUES (1,'s1','p1','0000-00-00 00:00:00','S',0,'athena@athena.com',0,0,0,'',0,0,0),(2000000,'test','test','0000-00-00 00:00:00','M',0,'',0,0,0,'',0,0,0);
 /*!40000 ALTER TABLE `login` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -61,4 +61,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-10 22:36:15
+-- Dump completed on 2024-11-11 18:42:09
