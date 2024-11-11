@@ -97,6 +97,20 @@ function uninstall {
       fi
  }
 
+function enc_pass {
+  mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e "UPDATE `login` SET `user_pass`=MD5(`user_pass`);"
+     if [ "$?" != "0" ]
+      then
+       echo "Problem connecting to database"
+       exit 1
+      fi
+ }
+
+
+if [ "$1" == "setMD5" ]
+ then
+  enc_pass
+ fi
 
 if [ "$1" == "make" ]
  then
