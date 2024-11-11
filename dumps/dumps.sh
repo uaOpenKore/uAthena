@@ -22,7 +22,7 @@ function make_dumps {
   TABLES=`mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e 'show tables'`
   for x in $TABLES
    do
-    mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD $DB $x --single-transaction >./tables/${x}.sql
+    mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD $DB $x --extended-insert=FALSE --single-transaction >./tables/${x}.sql
    done
  }
 
