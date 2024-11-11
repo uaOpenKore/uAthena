@@ -88,6 +88,16 @@ function create_test {
       fi
  }
 
+function uninstall {
+  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "drop user 'ragnarok'@'%'; drop user 'ragnarok'@'localhost';drop database ragnarok;FLUSH PRIVILEGES"
+     if [ "$?" != "0" ]
+      then
+       echo "Problem connecting to database"
+       exit 1
+      fi
+ }
+
+
 if [ "$1" == "make" ]
  then
   make_dumps
@@ -96,6 +106,11 @@ if [ "$1" == "make" ]
 if [ "$1" == "install" ]
  then
   install_first
+ fi
+
+if [ "$1" == "uninstall" ]
+ then
+  uninstall
  fi
 
 if [ "$1" == "create" ]

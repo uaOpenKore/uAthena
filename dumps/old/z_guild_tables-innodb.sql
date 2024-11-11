@@ -41,7 +41,7 @@ ALTER TABLE guild_castle ENGINE=InnoDB;
 # ADD PRIMARY KEY  (castle_id);
 
 #ALTER TABLE guild_expulsion DROP INDEX `guild_id`;
-#ALTER TABLE guild_expulsion ENGINE=InnoDB;
+ALTER TABLE guild_expulsion ENGINE=InnoDB;
 #ALTER TABLE guild_expulsion
 # ADD  PRIMARY KEY  (guild_id,name),
 # ADD CONSTRAINT `guild_expulsion_ibfk_1` FOREIGN KEY (`guild_id`) 
