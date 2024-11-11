@@ -23,17 +23,6 @@ obj/unz.o:
 clean:
 	rm -rf *.o obj
 
-HAVESVN = $(shell which svnversion)
-
-ifeq ($(findstring /,$(HAVESVN)), /)
-svnversion.h: ../../Changelog.txt
-	@printf "#define SVNVERSION " > svnversion.h
-	@svnversion . >> svnversion.h
-else
-svnversion.h:
-	@printf "" > svnversion.h
-endif
-
 obj/minicore.o: core.c core.h
 obj/minisocket.o: socket.c socket.h
 obj/minimalloc.o: malloc.c malloc.h

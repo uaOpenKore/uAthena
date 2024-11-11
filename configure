@@ -260,7 +260,7 @@ echo -e ''																		>> Makefile
 echo -e 'backup:'																>> Makefile
 echo -e '		$(shell rm -rf  '$prefix'backup/*)'								>> Makefile
 echo -e '		$(shell /opt/uathena/dumps/dumps.sh backup)'					>> Makefile
-echo -e '		$(shell cp -rf /opt/uathena/save /opt/uathena/backup/)'			>> Makefile
+echo -e '		$(shell cp -r /opt/uathena/save /opt/uathena/backup/)'			>> Makefile
 echo -e '		$(shell cp /opt/uathena/dumps/backup/* /opt/uathena/backup/)'	>> Makefile
 echo -e ''									>> Makefile
 echo -e 'update:'							>> Makefile
