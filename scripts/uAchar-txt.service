@@ -1,10 +1,11 @@
 [Unit]
-Description=uAthena Char TXT server
-After=network.service
-After=uAlogin-txt.service
+Description=uAthena Char-TXT server
+After=network.service uAlogin-txt.service
 Requires=uAlogin-txt.service
 Before=uAmap-txt.service
-Conflicts=uAlogin.service uAchar.service uAmap.service
+Conflicts=uAlogin.service uAchar.service uAmap.service uAthena.target shutdown.target
+PartOf=uAthena-txt.target
+ReloadPropagatedFrom=uAthena-txt.target
 
 
 [Service]
@@ -24,4 +25,4 @@ TimeoutSec=5
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=uAthena-txt.target

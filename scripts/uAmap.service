@@ -1,10 +1,10 @@
 [Unit]
-Description=uAthena Map MySQL server
-After=network.service uAchar.service uAmap.service
-Requires=uAchar.service
-Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target
+Description=uAthena Map+SQL server
+After=network.service uAchar.service uAlogin.service
+Requires=uAchar.service uAlogin.service
+Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target shutdown.target
 PartOf=uAthena.target
-
+ReloadPropagatedFrom=uAthena.target
 
 [Service]
 Type=simple
@@ -23,4 +23,4 @@ TimeoutSec=300
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=uAthena.target

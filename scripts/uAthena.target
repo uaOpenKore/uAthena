@@ -1,9 +1,9 @@
 [Unit]
-StopWhenUnneeded=true
 Description=uAthena+SQL
-After=network.service uAlogin.service uAchar.service uAmap.service
+After=network.service
+Wants=uAlogin.service uAchar.service uAmap.service
 Requires=uAlogin.service uAchar.service uAmap.service
-Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena.target shutdown.target
+Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target shutdown.target
 
 [Install]
 WantedBy=multi-user.target

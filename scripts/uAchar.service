@@ -1,11 +1,11 @@
 [Unit]
-Description=uAthena Char MySQL server
+Description=uAthena Char+SQL server
 After=network.service uAlogin.service
 Requires=uAlogin.service
 Before=uAmap.service
-Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target
+Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target shutdown.target
 PartOf=uAthena.target
-
+ReloadPropagatedFrom=uAthena.target
 
 [Service]
 Type=simple
@@ -24,4 +24,4 @@ TimeoutSec=5
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=uAthena.target

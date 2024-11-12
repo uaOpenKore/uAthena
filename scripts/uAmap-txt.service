@@ -1,10 +1,10 @@
 [Unit]
-Description=uAthena Map TXT server
-After=network.service
-After=uAchar-txt.service
-Requires=uAchar-txt.service
-Conflicts=uAlogin.service uAchar.service uAmap.service
-
+Description=uAthena Map-TXT server
+After=network.service uAchar-txt.service uAlogin-txt.service
+Requires=uAchar-txt.service uAlogin-txt.service
+Conflicts=uAlogin.service uAchar.service uAmap.service uAthena.target shutdown.target
+PartOf=uAthena-txt.target
+ReloadPropagatedFrom=uAthena-txt.target
 
 [Service]
 Type=simple
@@ -23,4 +23,4 @@ TimeoutSec=300
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=uAthena-txt.target
