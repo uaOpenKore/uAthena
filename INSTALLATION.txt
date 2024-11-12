@@ -19,16 +19,30 @@
 3.1. Read: conf/grf-files.txt
 3.2. READ: https://github.com/uaOpenKore/uGATs/blob/main/README.md
 
+4. This section of the guide describes the features of the `./dumps/dumps.sh` utility. It is assumed that a MySQL server has already been installed in the OS but has not yet been started!
 
-~~~ TODO:
-~4. install sql dumps
-~-create
-~-install
-~-make
-~-test
-~-update
-~-backup
-~converter
+4.1. It’s time to start the database server:
+systemctl start mysqld
+systemctl enable mysqld
+
+4.2. To ensure proper operation of the `dumps.sh` script, switch to the following directory:
+cd ./dumps/
+
+4.3. If you have reconfigured the MySQL, you’ll need to modify the script! To prepare the MySQL for use with uAthena, execute the commands in the following order:
+./dumps.sh create - this command will create the database, users, and assign the necessary permissions in the database. **WARNING**: Runs as DB root user.
+./dumps.sh install - this command will set up all required tables in the database.
+./dumps.sh test - this command will create a test game account with the username "test" and password "test."
+
+4.4. After finishing with the utility, return to the main directory:
+cd ..
+
+4.5. Description of additional `./dumps.sh` utility commands:
+./dumps.sh backup - this command creates a compressed backup of the entire uAthena database. Run this operation before updating uAthena or manually via cron.
+./dumps.sh update - this command applies only new migrations from `./migrations/*.sql` in the order specified in `./migrations/readme.txt`.
+./dumps.sh make - this command generates new SQL files in the `./schema/` and `./tables/` directories. It’s intended for developers. **WARNING**: User data is also dumped!
+./dumps.sh setMD5 - this command sets up password encryption for the password field in the database! Only needed for production servers.
+./dumps.sh uninstall - this command removes the database user, game database, and all data. **WARNING**: Runs as DB root user.
+./dumps.sh old - similar to `install`, but uses tables from the `./old/` directory (temporary solution - the directory contains original eAthena tables).
 
 ~5. first setup configs
 ~6. starting uAthena
