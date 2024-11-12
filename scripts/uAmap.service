@@ -1,9 +1,9 @@
 [Unit]
 Description=uAthena Map MySQL server
-After=network.service
-After=uAchar.service
+After=network.service uAchar.service uAmap.service
 Requires=uAchar.service
-Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service
+Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target
+PartOf=uAthena.target
 
 
 [Service]
