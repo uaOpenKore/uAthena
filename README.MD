@@ -24,7 +24,7 @@
 
 - The setting of Ragnarok Online, implemented through uAthena, allows content expansion by partial and/or full backporting from eAthena.
 
-- uAthena continues to operate under the GNU/GPL version 2 license (June 1991) based on eAthena commit `22841458a136811b550d3efcd1e3dffe52358505` from 2006-04-06 (forking point). The license text is available in the `LICENSE` file.
+- uAthena continues to operate under the GNU/GPL version 2 license (June 1991) based on eAthena commit `22841458a136811b550d3efcd1e3dffe52358505` from 2006-04-06 (forking point). The license text is available in the `LICENСE` file.
 
     If a backport involves code and/or content distributed under a different license, that segment will adhere to the terms of its respective license. Should the license of a code segment override the main code license, this action unconditionally applies to the corresponding code/content segment.
 

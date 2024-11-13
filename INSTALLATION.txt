@@ -19,13 +19,13 @@
 
 
 
-2. cd uAthena
+2. cd uAthena - go to the directory with the source code
 
-2.1. ./configure
+7.6. ./configure - this command prepares the source code for compilation.
 
-2.2. make
+7.7. make - this command compiles the code.
 
-2.3. make install
+2.3. make install - this command will install uAthena to the directory /opt/uathena/
 
 
 
@@ -81,16 +81,24 @@ systemctl restart uAthena.target
 
 
 
-7.
-make backup
+7. This section of the guide explains the correct procedure for updating uAthena
 
-make clean
-git clean -fd
-git reset --hard HEAD
-git pull
-./configure
-make
-make update
+7.1. make backup - this command will create hot backups of the SQL and TXT versions of the uAthena databases. The files will be placed in /opt/uathena/backup/
+
+7.2. make clean - this command cleans the source directories of compilation files.
+
+7.3. git clean -fd - this command removes unnecessary files from the source code.
+
+7.4. git reset --hard HEAD - this command restores all files to the state of the last commit.
+
+7.5. git pull - this command downloads new data and updates the source code.
+
+7.6. ./configure - this command prepares the source code for compilation.
+
+7.7. make - this command compiles the code.
+
+7.8. make update - this subroutine stops uAthena, creates a cold backup, applies migrations, installs the newly compiled files, and displays instructions for starting uAthena.
+
 
 
 8.
