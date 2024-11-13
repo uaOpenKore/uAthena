@@ -54,7 +54,7 @@
 
 # 4. Installation
 
-Installation instructions are provided in the `INSTALLATION.txt` file  
+Installation instructions are provided in the INSTALLATION.txt file. Mandatory: before installation, prepare the OS according to the instructions Doc/uA-OS_prepare.txt (https://github.com/uaOpenKore/uAthena/blob/main/Doc/uA-OS_prepare.txt)  
 
 # 5. Authors
 
