@@ -42,7 +42,14 @@
 
 # 3. uAthena Objectives
 
-Development objectives for uAthena are maintained in the `TODO.txt` file  
+1. uAthena aims to simplify the software code:
+
+- Minimizing supported OS to Linux only, therefore, the instructions for setting up the virtual environment for uAthena are provided here: Doc/uA-OS_prepare.txt (https://github.com/uaOpenKore/uAthena/blob/main/Doc/uA-OS_prepare.txt)
+- uAthena may potentially discontinue the TXT version of the database
+
+2. To enhance playability, uAthena aims to implement better software algorithms and utilize all technical capabilities of the OS and hardware
+
+3. The uAthena developers manage current tasks in the `TODO`.txt file
 
 
 # 4. Installation
