@@ -101,10 +101,10 @@ systemctl restart uAthena.target
 
 
 
-8.
+8. This section of the manual describes the process of removing uAthena:
 
-make uninstall
-make erase
+8.1. make uninstall – this command will delete all service scripts and clean up `/opt/uathena/`, but will leave `/opt/uathena/backup/` intact.
 
+8.2. make erase – this command will delete the `/opt/uathena/` directory. Run it after `make uninstall`.
 
 
