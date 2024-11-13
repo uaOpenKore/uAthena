@@ -1,23 +1,41 @@
 0. Read: README.MD
 ~ https://github.com/uaOpenKore/uAthena/blob/main/README.MD
+
 0.1. Read section Installation: README.MD
 ~ https://github.com/uaOpenKore/uAthena/blob/main/README.MD#4-installation
+
 0.2. Read and prepare VM/OS: Doc/uA-OS_prepare.txt
 ~ https://github.com/uaOpenKore/uAthena/blob/main/Doc/uA-OS_prepare.txt
 
+
+
 1. get sources code:
+
 1.1. git clone https://github.com/uaOpenKore/uAthena.git
+
 1.1. git clone git@github.com:uaOpenKore/uAthena.git
+
 1.1. git clone gh repo clone uaOpenKore/uAthena
 
+
+
 2. cd uAthena
+
 2.1. ./configure
+
 2.2. make
+
 2.3. make install
 
+
+
 3. add GAT files
+
 3.1. Read: conf/grf-files.txt
+
 3.2. READ: https://github.com/uaOpenKore/uGATs/blob/main/README.md
+
+
 
 4. This section of the guide describes the features of the `./dumps/dumps.sh` utility. It is assumed that a MySQL server has already been installed in the OS but has not yet been started!
 
@@ -44,22 +62,28 @@ cd ..
 ./dumps.sh uninstall - this command removes the database user, game database, and all data. **WARNING**: Runs as DB root user.
 ./dumps.sh old - similar to `install`, but uses tables from the `./old/` directory (temporary solution - the directory contains original eAthena tables).
 
-~5. first setup configs
-~6. starting uAthena
+
+
+5. Now is the time to reconfigure Athena. For example, replace the starting weapon in the config /opt/uathena/conf/char_athena.conf : start_weapon: 1208 - this will be the Main Gunch [4]
+
+
+
+6. starting uAthena
+
+6.1. To manage services of uAthena, you need to use uAthena.target (for uAthena+SQL) or uAthena-txt.target (txt version). Examples:
+systemctl start uAthena.target
+systemctl stop uAthena.target
+systemctl restart uAthena.target
+
+6.2. uAthena.target is subordinate to 3 services: uAlogin.service uAchar.service uAmap.service - These services each manage their own server and have a logical relationship with each other.
+
+6.3. uAthena-txt.target works similarly to SQL-version.
+
+
+
 ~7. for update (exe,sql migrations)
 ~8. backup
 ~9. bin-clean & uninstall & remove
 
-~~~ OLD ~~~
-3. правим конфиги:
-3.1. СУБД: inter_athena.conf
-3.2. battle/client.conf:
-area_size: 35
-display_version: no
-3.3. ??? battle/skill.conf
-skill_delay_attack_enable: no
-
-3.6. заменить стартовое оружие Main Gunch [4] (мы же не полные упыри) char_athena.conf
-start_weapon: 1208
 
 
