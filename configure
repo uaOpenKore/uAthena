@@ -262,11 +262,24 @@ echo -e '		$(shell rm -rf  '$prefix'backup/*)'								>> Makefile
 echo -e '		$(shell /opt/uathena/dumps/dumps.sh backup)'					>> Makefile
 echo -e '		$(shell cp -r /opt/uathena/save /opt/uathena/backup/)'			>> Makefile
 echo -e '		$(shell cp /opt/uathena/dumps/backup/* /opt/uathena/backup/)'	>> Makefile
-echo -e ''									>> Makefile
-echo -e 'update:'							>> Makefile
-echo -e '		backup'	>> Makefile
-echo -e '		'	>> Makefile
-echo -e ''									>> Makefile
+echo -e ''														>> Makefile
+echo -e 'update:'												>> Makefile
+echo -e '		INFO: >>> Stopping Athena'
+echo -e '		$(shell systemctl stop uAthena.target uAthena-txt.target)'
+echo -e '		INFO: >>> Creating a backup'
+echo -e '		backup'											>> Makefile
+echo -e '		INFO: >>> Apply migrations'
+echo -e '		$(shell /opt/uathena/dumps/dumps.sh migrations)'>> Makefile
+echo -e '		INFO: >>> Updating files'
+echo -e '		$(shell cp *-server* '$prefix'bin/)'			>> Makefile
+echo -e '		>>> The update process is complete.'
+echo -e '		>>> If there were no critical error messages,'
+echo -e '		>>> then start the server:'
+echo -e '		SQL: systemctl start uAthena.target'
+echo -e '		>>> or'
+echo -e '		TXT: systemctl start uAthena-txt.target'
+
+
 }
 
 

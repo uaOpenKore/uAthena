@@ -81,9 +81,22 @@ systemctl restart uAthena.target
 
 
 
-~7. for update (exe,sql migrations)
-~8. backup
-~9. bin-clean & uninstall & remove
+7.
+make backup
+
+make clean
+git clean -fd
+git reset --hard HEAD
+git pull
+./configure
+make
+make update
+
+
+8.
+
+make uninstall
+make erase
 
 
 
