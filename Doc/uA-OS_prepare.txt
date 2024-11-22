@@ -89,10 +89,11 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 
 10.1. dd if=/dev/zero of=/swapfile bs=1MB count=1024
 10.2. chmod 600 /swapfile
-10.3. swapon /swapfile
-10.4. echo "/swapfile swap swap defaults 0 0" >>/etc/fstab
-10.5. echo "vm.swappiness = 5" >>/etc/sysctl.conf
-10.6. reboot
+10.3. mkswap /swapfile
+10.4. swapon /swapfile
+10.5. echo "/swapfile swap swap defaults 0 0" >>/etc/fstab
+10.6. echo "vm.swappiness = 5" >>/etc/sysctl.conf
+10.7. reboot
 
 ~~~~~~~~~
 ~~~~~~~~~
