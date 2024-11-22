@@ -27,20 +27,17 @@ name=CentOS-$releasever - Extras
 baseurl=http://vault.centos.org/altarch/$releasever/extras/$basearch/
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-enabled=1
 
 [centosplus]
 name=CentOS-$releasever - Plus
 baseurl=http://vault.centos.org/altarch/$releasever/centosplus/$basearch/
 gpgcheck=0
-enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 
 [fasttrack]
 name=CentOS-7 - fasttrack
 baseurl=http://vault.centos.org/altarch/$releasever/fasttrack/$basearch/
 gpgcheck=0
-enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 
 [cr]
@@ -48,45 +45,41 @@ name=CentOS-$releasever - cr
 baseurl=http://vault.centos.org/altarch/$releasever/cr/$basearch/
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-enabled=1
 
 [kernel]
 name=CentOS-$releasever - kernel
 baseurl=http://vault.centos.org/altarch/$releasever/kernel/$basearch/
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-enabled=1
 
 [mysql-connectors-community]
 name=MySQL Connectors Community
 baseurl=http://repo.mysql.com/yum/mysql-connectors-community/el/7/$basearch/
-enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 
 [mysql-tools-community]
 name=MySQL Tools Community
 baseurl=http://repo.mysql.com/yum/mysql-tools-community/el/7/$basearch/
-enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 
-# Enable to use MySQL 5.5
 [mysql55-community]
 name=MySQL 5.5 Community Server
 baseurl=http://repo.mysql.com/yum/mysql-5.5-community/el/7/$basearch/
-enabled=1
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 ~~~~
 
 1. yum install dnf mc -y
 1.1. dnf remove plymouth* abrt* dracut-config-rescue
-1.2. rm -f /boot/*rescue*
-1.3. ~ you might have to remove the rescue entry from /boot/loader/entries
+1.2. rm -f /boot/*rescue* /boot/loader/entries/*rescue*
 2. systemctl disable firewalld
 3. vi /etc/selinux/config -> disabled
--4. dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm (not supported :-( )
+4.1. echo "deltarpm=0" >>/etc/dnf.conf
+4.2. echo "max_parallel_downloads=20" >>/etc/dnf.conf
+4.3. echo "fastestmirror=1" >>/etc/dnf.conf
+
 7.1. dnf update -y
 7.2. dnf install qemu-guest-agent
 7.3. systemctl enable qemu-guest-agent
