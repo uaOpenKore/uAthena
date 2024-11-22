@@ -49,36 +49,60 @@ baseurl=http://vault.centos.org/altarch/$releasever/cr/$basearch/
 gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 enabled=1
+
+[kernel]
+name=CentOS-$releasever - kernel
+baseurl=http://vault.centos.org/altarch/$releasever/kernel/$basearch/
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+enabled=1
+
+[mysql-connectors-community]
+name=MySQL Connectors Community
+baseurl=http://repo.mysql.com/yum/mysql-connectors-community/el/7/$basearch/
+enabled=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+
+[mysql-tools-community]
+name=MySQL Tools Community
+baseurl=http://repo.mysql.com/yum/mysql-tools-community/el/7/$basearch/
+enabled=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+
+# Enable to use MySQL 5.5
+[mysql55-community]
+name=MySQL 5.5 Community Server
+baseurl=http://repo.mysql.com/yum/mysql-5.5-community/el/7/$basearch/
+enabled=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 ~~~~
 
-1. yum install dnf* mc -y
+1. yum install dnf mc -y
 1.1. dnf remove plymouth* abrt* dracut-config-rescue
 1.2. rm -f /boot/*rescue*
 1.3. ~ you might have to remove the rescue entry from /boot/loader/entries
 2. systemctl disable firewalld
-3. /etc/selinux/config -> disabled
+3. vi /etc/selinux/config -> disabled
 -4. dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm (not supported :-( )
-5. dnf install https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm
-7. enable repos -> /etc/yum.repos.d (enable mysql to 5.5)
 7.1. dnf update -y
 7.2. dnf install qemu-guest-agent
 7.3. systemctl enable qemu-guest-agent
 
-8. reboot
-
 9. dnf groupinstall "Development Tools"
-9.1. dnf install mysql-community-devel mysql-community-server gcc make perl kernel-devel kernel-headers bzip2 pcre-devel git zlib-devel glibc-devel ncurses-devel hmaccalc binutils-devel elfutils-libelf-devel bc openssl-devel rpm-build
+9.1. dnf install mysql mysql-community-devel mysql-community-server gcc make perl kernel-devel kernel-headers bzip2 pcre-devel git zlib-devel glibc-devel ncurses-devel hmaccalc binutils-devel elfutils-libelf-devel bc openssl-devel rpm-build rpmdevtools dnf-auto* attr texinfo libacl-devel
 
 10.1. dd if=/dev/zero of=/swapfile bs=1MB count=1024
 10.2. chmod 600 /swapfile
-10.3. mkswap /swapfile
-10.4. swapon /swapfile
-10.5. /etc/fstab -> /swapfile swap swap defaults 0 0
-10.6. /etc/sysctl.conf - > vm.swappiness = 5
-10.7. reboot
+10.3. swapon /swapfile
+10.4. echo "/swapfile swap swap defaults 0 0" >>/etc/fstab
+10.5. echo "vm.swappiness = 5" >>/etc/sysctl.conf
+10.6. reboot
 
-11.1. dnf install rpmdevtools dnf-auto* yum-* attr texinfo libacl-devel libncurses-dev
-
+~~~~~~~~~
+~~~~~~~~~
 11.2. ~# rpmdev-setuptree
 ~extended:
 11.3. dnf install bpftool kernel-cross-headers kernel-modules-extra kernel-modules-internal perf perl-generators perl-interpreter python3-perf mock python2-koj* python3-devel
