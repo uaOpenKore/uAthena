@@ -9,7 +9,8 @@
 http://fastmirror.pp.ua/centos-altarch/7.9.2009/isos/i386/CentOS-7-i386-Minimal-2009.iso
 https://vault.centos.org/altarch/7/isos/i386/CentOS-7-i386-Minimal-2009.iso
 
-my.repo:
+vi /etc/yum.repos.d/my.repo
+~~~~
 [base]
 name=CentOS-$releasever - Base
 baseurl=http://vault.centos.org/altarch/$releasever/os/$basearch/
@@ -72,7 +73,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 ~~~~
 
 1. yum install dnf mc -y
-1.1. dnf remove plymouth* abrt* dracut-config-rescue
+1.1. dnf -y remove plymouth* abrt* dracut-config-rescue
 1.2. rm -f /boot/*rescue* /boot/loader/entries/*rescue*
 2. systemctl disable firewalld
 3. vi /etc/selinux/config -> disabled
@@ -81,11 +82,11 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 4.3. echo "fastestmirror=1" >>/etc/dnf.conf
 
 7.1. dnf update -y
-7.2. dnf install qemu-guest-agent
+7.2. dnf install qemu-guest-agent  -y
 7.3. systemctl enable qemu-guest-agent
 
-9. dnf groupinstall "Development Tools"
-9.1. dnf install mysql mysql-community-devel mysql-community-server gcc make perl kernel-devel kernel-headers bzip2 pcre-devel git zlib-devel glibc-devel ncurses-devel hmaccalc binutils-devel elfutils-libelf-devel bc openssl-devel rpm-build rpmdevtools dnf-auto* attr texinfo libacl-devel
+9. dnf -y groupinstall "Development Tools"
+9.1. dnf -y install mysql mysql-community-devel mysql-community-server gcc make perl kernel-devel kernel-headers bzip2 pcre-devel git zlib-devel glibc-devel ncurses-devel hmaccalc binutils-devel elfutils-libelf-devel bc openssl-devel rpm-build rpmdevtools dnf-auto* attr texinfo libacl-devel
 
 10.1. dd if=/dev/zero of=/swapfile bs=1MB count=1024
 10.2. chmod 600 /swapfile
@@ -99,7 +100,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 ~~~~~~~~~
 11.2. ~# rpmdev-setuptree
 ~extended:
-11.3. dnf install bpftool kernel-cross-headers kernel-modules-extra kernel-modules-internal perf perl-generators perl-interpreter python3-perf mock python2-koj* python3-devel
+11.3. dnf -y install bpftool kernel-cross-headers kernel-modules-extra kernel-modules-internal perf perl-generators perl-interpreter python3-perf mock python2-koj* python3-devel
 11.4. useradd mockbuild
 11.5. useradd mock
 11.6. usermod -G mock mockbuild
@@ -116,7 +117,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
 12.8. rpm -i /home/pix/tar-1.30-4.el8.src.rpm
 12.9. rpmbuild -ba /home/pix/rpmbuild/SPECS/tar.spec
 12.10. exit
-12.11. dnf install /home/pix/rpmbuild/RPMS/i686/tar-1.30-4.el7.i686.rpm
+12.11. dnf  -y install /home/pix/rpmbuild/RPMS/i686/tar-1.30-4.el7.i686.rpm
 
 ~~~
 
@@ -167,10 +168,10 @@ DISABLE ERRORS (modules):
 
 
 13.7. make rpm-pkg -j4
-13.8. dnf install ~/rpmbuild/RPMS/i386/kernel*
+13.8. dnf  -y install ~/rpmbuild/RPMS/i386/kernel*
 13.9. reboot in 5.4 (U can edit default in /boot/grub2/grub.conf & /etc/default/grub)
 13.10.
-13.11. dnf remove kernel*3.10*
+13.11. dnf  -y remove kernel*3.10*
 
 
 
