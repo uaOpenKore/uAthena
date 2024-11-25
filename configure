@@ -192,21 +192,6 @@ function helptext {
 	echo "Options:"
 	echo
 	echo "	-h	Display this help message and exit."
-#	echo "	-d	Enter debug mode."
-#	echo "	-o	Turn on optimization flags."
-#	echo "		Supported:"
-#	echo "		mmx"
-#	echo "		sse"
-#	echo "		sse2"
-#	echo "		sse3"
-#	echo "		all"
-#	echo "	-e	Enable PCRE support."
-#	echo "	-p	Root directory where uA is going to be installed."
-#	echo "		DON'T FORGET THE LAST SLASH!"
-#	echo "		For example:"
-#	echo "		./configure -p /usr/"
-#	echo "		This will create /usr/bin/login-server,"
-#	echo "		/usr/etc/uathena/save/account.txt, etc"
 	echo "		Default is /opt/uathena/ (DON\'T CHANGE IT!!!)"
 	echo "		Use ./configure && make - use for building source code."
 	echo "		make install - use only for the initial installation of uAthena!"
@@ -241,7 +226,6 @@ echo -e '		$(shell systemctl daemon-reload)'
 echo -e '		$(shell cp scripts/ua-*.sh '$prefix'bin/)'		>> Makefile
 echo -e ''												>> Makefile
 echo -e 'uninstall:'									>> Makefile
-echo -e '		backup'									>> Makefile
 echo -e '		$(shell rm -fr '$prefix'bin)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'db)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'conf)'			>> Makefile
@@ -254,7 +238,6 @@ echo -e '		$(shell rm -f /etc/systemd/system/uA*)'	>> Makefile
 echo -e '		$(shell systemctl daemon-reload)'
 echo -e ''									>> Makefile
 echo -e 'erase:'							>> Makefile
-echo -e '		uninstall'				 	>> Makefile
 echo -e '		$(shell rm -rf '$prefix')' 	>> Makefile
 echo -e ''																		>> Makefile
 echo -e 'backup:'																>> Makefile
@@ -267,7 +250,6 @@ echo -e 'update:'												>> Makefile
 echo -e '		INFO: >>> Stopping Athena'
 echo -e '		$(shell systemctl stop uAthena.target uAthena-txt.target)'
 echo -e '		INFO: >>> Creating a backup'
-echo -e '		backup'											>> Makefile
 echo -e '		INFO: >>> Apply migrations'
 echo -e '		$(shell /opt/uathena/dumps/dumps.sh migrations)'>> Makefile
 echo -e '		INFO: >>> Updating files'
@@ -278,8 +260,6 @@ echo -e '		>>> then start the server:'
 echo -e '		SQL: systemctl start uAthena.target'
 echo -e '		>>> or'
 echo -e '		TXT: systemctl start uAthena-txt.target'
-
-
 }
 
 
