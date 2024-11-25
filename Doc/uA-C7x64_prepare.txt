@@ -194,3 +194,25 @@ reboot
 
 10.6. You may need to update the Guest Additions for the new kernel.
 10.7. I recommend leaving the kernel installed via the package manager, as it may hold a number of necessary packages in the system.
+
+
+~~~~
+debuginfo
+~~~~
+vi ./debug.repo 
+~~~
+[debuginfo]
+name=CentOS-$releasever - DebugInfo
+baseurl=http://debuginfo.centos.org/$releasever/$basearch/
+gpgcheck=0
+enabled=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-$releasever
+protect=1
+priority=1 
+~~~
+
+debuginfo-install glibc-2.17-326.el7_9.3.x86_64 pcre-8.32-17.el7.x86_64 zlib-1.2.7-21.el7_9.x86_64
+dnf install http://debuginfo.centos.org/7/x86_64/nss-softokn-debuginfo-3.90.0-6.el7_9.x86_64.rpm
+dnf install http://debuginfo.centos.org/7/x86_64/glibc-debuginfo-common-2.17-326.el7_9.3.x86_64.rpm
+dnf install http://debuginfo.centos.org/7/x86_64/glibc-debuginfo-2.17-326.el7_9.3.x86_64.rpm
+
