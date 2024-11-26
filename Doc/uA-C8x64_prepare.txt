@@ -1,0 +1,159 @@
+// Installation CentOS 8 x64 with building custom vanilla kernel 6.12.1
+// DOC updated 2024/11/26
+// Recommended: CPU: 4, RAM: 4Gb, HDD: 50Gb, without swap part (file 1G)
+// Minimum: 2/3/45/2
+// qemu: generic, partitions: standart ext4
+
+0. Download the installation image and install it on a virtual machine: VirtualBox, Qemu or another:
+https://vault.centos.org/8-stream/isos/x86_64/CentOS-Stream-8-20240603.0-x86_64-boot.iso
+
+0.1. Set repo:
+https://vault.centos.org/8-stream/BaseOS/x86_64/os/
+
+0.2. Removing broken repositories:
+rm -f /etc/yum.repos.d/*
+
+0.3. Creating the correct list of repositories:
+vi /etc/yum.repos.d/my.repo
+~~~~
+[baseos]
+name=CentOS-$releasever - BaseOS
+baseurl=https://vault.centos.org/$stream/BaseOS/$basearch/os/
+gpgcheck=0
+
+[AppStream]
+name=CentOS-$releasever - AppStream
+baseurl=http://vault.centos.org/$stream/AppStream/$basearch/os/
+gpgcheck=0
+
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://vault.centos.org/$stream/extras/$basearch/os/
+gpgcheck=0
+
+[centosplus]
+name=CentOS-$releasever - Plus
+baseurl=http://vault.centos.org/$stream/centosplus/$basearch/os/
+gpgcheck=0
+
+[core]
+name=CentOS-$releasever - core
+baseurl=https://vault.centos.org/8-stream/core/x86_64/centos-plus/
+gpgcheck=0
+
+[PowerTools]
+name=CentOS-$releasever - PowerTools
+baseurl=https://vault.centos.org/8-stream/PowerTools/x86_64/os/
+gpgcheck=0
+~~~~
+
+0.4. Update dnf base and installed packages
+dnf update -y
+
+0.5. Removing broken repositories:
+rm -f /etc/yum.repos.d/C*
+
+0.6. Check updates
+dnf -y install mc epel*
+dnf update -y
+
+1.1. Removing harmful glamour:
+dnf -y remove plymouth* abrt* dracut-config-rescue
+rm -f /boot/*rescue* /boot/loader/entries/*rescue*
+
+2. Disabling all interference:
+systemctl disable firewalld
+~ SELINUX=disabled:
+vi /etc/selinux/config
+
+3. Setting DNF:
+echo "deltarpm=0" >>/etc/dnf/dnf.conf
+echo "max_parallel_downloads=20" >>/etc/dnf/dnf.conf
+echo "fastestmirror=1" >>/etc/dnf/dnf.conf
+
+4. Сorrect creation of swap:
+dd if=/dev/zero of=/swapfile bs=1MB count=1024
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo "/swapfile swap swap defaults 0 0" >>/etc/fstab
+echo "vm.swappiness = 5" >>/etc/sysctl.conf
+
+6. Installing a guest addon, Qemu example:
+dnf install qemu-guest-agent  -y
+systemctl enable qemu-guest-agent
+systemctl start qemu-guest-agent
+
+7. Installation of working packages:
+dnf -y groupinstall "Development Tools"
+dnf -y install gcc make perl kernel-devel kernel-headers bzip2 pcre-devel git zlib-devel glibc-devel ncurses-devel hmaccalc binutils-devel elfutils-libelf-devel bc openssl-devel rpm-build rpmdevtools dnf-auto* attr texinfo libacl-devel mysql mysql-server mysql-devel
+~~~~
+7.1. Adding libs x32
+~~~
+dnf -y install glibc-devel.i686 libgcc.i686 pcre-devel.i686 zlib-devel.i686
+
+curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-common-5.7.44-1.el7.i686.rpm
+rpm -i --force ./mysql-community-common-5.7.44-1.el7.i686.rpm
+curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-libs-5.7.44-1.el7.i686.rpm
+rpm -i --force ./mysql-community-libs-5.7.44-1.el7.i686.rpm
+curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-devel-5.7.44-1.el7.i686.rpm
+rpm -i --force ./mysql-community-devel-5.7.44-1.el7.i686.rpm
+
+~~~~
+
+~~~~~~~~~
+8. Example of compilation a custom kernel 6.12.1. This is necessary for the correct operation of hardware released newer than the current kernel (4.18.0-553.6.1.el8.x86_64)
+~~~~~~~~~
+
+8.1. Preparing the system:
+rpmdev-setuptree
+dnf -y install bpftool kernel-cross-headers kernel-modules-extra perf perl-generators perl-interpreter python3-perf python3-devel dnf-plugins-core dwarves rsync
+git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+cd linux-stable
+git tag -l |grep "v6.12\."
+git checkout -b 6.12.1 v6.12.1
+make menuconfig (or ~ make nconfig)
+
+8.2. Install and add what is need:
+General setup >  Local version : (clear)
+General setup >  Build ID Salt : (clear)
+General setup -> Kernel compression mode (ZSTD)
+General setup > Compiler optimization level (Optimize for performance -> (-Os))
+64-bit kernel : ENABLE
+Processor type and features > Processor family -> Generic-x86-64
+Cryptographic API > Certificates for signature checking > Certificates for signature checking > Additional X.509 keys for default system keyring -> (clear)
+
+8.3. After configuring and saving, we start the compilation. If errors appear, we return to the configuration stage, disable the erroneous module and start the compilation again:
+make rpm-pkg -j4
+
+8.4. Installing new kernel packages:
+dnf -y install ~/rpmbuild/RPMS/x86_64/kernel*
+
+8.5. Reboot in 5.4 (U can edit default in /boot/grub2/grub.conf & /etc/default/grub):
+grub2-mkconfig -o /boot/grub2/grub.cfg
+reboot
+
+8.6. You may need to update the Guest Additions for the new kernel.
+8.7. I recommend leaving the kernel installed via the package manager, as it may hold a number of necessary packages in the system.
+
+
+9. Adding debuginfo packages for GDB debugging
+vi /etc/yum.repos.d/debug.repo
+~~~
+[debuginfo]
+name=CentOS-$releasever - DebugInfo
+baseurl=http://debuginfo.centos.org/$releasever/$basearch/
+gpgcheck=0
+enabled=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-$releasever
+protect=1
+priority=1 
+~~~
+
+dnf update -y 
+dnf debuginfo-install -y glibc
+dnf debuginfo-install -y glibc*i686
+dnf debuginfo-install -y pcre
+dnf debuginfo-install -y pcre*i686 --allowerasing  --skip-broken --best
+dnf debuginfo-install -y zlib*i686
+
