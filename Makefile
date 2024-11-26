@@ -1,4 +1,3 @@
-
 CACHED = $(shell ls | grep Makefile.cache)
 ifeq ($(findstring Makefile.cache,$(CACHED)), Makefile.cache)
 MKDEF = $(shell cat Makefile.cache)
@@ -10,20 +9,16 @@ CC = gcc -pipe
 MAKE = make
 # MAKE = gmake
 
-OPT = -O2
+#OPT = -O2
 # OPT += -g
 # OPT += -O3
-# OPT += -march=generic
 # OPT += -msse
 # OPT += -msse2
 # OPT += -msse3
 # OPT += -rdynamic
-OPT += -ffast-math
 # OPT += -fbounds-checking
 # OPT += -fomit-frame-pointer
-OPT += -Wall -Wno-sign-compare
 # OPT += -DCHRIF_OLDINFO
-# OPT += -DPCRE_SUPPORT
 # OPT += -DGCOLLECT
 # OPT += -DMEMWATCH
 # OPT += -DDMALLOC -DDMALLOC_FUNC_CHECK
@@ -31,44 +26,36 @@ OPT += -Wall -Wno-sign-compare
 
 # LIBS += -lgc
 # LIBS += -ldmalloc
-# LIBS += -L/usr/lib -lpcre
 
-# OPT += -I/usr/include/mysql -I/usr/include
-# LIBS += -L/usr/lib/mysql -lmysqlclient
+OPT = -O3
+OPT += -g3
+OPT += -ffast-math
+OPT += -march=generic -mtune=generic -mcpu=generic
+
+OPT += -Wall
+OPT += -Wno-sign-compare
+OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno-unused -Wno-parentheses
+
+OPT += -DPCRE_SUPPORT
+
+OPT += -I../common
+OPT += -I/usr/include
+OPT += -I/usr/include/mysql
+
+LIBS += -L/usr64/lib
+LIBS += -L/usr/lib
+LIBS += -lpcre
+
+LIBS += -L/usr/lib64/mysql
+LIBS += -L/usr/lib/mysql
+LIBS += -lmysqlclient
+
+LIBS += -ldl
+GOPT += -m32
 
 PLATFORM = $(shell uname)
 
-ifeq ($(findstring Linux,$(PLATFORM)), Linux)
-   LIBS += -ldl
-endif
-
-ifeq ($(findstring SunOS,$(PLATFORM)), SunOS)
-   LIBS += -lsocket -lnsl -ldl
-   MAKE = gmake
-endif
-
-ifeq ($(findstring FreeBSD,$(PLATFORM)), FreeBSD)
-   MAKE = gmake
-   OS_TYPE = -D__FREEBSD__
-endif
-
-ifeq ($(findstring NetBSD,$(PLATFORM)), NetBSD)
-   MAKE = gmake
-   OS_TYPE = -D__NETBSD__
-endif
-
-ifeq ($(findstring CYGWIN,$(PLATFORM)), CYGWIN)
-   OPT += -DFD_SETSIZE=4096
-   ifeq ($(findstring mingw,$(shell gcc --version)), mingw)
-      IS_MINGW = 1
-      OS_TYPE = -DMINGW
-      LIBS += -L../.. -lwsock32
-   else
-      OS_TYPE = -DCYGWIN
-   endif
-endif
-
-CFLAGS = $(OPT) -I../common $(OS_TYPE)
+CFLAGS = $(OPT) $(OS_TYPE)
 
 ifdef SQLFLAG
   ifdef IS_MINGW
@@ -96,7 +83,7 @@ ifneq ($(findstring "[[:space:]]-lm[[:space:]]",$(LIBS)), -lm)
    LIBS += -lm
 endif
 
-MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS)" LIB_S="$(LIBS)"
+MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS) $(GOPT)" LIB_S="$(LIBS) $(GOPT)"
 
 endif
 
