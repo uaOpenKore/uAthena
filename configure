@@ -120,27 +120,27 @@ function make_changes {
 	if [ "$maker" != "make" ]; then
 		sed -e 's,MAKE = make,MAKE = '$maker',g' Makefile -i
 	fi
-	if [ "$status_Os" = "Yes" ]; then
-		sed -e 's,OPT = -O2,OPT = -Os ,g' Makefile -i
-	fi
-	if [ "$status_debug" = "Yes" ]; then
-		sed -e 's,# OPT += -g,OPT += -g ,g' Makefile -i
-	fi
-	if [ "$status_cpu" = "Yes" ]; then
-		sed -e 's,# OPT += -march=generic,OPT += -march=native,g' Makefile -i
-	fi
-	if [ "$status_mysql" = "Yes" ]; then
-		sed -e 's,# OPT += -I/usr/include/mysql -I/usr/include,OPT += -I/usr/include/mysql -I/usr/include,g' Makefile -i
-		sed -e 's,# LIBS += -L/usr/lib/mysql -lmysqlclient,LIBS += -L/usr/lib/mysql -lmysqlclient,g' Makefile -i
-	fi
-	if [ "$status_pcre" = "Yes" ]; then
-		sed -e 's,# OPT += -DPCRE_SUPPORT,OPT += -DPCRE_SUPPORT,g' Makefile -i
-		sed -e 's,# LIBS += -L/usr/lib -lpcre,LIBS += -L/usr/lib -lpcre,g' Makefile -i
-
-	fi
-	if [ "$mysql_headers_path" != "/usr/lib/mysql" ] && [ "$mysql_headers_path" != "Not found." ]; then
-		sed -e 's,LIBS += -L/usr/lib/mysql -lmysqlclient,LIBS += -L'$mysql_headers_path' -lmysqlclient,g' Makefile -i
-	fi
+#	if [ "$status_Os" = "Yes" ]; then
+#		sed -e 's,OPT = -O2,OPT = -Os ,g' Makefile -i
+#	fi
+#	if [ "$status_debug" = "Yes" ]; then
+#		sed -e 's,# OPT += -g,OPT += -g ,g' Makefile -i
+#	fi
+#	if [ "$status_cpu" = "Yes" ]; then
+#		sed -e 's,# OPT += -march=generic,OPT += -march=native,g' Makefile -i
+#	fi
+#	if [ "$status_mysql" = "Yes" ]; then
+#		sed -e 's,# OPT += -I/usr/include/mysql -I/usr/include,OPT += -I/usr/include/mysql -I/usr/include,g' Makefile -i
+#		sed -e 's,# LIBS += -L/usr/lib/mysql -lmysqlclient,LIBS += -L/usr/lib/mysql -lmysqlclient,g' Makefile -i
+#	fi
+#	if [ "$status_pcre" = "Yes" ]; then
+#		sed -e 's,# OPT += -DPCRE_SUPPORT,OPT += -DPCRE_SUPPORT,g' Makefile -i
+#		sed -e 's,# LIBS += -L/usr/lib -lpcre,LIBS += -L/usr/lib -lpcre,g' Makefile -i
+#
+#	fi
+#	if [ "$mysql_headers_path" != "/usr/lib/mysql" ] && [ "$mysql_headers_path" != "Not found." ]; then
+#		sed -e 's,LIBS += -L/usr/lib/mysql -lmysqlclient,LIBS += -L'$mysql_headers_path' -lmysqlclient,g' Makefile -i
+#	fi
 }
 
 function opt_check_pcre {
