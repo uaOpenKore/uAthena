@@ -43,7 +43,7 @@ OPT += -I../common
 OPT += -I/usr/include
 OPT += -I/usr/include/mysql
 
-LIBS += -L/usr64/lib
+LIBS += -L/usr/lib64
 LIBS += -L/usr/lib
 LIBS += -lpcre
 
