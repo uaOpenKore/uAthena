@@ -1,0 +1,1 @@
+v0.1.1 - 8b74845 - this version is adapted CentOS 7 x32 & x64
