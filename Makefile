@@ -12,6 +12,7 @@ MAKE = make
 #OPT = -O2
 # OPT += -g
 # OPT += -O3
+#OPT += -march=generic -mtune=generic -mcpu=generic
 # OPT += -msse
 # OPT += -msse2
 # OPT += -msse3
@@ -30,7 +31,7 @@ MAKE = make
 OPT = -O3
 OPT += -g3
 OPT += -ffast-math
-OPT += -march=generic -mtune=generic -mcpu=generic
+OPT += -march=native -mtune=native -mcpu=native
 
 OPT += -Wall
 OPT += -Wno-sign-compare
