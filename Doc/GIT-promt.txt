@@ -1,0 +1,15 @@
+mkdir -p /GRF/data
+cd /GRF
+git clone git@github.com:uaOpenKore/uGATs.git data
+
+cd
+git clone git@github.com:uaOpenKore/uAthena.git
+git checkout -b x64 origin/x64
+
+ make clean
+ git clean -fd
+ git reset --hard HEAD
+
+
+ git tag -a v0.0.0 -m "comment"
+ git show v0.0.0
