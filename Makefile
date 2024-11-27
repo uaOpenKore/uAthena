@@ -12,7 +12,7 @@ MAKE = make
 #OPT = -O2
 # OPT += -g
 # OPT += -O3
-#OPT += -march=generic -mtune=generic -mcpu=generic
+#OPT += -march=generic -mtune=generic
 # OPT += -msse
 # OPT += -msse2
 # OPT += -msse3
