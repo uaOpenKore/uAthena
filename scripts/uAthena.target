@@ -1,6 +1,5 @@
 [Unit]
 Description=uAthena+SQL
-After=network.service
 Wants=uAlogin.service uAchar.service uAmap.service
 Requires=uAlogin.service uAchar.service uAmap.service
 Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target shutdown.target

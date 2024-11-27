@@ -1,6 +1,6 @@
 [Unit]
 Description=uAthena Map-TXT server
-After=network.service uAchar-txt.service uAlogin-txt.service
+After=uAchar-txt.service uAlogin-txt.service
 Requires=uAchar-txt.service uAlogin-txt.service
 Conflicts=uAlogin.service uAchar.service uAmap.service uAthena.target shutdown.target
 PartOf=uAthena-txt.target

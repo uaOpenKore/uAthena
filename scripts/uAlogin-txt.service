@@ -1,7 +1,7 @@
 [Unit]
 Description=uAthena Login-TXT server
-After=network.service
-Requires=network.service
+After=network.taget
+Requires=network.target
 Before=uAchar-txt.service uAmap-txt.service
 Conflicts=uAlogin.service uAchar.service uAmap.service uAthena.target shutdown.target
 PartOf=uAthena-txt.target

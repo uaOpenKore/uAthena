@@ -1,6 +1,6 @@
 [Unit]
 Description=uAthena Map+SQL server
-After=network.service uAchar.service uAlogin.service
+After=uAchar.service uAlogin.service
 Requires=uAchar.service uAlogin.service
 Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target shutdown.target
 PartOf=uAthena.target
