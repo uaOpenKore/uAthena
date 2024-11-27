@@ -2,7 +2,7 @@
 
 SERVER="$1"
 
-if [ "$2" -eq "sql" ]; then
+if [ "$2" == "sql" ]; then
  SQL="sql"
 else
  SQL=""
@@ -17,4 +17,4 @@ rm -f /opt/uathena/bin/PID-${1}.pid
 
 sleep 1
 
-/opt/uathena/bin/ua-start.sh $1 $SQL &
+/opt/uathena/bin/ua-start.sh $1 $2 &

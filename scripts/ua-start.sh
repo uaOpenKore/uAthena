@@ -2,7 +2,7 @@
 
 SERVER="$1"
 
-if [ "$2" -eq "sql" ]; then
+if [ "$2" == "sql" ]; then
  uAtype="_sql"
 fi
 
