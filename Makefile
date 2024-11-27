@@ -9,10 +9,10 @@ CC = gcc -pipe
 MAKE = make
 # MAKE = gmake
 
-#OPT = -O2
+# OPT = -O2
 # OPT += -g
 # OPT += -O3
-#OPT += -march=generic -mtune=generic
+# OPT += -march=generic -mtune=generic
 # OPT += -msse
 # OPT += -msse2
 # OPT += -msse3
@@ -31,6 +31,7 @@ MAKE = make
 OPT = -Os
 OPT += -g3
 OPT += -ffast-math
+OPT += -fcommon
 OPT += -march=native -mtune=native
 
 OPT += -Wall
