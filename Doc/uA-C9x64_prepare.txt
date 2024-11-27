@@ -1,4 +1,4 @@
-// Installation CentOS 8 x64 with building custom vanilla kernel 6.12.1
+// Installation CentOS 9 x64 with building custom vanilla kernel 6.12.1
 // DOC updated 2024/11/26
 // Recommended: CPU: 3, RAM: 3Gb, HDD: 50Gb, without swap part (file 1G)
 // Minimum: 2/2/45/2
