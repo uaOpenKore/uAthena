@@ -28,7 +28,7 @@ MAKE = make
 # LIBS += -lgc
 # LIBS += -ldmalloc
 
-OPT = -O3
+OPT = -Os
 OPT += -g3
 OPT += -ffast-math
 OPT += -march=native -mtune=native
