@@ -42,11 +42,9 @@ systemctl start qemu-guest-agent
 7. Installation of working packages:
 dnf -y groupinstall "Development Tools"
 dnf -y install gcc make perl kernel-devel kernel-headers bzip2 pcre-devel git zlib-devel glibc-devel ncurses-devel hmaccalc binutils-devel elfutils-libelf-devel bc openssl-devel rpm-build rpmdevtools dnf-auto* attr texinfo libacl-devel mysql mysql-server
-~~~~
-7.1. Adding libs x32
-~~~
-dnf -y install glibc-devel.i686 libgcc.i686 pcre-devel.i686 zlib-devel.i686
 
+7.1. Adding libs x32
+dnf -y install glibc-devel.i686 libgcc.i686 pcre-devel.i686 zlib-devel.i686
 curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-common-5.7.44-1.el7.i686.rpm
 rpm -i --force ./mysql-community-common-5.7.44-1.el7.i686.rpm
 curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-libs-5.7.44-1.el7.i686.rpm
@@ -54,7 +52,13 @@ rpm -i --force ./mysql-community-libs-5.7.44-1.el7.i686.rpm
 curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-devel-5.7.44-1.el7.i686.rpm
 rpm -i --force ./mysql-community-devel-5.7.44-1.el7.i686.rpm
 
-~~~~
+7.2. Adding mysql-devel x64
+curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-devel-5.7.44-1.el7.x86_64.rpm
+curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-libs-5.7.44-1.el7.x86_64.rpm
+curl -O https://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/mysql-community-common-5.7.44-1.el7.x86_64.rpm
+rpm -i --force ./mysql-community-common-5.7.44-1.el7.x86_64.rpm
+rpm -i --force ./mysql-community-libs-5.7.44-1.el7.x86_64.rpm 
+rpm -i --force ./mysql-community-devel-5.7.44-1.el7.x86_64.rpm
 
 ~~~~~~~~~
 8. Example of compilation a custom kernel 6.12.1. This is necessary for the correct operation of hardware released newer than the current kernel (4.18.0-553.6.1.el8.x86_64)
