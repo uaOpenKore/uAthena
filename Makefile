@@ -31,7 +31,7 @@ MAKE = make
 OPT = -O3
 OPT += -g3
 OPT += -ffast-math
-OPT += -march=native -mtune=native -mcpu=native
+OPT += -march=native -mtune=native
 
 OPT += -Wall
 OPT += -Wno-sign-compare
