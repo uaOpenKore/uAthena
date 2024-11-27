@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="euc-kr" ?>
+<clientinfo>
+ <desc>uaRO</desc>
+ <servicetype>korea</servicetype>
+ <servertype>primary</servertype>
+  <connection>
+   <display>uaRO</display>
+   <address>play.uaro.kiev.ua</address>
+   <port>16900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+
+  <connection>
+   <display>c7x32 - LAN - 1.147</display>
+   <address>192.168.1.147</address>
+   <port>6900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+
+  <connection>
+   <display>c7x32 - Cos9 - 122.148</display>
+   <address>192.168.122.148</address>
+   <port>6900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+
+  <connection>
+   <display>c7x64 - Cos9 - 122.191</display>
+   <address>192.168.122.191</address>
+   <port>6900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+
+  <connection>
+   <display>c8x64 - Cos9 - 122.192</display>
+   <address>192.168.122.192</address>
+   <port>6900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+
+  <connection>
+   <display>c9x64 - Cos9 - 122.198</display>
+   <address>192.168.122.198</address>
+   <port>6900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+
+  <connection>
+   <display>c10x64 - Cos9 - 122.198</display>
+   <address>192.168.122.198</address>
+   <port>6900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+</clientinfo>
