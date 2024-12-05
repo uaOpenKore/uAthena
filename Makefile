@@ -45,11 +45,11 @@ OPT += -I/usr/include
 OPT += -I/usr/include/mysql
 
 LIBS += -L/usr/lib64
-LIBS += -L/usr/lib
+LIBS += -L/usr/lib -L/usr/lib32 -L/usr/libx32
 LIBS += -lpcre
 
 LIBS += -L/usr/lib64/mysql
-LIBS += -L/usr/lib/mysql
+LIBS += -L/usr/lib/mysql 
 LIBS += -lmysqlclient
 
 LIBS += -ldl
