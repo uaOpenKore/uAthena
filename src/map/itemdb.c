@@ -18,7 +18,7 @@
 #define MAX_RANDITEM	10000
 #define MAX_ITEMGROUP	32
 // ** ITEMDB_OVERRIDE_NAME_VERBOSE **
-//   ’è‹`‚·‚é‚ÆAitemdb.txt‚Ægrf‚Å–¼‘O‚ªˆÙ‚È‚éê‡A•\Ž¦‚µ‚Ü‚·.
+//   å®šç¾©ã™ã‚‹ã¨ã€itemdb.txtã¨grfã§åå‰ãŒç•°ãªã‚‹å ´åˆã€è¡¨ç¤ºã—ã¾ã™.
 //#define ITEMDB_OVERRIDE_NAME_VERBOSE	1
 
 static struct dbt* item_db;
@@ -32,7 +32,7 @@ static struct item_group itemgroup_db[MAX_ITEMGROUP];
 struct item_data *dummy_item=NULL; //This is the default dummy item used for non-existant items. [Skotlex]
 
 /*==========================================
- * –¼‘O‚ÅŒŸõ—p
+ * åå‰ã§æ¤œç´¢ç”¨
  *------------------------------------------
  */
 // name = item alias, so we should find items aliases first. if not found then look for "jname" (full name)
@@ -49,7 +49,7 @@ int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
 }
 
 /*==========================================
- * –¼‘O‚ÅŒŸõ—p
+ * åå‰ã§æ¤œç´¢ç”¨
  *------------------------------------------
  */
 int itemdb_searchjname_sub(int key,void *data,va_list ap)
@@ -64,7 +64,7 @@ int itemdb_searchjname_sub(int key,void *data,va_list ap)
 }
 
 /*==========================================
- * –¼‘O‚ÅŒŸõ
+ * åå‰ã§æ¤œç´¢
  *------------------------------------------
  */
 struct item_data* itemdb_searchname(const char *str)
@@ -99,7 +99,7 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 
 
 /*==========================================
- * ” ŒnƒAƒCƒeƒ€ŒŸõ
+ * ç®±ç³»ã‚¢ã‚¤ãƒ†ãƒ æ¤œç´¢
  *------------------------------------------
  */
 int itemdb_searchrandomid(int flags)
@@ -179,7 +179,7 @@ int itemdb_searchrandomgroup (int groupid)
 }
 
 /*==========================================
- * DB‚Ì‘¶ÝŠm”F
+ * DBã®å­˜åœ¨ç¢ºèª
  *------------------------------------------
  */
 struct item_data* itemdb_exists(int nameid)
@@ -339,7 +339,7 @@ int itemdb_cantrade(int nameid, int gmlv, int gmlv2)
 int itemdb_canpartnertrade(int nameid, int gmlv, int gmlv2)
 {
 	struct item_data* item = itemdb_exists(nameid);
-	return (item && (!(item->flag.trade_restriction&(2|4)) || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
+	return (item && (item->flag.trade_restriction&4 || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
 }
 
 int itemdb_cansell(int nameid, int gmlv)
@@ -379,7 +379,7 @@ int itemdb_isequip3(int nameid)
 }
 
 /*==========================================
- * ƒ‰ƒ“ƒ_ƒ€ƒAƒCƒeƒ€oŒ»ƒf[ƒ^‚Ì“Ç‚Ýž‚Ý
+ * ãƒ©ãƒ³ãƒ€ãƒ ã‚¢ã‚¤ãƒ†ãƒ å‡ºç¾ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
  *------------------------------------------
  */
 static int itemdb_read_randomitem(void)
@@ -463,7 +463,7 @@ static int itemdb_read_randomitem(void)
 }
 
 /*==========================================
- * ƒAƒCƒeƒ€Žg—p‰Â”\ƒtƒ‰ƒO‚ÌƒI[ƒo[ƒ‰ƒCƒh
+ * ã‚¢ã‚¤ãƒ†ãƒ ä½¿ç”¨å¯èƒ½ãƒ•ãƒ©ã‚°ã®ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰
  *------------------------------------------
  */
 static int itemdb_read_itemavail (void)
@@ -568,7 +568,7 @@ static int itemdb_read_itemgroup(void)
 }
 
 /*==========================================
- * ƒAƒCƒeƒ€‚Ì–¼‘Oƒe[ƒuƒ‹‚ð“Ç‚Ýž‚Þ
+ * ã‚¢ã‚¤ãƒ†ãƒ ã®åå‰ãƒ†ãƒ¼ãƒ–ãƒ«ã‚’èª­ã¿è¾¼ã‚€
  *------------------------------------------
  */
 static int itemdb_read_itemnametable(void)
@@ -610,7 +610,7 @@ static int itemdb_read_itemnametable(void)
 }
 
 /*==========================================
- * ƒJ[ƒhƒCƒ‰ƒXƒg‚ÌƒŠƒ\[ƒX–¼‘Oƒe[ƒuƒ‹‚ð“Ç‚Ýž‚Þ
+ * ã‚«ãƒ¼ãƒ‰ã‚¤ãƒ©ã‚¹ãƒˆã®ãƒªã‚½ãƒ¼ã‚¹åå‰ãƒ†ãƒ¼ãƒ–ãƒ«ã‚’èª­ã¿è¾¼ã‚€
  *------------------------------------------
  */
 static int itemdb_read_cardillustnametable(void)
@@ -644,7 +644,7 @@ static int itemdb_read_cardillustnametable(void)
 }
 
 //
-// ‰Šú‰»
+// åˆæœŸåŒ–
 //
 /*==========================================
  *
@@ -715,7 +715,7 @@ static int itemdb_read_itemslotcounttable(void)
 }
 
 /*==========================================
- * ‘•”õ§ŒÀƒtƒ@ƒCƒ‹“Ç‚Ýo‚µ
+ * è£…å‚™åˆ¶é™ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿å‡ºã—
  *------------------------------------------
  */
 static int itemdb_read_noequip(void)
@@ -962,7 +962,7 @@ static int itemdb_read_sqldb(void)
 #endif /* not TXT_ONLY */
 
 /*==========================================
- * ƒAƒCƒeƒ€ƒf[ƒ^ƒx[ƒX‚Ì“Ç‚Ýž‚Ý
+ * ã‚¢ã‚¤ãƒ†ãƒ ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã®èª­ã¿è¾¼ã¿
  *------------------------------------------
  */
 static int itemdb_readdb(void)
@@ -1029,8 +1029,8 @@ static int itemdb_readdb(void)
 					id->value_buy = buy;
 					id->value_sell = sell;
 				} else {
-					// buy‚sell*2 ‚Í item_value_db.txt ‚ÅŽw’è‚µ‚Ä‚­‚¾‚³‚¢B
-					if (sell) {		// sell’l‚ð—Dæ‚Æ‚·‚é
+					// buyâ‰ sell*2 ã¯ item_value_db.txt ã§æŒ‡å®šã—ã¦ãã ã•ã„ã€‚
+					if (sell) {		// sellå€¤ã‚’å„ªå…ˆã¨ã™ã‚‹
 						id->value_buy = sell*2;
 						id->value_sell = sell;
 					} else {
