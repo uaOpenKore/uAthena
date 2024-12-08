@@ -99,6 +99,11 @@ systemctl restart uAthena.target
 
 7.8. make update - this subroutine stops uAthena, creates a cold backup, applies migrations, installs the newly compiled files, and displays instructions for starting uAthena.
 
+7.9. update tables in SQL from migrations:
+cd ./dumps
+./dumps.sh update
+cd ..
+
 
 
 8. This section of the manual describes the process of removing uAthena:
