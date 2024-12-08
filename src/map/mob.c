@@ -4756,11 +4756,11 @@ static int mob_readskilldb(void)
 					if( (ms=&mob_db_data[mob_id]->skill[i])->skill_id == 0)
 						break;
 				if(i==MAX_MOBSKILL){
-+					if (mob_id != last_mob_id) {
-+						ShowWarning("mob_skill: readdb: too many skill! Line %d in %d[%s]\n",
-+							count,mob_id,mob_db_data[mob_id]->jname);
-+						last_mob_id = mob_id;
-+					}
+					if (mob_id != last_mob_id) {
+						ShowWarning("mob_skill: readdb: too many skill! Line %d in %d[%s]\n",
+							count,mob_id,mob_db_data[mob_id]->jname);
+						last_mob_id = mob_id;
+					}
 					continue;
 				}
 			}
