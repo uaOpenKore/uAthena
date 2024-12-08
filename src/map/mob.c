@@ -1967,7 +1967,7 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list app)
 	nullpo_retr(0, md);
 	nullpo_retr(0, app);
 
-	if(md->bl.type!=BL_MOB)
+	if(md->bl.type!=BL_MOB || md->bl.prev==NULL)
 		return 0;
 
 	ap = va_arg(app, va_list);
@@ -1981,7 +1981,7 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list app)
 		return 0;
 	md->last_thinktime=tick;
 
-	if (md->bl.prev==NULL || md->state.state == MS_DEAD)
+	if (md->state.state == MS_DEAD)
 		return 1;
 
 	if(md->skilltimer!=-1){
@@ -4757,11 +4757,11 @@ static int mob_readskilldb(void)
 					if( (ms=&mob_db_data[mob_id]->skill[i])->skill_id == 0)
 						break;
 				if(i==MAX_MOBSKILL){
-+					if (mob_id != last_mob_id) {
-+						ShowWarning("mob_skill: readdb: too many skill! Line %d in %d[%s]\n",
-+							count,mob_id,mob_db_data[mob_id]->jname);
-+						last_mob_id = mob_id;
-+					}
+					if (mob_id != last_mob_id) {
+						ShowWarning("mob_skill: readdb: too many skill! Line %d in %d[%s]\n",
+							count,mob_id,mob_db_data[mob_id]->jname);
+						last_mob_id = mob_id;
+					}
 					continue;
 				}
 			}

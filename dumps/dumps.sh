@@ -62,10 +62,10 @@ function update_db {
        echo "Problem connecting to database"
        exit 1
       fi
-    if [ $x != $y ]
+    if [ "$x" != "$y" ]
      then
       cat $x | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB
-      mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e "insert into migrations set (file) values (\"$x\") "
+      mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e "insert into migrations (file) values (\"$x\") "
      fi
    done
  }
