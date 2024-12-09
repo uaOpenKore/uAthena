@@ -106,7 +106,7 @@ M_Menu:
 			goto sL_Wipe;
 		M_1-11:
 			mes "[Old Lady]";
-			mes "The 'Bingo House' is located at the northwest of Hugel. Lay your bet ladies and gentlements!";
+			mes "The 'Bingo House' is located at the northwest of Hugel. Lay your bet ladies and gentlemen!";
 			viewpoint 1,57,207,7,0xFF8000;
 		M_1_8:
 			set @COMPASS_CHECK, 2;
