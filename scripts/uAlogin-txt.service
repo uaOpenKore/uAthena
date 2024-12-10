@@ -12,6 +12,8 @@ ReloadPropagatedFrom=uAthena-txt.target
 Type=simple
 PIDFile=/opt/uathena/bin/PID-login.pid
 WorkingDirectory=/opt/uathena/bin/
+StandardOutput=/opt/uathena/log/uAlogin-txt.log
+StandardError=/opt/uathena/log/uAlogin-txt.log
 
 User=root
 Group=root

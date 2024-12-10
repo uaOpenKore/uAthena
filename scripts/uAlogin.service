@@ -12,6 +12,9 @@ ReloadPropagatedFrom=uAthena.target
 Type=simple
 PIDFile=/opt/uathena/bin/PID-login.pid
 WorkingDirectory=/opt/uathena/bin/
+StandardOutput=/opt/uathena/log/uAlogin.log
+StandardError=/opt/uathena/log/uAlogin.log
+
 
 User=root
 Group=root

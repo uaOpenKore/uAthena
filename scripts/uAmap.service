@@ -10,6 +10,9 @@ ReloadPropagatedFrom=uAthena.target
 Type=simple
 PIDFile=/opt/uathena/bin/PID-map.pid
 WorkingDirectory=/opt/uathena/bin/
+StandardOutput=/opt/uathena/log/uAmap.log
+StandardError=/opt/uathena/log/uAmap.log
+
 
 User=root
 Group=root
