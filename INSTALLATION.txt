@@ -50,13 +50,14 @@ cd ./dumps/
 ./dumps.sh create - this command will create the database, users, and assign the necessary permissions in the database. **WARNING**: Runs as DB root user.
 ./dumps.sh install - this command will set up all required tables in the database.
 ./dumps.sh test - this command will create a test game account with the username "test" and password "test."
+./dumps.sh update - this command applies only new migrations from `./migrations/*.sql` in the order specified in `./migrations/readme.txt`.
+
 
 4.4. After finishing with the utility, return to the main directory:
 cd ..
 
 4.5. Description of additional `./dumps.sh` utility commands:
 ./dumps.sh backup - this command creates a compressed backup of the entire uAthena database. Run this operation before updating uAthena or manually via cron.
-./dumps.sh update - this command applies only new migrations from `./migrations/*.sql` in the order specified in `./migrations/readme.txt`.
 ./dumps.sh make - this command generates new SQL files in the `./schema/` and `./tables/` directories. It’s intended for developers. **WARNING**: User data is also dumped!
 ./dumps.sh setMD5 - this command sets up password encryption for the password field in the database! Only needed for production servers.
 ./dumps.sh uninstall - this command removes the database user, game database, and all data. **WARNING**: Runs as DB root user.
