@@ -26,7 +26,7 @@ for x in `grep "^\+" ./src.sql|sed -e 's/^\+//'`;
           then
             break
           fi
-	STRb+=" `${a[$c]}` = \"$y\","
+	STRb+=" \`${a[$c]}\` = \"$y\","
 #	echo "$c	${a[$c]}	$y"
 	((c++))
     done
