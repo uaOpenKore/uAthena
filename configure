@@ -250,6 +250,7 @@ echo -e 'update:'												>> Makefile
 echo -e '		INFO: >>> Stopping Athena'
 echo -e '		$(shell systemctl stop uAthena.target uAthena-txt.target)'
 echo -e '		INFO: >>> Creating a backup'
+echo -e '		$(shell /opt/uathena/dumps/dumps.sh backup)'>> Makefile
 echo -e '		INFO: >>> Apply migrations'
 echo -e '		$(shell /opt/uathena/dumps/dumps.sh migrations)'>> Makefile
 echo -e '		INFO: >>> Updating files'
