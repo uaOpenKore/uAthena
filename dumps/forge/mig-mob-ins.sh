@@ -25,11 +25,11 @@ for x in `grep "^\+" ./src.sql|sed -e 's/^\+//'`;
           then
             break
           fi
-	STRb+=" \`${a[$c]}\` = \"$y\","
+	STRb+=" \"$y\","
 	((c++))
     done
-    STRa="update mob_db set "
-    STRc=" where id = \"${array[0]}\""
+    STRa="insert ignore into mob_db VALUES ("
+    STRc=" )"
     echo -e "$STRa${STRb:0:-1}$STRc;" >> ./end.sql
 done
 

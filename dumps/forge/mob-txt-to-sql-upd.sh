@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 DEF=$IFS
 rm -f ./end.sql
 
@@ -14,7 +15,7 @@ for x in "${array[@]}"
 
 IFS=$'\n'
 c=0
-for x in `grep "^\+" ./src.sql|sed -e 's/^\+//'`;
+for x in `grep "^[0-1]" ../../db/mob_db.txt` ;
   do
     STRb=""
     c=0
@@ -26,15 +27,37 @@ for x in `grep "^\+" ./src.sql|sed -e 's/^\+//'`;
             break
           fi
 	STRb+=" \`${a[$c]}\` = \"$y\","
+#	echo "$c	${a[$c]}	$y"
 	((c++))
     done
+
     STRa="update mob_db set "
     STRc=" where id = \"${array[0]}\""
     echo -e "$STRa${STRb:0:-1}$STRc;" >> ./end.sql
+
+
 done
 
+c=0
+for x in `grep "^[0-1]" ../../db/mob_db2.txt` ;
+  do
+    STRb=""
+    c=0
+    IFS="," read -r -a array <<< "${x}"
+    for y in "${array[@]}"
+      do
+        if [ "$c" == "57" ]
+          then
+            break
+          fi
+	STRb+=" \`${a[$c]}\` = \"$y\","
+#	echo "$c	${a[$c]}	$y"
+	((c++))
+    done
+
+    STRa="update mob_db set "
+    STRc=" where id = \"${array[0]}\""
+    echo -e "$STRa${STRb:0:-1}$STRc;" >> ./end.sql
 
 
-
-
-
+done
