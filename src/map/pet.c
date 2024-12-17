@@ -88,10 +88,10 @@ static int pet_can_reach(struct pet_data *pd,int x,int y)
 
 	Assert((pd->msd == 0) || (pd->msd->pd == pd));
 
-	if( pd->bl.x==x && pd->bl.y==y )	// “¯‚¶ƒ}ƒX
+	if( pd->bl.x==x && pd->bl.y==y )	// ï¿½ï¿½ï¿½ï¿½ï¿½}ï¿½X
 		return 1;
 
-	// áŠQ•¨”»’è
+	// ï¿½ï¿½Qï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	wpd.path_len=0;
 	wpd.path_pos=0;
 	wpd.path_half=0;
@@ -843,7 +843,7 @@ int pet_performance(struct map_session_data *sd)
 
 	pet_stop_walking(pd,2000<<8);
 	clif_pet_performance(&pd->bl,rand()%pet_performance_val(sd) + 1);
-	// ƒ‹[ƒg‚µ‚½Item‚ğ—‚Æ‚³‚¹‚é
+	// ï¿½ï¿½ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½Itemï¿½ğ—‚Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½
 	pet_lootitem_drop(pd,NULL);
 
 	return 0;
@@ -859,7 +859,7 @@ int pet_return_egg(struct map_session_data *sd)
 	Assert((sd->status.pet_id == 0 || sd->pd == 0) || sd->pd->msd == sd); 
 
 	if(sd->status.pet_id && sd->pd) {
-		// ƒ‹[ƒg‚µ‚½Item‚ğ—‚Æ‚³‚¹‚é
+		// ï¿½ï¿½ï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½Itemï¿½ğ—‚Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½
 		pet_lootitem_drop(sd->pd,sd);
 		pet_remove_map(sd);
 		sd->status.pet_id = 0;
@@ -1135,10 +1135,10 @@ int pet_catch_process2(struct map_session_data *sd,int target_id)
 		return 1;
 	}
 
-	//target_id‚É‚æ‚é“G¨—‘”»’è
+	//target_idï¿½É‚ï¿½ï¿½Gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //	if(battle_config.etc_log)
 //		printf("mob_id = %d, mob_class = %d\n",md->bl.id,md->class_);
-		//¬Œ÷‚Ìê‡
+		//ï¿½ï¿½ï¿½ï¿½ï¿½Ìê‡
 	pet_catch_rate = (pet_db[i].capture + (sd->status.base_level - md->db->lv)*30 + sd->paramc[5]*20)*(200 - md->hp*100/md->db->max_hp)/100;
 	if(pet_catch_rate < 1) pet_catch_rate = 1;
 	if(battle_config.pet_catch_rate != 100)
@@ -1475,7 +1475,7 @@ static int pet_ai_sub_hard(struct pet_data *pd,unsigned int tick)
 		if(pd->speed <= 0)
 			pd->speed = 1;
 		pet_calc_pos(pd,sd->bl.x,sd->bl.y,sd->dir);
-		if(!pet_walktoxy(pd,pd->to_x,pd->to_y))
+		if(pet_walktoxy(pd,pd->to_x,pd->to_y))
 			pet_randomwalk(pd,tick);
 		return 0;
 	}
@@ -1494,7 +1494,7 @@ static int pet_ai_sub_hard(struct pet_data *pd,unsigned int tick)
 		}
 	}
 	
-	// ƒyƒbƒg‚É‚æ‚éƒ‹[ƒg
+	// ï¿½yï¿½bï¿½gï¿½É‚ï¿½éƒ‹ï¿½[ï¿½g
 	if(!pd->target_id && pd->loot && pd->loot->count < pd->loot->max && DIFF_TICK(gettick(),pd->loot->timer)>0)
 		//Use half the pet's range of sight.
 		map_foreachinrange(pet_ai_sub_hard_lootsearch,&pd->bl,
@@ -1509,7 +1509,7 @@ static int pet_ai_sub_hard(struct pet_data *pd,unsigned int tick)
 			return 0; //Already walking to him
 
 		pet_calc_pos(pd,sd->bl.x,sd->bl.y,sd->dir);
-		if(!pet_walktoxy(pd,pd->to_x,pd->to_y))
+		if(pet_walktoxy(pd,pd->to_x,pd->to_y))
 			pet_randomwalk(pd,tick);
 
 		return 0;
@@ -1530,7 +1530,7 @@ static int pet_ai_sub_hard(struct pet_data *pd,unsigned int tick)
 			}
 			i=0;
 			do {
-				if(i==0) {	// Å‰‚ÍAEGIS‚Æ“¯‚¶•û–@‚ÅŒŸõ
+				if(i==0) {	// ï¿½Åï¿½ï¿½ï¿½AEGISï¿½Æ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½@ï¿½ÅŒï¿½ï¿½ï¿½
 					dx=target->x - pd->bl.x;
 					dy=target->y - pd->bl.y;
 					if(dx<0) dx++;
@@ -1538,11 +1538,11 @@ static int pet_ai_sub_hard(struct pet_data *pd,unsigned int tick)
 					if(dy<0) dy++;
 					else if(dy>0) dy--;
 				}
-				else {	// ‚¾‚ß‚È‚çAthena®(ƒ‰ƒ“ƒ_ƒ€)
+				else {	// ï¿½ï¿½ï¿½ß‚È‚ï¿½Athenaï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½)
 					dx=target->x - pd->bl.x + rand()%3 - 1;
 					dy=target->y - pd->bl.y + rand()%3 - 1;
 				}
-			} while(!pet_walktoxy(pd,pd->bl.x+dx,pd->bl.y+dy) && ++i<5);
+			} while(pet_walktoxy(pd,pd->bl.x+dx,pd->bl.y+dy) && ++i<5);
 
 			if(i>=5) {
 				if(dx<0) dx=2;
@@ -1563,7 +1563,7 @@ static int pet_ai_sub_hard(struct pet_data *pd,unsigned int tick)
 		if (!check_distance_bl(&pd->bl, target, 1))
 		{	//Out of range
 			if(pd->timer != -1 && pd->state.state == MS_WALK && check_distance_blxy(target, pd->to_x, pd->to_y, 0))
-				return 0; // Šù‚ÉˆÚ“®’†
+				return 0; // ï¿½ï¿½ï¿½ÉˆÚ“ï¿½ï¿½ï¿½
 
 			if(!pet_can_reach(pd, target->x, target->y))
 			{	//Unreachable target.
@@ -1571,7 +1571,7 @@ static int pet_ai_sub_hard(struct pet_data *pd,unsigned int tick)
 				return 0;
 			}
 			pet_walktoxy(pd, target->x, target->y);
-		} else{	// ƒAƒCƒeƒ€‚Ü‚Å‚½‚Ç‚è’…‚¢‚½
+		} else{	// ï¿½Aï¿½Cï¿½eï¿½ï¿½ï¿½Ü‚Å‚ï¿½ï¿½Ç‚è’…ï¿½ï¿½ï¿½ï¿½
 			struct flooritem_data *fitem = (struct flooritem_data *)target;
 			pet_stop_walking(pd,1);
 			if(pd->loot->count < pd->loot->max){
@@ -1641,7 +1641,7 @@ int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd)
 		ditem.third_sd = 0;
 		for(i=0;i<pd->loot->count;i++) {
 			memcpy(&ditem.item_data,&pd->loot->item[i],sizeof(pd->loot->item[0]));
-			// —‚Æ‚³‚È‚¢‚Å’¼ÚPC‚ÌItem—“‚Ö
+			// ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½È‚ï¿½ï¿½Å’ï¿½ï¿½ï¿½PCï¿½ï¿½Itemï¿½ï¿½ï¿½ï¿½
 			if(sd){
 				if((flag = pc_additem(sd,&ditem.item_data,ditem.item_data.amount))){
 					clif_additem(sd,0,0,flag);
@@ -1658,7 +1658,7 @@ int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd)
 		memset(pd->loot->item,0,pd->loot->max * sizeof(struct item));
 		pd->loot->count = 0;
 		pd->loot->weight = 0;
-		pd->loot->timer = gettick()+10000;	//	10*1000ms‚ÌŠÔE‚í‚È‚¢
+		pd->loot->timer = gettick()+10000;	//	10*1000msï¿½ÌŠÔEï¿½ï¿½È‚ï¿½
 	}
 	return 1;
 }
@@ -1831,7 +1831,7 @@ int pet_skill_support_timer(int tid,unsigned int tick,int id,int data)
 }
 
 /*==========================================
- *ƒyƒbƒgƒf[ƒ^“Ç‚İ‚İ
+ *ï¿½yï¿½bï¿½gï¿½fï¿½[ï¿½^ï¿½Ç‚İï¿½ï¿½ï¿½
  *------------------------------------------
  */ 
 int read_petdb()
@@ -1885,7 +1885,7 @@ int read_petdb()
 			if(nameid<=0 || nameid>2000)
 				continue;
 		
-			//MobID,Name,JName,ItemID,EggID,AcceID,FoodID,"Fullness (1‰ñ‚Ì‰a‚Å‚Ì–• “x‘‰Á—¦%)","HungryDeray (/min)","R_Hungry (‹ó• ‰a‚â‚èe–§“x‘‰Á—¦%)","R_Full (‚Æ‚Ä‚à–• ‰a‚â‚èe–§“xŒ¸­—¦%)","Intimate (•ßŠle–§“x%)","Die (€–Se–§“xŒ¸­—¦%)","Capture (•ßŠl—¦%)",(Name)
+			//MobID,Name,JName,ItemID,EggID,AcceID,FoodID,"Fullness (1ï¿½ï¿½Ì‰aï¿½Å‚Ì–ï¿½ï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½%)","HungryDeray (/min)","R_Hungry (ï¿½ó• ï¿½ï¿½aï¿½ï¿½ï¿½eï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½%)","R_Full (ï¿½Æ‚Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½aï¿½ï¿½ï¿½eï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½%)","Intimate (ï¿½ßŠlï¿½ï¿½ï¿½eï¿½ï¿½ï¿½x%)","Die (ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½eï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½%)","Capture (ï¿½ßŠlï¿½ï¿½%)",(Name)
 			pet_db[j].class_ = nameid;
 			memcpy(pet_db[j].name,str[1],NAME_LENGTH-1);
 			memcpy(pet_db[j].jname,str[2],NAME_LENGTH-1);
@@ -1923,7 +1923,7 @@ int read_petdb()
 }
 
 /*==========================================
- * ƒXƒLƒ‹ŠÖŒW‰Šú‰»ˆ—
+ * ï¿½Xï¿½Lï¿½ï¿½ï¿½ÖŒWï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  *------------------------------------------
  */
 int do_init_pet(void)
