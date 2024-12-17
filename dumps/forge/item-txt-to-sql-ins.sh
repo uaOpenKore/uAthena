@@ -16,13 +16,13 @@ for x in "${array[@]}"
 
 IFS=$'\n'
 C=0
-for x in `grep "^[0-9]" ../../db/item_db.txt|tr -d '}'`;
+for x in `grep "^[0-9]" ../../db/item_db.txt|sed -e 's/}[[:space:]].$//'`;
  do
 #  b[$C]=$x
   STRb=""
-  IFS="{"
+  IFS="#"
   A=0
-  for y in `echo "$x"`;
+  for y in `echo "$x"|sed -e 's/{/#/'`;
    do
     if [ "0" == "$A" ]
      then
@@ -57,6 +57,7 @@ for x in `grep "^[0-9]" ../../db/item_db.txt|tr -d '}'`;
     fi
   done
   STRc=" )"
-  echo -e "${STRa}${STRb}${STRc};" >> ./end.sql
+  `echo -e "${STRa}${STRb}${STRc};" |sed -e 's/, )/, NULL )/g'>> ./end.sql`
+  
   ((C++))  
 done
