@@ -47,7 +47,7 @@ for x in `grep "^[0-9]" ../../db/item_db.txt|sed -e 's/}[[:space:]].$//'`;
       done
       ((A++))
      else
-      if [ -n "$z" ]
+      if [ -n "$y" ]
        then
         STRb+=" '$y'"
        else
@@ -57,7 +57,7 @@ for x in `grep "^[0-9]" ../../db/item_db.txt|sed -e 's/}[[:space:]].$//'`;
     fi
   done
   STRc=" )"
-  `echo -e "${STRa}${STRb}${STRc};" |sed -e 's/, )/, NULL )/g'>> ./end.sql`
+  `echo -e "${STRa}${STRb}${STRc};" |sed -e 's/, )/, NULL )/g'|sed -e "s/}' );$/' );/"|sed -e "s/ } \/\/.*'/ '/"|sed -e "s/'' );$/NULL );/">> ./end.sql`
   
   ((C++))  
 done

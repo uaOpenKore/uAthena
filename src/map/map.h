@@ -960,7 +960,7 @@ enum { MS_IDLE,MS_WALK,MS_ATTACK,MS_DEAD,MS_DELAY };
 
 enum { NONE_ATTACKABLE,ATTACKABLE };
 
-enum { ATK_LUCKY=1,ATK_FLEE,ATK_DEF};	// ˆÍ‚Ü‚êƒyƒiƒ‹ƒeƒBŒvZ—p
+enum { ATK_LUCKY=1,ATK_FLEE,ATK_DEF};	// ï¿½Í‚Ü‚ï¿½yï¿½iï¿½ï¿½ï¿½eï¿½Bï¿½vï¿½Zï¿½p
 
 // For equipment breaking/stripping effects
 enum {
@@ -979,7 +979,7 @@ struct mob_list {
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// NULL‚È‚ç‰º‚Ìmap_data_other_server‚Æ‚µ‚Äˆµ‚¤
+	unsigned char *gat;	// NULLï¿½È‚ç‰ºï¿½ï¿½map_data_other_serverï¿½Æ‚ï¿½ï¿½Äˆï¿½ï¿½ï¿½
 	unsigned char *cell; //Contains temporary cell data that is set/unset on tiles.
 #ifdef CELL_NOSTACK
 	unsigned char *cell_bl; //Holds amount of bls in any given cell.
@@ -1051,7 +1051,7 @@ struct map_data {
 struct map_data_other_server {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// NULLŒÅ’è‚É‚µ‚Ä”»’f
+	unsigned char *gat;	// NULLï¿½Å’ï¿½É‚ï¿½ï¿½Ä”ï¿½ï¿½f
 	unsigned long ip;
 	unsigned int port;
 };
@@ -1133,34 +1133,34 @@ enum {
 #define CELL_MOONLIT	0x40
 #define CELL_ICEWALL	0x80
 /*
- * map_getcell()‚Åg—p‚³‚ê‚éƒtƒ‰ƒO
+ * map_getcell()ï¿½Ågï¿½pï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½O
  */
 typedef enum {
-	CELL_CHKWALL=0,		// •Ç(ƒZƒ‹ƒ^ƒCƒv1)
-	CELL_CHKWATER,		// …ê(ƒZƒ‹ƒ^ƒCƒv3)
-	CELL_CHKGROUND,		// ’n–ÊáŠQ•¨(ƒZƒ‹ƒ^ƒCƒv5)
-	CELL_CHKPASS,		// ’Ê‰ß‰Â”\(ƒZƒ‹ƒ^ƒCƒv1,5ˆÈŠO)
+	CELL_CHKWALL=0,		// ï¿½ï¿½(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v1)
+	CELL_CHKWATER,		// ï¿½ï¿½ï¿½ï¿½(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v3)
+	CELL_CHKGROUND,		// ï¿½nï¿½Êï¿½Qï¿½ï¿½(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v5)
+	CELL_CHKPASS,		// ï¿½Ê‰ß‰Â”\(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v1,5ï¿½ÈŠO)
 	CELL_CHKREACH,		// Same as PASS, but ignores the cell-stacking mod.
-	CELL_CHKNOPASS,		// ’Ê‰ß•s‰Â(ƒZƒ‹ƒ^ƒCƒv1,5)
+	CELL_CHKNOPASS,		// ï¿½Ê‰ß•sï¿½ï¿½(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v1,5)
 	CELL_CHKNOREACH,	// Same as NOPASS, but ignores the cell-stacking mod.
-	CELL_GETTYPE,		// ƒZƒ‹ƒ^ƒCƒv‚ğ•Ô‚·
+	CELL_GETTYPE,		// ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½vï¿½ï¿½Ô‚ï¿½
 	CELL_GETCELLTYPE,
-	CELL_CHKNPC=0x10,	// ƒ^ƒbƒ`ƒ^ƒCƒv‚ÌNPC(ƒZƒ‹ƒ^ƒCƒv0x80ƒtƒ‰ƒO)
+	CELL_CHKNPC=0x10,	// ï¿½^ï¿½bï¿½`ï¿½^ï¿½Cï¿½vï¿½ï¿½NPC(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v0x80ï¿½tï¿½ï¿½ï¿½O)
 	CELL_CHKREGEN,		// cells that improve regeneration
 	CELL_CHKPNEUMA,
 	CELL_CHKSAFETYWALL,
-	CELL_CHKBASILICA,	// ƒoƒWƒŠƒJ(ƒZƒ‹ƒ^ƒCƒv0x40ƒtƒ‰ƒO)
+	CELL_CHKBASILICA,	// ï¿½oï¿½Wï¿½ï¿½ï¿½J(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v0x40ï¿½tï¿½ï¿½ï¿½O)
 	CELL_CHKLANDPROTECTOR,
 	CELL_CHKMOONLIT,
 	CELL_CHKICEWALL,
 	CELL_CHKSTACK,
 } cell_t;
-// map_setcell()‚Åg—p‚³‚ê‚éƒtƒ‰ƒO
+// map_setcell()ï¿½Ågï¿½pï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½O
 enum {
-	CELL_SETNPC=0x10,	// ƒ^ƒbƒ`ƒ^ƒCƒv‚ÌNPC‚ğƒZƒbƒg
+	CELL_SETNPC=0x10,	// ï¿½^ï¿½bï¿½`ï¿½^ï¿½Cï¿½vï¿½ï¿½NPCï¿½ï¿½ï¿½Zï¿½bï¿½g
 	CELL_CLRNPC,
-	CELL_SETBASILICA,	// ƒoƒWƒŠƒJ‚ğƒZƒbƒg
-	CELL_CLRBASILICA,	// ƒoƒWƒŠƒJ‚ğƒNƒŠƒA
+	CELL_SETBASILICA,	// ï¿½oï¿½Wï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½Zï¿½bï¿½g
+	CELL_CLRBASILICA,	// ï¿½oï¿½Wï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½A
 	CELL_SETREGEN,		// set regen cell
 	CELL_SETLANDPROTECTOR, //Set/Clear Magnetic Earth
 	CELL_CLRLANDPROTECTOR,
@@ -1202,7 +1202,7 @@ extern char db_path[256];
 int map_getcell(int,int,int,cell_t);
 int map_getcellp(struct map_data*,int,int,cell_t);
 void map_setcell(int,int,int,int);
-extern int map_read_flag; // 0: grf«Õ«¡«¤«E1: «­«ã«Ã«·«E2: «­«ã«Ã«·«E?õê)
+extern int map_read_flag; // 0: grfï¿½Õ«ï¿½ï¿½ï¿½ï¿½ï¿½E1: ï¿½ï¿½ï¿½ï¿½Ã«ï¿½ï¿½ï¿½E2: ï¿½ï¿½ï¿½ï¿½Ã«ï¿½ï¿½ï¿½E?ï¿½ï¿½)
 enum {
 	READ_FROM_GAT, READ_FROM_AFM,
 	READ_FROM_BITMAP, CREATE_BITMAP,
@@ -1218,14 +1218,14 @@ extern char talkie_mes[];
 
 extern char wisp_server_name[];
 
-// I‘S‘Ìî•ñ
+// ï¿½Iï¿½Sï¿½Ìï¿½ï¿½
 void map_setusers(int);
 int map_getusers(void);
-// blockíœŠÖ˜A
+// blockï¿½íœï¿½Ö˜A
 int map_freeblock(struct block_list *bl);
 int map_freeblock_lock(void);
 int map_freeblock_unlock(void);
-// blockŠÖ˜A
+// blockï¿½Ö˜A
 int map_addblock_sub(struct block_list *, int);
 int map_delblock_sub(struct block_list *, int);
 #define map_addblock(bl) map_addblock_sub(bl,1)
@@ -1239,10 +1239,10 @@ int map_foreachinmovearea(int (*)(struct block_list*,va_list),int,int,int,int,in
 int map_foreachinpath(int (*func)(struct block_list*,va_list),int m,int x0,int y0,int x1,int y1,int range,int type,...); // Celest
 int map_foreachinmap(int (*)(struct block_list*,va_list),int,int,...);
 int map_countnearpc(int,int,int);
-//blockŠÖ˜A‚É’Ç‰Á
+//blockï¿½Ö˜Aï¿½É’Ç‰ï¿½
 int map_count_oncell(int m,int x,int y,int type);
 struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *);
-// ˆê“IobjectŠÖ˜A
+// ï¿½êï¿½Iobjectï¿½Ö˜A
 int map_addobject(struct block_list *);
 int map_delobject(int);
 int map_delobjectnofree(int id);
@@ -1252,13 +1252,13 @@ int map_quit(struct map_session_data *);
 // npc
 int map_addnpc(int,struct npc_data *);
 
-// °ƒAƒCƒeƒ€ŠÖ˜A
+// ï¿½ï¿½ï¿½Aï¿½Cï¿½eï¿½ï¿½ï¿½Ö˜A
 int map_clearflooritem_timer(int,unsigned int,int,int);
 int map_removemobs_timer(int,unsigned int,int,int);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
 int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,struct map_session_data *,struct map_session_data *,int);
 
-// ƒLƒƒƒ‰id„ƒLƒƒƒ‰–¼ •ÏŠ·ŠÖ˜A
+// ï¿½Lï¿½ï¿½ï¿½ï¿½idï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ÏŠï¿½ï¿½Ö˜A
 void map_addchariddb(int charid,char *name);
 void map_delchariddb(int charid);
 int map_reqchariddb(struct map_session_data * sd,int charid);
@@ -1281,7 +1281,7 @@ void map_addnickdb(struct map_session_data *);
 struct map_session_data * map_nick2sd(char*);
 int compare_item(struct item *a, struct item *b);
 
-// ‚»‚Ì‘¼
+// ï¿½ï¿½ï¿½Ì‘ï¿½
 int map_check_dir(int s_dir,int t_dir);
 int map_calc_dir( struct block_list *src,int x,int y);
 int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
@@ -1291,7 +1291,7 @@ int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
 int map_setwaterheight(int m, char *mapname, int height);
 int map_waterheight(char *mapname);
 
-// path.c‚æ‚è
+// path.cï¿½ï¿½ï¿½
 int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int flag,int flag2);
 #define path_search(wpd,m,x0,y0,x1,y1,flag)  path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKNOPASS)
 #define path_search2(wpd,m,x0,y0,x1,y1,flag) path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKWALL)
@@ -1352,10 +1352,6 @@ extern int db_use_sqldbs;
 extern MYSQL mmysql_handle;
 extern MYSQL_RES*	sql_res ;
 extern MYSQL_ROW	sql_row ;
-
-extern MYSQL lmysql_handle;
-extern MYSQL_RES*	lsql_res ;
-extern MYSQL_ROW	lsql_row ;
 
 extern MYSQL charsql_handle;
 extern MYSQL_RES*	charsql_res;
