@@ -32,7 +32,7 @@ struct Battle_Config battle_config;
 static struct eri *delay_damage_ers; //For battle delay damage structures.
 
 /*==========================================
- * Ž©•ª‚ðƒ?ƒbƒN‚µ‚Ä‚¢‚éMOB‚Ì?‚ð?‚¦‚é(foreachclient)
+ * ©ªð?bNµĂ¢éMOBÌ?ð?¦é(foreachclient)
  *------------------------------------------
  */
 static int battle_counttargeted_sub(struct block_list *bl, va_list ap)
@@ -69,8 +69,8 @@ static int battle_counttargeted_sub(struct block_list *bl, va_list ap)
 	return 0;
 }
 /*==========================================
- * Ž©•ª‚ðƒ?ƒbƒN‚µ‚Ä‚¢‚é‘Î?Û‚Ì?”‚ð•Ô‚·(”Ä—p)
- * –ß‚è‚Í?®?”‚Å0ˆÈ?ã
+ * ©ªð?bNµĂ¢éÎ?ۂÌ?ðԂ·(ėp)
+ * ߂èÍ?®?Å0È?ã
  *------------------------------------------
  */
 int battle_counttargeted(struct block_list *bl,struct block_list *src,int target_lv)
@@ -169,7 +169,7 @@ struct block_list* battle_gettargeted(struct block_list *target)
 	return bl_list[rand()%c];
 }
 
-// ƒ_ƒ??[ƒW‚Ì’x‰„
+// _??[W̒x
 struct delay_damage {
 	struct block_list *src;
 	int target;
@@ -224,18 +224,19 @@ int battle_delay_damage (unsigned int tick, struct block_list *src, struct block
 	return 0;
 }
 
-// ŽÀ?Û‚ÉHP‚ð‘€?ì
+// À?ۂÉHPð?ì
 int battle_damage(struct block_list *src,struct block_list *target,int damage, int flag)
 {
 	struct map_session_data *sd = NULL;
 	struct status_change *sc;
 
-	nullpo_retr(0, target); //src
+	nullpo_retr(0, target); //srcÍNULLŌĂ΂ê邱Ƃª é̂ő¼Ń`FbN
 	
 	if (damage == 0 || status_isdead(target))
 		return 0;
-		
-		sc = status_get_sc(target);
+	
+	sc = status_get_sc(target);
+
 	if (damage < 0)
 		return battle_heal(src,target,-damage,0,flag);
 	
@@ -246,7 +247,7 @@ int battle_damage(struct block_list *src,struct block_list *target,int damage, i
 	}
 
 	if (!flag && sc && sc->count) {
-		// “€Œ‹?A?Î‰»?A?‡–°‚ð?Á‹Ž
+		// ?A?Ή»?A?°ð?Á
 		if (sc->data[SC_FREEZE].timer != -1)
 			status_change_end(target,SC_FREEZE,-1);
 		if (sc->data[SC_STONE].timer!=-1 && sc->data[SC_STONE].val2 == 0)
@@ -297,13 +298,13 @@ int battle_damage(struct block_list *src,struct block_list *target,int damage, i
 
 	if (target->type == BL_MOB) {	// MOB
 		struct mob_data *md = (struct mob_data *)target;
-		if (md && md->skilltimer != -1 && md->state.skillcastcancel)	// ‰r?¥–WŠQ
+		if (md && md->skilltimer != -1 && md->state.skillcastcancel)	// r?¥WQ
 			skill_castcancel(target,0);
 		return mob_damage(src,md,damage,0);
 	} else if (target->type == BL_PC) {	// PC
 		struct map_session_data *tsd = (struct map_session_data *)target;
-		if (tsd->skilltimer != -1) {	// ‰r?¥–WŠQ
-			// ƒtƒFƒ“ƒJ?[ƒh‚â–WŠQ‚³‚ê‚È‚¢ƒXƒLƒ‹‚©‚ÌŒŸ?¸
+		if (tsd->skilltimer != -1) {	// r?¥WQ
+			// tFJ?[hâWQ³êȂ¢XL©̌?¸
 			if ((!tsd->special_state.no_castcancel || map_flag_gvg(target->m)) && tsd->state.skillcastcancel &&
 				!tsd->special_state.no_castcancel2)
 				skill_castcancel(target,0);
@@ -316,7 +317,7 @@ int battle_damage(struct block_list *src,struct block_list *target,int damage, i
 
 int battle_heal(struct block_list *bl,struct block_list *target,int hp,int sp,int flag)
 {
-	nullpo_retr(0, target); //bl‚ÍNULL‚ÅŒÄ‚Î‚ê‚é‚±‚Æ‚ª‚ ‚é‚Ì‚Å‘¼‚Åƒ`ƒFƒbƒN
+	nullpo_retr(0, target); //blÍNULLŌĂ΂ê邱Ƃª é̂ő¼Ń`FbN
 
 	if (target->type == BL_PET)
 		return 0;
@@ -335,7 +336,7 @@ int battle_heal(struct block_list *bl,struct block_list *target,int hp,int sp,in
 	return 0;
 }
 
-// ?UŒ‚’âŽ~
+// ?Uâ~
 int battle_stopattack(struct block_list *bl)
 {
 	nullpo_retr(0, bl);
@@ -362,7 +363,7 @@ int battle_iswalking(struct block_list *bl) {
 			return 0;
 	}
 }
-// ˆÚ“®’âŽ~
+// ړ®â~
 int battle_stopwalking(struct block_list *bl,int type)
 {
 	nullpo_retr(0, bl);
@@ -392,10 +393,10 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 	if (target) tsc = status_get_sc(target);
 	
 	if (atk_elem < 0 || atk_elem > 9)
-		atk_elem = rand()%9;	//•?Ší‘®?«ƒ‰ƒ“ƒ_ƒ€‚Å•t‰Á
+		atk_elem = rand()%9;	//?푮?«_ŕtÁ
 
 	if (def_type < 0 || def_type > 9 ||
-		def_lv < 1 || def_lv > 4) {	// ‘® ?«’l‚ª‚¨‚©‚µ‚¢‚Ì‚Å‚Æ‚è‚ ‚¦‚¸‚»‚Ì‚Ü‚Ü•Ô‚·
+		def_lv < 1 || def_lv > 4) {	// ® ?«lª¨©µ¢̂łƂ肠¦¸»̂܂ܕԂ·
 		if (battle_config.error_log)
 			ShowError("battle_attr_fix: unknown attr type: atk=%d def_type=%d def_lv=%d\n",atk_elem,def_type,def_lv);
 		//TODO: Remove this debug case once the cause is resolved. [Skotlex]
@@ -534,7 +535,7 @@ int battle_walkdelay(struct block_list *bl, unsigned int tick, int adelay, int d
 }
 
 /*==========================================
- * ƒ_ƒ??[ƒW?Å?IŒvŽZ
+ * _??[W?Å?IvZ
  *------------------------------------------
  */
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag)
@@ -568,7 +569,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 		//First, sc_*'s that reduce damage to 0.
 		if (sc->data[SC_SAFETYWALL].timer!=-1 && flag&BF_SHORT && (skill_num != NPC_GUIDEDATTACK && skill_num != AM_DEMONSTRATION)
 		) {
-			// ƒZ?[ƒtƒeƒBƒEƒH?[ƒ‹
+			// Z?[teBEH?[
 			struct skill_unit_group *group = (struct skill_unit_group *)sc->data[SC_SAFETYWALL].val3;
 			if (group) {
 				if (--group->val2<=0)
@@ -811,7 +812,7 @@ int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int dama
 }
 
 /*==========================================
- * HP/SP‹zŽû‚ÌŒvŽZ
+ * HP/SPzû̌vZ
  *------------------------------------------
  */
 int battle_calc_drain(int damage, int rate, int per, int val)
@@ -838,7 +839,7 @@ int battle_calc_drain(int damage, int rate, int per, int val)
 }
 
 /*==========================================
- * ?C—ûƒ_ƒ??[ƒW
+ * ?Cû_??[W
  *------------------------------------------
  */
 int battle_addmastery(struct map_session_data *sd,struct block_list *target,int dmg,int type)
@@ -850,12 +851,12 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 
 	nullpo_retr(0, sd);
 
-	// ƒf?[ƒ‚ƒ“ƒxƒCƒ“(+3 ?` +30) vs •sŽ€ or ˆ«–‚ (Ž€?l‚ÍŠÜ‚ß‚È‚¢?H)
+	// f?[xC(+3 ?` +30) vs s or « (?l͊܂߂Ȃ¢?H)
 	if((skill = pc_checkskill(sd,AL_DEMONBANE)) > 0 && (battle_check_undead(race,status_get_elem_type(target)) || race==6) )
 		damage += (skill*(int)(3+(sd->status.base_level+1)*0.05));	// submitted by orn
 		//damage += (skill * 3);
 
-	// ƒr?[ƒXƒgƒxƒCƒ“(+4 ?` +40) vs “®•¨ or ?©’Ž
+	// r?[XgxC(+4 ?` +40) vs ®¨ or ?©
 	if((skill = pc_checkskill(sd,HT_BEASTBANE)) > 0 && (race==2 || race==4) ) {
 		damage += (skill * 4);
 		if (sd->sc.data[SC_SPIRIT].timer != -1 && sd->sc.data[SC_SPIRIT].val2 == SL_HUNTER)
@@ -871,7 +872,7 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		case 0x01:	// Knife
 		case 0x02:	// 1HS
 		{
-			// Œ•?C—û(+4 ?` +40) •ÐŽèŒ• ’ZŒ•ŠÜ‚Þ
+			// ?Cû(+4 ?` +40) Ў茕 Z܂Þ
 			if((skill = pc_checkskill(sd,SM_SWORD)) > 0) {
 				damage += (skill * 4);
 			}
@@ -879,7 +880,7 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		}
 		case 0x03:	// 2HS
 		{
-			// —¼ŽèŒ•?C—û(+4 ?` +40) —¼ŽèŒ•
+			// ¼茕?Cû(+4 ?` +40) ¼茕
 			if((skill = pc_checkskill(sd,SM_TWOHAND)) > 0) {
 				damage += (skill * 4);
 			}
@@ -888,12 +889,12 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		case 0x04:	// 1HL
 		case 0x05:	// 2HL
 		{
-			// ‘„?C—û(+4 ?` +40,+5 ?` +50) ‘„
+			// ?Cû(+4 ?` +40,+5 ?` +50) 
 			if((skill = pc_checkskill(sd,KN_SPEARMASTERY)) > 0) {
 				if(!pc_isriding(sd))
-					damage += (skill * 4);	// ƒyƒR‚É?æ‚Á‚Ä‚È‚¢
+					damage += (skill * 4);	// yRÉ?æÁĂȂ¢
 				else
-					damage += (skill * 5);	// ƒyƒR‚É?æ‚Á‚Ä‚é
+					damage += (skill * 5);	// yRÉ?æÁĂé
 			}
 			break;
 		}
@@ -912,7 +913,7 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 			}
 			break;
 		}
-		case 0x09:	// ‚È‚µ?
+		case 0x09:	// Ȃµ?
 			break;
 		case 0x0a:	// Staffs
 			break;
@@ -928,7 +929,7 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		}
 		case 0x0d:	// Musical Instrument
 		{
-			// ŠyŠí‚Ì—û?K(+3 ?` +30) ŠyŠí
+			// yí̗û?K(+3 ?` +30) yí
 			if((skill = pc_checkskill(sd,BA_MUSICALLESSON)) > 0) {
 				damage += (skill * 3);
 			}
@@ -936,7 +937,7 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		}
 		case 0x0e:	// Whips
 		{
-			// Dance Lesson Skill Effect(+3 damage for every lvl = +30) •Ú
+			// Dance Lesson Skill Effect(+3 damage for every lvl = +30) Ú
 			if((skill = pc_checkskill(sd,DC_DANCINGLESSON)) > 0) {
 				damage += (skill * 3);
 			}
@@ -956,9 +957,9 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 				//Advanced Katar Research by zanetheinsane
 				damage += damage*(10 +skill * 2)/100;
 			}
-			// ƒJƒ^?[ƒ‹?C—û(+3 ?` +30) ƒJƒ^?[ƒ‹
+			// J^?[?Cû(+3 ?` +30) J^?[
 			if((skill = pc_checkskill(sd,AS_KATAR)) > 0) {
-				//ƒ\ƒjƒbƒNƒuƒ??[Žž‚Í•Ê?ˆ—??i1Œ‚‚É•t‚«1/8“K‰ž)
+				//\jbNu??[͕Ê???i1ɕt«1/8K)
 				damage += (skill * 3);
 			}
 			break;
@@ -1341,7 +1342,7 @@ static struct Damage battle_calc_weapon_attack(
 				flag.rh=0;
 				flag.lh=1;
 			}
-		if(sd->status.weapon > 16)
+		if(sd->status.weapon > MAX_WEAPON_TYPE)
 			flag.rh = flag.lh = 1;
 	}
 
@@ -1356,7 +1357,7 @@ static struct Damage battle_calc_weapon_attack(
 			cri+= sd->critaddrace[t_race];
 			if(flag.arrow)
 				cri += sd->arrow_cri;
-			if(sd->status.weapon == 16)
+			if(sd->status.weapon == W_KATAR)
 				cri <<=1;
 		}
 		//The official equation is *2, but that only applies when sd's do critical.
@@ -2245,7 +2246,7 @@ static struct Damage battle_calc_weapon_attack(
 			wd.damage2 = 0;
 			flag.rh=1;
 			flag.lh=0;
-		} else if(sd->status.weapon > 16)
+		} else if(sd->status.weapon > MAX_WEAPON_TYPE)
 		{	//Dual-wield
 			if (wd.damage > 0)
 			{
@@ -2259,7 +2260,7 @@ static struct Damage battle_calc_weapon_attack(
 				wd.damage2 = wd.damage2 * (30 + (skill * 10))/100;
 				if(wd.damage2 < 1) wd.damage2 = 1;
 			}
-		} else if(sd->status.weapon == 16)
+		} else if(sd->status.weapon == W_KATAR)
 		{ //Katars
 			skill = pc_checkskill(sd,TF_DOUBLE);
 			wd.damage2 = wd.damage * (1 + (skill * 2))/100;
@@ -2757,7 +2758,7 @@ struct Damage battle_calc_magic_attack(
 }
 
 /*==========================================
- * ‚»‚Ì‘¼ƒ_ƒ??[ƒWŒvŽZ
+ * »̑¼_??[WvZ
  *------------------------------------------
  */
 struct Damage  battle_calc_misc_attack(
@@ -2816,19 +2817,19 @@ struct Damage  battle_calc_misc_attack(
 
 	switch(skill_num){
 
-	case HT_LANDMINE:	// ƒ‰ƒ“ƒhƒ}ƒCƒ“
+	case HT_LANDMINE:	// h}C
 		damage=skill_lv*(dex+75)*(100+int_)/100;
 		break;
 
-	case HT_BLASTMINE:	// ƒuƒ‰ƒXƒgƒ}ƒCƒ“
+	case HT_BLASTMINE:	// uXg}C
 		damage=skill_lv*(dex/2+50)*(100+int_)/100;
 		break;
 
-	case HT_CLAYMORETRAP:	// ƒNƒŒƒCƒ‚ƒA?[ƒgƒ‰ƒbƒv
+	case HT_CLAYMORETRAP:	// NCA?[gbv
 		damage=skill_lv*(dex/2+75)*(100+int_)/100;
 		break;
 
-	case HT_BLITZBEAT:	// ƒuƒŠƒbƒcƒr?[ƒg
+	case HT_BLITZBEAT:	// ubcr?[g
 		if( sd==NULL || (skill = pc_checkskill(sd,HT_STEELCROW)) <= 0)
 			skill=0;
 		damage=(dex/10+int_/2+skill*3+40)*2;
@@ -2837,21 +2838,21 @@ struct Damage  battle_calc_misc_attack(
 		aflag = (aflag&~BF_RANGEMASK)|BF_LONG;
 		break;
 
-	case TF_THROWSTONE:	// ?Î“Š‚°
+	case TF_THROWSTONE:	// ?Γ°
 		damage=50;
 		aflag = (aflag&~BF_RANGEMASK)|BF_LONG;
 		break;
 
-	case BA_DISSONANCE:	// •s‹¦˜a‰¹
+	case BA_DISSONANCE:	// s¦a¹
 		damage=30+skill_lv*10+pc_checkskill(sd,BA_MUSICALLESSON)*3;
 		break;
 
-	case NPC_SELFDESTRUCTION:	// Ž©”š
+	case NPC_SELFDESTRUCTION:	// ©
 		damage = status_get_hp(bl);
 		damagefix = 0;
 		break;
 
-	case NPC_SMOKING:	// ƒ^ƒoƒR‚ð‹z‚¤
+	case NPC_SMOKING:	// ^oRðz¤
 		damage=3;
 		damagefix=0;
 		break;
@@ -2872,7 +2873,7 @@ struct Damage  battle_calc_misc_attack(
 		}
 		break;
 
-	case SN_FALCONASSAULT:			/* ƒtƒ@ƒ‹ƒRƒ“ƒAƒTƒ‹ƒg */
+	case SN_FALCONASSAULT:			/* t@RATg */
 		if( sd==NULL || (skill = pc_checkskill(sd,HT_STEELCROW)) <= 0)
 			skill=0;
 		damage=(dex/10+int_/2+skill*3+40)*2*skill_get_num(HT_BLITZBEAT, 5);   //Blitz Beat lv5 Damage
@@ -2929,7 +2930,7 @@ struct Damage  battle_calc_misc_attack(
 		}
 
 		if(damage < 0) damage = 0;
-		damage=battle_attr_fix(bl, target, damage, ele, status_get_element(target) );		// ‘®?«?C?³
+		damage=battle_attr_fix(bl, target, damage, ele, status_get_element(target) );		// ®?«?C?³
 	}
 
 	div_=skill_get_num( skill_num,skill_lv );
@@ -2956,7 +2957,7 @@ struct Damage  battle_calc_misc_attack(
 	}
 
 	if (skill_num != PA_PRESSURE) //Pressure ignores all these things...
-		damage=battle_calc_damage(bl,target,damage,div_,skill_num,skill_lv,aflag);	// ÅIC³
+		damage=battle_calc_damage(bl,target,damage,div_,skill_num,skill_lv,aflag);	// ŏIC³
 	if (map_flag_gvg(target->m))
 		damage=battle_calc_gvg_damage(bl,target,damage,div_,skill_num,skill_lv,aflag);
 	md.damage=damage;
@@ -2966,7 +2967,7 @@ struct Damage  battle_calc_misc_attack(
 	return md;
 }
 /*==========================================
- * ƒ_ƒ??[ƒWŒvŽZˆêŠ‡?ˆ—?—p
+ * _??[WvZꊇ??p
  *------------------------------------------
  */
 struct Damage battle_calc_attack(	int attack_type,
@@ -3033,7 +3034,7 @@ int battle_calc_return_damage(struct block_list *bl, int *damage, int flag) {
 	return rdamage;
 }
 /*==========================================
- * ’Ê?í?UŒ‚?ˆ—?‚Ü‚Æ‚ß
+ * Ê?í?U??܂Ƃß
  *------------------------------------------
  */
 int battle_weapon_attack( struct block_list *src,struct block_list *target,
@@ -3111,7 +3112,7 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 
 	}
 	//Recycled the damage variable rather than use a new one... [Skotlex]
-	if(sd && (damage = pc_checkskill(sd,MO_TRIPLEATTACK)) > 0 && sd->status.weapon <= 16) // triple blow works with bows ^^ [celest]
+	if(sd && (damage = pc_checkskill(sd,MO_TRIPLEATTACK)) > 0) // triple blow works with bows ^^ [celest]
 	{
 		int triple_rate= 30 - damage; //Base Rate
 		if (sc && sc->data[SC_SKILLRATE_UP].timer!=-1 && sc->data[SC_SKILLRATE_UP].val1 == MO_TRIPLEATTACK)
@@ -3137,8 +3138,8 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 	}
 
 	clif_damage(src, target, tick, wd.amotion, wd.dmotion, wd.damage, wd.div_ , wd.type, wd.damage2);
-	//“ñ“?—¬?¶Žè‚ÆƒJƒ^?[ƒ‹’ÇŒ‚‚Ìƒ~ƒX•\Ž¦(–³—?‚â‚è?`)
-	if(sd && sd->status.weapon >= 16 && wd.damage2 == 0)
+	//ñ?¬?¶èƃJ^?[ǌ̃~X\¦(³?âè?`)
+	if(sd && sd->status.weapon > MAX_WEAPON_TYPE && wd.damage2 == 0)
 		clif_damage(src, target, tick+10, wd.amotion, wd.dmotion,0, 1, 0, 0);
 
 	if (sd && sd->splash_range > 0 && damage > 0)
@@ -3195,12 +3196,12 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 	if (sd) {
 		if (wd.flag & BF_WEAPON && src != target && damage > 0) {
 			int hp = 0, sp = 0;
-			if (!battle_config.left_cardfix_to_right) { // “ñ“?—¬?¶ŽèƒJ?[ƒh‚Ì‹zŽûŒnŒø‰Ê‚ð‰EŽè‚É’Ç‰Á‚µ‚È‚¢?ê?‡
+			if (!battle_config.left_cardfix_to_right) { // ñ?¬?¶èJ?[h̋zûnøʂðEèɒǉÁµȂ¢?ê?
 				hp += battle_calc_drain(wd.damage, sd->right_weapon.hp_drain_rate, sd->right_weapon.hp_drain_per, sd->right_weapon.hp_drain_value);
 				hp += battle_calc_drain(wd.damage2, sd->left_weapon.hp_drain_rate, sd->left_weapon.hp_drain_per, sd->left_weapon.hp_drain_value);
 				sp += battle_calc_drain(wd.damage, sd->right_weapon.sp_drain_rate, sd->right_weapon.sp_drain_per, sd->right_weapon.sp_drain_value);
 				sp += battle_calc_drain(wd.damage2, sd->left_weapon.sp_drain_rate, sd->left_weapon.sp_drain_per, sd->left_weapon.sp_drain_value);
-			} else { // “ñ“?—¬?¶ŽèƒJ?[ƒh‚Ì‹zŽûŒnŒø‰Ê‚ð‰EŽè‚É’Ç‰Á‚·‚é?ê?‡
+			} else { // ñ?¬?¶èJ?[h̋zûnøʂðEèɒǉÁ·é?ê?
 				int hp_drain_rate = sd->right_weapon.hp_drain_rate + sd->left_weapon.hp_drain_rate;
 				int hp_drain_per = sd->right_weapon.hp_drain_per + sd->left_weapon.hp_drain_per;
 				int hp_drain_value = sd->right_weapon.hp_drain_value + sd->left_weapon.hp_drain_value;
@@ -3559,7 +3560,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 	return (flag&state)?1:-1;
 }
 /*==========================================
- * ŽË’ö”»’è
+ * ˒ö»è
  *------------------------------------------
  */
 int battle_check_range(struct block_list *src,struct block_list *bl,int range)
@@ -3567,7 +3568,7 @@ int battle_check_range(struct block_list *src,struct block_list *bl,int range)
 	nullpo_retr(0, src);
 	nullpo_retr(0, bl);
 
-	if(src->m != bl->m)	// ˆá‚¤ƒ}ƒbƒv
+	if(src->m != bl->m)	// Ⴄ}bv
 		return 0;
 
 	if (!check_distance_bl(src, bl, range))
@@ -3576,7 +3577,7 @@ int battle_check_range(struct block_list *src,struct block_list *bl,int range)
 	if(distance_bl(src, bl) < 2) //No need for path checking.
 		return 1;
 
-	// ?áŠQ•¨”»’è
+	// ?áQ¨»è
 	return path_search_long(NULL,src->m,src->x,src->y,bl->x,bl->y);
 }
 
@@ -4513,7 +4514,7 @@ void battle_validate_conf() {
 }
 
 /*==========================================
- * ?Ý’èƒtƒ@ƒCƒ‹‚ð“Ç‚Ý?ž‚Þ
+ * ?ݒèt@CðǂÝ?Þ
  *------------------------------------------
  */
 int battle_config_read(const char *cfgName)
