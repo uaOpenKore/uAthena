@@ -1,7 +1,9 @@
 #!/bin/bash
 
 DEF=$IFS
-rm -f ./end.sql
+rm -f ./A-item_db.sql
+echo "truncate table item_db;" >>./A-item_db.sql
+echo -e >>./A-item_db.sql
 
 STRa="insert ignore into \`item_db\` VALUES ("
 
@@ -57,7 +59,7 @@ for x in `grep "^[0-9]" ../../db/item_db.txt|sed -e 's/}[[:space:]].$//'`;
     fi
   done
   STRc=" )"
-  `echo -e "${STRa}${STRb}${STRc};" |sed -e 's/, )/, NULL )/g'|sed -e "s/}' );$/' );/"|sed -e "s/ } \/\/.*'/ '/"|sed -e "s/'' );$/NULL );/">> ./end.sql`
+  `echo -e "${STRa}${STRb}${STRc};" |sed -e 's/, )/, NULL )/g'|sed -e "s/}' );$/' );/"|sed -e "s/ } \/\/.*'/ '/"|sed -e "s/'' );$/NULL );/">> ./A-item_db.sql`
   
   ((C++))  
 done

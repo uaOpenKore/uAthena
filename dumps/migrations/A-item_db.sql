@@ -1,3 +1,5 @@
+truncate table item_db;
+
 insert ignore into `item_db` VALUES ( "0", "DEFAULT", "Default", "0", NULL, "10", "10", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, NULL );
 insert ignore into `item_db` VALUES ( "501", "Red_Potion", "Red Potion", "0", "50", NULL, "70", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, ' itemheal rand(45,64),0; ' );
 insert ignore into `item_db` VALUES ( "502", "Orange_Potion", "Orange Potion", "0", "200", NULL, "100", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, ' itemheal rand(105,144),0; ' );
@@ -2167,7 +2169,7 @@ insert ignore into `item_db` VALUES ( "12014", "Immaterial_Arrow_Quiver", "Immat
 insert ignore into `item_db` VALUES ( "12015", "Rusty_Arrow_Quiver", "Rusty Arrow Quiver", "2", "1500", NULL, "250", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, ' getitem 1762,500; ' );
 insert ignore into `item_db` VALUES ( "12016", "Speed_Potion", "Speed Potion", "0", "1000", NULL, "100", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, NULL );
 insert ignore into `item_db` VALUES ( "12017", "Slow_Potion", "Slow Potion", "0", "1000", NULL, "100", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, NULL );
-insert ignore into `item_db` VALUES ( "12018", "Firecracker", "Firecracker", "2", "250", NULL, "20", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, ' misceffect(256); ' );
+insert ignore into `item_db` VALUES ( "12018", "Firecracker", "Firecracker", "2", "150", NULL, "20", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, ' misceffect(256); ' );
 insert ignore into `item_db` VALUES ( "12019", "Holy_Egg", "Holy Egg", "2", NULL, "10", "150", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, ' itemskill 54,2,"Resurrection"; ' );
 insert ignore into `item_db` VALUES ( "12020", "Cursed_Water", "Cursed_Water", "0", NULL, "1", "30", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, ' sc_start SC_SHADOWWEAPON, 1200000, 1; ' );
 insert ignore into `item_db` VALUES ( "12021", "Pork", "Pork", "0", NULL, "10", "10", NULL, NULL, NULL, NULL, "0xFFFFFFFF", "7", "2", NULL, NULL, NULL, NULL, NULL, ' itemheal rand(70,99),0; ' );
