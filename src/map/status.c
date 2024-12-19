@@ -37,9 +37,9 @@ static int hp_sigma_val[MAX_PC_CLASS][MAX_LEVEL];
 static int sp_coefficient[MAX_PC_CLASS];
 static int aspd_base[MAX_PC_CLASS][MAX_WEAPON_TYPE];	//[blackhole89]
 #define MAX_REFINE_BONUS 5
-static int refinebonus[MAX_REFINE_BONUS][3];	// ¸˜Bƒ{[ƒiƒXƒe[ƒuƒ‹(refine_db.txt)
-int percentrefinery[5][MAX_REFINE+1];	// ¸˜B¬Œ÷—¦(refine_db.txt)
-static int atkmods[3][MAX_WEAPON_TYPE];	// •ŠíATKƒTƒCƒYC³(size_fix.txt)
+static int refinebonus[MAX_REFINE_BONUS][3];	// ï¿½ï¿½ï¿½Bï¿½{ï¿½[ï¿½iï¿½Xï¿½eï¿½[ï¿½uï¿½ï¿½(refine_db.txt)
+int percentrefinery[5][MAX_REFINE+1];	// ï¿½ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(refine_db.txt)
+static int atkmods[3][MAX_WEAPON_TYPE];	// ï¿½ï¿½ï¿½ï¿½ATKï¿½Tï¿½Cï¿½Yï¿½Cï¿½ï¿½(size_fix.txt)
 static char job_bonus[MAX_PC_CLASS][MAX_LEVEL];
 
 int current_equip_item_index; //Contains inventory index of an equipped item. To pass it into the EQUP_SCRIPT [Lupus]
@@ -315,7 +315,7 @@ void initChangeTables(void) {
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
 }
 /*==========================================
- * ¸˜Bƒ{[ƒiƒX
+ * ï¿½ï¿½ï¿½Bï¿½{ï¿½[ï¿½iï¿½X
  *------------------------------------------
  */
 int status_getrefinebonus(int lv,int type)
@@ -565,10 +565,10 @@ int status_calc_pet(struct map_session_data *sd, int first)
 }	
 
 /*==========================================
- * ƒpƒ‰ƒ[ƒ^ŒvZ
- * first==0‚ÌAŒvZ‘ÎÛ‚Ìƒpƒ‰ƒ[ƒ^‚ªŒÄ‚Ño‚µ‘O‚©‚ç
- * •Ï ‰»‚µ‚½ê‡©“®‚Åsend‚·‚é‚ªA
- * ”\“®“I‚É•Ï‰»‚³‚¹‚½ƒpƒ‰ƒ[ƒ^‚Í©‘O‚Åsend‚·‚é‚æ‚¤‚É
+ * ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½vï¿½Z
+ * first==0ï¿½Ìï¿½ï¿½Aï¿½vï¿½Zï¿½ÎÛ‚Ìƒpï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sendï¿½ï¿½ï¿½é‚ªï¿½A
+ * ï¿½\ï¿½ï¿½ï¿½Iï¿½É•Ï‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½Íï¿½ï¿½Oï¿½ï¿½sendï¿½ï¿½ï¿½ï¿½æ‚¤ï¿½ï¿½
  *------------------------------------------
  */
 
@@ -615,7 +615,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	sd->view_class = sd->status.class_;
 	b_base_atk = sd->base_atk;
 
-	pc_calc_skilltree(sd);	// ƒXƒLƒ‹ƒcƒŠ?‚ÌŒvZ
+	pc_calc_skilltree(sd);	// ï¿½Xï¿½Lï¿½ï¿½ï¿½cï¿½ï¿½?ï¿½ÌŒvï¿½Z
 	
 	sd->max_weight = max_weight_base[sd->status.class_]+sd->status.str*300;
 
@@ -810,7 +810,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 				sd->status.inventory[index].card[0]==0x00fe ||
 				sd->status.inventory[index].card[0]==(short)0xff00)
 				continue;
-			for(j=0;j<sd->inventory_data[index]->slot;j++){	// ƒJ?ƒh
+			for(j=0;j<sd->inventory_data[index]->slot;j++){	// ï¿½J?ï¿½h
 				current_equip_card_id= c= sd->status.inventory[index].card[j];
 				if(c>0){
 					if(i == 8 && sd->status.inventory[index].equip == 0x20)
@@ -836,7 +836,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	}
 	memcpy(sd->paramcard,sd->parame,sizeof(sd->paramcard));
 
-	// ?”õ•i‚É‚æ‚éƒXƒe?ƒ^ƒX?‰»‚Í‚±‚±‚Å?s
+	// ?ï¿½ï¿½ï¿½iï¿½É‚ï¿½ï¿½Xï¿½e?ï¿½^ï¿½X?ï¿½ï¿½ï¿½Í‚ï¿½ï¿½ï¿½ï¿½ï¿½?ï¿½s
 	for(i=0;i<10;i++) {
 		current_equip_item_index = index = sd->equip_index[i]; //We pass INDEX to current_equip_item_index - for EQUIP_SCRIPT (new cards solution) [Lupus]
 		if(index < 0)
@@ -897,7 +897,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		}
 	}
 
-	if(sd->equip_index[10] >= 0){ // –î
+	if(sd->equip_index[10] >= 0){ // ï¿½ï¿½
 		index = sd->equip_index[10];
 		if(sd->inventory_data[index]){		// Arrows
 			sd->state.lr_flag = 2;
@@ -2140,7 +2140,7 @@ int status_calc_speed(struct block_list *bl, int speed)
 			speed = speed * (sc->data[SC_CLOAKING].val3-3*sc->data[SC_CLOAKING].val1) /100;
 		if(sc->data[SC_CHASEWALK].timer!=-1)
 			speed = speed * sc->data[SC_CHASEWALK].val3/100;
-		if(sc->data[SC_RUN].timer!=-1)/*‹ì‚¯‘«‚É‚æ‚é‘¬“x•Ï‰»*/
+		if(sc->data[SC_RUN].timer!=-1)/*ï¿½ì‚¯ï¿½ï¿½ï¿½É‚ï¿½é‘¬ï¿½xï¿½Ï‰ï¿½*/
 			speed -= speed * 25/100;
 	}
 
@@ -2285,8 +2285,8 @@ int status_quick_recalc_speed(struct map_session_data *sd, int skill_num, int sk
 }
 
 /*==========================================
- * ‘ÎÛ‚ÌClass‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Classï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_class(struct block_list *bl)
@@ -2301,8 +2301,8 @@ int status_get_class(struct block_list *bl)
 	return 0;
 }
 /*==========================================
- * ‘ÎÛ‚Ì•ûŒü‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚Ì•ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_dir(struct block_list *bl)
@@ -2317,8 +2317,8 @@ int status_get_dir(struct block_list *bl)
 	return 0;
 }
 /*==========================================
- * ‘ÎÛ‚ÌƒŒƒxƒ‹‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚Ìƒï¿½ï¿½xï¿½ï¿½ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_lv(struct block_list *bl)
@@ -2334,8 +2334,8 @@ int status_get_lv(struct block_list *bl)
 }
 
 /*==========================================
- * ‘ÎÛ‚ÌË’ö‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ÌË’ï¿½ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_range(struct block_list *bl)
@@ -2350,8 +2350,8 @@ int status_get_range(struct block_list *bl)
 	return 0;
 }
 /*==========================================
- * ‘ÎÛ‚ÌHP‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½HPï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_hp(struct block_list *bl)
@@ -2364,8 +2364,8 @@ int status_get_hp(struct block_list *bl)
 	return 1;
 }
 /*==========================================
- * ‘ÎÛ‚ÌMHP‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½MHPï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_max_hp(struct block_list *bl)
@@ -2398,8 +2398,8 @@ int status_get_max_hp(struct block_list *bl)
 	}
 }
 /*==========================================
- * ‘ÎÛ‚ÌStr‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Strï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_str(struct block_list *bl)
@@ -2431,8 +2431,8 @@ int status_get_str(struct block_list *bl)
 	return str;
 }
 /*==========================================
- * ‘ÎÛ‚ÌAgi‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Agiï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 
@@ -2465,8 +2465,8 @@ int status_get_agi(struct block_list *bl)
 	return agi;
 }
 /*==========================================
- * ‘ÎÛ‚ÌVit‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Vitï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_vit(struct block_list *bl)
@@ -2498,8 +2498,8 @@ int status_get_vit(struct block_list *bl)
 	return vit;
 }
 /*==========================================
- * ‘ÎÛ‚ÌInt‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Intï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_int(struct block_list *bl)
@@ -2531,8 +2531,8 @@ int status_get_int(struct block_list *bl)
 	return int_;
 }
 /*==========================================
- * ‘ÎÛ‚ÌDex‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Dexï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_dex(struct block_list *bl)
@@ -2564,8 +2564,8 @@ int status_get_dex(struct block_list *bl)
 	return dex;
 }
 /*==========================================
- * ‘ÎÛ‚ÌLuk‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Lukï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_luk(struct block_list *bl)
@@ -2598,8 +2598,8 @@ int status_get_luk(struct block_list *bl)
 }
 
 /*==========================================
- * ‘ÎÛ‚ÌFlee‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å1ˆÈã
+ * ï¿½ÎÛ‚ï¿½Fleeï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_flee(struct block_list *bl)
@@ -2615,8 +2615,8 @@ int status_get_flee(struct block_list *bl)
 	return flee;
 }
 /*==========================================
- * ‘ÎÛ‚ÌHit‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å1ˆÈã
+ * ï¿½ÎÛ‚ï¿½Hitï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_hit(struct block_list *bl)
@@ -2631,8 +2631,8 @@ int status_get_hit(struct block_list *bl)
 	return hit;
 }
 /*==========================================
- * ‘ÎÛ‚ÌŠ®‘S‰ñ”ğ‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å1ˆÈã
+ * ï¿½ÎÛ‚ÌŠï¿½ï¿½Sï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_flee2(struct block_list *bl)
@@ -2648,8 +2648,8 @@ int status_get_flee2(struct block_list *bl)
 	return flee2;
 }
 /*==========================================
- * ‘ÎÛ‚ÌƒNƒŠƒeƒBƒJƒ‹‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å1ˆÈã
+ * ï¿½ÎÛ‚ÌƒNï¿½ï¿½ï¿½eï¿½Bï¿½Jï¿½ï¿½ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_critical(struct block_list *bl)
@@ -2668,8 +2668,8 @@ int status_get_critical(struct block_list *bl)
 	return critical;
 }
 /*==========================================
- * base_atk‚Ìæ“¾
- * –ß‚è‚Í®”‚Å1ˆÈã
+ * base_atkï¿½Ìæ“¾
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_batk(struct block_list *bl)
@@ -2685,19 +2685,19 @@ int status_get_batk(struct block_list *bl)
 		int str,dstr;
 		str = status_get_str(bl); //STR
 		dstr = str/10;
-		batk = dstr*dstr + str; //base_atk‚ğŒvZ‚·‚é
+		batk = dstr*dstr + str; //base_atkï¿½ï¿½ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½
 
 		if(bl->type == BL_MOB && ((struct mob_data *)bl)->guardian_data)
 			batk += batk * 10*((struct mob_data *)bl)->guardian_data->guardup_lv/100; // Strengthen Guardians - custom value +10% ATK / lv
 
 		batk = status_calc_batk(bl,batk);
 	}
-	if(batk < 1) batk = 1; //base_atk‚ÍÅ’á‚Å‚à1
+	if(batk < 1) batk = 1; //base_atkï¿½ÍÅ’ï¿½Å‚ï¿½1
 	return batk;
 }
 /*==========================================
- * ‘ÎÛ‚ÌAtk‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Atkï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_atk(struct block_list *bl)
@@ -2725,8 +2725,8 @@ int status_get_atk(struct block_list *bl)
 	return atk;
 }
 /*==========================================
- * ‘ÎÛ‚Ì¶èAtk‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚Ìï¿½ï¿½ï¿½Atkï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_atk_(struct block_list *bl)
@@ -2738,8 +2738,8 @@ int status_get_atk_(struct block_list *bl)
 	return 0;
 }
 /*==========================================
- * ‘ÎÛ‚ÌAtk2‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Atk2ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_atk2(struct block_list *bl)
@@ -2771,8 +2771,8 @@ int status_get_atk2(struct block_list *bl)
 		return atk2;
 }
 /*==========================================
- * ‘ÎÛ‚Ì¶èAtk2‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚Ìï¿½ï¿½ï¿½Atk2ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_atk_2(struct block_list *bl)
@@ -2783,8 +2783,8 @@ int status_get_atk_2(struct block_list *bl)
 	return 0;
 }
 /*==========================================
- * ‘ÎÛ‚ÌMAtk1‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½MAtk1ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_matk1(struct block_list *bl)
@@ -2801,8 +2801,8 @@ int status_get_matk1(struct block_list *bl)
 	}
 }
 /*==========================================
- * ‘ÎÛ‚ÌMAtk2‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½MAtk2ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_matk2(struct block_list *bl)
@@ -2819,8 +2819,8 @@ int status_get_matk2(struct block_list *bl)
 	}
 }
 /*==========================================
- * ‘ÎÛ‚ÌDef‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½Defï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_def(struct block_list *bl)
@@ -2844,8 +2844,8 @@ int status_get_def(struct block_list *bl)
 	return def;
 }
 /*==========================================
- * ‘ÎÛ‚ÌDef2‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å1ˆÈã
+ * ï¿½ÎÛ‚ï¿½Def2ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_def2(struct block_list *bl)
@@ -2870,8 +2870,8 @@ int status_get_def2(struct block_list *bl)
 	return def2;
 }
 /*==========================================
- * ‘ÎÛ‚ÌMDef‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½MDefï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_mdef(struct block_list *bl)
@@ -2892,8 +2892,8 @@ int status_get_mdef(struct block_list *bl)
  	return mdef;
 }
 /*==========================================
- * ‘ÎÛ‚ÌMDef2‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * ï¿½ÎÛ‚ï¿½MDef2ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Èï¿½
  *------------------------------------------
  */
 int status_get_mdef2(struct block_list *bl)
@@ -2918,9 +2918,9 @@ int status_get_mdef2(struct block_list *bl)
 	return mdef2;
 }
 /*==========================================
- * ‘ÎÛ‚ÌSpeed(ˆÚ“®‘¬“x)‚ğ•Ô‚·(”Ä—p)
- * –ß‚è‚Í®”‚Å1ˆÈã
- * Speed‚Í¬‚³‚¢‚Ù‚¤‚ªˆÚ“®‘¬“x‚ª‘¬‚¢
+ * ï¿½ÎÛ‚ï¿½Speed(ï¿½Ú“ï¿½ï¿½ï¿½ï¿½x)ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * ï¿½ß‚ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½Èï¿½
+ * Speedï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù‚ï¿½ï¿½ï¿½ï¿½Ú“ï¿½ï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  *------------------------------------------
  */
 int status_get_speed(struct block_list *bl)
@@ -2945,8 +2945,8 @@ int status_get_speed(struct block_list *bl)
 	return speed;
 }
 /*==========================================
- * ‘ÎÛ‚ÌaDelay(UŒ‚ƒfƒBƒŒƒC)‚ğ•Ô‚·(”Ä—p)
- * aDelay‚Í¬‚³‚¢‚Ù‚¤‚ªUŒ‚‘¬“x‚ª‘¬‚¢
+ * ï¿½ÎÛ‚ï¿½aDelay(ï¿½Uï¿½ï¿½ï¿½ï¿½ï¿½fï¿½Bï¿½ï¿½ï¿½C)ï¿½ï¿½Ô‚ï¿½(ï¿½Ä—p)
+ * aDelayï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù‚ï¿½ï¿½ï¿½ï¿½Uï¿½ï¿½ï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  *------------------------------------------
  */
 int status_get_adelay(struct block_list *bl)
@@ -3039,17 +3039,17 @@ int status_get_element(struct block_list *bl)
 	nullpo_retr(20, bl);
 
 	if(sc && sc->count) {
-		if( sc->data[SC_FREEZE].timer!=-1 )	// “€Œ‹
+		if( sc->data[SC_FREEZE].timer!=-1 )	// ï¿½ï¿½ï¿½ï¿½
 			return 21;
 		if( sc->data[SC_STONE].timer!=-1 && sc->data[SC_STONE].val2==0)
 			return 22;
-		if( sc->data[SC_BENEDICTIO].timer!=-1 )	// ¹‘Ì~•Ÿ
+		if( sc->data[SC_BENEDICTIO].timer!=-1 )	// ï¿½ï¿½ï¿½Ì~ï¿½ï¿½
 			return 26;
 	}
-	if(bl->type==BL_MOB)	// 10‚ÌˆÊLv*2A‚P‚ÌˆÊ‘®«
+	if(bl->type==BL_MOB)	// 10ï¿½ÌˆÊï¿½Lv*2ï¿½Aï¿½Pï¿½ÌˆÊï¿½ï¿½ï¿½ï¿½ï¿½
 		return ((struct mob_data *)bl)->def_ele;
 	if(bl->type==BL_PC)
-		return 20+((struct map_session_data *)bl)->def_ele;	// –hŒä‘®«Lv1
+		return 20+((struct map_session_data *)bl)->def_ele;	// ï¿½hï¿½ä‘®ï¿½ï¿½Lv1
 	if(bl->type==BL_PET)
 		return ((struct pet_data *)bl)->db->element;
 
@@ -3060,17 +3060,17 @@ int status_get_attack_sc_element(struct block_list *bl)
 {
 	struct status_change *sc =status_get_sc(bl);
 	if(sc && sc->count) {
-		if( sc->data[SC_WATERWEAPON].timer!=-1)	// ƒtƒƒXƒgƒEƒFƒ|ƒ“
+		if( sc->data[SC_WATERWEAPON].timer!=-1)	// ï¿½tï¿½ï¿½ï¿½Xï¿½gï¿½Eï¿½Fï¿½|ï¿½ï¿½
 			return 1;
-		if( sc->data[SC_EARTHWEAPON].timer!=-1)	// ƒTƒCƒYƒ~ƒbƒNƒEƒFƒ|ƒ“
+		if( sc->data[SC_EARTHWEAPON].timer!=-1)	// ï¿½Tï¿½Cï¿½Yï¿½~ï¿½bï¿½Nï¿½Eï¿½Fï¿½|ï¿½ï¿½
 			return 2;
-		if( sc->data[SC_FIREWEAPON].timer!=-1)	// ƒtƒŒ[ƒ€ƒ‰ƒ“ƒ`ƒƒ[
+		if( sc->data[SC_FIREWEAPON].timer!=-1)	// ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½ï¿½ï¿½[
 			return 3;
-		if( sc->data[SC_WINDWEAPON].timer!=-1)	// ƒ‰ƒCƒgƒjƒ“ƒOƒ[ƒ_[
+		if( sc->data[SC_WINDWEAPON].timer!=-1)	// ï¿½ï¿½ï¿½Cï¿½gï¿½jï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½[ï¿½_ï¿½[
 			return 4;
-		if( sc->data[SC_ENCPOISON].timer!=-1)	// ƒGƒ“ƒ`ƒƒƒ“ƒgƒ|ƒCƒYƒ“
+		if( sc->data[SC_ENCPOISON].timer!=-1)	// ï¿½Gï¿½ï¿½ï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½|ï¿½Cï¿½Yï¿½ï¿½
 			return 5;
-		if( sc->data[SC_ASPERSIO].timer!=-1)		// ƒAƒXƒyƒ‹ƒVƒI
+		if( sc->data[SC_ASPERSIO].timer!=-1)		// ï¿½Aï¿½Xï¿½yï¿½ï¿½ï¿½Vï¿½I
 			return 6;
 		if( sc->data[SC_SHADOWWEAPON].timer!=-1)
 			return 7;
@@ -3203,7 +3203,7 @@ int status_get_mode(struct block_list *bl)
 	if (bl->type==BL_SKILL)
 		return (MD_CANATTACK|MD_CANMOVE);	//Default mode for skills: Can attack, can move (think dances).
 	//Default universal mode, can move
-	return MD_CANMOVE;	// ‚Æ‚è‚ ‚¦‚¸“®‚­‚Æ‚¢‚¤‚±‚Æ‚Å1
+	return MD_CANMOVE;	// ï¿½Æ‚è‚ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½1
 }
 
 int status_get_mexp(struct block_list *bl)
@@ -3359,36 +3359,36 @@ int status_get_sc_tick(struct block_list *bl, int type, int tick)
 	//if it is negative, it is an absolute reduction in ms.
 	sd = bl->type == BL_PC?(struct map_session_data *)bl:NULL;
 	switch (type) {
-		case SC_DECREASEAGI:		/* ‘¬“xŒ¸­ */
+		case SC_DECREASEAGI:		/* ï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ */
 			if (sd)	// Celest
 				tick>>=1;
 		break;
-		case SC_ADRENALINE:			/* ƒAƒhƒŒƒiƒŠƒ“ƒ‰ƒbƒVƒ… */
+		case SC_ADRENALINE:			/* ï¿½Aï¿½hï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ */
 		case SC_ADRENALINE2:
-		case SC_WEAPONPERFECTION:	/* ƒEƒFƒ|ƒ“ƒp?ƒtƒFƒNƒVƒ‡ƒ“ */
-		case SC_OVERTHRUST:			/* ƒI?ƒo?ƒXƒ‰ƒXƒg */
+		case SC_WEAPONPERFECTION:	/* ï¿½Eï¿½Fï¿½|ï¿½ï¿½ï¿½p?ï¿½tï¿½Fï¿½Nï¿½Vï¿½ï¿½ï¿½ï¿½ */
+		case SC_OVERTHRUST:			/* ï¿½I?ï¿½o?ï¿½Xï¿½ï¿½ï¿½Xï¿½g */
 			if(sd && pc_checkskill(sd,BS_HILTBINDING)>0)
 				tick += tick / 10;
 		break;
-		case SC_STONE:				/* Î‰» */
+		case SC_STONE:				/* ï¿½Î‰ï¿½ */
 			rate = -200*status_get_mdef(bl);
 		break;
-		case SC_FREEZE:				/* “€Œ‹ */
+		case SC_FREEZE:				/* ï¿½ï¿½ï¿½ï¿½ */
 			rate = 100*status_get_mdef(bl);
 		break;
 		case SC_STUN:	//Reduction in duration is the same as reduction in rate.
 			rate = status_get_sc_def(bl, type);
 		break;
-		case SC_DPOISON:			/* –Ò“Å */
-		case SC_POISON:				/* “Å */
+		case SC_DPOISON:			/* ï¿½Ò“ï¿½ */
+		case SC_POISON:				/* ï¿½ï¿½ */
 			rate = 100*status_get_vit(bl) + 20*status_get_luk(bl);
 		break;
-		case SC_SILENCE:			/* ’¾?iƒŒƒbƒNƒXƒfƒr?ƒij */
+		case SC_SILENCE:			/* ï¿½ï¿½?ï¿½iï¿½ï¿½ï¿½bï¿½Nï¿½Xï¿½fï¿½r?ï¿½iï¿½j */
 		case SC_CONFUSION:
 		case SC_CURSE:
 			rate = 100*status_get_vit(bl);
 		break;
-		case SC_BLIND:				/* ˆÃ? */
+		case SC_BLIND:				/* ï¿½ï¿½? */
 			rate = 10*status_get_lv(bl) + 7*status_get_int(bl);
 			min = 5000; //Minimum 5 secs?
 		break;
@@ -3678,7 +3678,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		if(sc->data[SC_CLOSECONFINE2].timer != -1)
 			status_change_end(bl, SC_CLOSECONFINE2, -1);
 		break;
-	case SC_BERSERK:		/* ƒo?ƒT?ƒN */
+	case SC_BERSERK:		/* ï¿½o?ï¿½T?ï¿½N */
 		if(battle_config.berserk_cancels_buffs)
 		{
 			if (sc->data[SC_ONEHAND].timer != -1)
@@ -3699,7 +3699,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		if(sc->data[SC_KYRIE].timer!=-1)
 			status_change_end(bl,SC_KYRIE,-1);
 		break;
-	case SC_CARTBOOST:		/* ƒJ?ƒgƒu?ƒXƒg */
+	case SC_CARTBOOST:		/* ï¿½J?ï¿½gï¿½u?ï¿½Xï¿½g */
 		if(sc->data[SC_DECREASEAGI].timer!=-1 )
 		{	//Cancel Decrease Agi, but take no further effect [Skotlex]
 			status_change_end(bl,SC_DECREASEAGI,-1);
@@ -3751,12 +3751,12 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		sc->data[type].timer = -1;
 	}
 
-	switch(type){	/* ˆÙí‚Ìí—Ş‚²‚Æ‚Ì?— */
-		case SC_PROVOKE:			/* ƒvƒƒ{ƒbƒN */
+	switch(type){	/* ï¿½Ùï¿½Ìï¿½Ş‚ï¿½ï¿½Æ‚ï¿½?ï¿½ï¿½ */
+		case SC_PROVOKE:			/* ï¿½vï¿½ï¿½ï¿½{ï¿½bï¿½N */
 			calc_flag = 1;
-			if(tick <= 0) tick = 1000;	/* (ƒI?ƒgƒo?ƒT?ƒN) */
+			if(tick <= 0) tick = 1000;	/* (ï¿½I?ï¿½gï¿½o?ï¿½T?ï¿½N) */
 			break;
-		case SC_ENDURE:				/* ƒCƒ“ƒfƒ…ƒA */
+		case SC_ENDURE:				/* ï¿½Cï¿½ï¿½ï¿½fï¿½ï¿½ï¿½A */
 			if(tick <= 0) tick = 1000 * 60;
 			calc_flag = 1; // for updating mdef
 			val2 = 7; // [Celest]
@@ -3771,14 +3771,14 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			}
 			break;
 		
-		case SC_SIGNUMCRUCIS:		/* ƒVƒOƒiƒ€ƒNƒ‹ƒVƒX */
+		case SC_SIGNUMCRUCIS:		/* ï¿½Vï¿½Oï¿½iï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Vï¿½X */
 			calc_flag = 1;
 			val2 = 10 + val1*2;
 			if (!(flag&4))
 				tick = 600*1000;
 			clif_emotion(bl,4);
 			break;
-		case SC_MAXIMIZEPOWER:		/* ƒ}ƒLƒVƒ}ƒCƒYƒpƒ?(SP‚ª1Œ¸‚éŠÔ,val2‚É‚à) */
+		case SC_MAXIMIZEPOWER:		/* ï¿½}ï¿½Lï¿½Vï¿½}ï¿½Cï¿½Yï¿½pï¿½ï¿½?(SPï¿½ï¿½1ï¿½ï¿½ï¿½éï¿½ï¿½,val2ï¿½É‚ï¿½) */
 			if (!(flag&4))
 			{
 				if(bl->type != BL_PC)
@@ -3787,26 +3787,26 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			}
 			break;
 		case SC_EDP:	// [Celest]
-			val2 = val1 + 2;			/* –Ò“Å•t?Šm—¦(%) */
+			val2 = val1 + 2;			/* ï¿½Ò“Å•t?ï¿½mï¿½ï¿½(%) */
 			calc_flag = 1;
 			break;
-		case SC_POISONREACT:	/* ƒ|ƒCƒYƒ“ƒŠƒAƒNƒg */
+		case SC_POISONREACT:	/* ï¿½|ï¿½Cï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½Nï¿½g */
 			if (!(flag&4))
 				val2=val1/2 + val1%2; // [Celest]
 			break;
 		case SC_MAGICROD:
 			val2 = val1*20;
 			break;
-		case SC_KYRIE:				/* ƒLƒŠƒGƒGƒŒƒCƒ\ƒ“ */
+		case SC_KYRIE:				/* ï¿½Lï¿½ï¿½ï¿½Gï¿½Gï¿½ï¿½ï¿½Cï¿½\ï¿½ï¿½ */
 			if (!(flag&4))
 			{
-				val2 = status_get_max_hp(bl) * (val1 * 2 + 10) / 100;/* ‘Ï‹v“x */
-				val3 = (val1 / 2 + 5);	/* ‰ñ? */
+				val2 = status_get_max_hp(bl) * (val1 * 2 + 10) / 100;/* ï¿½Ï‹vï¿½x */
+				val3 = (val1 / 2 + 5);	/* ï¿½ï¿½? */
 			}
 			break;
 		case SC_MINDBREAKER:
 			calc_flag = 1;
-			if(tick <= 0) tick = 1000;	/* (ƒI?ƒgƒo?ƒT?ƒN) */
+			if(tick <= 0) tick = 1000;	/* (ï¿½I?ï¿½gï¿½o?ï¿½T?ï¿½N) */
 			break;
 		case SC_MAGICPOWER:
 			calc_flag = 1;
@@ -3816,19 +3816,19 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			if (!(flag&4))
 				val2 = 5;
 			break;
-		case SC_ENCPOISON:			/* ƒGƒ“ƒ`ƒƒƒ“ƒgƒ|ƒCƒYƒ“ */
+		case SC_ENCPOISON:			/* ï¿½Gï¿½ï¿½ï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½|ï¿½Cï¿½Yï¿½ï¿½ */
 			calc_flag = 1;
-			val2=(((val1 - 1) / 2) + 3)*100;	/* “Å•t?Šm—¦ */
-		case SC_ASPERSIO:			/* ƒAƒXƒyƒ‹ƒVƒI */
-		case SC_FIREWEAPON:		/* ƒtƒŒ?ƒ€ƒ‰ƒ“ƒ`ƒƒ? */
-		case SC_WATERWEAPON:		/* ƒtƒƒXƒgƒEƒFƒ|ƒ“ */
-		case SC_WINDWEAPON:	/* ƒ‰ƒCƒgƒjƒ“ƒOƒ?ƒ_? */
-		case SC_EARTHWEAPON:		/* ƒTƒCƒYƒ~ƒbƒNƒEƒFƒ|ƒ“ */
+			val2=(((val1 - 1) / 2) + 3)*100;	/* ï¿½Å•t?ï¿½mï¿½ï¿½ */
+		case SC_ASPERSIO:			/* ï¿½Aï¿½Xï¿½yï¿½ï¿½ï¿½Vï¿½I */
+		case SC_FIREWEAPON:		/* ï¿½tï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½ï¿½? */
+		case SC_WATERWEAPON:		/* ï¿½tï¿½ï¿½ï¿½Xï¿½gï¿½Eï¿½Fï¿½|ï¿½ï¿½ */
+		case SC_WINDWEAPON:	/* ï¿½ï¿½ï¿½Cï¿½gï¿½jï¿½ï¿½ï¿½Oï¿½ï¿½?ï¿½_? */
+		case SC_EARTHWEAPON:		/* ï¿½Tï¿½Cï¿½Yï¿½~ï¿½bï¿½Nï¿½Eï¿½Fï¿½|ï¿½ï¿½ */
 		case SC_SHADOWWEAPON:
 		case SC_GHOSTWEAPON:
 			skill_enchant_elemental_end(bl,type);
 			break;
-		case SC_PROVIDENCE:			/* ƒvƒƒ”ƒBƒfƒ“ƒX */
+		case SC_PROVIDENCE:			/* ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½fï¿½ï¿½ï¿½X */
 			calc_flag = 1;
 			val2=val1*5;
 			break;
@@ -3842,7 +3842,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			if (val2==0) val2=85;
 			break;
 
-		case SC_AUTOSPELL:			/* ƒI?ƒgƒXƒyƒ‹ */
+		case SC_AUTOSPELL:			/* ï¿½I?ï¿½gï¿½Xï¿½yï¿½ï¿½ */
 			val4 = 5 + val1*2;
 			break;
 
@@ -3855,12 +3855,12 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val3 = val1*3;
 			break;
 
-		case SC_SPEARSQUICKEN:		/* ƒXƒsƒAƒNƒCƒbƒPƒ“ */
+		case SC_SPEARSQUICKEN:		/* ï¿½Xï¿½sï¿½Aï¿½Nï¿½Cï¿½bï¿½Pï¿½ï¿½ */
 			calc_flag = 1;
 			val2 = 20+val1;
 			break;
 
-		case SC_BLADESTOP:		/* ”’næ‚è */
+		case SC_BLADESTOP:		/* ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ */
 			if(val2==2) clif_bladestop((struct block_list *)val3,(struct block_list *)val4,1);
 			break;
 
@@ -3868,7 +3868,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val2 = bl->id;
 			skill_setmapcell(bl,CG_MOONLIT, val1, CELL_SETMOONLIT);
 			break;
-		case SC_DANCING:			/* ƒ_ƒ“ƒX/‰‰‘t’† */
+		case SC_DANCING:			/* ï¿½_ï¿½ï¿½ï¿½X/ï¿½ï¿½ï¿½tï¿½ï¿½ */
 			calc_flag = 1;
 			if (!(flag&4))
 			{
@@ -3877,7 +3877,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			}
 			break;
 
-		case SC_EXPLOSIONSPIRITS:	// ”š—ô”g“®
+		case SC_EXPLOSIONSPIRITS:	// ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½
 			calc_flag = 1;
 			val2 = 75 + 25*val1;
 			break;
@@ -3885,7 +3885,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val3 = val4 = 0;
 			break;
 
-		case SC_ASPDPOTION0:		/* ?‘¬ƒ|?ƒVƒ‡ƒ“ */
+		case SC_ASPDPOTION0:		/* ?ï¿½ï¿½ï¿½|?ï¿½Vï¿½ï¿½ï¿½ï¿½ */
 		case SC_ASPDPOTION1:
 		case SC_ASPDPOTION2:
 		case SC_ASPDPOTION3:
@@ -3895,7 +3895,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 
 		case SC_XMAS: // Xmas Suit [Valaris]
-		case SC_WEDDING:	//Œ‹¥—p(Œ‹¥ˆßÖ‚É‚È‚Á‚Ä?‚­‚Ì‚ª?‚¢‚Æ‚©)
+		case SC_WEDDING:	//ï¿½ï¿½ï¿½ï¿½ï¿½p(ï¿½ï¿½ï¿½ï¿½ï¿½ßÖ‚É‚È‚ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½Ì‚ï¿½?ï¿½ï¿½ï¿½Æ‚ï¿½)
 		if (sd)
 		{	//Change look.
 			pc_stopattack(sd);
@@ -3916,7 +3916,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->status.clothes_color);
 		}
 			break;
-		case SC_NOCHAT:	//ƒ`ƒƒƒbƒg‹Ö~?‘Ô
+		case SC_NOCHAT:	//ï¿½`ï¿½ï¿½ï¿½bï¿½gï¿½Ö~?ï¿½ï¿½
 			{
 				if(!battle_config.muting_players)
 					return 0;
@@ -3929,7 +3929,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 
 		/* option1 */
-		case SC_STONE:				/* Î‰» */
+		case SC_STONE:				/* ï¿½Î‰ï¿½ */
 			if (flag&4)
 				break;
 			val2 = 1;
@@ -3939,7 +3939,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 
 			/* option2 */
-		case SC_DPOISON:			/* –Ò“Å */
+		case SC_DPOISON:			/* ï¿½Ò“ï¿½ */
 		{
 			int hp = status_get_hp(bl);
 			int mhp = status_get_max_hp(bl);
@@ -3961,7 +3961,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				}
 			}
 		}	// fall through
-		case SC_POISON:				/* “Å */
+		case SC_POISON:				/* ï¿½ï¿½ */
 		{
 			int mhp;
 
@@ -3987,15 +3987,15 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			tick = 10000;
 			break;
 		/* option */
-		case SC_HIDING:		/* ƒnƒCƒfƒBƒ“ƒO */
+		case SC_HIDING:		/* ï¿½nï¿½Cï¿½fï¿½Bï¿½ï¿½ï¿½O */
 			calc_flag = 1;
 			if(bl->type == BL_PC && !(flag&4)) {
-				val2 = tick / 1000;		/* ?ŠÔ */
+				val2 = tick / 1000;		/* ï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½ */
 				tick = 1000;
 			}
 			break;
 		case SC_CHASEWALK:
-		case SC_CLOAKING:		/* ƒNƒ?ƒLƒ“ƒO */
+		case SC_CLOAKING:		/* ï¿½Nï¿½ï¿½?ï¿½Lï¿½ï¿½ï¿½O */
 			if (flag&4)
 				break;
 			if(bl->type != BL_PC)
@@ -4004,7 +4004,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val2 = tick;
 			val3 = type==SC_CLOAKING ? 130-val1*3 : 135-val1*5;
 			break;
-		case SC_SIGHT:			/* ƒTƒCƒg/ƒ‹ƒAƒt */
+		case SC_SIGHT:			/* ï¿½Tï¿½Cï¿½g/ï¿½ï¿½ï¿½Aï¿½t */
 		case SC_RUWACH:
 		case SC_SIGHTBLASTER:
 			if (flag&4)
@@ -4061,7 +4061,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			}
 			break;
 
-		case SC_TENSIONRELAX:	/* ƒeƒ“ƒVƒ‡ƒ“ƒŠƒ‰ƒbƒNƒX */
+		case SC_TENSIONRELAX:	/* ï¿½eï¿½ï¿½ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Nï¿½X */
 			if (flag&4)
 				break;
 			if(bl->type == BL_PC) {
@@ -4069,11 +4069,11 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			} else return 0;
 			break;
 
-		case SC_PARRYING:		/* ƒpƒŠƒCƒ“ƒO */
+		case SC_PARRYING:		/* ï¿½pï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½O */
 		    val2 = 20 + val1*3;
 			break;
 
-		case SC_WINDWALK:		/* ƒEƒCƒ“ƒhƒEƒH?ƒN */
+		case SC_WINDWALK:		/* ï¿½Eï¿½Cï¿½ï¿½ï¿½hï¿½Eï¿½H?ï¿½N */
 			calc_flag = 1;
 			val2 = (val1+1)/2; // Flee bonus is 1/1/2/2/3/3/4/4/5/5, movement speed % increase is 4 times that
 			break;
@@ -4084,7 +4084,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			if (val2 == 5) sc_start(bl,SC_BLEEDING,100,val1,skill_get_time2(StatusSkillChangeTable[type],val1));
 			break;
 
-		case SC_BERSERK:		/* ƒo?ƒT?ƒN */
+		case SC_BERSERK:		/* ï¿½o?ï¿½T?ï¿½N */
 			if(sd && !(flag&4)){
 				sd->status.hp = sd->status.max_hp * 3;
 				sd->status.sp = 0;
@@ -4116,7 +4116,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				calc_flag = 1;
 			break;
 
-		case SC_MARIONETTE:		/* ƒ}ƒŠƒIƒlƒbƒgƒRƒ“ƒgƒ?ƒ‹ */
+		case SC_MARIONETTE:		/* ï¿½}ï¿½ï¿½ï¿½Iï¿½lï¿½bï¿½gï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½ï¿½ */
 		case SC_MARIONETTE2:
 			if (flag&4)
 				break;
@@ -4127,12 +4127,12 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			calc_flag = 1;
 			break;
 
-		case SC_REJECTSWORD:	/* ƒŠƒWƒFƒNƒgƒ\?ƒh */
-			val2 = 3; //3‰ñU?‚ğ’µ‚Ë•Ô‚·
+		case SC_REJECTSWORD:	/* ï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½gï¿½\?ï¿½h */
+			val2 = 3; //3ï¿½ï¿½U?ï¿½ğ’µ‚Ë•Ô‚ï¿½
 			break;
 
-		case SC_MEMORIZE:		/* ƒƒ‚ƒ‰ƒCƒY */
-			val2 = 5; //‰ñ‰r¥‚ğ1/3‚É‚·‚é
+		case SC_MEMORIZE:		/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Cï¿½Y */
+			val2 = 5; //ï¿½ï¿½rï¿½ï¿½ï¿½ï¿½1/3ï¿½É‚ï¿½ï¿½ï¿½
 			break;
 
 		case SC_GRAVITATION:
@@ -4161,7 +4161,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				tick = 1000;
 			break;
 
-		case SC_DEVOTION:			/* ƒfƒBƒ{?ƒVƒ‡ƒ“ */
+		case SC_DEVOTION:			/* ï¿½fï¿½Bï¿½{?ï¿½Vï¿½ï¿½ï¿½ï¿½ */
 		{
 			struct map_session_data *src;
 			if ((src = map_id2sd(val1)) && src->sc.count)
@@ -4251,43 +4251,43 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			calc_flag = 1;
 			break;
 		case SC_BLESSING:
-		case SC_CONCENTRATION:	/* ƒRƒ“ƒZƒ“ƒgƒŒ?ƒVƒ‡ƒ“ */case SC_ETERNALCHAOS:		/* ƒGƒ^?ƒiƒ‹ƒJƒIƒX */
-		case SC_DRUMBATTLE:			/* ?‘¾ŒÛ‚Ì‹¿‚« */
-		case SC_NIBELUNGEN:			/* ƒj?ƒxƒ‹ƒ“ƒO‚Ìw—Ö */
-		case SC_SIEGFRIED:			/* •s€g‚ÌƒW?ƒNƒtƒŠ?ƒh */
-		case SC_WHISTLE:			/* Œû“J */
-		case SC_ASSNCROS:			/* —[—z‚ÌƒAƒTƒVƒ“ƒNƒƒX */
-		case SC_APPLEIDUN:			/* ƒCƒhƒDƒ“‚Ì—ÑŒç */
-		case SC_HUMMING:			/* ƒnƒ~ƒ“ƒO */
+		case SC_CONCENTRATION:	/* ï¿½Rï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½Vï¿½ï¿½ï¿½ï¿½ */case SC_ETERNALCHAOS:		/* ï¿½Gï¿½^?ï¿½iï¿½ï¿½ï¿½Jï¿½Iï¿½X */
+		case SC_DRUMBATTLE:			/* ?ï¿½ï¿½ï¿½Û‚Ì‹ï¿½ï¿½ï¿½ */
+		case SC_NIBELUNGEN:			/* ï¿½j?ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½Ìwï¿½ï¿½ */
+		case SC_SIEGFRIED:			/* ï¿½sï¿½ï¿½ï¿½gï¿½ÌƒW?ï¿½Nï¿½tï¿½ï¿½?ï¿½h */
+		case SC_WHISTLE:			/* ï¿½ï¿½ï¿½J */
+		case SC_ASSNCROS:			/* ï¿½[ï¿½zï¿½ÌƒAï¿½Tï¿½Vï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½X */
+		case SC_APPLEIDUN:			/* ï¿½Cï¿½hï¿½Dï¿½ï¿½ï¿½Ì—ÑŒï¿½ */
+		case SC_HUMMING:			/* ï¿½nï¿½~ï¿½ï¿½ï¿½O */
 		case SC_ATKPOTION: // Valaris
 		case SC_MATKPOTION:
-		case SC_FORTUNE:			/* K‰^‚ÌƒLƒX */
-		case SC_SERVICE4U:			/* ƒT?ƒrƒXƒtƒH?ƒ†? */
+		case SC_FORTUNE:			/* ï¿½Kï¿½^ï¿½ÌƒLï¿½X */
+		case SC_SERVICE4U:			/* ï¿½T?ï¿½rï¿½Xï¿½tï¿½H?ï¿½ï¿½? */
 		case SC_ADRENALINE2:
-		case SC_ADRENALINE:			/* ƒAƒhƒŒƒiƒŠƒ“ƒ‰ƒbƒVƒ… */
-		case SC_BLIND:				/* ˆÃ? */
+		case SC_ADRENALINE:			/* ï¿½Aï¿½hï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ */
+		case SC_BLIND:				/* ï¿½ï¿½? */
 		case SC_CURSE:
-		case SC_CONCENTRATE:		/* W’†—ÍŒüã */
-		case SC_ANGELUS:			/* ƒAƒ“ƒ[ƒ‹ƒX */
-		case SC_IMPOSITIO:			/* ƒCƒ“ƒ|ƒVƒeƒBƒIƒ}ƒkƒX */
-		case SC_GLORIA:				/* ƒOƒƒŠƒA */
-		case SC_LOUD:				/* ƒ‰ƒEƒhƒ{ƒCƒX */
+		case SC_CONCENTRATE:		/* ï¿½Wï¿½ï¿½ï¿½ÍŒï¿½ï¿½ï¿½ */
+		case SC_ANGELUS:			/* ï¿½Aï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½X */
+		case SC_IMPOSITIO:			/* ï¿½Cï¿½ï¿½ï¿½|ï¿½Vï¿½eï¿½Bï¿½Iï¿½}ï¿½kï¿½X */
+		case SC_GLORIA:				/* ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½A */
+		case SC_LOUD:				/* ï¿½ï¿½ï¿½Eï¿½hï¿½{ï¿½Cï¿½X */
 		case SC_KEEPING:
 		case SC_BARRIER:
-		case SC_MELTDOWN:		/* ƒƒ‹ƒgƒ_ƒEƒ“ */
-		case SC_TRUESIGHT:		/* ƒgƒDƒ‹?ƒTƒCƒg */
-		case SC_SPIDERWEB:		/* ƒXƒpƒCƒ_?ƒEƒFƒbƒu */
+		case SC_MELTDOWN:		/* ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½_ï¿½Eï¿½ï¿½ */
+		case SC_TRUESIGHT:		/* ï¿½gï¿½Dï¿½ï¿½?ï¿½Tï¿½Cï¿½g */
+		case SC_SPIDERWEB:		/* ï¿½Xï¿½pï¿½Cï¿½_?ï¿½Eï¿½Fï¿½bï¿½u */
 		case SC_SLOWDOWN:
 		case SC_SPEEDUP0:
 		case SC_SPEEDUP1:
 		case SC_INCALLSTATUS:
-		case SC_INCHIT:			/* HITã¸ */
-		case SC_INCHITRATE:		/* HIT%ã¸ */
-		case SC_INCFLEE:		/* FLEEã¸ */
-		case SC_INCFLEERATE:		/* FLEE%ã¸ */
-		case SC_INCMHPRATE:		/* MHP%ã¸ */
-		case SC_INCMSPRATE:		/* MSP%ã¸ */
-		case SC_INCATKRATE:		/* ATK%ã¸ */
+		case SC_INCHIT:			/* HITï¿½ã¸ */
+		case SC_INCHITRATE:		/* HIT%ï¿½ã¸ */
+		case SC_INCFLEE:		/* FLEEï¿½ã¸ */
+		case SC_INCFLEERATE:		/* FLEE%ï¿½ã¸ */
+		case SC_INCMHPRATE:		/* MHP%ï¿½ã¸ */
+		case SC_INCMSPRATE:		/* MSP%ï¿½ã¸ */
+		case SC_INCATKRATE:		/* ATK%ï¿½ã¸ */
 		case SC_INCMATKRATE:
 		case SC_INCDEFRATE:
 		case SC_INCSTR:
@@ -4315,52 +4315,52 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_FUSION:
 		case SC_SKE:
 		case SC_SWOO: // [marquis007]
-		case SC_STEELBODY:			// ‹à„
+		case SC_STEELBODY:			// ï¿½ï¿½ï¿½ï¿½
 		case SC_SKA:
 		case SC_TWOHANDQUICKEN:		/* 2HQ */
-		case SC_INCREASEAGI:		/* ‘¬“xã¸ */
-		case SC_DECREASEAGI:		/* ‘¬“xŒ¸­ */
+		case SC_INCREASEAGI:		/* ï¿½ï¿½ï¿½xï¿½ã¸ */
+		case SC_DECREASEAGI:		/* ï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ */
 		case SC_ONEHAND:
-		case SC_DONTFORGETME:		/* „‚ğ–Y‚ê‚È‚¢‚Å */
+		case SC_DONTFORGETME:		/* ï¿½ï¿½ï¿½ï¿½Yï¿½ï¿½È‚ï¿½ï¿½ï¿½ */
 		case SC_DELUGE:
-		case SC_CARTBOOST:		/* ƒJ?ƒgƒu?ƒXƒg */
-		case SC_QUAGMIRE:			/* ƒNƒ@ƒOƒ}ƒCƒA */
+		case SC_CARTBOOST:		/* ï¿½J?ï¿½gï¿½u?ï¿½Xï¿½g */
+		case SC_QUAGMIRE:			/* ï¿½Nï¿½@ï¿½Oï¿½}ï¿½Cï¿½A */
 			calc_flag = 1;
 			break;
 
-		case SC_LULLABY:			/* qç‰S */
+		case SC_LULLABY:			/* ï¿½qï¿½ï¿½S */
 		case SC_RICHMANKIM:
-		case SC_ROKISWEIL:			/* ƒƒL‚Ì‹©‚Ñ */
-		case SC_INTOABYSS:			/* [•£‚Ì’†‚É */
-		case SC_POEMBRAGI:			/* ƒuƒ‰ƒM‚Ì */
-		case SC_UGLYDANCE:			/* ©•ªŸè‚Èƒ_ƒ“ƒX */
-		case SC_WEAPONPERFECTION:	/* ƒEƒFƒ|ƒ“ƒp?ƒtƒFƒNƒVƒ‡ƒ“ */
-		case SC_TRICKDEAD:			/* €‚ñ‚¾‚Ó‚è */
-		case SC_FREEZE:				/* “€Œ‹ */
-		case SC_STUN:				/* ƒXƒ^ƒ“ival2‚Éƒ~ƒŠ•bƒZƒbƒgj */
-		case SC_ENERGYCOAT:			/* ƒGƒiƒW?ƒR?ƒg */
+		case SC_ROKISWEIL:			/* ï¿½ï¿½ï¿½Lï¿½Ì‹ï¿½ï¿½ï¿½ */
+		case SC_INTOABYSS:			/* ï¿½[ï¿½ï¿½ï¿½Ì’ï¿½ï¿½ï¿½ */
+		case SC_POEMBRAGI:			/* ï¿½uï¿½ï¿½ï¿½Mï¿½Ìï¿½ */
+		case SC_UGLYDANCE:			/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Èƒ_ï¿½ï¿½ï¿½X */
+		case SC_WEAPONPERFECTION:	/* ï¿½Eï¿½Fï¿½|ï¿½ï¿½ï¿½p?ï¿½tï¿½Fï¿½Nï¿½Vï¿½ï¿½ï¿½ï¿½ */
+		case SC_TRICKDEAD:			/* ï¿½ï¿½ï¿½ñ‚¾‚Ó‚ï¿½ */
+		case SC_FREEZE:				/* ï¿½ï¿½ï¿½ï¿½ */
+		case SC_STUN:				/* ï¿½Xï¿½^ï¿½ï¿½ï¿½ival2ï¿½Éƒ~ï¿½ï¿½ï¿½bï¿½Zï¿½bï¿½gï¿½j */
+		case SC_ENERGYCOAT:			/* ï¿½Gï¿½iï¿½W?ï¿½R?ï¿½g */
 		case SC_SAFETYWALL:
-		case SC_OVERTHRUST:			/* ƒI?ƒo?ƒXƒ‰ƒXƒg */
+		case SC_OVERTHRUST:			/* ï¿½I?ï¿½o?ï¿½Xï¿½ï¿½ï¿½Xï¿½g */
 		case SC_SLOWPOISON: //Slow potion can be activated even if not poisoned.
-		case SC_SUFFRAGIUM:			/* ƒTƒtƒ‰ƒMƒ€ */
-		case SC_BENEDICTIO:			/* ¹? */
-		case SC_MAGNIFICAT:			/* ƒ}ƒOƒjƒtƒBƒJ?ƒg */
-		case SC_AETERNA:			/* ƒG?ƒeƒ‹ƒi */
+		case SC_SUFFRAGIUM:			/* ï¿½Tï¿½tï¿½ï¿½ï¿½Mï¿½ï¿½ */
+		case SC_BENEDICTIO:			/* ï¿½ï¿½? */
+		case SC_MAGNIFICAT:			/* ï¿½}ï¿½Oï¿½jï¿½tï¿½Bï¿½J?ï¿½g */
+		case SC_AETERNA:			/* ï¿½G?ï¿½eï¿½ï¿½ï¿½i */
   		case SC_STRIPARMOR:
 		case SC_STRIPHELM:
 		case SC_CP_WEAPON:
 		case SC_CP_SHIELD:
 		case SC_CP_ARMOR:
 		case SC_CP_HELM:
-		case SC_EXTREMITYFIST:		/* ˆ¢C—…”e™€Œ */
-		case SC_ANKLE:	/* ƒAƒ“ƒNƒ‹ */
-		case SC_BLADESTOP_WAIT:		/* ”’næ‚è(‘Ò‚¿) */
+		case SC_EXTREMITYFIST:		/* ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½eï¿½ï¿½ï¿½ï¿½ */
+		case SC_ANKLE:	/* ï¿½Aï¿½ï¿½ï¿½Nï¿½ï¿½ */
+		case SC_BLADESTOP_WAIT:		/* ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½(ï¿½Ò‚ï¿½) */
 		case SC_HALLUCINATION:
-		case SC_SPLASHER:		/* ƒxƒiƒ€ƒXƒvƒ‰ƒbƒVƒƒ? */
+		case SC_SPLASHER:		/* ï¿½xï¿½iï¿½ï¿½ï¿½Xï¿½vï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½? */
 		case SC_FOGWALL:
 		case SC_PRESERVE:
 		case SC_DOUBLECAST:
-		case SC_AURABLADE:		/* ƒI?ƒ‰ƒuƒŒ?ƒh */
+		case SC_AURABLADE:		/* ï¿½I?ï¿½ï¿½ï¿½uï¿½ï¿½?ï¿½h */
 		case SC_BABY:
 		case SC_WATK_ELEMENT:
 		case SC_ARMOR_ELEMENT:
@@ -4377,8 +4377,8 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_INTRAVISION:
 		case SC_BASILICA:
 		case SC_MAXOVERTHRUST:
-		case SC_SILENCE:			/* ’¾?iƒŒƒbƒNƒXƒfƒr?ƒij */
-		case SC_ASSUMPTIO:		/* ƒAƒXƒ€ƒvƒeƒBƒI */
+		case SC_SILENCE:			/* ï¿½ï¿½?ï¿½iï¿½ï¿½ï¿½bï¿½Nï¿½Xï¿½fï¿½r?ï¿½iï¿½j */
+		case SC_ASSUMPTIO:		/* ï¿½Aï¿½Xï¿½ï¿½ï¿½vï¿½eï¿½Bï¿½I */
 		case SC_SLEEP:
 			break;
 
@@ -4398,7 +4398,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				pc_setstand(sd);
 		case SC_TRICKDEAD:
 			battle_stopattack(bl);
-			skill_stop_dancing(bl);	/* ‰‰‘t/ƒ_ƒ“ƒX‚Ì’†? */
+			skill_stop_dancing(bl);	/* ï¿½ï¿½ï¿½t/ï¿½_ï¿½ï¿½ï¿½Xï¿½Ì’ï¿½? */
 			// Cancel cast when get status [LuzZza]
 			if (battle_config.sc_castcancel)
 				skill_castcancel(bl, 0);
@@ -4413,7 +4413,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_HIDING:
 		case SC_CLOAKING:
 		case SC_CHASEWALK:
-			battle_stopattack(bl);	/* U?’â~ */
+			battle_stopattack(bl);	/* ï¿½U?ï¿½ï¿½~ */
 		break;
 	}
 
@@ -4445,7 +4445,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_BLIND:
 			sc->opt2 |= 1<<(type-SC_POISON);
 			break;
-		case SC_DPOISON:	// b’è‚Å“Å‚ÌƒGƒtƒFƒNƒg‚ğg—p
+		case SC_DPOISON:	// ï¿½bï¿½ï¿½Å“Å‚ÌƒGï¿½tï¿½Fï¿½Nï¿½gï¿½ï¿½ï¿½gï¿½p
 			sc->opt2 |= OPT2_DPOISON;
 			break;
 		case SC_SIGNUMCRUCIS:
@@ -4453,50 +4453,50 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 		//OPT3
 		case SC_TWOHANDQUICKEN:		/* 2HQ */
-		case SC_SPEARSQUICKEN:		/* ƒXƒsƒAƒNƒCƒbƒPƒ“ */
-		case SC_CONCENTRATION:	/* ƒRƒ“ƒZƒ“ƒgƒŒ?ƒVƒ‡ƒ“ */
+		case SC_SPEARSQUICKEN:		/* ï¿½Xï¿½sï¿½Aï¿½Nï¿½Cï¿½bï¿½Pï¿½ï¿½ */
+		case SC_CONCENTRATION:	/* ï¿½Rï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½Vï¿½ï¿½ï¿½ï¿½ */
 			sc->opt3 |= 1;
 			opt_flag = 0;
 			break;
 		case SC_MAXOVERTHRUST:
-		case SC_OVERTHRUST:			/* ƒI?ƒo?ƒXƒ‰ƒXƒg */
+		case SC_OVERTHRUST:			/* ï¿½I?ï¿½o?ï¿½Xï¿½ï¿½ï¿½Xï¿½g */
 		case SC_SWOO:	//Why does it shares the same opt as Overthrust? Perhaps we'll never know...
 			sc->opt3 |= 2;
 			opt_flag = 0;
 			break;
-		case SC_ENERGYCOAT:			/* ƒGƒiƒW?ƒR?ƒg */
+		case SC_ENERGYCOAT:			/* ï¿½Gï¿½iï¿½W?ï¿½R?ï¿½g */
 			sc->opt3 |= 4;
 			opt_flag = 0;
 			break;
-		case SC_INCATKRATE:		/* ATK%ã¸ */
+		case SC_INCATKRATE:		/* ATK%ï¿½ã¸ */
 			//Simulate Explosion Spirits effect for NPC_POWERUP [Skotlex]
 			if (bl->type != BL_MOB) {
 				opt_flag = 0;
 				break;
 			}
-		case SC_EXPLOSIONSPIRITS:	// ”š—ô”g“®
+		case SC_EXPLOSIONSPIRITS:	// ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½
 			sc->opt3 |= 8;
 			opt_flag = 0;
 			break;
-		case SC_STEELBODY:			// ‹à„
+		case SC_STEELBODY:			// ï¿½ï¿½ï¿½ï¿½
 		case SC_SKA:
 			sc->opt3 |= 16;
 			opt_flag = 0;
 			break;
-		case SC_BLADESTOP:		/* ”’næ‚è */
+		case SC_BLADESTOP:		/* ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ */
 			sc->opt3 |= 32;
 			opt_flag = 0;
 			break;
-		case SC_BERSERK:		/* ƒo?ƒT?ƒN */
+		case SC_BERSERK:		/* ï¿½o?ï¿½T?ï¿½N */
 			sc->opt3 |= 128;
 			opt_flag = 0;
 			break;
-		case SC_MARIONETTE:		/* ƒ}ƒŠƒIƒlƒbƒgƒRƒ“ƒgƒ?ƒ‹ */
+		case SC_MARIONETTE:		/* ï¿½}ï¿½ï¿½ï¿½Iï¿½lï¿½bï¿½gï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½ï¿½ */
 		case SC_MARIONETTE2:
 			sc->opt3 |= 1024;
 			opt_flag = 0;
 			break;
-		case SC_ASSUMPTIO:		/* ƒAƒXƒ€ƒvƒeƒBƒI */
+		case SC_ASSUMPTIO:		/* ï¿½Aï¿½Xï¿½ï¿½ï¿½vï¿½eï¿½Bï¿½I */
 			sc->opt3 |= 2048;
 			opt_flag = 0;
 			break;
@@ -4537,26 +4537,26 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			opt_flag = 0;
 	}
 
-	if(opt_flag)	/* option‚Ì?X */
+	if(opt_flag)	/* optionï¿½ï¿½?ï¿½X */
 		clif_changeoption(bl);
 
-	(sc->count)++;	/* ƒXƒe?ƒ^ƒXˆÙí‚Ì? */
+	(sc->count)++;	/* ï¿½Xï¿½e?ï¿½^ï¿½Xï¿½Ùï¿½ï¿½? */
 
 	sc->data[type].val1 = val1;
 	sc->data[type].val2 = val2;
 	sc->data[type].val3 = val3;
 	sc->data[type].val4 = val4;
-	/* ƒ^ƒCƒ}?İ’è */
+	/* ï¿½^ï¿½Cï¿½}?ï¿½İ’ï¿½ */
 	sc->data[type].timer = add_timer(
 		gettick() + tick, status_change_timer, bl->id, type);
 
 	if(sd) {
 		if (calc_flag)
-			status_calc_pc(sd,0);	/* ƒXƒe?ƒ^ƒXÄŒvZ */
+			status_calc_pc(sd,0);	/* ï¿½Xï¿½e?ï¿½^ï¿½Xï¿½ÄŒvï¿½Z */
 		if(save_flag)
 			chrif_save(sd,0); // save the player status
 		if(updateflag)
-			clif_updatestatus(sd,updateflag);	/* ƒXƒe?ƒ^ƒX‚ğƒNƒ‰ƒCƒAƒ“ƒg‚É‘—‚é */
+			clif_updatestatus(sd,updateflag);	/* ï¿½Xï¿½e?ï¿½^ï¿½Xï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½É‘ï¿½ï¿½ï¿½ */
 		if (sd->pd)
 			pet_sc_check(sd, type); //Skotlex: Pet Status Effect Healing
 		if (type==SC_RUN)
@@ -4565,7 +4565,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 	return 1;
 }
 /*==========================================
- * ƒXƒe[ƒ^ƒXˆÙí‘S‰ğœ
+ * ï¿½Xï¿½eï¿½[ï¿½^ï¿½Xï¿½Ùï¿½Sï¿½ï¿½ï¿½ï¿½
  *------------------------------------------
  */
 int status_change_clear(struct block_list *bl,int type)
@@ -4607,7 +4607,7 @@ int status_change_clear(struct block_list *bl,int type)
 }
 
 /*==========================================
- * ƒXƒe[ƒ^ƒXˆÙíI—¹
+ * ï¿½Xï¿½eï¿½[ï¿½^ï¿½Xï¿½Ùï¿½Iï¿½ï¿½
  *------------------------------------------
  */
 int status_change_end( struct block_list* bl , int type,int tid )
@@ -4632,79 +4632,79 @@ int status_change_end( struct block_list* bl , int type,int tid )
 
 	if (sc->data[type].timer != -1 && (sc->data[type].timer == tid || tid == -1)) {
 
-		if (tid == -1)	// ƒ^ƒCƒ}‚©‚çŒÄ‚Î‚ê‚Ä‚¢‚È‚¢‚È‚çƒ^ƒCƒ}íœ‚ğ‚·‚é
+		if (tid == -1)	// ï¿½^ï¿½Cï¿½}ï¿½ï¿½ï¿½ï¿½Ä‚Î‚ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½È‚ï¿½^ï¿½Cï¿½}ï¿½íœï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			delete_timer(sc->data[type].timer,status_change_timer);
 
-		/* ŠY?‚ÌˆÙí‚ğ³í‚É?‚· */
+		/* ï¿½Y?ï¿½ÌˆÙï¿½ğ³ï¿½ï¿½?ï¿½ï¿½ */
 		sc->data[type].timer=-1;
 		(sc->count)--;
 
-		switch(type){	/* ˆÙí‚Ìí—Ş‚²‚Æ‚Ì?— */
-			case SC_PROVOKE:			/* ƒvƒƒ{ƒbƒN */
+		switch(type){	/* ï¿½Ùï¿½Ìï¿½Ş‚ï¿½ï¿½Æ‚ï¿½?ï¿½ï¿½ */
+			case SC_PROVOKE:			/* ï¿½vï¿½ï¿½ï¿½{ï¿½bï¿½N */
 			case SC_ENDURE: // celest
-			case SC_CONCENTRATE:		/* W’†—ÍŒüã */
-			case SC_BLESSING:			/* ƒuƒŒƒbƒVƒ“ƒO */
-			case SC_ANGELUS:			/* ƒAƒ“ƒ[ƒ‹ƒX */
-			case SC_INCREASEAGI:		/* ‘¬“xã¸ */
-			case SC_DECREASEAGI:		/* ‘¬“xŒ¸­ */
-			case SC_SIGNUMCRUCIS:		/* ƒVƒOƒiƒ€ƒNƒ‹ƒVƒX */
+			case SC_CONCENTRATE:		/* ï¿½Wï¿½ï¿½ï¿½ÍŒï¿½ï¿½ï¿½ */
+			case SC_BLESSING:			/* ï¿½uï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½O */
+			case SC_ANGELUS:			/* ï¿½Aï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½X */
+			case SC_INCREASEAGI:		/* ï¿½ï¿½ï¿½xï¿½ã¸ */
+			case SC_DECREASEAGI:		/* ï¿½ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ */
+			case SC_SIGNUMCRUCIS:		/* ï¿½Vï¿½Oï¿½iï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Vï¿½X */
 			case SC_HIDING:
 			case SC_ONEHAND:
 			case SC_TWOHANDQUICKEN:		/* 2HQ */
 			case SC_ADRENALINE2:
-			case SC_ADRENALINE:			/* ƒAƒhƒŒƒiƒŠƒ“ƒ‰ƒbƒVƒ… */
-			case SC_ENCPOISON:			/* ƒGƒ“ƒ`ƒƒƒ“ƒgƒ|ƒCƒYƒ“ */
-			case SC_IMPOSITIO:			/* ƒCƒ“ƒ|ƒVƒeƒBƒIƒ}ƒkƒX */
-			case SC_GLORIA:				/* ƒOƒƒŠƒA */
-			case SC_LOUD:				/* ƒ‰ƒEƒhƒ{ƒCƒX */
-			case SC_QUAGMIRE:			/* ƒNƒ@ƒOƒ}ƒCƒA */
-			case SC_PROVIDENCE:			/* ƒvƒƒ”ƒBƒfƒ“ƒX */
-			case SC_SPEARSQUICKEN:		/* ƒXƒsƒAƒNƒCƒbƒPƒ“ */
+			case SC_ADRENALINE:			/* ï¿½Aï¿½hï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ */
+			case SC_ENCPOISON:			/* ï¿½Gï¿½ï¿½ï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½|ï¿½Cï¿½Yï¿½ï¿½ */
+			case SC_IMPOSITIO:			/* ï¿½Cï¿½ï¿½ï¿½|ï¿½Vï¿½eï¿½Bï¿½Iï¿½}ï¿½kï¿½X */
+			case SC_GLORIA:				/* ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½A */
+			case SC_LOUD:				/* ï¿½ï¿½ï¿½Eï¿½hï¿½{ï¿½Cï¿½X */
+			case SC_QUAGMIRE:			/* ï¿½Nï¿½@ï¿½Oï¿½}ï¿½Cï¿½A */
+			case SC_PROVIDENCE:			/* ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½fï¿½ï¿½ï¿½X */
+			case SC_SPEARSQUICKEN:		/* ï¿½Xï¿½sï¿½Aï¿½Nï¿½Cï¿½bï¿½Pï¿½ï¿½ */
 			case SC_VOLCANO:
 			case SC_DELUGE:
 			case SC_VIOLENTGALE:
-			case SC_ETERNALCHAOS:		/* ƒGƒ^?ƒiƒ‹ƒJƒIƒX */
-			case SC_DRUMBATTLE:			/* ?‘¾ŒÛ‚Ì‹¿‚« */
-			case SC_NIBELUNGEN:			/* ƒj?ƒxƒ‹ƒ“ƒO‚Ìw—Ö */
-			case SC_SIEGFRIED:			/* •s€g‚ÌƒW?ƒNƒtƒŠ?ƒh */
-			case SC_WHISTLE:			/* Œû“J */
-			case SC_ASSNCROS:			/* —[—z‚ÌƒAƒTƒVƒ“ƒNƒƒX */
-			case SC_HUMMING:			/* ƒnƒ~ƒ“ƒO */
-			case SC_DONTFORGETME:		/* „‚ğ–Y‚ê‚È‚¢‚Å */
-			case SC_FORTUNE:			/* K‰^‚ÌƒLƒX */
-			case SC_SERVICE4U:			/* ƒT?ƒrƒXƒtƒH?ƒ†? */
-			case SC_EXPLOSIONSPIRITS:	// ”š—ô”g“®
-			case SC_STEELBODY:			// ‹à„
-			case SC_APPLEIDUN:			/* ƒCƒhƒDƒ“‚Ì—ÑŒç */
+			case SC_ETERNALCHAOS:		/* ï¿½Gï¿½^?ï¿½iï¿½ï¿½ï¿½Jï¿½Iï¿½X */
+			case SC_DRUMBATTLE:			/* ?ï¿½ï¿½ï¿½Û‚Ì‹ï¿½ï¿½ï¿½ */
+			case SC_NIBELUNGEN:			/* ï¿½j?ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½Ìwï¿½ï¿½ */
+			case SC_SIEGFRIED:			/* ï¿½sï¿½ï¿½ï¿½gï¿½ÌƒW?ï¿½Nï¿½tï¿½ï¿½?ï¿½h */
+			case SC_WHISTLE:			/* ï¿½ï¿½ï¿½J */
+			case SC_ASSNCROS:			/* ï¿½[ï¿½zï¿½ÌƒAï¿½Tï¿½Vï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½X */
+			case SC_HUMMING:			/* ï¿½nï¿½~ï¿½ï¿½ï¿½O */
+			case SC_DONTFORGETME:		/* ï¿½ï¿½ï¿½ï¿½Yï¿½ï¿½È‚ï¿½ï¿½ï¿½ */
+			case SC_FORTUNE:			/* ï¿½Kï¿½^ï¿½ÌƒLï¿½X */
+			case SC_SERVICE4U:			/* ï¿½T?ï¿½rï¿½Xï¿½tï¿½H?ï¿½ï¿½? */
+			case SC_EXPLOSIONSPIRITS:	// ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½
+			case SC_STEELBODY:			// ï¿½ï¿½ï¿½ï¿½
+			case SC_APPLEIDUN:			/* ï¿½Cï¿½hï¿½Dï¿½ï¿½ï¿½Ì—ÑŒï¿½ */
 			case SC_BLADESTOP_WAIT:
-			case SC_CONCENTRATION:		/* ƒRƒ“ƒZƒ“ƒgƒŒ?ƒVƒ‡ƒ“ */
-			case SC_ASSUMPTIO:			/* ƒAƒVƒƒƒ“ƒvƒeƒBƒI */
-			case SC_WINDWALK:		/* ƒEƒCƒ“ƒhƒEƒH?ƒN */
-			case SC_TRUESIGHT:		/* ƒgƒDƒ‹?ƒTƒCƒg */
-			case SC_SPIDERWEB:		/* ƒXƒpƒCƒ_?ƒEƒFƒbƒu */
-			case SC_MAGICPOWER:		/* –‚–@—Í?• */
+			case SC_CONCENTRATION:		/* ï¿½Rï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½Vï¿½ï¿½ï¿½ï¿½ */
+			case SC_ASSUMPTIO:			/* ï¿½Aï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½vï¿½eï¿½Bï¿½I */
+			case SC_WINDWALK:		/* ï¿½Eï¿½Cï¿½ï¿½ï¿½hï¿½Eï¿½H?ï¿½N */
+			case SC_TRUESIGHT:		/* ï¿½gï¿½Dï¿½ï¿½?ï¿½Tï¿½Cï¿½g */
+			case SC_SPIDERWEB:		/* ï¿½Xï¿½pï¿½Cï¿½_?ï¿½Eï¿½Fï¿½bï¿½u */
+			case SC_MAGICPOWER:		/* ï¿½ï¿½ï¿½@ï¿½ï¿½?ï¿½ï¿½ */
 			case SC_CHASEWALK:
 			case SC_ATKPOTION:		// [Valaris]
 			case SC_MATKPOTION:		// [Valaris]
-			case SC_MELTDOWN:		/* ƒƒ‹ƒgƒ_ƒEƒ“ */
+			case SC_MELTDOWN:		/* ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½_ï¿½Eï¿½ï¿½ */
 			case SC_CARTBOOST:
-			case SC_MINDBREAKER:		/* ƒ}ƒCƒ“ƒhƒuƒŒ[ƒJ[ */
+			case SC_MINDBREAKER:		/* ï¿½}ï¿½Cï¿½ï¿½ï¿½hï¿½uï¿½ï¿½ï¿½[ï¿½Jï¿½[ */
 			case SC_EDP:	// Celest
 			case SC_SLOWDOWN:
-			case SC_ASPDPOTION0:		/* ?‘¬ƒ|?ƒVƒ‡ƒ“ */
+			case SC_ASPDPOTION0:		/* ?ï¿½ï¿½ï¿½|?ï¿½Vï¿½ï¿½ï¿½ï¿½ */
 			case SC_ASPDPOTION1:
 			case SC_ASPDPOTION2:
 			case SC_ASPDPOTION3:
 			case SC_SPEEDUP0:
 			case SC_SPEEDUP1:
 			case SC_INCALLSTATUS:
-			case SC_INCHIT:			/* HITã¸ */
-			case SC_INCHITRATE:		/* HIT%ã¸ */
-			case SC_INCFLEE:		/* FLEEã¸ */
-			case SC_INCFLEERATE:		/* FLEE%ã¸ */
-			case SC_INCMHPRATE:		/* MHP%ã¸ */
-			case SC_INCMSPRATE:		/* MSP%ã¸ */
-			case SC_INCATKRATE:		/* ATK%ã¸ */
+			case SC_INCHIT:			/* HITï¿½ã¸ */
+			case SC_INCHITRATE:		/* HIT%ï¿½ã¸ */
+			case SC_INCFLEE:		/* FLEEï¿½ã¸ */
+			case SC_INCFLEERATE:		/* FLEE%ï¿½ã¸ */
+			case SC_INCMHPRATE:		/* MHP%ï¿½ã¸ */
+			case SC_INCMSPRATE:		/* MSP%ï¿½ã¸ */
+			case SC_INCATKRATE:		/* ATK%ï¿½ã¸ */
 			case SC_INCMATKRATE:
 			case SC_INCDEFRATE:
 			case SC_INCSTR:
@@ -4736,11 +4736,13 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			case SC_SKE:
 			case SC_SWOO: // [marquis007]
 			case SC_SKA: // [marquis007]
+			case SC_KEEPING:
+			case SC_BARRIER:
 				calc_flag = 1;
 				break;
 
 			case SC_XMAS: // Xmas Suit [Valaris]
-			case SC_WEDDING:	//Œ‹¥—p(Œ‹¥ˆßÖ‚É‚È‚Á‚Ä?‚­‚Ì‚ª?‚¢‚Æ‚©)
+			case SC_WEDDING:	//ï¿½ï¿½ï¿½ï¿½ï¿½p(ï¿½ï¿½ï¿½ï¿½ï¿½ßÖ‚É‚È‚ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½Ì‚ï¿½?ï¿½ï¿½ï¿½Æ‚ï¿½)
 			if (sd) {
 				//Restore look
 				sd->view_class = sd->status.class_;
@@ -4755,7 +4757,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 					clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->status.clothes_color);
 			}
 			break;
-			case SC_RUN://‹ì‚¯‘«
+			case SC_RUN://ï¿½ì‚¯ï¿½ï¿½
 				if (sd && sd->walktimer != -1)
 						pc_stop_walking(sd,1);
 				if (sc->data[type].val1 >= 7 &&
@@ -4784,7 +4786,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 				}
 			}
 			break;
-			case SC_DEVOTION:		/* ƒfƒBƒ{?ƒVƒ‡ƒ“ */
+			case SC_DEVOTION:		/* ï¿½fï¿½Bï¿½{?ï¿½Vï¿½ï¿½ï¿½ï¿½ */
 				{
 					struct map_session_data *md = map_id2sd(sc->data[type].val1);
 					//The status could have changed because the Crusader left the game. [Skotlex]
@@ -4805,7 +4807,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			case SC_BLADESTOP:
 				{
 					struct status_change *tsc = status_get_sc((struct block_list *)sc->data[type].val4);
-					//•Ğ•û‚ªØ‚ê‚½‚Ì‚Å‘Šè‚Ì”’n?‘Ô‚ªØ‚ê‚Ä‚È‚¢‚Ì‚È‚ç‰ğœ
+					//ï¿½Ğ•ï¿½ï¿½ï¿½ï¿½Ø‚ê‚½ï¿½Ì‚Å‘ï¿½ï¿½ï¿½Ì”ï¿½ï¿½n?ï¿½Ô‚ï¿½ï¿½Ø‚ï¿½Ä‚È‚ï¿½ï¿½Ì‚È‚ï¿½ï¿½ï¿½ï¿½
 					if(tsc && tsc->data[SC_BLADESTOP].timer!=-1)
 						status_change_end((struct block_list *)sc->data[type].val4,SC_BLADESTOP,-1);
 
@@ -4824,7 +4826,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 					}
 					if(sc->data[type].val4 && sc->data[type].val4 != BCT_SELF && (dsd=map_id2sd(sc->data[type].val4))){
 						dsc = &dsd->sc;
-						//‡‘t‚Å‘Šè‚ª‚¢‚éê‡‘Šè‚Ìval4‚ğ0‚É‚·‚é
+						//ï¿½ï¿½ï¿½tï¿½Å‘ï¿½ï¿½è‚ªï¿½ï¿½ï¿½ï¿½ê‡ï¿½ï¿½ï¿½ï¿½ï¿½val4ï¿½ï¿½0ï¿½É‚ï¿½ï¿½ï¿½
 						if(dsc && dsc->data[type].timer!=-1)
 						{
 							dsc->data[type].val2 = dsc->data[type].val4 = 0; //This will prevent recursive loops. 
@@ -4838,7 +4840,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 					status_change_end(bl,SC_LONGING,-1);				
 				calc_flag = 1;
 				break;
-			case SC_NOCHAT:	//ƒ`ƒƒƒbƒg‹Ö~?‘Ô
+			case SC_NOCHAT:	//ï¿½`ï¿½ï¿½ï¿½bï¿½gï¿½Ö~?ï¿½ï¿½
 				if (sd) {
 					if(battle_config.manner_system){
 						//Why set it to 0? Can't we use good manners for something? [Skotlex]
@@ -4848,11 +4850,11 @@ int status_change_end( struct block_list* bl , int type,int tid )
 					}
 				}
 				break;
-			case SC_SPLASHER:		/* ƒxƒiƒ€ƒXƒvƒ‰ƒbƒVƒƒ? */
+			case SC_SPLASHER:		/* ï¿½xï¿½iï¿½ï¿½ï¿½Xï¿½vï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½? */
 				{
 					struct block_list *src=map_id2bl(sc->data[type].val3);
 					if(src && tid!=-1){
-						//©•ª‚Éƒ_ƒ?ƒW•ü?3*3‚Éƒ_ƒ?ƒW
+						//ï¿½ï¿½ï¿½ï¿½ï¿½Éƒ_ï¿½ï¿½?ï¿½Wï¿½ï¿½ï¿½ï¿½?3*3ï¿½Éƒ_ï¿½ï¿½?ï¿½W
 						skill_castend_damage_id(src, bl,sc->data[type].val2,sc->data[type].val1,gettick(),0 );
 					}
 				}
@@ -4885,13 +4887,13 @@ int status_change_end( struct block_list* bl , int type,int tid )
 				break;
 
 		/* option2 */
-			case SC_POISON:				/* “Å */
-			case SC_BLIND:				/* ˆÃ? */
+			case SC_POISON:				/* ï¿½ï¿½ */
+			case SC_BLIND:				/* ï¿½ï¿½? */
 			case SC_CURSE:
 				calc_flag = 1;
 				break;
 
-			case SC_MARIONETTE:		/* ƒ}ƒŠƒIƒlƒbƒgƒRƒ“ƒgƒ?ƒ‹ */
+			case SC_MARIONETTE:		/* ï¿½}ï¿½ï¿½ï¿½Iï¿½lï¿½bï¿½gï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½ï¿½ */
 			case SC_MARIONETTE2:	/// Marionette target
 				{
 					// check for partner and end their marionette status as well
@@ -4947,7 +4949,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 		if (sd)
 			clif_status_change(bl,StatusIconChangeTable[type],0);
 
-		switch(type){	/* ³í‚É?‚é‚Æ‚«‚È‚É‚©?—‚ª•K—v */
+		switch(type){	/* ï¿½ï¿½ï¿½ï¿½ï¿½?ï¿½ï¿½Æ‚ï¿½ï¿½È‚É‚ï¿½?ï¿½ï¿½ï¿½ï¿½ï¿½Kï¿½v */
 		case SC_STONE:
 		case SC_FREEZE:
 		case SC_STUN:
@@ -4964,7 +4966,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			opt_flag = 1;
 			break;
 		case SC_DPOISON:
-			sc->opt2 &= ~OPT2_DPOISON;	// “Å?‘Ô‰ğœ
+			sc->opt2 &= ~OPT2_DPOISON;	// ï¿½ï¿½?ï¿½Ô‰ï¿½ï¿½ï¿½
 			opt_flag = 1;
 			break;
 		case SC_SIGNUMCRUCIS:
@@ -4989,7 +4991,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			sc->option &= ~OPTION_SIGHT;
 			opt_flag = 1;
 			break;
-		case SC_WEDDING:	//Œ‹¥—p(Œ‹¥ˆßÖ‚É‚È‚Á‚Ä?‚­‚Ì‚ª?‚¢‚Æ‚©)
+		case SC_WEDDING:	//ï¿½ï¿½ï¿½ï¿½ï¿½p(ï¿½ï¿½ï¿½ï¿½ï¿½ßÖ‚É‚È‚ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½Ì‚ï¿½?ï¿½ï¿½ï¿½Æ‚ï¿½)
 			sc->option &= ~OPTION_WEDDING;
 			opt_flag = 1;
 			break;
@@ -5012,39 +5014,39 @@ int status_change_end( struct block_list* bl , int type,int tid )
 		//opt3
 		case SC_TWOHANDQUICKEN:		/* 2HQ */
 		case SC_ONEHAND:		/* 1HQ */
-		case SC_SPEARSQUICKEN:		/* ƒXƒsƒAƒNƒCƒbƒPƒ“ */
-		case SC_CONCENTRATION:		/* ƒRƒ“ƒZƒ“ƒgƒŒ?ƒVƒ‡ƒ“ */
+		case SC_SPEARSQUICKEN:		/* ï¿½Xï¿½sï¿½Aï¿½Nï¿½Cï¿½bï¿½Pï¿½ï¿½ */
+		case SC_CONCENTRATION:		/* ï¿½Rï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½Vï¿½ï¿½ï¿½ï¿½ */
 			sc->opt3 &= ~1;
 			break;
-		case SC_OVERTHRUST:			/* ƒI?ƒo?ƒXƒ‰ƒXƒg */
+		case SC_OVERTHRUST:			/* ï¿½I?ï¿½o?ï¿½Xï¿½ï¿½ï¿½Xï¿½g */
 		case SC_MAXOVERTHRUST:
 		case SC_SWOO:
 			sc->opt3 &= ~2;
 			break;
-		case SC_ENERGYCOAT:			/* ƒGƒiƒW?ƒR?ƒg */
+		case SC_ENERGYCOAT:			/* ï¿½Gï¿½iï¿½W?ï¿½R?ï¿½g */
 			sc->opt3 &= ~4;
 			break;
 		case SC_INCATKRATE: //Simulated Explosion spirits effect.
 			if (bl->type != BL_MOB)
 				break;
-		case SC_EXPLOSIONSPIRITS:	// ”š—ô”g“®
+		case SC_EXPLOSIONSPIRITS:	// ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½
 			sc->opt3 &= ~8;
 			break;
-		case SC_STEELBODY:			// ‹à„
+		case SC_STEELBODY:			// ï¿½ï¿½ï¿½ï¿½
 		case SC_SKA:
 			sc->opt3 &= ~16;
 			break;
-		case SC_BLADESTOP:		/* ”’næ‚è */
+		case SC_BLADESTOP:		/* ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ */
 			sc->opt3 &= ~32;
 			break;
-		case SC_BERSERK:		/* ƒo?ƒT?ƒN */
+		case SC_BERSERK:		/* ï¿½o?ï¿½T?ï¿½N */
 			sc->opt3 &= ~128;
 			break;
-		case SC_MARIONETTE:		/* ƒ}ƒŠƒIƒlƒbƒgƒRƒ“ƒgƒ?ƒ‹ */
+		case SC_MARIONETTE:		/* ï¿½}ï¿½ï¿½ï¿½Iï¿½lï¿½bï¿½gï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½ï¿½ */
 		case SC_MARIONETTE2:
 			sc->opt3 &= ~1024;
 			break;
-		case SC_ASSUMPTIO:		/* ƒAƒXƒ€ƒvƒeƒBƒI */
+		case SC_ASSUMPTIO:		/* ï¿½Aï¿½Xï¿½ï¿½ï¿½vï¿½eï¿½Bï¿½I */
 			sc->opt3 &= ~2048;
 			break;
 		case SC_WARM: //SG skills [Komurka]
@@ -5052,11 +5054,11 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			break;
 		}
 
-		if(opt_flag)	/* option‚Ì?X‚ğ?‚¦‚é */
+		if(opt_flag)	/* optionï¿½ï¿½?ï¿½Xï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½ */
 			clif_changeoption(bl);
 
 		if (sd && calc_flag)
-			status_calc_pc((struct map_session_data *)bl,0);	/* ƒXƒe?ƒ^ƒXÄŒvZ */
+			status_calc_pc((struct map_session_data *)bl,0);	/* ï¿½Xï¿½e?ï¿½^ï¿½Xï¿½ÄŒvï¿½Z */
 	}
 
 	return 1;
@@ -5064,7 +5066,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 
 
 /*==========================================
- * ƒXƒe[ƒ^ƒXˆÙíI—¹ƒ^ƒCƒ}[
+ * ï¿½Xï¿½eï¿½[ï¿½^ï¿½Xï¿½Ùï¿½Iï¿½ï¿½ï¿½^ï¿½Cï¿½}ï¿½[
  *------------------------------------------
  */
 int status_change_timer(int tid, unsigned int tick, int id, int data)
@@ -5097,8 +5099,8 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 	temp_timerid = sc->data[type].timer;
 	sc->data[type].timer = -1;
 
-	switch(type){	/* “Áê‚È?—‚É‚È‚éê‡ */
-	case SC_MAXIMIZEPOWER:	/* ƒ}ƒLƒVƒ}ƒCƒYƒpƒ? */
+	switch(type){	/* ï¿½ï¿½ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½É‚È‚ï¿½ê‡ */
+	case SC_MAXIMIZEPOWER:	/* ï¿½}ï¿½Lï¿½Vï¿½}ï¿½Cï¿½Yï¿½pï¿½ï¿½? */
 	case SC_CLOAKING:
 		if(!sd || sd->status.sp > 0)
 		{
@@ -5107,7 +5109,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 				sd->status.sp--;
 				clif_updatestatus(sd,SP_SP);
 			}
-			sc->data[type].timer=add_timer( /* ƒ^ƒCƒ}?Äİ’è */
+			sc->data[type].timer=add_timer( /* ï¿½^ï¿½Cï¿½}?ï¿½Äİ’ï¿½ */
 				sc->data[type].val2+tick, status_change_timer, bl->id, data);
 			return 0;
 		}
@@ -5123,21 +5125,21 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 						(sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_ROGUE?10:1) //SL bonus -> x10 duration
 						*skill_get_time2(StatusSkillChangeTable[type],sc->data[type].val1));
 				}
-				sc->data[type].timer = add_timer( /* ƒ^ƒCƒ}?Äİ’è */
+				sc->data[type].timer = add_timer( /* ï¿½^ï¿½Cï¿½}?ï¿½Äİ’ï¿½ */
 					sc->data[type].val2+tick, status_change_timer, bl->id, data);
 				return 0;
 			}
 		}
 	break;
 
-	case SC_HIDING:		/* ƒnƒCƒfƒBƒ“ƒO */
-		if(sd){		/* SP‚ª‚ ‚Á‚ÄAŠÔ§ŒÀ‚ÌŠÔ‚Í? */
+	case SC_HIDING:		/* ï¿½nï¿½Cï¿½fï¿½Bï¿½ï¿½ï¿½O */
+		if(sd){		/* SPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÄAï¿½ï¿½ï¿½Ôï¿½ï¿½ï¿½ï¿½ÌŠÔ‚Íï¿½? */
 			if( sd->status.sp > 0 && (--sc->data[type].val2)>0 ){
 				if(sc->data[type].val2 % (sc->data[type].val1+3) ==0 ){
 					sd->status.sp--;
 					clif_updatestatus(sd,SP_SP);
 				}
-				sc->data[type].timer=add_timer(	/* ƒ^ƒCƒ}?Äİ’è */
+				sc->data[type].timer=add_timer(	/* ï¿½^ï¿½Cï¿½}?ï¿½Äİ’ï¿½ */
 					1000+tick, status_change_timer,
 					bl->id, data);
 				return 0;
@@ -5145,8 +5147,8 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 		}
 	break;
 
-	case SC_SIGHT:	/* ƒTƒCƒg */
-	case SC_RUWACH:	/* ƒ‹ƒAƒt */
+	case SC_SIGHT:	/* ï¿½Tï¿½Cï¿½g */
+	case SC_RUWACH:	/* ï¿½ï¿½ï¿½Aï¿½t */
 	case SC_SIGHTBLASTER:
 		{
 			map_foreachinrange( status_change_timer_sub, bl, 
@@ -5154,7 +5156,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 				BL_CHAR, bl,sc,type,tick);
 
 			if( (--sc->data[type].val2)>0 ){
-				sc->data[type].timer=add_timer(	/* ƒ^ƒCƒ}?Äİ’è */
+				sc->data[type].timer=add_timer(	/* ï¿½^ï¿½Cï¿½}?ï¿½Äİ’ï¿½ */
 					250+tick, status_change_timer,
 					bl->id, data);
 				return 0;
@@ -5162,7 +5164,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 		}
 		break;
 
-	case SC_SIGNUMCRUCIS:		/* ƒVƒOƒiƒ€ƒNƒ‹ƒVƒX */
+	case SC_SIGNUMCRUCIS:		/* ï¿½Vï¿½Oï¿½iï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Vï¿½X */
 		{
 			int race = status_get_race(bl);
 			if(race == 6 || battle_check_undead(race,status_get_elem_type(bl))) {
@@ -5182,16 +5184,16 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 		}
 		break;
 
-	case SC_PROVOKE:	/* ƒvƒƒ{ƒbƒN/ƒI?ƒgƒo?ƒT?ƒN */
-		if(sc->data[type].val2!=0){	/* ƒI?ƒgƒo?ƒT?ƒNi‚P•b‚²‚Æ‚ÉHPƒ`ƒFƒbƒNj */
-			if(sd && sd->status.hp>sd->status.max_hp>>2)	/* ’â~ */
+	case SC_PROVOKE:	/* ï¿½vï¿½ï¿½ï¿½{ï¿½bï¿½N/ï¿½I?ï¿½gï¿½o?ï¿½T?ï¿½N */
+		if(sc->data[type].val2!=0){	/* ï¿½I?ï¿½gï¿½o?ï¿½T?ï¿½Nï¿½iï¿½Pï¿½bï¿½ï¿½ï¿½Æ‚ï¿½HPï¿½`ï¿½Fï¿½bï¿½Nï¿½j */
+			if(sd && sd->status.hp>sd->status.max_hp>>2)	/* ï¿½ï¿½~ */
 				break;
 			sc->data[type].timer=add_timer( 1000+tick,status_change_timer, bl->id, data );
 			return 0;
 		}
 		break;
 
-	case SC_ENDURE:	/* ƒCƒ“ƒfƒ…ƒA */
+	case SC_ENDURE:	/* ï¿½Cï¿½ï¿½ï¿½fï¿½ï¿½ï¿½A */
 		if(sd && sd->special_state.infinite_endure) {
 			sc->data[type].timer=add_timer( 1000*60+tick,status_change_timer, bl->id, data );
 			return 0;
@@ -5248,10 +5250,10 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 		}
 		break;
 
-	case SC_TENSIONRELAX:	/* ƒeƒ“ƒVƒ‡ƒ“ƒŠƒ‰ƒbƒNƒX */
-		if(sd){		/* SP‚ª‚ ‚Á‚ÄAHP‚ª?ƒ^ƒ“‚Å‚È‚¯‚ê‚Î?? */
+	case SC_TENSIONRELAX:	/* ï¿½eï¿½ï¿½ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Nï¿½X */
+		if(sd){		/* SPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÄAHPï¿½ï¿½?ï¿½^ï¿½ï¿½ï¿½Å‚È‚ï¿½ï¿½ï¿½ï¿½?? */
 			if( sd->status.sp > 12 && sd->status.max_hp > sd->status.hp ){
-				sc->data[type].timer=add_timer(	/* ƒ^ƒCƒ}?Äİ’è */
+				sc->data[type].timer=add_timer(	/* ï¿½^ï¿½Cï¿½}?ï¿½Äİ’ï¿½ */
 					10000+tick, status_change_timer,
 					bl->id, data);
 				return 0;
@@ -5266,8 +5268,8 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 	case SC_BLEEDING:	// [celest]
 		// i hope i haven't interpreted it wrong.. which i might ^^;
 		// Source:
-		// - 10õ©ª´ªÈªËHPª¬Êõá´
-		// - õóúìªÎªŞªŞ«µ?«Ğì¹ÔÑªä«ê«í«°ª·ªÆªâ?ÍıªÏá¼ª¨ªÊª¤
+		// - 10ï¿½ï¿½ï¿½ï¿½ï¿½Èªï¿½HPï¿½ï¿½ï¿½ï¿½ï¿½
+		// - ï¿½ï¿½ï¿½ï¿½ÎªŞªŞ«ï¿½?ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æªï¿½?ï¿½ï¿½ï¿½ï¿½á¼ªï¿½ï¿½Êªï¿½
 		// To-do: bleeding effect increases damage taken?
 		if ((sc->data[type].val4 -= 10000) >= 0) {
 			int hp = rand()%300 + 400;
@@ -5308,7 +5310,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 		sc->data[type].timer=add_timer( 1000*600+tick,status_change_timer, bl->id, data );
 		return 0;
 
-	case SC_DANCING: //ƒ_ƒ“ƒXƒXƒLƒ‹‚ÌŠÔSPÁ”ï
+	case SC_DANCING: //ï¿½_ï¿½ï¿½ï¿½Xï¿½Xï¿½Lï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½SPï¿½ï¿½ï¿½ï¿½
 		{
 			int s = 0;
 			int sp = 1;
@@ -5316,37 +5318,37 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 				break;
 			if(sd) {
 				switch(sc->data[type].val1){
-				case BD_RICHMANKIM:				/* ƒjƒˆƒ‹ƒh‚Ì‰ƒ 3•b‚ÉSP1 */
-				case BD_DRUMBATTLEFIELD:		/* ?‘¾ŒÛ‚Ì‹¿‚« 3•b‚ÉSP1 */
-				case BD_RINGNIBELUNGEN:			/* ƒj?ƒxƒ‹ƒ“ƒO‚Ìw—Ö 3•b‚ÉSP1 */
-				case BD_SIEGFRIED:				/* •s€g‚ÌƒW?ƒNƒtƒŠ?ƒh 3•b‚ÉSP1 */
-				case BA_DISSONANCE:				/* •s‹¦˜a‰¹ 3•b‚ÅSP1 */
-				case BA_ASSASSINCROSS:			/* —[—z‚ÌƒAƒTƒVƒ“ƒNƒƒX 3•b‚ÅSP1 */
-				case DC_UGLYDANCE:				/* ©•ªŸè‚Èƒ_ƒ“ƒX 3•b‚ÅSP1 */
+				case BD_RICHMANKIM:				/* ï¿½jï¿½ï¿½ï¿½ï¿½ï¿½hï¿½Ì‰ï¿½ 3ï¿½bï¿½ï¿½SP1 */
+				case BD_DRUMBATTLEFIELD:		/* ?ï¿½ï¿½ï¿½Û‚Ì‹ï¿½ï¿½ï¿½ 3ï¿½bï¿½ï¿½SP1 */
+				case BD_RINGNIBELUNGEN:			/* ï¿½j?ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½Ìwï¿½ï¿½ 3ï¿½bï¿½ï¿½SP1 */
+				case BD_SIEGFRIED:				/* ï¿½sï¿½ï¿½ï¿½gï¿½ÌƒW?ï¿½Nï¿½tï¿½ï¿½?ï¿½h 3ï¿½bï¿½ï¿½SP1 */
+				case BA_DISSONANCE:				/* ï¿½sï¿½ï¿½ï¿½aï¿½ï¿½ 3ï¿½bï¿½ï¿½SP1 */
+				case BA_ASSASSINCROSS:			/* ï¿½[ï¿½zï¿½ÌƒAï¿½Tï¿½Vï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½X 3ï¿½bï¿½ï¿½SP1 */
+				case DC_UGLYDANCE:				/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Èƒ_ï¿½ï¿½ï¿½X 3ï¿½bï¿½ï¿½SP1 */
 					s=3;
 					break;
-				case BD_LULLABY:				/* qç‰Ì 4•b‚ÉSP1 */
-				case BD_ETERNALCHAOS:			/* ‰i‰“‚Ì¬“× 4•b‚ÉSP1 */
-				case BD_ROKISWEIL:				/* ƒƒL‚Ì‹©‚Ñ 4•b‚ÉSP1 */
-				case DC_FORTUNEKISS:			/* K‰^‚ÌƒLƒX 4•b‚ÅSP1 */
+				case BD_LULLABY:				/* ï¿½qï¿½ï¿½ï¿½ 4ï¿½bï¿½ï¿½SP1 */
+				case BD_ETERNALCHAOS:			/* ï¿½iï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ 4ï¿½bï¿½ï¿½SP1 */
+				case BD_ROKISWEIL:				/* ï¿½ï¿½ï¿½Lï¿½Ì‹ï¿½ï¿½ï¿½ 4ï¿½bï¿½ï¿½SP1 */
+				case DC_FORTUNEKISS:			/* ï¿½Kï¿½^ï¿½ÌƒLï¿½X 4ï¿½bï¿½ï¿½SP1 */
 					s=4;
 					break;
 				case CG_HERMODE:				// Wand of Hermod
 					sp=5;	//Upkeep = 5
-				case BD_INTOABYSS:				/* [•£‚Ì’†‚É 5•b‚ÉSP1 */
-				case BA_WHISTLE:				/* Œû“J 5•b‚ÅSP1 */
-				case DC_HUMMING:				/* ƒnƒ~ƒ“ƒO 5•b‚ÅSP1 */
-				case BA_POEMBRAGI:				/* ƒuƒ‰ƒM‚Ì 5•b‚ÅSP1 */
-				case DC_SERVICEFORYOU:			/* ƒT?ƒrƒXƒtƒH?ƒ†? 5•b‚ÅSP1 */
+				case BD_INTOABYSS:				/* ï¿½[ï¿½ï¿½ï¿½Ì’ï¿½ï¿½ï¿½ 5ï¿½bï¿½ï¿½SP1 */
+				case BA_WHISTLE:				/* ï¿½ï¿½ï¿½J 5ï¿½bï¿½ï¿½SP1 */
+				case DC_HUMMING:				/* ï¿½nï¿½~ï¿½ï¿½ï¿½O 5ï¿½bï¿½ï¿½SP1 */
+				case BA_POEMBRAGI:				/* ï¿½uï¿½ï¿½ï¿½Mï¿½Ìï¿½ 5ï¿½bï¿½ï¿½SP1 */
+				case DC_SERVICEFORYOU:			/* ï¿½T?ï¿½rï¿½Xï¿½tï¿½H?ï¿½ï¿½? 5ï¿½bï¿½ï¿½SP1 */
 					s=5;
 					break;
-				case BA_APPLEIDUN:				/* ƒCƒhƒDƒ“‚Ì—ÑŒç 6•b‚ÅSP1 */
+				case BA_APPLEIDUN:				/* ï¿½Cï¿½hï¿½Dï¿½ï¿½ï¿½Ì—ÑŒï¿½ 6ï¿½bï¿½ï¿½SP1 */
 					s=6;
 					break;
-				case CG_MOONLIT:				/* Œ–¾‚è‚Ìò‚É—‚¿‚é‰Ô‚Ñ‚ç 10•b‚ÅSP1H */
+				case CG_MOONLIT:				/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìï¿½É—ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚Ñ‚ï¿½ 10ï¿½bï¿½ï¿½SP1ï¿½H */
 					sp= 4*sc->data[type].val2; //Moonlit's cost is 4sp*skill_lv [Skotlex]
 					//Upkeep is also every 10 secs.
-				case DC_DONTFORGETME:			/* „‚ğ–Y‚ê‚È‚¢‚Åc 10•b‚ÅSP1 */
+				case DC_DONTFORGETME:			/* ï¿½ï¿½ï¿½ï¿½Yï¿½ï¿½È‚ï¿½ï¿½Åc 10ï¿½bï¿½ï¿½SP1 */
 					s=10;
 					break;
 				}
@@ -5357,7 +5359,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 						break;
 				}
 			}
-			sc->data[type].timer=add_timer(	/* ƒ^ƒCƒ}?Äİ’è */
+			sc->data[type].timer=add_timer(	/* ï¿½^ï¿½Cï¿½}?ï¿½Äİ’ï¿½ */
 				1000+tick, status_change_timer,
 				bl->id, data);
 			return 0;
@@ -5376,12 +5378,12 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 		}
 		break;
 		
-	case SC_BERSERK:		/* ƒo?ƒT?ƒN */
-		if(sd){		/* HP‚ª100ˆÈã‚È‚ç?? */
+	case SC_BERSERK:		/* ï¿½o?ï¿½T?ï¿½N */
+		if(sd){		/* HPï¿½ï¿½100ï¿½Èï¿½È‚ï¿½?? */
 			if( (sd->status.hp - sd->status.max_hp*5/100) > 100 ){	// 5% every 10 seconds [DracoRPG]
 				sd->status.hp -= sd->status.max_hp*5/100;	// changed to max hp [celest]
 				clif_updatestatus(sd,SP_HP);
-				sc->data[type].timer = add_timer(	/* ƒ^ƒCƒ}?Äİ’è */
+				sc->data[type].timer = add_timer(	/* ï¿½^ï¿½Cï¿½}?ï¿½Äİ’ï¿½ */
 					10000+tick, status_change_timer,
 					bl->id, data);
 				return 0;
@@ -5390,7 +5392,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 				sd->canregen_tick = gettick() + 300000;
 		}
 		break;
-	case SC_NOCHAT:	//ƒ`ƒƒƒbƒg‹Ö~?‘Ô
+	case SC_NOCHAT:	//ï¿½`ï¿½ï¿½ï¿½bï¿½gï¿½Ö~?ï¿½ï¿½
 		if(sd && battle_config.manner_system){
 			sd->status.manner++;
 			clif_updatestatus(sd,SP_MANNER);
@@ -5416,7 +5418,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 		}
 		break;
 
-	case SC_MARIONETTE:		/* ƒ}ƒŠƒIƒlƒbƒgƒRƒ“ƒgƒ?ƒ‹ */
+	case SC_MARIONETTE:		/* ï¿½}ï¿½ï¿½ï¿½Iï¿½lï¿½bï¿½gï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½?ï¿½ï¿½ */
 	case SC_MARIONETTE2:
 		{
 			struct block_list *pbl = map_id2bl(sc->data[type].val3);
@@ -5478,7 +5480,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 }
 
 /*==========================================
- * ƒXƒe[ƒ^ƒXˆÙíƒ^ƒCƒ}[”ÍˆÍˆ—
+ * ï¿½Xï¿½eï¿½[ï¿½^ï¿½Xï¿½Ùï¿½^ï¿½Cï¿½}ï¿½[ï¿½ÍˆÍï¿½ï¿½ï¿½
  *------------------------------------------
  */
 int status_change_timer_sub(struct block_list *bl, va_list ap )
@@ -5503,7 +5505,7 @@ int status_change_timer_sub(struct block_list *bl, va_list ap )
 	if (bl->type==BL_PC) tsd= (struct map_session_data*)bl;
 
 	switch( type ){
-	case SC_SIGHT:	/* ƒTƒCƒg */
+	case SC_SIGHT:	/* ï¿½Tï¿½Cï¿½g */
 	case SC_CONCENTRATE:
 		if (tsc && tsc->count) {
 			if (tsc->data[SC_HIDING].timer != -1)
@@ -5512,7 +5514,7 @@ int status_change_timer_sub(struct block_list *bl, va_list ap )
 				status_change_end( bl, SC_CLOAKING, -1);
 		}
 		break;
-	case SC_RUWACH:	/* ƒ‹ƒAƒt */
+	case SC_RUWACH:	/* ï¿½ï¿½ï¿½Aï¿½t */
 		if (tsc && tsc->count && (tsc->data[SC_HIDING].timer != -1 ||	// if the target is using a special hiding, i.e not using normal hiding/cloaking, don't bother
 			tsc->data[SC_CLOAKING].timer != -1)) {
 			status_change_end( bl, SC_HIDING, -1);
@@ -5700,7 +5702,7 @@ int status_readdb(void) {
 	fclose(fp);
 	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n",path);
 
-	// ƒTƒCƒY•â³ƒe?ƒuƒ‹
+	// ï¿½Tï¿½Cï¿½Yï¿½â³ï¿½e?ï¿½uï¿½ï¿½
 	for(i=0;i<3;i++)
 		for(j=0;j<MAX_WEAPON_TYPE;j++)
 			atkmods[i][j]=100;
@@ -5729,7 +5731,7 @@ int status_readdb(void) {
 	fclose(fp);
 	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n",path);
 
-	// ¸?ƒf?ƒ^ƒe?ƒuƒ‹
+	// ï¿½ï¿½?ï¿½f?ï¿½^ï¿½e?ï¿½uï¿½ï¿½
 	for(i=0;i<5;i++){
 		for(j=0;j<MAX_REFINE; j++)
 			percentrefinery[i][j]=100;
@@ -5758,9 +5760,9 @@ int status_readdb(void) {
 			p=strchr(p,',');
 			if(p) *p++=0;
 		}
-		refinebonus[i][0]=atoi(split[0]);	// ¸?ƒ{?ƒiƒX
-		refinebonus[i][1]=atoi(split[1]);	// ‰ß?¸?ƒ{?ƒiƒX
-		refinebonus[i][2]=atoi(split[2]);	// ˆÀ‘S¸?ŒÀŠE
+		refinebonus[i][0]=atoi(split[0]);	// ï¿½ï¿½?ï¿½{?ï¿½iï¿½X
+		refinebonus[i][1]=atoi(split[1]);	// ï¿½ï¿½?ï¿½ï¿½?ï¿½{?ï¿½iï¿½X
+		refinebonus[i][2]=atoi(split[2]);	// ï¿½ï¿½ï¿½Sï¿½ï¿½?ï¿½ï¿½ï¿½E
 		for(j=0;j<MAX_REFINE && split[j];j++)
 			percentrefinery[i][j]=atoi(split[j+3]);
 		i++;
@@ -5772,7 +5774,7 @@ int status_readdb(void) {
 }
 
 /*==========================================
- * ƒXƒLƒ‹ŠÖŒW‰Šú‰»ˆ—
+ * ï¿½Xï¿½Lï¿½ï¿½ï¿½ÖŒWï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  *------------------------------------------
  */
 int do_init_status(void)
