@@ -32,22 +32,23 @@
 // The 1st type -- with 'event_script_type' set to 0
 //
 prontera.gat,0,0,0	script	PCLoginEvent	-1,{
+	atcommand strcharinfo(0)+"@main on";
 	end;
 }
 
 //
 // The 2nd type -- with 'event_script_type' set to 1
 //
-prontera.gat,155,175,0	script	An NPC	46,{
-	close;
-PCLoginEvent:
-	// this part will run
-	close;
-}
-
-prontera.gat,156,176,0	script	Another NPC	46,{
-	close;
-PCLoginEvent:
-	// this part runs AS WELL
-	close;
-}
+//prontera.gat,155,175,0	script	An NPC	46,{
+//	close;
+//PCLoginEvent:
+//	// this part will run
+//	close;
+//}
+//
+//prontera.gat,156,176,0	script	Another NPC	46,{
+//	close;
+//PCLoginEvent:
+//	// this part runs AS WELL
+//	close;
+//}
