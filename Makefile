@@ -36,7 +36,7 @@ OPT += -march=native -mtune=native
 
 OPT += -Wall
 OPT += -Wno-sign-compare
-OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno-unused -Wno-parentheses
+OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno-unused -Wno-parentheses -fstack-protector
 
 OPT += -DPCRE_SUPPORT
 
