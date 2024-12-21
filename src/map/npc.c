@@ -7,7 +7,6 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <stdarg.h>
 
 #include "../common/timer.h"
 #include "../common/nullpo.h"
@@ -27,6 +26,7 @@
 #include "pet.h"
 #include "battle.h"
 #include "skill.h"
+#include "unit.h"
 
 #ifdef _WIN32
 #undef isspace
@@ -58,15 +58,24 @@ struct event_data {
 	struct npc_data *nd;
 	int pos;
 };
-static struct tm ev_tm_b;	// æ™‚è¨ˆã‚¤ãƒ™ãƒ³ãƒˆç”¨
+static struct tm ev_tm_b;	// ŒvƒCƒxƒ“ƒg—p
 
-static int npc_walktimer(int,unsigned int,int,int); // [Valaris]
-static int npc_walktoxy_sub(struct npc_data *nd); // [Valaris]
 
+//For holding the view data of npc classes. [Skotlex]
+static struct view_data npc_viewdb[MAX_NPC_CLASS];
+
+struct view_data* npc_get_viewdata(int class_)
+{	//Returns the viewdata for normal npc classes.
+	if (class_ == INVISIBLE_CLASS)
+		return &npc_viewdb[0];
+	if (npcdb_checkid(class_) || class_ == WARP_CLASS)
+		return &npc_viewdb[class_];
+	return NULL;
+}
 /*==========================================
- * NPCã®ç„¡åŠ¹åŒ–/æœ‰åŠ¹åŒ–
+ * NPC‚Ì–³Œø‰»/—LŒø‰»
  * npc_enable
- * npc_enable_sub æœ‰åŠ¹æ™‚ã«OnTouchã‚¤ãƒ™ãƒ³ãƒˆã‚’å®Ÿè¡Œ
+ * npc_enable_sub —LŒø‚ÉOnTouchƒCƒxƒ“ƒg‚ğÀs
  *------------------------------------------
  */
 int npc_enable_sub( struct block_list *bl, va_list ap )
@@ -81,7 +90,7 @@ int npc_enable_sub( struct block_list *bl, va_list ap )
 	if(bl->type == BL_PC && (sd=(struct map_session_data *)bl)){
 		char name[50]; // need 24 + 9 for the "::OnTouch"
 
-		if (nd->flag&1)	// ç„¡åŠ¹åŒ–ã•ã‚Œã¦ã„ã‚‹
+		if (nd->sc.option&OPTION_INVISIBLE)	// –³Œø‰»‚³‚ê‚Ä‚¢‚é
 			return 1;
 
 		if(sd->areanpc_id==nd->bl.id)
@@ -100,20 +109,18 @@ int npc_enable(const char *name,int flag)
 	if (nd==NULL)
 		return 0;
 
-	if (flag&1) {	// æœ‰åŠ¹åŒ–
-		nd->flag&=~1;
-		clif_spawnnpc(nd);
+	if (flag&1) {	// —LŒø‰»
+		nd->sc.option&=~OPTION_INVISIBLE;
+		clif_changeoption(&nd->bl);
 	}else if (flag&2){
-		nd->flag&=~1;
-		nd->sc.option = 0x0000;
+		nd->sc.option&=~OPTION_HIDE;
 		clif_changeoption(&nd->bl);
 	}else if (flag&4){
-		nd->flag|=1;
-		nd->sc.option = 0x0002;
+		nd->sc.option|= OPTION_HIDE;
 		clif_changeoption(&nd->bl);
-	}else{		// ç„¡åŠ¹åŒ–
-		nd->flag|=1;
-		clif_clearchar(&nd->bl,0);
+	}else{	//Can't change the view_data to invisible class because the view_data for all npcs is shared! [Skotlex]
+		nd->sc.option|= OPTION_INVISIBLE;
+		clif_changeoption(&nd->bl);
 	}
 	if(flag&3 && (nd->u.scr.xs > 0 || nd->u.scr.ys >0))
 		map_foreachinarea( npc_enable_sub,nd->bl.m,nd->bl.x-nd->u.scr.xs,nd->bl.y-nd->u.scr.ys,nd->bl.x+nd->u.scr.xs,nd->bl.y+nd->u.scr.ys,BL_PC,nd);
@@ -122,7 +129,7 @@ int npc_enable(const char *name,int flag)
 }
 
 /*==========================================
- * NPCã‚’åå‰ã§æ¢ã™
+ * NPC‚ğ–¼‘O‚Å’T‚·
  *------------------------------------------
  */
 struct npc_data* npc_name2id(const char *name)
@@ -131,7 +138,7 @@ struct npc_data* npc_name2id(const char *name)
 }
 
 /*==========================================
- * ã‚¤ãƒ™ãƒ³ãƒˆã‚­ãƒ¥ãƒ¼ã®ã‚¤ãƒ™ãƒ³ãƒˆå‡¦ç†
+ * ƒCƒxƒ“ƒgƒLƒ…[‚ÌƒCƒxƒ“ƒgˆ—
  *------------------------------------------
  */
 int npc_event_dequeue(struct map_session_data *sd)
@@ -139,7 +146,7 @@ int npc_event_dequeue(struct map_session_data *sd)
 	nullpo_retr(0, sd);
 
 	sd->npc_id=0;
-	if (sd->eventqueue[0][0]) {	// ã‚­ãƒ¥ãƒ¼ã®ã‚¤ãƒ™ãƒ³ãƒˆå‡¦ç†
+	if (sd->eventqueue[0][0]) {	// ƒLƒ…[‚ÌƒCƒxƒ“ƒgˆ—
 		size_t ev;
 
 		// find an empty place in eventtimer list
@@ -167,7 +174,7 @@ int npc_event_dequeue(struct map_session_data *sd)
 }
 
 /*==========================================
- * ã‚¤ãƒ™ãƒ³ãƒˆã®é…å»¶å®Ÿè¡Œ
+ * ƒCƒxƒ“ƒg‚Ì’x‰„Às
  *------------------------------------------
  */
 int npc_event_timer(int tid,unsigned int tick,int id,int data)
@@ -260,8 +267,8 @@ int npc_timer(int tid,unsigned int tick,int id,int data)	// Added by RoVeRT
 	return 0;
 }*/
 /*==========================================
- * ã‚¤ãƒ™ãƒ³ãƒˆç”¨ãƒ©ãƒ™ãƒ«ã®ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆ
- * npc_parse_script->strdb_foreachã‹ã‚‰å‘¼ã°ã‚Œã‚‹
+ * ƒCƒxƒ“ƒg—pƒ‰ƒxƒ‹‚ÌƒGƒNƒXƒ|[ƒg
+ * npc_parse_script->strdb_foreach‚©‚çŒÄ‚Î‚ê‚é
  *------------------------------------------
  */
 int npc_event_export(char *lname,void *data,va_list ap)
@@ -273,7 +280,7 @@ int npc_event_export(char *lname,void *data,va_list ap)
 		struct event_data *ev;
 		unsigned char buf[51];
 		char *p=strchr(lname,':');
-		// ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã•ã‚Œã‚‹
+		// ƒGƒNƒXƒ|[ƒg‚³‚ê‚é
 		ev=(struct event_data *) aCalloc(sizeof(struct event_data), 1);
 		if (ev==NULL) {
 			ShowFatalError("npc_event_export: out of memory !\n");
@@ -294,7 +301,7 @@ int npc_event_export(char *lname,void *data,va_list ap)
 }
 
 /*==========================================
- * å…¨ã¦ã®NPCã®On*ã‚¤ãƒ™ãƒ³ãƒˆå®Ÿè¡Œ
+ * ‘S‚Ä‚ÌNPC‚ÌOn*ƒCƒxƒ“ƒgÀs
  *------------------------------------------
  */
 int npc_event_doall_sub(DBKey key,void *data,va_list ap)
@@ -369,7 +376,7 @@ int npc_event_do(const unsigned char *name)
 }
 
 /*==========================================
- * æ™‚è¨ˆã‚¤ãƒ™ãƒ³ãƒˆå®Ÿè¡Œ
+ * ŒvƒCƒxƒ“ƒgÀs
  *------------------------------------------
  */
 int npc_event_do_clock(int tid,unsigned int tick,int id,int data)
@@ -413,7 +420,7 @@ int npc_event_do_clock(int tid,unsigned int tick,int id,int data)
 	return c;
 }
 /*==========================================
- * OnInitã‚¤ãƒ™ãƒ³ãƒˆå®Ÿè¡Œ(&æ™‚è¨ˆã‚¤ãƒ™ãƒ³ãƒˆé–‹å§‹)
+ * OnInitƒCƒxƒ“ƒgÀs(&ŒvƒCƒxƒ“ƒgŠJn)
  *------------------------------------------
  */
 int npc_event_do_oninit(void)
@@ -509,8 +516,8 @@ int npc_do_ontimer(int npc_id, int option)
 	return 0;
 }
 /*==========================================
- * ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆç”¨ãƒ©ãƒ™ãƒ«ã®å–ã‚Šè¾¼ã¿
- * npc_parse_script->strdb_foreachã‹ã‚‰å‘¼ã°ã‚Œã‚‹
+ * ƒ^ƒCƒ}[ƒCƒxƒ“ƒg—pƒ‰ƒxƒ‹‚Ìæ‚è‚İ
+ * npc_parse_script->strdb_foreach‚©‚çŒÄ‚Î‚ê‚é
  *------------------------------------------
  */
 int npc_timerevent_import(char *lname,void *data,va_list ap)
@@ -520,7 +527,7 @@ int npc_timerevent_import(char *lname,void *data,va_list ap)
 	int t=0,i=0;
 
 	if(sscanf(lname,"OnTimer%d%n",&t,&i)==1 && lname[i]==':') {
-		// ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆ
+		// ƒ^ƒCƒ}[ƒCƒxƒ“ƒg
 		struct npc_timerevent_list *te=nd->u.scr.timer_event;
 		int j,i=nd->u.scr.timeramount;
 		if(te==NULL) te=(struct npc_timerevent_list*)aMallocA(sizeof(struct npc_timerevent_list));
@@ -538,12 +545,12 @@ int npc_timerevent_import(char *lname,void *data,va_list ap)
 		te[j].timer=t;
 		te[j].pos=pos;
 		nd->u.scr.timer_event=te;
-		nd->u.scr.timeramount=i+1;
+		nd->u.scr.timeramount++;
 	}
 	return 0;
 }
 /*==========================================
- * ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆå®Ÿè¡Œ
+ * ƒ^ƒCƒ}[ƒCƒxƒ“ƒgÀs
  *------------------------------------------
  */
 int npc_timerevent(int tid,unsigned int tick,int id,int data)
@@ -570,7 +577,7 @@ int npc_timerevent(int tid,unsigned int tick,int id,int data)
 	return 0;
 }
 /*==========================================
- * ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆé–‹å§‹
+ * ƒ^ƒCƒ}[ƒCƒxƒ“ƒgŠJn
  *------------------------------------------
  */
 int npc_timerevent_start(struct npc_data *nd, int rid)
@@ -600,7 +607,7 @@ int npc_timerevent_start(struct npc_data *nd, int rid)
 	return 0;
 }
 /*==========================================
- * ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆçµ‚äº†
+ * ƒ^ƒCƒ}[ƒCƒxƒ“ƒgI—¹
  *------------------------------------------
  */
 int npc_timerevent_stop(struct npc_data *nd)
@@ -618,7 +625,7 @@ int npc_timerevent_stop(struct npc_data *nd)
 	return 0;
 }
 /*==========================================
- * ã‚¿ã‚¤ãƒãƒ¼å€¤ã®æ‰€å¾—
+ * ƒ^ƒCƒ}[’l‚ÌŠ“¾
  *------------------------------------------
  */
 int npc_gettimerevent_tick(struct npc_data *nd)
@@ -634,7 +641,7 @@ int npc_gettimerevent_tick(struct npc_data *nd)
 	return tick;
 }
 /*==========================================
- * ã‚¿ã‚¤ãƒãƒ¼å€¤ã®è¨­å®š
+ * ƒ^ƒCƒ}[’l‚Ìİ’è
  *------------------------------------------
  */
 int npc_settimerevent_tick(struct npc_data *nd,int newtimer)
@@ -652,8 +659,37 @@ int npc_settimerevent_tick(struct npc_data *nd,int newtimer)
 	return 0;
 }
 
+int npc_event_sub(struct map_session_data *sd, struct event_data *ev, const unsigned char *eventname){
+
+	if ( sd->npc_id!=0) {
+//		if (battle_config.error_log)
+//			printf("npc_event: npc_id != 0\n");
+		int i;
+		for(i=0;i<MAX_EVENTQUEUE;i++)
+			if (!sd->eventqueue[i][0])
+				break;
+		if (i==MAX_EVENTQUEUE) {
+			if (battle_config.error_log)
+				ShowWarning("npc_event: event queue is full !\n");
+		}else{
+//			if (battle_config.etc_log)
+//				printf("npc_event: enqueue\n");
+			memcpy(sd->eventqueue[i],eventname,50);
+		}
+		return 1;
+	}
+	if (ev->nd->sc.option&OPTION_INVISIBLE) {	// –³Œø‰»‚³‚ê‚Ä‚¢‚é
+		npc_event_dequeue(sd);
+		return 0;
+	}
+
+	sd->npc_id=ev->nd->bl.id;
+	sd->npc_pos=run_script(ev->nd->u.scr.script,ev->pos,sd->bl.id,ev->nd->bl.id);
+	return 0;
+}
+
 /*==========================================
- * ã‚¤ãƒ™ãƒ³ãƒˆå‹ã®NPCå‡¦ç†
+ * ƒCƒxƒ“ƒgŒ^‚ÌNPCˆ—
  *------------------------------------------
  */
 int npc_event (struct map_session_data *sd, const unsigned char *eventname, int mob_kill)
@@ -688,40 +724,19 @@ int npc_event (struct map_session_data *sd, const unsigned char *eventname, int 
 
 	xs=nd->u.scr.xs;
 	ys=nd->u.scr.ys;
-	if (xs>=0 && ys>=0 && (strcmp(((eventname)+strlen(eventname)-6),"Global") != 0) )        {
-		if (nd->bl.m >= 0 && nd->bl.m != sd->bl.m )
-			return 1;
-		if ( xs>0 && (sd->bl.x<nd->bl.x-xs/2 || nd->bl.x+xs/2<sd->bl.x) )
-			return 1;
-		if ( ys>0 && (sd->bl.y<nd->bl.y-ys/2 || nd->bl.y+ys/2<sd->bl.y) )
-			return 1;
-	}
-
-	if ( sd->npc_id!=0) {
-//		if (battle_config.error_log)
-//			printf("npc_event: npc_id != 0\n");
-		int i;
-		for(i=0;i<MAX_EVENTQUEUE;i++)
-			if (!sd->eventqueue[i][0])
-				break;
-		if (i==MAX_EVENTQUEUE) {
-			if (battle_config.error_log)
-				ShowWarning("npc_event: event queue is full !\n");
-		}else{
-//			if (battle_config.etc_log)
-//				printf("npc_event: enqueue\n");
-			memcpy(sd->eventqueue[i],eventname,50);
+	if (xs>=0 && ys>=0 && (strcmp(((eventname)+strlen(eventname)-6),"Global") != 0) )
+	{
+		if (nd->bl.m >= 0) { //Non-invisible npc
+		  	if (nd->bl.m != sd->bl.m )
+				return 1;
+			if ( xs>0 && (sd->bl.x<nd->bl.x-xs/2 || nd->bl.x+xs/2<sd->bl.x) )
+				return 1;
+			if ( ys>0 && (sd->bl.y<nd->bl.y-ys/2 || nd->bl.y+ys/2<sd->bl.y) )
+				return 1;
 		}
-		return 1;
 	}
-	if (nd->flag&1) {	// ç„¡åŠ¹åŒ–ã•ã‚Œã¦ã„ã‚‹
-		npc_event_dequeue(sd);
-		return 0;
-	}
-
-	sd->npc_id=nd->bl.id;
-	sd->npc_pos=run_script(nd->u.scr.script,ev->pos,sd->bl.id,nd->bl.id);
-	return 0;
+	
+	return npc_event_sub(sd,ev,eventname);
 }
 
 
@@ -750,7 +765,7 @@ int npc_command(struct map_session_data *sd,const unsigned char *npcname,char *c
 	return 0;
 }
 /*==========================================
- * æ¥è§¦å‹ã®NPCå‡¦ç†
+ * ÚGŒ^‚ÌNPCˆ—
  *------------------------------------------
  */
 int npc_touch_areanpc(struct map_session_data *sd,int m,int x,int y)
@@ -764,7 +779,7 @@ int npc_touch_areanpc(struct map_session_data *sd,int m,int x,int y)
 		return 1;
 
 	for(i=0;i<map[m].npc_num;i++) {
-		if (map[m].npc[i]->flag&1) {	// ç„¡åŠ¹åŒ–ã•ã‚Œã¦ã„ã‚‹
+		if (map[m].npc[i]->sc.option&OPTION_INVISIBLE) {	// –³Œø‰»‚³‚ê‚Ä‚¢‚é
 			f=0;
 			continue;
 		}
@@ -822,7 +837,7 @@ int npc_touch_areanpc(struct map_session_data *sd,int m,int x,int y)
 }
 
 /*==========================================
- * è¿‘ãã‹ã©ã†ã‹ã®åˆ¤å®š
+ * ‹ß‚­‚©‚Ç‚¤‚©‚Ì”»’è
  *------------------------------------------
  */
 int npc_checknear(struct map_session_data *sd,int id)
@@ -838,10 +853,10 @@ int npc_checknear(struct map_session_data *sd,int id)
 		return 1;
 	}
 
-	if (nd->class_<0)	// ã‚¤ãƒ™ãƒ³ãƒˆç³»ã¯å¸¸ã«OK
+	if (nd->class_<0)	// ƒCƒxƒ“ƒgŒn‚Íí‚ÉOK
 		return 0;
 
-	// ã‚¨ãƒªã‚¢åˆ¤å®š
+	// ƒGƒŠƒA”»’è
 	if (nd->bl.m!=sd->bl.m ||
 	   nd->bl.x<sd->bl.x-AREA_SIZE-1 || nd->bl.x>sd->bl.x+AREA_SIZE+1 ||
 	   nd->bl.y<sd->bl.y-AREA_SIZE-1 || nd->bl.y>sd->bl.y+AREA_SIZE+1)
@@ -851,7 +866,7 @@ int npc_checknear(struct map_session_data *sd,int id)
 }
 
 /*==========================================
- * NPCã®ã‚ªãƒ¼ãƒ—ãƒ³ãƒãƒ£ãƒƒãƒˆç™ºè¨€
+ * NPC‚ÌƒI[ƒvƒ“ƒ`ƒƒƒbƒg”­Œ¾
  *------------------------------------------
  */
 int npc_globalmessage(const char *name,char *mes)
@@ -869,7 +884,7 @@ int npc_globalmessage(const char *name,char *mes)
 }
 
 /*==========================================
- * ã‚¯ãƒªãƒƒã‚¯æ™‚ã®NPCå‡¦ç†
+ * ƒNƒŠƒbƒN‚ÌNPCˆ—
  *------------------------------------------
  */
 int npc_click(struct map_session_data *sd,int id)
@@ -889,7 +904,8 @@ int npc_click(struct map_session_data *sd,int id)
 
 	nd=(struct npc_data *)map_id2bl(id);
 
-	if (nd->flag&1)	// ç„¡åŠ¹åŒ–ã•ã‚Œã¦ã„ã‚‹
+	//Disabled npc.
+	if (nd->sc.option&OPTION_INVISIBLE)
 		return 1;
 
 	sd->npc_id=id;
@@ -916,10 +932,14 @@ int npc_scriptcont(struct map_session_data *sd,int id)
 
 	nullpo_retr(1, sd);
 
-	if (id!=sd->npc_id)
+	if (id!=sd->npc_id){
+		ShowWarning("npc_scriptcont: sd->npc_id (%d) is not id (%d).\n", sd->npc_id, id);
 		return 1;
-	if (npc_checknear(sd,id))
+	}
+	if (npc_checknear(sd,id)){
+		ShowWarning("npc_scriptcont: failed npc_checknear test.\n");
 		return 1;
+	}
 
 	nd=(struct npc_data *)map_id2bl(id);
 
@@ -948,7 +968,7 @@ int npc_buysellsel(struct map_session_data *sd,int id,int type)
 		sd->npc_id=0;
 		return 1;
 	}
-	if (nd->flag&1)	// ç„¡åŠ¹åŒ–ã•ã‚Œã¦ã„ã‚‹
+	if (nd->sc.option&OPTION_INVISIBLE)	// –³Œø‰»‚³‚ê‚Ä‚¢‚é
 		return 1;
 
 	sd->npc_shopid=id;
@@ -1013,11 +1033,11 @@ int npc_buylist(struct map_session_data *sd,int n,unsigned short *item_list)
 		w+=itemdb_weight(item_list[i*2+1]) * item_list[i*2];
 	}
 	if (z > (double)sd->status.zeny)
-		return 1;	// zenyä¸è¶³
+		return 1;	// zeny•s‘«
 	if (w+sd->weight > sd->max_weight)
-		return 2;	// é‡é‡è¶…é
+		return 2;	// d—Ê’´‰ß
 	if (pc_inventoryblank(sd)<new_)
-		return 3;	// ç¨®é¡æ•°è¶…é
+		return 3;	// í—Ş”’´‰ß
 
 	//Logs (S)hopping Zeny [Lupus]
 	if(log_config.zeny > 0 )
@@ -1030,7 +1050,7 @@ int npc_buylist(struct map_session_data *sd,int n,unsigned short *item_list)
 
 		memset(&item_tmp,0,sizeof(item_tmp));
 		item_tmp.nameid = item_list[i*2+1];
-		item_tmp.identify = 1;	// npcè²©å£²ã‚¢ã‚¤ãƒ†ãƒ ã¯é‘‘å®šæ¸ˆã¿
+		item_tmp.identify = 1;	// npc”Ì”„ƒAƒCƒeƒ€‚ÍŠÓ’èÏ‚İ
 
 		pc_additem(sd,&item_tmp,item_list[i*2]);
 
@@ -1040,7 +1060,7 @@ int npc_buylist(struct map_session_data *sd,int n,unsigned short *item_list)
 		//Logs
 	}
 
-	//å•†äººçµŒé¨“å€¤
+	//¤lŒoŒ±’l
 	if (battle_config.shop_exp > 0 && z > 0 && (skill = pc_checkskill(sd,MC_DISCOUNT)) > 0) {
 		if (sd->status.skill[MC_DISCOUNT].flag != 0)
 			skill = sd->status.skill[MC_DISCOUNT].flag - 2;
@@ -1108,7 +1128,7 @@ int npc_selllist(struct map_session_data *sd,int n,unsigned short *item_list)
 		pc_delitem(sd,item_id,item_list[i*2+1],0);
 	}
 
-	//å•†äººçµŒé¨“å€¤
+	//¤lŒoŒ±’l
 	if (battle_config.shop_exp > 0 && z > 0 && (skill = pc_checkskill(sd,MC_OVERCHARGE)) > 0) {
 		if (sd->status.skill[MC_OVERCHARGE].flag != 0)
 			skill = sd->status.skill[MC_OVERCHARGE].flag - 2;
@@ -1122,231 +1142,6 @@ int npc_selllist(struct map_session_data *sd,int n,unsigned short *item_list)
 
 	return 0;
 
-}
-
-// [Valaris] NPC Walking
-
-/*==========================================
- * Time calculation concerning one step next to npc
- *------------------------------------------
- */
-static int calc_next_walk_step(struct npc_data *nd)
-{
-	nullpo_retr(0, nd);
-
-	if(nd->walkpath.path_pos>=nd->walkpath.path_len)
-		return -1;
-	if(nd->walkpath.path[nd->walkpath.path_pos]&1)
-		return status_get_speed(&nd->bl)*14/10;
-	return status_get_speed(&nd->bl);
-}
-
-
-/*==========================================
- * npc Walk processing
- *------------------------------------------
- */
-static int npc_walk(struct npc_data *nd,unsigned int tick,int data)
-{
-	int i;
-	static int dirx[8]={0,-1,-1,-1,0,1,1,1};
-	static int diry[8]={1,1,0,-1,-1,-1,0,1};
-	int x,y,dx,dy;
-
-	nullpo_retr(0, nd);
-
-	nd->state.state=MS_IDLE;
-	if(nd->walkpath.path_pos>=nd->walkpath.path_len || nd->walkpath.path_pos!=data)
-		return 0;
-
-	nd->walkpath.path_half ^= 1;
-	if(nd->walkpath.path_half==0){
-		nd->walkpath.path_pos++;
-		if(nd->state.change_walk_target){
-			npc_walktoxy_sub(nd);
-			return 0;
-		}
-	}
-	else {
-		if(nd->walkpath.path[nd->walkpath.path_pos]>=8)
-			return 1;
-
-		x = nd->bl.x;
-		y = nd->bl.y;
-		if(map_getcell(nd->bl.m,x,y,CELL_CHKNOPASS)) {
-			npc_stop_walking(nd,1);
-			return 0;
-		}
-		nd->dir=nd->walkpath.path[nd->walkpath.path_pos];
-		dx = dirx[nd->dir];
-		dy = diry[nd->dir];
-
-		if(map_getcell(nd->bl.m,x+dx,y+dy,CELL_CHKNOPASS)) {
-			npc_walktoxy_sub(nd);
-			return 0;
-		}
-
-		nd->state.state=MS_WALK;
-		map_foreachinmovearea(clif_npcoutsight,nd->bl.m,x-AREA_SIZE,y-AREA_SIZE,x+AREA_SIZE,y+AREA_SIZE,dx,dy,BL_PC,nd);
-
-		x += dx;
-		y += dy;
-		map_moveblock(&nd->bl, x, y, tick);
-
-		map_foreachinmovearea(clif_npcinsight,nd->bl.m,x-AREA_SIZE,y-AREA_SIZE,x+AREA_SIZE,y+AREA_SIZE,-dx,-dy,BL_PC,nd);
-		nd->state.state=MS_IDLE;
-	}
-	if((i=calc_next_walk_step(nd))>0){
-		i = i>>1;
-		if(i < 1 && nd->walkpath.path_half == 0)
-			i = 1;
-		nd->walktimer=add_timer(tick+i,npc_walktimer,nd->bl.id,nd->walkpath.path_pos);
-		nd->state.state=MS_WALK;
-
-		if(nd->walkpath.path_pos>=nd->walkpath.path_len)
-			clif_fixnpcpos(nd);	// When npc stops, retransmission current of a position.
-
-	}
-	return 0;
-}
-
-int npc_changestate(struct npc_data *nd,int state,int type)
-{
-	int i;
-
-	nullpo_retr(0, nd);
-
-	if(nd->walktimer != -1)
-		delete_timer(nd->walktimer,npc_walktimer);
-	nd->walktimer=-1;
-	nd->state.state=state;
-
-	switch(state){
-	case MS_WALK:
-		if((i=calc_next_walk_step(nd))>0){
-			i = i>>2;
-			nd->walktimer=add_timer(gettick()+i,npc_walktimer,nd->bl.id,0);
-		}
-		else
-			nd->state.state=MS_IDLE;
-		break;
-	case MS_DELAY:
-		nd->walktimer=add_timer(gettick()+type,npc_walktimer,nd->bl.id,0);
-		break;
-
-	}
-
-	return 0;
-}
-
-static int npc_walktimer(int tid,unsigned int tick,int id,int data)
-{
-	struct npc_data *nd;
-
-	nd=(struct npc_data*)map_id2bl(id);
-	if(nd == NULL || nd->bl.type != BL_NPC)
-		return 1;
-
-	if(nd->walktimer != tid){
-		return 0;
-	}
-
-	nd->walktimer=-1;
-
-	if(nd->bl.prev == NULL)
-		return 1;
-
-	switch(nd->state.state){
-		case MS_WALK:
-			npc_walk(nd,tick,data);
-			break;
-		case MS_DELAY:
-			npc_changestate(nd,MS_IDLE,0);
-			break;
-		default:
-			break;
-	}
-	return 0;
-}
-
-
-static int npc_walktoxy_sub(struct npc_data *nd)
-{
-	struct walkpath_data wpd;
-
-	nullpo_retr(0, nd);
-
-	if(path_search(&wpd,nd->bl.m,nd->bl.x,nd->bl.y,nd->to_x,nd->to_y,nd->state.walk_easy))
-		return 1;
-	memcpy(&nd->walkpath,&wpd,sizeof(wpd));
-
-	nd->state.change_walk_target=0;
-	npc_changestate(nd,MS_WALK,0);
-
-	clif_movenpc(nd);
-
-	return 0;
-}
-
-int npc_walktoxy(struct npc_data *nd,int x,int y,int easy)
-{
-	struct walkpath_data wpd;
-
-	nullpo_retr(0, nd);
-
-	if(nd->state.state == MS_WALK && path_search(&wpd,nd->bl.m,nd->bl.x,nd->bl.y,x,y,0) )
-		return 1;
-
-	nd->state.walk_easy = easy;
-	nd->to_x=x;
-	nd->to_y=y;
-	if(nd->state.state == MS_WALK) {
-		nd->state.change_walk_target=1;
-	} else {
-		return npc_walktoxy_sub(nd);
-	}
-
-	return 0;
-}
-
-int npc_stop_walking(struct npc_data *nd,int type)
-{
-	nullpo_retr(0, nd);
-
-	if(nd->state.state == MS_WALK || nd->state.state == MS_IDLE) {
-		int dx=0,dy=0;
-
-		nd->walkpath.path_len=0;
-		if(type&4){
-			dx=nd->to_x-nd->bl.x;
-			if(dx<0)
-				dx=-1;
-			else if(dx>0)
-				dx=1;
-			dy=nd->to_y-nd->bl.y;
-			if(dy<0)
-				dy=-1;
-			else if(dy>0)
-				dy=1;
-		}
-		nd->to_x=nd->bl.x+dx;
-		nd->to_y=nd->bl.y+dy;
-		if(dx!=0 || dy!=0){
-			npc_walktoxy_sub(nd);
-			return 0;
-		}
-		npc_changestate(nd,MS_IDLE,0);
-	}
-	if(type&0x01)
-		clif_fixnpcpos(nd);
-	if(type&0x02) {
-		int delay=status_get_dmotion(&nd->bl);
-		unsigned int tick = gettick();
-		if(nd->canmove_tick < tick)
-			nd->canmove_tick = tick + delay;
-	}
-
-	return 0;
 }
 
 int npc_remove_map (struct npc_data *nd)
@@ -1403,6 +1198,7 @@ static int npc_unload_ev(DBKey key,void *data,va_list ap) {
 int npc_unload (struct npc_data *nd)
 {
 	npc_remove_map (nd);
+	map_deliddb(&nd->bl);
 
 	if (nd->chat_id) {
 		struct chat_data *cd = (struct chat_data*)map_id2bl(nd->chat_id);
@@ -1433,11 +1229,11 @@ int npc_unload (struct npc_data *nd)
 }
 
 //
-// åˆæœŸåŒ–é–¢ä¿‚
+// ‰Šú‰»ŠÖŒW
 //
 
 /*==========================================
- * èª­ã¿è¾¼ã‚€npcãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚¯ãƒªã‚¢
+ * “Ç‚İ‚Şnpcƒtƒ@ƒCƒ‹‚ÌƒNƒŠƒA
  *------------------------------------------
  */
 void npc_clearsrcfile (void)
@@ -1453,7 +1249,7 @@ void npc_clearsrcfile (void)
 	npc_src_last = NULL;
 }
 /*==========================================
- * èª­ã¿è¾¼ã‚€npcãƒ•ã‚¡ã‚¤ãƒ«ã®è¿½åŠ 
+ * “Ç‚İ‚Şnpcƒtƒ@ƒCƒ‹‚Ì’Ç‰Á
  *------------------------------------------
  */
 void npc_addsrcfile (char *name)
@@ -1484,7 +1280,7 @@ void npc_addsrcfile (char *name)
 	npc_src_last = nsl;
 }
 /*==========================================
- * èª­ã¿è¾¼ã‚€npcãƒ•ã‚¡ã‚¤ãƒ«ã®å‰Šé™¤
+ * “Ç‚İ‚Şnpcƒtƒ@ƒCƒ‹‚Ìíœ
  *------------------------------------------
  */
 void npc_delsrcfile (char *name)
@@ -1511,7 +1307,7 @@ void npc_delsrcfile (char *name)
 }
 
 /*==========================================
- * warpè¡Œè§£æ
+ * warps‰ğÍ
  *------------------------------------------
  */
 int npc_parse_warp (char *w1,char *w2,char *w3,char *w4)
@@ -1521,7 +1317,7 @@ int npc_parse_warp (char *w1,char *w2,char *w3,char *w4)
 	char mapname[MAP_NAME_LENGTH], to_mapname[MAP_NAME_LENGTH];
 	struct npc_data *nd;
 
-	// å¼•æ•°ã®å€‹æ•°ãƒã‚§ãƒƒã‚¯
+	// ˆø”‚ÌŒÂ”ƒ`ƒFƒbƒN
 	if (sscanf(w1, "%15[^,],%d,%d", mapname, &x, &y) != 3 ||
 	   sscanf(w4, "%d,%d,%15[^,],%d,%d", &xs, &ys, to_mapname, &to_x, &to_y) != 5) {
 		ShowError("bad warp line : %s\n", w3);
@@ -1572,14 +1368,17 @@ int npc_parse_warp (char *w1,char *w2,char *w3,char *w4)
 	nd->bl.type = BL_NPC;
 	nd->bl.subtype = WARP;
 	map_addblock(&nd->bl);
-	clif_spawnnpc(nd);
+	status_set_viewdata(&nd->bl, nd->class_);
+	status_change_init(&nd->bl);
+	unit_dataset(&nd->bl);
+	clif_spawn(&nd->bl);
 	strdb_put(npcname_db, nd->name, nd);
 
 	return 0;
 }
 
 /*==========================================
- * shopè¡Œè§£æ
+ * shops‰ğÍ
  *------------------------------------------
  */
 static int npc_parse_shop (char *w1, char *w2, char *w3, char *w4)
@@ -1593,7 +1392,7 @@ static int npc_parse_shop (char *w1, char *w2, char *w3, char *w4)
 	if (strcmp(w1, "-") == 0) {
 		x = 0; y = 0; dir = 0; m = -1;
 	} else {
-		// å¼•æ•°ã®å€‹æ•°ãƒã‚§ãƒƒã‚¯
+		// ˆø”‚ÌŒÂ”ƒ`ƒFƒbƒN
 		if (sscanf(w1, "%15[^,],%d,%d,%d", mapname, &x, &y, &dir) != 4 ||
 	   	 strchr(w4, ',') == NULL) {
 			ShowError("bad shop line : %s\n", w3);
@@ -1618,10 +1417,14 @@ static int npc_parse_shop (char *w1, char *w2, char *w3, char *w4)
 			value = id->value_buy;
 		nd->u.shop_item[pos].value = value;
 		// check for bad prices that can possibly cause exploits
-		if (value*75/100 < id->value_sell*124/100) {
+		if (value/124. < id->value_sell/75.) {  //Clened up formula to prevent overflows.
 			printf("\r"); //Carriage return to clear the 'loading..' line. [Skotlex]
-			ShowWarning ("Item %s [%d] buying price (%d) is less than selling price (%d)\n",
-				id->name, id->nameid, value*75/100, id->value_sell*124/100);
+			if (value < id->value_sell)
+				ShowWarning ("Item %s [%d] buying price (%d) is less than selling price (%d)\n",
+					id->name, id->nameid, value, id->value_sell);
+			else
+				ShowWarning ("Item %s [%d] discounted buying price (%d) is less than overcharged selling price (%d)\n",
+					id->name, id->nameid, value/100*75, id->value_sell/100*124);
 		}
 		//for logs filters, atcommands and iteminfo script command
 		if (id->maxchance<=0)
@@ -1641,8 +1444,6 @@ static int npc_parse_shop (char *w1, char *w2, char *w3, char *w4)
 	nd->bl.x = x;
 	nd->bl.y = y;
 	nd->bl.id = npc_get_new_npc_id();
-	nd->dir = dir;
-	nd->flag = 0;
 	memcpy(nd->name, w3, NAME_LENGTH-1);
 	nd->name[NAME_LENGTH-1] = '\0';
 	nd->class_ = m==-1?-1:atoi(w4);
@@ -1657,7 +1458,11 @@ static int npc_parse_shop (char *w1, char *w2, char *w3, char *w4)
 	if (m >= 0) {
 		nd->n = map_addnpc(m,nd);
 		map_addblock(&nd->bl);
-		clif_spawnnpc(nd);
+		status_set_viewdata(&nd->bl, nd->class_);
+		status_change_init(&nd->bl);
+		unit_dataset(&nd->bl);
+		nd->ud.dir = dir;
+		clif_spawn(&nd->bl);
 	} else
 		// we skip map_addnpc, but still add it to the list of ID's
 		map_addiddb(&nd->bl);
@@ -1667,7 +1472,7 @@ static int npc_parse_shop (char *w1, char *w2, char *w3, char *w4)
 }
 
 /*==========================================
- * NPCã®ãƒ©ãƒ™ãƒ«ãƒ‡ãƒ¼ã‚¿ã‚³ãƒ³ãƒãƒ¼ãƒˆ
+ * NPC‚Ìƒ‰ƒxƒ‹ƒf[ƒ^ƒRƒ“ƒo[ƒg
  *------------------------------------------
  */
 int npc_convertlabel_db (DBKey key, void *data, va_list ap)
@@ -1713,7 +1518,7 @@ int npc_convertlabel_db (DBKey key, void *data, va_list ap)
 }
 
 /*==========================================
- * scriptè¡Œè§£æ
+ * scripts‰ğÍ
  *------------------------------------------
  */
 static void npc_parse_script_line(unsigned char *p,int *curly_count,int line) {
@@ -1723,7 +1528,7 @@ static void npc_parse_script_line(unsigned char *p,int *curly_count,int line) {
 	for(j = 0; j < i ; j++) {
 		if(comment_flag) {
 			if(p[j] == '*' && p[j+1] == '/') {
-				// ãƒãƒ«ãƒãƒ©ã‚¤ãƒ³ã‚³ãƒ¡ãƒ³ãƒˆçµ‚äº†
+				// ƒ}ƒ‹ƒ`ƒ‰ƒCƒ“ƒRƒƒ“ƒgI—¹
 				j++;
 				(*curly_count)--;
 				comment_flag = 0;
@@ -1732,7 +1537,7 @@ static void npc_parse_script_line(unsigned char *p,int *curly_count,int line) {
 			if(p[j] == '"') {
 				string_flag = 0;
 			} else if(p[j] == '\\' && p[j-1]<=0x7e) {
-				// ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
+				// ƒGƒXƒP[ƒv
 				j++;
 			}
 		} else {
@@ -1747,10 +1552,10 @@ static void npc_parse_script_line(unsigned char *p,int *curly_count,int line) {
 			} else if(p[j] == '{') {
 				(*curly_count)++;
 			} else if(p[j] == '/' && p[j+1] == '/') {
-				// ã‚³ãƒ¡ãƒ³ãƒˆ
+				// ƒRƒƒ“ƒg
 				break;
 			} else if(p[j] == '/' && p[j+1] == '*') {
-				// ãƒãƒ«ãƒãƒ©ã‚¤ãƒ³ã‚³ãƒ¡ãƒ³ãƒˆ
+				// ƒ}ƒ‹ƒ`ƒ‰ƒCƒ“ƒRƒƒ“ƒg
 				j++;
 				(*curly_count)++;
 				comment_flag = 1;
@@ -1824,7 +1629,7 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 	if (strcmp(w1, "-") == 0) {
 		x = 0; y = 0; m = -1;
 	} else {
-		// å¼•æ•°ã®å€‹æ•°ãƒã‚§ãƒƒã‚¯
+		// ˆø”‚ÌŒÂ”ƒ`ƒFƒbƒN
 		if (sscanf(w1, "%15[^,],%d,%d,%d", mapname, &x, &y, &dir) != 4 ||
 			(strcmp(w2, "script") == 0 && strchr(w4,',') == NULL)) {
 			ShowError("bad script line (in file %s): %s\n", current_file, w3);
@@ -1875,7 +1680,7 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 			return 1;
 		}
 	} else {
-		// duplicateã™ã‚‹
+		// duplicate‚·‚é
 		char srcname[128];
 		struct npc_data *nd2;
 		if (sscanf(w2, "duplicate(%[^)])", srcname) != 1) {
@@ -1891,18 +1696,18 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 		label_dupnum = nd2->u.scr.label_list_num;
 		src_id = nd2->bl.id;
 
-	}// end of ã‚¹ã‚¯ãƒªãƒ—ãƒˆè§£æ
+	}// end of ƒXƒNƒŠƒvƒg‰ğÍ
 
 	nd = (struct npc_data *)aCalloc(1, sizeof(struct npc_data));
 
 	if (sscanf(w4, "%d,%d,%d", &class_, &xs, &ys) == 3) {
-		// æ¥è§¦å‹NPC
+		// ÚGŒ^NPC
 		int i, j;
 
 		if (xs >= 0) xs = xs * 2 + 1;
 		if (ys >= 0) ys = ys * 2 + 1;
 
-		if (class_ >= 0) {
+		if (class_ >= -1) { // -1 NPCs use OnTouch [Lance]
 			for (i = 0; i < ys; i++) {
 				for (j = 0; j < xs; j++) {
 					if (map_getcell(m, x - xs/2 + j, y - ys/2 + i, CELL_CHKNOPASS))
@@ -1914,13 +1719,13 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 		nd->u.scr.xs = xs;
 		nd->u.scr.ys = ys;
 	} else {
-		// ã‚¯ãƒªãƒƒã‚¯å‹NPC
+		// ƒNƒŠƒbƒNŒ^NPC
 		class_ = atoi(w4);
 		nd->u.scr.xs = 0;
 		nd->u.scr.ys = 0;
 	}
 
-	if (class_ < 0 && m >= 0) {	// ã‚¤ãƒ™ãƒ³ãƒˆå‹NPC
+	if (class_ < 0 && m >= 0) {	// ƒCƒxƒ“ƒgŒ^NPC
 		evflag = 1;
 	}
 
@@ -1941,39 +1746,33 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 	nd->bl.x = x;
 	nd->bl.y = y;
 	nd->bl.id = npc_get_new_npc_id();
-	nd->dir = dir;
-//	nd->flag = 0;
 	nd->class_ = class_;
 	nd->speed = 200;
 	nd->u.scr.script = script;
 	nd->u.scr.src_id = src_id;
-/* Cleaned up above with memset...
-	nd->chat_id = 0;
-	nd->sc.option = 0;
-	nd->sc.opt1 = 0;
-	nd->sc.opt2 = 0;
-	nd->sc.opt3 = 0;
-*/
-	nd->walktimer = -1;
 
 	npc_script++;
 	nd->bl.type = BL_NPC;
 	nd->bl.subtype = SCRIPT;
-//	Cleaned up above...
-//	memset (nd->eventqueue, 0, sizeof(nd->eventqueue));
+
 	for (i = 0; i < MAX_EVENTTIMER; i++)
 		nd->eventtimer[i] = -1;
 	if (m >= 0) {
 		nd->n = map_addnpc(m, nd);
+		if (class_ >= 0)
+			status_set_viewdata(&nd->bl, nd->class_);
+		status_change_init(&nd->bl);
+		unit_dataset(&nd->bl);
+		nd->ud.dir = dir;
 		map_addblock(&nd->bl);
-
-		if (evflag) {	// ã‚¤ãƒ™ãƒ³ãƒˆå‹
+		if (evflag) {	// ƒCƒxƒ“ƒgŒ^
 			struct event_data *ev = (struct event_data *)aCalloc(1, sizeof(struct event_data));
 			ev->nd = nd;
 			ev->pos = 0;
 			strdb_put(ev_db, nd->exname, ev);
-		} else
-			clif_spawnnpc(nd);
+		} else {
+			clif_spawn(&nd->bl);
+		}
 	} else {
 		// we skip map_addnpc, but still add it to the list of ID's
 		map_addiddb(&nd->bl);
@@ -1981,23 +1780,23 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 	strdb_put(npcname_db, nd->exname, nd);
 
 	//-----------------------------------------
-	// ãƒ©ãƒ™ãƒ«ãƒ‡ãƒ¼ã‚¿ã®æº–å‚™
+	// ƒ‰ƒxƒ‹ƒf[ƒ^‚Ì€”õ
 	if (srcbuf){
-		// scriptæœ¬ä½“ãŒã‚ã‚‹å ´åˆã®å‡¦ç†
-		// ãƒ©ãƒ™ãƒ«ãƒ‡ãƒ¼ã‚¿ã®ã‚³ãƒ³ãƒãƒ¼ãƒˆ
+		// script–{‘Ì‚ª‚ ‚éê‡‚Ìˆ—
+		// ƒ‰ƒxƒ‹ƒf[ƒ^‚ÌƒRƒ“ƒo[ƒg
 		label_db = script_get_label_db();
 		label_db->foreach(label_db, npc_convertlabel_db, nd);
 
-		// ã‚‚ã†ä½¿ã‚ãªã„ã®ã§ãƒãƒƒãƒ•ã‚¡è§£æ”¾
+		// ‚à‚¤g‚í‚È‚¢‚Ì‚Åƒoƒbƒtƒ@‰ğ•ú
 		aFree(srcbuf);
 	} else {
 		// duplicate
-		nd->u.scr.label_list = label_dup;	// ãƒ©ãƒ™ãƒ«ãƒ‡ãƒ¼ã‚¿å…±æœ‰
+		nd->u.scr.label_list = label_dup;	// ƒ‰ƒxƒ‹ƒf[ƒ^‹¤—L
 		nd->u.scr.label_list_num = label_dupnum;
 	}
 
 	//-----------------------------------------
-	// ã‚¤ãƒ™ãƒ³ãƒˆç”¨ãƒ©ãƒ™ãƒ«ãƒ‡ãƒ¼ã‚¿ã®ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆ
+	// ƒCƒxƒ“ƒg—pƒ‰ƒxƒ‹ƒf[ƒ^‚ÌƒGƒNƒXƒ|[ƒg
 	for (i = 0; i < nd->u.scr.label_list_num; i++){
 		char *lname = nd->u.scr.label_list[i].name;
 		int pos = nd->u.scr.label_list[i].pos;
@@ -2027,13 +1826,13 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 	}
 
 	//-----------------------------------------
-	// ãƒ©ãƒ™ãƒ«ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆå–ã‚Šè¾¼ã¿
+	// ƒ‰ƒxƒ‹ƒf[ƒ^‚©‚çƒ^ƒCƒ}[ƒCƒxƒ“ƒgæ‚è‚İ
 	for (i = 0; i < nd->u.scr.label_list_num; i++){
 		int t = 0, k = 0;
 		char *lname = nd->u.scr.label_list[i].name;
 		int pos = nd->u.scr.label_list[i].pos;
 		if (sscanf(lname, "OnTimer%d%n", &t, &k) == 1 && lname[k] == '\0') {
-			// ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ™ãƒ³ãƒˆ
+			// ƒ^ƒCƒ}[ƒCƒxƒ“ƒg
 			struct npc_timerevent_list *te = nd->u.scr.timer_event;
 			int j, k = nd->u.scr.timeramount;
 			if (te == NULL)
@@ -2049,7 +1848,7 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 			te[j].timer = t;
 			te[j].pos = pos;
 			nd->u.scr.timer_event = te;
-			nd->u.scr.timeramount = k+1;
+			nd->u.scr.timeramount++;
 		}
 	}
 	nd->u.scr.nexttimer = -1;
@@ -2059,7 +1858,7 @@ static int npc_parse_script (char *w1,char *w2,char *w3,char *w4,char *first_lin
 }
 
 /*==========================================
- * functionè¡Œè§£æ
+ * functions‰ğÍ
  *------------------------------------------
  */
 static int npc_parse_function (char *w1, char *w2, char *w3, char *w4, char *first_line, FILE *fp, int *lines)
@@ -2071,7 +1870,7 @@ static int npc_parse_function (char *w1, char *w2, char *w3, char *w4, char *fir
 	int curly_count = 0;
 	struct dbt *user_db;
 	
-	// ã‚¹ã‚¯ãƒªãƒ—ãƒˆã®è§£æ
+	// ƒXƒNƒŠƒvƒg‚Ì‰ğÍ
 	srcbuf = (unsigned char *) aCallocA (srcsize, sizeof(char));
 	if (strchr(first_line,'{')) {
 		strcpy(srcbuf, strchr(first_line,'{'));
@@ -2117,7 +1916,7 @@ static int npc_parse_function (char *w1, char *w2, char *w3, char *w4, char *fir
 	user_db = script_get_userfunc_db();
 	strdb_put(user_db, p, script);
 
-	// ã‚‚ã†ä½¿ã‚ãªã„ã®ã§ãƒãƒƒãƒ•ã‚¡è§£æ”¾
+	// ‚à‚¤g‚í‚È‚¢‚Ì‚Åƒoƒbƒtƒ@‰ğ•ú
 	aFree(srcbuf);
 
 //	printf("function %s => %p\n",p,script);
@@ -2131,111 +1930,80 @@ static int npc_parse_function (char *w1, char *w2, char *w3, char *w4, char *fir
  * Parse Mob 2 - Actually Spawns Mob
  * [Wizputer]
  * If cached =1, it is a dynamic cached mob
+ * index points to the index in the mob_list of the map_data cache.
+ * -1 indicates that it is not stored on the map.
  *------------------------------------------
  */
-int npc_parse_mob2 (struct mob_list *mob, int cached)
+int npc_parse_mob2 (struct spawn_data *mob, int index)
 {
 	int i;
 	struct mob_data *md;
 
 	for (i = 0; i < mob->num; i++) {
-		md = (struct mob_data *) aCalloc (1, sizeof(struct mob_data));
-
-		md->bl.prev = NULL;
-		md->bl.next = NULL;
-		md->bl.m = mob->m;
-		md->bl.x = mob->x;
-		md->bl.y = mob->y;
-		md->level = mob->level;
-		memcpy(md->name, mob->mobname, NAME_LENGTH-1);
-		md->n = i;
-		//FIXME: This implementation is not stable, npc scripts will stop working once MAX_MOB_DB changes value! [Skotlex]
-		if(mob->class_ > 2*MAX_MOB_DB){ // large/tiny mobs [Valaris]
-			md->special_state.size=2;
-			md->base_class = md->class_ = mob->class_-2*MAX_MOB_DB;
-		} else if (mob->class_ > MAX_MOB_DB) {
-			md->special_state.size=1;
-			md->base_class = md->class_ = mob->class_-MAX_MOB_DB;
-		} else
-			md->base_class = md->class_ = mob->class_;
-		md->bl.id = npc_get_new_npc_id();
-		md->db = mob_db(mob->class_);
-		md->m = mob->m;
-		md->x0 = mob->x;
-		md->y0 = mob->y;
-		md->xs = mob->xs;
-		md->ys = mob->ys;
-		md->spawndelay1 = mob->delay1;
-		md->spawndelay2 = mob->delay2;
-
-		md->special_state.cached = cached;	//If cached, mob is dynamically removed
-		md->timer = -1;
-		md->speed = mob_db(mob->class_)->speed;
-
-		if (mob_db(mob->class_)->mode & MD_LOOTER)
-			md->lootitem = (struct item *)aCalloc(LOOTITEM_SIZE, sizeof(struct item));
-		else
-			md->lootitem = NULL;
-
-		if (strlen(mob->eventname) >= 4) {
-			memcpy(md->npc_event, mob->eventname, NAME_LENGTH-1);
-		} else if (strlen(mob->eventname) <= 2) { //Portable monster big/small implementation. [Skotlex]
-			int size = atoi(mob->eventname);
-			if (size & 2)
-				md->special_state.size=1;
-			else if (size & 4)
-				md->special_state.size=2;
-			if (size & 8)
-				md->special_state.ai=1;
-		}
-
-		md->bl.type = BL_MOB;
-		map_addiddb(&md->bl);
-		mob_spawn(md->bl.id);
+		md = mob_spawn_dataset(mob);
+		md->spawn = mob;
+		md->spawn_n = index;
+		md->special_state.cached = (index>=0);	//If mob is cached on map, it is dynamically removed
+		mob_spawn(md);
 	}
 
-	return 0;
+	return 1;
 }
 
 int npc_parse_mob (char *w1, char *w2, char *w3, char *w4)
 {
-	int level, mode;
+	int level, num, class_, mode, x,y,xs,ys;
 	char mapname[MAP_NAME_LENGTH];
 	char mobname[NAME_LENGTH];
-	struct mob_list mob;
+	struct spawn_data mob, *data;
 
-	memset(&mob, 0, sizeof(struct mob_list));
+	memset(&mob, 0, sizeof(struct spawn_data));
 
-	// å¼•æ•°ã®å€‹æ•°ãƒã‚§ãƒƒã‚¯
-	if (sscanf(w1, "%15[^,],%d,%d,%d,%d", mapname, &mob.x, &mob.y, &mob.xs, &mob.ys) < 3 ||
-		sscanf(w4, "%d,%d,%d,%d,%23s", &mob.class_, &mob.num, &mob.delay1, &mob.delay2, mob.eventname) < 2 ) {
+	// ˆø”‚ÌŒÂ”ƒ`ƒFƒbƒN
+	if (sscanf(w1, "%15[^,],%d,%d,%d,%d", mapname, &x, &y, &xs, &ys) < 3 ||
+		sscanf(w4, "%d,%d,%u,%u,%23s", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname) < 2 ) {
 		ShowError("bad monster line : %s %s %s (file %s)\n", w1, w3, w4, current_file);
 		return 1;
 	}
-
-	mob.m = map_mapname2mapid(mapname);
-	if (mob.m < 0) {
+	if (!mapindex_name2id(mapname)) {
 		ShowError("wrong map name : %s %s (file %s)\n", w1,w3, current_file);
+		return 1;
+	}
+	mode =  map_mapname2mapid(mapname);
+	if (mode < 0) //Not loaded on this map-server instance.
+		return 1;
+	mob.m = (unsigned short)mode;
+
+	if (x < 0 || map[mob.m].xs <= x || y < 0 || map[mob.m].ys <= y) {
+		ShowError("Out of range spawn coordinates: %s (%d,%d), map size is (%d,%d) - %s %s (file %s)\n", map[mob.m].name, x, y, map[mob.m].xs-1, map[mob.m].ys-1, w1,w3, current_file);
 		return 1;
 	}
 
 	// check monster ID if exists!
-	if (mobdb_checkid(mob.class_)==0) {
+	if (mobdb_checkid(class_)==0) {
 		ShowError("bad monster ID : %s %s (file %s)\n", w3, w4, current_file);
 		return 1;
 	}
 
-	if (mob.num < 1 || mob.num>1000 ) {
+	if (num < 1 || num>1000 ) {
 		ShowError("wrong number of monsters : %s %s (file %s)\n", w3, w4, current_file);
 		return 1;
 	}
+
+	mob.num = (unsigned short)num;
+	mob.class_ = (short) class_;
+	mob.x = (unsigned short)x;
+	mob.y = (unsigned short)y;
+	mob.xs = (unsigned short)xs;
+	mob.ys = (unsigned short)ys;
+
 	if (mob.num > 1 && battle_config.mob_count_rate != 100) {
 		if ((mob.num = mob.num * battle_config.mob_count_rate / 100) < 1)
 			mob.num = 1;
 	}
 
 	//Apply the spawn delay fix [Skotlex]
-	mode = mob_db(mob.class_)->mode;
+	mode = mob_db(class_)->mode;
 	if (mode & MD_BOSS) {	//Bosses
 		if (battle_config.boss_spawn_delay != 100)
 		{
@@ -2258,35 +2026,39 @@ int npc_parse_mob (char *w1, char *w2, char *w3, char *w4)
 	if (sscanf(w3, "%23[^,],%d", mobname, &level) > 1)
 		mob.level = level;
 
-	if (strcmp(mobname, "--en--") == 0)
-		memcpy(mob.mobname, mob_db(mob.class_)->name, NAME_LENGTH-1);
-	else if (strcmp(mobname, "--ja--") == 0)
-		memcpy(mob.mobname, mob_db(mob.class_)->jname, NAME_LENGTH-1);
-	else memcpy(mob.mobname, mobname, NAME_LENGTH-1);
-
 	if( mob.delay1<0 || mob.delay2<0 || mob.delay1>0xfffffff || mob.delay2>0xfffffff) {
 		ShowError("wrong monsters spawn delays : %s %s (file %s)\n", w3, w4, current_file);
 		return 1;
 	}
 
+		strncpy(mob.name, mobname, NAME_LENGTH-1);
+
+	if (!mob_parse_dataset(&mob)) //Verify dataset.
+		return 1;
+
+	//Now that all has been validated. We allocate the actual memory
+	//that the re-spawn data will use.
+	data = aMalloc(sizeof(struct spawn_data));
+	memcpy(data, &mob, sizeof(struct spawn_data));
+	
 	if( !battle_config.dynamic_mobs || mob.delay1 || mob.delay2 ) {
-		npc_parse_mob2(&mob,0);
+		npc_parse_mob2(data,-1);
 		npc_delay_mob += mob.num;
 	} else {
-		struct mob_list *dynmob = map_addmobtolist(mob.m);
-		if( dynmob ) {
-			memcpy(dynmob, &mob, sizeof(struct mob_list));
+		int index = map_addmobtolist(data->m, data);
+		if( index >= 0 ) {
 			// check if target map has players
 			// (usually shouldn't occur when map server is just starting,
 			// but not the case when we do @reloadscript
 			if (map[mob.m].users > 0)
-				npc_parse_mob2(&mob,1);
+				npc_parse_mob2(data,index);
 			npc_cache_mob += mob.num;
 		} else {
 			// mobcache is full
 			// create them as delayed with one second
 			mob.delay1 = 1000;
-			npc_parse_mob2(&mob,0);
+			mob.delay2 = 1000;
+			npc_parse_mob2(data,-1);
 			npc_delay_mob += mob.num;
 		}
 	}
@@ -2297,27 +2069,32 @@ int npc_parse_mob (char *w1, char *w2, char *w3, char *w4)
 }
 
 /*==========================================
- * ãƒãƒƒãƒ—ãƒ•ãƒ©ã‚°è¡Œã®è§£æ
+ * ƒ}ƒbƒvƒtƒ‰ƒOs‚Ì‰ğÍ
  *------------------------------------------
  */
 static int npc_parse_mapflag (char *w1, char *w2, char *w3, char *w4)
 {
 	int m;
 	char mapname[MAP_NAME_LENGTH];
+	int state = 1;
 
-	// å¼•æ•°ã®å€‹æ•°ãƒã‚§ãƒƒã‚¯
+	// ˆø”‚ÌŒÂ”ƒ`ƒFƒbƒN
 	if (sscanf(w1, "%15[^,]",mapname) != 1)
 		return 1;
 
 	m = map_mapname2mapid(mapname);
 	if (m < 0)
 		return 1;
-
-//ãƒãƒƒãƒ—ãƒ•ãƒ©ã‚°
+	if (w4 && strcmpi(w4, "off") == 0)
+		state = 0;	//Disable mapflag rather than enable it. [Skotlex]
+	
+//ƒ}ƒbƒvƒtƒ‰ƒO
 	if (strcmpi(w3, "nosave") == 0) {
 		char savemap[MAP_NAME_LENGTH];
 		int savex, savey;
-		if (strcmp(w4, "SavePoint") == 0) {
+		if (state == 0)
+			; //Map flag disabled.
+		else if (strcmp(w4, "SavePoint") == 0) {
 			map[m].save.map = 0;
 			map[m].save.x = -1;
 			map[m].save.y = -1;
@@ -2331,40 +2108,40 @@ static int npc_parse_mapflag (char *w1, char *w2, char *w3, char *w4)
 				map[m].save.y = -1;
 			}
 		}
-		map[m].flag.nosave = 1;
+		map[m].flag.nosave = state;
 	}
 	else if (strcmpi(w3,"nomemo")==0) {
-		map[m].flag.nomemo=1;
+		map[m].flag.nomemo=state;
 	}
 	else if (strcmpi(w3,"noteleport")==0) {
-		map[m].flag.noteleport=1;
+		map[m].flag.noteleport=state;
 	}
 	else if (strcmpi(w3,"nowarp")==0) {
-		map[m].flag.nowarp=1;
+		map[m].flag.nowarp=state;
 	}
 	else if (strcmpi(w3,"nowarpto")==0) {
-		map[m].flag.nowarpto=1;
+		map[m].flag.nowarpto=state;
 	}
 	else if (strcmpi(w3,"noreturn")==0) {
-		map[m].flag.noreturn=1;
+		map[m].flag.noreturn=state;
 	}
 	else if (strcmpi(w3,"monster_noteleport")==0) {
-		map[m].flag.monster_noteleport=1;
+		map[m].flag.monster_noteleport=state;
 	}
 	else if (strcmpi(w3,"nobranch")==0) {
-		map[m].flag.nobranch=1;
+		map[m].flag.nobranch=state;
 	}
 	else if (strcmpi(w3,"nopenalty")==0) {
-		map[m].flag.nopenalty=1;
+		map[m].flag.nopenalty=state;
 	}
 	else if (strcmpi(w3,"pvp")==0) {
-		map[m].flag.pvp=1;
+		map[m].flag.pvp=state;
 	}
 	else if (strcmpi(w3,"pvp_noparty")==0) {
-		map[m].flag.pvp_noparty=1;
+		map[m].flag.pvp_noparty=state;
 	}
 	else if (strcmpi(w3,"pvp_noguild")==0) {
-		map[m].flag.pvp_noguild=1;
+		map[m].flag.pvp_noguild=state;
 	}
 	else if (strcmpi(w3, "pvp_nightmaredrop") == 0) {
 		char drop_arg1[16], drop_arg2[16];
@@ -2393,99 +2170,95 @@ static int npc_parse_mapflag (char *w1, char *w2, char *w3, char *w4)
 				}
 				map[m].flag.pvp_nightmaredrop = 1;
 			}
-		}
+		} else if (!state) //Disable
+			map[m].flag.pvp_nightmaredrop = 0;
 	}
 	else if (strcmpi(w3,"pvp_nocalcrank")==0) {
-		map[m].flag.pvp_nocalcrank=1;
+		map[m].flag.pvp_nocalcrank=state;
 	}
 	else if (strcmpi(w3,"gvg")==0) {
-		map[m].flag.gvg=1;
+		map[m].flag.gvg=state;
 	}
 	else if (strcmpi(w3,"gvg_noparty")==0) {
-		map[m].flag.gvg_noparty=1;
+		map[m].flag.gvg_noparty=state;
 	}
 	else if (strcmpi(w3,"gvg_dungeon")==0) {
-		map[m].flag.gvg_dungeon=1;
+		map[m].flag.gvg_dungeon=state;
 	}
 	else if (strcmpi(w3,"gvg_castle")==0) {
-		map[m].flag.gvg_castle=1;
+		map[m].flag.gvg_castle=state;
 	}
 	else if (strcmpi(w3,"nozenypenalty")==0) {
-		map[m].flag.nozenypenalty=1;
+		map[m].flag.nozenypenalty=state;
 	}
 	else if (strcmpi(w3,"notrade")==0) {
-		map[m].flag.notrade=1;
+		map[m].flag.notrade=state;
 	}
 	else if (strcmpi(w3,"nodrop")==0) {
-		map[m].flag.nodrop=1;
+		map[m].flag.nodrop=state;
 	}
 	else if (strcmpi(w3,"noskill")==0) {
-		map[m].flag.noskill=1;
-	}
-	else if (battle_config.pk_mode && strcmpi(w3,"nopvp")==0) { // nopvp for pk mode [Valaris]
-		map[m].flag.nopvp=1;
-		map[m].flag.pvp=0;
+		map[m].flag.noskill=state;
 	}
 	else if (strcmpi(w3,"noicewall")==0) { // noicewall [Valaris]
-		map[m].flag.noicewall=1;
+		map[m].flag.noicewall=state;
 	}
 	else if (strcmpi(w3,"snow")==0) { // snow [Valaris]
-		map[m].flag.snow=1;
+		map[m].flag.snow=state;
 	}
 	else if (strcmpi(w3,"clouds")==0) {
-		map[m].flag.clouds=1;
+		map[m].flag.clouds=state;
 	}
 	else if (strcmpi(w3,"clouds2")==0) { // clouds2 [Valaris]
-		map[m].flag.clouds2=1;
+		map[m].flag.clouds2=state;
 	}
 	else if (strcmpi(w3,"fog")==0) { // fog [Valaris]
-		map[m].flag.fog=1;
+		map[m].flag.fog=state;
 	}
 	else if (strcmpi(w3,"fireworks")==0) {
-		map[m].flag.fireworks=1;
+		map[m].flag.fireworks=state;
 	}
 	else if (strcmpi(w3,"sakura")==0) { // sakura [Valaris]
-		map[m].flag.sakura=1;
+		map[m].flag.sakura=state;
 	}
 	else if (strcmpi(w3,"leaves")==0) { // leaves [Valaris]
-		map[m].flag.leaves=1;
+		map[m].flag.leaves=state;
 	}
 	else if (strcmpi(w3,"rain")==0) { // rain [Valaris]
-		map[m].flag.rain=1;
+		map[m].flag.rain=state;
 	}
 	else if (strcmpi(w3,"indoors")==0) { // celest
-		map[m].flag.indoors=1;
+		map[m].flag.indoors=state;
 	}
 	else if (strcmpi(w3,"nightenabled")==0) { // Skotlex
-		map[m].flag.nightenabled=1;
+		map[m].flag.nightenabled=state;
 	}
 	else if (strcmpi(w3,"nogo")==0) { // celest
-		map[m].flag.nogo=1;
+		map[m].flag.nogo=state;
 	}
 	else if (strcmpi(w3,"noexp")==0) { // Lorky
-		map[m].flag.nobaseexp=1;
-		map[m].flag.nojobexp=1;
+		map[m].flag.nobaseexp=state;
+		map[m].flag.nojobexp=state;
 	}
 	else if (strcmpi(w3,"nobaseexp")==0) { // Lorky
-		map[m].flag.nobaseexp=1;
+		map[m].flag.nobaseexp=state;
 	}
 	else if (strcmpi(w3,"nojobexp")==0) { // Lorky
-		map[m].flag.nojobexp=1;
+		map[m].flag.nojobexp=state;
 	}
 	else if (strcmpi(w3,"noloot")==0) { // Lorky
-		map[m].flag.nomobloot=1;
-		map[m].flag.nomvploot=1;
+		map[m].flag.nomobloot=state;
+		map[m].flag.nomvploot=state;
 	}
 	else if (strcmpi(w3,"nomobloot")==0) { // Lorky
-		map[m].flag.nomobloot=1;
+		map[m].flag.nomobloot=state;
 	}
 	else if (strcmpi(w3,"nomvploot")==0) { // Lorky
-		map[m].flag.nomvploot=1;
+		map[m].flag.nomvploot=state;
 	}
 	else if (strcmpi(w3,"nocommand")==0) { // Skotlex
-		map[m].flag.nocommand=1;
+		map[m].flag.nocommand=state;
 	}
-
 	return 0;
 }
 
@@ -2533,7 +2306,7 @@ void npc_parsesrcfile (char *name)
 	FILE *fp = fopen (name,"r");
 	if (fp == NULL) {
 		ShowError ("File not found : %s\n", name);
-		exit(1);
+		return;
 	}
 	current_file = name;
 
@@ -2544,7 +2317,7 @@ void npc_parsesrcfile (char *name)
 
 		if (line[0] == '/' && line[1] == '/')
 			continue;
-		// ä¸è¦ãªã‚¹ãƒšãƒ¼ã‚¹ã‚„ã‚¿ãƒ–ã®é€£ç¶šã¯è©°ã‚ã‚‹
+		// •s—v‚ÈƒXƒy[ƒX‚âƒ^ƒu‚Ì˜A‘±‚Í‹l‚ß‚é
 		for (i = j = 0; line[i]; i++) {
 			if (line[i]==' ') {
 				if (!((line[i+1] && (isspace((unsigned char)line[i+1]) || line[i+1]==',')) ||
@@ -2557,12 +2330,15 @@ void npc_parsesrcfile (char *name)
 				line[j++]=line[i];
 		}
 		line[j] = '\0'; //Forget to terminate the string. From [jA 1091]
-		// æœ€åˆã¯ã‚¿ãƒ–åŒºåˆ‡ã‚Šã§ãƒã‚§ãƒƒã‚¯ã—ã¦ã¿ã¦ã€ãƒ€ãƒ¡ãªã‚‰ã‚¹ãƒšãƒ¼ã‚¹åŒºåˆ‡ã‚Šã§ç¢ºèª
+		// Å‰‚Íƒ^ƒu‹æØ‚è‚Åƒ`ƒFƒbƒN‚µ‚Ä‚İ‚ÄAƒ_ƒ‚È‚çƒXƒy[ƒX‹æØ‚è‚ÅŠm”F
+		w1[0] = w2[0] = w3[0] = w4[0] = '\0'; //It's best to initialize values
+		//to prevent passing previously parsed values to the parsers when not all
+		//fields are specified. [Skotlex]
 		if ((count = sscanf(line,"%[^\t]\t%[^\t]\t%[^\t\r\n]\t%n%[^\t\r\n]", w1, w2, w3, &w4pos, w4)) < 3 &&
 		   (count = sscanf(line,"%s%s%s%n%s", w1, w2, w3, &w4pos, w4)) < 3) {
 			continue;
 		}
-		// ãƒãƒƒãƒ—ã®å­˜åœ¨ç¢ºèª
+		// ƒ}ƒbƒv‚Ì‘¶İŠm”F
 		if (strcmp(w1,"-") !=0 && strcmpi(w1,"function") != 0 ){
 			sscanf(w1,"%[^,]",mapname);
 			if (!mapindex_name2id(mapname)) { //Incorrect map
@@ -2648,7 +2424,7 @@ static int npc_cleanup_sub (struct block_list *bl, va_list ap) {
 		npc_unload((struct npc_data *)bl);
 		break;
 	case BL_MOB:
-		mob_unload((struct mob_data *)bl);
+		unit_free(bl);
 		break;
 	}
 
@@ -2730,7 +2506,7 @@ int npc_reload (void)
 }
 
 /*==========================================
- * çµ‚äº†
+ * I—¹
  *------------------------------------------
  */
 int do_final_npc(void)
@@ -2766,16 +2542,22 @@ int do_final_npc(void)
 }
 
 /*==========================================
- * npcåˆæœŸåŒ–
+ * npc‰Šú‰»
  *------------------------------------------
  */
 int do_init_npc(void)
 {
 	struct npc_src_list *nsl;
 	time_t last_time = time(0);
-	int busy = 0;
+	int busy;
 	char c = '-';
 
+	//Stock view data for normal npcs.
+	memset(&npc_viewdb, 0, sizeof(npc_viewdb));
+	npc_viewdb[0].class_ = INVISIBLE_CLASS; //Invisible class is stored here.
+	for (busy = 1; busy < MAX_NPC_CLASS; busy++) 
+		npc_viewdb[busy].class_ = busy;
+	busy = 0;
 	// indoorrswtable.txt and etcinfo.txt [Celest]
 	if (battle_config.indoors_override_grffile)
 		npc_read_indoors();
@@ -2818,7 +2600,6 @@ int do_init_npc(void)
 		CL_WHITE"%d"CL_RESET"' Mobs Not Cached\n",
 		npc_id - START_NPC_NUM, "", npc_warp, npc_shop, npc_script, npc_mob, npc_cache_mob, npc_delay_mob);
 
-	add_timer_func_list(npc_walktimer,"npc_walktimer"); // [Valaris]
 	add_timer_func_list(npc_event_timer,"npc_event_timer");
 	add_timer_func_list(npc_event_do_clock,"npc_event_do_clock");
 	add_timer_func_list(npc_timerevent,"npc_timerevent");
@@ -2833,7 +2614,6 @@ int npc_changename(const char *name, const char *newname, short look){
 	npc_enable(name,0);
 	strcpy(nd->name,newname);
 	nd->class_ = look;
-	strdb_put(npcname_db,nd->name,nd);
 	npc_enable(newname,1);
 	return 0;
 }

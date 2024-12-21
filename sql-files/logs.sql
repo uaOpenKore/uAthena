@@ -18,7 +18,7 @@ CREATE TABLE `picklog` (
   `card3` int(11) NOT NULL default '0',
   `map` varchar(20) NOT NULL default 'prontera.gat',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #ZenyLog types (M)onsters,(T)rade,(V)ending Sell/Buy,(S)hop Sell/Buy,(N)PC Change amount,(A)dministrators
 #Database: log
@@ -32,7 +32,7 @@ CREATE TABLE `zenylog` (
   `amount` int(11) NOT NULL default '0',
   `map` varchar(20) NOT NULL default 'prontera.gat',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: branchlog
@@ -44,7 +44,7 @@ CREATE TABLE `branchlog` (
   `char_name` varchar(30) NOT NULL default '',
   `map` varchar(20) NOT NULL default 'prontera.gat',
   PRIMARY KEY  (`branch_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: droplog
@@ -65,7 +65,7 @@ CREATE TABLE `droplog` (
   `itemCard` int(11) NOT NULL default '0',
   `map` varchar(20) NOT NULL default 'prontera.gat',
   PRIMARY KEY  (`drop_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: mvplog
@@ -78,7 +78,7 @@ CREATE TABLE `mvplog` (
   `mvpexp` mediumint(9) NOT NULL default '0',
   `map` varchar(20) NOT NULL default 'prontera.gat',
   PRIMARY KEY  (`mvp_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 
 #Database: log
@@ -93,7 +93,7 @@ CREATE TABLE `presentlog` (
   `nameid` int(11) NOT NULL default '0',
   `map` varchar(20) NOT NULL default 'prontera.gat',
   PRIMARY KEY  (`present_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: producelog
@@ -110,7 +110,7 @@ CREATE TABLE `producelog` (
   `map` varchar(20) NOT NULL default 'prontera.gat',
   `success` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`produce_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: refinelog
@@ -130,7 +130,7 @@ CREATE TABLE `refinelog` (
   `success` tinyint(1) NOT NULL default '0',
   `item_level` tinyint(2) NOT NULL default '0',
   PRIMARY KEY  (`refine_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: tradelog
@@ -153,7 +153,7 @@ CREATE TABLE `tradelog` (
   `map` varchar(20) NOT NULL default 'prontera.gat',
   `zeny` int(11) NOT NULL default '0',
   PRIMARY KEY  (`trade_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: vendlog
@@ -176,7 +176,7 @@ CREATE TABLE `vendlog` (
   `map` varchar(20) NOT NULL default 'prontera.gat',
   `zeny` int(11) NOT NULL default '0',
   KEY `vend_id` (`vend_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: atcommandlog
@@ -189,7 +189,7 @@ CREATE TABLE `atcommandlog` (
   `map` varchar(20) NOT NULL default 'prontera.gat',
   `command` varchar(50) NOT NULL default '',
   PRIMARY KEY  (`atcommand_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 #Database: log
 #Table: npclog
@@ -202,7 +202,7 @@ CREATE TABLE `npclog` (
   `map` varchar(20) NOT NULL default 'prontera.gat',
   `mes` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`npc_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;
 
 
 #ChatLOG
@@ -219,4 +219,4 @@ CREATE TABLE `chatlog` (
   `dst_charname` varchar(25) NOT NULL default '',
   `message` varchar(150) NOT NULL default '',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;

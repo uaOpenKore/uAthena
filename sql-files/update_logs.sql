@@ -10,4 +10,4 @@ CREATE TABLE `zenylog` (
   `amount` int(11) NOT NULL default '0',
   `map` varchar(20) NOT NULL default 'prontera.gat',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=1 ;

@@ -22,7 +22,7 @@ CREATE TABLE `abra_db` (
   `Req_Lvl` smallint(6) NOT NULL default '0',
   `Per` smallint(6) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -43,7 +43,7 @@ CREATE TABLE `attr_fix` (
   `Sense` tinyint(4) NOT NULL default '0',
   `Immortality` tinyint(4) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -58,7 +58,7 @@ CREATE TABLE `cast_db` (
   `Upkeep_Time` text NOT NULL,
   `Upkeep_Time2` text NOT NULL,
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -72,7 +72,7 @@ CREATE TABLE `castle_db` (
   `castle_name` text NOT NULL,
   `switch_flag` tinyint(4) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -93,7 +93,7 @@ CREATE TABLE `create_arrow_db` (
   `MakeID5` mediumint(9) NOT NULL default '0',
   `MakeNum5` mediumint(9) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -117,7 +117,7 @@ CREATE TABLE `exp` (
   `EXP13` bigint(9) NOT NULL default '0',
   `EXP14` bigint(9) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -129,7 +129,7 @@ CREATE TABLE `exp_guild` (
   `Level` tinyint(4) NOT NULL default '0',
   `EXP` int(11) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -142,7 +142,7 @@ CREATE TABLE `item_bluebox` (
   `item_name` text NOT NULL,
   `rate` mediumint(9) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -155,7 +155,7 @@ CREATE TABLE `item_cardalbum` (
   `item_name` text NOT NULL,
   `rate` mediumint(9) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -186,7 +186,7 @@ CREATE TABLE `item_db2` (
   `script` text,
   `comment` text,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -199,7 +199,7 @@ CREATE TABLE `item_giftbox` (
   `item_name` text NOT NULL,
   `rate` mediumint(9) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -212,7 +212,7 @@ CREATE TABLE `item_scroll` (
   `item_name` text NOT NULL,
   `rate` mediumint(9) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -225,7 +225,7 @@ CREATE TABLE `item_violetbox` (
   `item_name` text NOT NULL,
   `rate` mediumint(9) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -257,7 +257,7 @@ CREATE TABLE `job_db1` (
   `Book` smallint(6) NOT NULL default '0',
   `Katar` smallint(6) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -270,7 +270,7 @@ CREATE TABLE `mob_boss` (
   `MobName` text NOT NULL,
   `Rate` int(11) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -283,7 +283,7 @@ CREATE TABLE `mob_branch` (
   `MobName` text NOT NULL,
   `Rate` int(11) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -350,7 +350,7 @@ CREATE TABLE `mob_db2` (
   `MVP3id` mediumint(9) NOT NULL default '0',
   `MVP3per` mediumint(9) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -363,7 +363,7 @@ CREATE TABLE `mob_poring` (
   `MobName` text NOT NULL,
   `Rate` mediumint(9) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -390,7 +390,7 @@ CREATE TABLE `mob_skill_db` (
   `Value4` mediumint(9) NOT NULL default '0',
   `Value5` mediumint(9) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -421,7 +421,7 @@ CREATE TABLE `pet_db` (
   `Change_Target_Rate` smallint(6) NOT NULL default '0',
   `Pet_Script` text NOT NULL,
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -444,7 +444,7 @@ CREATE TABLE `produce_db` (
   `MaterialID5` smallint(6) NOT NULL default '0',
   `MaterialAmount5` smallint(6) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -467,7 +467,7 @@ CREATE TABLE `refine_db` (
   `RefineChance9` tinyint(4) NOT NULL default '0',
   `RefineChance10` tinyint(4) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -494,7 +494,7 @@ CREATE TABLE `size_fix` (
   `Book` tinyint(4) NOT NULL default '0',
   `Katar` tinyint(4) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -517,7 +517,7 @@ CREATE TABLE `skill_db` (
   `skill_type` text NOT NULL,
   `blow_count` smallint(6) NOT NULL default '0',
   `Comment` text
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -556,7 +556,7 @@ CREATE TABLE `skill_require_db` (
   `ItemID10` mediumint(9) NOT NULL default '0',
   `Amount10` tinyint(4) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 # --------------------------------------------------------
 
@@ -580,5 +580,5 @@ CREATE TABLE `skill_tree` (
   `Skill_ID_Require5` smallint(6) NOT NULL default '0',
   `Skill_LV_Require5` tinyint(4) NOT NULL default '0',
   `Comment` text NOT NULL
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
     

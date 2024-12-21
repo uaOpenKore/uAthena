@@ -6,3 +6,7 @@ The migration file name should be:
 5. sql
 6. the maximum length of a file name is 50 characters
 example: 26-fix-table-column-name-action.sql
+
+*
+1* migrations for recreating the table
+A* migrations to fill the table

@@ -21,7 +21,7 @@ CREATE TABLE `cart_inventory` (
   `card3` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `char_id` (`char_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `char`
@@ -80,7 +80,7 @@ CREATE TABLE `char` (
   PRIMARY KEY  (`char_id`),
   KEY `party_id` (`party_id`),
   KEY `guild_id` (`guild_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=150000; 
+) TYPE=InnoDB AUTO_INCREMENT=150000; 
 
 --
 -- Table structure for table `charlog`
@@ -101,7 +101,7 @@ CREATE TABLE `charlog` (
   `luk` int(11) unsigned NOT NULL default '0',
   `hair` tinyint(4) NOT NULL default '0',
   `hair_color` int(11) NOT NULL default '0'
-) ENGINE=MyISAM; 
+) TYPE=MyISAM; 
 
 --
 -- Table structure for table `friends`
@@ -112,7 +112,7 @@ CREATE TABLE `friends` (
   `char_id` int(11) NOT NULL default '0',
   `friend_account` int(11) NOT NULL default '0',
   `friend_id` int(11) NOT NULL default '0'
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `global_reg_value`
@@ -128,7 +128,7 @@ CREATE TABLE `global_reg_value` (
   PRIMARY KEY  (`char_id`,`str`,`account_id`),
   KEY `account_id` (`account_id`),
   KEY `char_id` (`char_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `guild`
@@ -156,7 +156,7 @@ CREATE TABLE `guild` (
   UNIQUE KEY `guild_id` (`guild_id`),
   KEY `char_id` (`char_id`),
   CONSTRAINT `guild_ibfk_1` FOREIGN KEY (`char_id`) REFERENCES `char` (`char_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) TYPE=InnoDB;
 
 --
 -- Table structure for table `guild_alliance`
@@ -172,7 +172,7 @@ CREATE TABLE `guild_alliance` (
   KEY `alliance_id` (`alliance_id`),
   CONSTRAINT `guild_alliance_ibfk_1` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE,
   CONSTRAINT `guild_alliance_ibfk_2` FOREIGN KEY (`alliance_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) TYPE=InnoDB;
 
 --
 -- Table structure for table `guild_castle`
@@ -208,7 +208,7 @@ CREATE TABLE `guild_castle` (
   `gHP7` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`castle_id`),
   KEY `guild_id` (`guild_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `guild_expulsion`
@@ -226,7 +226,7 @@ CREATE TABLE `guild_expulsion` (
   `rsv3` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guild_id`,`name`),
   CONSTRAINT `guild_expulsion_ibfk_1` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) TYPE=InnoDB;
 
 --
 -- Table structure for table `guild_member`
@@ -253,7 +253,7 @@ CREATE TABLE `guild_member` (
   KEY `char_id` (`char_id`),
   CONSTRAINT `guild_member_ibfk_1` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE,
   CONSTRAINT `guild_member_ibfk_2` FOREIGN KEY (`char_id`) REFERENCES `char` (`char_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) TYPE=InnoDB;
 
 --
 -- Table structure for table `guild_position`
@@ -269,7 +269,7 @@ CREATE TABLE `guild_position` (
   PRIMARY KEY  (`guild_id`,`position`),
   KEY `guild_id` (`guild_id`),
   CONSTRAINT `guild_position_ibfk_1` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) TYPE=InnoDB;
 
 --
 -- Table structure for table `guild_skill`
@@ -282,7 +282,7 @@ CREATE TABLE `guild_skill` (
   `lv` tinyint(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guild_id`,`id`),
   CONSTRAINT `guild_skill_ibfk_1` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) TYPE=InnoDB;
 
 --
 -- Table structure for table `guild_storage`
@@ -305,7 +305,7 @@ CREATE TABLE `guild_storage` (
   PRIMARY KEY  (`id`),
   KEY `guild_id` (`guild_id`),
   CONSTRAINT `guild_storage_ibfk_1` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) TYPE=InnoDB;
 
 -- Database: Ragnarok
 -- Table: 'interlog'
@@ -315,7 +315,7 @@ DROP TABLE IF EXISTS `interlog`;
 CREATE TABLE `interlog` (
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `log` varchar(255) NOT NULL default ''
-) ENGINE=MyISAM; 
+) TYPE=MyISAM; 
 
 --
 -- Table structure for table `inventory`
@@ -337,7 +337,7 @@ CREATE TABLE `inventory` (
   `card3` smallint(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `char_id` (`char_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `ipbanlist`
@@ -349,7 +349,7 @@ CREATE TABLE `ipbanlist` (
   `btime` datetime NOT NULL default '0000-00-00 00:00:00',
   `rtime` datetime NOT NULL default '0000-00-00 00:00:00',
   `reason` varchar(255) NOT NULL default ''
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `login`
@@ -373,7 +373,7 @@ CREATE TABLE `login` (
   `state` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`account_id`),
   KEY `name` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2000000; 
+) TYPE=InnoDB AUTO_INCREMENT=2000000; 
 
 -- added standard accounts for servers, VERY INSECURE!!!
 -- inserted into the table called login which is above
@@ -398,7 +398,7 @@ CREATE TABLE `sc_data` (
   KEY (`char_id`),
   CONSTRAINT `scdata_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `login` (`account_id`) ON DELETE CASCADE,
   CONSTRAINT `scdata_ibfk_2` FOREIGN KEY (`char_id`) REFERENCES `char` (`char_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) TYPE=InnoDB;
 
 --
 -- Table structure for table `loginlog`
@@ -411,7 +411,7 @@ CREATE TABLE `loginlog` (
   `user` varchar(32) NOT NULL default '',
   `rcode` tinyint(4) NOT NULL default '0',
   `log` varchar(255) NOT NULL default ''
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `memo`
@@ -425,7 +425,7 @@ CREATE TABLE `memo` (
   `x` smallint(9) unsigned NOT NULL default '0',
   `y` smallint(9) unsigned NOT NULL default '0',
   PRIMARY KEY  (`memo_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `party`
@@ -440,7 +440,7 @@ CREATE TABLE `party` (
   `leader_id` int(11) unsigned NOT NULL default '0',
   `leader_char` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`party_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `pet`
@@ -461,7 +461,7 @@ CREATE TABLE `pet` (
   `rename_flag` tinyint(4) unsigned NOT NULL default '0',
   `incuvate` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`pet_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `ragsrvinfo`
@@ -475,7 +475,7 @@ CREATE TABLE `ragsrvinfo` (
   `jexp` int(11) unsigned NOT NULL default '0',
   `drop` int(11) unsigned NOT NULL default '0',
   `motd` varchar(255) NOT NULL default ''
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `skill`
@@ -488,7 +488,7 @@ CREATE TABLE `skill` (
   `lv` tinyint(4) unsigned NOT NULL default '0',
   PRIMARY KEY  (`char_id`,`id`),
   KEY `char_id` (`char_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `sstatus`
@@ -499,7 +499,7 @@ CREATE TABLE `sstatus` (
   `index` tinyint(4) unsigned NOT NULL default '0',
   `name` varchar(255) NOT NULL default '',
   `user` int(11) unsigned NOT NULL default '0'
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `storage`
@@ -521,7 +521,7 @@ CREATE TABLE `storage` (
   `card3` smallint(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `account_id` (`account_id`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;
 
 --
 -- Table structure for table `mapreg`
@@ -534,4 +534,4 @@ CREATE TABLE `mapreg` (
   `value` varchar(255) NOT NULL,
   KEY `varname` (`varname`),
   KEY `index` (`index`)
-) ENGINE=MyISAM;
+) TYPE=MyISAM;

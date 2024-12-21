@@ -32,11 +32,9 @@
 #define SC_COMMON_MAX 10
 
 #define MAX_SKILL_LEVEL 100
-#define MAX_SKILLUNITGROUP 32
-#define MAX_MOBSKILLUNITGROUP 8
-#define MAX_SKILLUNITGROUPTICKSET 32
-#define MAX_SKILLTIMERSKILL 32
-#define MAX_MOBSKILLTIMERSKILL 10
+#define MAX_SKILLUNITGROUP 25
+#define MAX_SKILLUNITGROUPTICKSET 25
+#define MAX_SKILLTIMERSKILL 15
 #define MAX_MOBSKILL 50
 #define MAX_MOB_LIST_PER_MAP 128
 #define MAX_EVENTQUEUE 2
@@ -243,18 +241,21 @@ enum {
 #define OPTION_SIGHT 0x0001
 #define OPTION_HIDE 0x0002
 #define OPTION_CLOAK 0x0004
-
+#define OPTION_CART1 0x0008
 #define OPTION_FALCON 0x0010
 #define OPTION_RIDING 0x0020
 #define OPTION_INVISIBLE 0x0040
+#define OPTION_CART2 0x0080
+#define OPTION_CART3 0x0100
+#define OPTION_CART4 0x0200
+#define OPTION_CART5 0x0400
 #define OPTION_ORCISH 0x0800
-
 #define OPTION_WEDDING 0x1000
 #define OPTION_RUWACH 0x2000
 #define OPTION_CHASEWALK 0x4000
+#define OPTION_XMAS	0x8000
 
-#define OPTION_FLYING 0x8000
-
+#define OPTION_FLYING 0x10000
 //TODO: Get these Missing options...
 #define OPTION_SIGHTTRASHER 0x0001
 
@@ -269,19 +270,36 @@ enum {
 enum { 
 	BL_NUL = 0x000,
 	BL_PC = 0x001,
-  	BL_MOB = 0x002,
-  	BL_PET = 0x004,
-  	BL_ITEM = 0x008,
-  	BL_SKILL = 0x010,
-	BL_NPC = 0x020,
-  	BL_CHAT = 0x040
+	BL_MOB = 0x002,
+	BL_PET = 0x004,
+	BL_HOMUNCULUS = 0x008,	//[blackhole89]
+	BL_ITEM = 0x010,
+	BL_SKILL = 0x020,
+	BL_NPC = 0x040,
+	BL_CHAT = 0x080,
 };
 
 //For common mapforeach calls. Since pets cannot be affected, they aren't included here yet.
-#define BL_CHAR (BL_PC|BL_MOB)
+#define BL_CHAR (BL_PC|BL_MOB|BL_HOMUNCULUS)
 #define BL_ALL 0xfff
 
 enum { WARP, SHOP, SCRIPT, MONS };
+
+enum {
+	RC_FORMLESS=0,
+	RC_UNDEAD,
+	RC_BRUTE,
+	RC_PLANT,
+	RC_INSECT,
+	RC_FISH,
+	RC_DEMON,
+	RC_DEMIHUMAN,
+	RC_ANGEL,
+	RC_DRAGON,
+	RC_BOSS,
+	RC_NONBOSS,
+	RC_MAX
+};
 
 struct block_list {
 	struct block_list *next,*prev;
@@ -301,62 +319,15 @@ struct shootpath_data {
 	int y[MAX_WALKPATH];
 };
 
-struct script_reg {
-	int index;
-	int data;
-};
-struct script_regstr {
-	int index;
-	char data[256];
-};
-
-struct status_change_entry {
+struct skill_timerskill {
 	int timer;
-	int val1,val2,val3,val4;
-};
-
-struct status_change {
-	struct status_change_entry data[MAX_STATUSCHANGE];
-	short count;
-	short opt1,opt2,opt3;
-	short option;
-};
-
-struct vending {
-	short index;
-	unsigned short amount;
-	unsigned int value;
-};
-
-struct weapon_data {
- 	int atkmods[3];
- 	// all the variables except atkmods get zero'ed in each call of status_calc_pc
-	// NOTE: if you want to add a non-zeroed variable, you need to update the memset call
-	//  in status_calc_pc as well! All the following are automatically zero'ed. [Skotlex]
-  	int watk;
-  	int watk2;
- 	int atk_ele;
-  	int overrefine;
-  	int star;
-  	int ignore_def_ele;
-  	int ignore_def_race;
-  	int def_ratio_atk_ele;
-  	int def_ratio_atk_race;
- 	int addele[10];
- 	int addrace[12];
- 	int addrace2[12];
- 	int addsize[3];
-
-  	short ignore_def_mob;
-  	short hp_drain_rate;
-  	short hp_drain_per;
-  	short hp_drain_value;
-  	short sp_drain_rate;
-  	short sp_drain_per;
-  	short sp_drain_value;
- 	short add_damage_classid[MAX_PC_BONUS];
- 	int add_damage_classrate[MAX_PC_BONUS];
-  	int add_damage_class_count;
+	int src_id;
+	int target_id;
+	int map;
+	short x,y;
+	short skill_id,skill_lv;
+	int type;
+	int flag;
 };
 
 struct skill_unit_group;
@@ -369,6 +340,7 @@ struct skill_unit {
 	int val1,val2;
 	short alive,range;
 };
+
 struct skill_unit_group {
 	int src_id;
 	int party_id;
@@ -391,17 +363,109 @@ struct skill_unit_group_tickset {
 	unsigned int tick;
 	int id;
 };
-struct skill_timerskill {
-	int timer;
-	int src_id;
-	int target_id;
-	int map;
-	short x,y;
-	short skill_id,skill_lv;
-	int type;
-	int flag;
+
+struct unit_data {
+	struct block_list *bl;
+	struct walkpath_data walkpath;
+	struct skill_timerskill *skilltimerskill[MAX_SKILLTIMERSKILL];
+	struct skill_unit_group *skillunit[MAX_SKILLUNITGROUP];
+	struct skill_unit_group_tickset skillunittick[MAX_SKILLUNITGROUPTICKSET];
+	short attacktarget_lv;
+	short to_x,to_y;
+	short skillx,skilly;
+	short skillid,skilllv;
+	int   skilltarget;
+	int   skilltimer;
+	int   target;
+	int   attacktimer;
+	int   walktimer;
+	int	chaserange;
+	unsigned int attackabletime;
+	unsigned int canact_tick;
+	unsigned int canmove_tick;
+	unsigned char dir;
+	unsigned char walk_count;
+	struct {
+		unsigned change_walk_target : 1 ;
+		unsigned skillcastcancel : 1 ;
+		unsigned attack_continue : 1 ;
+		unsigned walk_easy : 1 ;
+		unsigned running : 1;
+	} state;
 };
 
+struct script_reg {
+	int index;
+	int data;
+};
+struct script_regstr {
+	int index;
+	char data[256];
+};
+
+struct status_change_entry {
+	int timer;
+	int val1,val2,val3,val4;
+};
+
+struct status_change {
+	struct status_change_entry data[MAX_STATUSCHANGE];
+	short count;
+	short opt1,opt2,opt3;
+	unsigned short option;
+};
+
+struct vending {
+	short index;
+	unsigned short amount;
+	unsigned int value;
+};
+
+struct weapon_data {
+	int atkmods[3];
+	// all the variables except atkmods get zero'ed in each call of status_calc_pc
+	// NOTE: if you want to add a non-zeroed variable, you need to update the memset call
+	//  in status_calc_pc as well! All the following are automatically zero'ed. [Skotlex]
+	int watk;
+	int watk2;
+	int atk_ele;
+	int overrefine;
+	int star;
+	int ignore_def_ele;
+	int ignore_def_race;
+	int def_ratio_atk_ele;
+	int def_ratio_atk_race;
+	int addele[10];
+	int addrace[RC_MAX];
+	int addrace2[RC_MAX];
+	int addsize[3];
+
+	short ignore_def_mob;
+	struct drain_data {
+		short rate;
+		short per;
+		short value;
+		unsigned type:1;
+	} hp_drain[RC_MAX], sp_drain[RC_MAX];
+
+	short add_damage_classid[MAX_PC_BONUS];
+	int add_damage_classrate[MAX_PC_BONUS];
+	int add_damage_class_count;
+};
+
+struct view_data {
+	short class_;
+	short weapon;
+	short shield; //Or left-hand weapon.
+	short head_top;
+	short head_mid;
+	short head_bottom;
+	short hair_style;
+	short hair_color;
+	short cloth_color;
+	char sex;
+	unsigned dead_sit : 2;
+};
 struct npc_data;
 struct pet_db;
 struct item_data;
@@ -409,15 +473,15 @@ struct square;
 
 struct map_session_data {
 	struct block_list bl;
+	struct unit_data ud;
+	struct view_data vd;
+	struct status_change sc;
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct {
 		unsigned auth : 1;
-		unsigned change_walk_target : 1;
-		unsigned attack_continue : 1;
 		unsigned menu_or_input : 1;
 		unsigned dead_sit : 2;
-		unsigned skillcastcancel : 1;
 		unsigned waitingdisconnect : 1;
 		unsigned lr_flag : 2;
 		unsigned connect_new : 1;
@@ -441,8 +505,8 @@ struct map_session_data {
 		unsigned showexp :1;
 		unsigned showzeny :1;
 		unsigned mainchat :1; //[LuzZza] 
-		unsigned disguised :1; //[Valaris]
-		unsigned deal_locked :2;
+		unsigned trading :1; //[Skotlex] is 1 only after a trade has started.
+		unsigned deal_locked :2; //1: Clicked on OK. 2: Clicked on TRADE
 		unsigned party_sent :1;
 		unsigned guild_sent :1;
 		unsigned monster_ignore :1; // for monsters to ignore a character [Valaris] [zzo]
@@ -478,12 +542,9 @@ struct map_session_data {
 	int cart_weight,cart_max_weight,cart_num,cart_max_num;
 	int fd;
 	unsigned short mapindex;
-	short to_x,to_y;
 	short speed,prev_speed;
-	unsigned char dir,head_dir;
+	unsigned char head_dir;
 	unsigned int client_tick,server_tick;
-	struct walkpath_data walkpath;
-	int walktimer;
 	int npc_id,areanpc_id,npc_shopid;
 	int npc_item_flag; //Marks the npc_id with which you can use items during interactions with said npc (see script command enable_itemuse)
 	int npc_pos;
@@ -501,43 +562,25 @@ struct map_session_data {
 	} ignore[MAX_IGNORE_LIST];
 	int ignoreAll;
 
-	int attacktimer;
-
-	int attacktarget;
-	short attacktarget_lv;
-	unsigned int attackabletime;
-
 	int followtimer; // [MouseJstr]
 	int followtarget;
 
 	time_t emotionlasttime; // to limit flood with emotion packets
 
-	int skilltimer;
-	int skilltarget;
-	short skillx,skilly;
-	short skillid,skilllv;
 	short skillitem,skillitemlv;
 	short skillid_old,skilllv_old;
 	short skillid_dance,skilllv_dance;
-	struct skill_unit_group skillunit[MAX_SKILLUNITGROUP];
-	struct skill_unit_group_tickset skillunittick[MAX_SKILLUNITGROUPTICKSET];
-	struct skill_timerskill skilltimerskill[MAX_SKILLTIMERSKILL];
 	char blockskill[MAX_SKILL];	// [celest]
-	//unsigned int skillstatictimer[MAX_SKILL];
-	unsigned short timerskill_count; // [celest]
 	int cloneskill_id;
 	int menuskill_id, menuskill_lv;
 
 	int invincible_timer;
-	unsigned int canact_tick;
-	unsigned int canmove_tick;
 	unsigned int canlog_tick;
 	unsigned int canregen_tick;
 	unsigned int canuseitem_tick;	// [Skotlex]
 	int hp_sub,sp_sub;
 	int inchealhptick,inchealsptick,inchealspirithptick,inchealspiritsptick;
 
-	short view_class;
 	short weapontype1,weapontype2;
 	short disguise; // [Valaris]
 
@@ -551,32 +594,30 @@ struct map_session_data {
 	int paramb[6];
 	int parame[6];
 	int subele[10];
-	int subrace[12];
-	int subrace2[12];
+	int subrace[RC_MAX];
+	int subrace2[RC_MAX];
 	int subsize[3];
 	int addeff[SC_COMMON_MAX-SC_COMMON_MIN+1];
 	int addeff2[SC_COMMON_MAX-SC_COMMON_MIN+1];
 	int reseff[SC_COMMON_MAX-SC_COMMON_MIN+1];
 	int weapon_coma_ele[10];
-	int weapon_coma_race[12];
+	int weapon_coma_race[RC_MAX];
 	int weapon_atk[16];
 	int weapon_atk_rate[16];
 	int arrow_addele[10];
-	int arrow_addrace[12];
+	int arrow_addrace[RC_MAX];
 	int arrow_addsize[3];
 	int arrow_addeff[SC_COMMON_MAX-SC_COMMON_MIN+1];
 	int arrow_addeff2[SC_COMMON_MAX-SC_COMMON_MIN+1];
 	int magic_addele[10];
-	int magic_addrace[12];
+	int magic_addrace[RC_MAX];
 	int magic_addsize[3];
-	int critaddrace[12];
-	int expaddrace[12];
+	int critaddrace[RC_MAX];
+	int expaddrace[RC_MAX];
 	int itemhealrate[7];
 	int addeff3[SC_COMMON_MAX-SC_COMMON_MIN+1];
 	short addeff3_type[SC_COMMON_MAX-SC_COMMON_MIN+1];
-	short sp_gain_race[12];
-	short unequip_losehp[11];
-	short unequip_losesp[11];
+	short sp_gain_race[RC_MAX];
 	// zeroed arrays end here.
 	// zeroed structures start here
 	struct s_autospell{
@@ -589,7 +630,7 @@ struct map_session_data {
 		short class_, rate;
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS],
 		add_dmg[MAX_PC_BONUS], add_mdmg[MAX_PC_BONUS];
-	struct s_add_drop {
+	struct s_add_drop { 
 		short id, group;
 		int race, rate;
 	} add_drop[MAX_PC_BONUS];
@@ -632,7 +673,6 @@ struct map_session_data {
 	short hp_loss_value;
 	short sp_loss_value;
 	short hp_loss_type;
-	short sp_drain_type;
 	short sp_gain_value, hp_gain_value;
 	short sp_vanish_rate;
 	short sp_vanish_per;	
@@ -674,7 +714,6 @@ struct map_session_data {
 	int regstr_num;
 	struct script_regstr *regstr;
 
-	struct status_change sc;
 	short mission_mobid; //Stores the target mob_id for TK_MISSION
 	short mission_count; //Stores the bounty kill count for TK_MISSION
 	int devotion[5]; //Stores the char IDs of chars devoted to.
@@ -756,25 +795,16 @@ struct npc_item_list {
 };
 struct npc_data {
 	struct block_list bl;
+	struct unit_data  ud; //Because they need to be able to move....
+	struct view_data *vd;
+	struct status_change sc; //They can't have status changes, but.. they want the visual opt values.
 	short n;
-	short class_,dir;
+	short class_;
 	short speed;
 	unsigned char name[NAME_LENGTH];
 	unsigned char exname[NAME_LENGTH];
 	int chat_id;
-	short flag;
-	int walktimer; // [Valaris]
-	short to_x,to_y; // [Valaris]
-	struct walkpath_data walkpath;
 	unsigned int next_walktime;
-	unsigned int canmove_tick;
-	struct status_change sc; //They can't have status changes, but.. they want the visual opt values.
-
-	struct { // [Valaris]
-		unsigned state : 8;
-		unsigned change_walk_target : 1;
-		unsigned walk_easy : 1;
-	} state;
 
 	char eventqueue[MAX_EVENTQUEUE][50];
 	int eventtimer[MAX_EVENTTIMER];
@@ -814,8 +844,27 @@ struct guardian_data {
 	struct guild_castle* castle;
 };
 
+// Mob List Held in memory for Dynamic Mobs [Wizputer]
+// Expanded to specify all mob-related spawn data by [Skotlex]
+struct spawn_data {
+	short class_; //Class, used because a mob can change it's class
+	unsigned short m,x,y,xs,ys;	//Spawn information (map, point, spawn-area around point)
+	unsigned short num; //Number of mobs using this structure.
+	unsigned int level; //Custom level.
+	unsigned int delay1,delay2; //Min delay before respawning after spawn/death
+	struct {
+		unsigned size :2; //Holds if mob has to be tiny/large
+		unsigned ai :1;	//Holds if mob is special ai.
+	} state;
+	char name[NAME_LENGTH],eventname[50]; //Name/event
+};
+
+
 struct mob_data {
 	struct block_list bl;
+	struct unit_data  ud;
+	struct view_data *vd;
+	struct status_change sc;
 	struct mob_db *db;	//For quick data access (saves doing mob_db(md->class_) all the time) [Skotlex]
 	char name[NAME_LENGTH];
 	struct {
@@ -824,83 +873,62 @@ struct mob_data {
 		unsigned ai : 3; //Special ai for summoned monsters.
 	} special_state; //Special mob information that does not needs to be zero'ed on mob respawn.
 	struct {
-		unsigned state : 8;
 		unsigned skillstate : 8;
 		unsigned aggressive : 1; //Signals whether the mob AI is in aggressive mode or reactive mode. [Skotlex]
-		unsigned targettype : 1;
 		unsigned steal_flag : 1;
 		unsigned steal_coin_flag : 1;
-		unsigned skillcastcancel : 1;
-		unsigned change_walk_target : 1;
-		unsigned walk_easy : 1;
 		unsigned soul_change_flag : 1; // Celest
 		unsigned alchemist: 1;
 		int provoke_flag; // Celest
 	} state;
-	struct status_change sc;
-	struct walkpath_data walkpath;
 	struct guardian_data* guardian_data; 
-	struct item *lootitem;
 	struct {
 		int id;
 		int dmg;
 	} dmglog[DAMAGELOG_SIZE];
-	short n;
-	short base_class,class_,dir,mode;
-	short m,x0,y0,xs,ys;
-	short to_x,to_y;
-	short target_dir;
+	struct spawn_data *spawn; //Spawn data.
+	struct item *lootitem;
+	short spawn_n;	//Spawn data index on the map server.
+	short class_,mode;
 	short speed;
 	short attacked_count;
-	short target_lv;
 	unsigned short level;
-	unsigned long tdmg; //Stores total damage given to the mob, for exp calculations. [Skotlex]
-	int timer;
+	unsigned short attacked_players;
+	unsigned int tdmg; //Stores total damage given to the mob, for exp calculations. [Skotlex]
 	int hp, max_hp;
 	int target_id,attacked_id;
-	int spawndelay1,spawndelay2;
-	unsigned int attackabletime, canmove_tick, next_walktime;
+	unsigned int next_walktime;
 	unsigned int last_deadtime,last_spawntime,last_thinktime,last_linktime;
 	short move_fail_count;
 	short lootitem_count;
 	short min_chase;
 	
 	int deletetimer;
-	int skilltimer;
-	int skilltarget;
 	int def_ele;
 	int master_id,master_dist;
 	
-	short skillx,skilly,skillid,skilllv,skillidx;
+	short skillidx;
 	unsigned int skilldelay[MAX_MOBSKILL];
-	struct skill_timerskill skilltimerskill[MAX_MOBSKILLTIMERSKILL];
-	struct skill_unit_group skillunit[MAX_MOBSKILLUNITGROUP];
-	struct skill_unit_group_tickset skillunittick[MAX_SKILLUNITGROUPTICKSET];
 	char npc_event[50];
 };
 
 struct pet_data {
 	struct block_list bl;
-	short n;
-	short class_,dir;
+	struct unit_data ud;
+	struct view_data vd;
 	struct mob_db *db;
+	int target_id;
+	short n;
+	short class_;
 	short speed;
 	char name[NAME_LENGTH];
 	struct {
-		unsigned state : 8 ;
 		unsigned skillstate : 8 ;
-		unsigned change_walk_target : 1 ;
-		unsigned casting_flag :1 ;//Skotlex: Used to identify when we are casting.
 		short skillbonus;
 	} state;
-	int timer;
-	short to_x,to_y;
 	short equip;
-	struct walkpath_data walkpath;
-	int target_id;
-	short target_lv;
 	int move_fail_count;
-	unsigned int attackabletime,next_walktime,last_thinktime;
+	unsigned int next_walktime,last_thinktime;
 	short rate_fix;	//Support rate as modified by intimacy (1000 = 100%) [Skotlex]
 	struct pet_status { //Pet Status data
 		short level;
@@ -944,23 +972,12 @@ struct pet_data {
 		unsigned short count;
 		unsigned short weight;
 		unsigned short max;
-		int timer;
 	} *loot; //[Valaris] / Rewritten by [Skotlex]
 
-	struct skill_timerskill skilltimerskill[MAX_MOBSKILLTIMERSKILL]; // [Valaris]
-	struct skill_unit_group skillunit[MAX_MOBSKILLUNITGROUP]; // [Valaris]
-	struct skill_unit_group_tickset skillunittick[MAX_SKILLUNITGROUPTICKSET]; // [Valaris]
 	struct map_session_data *msd;
-
-	int skilltarget;
-	short skillx,skilly,skillid,skilllv;
 };
 
-enum { MS_IDLE,MS_WALK,MS_ATTACK,MS_DEAD,MS_DELAY };
-
-enum { NONE_ATTACKABLE,ATTACKABLE };
-
-enum { ATK_LUCKY=1,ATK_FLEE,ATK_DEF};	// ï¿½Í‚Ü‚ï¿½yï¿½iï¿½ï¿½ï¿½eï¿½Bï¿½vï¿½Zï¿½p
+enum { ATK_LUCKY=1,ATK_FLEE,ATK_DEF};	// ˆÍ‚Ü‚êƒyƒiƒ‹ƒeƒBŒvZ—p
 
 // For equipment breaking/stripping effects
 enum {
@@ -970,16 +987,10 @@ enum {
 	EQP_HELM		= 8,		// Top-head headgear
 };
 
-// Mob List Held in memory for Dynamic Mobs [Wizputer]
-struct mob_list {
-    int m,x,y,xs,ys,class_,num,delay1,delay2,level;
-    char mobname[NAME_LENGTH],eventname[NAME_LENGTH];
-};
-
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// NULLï¿½È‚ç‰ºï¿½ï¿½map_data_other_serverï¿½Æ‚ï¿½ï¿½Äˆï¿½ï¿½ï¿½
+	unsigned char *gat;	// NULL‚È‚ç‰º‚Ìmap_data_other_server‚Æ‚µ‚Äˆµ‚¤
 	unsigned char *cell; //Contains temporary cell data that is set/unset on tiles.
 #ifdef CELL_NOSTACK
 	unsigned char *cell_bl; //Holds amount of bls in any given cell.
@@ -1017,7 +1028,6 @@ struct map_data {
 		unsigned noskill : 1;
 		unsigned nowarp : 1;
 		unsigned nowarpto : 1;
-		unsigned nopvp : 1; // [Valaris]
 		unsigned noicewall : 1; // [Valaris]
 		unsigned snow : 1; // [Valaris]
 		unsigned clouds : 1;
@@ -1034,6 +1044,7 @@ struct map_data {
 		unsigned nomobloot	: 1; // [Lorky]
 		unsigned nomvploot	: 1; // [Lorky]
 		unsigned nightenabled :1; //For night display. [Skotlex]
+		unsigned restricted	: 1; // [Komurka]
 		unsigned nocommand : 1; //Blocks @/# commands for non-gms. [Skotlex]
 		unsigned nodrop : 1;
 	} flag;
@@ -1044,14 +1055,16 @@ struct map_data {
 		int drop_type;
 		int drop_per;
 	} drop_list[MAX_DROP_PER_MAP];
-	struct mob_list *moblist[MAX_MOB_LIST_PER_MAP]; // [Wizputer]
+
+	struct spawn_data *moblist[MAX_MOB_LIST_PER_MAP]; // [Wizputer]
 	int mob_delete_timer;	// [Skotlex]
+	int zone;	// [Komurka]
 };
 
 struct map_data_other_server {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// NULLï¿½Å’ï¿½É‚ï¿½ï¿½Ä”ï¿½ï¿½f
+	unsigned char *gat;	// NULLŒÅ’è‚É‚µ‚Ä”»’f
 	unsigned long ip;
 	unsigned int port;
 };
@@ -1103,8 +1116,8 @@ enum {
 	SP_DISGUISE,SP_CLASSCHANGE, // 1077-1078
 	SP_HP_DRAIN_VALUE,SP_SP_DRAIN_VALUE, // 1079-1080
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
-	SP_DELAYRATE,	// 1083
-
+	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
+	
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_INFINITE_ENDURE,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010
 	SP_UNBREAKABLE_SHIELD, SP_LONG_ATK_RATE, // 2011-2012
@@ -1112,7 +1125,7 @@ enum {
 	SP_CRIT_ATK_RATE, SP_CRITICAL_ADDRACE, SP_NO_REGEN, SP_ADDEFF_WHENHIT, SP_AUTOSPELL_WHENHIT, // 2013-2017
 	SP_SKILL_ATK, SP_UNSTRIPABLE, SP_ADD_DAMAGE_BY_CLASS, // 2018-2020
 	SP_SP_GAIN_VALUE, SP_IGNORE_DEF_MOB, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
-	SP_SUBSIZE, SP_DAMAGE_WHEN_UNEQUIP, SP_ADD_ITEM_HEAL_RATE, SP_LOSESP_WHEN_UNEQUIP, SP_EXP_ADDRACE,	// 2026-2030
+	SP_SUBSIZE, SP_HP_DRAIN_VALUE_RACE, SP_ADD_ITEM_HEAL_RATE, SP_SP_DRAIN_VALUE_RACE, SP_EXP_ADDRACE,	// 2026-2030
 	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_ADDEFF_WHENHIT_SHORT,	// 2031-2033
 	SP_UNSTRIPABLE_WEAPON,SP_UNSTRIPABLE_ARMOR,SP_UNSTRIPABLE_HELM,SP_UNSTRIPABLE_SHIELD,  // 2034-2037
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
@@ -1133,34 +1146,34 @@ enum {
 #define CELL_MOONLIT	0x40
 #define CELL_ICEWALL	0x80
 /*
- * map_getcell()ï¿½Ågï¿½pï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½O
+ * map_getcell()‚Åg—p‚³‚ê‚éƒtƒ‰ƒO
  */
 typedef enum {
-	CELL_CHKWALL=0,		// ï¿½ï¿½(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v1)
-	CELL_CHKWATER,		// ï¿½ï¿½ï¿½ï¿½(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v3)
-	CELL_CHKGROUND,		// ï¿½nï¿½Êï¿½Qï¿½ï¿½(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v5)
-	CELL_CHKPASS,		// ï¿½Ê‰ß‰Â”\(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v1,5ï¿½ÈŠO)
+	CELL_CHKWALL=0,		// •Ç(ƒZƒ‹ƒ^ƒCƒv1)
+	CELL_CHKWATER,		// …ê(ƒZƒ‹ƒ^ƒCƒv3)
+	CELL_CHKGROUND,		// ’n–ÊáŠQ•¨(ƒZƒ‹ƒ^ƒCƒv5)
+	CELL_CHKPASS,		// ’Ê‰ß‰Â”\(ƒZƒ‹ƒ^ƒCƒv1,5ˆÈŠO)
 	CELL_CHKREACH,		// Same as PASS, but ignores the cell-stacking mod.
-	CELL_CHKNOPASS,		// ï¿½Ê‰ß•sï¿½ï¿½(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v1,5)
+	CELL_CHKNOPASS,		// ’Ê‰ß•s‰Â(ƒZƒ‹ƒ^ƒCƒv1,5)
 	CELL_CHKNOREACH,	// Same as NOPASS, but ignores the cell-stacking mod.
-	CELL_GETTYPE,		// ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½vï¿½ï¿½Ô‚ï¿½
+	CELL_GETTYPE,		// ƒZƒ‹ƒ^ƒCƒv‚ğ•Ô‚·
 	CELL_GETCELLTYPE,
-	CELL_CHKNPC=0x10,	// ï¿½^ï¿½bï¿½`ï¿½^ï¿½Cï¿½vï¿½ï¿½NPC(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v0x80ï¿½tï¿½ï¿½ï¿½O)
+	CELL_CHKNPC=0x10,	// ƒ^ƒbƒ`ƒ^ƒCƒv‚ÌNPC(ƒZƒ‹ƒ^ƒCƒv0x80ƒtƒ‰ƒO)
 	CELL_CHKREGEN,		// cells that improve regeneration
 	CELL_CHKPNEUMA,
 	CELL_CHKSAFETYWALL,
-	CELL_CHKBASILICA,	// ï¿½oï¿½Wï¿½ï¿½ï¿½J(ï¿½Zï¿½ï¿½ï¿½^ï¿½Cï¿½v0x40ï¿½tï¿½ï¿½ï¿½O)
+	CELL_CHKBASILICA,	// ƒoƒWƒŠƒJ(ƒZƒ‹ƒ^ƒCƒv0x40ƒtƒ‰ƒO)
 	CELL_CHKLANDPROTECTOR,
 	CELL_CHKMOONLIT,
 	CELL_CHKICEWALL,
 	CELL_CHKSTACK,
 } cell_t;
-// map_setcell()ï¿½Ågï¿½pï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½O
+// map_setcell()‚Åg—p‚³‚ê‚éƒtƒ‰ƒO
 enum {
-	CELL_SETNPC=0x10,	// ï¿½^ï¿½bï¿½`ï¿½^ï¿½Cï¿½vï¿½ï¿½NPCï¿½ï¿½ï¿½Zï¿½bï¿½g
+	CELL_SETNPC=0x10,	// ƒ^ƒbƒ`ƒ^ƒCƒv‚ÌNPC‚ğƒZƒbƒg
 	CELL_CLRNPC,
-	CELL_SETBASILICA,	// ï¿½oï¿½Wï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½Zï¿½bï¿½g
-	CELL_CLRBASILICA,	// ï¿½oï¿½Wï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½A
+	CELL_SETBASILICA,	// ƒoƒWƒŠƒJ‚ğƒZƒbƒg
+	CELL_CLRBASILICA,	// ƒoƒWƒŠƒJ‚ğƒNƒŠƒA
 	CELL_SETREGEN,		// set regen cell
 	CELL_SETLANDPROTECTOR, //Set/Clear Magnetic Earth
 	CELL_CLRLANDPROTECTOR,
@@ -1202,7 +1215,7 @@ extern char db_path[256];
 int map_getcell(int,int,int,cell_t);
 int map_getcellp(struct map_data*,int,int,cell_t);
 void map_setcell(int,int,int,int);
-extern int map_read_flag; // 0: grfï¿½Õ«ï¿½ï¿½ï¿½ï¿½ï¿½E1: ï¿½ï¿½ï¿½ï¿½Ã«ï¿½ï¿½ï¿½E2: ï¿½ï¿½ï¿½ï¿½Ã«ï¿½ï¿½ï¿½E?ï¿½ï¿½)
+extern int map_read_flag; // 0: grf«Õ«¡«¤«E1: «­«ã«Ã«·«E2: «­«ã«Ã«·«E?õê)
 enum {
 	READ_FROM_GAT, READ_FROM_AFM,
 	READ_FROM_BITMAP, CREATE_BITMAP,
@@ -1218,14 +1231,14 @@ extern char talkie_mes[];
 
 extern char wisp_server_name[];
 
-// ï¿½Iï¿½Sï¿½Ìï¿½ï¿½
+// I‘S‘Ìî•ñ
 void map_setusers(int);
 int map_getusers(void);
-// blockï¿½íœï¿½Ö˜A
+// blockíœŠÖ˜A
 int map_freeblock(struct block_list *bl);
 int map_freeblock_lock(void);
 int map_freeblock_unlock(void);
-// blockï¿½Ö˜A
+// blockŠÖ˜A
 int map_addblock_sub(struct block_list *, int);
 int map_delblock_sub(struct block_list *, int);
 #define map_addblock(bl) map_addblock_sub(bl,1)
@@ -1239,26 +1252,27 @@ int map_foreachinmovearea(int (*)(struct block_list*,va_list),int,int,int,int,in
 int map_foreachinpath(int (*func)(struct block_list*,va_list),int m,int x0,int y0,int x1,int y1,int range,int type,...); // Celest
 int map_foreachinmap(int (*)(struct block_list*,va_list),int,int,...);
 int map_countnearpc(int,int,int);
-//blockï¿½Ö˜Aï¿½É’Ç‰ï¿½
+//blockŠÖ˜A‚É’Ç‰Á
 int map_count_oncell(int m,int x,int y,int type);
 struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *);
-// ï¿½êï¿½Iobjectï¿½Ö˜A
+// ˆê“IobjectŠÖ˜A
 int map_addobject(struct block_list *);
 int map_delobject(int);
 int map_delobjectnofree(int id);
 void map_foreachobject(int (*)(struct block_list*,va_list),int,...);
+int map_search_freecell(struct block_list *src, int m, short *x, short *y, int rx, int ry, int flag);
 //
 int map_quit(struct map_session_data *);
 // npc
 int map_addnpc(int,struct npc_data *);
 
-// ï¿½ï¿½ï¿½Aï¿½Cï¿½eï¿½ï¿½ï¿½Ö˜A
+// °ƒAƒCƒeƒ€ŠÖ˜A
 int map_clearflooritem_timer(int,unsigned int,int,int);
 int map_removemobs_timer(int,unsigned int,int,int);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
 int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,struct map_session_data *,struct map_session_data *,int);
 
-// ï¿½Lï¿½ï¿½ï¿½ï¿½idï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ÏŠï¿½ï¿½Ö˜A
+// ƒLƒƒƒ‰id„ƒLƒƒƒ‰–¼ •ÏŠ·ŠÖ˜A
 void map_addchariddb(int charid,char *name);
 void map_delchariddb(int charid);
 int map_reqchariddb(struct map_session_data * sd,int charid);
@@ -1281,7 +1295,7 @@ void map_addnickdb(struct map_session_data *);
 struct map_session_data * map_nick2sd(char*);
 int compare_item(struct item *a, struct item *b);
 
-// ï¿½ï¿½ï¿½Ì‘ï¿½
+// ‚»‚Ì‘¼
 int map_check_dir(int s_dir,int t_dir);
 int map_calc_dir( struct block_list *src,int x,int y);
 int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
@@ -1291,7 +1305,7 @@ int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
 int map_setwaterheight(int m, char *mapname, int height);
 int map_waterheight(char *mapname);
 
-// path.cï¿½ï¿½ï¿½
+// path.c‚æ‚è
 int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int flag,int flag2);
 #define path_search(wpd,m,x0,y0,x1,y1,flag)  path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKNOPASS)
 #define path_search2(wpd,m,x0,y0,x1,y1,flag) path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKWALL)
@@ -1317,7 +1331,7 @@ int cleanup_sub(struct block_list *bl, va_list ap);
 void map_helpscreen(int flag); // [Valaris]
 int map_delmap(char *mapname);
 
-struct mob_list* map_addmobtolist(unsigned short m);	// [Wizputer]
+int map_addmobtolist(unsigned short m, struct spawn_data *spawn);	// [Wizputer]
 void map_spawnmobs(int); // [Wizputer]
 void map_removemobs(int); // [Wizputer]
 

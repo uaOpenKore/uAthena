@@ -13,9 +13,6 @@ MAKE = make
 # OPT += -g
 # OPT += -O3
 # OPT += -march=generic -mtune=generic
-# OPT += -msse
-# OPT += -msse2
-# OPT += -msse3
 # OPT += -rdynamic
 # OPT += -fbounds-checking
 # OPT += -fomit-frame-pointer

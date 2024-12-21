@@ -355,7 +355,7 @@ int e_mail_check(char *email) {
  * Does a mysql_ping to all connection handles. [Skotlex]
  *------------------------------------------------------
  */
-int login_sql_ping(int tid, unsigned int tick, int id, int data)
+int login_sql_ping(int tid, unsigned int tick, int id, int data) 
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
 	mysql_ping(&mysql_handle);
@@ -1857,8 +1857,11 @@ int parse_login(int fd) {
 			break;
 
 		case 0x7532:
-		default:
 			ShowStatus ("End of connection (ip: %s)" RETCODE, ip);
+			session[fd]->eof = 1;
+			break;
+		default:
+			ShowStatus ("Abnormal end of connection (ip: %s): Unknown packet 0x%x " RETCODE, ip, RFIFOW(fd,0));
 			session[fd]->eof = 1;
 			return 0;
 		}
@@ -2190,7 +2193,7 @@ void sql_config_read(const char *cfgName){ /* Kalaspuff, to get login_db */
 		else if(strcmpi(w1,"login_server_db")==0){
 			strcpy(login_server_db, w2);
 			ShowStatus ("set login_server_db : %s\n",w2);
-		}
+		} 
 		else if(strcmpi(w1,"connection_ping_interval")==0) {
 			connection_ping_interval = atoi(w2);
 		}

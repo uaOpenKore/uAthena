@@ -1,4 +1,45 @@
+04/24
+	* Updated OBB, OCA, Cookie Bag, Giftbox, OVB drops to X.2(X.3?)
+	  ItemSummonList provided by Peter [Vicious]
+04/22
+	* Updated Kiel/Odin mob stat to kRO official guidebook [Vicious]
+	* Major fix to the Einbroch mobs [Playtester]
+	- stats and drops should now be to 99% official
+	* Fixed stats of Chung E / Green Maiden [Playtester]
+	* Fixed some drops of the Bio Lab 1&2 mobs [Playtester]
+	* Fixed more elements of Bio Lab mobs [Playtester]
+04/21
+	* Merged Trunks mob_db over to Stable. [Poki#3]
+	* Fixed some mob skills that where missing an [Enter]... (Windows format... AGAIN!) [Poki#3]
+	  ...why co we have uncommented Attack skills under an iddle state? Oo
+	* Added a lot of G_Mobs and changed some slave spawns to them. Please use the newest exe release. [Poki#3]
+	* Fixed mob names in DB, Branches and the like. [Poki#3]
+04/19
+	* Synced skill_require_db from trunk as ammo-type skill requirements have
+	  been merged in [Skotlex]
+	* Fixed a zeny exploit by lowering the price of firecracker [Playtester]
+	* Reverted the delay for Arrow Shower and Double Strafe to 100ms [Skotlex]
+	* Reverted the cast time for pick stone to 500ms, no delay. [Skotlex]
+04/16
+	* Fixed wrong effect 4175,Poisonous_Toad_Card [Lupus]
+04/15
+	* Fixed movement and attack speed of Lighthalzen Mobs thanks to Tharis [Playtester]
+	* Fixed names of Lighthalzen Mobs, using iRO names now [Playtester]
+	* Fixed various Job Fields in the item_db.txt thanks to Haplo and KarLaeda [Playtester]
+	- they should all fit to the descriptions now
+	* Updated 1675,VENATU (some columns were shifted) [Lupus]
+	* Updated items weight, names. Thanks 2 Haplo [Lupus]
+	- 12142,Book_of_Magic effect updated +20 Agi for 30 min (d0n't list it in the items desc)
+04/12
+	* Added cast time to pick stone of 3 secs and 500ms delay. [Skotlex]
+	- fixed pick stone ID [Lupus]
+	* Fixed produce_db for Halberd 3-->12 Oridecons [Playtester]
+	* Fixed Violy's Violin[4] drop rate. It is 2%. [Playtester]
+	* Fixed a typo and sorted skill_cast_db by skill id. [Playtester]
+	* Made Anopheles aggressive [erKURITA]
+	* Modified Mastela Fruit price to 8500, according to RockmanEXE. [erKURITA]
 04/06
+	* Lowered min zeny amount that give Red Envelopes, thanks to kyoki [Lupus]
 	* Fixed HP/SP requirements for WE_MALE/WE_FEMALE
 04/05
 	Updated item givers with ACTUAL items ~10 Ep [Lupus]

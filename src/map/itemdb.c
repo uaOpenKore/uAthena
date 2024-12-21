@@ -15,24 +15,18 @@
 #include "script.h"
 #include "pc.h"
 
-#define MAX_RANDITEM	10000
-#define MAX_ITEMGROUP	32
 // ** ITEMDB_OVERRIDE_NAME_VERBOSE **
-//   å®šç¾©ã™ã‚‹ã¨ã€itemdb.txtã¨grfã§åå‰ãŒç•°ãªã‚‹å ´åˆã€è¡¨ç¤ºã—ã¾ã™.
+//   ’è‹`‚·‚é‚ÆAitemdb.txt‚Ægrf‚Å–¼‘O‚ªˆÙ‚È‚éê‡A•\¦‚µ‚Ü‚·.
 //#define ITEMDB_OVERRIDE_NAME_VERBOSE	1
 
 static struct dbt* item_db;
-
-static struct random_item_data blue_box[MAX_RANDITEM], violet_box[MAX_RANDITEM], card_album[MAX_RANDITEM], gift_box[MAX_RANDITEM], scroll[MAX_RANDITEM], finding_ore[MAX_RANDITEM], cookie_bag[MAX_RANDITEM];
-static int blue_box_count=0, violet_box_count=0, card_album_count=0, gift_box_count=0, scroll_count=0, finding_ore_count = 0, cookie_bag_count=0;
-static int blue_box_default=0, violet_box_default=0, card_album_default=0, gift_box_default=0, scroll_default=0, finding_ore_default = 0, cookie_bag_default=0;
 
 static struct item_group itemgroup_db[MAX_ITEMGROUP];
 
 struct item_data *dummy_item=NULL; //This is the default dummy item used for non-existant items. [Skotlex]
 
 /*==========================================
- * åå‰ã§æ¤œç´¢ç”¨
+ * –¼‘O‚ÅŒŸõ—p
  *------------------------------------------
  */
 // name = item alias, so we should find items aliases first. if not found then look for "jname" (full name)
@@ -49,7 +43,7 @@ int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
 }
 
 /*==========================================
- * åå‰ã§æ¤œç´¢ç”¨
+ * –¼‘O‚ÅŒŸõ—p
  *------------------------------------------
  */
 int itemdb_searchjname_sub(int key,void *data,va_list ap)
@@ -64,7 +58,7 @@ int itemdb_searchjname_sub(int key,void *data,va_list ap)
 }
 
 /*==========================================
- * åå‰ã§æ¤œç´¢
+ * –¼‘O‚ÅŒŸõ
  *------------------------------------------
  */
 struct item_data* itemdb_searchname(const char *str)
@@ -99,59 +93,22 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 
 
 /*==========================================
- * ç®±ç³»ã‚¢ã‚¤ãƒ†ãƒ æ¤œç´¢
+ * ” ŒnƒAƒCƒeƒ€ŒŸõ
  *------------------------------------------
  */
-int itemdb_searchrandomid(int flags)
+int itemdb_searchrandomid(int group)
 {
-	int nameid=0,i,index,count;
-	struct random_item_data *list=NULL;
-
-	static struct {
-		int nameid,count;
-		struct random_item_data *list;
-	} data[8];
-
-	if (flags == 0) { //Initialize.
-		memset(data, 0, sizeof(data));
-		data[1].nameid = blue_box_default;
-	  	data[1].count = blue_box_count;
-	  	data[1].list = blue_box;
-		data[2].nameid = violet_box_default;
-	  	data[2].count = violet_box_count;
-	  	data[2].list = violet_box;
-		data[3].nameid = card_album_default;
-	  	data[3].count = card_album_count;
-	  	data[3].list = card_album;
-		data[4].nameid = gift_box_default;
-	  	data[4].count = gift_box_count;
-	  	data[4].list = gift_box;
-		data[5].nameid = scroll_default;
-	  	data[5].count = scroll_count;
-		data[5].list = scroll;
-		data[6].nameid = finding_ore_default;
-		data[6].count = finding_ore_count;
-		data[6].list = finding_ore;
-		data[7].nameid = cookie_bag_default;
-		data[7].count = cookie_bag_count;
-		data[7].list = cookie_bag;
+	if(group<1 || group>=MAX_ITEMGROUP) {
+		if (battle_config.error_log)
+			ShowError("itemdb_searchrandomid: Invalid group id %d\n", group);
+		return 512; //Return apple?
 	}
-	if(flags>=1 && flags<=7){
-		nameid=data[flags].nameid;
-		count=data[flags].count;
-		list=data[flags].list;
-
-		if(count > 0) {
-			for(i=0;i<1000;i++) {
-				index = rand()%count;
-				if(rand()%1000000 < list[index].per) {
-					nameid = list[index].nameid;
-					break;
-				}
-			}
-		}
-	}
-	return nameid;
+	if (itemgroup_db[group].qty)
+		return itemgroup_db[group].nameid[rand()%itemgroup_db[group].qty];
+	
+	if (battle_config.error_log)
+		ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group);
+	return 512;
 }
 
 /*==========================================
@@ -162,24 +119,16 @@ int itemdb_group (int nameid)
 {
 	int i, j;
 	for (i=0; i < MAX_ITEMGROUP; i++) {
-		for (j=0; j < itemgroup_db[i].qty && itemgroup_db[i].id[j]; j++) {
+		for (j=0; j < itemgroup_db[i].qty; j++) {
 			if (itemgroup_db[i].id[j] == nameid)
 				return i;
 		}
 	}
 	return -1;
 }
-int itemdb_searchrandomgroup (int groupid)
-{
-	if (groupid < 0 || groupid >= MAX_ITEMGROUP ||
-		itemgroup_db[groupid].qty == 0 || itemgroup_db[groupid].id[0] == 0)
-		return 0;
-	
-	return itemgroup_db[groupid].id[ rand()%itemgroup_db[groupid].qty ];
-}
 
 /*==========================================
- * DBã®å­˜åœ¨ç¢ºèª
+ * DB‚Ì‘¶İŠm”F
  *------------------------------------------
  */
 struct item_data* itemdb_exists(int nameid)
@@ -382,91 +331,7 @@ int itemdb_isequip3(int nameid)
 }
 
 /*==========================================
- * ãƒ©ãƒ³ãƒ€ãƒ ã‚¢ã‚¤ãƒ†ãƒ å‡ºç¾ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
- *------------------------------------------
- */
-static int itemdb_read_randomitem(void)
-{
-	FILE *fp;
-	char line[1024];
-	int nameid,i,j;
-	char *str[10],*p;
-
-	const struct {
-		char filename[64];
-		struct random_item_data *pdata;
-		int *pcount,*pdefault;
-	} data[] = {
-		{"item_bluebox.txt",		blue_box,	&blue_box_count, &blue_box_default		},
-		{"item_violetbox.txt",	violet_box,	&violet_box_count, &violet_box_default	},
-		{"item_cardalbum.txt",	card_album,	&card_album_count, &card_album_default	},
-		{"item_giftbox.txt",		gift_box,	&gift_box_count, &gift_box_default	},
-		{"item_scroll.txt",		scroll,		&scroll_count, &scroll_default	},
-		{"item_findingore.txt",	finding_ore,&finding_ore_count, &finding_ore_default	},
-		{"item_cookie_bag.txt",	cookie_bag,&cookie_bag_count, &cookie_bag_default	},
-	};
-
-	for(i=0;i<sizeof(data)/sizeof(data[0]);i++){
-		struct random_item_data *pd=data[i].pdata;
-		int *pc=data[i].pcount;
-		int *pdefault=data[i].pdefault;
-		char *fn=(char *) data[i].filename;
-
-		*pdefault = 0;
-		*pc = 0; //zero the count in case we are reloading. [Skotlex]
-		
-		sprintf(line, "%s/%s", db_path, fn);
-		if( (fp=fopen(line,"r"))==NULL ){
-			ShowError("can't read %s\n",line);
-			continue;
-		}
-
-		while(fgets(line,1020,fp)){
-			if(line[0]=='/' && line[1]=='/')
-				continue;
-			memset(str,0,sizeof(str));
-			for(j=0,p=line;j<3 && p;j++){
-				str[j]=p;
-				p=strchr(p,',');
-				if(p) *p++=0;
-			}
-
-			if(str[0]==NULL)
-				continue;
-
-			nameid=atoi(str[0]);
-			if(nameid<0 || nameid>=20000)
-				continue;
-			if(nameid == 0) {
-				if(str[2])
-					*pdefault = atoi(str[2]);
-				continue;
-			}
-
-			if(str[2]){
-				pd[ *pc   ].nameid = nameid;
-				pd[(*pc)++].per = atoi(str[2]);
-			}
-
-			if(*pc >= MAX_RANDITEM)
-			{
-				if (battle_config.error_log)
-					ShowWarning("Reached limit of random items [%d] in file [%s]\n", MAX_RANDITEM, data[i].filename);
-				break;
-			}
-		}
-		fclose(fp);
-		if (*pc > 0) {
-			ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n",*pc,fn);
-		}
-	}
-
-	itemdb_searchrandomid(0); //Initialize values.
-	return 0;
-}
-
-/*==========================================
- * ã‚¢ã‚¤ãƒ†ãƒ ä½¿ç”¨å¯èƒ½ãƒ•ãƒ©ã‚°ã®ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰
+ * ƒAƒCƒeƒ€g—p‰Â”\ƒtƒ‰ƒO‚ÌƒI[ƒo[ƒ‰ƒCƒh
  *------------------------------------------
  */
 static int itemdb_read_itemavail (void)
@@ -514,64 +379,115 @@ static int itemdb_read_itemavail (void)
  * read item group data
  *------------------------------------------
  */
-static int itemdb_read_itemgroup(void)
+static void itemdb_read_itemgroup_sub(const char* filename)
 {
 	FILE *fp;
 	char line[1024];
 	int ln=0;
-	int groupid,j,k;
-	char *str[31],*p;
-
-	sprintf(line, "%s/item_group_db.txt", db_path);
-	if( (fp=fopen(line,"r"))==NULL ){
+	int groupid,j,k,nameid;
+	char *str[3],*p;
+	char w1[1024], w2[1024];
+	
+	if( (fp=fopen(filename,"r"))==NULL ){
 		ShowError("can't read %s\n", line);
-		return -1;
+		return;
 	}
 
 	while(fgets(line,1020,fp)){
+		ln++;
 		if(line[0]=='/' && line[1]=='/')
 			continue;
+		if(strstr(line,"import")) {
+			if (sscanf(line, "%[^:]: %[^\r\n]", w1, w2) == 2 &&
+				strcmpi(w1, "import") == 0) {
+				itemdb_read_itemgroup_sub(w2);
+				continue;
+			}
+		}
 		memset(str,0,sizeof(str));
-		for(j=0,p=line;j<31 && p;j++){
+		for(j=0,p=line;j<3 && p;j++){
 			str[j]=p;
 			p=strchr(p,',');
 			if(p) *p++=0;
 		}
 		if(str[0]==NULL)
 			continue;
-
-		groupid = atoi(str[0]);
-		if (groupid < 0 || groupid >= MAX_ITEMGROUP)
+		if (j<3)
 			continue;
-
-		for (j=1; j<=30; j++) {
-			if (!str[j])
-				break;
-			k=atoi(str[j]);
-			if (k < 0 || k >= 20000 || !itemdb_exists(k))
-				continue;
-			//printf ("%d[%d] = %d\n", groupid, j-1, k);
-			itemgroup_db[groupid].id[j-1] = k;
-			itemgroup_db[groupid].qty=j;
+		groupid = atoi(str[0]);
+		if (groupid < 0 || groupid >= MAX_ITEMGROUP) {
+			ShowWarning("itemdb_read_itemgroup: Invalid group %d in %s:%d\n", groupid, filename, ln);
+			continue;
 		}
-		for (j=1; j<30; j++) { //Cleanup the contents. [Skotlex]
-			if (itemgroup_db[groupid].id[j-1] == 0 &&
-				itemgroup_db[groupid].id[j] != 0) 
-			{
-				itemgroup_db[groupid].id[j-1] = itemgroup_db[groupid].id[j];
-				itemgroup_db[groupid].id[j] = 0;
-				itemgroup_db[groupid].qty = j;
-			}
+		nameid = atoi(str[1]);
+		if (!itemdb_exists(nameid)) {
+			ShowWarning("itemdb_read_itemgroup: Non-existant item %d in %s:%d\n", nameid, filename, ln);
+			continue;
 		}
-		ln++;
+		k = atoi(str[2]);
+		if (itemgroup_db[groupid].qty+k > MAX_RANDITEM) {
+			ShowWarning("itemdb_read_itemgroup: Group %d is full (%d entries) in %s:%d\n", groupid, MAX_RANDITEM, filename, ln);
+			continue;
+		}
+		for(j=0;j<k;j++)
+			itemgroup_db[groupid].nameid[itemgroup_db[groupid].qty++] = nameid;
 	}
 	fclose(fp);
-	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n",ln,"item_group_db.txt");
-	return 0;
+	return;
 }
 
+static void itemdb_read_itemgroup(void)
+{
+	char path[256];
+	int i;
+	const char* groups[] = {
+		"Blue Box",
+		"Violet Box",
+		"Card Album",
+		"Gift Box",
+		"Scroll Box",
+		"Finding Ore",
+		"Cookie Bag",
+		"Potion",
+		"Herbs",
+		"Fruits",
+		"Meat",
+		"Candy",
+		"Juice",
+		"Fish",
+		"Boxes",
+		"Gemstone",
+		"Jellopy",
+		"Ore",
+		"Food",
+		"Recovery",
+		"Minerals",
+		"Taming",
+		"Scrolls",
+		"Quivers",
+		"Masks",
+		"Accesory",
+		"Jewels",
+		"Gift Box",
+		"Gift Box",
+		"Gift Box",
+		"Gift Box",
+		"Egg Boy",
+		"Egg Girl",
+		"Gift Box"
+	};
+	memset(&itemgroup_db, 0, sizeof(itemgroup_db));
+	snprintf(path, 255, "%s/item_group_db.txt", db_path);
+	itemdb_read_itemgroup_sub(path);
+	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n","item_group_db.txt");
+	if (battle_config.etc_log) {
+		for (i = 1; i < MAX_ITEMGROUP; i++)
+			ShowInfo("Group %s: %d entries.\n", groups[i-1], itemgroup_db[i].qty);
+	}
+	return;
+}
 /*==========================================
- * ã‚¢ã‚¤ãƒ†ãƒ ã®åå‰ãƒ†ãƒ¼ãƒ–ãƒ«ã‚’èª­ã¿è¾¼ã‚€
+ * ƒAƒCƒeƒ€‚Ì–¼‘Oƒe[ƒuƒ‹‚ğ“Ç‚İ‚Ş
  *------------------------------------------
  */
 static int itemdb_read_itemnametable(void)
@@ -613,7 +529,7 @@ static int itemdb_read_itemnametable(void)
 }
 
 /*==========================================
- * ã‚«ãƒ¼ãƒ‰ã‚¤ãƒ©ã‚¹ãƒˆã®ãƒªã‚½ãƒ¼ã‚¹åå‰ãƒ†ãƒ¼ãƒ–ãƒ«ã‚’èª­ã¿è¾¼ã‚€
+ * ƒJ[ƒhƒCƒ‰ƒXƒg‚ÌƒŠƒ\[ƒX–¼‘Oƒe[ƒuƒ‹‚ğ“Ç‚İ‚Ş
  *------------------------------------------
  */
 static int itemdb_read_cardillustnametable(void)
@@ -647,7 +563,7 @@ static int itemdb_read_cardillustnametable(void)
 }
 
 //
-// åˆæœŸåŒ–
+// ‰Šú‰»
 //
 /*==========================================
  *
@@ -718,7 +634,7 @@ static int itemdb_read_itemslotcounttable(void)
 }
 
 /*==========================================
- * è£…å‚™åˆ¶é™ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿å‡ºã—
+ * ‘•”õ§ŒÀƒtƒ@ƒCƒ‹“Ç‚İo‚µ
  *------------------------------------------
  */
 static int itemdb_read_noequip(void)
@@ -854,13 +770,30 @@ static int itemdb_read_sqldb(void)
 			if (sql_res) {
 				// Parse each row in the query result into sql_row
 				while ((sql_row = mysql_fetch_row(sql_res)))
-				{
-					/* +----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+---------------+-----------------+--------------+-------------+------+------------+--------------+
-					   |  0 |            1 |             2 |    3 |         4 |          5 |      6 |      7 |       8 |     9 |    10 |         11 |          12 |            13 |              14 |           15 |   16        |         17 |   18 |     19 |
-					   +----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+---------------+-----------------+--------------+-------------+------+------------+--------------+
-					   | id | name_english | name_japanese | type | price_buy | price_sell | weight | attack | defence | range | slots | equip_jobs | equip_upper | equip_genders | equip_locations | weapon_level | equip_level | refineable | view | script |
-					   +----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+---------------+-----------------+--------------+-------------+------+------------+--------------+ */
-
+				{	/*Table structure is:
+					00  id
+					01  name_english
+					02  name_japanese
+					03  type
+					04  price_buy
+					05  price_sell
+					06  weight
+					07  attack
+					08  defence
+					09  range
+					10  slots
+					11  equip_jobs
+					12  equip_upper
+					13  equip_genders
+					14  equip_locations
+					15  weapon_level
+					16  equip_level
+					17  refineable
+					18  view
+					19  script
+					20  equip_script
+					21  unequip_script
+					*/
 					nameid = atoi(sql_row[0]);
 
 					// If the identifier is not within the valid range, process the next row
@@ -937,7 +870,29 @@ static int itemdb_read_sqldb(void)
 							id->script = parse_script((unsigned char *) script, 0);
 						}
 					} else id->script = NULL;
-
+	
+					if (id->equip_script)
+						aFree(id->equip_script);
+					if (sql_row[20] != NULL) {
+						if (sql_row[20][0] == '{')
+							id->equip_script = parse_script((unsigned char *) sql_row[20], 0);
+						else {
+							sprintf(script, "{%s}", sql_row[20]);
+							id->equip_script = parse_script((unsigned char *) script, 0);
+						}
+					} else id->equip_script = NULL;
+	
+					if (id->unequip_script)
+						aFree(id->unequip_script);
+					if (sql_row[21] != NULL) {
+						if (sql_row[21][0] == '{')
+							id->unequip_script = parse_script((unsigned char *) sql_row[21], 0);
+						else {
+							sprintf(script, "{%s}", sql_row[21]);
+							id->unequip_script = parse_script((unsigned char *) script, 0);
+						}
+					} else id->unequip_script = NULL;
+				
 					// ----------
 
 					id->flag.available	= 1;
@@ -965,7 +920,7 @@ static int itemdb_read_sqldb(void)
 #endif /* not TXT_ONLY */
 
 /*==========================================
- * ã‚¢ã‚¤ãƒ†ãƒ ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã®èª­ã¿è¾¼ã¿
+ * ƒAƒCƒeƒ€ƒf[ƒ^ƒx[ƒX‚Ì“Ç‚İ‚İ
  *------------------------------------------
  */
 static int itemdb_readdb(void)
@@ -1032,8 +987,8 @@ static int itemdb_readdb(void)
 					id->value_buy = buy;
 					id->value_sell = sell;
 				} else {
-					// buyâ‰ sell*2 ã¯ item_value_db.txt ã§æŒ‡å®šã—ã¦ãã ã•ã„ã€‚
-					if (sell) {		// sellå€¤ã‚’å„ªå…ˆã¨ã™ã‚‹
+					// buy‚sell*2 ‚Í item_value_db.txt ‚Åw’è‚µ‚Ä‚­‚¾‚³‚¢B
+					if (sell) {		// sell’l‚ğ—Dæ‚Æ‚·‚é
 						id->value_buy = sell*2;
 						id->value_sell = sell;
 					} else {
@@ -1077,9 +1032,54 @@ static int itemdb_readdb(void)
 				aFree(id->script);
 				id->script=NULL;
 			}
+			if (id->equip_script) {
+				aFree(id->equip_script);
+				id->equip_script=NULL;
+			}
+			if (id->unequip_script) {
+				aFree(id->unequip_script);
+				id->unequip_script=NULL;
+			}
+
 			if((p=strchr(np,'{'))==NULL)
 				continue;
-			id->script = parse_script((unsigned char *) p,lines);
+			
+			str[19] = p; //Script
+			np = strchr(p,'}');
+			
+			while (np && np[1] && np[1] != ',')
+				np = strchr(np+1,'}'); //Jump close brackets until the next field is found.
+			if (!np || !np[1]) {
+				//Couldn't find the end of the script field.
+				id->script = parse_script((unsigned char *) str[19],lines);
+				continue;
+			}
+			np[1] = '\0'; //Set end of script
+			id->script = parse_script((unsigned char *) str[19],lines);
+			np+=2; //Skip to next field
+			
+			if(!np || (p=strchr(np,'{'))==NULL)
+				continue;
+			
+			str[20] = p; //Equip Script
+			np = strchr(p,'}');
+			
+			while (np && np[1] && np[1] != ',')
+				np = strchr(np+1,'}'); //Jump close brackets until the next field is found.
+			if (!np || !np[1]) {
+				//Couldn't find the end of the script field.
+				id->equip_script = parse_script((unsigned char *) str[20],lines);
+				continue;
+			}
+			
+			np[1] = '\0'; //Set end of script
+			id->equip_script = parse_script((unsigned char *) str[20],lines);
+			np+=2; //Skip comma, to next field
+			
+			if(!np || (p=strchr(np,'{'))==NULL)
+				continue;
+			//Unequip script, last column.
+			id->unequip_script = parse_script((unsigned char *) p,lines);
 		}
 		fclose(fp);
 		if (ln > 0) {
@@ -1104,7 +1104,6 @@ static void itemdb_read(void)
 		itemdb_readdb();
 
 	itemdb_read_itemgroup();
-	itemdb_read_randomitem();
 	itemdb_read_itemavail();
 	itemdb_read_noequip();
 	itemdb_read_itemtrade();
@@ -1133,6 +1132,16 @@ static int itemdb_final_sub (DBKey key,void *data,va_list ap)
 		aFree(id->script);
 		id->script = NULL;
 	}
+	if (id->equip_script)
+	{
+		aFree(id->equip_script);
+		id->equip_script = NULL;
+	}
+	if (id->unequip_script)
+	{
+		aFree(id->unequip_script);
+		id->unequip_script = NULL;
+	}
 	// Whether to clear the item data (exception: do not clear the dummy item data
 	if (flag && id != dummy_item) 
 		aFree(id);
@@ -1153,6 +1162,10 @@ void do_final_itemdb(void)
 	if (dummy_item) {
 		if (dummy_item->script)
 			aFree(dummy_item->script);
+		if (dummy_item->equip_script)
+			aFree(dummy_item->equip_script);
+		if (dummy_item->unequip_script)
+			aFree(dummy_item->unequip_script);
 		aFree(dummy_item);
 		dummy_item = NULL;
 	}

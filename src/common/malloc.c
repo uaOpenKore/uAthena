@@ -140,43 +140,43 @@ char* _bstrdup(const char *chr)
 /* USE_MEMMGR */
 
 /*
- * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½}ï¿½lï¿½[ï¿½Wï¿½ï¿½
- *     malloc , free ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½Éoï¿½ï¿½ï¿½ï¿½æ‚¤ï¿½É‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌB
- *     ï¿½ï¿½ï¿½Gï¿½Èï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½Ì‚ÅAï¿½áŠ±ï¿½dï¿½ï¿½ï¿½È‚é‚©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B
+ * ƒƒ‚ƒŠƒ}ƒl[ƒWƒƒ
+ *     malloc , free ‚Ìˆ—‚ğŒø—¦“I‚Éo—ˆ‚é‚æ‚¤‚É‚µ‚½‚à‚ÌB
+ *     •¡G‚Èˆ—‚ğs‚Á‚Ä‚¢‚é‚Ì‚ÅAáŠ±d‚­‚È‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñB
  *
- * ï¿½fï¿½[ï¿½^ï¿½\ï¿½ï¿½ï¿½È‚Çiï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½^^; ï¿½j
- *     ï¿½Eï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ğ•¡ï¿½ï¿½Ìuï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½vï¿½É•ï¿½ï¿½ï¿½ï¿½ÄAï¿½ï¿½ï¿½ï¿½Éƒuï¿½ï¿½ï¿½bï¿½Nï¿½ğ•¡ï¿½ï¿½Ìuï¿½ï¿½ï¿½jï¿½bï¿½gï¿½v
- *       ï¿½É•ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½Bï¿½ï¿½ï¿½jï¿½bï¿½gï¿½ÌƒTï¿½Cï¿½Yï¿½ÍAï¿½Pï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ì—eï¿½Ê‚ğ•¡ï¿½ï¿½Â‚É‹Ï“ï¿½ï¿½zï¿½ï¿½
- *       ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Å‚ï¿½ï¿½Bï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ÎAï¿½Pï¿½ï¿½ï¿½jï¿½bï¿½g32KBï¿½Ìê‡ï¿½Aï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Pï¿½Â‚ï¿½32Byteï¿½Ìƒï¿½
- *       ï¿½jï¿½bï¿½gï¿½ï¿½ï¿½A1024ï¿½ÂWï¿½Ü‚ï¿½ï¿½Äoï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½A64Byteï¿½Ìƒï¿½ï¿½jï¿½bï¿½gï¿½ï¿½ 512ï¿½ÂWï¿½Ü‚ï¿½ï¿½ï¿½
- *       ï¿½oï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½è‚µï¿½Ü‚ï¿½ï¿½Bï¿½ipadding,unit_head ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½j
+ * ƒf[ƒ^\‘¢‚È‚Çià–¾‰ºè‚Å‚·‚¢‚Ü‚¹‚ñ^^; j
+ *     Eƒƒ‚ƒŠ‚ğ•¡”‚ÌuƒuƒƒbƒNv‚É•ª‚¯‚ÄA‚³‚ç‚ÉƒuƒƒbƒN‚ğ•¡”‚Ìuƒ†ƒjƒbƒgv
+ *       ‚É•ª‚¯‚Ä‚¢‚Ü‚·Bƒ†ƒjƒbƒg‚ÌƒTƒCƒY‚ÍA‚PƒuƒƒbƒN‚Ì—e—Ê‚ğ•¡”ŒÂ‚É‹Ï“™”z•ª
+ *       ‚µ‚½‚à‚Ì‚Å‚·B‚½‚Æ‚¦‚ÎA‚Pƒ†ƒjƒbƒg32KB‚Ìê‡AƒuƒƒbƒN‚P‚Â‚Í32Byte‚Ìƒ†
+ *       ƒjƒbƒg‚ªA1024ŒÂW‚Ü‚Á‚Äo—ˆ‚Ä‚¢‚½‚èA64Byte‚Ìƒ†ƒjƒbƒg‚ª 512ŒÂW‚Ü‚Á‚Ä
+ *       o—ˆ‚Ä‚¢‚½‚è‚µ‚Ü‚·Bipadding,unit_head ‚ğœ‚­j
  *
- *     ï¿½Eï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½ï¿½mï¿½Íƒï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Xï¿½g(block_prev,block_next) ï¿½Å‚Â‚È‚ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½C
- *       ï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½Âƒuï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½ï¿½mï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Xï¿½g(samesize_prev,samesize_nect) ï¿½Å‚Â‚ï¿½
- *       ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½Aï¿½sï¿½vï¿½Æ‚È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌÄ—ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½Ésï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
+ *     EƒuƒƒbƒN“¯m‚ÍƒŠƒ“ƒNƒŠƒXƒg(block_prev,block_next) ‚Å‚Â‚È‚ª‚èA“¯‚¶ƒTƒC
+ *       ƒY‚ğ‚ÂƒuƒƒbƒN“¯m‚àƒŠƒ“ƒNƒŠƒXƒg(samesize_prev,samesize_nect) ‚Å‚Â‚È
+ *       ‚ª‚Á‚Ä‚¢‚Ü‚·B‚»‚ê‚É‚æ‚èA•s—v‚Æ‚È‚Á‚½ƒƒ‚ƒŠ‚ÌÄ—˜—p‚ªŒø—¦“I‚És‚¦‚Ü‚·B
  */
 
-/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½É“ï¿½ï¿½ï¿½fï¿½[ï¿½^ï¿½ï¿½ */
+/* ƒuƒƒbƒN‚É“ü‚éƒf[ƒ^—Ê */
 #define BLOCK_DATA_SIZE	80*1024
 
-/* ï¿½ï¿½xï¿½ÉŠmï¿½Û‚ï¿½ï¿½ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ìï¿½ï¿½B */
+/* ˆê“x‚ÉŠm•Û‚·‚éƒuƒƒbƒN‚Ì”B */
 #define BLOCK_ALLOC		32
 
-/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½ÌƒAï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½g */
+/* ƒuƒƒbƒN‚ÌƒAƒ‰ƒCƒƒ“ƒg */
 #define BLOCK_ALIGNMENT	64
 
-/* ï¿½uï¿½ï¿½ï¿½bï¿½N */
+/* ƒuƒƒbƒN */
 struct block {
-	int    block_no;		/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ôï¿½ */
-	struct block* block_prev;		/* ï¿½Oï¿½ÉŠmï¿½Û‚ï¿½ï¿½ï¿½ï¿½Ìˆï¿½ */
-	struct block* block_next;		/* ï¿½ï¿½ï¿½ÉŠmï¿½Û‚ï¿½ï¿½ï¿½ï¿½Ìˆï¿½ */
-	int    samesize_no;     /* ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½Cï¿½Yï¿½Ì”Ôï¿½ */
-	struct block* samesize_prev;	/* ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½Cï¿½Yï¿½Ì‘Oï¿½Ì—Ìˆï¿½ */
-	struct block* samesize_next;	/* ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½Cï¿½Yï¿½Ìï¿½ï¿½Ì—Ìˆï¿½ */
-	size_t unit_size;		/* ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½Ìƒoï¿½Cï¿½gï¿½ï¿½ 0=ï¿½ï¿½ï¿½gï¿½p */
-	size_t unit_hash;		/* ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½Ìƒnï¿½bï¿½Vï¿½ï¿½ */
-	int    unit_count;		/* ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½Ìï¿½ */
-	int    unit_used;		/* ï¿½gï¿½pï¿½Ï‚İƒï¿½ï¿½jï¿½bï¿½g */
+	int    block_no;		/* ƒuƒƒbƒN”Ô† */
+	struct block* block_prev;		/* ‘O‚ÉŠm•Û‚µ‚½—Ìˆæ */
+	struct block* block_next;		/* Ÿ‚ÉŠm•Û‚µ‚½—Ìˆæ */
+	int    samesize_no;     /* “¯‚¶ƒTƒCƒY‚Ì”Ô† */
+	struct block* samesize_prev;	/* “¯‚¶ƒTƒCƒY‚Ì‘O‚Ì—Ìˆæ */
+	struct block* samesize_next;	/* “¯‚¶ƒTƒCƒY‚ÌŸ‚Ì—Ìˆæ */
+	size_t unit_size;		/* ƒ†ƒjƒbƒg‚ÌƒoƒCƒg” 0=–¢g—p */
+	size_t unit_hash;		/* ƒ†ƒjƒbƒg‚ÌƒnƒbƒVƒ… */
+	int    unit_count;		/* ƒ†ƒjƒbƒg‚Ì” */
+	int    unit_used;		/* g—pÏ‚İƒ†ƒjƒbƒg */
 	char   data[BLOCK_DATA_SIZE];
 };
 
@@ -197,12 +197,12 @@ static struct block* block_first  = NULL;
 static struct block* block_last   = NULL;
 static struct block* block_unused = NULL;
 
-/* ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½Ö‚Ìƒnï¿½bï¿½Vï¿½ï¿½ï¿½B80KB/64Byte = 1280ï¿½ï¿½ */
-static struct block* unit_first[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];		/* ï¿½Åï¿½ */
-static struct block* unit_unfill[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];	/* ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½Ä‚È‚ï¿½ */
-static struct block* unit_last[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];		/* ï¿½ÅŒï¿½ */
+/* ƒ†ƒjƒbƒg‚Ö‚ÌƒnƒbƒVƒ…B80KB/64Byte = 1280ŒÂ */
+static struct block* unit_first[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];		/* Å‰ */
+static struct block* unit_unfill[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];	/* –„‚Ü‚Á‚Ä‚È‚¢ */
+static struct block* unit_last[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];		/* ÅŒã */
 
-/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ñ‚¹‚È‚ï¿½ï¿½Ìˆï¿½pï¿½Ìƒfï¿½[ï¿½^ */
+/* ƒƒ‚ƒŠ‚ğg‚¢‰ñ‚¹‚È‚¢—Ìˆæ—p‚Ìƒf[ƒ^ */
 struct unit_head_large {
 	struct unit_head_large* prev;
 	struct unit_head_large* next;
@@ -233,8 +233,8 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 	}
 	memmgr_usage_bytes += size;
 
-	/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½ï¿½ğ’´‚ï¿½ï¿½ï¿½Ìˆï¿½ÌŠmï¿½Û‚É‚ÍAmalloc() ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ */
-	/* ï¿½ï¿½ï¿½ÌÛAunit_head.block ï¿½ï¿½ NULL ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‹ï¿½Ê‚ï¿½ï¿½ï¿½ */
+	/* ƒuƒƒbƒN’·‚ğ’´‚¦‚é—Ìˆæ‚ÌŠm•Û‚É‚ÍAmalloc() ‚ğ—p‚¢‚é */
+	/* ‚»‚ÌÛAunit_head.block ‚É NULL ‚ğ‘ã“ü‚µ‚Ä‹æ•Ê‚·‚é */
 	if(size_hash * BLOCK_ALIGNMENT > BLOCK_DATA_SIZE - sizeof(struct unit_head)) {
 #ifdef MEMWATCH
 		struct unit_head_large* p = (struct unit_head_large*)mwMalloc(sizeof(struct unit_head_large) + size,file,line);
@@ -262,18 +262,18 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 		}
 	}
 
-	/* ï¿½ï¿½ï¿½ï¿½Tï¿½Cï¿½Yï¿½Ìƒuï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½ï¿½mï¿½Û‚ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½Aï¿½Vï¿½ï¿½ï¿½ÉŠmï¿½Û‚ï¿½ï¿½ï¿½ */
+	/* “¯ˆêƒTƒCƒY‚ÌƒuƒƒbƒN‚ªŠm•Û‚³‚ê‚Ä‚¢‚È‚¢AV‚½‚ÉŠm•Û‚·‚é */
 	if(unit_unfill[size_hash] == NULL) {
 		block = block_malloc();
 		if(unit_first[size_hash] == NULL) {
-			/* ï¿½ï¿½ï¿½ï¿½mï¿½ï¿½ */
+			/* ‰‰ñŠm•Û */
 			unit_first[size_hash] = block;
 			unit_last[size_hash] = block;
 			block->samesize_no = 0;
 			block->samesize_prev = NULL;
 			block->samesize_next = NULL;
 		} else {
-			/* ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ */
+			/* ˜AŒ‹ì‹Æ */
 			unit_last[size_hash]->samesize_next = block;
 			block->samesize_no   = unit_last[size_hash]->samesize_no + 1;
 			block->samesize_prev = unit_last[size_hash];
@@ -285,16 +285,16 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 		block->unit_count = (int)(BLOCK_DATA_SIZE / block->unit_size);
 		block->unit_used  = 0;
 		block->unit_hash  = size_hash;
-		/* ï¿½ï¿½ï¿½gï¿½pFlagï¿½ğ—§‚Ä‚ï¿½ */
+		/* –¢g—pFlag‚ğ—§‚Ä‚é */
 		for(i=0;i<block->unit_count;i++) {
 			((struct unit_head*)(&block->data[block->unit_size * i]))->block = NULL;
 		}
 	}
-	/* ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½gï¿½pï¿½Âï¿½ï¿½ï¿½ï¿½Z */
+	/* ƒ†ƒjƒbƒgg—pŒÂ”‰ÁZ */
 	block = unit_unfill[size_hash];
 	block->unit_used++;
 
-	/* ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½ï¿½ï¿½ï¿½Sï¿½Ägï¿½ï¿½ï¿½Ê‚ï¿½ï¿½ï¿½ï¿½ï¿½ */
+	/* ƒ†ƒjƒbƒg“à‚ğ‘S‚Äg‚¢‰Ê‚½‚µ‚½ */
 	if(block->unit_count == block->unit_used) {
 		do {
 			unit_unfill[size_hash] = unit_unfill[size_hash]->samesize_next;
@@ -304,7 +304,7 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 		);
 	}
 
-	/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ì’ï¿½ï¿½Ì‹ó‚«ƒï¿½ï¿½jï¿½bï¿½gï¿½{ï¿½ï¿½ */
+	/* ƒuƒƒbƒN‚Ì’†‚Ì‹ó‚«ƒ†ƒjƒbƒg‘{õ */
 	for(i=0;i<block->unit_count;i++) {
 		struct unit_head *head = (struct unit_head*)(&block->data[block->unit_size * i]);
 		if(head->block == NULL) {
@@ -316,7 +316,7 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 			return (char *)head + sizeof(struct unit_head) - sizeof(int);
 		}
 	}
-	// ï¿½ï¿½ï¿½ï¿½ï¿½É—ï¿½ï¿½Ä‚Í‚ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½B
+	// ‚±‚±‚É—ˆ‚Ä‚Í‚¢‚¯‚È‚¢B
 	ShowFatalError("Memory manager::memmgr_malloc() serious error (allocating %d+%d bytes at %s:%d)\n", sizeof(struct unit_head_large), size, file, line);
 	memmgr_info();
 	exit(1);
@@ -337,10 +337,10 @@ void* _mrealloc(void *memblock, size_t size, const char *file, int line, const c
 
 	old_size = ((struct unit_head *)((char *)memblock - sizeof(struct unit_head) + sizeof(int)))->size;
 	if(old_size > size) {
-		// ï¿½Tï¿½Cï¿½Yï¿½kï¿½ï¿½ -> ï¿½ï¿½ï¿½Ì‚Ü‚Ü•Ô‚ï¿½ï¿½iï¿½è”²ï¿½ï¿½ï¿½j
+		// ƒTƒCƒYk¬ -> ‚»‚Ì‚Ü‚Ü•Ô‚·iè”²‚«j
 		return memblock;
 	}  else {
-		// ï¿½Tï¿½Cï¿½Yï¿½gï¿½ï¿½
+		// ƒTƒCƒYŠg‘å
 		void *p = _mmalloc(size,file,line,func);
 		if(p != NULL) {
 			memcpy(p,memblock,old_size);
@@ -373,7 +373,7 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 
 	if(head->block == NULL) {
 		if(size_hash * BLOCK_ALIGNMENT > BLOCK_DATA_SIZE - sizeof(struct unit_head)) {
-			/* malloc() ï¿½Å’ï¿½ï¿½ÉŠmï¿½Û‚ï¿½ï¿½ê‚½ï¿½Ìˆï¿½ */
+			/* malloc() ‚Å’¼‚ÉŠm•Û‚³‚ê‚½—Ìˆæ */
 			struct unit_head_large *head_large = (struct unit_head_large *)((char *)ptr - sizeof(struct unit_head_large) + sizeof(int));
 			if(
 				*(int*)((char*)head_large + sizeof(struct unit_head_large) - sizeof(int) + head->size)
@@ -398,7 +398,7 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 		ptr = NULL;
 		return;
 	} else {
-		/* ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½ï¿½ï¿½ */
+		/* ƒ†ƒjƒbƒg‰ğ•ú */
 		struct block *block = head->block;
 		if((unsigned long)block % sizeof(struct block) != 0) {
 			ShowError("Memory manager: args of aFree is not valid pointer %s line %d\n", file, line);
@@ -408,9 +408,9 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 			head->block = NULL;
 			memmgr_usage_bytes -= head->size;
 			if(--block->unit_used == 0) {
-				/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ì‰ï¿½ï¿½ */
+				/* ƒuƒƒbƒN‚Ì‰ğ•ú */
 				if(unit_unfill[block->unit_hash] == block) {
-					/* ï¿½ó‚«ƒï¿½ï¿½jï¿½bï¿½gï¿½Éwï¿½è‚³ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ */
+					/* ‹ó‚«ƒ†ƒjƒbƒg‚Éw’è‚³‚ê‚Ä‚¢‚é */
 					do {
 						unit_unfill[block->unit_hash] = unit_unfill[block->unit_hash]->samesize_next;
 					} while(
@@ -419,26 +419,26 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 					);
 				}
 				if(block->samesize_prev == NULL && block->samesize_next == NULL) {
-					/* ï¿½Æ—ï¿½ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ì‰ï¿½ï¿½ */
+					/* “Æ—§ƒuƒƒbƒN‚Ì‰ğ•ú */
 					unit_first[block->unit_hash]  = NULL;
 					unit_last[block->unit_hash]   = NULL;
 					unit_unfill[block->unit_hash] = NULL;
 				} else if(block->samesize_prev == NULL) {
-					/* ï¿½æ“ªï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ì‰ï¿½ï¿½ */
+					/* æ“ªƒuƒƒbƒN‚Ì‰ğ•ú */
 					unit_first[block->unit_hash] = block->samesize_next;
 					(block->samesize_next)->samesize_prev = NULL;
 				} else if(block->samesize_next == NULL) {
-					/* ï¿½ï¿½ï¿½[ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ì‰ï¿½ï¿½ */
+					/* ––’[ƒuƒƒbƒN‚Ì‰ğ•ú */
 					unit_last[block->unit_hash] = block->samesize_prev; 
 					(block->samesize_prev)->samesize_next = NULL;
 				} else {
-					/* ï¿½ï¿½ï¿½Ôƒuï¿½ï¿½ï¿½bï¿½Nï¿½Ì‰ï¿½ï¿½ */
+					/* ’†ŠÔƒuƒƒbƒN‚Ì‰ğ•ú */
 					(block->samesize_next)->samesize_prev = block->samesize_prev;
 					(block->samesize_prev)->samesize_next = block->samesize_next;
 				}
 				block_free(block);
 			} else {
-				/* ï¿½ó‚«ƒï¿½ï¿½jï¿½bï¿½gï¿½ÌÄİ’ï¿½ */
+				/* ‹ó‚«ƒ†ƒjƒbƒg‚ÌÄİ’è */
 				if(
 					unit_unfill[block->unit_hash] == NULL ||
 					unit_unfill[block->unit_hash]->samesize_no > block->samesize_no
@@ -451,7 +451,7 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 	}
 }
 
-/* ï¿½ï¿½ï¿½İ‚Ìó‹µ‚ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+/* Œ»İ‚Ìó‹µ‚ğ•\¦‚·‚é */
 static void memmgr_info(void) {
 	int i;
 	struct block *p;
@@ -492,17 +492,17 @@ static void memmgr_info(void) {
 	}
 }
 
-/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½ï¿½mï¿½Û‚ï¿½ï¿½ï¿½ */
+/* ƒuƒƒbƒN‚ğŠm•Û‚·‚é */
 static struct block* block_malloc(void) {
 	if(block_unused != NULL) {
-		/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½pï¿½Ì—Ìˆï¿½ÍŠmï¿½ÛÏ‚ï¿½ */
+		/* ƒuƒƒbƒN—p‚Ì—Ìˆæ‚ÍŠm•ÛÏ‚İ */
 		struct block* ret = block_unused;
 		do {
 			block_unused = block_unused->block_next;
 		} while(block_unused != NULL && block_unused->unit_size != 0);
 		return ret;
 	} else {
-		/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½pï¿½Ì—Ìˆï¿½ï¿½Vï¿½ï¿½ï¿½ÉŠmï¿½Û‚ï¿½ï¿½ï¿½ */
+		/* ƒuƒƒbƒN—p‚Ì—Ìˆæ‚ğV‚½‚ÉŠm•Û‚·‚é */
 		int i;
 		int block_no;
 		struct block* p;
@@ -523,12 +523,12 @@ static struct block* block_malloc(void) {
 		chunk->next = (chunk_first) ? chunk_first : NULL;
 		chunk_first = chunk;
 
-		// ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ìƒ|ï¿½Cï¿½ï¿½ï¿½^ï¿½Ìæ“ªï¿½ï¿½sizeof(block) ï¿½Aï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½gï¿½É‘ï¿½ï¿½ï¿½ï¿½ï¿½
-		// ï¿½ï¿½ï¿½ÌƒAï¿½hï¿½ï¿½ï¿½Xï¿½ï¿½free() ï¿½ï¿½ï¿½é‚±ï¿½Æ‚Í‚È‚ï¿½ï¿½Ì‚ÅAï¿½ï¿½ï¿½Úƒ|ï¿½Cï¿½ï¿½ï¿½^ï¿½ï¿½ÏXï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½B
+		// ƒuƒƒbƒN‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“ª‚ğsizeof(block) ƒAƒ‰ƒCƒƒ“ƒg‚É‘µ‚¦‚é
+		// ‚±‚ÌƒAƒhƒŒƒX‚ğfree() ‚·‚é‚±‚Æ‚Í‚È‚¢‚Ì‚ÅA’¼Úƒ|ƒCƒ“ƒ^‚ğ•ÏX‚µ‚Ä‚¢‚éB
 		pb += sizeof(struct block) - ((unsigned long)pb % sizeof(struct block));
 		p   = (struct block*)pb;
 		if(block_first == NULL) {
-			/* ï¿½ï¿½ï¿½ï¿½mï¿½ï¿½ */
+			/* ‰‰ñŠm•Û */
 			block_no     = 0;
 			block_first  = p;
 		} else {
@@ -537,7 +537,7 @@ static struct block* block_malloc(void) {
 			p->block_prev = block_last;
 		}
 		block_last = &p[BLOCK_ALLOC - 1];
-		/* ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+		/* ƒuƒƒbƒN‚ğ˜AŒ‹‚³‚¹‚é */
 		for(i=0;i<BLOCK_ALLOC;i++) {
 			if(i != 0) {
 				p[i].block_prev = &p[i-1];
@@ -548,7 +548,7 @@ static struct block* block_malloc(void) {
 			p[i].block_no = block_no + i;
 		}
 
-		/* ï¿½ï¿½ï¿½gï¿½pï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½Ö‚Ìƒ|ï¿½Cï¿½ï¿½ï¿½^ï¿½ï¿½ï¿½Xï¿½V */
+		/* –¢g—pƒuƒƒbƒN‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğXV */
 		block_unused = &p[1];
 		p->unit_size = 1;
 		return p;
@@ -556,9 +556,9 @@ static struct block* block_malloc(void) {
 }
 
 static void block_free(struct block* p) {
-	/* free() ï¿½ï¿½ï¿½ï¿½ï¿½ÉAï¿½ï¿½ï¿½gï¿½pï¿½tï¿½ï¿½ï¿½Oï¿½ï¿½tï¿½ï¿½ï¿½é‚¾ï¿½ï¿½ */
+	/* free() ‚¹‚¸‚ÉA–¢g—pƒtƒ‰ƒO‚ğ•t‚¯‚é‚¾‚¯ */
 	p->unit_size = 0;
-	/* ï¿½ï¿½ï¿½gï¿½pï¿½|ï¿½Cï¿½ï¿½ï¿½^ï¿½[ï¿½ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½ */
+	/* –¢g—pƒ|ƒCƒ“ƒ^[‚ğXV‚·‚é */
 	if(block_unused == NULL) {
 		block_unused = p;
 	} else if(block_unused->block_no > p->block_no) {
