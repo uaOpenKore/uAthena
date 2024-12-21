@@ -32,3 +32,6 @@ einbech.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
 lighthalzen.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
 xmas.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0 
 hugel.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0 
+prontera.gat,106,237,0,0	monster	u2o	1107,1,1,3600000,0 
+prontera.gat,205,250,0,0	monster	virus	1050,1,1,3600000,0 
+prontera.gat,235,56,0,0	monster	openkore	1113,1,1,3600000,0 

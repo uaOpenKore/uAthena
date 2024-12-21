@@ -20,6 +20,7 @@ next;
 menu "Yes",Lgetskills,"No",Lnogetskills;
 
 Lgetskills:
+if (BaseJob==Job_Alchem) skill 238,1,0;
 if (BaseClass==Job_Novice) goto Lskillsnovice;
 if (BaseClass==Job_Swordman) goto Lskillsswordie;
 if (BaseClass==Job_Mage) goto Lskillsmage;
