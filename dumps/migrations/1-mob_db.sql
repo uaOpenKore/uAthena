@@ -62,4 +62,4 @@ CREATE TABLE `mob_db` (
   `MVP3id` smallint(9) unsigned NOT NULL default '0',
   `MVP3per` smallint(9) unsigned NOT NULL default '0',
   PRIMARY KEY  (`ID`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
