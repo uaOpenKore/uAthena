@@ -210,7 +210,6 @@ echo -e ''														>> Makefile
 echo -e 'install:'												>> Makefile
 echo -e '		$(shell mkdir -p '$prefix'bin/log/)'			>> Makefile
 echo -e '		$(shell mkdir -p '$prefix'backup/)'				>> Makefile
-echo -e '		$(shell cp -r dumps '$prefix')'					>> Makefile
 echo -e '		$(shell cp -r save  '$prefix')'					>> Makefile
 echo -e '		$(shell cp -r db    '$prefix')'					>> Makefile
 echo -e '		$(shell cp -r conf  '$prefix')'					>> Makefile
@@ -222,7 +221,7 @@ echo -e '		$(shell ln -s '$prefix'conf/    '$prefix'bin/)'	>> Makefile
 echo -e '		$(shell ln -s '$prefix'npc/     '$prefix'bin/)'	>> Makefile
 echo -e '		$(shell ln -s '$prefix'bin/log/ '$prefix')'		>> Makefile
 echo -e '		$(shell cp scripts/uA* /etc/systemd/system/)'	>> Makefile
-echo -e '		$(shell systemctl daemon-reload)'
+echo -e '		$(shell systemctl daemon-reload)'				>> Makefile
 echo -e '		$(shell cp scripts/ua-*.sh '$prefix'bin/)'		>> Makefile
 echo -e ''												>> Makefile
 echo -e 'uninstall:'									>> Makefile
@@ -232,31 +231,19 @@ echo -e '		$(shell rm -fr '$prefix'conf)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'npc)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'bin)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'save)'			>> Makefile
-echo -e '		$(shell rm -fr '$prefix'dumps)'			>> Makefile
 echo -e '		$(shell rm -f  '$prefix'log)'			>> Makefile
 echo -e '		$(shell rm -f /etc/systemd/system/uA*)'	>> Makefile
-echo -e '		$(shell systemctl daemon-reload)'
+echo -e '		$(shell systemctl daemon-reload)'		>> Makefile
 echo -e ''									>> Makefile
 echo -e 'erase:'							>> Makefile
 echo -e '		$(shell rm -rf '$prefix')' 	>> Makefile
-echo -e ''																		>> Makefile
-echo -e 'backup:'																>> Makefile
-echo -e '		$(shell rm -rf  '$prefix'backup/*)'								>> Makefile
-echo -e '		$(shell /opt/uathena/dumps/dumps.sh backup)'					>> Makefile
-echo -e '		$(shell cp -r /opt/uathena/save /opt/uathena/backup/)'			>> Makefile
-echo -e '		$(shell cp /opt/uathena/dumps/backup/* /opt/uathena/backup/)'	>> Makefile
-echo -e ''														>> Makefile
-echo -e 'update:'												>> Makefile
-echo -e '		INFO: >>> Stopping Athena'
-echo -e '		$(shell systemctl stop uAthena.target uAthena-txt.target)'
-echo -e '		INFO: >>> Updating files'
-echo -e '		$(shell cp *-server* '$prefix'bin/)'			>> Makefile
-echo -e '		>>> The update process is complete.'
-echo -e '		>>> If there were no critical error messages,'
-echo -e '		>>> then start the server:'
-echo -e '		SQL: systemctl start uAthena.target'
-echo -e '		>>> or'
-echo -e '		TXT: systemctl start uAthena-txt.target'
+echo -e ''												>> Makefile
+echo -e 'update:'										>> Makefile
+echo -e '		$(shell cp -f *-server* '$prefix'bin/)'	>> Makefile
+echo -e '		$(shell cp -rf db    '$prefix')'		>> Makefile
+echo -e '		$(shell cp -rf npc   '$prefix')'		>> Makefile
+echo -e ''												>> Makefile
+
 }
 
 
