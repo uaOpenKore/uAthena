@@ -2906,7 +2906,7 @@ int pc_show_steal(struct block_list *bl,va_list ap)
 //** pc.c:
 int pc_steal_item(struct map_session_data *sd,struct block_list *bl)
 {
-	int i,j,skill,itemid,flag;
+	int i,skill,itemid,flag;
 	struct mob_data *md;
 	struct item tmp_item;
 
@@ -2914,8 +2914,8 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl)
 		return 0;
 
 	md=(struct mob_data *)bl;
-//temp steal disable [Lupus]
-	if(1 || md->state.steal_flag>battle_config.skill_steal_max_tries || status_get_mode(bl)&MD_BOSS || md->master_id ||
+
+	if(md->state.steal_flag>battle_config.skill_steal_max_tries || status_get_mode(bl)&MD_BOSS || md->master_id ||
 		(md->class_>=1324 && md->class_<1364) || // prevent stealing from treasure boxes [Valaris]
 		map[md->bl.m].flag.nomobloot ||        // check noloot map flag [Lorky]
 		md->sc.data[SC_STONE].timer != -1 || md->sc.data[SC_FREEZE].timer != -1 //status change check
@@ -2937,7 +2937,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl)
 		itemid = md->db->dropitem[i].nameid;
 		if(itemid <= 0 || (itemid>4000 && itemid<5000 && pc_checkskill(sd,TF_STEAL) <= 5))
 			continue;
-		if(rand() % 10000 > ((md->db->dropitem[i].p * skill) / 100 + sd->add_steal_rate))
+		if(rand() % 10000 <= ((md->db->dropitem[i].p * skill) / 100 + sd->add_steal_rate))
 			break;
 	}
 	if (i == MAX_MOB_DROP)
@@ -4352,7 +4352,8 @@ int pc_resetstate(struct map_session_data* sd)
 
 /*==========================================
  * /resetskill
- * if flag is 1, perform block resync and status_calc call.
+ * if flag&1, perform block resync and status_calc call.
+ * if flag&2, just count total amount of skill points used by player, do not really reset.
  *------------------------------------------
  */
 int pc_resetskill(struct map_session_data* sd, int flag)
@@ -4373,10 +4374,12 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 						skill_point += skill;
 					else if (sd->status.skill[i].flag > 2 && sd->status.skill[i].flag != 13)
 						skill_point += (sd->status.skill[i].flag - 2);
-					sd->status.skill[i].lv = 0;
-					sd->status.skill[i].flag = 0;
+					if (!(flag&2)) {
+						sd->status.skill[i].lv = 0;
+						sd->status.skill[i].flag = 0;
+					}
 			}
-			else if (battle_config.quest_skill_reset && (inf2&INF2_QUEST_SKILL))
+			else if (battle_config.quest_skill_reset && (inf2&INF2_QUEST_SKILL) && !(flag&2))
 			{
 				sd->status.skill[i].lv = 0;
 				sd->status.skill[i].flag = 0;
@@ -4385,19 +4388,20 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 			sd->status.skill[i].lv = 0;
 		}
 	}
-	
-	if (sd->status.skill_point > USHRT_MAX - skill_point)
-		sd->status.skill_point = USHRT_MAX;
-	else
-		sd->status.skill_point += skill_point;
-	
-	if (flag) {
-		clif_updatestatus(sd,SP_SKILLPOINT);
-		clif_skillinfoblock(sd);
-		status_calc_pc(sd,0);
-	}
 
-	return 0;
+	if (!(flag&2)) {
+		if (sd->status.skill_point > USHRT_MAX - skill_point)
+			sd->status.skill_point = USHRT_MAX;
+		else
+			sd->status.skill_point += skill_point;
+
+		if (flag&1) {
+			clif_updatestatus(sd,SP_SKILLPOINT);
+			clif_skillinfoblock(sd);
+			status_calc_pc(sd,0);
+		}
+	}
+	return skill_point;
 }
 
 /*==========================================
