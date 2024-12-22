@@ -54,6 +54,7 @@ function create_db {
  }
 
 function update_db {
+  cat ./migrations/1-migrations.sql | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB
   for x in ./migrations/*.sql;
    do
     y=$(mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e "select file from migrations where file = \"$x\" ")
