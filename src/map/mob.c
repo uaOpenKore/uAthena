@@ -14,6 +14,7 @@
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
 #include "../common/ers.h"
+#include "../common/strlib.h"
 
 #include "map.h"
 #include "clif.h"
@@ -84,9 +85,9 @@ static int mobdb_searchname_array_sub(struct mob_db* mob, const char *str)
 {
 	if (mob == mob_dummy)
 		return 1; //Invalid item.
-	if(strstr(mob->jname,str))
+	if(stristr(mob->jname,str))
 		return 0;
-	if(strstr(mob->name,str))
+	if(stristr(mob->name,str))
 		return 0;
 	return strcmpi(mob->jname,str);
 }
@@ -270,7 +271,7 @@ int mob_once_spawn (struct map_session_data *sd, char *mapname,
 		m = map_mapname2mapid(mapname);
 
 	memset(&data, 0, sizeof(struct spawn_data));
-	if (m < 0 || amount <= 0)	// ’l‚ªˆÙí‚È‚ç¢Š«‚ğ~‚ß‚é
+	if (m < 0 || amount <= 0)	// ï¿½lï¿½ï¿½ï¿½Ùï¿½È‚ç¢ï¿½ï¿½ï¿½ï¿½ï¿½~ï¿½ß‚ï¿½
 		return 0;
 	data.m = m;
 	data.num = amount;
@@ -347,7 +348,7 @@ int mob_once_spawn_area(struct map_session_data *sd,char *mapname,
 	max=(y1-y0+1)*(x1-x0+1)*3;
 	if(max>1000)max=1000;
 
-	if (m < 0 || amount <= 0)	// ’l‚ªˆÙí‚È‚ç¢Š«‚ğ~‚ß‚é
+	if (m < 0 || amount <= 0)	// ï¿½lï¿½ï¿½ï¿½Ùï¿½È‚ç¢ï¿½ï¿½ï¿½ï¿½ï¿½~ï¿½ß‚ï¿½
 		return 0;
 
 	for(i=0;i<amount;i++){
@@ -885,7 +886,7 @@ static int mob_ai_sub_hard_slavemob(struct mob_data *md,unsigned int tick)
 
 	bl=map_id2bl(md->master_id);
 
-	if (!bl || status_isdead(bl)) {	//å‚ª€–S‚µ‚Ä‚¢‚é‚©Œ©‚Â‚©‚ç‚È‚¢
+	if (!bl || status_isdead(bl)) {	//ï¿½å‚ªï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚©ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½È‚ï¿½
 		if(md->special_state.ai>0)
 			unit_remove_map(&md->bl, 1);
 		else
@@ -970,6 +971,7 @@ int mob_unlocktarget(struct mob_data *md,int tick)
 	md->state.skillstate=MSS_IDLE;
 	md->next_walktime=tick+rand()%3000+3000;
 	mob_stop_attack(md);
+	md->ud.target = 0;
 	return 0;
 }
 /*==========================================
@@ -1110,7 +1112,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 				if (md->attacked_count++ > 3) {
 					if (mobskill_use(md, tick, MSC_RUDEATTACKED) == 0 && can_move)
 					{
-						int dist = rand() % 10 + 1;//Œã‘Ş‚·‚é‹——£
+						int dist = rand() % 10 + 1;//ï¿½ï¿½Ş‚ï¿½ï¿½é‹—ï¿½ï¿½
 						int dir = map_calc_dir(abl, bl->x, bl->y);
 						int mask[8][2] = {{0,1},{-1,1},{-1,0},{-1,-1},{0,-1},{1,-1},{1,0},{1,1}};
 						unit_walktoxy(&md->bl, md->bl.x + dist * mask[dir][0], md->bl.y + dist * mask[dir][1], 0);
@@ -1217,9 +1219,9 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 					mob_unlocktarget(md,tick);
 					return 0;
 				}
-				if (!can_move)	// “®‚¯‚È‚¢ó‘Ô‚É‚ ‚é
+				if (!can_move)	// ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½Ô‚É‚ï¿½ï¿½ï¿½
 					return 0;
-				md->state.skillstate = MSS_LOOT;	// ƒ‹[ƒgƒXƒLƒ‹g—p
+				md->state.skillstate = MSS_LOOT;	// ï¿½ï¿½ï¿½[ï¿½gï¿½ï¿½ï¿½Xï¿½Lï¿½ï¿½ï¿½gï¿½p
 				if (!unit_walktobl(&md->bl, tbl, 0, 1))
 					mob_unlocktarget(md, tick); //Can't loot...
 				return 0;
@@ -1314,7 +1316,7 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list app)
 	if (md->bl.prev==NULL || md->hp <= 0)
 		return 1;
 
-	// æ‚èŠª‚«ƒ‚ƒ“ƒXƒ^[‚Ìˆ—iŒÄ‚Ñ–ß‚µ‚³‚ê‚½j
+	// ï¿½ï¿½èŠªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½^ï¿½[ï¿½Ìï¿½ï¿½ï¿½ï¿½iï¿½Ä‚Ñ–ß‚ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½j
 	if (md->master_id) {
 		mob_ai_sub_hard_slavemob (md,tick);
 		return 0;
@@ -1549,7 +1551,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 	int drop_rate;
 	int race;
 	
-	nullpo_retr(0, md); //src‚ÍNULL‚ÅŒÄ‚Î‚ê‚éê‡‚à‚ ‚é‚Ì‚ÅA‘¼‚Åƒ`ƒFƒbƒN
+	nullpo_retr(0, md); //srcï¿½ï¿½NULLï¿½ÅŒÄ‚Î‚ï¿½ï¿½ê‡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚ÅAï¿½ï¿½ï¿½Åƒ`ï¿½Fï¿½bï¿½N
 
 	max_hp = status_get_max_hp(&md->bl);
 	race = status_get_race(&md->bl);
@@ -1653,7 +1655,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 		}
 	}	// end addition
 
-	if(md->special_state.ai == 2 &&	//ƒXƒtƒBƒA[ƒ}ƒCƒ“
+	if(md->special_state.ai == 2 &&	//ï¿½Xï¿½tï¿½Bï¿½Aï¿½[ï¿½}ï¿½Cï¿½ï¿½
 		src && md->master_id == src->id)
 	{
 		md->state.alchemist = 1;
@@ -1666,7 +1668,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 	if(md->hp > 0)
 		return damage;
 
-	// ----- ‚±‚±‚©‚ç€–Sˆ— -----
+	// ----- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ç€ï¿½Sï¿½ï¿½ï¿½ï¿½ -----
 
 	mode = status_get_mode(&md->bl); //Mode will be used for various checks regarding exp/drops.
 
@@ -1738,8 +1740,8 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 		}
 	}
 
-	// mapŠO‚ÉÁ‚¦‚½l‚ÍŒvZ‚©‚çœ‚­‚Ì‚Å
-	// overkill•ª‚Í–³‚¢‚¯‚Çsum‚Ímax_hp‚Æ‚Íˆá‚¤
+	// mapï¿½Oï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ÍŒvï¿½Zï¿½ï¿½ï¿½çœï¿½ï¿½ï¿½Ì‚ï¿½
+	// overkillï¿½ï¿½ï¿½Í–ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sumï¿½ï¿½max_hpï¿½Æ‚Íˆá‚¤
 
 	for(i=0,count=0,mvp_damage=0;i<DAMAGELOG_SIZE;i++){
 		if(md->dmglog[i].id==0)
@@ -1762,7 +1764,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 	// [MouseJstr]
 	if((map[md->bl.m].flag.pvp == 0) || (battle_config.pvp_exp == 1)) {
 
-	// ŒoŒ±’l‚Ì•ª”z
+	// ï¿½oï¿½ï¿½ï¿½lï¿½Ì•ï¿½ï¿½z
 	for(i=0;i<DAMAGELOG_SIZE;i++){
 		int pid,flag=1,zeny=0;
 		unsigned int base_exp,job_exp;
@@ -1842,12 +1844,12 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 		else if (job_exp < 1) job_exp = 1;
 		
 		//end added Lorky 
-		if((pid=tmpsd[i]->status.party_id)>0){	// ƒp[ƒeƒB‚É“ü‚Á‚Ä‚¢‚é
+		if((pid=tmpsd[i]->status.party_id)>0){	// ï¿½pï¿½[ï¿½eï¿½Bï¿½É“ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
 			int j;
-			for(j=0;j<pnum;j++)	// Œö•½ƒp[ƒeƒBƒŠƒXƒg‚É‚¢‚é‚©‚Ç‚¤‚©
+			for(j=0;j<pnum;j++)	// ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½[ï¿½eï¿½Bï¿½ï¿½ï¿½Xï¿½gï¿½É‚ï¿½ï¿½é‚©ï¿½Ç‚ï¿½ï¿½ï¿½
 				if(pt[j].id==pid)
 					break;
-			if(j==pnum){	// ‚¢‚È‚¢‚Æ‚«‚ÍŒö•½‚©‚Ç‚¤‚©Šm”F
+			if(j==pnum){	// ï¿½ï¿½ï¿½È‚ï¿½ï¿½Æ‚ï¿½ï¿½ÍŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½mï¿½F
 				if((p=party_search(pid))!=NULL && p->exp!=0){
 					pt[pnum].id=pid;
 					pt[pnum].p=p;
@@ -1858,7 +1860,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 					pnum++;
 					flag=0;
 				}
-			}else{	// ‚¢‚é‚Æ‚«‚ÍŒö•½
+			}else{	// ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ÍŒï¿½ï¿½ï¿½
 				if (pt[j].base_exp > UINT_MAX - base_exp)
 					pt[j].base_exp=UINT_MAX;
 				else
@@ -1883,7 +1885,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 		}
 
 	}
-	// Œö•½•ª”z
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½z
 	for(i=0;i<pnum;i++)
 		party_exp_share(pt[i].p,md->bl.m,pt[i].base_exp,pt[i].job_exp,pt[i].zeny);
 
@@ -2010,7 +2012,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 			ers_free(item_drop_list_ers, dlist);
 	}
 
-	// mvpˆ—
+	// mvpï¿½ï¿½ï¿½ï¿½
 	if(mvp_sd && md->db->mexp > 0 && !md->special_state.ai){
 		int log_mvp[2] = {0};
 		int j;
@@ -2023,7 +2025,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 		//end added [Lorky] 
 
 		if(mexp < 1) mexp = 1;
-		clif_mvp_effect(mvp_sd);					// ƒGƒtƒFƒNƒg
+		clif_mvp_effect(mvp_sd);					// ï¿½Gï¿½tï¿½Fï¿½Nï¿½g
 		clif_mvp_exp(mvp_sd,mexp);
 		pc_gainexp(mvp_sd,mexp,0);
 		log_mvp[1] = mexp;
@@ -2083,7 +2085,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 			guild_agit_break(md);
 	}
 
-		// SCRIPTÀs
+		// SCRIPTï¿½ï¿½ï¿½s
 	if(md->npc_event[0]){
 //		if(battle_config.battle_log)
 //			printf("mob_damage : run event : %s\n",md->npc_event);
@@ -2240,7 +2242,7 @@ int mob_class_change (struct mob_data *md, int class_)
 }
 
 /*==========================================
- * mob‰ñ•œ
+ * mobï¿½ï¿½
  *------------------------------------------
  */
 int mob_heal(struct mob_data *md,int heal)
@@ -2308,7 +2310,7 @@ int mob_warpslave(struct block_list *bl, int range)
 }
 
 /*==========================================
- * ‰æ–Ê“à‚Ìæ‚èŠª‚«‚Ì”ŒvZ—p(foreachinarea)
+ * ï¿½ï¿½Ê“ï¿½ï¿½Ìï¿½èŠªï¿½ï¿½ï¿½Ìï¿½ï¿½vï¿½Zï¿½p(foreachinarea)
  *------------------------------------------
  */
 int mob_countslave_sub(struct block_list *bl,va_list ap)
@@ -2324,7 +2326,7 @@ int mob_countslave_sub(struct block_list *bl,va_list ap)
 }
 
 /*==========================================
- * ‰æ–Ê“à‚Ìæ‚èŠª‚«‚Ì”ŒvZ
+ * ï¿½ï¿½Ê“ï¿½ï¿½Ìï¿½èŠªï¿½ï¿½ï¿½Ìï¿½ï¿½vï¿½Z
  *------------------------------------------
  */
 int mob_countslave(struct block_list *bl)
@@ -2415,7 +2417,7 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 }
 
 /*==========================================
- *MOBskill‚©‚çŠY“–skillid‚Ìskillidx‚ğ•Ô‚·
+ *MOBskillï¿½ï¿½ï¿½ï¿½Yï¿½ï¿½skillidï¿½ï¿½skillidxï¿½ï¿½Ô‚ï¿½
  *------------------------------------------
  */
 int mob_skillid2skillidx(int class_,int skillid)
@@ -2561,7 +2563,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 	for (i = 0; i < md->db->maxskill; i++) {
 		int c2 = ms[i].cond2, flag = 0;		
 
-		// ƒfƒBƒŒƒC’†
+		// ï¿½fï¿½Bï¿½ï¿½ï¿½Cï¿½ï¿½
 		if (DIFF_TICK(tick, md->skilldelay[i]) < ms[i].delay)
 			continue;
 
@@ -2574,7 +2576,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 		if (rand() % 10000 > ms[i].permillage) //Lupus (max value = 10000)
 			continue;
 
-		// ğŒ”»’è
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		flag = (event == ms[i].cond1);
 		//Avoid entering on defined events to avoid "hyper-active skill use" due to the overflow of calls to this function
 		//in battle. The only exception is MSC_SKILLUSED which explicitly uses the event value to trigger. [Skotlex]
@@ -2819,7 +2821,7 @@ int mob_clone_spawn(struct map_session_data *sd, char *map, int x, int y, const 
 	mob_db_data[class_]->size=status_get_size(&sd->bl);
 	mob_db_data[class_]->race=status_get_race(&sd->bl);
 	mob_db_data[class_]->element=status_get_element(&sd->bl);
-	mob_db_data[class_]->mode=mode?mode:(MD_AGGRESSIVE|MD_ASSIST|MD_CANATTACK|MD_CANMOVE);
+	mob_db_data[class_]->mode=mode?mode:(MD_AGGRESSIVE|MD_ASSIST|MD_CASTSENSOR|MD_CANATTACK|MD_CANMOVE);
 	mob_db_data[class_]->speed=status_get_speed(&sd->bl);
 	mob_db_data[class_]->adelay=status_get_adelay(&sd->bl);
 	mob_db_data[class_]->amotion=status_get_amotion(&sd->bl);
@@ -2837,8 +2839,8 @@ int mob_clone_spawn(struct map_session_data *sd, char *map, int x, int y, const 
 		memset (&ms[i], 0, sizeof(struct mob_skill));
 		ms[i].skill_id = skill_id;
 		ms[i].skill_lv = sd->status.skill[skill_id].lv;
-		ms[i].state = -1;
-		ms[i].permillage = 500; //Default chance for moving/idle skills.
+		ms[i].state = MSS_ANY;
+		ms[i].permillage = 500*battle_config.mob_skill_rate/100; //Default chance of all skills: 5%
 		ms[i].emotion = -1;
 		ms[i].cancel = 0;
 		ms[i].delay = 5000+skill_delayfix(&sd->bl,skill_id, ms[i].skill_lv);
@@ -2848,24 +2850,22 @@ int mob_clone_spawn(struct map_session_data *sd, char *map, int x, int y, const 
 		if (inf&INF_ATTACK_SKILL) {
 			ms[i].target = MST_TARGET;
 			ms[i].cond1 = MSC_ALWAYS;
-			if (skill_get_range(skill_id, ms[i].skill_lv)  > 3) {
-				ms[i].state = MSS_RUSH;
-			} else {
+			if (skill_get_range(skill_id, ms[i].skill_lv)  > 3)
+				ms[i].state = MSS_ANYTARGET;
+			else
 				ms[i].state = MSS_BERSERK;
-				ms[i].permillage = 2500;
-			}
 		} else if(inf&INF_GROUND_SKILL) {
 			//Normal aggressive mob, disable skills that cannot help them fight
-			//against players (those with flags UF_NOMOB and UF_NOPC are specific 
+			//against players (those with flags UF_NOMOB and UF_NOPC are specific
 			//to always aid players!) [Skotlex]
 			if (!(flag&1) && skill_get_unit_flag(skill_id)&(UF_NOMOB|UF_NOPC))
 				continue;
-			ms[i].permillage = 1000;
 			if (skill_get_inf2(skill_id)&INF2_TRAP) { //Traps!
 				ms[i].state = MSS_IDLE;
 				ms[i].target = MST_AROUND2;
 				ms[i].delay = 60000;
 			} else if (skill_get_unit_target(skill_id) == BCT_ENEMY) { //Target Enemy
+				ms[i].state = MSS_ANYTARGET;
 				ms[i].target = MST_TARGET;
 				ms[i].cond1 = MSC_ALWAYS;
 			} else { //Target allies
@@ -2878,10 +2878,9 @@ int mob_clone_spawn(struct map_session_data *sd, char *map, int x, int y, const 
 				ms[i].target = MST_TARGET;
 				ms[i].cond1 = MSC_ALWAYS;
 				if (skill_get_range(skill_id, ms[i].skill_lv)  > 3) {
-					ms[i].state = MSS_RUSH;
+					ms[i].state = MSS_ANYTARGET;
 				} else {
 					ms[i].state = MSS_BERSERK;
-					ms[i].permillage = 2500;
 				}
 			} else { //Self skill
 				ms[i].target = MST_SELF;
@@ -2978,7 +2977,7 @@ int mob_clone_delete(int class_)
 }
 
 //
-// ‰Šú‰»
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //
 /*==========================================
  * Since un-setting [ mob ] up was used, it is an initial provisional value setup.
@@ -3292,7 +3291,7 @@ static int mob_readdb_mobavail(void)
 		if (class_ == 0)
 			continue; //Leave blank lines alone... [Skotlex]
 		
-		if(mob_db(class_) == mob_dummy)	// ’l‚ªˆÙí‚È‚çˆ—‚µ‚È‚¢B
+		if(mob_db(class_) == mob_dummy)	// ï¿½lï¿½ï¿½ï¿½Ùï¿½È‚çˆï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½B
 			continue;
 
 		k=atoi(str[1]);
@@ -3342,7 +3341,7 @@ static int mob_read_randommonster(void)
 		"mob_boss.txt" };
 
 	for(i=0;i<MAX_RANDOMMONSTER;i++){
-		mob_db_data[0]->summonper[i] = 1002;	// İ’è‚µ–Y‚ê‚½ê‡‚Íƒ|ƒŠƒ“‚ªo‚é‚æ‚¤‚É‚µ‚Ä‚¨‚­
+		mob_db_data[0]->summonper[i] = 1002;	// ï¿½İ’è‚µï¿½Yï¿½ê‚½ï¿½ê‡ï¿½Íƒ|ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½ï¿½æ‚¤ï¿½É‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
 		sprintf(line, "%s/%s", db_path, mobfile[i]);
 		fp=fopen(line,"r");
 		if(fp==NULL){

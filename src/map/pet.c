@@ -964,9 +964,12 @@ static int pet_ai_sub_hard(struct pet_data *pd,unsigned int tick)
 	}
 
 	//Return speed to normal.
-	if (pd->speed != sd->petDB->speed)
+	if (pd->speed != sd->petDB->speed) {
+		if (pd->ud.walktimer != -1)
+			return 0; //Wait until the pet finishes walking back to master.
 		pd->speed = sd->petDB->speed;
-	
+	}
+
 	if (pd->target_id) {
 		target= map_id2bl(pd->target_id);
 		if (!target || pd->bl.m != target->m || status_isdead(target) ||
