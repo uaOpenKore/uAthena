@@ -2903,7 +2903,7 @@ int pc_show_steal(struct block_list *bl,va_list ap)
  *
  *------------------------------------------
  */
-//** pc.c: Small Steal Item fix by fritz
+//** pc.c:
 int pc_steal_item(struct map_session_data *sd,struct block_list *bl)
 {
 	int i,j,skill,itemid,flag;
@@ -2912,16 +2912,16 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl)
 
 	if(!sd || !bl || bl->type != BL_MOB)
 		return 0;
-	
-	md=(struct mob_data *)bl;
 
-	if(md->state.steal_flag || status_get_mode(bl)&MD_BOSS || md->master_id ||
+	md=(struct mob_data *)bl;
+//temp steal disable [Lupus]
+	if(1 || md->state.steal_flag>battle_config.skill_steal_max_tries || status_get_mode(bl)&MD_BOSS || md->master_id ||
 		(md->class_>=1324 && md->class_<1364) || // prevent stealing from treasure boxes [Valaris]
 		map[md->bl.m].flag.nomobloot ||        // check noloot map flag [Lorky]
 		md->sc.data[SC_STONE].timer != -1 || md->sc.data[SC_FREEZE].timer != -1 //status change check
-  )
+	)
 		return 0;
-	
+
 	skill = battle_config.skill_steal_type == 1
 		? (sd->paramc[4] - md->db->dex)/2 + pc_checkskill(sd,TF_STEAL)*6 + 10
 		: sd->paramc[4] - md->db->dex + pc_checkskill(sd,TF_STEAL)*3 + 10;
@@ -2929,24 +2929,22 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl)
 	if (skill < 1)
 		return 0;
 
-	j = i = rand()%10; //Pick one mobs drop slot.
-	do {
-		//if it's empty, we check one by one, till find an item
-		i--;
-		if(i<0)
-		i=9; //9th slot
-		itemid = md->db->dropitem[i].nameid;
-		//now try all 10 slots till success
-		if(itemid <= 0 || (itemdb_type(itemid) == 6 && pc_checkskill(sd,TF_STEAL) <= 5))
-			continue;
-	} while (i != j &&
-		rand() % 10000 > ((md->db->dropitem[i].p * skill) / 100 + sd->add_steal_rate)); //fixed rate. From Freya [Lupus]
+	if(md->state.steal_flag < battle_config.skill_steal_max_tries)
+		md->state.steal_flag++; //increase steal tries number
 
-	if (i == j)
+	for(i = 0; i<MAX_MOB_DROP; i++)//Pick one mobs drop slot.
+	{
+		itemid = md->db->dropitem[i].nameid;
+		if(itemid <= 0 || (itemid>4000 && itemid<5000 && pc_checkskill(sd,TF_STEAL) <= 5))
+			continue;
+		if(rand() % 10000 > ((md->db->dropitem[i].p * skill) / 100 + sd->add_steal_rate))
+			break;
+	}
+	if (i == MAX_MOB_DROP)
 		return 0;
 
-	md->state.steal_flag = 1;
-	
+	md->state.steal_flag = 255; //you can't steal from this mob any more
+
 	memset(&tmp_item,0,sizeof(tmp_item));
 	tmp_item.nameid = itemid;
 	tmp_item.amount = 1;
