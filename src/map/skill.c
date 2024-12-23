@@ -7569,9 +7569,13 @@ int skill_check_condition(struct map_session_data *sd,int skill, int lv, int typ
 		if(sd->sc.data[SC_COMBO].val1 != MO_COMBOFINISH && sd->sc.data[SC_COMBO].val1 != CH_TIGERFIST)
 			return 0;
 		break;
-	case MO_EXTREMITYFIST:					// ��?C���e�P�?
+	case MO_EXTREMITYFIST:					//
 //		if(sd->sc.data[SC_EXTREMITYFIST].timer != -1) //To disable Asura during the 5 min skill block uncomment this...
 //			return 0;
+		if(sd->sc.data[SC_EXPLOSIONSPIRITS].timer == -1) {
+			clif_skill_fail(sd,skill,0,0);
+			return 0;
+		}
 		if(sd->sc.data[SC_BLADESTOP].timer!=-1)
 			spiritball--;
 		else if (sd->sc.data[SC_COMBO].timer != -1) {
@@ -9169,11 +9173,9 @@ int skill_delunitgroup(struct block_list *src, struct skill_unit_group *group)
 	int i,j;
 
 	nullpo_retr(0, group);
-	if(group->unit_count<=0)
-		return 0;
 
 	if (!src) src=map_id2bl(group->src_id);
-	ud = unit_bl2ud(src);	
+	ud = unit_bl2ud(src);
 	if(!src || !ud) {
 		ShowError("skill_delunitgroup: Group's source not found! (src_id: %d skill_id: %d)\n", group->src_id, group->skill_id);
 		return 0;	
