@@ -27,15 +27,16 @@ function make_dumps {
  }
 
 function install_first {
-  cat ./schema/schema.sql | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB
-     if [ $? -ne 0 ]
-      then
-       echo "Problem connecting to database"
-       exit 1
-      fi
+
   for x in ./tables/*.sql;
    do
-    cat $x | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB
+    resu=$(cat $x | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB)
+         if [ -n "$resu" ]
+      then
+       echo "Problem connecting to database"
+       echo "Error: $resu"
+       exit 1
+      fi
    done
  }
 
