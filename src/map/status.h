@@ -88,7 +88,7 @@ enum {
 	SC_AUTOSPELL,
 	SC_SIGHTTRASHER,
 	SC_AUTOBERSERK,
-	SC_SPEARSQUICKEN,
+	SC_SPEARQUICKEN,
 	SC_AUTOCOUNTER,
 	SC_SIGHT,
 	SC_SAFETYWALL,
@@ -346,7 +346,7 @@ enum {
 	SI_SMA		= 159,
 // 160
 	SI_ONEHAND		= 161,
-	SI_WARM			= 165,
+	SI_WARM			= 165,	
 //	166 | The three show the exact same display: ultra red character (165, 166, 167)	
 //	167 |	
 	SI_SUN_COMFORT		= 169,
@@ -443,7 +443,7 @@ enum {
 //TODO: Get these Missing options...
 #define OPTION_SIGHTTRASHER 0x0001
 
-// p[^n battle.c
+// ƒpƒ‰ƒ[ƒ^Š“¾Œn battle.c ‚æ‚èˆÚ“®
 int status_get_class(struct block_list *bl);
 int status_get_lv(struct block_list *bl);
 int status_get_range(struct block_list *bl);
@@ -472,7 +472,7 @@ int status_get_dmotion(struct block_list *bl);
 int status_get_element(struct block_list *bl);
 int status_get_attack_sc_element(struct block_list *bl);
 int status_get_attack_element(struct block_list *bl);
-int status_get_attack_element2(struct block_list *bl);  //
+int status_get_attack_element2(struct block_list *bl);  //¶è•Ší‘®«æ“¾
 #define status_get_elem_type(bl)	(status_get_element(bl)%10)
 #define status_get_elem_level(bl)	(status_get_element(bl)/10/2)
 int status_get_party_id(struct block_list *bl);

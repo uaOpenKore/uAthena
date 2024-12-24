@@ -285,7 +285,7 @@ int mob_once_spawn (struct map_session_data *sd, char *mapname,
 			return 0;
 	}
 	strncpy(data.eventname, event, 50);
-
+	
 	if (x <= 0 || y <= 0) {
 		if (sd)
 			map_search_freecell(&sd->bl, m, &x, &y, 1, 1, 0);
@@ -723,9 +723,13 @@ int mob_spawn (struct mob_data *md)
 static int mob_can_changetarget(struct mob_data* md, struct block_list* target, int mode)
 {
 	// if the monster was provoked ignore the above rule [celest]
-	if(md->state.provoke_flag && md->state.provoke_flag != target->id &&
-		!battle_config.mob_ai&4)
-		return 0;
+	if(md->state.provoke_flag)
+	{	
+		if (md->state.provoke_flag == target->id)
+			return 1;
+		else if (!battle_config.mob_ai&4)
+			return 0;
+	}
 	
 	switch (md->state.skillstate) {
 		case MSS_BERSERK: //Only Assist, Angry or Aggressive+CastSensor mobs can change target while attacking.
@@ -865,7 +869,7 @@ static int mob_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 	target= va_arg(ap,struct block_list**);
 
 	if((dist=distance_bl(&md->bl, bl)) < md->db->range2 &&
-		mob_can_reach(md,bl,dist+1, MSS_LOOT) &&
+		mob_can_reach(md,bl,dist+1, MSS_LOOT) && 
 		((*target) == NULL || !check_distance_bl(&md->bl, *target, dist)) //New target closer than previous one.
 	) {
 		(*target) = bl;
@@ -990,7 +994,7 @@ int mob_randomwalk(struct mob_data *md,int tick)
 
 	if(DIFF_TICK(md->next_walktime,tick)>0 || !unit_can_move(&md->bl))
 		return 0;
-
+	
 	d =12-md->move_fail_count;
 	if(d<5) d=5;
 	for(i=0;i<retrycount;i++){	// Search of a movable place
@@ -1177,14 +1181,19 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			{	//Out of range...
 				if (!(mode&MD_CANMOVE))
 				{	//Can't chase. Attempt to use a ranged skill at least?
-					md->state.skillstate = md->state.aggressive?MSS_ANGRY:MSS_BERSERK;
-					mobskill_use(md, tick, -1);
-					mob_unlocktarget(md,tick);
+					md->state.skillstate = MSS_IDLE;
+					if (!mobskill_use(md, tick, -1))
+						mob_unlocktarget(md,tick);
 					return 0;
 				}
 
-				if (!can_move) //Stuck. Wait before walking.
+				if (!can_move)
+				{	//Stuck. Use an idle skill. o.O'
+					md->state.skillstate = MSS_IDLE;
+					if (!(++md->ud.walk_count%IDLE_SKILL_INTERVAL))
+						mobskill_use(md, tick, -1);
 					return 0;
+				}
 
 				md->state.skillstate = md->state.aggressive?MSS_FOLLOW:MSS_RUSH;
 				if (md->ud.walktimer != -1 && md->ud.target == tbl->id &&
@@ -1589,9 +1598,9 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 			md->attacked_players++;
 			if (!md->attacked_players) //Counter overflow o.O
 				md->attacked_players++;
-
+			
 			switch (src->type) {
-				case BL_PC:
+				case BL_PC: 
 					id = sd->status.char_id;
 					if(rand()%1000 < 1000/md->attacked_players)
 						md->attacked_id = sd->bl.id;
@@ -1785,12 +1794,13 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 
 		if(sd) {
 			if (sd->expaddrace[race])
-				per += per*sd->expaddrace[race]/100.;	
+				per += per*sd->expaddrace[race]/100.;
 				per += per*sd->expaddrace[mode&MD_BOSS?10:11]/100.;
 		}
-		if (battle_config.pk_mode && (md->db->lv - tmpsd[i]->status.base_level >= 20))
-			per *= 1.15;	// pk_mode additional exp if monster >20 levels [Valaris]	
-		
+		if (battle_config.pk_mode &&
+			(int)(md->db->lv - tmpsd[i]->status.base_level) >= 20) //Needed due to unsigned checks
+			per *= 1.15;	// pk_mode additional exp if monster >20 levels [Valaris]
+
 		//SG additional exp from Blessings [Komurka] - probably can be optimalized ^^;;
 		//
 		if(md->class_ == tmpsd[i]->hate_mob[2] && (battle_config.allow_skill_without_day || is_day_of_star() || tmpsd[i]->sc.data[SC_MIRACLE].timer!=-1))
@@ -1918,10 +1928,11 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 			//Drops affected by luk as a fixed increase [Valaris]
 			if (src && battle_config.drops_by_luk > 0)
 				drop_rate += status_get_luk(src)*battle_config.drops_by_luk/100;
-			//Drops affected by luk as a % increase [Skotlex] 
+			//Drops affected by luk as a % increase [Skotlex]
 			if (src && battle_config.drops_by_luk2 > 0)
 				drop_rate += (int)(0.5+drop_rate*status_get_luk(src)*battle_config.drops_by_luk2/10000.0);
-			if (sd && battle_config.pk_mode == 1 && (md->db->lv - sd->status.base_level >= 20))
+			if (sd && battle_config.pk_mode &&
+				(int)(md->db->lv - sd->status.base_level) >= 20)
 				drop_rate = (int)(drop_rate*1.25); // pk_mode increase drops if 20 level difference [Valaris]
 
 //			if (10000 < rand()%10000+drop_rate) { //May be better if MAX_RAND is too low?
@@ -2078,19 +2089,10 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 		else if(mvp_sd)
 			npc_event(mvp_sd,md->npc_event,0);
 
-	} else if (mvp_sd) {
-//lordalfa
+	} else if (mvp_sd) {	//lordalfa
 		pc_setglobalreg(mvp_sd,"killedrid",(md->class_));
-		if (script_config.event_script_type == 0) {
-			struct npc_data *npc;
-			if ((npc = npc_name2id("NPCKillEvent"))) {
-				run_script(npc->u.scr.script,0,mvp_sd->bl.id,npc->bl.id); // NPCKillNPC
-				ShowStatus("Event '"CL_WHITE"NPCKillEvent"CL_RESET"' executed.\n");
-			}
-		} else {
-			ShowStatus("%d '"CL_WHITE"%s"CL_RESET"' events executed.\n",	
-				npc_event_doall_id("NPCKillEvent", mvp_sd->bl.id), "NPCKillEvent");
-		}
+		if(mvp_sd->state.event_kill_mob)
+			npc_script_event(mvp_sd, NPCE_KILLNPC); // PCKillNPC [Lance]
 	}
 	if(md->level) md->level=0;
 	map_freeblock_unlock();
@@ -2529,23 +2531,29 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 	struct mob_skill *ms;
 	struct block_list *fbl = NULL; //Friend bl, which can either be a BL_PC or BL_MOB depending on the situation. [Skotlex]
 	struct mob_data *fmd = NULL;
-	int i;
+	int i,n;
 
 	nullpo_retr (0, md);
 	nullpo_retr (0, ms = md->db->skill);
 
-	if (battle_config.mob_skill_rate == 0 || md->ud.skilltimer != -1)
+	if (!battle_config.mob_skill_rate || md->ud.skilltimer != -1 || !md->db->maxskill)
 		return 0;
 
 	if (event < 0 && DIFF_TICK(md->ud.canact_tick, tick) > 0)
 		return 0; //Skill act delay only affects non-event skills.
-	
-	for (i = 0; i < md->db->maxskill; i++) {
-		int c2 = ms[i].cond2, flag = 0;		
 
-		// fBC
+	//Pick a random starting position and loop from that.
+	i = rand()%md->db->maxskill;
+	for (n = 0; n < md->db->maxskill; i++, n++) {
+		int c2, flag = 0;
+
+		if (i == md->db->maxskill)
+			i = 0;
+
 		if (DIFF_TICK(tick, md->skilldelay[i]) < ms[i].delay)
 			continue;
+
+		c2 = ms[i].cond2;
 
 		if (ms[i].state != md->state.skillstate && md->state.skillstate != MSS_DEAD) {
 			if (ms[i].state == MSS_ANY || (ms[i].state == MSS_ANYTARGET && md->target_id))
@@ -2837,7 +2845,7 @@ int mob_clone_spawn(struct map_session_data *sd, char *map, int x, int y, const 
 				ms[i].state = MSS_BERSERK;
 		} else if(inf&INF_GROUND_SKILL) {
 			//Normal aggressive mob, disable skills that cannot help them fight
-			//against players (those with flags UF_NOMOB and UF_NOPC are specific
+			//against players (those with flags UF_NOMOB and UF_NOPC are specific 
 			//to always aid players!) [Skotlex]
 			if (!(flag&1) && skill_get_unit_flag(skill_id)&(UF_NOMOB|UF_NOPC))
 				continue;
@@ -2977,7 +2985,7 @@ static int mob_makedummymobdb(int class_)
 		}
 		return 0;
 	}
-	//Initialize dummy data.
+	//Initialize dummy data.	
 	mob_dummy = (struct mob_db*)aCalloc(1, sizeof(struct mob_db)); //Initializing the dummy mob.
 	sprintf(mob_dummy->sprite,"DUMMY");
 	sprintf(mob_dummy->name,"Dummy");
@@ -3095,7 +3103,7 @@ static int mob_readdb(void)
 				mob_db_data[class_]->job_exp = UINT_MAX;
 			else
 			mob_db_data[class_]->job_exp = (unsigned int)exp;
-
+			
 			mob_db_data[class_]->range=atoi(str[9]);
 			mob_db_data[class_]->atk1=atoi(str[10]);
 			mob_db_data[class_]->atk2=atoi(str[11]);
@@ -3142,7 +3150,7 @@ static int mob_readdb(void)
 			maxhp = (double)mob_db_data[class_]->max_hp;
 			if (mob_db_data[class_]->mexp > 0)
 			{	//Mvp
-				if (battle_config.mvp_hp_rate != 100)
+				if (battle_config.mvp_hp_rate != 100) 
 					maxhp = maxhp * (double)battle_config.mvp_hp_rate /100.;
 			} else if (battle_config.monster_hp_rate != 100) //Normal mob
 				maxhp = maxhp * (double)battle_config.monster_hp_rate /100.;
@@ -3168,7 +3176,7 @@ static int mob_readdb(void)
 					if (id->maxchance==10000 || (id->maxchance < mob_db_data[class_]->mvpitem[i].p/10+1) ) {
 					//item has bigger drop chance or sold in shops
 						id->maxchance = mob_db_data[class_]->mvpitem[i].p/10+1; //reduce MVP drop info to not spoil common drop rate
-					}
+					}			
 				}
 			}
 
@@ -3762,7 +3770,7 @@ static int mob_read_sqldb(void)
 					mob_db_data[class_]->job_exp = UINT_MAX;
 				else
 					mob_db_data[class_]->job_exp = (unsigned int)exp;
-
+				
 				mob_db_data[class_]->range = TO_INT(9);
 				mob_db_data[class_]->atk1 = TO_INT(10);
 				mob_db_data[class_]->atk2 = TO_INT(11);
@@ -3793,7 +3801,7 @@ static int mob_read_sqldb(void)
 				maxhp = (double)mob_db_data[class_]->max_hp;
 				if (mob_db_data[class_]->mexp > 0)
 				{	//Mvp
-					if (battle_config.mvp_hp_rate != 100)
+					if (battle_config.mvp_hp_rate != 100) 
 						maxhp = maxhp * (double)battle_config.mvp_hp_rate /100.;
 				} else if (battle_config.monster_hp_rate != 100) //Normal mob
 					maxhp = maxhp * (double)battle_config.monster_hp_rate /100.;
@@ -3819,7 +3827,7 @@ static int mob_read_sqldb(void)
 						if (id->maxchance==10000 || (id->maxchance < mob_db_data[class_]->mvpitem[i].p/10+1) ) {
 						//item has bigger drop chance or sold in shops
 							id->maxchance = mob_db_data[class_]->mvpitem[i].p/10+1; //reduce MVP drop info to not spoil common drop rate
-						}
+						}			
 					}
 				}
 
@@ -3926,7 +3934,7 @@ static int mob_read_sqldb(void)
 	}
 	return 0;
 }
-#endif 
+#endif /* not TXT_ONLY */
 
 void mob_reload(void)
 {
@@ -3935,7 +3943,7 @@ void mob_reload(void)
     if(db_use_sqldbs)
         mob_read_sqldb();
     else
-#endif 
+#endif /* TXT_ONLY */
 	mob_readdb();
 
 	mob_readdb_mobavail();
@@ -3968,7 +3976,7 @@ int do_init_mob(void)
     if(db_use_sqldbs)
         mob_read_sqldb();
     else
-#endif 
+#endif /* TXT_ONLY */
         mob_readdb();
 
 	mob_readdb_mobavail();

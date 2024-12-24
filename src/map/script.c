@@ -2751,6 +2751,7 @@ int buildin_menu(struct script_state *st)
 			//Skip empty menu entries which weren't displayed on the client (blackhole89)
 			for(i=st->start+2;i<=(st->start+sd->npc_menu*2) && sd->npc_menu<(st->end-st->start)/2;i+=2)
 			{
+				conv_str(st,& (st->stack->stack_data[i])); // we should convert variables to strings before access it [jA1983] [EoE]
 				if((int)strlen(st->stack->stack_data[i].u.str) < 1)
 					sd->npc_menu++; //Empty selection which wasn't displayed on the client.
 			}
@@ -5028,11 +5029,11 @@ int buildin_setoption(struct script_state *st)
 	int type;
 	struct map_session_data *sd;
 	int flag=1;
-
+	
 	type=conv_num(st,& (st->stack->stack_data[st->start+2]));
 	if(st->end>st->start+3 )
 		flag=conv_num(st,&(st->stack->stack_data[st->start+3]) );
-
+	
 	sd=script_rid2sd(st);
 	if (!sd) return 0;
 
@@ -6293,7 +6294,7 @@ int buildin_changebase(struct script_state *st)
 	{
 		if (!battle_config.wedding_modifydisplay || //Do not show the wedding sprites
 			sd->class_&JOBL_BABY //Baby classes screw up when showing wedding sprites. [Skotlex] They don't seem to anymore.
-			)
+			) 
 		return 0;
 	}
 
@@ -7924,7 +7925,7 @@ int buildin_petloot(struct script_state *st)
 		pd->loot = (struct pet_loot *)aCalloc(1, sizeof(struct pet_loot));
 
 	pd->loot->item = (struct item *)aCalloc(max,sizeof(struct item));
-
+	
 	pd->loot->max=max;
 	pd->loot->count = 0;
 	pd->loot->weight = 0;
@@ -9469,7 +9470,7 @@ int buildin_setbattleflag(struct script_state *st){
 
 	flag = conv_str(st,& (st->stack->stack_data[st->start+2]));
 	value = conv_str(st,& (st->stack->stack_data[st->start+3]));
-
+	
 	if (battle_set_value(flag, value) == 0)
 		ShowWarning("buildin_setbattleflag: unknown battle_config flag '%s'",flag);
 	else
@@ -10862,10 +10863,15 @@ int script_config_read_sub(char *cfgName)
 			if (strlen(script_config.die_event_name) != strlen(w2))
 				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.die_event_name);
 		}
-		else if(strcmpi(w1,"kill_event_name")==0) {
-			strncpy(script_config.kill_event_name, w2, NAME_LENGTH-1);
-			if (strlen(script_config.kill_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.kill_event_name);
+		else if(strcmpi(w1,"kill_pc_event_name")==0) {
+			strncpy(script_config.kill_pc_event_name, w2, NAME_LENGTH-1);
+			if (strlen(script_config.kill_pc_event_name) != strlen(w2))
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.kill_pc_event_name);
+		}
+		else if(strcmpi(w1,"kill_mob_event_name")==0) {
+			strncpy(script_config.kill_mob_event_name, w2, NAME_LENGTH-1);
+			if (strlen(script_config.kill_mob_event_name) != strlen(w2))
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.kill_mob_event_name);
 		}
 		else if(strcmpi(w1,"login_event_name")==0) {
 			strncpy(script_config.login_event_name, w2, NAME_LENGTH-1);

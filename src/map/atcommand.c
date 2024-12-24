@@ -1169,7 +1169,7 @@ int atcommand_commands(const int fd, struct map_session_data* sd,
 	int i,count=0,level;
 	nullpo_retr(-1, sd);
 	level = pc_isGM(sd);
-
+	
 	clif_displaymessage(fd, msg_txt(273));
 	memset(atcmd_output, 0, sizeof atcmd_output);
 	for (i = 0; atcommand_info[i].type != AtCommand_Unknown; i++)
@@ -1190,7 +1190,7 @@ int atcommand_commands(const int fd, struct map_session_data* sd,
 		clif_displaymessage(fd, atcmd_output);
 	} else
 		clif_displaymessage(fd, msg_txt(275));
-
+		
 	return 0;
 }
 

@@ -883,7 +883,7 @@ int guild_send_memberinfoshort(struct map_session_data *sd,int online)
 	intif_guild_memberinfoshort(g->guild_id,
 		sd->status.account_id,sd->status.char_id,online,sd->status.base_level,sd->status.class_);
 
-	if( !online ){	// ï¿½ï¿½ï¿½Oï¿½Aï¿½Eï¿½gï¿½ï¿½ï¿½ï¿½È‚ï¿½sdï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ÄIï¿½ï¿½
+	if( !online ){	// ƒƒOƒAƒEƒg‚·‚é‚È‚çsd‚ðƒNƒŠƒA‚µ‚ÄI—¹
 		i=guild_getindex(g,sd->status.account_id,sd->status.char_id);
 		if(i>=0)
 			g->member[i].sd=NULL;
@@ -898,14 +898,14 @@ int guild_send_memberinfoshort(struct map_session_data *sd,int online)
 		}
 	}
 
-	if( sd->state.guild_sent!=0 )	// ï¿½Mï¿½ï¿½ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Mï¿½fï¿½[ï¿½^ï¿½Í‘ï¿½ï¿½Mï¿½Ï‚ï¿½
+	if( sd->state.guild_sent!=0 )	// ƒMƒ‹ƒh‰Šú‘—Mƒf[ƒ^‚Í‘—MÏ‚Ý
 		return 0;
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½mï¿½F
+	// ‹£‡Šm”F
 	guild_check_conflict(sd);
 
-	// ï¿½ï¿½ï¿½ï¿½È‚ï¿½Mï¿½ï¿½ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Mï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½M
-	guild_check_member(g);	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mï¿½Fï¿½ï¿½ï¿½ï¿½
+	// ‚ ‚é‚È‚çƒMƒ‹ƒh‰Šú‘—Mƒf[ƒ^‘—M
+	guild_check_member(g);	// Š‘®‚ðŠm”F‚·‚é
 	if(sd->status.guild_id==g->guild_id){
 		clif_guild_belonginfo(sd,g);
 		clif_guild_notice(sd,g);

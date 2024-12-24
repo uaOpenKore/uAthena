@@ -278,7 +278,7 @@ extern struct Battle_Config {
 		item_rate_equip, item_rate_equip_boss, item_rate_heal, item_rate_heal_boss, item_rate_use,
 		item_rate_use_boss, item_rate_treasure,	// Added by RoVeRT, Additional Heal and Usable item rate by Val
 		item_rate_adddrop;
-
+	
 	unsigned short logarithmic_drops;
 	unsigned short item_drop_common_min,item_drop_common_max;	// Added by TyrNemesis^
 	unsigned short item_drop_card_min,item_drop_card_max;

@@ -686,13 +686,13 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list),struct block_list
 			ShowWarning("map_foreachinrange: block count too many!\n");
 	}
 
-	map_freeblock_lock();	// ~
+	map_freeblock_lock();	// メモリからの解放を禁止する
 
 	for(i=blockcount;i<bl_list_count;i++)
-		if(bl_list[i]->prev)	// L?`FbN
+		if(bl_list[i]->prev)	// 有?かどうかチェック
 			returnCount += func(bl_list[i],ap);
 
-	map_freeblock_unlock();	//
+	map_freeblock_unlock();	// 解放を許可する
 
 	va_end(ap);
 	bl_list_count = blockcount;
@@ -718,12 +718,12 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 	x1 = center->x+range;
 	y0 = center->y-range;
 	y1 = center->y+range;
-
+	
 	if (x0 < 0) x0 = 0;
 	if (y0 < 0) y0 = 0;
 	if (x1 >= map[m].xs) x1 = map[m].xs-1;
 	if (y1 >= map[m].ys) y1 = map[m].ys-1;
-
+	
 	if (type&~BL_MOB)
 		for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++) {
 			for(bx=x0/BLOCK_SIZE;bx<=x1/BLOCK_SIZE;bx++){
@@ -733,7 +733,7 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 					if(bl && bl->type&type
 						&& bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1
 						&& path_search_long(NULL,center->m,center->x,center->y,bl->x,bl->y)
-						&& bl_list_count<BL_LIST_MAX)
+					  	&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
 				}
 			}
@@ -1473,15 +1473,25 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
 		by = src->y;
 		m = src->m;
 	}
+	if (!rx && !ry) {
+		//No range? Return the target cell then....
+		*x = bx;
+		*y = by;
+		return map_getcell(m,*x,*y,CELL_CHKREACH);
+	}
+	
 	if (rx >= 0 && ry >= 0) {
 		tries = rx2*ry2;
 		if (tries > 100) tries = 100;
 	} else
 		tries = 1000; //Must retry a lot for maps with many non-walkable tiles.
-
+	
 	while(tries--) {
 		*x = (rx >= 0)?(rand()%rx2-rx+bx):(rand()%(map[m].xs-2)+1);
 		*y = (ry >= 0)?(rand()%ry2-ry+by):(rand()%(map[m].ys-2)+1);
+		
+		if (*x == bx && *y == by)
+			continue; //Avoid picking the same target tile.
 		
 		if (map_getcell(m,*x,*y,CELL_CHKREACH))
 		{
@@ -1645,18 +1655,8 @@ int map_quit(struct map_session_data *sd) {
 	//Learn to use proper coding and stop relying on nullpo_'s for safety :P [Skotlex]
 
 	if(!sd->state.waitingdisconnect) {
-		if (sd->state.event_disconnect) {
-			if (script_config.event_script_type == 0) {
-				struct npc_data *npc;
-				if ((npc = npc_name2id(script_config.logout_event_name))) {
-					run_script(npc->u.scr.script,0,sd->bl.id,npc->bl.id); // PCLogoutNPC
-					ShowStatus("Event '"CL_WHITE"%s"CL_RESET"' executed.\n", script_config.logout_event_name);
-				}
-			} else {
-				ShowStatus("%d '"CL_WHITE"%s"CL_RESET"' events executed.\n",
-					npc_event_doall_id(script_config.logout_event_name, sd->bl.id), script_config.logout_event_name);
-			}
-		}
+		if (sd->state.event_disconnect)
+			npc_script_event(sd, NPCE_LOGOUT);
 		if (sd->pd) unit_free(&sd->pd->bl);
 		unit_free(&sd->bl);
 		pc_clean_skilltree(sd);

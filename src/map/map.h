@@ -439,7 +439,7 @@ struct weapon_data {
 
 struct view_data {
 	unsigned short
-		class_,
+	  	class_,
 		weapon,
 		shield, //Or left-hand weapon.
 		head_top,
@@ -478,8 +478,9 @@ struct map_session_data {
 		unsigned snovice_flag : 4;
 		// originally by Qamera, adapted by celest
 		unsigned event_death : 1;
-		unsigned event_kill : 1;
+		unsigned event_kill_pc : 1;
 		unsigned event_disconnect : 1;
+		unsigned event_kill_mob : 1;
 		// Abracadabra bugfix by Aru
 		unsigned abra_flag : 1;
 		unsigned autotrade : 1;	//By Fantik
@@ -1100,7 +1101,7 @@ enum {
 	SP_HP_DRAIN_VALUE,SP_SP_DRAIN_VALUE, // 1079-1080
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
 	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
-
+	
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_FREE1,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010
 	SP_UNBREAKABLE_SHIELD, SP_LONG_ATK_RATE, // 2011-2012

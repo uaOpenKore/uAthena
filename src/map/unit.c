@@ -56,7 +56,7 @@ int unit_walktoxy_sub(struct block_list *bl)
 		return 0;
 
 	memcpy(&ud->walkpath,&wpd,sizeof(wpd));
-
+	
 	if (ud->target && ud->chaserange>1) {
 		//Generally speaking, the walk path is already to an adjacent tile
 		//so we only need to shorten the path if the range is greater than 1.
@@ -1148,7 +1148,7 @@ int unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, i
 	wpd.path_len=0;
 	wpd.path_pos=0;
 	wpd.path_half=0;
-
+	
 	// It judges whether it can adjoin or not.
 	dx=tbl->x - bl->x;
 	dy=tbl->y - bl->y;
@@ -1466,7 +1466,7 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 		unit_skillcastcancel(bl,0);
 	ud->attackabletime = ud->canmove_tick = ud->canact_tick = gettick();
 	clif_clearchar_area(bl,clrtype);
-
+	
 	if (clrtype == 1) //Death. Remove all status changes.
 		status_change_clear(bl,0);
 	else if(sc && sc->count ) { //map-change/warp dispells.
