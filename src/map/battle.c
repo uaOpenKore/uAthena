@@ -251,10 +251,10 @@ int battle_damage(struct block_list *src,struct block_list *target,int damage, i
 			r_damage = pc_damage(src,(TBL_PC*)target,damage);
 			break;
 		case BL_SKILL:
-			r_damage =  skill_unit_ondamaged((struct skill_unit *)target, src, damage, gettick());
+			r_damage = skill_unit_ondamaged((struct skill_unit *)target, src, damage, gettick());
 			break;
 	}
-	
+
 	if (walkdelay && !status_isdead(target))
 		unit_set_walkdelay(target, gettick(), walkdelay, 0);
 	
