@@ -71,7 +71,7 @@ static const int packet_len_table[MAX_PACKET_DB] = {
     0,  0,  0,  0, 55, 17,  3, 37,  46, -1, 23, -1,  3,108,  3,  2,
 #if PACKETVER < 2
     3, 28, 19, 11,  3, -1,  9,  5,  52, 51, 56, 58, 41,  2,  6,  6,
-#else	// 78-7b �T���ȍ~ lv99�G�t�F�N�g�p
+#else	// 78-7b T~ lv99GtFNgp
     3, 28, 19, 11,  3, -1,  9,  5,  54, 53, 58, 60, 41,  2,  6,  6,
 #endif
 //#0x0080
@@ -99,7 +99,7 @@ static const int packet_len_table[MAX_PACKET_DB] = {
     6,  3,106, 10, 10, 34,  0,  6,   8,  4,  4,  4, 29, -1, 10,  6,
 #if PACKETVER < 1
    90, 86, 24,  6, 30,102,  8,  4,   8,  4, 14, 10, -1,  6,  2,  6,
-#else	// 196 comodo�ȍ~ ��ԕ\���A�C�R���p
+#else	// 196 comodo~ \ACRp
    90, 86, 24,  6, 30,102,  9,  4,   8,  4, 14, 10, -1,  6,  2,  6,
 #endif
     3,  3, 35,  5, 11, 26, -1,  4,   4,  6, 10, 12,  6, -1,  4,  4,
@@ -182,7 +182,7 @@ int clif_parse (int fd);
 static void clif_hpmeter_single(int fd, struct map_session_data *sd);
 
 /*==========================================
- * map�I��ip�ݒ�
+ * mapIip
  *------------------------------------------
  */
 void clif_setip(char *ip)
@@ -197,7 +197,7 @@ void clif_setbindip(char *ip)
 }
 
 /*==========================================
- * map�I��port�ݒ�
+ * mapIport
  *------------------------------------------
  */
 void clif_setport(int port)
@@ -206,7 +206,7 @@ void clif_setport(int port)
 }
 
 /*==========================================
- * map�I��ip�ǂ�o��
+ * mapIipo
  *------------------------------------------
  */
 in_addr_t clif_getip(void)
@@ -215,7 +215,7 @@ in_addr_t clif_getip(void)
 }
 
 /*==========================================
- * map�I��port�ǂ�o��
+ * mapIporto
  *------------------------------------------
  */
 int clif_getport(void)
@@ -241,7 +241,7 @@ int clif_countusers(void)
 }
 
 /*==========================================
- * �S�Ă�client�ɑ΂���func()���s
+ * Sclientfunc()s
  *------------------------------------------
  */
 
@@ -267,7 +267,7 @@ int clif_foreachclient(int (*func)(struct map_session_data*, va_list),...) //rec
 }
 
 /*==========================================
- * clif_send��AREA*�w����p
+ * clif_sendAREA*wp
  *------------------------------------------
  */
 int clif_send_sub(struct block_list *bl, va_list ap)
@@ -323,7 +323,7 @@ int clif_send_sub(struct block_list *bl, va_list ap)
 				if ((sd->special_state.intravision || sd->sc.data[SC_INTRAVISION].timer != -1 ) && bl != src_bl) {
 					struct status_change *sc = status_get_sc(src_bl);
 					if(sc && (sc->option&(OPTION_HIDE|OPTION_CLOAK)))
-					{	//option��C��
+					{	//optionC
 						switch(((unsigned short*)buf)[0])
 						{
 							case 0x119:
@@ -370,7 +370,7 @@ int clif_send (unsigned char *buf, int len, struct block_list *bl, int type) {
 	}
 
 	switch(type) {
-	case ALL_CLIENT: // �S�N���C�A���g�ɑ��M
+	case ALL_CLIENT: // SNCAgM
 		for (i = 0; i < fd_max; i++) {
 			if (session[i] && (sd = (struct map_session_data *)session[i]->session_data) != NULL && sd->state.auth) {
 				if (packet_db[sd->packet_ver][RBUFW(buf,0)].len) { // packet must exist for the client version
@@ -381,7 +381,7 @@ int clif_send (unsigned char *buf, int len, struct block_list *bl, int type) {
 			}
 		}
 		break;
-	case ALL_SAMEMAP: // �����}�b�v�̑S�N���C�A���g�ɑ��M
+	case ALL_SAMEMAP: // }bvSNCAgM
 		for(i = 0; i < fd_max; i++) {
 			if (session[i] && (sd = (struct map_session_data*)session[i]->session_data) != NULL &&
 				sd->state.auth && sd->bl.m == bl->m) {
@@ -439,16 +439,16 @@ int clif_send (unsigned char *buf, int len, struct block_list *bl, int type) {
 			}
 		}
 		break;
-	case PARTY_AREA:		// ���������̑S�p�[�e�B�[�����o�ɑ��M
-	case PARTY_AREA_WOS:	// ������O����������̑S�p�[�e�B�[�����o�ɑ��M
+	case PARTY_AREA:		// Sp[eB[oM
+	case PARTY_AREA_WOS:	// OSp[eB[oM
 		x0 = bl->x - AREA_SIZE;
 		y0 = bl->y - AREA_SIZE;
 		x1 = bl->x + AREA_SIZE;
 		y1 = bl->y + AREA_SIZE;
-	case PARTY:				// �S�p�[�e�B�[�����o�ɑ��M
-	case PARTY_WOS:			// ������O�̑S�p�[�e�B�[�����o�ɑ��M
-	case PARTY_SAMEMAP:		// �����}�b�v�̑S�p�[�e�B�[�����o�ɑ��M
-	case PARTY_SAMEMAP_WOS:	// ������O������}�b�v�̑S�p�[�e�B�[�����o�ɑ��M
+	case PARTY:				// Sp[eB[oM
+	case PARTY_WOS:			// OSp[eB[oM
+	case PARTY_SAMEMAP:		// }bvSp[eB[oM
+	case PARTY_SAMEMAP_WOS:	// O}bvSp[eB[oM
 		if (sd && sd->status.party_id)
 			p = party_search(sd->status.party_id);
 			
@@ -462,7 +462,7 @@ int clif_send (unsigned char *buf, int len, struct block_list *bl, int type) {
 					if (sd->bl.id == bl->id && (type == PARTY_WOS || type == PARTY_SAMEMAP_WOS || type == PARTY_AREA_WOS))
 						continue;
 					
-					if (type != PARTY && type != PARTY_WOS && bl->m != sd->bl.m) // �}�b�v�`�F�b�N
+					if (type != PARTY && type != PARTY_WOS && bl->m != sd->bl.m) // }bv`FbN
 						continue;
 					
 					if ((type == PARTY_AREA || type == PARTY_AREA_WOS) &&
@@ -552,7 +552,7 @@ int clif_send (unsigned char *buf, int len, struct block_list *bl, int type) {
 			}
 		}
 		break;
-/*				End [Valaris]			*/
+
 
 	default:
 		if (battle_config.error_log)
@@ -564,7 +564,7 @@ int clif_send (unsigned char *buf, int len, struct block_list *bl, int type) {
 }
 
 //
-// �p�P�b�g����đ��M
+// pPbgM
 //
 /*==========================================
  *
@@ -759,12 +759,13 @@ int clif_clearchar_id(int id, int type, int fd) {
 	return 0;
 }
 
-void clif_get_weapon_view(TBL_PC* sd, short *rhand, short *lhand)
+void clif_get_weapon_view(TBL_PC* sd, unsigned short *rhand, unsigned short *lhand)
 {
 #if PACKETVER > 3
 	struct item_data *id;
 #endif
-	if (sd->vd.class_ == JOB_XMAS || sd->vd.class_ == JOB_WEDDING)
+
+	if(sd->sc.option&OPTION_WEDDING || sd->vd.class_ == JOB_XMAS)
 	{
 		*rhand = *lhand = 0;
 		return;
@@ -867,7 +868,7 @@ static int clif_set0078(struct block_list *bl, struct view_data *vd, unsigned ch
 		WBUFW(buf,30)=vd->cloth_color;
 		WBUFW(buf,32)=sd?sd->head_dir:dir;
 		WBUFL(buf,34)=guild_id;
-		WBUFL(buf,38)=emblem_id;
+		WBUFW(buf,38)=emblem_id;
 		if (sd) {
 			WBUFW(buf,40)=sd->status.manner;
 			WBUFB(buf,44)=sd->status.karma;
@@ -890,6 +891,7 @@ static int clif_set0078(struct block_list *bl, struct view_data *vd, unsigned ch
 			WBUFW(buf,8)=sc->opt1;
 			WBUFW(buf,10)=sc->opt2;
 			WBUFW(buf,12)=sc->option;
+			WBUFW(buf,42)=sc->opt3;
 		}
 		WBUFW(buf,14)=vd->class_;
 		WBUFW(buf,16)=vd->hair_style;
@@ -903,10 +905,8 @@ static int clif_set0078(struct block_list *bl, struct view_data *vd, unsigned ch
 		WBUFW(buf,32)=sd?sd->head_dir:dir;
 		WBUFL(buf,34)=guild_id;
 		WBUFL(buf,38)=emblem_id;
-		if (sd) {
-			WBUFW(buf,42)=sd->status.manner;
+		if (sd)
 			WBUFB(buf,44)=sd->status.karma;
-		}
 		WBUFB(buf,45)=vd->sex;
 		WBUFPOS(buf,46,bl->x,bl->y);
 		WBUFB(buf,48)|=dir&0x0f;
@@ -927,6 +927,7 @@ static int clif_set0078(struct block_list *bl, struct view_data *vd, unsigned ch
 		WBUFW(buf,8)=sc->opt1;
 		WBUFW(buf,10)=sc->opt2;
 		WBUFW(buf,12)=sc->option;
+		WBUFW(buf,42)=sc->opt3;
 	}
 	WBUFW(buf,14)=vd->class_;
 	WBUFW(buf,16)=vd->hair_style;  //Required for pets.
@@ -1091,7 +1092,7 @@ static int clif_set007b(struct block_list *bl, struct view_data *vd, struct unit
 	}
 	WBUFW(buf,16)=vd->class_;
 	WBUFW(buf,18)=vd->hair_style; //For pets
-	WBUFW(buf,20)=vd->head_bottom;	//Pet armor
+	WBUFW(buf,24)=vd->head_bottom;	//Pet armor
 	WBUFL(buf,26)=gettick();
 	WBUFW(buf,38)=unit_getdir(bl);
 	WBUFL(buf,40)=guild_id;
@@ -1134,7 +1135,9 @@ static int clif_set007b(struct block_list *bl, struct view_data *vd, struct unit
 //Flag = 0: change id to negative, buf will have disguise data.
 //Flag = 1: change id to positive, class and option to make your own char invisible.
 //Luckily, the offsets that need to be changed are the same in packets 0x78, 0x7b, 0x1d8 and 0x1da
+//But no longer holds true for packet 0x22c
 static void clif_setdisguise(struct map_session_data *sd, unsigned char *buf,int len, int flag) {
+
 	if (flag) {
 #if PACKETVER > 6
 		if (WBUFW(buf,0)==0x22c) {
@@ -1155,7 +1158,7 @@ static void clif_setdisguise(struct map_session_data *sd, unsigned char *buf,int
 }
 
 /*==========================================
- * �N���X�`�F���W type��Mob��ꍇ��1�ő���0�H
+ * NX`FW typeMob10H
  *------------------------------------------
  */
 int clif_class_change(struct block_list *bl,int class_,int type)
@@ -2030,7 +2033,7 @@ int clif_itemlist(struct map_session_data *sd)
 		if (sd->inventory_data[i]->equip == 0x8000) {
 			WBUFW(buf,n*10+12)=0x8000;
 			if (sd->status.inventory[i].equip)
-				arrow=i;	// ���ł����`�F�b�N
+				arrow=i;	// `FbN
 		} else
 			WBUFW(buf,n*10+12)=0;
 		n++;
@@ -2055,7 +2058,7 @@ int clif_itemlist(struct map_session_data *sd)
 		if (sd->inventory_data[i]->equip == 0x8000) {
 			WBUFW(buf,n*18+12)=0x8000;
 			if(sd->status.inventory[i].equip)
-				arrow=i;	// ���ł����`�F�b�N
+				arrow=i;	// `FbN
 		} else
 			WBUFW(buf,n*18+12)=0;
 		clif_addcards(WBUFP(buf, n*18+14), &sd->status.inventory[i]);
@@ -2111,7 +2114,7 @@ int clif_equiplist(struct map_session_data *sd)
 }
 
 /*==========================================
- * �J�v������ɗa���Ă�����Օi&���W�i���X�g
+ * Jvai&WiXg
  *------------------------------------------
  */
 int clif_storageitemlist(struct map_session_data *sd,struct storage *stor)
@@ -2180,7 +2183,7 @@ int clif_storageitemlist(struct map_session_data *sd,struct storage *stor)
 }
 
 /*==========================================
- * �J�v������ɗa���Ă��鑕�����X�g
+ * JvaXg
  *------------------------------------------
  */
 int clif_storageequiplist(struct map_session_data *sd,struct storage *stor)
@@ -2386,8 +2389,8 @@ int clif_guild_xy_remove(struct map_session_data *sd)
 }
 
 /*==========================================
- * �X�e�[�^�X��������
- * �\����p�����͂��̒��Ōv�Z���đ���
+ * Xe[^X
+ * \pvZ
  *------------------------------------------
  */
 int clif_updatestatus(struct map_session_data *sd,int type)
@@ -2514,7 +2517,7 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=pc_nextjobexp(sd);
 		break;
 
-		// 00be �I��
+		// 00be I
 	case SP_USTR:
 	case SP_UAGI:
 	case SP_UVIT:
@@ -2526,14 +2529,14 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 		len=5;
 		break;
 
-		// 013a �I��
+		// 013a I
 	case SP_ATTACKRANGE:
 		WFIFOW(fd,0)=0x13a;
 		WFIFOW(fd,2)=sd->attackrange;
 		len=4;
 		break;
 
-		// 0141 �I��
+		// 0141 I
 	case SP_STR:
 		WFIFOW(fd,0)=0x141;
 		WFIFOL(fd,2)=type;
@@ -2853,7 +2856,7 @@ int clif_initialstatus(struct map_session_data *sd)
 }
 
 /*==========================================
- *���
+ *
  *------------------------------------------
  */
 int clif_arrowequip(struct map_session_data *sd,int val)
@@ -2867,7 +2870,7 @@ int clif_arrowequip(struct map_session_data *sd,int val)
 	fd=sd->fd;
 	WFIFOHEAD(fd, packet_len_table[0x013c]);
 	WFIFOW(fd,0)=0x013c;
-	WFIFOW(fd,2)=val+2;//���A�C�e��ID
+	WFIFOW(fd,2)=val+2;//ACeID
 
 	WFIFOSET(fd,packet_len_table[0x013c]);
 
@@ -2895,7 +2898,7 @@ int clif_arrow_fail(struct map_session_data *sd,int type)
 }
 
 /*==========================================
- * ���\ ���X�g���M
+ * \ XgM
  *------------------------------------------
  */
 int clif_arrow_create_list(struct map_session_data *sd)
@@ -2912,7 +2915,7 @@ int clif_arrow_create_list(struct map_session_data *sd)
 	for (i = 0, c = 0; i < MAX_SKILL_ARROW_DB; i++) {
 		if (skill_arrow_db[i].nameid > 0 &&
 			(j = pc_search_inventory(sd, skill_arrow_db[i].nameid)) >= 0 &&
-			!sd->status.inventory[j].equip)
+			!sd->status.inventory[j].equip && sd->status.inventory[j].identify)
 		{
 			if ((j = itemdb_viewid(skill_arrow_db[i].nameid)) > 0)
 				WFIFOW(fd,c*2+4) = j;
@@ -3029,7 +3032,7 @@ int clif_misceffect2(struct block_list *bl, int type) {
 
 }
 /*==========================================
- * �\���I�v�V�����ύX
+ * \IvVX
  *------------------------------------------
  */
 int clif_changeoption(struct block_list* bl)
@@ -3148,7 +3151,7 @@ int clif_createchat(struct map_session_data *sd,int fail)
  */
 int clif_dispchat(struct chat_data *cd,int fd)
 {
-	unsigned char buf[128];	// �ő�title(60�o�C�g)+17
+	unsigned char buf[128];	// title(60oCg)+17
 
 	if(cd==NULL || *cd->owner==NULL)
 		return 1;
@@ -3173,13 +3176,13 @@ int clif_dispchat(struct chat_data *cd,int fd)
 }
 
 /*==========================================
- * chat���ԕύX����
- * �O����l�p�����R�[�h(d7->df)���Ⴄ����
+ * chatX
+ * OlpR[h(d7->df)
  *------------------------------------------
  */
 int clif_changechatstatus(struct chat_data *cd)
 {
-	unsigned char buf[128];	// �ő�title(60�o�C�g)+17
+	unsigned char buf[128];	// title(60oCg)+17
 
 	if(cd==NULL || cd->usersd[0]==NULL)
 		return 1;
@@ -3332,7 +3335,7 @@ int clif_leavechat(struct chat_data* cd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �������v����
+ * v
  *------------------------------------------
  */
 int clif_traderequest(struct map_session_data *sd,char *name)
@@ -3354,7 +3357,7 @@ int clif_traderequest(struct map_session_data *sd,char *name)
 }
 
 /*==========================================
- * �������v������
+ * v
  *------------------------------------------
  */
 int clif_tradestart(struct map_session_data *sd,int type)
@@ -3373,7 +3376,7 @@ int clif_tradestart(struct map_session_data *sd,int type)
 }
 
 /*==========================================
- * ����������A�C�e�����
+ * ACe
  *------------------------------------------
  */
 int clif_tradeadditem(struct map_session_data *sd,struct map_session_data *tsd,int index,int amount)
@@ -3414,7 +3417,7 @@ int clif_tradeadditem(struct map_session_data *sd,struct map_session_data *tsd,i
 }
 
 /*==========================================
- * �A�C�e���������/���s
+ * ACe/s
  *------------------------------------------
  */
 int clif_tradeitemok(struct map_session_data *sd,int index,int fail)
@@ -3434,7 +3437,7 @@ int clif_tradeitemok(struct map_session_data *sd,int index,int fail)
 }
 
 /*==========================================
- * ������ok����
+ * ok
  *------------------------------------------
  */
 int clif_tradedeal_lock(struct map_session_data *sd,int fail)
@@ -3453,7 +3456,7 @@ int clif_tradedeal_lock(struct map_session_data *sd,int fail)
 }
 
 /*==========================================
- * ���������L�����Z������܂���
+ * LZ
  *------------------------------------------
  */
 int clif_tradecancelled(struct map_session_data *sd)
@@ -3471,7 +3474,7 @@ int clif_tradecancelled(struct map_session_data *sd)
 }
 
 /*==========================================
- * ����������
+ * 
  *------------------------------------------
  */
 int clif_tradecompleted(struct map_session_data *sd,int fail)
@@ -3490,7 +3493,7 @@ int clif_tradecompleted(struct map_session_data *sd,int fail)
 }
 
 /*==========================================
- * �J�v���q�ɂ�A�C�e�������X�V
+ * JvqACeXV
  *------------------------------------------
  */
 int clif_updatestorageamount(struct map_session_data *sd,struct storage *stor)
@@ -3511,7 +3514,7 @@ int clif_updatestorageamount(struct map_session_data *sd,struct storage *stor)
 }
 
 /*==========================================
- * �J�v���q�ɂ�A�C�e����������
+ * JvqACe
  *------------------------------------------
  */
 int clif_storageitemadded(struct map_session_data *sd,struct storage *stor,int index,int amount)
@@ -3590,7 +3593,7 @@ int clif_guildstorageitemadded(struct map_session_data *sd,struct guild_storage 
 }
 
 /*==========================================
- * �J�v���q�ɂ���A�C�e����������
+ * JvqACe
  *------------------------------------------
  */
 int clif_storageitemremoved(struct map_session_data *sd,int index,int amount)
@@ -3610,7 +3613,7 @@ int clif_storageitemremoved(struct map_session_data *sd,int index,int amount)
 }
 
 /*==========================================
- * �J�v���q�ɂ����
+ * Jvq
  *------------------------------------------
  */
 int clif_storageclose(struct map_session_data *sd)
@@ -3628,10 +3631,10 @@ int clif_storageclose(struct map_session_data *sd)
 }
 
 //
-// callback�n ?
+// callbackn ?
 //
 /*==========================================
- * PC�\��
+ * PC\
  *------------------------------------------
  */
 void clif_getareachar_pc(struct map_session_data* sd,struct map_session_data* dstsd)
@@ -3785,7 +3788,7 @@ static int clif_calc_walkdelay(struct block_list *bl,int delay, int type, int da
 }
 
 /*==========================================
- * ���U���G�t�F�N�g���_���[�W
+ * UGtFNg_[W
  *------------------------------------------
  */
 int clif_damage(struct block_list *src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int type,int damage2)
@@ -3816,8 +3819,8 @@ int clif_damage(struct block_list *src,struct block_list *dst,unsigned int tick,
 	WBUFL(buf,14)=sdelay;
 	WBUFL(buf,18)=ddelay;
 	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
-		WBUFW(buf,22)=-1;
-		WBUFW(buf,27)=-1;
+		WBUFW(buf,22)=1;
+		WBUFW(buf,27)=1;
 	} else {
 		WBUFW(buf,22)=(damage > SHRT_MAX)?SHRT_MAX:damage;
 		WBUFW(buf,27)=damage2;
@@ -3877,7 +3880,7 @@ void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fi
 }
 
 /*==========================================
- * ���X�L���G�t�F�N�g�����E�����
+ * XLGtFNgE
  *------------------------------------------
  */
 int clif_getareachar_skillunit(struct map_session_data *sd,struct skill_unit *unit)
@@ -3936,28 +3939,28 @@ int clif_getareachar_skillunit(struct map_session_data *sd,struct skill_unit *un
 		WFIFOB(fd,16)=1;
 		memcpy(WFIFOP(fd,17),unit->group->valstr,MESSAGE_SIZE);
 	} else {
-		WFIFOL(fd,15+1)=0;						//1-4���ׂ�����Œ�
-		WFIFOL(fd,15+5)=0;						//5-8���ׂ�����Œ�
-												//9-12�}�b�v���Ƃň���77-80�Ƃ͂܂��Ⴄ4�o�C�g�̂��Ȃ�傫�����
-		WFIFOL(fd,15+13)=unit->bl.y - 0x12;		//13-16���j�b�g��Y���W-18���ۂ�(Y:17��FF FF FF FF)
-		WFIFOL(fd,15+17)=0x004f37dd;			//17-20���ׂ�����Œ�
-		WFIFOL(fd,15+21)=0x0012f674;			//21-24���ׂ�����Œ�
-		WFIFOL(fd,15+25)=0x0012f664;			//25-28���ׂ�����Œ�
-		WFIFOL(fd,15+29)=0x0012f654;			//29-32���ׂ�����Œ�
-		WFIFOL(fd,15+33)=0x77527bbc;			//33-36���ׂ�����Œ�
+		WFIFOL(fd,15+1)=0;						//1-4
+		WFIFOL(fd,15+5)=0;						//5-8
+												//9-12}bv77-804oCg
+		WFIFOL(fd,15+13)=unit->bl.y - 0x12;		//13-16jbgYW-18(Y:17FF FF FF FF)
+		WFIFOL(fd,15+17)=0x004f37dd;			//17-20
+		WFIFOL(fd,15+21)=0x0012f674;			//21-24
+		WFIFOL(fd,15+25)=0x0012f664;			//25-28
+		WFIFOL(fd,15+29)=0x0012f654;			//29-32
+		WFIFOL(fd,15+33)=0x77527bbc;			//33-36
 												//37-39
-		WFIFOB(fd,15+40)=0x2d;					//40���ׂ�����Œ�
-		WFIFOL(fd,15+41)=0;						//41-44���ׂ�����0�Œ�
-		WFIFOL(fd,15+45)=0;						//45-48���ׂ�����0�Œ�
-		WFIFOL(fd,15+49)=0;						//49-52���ׂ�����0�Œ�
-		WFIFOL(fd,15+53)=0x0048d919;			//53-56���ׂ�����Œ�
-		WFIFOL(fd,15+57)=0x0000003e;			//57-60���ׂ�����Œ�
-		WFIFOL(fd,15+61)=0x0012f66c;			//61-64���ׂ�����Œ�
+		WFIFOB(fd,15+40)=0x2d;					//40
+		WFIFOL(fd,15+41)=0;						//41-440
+		WFIFOL(fd,15+45)=0;						//45-480
+		WFIFOL(fd,15+49)=0;						//49-520
+		WFIFOL(fd,15+53)=0x0048d919;			//53-56
+		WFIFOL(fd,15+57)=0x0000003e;			//57-60
+		WFIFOL(fd,15+61)=0x0012f66c;			//61-64
 												//65-68
 												//69-72
-		if(bl) WFIFOL(fd,15+73)=bl->y;			//73-76�p�҂�Y���W
-		WFIFOL(fd,15+77)=unit->bl.m;			//77-80�}�b�vID���Ȃ��H���Ȃ�2�o�C�g�ő�����������
-		WFIFOB(fd,15+81)=0xaa;					//81�I�[����0xaa
+		if(bl) WFIFOL(fd,15+73)=bl->y;			//73-76pYW
+		WFIFOL(fd,15+77)=unit->bl.m;			//77-80}bvIDH2oCg
+		WFIFOB(fd,15+81)=0xaa;					//81I[0xaa
 	}
 
 	WFIFOSET(fd,packet_len_table[0x1c9]);
@@ -3970,7 +3973,7 @@ int clif_getareachar_skillunit(struct map_session_data *sd,struct skill_unit *un
 }
 
 /*==========================================
- * ���X�L���G�t�F�N�g�����E���������
+ * XLGtFNgE
  *------------------------------------------
  */
 int clif_clearchar_skillunit(struct skill_unit *unit,int fd)
@@ -4163,7 +4166,7 @@ int clif_skillinfo(struct map_session_data *sd,int skillid,int type,int range)
 }
 
 /*==========================================
- * �X�L�����X�g���M����
+ * XLXgM
  *------------------------------------------
  */
 int clif_skillinfoblock(struct map_session_data *sd)
@@ -4204,7 +4207,7 @@ int clif_skillinfoblock(struct map_session_data *sd)
 }
 
 /*==========================================
- * �X�L������U��ʒm
+ * XLUm
  *------------------------------------------
  */
 int clif_skillup(struct map_session_data *sd,int skill_num)
@@ -4228,7 +4231,7 @@ int clif_skillup(struct map_session_data *sd,int skill_num)
 }
 
 /*==========================================
- * �X�L���r���G�t�F�N�g���M����
+ * XLrGtFNgM
  *------------------------------------------
  */
 int clif_skillcasting(struct block_list* bl,
@@ -4272,7 +4275,7 @@ int clif_skillcastcancel(struct block_list* bl)
 }
 
 /*==========================================
- * �X�L���r�����s
+ * XLrs
  *------------------------------------------
  */
 int clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype)
@@ -4306,7 +4309,7 @@ int clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype)
 }
 
 /*==========================================
- * �X�L���U���G�t�F�N�g���_���[�W
+ * XLUGtFNg_[W
  *------------------------------------------
  */
 int clif_skill_damage(struct block_list *src,struct block_list *dst,
@@ -4336,7 +4339,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,
 	WBUFL(buf,16)=sdelay;
 	WBUFL(buf,20)=ddelay;
 	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
-		WBUFW(buf,24)=-1;
+		WBUFW(buf,24)=1;
 	} else {
 		WBUFW(buf,24)=damage;
 	}
@@ -4367,7 +4370,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,
 	WBUFL(buf,16)=sdelay;
 	WBUFL(buf,20)=ddelay;
 	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
-		WBUFL(buf,24)=-1;
+		WBUFL(buf,24)=1;
 	} else {
 		WBUFL(buf,24)=damage;
 	}
@@ -4396,7 +4399,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,
 }
 
 /*==========================================
- * ������΂��X�L���U���G�t�F�N�g���_���[�W
+ * XLUGtFNg_[W
  *------------------------------------------
  */
 int clif_skill_damage2(struct block_list *src,struct block_list *dst,
@@ -4427,7 +4430,7 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,
 	WBUFW(buf,24)=dst->x;
 	WBUFW(buf,26)=dst->y;
 	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
-		WBUFW(buf,28)=-1;
+		WBUFW(buf,28)=1;
 	} else {
 		WBUFW(buf,28)=damage;
 	}
@@ -4455,7 +4458,7 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,
 }
 
 /*==========================================
- * �x��/��X�L���G�t�F�N�g
+ * x/XLGtFNg
  *------------------------------------------
  */
 int clif_skill_nodamage(struct block_list *src,struct block_list *dst,
@@ -4489,7 +4492,7 @@ int clif_skill_nodamage(struct block_list *src,struct block_list *dst,
 }
 
 /*==========================================
- * ���X�L���G�t�F�N�g
+ * XLGtFNg
  *------------------------------------------
  */
 int clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int y,int tick)
@@ -4515,7 +4518,7 @@ int clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int y
 }
 
 /*==========================================
- * ���X�L���G�t�F�N�g�\��
+ * XLGtFNg\
  *------------------------------------------
  */
 int clif_skill_setunit(struct skill_unit *unit)
@@ -4572,28 +4575,28 @@ int clif_skill_setunit(struct skill_unit *unit)
 			WBUFB(buf,16)=1;
 			memcpy(WBUFP(buf,17),unit->group->valstr,MESSAGE_SIZE);
 		} else {
-			WBUFL(buf,15+1)=0;						//1-4���ׂ�����Œ�
-			WBUFL(buf,15+5)=0;						//5-8���ׂ�����Œ�
-												//9-12�}�b�v���Ƃň���77-80�Ƃ͂܂��Ⴄ4�o�C�g�̂��Ȃ�傫�����
-			WBUFL(buf,15+13)=unit->bl.y - 0x12;		//13-16���j�b�g��Y���W-18���ۂ�(Y:17��FF FF FF FF)
-			WBUFL(buf,15+17)=0x004f37dd;			//17-20���ׂ�����Œ�(0x1b2��0x004fdbdd������)
-			WBUFL(buf,15+21)=0x0012f674;			//21-24���ׂ�����Œ�
-			WBUFL(buf,15+25)=0x0012f664;			//25-28���ׂ�����Œ�
-			WBUFL(buf,15+29)=0x0012f654;			//29-32���ׂ�����Œ�
-			WBUFL(buf,15+33)=0x77527bbc;			//33-36���ׂ�����Œ�
+			WBUFL(buf,15+1)=0;						//1-4
+			WBUFL(buf,15+5)=0;						//5-8
+												//9-12}bv77-804oCg
+			WBUFL(buf,15+13)=unit->bl.y - 0x12;		//13-16jbgYW-18(Y:17FF FF FF FF)
+			WBUFL(buf,15+17)=0x004f37dd;			//17-20(0x1b20x004fdbdd)
+			WBUFL(buf,15+21)=0x0012f674;			//21-24
+			WBUFL(buf,15+25)=0x0012f664;			//25-28
+			WBUFL(buf,15+29)=0x0012f654;			//29-32
+			WBUFL(buf,15+33)=0x77527bbc;			//33-36
 												//37-39
-			WBUFB(buf,15+40)=0x2d;					//40���ׂ�����Œ�
-			WBUFL(buf,15+41)=0;						//41-44���ׂ�����0�Œ�
-			WBUFL(buf,15+45)=0;						//45-48���ׂ�����0�Œ�
-			WBUFL(buf,15+49)=0;						//49-52���ׂ�����0�Œ�
-			WBUFL(buf,15+53)=0x0048d919;			//53-56���ׂ�����Œ�(0x01b2��0x00495119������)
-			WBUFL(buf,15+57)=0x0000003e;			//57-60���ׂ�����Œ�
-			WBUFL(buf,15+61)=0x0012f66c;			//61-64���ׂ�����Œ�
+			WBUFB(buf,15+40)=0x2d;					//40
+			WBUFL(buf,15+41)=0;						//41-440
+			WBUFL(buf,15+45)=0;						//45-480
+			WBUFL(buf,15+49)=0;						//49-520
+			WBUFL(buf,15+53)=0x0048d919;			//53-56(0x01b20x00495119)
+			WBUFL(buf,15+57)=0x0000003e;			//57-60
+			WBUFL(buf,15+61)=0x0012f66c;			//61-64
 												//65-68
 												//69-72
-			if(bl) WBUFL(buf,15+73)=bl->y;			//73-76�p�҂�Y���W
-				WBUFL(buf,15+77)=unit->bl.m;			//77-80�}�b�vID���Ȃ��H���Ȃ�2�o�C�g�ő�����������
-			WBUFB(buf,15+81)=0xaa;					//81�I�[����0xaa
+			if(bl) WBUFL(buf,15+73)=bl->y;			//73-76pYW
+				WBUFL(buf,15+77)=unit->bl.m;			//77-80}bvIDH2oCg
+			WBUFB(buf,15+81)=0xaa;					//81I[0xaa
 		}
 		clif_send(buf,packet_len_table[0x1c9],&unit->bl,AREA);
 #endif
@@ -4601,7 +4604,7 @@ int clif_skill_setunit(struct skill_unit *unit)
 */
 }
 /*==========================================
- * ���X�L���G�t�F�N�g��
+ * XLGtFNg
  *------------------------------------------
  */
 int clif_skill_delunit(struct skill_unit *unit)
@@ -4616,7 +4619,7 @@ int clif_skill_delunit(struct skill_unit *unit)
 	return 0;
 }
 /*==========================================
- * ���[�v���I��
+ * [vI
  *------------------------------------------
  */
 int clif_skill_warppoint(struct map_session_data *sd,int skill_num,int skill_lv,
@@ -4643,7 +4646,7 @@ int clif_skill_warppoint(struct map_session_data *sd,int skill_num,int skill_lv,
 	return 0;
 }
 /*==========================================
- * ��������
+ * 
  *------------------------------------------
  */
 int clif_skill_memo(struct map_session_data *sd,int flag)
@@ -4675,7 +4678,7 @@ int clif_skill_teleportmessage(struct map_session_data *sd,int flag)
 }
 
 /*==========================================
- * �����X�^�[���
+ * X^[
  *------------------------------------------
  */
 int clif_skill_estimation(struct map_session_data *sd,struct block_list *dst)
@@ -4718,7 +4721,7 @@ int clif_skill_estimation(struct map_session_data *sd,struct block_list *dst)
 	return 0;
 }
 /*==========================================
- * �A�C�e�������\���X�g
+ * ACe\Xg
  *------------------------------------------
  */
 int clif_skill_produce_mix_list(struct map_session_data *sd, int trigger)
@@ -4777,7 +4780,7 @@ int clif_status_load(struct block_list *bl,int type, int flag)
 	return 0;
 }
 /*==========================================
- * ��Ԉ��A�C�R��/���b�Z�[�W�\��
+ * ACR/bZ[W\
  *------------------------------------------
  */
 int clif_status_change(struct block_list *bl,int type,int flag)
@@ -4825,7 +4828,7 @@ int clif_displaymessage(const int fd, char* mes)
 }
 
 /*==========================================
- * �V������M����
+ * VM
  *------------------------------------------
  */
 int clif_GMmessage(struct block_list *bl, char* mes, int len, int flag)
@@ -4852,7 +4855,7 @@ int clif_GMmessage(struct block_list *bl, char* mes, int len, int flag)
 }
 
 /*==========================================
- * �O���[�o�����b�Z�[�W
+ * O[obZ[W
  *------------------------------------------
  */
 void clif_GlobalMessage(struct block_list *bl,char *message)
@@ -4925,7 +4928,7 @@ int clif_announce(struct block_list *bl, char* mes, int len, unsigned long color
 	return 0;
 }
 /*==========================================
- * HPSP��G�t�F�N�g���M����
+ * HPSPGtFNgM
  *------------------------------------------
  */
 int clif_heal(int fd,int type,int val)
@@ -4940,7 +4943,7 @@ int clif_heal(int fd,int type,int val)
 }
 
 /*==========================================
- * ��������
+ * 
  *------------------------------------------
  */
 int clif_resurrection(struct block_list *bl,int type)
@@ -4961,7 +4964,7 @@ int clif_resurrection(struct block_list *bl,int type)
 }
 
 /*==========================================
- * PVP�����H�i���j
+ * PVPHij
  *------------------------------------------
  */
 int clif_set0199(int fd,int type)
@@ -4975,7 +4978,7 @@ int clif_set0199(int fd,int type)
 }
 
 /*==========================================
- * PVP�����H(��)
+ * PVPH()
  *------------------------------------------
  */
 int clif_pvpset(struct map_session_data *sd,int pvprank,int pvpnum,int type)
@@ -5032,7 +5035,7 @@ int clif_send0199(int map,int type)
 }
 
 /*==========================================
- * ���B�G�t�F�N�g���M����
+ * BGtFNgM
  *------------------------------------------
  */
 int clif_refine(int fd,struct map_session_data *sd,int fail,int index,int val)
@@ -5078,7 +5081,7 @@ int clif_wis_end(int fd, int flag) // R 0098 <type>.B: 0: success to send wisper
 }
 
 /*==========================================
- * �L����ID���O�������ʂ��M����
+ * LIDOM
  *------------------------------------------
  */
 int clif_solved_charname(struct map_session_data *sd,int char_id)
@@ -5103,7 +5106,7 @@ int clif_solved_charname(struct map_session_data *sd,int char_id)
 }
 
 /*==========================================
- * �J�[�h�̑}���\���X�g��Ԃ�
+ * J[h}\Xg
  *------------------------------------------
  */
 int clif_use_card(struct map_session_data *sd,int idx)
@@ -5127,22 +5130,22 @@ int clif_use_card(struct map_session_data *sd,int idx)
 
 		if(sd->inventory_data[i] == NULL)
 			continue;
-		if(sd->inventory_data[i]->type!=4 && sd->inventory_data[i]->type!=5)	// ����h���Ȃ�
+		if(sd->inventory_data[i]->type!=4 && sd->inventory_data[i]->type!=5)	// h
 			continue;
 		if(sd->status.inventory[i].card[0]==0x00ff || sd->status.inventory[i].card[0]==(short)0xff00 || sd->status.inventory[i].card[0]==0x00fe)
 			continue;
-		if(sd->status.inventory[i].identify==0 )	// ���Ӓ�
+		if(sd->status.inventory[i].identify==0 )	// 
 			continue;
 
-		if((sd->inventory_data[i]->equip&ep)==0)	// ����������Ⴄ
+		if((sd->inventory_data[i]->equip&ep)==0)	// 
 			continue;
-		if(sd->inventory_data[i]->type==4 && ep==32)	// ���J�[�h�Ɨ�����
+		if(sd->inventory_data[i]->type==4 && ep==32)	// J[h
 			continue;
 		for(j=0;j<sd->inventory_data[i]->slot;j++){
 			if( sd->status.inventory[i].card[j]==0 )
 				break;
 		}
-		if(j==sd->inventory_data[i]->slot)	// ���ł�J�[�h����t
+		if(j==sd->inventory_data[i]->slot)	// J[ht
 			continue;
 
 		WFIFOW(fd,4+c*2)=i+2;
@@ -5154,7 +5157,7 @@ int clif_use_card(struct map_session_data *sd,int idx)
 	return 0;
 }
 /*==========================================
- * �J�[�h�̑}���I��
+ * J[h}I
  *------------------------------------------
  */
 int clif_insert_card(struct map_session_data *sd,int idx_equip,int idx_card,int flag)
@@ -5174,7 +5177,7 @@ int clif_insert_card(struct map_session_data *sd,int idx_equip,int idx_card,int 
 }
 
 /*==========================================
- * �Ӓ�\�A�C�e�����X�g���M
+ * \ACeXgM
  *------------------------------------------
  */
 int clif_item_identify_list(struct map_session_data *sd)
@@ -5204,7 +5207,7 @@ int clif_item_identify_list(struct map_session_data *sd)
 }
 
 /*==========================================
- * �Ӓ����
+ * 
  *------------------------------------------
  */
 int clif_item_identified(struct map_session_data *sd,int idx,int flag)
@@ -5223,7 +5226,7 @@ int clif_item_identified(struct map_session_data *sd,int idx,int flag)
 }
 
 /*==========================================
- * �C���\�A�C�e�����X�g���M
+ * C\ACeXgM
  *------------------------------------------
  */
 int clif_item_repair_list(struct map_session_data *sd,struct map_session_data *dstsd)
@@ -5324,7 +5327,7 @@ int clif_item_refine_list(struct map_session_data *sd)
 }
 
 /*==========================================
- * �A�C�e���ɂ��ꎞ�I��X�L������
+ * ACeIXL
  *------------------------------------------
  */
 int clif_item_skill(struct map_session_data *sd,int skillid,int skilllv,const char *name)
@@ -5349,7 +5352,7 @@ int clif_item_skill(struct map_session_data *sd,int skillid,int skilllv,const ch
 }
 
 /*==========================================
- * �J�[�g��A�C�e�����
+ * J[gACe
  *------------------------------------------
  */
 int clif_cart_additem(struct map_session_data *sd,int n,int amount,int fail)
@@ -5381,7 +5384,7 @@ int clif_cart_additem(struct map_session_data *sd,int n,int amount,int fail)
 }
 
 /*==========================================
- * �J�[�g����A�C�e����
+ * J[gACe
  *------------------------------------------
  */
 int clif_cart_delitem(struct map_session_data *sd,int n,int amount)
@@ -5403,7 +5406,7 @@ int clif_cart_delitem(struct map_session_data *sd,int n,int amount)
 }
 
 /*==========================================
- * �J�[�g��A�C�e�����X�g
+ * J[gACeXg
  *------------------------------------------
  */
 int clif_cart_itemlist(struct map_session_data *sd)
@@ -5469,7 +5472,7 @@ int clif_cart_itemlist(struct map_session_data *sd)
 }
 
 /*==========================================
- * �J�[�g�̑����i���X�g
+ * J[giXg
  *------------------------------------------
  */
 int clif_cart_equiplist(struct map_session_data *sd)
@@ -5513,7 +5516,7 @@ int clif_cart_equiplist(struct map_session_data *sd)
 }
 
 /*==========================================
- * �I�X�J��
+ * IXJ
  *------------------------------------------
  */
 int clif_openvendingreq(struct map_session_data *sd,int num)
@@ -5532,7 +5535,7 @@ int clif_openvendingreq(struct map_session_data *sd,int num)
 }
 
 /*==========================================
- * �I�X�Ŕ\��
+ * IX\
  *------------------------------------------
  */
 int clif_showvendingboard(struct block_list* bl,char *message,int fd)
@@ -5555,7 +5558,7 @@ int clif_showvendingboard(struct block_list* bl,char *message,int fd)
 }
 
 /*==========================================
- * �I�X�Ŕ����
+ * IX
  *------------------------------------------
  */
 int clif_closevendingboard(struct block_list* bl,int fd)
@@ -5577,7 +5580,7 @@ int clif_closevendingboard(struct block_list* bl,int fd)
 	return 0;
 }
 /*==========================================
- * �I�X�A�C�e�����X�g
+ * IXACeXg
  *------------------------------------------
  */
 int clif_vendinglist(struct map_session_data *sd,int id,struct vending *vending)
@@ -5625,7 +5628,7 @@ int clif_vendinglist(struct map_session_data *sd,int id,struct vending *vending)
 }
 
 /*==========================================
- * �I�X�A�C�e���w�����s
+ * IXACews
  *------------------------------------------
 */
 int clif_buyvending(struct map_session_data *sd,int index,int amount,int fail)
@@ -5646,7 +5649,7 @@ int clif_buyvending(struct map_session_data *sd,int index,int amount,int fail)
 }
 
 /*==========================================
- * �I�X�J�����
+ * IXJ
  *------------------------------------------
 */
 int clif_openvending(struct map_session_data *sd,int id,struct vending *vending)
@@ -5690,7 +5693,7 @@ int clif_openvending(struct map_session_data *sd,int id,struct vending *vending)
 }
 
 /*==========================================
- * �I�X�A�C�e���̔���
+ * IXACe
  *------------------------------------------
 */
 int clif_vendingreport(struct map_session_data *sd,int index,int amount)
@@ -5709,7 +5712,7 @@ int clif_vendingreport(struct map_session_data *sd,int index,int amount)
 	return 0;
 }
 /*==========================================
- * �p�[�e�B������
+ * p[eB
  *------------------------------------------
  */
 int clif_party_created(struct map_session_data *sd,int flag)
@@ -5763,8 +5766,27 @@ int clif_party_main_info(struct party *p, int fd)
 	return 1;
 }
 
+int clif_party_join_info(struct party *p, struct map_session_data *sd)
+{
+	unsigned char buf[96];
+	WBUFW(buf,0)=0x1e9;
+	WBUFL(buf,2)= sd->status.account_id;
+	WBUFL(buf,6)= 0; //Apparently setting this to 1 makes you adoptable.
+	WBUFW(buf,10)=sd->bl.x;
+	WBUFW(buf,12)=sd->bl.y;
+	WBUFB(buf,14)=0; //Unconfirmed byte.
+	memcpy(WBUFP(buf,15), p->name, NAME_LENGTH);
+	memcpy(WBUFP(buf,39), sd->status.name, NAME_LENGTH);
+	memcpy(WBUFP(buf,63), mapindex_id2name(sd->mapindex), MAP_NAME_LENGTH);
+	WBUFB(buf,79) = (p->item&1)?1:0;
+	WBUFB(buf,80) = (p->item&2)?1:0;
+	clif_send(buf,packet_len_table[0x1e9],&sd->bl,PARTY_WOS);
+	return 1;
+}
+
+
 /*==========================================
- * �p�[�e�B���M
+ * p[eBM
  *------------------------------------------
  */
 int clif_party_info(struct party *p,int fd)
@@ -5790,7 +5812,7 @@ int clif_party_info(struct party *p,int fd)
 		}
 	}
 	WBUFW(buf,2)=28+c*46;
-	if(fd>=0){	// fd���ݒ����Ă�Ȃ炻��ɑ���
+	if(fd>=0){	// fd
 		WFIFOHEAD(fd, 28+c*46);
 		memcpy(WFIFOP(fd,0),buf,WBUFW(buf,2));
 		WFIFOSET(fd,WFIFOW(fd,2));
@@ -5801,7 +5823,7 @@ int clif_party_info(struct party *p,int fd)
 	return 0;
 }
 /*==========================================
- * �p�[�e�B���U
+ * p[eBU
  *------------------------------------------
  */
 int clif_party_invite(struct map_session_data *sd,struct map_session_data *tsd)
@@ -5826,7 +5848,7 @@ int clif_party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 }
 
 /*==========================================
- * �p�[�e�B���U����
+ * p[eBU
  *------------------------------------------
  */
 int clif_party_inviteack(struct map_session_data *sd,char *nick,int flag)
@@ -5845,10 +5867,10 @@ int clif_party_inviteack(struct map_session_data *sd,char *nick,int flag)
 }
 
 /*==========================================
- * �p�[�e�B�ݒ���M
- * flag & 0x001=exp�ύX�~�X
- *        0x010=item�ύX�~�X
- *        0x100=��l�ɂ̂ݑ��M
+ * p[eBM
+ * flag & 0x001=expX~X
+ *        0x010=itemX~X
+ *        0x100=lM
  *------------------------------------------
  */
 int clif_party_option(struct party *p,struct map_session_data *sd,int flag)
@@ -5880,7 +5902,7 @@ int clif_party_option(struct party *p,struct map_session_data *sd,int flag)
 	return 0;
 }
 /*==========================================
- * �p�[�e�B�E��i�E�ޑO�ɌĂԂ���j
+ * p[eBEiEOj
  *------------------------------------------
  */
 int clif_party_leaved(struct party *p,struct map_session_data *sd,int account_id,char *name,int flag)
@@ -5910,7 +5932,7 @@ int clif_party_leaved(struct party *p,struct map_session_data *sd,int account_id
 	return 0;
 }
 /*==========================================
- * �p�[�e�B���b�Z�[�W���M
+ * p[eBbZ[WM
  *------------------------------------------
  */
 int clif_party_message(struct party *p,int account_id,char *mes,int len)
@@ -5935,7 +5957,7 @@ int clif_party_message(struct party *p,int account_id,char *mes,int len)
 	return 0;
 }
 /*==========================================
- * �p�[�e�B���W�ʒm
+ * p[eBWm
  *------------------------------------------
  */
 int clif_party_xy(struct map_session_data *sd)
@@ -5971,7 +5993,7 @@ int clif_party_xy_single(int fd, struct map_session_data *sd)
 
 
 /*==========================================
- * �p�[�e�BHP�ʒm
+ * p[eBHPm
  *------------------------------------------
  */
 int clif_party_hp(struct map_session_data *sd)
@@ -5982,8 +6004,8 @@ int clif_party_hp(struct map_session_data *sd)
 
 	WBUFW(buf,0)=0x106;
 	WBUFL(buf,2)=sd->status.account_id;
-	WBUFW(buf,6)=(sd->status.hp > 0x7fff)? 0x7fff:sd->status.hp;
-	WBUFW(buf,8)=(sd->status.max_hp > 0x7fff)? 0x7fff:sd->status.max_hp;
+	WBUFW(buf,6)=(sd->status.hp > SHRT_MAX)?SHRT_MAX:sd->status.hp;
+	WBUFW(buf,8)=(sd->status.max_hp > SHRT_MAX)?SHRT_MAX:sd->status.max_hp;
 	clif_send(buf,packet_len_table[0x106],&sd->bl,PARTY_AREA_WOS);
 	return 0;
 }
@@ -6003,7 +6025,7 @@ static void clif_hpmeter_single(int fd, struct map_session_data *sd)
 }
 
 /*==========================================
- * GM�����HP�ʒm
+ * GMHPm
  *------------------------------------------
  */
 int clif_hpmeter(struct map_session_data *sd)
@@ -6042,7 +6064,7 @@ int clif_hpmeter(struct map_session_data *sd)
 }
 
 /*==========================================
- * �p�[�e�B������i���g�p�j
+ * p[eBigpj
  *------------------------------------------
  */
 int clif_party_move(struct party *p,struct map_session_data *sd,int online)
@@ -6065,7 +6087,7 @@ int clif_party_move(struct party *p,struct map_session_data *sd,int online)
 	return 0;
 }
 /*==========================================
- * �U�����邽�߂Ɉ�����K�v
+ * UKv
  *------------------------------------------
  */
 int clif_movetoattack(struct map_session_data *sd,struct block_list *bl)
@@ -6088,7 +6110,7 @@ int clif_movetoattack(struct map_session_data *sd,struct block_list *bl)
 	return 0;
 }
 /*==========================================
- * �����G�t�F�N�g
+ * GtFNg
  *------------------------------------------
  */
 int clif_produceeffect(struct map_session_data *sd,int flag,int nameid)
@@ -6098,7 +6120,7 @@ int clif_produceeffect(struct map_session_data *sd,int flag,int nameid)
 	nullpo_retr(0, sd);
 
 	fd=sd->fd;
-	// ���O��o�^�Ƒ��M���ɂ��Ă���
+	// Oo^M
 	if( map_charid2nick(sd->status.char_id)==NULL )
 		map_addchariddb(sd->status.char_id,sd->status.name);
 	clif_solved_charname(sd,sd->status.char_id);
@@ -6149,7 +6171,7 @@ int clif_pet_rulet(struct map_session_data *sd,int data)
 }
 
 /*==========================================
- * pet�����X�g��
+ * petXg
  *------------------------------------------
  */
 int clif_sendegg(struct map_session_data *sd)
@@ -6306,7 +6328,7 @@ int clif_pet_food(struct map_session_data *sd,int foodid,int fail)
 }
 
 /*==========================================
- * �I�[�g�X�y�� ���X�g���M
+ * I[gXy XgM
  *------------------------------------------
  */
 int clif_autospell(struct map_session_data *sd,int skilllv)
@@ -6356,7 +6378,7 @@ int clif_autospell(struct map_session_data *sd,int skilllv)
 }
 
 /*==========================================
- * �f�B�{�[�V���������
+ * fB{[V
  *------------------------------------------
  */
 int clif_devotion(struct map_session_data *sd)
@@ -6403,7 +6425,7 @@ int clif_marionette(struct block_list *src, struct block_list *target)
 }
 
 /*==========================================
- * ����
+ * 
  *------------------------------------------
  */
 int clif_spiritball(struct map_session_data *sd)
@@ -6437,7 +6459,7 @@ int clif_combo_delay(struct block_list *bl,int wait)
 	return 0;
 }
 /*==========================================
- *���n���
+ *n
  *------------------------------------------
  */
 int clif_bladestop(struct block_list *src,struct block_list *dst,
@@ -6485,7 +6507,7 @@ int clif_changemapcell(int m,int x,int y,int cell_type,int type)
 }
 
 /*==========================================
- * MVP�G�t�F�N�g
+ * MVPGtFNg
  *------------------------------------------
  */
 int clif_mvp_effect(struct map_session_data *sd)
@@ -6500,7 +6522,7 @@ int clif_mvp_effect(struct map_session_data *sd)
 	return 0;
 }
 /*==========================================
- * MVP�A�C�e������
+ * MVPACe
  *------------------------------------------
  */
 int clif_mvp_item(struct map_session_data *sd,int nameid)
@@ -6520,7 +6542,7 @@ int clif_mvp_item(struct map_session_data *sd,int nameid)
 	return 0;
 }
 /*==========================================
- * MVP�o���l����
+ * MVPol
  *------------------------------------------
  */
 int clif_mvp_exp(struct map_session_data *sd,int exp)
@@ -6538,7 +6560,7 @@ int clif_mvp_exp(struct map_session_data *sd,int exp)
 }
 
 /*==========================================
- * �M���h���ےʒm
+ * Mhm
  *------------------------------------------
  */
 int clif_guild_created(struct map_session_data *sd,int flag)
@@ -6555,7 +6577,7 @@ int clif_guild_created(struct map_session_data *sd,int flag)
 	return 0;
 }
 /*==========================================
- * �M���h�����ʒm
+ * Mhm
  *------------------------------------------
  */
 int clif_guild_belonginfo(struct map_session_data *sd,struct guild *g)
@@ -6579,7 +6601,7 @@ int clif_guild_belonginfo(struct map_session_data *sd,struct guild *g)
 	return 0;
 }
 /*==========================================
- * �M���h�����o���O�C���ʒm
+ * MhoOCm
  *------------------------------------------
  */
 int clif_guild_memberlogin_notice(struct guild *g,int idx,int flag)
@@ -6644,7 +6666,7 @@ int clif_guild_send_onlineinfo(struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�}�X�^�[�ʒm(14d�ւ����)
+ * Mh}X^[m(14d)
  *------------------------------------------
  */
 int clif_guild_masterormember(struct map_session_data *sd)
@@ -6688,10 +6710,10 @@ int clif_guild_basicinfo(struct map_session_data *sd)
 	WFIFOL(fd,18)=g->average_lv;
 	WFIFOL(fd,22)=g->exp;
 	WFIFOL(fd,26)=g->next_exp;
-	WFIFOL(fd,30)=0;	// ��[
-	WFIFOL(fd,34)=0;	// VW�i���i�̈����H�F�����O���t���E�j
-	WFIFOL(fd,38)=0;	// RF�i���`��x�����H�F�����O���t���j
-	WFIFOL(fd,42)=0;	// �l���H
+	WFIFOL(fd,30)=0;	// [
+	WFIFOL(fd,34)=0;	// VWiiHFOtEj
+	WFIFOL(fd,38)=0;	// RFi`xHFOtj
+	WFIFOL(fd,42)=0;	// lH
 	memcpy(WFIFOP(fd,46),g->name, NAME_LENGTH);
 	memcpy(WFIFOP(fd,70),g->master, NAME_LENGTH);
 
@@ -6711,7 +6733,7 @@ int clif_guild_basicinfo(struct map_session_data *sd)
 }
 
 /*==========================================
- * �M���h����/�G����
+ * Mh/G
  *------------------------------------------
  */
 int clif_guild_allianceinfo(struct map_session_data *sd)
@@ -6742,7 +6764,7 @@ int clif_guild_allianceinfo(struct map_session_data *sd)
 }
 
 /*==========================================
- * �M���h�����o�[���X�g
+ * Mho[Xg
  *------------------------------------------
  */
 int clif_guild_memberlist(struct map_session_data *sd)
@@ -6776,7 +6798,7 @@ int clif_guild_memberlist(struct map_session_data *sd)
 		WFIFOL(fd,c*104+22)=m->exp;
 		WFIFOL(fd,c*104+26)=m->online;
 		WFIFOL(fd,c*104+30)=m->position;
-		memset(WFIFOP(fd,c*104+34),0,50);	// �����H
+		memset(WFIFOP(fd,c*104+34),0,50);	// H
 		memcpy(WFIFOP(fd,c*104+84),m->name,NAME_LENGTH);
 		c++;
 	}
@@ -6785,7 +6807,7 @@ int clif_guild_memberlist(struct map_session_data *sd)
 	return 0;
 }
 /*==========================================
- * �M���h��E�����X�g
+ * MhEXg
  *------------------------------------------
  */
 int clif_guild_positionnamelist(struct map_session_data *sd)
@@ -6810,7 +6832,7 @@ int clif_guild_positionnamelist(struct map_session_data *sd)
 	return 0;
 }
 /*==========================================
- * �M���h��E���X�g
+ * MhEXg
  *------------------------------------------
  */
 int clif_guild_positioninfolist(struct map_session_data *sd)
@@ -6838,7 +6860,7 @@ int clif_guild_positioninfolist(struct map_session_data *sd)
 	return 0;
 }
 /*==========================================
- * �M���h��E�ύX�ʒm
+ * MhEXm
  *------------------------------------------
  */
 int clif_guild_positionchanged(struct guild *g,int idx)
@@ -6860,7 +6882,7 @@ int clif_guild_positionchanged(struct guild *g,int idx)
 	return 0;
 }
 /*==========================================
- * �M���h�����o�ύX�ʒm
+ * MhoXm
  *------------------------------------------
  */
 int clif_guild_memberpositionchanged(struct guild *g,int idx)
@@ -6880,7 +6902,7 @@ int clif_guild_memberpositionchanged(struct guild *g,int idx)
 	return 0;
 }
 /*==========================================
- * �M���h�G���u�������M
+ * MhGuM
  *------------------------------------------
  */
 int clif_guild_emblem(struct map_session_data *sd,struct guild *g)
@@ -6904,7 +6926,7 @@ int clif_guild_emblem(struct map_session_data *sd,struct guild *g)
 	return 0;
 }
 /*==========================================
- * �M���h�X�L�����M
+ * MhXLM
  *------------------------------------------
  */
 int clif_guild_skillinfo(struct map_session_data *sd)
@@ -6944,7 +6966,7 @@ int clif_guild_skillinfo(struct map_session_data *sd)
 	return 0;
 }
 /*==========================================
- * �M���h���m���M
+ * MhmM
  *------------------------------------------
  */
 int clif_guild_notice(struct map_session_data *sd,struct guild *g)
@@ -6972,7 +6994,7 @@ int clif_guild_notice(struct map_session_data *sd,struct guild *g)
 }
 
 /*==========================================
- * �M���h�����o���U
+ * MhoU
  *------------------------------------------
  */
 int clif_guild_invite(struct map_session_data *sd,struct guild *g)
@@ -6991,7 +7013,7 @@ int clif_guild_invite(struct map_session_data *sd,struct guild *g)
 	return 0;
 }
 /*==========================================
- * �M���h�����o���U����
+ * MhoU
  *------------------------------------------
  */
 int clif_guild_inviteack(struct map_session_data *sd,int flag)
@@ -7008,7 +7030,7 @@ int clif_guild_inviteack(struct map_session_data *sd,int flag)
 	return 0;
 }
 /*==========================================
- * �M���h�����o�E�ޒʒm
+ * MhoEm
  *------------------------------------------
  */
 int clif_guild_leave(struct map_session_data *sd,const char *name,const char *mes)
@@ -7024,7 +7046,7 @@ int clif_guild_leave(struct map_session_data *sd,const char *name,const char *me
 	return 0;
 }
 /*==========================================
- * �M���h�����o�Ǖ��ʒm
+ * Mhom
  *------------------------------------------
  */
 int clif_guild_explusion(struct map_session_data *sd,const char *name,const char *mes,
@@ -7042,7 +7064,7 @@ int clif_guild_explusion(struct map_session_data *sd,const char *name,const char
 	return 0;
 }
 /*==========================================
- * �M���h�Ǖ������o���X�g
+ * MhoXg
  *------------------------------------------
  */
 int clif_guild_explusionlist(struct map_session_data *sd)
@@ -7074,7 +7096,7 @@ int clif_guild_explusionlist(struct map_session_data *sd)
 }
 
 /*==========================================
- * �M���h��b
+ * Mhb
  *------------------------------------------
  */
 int clif_guild_message(struct guild *g,int account_id,const char *mes,int len)
@@ -7096,7 +7118,7 @@ int clif_guild_message(struct guild *g,int account_id,const char *mes,int len)
 	return 0;
 }
 /*==========================================
- * �M���h�X�L������U��ʒm
+ * MhXLUm
  *------------------------------------------
  */
 int clif_guild_skillup(struct map_session_data *sd,int skill_num,int lv)
@@ -7117,7 +7139,7 @@ int clif_guild_skillup(struct map_session_data *sd,int skill_num,int lv)
 	return 0;
 }
 /*==========================================
- * �M���h�����v��
+ * Mhv
  *------------------------------------------
  */
 int clif_guild_reqalliance(struct map_session_data *sd,int account_id,const char *name)
@@ -7135,7 +7157,7 @@ int clif_guild_reqalliance(struct map_session_data *sd,int account_id,const char
 	return 0;
 }
 /*==========================================
- * �M���h��������
+ * Mh
  *------------------------------------------
  */
 int clif_guild_allianceack(struct map_session_data *sd,int flag)
@@ -7152,7 +7174,7 @@ int clif_guild_allianceack(struct map_session_data *sd,int flag)
 	return 0;
 }
 /*==========================================
- * �M���h�֌W�����ʒm
+ * MhWm
  *------------------------------------------
  */
 int clif_guild_delalliance(struct map_session_data *sd,int guild_id,int flag)
@@ -7172,7 +7194,7 @@ int clif_guild_delalliance(struct map_session_data *sd,int guild_id,int flag)
 	return 0;
 }
 /*==========================================
- * �M���h�G�Ό���
+ * MhG
  *------------------------------------------
  */
 int clif_guild_oppositionack(struct map_session_data *sd,int flag)
@@ -7189,7 +7211,7 @@ int clif_guild_oppositionack(struct map_session_data *sd,int flag)
 	return 0;
 }
 /*==========================================
- * �M���h�֌W���
+ * MhW
  *------------------------------------------
  */
 /*int clif_guild_allianceadded(struct guild *g,int idx)
@@ -7204,7 +7226,7 @@ int clif_guild_oppositionack(struct map_session_data *sd,int flag)
 }*/
 
 /*==========================================
- * �M���h���U�ʒm
+ * MhUm
  *------------------------------------------
  */
 int clif_guild_broken(struct map_session_data *sd,int flag)
@@ -7222,7 +7244,7 @@ int clif_guild_broken(struct map_session_data *sd,int flag)
 }
 
 /*==========================================
- * �G���[�V����
+ * G[V
  *------------------------------------------
  */
 void clif_emotion(struct block_list *bl,int type)
@@ -7238,7 +7260,7 @@ void clif_emotion(struct block_list *bl,int type)
 }
 
 /*==========================================
- * �g�[�L�[�{�b�N�X
+ * g[L[{bNX
  *------------------------------------------
  */
 void clif_talkiebox(struct block_list *bl,char* talkie)
@@ -7254,7 +7276,7 @@ void clif_talkiebox(struct block_list *bl,char* talkie)
 }
 
 /*==========================================
- * �����G�t�F�N�g
+ * GtFNg
  *------------------------------------------
  */
 void clif_wedding_effect(struct block_list *bl) {
@@ -7267,7 +7289,7 @@ void clif_wedding_effect(struct block_list *bl) {
 	clif_send(buf, packet_len_table[0x1ea], bl, AREA);
 }
 /*==========================================
- * ���Ȃ��Ɉ��������g�p�����O����
+ * gpO
  *------------------------------------------
 
 void clif_callpartner(struct map_session_data *sd)
@@ -7363,7 +7385,7 @@ void clif_parse_ReqMarriage(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * ����
+ * 
  *------------------------------------------
  */
 void clif_sitting(struct map_session_data *sd)
@@ -7479,7 +7501,7 @@ int clif_timedout(struct map_session_data *sd)
 }
 
 /*==========================================
- * Wis���ۋ������
+ * Wis
  *------------------------------------------
  */
 int clif_wisexin(struct map_session_data *sd,int type,int flag)
@@ -7498,7 +7520,7 @@ int clif_wisexin(struct map_session_data *sd,int type,int flag)
 	return 0;
 }
 /*==========================================
- * Wis�S���ۋ������
+ * WisS
  *------------------------------------------
  */
 int clif_wisall(struct map_session_data *sd,int type,int flag)
@@ -7517,7 +7539,7 @@ int clif_wisall(struct map_session_data *sd,int type,int flag)
 	return 0;
 }
 /*==========================================
- * �T�E���h�G�t�F�N�g
+ * TEhGtFNg
  *------------------------------------------
  */
 void clif_soundeffect(struct map_session_data *sd,struct block_list *bl,char *name,int type)
@@ -7948,7 +7970,7 @@ static int clif_guess_PacketVer(int fd, int get_previous)
 // ------------
 // clif_parse_*
 // ------------
-// �p�P�b�g�ǂݎ����F�X����
+// pPbgFX
 /*==========================================
  *
  *------------------------------------------
@@ -8019,8 +8041,8 @@ static int clif_nighttimer(int tid, unsigned int tick, int id, int data)
 }
 
 /*==========================================
- * 007d �N���C�A���g���}�b�v�ǂݍ������
- * map�N�����ɕK�v��f�[�^��S�đ������
+ * 007d NCAg}bv
+ * mapNKvf[^S
  *------------------------------------------
  */
 void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
@@ -8034,7 +8056,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	clif_skillinfoblock(sd);
 	pc_checkitem(sd);
 
-	// loadendack��
+	// loadendack
 	// next exp
 	clif_updatestatus(sd,SP_NEXTBASEEXP);
 	clif_updatestatus(sd,SP_NEXTJOBEXP);
@@ -8058,7 +8080,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 			pc_setinvincibletimer(sd,battle_config.pc_invincible_time);
 	}
 
-	map_addblock(&sd->bl);	// �u���b�N�o�^
+	map_addblock(&sd->bl);	// ubNo^
 	clif_spawn(&sd->bl);	// spawn
 
 	// party
@@ -8126,6 +8148,14 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		if (sd->sc.option&OPTION_RIDING)
 			clif_status_load(&sd->bl, SI_RIDING, 1);
 
+		//Auron reported that This skill only triggers when you logon on the map o.O [Skotlex]
+		if ((i = pc_checkskill(sd,SG_KNOWLEDGE)) > 0) {
+			if(sd->bl.m == sd->feel_map[0].m
+				|| sd->bl.m == sd->feel_map[1].m
+				|| sd->bl.m == sd->feel_map[2].m)
+				sc_start(&sd->bl, SC_KNOWLEDGE, 100, i, skill_get_time(SG_KNOWLEDGE, i));
+		}
+
 		if(sd->status.pet_id > 0 && sd->pd && sd->pet.intimate > 900)
 			clif_pet_emotion(sd->pd,(sd->pd->class_ - 100)*100 + 50 + pet_hungry_val(sd));
 		//[LuzZza]
@@ -8170,19 +8200,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		ShowStatus("%d '"CL_WHITE"%s"CL_RESET"' events executed.\n",
 			npc_event_doall_id(script_config.loadmap_event_name, sd->bl.id), script_config.loadmap_event_name);
 	}
-	if ((i = pc_checkskill(sd,SG_KNOWLEDGE)) > 0) {
-		if(sd->bl.m == sd->feel_map[0].m
-			|| sd->bl.m == sd->feel_map[1].m
-			|| sd->bl.m == sd->feel_map[2].m)
-			sc_start(&sd->bl, SC_KNOWLEDGE, 100, i, skill_get_time(SG_KNOWLEDGE, i));
-	}
 
-	if (
-	    pc_checkskill(sd,SG_SUN_COMFORT)  ||
-	    pc_checkskill(sd,SG_MOON_COMFORT) ||
-	    pc_checkskill(sd,SG_STAR_COMFORT))
-		status_calc_pc(sd,0);
-	
 	if (pc_checkskill(sd, SG_DEVIL) && !pc_nextjobexp(sd))
 		clif_status_load(&sd->bl, SI_DEVIL, 1);  //blindness [Komurka]
 
@@ -8208,6 +8226,24 @@ void clif_parse_TickSend(int fd, struct map_session_data *sd) {
 	clif_servertick(sd);
 }
 
+static int clif_walktoxy_timer(int tid, unsigned int tick, int id, int data)
+{
+	struct map_session_data *sd;
+	short x,y;
+
+	if (!session[id] || (sd = session[id]->session_data) == NULL)
+		return 0;
+
+	if (!unit_can_move(&sd->bl))
+		return 0;
+
+	x = data>>16;
+	y = data&0xffff;
+
+	unit_walktoxy(&sd->bl, x, y, 0);
+	return 1;
+}
+
 /*==========================================
  *
  *------------------------------------------
@@ -8215,6 +8251,7 @@ void clif_parse_TickSend(int fd, struct map_session_data *sd) {
 void clif_parse_WalkToXY(int fd, struct map_session_data *sd) {
 	int x, y;
 	int cmd;
+	unsigned int tick;
 	RFIFOHEAD(fd);
 
 	if (pc_isdead(sd)) {
@@ -8229,8 +8266,6 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd) {
 		return;
 
 	pc_stop_attack(sd);
-	if (!unit_can_move(&sd->bl))
-		return;
 
 	if (sd->invincible_timer != -1)
 		pc_delinvincibletimer(sd);
@@ -8243,8 +8278,16 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd) {
 	//Set last idle time... [Skotlex]
 	sd->idletime = last_tick;
 
+	tick = gettick();
+	if (DIFF_TICK(sd->ud.canmove_tick, tick) > 0 &&
+		DIFF_TICK(sd->ud.canmove_tick, tick) < 2000)
+	{	// Delay walking command. [Skotlex]
+		add_timer(sd->ud.canmove_tick+1, clif_walktoxy_timer, fd, (x<<16)|y);
+		return;
+	}
+	if (!unit_can_move(&sd->bl))
+		return;
 	unit_walktoxy(&sd->bl, x, y, 0);
-
 }
 
 /*==========================================
@@ -8255,7 +8298,7 @@ void clif_parse_QuitGame(int fd, struct map_session_data *sd) {
 	WFIFOHEAD(fd,packet_len_table[0x18b]);
 	WFIFOW(fd,0) = 0x18b;
 
-	/*	Rovert's prevent logout option fixed [Valaris]	*/
+	
 	if (sd->sc.data[SC_CLOAKING].timer==-1 && sd->sc.data[SC_HIDING].timer==-1 &&
 		(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout)
 	) {
@@ -8625,8 +8668,6 @@ void clif_parse_ActionRequest(int fd, struct map_session_data *sd) {
 
 	target_id = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]);
 	action_type = RFIFOB(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
-	//Regardless of what they have to do, they have just requested an action, no longer idle. [Skotlex]
-	sd->idletime = last_tick;
 
 	if(target_id<0) // for disguises [Valaris]
 		target_id-=(target_id*2);
@@ -8638,7 +8679,7 @@ void clif_parse_ActionRequest(int fd, struct map_session_data *sd) {
 		if (clif_cant_act(sd) || sd->sc.option&OPTION_HIDE)
 			return;
 
-		if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS))
+		if(sd->sc.option&OPTION_WEDDING || sd->vd.class_ == JOB_XMAS)
 			return;
 
 		if (!battle_config.sdelay_attack_enable && pc_checkskill(sd, SA_FREECAST) <= 0) {
@@ -8649,6 +8690,8 @@ void clif_parse_ActionRequest(int fd, struct map_session_data *sd) {
 		}
 		if (sd->invincible_timer != -1)
 			pc_delinvincibletimer(sd);
+
+		sd->idletime = last_tick;
 		unit_attack(&sd->bl, target_id, action_type != 0);
 		break;
 	case 0x02: // sitdown
@@ -8717,7 +8760,7 @@ void clif_parse_Restart(int fd, struct map_session_data *sd) {
 			pc_setdead(sd);
 		break;
 	case 0x01:
-		/*	Rovert's Prevent logout option - Fixed [Valaris]	*/
+		
 		if (!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout)
 		{
 			//map_quit(sd);	//A clif_quitsave is sent inmediately after this, so no need to quit yet. [Skotlex]
@@ -8928,9 +8971,9 @@ void clif_parse_TakeItem(int fd, struct map_session_data *sd) {
 	if(pc_iscloaking(sd) || pc_ischasewalk(sd)) //Disable cloaking/chasewalking characters from looting [Skotlex]
 		return;
 	if(sd->sc.count && (
-		sd->sc.data[SC_TRICKDEAD].timer != -1 || //���񂾂ӂ�
-		sd->sc.data[SC_BLADESTOP].timer != -1 || //���n���
-		sd->sc.data[SC_NOCHAT].timer!=-1 )	//��b�֎~
+		sd->sc.data[SC_TRICKDEAD].timer != -1 || //
+		sd->sc.data[SC_BLADESTOP].timer != -1 || //n
+		sd->sc.data[SC_NOCHAT].timer!=-1 )	//b~
 	) {
 		clif_additem(sd,0,0,6); // send fail packet! [Valaris]
 		return;
@@ -8956,8 +8999,8 @@ void clif_parse_DropItem(int fd, struct map_session_data *sd) {
 		return;
 
 	if (sd->sc.count && (
-		sd->sc.data[SC_AUTOCOUNTER].timer != -1 || //�I�[�g�J�E���^�[
-		sd->sc.data[SC_BLADESTOP].timer != -1//���n���
+		sd->sc.data[SC_AUTOCOUNTER].timer != -1 || //I[gJE^[
+		sd->sc.data[SC_BLADESTOP].timer != -1//n
 	))
 		return;
 
@@ -8994,11 +9037,11 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd) {
 		return;
 	
 	if (sd->sc.count && (
-		sd->sc.data[SC_TRICKDEAD].timer != -1 || //���񂾂ӂ�
-		sd->sc.data[SC_BLADESTOP].timer != -1 || //���n���
-		sd->sc.data[SC_BERSERK].timer!=-1 ||	//�o�[�T�[�N
+		sd->sc.data[SC_TRICKDEAD].timer != -1 || //
+		sd->sc.data[SC_BLADESTOP].timer != -1 || //n
+		sd->sc.data[SC_BERSERK].timer!=-1 ||	//o[T[N
 		sd->sc.data[SC_NOCHAT].timer!=-1 ||
-		sd->sc.data[SC_GRAVITATION].timer!=-1	//��b�֎~
+		sd->sc.data[SC_GRAVITATION].timer!=-1	//b~
 	))
 		return;
 
@@ -9045,7 +9088,7 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd)
 		clif_equipitemack(sd,index,0,0);	// fail
 		return;
 	}
-	//�y�b�g�p�����ł��邩�Ȃ���
+	//ybgp
 	if(sd->inventory_data[index]) {
 		if(sd->inventory_data[index]->type != 8){
 			if(sd->inventory_data[index]->type == 10)
@@ -9149,7 +9192,7 @@ void clif_parse_NpcSellListSend(int fd,struct map_session_data *sd)
 	n = (RFIFOW(fd,2)-4) /4;
 	item_list = (unsigned short*)RFIFOP(fd,4);
 
-	if (sd->state.trading|| !sd->npc_shopid)
+	if (sd->state.trading || !sd->npc_shopid)
 		fail = 1;
 	else
 		fail = npc_selllist(sd,n,item_list);
@@ -9224,7 +9267,7 @@ void clif_parse_ChatLeave(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * ����v������ɑ���
+ * v
  *------------------------------------------
  */
 void clif_parse_TradeRequest(int fd,struct map_session_data *sd)
@@ -9238,7 +9281,7 @@ void clif_parse_TradeRequest(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * ����v��
+ * v
  *------------------------------------------
  */
 void clif_parse_TradeAck(int fd,struct map_session_data *sd)
@@ -9248,7 +9291,7 @@ void clif_parse_TradeAck(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �A�C�e�����
+ * ACe
  *------------------------------------------
  */
 void clif_parse_TradeAddItem(int fd,struct map_session_data *sd)
@@ -9258,7 +9301,7 @@ void clif_parse_TradeAddItem(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �A�C�e���������(ok����)
+ * ACe(ok)
  *------------------------------------------
  */
 void clif_parse_TradeOk(int fd,struct map_session_data *sd)
@@ -9267,7 +9310,7 @@ void clif_parse_TradeOk(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * ����L�����Z��
+ * LZ
  *------------------------------------------
  */
 void clif_parse_TradeCancel(int fd,struct map_session_data *sd)
@@ -9276,7 +9319,7 @@ void clif_parse_TradeCancel(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �������(trade����)
+ * (trade)
  *------------------------------------------
  */
 void clif_parse_TradeCommit(int fd,struct map_session_data *sd)
@@ -9294,7 +9337,7 @@ void clif_parse_StopAttack(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �J�[�g��A�C�e�����ڂ�
+ * J[gACe
  *------------------------------------------
  */
 void clif_parse_PutItemToCart(int fd,struct map_session_data *sd)
@@ -9306,7 +9349,7 @@ void clif_parse_PutItemToCart(int fd,struct map_session_data *sd)
 	pc_putitemtocart(sd,RFIFOW(fd,2)-2,RFIFOL(fd,4));
 }
 /*==========================================
- * �J�[�g����A�C�e�����o��
+ * J[gACeo
  *------------------------------------------
  */
 void clif_parse_GetItemFromCart(int fd,struct map_session_data *sd)
@@ -9319,7 +9362,7 @@ void clif_parse_GetItemFromCart(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �t���i(��,�y�R,�J�[�g)���͂���
+ * ti(,yR,J[g)
  *------------------------------------------
  */
 void clif_parse_RemoveOption(int fd,struct map_session_data *sd)
@@ -9328,7 +9371,7 @@ void clif_parse_RemoveOption(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �`�F���W�J�[�g
+ * `FWJ[g
  *------------------------------------------
  */
 void clif_parse_ChangeCart(int fd,struct map_session_data *sd)
@@ -9338,7 +9381,7 @@ void clif_parse_ChangeCart(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �X�e�[�^�X�A�b�v
+ * Xe[^XAbv
  *------------------------------------------
  */
 void clif_parse_StatusUp(int fd,struct map_session_data *sd)
@@ -9348,7 +9391,7 @@ void clif_parse_StatusUp(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �X�L�����x���A�b�v
+ * XLxAbv
  *------------------------------------------
  */
 void clif_parse_SkillUp(int fd,struct map_session_data *sd)
@@ -9358,7 +9401,7 @@ void clif_parse_SkillUp(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �X�L���g�p�iID�w��j
+ * XLgpiIDwj
  *------------------------------------------
  */
 void clif_parse_UseSkillToId(int fd, struct map_session_data *sd) {
@@ -9403,9 +9446,9 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd) {
 		return;
 	}
 
-	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS))
+	if(sd->sc.option&OPTION_WEDDING || sd->vd.class_ == JOB_XMAS)
 		return;
-	
+
 	if (sd->invincible_timer != -1)
 		pc_delinvincibletimer(sd);
 	
@@ -9461,7 +9504,7 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �X�L���g�p�i���w��j
+ * XLgpiwj
  *------------------------------------------
  */
 void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, int skilllv, int skillnum, int x, int y, int skillmoreinfo)
@@ -9493,9 +9536,9 @@ void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, int skilll
 		return;
 	}
 
-	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS))
+	if(sd->sc.option&OPTION_WEDDING || sd->vd.class_ == JOB_XMAS)
 		return;
-	
+
 	if (sd->invincible_timer != -1)
 		pc_delinvincibletimer(sd);
 	if (sd->skillitem >= 0 && sd->skillitem == skillnum) {
@@ -9547,7 +9590,7 @@ void clif_parse_UseSkillToPosMoreInfo(int fd, struct map_session_data *sd) {
 	);
 }
 /*==========================================
- * �X�L���g�p�imap�w��j
+ * XLgpimapwj
  *------------------------------------------
  */
 void clif_parse_UseSkillMap(int fd,struct map_session_data *sd)
@@ -9557,16 +9600,16 @@ void clif_parse_UseSkillMap(int fd,struct map_session_data *sd)
 	if (clif_cant_act(sd))
 		return;
 
-	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS))
+	if(sd->sc.option&OPTION_WEDDING || sd->vd.class_ == JOB_XMAS)
 		return;
-	
+
 	if(sd->invincible_timer != -1)
 		pc_delinvincibletimer(sd);
 
 	skill_castend_map(sd,RFIFOW(fd,2),(char*)RFIFOP(fd,4));
 }
 /*==========================================
- * �����v��
+ * v
  *------------------------------------------
  */
 void clif_parse_RequestMemo(int fd,struct map_session_data *sd)
@@ -9575,7 +9618,7 @@ void clif_parse_RequestMemo(int fd,struct map_session_data *sd)
 		pc_memo(sd,-1);
 }
 /*==========================================
- * �A�C�e������
+ * ACe
  *------------------------------------------
  */
 void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
@@ -9595,7 +9638,7 @@ void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 	sd->menuskill_lv = sd->menuskill_id = 0;
 }
 /*==========================================
- * ����C��
+ * C
  *------------------------------------------
  */
 void clif_parse_RepairItem(int fd, struct map_session_data *sd)
@@ -9706,7 +9749,7 @@ void clif_parse_NpcCloseClicked(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �A�C�e���Ӓ�
+ * ACe
  *------------------------------------------
  */
 void clif_parse_ItemIdentify(int fd,struct map_session_data *sd)
@@ -9718,7 +9761,7 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd)
 	sd->menuskill_lv = sd->menuskill_id = 0;
 }
 /*==========================================
- * ���
+ * 
  *------------------------------------------
  */
 void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
@@ -9736,7 +9779,7 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 	sd->menuskill_lv = sd->menuskill_id = 0;
 }
 /*==========================================
- * �I�[�g�X�y����M
+ * I[gXyM
  *------------------------------------------
  */
 void clif_parse_AutoSpell(int fd,struct map_session_data *sd)
@@ -9748,7 +9791,7 @@ void clif_parse_AutoSpell(int fd,struct map_session_data *sd)
 	sd->menuskill_lv = sd->menuskill_id = 0;
 }
 /*==========================================
- * �J�[�h�g�p
+ * J[hgp
  *------------------------------------------
  */
 void clif_parse_UseCard(int fd,struct map_session_data *sd)
@@ -9759,7 +9802,7 @@ void clif_parse_UseCard(int fd,struct map_session_data *sd)
 	clif_use_card(sd,RFIFOW(fd,2)-2);
 }
 /*==========================================
- * �J�[�h�}�������I��
+ * J[h}I
  *------------------------------------------
  */
 void clif_parse_InsertCard(int fd,struct map_session_data *sd)
@@ -9771,7 +9814,7 @@ void clif_parse_InsertCard(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * 0193 �L����ID���O����
+ * 0193 LIDO
  *------------------------------------------
  */
 void clif_parse_SolveCharName(int fd, struct map_session_data *sd) {
@@ -9802,7 +9845,7 @@ void clif_parse_ResetChar(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * 019c /lb��
+ * 019c /lb
  *------------------------------------------
  */
 void clif_parse_LGMmessage(int fd, struct map_session_data *sd) {
@@ -9819,7 +9862,7 @@ void clif_parse_LGMmessage(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �J�v���q�ɂ�����
+ * Jvq
  *------------------------------------------
  */
 void clif_parse_MoveToKafra(int fd, struct map_session_data *sd) {
@@ -9841,7 +9884,7 @@ void clif_parse_MoveToKafra(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �J�v���q�ɂ���o��
+ * Jvqo
  *------------------------------------------
  */
 void clif_parse_MoveFromKafra(int fd,struct map_session_data *sd) {
@@ -9861,7 +9904,7 @@ void clif_parse_MoveFromKafra(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �J�v���q�ɂ�J�[�g��������
+ * JvqJ[g
  *------------------------------------------
  */
 void clif_parse_MoveToKafraFromCart(int fd, struct map_session_data *sd) {
@@ -9877,7 +9920,7 @@ void clif_parse_MoveToKafraFromCart(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �J�v���q�ɂ���o��
+ * Jvqo
  *------------------------------------------
  */
 void clif_parse_MoveFromKafraToCart(int fd, struct map_session_data *sd) {
@@ -9892,7 +9935,7 @@ void clif_parse_MoveFromKafraToCart(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �J�v���q�ɂ����
+ * Jvq
  *------------------------------------------
  */
 void clif_parse_CloseKafra(int fd, struct map_session_data *sd) {
@@ -9903,7 +9946,7 @@ void clif_parse_CloseKafra(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �p�[�e�B�����
+ * p[eB
  *------------------------------------------
  */
 void clif_parse_CreateParty(int fd, struct map_session_data *sd) {
@@ -9915,7 +9958,7 @@ void clif_parse_CreateParty(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �p�[�e�B�����
+ * p[eB
  *------------------------------------------
  */
 void clif_parse_CreateParty2(int fd, struct map_session_data *sd) {
@@ -9927,7 +9970,7 @@ void clif_parse_CreateParty2(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �p�[�e�B����U
+ * p[eBU
  *------------------------------------------
  */
 void clif_parse_PartyInvite(int fd, struct map_session_data *sd) {
@@ -9936,7 +9979,7 @@ void clif_parse_PartyInvite(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �p�[�e�B���U���
+ * p[eBU
  *------------------------------------------
  */
 void clif_parse_ReplyPartyInvite(int fd,struct map_session_data *sd) {
@@ -9950,7 +9993,7 @@ void clif_parse_ReplyPartyInvite(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �p�[�e�B�E�ޗv��
+ * p[eBEv
  *------------------------------------------
  */
 void clif_parse_LeaveParty(int fd, struct map_session_data *sd) {
@@ -9958,7 +10001,7 @@ void clif_parse_LeaveParty(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �p�[�e�B�����v��
+ * p[eBv
  *------------------------------------------
  */
 void clif_parse_RemovePartyMember(int fd, struct map_session_data *sd) {
@@ -9967,7 +10010,7 @@ void clif_parse_RemovePartyMember(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �p�[�e�B�ݒ�ύX�v��
+ * p[eBXv
  *------------------------------------------
  */
 void clif_parse_PartyChangeOption(int fd, struct map_session_data *sd) {
@@ -9976,7 +10019,7 @@ void clif_parse_PartyChangeOption(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �p�[�e�B���b�Z�[�W���M�v��
+ * p[eBbZ[WMv
  *------------------------------------------
  */
 void clif_parse_PartyMessage(int fd, struct map_session_data *sd) {
@@ -9986,8 +10029,8 @@ void clif_parse_PartyMessage(int fd, struct map_session_data *sd) {
 		is_atcommand(fd, sd, (char*)RFIFOP(fd,4), 0) != AtCommand_None)
 		return;
 	if	(sd->sc.count && (
-			sd->sc.data[SC_BERSERK].timer!=-1 ||	//�o�[�T�[�N�����b���s��
-			sd->sc.data[SC_NOCHAT].timer!=-1		//�`���b�g�֎~
+			sd->sc.data[SC_BERSERK].timer!=-1 ||	//o[T[Nbs
+			sd->sc.data[SC_NOCHAT].timer!=-1		//`bg~
 		))
 		return;
 
@@ -9995,7 +10038,7 @@ void clif_parse_PartyMessage(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �I�X��
+ * IX
  *------------------------------------------
  */
 void clif_parse_CloseVending(int fd, struct map_session_data *sd) {
@@ -10003,7 +10046,7 @@ void clif_parse_CloseVending(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �I�X�A�C�e�����X�g�v��
+ * IXACeXgv
  *------------------------------------------
  */
 void clif_parse_VendingListReq(int fd, struct map_session_data *sd) {
@@ -10015,7 +10058,7 @@ void clif_parse_VendingListReq(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �I�X�A�C�e���w��
+ * IXACew
  *------------------------------------------
  */
 void clif_parse_PurchaseReq(int fd, struct map_session_data *sd) {
@@ -10026,7 +10069,7 @@ void clif_parse_PurchaseReq(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �I�X�J��
+ * IXJ
  *------------------------------------------
  */
 void clif_parse_OpenVending(int fd,struct map_session_data *sd) {
@@ -10037,7 +10080,7 @@ void clif_parse_OpenVending(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�����
+ * Mh
  *------------------------------------------
  */
 void clif_parse_CreateGuild(int fd,struct map_session_data *sd) {
@@ -10046,7 +10089,7 @@ void clif_parse_CreateGuild(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�}�X�^�[���ǂ����m�F
+ * Mh}X^[mF
  *------------------------------------------
  */
 void clif_parse_GuildCheckMaster(int fd, struct map_session_data *sd) {
@@ -10054,28 +10097,28 @@ void clif_parse_GuildCheckMaster(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h���v��
+ * Mhv
  *------------------------------------------
  */
 void clif_parse_GuildRequestInfo(int fd, struct map_session_data *sd) {
 	RFIFOHEAD(fd);
 	switch(RFIFOL(fd,2)){
-	case 0:	// �M���h��{���A�����G����
+	case 0:	// Mh{AG
 		clif_guild_basicinfo(sd);
 		clif_guild_allianceinfo(sd);
 		break;
-	case 1:	// �����o�[���X�g�A��E�����X�g
+	case 1:	// o[XgAEXg
 		clif_guild_positionnamelist(sd);
 		clif_guild_memberlist(sd);
 		break;
-	case 2:	// ��E�����X�g�A��E���X�g
+	case 2:	// EXgAEXg
 		clif_guild_positionnamelist(sd);
 		clif_guild_positioninfolist(sd);
 		break;
-	case 3:	// �X�L�����X�g
+	case 3:	// XLXg
 		clif_guild_skillinfo(sd);
 		break;
-	case 4:	// �Ǖ����X�g
+	case 4:	// Xg
 		clif_guild_explusionlist(sd);
 		break;
 	default:
@@ -10086,7 +10129,7 @@ void clif_parse_GuildRequestInfo(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h��E�ύX
+ * MhEX
  *------------------------------------------
  */
 void clif_parse_GuildChangePositionInfo(int fd, struct map_session_data *sd) {
@@ -10099,7 +10142,7 @@ void clif_parse_GuildChangePositionInfo(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�����o��E�ύX
+ * MhoEX
  *------------------------------------------
  */
 void clif_parse_GuildChangeMemberPosition(int fd, struct map_session_data *sd) {
@@ -10113,7 +10156,7 @@ void clif_parse_GuildChangeMemberPosition(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�G���u�����v��
+ * MhGuv
  *------------------------------------------
  */
 void clif_parse_GuildRequestEmblem(int fd,struct map_session_data *sd) {
@@ -10125,7 +10168,7 @@ void clif_parse_GuildRequestEmblem(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�G���u�����ύX
+ * MhGuX
  *------------------------------------------
  */
 void clif_parse_GuildChangeEmblem(int fd,struct map_session_data *sd) {
@@ -10134,7 +10177,7 @@ void clif_parse_GuildChangeEmblem(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h���m�ύX
+ * MhmX
  *------------------------------------------
  */
 void clif_parse_GuildChangeNotice(int fd,struct map_session_data *sd) {
@@ -10143,7 +10186,7 @@ void clif_parse_GuildChangeNotice(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h���U
+ * MhU
  *------------------------------------------
  */
 void clif_parse_GuildInvite(int fd,struct map_session_data *sd) {
@@ -10152,7 +10195,7 @@ void clif_parse_GuildInvite(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h���U��M
+ * MhUM
  *------------------------------------------
  */
 void clif_parse_GuildReplyInvite(int fd,struct map_session_data *sd) {
@@ -10161,7 +10204,7 @@ void clif_parse_GuildReplyInvite(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�E��
+ * MhE
  *------------------------------------------
  */
 void clif_parse_GuildLeave(int fd,struct map_session_data *sd) {
@@ -10170,7 +10213,7 @@ void clif_parse_GuildLeave(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�Ǖ�
+ * Mh
  *------------------------------------------
  */
 void clif_parse_GuildExplusion(int fd,struct map_session_data *sd) {
@@ -10179,7 +10222,7 @@ void clif_parse_GuildExplusion(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h��b
+ * Mhb
  *------------------------------------------
  */
 void clif_parse_GuildMessage(int fd,struct map_session_data *sd) {
@@ -10189,8 +10232,8 @@ void clif_parse_GuildMessage(int fd,struct map_session_data *sd) {
 		is_atcommand(fd, sd, (char*)RFIFOP(fd, 4), 0) != AtCommand_None)
 		return;
 	if (sd->sc.count && (
-		sd->sc.data[SC_BERSERK].timer!=-1 ||	//�o�[�T�[�N�����b���s��
-		sd->sc.data[SC_NOCHAT].timer!=-1		//�`���b�g�֎~
+		sd->sc.data[SC_BERSERK].timer!=-1 ||	//o[T[Nbs
+		sd->sc.data[SC_NOCHAT].timer!=-1		//`bg~
 	))
 		return;
 
@@ -10198,7 +10241,7 @@ void clif_parse_GuildMessage(int fd,struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�����v��
+ * Mhv
  *------------------------------------------
  */
 void clif_parse_GuildRequestAlliance(int fd, struct map_session_data *sd) {
@@ -10207,7 +10250,7 @@ void clif_parse_GuildRequestAlliance(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�����v����M
+ * MhvM
  *------------------------------------------
  */
 void clif_parse_GuildReplyAlliance(int fd, struct map_session_data *sd) {
@@ -10216,7 +10259,7 @@ void clif_parse_GuildReplyAlliance(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�֌W����
+ * MhW
  *------------------------------------------
  */
 void clif_parse_GuildDelAlliance(int fd, struct map_session_data *sd) {
@@ -10225,7 +10268,7 @@ void clif_parse_GuildDelAlliance(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h�G��
+ * MhG
  *------------------------------------------
  */
 void clif_parse_GuildOpposition(int fd, struct map_session_data *sd) {
@@ -10234,7 +10277,7 @@ void clif_parse_GuildOpposition(int fd, struct map_session_data *sd) {
 }
 
 /*==========================================
- * �M���h���U
+ * MhU
  *------------------------------------------
  */
 void clif_parse_GuildBreak(int fd, struct map_session_data *sd) {
@@ -10293,7 +10336,6 @@ void clif_parse_GMKick(int fd, struct map_session_data *sd) {
 					clif_GM_kickack(sd, 0);
 			} else if (target->type == BL_MOB) {
 				struct mob_data *md = (struct mob_data *)target;
-				sd->state.attack_type = 0;
 				mob_damage(&sd->bl, md, md->hp, 2);
 			} else
 				clif_GM_kickack(sd, 0);
@@ -10399,7 +10441,7 @@ void clif_parse_GMHide(int fd, struct map_session_data *sd) {	// Modified by [Yo
 }
 
 /*==========================================
- * GM�ɂ��`���b�g�֎~���ԕt�^
+ * GM`bg~t^
  *------------------------------------------
  */
 void clif_parse_GMReqNoChat(int fd,struct map_session_data *sd)
@@ -10451,7 +10493,7 @@ void clif_parse_GMReqNoChat(int fd,struct map_session_data *sd)
 	return;
 }
 /*==========================================
- * GM�ɂ��`���b�g�֎~���ԎQ��i�H�j
+ * GM`bg~QiHj
  *------------------------------------------
  */
 void clif_parse_GMReqNoChatCount(int fd, struct map_session_data *sd)
@@ -10594,7 +10636,7 @@ void clif_parse_PMIgnoreAll(int fd, struct map_session_data *sd) { // Rewritten 
 }
 
 /*==========================================
- * Wis������X�g
+ * WisXg
  *------------------------------------------
  */
  int pstrcmp(const void *a, const void *b)
@@ -10606,7 +10648,7 @@ void clif_parse_PMIgnoreList(int fd,struct map_session_data *sd)
 	int i,j=0,count=0;
 
 	qsort (sd->ignore[0].name, MAX_IGNORE_LIST, sizeof(sd->ignore[0].name), pstrcmp);
-	for(i = 0; i < MAX_IGNORE_LIST; i++){	//���g������̂�����
+	for(i = 0; i < MAX_IGNORE_LIST; i++){	//g
 		if(sd->ignore[i].name[0] != 0)
 			count++;
 	}
@@ -10620,26 +10662,29 @@ void clif_parse_PMIgnoreList(int fd,struct map_session_data *sd)
 		}
 	}
 	WFIFOSET(fd, WFIFOW(fd,2));
-	if(count >= MAX_IGNORE_LIST)	//���^���Ȃ�Ō��1������
+	if(count >= MAX_IGNORE_LIST)	//^1
 		sd->ignore[MAX_IGNORE_LIST - 1].name[0] = 0;
 
 	return;
 }
 
 /*==========================================
- * �X�p�m�r��/doridori�ɂ��SPR2�{
+ * Xpmr/doridoriSPR2{
  *------------------------------------------
  */
 void clif_parse_NoviceDoriDori(int fd, struct map_session_data *sd) {
 	int level;
-	sd->doridori_counter = 1;
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON
+
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
+		sd->doridori_counter++;
+
+	if ((sd->class_&MAPID_BASEMASK) == MAPID_TAEKWON
 		&& sd->state.rest && (level = pc_checkskill(sd,TK_SPTIME)))
 		sc_start(&sd->bl,SkillStatusChangeTable[TK_SPTIME],100,level,skill_get_time(TK_SPTIME, level));
 	return;
 }
 /*==========================================
- * �X�p�m�r�̔����g��
+ * Xpmrg
  *------------------------------------------
  */
 void clif_parse_NoviceExplosionSpirits(int fd, struct map_session_data *sd)
@@ -11061,11 +11106,8 @@ void clif_parse_FeelSaveOk(int fd,struct map_session_data *sd)
 	WFIFOL(fd,26)=sd->bl.id;
 	WFIFOW(fd,30)=i;
 	WFIFOSET(fd, packet_len_table[0x20e]);
-	
-	if (sd->bl.m == sd->feel_map[i].m && 
-		(i = pc_checkskill(sd,SG_KNOWLEDGE)) > 0)
-		sc_start(&sd->bl, SC_KNOWLEDGE, 100, i, skill_get_time(SG_KNOWLEDGE, i));
 
+	clif_skill_nodamage(&sd->bl,&sd->bl,sd->menuskill_id,sd->menuskill_lv,1);
 	sd->menuskill_lv = sd->menuskill_id = 0;
 }
 
@@ -11082,7 +11124,7 @@ void clif_parse_ReqFeel(int fd, struct map_session_data *sd, int skilllv) {
 }
 
 /*==========================================
- * �p�P�b�g�f�o�b�O
+ * pPbgfobO
  *------------------------------------------
  */
 void clif_parse_debug(int fd,struct map_session_data *sd)
@@ -11103,8 +11145,8 @@ void clif_parse_debug(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- * �N���C�A���g�����p�P�b�g���
- * socket.c��do_parsepacket����Ă�o�����
+ * NCAgpPbg
+ * socket.cdo_parsepacketo
  *------------------------------------------
  */
 int clif_parse(int fd) {
@@ -11120,7 +11162,7 @@ int clif_parse(int fd) {
 
 	sd = (struct map_session_data*)session[fd]->session_data;
 
-	// �ڑ����؂�Ă�̂Ō�n��
+	// n
 	if (!chrif_isconnect() && kick_on_disconnect)
 	{
 		ShowInfo("Closing session #%d (Not connected to Char server)\n", fd);
@@ -11156,7 +11198,7 @@ int clif_parse(int fd) {
 
 	cmd = RFIFOW(fd,0);
 
-	// �Ǘ��p�p�P�b�g����
+	// ppPbg
 	if (cmd >= 30000) {
 		switch(cmd) {
 		case 0x7530: { //Why are we letting people know which version we are running?
@@ -11173,7 +11215,7 @@ int clif_parse(int fd) {
 			RFIFOSKIP(fd,2);
 			break;
 		}
-		case 0x7532: // �ڑ���ؒf
+		case 0x7532: // f
 			ShowWarning("clif_parse: session #%d disconnected for sending packet 0x04%x\n", fd, cmd);
 			session[fd]->eof=1;
 			break;
@@ -11216,18 +11258,18 @@ int clif_parse(int fd) {
 		}
 	}
 
-	// �Q�[���p��O�p�P�b�g���A�F�؂��I����O��0072��O��������A�ؒf����
+	// Q[pOpPbgAFIO0072OAf
 	if (cmd >= MAX_PACKET_DB || packet_db[packet_ver][cmd].len == 0) {	// if packet is not inside these values: session is incorrect?? or auth packet is unknown
 		ShowWarning("clif_parse: Received unsupported packet (packet 0x%04x, %d bytes received), disconnecting session #%d.\n", cmd, RFIFOREST(fd), fd);
 		session[fd]->eof = 1;
 		return 0;
 	}
 
-	// �p�P�b�g�����v�Z
+	// pPbgvZ
 	packet_len = packet_db[packet_ver][cmd].len;
 	if (packet_len == -1) {
 		if (RFIFOREST(fd) < 4)
-			return 0; // �ϒ��p�P�b�g�Œ�������܂�f�[�^�����ĂȂ�
+			return 0; // pPbgf[^
 
 		packet_len = RFIFOW(fd,2);
 		if (packet_len < 4 || packet_len > 32768) {
@@ -11237,13 +11279,13 @@ int clif_parse(int fd) {
 		}
 	}
 	if ((int)RFIFOREST(fd) < packet_len)
-		return 0; // �܂�1�p�P�b�g���f�[�^�������ĂȂ�
+		return 0; // 1pPbgf[^
 
 	#if DUMP_ALL_PACKETS
 		dump = 1;
 	#endif
 
-	if (sd && sd->state.auth == 1 && sd->state.waitingdisconnect == 1) { // �ؒf�҂���ꍇ�p�P�b�g���������Ȃ�
+	if (sd && sd->state.auth == 1 && sd->state.waitingdisconnect == 1) { // fpPbg
 
 	} else if (packet_db[packet_ver][cmd].func) {
 		if (sd
@@ -11252,7 +11294,7 @@ int clif_parse(int fd) {
 		)	//Only execute the function when there's an sd (except for debug/wanttoconnect packets)
 			packet_db[packet_ver][cmd].func(fd, sd);
 	} else {
-		// �s����p�P�b�g
+		// spPbg
 		if (battle_config.error_log) {
 #if DUMP_UNKNOWN_PACKET
 			{
@@ -11317,7 +11359,7 @@ int clif_parse(int fd) {
 }
 
 /*==========================================
- * �p�P�b�g�f�[�^�x�[�X�ǂݍ���
+ * pPbgf[^x[X
  *------------------------------------------
  */
 static int packetdb_readdb(void)
@@ -11615,7 +11657,7 @@ int do_init_clif(void) {
 	add_timer_func_list(clif_clearchar_delay_sub, "clif_clearchar_delay_sub");
 	add_timer_func_list(clif_delayquit, "clif_delayquit");
 	add_timer_func_list(clif_nighttimer, "clif_nighttimer");
-
+	add_timer_func_list(clif_walktoxy_timer, "clif_walktoxy_timer");
 	return 0;
 }
 

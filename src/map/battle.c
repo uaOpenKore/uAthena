@@ -210,9 +210,9 @@ int battle_damage(struct block_list *src,struct block_list *target,int damage, i
 			status_change_end(target, SC_CLOAKING, -1);
 		if (sc->data[SC_CHASEWALK].timer != -1)
 			status_change_end(target, SC_CHASEWALK, -1);
-		if (sc->data[SC_ENDURE].timer != -1 && sc->data[SC_ENDURE].val1 <= 10) {
+		if (sc->data[SC_ENDURE].timer != -1 && !sc->data[SC_ENDURE].val4) {
 			//Endure count is only reduced by non-players on non-gvg maps.
-			//if val1 is greater than 10, this is infinite endure. [Skotlex]
+			//val4 signals infinite endure. [Skotlex]
 			if (src && src->type != BL_PC && !map_flag_gvg(target->m)
 				&& --(sc->data[SC_ENDURE].val2) < 0)
 				status_change_end(target, SC_ENDURE, -1);
@@ -462,6 +462,16 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 			&& rand()%100 < 75 && !(skill_get_inf(skill_num)&INF_GROUND_SKILL))
 			return 0;
 
+		if(sc->data[SC_KAUPE].timer != -1 &&
+			rand()%100 < sc->data[SC_KAUPE].val2 &&
+			(src->type == BL_PC || !skill_num))
+		{	//Kaupe only blocks all skills of players.
+			clif_skill_nodamage(bl,bl,SL_KAUPE,1,1);
+			if (--sc->data[SC_KAUPE].val3 <= 0) //We make it work like Safety Wall, even though it only blocks 1 time.
+				status_change_end(bl, SC_KAUPE, -1);
+			return 0;
+		}
+
 		//Now damage increasing effects
 		if(sc->data[SC_AETERNA].timer!=-1 && skill_num != PA_PRESSURE && skill_num != PF_SOULBURN){
 			damage<<=1;
@@ -543,7 +553,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 			if (flag&BF_MAGIC) {
 				if(!(skill_get_inf(skill_num)&INF_GROUND_SKILL) && rand()%100 < 75)
 					return 0;
-			} else 
+			} else if (flag&BF_WEAPON)
 				damage >>=1;
 		}
 	}
@@ -935,12 +945,6 @@ void battle_consume_ammo(TBL_PC*sd, int skill, int lv)
 	if (!battle_config.arrow_decrement)
 		return;
 
-	if (skill == AC_SHOWER) {
-		//Can't consume arrows this way as it triggers per target, gotta wait for the direct invocation with lv -1
-		if (lv > 0)
-			return;
-		lv *= -1;
-	}
 	if (skill)
 	{
 		qty = skill_get_ammo_qty(skill, lv);
@@ -1051,7 +1055,6 @@ static struct Damage battle_calc_weapon_attack(
 	}
 
 	if(sd) {
-		sd->state.attack_type = BF_WEAPON;
 		if (sd->skillblown[0].id != 0)
 		{	//Apply the bonus blewcount. [Skotlex]
 			for (i = 0; i < 5 && sd->skillblown[i].id != 0 && sd->skillblown[i].id != skill_num; i++);
@@ -1060,27 +1063,10 @@ static struct Damage battle_calc_weapon_attack(
 		}
 	}
 	//Set miscellaneous data that needs be filled regardless of hit/miss
-	if(sd) {
-		if (!skill_num) //Ammo condition for weapons is lower below.
-		switch (sd->status.weapon) {
-			case W_BOW:
-			case W_REVOLVER:
-			case W_RIFLE:
-			case W_SHOTGUN:
-			case W_GATLING:
-			case W_GRENADE:
-				wd.flag=(wd.flag&~BF_RANGEMASK)|BF_LONG;
-				flag.arrow = 1;
-				break;
-		}
-	} else if (status_get_range(src) > 3)
-		wd.flag=(wd.flag&~BF_RANGEMASK)|BF_LONG;
-
-	if(skill_num && 
-		(skill_get_ammotype(skill_num) ||
-		(sd && skill_isammotype(sd, skill_num)))
-	){
-		//Skills that require a consumable are also long-ranged arrow-types
+	if(
+		(sd && sd->state.arrow_atk) ||
+		(!sd && ((skill_num && skill_get_ammotype(skill_num)) || status_get_range(src)>3))
+	) {
 		wd.flag=(wd.flag&~BF_RANGEMASK)|BF_LONG;
 		flag.arrow = 1;
 	}
@@ -1153,13 +1139,8 @@ static struct Damage battle_calc_weapon_attack(
 	if(is_boss(target)) //Bosses can't be knocked-back
 		wd.blewcount = 0;
 
-	if (sd)
-	{	//Arrow consumption
-		sd->state.arrow_atk = flag.arrow;
-	}
-
 /* Apparently counter attack no longer causes you to be critical'ed by mobs. [Skotlex]
-	//Check for counter 
+	//Check for counter
 	if(!skill_num)
 	{
 		if(tsc && tsc->data[SC_AUTOCOUNTER].timer != -1)
@@ -1175,8 +1156,6 @@ static struct Damage battle_calc_weapon_attack(
 			wd.type=0x0b;
 			wd.dmg_lv=ATK_LUCKY;
 			if (wd.div_ < 0) wd.div_*=-1;
-			if (sd && flag.arrow)
-				battle_consume_ammo(sd, skill_num, skill_lv);
 			return wd;
 		}
 	}
@@ -1318,7 +1297,12 @@ static struct Damage battle_calc_weapon_attack(
 		}
 
 		hitrate+= status_get_hit(src) - flee;
-		
+
+		if(wd.flag&BF_LONG && (
+			(sc && sc->data[SC_FOGWALL].timer!=-1) ||
+			(tsc && tsc->data[SC_FOGWALL].timer!=-1)))
+			hitrate-=50;
+
 		if(sd && flag.arrow)
 			hitrate += sd->arrow_hit;
 		if(skill_num)
@@ -1356,18 +1340,12 @@ static struct Damage battle_calc_weapon_attack(
 
 		if(rand()%100 >= hitrate)
 			wd.dmg_lv = ATK_FLEE;
-		else if (tsc && tsc->data[SC_KAUPE].timer != -1 && rand()%100 < tsc->data[SC_KAUPE].val2) {
-			if (--tsc->data[SC_KAUPE].val3 <= 0) //We make it work like Safety Wall, even though it only blocks 1 time.
-				status_change_end(target, SC_KAUPE, -1);
-			wd.dmg_lv = ATK_FLEE;
-		} else
+		else
 			flag.hit =1;
 	}	//End hit/miss calculation
 
 	if(tsd && tsd->special_state.no_weapon_damage) {
 		if (wd.div_ < 0) wd.div_*=-1;
-		if (sd && flag.arrow)
-			battle_consume_ammo(sd, skill_num, skill_lv);
 		return wd;
 	}
 
@@ -1839,11 +1817,10 @@ static struct Damage battle_calc_weapon_attack(
 				target_count = unit_counttargeted(target,battle_config.vit_penalty_count_lv);
 				if(target_count >= battle_config.vit_penalty_count) {
 					if(battle_config.vit_penalty_type == 1) {
-// armor defense shouldn't be reduced from what people are saying. [Skotlex]						
-//						def1 = (def1 * (100 - (target_count - (battle_config.vit_penalty_count - 1))*battle_config.vit_penalty_num))/100;
+						def1 = (def1 * (100 - (target_count - (battle_config.vit_penalty_count - 1))*battle_config.vit_penalty_num))/100;
 						def2 = (def2 * (100 - (target_count - (battle_config.vit_penalty_count - 1))*battle_config.vit_penalty_num))/100;
 					} else { //Assume type 2
-//						def1 -= (target_count - (battle_config.vit_penalty_count - 1))*battle_config.vit_penalty_num;
+						def1 -= (target_count - (battle_config.vit_penalty_count - 1))*battle_config.vit_penalty_num;
 						def2 -= (target_count - (battle_config.vit_penalty_count - 1))*battle_config.vit_penalty_num;
 					}
 				}
@@ -2084,14 +2061,11 @@ static struct Damage battle_calc_weapon_attack(
 			wd.damage = 1;
 		if (flag.lh && (flag.hit || wd.damage2>0))
 			wd.damage2 = 1;
-		if (!(battle_config.skill_min_damage&1)) 
-		{	//Do not return if you are supposed to deal greater damage to plants than 1. [Skotlex]
-			if (sd && flag.arrow)
-				battle_consume_ammo(sd, skill_num, skill_lv);
+		if (!(battle_config.skill_min_damage&1))
+			//Do not return if you are supposed to deal greater damage to plants than 1. [Skotlex]
 			return wd;
-		}
 	}
-	
+
 	if(sd && !skill_num && !flag.cri)
 	{	//Check for double attack.
 		if(( (skill_lv = 5*pc_checkskill(sd,TF_DOUBLE)) > 0 && sd->weapontype1 == W_DAGGER) ||
@@ -2142,10 +2116,8 @@ static struct Damage battle_calc_weapon_attack(
 			if(wd.damage > 0 && wd.damage2 < 1) wd.damage2 = 1;
 			flag.lh = 1;
 		}
-		if (flag.arrow) //Consume the arrow.
-			battle_consume_ammo(sd, skill_num, skill_lv);
 	}
-	
+
 	if(wd.damage > 0 || wd.damage2 > 0)
 	{
 		if(wd.damage2<1) {
@@ -2169,7 +2141,8 @@ static struct Damage battle_calc_weapon_attack(
 		}
 	}
 
-	if(sd && sd->classchange && tmd && !(t_mode&MD_BOSS) && !tmd->guardian_data && (tmd->class_ < 1324 || tmd->class_ > 1363) && (rand()%10000 < sd->classchange))
+	if(sd && sd->classchange && tmd && !(t_mode&MD_BOSS) && !tmd->guardian_data && (tmd->class_ < 1324 || tmd->class_ > 1363)
+		&& !mob_is_clone(tmd->class_) && (rand()%10000 < sd->classchange))
 	{	//Classchange:
 		struct mob_db *mob;
 		int k, class_;
@@ -2327,7 +2300,6 @@ struct Damage battle_calc_magic_attack(
 
 	//Set miscellaneous data that needs be filled
 	if(sd) {
-		sd->state.attack_type = BF_MAGIC;
 		sd->state.arrow_atk = 0;
 		if (sd->skillblown[0].id != 0)
 		{	//Apply the bonus blewcount. [Skotlex]
@@ -2681,7 +2653,6 @@ struct Damage  battle_calc_misc_attack(
 	md.dmg_lv=ATK_DEF;
 
 	if( bl->type == BL_PC && (sd=(struct map_session_data *)bl) ) {
-		sd->state.attack_type = BF_MISC;
 		sd->state.arrow_atk = 0;
 		if (sd->skillblown[0].id != 0)
 		{	//Apply the bonus blewcount. [Skotlex]
@@ -3020,11 +2991,13 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 	race = status_get_race(target);
 	ele = status_get_elem_type(target);
 
-	if (sd && (sd->status.weapon == W_BOW || (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
-		&& sd->equip_index[10] < 0)
-  	{
-		clif_arrow_fail(sd,0);
-		return 0;
+	if (sd)
+	{
+		sd->state.arrow_atk = (sd->status.weapon == W_BOW || (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE));
+		if (sd->state.arrow_atk && sd->equip_index[10]<0) {
+			clif_arrow_fail(sd,0);
+			return 0;
+		}
 	}
 
 	if (sc && sc->data[SC_CLOAKING].timer != -1 && !sc->data[SC_CLOAKING].val4)
@@ -3054,13 +3027,14 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 			int skilllv = tsc->data[SC_BLADESTOP_WAIT].val1;
 			int duration = skill_get_time2(MO_BLADESTOP,skilllv);
 			status_change_end(target, SC_BLADESTOP_WAIT, -1);
-			clif_damage(src, target, tick, status_get_amotion(src), 1, 0, 1, 0, 0); //Display MISS.
-			sc_start4(target, SC_BLADESTOP, 100, skilllv, 2, (int)target, (int)src, duration);
-			skilllv = sd?pc_checkskill(sd, MO_BLADESTOP):1;
-			sc_start4(src, SC_BLADESTOP, 100, skilllv, 1, (int)src, (int)target, duration);
-			return 0;
+			if(sc_start4(src, SC_BLADESTOP, 100, sd?pc_checkskill(sd, MO_BLADESTOP):5, 0, 0, (int)target, duration))
+			{	//Target locked.
+				clif_damage(src, target, tick, status_get_amotion(src), 1, 0, 1, 0, 0); //Display MISS.
+				clif_bladestop(target,src,1);
+				sc_start4(target, SC_BLADESTOP, 100, skilllv, 0, 0,(int)src, duration);
+				return 0;
+			}
 		}
-
 	}
 	//Recycled the damage variable rather than use a new one... [Skotlex]
 	if(sd && (damage = pc_checkskill(sd,MO_TRIPLEATTACK)) > 0) // triple blow works with bows ^^ [celest]
@@ -3075,8 +3049,11 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 	}
 	else if (sc && sc->data[SC_SACRIFICE].timer != -1)
 		return skill_attack(BF_WEAPON,src,src,target,PA_SACRIFICE,sc->data[SC_SACRIFICE].val1,tick,0);
-			
+
 	wd = battle_calc_weapon_attack(src,target, 0, 0,0);
+
+	if (sd && sd->state.arrow_atk) //Consume arrow.
+		battle_consume_ammo(sd, 0, 0);
 
 	damage = wd.damage + wd.damage2;
 	if (damage > 0 && src != target) {
@@ -3525,6 +3502,8 @@ static const struct battle_data_short {
 	{ "mvp_hp_rate",                       &battle_config.mvp_hp_rate				},
 	{ "monster_hp_rate",                   &battle_config.monster_hp_rate			},
 	{ "monster_max_aspd",                  &battle_config.monster_max_aspd			},
+	{ "view_range_rate",                   &battle_config.view_range_rate },
+	{ "chase_range_rate",                  &battle_config.chase_range_rate },
 	{ "atcommand_gm_only",                 &battle_config.atc_gmonly				},
 	{ "atcommand_spawn_quantity_limit",    &battle_config.atc_spawn_quantity_limit	},
 	{ "atcommand_slave_clone_limit",       &battle_config.atc_slave_clone_limit},
@@ -3796,6 +3775,7 @@ static const struct battle_data_short {
 	{ "mob_max_status_def",					&battle_config.mob_max_sc_def },
 	{ "sg_miracle_skill_ratio",				&battle_config.sg_miracle_skill_ratio },
 	{ "autospell_stacking", 				&battle_config.autospell_stacking },
+	{ "override_mob_names", 				&battle_config.override_mob_names },
 };
 
 static const struct battle_data_int {
@@ -3823,10 +3803,15 @@ static const struct battle_data_int {
 // eAthena additions
 	{ "item_rate_mvp",                     &battle_config.item_rate_mvp		},
 	{ "item_rate_common",                  &battle_config.item_rate_common	},	// Added by RoVeRT
+	{ "item_rate_common_boss",                   &battle_config.item_rate_common_boss	},	// [Reddozen]
 	{ "item_rate_equip",                   &battle_config.item_rate_equip	},
+	{ "item_rate_equip_boss",                   &battle_config.item_rate_equip_boss	},	// [Reddozen]
 	{ "item_rate_card",                    &battle_config.item_rate_card	},	// End Addition
+	{ "item_rate_card_boss",                    &battle_config.item_rate_card_boss	},	// [Reddozen]
 	{ "item_rate_heal",                    &battle_config.item_rate_heal	},	// Added by Valaris
+	{ "item_rate_heal_boss",                    &battle_config.item_rate_heal_boss	},	// [Reddozen]
 	{ "item_rate_use",                     &battle_config.item_rate_use	},	// End
+	{ "item_rate_use_boss",                     &battle_config.item_rate_use_boss	},	// [Reddozen]
 	{ "item_rate_adddrop",                 &battle_config.item_rate_adddrop	},	// End
 	{ "item_rate_treasure",                &battle_config.item_rate_treasure }, // End
 	{ "day_duration",                      &battle_config.day_duration	}, // added by [Yor]
@@ -3848,22 +3833,19 @@ int battle_set_value(char *w1, char *w2) {
 			*battle_data_int[i].val = battle_config_switch(w2);
 			return 1;
 		}
-/*			
-                  int val =  battle_config_switch(w2);
-                  switch(battle_data[i].size) {
-                  case 1:
-                    *((unsigned char *) battle_data[i].val) = val;
-                    break;
-                  case 2:
-                    *((unsigned short *) battle_data[i].val) = val;
-                    break;
-                  case 4:
-                    *((unsigned int *) battle_data[i].val) = val;
-                    break;
-                  }
-                  return 1;
+	return 0;
+}
+
+int battle_get_value(char *w1) {
+	int i;
+	for(i = 0; i < sizeof(battle_data_short) / (sizeof(battle_data_short[0])); i++)
+		if (strcmpi(w1, battle_data_short[i].str) == 0) {
+			return * battle_data_short[i].val;
 		}
-*/
+	for(i = 0; i < sizeof(battle_data_int) / (sizeof(battle_data_int[0])); i++)
+		if (strcmpi(w1, battle_data_int[i].str) == 0) {
+			return *battle_data_int[i].val;
+		}
 	return 0;
 }
 
@@ -3912,6 +3894,8 @@ void battle_set_defaults() {
 	battle_config.mvp_hp_rate=100;
 	battle_config.monster_hp_rate=100;
 	battle_config.monster_max_aspd=199;
+	battle_config.view_range_rate=100;
+	battle_config.chase_range_rate=100;
 	battle_config.atc_gmonly=0;
 	battle_config.atc_spawn_quantity_limit=0;
 	battle_config.atc_slave_clone_limit=0;
@@ -4079,10 +4063,15 @@ void battle_set_defaults() {
 // eAthena additions
 	battle_config.item_rate_mvp=100;
 	battle_config.item_rate_common = 100;
+	battle_config.item_rate_common_boss = 100;	// [Reddozen]
 	battle_config.item_rate_equip = 100;
+	battle_config.item_rate_equip_boss = 100;	// [Reddozen]
 	battle_config.item_rate_card = 100;
+	battle_config.item_rate_card_boss = 100;	// [Reddozen]
 	battle_config.item_rate_heal = 100;		// Added by Valaris
+	battle_config.item_rate_heal_boss = 100;	// [Reddozen]
 	battle_config.item_rate_use = 100;		// End
+	battle_config.item_rate_use_boss = 100;	// [Reddozen]
 	battle_config.item_rate_adddrop = 100;
 	battle_config.item_rate_treasure = 100;
 	battle_config.logarithmic_drops = 0;
@@ -4201,6 +4190,7 @@ void battle_set_defaults() {
 	battle_config.sg_miracle_skill_ratio=1;
 	battle_config.sg_miracle_skill_duration=600000;
 	battle_config.autospell_stacking = 0;
+	battle_config.override_mob_names = 0;
 }
 
 void battle_validate_conf() {
