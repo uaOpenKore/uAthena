@@ -1413,7 +1413,10 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 		}
 	}
 
-	if(sd && bl->type == BL_MOB && status_isdead(bl) && skill_get_inf(skillid)!=INF_GROUND_SKILL && (rate=pc_checkskill(sd,HW_SOULDRAIN))>0)
+	if(sd && bl->type == BL_MOB && status_isdead(bl) &&
+		skillid && skill_get_type(skillid)==BF_MAGIC &&
+		skill_get_inf(skillid)!=INF_GROUND_SKILL &&
+		(rate=pc_checkskill(sd,HW_SOULDRAIN))>0)
 	{	//Soul Drain should only work on targetted spells [Skotlex]
 		int sp;
 		if (pc_issit(sd)) pc_setstand(sd); //Character stuck in attacking animation while 'sitting' fix. [Skotlex]
@@ -3914,7 +3917,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if (sd) {
 			if (!dstsd || !(
 				(sd->sc.data[SC_SPIRIT].timer != -1 && sd->sc.data[SC_SPIRIT].val2 == SL_SOULLINKER) ||
-				(dstsd->class_&MAPID_BASEMASK) == MAPID_SOUL_LINKER ||
+				(dstsd->class_&MAPID_UPPERMASK) == MAPID_SOUL_LINKER ||
 				dstsd->char_id == sd->char_id ||
 				dstsd->char_id == sd->status.partner_id ||
 				dstsd->char_id == sd->status.child
@@ -5687,10 +5690,9 @@ int skill_castend_pos2( struct block_list *src, int x,int y,int skillid,int skil
 	sc = status_get_sc(src); //Needed for Magic Power checks.
 	if (sc && !sc->count)
 		sc = NULL; //Unneeded.
-	
+
 	if(skillid != WZ_METEOR &&
-		skillid != AM_CANNIBALIZE &&
-		skillid != AM_SPHEREMINE &&
+		skillid != MO_BODYRELOCATION &&
 		skillid != CR_CULTIVATION)
 		clif_skill_poseffect(src,skillid,skilllv,x,y,tick);
 
@@ -5816,7 +5818,8 @@ int skill_castend_pos2( struct block_list *src, int x,int y,int skillid,int skil
 
 	case MO_BODYRELOCATION:
 		if (unit_movepos(src, x, y, 1, 1)) {
-			clif_slide(src, src->x, src->y);
+			clif_skill_poseffect(src,skillid,skilllv,src->x,src->y,tick);
+//			clif_slide(src, src->x, src->y); //Poseffect is the one that makes the char snap on the client...
 			if (sd) skill_blockpc_start (sd, MO_EXTREMITYFIST, 2000);
 		}
 		break;
@@ -5839,9 +5842,6 @@ int skill_castend_pos2( struct block_list *src, int x,int y,int skillid,int skil
 				md->mode = MD_CANATTACK|MD_AGGRESSIVE;
 				md->deletetimer = add_timer (gettick() + skill_get_time(skillid,skilllv), mob_timer_delete, id, 0);
 			}
-			// To-do: ?X^?[?v?[?[Ot
-			// (attach name of player?)
-			clif_skill_poseffect(src,skillid,skilllv,x,y,tick);
 		}
 		break;
 	case AM_SPHEREMINE:	// XtBA?}C
@@ -5858,7 +5858,6 @@ int skill_castend_pos2( struct block_list *src, int x,int y,int skillid,int skil
 				md->special_state.ai = 2;
 				md->deletetimer = add_timer (gettick() + skill_get_time(skillid,skilllv), mob_timer_delete, id, 0);
 			}
-			clif_skill_poseffect(src,skillid,skilllv,x,y,tick);
 		}
 		break;
 
@@ -7339,7 +7338,10 @@ int skill_isammotype(TBL_PC *sd, int skill)
 }
 
 /*==========================================
- * XLgp???i?gps?j
+ * Checks that you have the requirements for casting a skill.
+ * Flag:
+ * &1: finished casting the skill (invoke hp/sp/item consumption)
+ * &2: picked menu entry (Warp Portal, Teleport and other menu based skills)
  *------------------------------------------
  */
 int skill_check_condition(struct map_session_data *sd,int skill, int lv, int type)
@@ -7567,7 +7569,7 @@ int skill_check_condition(struct map_session_data *sd,int skill, int lv, int typ
 		if(sd->sc.data[SC_COMBO].val1 != MO_COMBOFINISH && sd->sc.data[SC_COMBO].val1 != CH_TIGERFIST)
 			return 0;
 		break;
-	case MO_EXTREMITYFIST:					// ?CeP?
+	case MO_EXTREMITYFIST:
 //		if(sd->sc.data[SC_EXTREMITYFIST].timer != -1) //To disable Asura during the 5 min skill block uncomment this...
 //			return 0;
 		if(sd->sc.data[SC_BLADESTOP].timer!=-1)
@@ -7580,8 +7582,8 @@ int skill_check_condition(struct map_session_data *sd,int skill, int lv, int typ
 			else if (sd->sc.data[SC_COMBO].val1 == CH_CHAINCRUSH)
 				spiritball = sd->spiritball?sd->spiritball:1;
 			//It should consume whatever is left as long as it's at least 1.
-		} else if(!unit_can_move(&sd->bl))
-	  	{	//Placed here as ST_MOVE_ENABLE should not apply if rooted or on a combo. [Skotlex]
+		} else if(!type && !unit_can_move(&sd->bl)) //Check only on begin casting.
+		{	//Placed here as ST_MOVE_ENABLE should not apply if rooted or on a combo. [Skotlex]
 			clif_skill_fail(sd,skill,0,0);
 			return 0;
 		}
@@ -7913,7 +7915,8 @@ int skill_check_condition(struct map_session_data *sd,int skill, int lv, int typ
 		}
 		break;
 	case ST_MOVE_ENABLE:
-		if(!unit_can_move(&sd->bl)) {
+		//Check only on begin casting. [Skotlex]
+		if(!type && !unit_can_move(&sd->bl)) {
 			clif_skill_fail(sd,skill,0,0);
 			return 0;
 		}
