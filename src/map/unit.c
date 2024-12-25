@@ -119,12 +119,12 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 		return 0;
 	}
 	ud->walktimer=-1;
-	if( bl->prev == NULL ) return 0; // block_list ‚©‚ç”²‚¯‚Ä‚¢‚é‚Ì‚ÅˆÚ“®’âŽ~‚·‚é
+	if( bl->prev == NULL ) return 0; // block_list ~
 
 	if(ud->walkpath.path_pos>=ud->walkpath.path_len)
 		return 0;
 
-	//•à‚¢‚½‚Ì‚Å‘§‚Ìƒ^ƒCƒ}[‚ð‰Šú‰»
+	//^C}[
 	if(sd) {
 		sd->inchealspirithptick = 0;
 		sd->inchealspiritsptick = 0;
@@ -146,7 +146,7 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 	if(map_getcell(bl->m,x+dx,y+dy,CELL_CHKNOPASS))
 		return unit_walktoxy_sub(bl);
 	
-	// ƒoƒVƒŠƒJ”»’è
+	// oVJ
 
 	map_foreachinmovearea(clif_outsight,bl->m,
 		x-AREA_SIZE,y-AREA_SIZE,x+AREA_SIZE,y+AREA_SIZE,
@@ -254,7 +254,7 @@ int unit_walktoxy( struct block_list *bl, int x, int y, int easy) {
 	
 	if( ud == NULL) return 0;
 
-	// ˆÚ“®o—ˆ‚È‚¢ƒ†ƒjƒbƒg‚Í’e‚­
+	// ojbge
 	if(!(status_get_mode(bl)&MD_CANMOVE) || !unit_can_move(bl))
 		return 0;
 
@@ -268,8 +268,8 @@ int unit_walktoxy( struct block_list *bl, int x, int y, int easy) {
 		map_random_dir(bl, &ud->to_x, &ud->to_y);
 
 	if(ud->walktimer != -1) {
-		// Œ»Ý•à‚¢‚Ä‚¢‚éÅ’†‚Ì–Ú“I’n•ÏX‚È‚Ì‚Åƒ}ƒX–Ú‚Ì’†S‚É—ˆ‚½Žž‚É
-		// timerŠÖ”‚©‚çunit_walktoxy_sub‚ðŒÄ‚Ô‚æ‚¤‚É‚·‚é
+		// InX}XS
+		// timerunit_walktoxy_sub
 		ud->state.change_walk_target = 1;
 		return 1;
 	} else {
@@ -390,7 +390,7 @@ int unit_movepos(struct block_list *bl,int dst_x,int dst_y, int easy, int checkp
 	unit_stop_walking(bl,1);
 	unit_stop_attack(bl);
 
-	if(checkpath && (map_getcell(bl->m,bl->x,bl->y, CELL_CHKNOPASS) || path_search_real(&wpd,bl->m,bl->x,bl->y,dst_x,dst_y,easy, CELL_CHKNOREACH)))
+	if(checkpath && (map_getcell(bl->m,dst_x,dst_y, CELL_CHKNOPASS) || path_search_real(&wpd,bl->m,bl->x,bl->y,dst_x,dst_y,easy, CELL_CHKNOREACH)))
 		return 0;
 
 	dir = map_calc_dir(bl, dst_x,dst_y);
@@ -532,7 +532,7 @@ int unit_warp(struct block_list *bl,int m,short x,short y,int type)
 }
 
 /*==========================================
- * •às’âŽ~
+ * s~
  *------------------------------------------
  */
 int unit_stop_walking(struct block_list *bl,int type)
@@ -634,6 +634,7 @@ int unit_can_move(struct block_list *bl)
 			sc->data[SC_AUTOCOUNTER].timer !=-1 ||
 			sc->data[SC_TRICKDEAD].timer !=-1 ||
 			sc->data[SC_BLADESTOP].timer !=-1 ||
+			sc->data[SC_BLADESTOP_WAIT].timer !=-1 ||
 			sc->data[SC_SPIDERWEB].timer !=-1 ||
 			(sc->data[SC_DANCING].timer !=-1 && (
 				(sc->data[SC_DANCING].val4 && sc->data[SC_LONGING].timer == -1) ||
@@ -670,17 +671,17 @@ int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int 
 	ud->canmove_tick = tick + delay;
 	if (ud->walktimer != -1)
 	{	//Stop walking, if chasing, readjust timers.
-		unit_stop_walking(bl,3);
-		if(ud->target)
-			add_timer(ud->canmove_tick+1, unit_walktobl_sub, bl->id, ud->target);
+		if (delay == 1)
+		{	//Minimal delay (walk-delay) disabled. Just stop walking.
+			unit_stop_walking(bl,0);
+		} else {
+			unit_stop_walking(bl,2);
+			if(ud->target)
+				add_timer(ud->canmove_tick+1, unit_walktobl_sub, bl->id, ud->target);
+		}
 	}
 	return 1;
 }
-
-/*==========================================
- * Applies walk delay based on attack type. [Skotlex]
- *------------------------------------------
- */
 
 int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int skill_lv, int casttime, int castcancel) {
 	struct unit_data *ud;
@@ -692,7 +693,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 
 	nullpo_retr(0, src);
 	if(status_isdead(src))
-		return 0; // Ž€‚ñ‚Å‚¢‚È‚¢‚©
+		return 0; // 
 
 	if( BL_CAST( BL_PC,  src, sd ) ) {
 		ud = &sd->ud;
@@ -745,9 +746,9 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 	if(!target && (target=map_id2bl(target_id)) == NULL )
 		return 0;
 	if(src->m != target->m)
-		return 0; // “¯‚¶ƒ}ƒbƒv‚©‚Ç‚¤‚©
+		return 0; // }bv
 	if(!src->prev || !target->prev)
-		return 0; // map ã‚É‘¶Ý‚·‚é‚©
+		return 0; // map 
 
 	//Normally not needed because clif.c checks for it, but the at/char/script commands don't! [Skotlex]
 	if(ud->skilltimer != -1 && skill_num != SA_CASTCANCEL)
@@ -759,16 +760,16 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 	if(!status_check_skilluse(src, target, skill_num, 0))
 		return 0;
 
-	//’¼‘O‚ÌƒXƒLƒ‹ó‹µ‚Ì‹L˜^
+	//OXLL^
 	if(sd) {
 		switch(skill_num){
 		case SA_CASTCANCEL:
-			if(ud->skillid != skill_num){ //ƒLƒƒƒXƒgƒLƒƒƒ“ƒZƒ‹Ž©‘Ì‚ÍŠo‚¦‚È‚¢
+			if(ud->skillid != skill_num){ //LXgLZo
 				sd->skillid_old = ud->skillid;
 				sd->skilllv_old = ud->skilllv;
 				break;
 			}
-		case BD_ENCORE:					/* ƒAƒ“ƒR[ƒ‹ */
+		case BD_ENCORE:					/* AR[ */
 			//Prevent using the dance skill if you no longer have the skill in your tree. 
 			if(!sd->skillid_dance || pc_checkskill(sd,sd->skillid_dance)<=0){
 				clif_skill_fail(sd,skill_num,0,0);
@@ -776,15 +777,15 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 			}
 			sd->skillid_old = skill_num;
 			break;
-		case BD_LULLABY:				/* ŽqŽç‰Ì */
-		case BD_RICHMANKIM:				/* ƒjƒˆƒ‹ƒh‚Ì‰ƒ */
-		case BD_ETERNALCHAOS:			/* ‰i‰“‚Ì?¬“× */
-		case BD_DRUMBATTLEFIELD:		/* ?‘¾ŒÛ‚Ì‹¿‚« */
-		case BD_RINGNIBELUNGEN:			/* ƒj?ƒxƒ‹ƒ“ƒO‚ÌŽw—Ö */
-		case BD_ROKISWEIL:				/* ƒ?ƒL‚Ì‹©‚Ñ */
-		case BD_INTOABYSS:				/* ?[•£‚Ì’†‚É */
-		case BD_SIEGFRIED:				/* •sŽ€?g‚ÌƒW?ƒNƒtƒŠ?ƒh */
-		case CG_MOONLIT:				/* ŒŽ–¾‚è‚Ì?ò‚É—Ž‚¿‚é‰Ô‚Ñ‚ç */
+		case BD_LULLABY:				/* q */
+		case BD_RICHMANKIM:				/* jh */
+		case BD_ETERNALCHAOS:			/* i? */
+		case BD_DRUMBATTLEFIELD:		/* ? */
+		case BD_RINGNIBELUNGEN:			/* j?xOw */
+		case BD_ROKISWEIL:				/* ?L */
+		case BD_INTOABYSS:				/* ?[ */
+		case BD_SIEGFRIED:				/* s?gW?Nt?h */
+		case CG_MOONLIT:				/* ? */
 			if (battle_config.player_skill_partner_check &&
 				(!battle_config.gm_skilluncond || pc_isGM(sd) < battle_config.gm_skilluncond) &&
 				(skill_check_pc_partner(sd, skill_num, &skill_lv, 1, 0) < 1)
@@ -821,20 +822,20 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 
 	//temp: Used to signal force cast now.
 	temp = 0;
-	/* ‰½‚©“ÁŽê‚Èˆ—‚ª•K—v */
-	// Ž¸”s”»’è‚Ískill_check_condition() ‚É‘‚­‚±‚Æ
+	/* Kv */
+	// sskill_check_condition() 
 	switch(skill_num){
-	case ALL_RESURRECTION:	/* ƒŠƒUƒŒƒNƒVƒ‡ƒ“ */
-		if(battle_check_undead(status_get_race(target),status_get_elem_type(target))){	/* “G‚ªƒAƒ“ƒfƒbƒh‚È‚ç */
-			temp=1;	/* ƒ^[ƒ“ƒAƒ“ƒfƒbƒg‚Æ“¯‚¶‰r¥ŽžŠÔ */
+	case ALL_RESURRECTION:	/* UNV */
+		if(battle_check_undead(status_get_race(target),status_get_elem_type(target))){	/* GAfbh */
+			temp=1;	/* ^[Afbgr */
 			casttime = skill_castfix(src, PR_TURNUNDEAD, skill_lv);
 		}
 		break;
-	case MO_FINGEROFFENSIVE:	/* Žw’e */
+	case MO_FINGEROFFENSIVE:	/* we */
 		if(sd)
 			casttime += casttime * ((skill_lv > sd->spiritball)? sd->spiritball:skill_lv);
 		break;
-	case MO_EXTREMITYFIST:	/*ˆ¢?C—…”e–PŒ?*/
+	case MO_EXTREMITYFIST:	/*?CeP?*/
 		if (sc && sc->data[SC_COMBO].timer != -1 &&
 			(sc->data[SC_COMBO].val1 == MO_COMBOFINISH ||
 			sc->data[SC_COMBO].val1 == CH_TIGERFIST ||
@@ -850,24 +851,24 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 	case SA_SPELLBREAKER:
 		temp =1;
 		break;
-	case KN_CHARGEATK:			//ƒ`ƒƒ[ƒWƒAƒ^ƒbƒN
+	case KN_CHARGEATK:			//`[WA^bN
 		//Taken from jA: Casttime is increased by dist/3*100%
 		casttime = casttime * ((distance_bl(src,target)-1)/3+1);
 		break;
 	}
 
-	//ƒƒ‚ƒ‰ƒCƒYó‘Ô‚È‚çƒLƒƒƒXƒgƒ^ƒCƒ€‚ª1/2
+	//CYLXg^C1/2
 	if (sc && sc->data[SC_MEMORIZE].timer != -1 && casttime > 0) {
 		casttime = casttime/2;
 		if ((--sc->data[SC_MEMORIZE].val2) <= 0)
 			status_change_end(src, SC_MEMORIZE, -1);
 	}
 
-	if( casttime>0 || temp){ /* ‰r¥‚ª•K—v */
+	if( casttime>0 || temp){ /* rKv */
 
 		clif_skillcasting(src, src->id, target_id, 0,0, skill_num,casttime);
 
-		/* ‰r¥”½‰žƒ‚ƒ“ƒXƒ^[ */
+		/* rX^[ */
 		if (sd && target->type == BL_MOB)
 		{
 			TBL_MOB *md = (TBL_MOB*)target;
@@ -940,7 +941,7 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 
 	nullpo_retr(0, src);
 
-	if(!src->prev) return 0; // map ã‚É‘¶Ý‚·‚é‚©
+	if(!src->prev) return 0; // map 
 	if(status_isdead(src)) return 0;
 
 	if( BL_CAST( BL_PC, src, sd ) ) {
@@ -971,7 +972,7 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 		return 0;
 	}
 
-	/* ŽË’ö‚ÆáŠQ•¨ƒ`ƒFƒbƒN */
+	/* Q`FbN */
 	bl.type = BL_NUL;
 	bl.m = src->m;
 	bl.x = skill_x;
@@ -983,7 +984,7 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 	unit_stop_attack(src);
 	ud->state.skillcastcancel = castcancel;
 
-	//ƒ?ƒ‚ƒ‰ƒCƒY?‘Ô‚È‚çƒLƒƒƒXƒgƒ^ƒCƒ€‚ª1/3
+	//?CY?LXg^C1/3
 	if (sc && sc->data[SC_MEMORIZE].timer != -1 && casttime > 0){
 		casttime = casttime/3;
 		if ((--sc->data[SC_MEMORIZE].val2)<=0)
@@ -991,12 +992,11 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 	}
 
 	if( casttime>0 ) {
-		/* ‰r¥‚ª•K—v */
-		unit_stop_walking( src, 1);		// •às’âŽ~
+		unit_stop_walking( src, 1);
 		clif_skillcasting(src, src->id, 0, skill_x,skill_y, skill_num,casttime);
 	}
 
-	if( casttime<=0 )	/* ‰r¥‚Ì–³‚¢‚à‚Ì‚ÍƒLƒƒƒ“ƒZƒ‹‚³‚ê‚È‚¢ */
+	if( casttime<=0 )
 		ud->state.skillcastcancel=0;
 
 	ud->canact_tick  = tick + casttime + 100;
@@ -1026,7 +1026,6 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 
 static int unit_attack_timer(int tid,unsigned int tick,int id,int data);
 
-// UŒ‚’âŽ~
 int unit_stop_attack(struct block_list *bl)
 {
 	struct unit_data *ud = unit_bl2ud(bl);
@@ -1037,6 +1036,7 @@ int unit_stop_attack(struct block_list *bl)
 
 	delete_timer( ud->attacktimer, unit_attack_timer );
 	ud->attacktimer = -1;
+	ud->target = 0;
 	return 0;
 }
 
@@ -1056,8 +1056,8 @@ int unit_unattackable(struct block_list *bl) {
 }
 
 /*==========================================
- * UŒ‚—v‹
- * type‚ª1‚È‚çŒp‘±UŒ‚
+ * Uv
+ * type1pU
  *------------------------------------------
  */
 
@@ -1114,10 +1114,10 @@ int unit_can_reach_pos(struct block_list *bl,int x,int y, int easy)
 
 	nullpo_retr(0, bl);
 
-	if( bl->x==x && bl->y==y )	// “¯‚¶ƒ}ƒX
+	if( bl->x==x && bl->y==y )	// }X
 		return 1;
 
-	// áŠQ•¨”»’è
+	// Q
 	wpd.path_len=0;
 	wpd.path_pos=0;
 	wpd.path_half=0;
@@ -1170,7 +1170,7 @@ int unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, i
 
 
 /*==========================================
- * PC‚ÌUŒ‚ (timerŠÖ”)
+ * PCU (timer)
  *------------------------------------------
  */
 static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int tick)
@@ -1271,7 +1271,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 			pet_target_check(sd,target,0);
 		map_freeblock_unlock();
 
-		if(ud->skilltimer != -1 && sd && (range = pc_checkskill(sd,SA_FREECAST)) > 0 ) // ƒtƒŠ[ƒLƒƒƒXƒg
+		if(ud->skilltimer != -1 && sd && (range = pc_checkskill(sd,SA_FREECAST)) > 0 ) // t[LXg
 			ud->attackabletime = tick + (status_get_adelay(src)*(150 - range*5)/100);
 		else
 			ud->attackabletime = tick + status_get_adelay(src);
@@ -1346,7 +1346,7 @@ int unit_skillcastcancel(struct block_list *bl,int type)
 	return 1;
 }
 
-// unit_data ‚Ì‰Šú‰»ˆ—
+// unit_data 
 void unit_dataset(struct block_list *bl) {
 	struct unit_data *ud;
 	nullpo_retv(ud = unit_bl2ud(bl));
@@ -1362,7 +1362,7 @@ void unit_dataset(struct block_list *bl) {
 }
 
 /*==========================================
- * Ž©•ª‚ðƒƒbƒN‚µ‚Ä‚¢‚éƒ†ƒjƒbƒg‚Ì”‚ð”‚¦‚é(foreachclient)
+ * bNjbg(foreachclient)
  *------------------------------------------
  */
 static int unit_counttargeted_sub(struct block_list *bl, va_list ap)
@@ -1396,8 +1396,8 @@ int unit_fixdamage(struct block_list *src,struct block_list *target,unsigned int
 	return battle_damage(src,target,damage+damage2,clif_damage(target,target,tick,sdelay,ddelay,damage,div,type,damage2),0);
 }
 /*==========================================
- * Ž©•ª‚ðƒƒbƒN‚µ‚Ä‚¢‚é‘ÎÛ‚Ì”‚ð•Ô‚·
- * –ß‚è‚Í®”‚Å0ˆÈã
+ * bN
+ * 0
  *------------------------------------------
  */
 int unit_counttargeted(struct block_list *bl,int target_lv)
@@ -1408,19 +1408,7 @@ int unit_counttargeted(struct block_list *bl,int target_lv)
 }
 
 /*==========================================
- * id‚ðUŒ‚‚µ‚Ä‚¢‚éPC‚ÌUŒ‚‚ð’âŽ~
- * clif_foreachclient‚ÌcallbackŠÖ”
- *------------------------------------------
- */
-int unit_mobstopattacked(struct map_session_data *sd,va_list ap)
-{
-	int id=va_arg(ap,int);
-	if(sd->ud.target==id)
-		unit_stop_attack(&sd->bl);
-	return 0;
-}
-/*==========================================
- * Œ©‚½–Ú‚ÌƒTƒCƒY‚ð•ÏX‚·‚é
+ * TCYX
  *------------------------------------------
  */
 int unit_changeviewsize(struct block_list *bl,short size)
@@ -1502,10 +1490,10 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 
 	if (clrtype == 1 && battle_config.clear_unit_ondeath && //Clrtype 1 = died.
 		battle_config.clear_unit_ondeath&bl->type)
-		skill_clear_unitgroup(bl);			// ƒXƒLƒ‹ƒ†ƒjƒbƒgƒOƒ‹[ƒv‚Ìíœ
+		skill_clear_unitgroup(bl);			// XLjbgO[v
 	if (bl->type&BL_CHAR) {
 		skill_unit_move(bl,gettick(),4);
-		skill_cleartimerskill(bl);			// ƒ^ƒCƒ}[ƒXƒLƒ‹ƒNƒŠƒA
+		skill_cleartimerskill(bl);			// ^C}[XLNA
 	}
 
 	if(bl->type == BL_PC) {
@@ -1553,8 +1541,6 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 		if (md->master_id) md->master_dist = 0;
 		if (clrtype == 1) { //Death.
 			md->last_deadtime=gettick();
-//			Isn't this too much? Why not let the attack-timer fail when the mob is dead? [Skotlex]
-//			clif_foreachclient(unit_mobstopattacked,md->bl.id);
 			if(md->deletetimer!=-1)
 				delete_timer(md->deletetimer,mob_timer_delete);
 			md->deletetimer=-1;
