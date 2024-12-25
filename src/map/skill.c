@@ -2513,11 +2513,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl,int s
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		map_foreachinrange(skill_attack_area, src,
 			skill_get_splash(skillid, skilllv), BL_CHAR,
-			BF_WEAPON, src, src, skillid, skilllv, tick, flag, BCT_ENEMY);	
+			BF_WEAPON, src, src, skillid, skilllv, tick, flag, BCT_ENEMY);
 		break;
 	case TK_JUMPKICK:
-		if (skillid == TK_JUMPKICK)
-			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		if (unit_movepos(src, bl->x, bl->y, 0, 0))
 			clif_slide(src,bl->x,bl->y);
 		break;

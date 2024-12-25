@@ -349,7 +349,8 @@ CREATE TABLE `ipbanlist` (
   `list` varchar(255) NOT NULL default '',
   `btime` datetime NOT NULL default '0000-00-00 00:00:00',
   `rtime` datetime NOT NULL default '0000-00-00 00:00:00',
-  `reason` varchar(255) NOT NULL default ''
+  `reason` varchar(255) NOT NULL default '',
+  KEY (`list`)
 ) TYPE=MyISAM;
 
 --
@@ -411,7 +412,8 @@ CREATE TABLE `loginlog` (
   `ip` varchar(64) NOT NULL default '',
   `user` varchar(32) NOT NULL default '',
   `rcode` tinyint(4) NOT NULL default '0',
-  `log` varchar(255) NOT NULL default ''
+  `log` varchar(255) NOT NULL default '',
+  KEY (`ip`)
 ) TYPE=MyISAM;
 
 --
