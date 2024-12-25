@@ -1627,10 +1627,9 @@ int unit_free(struct block_list *bl) {
 		clif_foreachclient(clif_friendslist_toggle_sub, sd->status.account_id, sd->status.char_id, 0);
 		party_send_logout(sd);
 		guild_send_memberinfoshort(sd,0);
-		pc_cleareventtimer(sd);		
+		pc_cleareventtimer(sd);
 		pc_delspiritball(sd,sd->spiritball,1);
 		chrif_save_scdata(sd); //Save status changes, then clear'em out from memory. [Skotlex]
-		storage_delete(sd->status.account_id);
 		pc_makesavestatus(sd);
 		sd->state.waitingdisconnect = 1;
 	} else if( bl->type == BL_PET ) {
