@@ -10,3 +10,4 @@ sed -e 's/, ,/, NULL,/g' |sed -e 's/, ,/, NULL,/g' |\
 sed -e "s/, ''/, NULL/g" |sed -e 's/, ""/, NULL/g' \
 >> ./A-item_db.sql`
 
+mv -f ./A-item_db.sql ../migrations/

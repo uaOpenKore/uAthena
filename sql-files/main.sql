@@ -78,9 +78,10 @@ CREATE TABLE `char` (
   `child` int(11) unsigned NOT NULL default '0',
   `fame` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`char_id`),
+  KEY `account_id` (`account_id`),
   KEY `party_id` (`party_id`),
   KEY `guild_id` (`guild_id`)
-) TYPE=InnoDB AUTO_INCREMENT=150000; 
+) TYPE=InnoDB AUTO_INCREMENT=150000;
 
 --
 -- Table structure for table `charlog`

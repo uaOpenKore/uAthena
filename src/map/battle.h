@@ -4,24 +4,24 @@
 #ifndef _BATTLE_H_
 #define _BATTLE_H_
 
-// ダメージ
+// _[W
 struct Damage {
 	int damage,damage2;
 	int type,div_;
 	int amotion,dmotion;
 	int blewcount;
 	int flag;
-	int dmg_lv;	//囲まれ減算計算用　0:スキル攻撃 ATK_LUCKY,ATK_FLEE,ATK_DEF
+	int dmg_lv;	//ATK_LUCKY,ATK_FLEE,ATK_DEF
 };
 
-// 属性表（読み込みはpc.c、battle_attr_fixで使用）
+// \ipc.cAbattle_attr_fixgpj
 extern int attr_fix_table[4][10][10];
 
 struct map_session_data;
 struct mob_data;
 struct block_list;
 
-// ダメージ計算
+// _[WvZ
 
 struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int flag);
 
@@ -30,11 +30,11 @@ void battle_drain(struct map_session_data *sd, struct map_session_data *tsd, int
 
 int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_elem);
 
-// ダメージ最終計算
+// _[WIvZ
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
 int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
 
-enum {	// 最終計算のフラグ
+enum {	// IvZtO
 	BF_WEAPON	= 0x0001,
 	BF_MAGIC	= 0x0002,
 	BF_MISC		= 0x0004,
@@ -52,11 +52,11 @@ int battle_damage(struct block_list *bl,struct block_list *target,int damage,int
 int battle_heal(struct block_list *bl,struct block_list *target,int hp,int sp,int flag);
 
 
-// 通常攻撃処理まとめ
+// U
 int battle_weapon_attack( struct block_list *bl,struct block_list *target,
 	 unsigned int tick,int flag);
 
-// 各種パラメータを得る
+// ep[^
 struct block_list* battle_gettargeted(struct block_list *target);
 int battle_gettarget(struct block_list *bl);
 int battle_getcurrentskill(struct block_list *bl);
@@ -91,7 +91,7 @@ int battle_check_target(struct block_list *src, struct block_list *target,int fl
 int battle_check_range(struct block_list *src,struct block_list *bl,int range);
 
 void battle_consume_ammo(struct map_session_data* sd, int skill, int lv);
-// 設定
+// 
 
 int battle_config_switch(const char *str); // [Valaris]
 
@@ -268,6 +268,7 @@ extern struct Battle_Config {
 	unsigned short display_snatcher_skill_fail;
 	unsigned short chat_warpportal;
 	unsigned short mob_warpportal;
+	unsigned short mob_npc_warp;
 	unsigned short dead_branch_active;
 	unsigned int vending_max_value;
 	unsigned short show_steal_in_same_party;
