@@ -2327,17 +2327,18 @@ struct Damage battle_calc_magic_attack(
 	switch(skill_num)
 	{
 		case MG_FIREWALL:
-			if(mflag) { //mflag has a value when it was checked against an undead in skill.c [Skotlex]
+			if(mflag) //mflag has a value when it was checked against an undead in skill.c [Skotlex]
 				ad.blewcount = 0; //No knockback
-				ad.dmotion = 0; //No flinch animation.
-			} else
+			else
 				ad.blewcount |= 0x10000;
+			  ad.dmotion = 0; //No flinch animation.
 			break;
 		case WZ_STORMGUST: //Should knockback randomly.
 			ad.blewcount|=0x40000;
 			break;
 		case PR_SANCTUARY:
 			ad.blewcount|=0x10000;
+			ad.dmotion = 0; //No flinch animation.
 		case AL_HEAL:
 		case PR_BENEDICTIO:
 		case WZ_FIREPILLAR:
@@ -3160,7 +3161,7 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 int battle_check_undead(int race,int element)
 {
 	if(battle_config.undead_detect_type == 0) {
-		if(element == 9)
+		if(element == ELE_UNDEAD)
 			return 1;
 	}
 	else if(battle_config.undead_detect_type == 1) {
@@ -3168,7 +3169,7 @@ int battle_check_undead(int race,int element)
 			return 1;
 	}
 	else {
-		if(element == 9 || race == RC_UNDEAD)
+		if(element == ELE_UNDEAD || race == RC_UNDEAD)
 			return 1;
 	}
 	return 0;
@@ -3343,7 +3344,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 		{
 			TBL_PET *pd = (TBL_PET*)s_bl;
 			if (t_bl->type != BL_MOB && flag&BCT_ENEMY)
-				return 0; //Pet may not attack non-mobs/items.
+				return 0; //Pet may not attack non-mobs.
 			if (t_bl->type == BL_MOB && ((TBL_MOB*)t_bl)->guardian_data && flag&BCT_ENEMY)
 				return 0; //pet may not attack Guardians/Emperium
 			if (t_bl->type != BL_PC)
@@ -3357,9 +3358,9 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 		default:	//Invalid source of attack?
 			return 0;
 	}
-	
-	if ((flag&BCT_ALL) == BCT_ALL) { //All actually stands for all players/mobs
-		if (target->type == BL_MOB || target->type == BL_PC)
+
+	if ((flag&BCT_ALL) == BCT_ALL) { //All actually stands for all attackable chars
+		if (target->type&BL_CHAR)
 			return 1;
 		else
 			return -1;
@@ -3786,6 +3787,7 @@ static const struct battle_data_short {
 	{ "sg_miracle_skill_ratio",				&battle_config.sg_miracle_skill_ratio },
 	{ "autospell_stacking", 				&battle_config.autospell_stacking },
 	{ "override_mob_names", 				&battle_config.override_mob_names },
+	{ "min_chat_delay",						&battle_config.min_chat_delay },
 };
 
 static const struct battle_data_int {
@@ -4206,6 +4208,7 @@ void battle_set_defaults() {
 	battle_config.sg_miracle_skill_duration=600000;
 	battle_config.autospell_stacking = 0;
 	battle_config.override_mob_names = 0;
+	battle_config.min_chat_delay = 0;
 }
 
 void battle_validate_conf() {

@@ -1911,7 +1911,7 @@ int skill_attack( int attack_type, struct block_list* src, struct block_list *ds
 	case NPC_SELFDESTRUCTION:
 		if(src->type==BL_PC)
 			dmg.blewcount = 10;
-		break;
+		dmg.amotion = 0; //Disable delay or attack will do no damage since source is dead by the time it takes effect. [Skotlex]
 	case KN_AUTOCOUNTER: //Skills that need be passed as a normal attack for the client to display correctly.
 	case TF_DOUBLE:
 	case SN_SHARPSHOOTING:
@@ -2284,7 +2284,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id,int data )
 					if (!status_isdead(target))
 						skill_attack(BF_MAGIC,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
 					if (skl->type>1 && !status_isdead(target)) {
-						skill_addtimerskill(src,tick+150,target->id,0,0,skl->skill_id,skl->skill_lv,skl->type-1,skl->flag);
+						skill_addtimerskill(src,tick+250,target->id,0,0,skl->skill_id,skl->skill_lv,skl->type-1,skl->flag);
 					} else {
 						struct status_change *sc = status_get_sc(src);
 						if(sc && sc->data[SC_MAGICPOWER].timer != -1)
@@ -2788,7 +2788,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl,int s
 			}
 			cnt--;
 			if (cnt > 0)
-				skill_addtimerskill(src,tick+150,bl->id,0,0,
+				skill_addtimerskill(src,tick+250,bl->id,0,0,
 					skillid,skilllv,cnt,flag);
 		} else if (sd) //Eat up deluge tiles.
 			skill_count_water(src,0);
@@ -4719,8 +4719,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			mob_summonslave(md,md->db->skill[md->skillidx].val,skilllv,skillid);
 		break;
 
-	case NPC_CALLSLAVE:		//
-		mob_warpslave(src,AREA_SIZE/2);
+	case NPC_CALLSLAVE:
+		mob_warpslave(src,2);
 		break;
 
 	case NPC_RANDOMMOVE:

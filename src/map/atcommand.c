@@ -294,9 +294,10 @@ ACMD_FUNC(main); // LuzZza
 ACMD_FUNC(clone); // [Valaris]
 ACMD_FUNC(tonpc); // LuzZza
 ACMD_FUNC(commands); // [Skotlex]
+ACMD_FUNC(noask); //LuzZza
 
 /*==========================================
- *AtCommandInfo atcommand_info[]\‘¢‘Ì‚Ì’è‹`
+ *AtCommandInfo atcommand_info[]\`
  *------------------------------------------
  */
 
@@ -609,6 +610,7 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Clone,				"@evilclone",		50, atcommand_clone }, // [Valaris]
 	{ AtCommand_ToNPC,				"@tonpc",			40, atcommand_tonpc }, // LuzZza
 	{ AtCommand_Commands,			"@commands",		1, atcommand_commands }, // [Skotlex]
+	{ AtCommand_NoAsk,				"@noask",			1, atcommand_noask }, // [LuzZza]
 
 // add new commands before this line
 	{ AtCommand_Unknown,			NULL,				 1, NULL }
@@ -731,7 +733,7 @@ int e_mail_check(char *email) {
 }
 
 /*==========================================
- * get_atcommand_level @ƒRƒ}ƒ“ƒh‚Ì•K—vƒŒƒxƒ‹‚ğæ“¾
+ * get_atcommand_level @R}hKvx
  *------------------------------------------
  */
 int get_atcommand_level(const AtCommandType type) {
@@ -745,7 +747,7 @@ int get_atcommand_level(const AtCommandType type) {
 }
 
 /*==========================================
- *is_atcommand @ƒRƒ}ƒ“ƒh‚É‘¶İ‚·‚é‚©‚Ç‚¤‚©Šm”F‚·‚é
+ *is_atcommand @R}hmF
  *------------------------------------------
  */
 AtCommandType
@@ -2099,7 +2101,7 @@ int atcommand_speed(
 	if (speed >= MIN_WALK_SPEED && speed <= MAX_WALK_SPEED) {
 		sd->speed = speed;
 		//sd->walktimer = x;
-		//‚±‚Ì•¶‚ğ’Ç‰Á by ‚ê‚
+		// by 
 		clif_updatestatus(sd, SP_SPEED);
 		clif_displaymessage(fd, msg_table[8]); // Speed changed.
 	} else {
@@ -2225,7 +2227,7 @@ int atcommand_hide(
 }
 
 /*==========================================
- * “]E‚·‚é upper‚ğw’è‚·‚é‚Æ“]¶‚â—{q‚É‚à‚È‚ê‚é
+ * ]E upperw]{q
  *------------------------------------------
  */
 int atcommand_jobchange(
@@ -2975,7 +2977,7 @@ int atcommand_pvpoff(
 		clif_send0199(sd->bl.m, 0);
 
 		pl_allsd = map_getallusers(&users);
-		for (i = 0; i < users; i++) {	//l”•ªƒ‹[ƒv
+		for (i = 0; i < users; i++) {	//l[v
 			if ((pl_sd = pl_allsd[i]) && sd->bl.m == pl_sd->bl.m) {
 				clif_pvpset(pl_sd, 0, 0, 2);
 				if (pl_sd->pvp_timer != -1) {
@@ -3099,10 +3101,10 @@ int atcommand_model(
 		hair_color >= MIN_HAIR_COLOR && hair_color <= MAX_HAIR_COLOR &&
 		cloth_color >= MIN_CLOTH_COLOR && cloth_color <= MAX_CLOTH_COLOR) {
 		/* Removed because this check is TOO strange. [Skotlex]
-		//•bÌF•ÏX
+		//bFX
 		if (cloth_color != 0 && sd->status.sex == 1 && (sd->status.class_ == JOB_ASSASSIN ||  sd->status.class_ == JOB_ROGUE)) {
 			//The hell? Why Rogue/Assassins can't... change their option if they have clothes colors and are males? o.O [Skotlex]
-			//•bÌF–¢À‘•E‚Ì”»’è
+			//bFE
 			clif_displaymessage(fd, msg_table[35]); // You can't use this command with this class.
 			return -1;
 		} else {
@@ -3764,7 +3766,7 @@ int atcommand_refine(
 
 	count = 0;
 	for (i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->status.inventory[i].nameid &&	// ŠY“–ŒÂŠ‚Ì‘•”õ‚ğ¸˜B‚·‚é
+		if (sd->status.inventory[i].nameid &&	// YB
 		    (sd->status.inventory[i].equip & position ||
 			(sd->status.inventory[i].equip && !position))) {
 			final_refine = sd->status.inventory[i].refine + refine;
@@ -3843,8 +3845,8 @@ int atcommand_produce(
 		tmp_item.card[1] = ((star * 5) << 8) + attribute;
 		tmp_item.card[2] = GetWord(sd->char_id, 0);
 		tmp_item.card[3] = GetWord(sd->char_id, 1);
-		clif_produceeffect(sd, 0, item_id); // »‘¢ƒGƒtƒFƒNƒgƒpƒPƒbƒg
-		clif_misceffect(&sd->bl, 3); // ‘¼l‚É‚à¬Œ÷‚ğ’Ê’m
+		clif_produceeffect(sd, 0, item_id); // GtFNgpPbg
+		clif_misceffect(&sd->bl, 3); // lm
 
 		//Logs (A)dmins items [Lupus]
 		if(log_config.pick > 0 ) {
@@ -5214,7 +5216,7 @@ int atcommand_agitend(
 }
 
 /*==========================================
- * @mapexit‚Åƒ}ƒbƒvƒT[ƒo[‚ğI—¹‚³‚¹‚é
+ * @mapexit}bvT[o[I
  *------------------------------------------
  */
 int atcommand_mapexit(
@@ -5487,7 +5489,7 @@ int atcommand_reloadskilldb(
 
 /*==========================================
  * @reloadatcommand
- *   atcommand_athena.conf ‚ÌƒŠƒ[ƒh
+ *   atcommand_athena.conf [h
  *------------------------------------------
  */
 int
@@ -5501,7 +5503,7 @@ atcommand_reloadatcommand(
 }
 /*==========================================
  * @reloadbattleconf
- *   battle_athena.conf ‚ÌƒŠƒ[ƒh
+ *   battle_athena.conf [h
  *------------------------------------------
  */
 int
@@ -5518,7 +5520,7 @@ atcommand_reloadbattleconf(
  * @reloadstatusdb
  *   job_db1.txt job_db2.txt job_db2-2.txt 
  *   refine_db.txt size_fix.txt
- *   ‚ÌƒŠƒ[ƒh
+ *   [h
  *------------------------------------------
  */
 int
@@ -5533,7 +5535,7 @@ atcommand_reloadstatusdb(
 /*==========================================
  * @reloadpcdb
  *   exp.txt skill_tree.txt attr_fix.txt 
- *   ‚ÌƒŠƒ[ƒh
+ *   [h
  *------------------------------------------
  */
 int
@@ -8056,12 +8058,12 @@ int atcommand_mobsearch(
 
 	map_foreachinmap(atmobsearch_sub, map_id, BL_MOB, mob_id, fd);
 
-	atmobsearch_sub(&sd->bl,0);		// ”Ô†ƒŠƒZƒbƒg
+	atmobsearch_sub(&sd->bl,0);		// Zbg
 
 	return 0;
 }
 /*==========================================
- * ƒhƒƒbƒvƒAƒCƒeƒ€‚Ì‘|œ
+ * hbvACe|
  *------------------------------------------
  */
 /*==========================================
@@ -8090,7 +8092,7 @@ atcommand_cleanmap(
 }
 
 /*==========================================
- * NPC/PET‚É˜b‚³‚¹‚é
+ * NPC/PETb
  *------------------------------------------
  */
 int
@@ -8136,8 +8138,8 @@ atcommand_pettalk(
 
 /*==========================================
  * @users
- * ƒT[ƒo[“à‚Ìl”ƒ}ƒbƒv‚ğ•\¦‚³‚¹‚é
- * è”²‚«‚Ì‚½‚ß‰˜‚­‚È‚Á‚Ä‚¢‚é‚Ì‚Íd—l‚Å‚·B
+ * T[o[l}bv\
+ * dlB
  *------------------------------------------
  */
 
@@ -10192,6 +10194,27 @@ int atcommand_main(
 			// Main chat currently disabled. Usage: @main <on|off>, @main <message>.
 			clif_displaymessage(fd, msg_txt(385));
 	}
+	return 0;
+}
+
+/*=====================================
+ * Autorejecting Invites/Deals [LuzZza]
+ * Usage: @noask
+ *-------------------------------------
+ */
+int atcommand_noask(
+	const int fd, struct map_session_data* sd,
+	const char* command, const char* message)
+{
+
+	if(sd->state.noask) {
+		clif_displaymessage(fd, msg_txt(391)); // Autorejecting is deactivated.
+		sd->state.noask = 0;
+	} else {
+		clif_displaymessage(fd, msg_txt(390)); // Autorejecting is activated.
+		sd->state.noask = 1;
+	}
+
 	return 0;
 }
 
