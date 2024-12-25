@@ -820,7 +820,7 @@ int npc_touch_areanpc(struct map_session_data *sd,int m,int x,int y)
 	switch(map[m].npc[i]->bl.subtype) {
 		case WARP:
 			// hidden chars cannot use warps -- is it the same for scripts too?
-			if (sd->sc.option&6 ||
+			if (sd->sc.option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) ||
 				(!battle_config.duel_allow_teleport && sd->duel_group)) // duel rstrct [LuzZza]
 				break;
 			pc_setpos(sd,map[m].npc[i]->u.warp.mapindex,map[m].npc[i]->u.warp.x,map[m].npc[i]->u.warp.y,0);
@@ -1079,7 +1079,7 @@ int npc_buylist(struct map_session_data *sd,int n,unsigned short *item_list)
 			z = z * (double)skill * (double)battle_config.shop_exp/10000.;
 			if (z < 1)
 				z = 1;
-			pc_gainexp(sd,0,(int)z);
+			pc_gainexp(sd,NULL,0,(int)z);
 		}
 	}
 
@@ -1145,10 +1145,10 @@ int npc_selllist(struct map_session_data *sd,int n,unsigned short *item_list)
 			z = z * (double)skill * (double)battle_config.shop_exp/10000.;
 			if (z < 1)
 				z = 1;
-			pc_gainexp(sd,0,(int)z);
+			pc_gainexp(sd,NULL,0,(int)z);
 		}
 	}
-		
+
 	if (i<n) {
 		//Error/Exploit... of some sort. If we return 1, the client will not mark
 		//any item as deleted even though a few were sold. In such a case, we
@@ -2158,6 +2158,12 @@ static int npc_parse_mapflag (char *w1, char *w2, char *w3, char *w4)
 	}
 	else if (strcmpi(w3,"pvp")==0) {
 		map[m].flag.pvp=state;
+		if (state) {
+			map[m].flag.gvg=0;
+			map[m].flag.gvg=0;
+			map[m].flag.gvg_dungeon=0;
+			map[m].flag.gvg_castle=0;
+		}
 	}
 	else if (strcmpi(w3,"pvp_noparty")==0) {
 		map[m].flag.pvp_noparty=state;
@@ -2200,15 +2206,18 @@ static int npc_parse_mapflag (char *w1, char *w2, char *w3, char *w4)
 	}
 	else if (strcmpi(w3,"gvg")==0) {
 		map[m].flag.gvg=state;
+		if (state) map[m].flag.pvp=0;
 	}
 	else if (strcmpi(w3,"gvg_noparty")==0) {
 		map[m].flag.gvg_noparty=state;
 	}
 	else if (strcmpi(w3,"gvg_dungeon")==0) {
 		map[m].flag.gvg_dungeon=state;
+		if (state) map[m].flag.pvp=0;
 	}
 	else if (strcmpi(w3,"gvg_castle")==0) {
 		map[m].flag.gvg_castle=state;
+		if (state) map[m].flag.pvp=0;
 	}
 	else if (strcmpi(w3,"nozenypenalty")==0) {
 		map[m].flag.nozenypenalty=state;

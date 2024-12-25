@@ -15,107 +15,120 @@
 // 1.02 Fixed & Spell Checked [massdriller]
 // 1.03 Fixed 2 NPC names, slight optimization [Lupus]
 // 1.04 Fixed a few typo's [Nexon]
-// 1.05 Changed all breaks to ends. [Skotlex] 
+// 1.05 Changed all breaks to ends. [Skotlex]
+// 1.06 Implemented a missing NPC [MasterOfMuppets]
 //=====================================================================
-alberta.gat,245,93,4	script	Captain	709,{
-	mes "[Carter Moores]";
-	mes "Did you know that on the other side of the ocean";
-	mes "there lives a mysterious culture, ";
-	mes "with stories totally unheard of in this country.";
-	mes "Have you heard of it before?";
+alberta.gat,245,93,4	script	Sea Captain	709,{
+	mes "[Walter Moers]";
+	mes "Hey, there.";
+	mes "Have you ever heard that there";
+	mes "are totally different countries";
+	mes "than the Rune-Midgard Kingdom?";
 	next;
-	menu "I want to know more about Amatsu",L1,"Go to Amatsu",L2,"End Dialogue",-;
-		mes "[Carter Moores]";
-		mes "If you are a true adventurer,";
-		mes "you should try to leave this continent.";
-		mes "Nothing is more exciting than learning about new cultures...";
-		mes "However, do whatever you want.";
+	menu "About Amatsu...",L1,"Go to Amatsu",L2,"Cancel",-;
+		mes "[Walter Moers]";
+		mes "If you are tired of your daily";
+		mes "life, take a trip to a distant";
+		mes "country across the ocean.";
+		mes "Someplace like, oh I don't know,";
+		mes "Amatsu~";
 		close;
 	L1:
-		mes "[Carter Moores]";
-		mes "The legend says, a sailor got lost on the sea,";
-		mes "in midst of drifting in the sea,";
-		mes "he discovered it...";
-		mes "In the mighty storm and the mist, ";
-		mes "the ship is undoubtedly lost.";
+		mes "[Walter Moers]";
+		mes "I heard that a drifting ship";
+		mes "accidently discovered it...";
+		mes "The ship was totally destroyed";
+		mes "by a raging storm in heavy fog.";
 		next;
-		mes "[Carter Moores]";
-		mes "After the ship sunk";
-		mes "he reached a village.";
-		mes "It is now called Amatsu,";
-		mes "The sailor was later rescued by the locals.";
-		mes "As he worked hard over there,";
-		mes "I heard that he later finished a map.";
+		mes "[Walter Moers]";
+		mes "Anyway, the ship was wrecked";
+		mes "on the beach. It was there";
+		mes "he arrived at a town called";
+		mes "Amatsu.";
 		next;
-		mes "[Carter Moores]";
-		mes "He died soon after his return,";
-		mes "but the map was indeed passed onto Tristian the Third.";
-		mes "Later, the king ordered";
-		mes "that whoever is able to open a route,";
-		mes "that leads to Amatsu, will get a reward from the king.";
-		mes "He gave everyone a copy of the map";
+		mes "[Walter Moers]";
+		mes "The towners took pity on him";
+		mes "and took care of this wounds.";
+		mes "He lived there until he finished";
+		mes "making a map.";
 		next;
-		mes "[Carter Moores]";
-		mes "What the people want is not the reward,";
-		mes "but to get the trading opportunity with other countries.";
-		mes "The benefits from this is almost unimaginable.";
-		mes "Therefore, many adventurers and bold captains";
-		mes "took the map,";
-		mes "And headed for the ocean...";
+		mes "[Walter Moers]";
+		mes "He passed away when he returned";
+		mes "to Rune-Midgard. Fortunately,";
+		mes "the map was given to our king,";
+		mes "Tristan III";
 		next;
-		mes "[Carter Moores]";
-		mes "But all of them have failed!";
-		mes "To face the gigantic current and the unpredictable weather,";
-		mes "one needed to be familiar with sailing and the ocean.";
-		mes "However, all of them were blinded by the reward and desire for the trade rights,";
-		mes "and failed to make the necessary preparations";
+		mes "[Walter Moers]";
+		mes "King Tristan III announced";
+		mes "that he would reward any";
+		mes "person brave enough to venture to";
+		mes "Amatsu, and spread copies of this";
+		mes "map.";
 		next;
-		mes "[Carter Moores]";
-		mes "At this time, someone found it,";
-		mes "the entire route to Amatsu...";
-		mes "And that guy is me, Mr. Carter Moores,";
-		mes "the first person to start trading with Amatsu!";
-		mes "Hahaha! That's pretty  much it";
+		mes "Many Brave and adventurous";
+		mes "sea captains took the";
+		mes "challenge. Great fortune could";
+		mes "be made in trade with Amatsu, as";
+		mes "well as the rewards from King";
+		mes "Tristan III";
 		next;
-		mes "[Carter Moores]";
-		mes "I made quite a bit of zeny from the trade,";
-		mes "and am now trying to start a tourism industry.";
-		mes "Do a little investment.";
-		mes "If you want to go to Amatsu,";
-		mes "then just tell me...!";
+		mes "[Walter Moers]";
+		mes "However, they all failed!";
+		mes "To overcome various currents";
+		mes "and bad weather, lots of";
+		mes "experience is required. But they";
+		mes "were all blinded by their greed...";
+		next;
+		mes "[Walter Moers]";
+		mes "Finally, a great man discovered";
+		mes "the perfect sealane to Amatsu...";
+		mes "Right! That is me. Sir Walter";
+		mes "Moers. I started the trade with";
+		mes "Amatsu! Hahaha! Well, that's all";
+		mes "about Amatsu.";
+		next;
+		mes "[Walter Moers]";
+		mes "I made good money from trades";
+		mes "for years, and now I'm interested";
+		mes "in tourism. If you want to go to";
+		mes "Amatsu, let me know~!";
 		close;
 	L2:
-		mes "[Carter Moores]";
-		mes "Yea, Amatsu is a great place!";
-		mes "Because to cross that treacherous ocean";
-		mes "is not a very easy thing to do.";
-		mes "I hope you find the travelling fee acceptable.";
+		mes "[Walter Moers]";
+		mes "Oh yeah? It's a long way to";
+		mes "Amatsu. That's why we are";
+		mes "charging a fare. You don't think";
+		mes "that crossing oceans and currents";
+		mes "is easy, do you?";
 		next;
-		mes "[Carter Moores]";
-		mes "The round trip costs 10,000 Zeny.";
-		mes "Our commercial vessels are very sturdy.";
-		mes "The passenger rooms are specially designed as well.";
+		mes "[Walter Moers]";
+		mes "10,000 zeny for a round-trip! I've";
+		mes "got a stately room in a sturdy and";
+		mes "safe trade ship for you. It is a";
+		mes "reasonable fare when you consider";
+		mes "that this isn't a one way trip.";
 		next;
-		mes "[Carter Moores]";
-		mes "So, have you decided to leave?";
-		mes "Do you have enough zeny for travelling?";
+		mes "[Walter Moers]";
+		mes "Shall we go now? You didn't forget";
+		mes "the fare, right? Let's go.";
 		next;
 		menu "Yes",Lgo,"No",-;
-			mes "[Carter Moores]";
-			mes "Not drawn to this new continent?";
-			mes "People never like";
-			mes "to head for the far coast on the other side.";
+			mes "[Walter Moers]";
+			mes "If you are an adventurer,";
+			mes "this is a great chance";
+			mes "to experience a different";
+			mes "culture...Well, it is up to you.";
 			close;
 		Lgo:
 			if (Zeny < 10000) goto Lzeny;
 			set Zeny, Zeny-10000;
-			mes "[Carter Moores]";
-			mes "All aboard!";
-			next;
+			mes "[Walter Moers]";
+			mes "Alright, I will start the engine!";
+			close2;
 			warp "amatsu",197,83;
 			end;
 		Lzeny:
-			mes "[Carter Moores]";
+			mes "[Walter Moers]";
 			mes "Did you forget what I said?";
 			mes "10,000 zeny. If you can't come up with enough zeny,";
 			mes "hunt around the Sunken Ship,";
@@ -124,23 +137,25 @@ alberta.gat,245,93,4	script	Captain	709,{
 			close;
 }
 //=====================================================================
-amatsu.gat,194,79,4	script	Captain	709,{
-	mes "[Carter Moores]";
-	mes "Ready to leave?";
-	mes "Probably had lots of fun in the Amatsu Tour!";
-	mes "Are you really ready to leave?";
-	menu "Time to go home!",L1,"I will stay a bit longer",-;
-		mes "[Carter Moores]";
-		mes "Alright! Roger that.";
-		mes "The vessel for return will always be ready.";
-		mes "Have a good trip.";
+amatsu.gat,194,79,4	script	Sea Captain	709,{
+	mes "[Walter Moers]";
+	mes "You came... Did you enjoy";
+	mes "your trip to Amatsu...?";
+	mes "Alright, I will take you";
+	mes "back to Alberta.";
+	next;
+	menu "Back to Alberta",L1,"Cancel",-;
+		mes "[Walter Moers]";
+		mes "Well, take your time.";
+		mes "The ship to Alberta is";
+		mes "always ready to depart...";
 		close;
 	L1:
-		mes "[Carter Moores]";
-		mes "Set sail.";
-		mes "Don't know if you are bringing back any";
-		mes "souvenirs.";
-		next;
+		mes "[Walter Moers]";
+		mes "Let's go then. You must have";
+		mes "so many things to talk about,";
+		mes "right? All aboard now.";
+		close2;
 		warp "alberta",243,91;
 		end;
 }
@@ -1472,4 +1487,209 @@ amatsu.gat,261,197,4	script	Legendary Sakura Tree	111,{
 	mes "no matter what they are discussing";
 	mes "they always reach an agreement^000000";
 	close;
+}
+
+ama_in02.gat,61,27,6	script	Alchemist#amatsu	749,{
+
+	mes "[Laspuchin Gregory]";
+	mes "KeekeekeeKeheheh.";
+	mes "This is amazing!";
+	mes "The results are extraordinary!!";
+	next;
+	mes "[Laspuchin Gregory]";
+	mes "Using my skills in this distant";
+	mes "land was unexpected...";
+	mes "Keheheh... The lord of this";
+	mes "palace was quite accomodating.";
+	next;
+	mes "[Laspuchin Gregory]";
+	mes "Ooops, I better be careful...";
+	mes "If the guild finds out my";
+	mes "location, stupid Myster will";
+	mes "get mad at me. Kehehehkeh...";
+	next;
+	mes "[Laspuchin Gregory]";
+	mes "What? Wanna say something?";
+	mes "If you are here for tourism,";
+	mes "enjoy your day off, then go back to";
+	mes "your hometown. Keekeekee...";
+	mes "Or else, I will let you taste my";
+	mes "bottle...!";
+	next;
+	menu "Please, excuse me",-,"Do you need help?",s_Help;
+
+	mes "[Laspuchin Gregory]";
+	mes "Keheheh... Did you hear";
+	mes "what I said? It would be";
+	mes "better to forget...";
+	mes "Keekeekeekeekee...";
+	close;
+
+s_Help:
+	mes "[Laspuchin Gregory]";
+	mes "Help, eh?...";
+	mes "Now that I think about it..";
+	mes "I need some items right now...";
+	mes "Keeheeheekeehee...";
+	next;
+	mes "[Laspuchin Gregory]";
+	mes "Sir Laspuchin needs some";
+	mes "enchant stones for an experiment.";
+	mes "I will use it efficiently...";
+	mes "Do you have them now?";
+	next;
+	menu "Nope",-,"I got some",s_Got;
+
+	mes "[Laspuchin Gregory]";
+	mes "Then, find 8 stones of one kind.";
+	mes "If you bring 8 of one kind of";
+	mes "enchant stones, I will change it";
+	mes "to a better one...";
+	next;
+	mes "[Laspuchin Gregory]";
+	mes "Then, find 8 stones of one kind.";
+	mes "not the round gemstones but";
+	mes "the enchant stones. If you bring";
+	mes "the wrong stones, I will throw";
+	mes "a flame bottle at you!";
+	next;
+	mes "[Laspuchin Gregory]";
+	mes "Bring me stones, slave~!!";
+	mes "And keep your promise!";
+	mes "Kehehehkehkeh...";
+	close;
+
+s_Got:
+	mes "[Laspuchin Gregory]";
+	mes "Uh-uh, what did you bring?";
+	next;
+	switch( select( "Mystic Frozen", "Great Nature", "Flame Heart", "Rough Wind" ) )
+		{
+
+		case 1:
+			set @stoneID,995;
+			set @stoneStr$,"Mystic Frozen";
+		break;
+
+		case 2:
+			set @stoneID,997;
+			set @stoneStr$,"Great Nature";
+		break;
+
+		case 3:
+			set @stoneID,994;
+			set @stoneStr$,"Flame Heart";
+		break;
+
+		case 4:
+			set @stoneID,996;
+			set @stoneStr$,"Rough Wind";
+		break;
+
+		}
+	if(countitem(@stoneID) < 8)goto s_NEnough;
+	mes "[Laspuchin Gregory]";
+	mes "Kehekeh. I see you brought";
+	mes "enough stones! What kind of";
+	mes "stone do you want me to change";
+	mes "them into? Kehehehe.";
+	next;
+	if(@stoneID == 995)menu "Great Nature",s_Great,"Flame Heart",s_Flame,"Rough Wind",s_Rough;
+	if(@stoneID == 996)menu "Great Nature",s_Great,"Flame Heart",s_Flame,"Mystic Frozen",s_Frozen;
+	if(@stoneID == 997)menu "Mystic Frozen",s_Frozen,"Flame Heart",s_Flame,"Rough Wind",s_Rough;
+	if(@stoneID == 994)menu "Great Nature",s_Great,"Mystic Frozen",s_Frozen,"Rough Wind",s_Rough;
+
+s_Great:
+	mes "[Laspuchin Gregory]";
+	mes "Then I will now change";
+	mes "your " + @stoneStr$ + "s into";
+	mes "a Great Nature... Kehehe~";
+	mes "Any objections?";
+	next;
+	menu "No",-,"Yes",s_No;
+	delitem @stoneID,8;
+	getitem 997,1;
+	mes "[Laspuchin Gregory]";
+	mes "Kehehe... It was a success!";
+	mes "Come back anytime if you";
+	mes "want me to change your";
+	mes "enchanted stones into";
+	mes "another kind.. Keheh~";
+	close;
+
+s_Flame:
+	mes "[Laspuchin Gregory]";
+	mes "Then I will now change";
+	mes "your " + @stoneStr$ + "s into";
+	mes "a Flame Heart... Kehehe~";
+	mes "Any objections?";
+	next;
+	menu "No",-,"Yes",s_No;
+	delitem @stoneID,8;
+	getitem 994,1;
+	mes "[Laspuchin Gregory]";
+	mes "Kehehe... It was a success!";
+	mes "Come back anytime if you";
+	mes "want me to change your";
+	mes "enchanted stones into";
+	mes "another kind.. Keheh~";
+	close;
+
+s_Rough:
+	mes "[Laspuchin Gregory]";
+	mes "Then I will now change";
+	mes "your " + @stoneStr$ + "s into";
+	mes "a Rough Wind... Kehehe~";
+	mes "Any objections?";
+	next;
+	menu "No",-,"Yes",s_No;
+	delitem @stoneID,8;
+	getitem 996,1;
+	mes "[Laspuchin Gregory]";
+	mes "Kehehe... It was a success!";
+	mes "Come back anytime if you";
+	mes "want me to change your";
+	mes "enchanted stones into";
+	mes "another kind.. Keheh~";
+	close;
+
+s_Frozen:
+	mes "[Laspuchin Gregory]";
+	mes "Then I will now change";
+	mes "your " + @stoneStr$ + "s into";
+	mes "a Mystic Frozen... Kehehe~";
+	mes "Any objections?";
+	next;
+	menu "No",-,"Yes",s_No;
+	delitem @stoneID,8;
+	getitem 995,1;
+	mes "[Laspuchin Gregory]";
+	mes "Kehehe... It was a success!";
+	mes "Come back anytime if you";
+	mes "want me to change your";
+	mes "enchanted stones into";
+	mes "another kind.. Keheh~";
+	close;
+
+s_No:
+	mes "[Laspuchin Gregory]";
+	mes "Keheh~ You make me want";
+	mes "to throw flame bottles";
+	mes "at you. Kehehehehe...";
+	mes "KEHEHEHEHEHEHE!";
+	close;
+
+s_NEnough:
+	mes "[Laspuchin Gregory]";
+	mes "Keheheh~ Check your pockets";
+	mes "before you tell me";
+	mes "how foolish you are.....";
+	next;
+	mes "[Laspuchin Gregory]";
+	mes "Bring me stones! You said you";
+	mes "were going to help me!";
+	mes "Keep your promises!";
+	mes "Kehehehkehkeh...";
+	close;
+
 }

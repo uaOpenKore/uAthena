@@ -1042,17 +1042,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				sc_start(bl,type,100,skilllv,skill_get_time2(skillid, skilllv));
 			break;
 		}
-	case MG_FROSTDIVER:		/* t?Xg_Co? */
-	case WZ_FROSTNOVA:		/* t?Xgm@ */
-		{
-			rate = (skilllv*3+35)-(status_get_int(bl)+status_get_luk(bl))/15;
-			if (rate <= 5)
-				rate = 5;
-			sc_start(bl,SC_FREEZE,rate,skilllv,skill_get_time2(skillid,skilllv));
-		}
+	case MG_FROSTDIVER:
+	case WZ_FROSTNOVA:
+		sc_start(bl,SC_FREEZE,skilllv*3+35,skilllv,skill_get_time2(skillid,skilllv));
 		break;
 
-	case WZ_STORMGUST:		/* Xg?KXg */
+	case WZ_STORMGUST:
 		tsc->data[SC_FREEZE].val3++;
 		if(tsc->data[SC_FREEZE].val3 >= 3)
 			status_change_start(bl,SC_FREEZE,10000,
@@ -3082,8 +3077,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				heal_get_jobexp = heal_get_jobexp * battle_config.heal_exp / 100;
 				if (heal_get_jobexp <= 0)
 					heal_get_jobexp = 1;
-				if (bl->type == BL_PC)	// Give heal experience only when healing players [Harbin]
-					pc_gainexp (sd, 0, heal_get_jobexp);
+				pc_gainexp (sd, bl, 0, heal_get_jobexp);
 			}
 		}
 		break;
@@ -3160,7 +3154,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						if (jexp < 1) jexp = 1;
 					}
 					if(exp > 0 || jexp > 0)
-						pc_gainexp (sd, exp, jexp);
+						pc_gainexp (sd, bl, exp, jexp);
 				}
 			}
 		}
@@ -3277,7 +3271,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case SA_LEVELUP:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		if (sd && pc_nextbaseexp(sd)) pc_gainexp(sd, pc_nextbaseexp(sd) * 10 / 100, 0);
+		if (sd && pc_nextbaseexp(sd)) pc_gainexp(sd, NULL, pc_nextbaseexp(sd) * 10 / 100, 0);
 		break;
 	case SA_INSTANTDEATH:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
