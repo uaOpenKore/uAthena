@@ -101,6 +101,8 @@ static int char_port = 6121;
 static char userid[NAME_LENGTH], passwd[NAME_LENGTH];
 static int chrif_state = 0;
 static int char_init_done = 0;
+int other_mapserver_count=0; //Holds count of how many other map servers are online (apart of this instance) [Skotlex]
+
 //Interval at which map server updates online listing. [Valaris]
 #define CHECK_INTERVAL 3600000
 //Interval at which map server sends number of connected users. [Skotlex]
@@ -108,7 +110,7 @@ static int char_init_done = 0;
 //This define should spare writing the check in every function. [Skotlex]
 #define chrif_check(a) { if(!chrif_isconnect()) return a; }
 
-// 設定ファイル読み込み関係
+// t@CW
 /*==========================================
  *
  *------------------------------------------
@@ -242,7 +244,7 @@ int chrif_connect(int fd)
 }
 
 /*==========================================
- * マップ送信
+ * }bvM
  *------------------------------------------
  */
 int chrif_sendmap(int fd)
@@ -260,7 +262,7 @@ int chrif_sendmap(int fd)
 }
 
 /*==========================================
- * マップ受信
+ * }bvM
  *------------------------------------------
  */
 int chrif_recvmap(int fd)
@@ -268,10 +270,6 @@ int chrif_recvmap(int fd)
 	int i, j, ip, port;
 	unsigned char *p = (unsigned char *)&ip;
 	RFIFOHEAD(fd);
-
-	if (chrif_state < 2)	// まだ準備中
-		return -1;
-
 	ip = RFIFOL(fd,4);
 	port = RFIFOW(fd,8);
 	for(i = 10, j = 0; i < RFIFOW(fd,2); i += 4, j++) {
@@ -282,6 +280,7 @@ int chrif_recvmap(int fd)
 	if (battle_config.etc_log)
 		ShowStatus("recv map on %d.%d.%d.%d:%d (%d maps)\n", p[0], p[1], p[2], p[3], port, j);
 
+	other_mapserver_count++;
 	return 0;
 }
 
@@ -294,10 +293,6 @@ int chrif_removemap(int fd){
 	unsigned char *p = (unsigned char *)&ip;
 	RFIFOHEAD(fd);
 
-	if(chrif_state < 2){
-		return -1; //i dunno, but i know if its 3 the link is ok^^
-	}
-
 	ip = RFIFOL(fd, 4);
 	port = RFIFOW(fd, 8);
 
@@ -305,14 +300,14 @@ int chrif_removemap(int fd){
 		map_eraseipport(RFIFOW(fd, i), ip, port);
 	}
 
-	if(battle_config.etc_log){
+	other_mapserver_count--;
+	if(battle_config.etc_log)
 		ShowStatus("remove map of server %d.%d.%d.%d:%d (%d maps)\n", p[0], p[1], p[2], p[3], port, j);
-	}
 	return 0;
 }
 
 /*==========================================
- * マップ鯖間移動のためのデータ準備要求
+ * }bvIf[^v
  *------------------------------------------
  */
 int chrif_changemapserver(struct map_session_data *sd, short map, int x, int y, int ip, short port)
@@ -322,6 +317,12 @@ int chrif_changemapserver(struct map_session_data *sd, short map, int x, int y, 
 	nullpo_retr(-1, sd);
 
 	chrif_check(-1);
+
+	if (other_mapserver_count < 1)
+	{	//No other map servers are online!
+		pc_authfail(sd);
+		return -1;
+	}
 
 	if (sd->fd && sd->fd < fd_max && session[sd->fd])
 		s_ip = session[sd->fd]->client_addr.sin_addr.s_addr;
@@ -347,7 +348,7 @@ int chrif_changemapserver(struct map_session_data *sd, short map, int x, int y, 
 }
 
 /*==========================================
- * マップ鯖間移動ack
+ * }bvIack
  *------------------------------------------
  */
 int chrif_changemapserverack(int fd)
@@ -573,7 +574,7 @@ int chrif_charselectreq(struct map_session_data *sd)
 }
 
 /*==========================================
- * キャラ名問い合わせ
+ * L
  *------------------------------------------
  */
 int chrif_searchcharid(int char_id)
@@ -591,7 +592,7 @@ int chrif_searchcharid(int char_id)
 }
 
 /*==========================================
- * GMに変化要求
+ * GMv
  *------------------------------------------
  */
 int chrif_changegm(int id, const char *pass, int len)
@@ -667,7 +668,7 @@ int chrif_char_ask_name(int id, char * character_name, short operation_type, int
 }
 
 /*==========================================
- * 性別変化要求
+ * v
  *------------------------------------------
  */
 int chrif_changesex(int id, int sex) {
@@ -827,7 +828,7 @@ int chrif_changedgm(int fd)
 }
 
 /*==========================================
- * 性別変化終了 (modified by Yor)
+ * I (modified by Yor)
  *------------------------------------------
  */
 int chrif_changedsex(int fd)
@@ -904,7 +905,7 @@ int chrif_changedsex(int fd)
 }
 
 /*==========================================
- * 離婚情報同期要求
+ * v
  *------------------------------------------
  */
 int chrif_divorce(int char_id, int partner_id)
@@ -917,10 +918,10 @@ int chrif_divorce(int char_id, int partner_id)
 	nullpo_retr(0, sd = map_nick2sd(map_charid2nick(partner_id)));
 	if (sd->status.partner_id == char_id) {
 		int i;
-		//離婚(相方は既にキャラが消えている筈なので)
+		//(L)
 		sd->status.partner_id = 0;
 
-		//相方の結婚指輪を剥奪
+		//wD
 		for(i = 0; i < MAX_INVENTORY; i++)
 			if (sd->status.inventory[i].nameid == WEDDING_RING_M || sd->status.inventory[i].nameid == WEDDING_RING_F)
 				pc_delitem(sd, i, 1, 0);
@@ -1252,7 +1253,7 @@ int chrif_load_scdata(int fd)
 
 	chrif_check(-1);
 
-        WFIFOHEAD(char_fd, sizeof(buf) + 10);
+	WFIFOHEAD(char_fd, sizeof(buf) + 10);
 	WFIFOW(char_fd,0) = 0x2b16;
 	WFIFOW(char_fd,2) = base_rate;
 	WFIFOW(char_fd,4) = job_rate;
@@ -1363,10 +1364,11 @@ int chrif_disconnect(int fd) {
 		if (kick_on_disconnect)
 			clif_foreachclient(chrif_disconnect_sub);
 		chrif_connected = 0;
-		// 他のmap 鯖のデータを消す
+
+		other_mapserver_count=0; //Reset counter. We receive ALL maps from all map-servers on reconnect.
 		map_eraseallipport();
 
-		// 倉庫キャッシュを消す
+		// qLbV
 		if (kick_on_disconnect)
 		{	//Do not clean the storage if players are gonna be left inside. [Skotlex]
 			do_final_storage();
@@ -1404,10 +1406,10 @@ int chrif_parse(int fd)
 		if (cmd < 0x2af8 || cmd >= 0x2af8 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
 		    packet_len_table[cmd-0x2af8] == 0) {
 
-			int r = intif_parse(fd); // intifに渡す
+			int r = intif_parse(fd); // intifn
 
-			if (r == 1) continue;	// intifで処理した
-			if (r == 2) return 0;	// intifで処理したが、データが足りない
+			if (r == 1) continue;	// intif
+			if (r == 2) return 0;	// intifAf[^
 
 			session[fd]->eof = 1;
 			ShowWarning("chrif_parse: session #%d, intif_parse failed -> disconnected.\n", fd);
@@ -1477,8 +1479,8 @@ int send_usercount_tochar(int tid, unsigned int tick, int id, int data) {
 }
 
 /*==========================================
- * timer関数
- * 今このmap鯖に繋がっているクライアント人数をchar鯖へ送る
+ * timer
+ * mapIqNCAglcharI
  *------------------------------------------
  */
 int send_users_tochar(int tid, unsigned int tick, int id, int data) {
@@ -1503,8 +1505,8 @@ int send_users_tochar(int tid, unsigned int tick, int id, int data) {
 }
 
 /*==========================================
- * timer関数
- * char鯖との接続を確認し、もし切れていたら再度接続する
+ * timer
+ * charImFAx
  *------------------------------------------
  */
 int check_connect_char_server(int tid, unsigned int tick, int id, int data) {
@@ -1557,7 +1559,7 @@ int auth_db_final(DBKey k,void *d,va_list ap) {
 }
 
 /*==========================================
- * 終了
+ * I
  *------------------------------------------
  */
 int do_final_chrif(void)

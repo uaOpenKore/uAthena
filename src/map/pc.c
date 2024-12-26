@@ -5459,25 +5459,51 @@ int pc_setoption(struct map_session_data *sd,int type)
 		clif_status_load(&sd->bl,SI_RIDING,0);
 		status_calc_pc(sd,0); //Mounting/Umounting affects walk and attack speeds.
 	}
+	if(type&OPTION_CART && !(p_type&OPTION_CART))
+	{ //Cart On
+		if(pc_checkskill(sd, MC_PUSHCART) < 10)
+			status_calc_pc(sd,0); //Apply speed penalty.
+	} else
+	if(!(type&OPTION_CART) && p_type&OPTION_CART)
+	{ //Cart Off
+		if(pc_checkskill(sd, MC_PUSHCART) < 10)
+			status_calc_pc(sd,0); //Remove speed penalty.
+	}
 
 	if (type&OPTION_FALCON && !(p_type&OPTION_FALCON)) //Falcon ON
 		clif_status_load(&sd->bl,SI_FALCON,1);
 	else if (!(type&OPTION_FALCON) && p_type&OPTION_FALCON) //Falcon OFF
 		clif_status_load(&sd->bl,SI_FALCON,0);
 
+	if (type&OPTION_FLYING && !(p_type&OPTION_FLYING))
+		clif_changelook(&sd->bl,LOOK_BASE,JOB_STAR_GLADIATOR2);
+	else if (!(type&OPTION_FLYING) && p_type&OPTION_FLYING)
+	{
+		status_set_viewdata(&sd->bl, sd->status.class_);
+		clif_changelook(&sd->bl,LOOK_BASE,sd->vd.class_);
+		if(sd->status.clothes_color)
+			clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->status.clothes_color);
+	}
+
 	if (type&OPTION_WEDDING && !(p_type&OPTION_WEDDING))
 		clif_changelook(&sd->bl,LOOK_BASE,JOB_WEDDING);
 	else if (!(type&OPTION_WEDDING) && p_type&OPTION_WEDDING)
 	{
-		if (sd->vd.class_ != sd->status.class_) {
-			status_set_viewdata(&sd->bl, sd->status.class_);
-			clif_changelook(&sd->bl,LOOK_BASE,sd->vd.class_);
-			if(sd->status.clothes_color)
-				clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->status.clothes_color);
-		}
+		status_set_viewdata(&sd->bl, sd->status.class_);
+		clif_changelook(&sd->bl,LOOK_BASE,sd->vd.class_);
+		if(sd->status.clothes_color)
+			clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->status.clothes_color);
 	}
 
-	status_calc_pc(sd,0);
+	if (type&OPTION_XMAS && !(p_type&OPTION_XMAS))
+		clif_changelook(&sd->bl,LOOK_BASE,JOB_XMAS);
+	else if (!(type&OPTION_XMAS) && p_type&OPTION_XMAS)
+	{
+		status_set_viewdata(&sd->bl, sd->status.class_);
+		clif_changelook(&sd->bl,LOOK_BASE,sd->vd.class_);
+		if(sd->status.clothes_color)
+			clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->status.clothes_color);
+	}
 	return 0;
 }
 
@@ -5497,12 +5523,11 @@ int pc_setcart(struct map_session_data *sd,int type)
 	if(pc_checkskill(sd,MC_PUSHCART)>0){ // vbVJ?gXL
 		option = sd->sc.option;
 		//This should preserve the current option, only modifying the cart bit.
-		option&=~(OPTION_CART1|OPTION_CART2|OPTION_CART3|OPTION_CART4|OPTION_CART5);
+		option&=~OPTION_CART;
 		option|=cart[type];
 		if(!pc_iscarton(sd)){ // J?gt
 			pc_setoption(sd,option);
-			clif_cart_itemlist(sd);
-			clif_cart_equiplist(sd);
+			clif_cartlist(sd);
 			clif_updatestatus(sd,SP_CARTINFO);
 			clif_status_change(&sd->bl,SI_INCREASEAGI,0); //0x0c is 12, Increase Agi??
 		}

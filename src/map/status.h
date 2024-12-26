@@ -424,26 +424,30 @@ enum {
 #define OPT3_AURASHIELD 0x800 //Assumptio
 #define OPT3_HEAT 0x1000 //Warmth Skills
 
-#define OPTION_SIGHT 0x0001
-#define OPTION_HIDE 0x0002
-#define OPTION_CLOAK 0x0004
-#define OPTION_CART1 0x0008
-#define OPTION_FALCON 0x0010
-#define OPTION_RIDING 0x0020
-#define OPTION_INVISIBLE 0x0040
-#define OPTION_CART2 0x0080
-#define OPTION_CART3 0x0100
-#define OPTION_CART4 0x0200
-#define OPTION_CART5 0x0400
-#define OPTION_ORCISH 0x0800
-#define OPTION_WEDDING 0x1000
-#define OPTION_RUWACH 0x2000
-#define OPTION_CHASEWALK 0x4000
-#define OPTION_FLYING 0x8000
+#define OPTION_SIGHT 0x00000001
+#define OPTION_HIDE 0x00000002
+#define OPTION_CLOAK 0x00000004
+#define OPTION_CART1 0x00000008
+#define OPTION_FALCON 0x00000010
+#define OPTION_RIDING 0x00000020
+#define OPTION_INVISIBLE 0x00000040
+#define OPTION_CART2 0x00000080
+#define OPTION_CART3 0x00000100
+#define OPTION_CART4 0x00000200
+#define OPTION_CART5 0x00000400
+#define OPTION_ORCISH 0x00000800
+#define OPTION_WEDDING 0x00001000
+#define OPTION_RUWACH 0x00002000
+#define OPTION_CHASEWALK 0x00004000
+#define OPTION_XMAS 0x00008000
+//Note that clientside Flying is 0x8000, the SAME as Xmas!!
+#define OPTION_FLYING 0x0020000
 //TODO: Get these Missing options...
-#define OPTION_SIGHTTRASHER 0x0001
+#define OPTION_SIGHTTRASHER 0x00010000
 
-// ÉpÉâÉÅÅ[É^èäìæån battle.c ÇÊÇËà⁄ìÆ
+#define OPTION_CART (OPTION_CART1|OPTION_CART2|OPTION_CART3|OPTION_CART4|OPTION_CART5)
+
+// p[^n battle.c
 int status_get_class(struct block_list *bl);
 int status_get_lv(struct block_list *bl);
 int status_get_range(struct block_list *bl);
@@ -472,7 +476,7 @@ int status_get_dmotion(struct block_list *bl);
 int status_get_element(struct block_list *bl);
 int status_get_attack_sc_element(struct block_list *bl);
 int status_get_attack_element(struct block_list *bl);
-int status_get_attack_element2(struct block_list *bl);  //ç∂éËïêäÌëÆê´éÊìæ
+int status_get_attack_element2(struct block_list *bl);  //
 #define status_get_elem_type(bl)	(status_get_element(bl)%10)
 #define status_get_elem_level(bl)	(status_get_element(bl)/10/2)
 int status_get_party_id(struct block_list *bl);
