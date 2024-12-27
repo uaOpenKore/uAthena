@@ -213,6 +213,7 @@ echo -e '		$(shell mkdir -p '$prefix'backup/)'				>> Makefile
 echo -e '		$(shell cp -r save  '$prefix')'					>> Makefile
 echo -e '		$(shell cp -r db    '$prefix')'					>> Makefile
 echo -e '		$(shell cp -r conf  '$prefix')'					>> Makefile
+echo -e '		$(shell cp -r conf-file  '$prefix')'					>> Makefile
 echo -e '		$(shell cp -r npc   '$prefix')'					>> Makefile
 echo -e '		$(shell cp *-server* '$prefix'bin/)'			>> Makefile
 echo -e '		$(shell ln -s '$prefix'save/    '$prefix'bin/)'	>> Makefile
@@ -228,6 +229,7 @@ echo -e 'uninstall:'									>> Makefile
 echo -e '		$(shell rm -fr '$prefix'bin)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'db)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'conf)'			>> Makefile
+echo -e '		$(shell rm -fr '$prefix'conf-file)'		>> Makefile
 echo -e '		$(shell rm -fr '$prefix'npc)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'bin)'			>> Makefile
 echo -e '		$(shell rm -fr '$prefix'save)'			>> Makefile
