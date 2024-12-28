@@ -61,7 +61,7 @@
 309,0xa1,    ,  4, 0,  -1,party, 0x300	//BD_DRUMBATTLEFIELD#
 310,0xa2,    ,  4, 0,  -1,party, 0x300	//BD_RINGNIBELUNGEN#j[xOw
 311,0xa3,    ,  4, 0,  -1,all,   0x300	//BD_ROKISWEIL#L
-312,0xa4,    ,  4, 0,  -1,party, 0x300	//BD_INTOABYSS#[
+312,0xa4,    ,  4, 0,  -1,party, 0x320	//BD_INTOABYSS#[
 313,0xa5,    ,  4, 0,  -1,party, 0x300	//BD_SIEGFRIED#sgW[Nt[h
 317,0xa6,    ,  3, 0,3000,enemy, 0x100	//BA_DISSONANCE#sa
 319,0xa7,    ,  3, 0,  -1,all,   0x120	//BA_WHISTLE#J
