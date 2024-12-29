@@ -256,7 +256,8 @@ enum AtCommandType {
 	AtCommand_AutoTrade,//durf
 	AtCommand_ChangeGM,//durf
 	AtCommand_ChangeLeader,
-	
+	AtCommand_PartyOption,
+
 	AtCommand_Invite, // By LuzZza
 	AtCommand_Duel, // By LuzZza
 	AtCommand_Leave, // By LuzZza
