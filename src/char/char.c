@@ -2,20 +2,13 @@
 // For more information, see LICENCE in the main folder
 
 #include <sys/types.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #ifdef _WIN32
 #include <winsock.h>
-typedef long in_addr_t;
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <unistd.h>
 #endif
 
 #include <time.h>
@@ -23,6 +16,8 @@ typedef long in_addr_t;
 #include <fcntl.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
 
 #include "../common/strlib.h"
@@ -54,15 +49,13 @@ char userid[24];
 char passwd[24];
 char server_name[20];
 char wisp_server_name[NAME_LENGTH] = "Server";
-int login_ip_set_ = 0;
-char login_ip_str[16];
+char login_ip_str[128];
 in_addr_t login_ip;
 int login_port = 6900;
-int char_ip_set_ = 0;
-char char_ip_str[16];
-int bind_ip_set_ = 0;
-char bind_ip_str[16];
+char char_ip_str[128];
 in_addr_t char_ip;
+char bind_ip_str[128];
+in_addr_t bind_ip;
 int char_port = 6121;
 int char_maintenance;
 int char_new;
@@ -661,7 +654,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	}
 
 	if (str[next] == '\n' || str[next] == '\r')
-		return 1;	// 新規データ
+		return 1;	// VKf[^
 
 	next++;
 
@@ -739,7 +732,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 
 	next++;
 
-	for(i = 0; str[next] && str[next] != '\t' && str[next] != '\n' && str[next] != '\r'; i++) { // global_reg実装以前のathena.txt互換のため一応'\n'チェック
+	for(i = 0; str[next] && str[next] != '\t' && str[next] != '\n' && str[next] != '\r'; i++) { // global_regOathena.txt'\n'`FbN
 		if (sscanf(str + next, "%[^,],%[^ ] %n", reg[i].str, reg[i].value, &len) != 2) { 
 			// because some scripts are not correct, the str can be "". So, we must check that.
 			// If it's, we must not refuse the character, but just this REG value.
@@ -1669,7 +1662,7 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 	return 0;
 }
 
-// 離婚(char削除時に使用)
+// (chargp)
 int char_divorce(struct mmo_charstatus *cs) {
 	if (cs == NULL)
 		return 0;
@@ -1761,11 +1754,11 @@ int disconnect_player(int account_id) {
 	return 0;
 }
 
-// キャラ削除に伴うデータ削除
+// Lf[^
 static int char_delete(struct mmo_charstatus *cs) {
 	int j;
 
-	// ペット削除
+	// ybg
 	if (cs->pet_id)
 		inter_pet_delete(cs->pet_id);
 	for (j = 0; j < MAX_INVENTORY; j++)
@@ -1774,21 +1767,21 @@ static int char_delete(struct mmo_charstatus *cs) {
 	for (j = 0; j < MAX_CART; j++)
 		if (cs->cart[j].card[0] == (short)0xff00)
 			inter_pet_delete( MakeDWord(cs->cart[j].card[1],cs->cart[j].card[2]) );
-	// ギルド脱退
+	// MhE
 	if (cs->guild_id)
 		inter_guild_leave(cs->guild_id, cs->account_id, cs->char_id);
-	// パーティー脱退
+	// p[eB[E
 	if (cs->party_id)
 		inter_party_leave(cs->party_id, cs->account_id, cs->char_id);
-	// 離婚
+	// 
 	if (cs->partner_id){
-		// 離婚情報をmapに通知
+		// mapm
 		unsigned char buf[10];
 		WBUFW(buf,0) = 0x2b12;
 		WBUFL(buf,2) = cs->char_id;
 		WBUFL(buf,6) = cs->partner_id;
 		mapif_sendall(buf,10);
-		// 離婚
+		// 
 		char_divorce(cs);
 	}
 	return 0;
@@ -2093,7 +2086,7 @@ int parse_tologin(int fd) {
 			RFIFOSKIP(fd,8 + RFIFOL(fd,4));
 			break;
 
-		// account_reg2変更通知
+		// account_reg2Xm
 		case 0x2729:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
 				return 0;
@@ -2293,6 +2286,30 @@ int parse_tologin(int fd) {
 				RFIFOSKIP(fd,6);
 			}
 			break;
+		case 0x2735:
+		{
+			unsigned char buf[2];
+			in_addr_t new_ip = 0;
+			RFIFOSKIP(fd,2);
+
+			WBUFW(buf,0) = 0x2b1e;
+			mapif_sendall(buf, 2);
+
+			new_ip = resolve_hostbyname(login_ip_str, NULL, NULL);
+			if (new_ip && new_ip != login_ip)
+				login_ip = new_ip; //Update login up.
+
+			new_ip = resolve_hostbyname(char_ip_str, NULL, NULL);
+			if (new_ip && new_ip != char_ip)
+			{	//Update ip.
+				char_ip = new_ip;
+				ShowInfo("Updating IP for [%s].\n",char_ip_str);
+				WFIFOW(fd,0) = 0x2736;
+				WFIFOL(fd,2) = char_ip;
+				WFIFOSET(fd,6);
+			}
+			break;
+		}
 		default:
 			ShowWarning("Unknown packet 0x%04x received from login-server, disconnecting.\n", RFIFOW(fd,0));
 			session[fd]->eof = 1;
@@ -2677,7 +2694,7 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,6+i*8);
 			break;
 
-		// キャラデータ保存
+		// Lf[^
 		// Recieve character data from map-server
 		case 0x2b01:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
@@ -2694,7 +2711,7 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,RFIFOW(fd,2));
 			break;
 
-		// キャラセレ要求
+		// LZv
 		case 0x2b02:
 			if (RFIFOREST(fd) < 18)
 				return 0;
@@ -2771,7 +2788,7 @@ int parse_frommap(int fd) {
 			}
 			break;
 
-		// キャラ名検索
+		// L
 		case 0x2b08:
 			if (RFIFOREST(fd) < 6)
 				return 0;
@@ -3054,16 +3071,24 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd, RFIFOW(fd, 2));
 			break;
 		}
+		case 0x2736:
+			if (RFIFOREST(fd) < 6) return 0;
+			ShowInfo("Updated IP address of Server #%d to %d.%d.%d.%d.\n",i,
+				(int)RFIFOB(fd,2),(int)RFIFOB(fd,3),
+				(int)RFIFOB(fd,4),(int)RFIFOB(fd,5));
+			server[id].ip = RFIFOL(fd, 2);
+			RFIFOSKIP(fd,6);
+			break;
 		default:
-			// inter server処理に渡す
+			// inter servern
 			{
 				int r = inter_parse_frommap(fd);
-				if (r == 1) // 処理できた
+				if (r == 1) // 
 					break;
-				if (r == 2) // パケット長が足りない
+				if (r == 2) // pPbg
 					return 0;
 			}
-			// inter server処理でもない場合は切断
+			// inter serverf
 			ShowError("Unknown packet 0x%04x from map server, disconnecting.\n", RFIFOW(fd,0));
 			session[fd]->eof = 1;
 			return 0;
@@ -3089,7 +3114,7 @@ int search_mapserver(unsigned short map, long ip, short port) {
 	return -1;
 }
 
-// char_mapifの初期化処理（現在はinter_mapif初期化のみ）
+// char_mapifiinter_mapifj
 static int char_mapif_init(int fd) {
 	return inter_mapif_init(fd);
 }
@@ -3151,12 +3176,12 @@ int parse_char(int fd) {
 
 	while(RFIFOREST(fd) >= 2 && !session[fd]->eof) {
 		cmd = RFIFOW(fd,0);
-		// crc32のスキップ用
-		if(	sd==NULL			&&	// 未ログインor管理パケット
-			RFIFOREST(fd)>=4	&&	// 最低バイト数制限 ＆ 0x7530,0x7532管理パケ除去
-			RFIFOREST(fd)<=21	&&	// 最大バイト数制限 ＆ サーバーログイン除去
-			cmd!=0x20b	&&	// md5通知パケット除去
-			(RFIFOREST(fd)<6 || RFIFOW(fd,4)==0x65)	){	// 次に何かパケットが来てるなら、接続でないとだめ
+		// crc32XLbvp
+		if(	sd==NULL			&&	// OCorpPbg
+			RFIFOREST(fd)>=4	&&	// oCg  0x7530,0x7532pP
+			RFIFOREST(fd)<=21	&&	// oCg  T[o[OC
+			cmd!=0x20b	&&	// md5mpPbg
+			(RFIFOREST(fd)<6 || RFIFOW(fd,4)==0x65)	){	// pPbgA
 			RFIFOSKIP(fd,4);
 			cmd = RFIFOW(fd,0);
 			ShowDebug("parse_char : %d crc32 skipped\n",fd);
@@ -3168,13 +3193,13 @@ int parse_char(int fd) {
 #define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL) { RFIFOSKIP(fd,rest); return 0; } }
 
 		switch(cmd){
-		case 0x20b:	//20040622暗号化ragexe対応
+		case 0x20b:	//20040622ragexe
 			if (RFIFOREST(fd) < 19)
 				return 0;
 			RFIFOSKIP(fd,19);
 			break;
 
-		case 0x65:	// 接続要求
+		case 0x65:	// v
 			if (RFIFOREST(fd) < 17)
 				return 0;
 		  {
@@ -3290,7 +3315,7 @@ int parse_char(int fd) {
 			RFIFOSKIP(fd,17);
 			break;
 
-		case 0x66:	// キャラ選択
+		case 0x66:	// LI
 			FIFOSD_CHECK(3);
 		{
 			int char_num = RFIFOB(fd,2);
@@ -3425,7 +3450,7 @@ int parse_char(int fd) {
 		}
 		break;
 
-		case 0x67:	// 作成
+		case 0x67:	// 
 			FIFOSD_CHECK(37);
 				
 			if(char_new == 0) //turn character creation on/off [Kevin]
@@ -3605,7 +3630,7 @@ int parse_char(int fd) {
 			}
 			break;
 
-		case 0x2af8:	// マップサーバーログイン
+		case 0x2af8:	// }bvT[o[OC
 			if (RFIFOREST(fd) < 60)
 				return 0;
 			WFIFOW(fd,0) = 0x2af9;
@@ -3644,13 +3669,13 @@ int parse_char(int fd) {
 			}
 			break;
 
-		case 0x187:	// Alive信号？
+		case 0x187:	// AliveMH
 			if (RFIFOREST(fd) < 6)
 				return 0;
 			RFIFOSKIP(fd, 6);
 			break;
 
-		case 0x7530:	// Athena情報所得
+		case 0x7530:	// Athena
 			WFIFOW(fd,0) = 0x7531;
 			WFIFOB(fd,2) = ATHENA_MAJOR_VERSION;
 			WFIFOB(fd,3) = ATHENA_MINOR_VERSION;
@@ -3663,7 +3688,7 @@ int parse_char(int fd) {
 			RFIFOSKIP(fd,2);
 			return 0;
 
-		case 0x7532:	// 接続の切断(defaultと処理は一緒だが明示的にするため)
+		case 0x7532:	// f(defaultI)
 		default:
 			session[fd]->eof = 1;
 			return 0;
@@ -3697,7 +3722,7 @@ int parse_console(char *buf) {
     return 0;
 }
 
-// 全てのMAPサーバーにデータ送信（送信したmap鯖の数を返す）
+// SMAPT[o[f[^MiMmapIj
 int mapif_sendall(unsigned char *buf, unsigned int len) {
 	int i, c;
 
@@ -3723,7 +3748,7 @@ int mapif_sendall(unsigned char *buf, unsigned int len) {
 	return c;
 }
 
-// 自分以外の全てのMAPサーバーにデータ送信（送信したmap鯖の数を返す）
+// OSMAPT[o[f[^MiMmapIj
 int mapif_sendallwos(int sfd, unsigned char *buf, unsigned int len) {
 	int i, c;
 
@@ -3741,7 +3766,7 @@ int mapif_sendallwos(int sfd, unsigned char *buf, unsigned int len) {
 	}
 	return c;
 }
-// MAPサーバーにデータ送信（map鯖生存確認有り）
+// MAPT[o[f[^MimapImFLj
 int mapif_send(int fd, unsigned char *buf, unsigned int len) {
 	int i;
 
@@ -3856,7 +3881,7 @@ static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, int dat
 
 //----------------------------------------------------------
 // Return numerical value of a switch configuration by [Yor]
-// on/off, english, fran軋is, deutsch, espal
+// on/off, english, franais, deutsch, espaol
 //----------------------------------------------------------
 int config_switch(const char *str) {
 	if (strcmpi(str, "on") == 0 || strcmpi(str, "yes") == 0 || strcmpi(str, "oui") == 0 || strcmpi(str, "ja") == 0 || strcmpi(str, "si") == 0)
@@ -3924,7 +3949,6 @@ int char_lan_config_read(const char *lancfgName) {
 }
 
 int char_config_read(const char *cfgName) {
-	struct hostent *h = NULL;
 	char line[1024], w1[1024], w2[1024];
 	FILE *fp = fopen(cfgName, "r");
 
@@ -3964,31 +3988,28 @@ int char_config_read(const char *cfgName) {
 				wisp_server_name[sizeof(wisp_server_name) - 1] = '\0';
 			}
 		} else if (strcmpi(w1, "login_ip") == 0) {
-			login_ip_set_ = 1;
-			h = gethostbyname(w2);
-			if (h != NULL) {
-				ShowStatus("Login server IP address : %s -> %d.%d.%d.%d\n", w2, (unsigned char)h->h_addr[0], (unsigned char)h->h_addr[1], (unsigned char)h->h_addr[2], (unsigned char)h->h_addr[3]);
-				sprintf(login_ip_str, "%d.%d.%d.%d", (unsigned char)h->h_addr[0], (unsigned char)h->h_addr[1], (unsigned char)h->h_addr[2], (unsigned char)h->h_addr[3]);
-			} else
-				memcpy(login_ip_str, w2, 16);
+			char ip_str[16];
+			login_ip = resolve_hostbyname(w2, NULL, ip_str);
+			if (login_ip) {
+				strncpy(login_ip_str, w2, sizeof(login_ip_str));
+				ShowStatus("Login server IP address : %s -> %s\n", w2, ip_str);
+			}
 		} else if (strcmpi(w1, "login_port") == 0) {
 			login_port = atoi(w2);
 		} else if (strcmpi(w1, "char_ip") == 0) {
-			char_ip_set_ = 1;
-			h = gethostbyname(w2);
-			if (h != NULL) {
-				ShowStatus("Character server IP address : %s -> %d.%d.%d.%d\n", w2, (unsigned char)h->h_addr[0], (unsigned char)h->h_addr[1], (unsigned char)h->h_addr[2], (unsigned char)h->h_addr[3]);
-				sprintf(char_ip_str, "%d.%d.%d.%d", (unsigned char)h->h_addr[0], (unsigned char)h->h_addr[1], (unsigned char)h->h_addr[2], (unsigned char)h->h_addr[3]);
-			} else
-				memcpy(char_ip_str, w2, 16);
+			char ip_str[16];
+			char_ip = resolve_hostbyname(w2, NULL, ip_str);
+			if (char_ip){
+				strncpy(char_ip_str, w2, sizeof(char_ip_str));
+				ShowStatus("Character server IP address : %s -> %s\n", w2, ip_str);
+			}
 		} else if (strcmpi(w1, "bind_ip") == 0) {
-			bind_ip_set_ = 1;
-			h = gethostbyname(w2);
-			if (h != NULL) {
-				ShowStatus("Character server binding IP address : %s -> %d.%d.%d.%d\n", w2, (unsigned char)h->h_addr[0], (unsigned char)h->h_addr[1], (unsigned char)h->h_addr[2], (unsigned char)h->h_addr[3]);
-				sprintf(bind_ip_str, "%d.%d.%d.%d", (unsigned char)h->h_addr[0], (unsigned char)h->h_addr[1], (unsigned char)h->h_addr[2], (unsigned char)h->h_addr[3]);
-			} else
-				memcpy(bind_ip_str, w2, 16);
+			char ip_str[16];
+			bind_ip = resolve_hostbyname(w2, NULL, ip_str);
+			if (bind_ip) {
+				strncpy(bind_ip_str, w2, sizeof(bind_ip_str));
+				ShowStatus("Character server binding IP address : %s -> %s\n", w2, ip_str);
+			}
 		} else if (strcmpi(w1, "char_port") == 0) {
 			char_port = atoi(w2);
 		} else if (strcmpi(w1, "char_maintenance") == 0) {
@@ -4190,7 +4211,7 @@ int do_init(int argc, char **argv) {
 	// moved behind char_config_read in case we changed the filename [celest]
 	char_log("The char-server starting..." RETCODE);
 
-	if ((naddr_ != 0) && (login_ip_set_ == 0 || char_ip_set_ == 0)) {
+	if ((naddr_ != 0) && (!login_ip || !char_ip)) {
 		// The char server should know what IP address it is running on
 		 //   - MouseJstr
 		int localaddr = ntohl(addr_[0]);
@@ -4201,17 +4222,18 @@ int do_init(int argc, char **argv) {
 			ShowStatus("Multiple interfaces detected..  using %s as our IP address\n", buf);
 		else
 			ShowStatus("Defaulting to %s as our IP address\n", buf);
-		if (login_ip_set_ == 0)
+		if (!login_ip) {
 			strcpy(login_ip_str, buf);
-		if (char_ip_set_ == 0)
+			login_ip = inet_addr(login_ip_str);
+		}
+		if (!char_ip) {
 			strcpy(char_ip_str, buf);
+			char_ip = inet_addr(char_ip_str);
+		}
 
 		if (ptr[0] == 192 && ptr[1] == 168)
 			ShowWarning("Firewall detected.. edit subnet_athena.conf and char_athena.conf\n");
 	}
-
-	login_ip = inet_addr(login_ip_str);
-	char_ip = inet_addr(char_ip_str);
 
 	for(i = 0; i < MAX_MAP_SERVERS; i++) {
 		memset(&server[i], 0, sizeof(struct mmo_map_server));
@@ -4227,14 +4249,11 @@ int do_init(int argc, char **argv) {
 	update_online = time(NULL);
 	create_online_files(); // update online players files at start of the server
 
-	inter_init((argc > 2) ? argv[2] : inter_cfgName);	// inter server 初期化
+	inter_init((argc > 2) ? argv[2] : inter_cfgName);	// inter server 
 
 	set_defaultparse(parse_char);
 
-	if (bind_ip_set_)
-		char_fd = make_listen_bind(inet_addr(bind_ip_str),char_port);
-	else
-		char_fd = make_listen_bind(INADDR_ANY,char_port);
+	char_fd = make_listen_bind(bind_ip?bind_ip:INADDR_ANY,char_port);
 
 	add_timer_func_list(check_connect_login_server, "check_connect_login_server");
 	add_timer_func_list(send_users_tologin, "send_users_tologin");

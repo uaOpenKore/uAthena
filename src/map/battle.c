@@ -4321,9 +4321,9 @@ void battle_validate_conf() {
 		battle_config.boss_spawn_delay = 0;
 	if (battle_config.plant_spawn_delay < 0)
 		battle_config.plant_spawn_delay = 0;
-*/	
-	if (battle_config.no_spawn_on_player > 50)
-		battle_config.no_spawn_on_player = 50;
+*/
+	if (battle_config.no_spawn_on_player > 100)
+		battle_config.no_spawn_on_player = 100;
 	if (battle_config.mob_remove_delay < 15000)	//Min 15 sec
 		battle_config.mob_remove_delay = 15000;
 	if (battle_config.dynamic_mobs > 1)
