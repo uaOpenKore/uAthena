@@ -242,7 +242,7 @@ L_Change:
 //<=============================================== Geshupenschte: 1st, 2nd, 3rd Test ===================================================>\\
 ein_in01.gat,201,27,4	script	Geshupenschte	63,{
 
-	if(BaseJob==5) goto L_merchant;
+	if(BaseJob == Job_Merchant) goto L_merchant;
 	mes "[Geshupenschte]";
 	mes "Hello sir! I'm the blacksmith.  Geshupenschte! Nice to meet you!";
 	next;
@@ -1323,7 +1323,7 @@ L_Start:
 		mes "[Mitmayer]";
 		mes "5. How much can you earn with max overcharge?";
 		next;
-		menu "21 % ",sM_1e,"22 % ",sM_1e,"23 % ",-,"24 % ",sM_1e;
+		menu "21 % ",sM_1e,"22 % ",sM_1e,"23 % ",sM_1e,"24 % ",-;
 
 			set @score,@score+20;
 		sM_1e:
