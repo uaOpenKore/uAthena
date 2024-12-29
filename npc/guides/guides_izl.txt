@@ -107,10 +107,10 @@ L_NOTICE:
   	mes "[Izlude Guide]";
 	mes "On your Mini-Map, click on the '+' and '-' symbols to zoom in and out of your Mini-Map.";
 	mes "We hope you enjoy your travels here in the city of Izlude.";
- 	goto L_MENU;
+	goto L_MENU;
 L_END:
- 	mes "[Izlude Guide]";
-	mes "Okay then, feel free to come to me if you ever geel lost around Izlude, alright?";
-	cutin "prt_soldier",255; 
- 	close;
+	mes "[Izlude Guide]";
+	mes "Okay then, feel free to come to me if you ever feel lost around Izlude, alright?";
+	cutin "prt_soldier",255;
+	close;
 }

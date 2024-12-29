@@ -1,12 +1,12 @@
 //===== eAthena Script ======================================= 
 //= Morroc Town
-//===== By: ================================================== 
+//===== By: ==================================================
 //= kobra_k88
-//===== Current Version: ===================================== 
-//= 1.6
-//===== Compatible With: ===================================== 
+//===== Current Version: =====================================
+//= 1.7
+//===== Compatible With: =====================================
 //= eAthena 7.15 +
-//===== Description: ========================================= 
+//===== Description: =========================================
 //=
 //===== Additional Comments: ================================= 
 //= Fully working
@@ -14,9 +14,10 @@
 //= (in both NPC/Warps) [Lupus]. Removed it from NPC and put in Warp
 //= 1.3 Removed some NPC due to Assassin Job Quest [kobra_k88]
 //= 1.3b mobs name corrected [Lupus], 1.3c - Adv classes support
-//= 1.4 Fixed typo’s [Nexon]
+//= 1.4 Fixed typos [Nexon]
 //= 1.5 Added a lvl 4 weapon quest related NPC [MasterOfMuppets]
 //= 1.6 Added Bartender NPC, made by Persian69 [Vicious_Pucca]
+//= 1.7 Removed Duplicates [Silent]
 //============================================================
 
 
@@ -362,7 +363,7 @@ M_Menu:
 }
 
 //Bartender
-morocc_in.gat,166,76,3	script	Bartender	46,{
+morocc_in.gat,166,76,3	script	Bartender#02	46,{
 	mes "[Bartender]";
 	mes "What are you going to order?";
 	next;
@@ -401,7 +402,7 @@ Nomoney:
 
 // Lvl 4 weapon quest related NPC ================================
 
-morocc.gat,289,230,3	script	Citizen	92, {
+morocc.gat,289,230,3	script	Citizen#06	92, {
 	mes "[Citizen]";
 	mes "Meeting a dead man is basically";
 	mes "impossible.";

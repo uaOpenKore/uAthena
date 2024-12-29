@@ -100,7 +100,7 @@ thana_step.gat,180,224,0 warp thana_step7 1,1,thana_step.gat,185,16
 thana_step.gat,182,166,0 warp thana_step8 1,1,thana_step.gat,73,287
 thana_step.gat,69,287,0 warp thana_step9 1,1,thana_step.gat,186,166
 thana_step.gat,70,371,0 warp thana_step10 1,1,thana_step.gat,170,287
-thana_step.gat,174,287,0 warp thana_step11 1,1,thana_step.gat,74,371 
+thana_step.gat,174,287,0 warp thana_step11 1,1,thana_step.gat,74,371
 
 //Thana_boss
 thana_step.gat,169,371,0	warp	thana_boss	1,1,thana_boss.gat,85,76
