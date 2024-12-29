@@ -797,8 +797,7 @@ int pc_reg_received(struct map_session_data *sd)
 	int i,j;
 	char feel_var[3][NAME_LENGTH] = {"PC_FEEL_SUN","PC_FEEL_MOON","PC_FEEL_STAR"};
 	char hate_var[3][NAME_LENGTH] = {"PC_HATE_MOB_SUN","PC_HATE_MOB_MOON","PC_HATE_MOB_STAR"};
-	
-	pc_clean_skilltree(sd); //Clean skill tree before loading reg-based skills
+
 	sd->change_level = pc_readglobalreg(sd,"jobchange_level");
 	sd->die_counter = pc_readglobalreg(sd,"PC_DIE_COUNTER");
 	if (!sd->die_counter && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
@@ -2451,14 +2450,16 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 	if (i >= MAX_INVENTORY){
 		i = pc_search_inventory(sd,0);
 		if(i<0) return 4;
+		memcpy(&sd->status.inventory[i], item_data, sizeof(sd->status.inventory[0]));
 		// clear equips field first, just in case
 		if (item_data->equip)
-			item_data->equip = 0;
-		memcpy(&sd->status.inventory[i], item_data, sizeof(sd->status.inventory[0]));
+			sd->status.inventory[i].equip = 0;
+
 		sd->status.inventory[i].amount = amount;
 		sd->inventory_data[i] = data;
 		clif_additem(sd,i,amount,0);
 	}
+
 	sd->weight += w;
 	clif_updatestatus(sd,SP_WEIGHT);
 	return 0;

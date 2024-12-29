@@ -197,9 +197,14 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 			return 0;
 		if (md->min_chase > md->db->range2) md->min_chase--;
 		//Walk skills are triggered regardless of target due to the idle-walk mob state.
-		if(!(ud->walk_count%WALK_SKILL_INTERVAL) &&
+		//But avoid triggering on stop-walk calls.
+		if(tid != -1 &&
+			!(ud->walk_count%WALK_SKILL_INTERVAL) &&
 			mobskill_use(md, tick, -1))
+		{
+			clif_fixpos(bl); //Fix position as walk has been cancelled.
 			return 0;
+		}
 	}
 
 	if(tid == -1) //A directly invoked timer is from battle_stop_walking, therefore the rest is irrelevant.
@@ -826,7 +831,8 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 		if(battle_check_undead(status_get_race(target),status_get_elem_type(target))){
 			temp=1;
 			casttime = skill_castfix(src, PR_TURNUNDEAD, skill_lv);
-		}
+		} else if (!status_isdead(target))
+			return 0; //Can't cast on non-dead characters.
 		break;
 	case MO_FINGEROFFENSIVE:
 		if(sd)
@@ -1510,7 +1516,6 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 		if(sd->guild_alliance>0)
 			guild_reply_reqalliance(sd,sd->guild_alliance_account,0);
 
-		pc_stop_following(sd);
 		pc_delinvincibletimer(sd);
 
 		if(sd->pvp_timer!=-1) {
