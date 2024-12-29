@@ -28,7 +28,7 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 int battle_calc_return_damage(struct block_list *bl, int *damage, int flag);
 void battle_drain(struct map_session_data *sd, struct map_session_data *tsd, int rdamage, int ldamage, int race, int boss);
 
-int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_elem);
+int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv);
 
 // _[WIvZ
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
@@ -48,9 +48,6 @@ enum {	// IvZtO
 };
 
 int battle_delay_damage (unsigned int tick, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, int dmg_lv, int ddelay);
-int battle_damage(struct block_list *bl,struct block_list *target,int damage,int walkdelay,int flag);
-int battle_heal(struct block_list *bl,struct block_list *target,int hp,int sp,int flag);
-
 
 // U
 int battle_weapon_attack( struct block_list *bl,struct block_list *target,
@@ -98,8 +95,8 @@ int battle_config_switch(const char *str); // [Valaris]
 extern struct Battle_Config {
 	unsigned short warp_point_debug;
 	unsigned short enemy_critical_rate;
-	unsigned short enemy_str;
-	unsigned short enemy_perfect_flee;
+	unsigned short enable_baseatk;
+	unsigned short enable_perfect_flee;
 	unsigned short cast_rate,delay_rate,delay_dependon_dex;
 	unsigned short sdelay_attack_enable;
 	unsigned short left_cardfix_to_right;
@@ -177,7 +174,6 @@ extern struct Battle_Config {
 	unsigned short pet_friendly_rate;
 	unsigned short pet_hungry_delay_rate;
 	unsigned short pet_hungry_friendly_decrease;
-	unsigned short pet_str;
 	unsigned short pet_status_support;
 	unsigned short pet_attack_support;
 	unsigned short pet_damage_support;
@@ -277,6 +273,7 @@ extern struct Battle_Config {
 	unsigned int vending_max_value;
 	unsigned short show_steal_in_same_party;
 	unsigned short party_share_type;
+	unsigned short party_hp_mode;
 	unsigned short party_show_share_picker;
 	unsigned short mob_ghostring_fix;
 	unsigned short attack_attr_none;
@@ -374,6 +371,7 @@ extern struct Battle_Config {
 	unsigned short no_skill_delay;
 	unsigned short require_glory_guild;
 	unsigned short idle_no_share;
+	unsigned short party_update_interval;
 	unsigned short party_even_share_bonus;
 	unsigned short delay_battle_damage;
 	unsigned short hide_woe_damage;
