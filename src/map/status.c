@@ -925,9 +925,9 @@ int status_calc_pc(struct map_session_data* sd,int first)
 			{	// Forged weapon
 				wd->star += (sd->status.inventory[index].card[1]>>8);
 				if(wd->star >= 15) wd->star = 40; // 3 Star Crumbs now give +40 dmg
-				if(pc_istop10fame( MakeDWord(sd->status.inventory[index].card[2],sd->status.inventory[index].card[3]) ,MAPID_BLACKSMITH))
+				if(pc_famerank(MakeDWord(sd->status.inventory[index].card[2],sd->status.inventory[index].card[3]) ,MAPID_BLACKSMITH))
 					wd->star += 10;
-				
+
 				if (!wd->atk_ele) //Do not overwrite element from previous bonuses.
 					wd->atk_ele = (sd->status.inventory[index].card[1]&0x0f);
 
@@ -1356,7 +1356,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	if(pc_isriding(sd) && pc_checkskill(sd,KN_RIDING)>0)
 		sd->speed -= sd->speed * 25/100;
 	if(pc_ishiding(sd) && (skill=pc_checkskill(sd,RG_TUNNELDRIVE))>0)
-		sd->speed = (int)sd->speed * (1 / ((.06*skill) + 0.2));
+		sd->speed = (int)(sd->speed * (1 / ((.06*skill) + 0.2)));
 	if(pc_iscarton(sd) && (skill=pc_checkskill(sd,MC_PUSHCART))>0)
 		sd->speed += sd->speed * (100-10*skill)/100;
 	if(sd->ud.skilltimer != -1 && (skill=pc_checkskill(sd,SA_FREECAST))>0) {
@@ -1426,9 +1426,9 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		index += index * 30/100;
 	else if (sd->class_&JOBL_BABY)
 		index -= index * 30/100;
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_istop10fame(sd->char_id, MAPID_TAEKWON))
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->char_id, MAPID_TAEKWON))
 		index *= 3; //Triple max HP for top ranking Taekwons over level 90.
-	
+
 	sd->status.max_hp += index;
 
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
@@ -1485,9 +1485,9 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		index += index * 30/100;
 	else if (sd->class_&JOBL_BABY)
 		index -= index * 30/100;
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_istop10fame(sd->char_id, MAPID_TAEKWON))
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->char_id, MAPID_TAEKWON))
 		index *= 3; //Triple max SP for top ranking Taekwons over level 90.
-	
+
 	sd->status.max_sp += index;
 
 	// Absolute modifiers from passive skills
@@ -4315,7 +4315,8 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 
 		case SC_REJECTSWORD:
-			val2 = 3;
+			val2 = 15*val1; //Reflect chance
+			val3 = 3; //Number of reflections
 			break;
 
 		case SC_MEMORIZE:

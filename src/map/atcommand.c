@@ -15,6 +15,7 @@
 #include "../common/core.h"
 #include "../common/showmsg.h"
 
+#include "atcommand.h"
 #include "log.h"
 #include "clif.h"
 #include "chrif.h"
@@ -29,7 +30,6 @@
 #include "battle.h"
 #include "party.h"
 #include "guild.h"
-#include "atcommand.h"
 #include "script.h"
 #include "npc.h"
 #include "trade.h"
@@ -295,6 +295,7 @@ ACMD_FUNC(clone); // [Valaris]
 ACMD_FUNC(tonpc); // LuzZza
 ACMD_FUNC(commands); // [Skotlex]
 ACMD_FUNC(noask); //LuzZza
+ACMD_FUNC(request); //[Skotlex]
 
 /*==========================================
  *AtCommandInfo atcommand_info[]\`
@@ -611,6 +612,7 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_ToNPC,				"@tonpc",			40, atcommand_tonpc }, // LuzZza
 	{ AtCommand_Commands,			"@commands",		1, atcommand_commands }, // [Skotlex]
 	{ AtCommand_NoAsk,				"@noask",			1, atcommand_noask }, // [LuzZza]
+	{ AtCommand_Request,				"@request",			20, atcommand_request }, // [Skotlex]
 
 // add new commands before this line
 	{ AtCommand_Unknown,			NULL,				 1, NULL }
@@ -9319,7 +9321,7 @@ int atcommand_mobinfo(
 	char atcmd_output2[200];
 	struct item_data *item_data;
 	struct mob_db *mob, *mob_array[MAX_SEARCH];
-	int mob_id, count;
+	int count;
 	int i, j, k;
 
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
@@ -9331,9 +9333,9 @@ int atcommand_mobinfo(
 	}
 
 	// If monster identifier/name argument is a name
-	if ((mob_id = mobdb_checkid(atoi(message))))
+	if ((i = mobdb_checkid(atoi(message))))
 	{
-		mob_array[0] = mob_db(mob_id);
+		mob_array[0] = mob_db(i);
 		count = 1;
 	} else
 		count = mobdb_searchname_array(mob_array, MAX_SEARCH, message);
@@ -9353,9 +9355,9 @@ int atcommand_mobinfo(
 
 		// stats
 		if (mob->mexp)
-			sprintf(atcmd_output, "MVP Monster: '%s'/'%s'/'%s' (%d)", mob->name, mob->jname, mob->sprite, mob_id);
+			sprintf(atcmd_output, "MVP Monster: '%s'/'%s'/'%s' (%d)", mob->name, mob->jname, mob->sprite, mob->vd.class_);
 		else
-			sprintf(atcmd_output, "Monster: '%s'/'%s'/'%s' (%d)", mob->name, mob->jname, mob->sprite, mob_id);
+			sprintf(atcmd_output, "Monster: '%s'/'%s'/'%s' (%d)", mob->name, mob->jname, mob->sprite, mob->vd.class_);
 		clif_displaymessage(fd, atcmd_output);
 		sprintf(atcmd_output, " Level:%d  HP:%d  SP:%d  Base EXP:%d  Job EXP:%d", mob->lv, mob->max_hp, mob->max_sp, mob->base_exp, mob->job_exp);
 		clif_displaymessage(fd, atcmd_output);
@@ -10214,6 +10216,27 @@ int atcommand_noask(
 		sd->state.noask = 1;
 	}
 
+	return 0;
+}
+
+/*=====================================
+ * Send a @request message to all GMs of lowest_gm_level.
+ * Usage: @request <petition>
+ *-------------------------------------
+ */
+int atcommand_request(
+	const int fd, struct map_session_data* sd,
+	const char* command, const char* message)
+{
+	if (!message || !*message) {
+		clif_displaymessage(sd->fd,msg_txt(277));
+		return -1;
+	}
+
+	sprintf(atcmd_output, msg_txt(278), message);
+	intif_wis_message_to_gm(sd->status.name, lowest_gm_level, atcmd_output);
+	clif_disp_onlyself(sd, atcmd_output, strlen(atcmd_output));
+	clif_displaymessage(sd->fd,msg_txt(279));
 	return 0;
 }
 

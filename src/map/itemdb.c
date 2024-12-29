@@ -17,17 +17,17 @@
 #include "pc.h"
 
 // ** ITEMDB_OVERRIDE_NAME_VERBOSE **
-//   定義すると、itemdb.txtとgrfで名前が異なる場合、表示します.
+//   `Aitemdb.txtgrfOA\.
 //#define ITEMDB_OVERRIDE_NAME_VERBOSE	1
 
 static struct dbt* item_db;
 
 static struct item_group itemgroup_db[MAX_ITEMGROUP];
 
-struct item_data *dummy_item=NULL; //This is the default dummy item used for non-existant items. [Skotlex]
+struct item_data dummy_item; //This is the default dummy item used for non-existant items. [Skotlex]
 
 /*==========================================
- * 名前で検索用
+ * Op
  *------------------------------------------
  */
 // name = item alias, so we should find items aliases first. if not found then look for "jname" (full name)
@@ -37,14 +37,14 @@ int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
 	char *str;
 	str=va_arg(ap,char *);
 	dst=va_arg(ap,struct item_data **);
-	if(item == dummy_item) return 0;
+	if(item == &dummy_item) return 0;
 	if( strcmpi(item->name,str)==0 ) //by lupus
 		*dst=item;
 	return 0;
 }
 
 /*==========================================
- * 名前で検索用
+ * Op
  *------------------------------------------
  */
 int itemdb_searchjname_sub(int key,void *data,va_list ap)
@@ -59,7 +59,7 @@ int itemdb_searchjname_sub(int key,void *data,va_list ap)
 }
 
 /*==========================================
- * 名前で検索
+ * O
  *------------------------------------------
  */
 struct item_data* itemdb_searchname(const char *str)
@@ -74,7 +74,7 @@ static int itemdb_searchname_array_sub(DBKey key,void * data,va_list ap)
 	struct item_data *item=(struct item_data *)data;
 	char *str;
 	str=va_arg(ap,char *);
-	if (item == dummy_item)
+	if (item == &dummy_item)
 		return 1; //Invalid item.
 	if(stristr(item->jname,str))
 		return 0;
@@ -94,7 +94,7 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 
 
 /*==========================================
- * 箱系アイテム検索
+ * nACe
  *------------------------------------------
  */
 int itemdb_searchrandomid(int group)
@@ -129,13 +129,13 @@ int itemdb_group (int nameid)
 }
 
 /*==========================================
- * DBの存在確認
+ * DBmF
  *------------------------------------------
  */
 struct item_data* itemdb_exists(int nameid)
 {
 	struct item_data* id = idb_get(item_db,nameid);
-//	if (id == dummy_item) return NULL; //Let dummy items go through... technically they "exist" because someone already has them...
+//	if (id == &dummy_item) return NULL; //Let dummy items go through... technically they "exist" because someone already has them...
 	return id;
 }
 
@@ -201,16 +201,14 @@ static void itemdb_jobid2mapid(unsigned int *bclass, unsigned int jobmask)
 }
 
 static void create_dummy_data(void) {
-	if (dummy_item)
-		aFree(dummy_item);
-	
-	dummy_item=(struct item_data *)aCalloc(1,sizeof(struct item_data));
-	dummy_item->nameid=500;
-	dummy_item->weight=1;
-	dummy_item->type=3; //Etc item
-	strncpy(dummy_item->name,"UNKNOWN_ITEM",ITEM_NAME_LENGTH-1);
-	strncpy(dummy_item->jname,"UNKNOWN_ITEM",ITEM_NAME_LENGTH-1);
-	dummy_item->view_id = 512; //Use apple sprite.
+	memset(&dummy_item, 0, sizeof(struct item_data));
+	dummy_item.nameid=500;
+	dummy_item.weight=1;
+	dummy_item.value_sell = 1;
+	dummy_item.type=3; //Etc item
+	strncpy(dummy_item.name,"UNKNOWN_ITEM",ITEM_NAME_LENGTH-1);
+	strncpy(dummy_item.jname,"UNKNOWN_ITEM",ITEM_NAME_LENGTH-1);
+	dummy_item.view_id = 512; //Use apple sprite.
 }
 
 static void* create_item_data(DBKey key, va_list args) {
@@ -234,7 +232,7 @@ struct item_data* itemdb_load(int nameid)
 static void* return_dummy_data(DBKey key, va_list args) {
 	if (battle_config.error_log)
 		ShowWarning("itemdb_search: Item ID %d does not exists in the item_db. Using dummy data.\n", key.i);
-	return dummy_item;
+	return &dummy_item;
 }
 
 /*==========================================
@@ -263,14 +261,28 @@ int itemdb_isequip(int nameid)
  */
 int itemdb_isequip2(struct item_data *data)
 {
-	if(data) {
-		int type=data->type;
-		if(type==0 || type==2 || type==3 || type==6 || type==10)
+	nullpo_retr(0, data);
+	switch(data->type) {
+		case 0:
+		case 2:
+		case 3:
+		case 6:
+		case 10:
 			return 0;
-		else
+		default:
 			return 1;
 	}
-	return 0;
+}
+//Checks if the item is pet-equipment (7/8)
+static int itemdb_ispetequip(struct item_data *data)
+{
+	switch(data->type) {
+		case 7:
+		case 8:
+			return 1;
+		default:
+			return 0;
+	}
 }
 
 /*==========================================
@@ -332,7 +344,7 @@ int itemdb_isequip3(int nameid)
 }
 
 /*==========================================
- * アイテム使用可能フラグのオーバーライド
+ * ACegp\tOI[o[Ch
  *------------------------------------------
  */
 static int itemdb_read_itemavail (void)
@@ -469,13 +481,14 @@ static void itemdb_read_itemgroup(void)
 		"Masks",
 		"Accesory",
 		"Jewels",
-		"Gift Box",
-		"Gift Box",
-		"Gift Box",
-		"Gift Box",
+		"Gift Box 1",
+		"Gift Box 2",
+		"Gift Box 3",
+		"Gift Box 4",
 		"Egg Boy",
 		"Egg Girl",
-		"Gift Box"
+		"Gift Box China",
+		"Lotto Box",
 	};
 	memset(&itemgroup_db, 0, sizeof(itemgroup_db));
 	snprintf(path, 255, "%s/item_group_db.txt", db_path);
@@ -488,7 +501,7 @@ static void itemdb_read_itemgroup(void)
 	return;
 }
 /*==========================================
- * アイテムの名前テーブルを読み込む
+ * ACeOe[u
  *------------------------------------------
  */
 static int itemdb_read_itemnametable(void)
@@ -530,7 +543,7 @@ static int itemdb_read_itemnametable(void)
 }
 
 /*==========================================
- * カードイラストのリソース名前テーブルを読み込む
+ * J[hCXg\[XOe[u
  *------------------------------------------
  */
 static int itemdb_read_cardillustnametable(void)
@@ -564,7 +577,7 @@ static int itemdb_read_cardillustnametable(void)
 }
 
 //
-// 初期化
+// 
 //
 /*==========================================
  *
@@ -584,7 +597,7 @@ static int itemdb_read_itemslottable(void)
 		struct item_data* item;
 		sscanf(p, "%d#%d#", &nameid, &equip);
 		item = itemdb_search(nameid);
-		if (item && itemdb_isequip2(item))			
+		if (equip && item && itemdb_isequip2(item))
 			item->equip = equip;
 		p = strchr(p, 10);
 		if(!p) break;
@@ -635,7 +648,7 @@ static int itemdb_read_itemslotcounttable(void)
 }
 
 /*==========================================
- * 装備制限ファイル読み出し
+ * t@Co
  *------------------------------------------
  */
 static int itemdb_read_noequip(void)
@@ -852,6 +865,11 @@ static int itemdb_read_sqldb(void)
 					id->class_upper= (sql_row[12] != NULL) ? atoi(sql_row[12]) : 0;
 					id->sex		= (sql_row[13] != NULL) ? atoi(sql_row[13]) : 0;
 					id->equip	= (sql_row[14] != NULL) ? atoi(sql_row[14]) : 0;
+					if (!id->equip && itemdb_isequip2(id) && !itemdb_ispetequip(id))
+					{
+						ShowWarning("Item %d (%s) is an equipment with no equip-field! Making it an etc item.\n", nameid, id->jname);
+						id->type = 3;
+					}
 					id->wlv		= (sql_row[15] != NULL) ? atoi(sql_row[15]) : 0;
 					id->elv		= (sql_row[16] != NULL)	? atoi(sql_row[16]) : 0;
 					id->flag.no_refine = (sql_row[17] == NULL || atoi(sql_row[17]) == 1)?0:1;
@@ -921,7 +939,7 @@ static int itemdb_read_sqldb(void)
 #endif /* not TXT_ONLY */
 
 /*==========================================
- * アイテムデータベースの読み込み
+ * ACef[^x[X
  *------------------------------------------
  */
 static int itemdb_readdb(void)
@@ -988,8 +1006,8 @@ static int itemdb_readdb(void)
 					id->value_buy = buy;
 					id->value_sell = sell;
 				} else {
-					// buy≠sell*2 は item_value_db.txt で指定してください。
-					if (sell) {		// sell値を優先とする
+					// buysell*2  item_value_db.txt wB
+					if (sell) {		// selllD
 						id->value_buy = sell*2;
 						id->value_sell = sell;
 					} else {
@@ -1018,6 +1036,11 @@ static int itemdb_readdb(void)
 			id->sex	= atoi(str[13]);
 			if(id->equip != atoi(str[14])){
 				id->equip=atoi(str[14]);
+			}
+			if (!id->equip && itemdb_isequip2(id) && !itemdb_ispetequip(id))
+			{
+				ShowWarning("Item %d (%s) is an equipment with no equip-field! Making it an etc item.\n", nameid, id->jname);
+				id->type = 3;
 			}
 			id->wlv=atoi(str[15]);
 			id->elv=atoi(str[16]);
@@ -1144,7 +1167,7 @@ static int itemdb_final_sub (DBKey key,void *data,va_list ap)
 		id->unequip_script = NULL;
 	}
 	// Whether to clear the item data (exception: do not clear the dummy item data
-	if (flag && id != dummy_item) 
+	if (flag && id != &dummy_item)
 		aFree(id);
 
 	return 0;
@@ -1160,15 +1183,17 @@ void itemdb_reload(void)
 void do_final_itemdb(void)
 {
 	item_db->destroy(item_db, itemdb_final_sub, 1);
-	if (dummy_item) {
-		if (dummy_item->script)
-			aFree(dummy_item->script);
-		if (dummy_item->equip_script)
-			aFree(dummy_item->equip_script);
-		if (dummy_item->unequip_script)
-			aFree(dummy_item->unequip_script);
-		aFree(dummy_item);
-		dummy_item = NULL;
+	if (dummy_item.script) {
+		aFree(dummy_item.script);
+		dummy_item.script = NULL;
+	}
+	if (dummy_item.equip_script) {
+		aFree(dummy_item.equip_script);
+		dummy_item.equip_script = NULL;
+	}
+	if (dummy_item.unequip_script) {
+		aFree(dummy_item.unequip_script);
+		dummy_item.unequip_script = NULL;
 	}
 }
 

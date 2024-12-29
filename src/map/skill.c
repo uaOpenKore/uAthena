@@ -1335,10 +1335,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	}
 
 	//Reports say that autospell effects get triggered on skills and pretty much everything including splash attacks. [Skotlex]
-	//No need to check the NK value as this function is only called on attacks
-	//(or stuff that should invoke these things.
-	if(sd && !status_isdead(bl) && src != bl/* &&
-		!(skillid && skill_get_nk(skillid)&NK_NO_DAMAGE)*/) {
+	if(sd && !status_isdead(bl) && src != bl &&
+		!(skillid && skill_get_nk(skillid)&NK_NO_DAMAGE)) {
 		struct block_list *tbl;
 		struct unit_data *ud;
 		int i;
@@ -1820,7 +1818,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 				//set this skill as previous one.
 				sd->skillid_old = skillid;
 				sd->skilllv_old = skilllv;
-				if (pc_istop10fame(sd->char_id,MAPID_TAEKWON))
+				if (pc_famerank(sd->char_id,MAPID_TAEKWON))
 					break; //Do not end combo state.
 			default:
 				status_change_end(src,SC_COMBO,-1);
@@ -7154,17 +7152,15 @@ static int skill_moonlit_sub(struct block_list *bl, va_list ap) {
  */
 static void skill_moonlit (struct block_list* src, struct block_list* partner, int skilllv)
 {
-	int range = skill_get_range2(src, CG_MOONLIT, skilllv);
+	int range = skill_get_splash(CG_MOONLIT, skilllv);
 	int blowcount = range+1, time = skill_get_time(CG_MOONLIT,skilllv);
-	
+
 	map_foreachinrange(skill_moonlit_sub,src,
-		skill_get_splash(CG_MOONLIT, skilllv),
-		BL_CHAR,src,partner,blowcount);
+		range, BL_CHAR,src,partner,blowcount);
 	if(partner)
 		map_foreachinrange(skill_moonlit_sub,partner,
-			skill_get_splash(CG_MOONLIT, skilllv),
-			BL_CHAR,src,partner,blowcount);
-		
+			range, BL_CHAR,src,partner,blowcount);
+
 	sc_start4(src,SC_DANCING,100,CG_MOONLIT,0,0,partner?partner->id:BCT_SELF,time+1000);
 	sc_start4(src,SkillStatusChangeTable[CG_MOONLIT],100,skilllv,0,0,0,time);
 	
@@ -7625,7 +7621,7 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 			return 0; //Anti-Soul Linker check in case you job-changed with Stances active.
 		if(sd->sc.data[SC_COMBO].timer == -1)
 			return 0; //Combo needs to be ready
-		if (pc_istop10fame(sd->char_id,MAPID_TAEKWON))
+		if (pc_famerank(sd->char_id,MAPID_TAEKWON))
 		{	//Unlimited Combo
 			if (skill == sd->skillid_old) {
 				status_change_end(&sd->bl, SC_COMBO, -1);
@@ -8065,6 +8061,11 @@ int skill_castfix_sc (struct block_list *bl, int time)
 		if (sc->data[SC_SUFFRAGIUM].timer != -1) {
 			time -= time * (sc->data[SC_SUFFRAGIUM].val1 * 15) / 100;
 			status_change_end(bl, SC_SUFFRAGIUM, -1);
+		}
+		if (sc->data[SC_MEMORIZE].timer != -1) {
+			time>>=1;
+			if ((--sc->data[SC_MEMORIZE].val2) <= 0)
+				status_change_end(bl, SC_MEMORIZE, -1);
 		}
 		if (sc->data[SC_POEMBRAGI].timer != -1)
 			time -= time * sc->data[SC_POEMBRAGI].val2 / 100;
@@ -8629,12 +8630,12 @@ void skill_unitsetmapcell (struct skill_unit *src, int skill_num, int skill_lv, 
 }
 
 /*==========================================
- * Sets a map cell around the caster, according to the skill's range.
+ * Sets a map cell around the caster, according to the skill's splash range.
  *------------------------------------------
  */
 void skill_setmapcell (struct block_list *src, int skill_num, int skill_lv, int flag)
 {
-	int i,x,y,range = skill_get_range2(src, skill_num, skill_lv);
+	int i,x,y,range = skill_get_splash(skill_num, skill_lv);
 	int size = range*2+1;
 
 	for (i=0;i<size*size;i++) {

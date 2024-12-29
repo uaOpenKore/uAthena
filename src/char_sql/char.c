@@ -137,7 +137,7 @@ int auth_fifo_pos = 0;
 
 int check_ip_flag = 1; // It's to check IP of a player between char-server and other servers (part of anti-hacking system)
 
-struct mmo_charstatus *char_dat;
+struct mmo_charstatus char_dat;
 int char_num,char_max;
 int max_connect_user = 0;
 int gm_allow_level = 99;
@@ -152,6 +152,11 @@ int guild_exp_rate = 100;
 int fame_list_size_chemist = MAX_FAME_LIST;
 int fame_list_size_smith = MAX_FAME_LIST;
 int fame_list_size_taekwon = MAX_FAME_LIST;
+
+// Char-server-side stored fame lists [DracoRPG]
+struct fame_list smith_fame_list[MAX_FAME_LIST];
+struct fame_list chemist_fame_list[MAX_FAME_LIST];
+struct fame_list taekwon_fame_list[MAX_FAME_LIST];
 
 // check for exit signal
 // 0 is saving complete
@@ -1221,12 +1226,7 @@ int mmo_char_sql_init(void) {
 	ShowInfo("Begin Initializing.......\n");
 	char_db_= db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA, sizeof(int));
 	// memory initialize
-	// no need to set twice size in this routine. but some cause segmentation error. :P
-	// The hell? Why segmentation faults? Sounds like a bug that needs addressing... [Skotlex]
-	ShowDebug("initializing char memory...(%d byte)\n",sizeof(struct mmo_charstatus)*2);
-	CREATE(char_dat, struct mmo_charstatus, 2);
-
-	memset(char_dat, 0, sizeof(struct mmo_charstatus)*2);
+	memset(&char_dat, 0, sizeof(struct mmo_charstatus));
 	if(char_per_account == 0){
 	  ShowStatus("Chars per Account: 'Unlimited'.......\n");
 	}else{
@@ -1726,9 +1726,9 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 		ShowInfo("Loading Char Data ("CL_BOLD"%d"CL_RESET")\n",sd->account_id);
 
 	for(i = 0; i < found_num; i++) {
-		mmo_char_fromsql_short(sd->found_char[i], char_dat);
+		mmo_char_fromsql_short(sd->found_char[i], &char_dat);
 
-		p = &char_dat[0];
+		p = &char_dat;
 
 		j = offset + (i * 106); // increase speed of code
 
@@ -2212,7 +2212,138 @@ int save_accreg2(unsigned char* buf, int len) {
 	}
 	return 0;
 }
+
+void char_read_fame_list(void)
+{
+	int i;
+	struct fame_list fame_item;
+
+	// Empty ranking lists
+	memset(smith_fame_list, 0, sizeof(smith_fame_list));
+	memset(chemist_fame_list, 0, sizeof(chemist_fame_list));
+	memset(taekwon_fame_list, 0, sizeof(taekwon_fame_list));
+	// Build Blacksmith ranking list
+	sprintf(tmp_sql, "SELECT `char_id`,`fame`, `name` FROM `%s` WHERE `fame`>0 AND (`class`='%d' OR `class`='%d' OR `class`='%d') ORDER BY `fame` DESC LIMIT 0,%d", char_db, JOB_BLACKSMITH, JOB_WHITESMITH, JOB_BABY_BLACKSMITH, fame_list_size_smith);
+	if (mysql_query(&mysql_handle, tmp_sql)) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+	}
+	sql_res = mysql_store_result(&mysql_handle);
+	if (sql_res) {
+		i = 0;
+		while((sql_row = mysql_fetch_row(sql_res))) {
+			fame_item.id = atoi(sql_row[0]);
+			fame_item.fame = atoi(sql_row[1]);
+			strncpy(fame_item.name, sql_row[2], NAME_LENGTH);
+			memcpy(&smith_fame_list[i], &fame_item, sizeof(struct fame_list));
+
+			if (++i == fame_list_size_smith)
+				break;
+		}
+		mysql_free_result(sql_res);
+	}
+	// Build Alchemist ranking list
+	sprintf(tmp_sql, "SELECT `char_id`,`fame`, `name` FROM `%s` WHERE `fame`>0 AND (`class`='%d' OR `class`='%d' OR `class`='%d') ORDER BY `fame` DESC LIMIT 0,%d", char_db, JOB_ALCHEMIST, JOB_CREATOR, JOB_BABY_ALCHEMIST, fame_list_size_chemist);
+	if (mysql_query(&mysql_handle, tmp_sql)) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+	}
+	sql_res = mysql_store_result(&mysql_handle);
+	if (sql_res) {
+		i = 0;
+		while((sql_row = mysql_fetch_row(sql_res))) {
+			fame_item.id = atoi(sql_row[0]);
+			fame_item.fame = atoi(sql_row[1]);
+			strncpy(fame_item.name, sql_row[2], NAME_LENGTH);
+
+			memcpy(&chemist_fame_list[i], &fame_item, sizeof(struct fame_list));
+
+			if (++i == fame_list_size_chemist)
+				break;
+		}
+		mysql_free_result(sql_res);
+	}
+	// Build Taekwon ranking list
+	sprintf(tmp_sql, "SELECT `char_id`,`fame`, `name` FROM `%s` WHERE `fame`>0 AND (`class`='%d') ORDER BY `fame` DESC LIMIT 0,%d", char_db, JOB_TAEKWON, fame_list_size_taekwon);
+	if (mysql_query(&mysql_handle, tmp_sql)) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+	}
+	sql_res = mysql_store_result(&mysql_handle);
+	if (sql_res) {
+		i = 0;
+		while((sql_row = mysql_fetch_row(sql_res))) {
+			fame_item.id = atoi(sql_row[0]);
+			fame_item.fame = atoi(sql_row[1]);
+			strncpy(fame_item.name, sql_row[2], NAME_LENGTH);
+
+			memcpy(&taekwon_fame_list[i], &fame_item, sizeof(struct fame_list));
+
+			if (++i == fame_list_size_taekwon)
+				break;
+		}
+		mysql_free_result(sql_res);
+	}
+}
+
+// Send map-servers the fame ranking lists
+int char_send_fame_list(int fd) {
+	int i, len = 8;
+	unsigned char buf[32000];
+
+	WBUFW(buf,0) = 0x2b1b;
+
+	for(i = 0; i < fame_list_size_smith && smith_fame_list[i].id; i++) {
+		memcpy(WBUFP(buf, len), &smith_fame_list[i], sizeof(struct fame_list));
+		len += sizeof(struct fame_list);
+	}
+	// add blacksmith's block length
+	WBUFW(buf, 6) = len;
+
+	for(i = 0; i < fame_list_size_chemist && chemist_fame_list[i].id; i++) {
+		memcpy(WBUFP(buf, len), &chemist_fame_list[i], sizeof(struct fame_list));
+		len += sizeof(struct fame_list);
+	}
+	// add alchemist's block length
+	WBUFW(buf, 4) = len;
+
+	for(i = 0; i < fame_list_size_taekwon && taekwon_fame_list[i].id; i++) {
+		memcpy(WBUFP(buf, len), &taekwon_fame_list[i], sizeof(struct fame_list));
+		len += sizeof(struct fame_list);
+	}
+	// add total packet length
+	WBUFW(buf, 2) = len;
+
+	if (fd != -1)
+		mapif_send(fd, buf, len);
+	else
+		mapif_sendall(buf, len);
+	return 0;
+}
+
 int search_mapserver(unsigned short map, long ip, short port);
+
+//Loads a character's name and stores it in the buffer given (must be NAME_LENGTH in size)
+//Returns 1 on found, 0 on not found (buffer is filled with Unknown char name)
+int char_loadName(int char_id, char* name)
+{
+	sprintf(tmp_sql, "SELECT `name` FROM `%s` WHERE `char_id`='%d'", char_db, char_id);
+	if (mysql_query(&mysql_handle, tmp_sql)) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+	}
+
+	sql_res = mysql_store_result(&mysql_handle);
+	sql_row = sql_res?mysql_fetch_row(sql_res):NULL;
+
+	if (sql_row)
+		memcpy(name, sql_row[0], NAME_LENGTH);
+	else
+		memcpy(name, unknown_char_name, NAME_LENGTH);
+	if (sql_res) mysql_free_result(sql_res);
+	return sql_row?1:0;
+}
+
 
 int parse_frommap(int fd) {
 	int i = 0, j = 0;
@@ -2306,6 +2437,7 @@ int parse_frommap(int fd) {
 			WFIFOB(fd,2) = 0;
 			memcpy(WFIFOP(fd,3), wisp_server_name, NAME_LENGTH); // name for wisp to player
 			WFIFOSET(fd,3+NAME_LENGTH);
+			char_send_fame_list(fd); //Send fame list.
 			//WFIFOSET(fd,27);
 			{
 				unsigned char buf[16384];
@@ -2448,8 +2580,8 @@ int parse_frommap(int fd) {
 				(character = idb_get(online_char_db, aid)) != NULL &&
 				character->char_id == cid)
 			{
-				memcpy(&char_dat[0], RFIFOP(fd,13), sizeof(struct mmo_charstatus));
-				mmo_char_tosql(cid, char_dat);
+				memcpy(&char_dat, RFIFOP(fd,13), sizeof(struct mmo_charstatus));
+				mmo_char_tosql(cid, &char_dat);
 			} else
 				ShowError("parse_from_map (save-char): Received data for non-existant/offline character (%d:%d)!\n", aid, cid);
 
@@ -2501,13 +2633,13 @@ int parse_frommap(int fd) {
 					map_fd = server_fd[map_id];
 				//Char should just had been saved before this packet, so this should be safe. [Skotlex]
 				char_data = uidb_get(char_db_,RFIFOL(fd,14));
-				if (char_data == NULL) 
+				if (char_data == NULL)
 				{	//Really shouldn't happen.
-					mmo_char_fromsql(RFIFOL(fd,14), char_dat);
-					char_data = char_dat;
+					mmo_char_fromsql(RFIFOL(fd,14), &char_dat);
+					char_data = &char_dat;
 				}
 				//Tell the new map server about this player using Kevin's new auth packet. [Skotlex]
-				if (map_fd>=0 && session[map_fd] && char_data) 
+				if (map_fd>=0 && session[map_fd] && char_data)
 				{	//Send the map server the auth of this player.
 					//Update the "last map" as this is where the player must be spawned on the new map server.
 					char_data->last_point.map = RFIFOW(fd,18);
@@ -2545,28 +2677,15 @@ int parse_frommap(int fd) {
 		case 0x2b08:
 			if (RFIFOREST(fd) < 6)
 				return 0;
-		
-			sprintf(tmp_sql, "SELECT `name` FROM `%s` WHERE `char_id`='%d'", char_db, (int)RFIFOL(fd,2));
-			if (mysql_query(&mysql_handle, tmp_sql)) {
-				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			{
+				char name[NAME_LENGTH];
+				char_loadName((int)RFIFOL(fd,2), name);
+				WFIFOW(fd,0) = 0x2b09;
+				WFIFOL(fd,2) = RFIFOL(fd,2);
+				memcpy(WFIFOP(fd,6), name, NAME_LENGTH);
+				WFIFOSET(fd,30);
+				RFIFOSKIP(fd,6);
 			}
-			
-			sql_res = mysql_store_result(&mysql_handle);
-			sql_row = sql_res?mysql_fetch_row(sql_res):NULL;
-
-			WFIFOW(fd,0) = 0x2b09;
-			WFIFOL(fd,2) = RFIFOL(fd,2);
-
-			if (sql_row)
-				memcpy(WFIFOP(fd,6), sql_row[0], NAME_LENGTH);
-			else
-				memcpy(WFIFOP(fd,6), unknown_char_name, NAME_LENGTH);
-			if (sql_res) mysql_free_result(sql_res);
-
-			WFIFOSET(fd,30);
-
-			RFIFOSKIP(fd,6);
 			break;
 
 		// I want become GM - fuck!
@@ -2705,7 +2824,68 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd, 44);
 			break;
 
-		// Recieve rates [Wizputer]
+//		case 0x2b0f: Not used anymore, available for future use
+
+		// Update and send fame ranking list [DracoRPG]
+		case 0x2b10:
+			if (RFIFOREST(fd) < 12)
+				return 0;
+			{
+				int i;
+				int id = RFIFOL(fd, 2);
+				int fame = RFIFOL(fd, 6);
+				char type = RFIFOB(fd, 10);
+				char pos = RFIFOB(fd, 11);
+				int size = 0;
+				struct fame_list *list = NULL;
+				RFIFOSKIP(fd,12);
+
+				switch(type) {
+					case 1:
+						size = fame_list_size_smith;
+						list = smith_fame_list;
+						break;
+					case 2:
+						size = fame_list_size_chemist;
+						list = chemist_fame_list;
+						break;
+					case 3:
+						size = fame_list_size_taekwon;
+						list = taekwon_fame_list;
+						break;
+				}
+				if(!size) break; //No list.
+				if(pos)
+				{
+					pos--; //Convert from pos to index.
+					if(
+						(pos == 0 || fame < list[pos-1].fame) &&
+						(pos == size-1 || fame > list[pos+1].fame)
+					) { //No change in order.
+						list[(int)pos].fame = fame;
+						char_send_fame_list(fd);
+						break;
+					}
+					// If the player's already in the list, remove the entry and shift the following ones 1 step up
+					memmove(list+pos, list+pos+1, (size-pos-1) * sizeof(struct fame_list));
+					list[size].fame = 0; // At worst, the guy'll end up last (shouldn't happen if fame only goes up)
+				}
+
+				// Find the position where the player has to be inserted
+				for(i = 0; i < size && fame < list[i].fame; i++);
+				if(i>=size) break; //Out of ranking.
+				// When found someone with less or as much fame, insert just above
+				memmove(list+i+1, list+i, (size-i-1) * sizeof(struct fame_list));
+				list[i].id = id;
+				list[i].fame = fame;
+				// Look for the player's name
+				char_loadName(list[i].id, list[i].name);
+				char_send_fame_list(-1);
+			}
+
+			break;
+
+		// Receive rates [Wizputer]
 		case 0x2b16:
 			if (RFIFOREST(fd) < 6 || RFIFOREST(fd) < RFIFOW(fd,8))
 				return 0;
@@ -2747,83 +2927,15 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,10);
 			break;
 
-		// Request sending of fame list
+		// Build and send fame ranking lists [DracoRPG]
 		case 0x2b1a:
 			if (RFIFOREST(fd) < 2)
 				return 0;
-		{
-			int len = 8, num = 0;
-			unsigned char buf[32000];
-			struct fame_list fame_item;
-
-			WBUFW(buf,0) = 0x2b1b;
-			sprintf(tmp_sql, "SELECT `char_id`,`fame`, `name` FROM `%s` WHERE `fame`>0 AND (`class`='10' OR `class`='4011'OR `class`='4033') ORDER BY `fame` DESC LIMIT 0,%d", char_db, fame_list_size_smith);
-			if (mysql_query(&mysql_handle, tmp_sql)) {
-				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-			sql_res = mysql_store_result(&mysql_handle);
-			if (sql_res) {
-				while((sql_row = mysql_fetch_row(sql_res))) {
-					fame_item.id = atoi(sql_row[0]);
-					fame_item.fame = atoi(sql_row[1]);
-					strncpy(fame_item.name, sql_row[2], NAME_LENGTH);
-
-					memcpy(WBUFP(buf,len), &fame_item, sizeof(struct fame_list));
-					len += sizeof(struct fame_list);
-					if (++num == fame_list_size_smith)
-						break;
-				}
-   			mysql_free_result(sql_res);
-			}
-			WBUFW(buf, 6) = len; //Blacksmith block size
-
-			num = 0;
-			sprintf(tmp_sql, "SELECT `char_id`,`fame`,`name` FROM `%s` WHERE `fame`>0 AND (`class`='18' OR `class`='4019' OR `class`='4041') ORDER BY `fame` DESC LIMIT 0,%d", char_db, fame_list_size_chemist);
-			if (mysql_query(&mysql_handle, tmp_sql)) {
-				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-			sql_res = mysql_store_result(&mysql_handle);
-			if (sql_res) {
-				while((sql_row = mysql_fetch_row(sql_res))) {
-					fame_item.id = atoi(sql_row[0]);
-					fame_item.fame = atoi(sql_row[1]);
-					strncpy(fame_item.name, sql_row[2], NAME_LENGTH);
-					memcpy(WBUFP(buf,len), &fame_item, sizeof(struct fame_list));
-					len += sizeof(struct fame_list);
-					if (++num == fame_list_size_chemist)
-						break;
-				}
-				mysql_free_result(sql_res);
-			}
-			WBUFW(buf, 4) = len; //Alchemist block size
-
-			num = 0;
-			sprintf(tmp_sql, "SELECT `char_id`,`fame`,`name` FROM `%s` WHERE `fame`>0 AND `class`='4046' ORDER BY `fame` DESC LIMIT 0,%d", char_db, fame_list_size_taekwon);
-			if (mysql_query(&mysql_handle, tmp_sql)) {
-				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-			sql_res = mysql_store_result(&mysql_handle);
-			if (sql_res) {
-				while((sql_row = mysql_fetch_row(sql_res))) {
-					fame_item.id = atoi(sql_row[0]);
-					fame_item.fame = atoi(sql_row[1]);
-					strncpy(fame_item.name, sql_row[2], NAME_LENGTH);
-					memcpy(WBUFP(buf,len), &fame_item, sizeof(struct fame_list));
-					len += sizeof(struct fame_list);
-					if (++num == fame_list_size_taekwon)
-						break;
-				}
-				mysql_free_result(sql_res);
-			}
-			WBUFW(buf, 2) = len; //Total packet length
-
-			mapif_sendall(buf, len);
+			char_read_fame_list();
+			char_send_fame_list(-1);
 			RFIFOSKIP(fd,2);
 			break;
-		}
+
 		//Request saving sc_data of a player. [Skotlex]
 		case 0x2b1c:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
@@ -3106,8 +3218,8 @@ int parse_char(int fd) {
 			{
 				int char_id = atoi(sql_row[0]);
 				mysql_free_result(sql_res); //Free'd as soon as possible
-				mmo_char_fromsql(char_id, char_dat);
-				char_dat[0].sex = sd->sex;
+				mmo_char_fromsql(char_id, &char_dat);
+				char_dat.sex = sd->sex;
 			} else {
 				mysql_free_result(sql_res);
 				break;
@@ -3116,45 +3228,45 @@ int parse_char(int fd) {
 			if (log_char) {
 				char escaped_name[NAME_LENGTH*2];
 				sprintf(tmp_sql,"INSERT INTO `%s`(`time`, `account_id`,`char_num`,`name`) VALUES (NOW(), '%d', '%d', '%s')",
-					charlog_db, sd->account_id, RFIFOB(fd, 2), jstrescapecpy(escaped_name, char_dat[0].name));
+					charlog_db, sd->account_id, RFIFOB(fd, 2), jstrescapecpy(escaped_name, char_dat.name));
 				//query
 				if(mysql_query(&mysql_handle, tmp_sql)) {
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 				}
 			}
-			ShowInfo("Selected char: (Account %d: %d - %s)" RETCODE, sd->account_id, RFIFOB(fd, 2), char_dat[0].name);
-			
-			i = search_mapserver(char_dat[0].last_point.map, -1, -1);
+			ShowInfo("Selected char: (Account %d: %d - %s)" RETCODE, sd->account_id, RFIFOB(fd, 2), char_dat.name);
+
+			i = search_mapserver(char_dat.last_point.map, -1, -1);
 
 			// if map is not found, we check major cities
 			if (i < 0) {
 				unsigned short j;
-				ShowWarning("Unable to find map-server for '%s', resorting to sending to a major city.\n", mapindex_id2name(char_dat[0].last_point.map));
+				ShowWarning("Unable to find map-server for '%s', resorting to sending to a major city.\n", mapindex_id2name(char_dat.last_point.map));
 				if ((i = search_mapserver((j=mapindex_name2id(MAP_PRONTERA)),-1,-1)) >= 0) {
-					char_dat[0].last_point.map = j;
-					char_dat[0].last_point.x = 273; // savepoint coordinates
-					char_dat[0].last_point.y = 354;
+					char_dat.last_point.map = j;
+					char_dat.last_point.x = 273; // savepoint coordinates
+					char_dat.last_point.y = 354;
 				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_GEFFEN)),-1,-1)) >= 0) {
-					char_dat[0].last_point.map = j;
-					char_dat[0].last_point.x = 120; // savepoint coordinates
-					char_dat[0].last_point.y = 100;
+					char_dat.last_point.map = j;
+					char_dat.last_point.x = 120; // savepoint coordinates
+					char_dat.last_point.y = 100;
 				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_MORROC)),-1,-1)) >= 0) {
-					char_dat[0].last_point.map = j;
-					char_dat[0].last_point.x = 160; // savepoint coordinates
-					char_dat[0].last_point.y = 94;
+					char_dat.last_point.map = j;
+					char_dat.last_point.x = 160; // savepoint coordinates
+					char_dat.last_point.y = 94;
 				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_ALBERTA)),-1,-1)) >= 0) {
-					char_dat[0].last_point.map = j;
-					char_dat[0].last_point.x = 116; // savepoint coordinates
-					char_dat[0].last_point.y = 57;
+					char_dat.last_point.map = j;
+					char_dat.last_point.x = 116; // savepoint coordinates
+					char_dat.last_point.y = 57;
 				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_PAYON)),-1,-1)) >= 0) {
-					char_dat[0].last_point.map = j;
-					char_dat[0].last_point.x = 87; // savepoint coordinates
-					char_dat[0].last_point.y = 117;
+					char_dat.last_point.map = j;
+					char_dat.last_point.x = 87; // savepoint coordinates
+					char_dat.last_point.y = 117;
 				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_IZLUDE)),-1,-1)) >= 0) {
-					char_dat[0].last_point.map = j;
-					char_dat[0].last_point.x = 94; // savepoint coordinates
-					char_dat[0].last_point.y = 103;
+					char_dat.last_point.map = j;
+					char_dat.last_point.x = 94; // savepoint coordinates
+					char_dat.last_point.y = 103;
 				} else {
 					// get first online server
 					i = 0;
@@ -3174,8 +3286,8 @@ int parse_char(int fd) {
 				}
 			}
 			WFIFOW(fd, 0) =0x71;
-			WFIFOL(fd, 2) =char_dat[0].char_id;
-			memcpy(WFIFOP(fd,6), mapindex_id2name(char_dat[0].last_point.map), MAP_NAME_LENGTH);
+			WFIFOL(fd, 2) =char_dat.char_id;
+			memcpy(WFIFOP(fd,6), mapindex_id2name(char_dat.last_point.map), MAP_NAME_LENGTH);
 
 			// Andvanced subnet check [LuzZza]
 			if((subnet_map_ip = lan_subnetcheck((long *)p)))
@@ -3189,7 +3301,7 @@ int parse_char(int fd) {
 				auth_fifo_pos = 0;
 			}
 			auth_fifo[auth_fifo_pos].account_id = sd->account_id;
-			auth_fifo[auth_fifo_pos].char_id = char_dat[0].char_id;
+			auth_fifo[auth_fifo_pos].char_id = char_dat.char_id;
 			auth_fifo[auth_fifo_pos].login_id1 = sd->login_id1;
 			auth_fifo[auth_fifo_pos].login_id2 = sd->login_id2;
 			auth_fifo[auth_fifo_pos].delflag = 0;
@@ -3213,12 +3325,12 @@ int parse_char(int fd) {
 			WFIFOL(map_fd,8) = auth_fifo[auth_fifo_pos].login_id1;
 			WFIFOL(map_fd,16) = auth_fifo[auth_fifo_pos].login_id2;
 			WFIFOL(map_fd,12) = (unsigned long)auth_fifo[auth_fifo_pos].connect_until_time;
-			memcpy(WFIFOP(map_fd,20), &char_dat[0], sizeof(struct mmo_charstatus));
+			memcpy(WFIFOP(map_fd,20), &char_dat, sizeof(struct mmo_charstatus));
 			WFIFOSET(map_fd, WFIFOW(map_fd,2));
 
 			set_char_online(i, auth_fifo[auth_fifo_pos].char_id, auth_fifo[auth_fifo_pos].account_id);
 			//Checks to see if the even share setting of the party must be broken.
-			inter_party_logged(char_dat[0].party_id, char_dat[0].account_id, char_dat[0].char_id);
+			inter_party_logged(char_dat.party_id, char_dat.account_id, char_dat.char_id);
 			auth_fifo_pos++;
 			break;
 
@@ -3265,43 +3377,42 @@ int parse_char(int fd) {
 			WFIFOW(fd, 0) = 0x6d;
 			memset(WFIFOP(fd, 2), 0x00, 106);
 
-			mmo_char_fromsql_short(i, char_dat); //Only the short data is needed.
-			i = 0;
-			WFIFOL(fd, 2) = char_dat[i].char_id;
-			WFIFOL(fd,2+4) = char_dat[i].base_exp>LONG_MAX?LONG_MAX:char_dat[i].base_exp;
-			WFIFOL(fd,2+8) = char_dat[i].zeny;
-			WFIFOL(fd,2+12) = char_dat[i].job_exp>LONG_MAX?LONG_MAX:char_dat[i].job_exp;
-			WFIFOL(fd,2+16) = char_dat[i].job_level;
+			mmo_char_fromsql_short(i, &char_dat); //Only the short data is needed.
+			WFIFOL(fd, 2) = char_dat.char_id;
+			WFIFOL(fd,2+4) = char_dat.base_exp>LONG_MAX?LONG_MAX:char_dat.base_exp;
+			WFIFOL(fd,2+8) = char_dat.zeny;
+			WFIFOL(fd,2+12) = char_dat.job_exp>LONG_MAX?LONG_MAX:char_dat.job_exp;
+			WFIFOL(fd,2+16) = char_dat.job_level;
 
-			WFIFOL(fd,2+28) = char_dat[i].karma;
-			WFIFOL(fd,2+32) = char_dat[i].manner;
+			WFIFOL(fd,2+28) = char_dat.karma;
+			WFIFOL(fd,2+32) = char_dat.manner;
 
 			WFIFOW(fd,2+40) = 0x30;
-			WFIFOW(fd,2+42) = (char_dat[i].hp > SHRT_MAX) ? SHRT_MAX : char_dat[i].hp;
-			WFIFOW(fd,2+44) = (char_dat[i].max_hp > SHRT_MAX) ? SHRT_MAX : char_dat[i].max_hp;
-			WFIFOW(fd,2+46) = (char_dat[i].sp > SHRT_MAX) ? SHRT_MAX : char_dat[i].sp;
-			WFIFOW(fd,2+48) = (char_dat[i].max_sp > SHRT_MAX) ? SHRT_MAX : char_dat[i].max_sp;
+			WFIFOW(fd,2+42) = (char_dat.hp > SHRT_MAX) ? SHRT_MAX : char_dat.hp;
+			WFIFOW(fd,2+44) = (char_dat.max_hp > SHRT_MAX) ? SHRT_MAX : char_dat.max_hp;
+			WFIFOW(fd,2+46) = (char_dat.sp > SHRT_MAX) ? SHRT_MAX : char_dat.sp;
+			WFIFOW(fd,2+48) = (char_dat.max_sp > SHRT_MAX) ? SHRT_MAX : char_dat.max_sp;
 			WFIFOW(fd,2+50) = DEFAULT_WALK_SPEED; // char_dat[i].speed;
-			WFIFOW(fd,2+52) = char_dat[i].class_;
-			WFIFOW(fd,2+54) = char_dat[i].hair;
+			WFIFOW(fd,2+52) = char_dat.class_;
+			WFIFOW(fd,2+54) = char_dat.hair;
 
-			WFIFOW(fd,2+58) = char_dat[i].base_level;
-			WFIFOW(fd,2+60) = (char_dat[i].skill_point > SHRT_MAX) ? SHRT_MAX : char_dat[i].skill_point;
+			WFIFOW(fd,2+58) = char_dat.base_level;
+			WFIFOW(fd,2+60) = (char_dat.skill_point > SHRT_MAX) ? SHRT_MAX : char_dat.skill_point;
 
-			WFIFOW(fd,2+64) = char_dat[i].shield;
-			WFIFOW(fd,2+66) = char_dat[i].head_top;
-			WFIFOW(fd,2+68) = char_dat[i].head_mid;
-			WFIFOW(fd,2+70) = char_dat[i].hair_color;
+			WFIFOW(fd,2+64) = char_dat.shield;
+			WFIFOW(fd,2+66) = char_dat.head_top;
+			WFIFOW(fd,2+68) = char_dat.head_mid;
+			WFIFOW(fd,2+70) = char_dat.hair_color;
 
-			memcpy(WFIFOP(fd,2+74), char_dat[i].name, NAME_LENGTH);
+			memcpy(WFIFOP(fd,2+74), char_dat.name, NAME_LENGTH);
 
-			WFIFOB(fd,2+98) = char_dat[i].str>UCHAR_MAX?UCHAR_MAX:char_dat[i].str;
-			WFIFOB(fd,2+99) = char_dat[i].agi>UCHAR_MAX?UCHAR_MAX:char_dat[i].agi;
-			WFIFOB(fd,2+100) = char_dat[i].vit>UCHAR_MAX?UCHAR_MAX:char_dat[i].vit;
-			WFIFOB(fd,2+101) = char_dat[i].int_>UCHAR_MAX?UCHAR_MAX:char_dat[i].int_;
-			WFIFOB(fd,2+102) = char_dat[i].dex>UCHAR_MAX?UCHAR_MAX:char_dat[i].dex;
-			WFIFOB(fd,2+103) = char_dat[i].luk>UCHAR_MAX?UCHAR_MAX:char_dat[i].luk;
-			WFIFOB(fd,2+104) = char_dat[i].char_num;
+			WFIFOB(fd,2+98) = char_dat.str>UCHAR_MAX?UCHAR_MAX:char_dat.str;
+			WFIFOB(fd,2+99) = char_dat.agi>UCHAR_MAX?UCHAR_MAX:char_dat.agi;
+			WFIFOB(fd,2+100) = char_dat.vit>UCHAR_MAX?UCHAR_MAX:char_dat.vit;
+			WFIFOB(fd,2+101) = char_dat.int_>UCHAR_MAX?UCHAR_MAX:char_dat.int_;
+			WFIFOB(fd,2+102) = char_dat.dex>UCHAR_MAX?UCHAR_MAX:char_dat.dex;
+			WFIFOB(fd,2+103) = char_dat.luk>UCHAR_MAX?UCHAR_MAX:char_dat.luk;
+			WFIFOB(fd,2+104) = char_dat.char_num;
 
 			WFIFOSET(fd, 108);
 			RFIFOSKIP(fd, 37);
@@ -3309,7 +3420,7 @@ int parse_char(int fd) {
 			//to do
 			for(ch = 0; ch < 9; ch++) {
 				if (sd->found_char[ch] == -1) {
-					sd->found_char[ch] = char_dat[i].char_id;
+					sd->found_char[ch] = char_dat.char_id;
 					break;
 				}
 			}
@@ -3812,11 +3923,6 @@ void do_final(void) {
 		gm_account = 0;
 	}
 
-	if(char_dat)  {
-		aFree(char_dat);
-		char_dat = 0;
-	}
-
 	delete_session(login_fd);
 	delete_session(char_fd);
 	char_db_->destroy(char_db_, NULL);
@@ -4192,7 +4298,9 @@ int do_init(int argc, char **argv){
 	// send USER COUNT PING to login server.
 	add_timer_interval(gettick() + 10, send_users_tologin, 0, 0, 5 * 1000);
 	add_timer_interval(gettick() + 3600*1000, send_accounts_tologin, 0, 0, 3600 * 1000); //Sync online accounts every hour.
-	
+
+	char_read_fame_list(); //Read fame lists.
+
 	if(char_gm_read)
 		read_gm_account();
 
