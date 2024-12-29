@@ -40,6 +40,8 @@
 #define INF2_NO_TARGET_SELF 512
 #define INF2_PARTY_ONLY 1024
 #define INF2_GUILD_ONLY 2048
+//For Party/Guild only skills that can ALSO be used on enemies.
+#define INF2_ALLOW_ENEMY 4096
 
 //Walk intervals at which chase-skills are attempted to be triggered.
 #define WALK_SKILL_INTERVAL 5
@@ -879,13 +881,14 @@ enum {
 	UNT_FIREWALL,
 	UNT_WARP_WAITING,
 	UNT_WARP_ACTIVE,
+	//0x82
 	UNT_SANCTUARY = 0x83,
 	UNT_MAGNUS,
 	UNT_PNEUMA,
 	UNT_ATTACK_SKILLS, //These show no effect on the client, therefore can be used for attack skills.
 	UNT_FIREPILLAR_WAITING,
 	UNT_FIREPILLAR_ACTIVE,
-
+	//0x89, 0x8a, 0x8b
 	UNT_USED_TRAPS = 0x8c,
 	UNT_ICEWALL,
 	UNT_QUAGMIRE,
@@ -927,15 +930,16 @@ enum {
 	UNT_CALLFAMILY,
 	UNT_GOSPEL,
 	UNT_BASILICA,
-
+	//0xb5
 	UNT_FOGWALL = 0xb6,
 	UNT_SPIDERWEB,
 	UNT_GRAVITATION,
 	UNT_HERMODE,
+	//0xba
+	UNT_SUITON = 0xbb,
 	UNT_DESPERADO,
-	UNT_SUITON,
-	UNT_TATAMIGAESHI,
-	UNT_KAENSIN,
+	//0xbd, 0xbe, 0xc0, 0xc1 //Maybe the other elements of Ground Drift?
+	UNT_GROUNDDRIFT = 0xc2,
 };
 
 #endif
