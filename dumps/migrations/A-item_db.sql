@@ -1074,7 +1074,7 @@ insert into item_db VALUES ( 2639, "Occult_Incense", "Occult Incense", 5, NULL, 
 insert into item_db VALUES ( 2640, "Kafra_Ring", "Kafra Ring", 5, NULL, 10, 200, NULL, 1, NULL, 0, 0xFFFFFFFF, 7, 2, 136, NULL, 0, 0, 0, ' bonus bStr,1; bonus bAgi,1; bonus bInt,1; bonus bLuk,1; bonus bMdef,1; },{},{', NULL, NULL );
 insert into item_db VALUES ( 2641, "Fashion_Hip_Sack", "Fashion Hip Sack", 5, NULL, 10, 700, NULL, 0, NULL, 0, 0x00040420, 7, 2, 136, NULL, 50, 0, 0, ' bonus bStr,2; },{},{', NULL, NULL );
 insert into item_db VALUES ( 2642, "Serin's_Gold_Ring", "Serin's Gold Ring", 5, NULL, 10, 0, NULL, 0, NULL, 0, 0xFFFFFFFF, 7, 2, 136, NULL, 0, 0, 0, '},{},{', NULL, NULL );
-insert into item_db VALUES ( 2643, "Serin's_Gold_Ring_", "Serin's Gold Ring", 5, NULL, 10, 100, NULL, 0, NULL, 0, 0xFFFFFFFF, 7, 2, 136, NULL, 0, 0, 0, '},{},{', NULL, NULL );
+insert into item_db VALUES ( 2643, "Serin's_Gold_Ring_", "Serin's Gold Ring", 5, NULL, 22500, 100, NULL, 0, NULL, 0, 0xFFFFFFFF, 7, 2, 136, NULL, 0, 0, 0, '},{},{', NULL, NULL );
 insert into item_db VALUES ( 2644, "The_Sign", "The Sign", 5, NULL, 10, 0, NULL, 0, NULL, 0, 0xFFFFFFFF, 7, 2, 136, NULL, 0, 0, 0, ' bonus bMatkRate,5; bonus bAtkRate,5; },{},{', NULL, NULL );
 insert into item_db VALUES ( 2645, "Moonlight_Ring", "Moonlight Ring", 5, NULL, 10, 200, NULL, 0, NULL, 0, 0x028F5EEE, 7, 2, 136, NULL, 60, 0, 0, '},{},{', NULL, NULL );
 insert into item_db VALUES ( 2646, "Bunch_of_Carnations", "Bunch of Carnations", 5, NULL, 10, 100, NULL, 0, NULL, 0, 0xFFFFFFFF, 7, 2, 136, NULL, 0, 0, 0, '},{},{', NULL, NULL );
