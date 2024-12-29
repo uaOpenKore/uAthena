@@ -496,8 +496,8 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick) {
 				status_change_end(bl, SC_CLOSECONFINE, -1);
 			if (sc->data[SC_CLOSECONFINE2].timer != -1)
 				status_change_end(bl, SC_CLOSECONFINE2, -1);
-			if (sc->data[SC_BLADESTOP].timer != -1)
-				status_change_end(bl, SC_BLADESTOP, -1);
+//			if (sc->data[SC_BLADESTOP].timer != -1) //Won't stop when you are knocked away, go figure...
+//				status_change_end(bl, SC_BLADESTOP, -1);
 		}
 	}
 	if (moveblock) map_delblock_sub(bl,0);
@@ -3629,6 +3629,18 @@ static int cleanup_db_sub(DBKey key,void *data,va_list va) {
 	return cleanup_sub((struct block_list*)data, NULL);
 }
 
+static int cleanup_db_subpc(DBKey key,void *data,va_list va) {
+	struct map_session_data *sd = (TBL_PC*)data;
+	if (!sd->state.finalsave)
+	{	//Error?
+		ShowError("do_final: Player character in DB which was not sent to save! %d:%d\n", sd->status.account_id, sd->status.char_id);
+		map_quit(sd); //Attempt force-save
+	}
+	//Force remove from memory...
+	map_quit_ack(sd);
+	return 1;
+}
+
 /*==========================================
  * mapIIE
  *------------------------------------------
@@ -3656,10 +3668,13 @@ void do_final(void) {
 	pl_allsd = map_getallusers(&j);
 	for (i = 0; i < j; i++)
 		map_quit(pl_allsd[i]);
-		
-	i = id_db->foreach(id_db,cleanup_db_sub);
+
+	id_db->foreach(id_db,cleanup_db_sub);
 	chrif_char_reset_offline();
 	chrif_flush_fifo();
+	//Online players were sent to save, but the ack will not arrive on time!
+	//They have to be removed from memory, and assume the char-server saved them.
+	pc_db->foreach(pc_db,cleanup_db_subpc);
 
 	do_final_atcommand();
 	do_final_battle();
