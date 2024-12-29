@@ -400,10 +400,19 @@ static void add_scriptl(int l)
  * x
  *------------------------------------------
  */
-void set_label(int l,int pos)
+void set_label(int l,int pos, unsigned char *script_pos)
 {
 	int i,next;
 
+	if(str_data[l].type==C_INT || str_data[l].type==C_PARAM)
+	{	//Prevent overwriting constants values and parameters [Skotlex]
+		disp_error_message("invalid label name",script_pos);
+		exit(1);
+	}
+	if(str_data[l].label!=-1){
+		disp_error_message("dup label ",script_pos);
+		exit(1);
+	}
 	str_data[l].type=(str_data[l].type == C_USERFUNC ? C_USERFUNC_POS : C_POS);
 	str_data[l].label=pos;
 	for(i=str_data[l].backpatch;i>=0 && i!=0x00ffffff;){
@@ -859,14 +868,10 @@ unsigned char* parse_curly_close(unsigned char *p) {
 		// nxt
 		sprintf(label,"__SW%x_%x",syntax.curly[pos].index,syntax.curly[pos].count);
 		l=add_str(label);
-		if(str_data[l].label!=-1){
-			disp_error_message("dup label ",p);
-			exit(1);
-		}
-		set_label(l,script_pos);
+		set_label(l,script_pos, p);
 
 		if(syntax.curly[pos].flag) {
-			// default 
+			// default
 			sprintf(label,"goto __SW%x_DEF;",syntax.curly[pos].index);
 			syntax.curly[syntax.curly_count++].type = TYPE_NULL;
 			parse_line(label);
@@ -876,11 +881,7 @@ unsigned char* parse_curly_close(unsigned char *p) {
 		// Ixt
 		sprintf(label,"__SW%x_FIN",syntax.curly[pos].index);
 		l=add_str(label);
-		if(str_data[l].label!=-1){
-			disp_error_message("dup label ",p);
-			exit(1);
-		}
-		set_label(l,script_pos);
+		set_label(l,script_pos, p);
 
 		syntax.curly_count--;
 		return p+1;
@@ -951,13 +952,9 @@ unsigned char* parse_syntax(unsigned char *p) {
 					// nxt
 					sprintf(label,"__SW%x_%x",syntax.curly[pos].index,syntax.curly[pos].count);
 					l=add_str(label);
-					if(str_data[l].label!=-1){
-						disp_error_message("dup label ",p);
-						exit(1);
-					}
-					set_label(l,script_pos);
+					set_label(l,script_pos, p);
 				}
-				// switch 
+				// switch
 				p = skip_word(p);
 				p = skip_space(p);
 				p2 = p;
@@ -980,13 +977,9 @@ unsigned char* parse_syntax(unsigned char *p) {
 					// FALLTHRU Ix
 					sprintf(label,"__SW%x_%xJ",syntax.curly[pos].index,syntax.curly[pos].count);
 					l=add_str(label);
-					if(str_data[l].label!=-1){
-						disp_error_message("dup label ",p);
-						exit(1);
-					}
-					set_label(l,script_pos);
+					set_label(l,script_pos,p);
 				}
-				// 
+				//
 				sprintf(label,"set $@__SW%x_VAL,0;",syntax.curly[pos].index);
 				syntax.curly[syntax.curly_count++].type = TYPE_NULL;
 				parse_line(label);
@@ -1048,11 +1041,7 @@ unsigned char* parse_syntax(unsigned char *p) {
 				p++;
 				sprintf(label,"__SW%x_%x",syntax.curly[pos].index,syntax.curly[pos].count);
 				l=add_str(label);
-				if(str_data[l].label!=-1){
-					disp_error_message("dup label ",p);
-					exit(1);
-				}
-				set_label(l,script_pos);
+				set_label(l,script_pos,p);
 
 				// N
 				sprintf(label,"goto __SW%x_%x;",syntax.curly[pos].index,syntax.curly[pos].count+1);
@@ -1063,11 +1052,7 @@ unsigned char* parse_syntax(unsigned char *p) {
 				// default xt
 				sprintf(label,"__SW%x_DEF",syntax.curly[pos].index);
 				l=add_str(label);
-				if(str_data[l].label!=-1){
-					disp_error_message("dup label ",p);
-					exit(1);
-				}
-				set_label(l,script_pos);
+				set_label(l,script_pos,p);
 
 				syntax.curly[syntax.curly_count - 1].flag = 1;
 				syntax.curly[pos].count++;
@@ -1088,11 +1073,7 @@ unsigned char* parse_syntax(unsigned char *p) {
 			// nx`
 			sprintf(label,"__DO%x_BGN",syntax.curly[syntax.curly_count].index);
 			l=add_str(label);
-			if(str_data[l].label!=-1){
-				disp_error_message("dup label ",p);
-				exit(1);
-			}
-			set_label(l,script_pos);
+			set_label(l,script_pos,p);
 			syntax.curly_count++;
 			return p;
 		}
@@ -1125,11 +1106,7 @@ unsigned char* parse_syntax(unsigned char *p) {
 			// fJnx`
 			sprintf(label,"__FR%x_J",syntax.curly[pos].index);
 			l=add_str(label);
-			if(str_data[l].label!=-1){
-				disp_error_message("dup label ",p);
-				exit(1);
-			}
-			set_label(l,script_pos);
+			set_label(l,script_pos,p);
 
 			if(*p == ';') {
 				// for(;;) p^[K^
@@ -1159,11 +1136,7 @@ unsigned char* parse_syntax(unsigned char *p) {
 			// [vx`
 			sprintf(label,"__FR%x_NXT",syntax.curly[pos].index);
 			l=add_str(label);
-			if(str_data[l].label!=-1){
-				disp_error_message("dup label ",p);
-				exit(1);
-			}
-			set_label(l,script_pos);
+			set_label(l,script_pos,p);
 
 			// [v
 			// for  '('  ';' tO
@@ -1182,11 +1155,7 @@ unsigned char* parse_syntax(unsigned char *p) {
 			// [vJnxt
 			sprintf(label,"__FR%x_BGN",syntax.curly[pos].index);
 			l=add_str(label);
-			if(str_data[l].label!=-1){
-				disp_error_message("dup label ",p);
-				exit(1);
-			}
-			set_label(l,script_pos);
+			set_label(l,script_pos,p);
 			return p;
 		} else if(!strncmp(p,"function",8) && !isalpha(*(p + 8))) {
 			unsigned char *func_name;
@@ -1229,14 +1198,9 @@ unsigned char* parse_syntax(unsigned char *p) {
 				l=add_str(func_name);
 				if(str_data[l].type == C_NOP)
 					str_data[l].type = C_USERFUNC;
-				if(str_data[l].label!=-1){
-					*p=c;
-					disp_error_message("dup label ",p);
-					exit(1);
-				}
-				set_label(l,script_pos);
-				strdb_put(scriptlabel_db,func_name,(void*)script_pos);	// Oplabel dbo^
 				*p = c;
+				set_label(l,script_pos,p);
+				strdb_put(scriptlabel_db,func_name,(void*)script_pos);
 				return skip_space(p);
 			}
 		}
@@ -1301,11 +1265,7 @@ unsigned char* parse_syntax(unsigned char *p) {
 			// fJnx`
 			sprintf(label,"__WL%x_NXT",syntax.curly[syntax.curly_count].index);
 			l=add_str(label);
-			if(str_data[l].label!=-1){
-				disp_error_message("dup label ",p);
-				exit(1);
-			}
-			set_label(l,script_pos);
+			set_label(l,script_pos,p);
 
 			// UIn_
 			sprintf(label,"__WL%x_FIN",syntax.curly[syntax.curly_count].index);
@@ -1356,11 +1316,7 @@ unsigned char* parse_syntax_close_sub(unsigned char *p,int *flag) {
 		// nxt
 		sprintf(label,"__IF%x_%x",syntax.curly[pos].index,syntax.curly[pos].count);
 		l=add_str(label);
-		if(str_data[l].label!=-1){
-			disp_error_message("dup label ",p);
-			exit(1);
-		}
-		set_label(l,script_pos);
+		set_label(l,script_pos,p);
 
 		syntax.curly[pos].count++;
 		p = skip_space(p);
@@ -1395,11 +1351,7 @@ unsigned char* parse_syntax_close_sub(unsigned char *p,int *flag) {
 		// Inxt
 		sprintf(label,"__IF%x_FIN",syntax.curly[pos].index);
 		l=add_str(label);
-		if(str_data[l].label!=-1){
-			disp_error_message("dup label ",p);
-			exit(1);
-		}
-		set_label(l,script_pos);
+		set_label(l,script_pos,p);
 		if(syntax.curly[pos].flag == 1) {
 			// ifelse|C^u
 			return p2;
@@ -1414,11 +1366,7 @@ unsigned char* parse_syntax_close_sub(unsigned char *p,int *flag) {
 			// nx`(continue )
 			sprintf(label,"__DO%x_NXT",syntax.curly[pos].index);
 			l=add_str(label);
-			if(str_data[l].label!=-1){
-				disp_error_message("dup label ",p);
-				exit(1);
-			}
-			set_label(l,script_pos);
+			set_label(l,script_pos,p);
 		}
 
 		// UIn_
@@ -1446,11 +1394,7 @@ unsigned char* parse_syntax_close_sub(unsigned char *p,int *flag) {
 		// In_x`
 		sprintf(label,"__DO%x_FIN",syntax.curly[pos].index);
 		l=add_str(label);
-		if(str_data[l].label!=-1){
-			disp_error_message("dup label ",p);
-			exit(1);
-		}
-		set_label(l,script_pos);
+		set_label(l,script_pos,p);
 		p = skip_space(p);
 		if(*p != ';') {
 			disp_error_message("need ';'",p);
@@ -1469,11 +1413,7 @@ unsigned char* parse_syntax_close_sub(unsigned char *p,int *flag) {
 		// for Ixt
 		sprintf(label,"__FR%x_FIN",syntax.curly[pos].index);
 		l=add_str(label);
-		if(str_data[l].label!=-1){
-			disp_error_message("dup label ",p);
-			exit(1);
-		}
-		set_label(l,script_pos);
+		set_label(l,script_pos,p);
 		syntax.curly_count--;
 		return p;
 	} else if(syntax.curly[pos].type == TYPE_WHILE) {
@@ -1486,11 +1426,7 @@ unsigned char* parse_syntax_close_sub(unsigned char *p,int *flag) {
 		// while Ixt
 		sprintf(label,"__WL%x_FIN",syntax.curly[pos].index);
 		l=add_str(label);
-		if(str_data[l].label!=-1){
-			disp_error_message("dup label ",p);
-			exit(1);
-		}
-		set_label(l,script_pos);
+		set_label(l,script_pos,p);
 		syntax.curly_count--;
 		return p;
 	} else if(syntax.curly[syntax.curly_count-1].type == TYPE_USERFUNC) {
@@ -1506,11 +1442,7 @@ unsigned char* parse_syntax_close_sub(unsigned char *p,int *flag) {
 		// nxt
 		sprintf(label,"__FN%x_FIN",syntax.curly[pos].index);
 		l=add_str(label);
-		if(str_data[l].label!=-1){
-			disp_error_message("dup label ",p);
-			exit(1);
-		}
-		set_label(l,script_pos);
+		set_label(l,script_pos,p);
 		syntax.curly_count--;
 		return p + 1;
 	} else {
@@ -1627,33 +1559,41 @@ unsigned char* parse_script(unsigned char *src,int line)
 	while (p && *p && (*p != '}' || syntax.curly_count != 0)) {
 		p = skip_space(p);
 		// label
-		tmpp = skip_space(skip_word(p));
-		if (*tmpp == ':' && !(!strncmp(p,"default",7) && !isalpha(*(p + 7)))) {
-			int l, c;
-			c = *skip_word(p);
-			*skip_word(p) = 0;
-			l = add_str(p);
-			if (str_data[l].label != -1) {
-				*skip_word(p) = c;
-				disp_error_message("dup label ", p);
+		tmpp=skip_space(skip_word(p));
+		if(*tmpp==':' && !(!strncmp(p,"default:",8) && p + 7 == tmpp)){
+			int l,c;
+
+			c=*skip_word(p);
+			*skip_word(p)=0;
+			if(*p == 0) {
+				*skip_word(p)=c;
+				disp_error_message("label length 0 ",p);
 				exit(1);
 			}
-			set_label(l, script_pos);
-			strdb_put(scriptlabel_db, p, (void*)script_pos);	// Oplabel dbo^
-			*skip_word(p) = c;
-			p = tmpp + 1;
+			l=add_str(p);
+			/* FIXME: How much does it breaks to not restore skipword(p)=c when an error occurs here?
+			if(str_data[l].label!=-1){
+				*skip_word(p)=c;
+				disp_error_message("dup label ",p);
+				exit(1);
+			}
+			*/
+			set_label(l,script_pos,p);
+			strdb_put(scriptlabel_db, p, (void*)script_pos);
+			*skip_word(p)=c;
+			p=tmpp+1;
 			continue;
 		}
 
 		// S
-		p = parse_line(p);
-		p = skip_space(p);
+		p=parse_line(p);
+		p=skip_space(p);
 		add_scriptc(C_EOL);
 
-		set_label(LABEL_NEXTLINE, script_pos);
-		str_data[LABEL_NEXTLINE].type = C_NOP;
-		str_data[LABEL_NEXTLINE].backpatch = -1;
-		str_data[LABEL_NEXTLINE].label = -1;
+		set_label(LABEL_NEXTLINE,script_pos,p);
+		str_data[LABEL_NEXTLINE].type=C_NOP;
+		str_data[LABEL_NEXTLINE].backpatch=-1;
+		str_data[LABEL_NEXTLINE].label=-1;
 	}
 
 	add_scriptc(C_NOP);

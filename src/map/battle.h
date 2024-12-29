@@ -26,7 +26,8 @@ struct block_list;
 struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int flag);
 
 int battle_calc_return_damage(struct block_list *bl, int *damage, int flag);
-void battle_drain(struct map_session_data *sd, struct map_session_data *tsd, int rdamage, int ldamage, int race, int boss);
+
+void battle_drain(struct map_session_data *sd, struct block_list *tbl, int rdamage, int ldamage, int race, int boss);
 
 int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv);
 
@@ -72,17 +73,9 @@ int battle_getcurrentskill(struct block_list *bl);
 #define BCT_NOONE 0x000000
 #define BCT_SELF 0x010000
 #define BCT_NEUTRAL 0x100000
-/*
-enum {
-	BCT_NOENEMY	=0x00000,
-	BCT_PARTY	=0x10000,
-	BCT_ENEMY	=0x40000,
-	BCT_NOPARTY	=0x50000,
-	BCT_ALL		=0x20000,
-	BCT_NOONE	=0x60000,
-	BCT_SELF	=0x60000,
-};
-*/
+
+#define	is_boss(bl)	status_get_mexp(bl)	// Can refine later [Aru]
+
 int battle_check_undead(int race,int element);
 int battle_check_target(struct block_list *src, struct block_list *target,int flag);
 int battle_check_range(struct block_list *src,struct block_list *bl,int range);
@@ -94,7 +87,9 @@ int battle_config_switch(const char *str); // [Valaris]
 
 extern struct Battle_Config {
 	unsigned short warp_point_debug;
-	unsigned short enemy_critical_rate;
+	unsigned short enable_critical;
+	unsigned short mob_critical_rate;
+	unsigned short critical_rate;
 	unsigned short enable_baseatk;
 	unsigned short enable_perfect_flee;
 	unsigned short cast_rate,delay_rate,delay_dependon_dex;
@@ -267,8 +262,7 @@ extern struct Battle_Config {
 	unsigned short display_delay_skill_fail;
 	unsigned short display_snatcher_skill_fail;
 	unsigned short chat_warpportal;
-	unsigned short mob_warpportal;
-	unsigned short mob_npc_warp;
+	unsigned short mob_warp;
 	unsigned short dead_branch_active;
 	unsigned int vending_max_value;
 	unsigned short show_steal_in_same_party;

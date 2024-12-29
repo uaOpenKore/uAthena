@@ -8080,6 +8080,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	// If player is dead, and is spawned (such as @refresh) send death packet. [Valaris]
 	if(pc_isdead(sd))
 		clif_clearchar_area(&sd->bl,1);
+// Uncomment if you want to make player face in the same direction he was facing right before warping. [Skotlex]
+//	else
+//		clif_changed_dir(&sd->bl, SELF);
 }
 
 /*==========================================
@@ -8445,7 +8448,7 @@ void clif_parse_MapMove(int fd, struct map_session_data *sd) {
  *
  *------------------------------------------
  */
-void clif_changed_dir(struct block_list *bl) {
+void clif_changed_dir(struct block_list *bl, int type) {
 	unsigned char buf[64];
 
 	WBUFW(buf,0) = 0x9c;
@@ -8453,7 +8456,7 @@ void clif_changed_dir(struct block_list *bl) {
 	WBUFW(buf,6) = bl->type==BL_PC?((TBL_PC*)bl)->head_dir:0;
 	WBUFB(buf,8) = unit_getdir(bl);
 
-	clif_send(buf, packet_len_table[0x9c], bl, AREA_WOS);
+	clif_send(buf, packet_len_table[0x9c], bl, type);
 	if (disguised(bl)) {
 		WBUFL(buf,2) = -bl->id;
 		WBUFW(buf,6) = 0;
@@ -8475,7 +8478,7 @@ void clif_parse_ChangeDir(int fd, struct map_session_data *sd) {
 	dir = RFIFOB(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
 	pc_setdir(sd, dir, headdir);
 
-	clif_changed_dir(&sd->bl);
+	clif_changed_dir(&sd->bl, AREA_WOS);
 	return;
 }
 
@@ -8632,6 +8635,31 @@ void clif_parse_Restart(int fd, struct map_session_data *sd) {
 		if (pc_isdead(sd)) {
 			pc_setstand(sd);
 			pc_setrestartvalue(sd, 3);
+			if (sd->sc.count && battle_config.debuff_on_logout&2) {
+				//For some reason food buffs are removed when you respawn.
+				if(sd->sc.data[SC_STRFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_STRFOOD,-1);
+				if(sd->sc.data[SC_AGIFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_AGIFOOD,-1);
+				if(sd->sc.data[SC_VITFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_VITFOOD,-1);
+				if(sd->sc.data[SC_INTFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_INTFOOD,-1);
+				if(sd->sc.data[SC_DEXFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_DEXFOOD,-1);
+				if(sd->sc.data[SC_LUKFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_LUKFOOD,-1);
+				if(sd->sc.data[SC_HITFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_HITFOOD,-1);
+				if(sd->sc.data[SC_FLEEFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_FLEEFOOD,-1);
+				if(sd->sc.data[SC_BATKFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_BATKFOOD,-1);
+				if(sd->sc.data[SC_WATKFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_WATKFOOD,-1);
+				if(sd->sc.data[SC_MATKFOOD].timer!=-1)
+					status_change_end(&sd->bl,SC_MATKFOOD,-1);
+			}
 			pc_setpos(sd, sd->status.save_point.map, sd->status.save_point.x, sd->status.save_point.y, 2);
 		}
 		// in case the player's status somehow wasn't updated yet [Celest]

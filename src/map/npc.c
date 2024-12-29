@@ -973,10 +973,9 @@ int npc_touch_areanpc2(struct block_list *bl)
 	if (xs < 0) // Can't warp object between map servers...
 		return 0;
 
-	if(battle_config.mob_npc_warp<2 && map[xs].flag.nobranch)
-		return 0; //Disable warps to nobranch maps.
+	if (unit_warp(bl, xs, map[m].npc[i]->u.warp.x,map[m].npc[i]->u.warp.y,0))
+		return 0; //Failed to warp.
 
-	unit_warp(bl, xs, map[m].npc[i]->u.warp.x,map[m].npc[i]->u.warp.y,0);
 	return 1;
 }
 

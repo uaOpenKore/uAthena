@@ -239,10 +239,9 @@ void initChangeTables(void) {
 	set_sc(SA_FROSTWEAPON, SC_WATERWEAPON, SI_WATERWEAPON, SCB_ATK_ELE);
 	set_sc(SA_LIGHTNINGLOADER, SC_WINDWEAPON, SI_WINDWEAPON, SCB_ATK_ELE);
 	set_sc(SA_SEISMICWEAPON, SC_EARTHWEAPON, SI_EARTHWEAPON, SCB_ATK_ELE);
-	set_sc(SA_VOLCANO, SC_VOLCANO, SI_BLANK, SCB_WATK);
-	set_sc(SA_DELUGE, SC_DELUGE, SI_BLANK, SCB_MAXHP);
-	set_sc(SA_VIOLENTGALE, SC_VIOLENTGALE, SI_BLANK, SCB_FLEE);
-	add_sc(SA_LANDPROTECTOR, SC_LANDPROTECTOR);
+	set_sc(SA_VOLCANO, SC_VOLCANO, SI_LANDENDOW, SCB_WATK);
+	set_sc(SA_DELUGE, SC_DELUGE, SI_LANDENDOW, SCB_MAXHP);
+	set_sc(SA_VIOLENTGALE, SC_VIOLENTGALE, SI_LANDENDOW, SCB_FLEE);
 	add_sc(SA_REVERSEORCISH, SC_ORCISH);
 	add_sc(SA_COMA, SC_COMA);
 	set_sc(BD_ENCORE, SC_DANCING, SI_BLANK, SCB_SPEED);
@@ -290,7 +289,7 @@ void initChangeTables(void) {
 	set_sc(SN_WINDWALK, SC_WINDWALK, SI_WINDWALK, SCB_FLEE|SCB_SPEED);
 	set_sc(WS_MELTDOWN, SC_MELTDOWN, SI_MELTDOWN, SCB_NONE);
 	set_sc(WS_CARTBOOST, SC_CARTBOOST, SI_CARTBOOST, SCB_SPEED);
-	set_sc(ST_CHASEWALK, SC_CHASEWALK, SI_CHASEWALK, SCB_SPEED);
+	set_sc(ST_CHASEWALK, SC_CHASEWALK, SI_BLANK, SCB_SPEED);
 	set_sc(ST_REJECTSWORD, SC_REJECTSWORD, SI_REJECTSWORD, SCB_NONE);
 	add_sc(ST_REJECTSWORD, SC_AUTOCOUNTER);
 	set_sc(CG_MOONLIT, SC_MOONLIT, SI_MOONLIT, SCB_NONE);
@@ -360,8 +359,8 @@ void initChangeTables(void) {
 	add_sc(SA_ELEMENTGROUND, SC_ELEMENTALCHANGE);
 	add_sc(SA_ELEMENTWIND, SC_ELEMENTALCHANGE);
 
-	set_sc(GD_LEADERSHIP, SC_GUILDAURA, SI_GUILDAURA, SCB_STR|SCB_AGI|SCB_VIT|SCB_DEX);
-	set_sc(GD_BATTLEORDER, SC_BATTLEORDERS, SI_BATTLEORDERS, SCB_STR|SCB_INT|SCB_DEX);
+	set_sc(GD_LEADERSHIP, SC_GUILDAURA, SI_BLANK, SCB_STR|SCB_AGI|SCB_VIT|SCB_DEX);
+	set_sc(GD_BATTLEORDER, SC_BATTLEORDERS, SI_BLANK, SCB_STR|SCB_INT|SCB_DEX);
 
 	// Storing the target job rather than simply SC_SPIRIT simplifies code later on.
 	SkillStatusChangeTableArray[SL_ALCHEMIST] =   MAPID_ALCHEMIST,
@@ -387,8 +386,9 @@ void initChangeTables(void) {
 	StatusIconChangeTable[SC_ASPDPOTION1] = SI_ASPDPOTION;
 	StatusIconChangeTable[SC_ASPDPOTION2] = SI_ASPDPOTION;
 	StatusIconChangeTable[SC_ASPDPOTION3] = SI_ASPDPOTION;
-	StatusIconChangeTable[SC_SPEEDUP0] = SI_SPEEDPOTION;
-	StatusIconChangeTable[SC_SPEEDUP1] = SI_SPEEDPOTION;
+	StatusIconChangeTable[SC_SPEEDUP0] = SI_SPEEDPOTION1;
+	StatusIconChangeTable[SC_SPEEDUP1] = SI_SPEEDPOTION2;
+	StatusIconChangeTable[SC_INCSTR] = SI_INCSTR;
 	StatusIconChangeTable[SC_MIRACLE] = SI_SPIRIT;
 
 	//Other SC which are not necessarily associated to skills.
@@ -928,15 +928,11 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			(src->type != BL_PC || ((TBL_PC*)src)->skillitem != skill_num)
 		) {	//Skills blocked through status changes...
 			if (!flag && ( //Blocked only from using the skill (stuff like autospell may still go through
+				sc->data[SC_SILENCE].timer != -1 ||
 				(sc->data[SC_MARIONETTE].timer != -1 && skill_num != CG_MARIONETTE) ||
 				(sc->data[SC_MARIONETTE2].timer != -1 && skill_num == CG_MARIONETTE) ||
 				sc->data[SC_STEELBODY].timer != -1 ||
 				sc->data[SC_BERSERK].timer != -1
-			))
-				return 0;
-
-			if (flag != 2 && ( //Those that block begin/end casting.
-				sc->data[SC_SILENCE].timer != -1
 			))
 				return 0;
 
@@ -1129,20 +1125,45 @@ static int status_base_atk(struct block_list *bl, struct status_data *status)
 //Fills in the misc data that can be calculated from the other status info (except for level)
 void status_calc_misc(struct status_data *status, int type, int level)
 {
-	status->matk_min = status->int_+(status->int_/7)*(status->int_/7);
-	status->matk_max = status->int_+(status->int_/5)*(status->int_/5);
+	//Non players get the value set, players need to stack with previous bonuses.
+	if (type != BL_PC)
+		status->matk_min = status->matk_max = status->hit = status->flee =
+		status->def2 = status->mdef2 = status->cri = status->flee2 = 0;
 
-	status->hit = level + status->dex;
-	status->flee = level + status->agi;
-	status->def2 = status->vit;
-	status->mdef2 = status->int_ + (status->vit>>1);
+	status->matk_min += status->int_+(status->int_/7)*(status->int_/7);
+	status->matk_max += status->int_+(status->int_/5)*(status->int_/5);
+	status->hit += level + status->dex;
+	status->flee += level + status->agi;
+	status->def2 += status->vit;
+	status->mdef2 += status->int_ + (status->vit>>1);
 
-	status->cri = status->luk*3 + 10;
+	if (type&battle_config.enable_critical)
+		status->cri += status->luk*3 + 10;
+	else
+		status->cri = 0;
 
 	if (type&battle_config.enable_perfect_flee)
-		status->flee2 = status->luk + 10;
+		status->flee2 += status->luk + 10;
 	else
 		status->flee2 = 0;
+
+	if (status->cri)
+	switch (type) {
+	case BL_MOB:
+		if(battle_config.mob_critical_rate != 100)
+			status->cri = status->cri*battle_config.mob_critical_rate/100;
+		if(!status->cri && battle_config.mob_critical_rate)
+			status->cri = 10;
+		break;
+	case BL_PC:
+		//Players don't have a critical adjustment setting as of yet.
+		break;
+	default:
+		if(battle_config.critical_rate != 100)
+			status->cri = status->cri*battle_config.critical_rate/100;
+		if (!status->cri && battle_config.critical_rate)
+			status->cri = 10;
+	}
 }
 
 //Skotlex: Calculates the initial status for the given mob
@@ -1295,11 +1316,6 @@ int status_calc_mob(struct mob_data* md, int first)
 		status->aspd_rate -= 100*md->guardian_data->guardup_lv;
 	}
 
-	if(battle_config.enemy_critical_rate != 100)
-		status->cri = status->cri*battle_config.enemy_critical_rate/100;
-	if (!status->cri && battle_config.enemy_critical_rate)
-		status->cri = 10;
-
 	//Initial battle status
 	if (!first)
 		status_calc_bl(&md->bl, SCB_ALL);
@@ -1383,6 +1399,9 @@ static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct sta
 		val -= val * 30/100;
 	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->char_id, MAPID_TAEKWON))
 		val *= 3; //Triple max HP for top ranking Taekwons over level 90.
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
+		val += 2000;
+
 	return val;
 }
 
@@ -1490,7 +1509,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->magic_addsize)
 		+ sizeof(sd->critaddrace)
 		+ sizeof(sd->expaddrace)
-		+ sizeof(sd->itemhealrate)
+		+ sizeof(sd->itemgrouphealrate)
 		+ sizeof(sd->sp_gain_race)
 		);
 
@@ -1529,6 +1548,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->add_dmg)
 		+ sizeof(sd->add_mdmg)
 		+ sizeof(sd->add_drop)
+		+ sizeof(sd->itemhealrate)
 	);
 
 	// vars zeroing. ints, shorts, chars. in that order.
@@ -1669,12 +1689,12 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	if(sd->equip_index[EQI_AMMO] >= 0){
 		index = sd->equip_index[EQI_AMMO];
 		if(sd->inventory_data[index]){		// Arrows
+			sd->arrow_atk += sd->inventory_data[index]->atk;
 			sd->state.lr_flag = 2;
 			run_script(sd->inventory_data[index]->script,0,sd->bl.id,0);
 			sd->state.lr_flag = 0;
 			if (!calculating) //Abort, run_script retriggered status_calc_pc. [Skotlex]
 				return 1;
-			sd->arrow_atk += sd->inventory_data[index]->atk;
 		}
 	}
 
@@ -1769,6 +1789,14 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	sd->left_weapon.atkmods[1] = atkmods[1][sd->weapontype2];
 	sd->left_weapon.atkmods[2] = atkmods[2][sd->weapontype2];
 
+	if(pc_isriding(sd) &&
+		(sd->status.weapon==W_1HSPEAR || sd->status.weapon==W_2HSPEAR))
+	{	//When Riding with spear, damage modifier to mid-class becomes
+		//same as versus large size.
+		sd->right_weapon.atkmods[1] = sd->right_weapon.atkmods[2];
+		sd->left_weapon.atkmods[1] = sd->left_weapon.atkmods[2];
+	}
+
 // ----- STATS CALCULATION -----
 
 	// Job bonuses
@@ -1840,21 +1868,10 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	if((skill=pc_checkskill(sd,BS_HILTBINDING))>0)
 		status->batk += 4;
 
-// ----- MATK CALCULATION -----
-
-	// Basic MATK value
-	status->matk_max += status->int_+(status->int_/5)*(status->int_/5);
-	status->matk_min += status->int_+(status->int_/7)*(status->int_/7);
-
-// ----- CRIT CALCULATION -----
-
-	// Basic Crit value
-	status->cri += (status->luk*3)+10;
+// ----- MISC CALCULATION -----
+	status_calc_misc(status, BL_PC, sd->status.base_level);
 
 // ----- HIT CALCULATION -----
-
-	// Basic Hit value
-	status->hit += status->dex + sd->status.base_level;
 
 	// Absolute modifiers from passive skills
 	if((skill=pc_checkskill(sd,BS_WEAPONRESEARCH))>0)
@@ -1876,24 +1893,11 @@ int status_calc_pc(struct map_session_data* sd,int first)
 
 // ----- FLEE CALCULATION -----
 
-	// Basic Flee value
-	status->flee += status->agi + sd->status.base_level;
-
 	// Absolute modifiers from passive skills
 	if((skill=pc_checkskill(sd,TF_MISS))>0)
 		status->flee += skill*(sd->class_&JOBL_2 && (sd->class_&MAPID_BASEMASK) == MAPID_THIEF? 4 : 3);
 	if((skill=pc_checkskill(sd,MO_DODGE))>0)
 		status->flee += (skill*3)>>1;
-
-// ----- PERFECT DODGE CALCULATION -----
-
-	// Basic Perfect Dodge value
-	status->flee2 += status->luk+10;
-
-// ----- VIT-DEF CALCULATION -----
-
-	// Basic VIT-DEF value
-	status->def2 += status->vit;
 
 // ----- EQUIPMENT-DEF CALCULATION -----
 
@@ -1908,11 +1912,6 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		status->def2 += battle_config.over_def_bonus*(status->def -battle_config.max_def);
 		status->def = (unsigned char)battle_config.max_def;
 	}
-
-// ----- INT-MDEF CALCULATION -----
-
-	// Basic INT-MDEF value
-	status->mdef2 += status->int_ + (status->vit>>1);
 
 // ----- EQUIPMENT-MDEF CALCULATION -----
 
@@ -1981,9 +1980,6 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	//We hold the standard Max HP here to make it faster to recalculate on vit changes.
 	sd->status.max_hp = status_base_pc_maxhp(sd,status);
 	status->max_hp += sd->status.max_hp;
-
-	if((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
-		status->max_hp += 2000;
 
 	// Absolute modifiers from passive skills
 	if((skill=pc_checkskill(sd,CR_TRUST))>0)
@@ -2494,7 +2490,6 @@ void status_calc_bl(struct block_list *bl, unsigned long flag)
 		return;
 	}
 
-//	if(!sd && (!sc || !sc->count)) { //No difference.
 	if( !sd && (!sc || !sc->count)) { //No difference.
 		status_cpy(status, b_status);
 		return;
@@ -3201,10 +3196,10 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	if(sc->data[SC_WEDDING].timer!=-1)
 		speed += 300;
 
-	//% increases (they don't stack)
+	//% increases (they don't stack, with the exception of Speedup1? @.@)
 	if(sc->data[SC_SPEEDUP1].timer!=-1)
 		speed -= speed * 50/100;
-	else if(sc->data[SC_SPEEDUP0].timer!=-1)
+	if(sc->data[SC_SPEEDUP0].timer!=-1)
 		speed -= speed * 25/100;
 	else if(sc->data[SC_INCREASEAGI].timer!=-1)
 		speed -= speed * 25/100;
@@ -4043,7 +4038,8 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 	struct map_session_data *sd = NULL;
 	struct status_change* sc;
 	struct status_data *status;
-	int opt_flag , calc_flag, undead_flag;
+	struct view_data *vd;
+	int opt_flag, calc_flag, undead_flag;
 
 	nullpo_retr(0, bl);
 	sc=status_get_sc(bl);
@@ -4388,6 +4384,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		sc->data[type].timer = -1;
 	}
 
+	vd = status_get_viewdata(bl);
 	calc_flag = StatusChangeFlagTable[type];
 	if(!(flag&4)) //Do not parse val settings when loading SCs
 	switch(type){
@@ -4560,8 +4557,6 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 
 		case SC_WEDDING:
 		case SC_XMAS:
-		{
-			struct view_data *vd = status_get_viewdata(bl);
 			if (!vd) return 0;
 			//Store previous values as they could be removed.
 			val1 = vd->class_;
@@ -4573,7 +4568,6 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			clif_changelook(bl,LOOK_WEAPON,0);
 			clif_changelook(bl,LOOK_SHIELD,0);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
-		}
 			break;
 		case SC_NOCHAT:
 			if(!battle_config.muting_players) {
@@ -4633,6 +4627,8 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_CHASEWALK:
 			val2 = tick>0?tick:10000; //Interval at which SP is drained.
 			val3 = 65+val1*5; //Speed adjustment.
+			if (sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_ROGUE)
+				val3 += 10; //TODO: Figure out real bonus. Temp value +10%
 			val4 = 10+val1*2; //SP cost.
 			if (map_flag_gvg(bl->m)) val4 *= 5;
 			break;
@@ -5029,13 +5025,9 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			else
 				val2 = 0; //0 -> Half stat.
 			break;
-		case SC_TRICKDEAD:			/*  */
-		{
-			struct view_data *vd = status_get_viewdata(bl);
+		case SC_TRICKDEAD:
 			if (vd) vd->dead_sit = 1;
 			break;
-		}
-
 		case SC_CONCENTRATE:
 			val2 = 2 + val1;
 			if (sd) { //Store the card-bonus data that should not count in the %
@@ -5183,10 +5175,11 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_CHASEWALK:
 			unit_stop_attack(bl);
 		break;
+		case SC_SILENCE:
+			if (battle_config.sc_castcancel)
+				unit_skillcastcancel(bl, 0);
+		break;
 	}
-
-	if (sd) //Only for players, client crashes if they receive this for a mob o.O [Skotlex]
-		clif_status_change(bl,StatusIconChangeTable[type],1);
 
 	// Set option as needed.
 	opt_flag = 1;
@@ -5224,7 +5217,6 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_MAXOVERTHRUST:
 		case SC_OVERTHRUST:
 		case SC_SWOO:	//Why does it shares the same opt as Overthrust? Perhaps we'll never know...
-		case SC_NEN:
 			sc->opt3 |= 2;
 			opt_flag = 0;
 			break;
@@ -5307,9 +5299,13 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			opt_flag = 0;
 	}
 
+	//On Aegis, when turning on a status change, first goes the option packet,
+	// then the sc packet.
 	if(opt_flag)
 		clif_changeoption(bl);
 
+	if (vd && pcdb_checkid(vd->class_)) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
+		clif_status_change(bl,StatusIconChangeTable[type],1);
 	(sc->count)++;
 
 	sc->data[type].val1 = val1;
@@ -5362,16 +5358,36 @@ int status_change_clear(struct block_list *bl,int type)
 		skill_stop_dancing(bl);
 	for(i = 0; i < SC_MAX; i++)
 	{
-		//Type 0: PC killed -> Place here stats that do not dispel on death.
-		if(sc->data[i].timer == -1 ||
-			(type == 0 && (
-				i == SC_EDP || i == SC_MELTDOWN || i == SC_XMAS || i == SC_NOCHAT ||
-				i == SC_FUSION || i == SC_TKREST || i == SC_READYSTORM ||
-				i == SC_READYDOWN || i == SC_READYCOUNTER || i == SC_READYTURN ||
-				i == SC_DODGE || i == SC_JAILED
-			)))
+		if(sc->data[i].timer == -1)
+		  continue;
+		if(type == 0)
+		switch (i)
+		{	//Type 0: PC killed -> Place here stats that do not dispel on death.
+		case SC_EDP:
+		case SC_MELTDOWN:
+		case SC_XMAS:
+		case SC_NOCHAT:
+		case SC_FUSION:
+		case SC_TKREST:
+		case SC_READYSTORM:
+		case SC_READYDOWN:
+		case SC_READYCOUNTER:
+		case SC_READYTURN:
+		case SC_DODGE:
+		case SC_JAILED:
+		case SC_STRFOOD:
+		case SC_AGIFOOD:
+		case SC_VITFOOD:
+		case SC_INTFOOD:
+		case SC_DEXFOOD:
+		case SC_LUKFOOD:
+		case SC_HITFOOD:
+		case SC_FLEEFOOD:
+		case SC_BATKFOOD:
+		case SC_WATKFOOD:
+		case SC_MATKFOOD:
 			continue;
-
+		}
 		status_change_end(bl, i, -1);
 
 		if (type == 1 && sc->data[i].timer != -1)
@@ -5401,6 +5417,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	struct map_session_data *sd;
 	struct status_change *sc;
 	struct status_data *status;
+	struct view_data *vd;
 	int opt_flag=0, calc_flag;
 
 	nullpo_retr(0, bl);
@@ -5425,12 +5442,11 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	sc->data[type].timer=-1;
 	(sc->count)--;
 
+	vd = status_get_viewdata(bl);
 	calc_flag = StatusChangeFlagTable[type];
 	switch(type){
 		case SC_WEDDING:
 		case SC_XMAS:
-		{
-			struct view_data *vd = status_get_viewdata(bl);
 			if (!vd) return 0;
 			if (sd) //Load data from sd->status.* as the stored values could have changed.
 				status_set_viewdata(bl, sd->status.class_);
@@ -5444,7 +5460,6 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			clif_changelook(bl,LOOK_WEAPON,vd->weapon);
 			clif_changelook(bl,LOOK_SHIELD,vd->shield);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
-		}
 		break;
 		case SC_RUN:
 		{
@@ -5634,12 +5649,9 @@ int status_change_end( struct block_list* bl , int type,int tid )
 		case SC_MOONLIT: //Clear the unit effect. [Skotlex]
 			skill_setmapcell(bl,CG_MOONLIT, sc->data[SC_MOONLIT].val1, CELL_CLRMOONLIT);
 			break;
-		case SC_TRICKDEAD:			/*  */
-		{
-			struct view_data *vd = status_get_viewdata(bl);
+		case SC_TRICKDEAD:
 			if (vd) vd->dead_sit = 0;
 			break;
-		}
 		case SC_WARM:
 			if (sc->data[type].val4) { //Clear the group.
 				struct skill_unit_group *group = (struct skill_unit_group *)sc->data[type].val4;
@@ -5665,9 +5677,6 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			}
 			break; //guess hes not in jail :P
 		}
-
-	if (sd)
-		clif_status_change(bl,StatusIconChangeTable[type],0);
 
 	opt_flag = 1;
 	switch(type){
@@ -5735,7 +5744,6 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	case SC_OVERTHRUST:
 	case SC_MAXOVERTHRUST:
 	case SC_SWOO:
-	case SC_NEN:
 		sc->opt3 &= ~2;
 		opt_flag = 0;
 		break;
@@ -5783,6 +5791,10 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	default:
 		opt_flag = 0;
 	}
+
+	//On Aegis, when turning off a status change, first goes the sc packet, then the option packet.
+	if (vd && pcdb_checkid(vd->class_))
+		clif_status_change(bl,StatusIconChangeTable[type],0);
 
 	if(opt_flag)
 		clif_changeoption(bl);

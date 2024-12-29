@@ -192,7 +192,7 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 			sc_start(&sd->bl,SC_MIRACLE,100,1,battle_config.sg_miracle_skill_duration);
 		}
 	} else if (md) {
-		if(battle_config.mob_npc_warp && map_getcell(bl->m,x,y,CELL_CHKNPC) &&
+		if(battle_config.mob_warp&1 && map_getcell(bl->m,x,y,CELL_CHKNPC) &&
 			npc_touch_areanpc2(bl)) // Enable mobs to step on warps. [Skotlex]
 			return 0;
 		if (md->min_chase > md->db->range2) md->min_chase--;
@@ -461,7 +461,7 @@ int unit_setdir(struct block_list *bl,unsigned char dir)
 	ud->dir = dir;
 	if (bl->type == BL_PC)
 		((TBL_PC *)bl)->head_dir = dir;
-	clif_changed_dir(bl);
+	clif_changed_dir(bl, AREA);
 	return 0;
 }
 
@@ -496,6 +496,8 @@ int unit_warp(struct block_list *bl,int m,short x,short y,int type)
 	switch (bl->type) {
 		case BL_MOB:
 			if (map[bl->m].flag.monster_noteleport)
+				return 1;
+			if (m != bl->m && map[m].flag.nobranch && battle_config.mob_warp&4)
 				return 1;
 			break;
 		case BL_PC:
@@ -1598,7 +1600,9 @@ int unit_free(struct block_list *bl) {
 				status_change_end(bl,SC_BERSERK,-1);
 			if(sd->sc.data[SC_TRICKDEAD].timer!=-1)
 				status_change_end(bl,SC_TRICKDEAD,-1);
-			if (battle_config.debuff_on_logout) {
+			if(sd->sc.data[SC_GUILDAURA].timer!=-1)
+				status_change_end(bl,SC_GUILDAURA,-1);
+			if (battle_config.debuff_on_logout&1) {
 				if(sd->sc.data[SC_ORCISH].timer!=-1)
 					status_change_end(bl,SC_ORCISH,-1);
 				if(sd->sc.data[SC_STRIPWEAPON].timer!=-1)
@@ -1613,6 +1617,31 @@ int unit_free(struct block_list *bl) {
 					status_change_end(bl,SC_EXTREMITYFIST,-1);
 				if(sd->sc.data[SC_EXPLOSIONSPIRITS].timer!=-1)
 					status_change_end(bl,SC_EXPLOSIONSPIRITS,-1);
+			}
+			if (battle_config.debuff_on_logout&2)
+			{	//Food items are removed on logout.
+				if(sd->sc.data[SC_STRFOOD].timer!=-1)
+					status_change_end(bl,SC_STRFOOD,-1);
+				if(sd->sc.data[SC_AGIFOOD].timer!=-1)
+					status_change_end(bl,SC_AGIFOOD,-1);
+				if(sd->sc.data[SC_VITFOOD].timer!=-1)
+					status_change_end(bl,SC_VITFOOD,-1);
+				if(sd->sc.data[SC_INTFOOD].timer!=-1)
+					status_change_end(bl,SC_INTFOOD,-1);
+				if(sd->sc.data[SC_DEXFOOD].timer!=-1)
+					status_change_end(bl,SC_DEXFOOD,-1);
+				if(sd->sc.data[SC_LUKFOOD].timer!=-1)
+					status_change_end(bl,SC_LUKFOOD,-1);
+				if(sd->sc.data[SC_HITFOOD].timer!=-1)
+					status_change_end(bl,SC_HITFOOD,-1);
+				if(sd->sc.data[SC_FLEEFOOD].timer!=-1)
+					status_change_end(bl,SC_FLEEFOOD,-1);
+				if(sd->sc.data[SC_BATKFOOD].timer!=-1)
+					status_change_end(bl,SC_BATKFOOD,-1);
+				if(sd->sc.data[SC_WATKFOOD].timer!=-1)
+					status_change_end(bl,SC_WATKFOOD,-1);
+				if(sd->sc.data[SC_MATKFOOD].timer!=-1)
+					status_change_end(bl,SC_MATKFOOD,-1);
 			}
 		}
 		if (sd->followtimer != -1)
