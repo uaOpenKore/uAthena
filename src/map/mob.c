@@ -1414,7 +1414,7 @@ static struct item_drop* mob_setdropitem(int nameid, int qty)
 	memset(&drop->item_data, 0, sizeof(struct item));
 	drop->item_data.nameid = nameid;
 	drop->item_data.amount = qty;
-	drop->item_data.identify = !itemdb_isequip3(nameid);
+	drop->item_data.identify = itemdb_isidentified(nameid);
 	drop->next = NULL;
 	return drop;
 };
@@ -2038,7 +2038,7 @@ int mob_damage(struct block_list *src,struct mob_data *md,int damage,int type)
 				continue;
 			memset(&item,0,sizeof(item));
 			item.nameid=md->db->mvpitem[i].nameid;
-			item.identify=!itemdb_isequip3(item.nameid);
+			item.identify= itemdb_isidentified(item.nameid);
 			clif_mvp_item(mvp_sd,item.nameid);
 			log_mvp[0] = item.nameid;
 			if(mvp_sd->weight*2 > mvp_sd->max_weight)
@@ -2819,10 +2819,6 @@ int mob_clone_spawn(struct map_session_data *sd, char *map, int x, int y, const 
 	mob_db_data[class_]->amotion=status_get_amotion(&sd->bl);
 	mob_db_data[class_]->dmotion=status_get_dmotion(&sd->bl);
 
-	//If the attack animation is longer than the delay, the client crops the attack animation!
-	if (mob_db_data[class_]->adelay < mob_db_data[class_]->amotion)
-		mob_db_data[class_]->adelay = mob_db_data[class_]->amotion;
-
 	memcpy(&mob_db_data[class_]->vd, &sd->vd, sizeof(struct view_data));
 	mob_db_data[class_]->option=sd->sc.option;
 
@@ -3155,6 +3151,9 @@ static int mob_readdb(void)
 			mob_db_data[class_]->adelay=atoi(str[27]);
 			mob_db_data[class_]->amotion=atoi(str[28]);
 			mob_db_data[class_]->dmotion=atoi(str[29]);
+
+			if (mob_db_data[class_]->adelay < mob_db_data[class_]->amotion)
+				mob_db_data[class_]->adelay = mob_db_data[class_]->amotion;
 
 			// MVP EXP Bonus, Chance: MEXP,ExpPer
 			mob_db_data[class_]->mexp=atoi(str[30])*battle_config.mvp_exp_rate/100;
@@ -3810,7 +3809,6 @@ static int mob_read_sqldb(void)
 				//If the attack animation is longer than the delay, the client crops the attack animation!
 				if (mob_db_data[class_]->adelay < mob_db_data[class_]->amotion)
 					mob_db_data[class_]->adelay = mob_db_data[class_]->amotion;
-
 
 				// MVP EXP Bonus, Chance: MEXP,ExpPer
 				mob_db_data[class_]->mexp = TO_INT(30) * battle_config.mvp_exp_rate / 100;
