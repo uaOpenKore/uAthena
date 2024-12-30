@@ -4194,6 +4194,17 @@ int buildin_jobchange(struct script_state *st)
  *
  *------------------------------------------
  */
+int buildin_jobname(struct script_state *st)
+{
+	int class_=conv_num(st,& (st->stack->stack_data[st->start+2]));
+	push_str(st->stack,C_CONSTSTR,job_name(class_));
+	return 0;
+}
+
+/*==========================================
+ *
+ *------------------------------------------
+ */
 int buildin_input(struct script_state *st)
 {
 	struct map_session_data *sd=NULL;
@@ -4735,10 +4746,8 @@ int buildin_getitem(struct script_state *st)
 	}
 
 	//Logs items, got from (N)PC scripts [Lupus]
-	if(log_config.pick > 0 ) {
+	if(log_config.enable_logs&0x40)
 		log_pick(sd, "N", 0, nameid, amount, NULL);
-	}
-	//Logs
 
 	return 0;
 }
@@ -4821,10 +4830,8 @@ int buildin_getitem2(struct script_state *st)
 		}
 
 		//Logs items, got from (N)PC scripts [Lupus]
-		if(log_config.pick > 0 ) {
+		if(log_config.enable_logs&0x40)
 			log_pick(sd, "N", 0, nameid, amount, &item_tmp);
-		}
-		//Logs
 	}
 
 	return 0;
@@ -4865,9 +4872,8 @@ int buildin_getnameditem(struct script_state *st)
 	}else
 		nameid = conv_num(st,data);
 
-	if(!itemdb_exists(nameid) || itemdb_isstackable(nameid))
-	{	//We don't allow non-equipable/stackable items to be named
-		//to avoid any qty exploits that could happen because of it.
+	if(!itemdb_exists(nameid)/* || itemdb_isstackable(nameid)*/)
+	{	//Even though named stackable items "could" be risky, they are required for certain quests.
 		push_val(st->stack,C_INT,0);
 		return 0;
 	}
@@ -4889,7 +4895,7 @@ int buildin_getnameditem(struct script_state *st)
 	item_tmp.nameid=nameid;
 	item_tmp.amount=1;
 	item_tmp.identify=1;
-	item_tmp.card[0]=254; //we don't use 255! because for example SIGNED WEAPON shouldn't get TOP10 BS Fame bonus [Lupus]
+	item_tmp.card[0]=CARD0_CREATE; //we don't use 255! because for example SIGNED WEAPON shouldn't get TOP10 BS Fame bonus [Lupus]
 	item_tmp.card[2]=tsd->status.char_id;
 	item_tmp.card[3]=tsd->status.char_id >> 16;
 	if(pc_additem(sd,&item_tmp,1)) {
@@ -4898,10 +4904,8 @@ int buildin_getnameditem(struct script_state *st)
 	}
 
 	//Logs items, got from (N)PC scripts [Lupus]
-	if(log_config.pick > 0 ) {
+	if(log_config.enable_logs&0x40)
 		log_pick(sd, "N", 0, item_tmp.nameid, item_tmp.amount, &item_tmp);
-	}
-	//Logs
 
 	push_val(st->stack,C_INT,1);
 	return 0;
@@ -5032,10 +5036,8 @@ int buildin_delitem(struct script_state *st)
 		if(sd->status.inventory[i].amount>=amount){
 
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40)
 				log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -amount, &sd->status.inventory[i]);
-			}
-			//Logs
 
 			pc_delitem(sd,i,amount,0);
 			return 0; //we deleted exact amount of items. now exit
@@ -5043,7 +5045,7 @@ int buildin_delitem(struct script_state *st)
 			amount-=sd->status.inventory[i].amount;
 
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40) {
 				log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -sd->status.inventory[i].amount, &sd->status.inventory[i]);
 			}
 			//Logs
@@ -5063,10 +5065,8 @@ int buildin_delitem(struct script_state *st)
 			if(sd->status.inventory[i].amount>=amount){
 
 				//Logs items, got from (N)PC scripts [Lupus]
-				if(log_config.pick > 0 ) {
+				if(log_config.enable_logs&0x40)
 					log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -amount, &sd->status.inventory[i]);
-				}
-				//Logs
 
 				pc_delitem(sd,i,amount,0);
 				return 0; //we deleted exact amount of items. now exit
@@ -5074,10 +5074,8 @@ int buildin_delitem(struct script_state *st)
 				amount-=sd->status.inventory[i].amount;
 
 				//Logs items, got from (N)PC scripts [Lupus]
-				if(log_config.pick > 0 ) {
+				if(log_config.enable_logs&0x40)
 					log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -sd->status.inventory[i].amount, &sd->status.inventory[i]);
-				}
-				//Logs
 
 				pc_delitem(sd,i,sd->status.inventory[i].amount,0);
 			}
@@ -5143,10 +5141,8 @@ int buildin_delitem2(struct script_state *st)
 		if(sd->status.inventory[i].amount>=amount){
 
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40)
 				log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -amount, &sd->status.inventory[i]);
-			}
-			//Logs
 
 			pc_delitem(sd,i,amount,0);
 			return 0; //we deleted exact amount of items. now exit
@@ -5154,10 +5150,8 @@ int buildin_delitem2(struct script_state *st)
 			amount-=sd->status.inventory[i].amount;
 
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40)
 				log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -sd->status.inventory[i].amount, &sd->status.inventory[i]);
-			}
-			//Logs
 
 			pc_delitem(sd,i,sd->status.inventory[i].amount,0);
 		}
@@ -5443,8 +5437,8 @@ int buildin_getguildmasterid(struct script_state *st)
 int buildin_strcharinfo(struct script_state *st)
 {
 	struct map_session_data *sd;
-	char *buf;
 	int num;
+	char *buf;
 
 	sd=script_rid2sd(st);
 	if (!sd) { //Avoid crashing....
@@ -5481,7 +5475,7 @@ int buildin_strcharinfo(struct script_state *st)
 	return 0;
 }
 
-unsigned int equip[10]={0x0100,0x0010,0x0020,0x0002,0x0004,0x0040,0x0008,0x0080,0x0200,0x0001};
+unsigned int equip[10]={EQP_HEAD_TOP,EQP_ARMOR,EQP_HAND_L,EQP_HAND_R,EQP_GARMENT,EQP_SHOES,EQP_ACC_L,EQP_ACC_R,EQP_HEAD_MID,EQP_HEAD_LOW};
 
 /*==========================================
  * GetEquipID(Pos);     Pos: 1-10
@@ -5743,10 +5737,8 @@ int buildin_successrefitem(struct script_state *st)
 		ep=sd->status.inventory[i].equip;
 
 		//Logs items, got from (N)PC scripts [Lupus]
-		if(log_config.pick > 0 ) {
+		if(log_config.enable_logs&0x40)
 			log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
-		}
-		//Logs
 
 		sd->status.inventory[i].refine++;
 		pc_unequipitem(sd,i,2);
@@ -5755,10 +5747,8 @@ int buildin_successrefitem(struct script_state *st)
 		clif_delitem(sd,i,1);
 
 		//Logs items, got from (N)PC scripts [Lupus]
-		if(log_config.pick > 0 ) {
+		if(log_config.enable_logs&0x40)
 			log_pick(sd, "N", 0, sd->status.inventory[i].nameid, 1, &sd->status.inventory[i]);
-		}
-		//Logs
 
 		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep);
@@ -5798,10 +5788,8 @@ int buildin_failedrefitem(struct script_state *st)
 	i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0) {
 		//Logs items, got from (N)PC scripts [Lupus]
-		if(log_config.pick > 0 ) {
+		if(log_config.enable_logs&0x40)
 			log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
-		}
-		//Logs
 
 		sd->status.inventory[i].refine = 0;
 		pc_unequipitem(sd,i,3);
@@ -7166,6 +7154,14 @@ int buildin_sc_start(struct script_state *st)
 		tick/=2; //Thrown potions only last half.
 		val4 = 1; //Mark that this was a thrown sc_effect
 	}
+	if (type >= 0 && type < SC_MAX && val1 && !tick)
+	{	//When there isn't a duration specified, try to get it from the skill_db
+		tick = StatusSkillChangeTable[type];
+		if (tick)
+			tick = skill_get_time(tick,val1);
+		else	//Failed to retrieve duration, reset to what it was.
+			tick = 0;
+	}
 	if (bl)
 		status_change_start(bl,type,10000,val1,0,0,val4,tick,11);
 	return 0;
@@ -7187,6 +7183,15 @@ int buildin_sc_start2(struct script_state *st)
 		bl = map_id2bl(conv_num(st,& (st->stack->stack_data[st->start+6])));
 	else
 		bl = map_id2bl(st->rid);
+
+	if (type >= 0 && type < SC_MAX && val1 && !tick)
+	{	//When there isn't a duration specified, try to get it from the skill_db
+		tick = StatusSkillChangeTable[type];
+		if (tick)
+			tick = skill_get_time(tick,val1);
+		else	//Failed to retrieve duration, reset to what it was.
+			tick = 0;
+	}
 
 	if (potion_flag==1 && potion_target) {
 		bl = map_id2bl(potion_target);
@@ -7219,6 +7224,15 @@ int buildin_sc_start4(struct script_state *st)
 		bl = map_id2bl(conv_num(st,& (st->stack->stack_data[st->start+8])));
 	else
 		bl = map_id2bl(st->rid);
+
+	if (type >= 0 && type < SC_MAX && val1 && !tick)
+	{	//When there isn't a duration specified, try to get it from the skill_db
+		tick = StatusSkillChangeTable[type];
+		if (tick)
+			tick = skill_get_time(tick,val1);
+		else	//Failed to retrieve duration, reset to what it was.
+			tick = 0;
+	}
 
 	if (potion_flag==1 && potion_target) {
 		bl = map_id2bl(potion_target);
@@ -8142,7 +8156,8 @@ int buildin_maprespawnguildid(struct script_state *st)
 
 	int m=map_mapname2mapid(mapname);
 
-	if(m) map_foreachinmap(buildin_maprespawnguildid_sub,m,BL_CHAR,g_id,flag);
+	if(m != -1)
+		map_foreachinmap(buildin_maprespawnguildid_sub,m,BL_CHAR,g_id,flag);
 	return 0;
 }
 
@@ -8419,10 +8434,8 @@ int buildin_successremovecards(struct script_state *st)
 				item_tmp.card[j]=0;
 
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40)
 				log_pick(sd, "N", 0, item_tmp.nameid, 1, NULL);
-			}
-			//Logs
 
 			if((flag=pc_additem(sd,&item_tmp,1))){	// hbv
 				clif_additem(sd,0,0,flag);
@@ -8438,20 +8451,16 @@ int buildin_successremovecards(struct script_state *st)
 		item_tmp.attribute=sd->status.inventory[i].attribute;
 
 		//Logs items, got from (N)PC scripts [Lupus]
-		if(log_config.pick > 0 ) {
+		if(log_config.enable_logs&0x40)
 			log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
-		}
-		//Logs
 
 		for (j = 0; j < MAX_SLOTS; j++)
 			item_tmp.card[j]=0;
 		pc_delitem(sd,i,1,0);
 
 		//Logs items, got from (N)PC scripts [Lupus]
-		if(log_config.pick > 0 ) {
+		if(log_config.enable_logs&0x40)
 			log_pick(sd, "N", 0, item_tmp.nameid, 1, &item_tmp);
-		}
-		//Logs
 
 		if((flag=pc_additem(sd,&item_tmp,1))){	// hbv
 			clif_additem(sd,0,0,flag);
@@ -8496,10 +8505,8 @@ int buildin_failedremovecards(struct script_state *st)
 					item_tmp.card[j]=0;
 
 				//Logs items, got from (N)PC scripts [Lupus]
-				if(log_config.pick > 0 ) {
+				if(log_config.enable_logs&0x40)
 					log_pick(sd, "N", 0, item_tmp.nameid, 1, NULL);
-				}
-				//Logs
 
 				if((flag=pc_additem(sd,&item_tmp,1))){
 					clif_additem(sd,0,0,flag);
@@ -8511,12 +8518,10 @@ int buildin_failedremovecards(struct script_state *st)
 
 	if(cardflag == 1){
 
-		if(typefail == 0 || typefail == 2){	// 
+		if(typefail == 0 || typefail == 2){	//
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40)
 				log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
-			}
-			//Logs
 
 			pc_delitem(sd,i,1,0);
 			clif_misceffect(&sd->bl,2);
@@ -8529,20 +8534,16 @@ int buildin_failedremovecards(struct script_state *st)
 			item_tmp.attribute=sd->status.inventory[i].attribute;
 
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40)
 				log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
-			}
-			//Logs
 
 			for (j = 0; j < MAX_SLOTS; j++)
 				item_tmp.card[j]=0;
 			pc_delitem(sd,i,1,0);
 
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40)
 				log_pick(sd, "N", 0, item_tmp.nameid, 1, &item_tmp);
-			}
-			//Logs
 
 			if((flag=pc_additem(sd,&item_tmp,1))){
 				clif_additem(sd,0,0,flag);
@@ -9102,10 +9103,8 @@ int buildin_clearitem(struct script_state *st)
 		if (sd->status.inventory[i].amount) {
 
 			//Logs items, got from (N)PC scripts [Lupus]
-			if(log_config.pick > 0 ) {
+			if(log_config.enable_logs&0x40)
 				log_pick(sd, "N", 0, sd->status.inventory[i].nameid, -sd->status.inventory[i].amount, &sd->status.inventory[i]);
-			}
-			//Logs
 
 			pc_delitem(sd, i, sd->status.inventory[i].amount, 0);
 		}
@@ -10389,14 +10388,18 @@ int buildin_isequipped(struct script_state *st)
 	int i, j, k, id = 1;
 	int index, flag;
 	int ret = -1;
+	//Original hash to reverse it when full check fails.
+	unsigned int setitem_hash = 0, setitem_hash2 = 0;
 
 	sd = script_rid2sd(st);
-	
+
 	if (!sd) { //If the player is not attached it is a script error anyway... but better prevent the map server from crashing...
 		push_val(st->stack,C_INT,0);
 		return 0;
 	}
-	
+
+	setitem_hash = sd->setitem_hash;
+	setitem_hash2 = sd->setitem_hash2;
 	for (i=0; id!=0; i++)
 	{
 		FETCH (i+2, id) else id = 0;
@@ -10453,7 +10456,11 @@ int buildin_isequipped(struct script_state *st)
 			ret &= flag;
 		if (!ret) break;
 	}
-	
+	if (!ret)
+	{	//When check fails, restore original hash values. [Skotlex]
+		sd->setitem_hash = setitem_hash;
+		sd->setitem_hash2 = setitem_hash2;
+	}
 	push_val(st->stack,C_INT,ret);
 	return 0;
 }

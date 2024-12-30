@@ -1662,8 +1662,8 @@ int map_quit(struct map_session_data *sd) {
 			npc_script_event(sd, NPCE_LOGOUT);
 
 		sd->state.waitingdisconnect = 1;
-		if (sd->pd) unit_free(&sd->pd->bl);
-		unit_free(&sd->bl);
+		if (sd->pd) unit_free(&sd->pd->bl,0);
+		unit_free(&sd->bl,3);
 		chrif_save(sd,1);
 	} else { //Try to free some data, without saving anything (this could be invoked on map server change. [Skotlex]
 		if (sd->bl.prev != NULL)
@@ -1991,8 +1991,8 @@ int mob_cache_cleanup_sub(struct block_list *bl, va_list ap) {
 	if (!battle_config.mob_remove_damaged && 
 		md->status.hp < md->status.max_hp)
 		return 0; //Do not remove damaged mobs.
-	
-	unit_free(&md->bl);
+
+	unit_free(&md->bl,0);
 
 	return 1;
 }
@@ -2168,10 +2168,10 @@ int map_random_dir(struct block_list *bl, short *x, short *y) {
 	short segment;
 	
 	if (dist < 1) dist =1;
-	
+
 	do {
 		j = rand()%8; //Pick a random direction
-		segment = rand()%dist; //Pick a random interval from the whole vector in that direction
+		segment = 1+(rand()%dist); //Pick a random interval from the whole vector in that direction
 		xi = bl->x + segment*dirx[j];
 		segment = (short)sqrt(dist2 - segment*segment); //The complement of the previously picked segment
 		yi = bl->y + segment*diry[j];
@@ -3618,7 +3618,7 @@ int cleanup_sub(struct block_list *bl, va_list ap) {
 			npc_unload((struct npc_data *)bl);
 			break;
 		case BL_MOB:
-			unit_free(bl);
+			unit_free(bl,0);
 			break;
 		case BL_PET:
 		//There is no need for this, the pet is removed together with the player. [Skotlex]

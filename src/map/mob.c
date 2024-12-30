@@ -263,9 +263,17 @@ struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m,
 	data.m = m;
 	data.num = 1;
 	data.class_ = class_;
-	strncpy(data.name, mobname, NAME_LENGTH-1);
-	strncpy(data.eventname, event, 50);
-	
+	if (mobname)
+		strncpy(data.name, mobname, NAME_LENGTH-1);
+	else
+	if(battle_config.override_mob_names==1)
+		strcpy(data.name,"--en--");
+	else
+		strcpy(data.name,"--ja--");
+
+	if (event)
+		strncpy(data.eventname, event, 50);
+
 	if (bl && (x < 0 || y < 0))//Locate spot around player.
 		map_search_freecell(bl, m, &x, &y, 1, 1, 0);
 
@@ -416,7 +424,7 @@ static int mob_spawn_guardian_sub(int tid,unsigned int tick,int id,int data)
 				guild_castledatasave(md->guardian_data->castle->castle_id, 10+md->guardian_data->number,0);
 				guild_castledatasave(md->guardian_data->castle->castle_id, 18+md->guardian_data->number,0);
 			}
-			unit_free(&md->bl); //Remove guardian.
+			unit_free(&md->bl,0); //Remove guardian.
 		}
 		return 0;
 	}
@@ -592,7 +600,7 @@ int mob_setdelayspawn(struct mob_data *md)
 
 
 	if (!md->spawn) //Doesn't has respawn data!
-		return unit_free(&md->bl);
+		return unit_free(&md->bl,1);
 
 	spawntime1 = md->last_spawntime + md->spawn->delay1;
 	spawntime2 = md->last_deadtime + md->spawn->delay2;
@@ -1072,7 +1080,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 				(dist = distance_bl(&md->bl, abl)) >= MAX_MINCHASE ||
 				battle_check_target(bl, abl, BCT_ENEMY) <= 0 ||
 				(battle_config.mob_ai&2 && !status_check_skilluse(bl, abl, 0, 0)) ||
-				!mob_can_reach(md, abl, dist+2, MSS_RUSH) ||
+				!mob_can_reach(md, abl, dist+md->db->range3, MSS_RUSH) ||
 				(	//Gangster Paradise check
 					abl->type == BL_PC && !(mode&MD_BOSS) &&
 					((TBL_PC*)abl)->state.gangsterparadise
@@ -1220,7 +1228,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			fitem = (struct flooritem_data *)tbl;
 			if (md->lootitem_count < LOOTITEM_SIZE) {
 				memcpy (&md->lootitem[md->lootitem_count++], &fitem->item_data, sizeof(md->lootitem[0]));
-				if(log_config.pick > 0)	//Logs items, taken by (L)ooter Mobs [Lupus]
+				if(log_config.enable_logs&0x10)	//Logs items, taken by (L)ooter Mobs [Lupus]
 					log_pick((struct map_session_data*)md, "L", md->class_, md->lootitem[md->lootitem_count-1].nameid, md->lootitem[md->lootitem_count-1].amount, &md->lootitem[md->lootitem_count-1]);
 			} else {	//Destroy first looted item...
 				if (md->lootitem[0].card[0] == (short)0xff00)
@@ -1425,7 +1433,7 @@ static int mob_delay_item_drop(int tid,unsigned int tick,int id,int data)
  */
 static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, struct item_drop *ditem, int loot, int drop_rate)
 {
-	if(log_config.pick > 0)
+	if(log_config.enable_logs&0x10)
 	{	//Logs items, dropped by mobs [Lupus]
 		if (loot)
 			log_pick((struct map_session_data*)md, "L", md->class_, ditem->item_data.nameid, -ditem->item_data.amount, &ditem->item_data);
@@ -1458,8 +1466,7 @@ int mob_timer_delete(int tid, unsigned int tick, int id, int data)
 		return 0; //??
 //for Alchemist CANNIBALIZE [Lupus]
 	((TBL_MOB*)bl)->deletetimer = -1;
-	unit_remove_map(bl, 3);
-	unit_free(bl);
+	unit_free(bl,3);
 	return 0;
 }
 
@@ -1993,8 +2000,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				clif_additem(sd,0,0,temp);
 				map_addflooritem(&item,1,mvp_sd->bl.m,mvp_sd->bl.x,mvp_sd->bl.y,mvp_sd,second_sd,third_sd,1);
 			}
-			
-			if(log_config.pick > 0)	{//Logs items, MVP prizes [Lupus]
+
+			if(log_config.enable_logs&0x200)	{//Logs items, MVP prizes [Lupus]
 				log_pick((struct map_session_data*)md, "M", md->class_, item.nameid, -1, NULL);
 				log_pick(mvp_sd, "P", 0, item.nameid, 1, NULL);
 			}
@@ -2092,7 +2099,7 @@ int mob_guardian_guildchange(struct block_list *bl,va_list ap)
 				guild_castledatasave(md->guardian_data->castle->castle_id, 10+md->guardian_data->number,0);
 				guild_castledatasave(md->guardian_data->castle->castle_id, 18+md->guardian_data->number,0);
 			}
-			unit_free(&md->bl); //Remove guardian.
+			unit_free(&md->bl,0); //Remove guardian.
 		}
 		return 0;
 	}
@@ -2104,7 +2111,7 @@ int mob_guardian_guildchange(struct block_list *bl,va_list ap)
 		md->guardian_data->castle->guardian[md->guardian_data->number].visible = 0;
 		guild_castledatasave(md->guardian_data->castle->castle_id, 10+md->guardian_data->number,0);
 		guild_castledatasave(md->guardian_data->castle->castle_id, 18+md->guardian_data->number,0);
-		unit_free(&md->bl);
+		unit_free(&md->bl,0);
 		return 0;
 	}
 
@@ -2155,7 +2162,6 @@ int mob_class_change (struct mob_data *md, int class_)
 
 	hp_rate = md->status.hp*100/md->status.max_hp;
 	md->db = mob_db(class_);
-	
 	if (battle_config.override_mob_names==1)
 		memcpy(md->name,md->db->name,NAME_LENGTH-1);
 	else
@@ -2740,8 +2746,10 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 	mob_db_data[class_]->status.rhw.atk2+=
 		sd->base_status.rhw.atk + sd->base_status.rhw.atk2 +
 		sd->base_status.lhw->atk + sd->base_status.lhw->atk2; //Max ATK
-	if (flag&1) //Friendly Character, remove looting.
-		mob_db_data[class_]->status.mode &= ~MD_LOOTER; 
+	if (mode) //User provided mode.
+		mob_db_data[class_]->status.mode = mode;
+	else if (flag&1) //Friendly Character, remove looting.
+		mob_db_data[class_]->status.mode &= ~MD_LOOTER;
 	mob_db_data[class_]->status.hp = mob_db_data[class_]->status.max_hp;
 	mob_db_data[class_]->status.sp = mob_db_data[class_]->status.max_sp;
 	memcpy(&mob_db_data[class_]->vd, &sd->vd, sizeof(struct view_data));
@@ -3056,6 +3064,14 @@ static int mob_readdb(void)
 			status->int_=atoi(str[17]);
 			status->dex=atoi(str[18]);
 			status->luk=atoi(str[19]);
+			//All status should be min 1 to prevent divisions by zero from some skills. [Skotlex]
+			if (status->str < 1) status->str = 1;
+			if (status->agi < 1) status->agi = 1;
+			if (status->vit < 1) status->vit = 1;
+			if (status->int_< 1) status->int_= 1;
+			if (status->dex < 1) status->dex = 1;
+			if (status->luk < 1) status->luk = 1;
+
 			mob_db_data[class_]->range2=atoi(str[20]);
 			mob_db_data[class_]->range3=atoi(str[21]);
 			if (battle_config.view_range_rate!=100)
@@ -3115,10 +3131,11 @@ static int mob_readdb(void)
 					maxhp = maxhp * (double)battle_config.mvp_hp_rate /100.;
 			} else if (battle_config.monster_hp_rate != 100) //Normal mob
 				maxhp = maxhp * (double)battle_config.monster_hp_rate /100.;
-			if (maxhp < 1) maxhp = 1;
-			else if (maxhp > UINT_MAX) maxhp = UINT_MAX;
+			if (maxhp > UINT_MAX) maxhp = UINT_MAX;
 			status->max_hp = (unsigned int)maxhp;
 
+			if(status->max_hp < 1) status->max_hp = 1;
+			if(status->max_sp < 1) status->max_sp = 1;
 			status->hp = status->max_hp;
 			status->sp = status->max_sp;
 
@@ -3232,11 +3249,6 @@ static int mob_readdb(void)
 					id->mob[k].chance = mob_db_data[class_]->dropitem[i].p;
 					id->mob[k].id = class_;
 				}
-			}
-
-			if (status->max_hp <= 0) {
-				ShowWarning ("Mob %d (%s) has no HP, using poring data for it\n", class_, mob_db_data[class_]->sprite);
-				mob_makedummymobdb(class_);
 			}
 		}
 		fclose(fp);
@@ -3745,6 +3757,14 @@ static int mob_read_sqldb(void)
 				status->int_ = TO_INT(17);
 				status->dex = TO_INT(18);
 				status->luk = TO_INT(19);
+				//All status should be min 1 to prevent divisions by zero from some skills. [Skotlex]
+				if (status->str < 1) status->str = 1;
+				if (status->agi < 1) status->agi = 1;
+				if (status->vit < 1) status->vit = 1;
+				if (status->int_< 1) status->int_= 1;
+				if (status->dex < 1) status->dex = 1;
+				if (status->luk < 1) status->luk = 1;
+
 				mob_db_data[class_]->range2 = TO_INT(20);
 				mob_db_data[class_]->range3 = TO_INT(21);
 				status->size = TO_INT(22);
@@ -3788,10 +3808,11 @@ static int mob_read_sqldb(void)
 						maxhp = maxhp * (double)battle_config.mvp_hp_rate /100.;
 				} else if (battle_config.monster_hp_rate != 100) //Normal mob
 					maxhp = maxhp * (double)battle_config.monster_hp_rate /100.;
-				if (maxhp < 0) maxhp = 1;
-				else if (maxhp > UINT_MAX) maxhp = UINT_MAX;
+				if (maxhp > UINT_MAX) maxhp = UINT_MAX;
 				status->max_hp = (unsigned int)maxhp;
 
+				if(status->max_hp < 1) status->max_hp = 1;
+				if(status->max_sp < 1) status->max_sp = 1;
 				//Since mobs always respawn with full life...
 				status->hp = status->max_hp;
 				status->sp = status->max_sp;
@@ -3902,10 +3923,6 @@ static int mob_read_sqldb(void)
 						id->mob[k].chance = mob_db_data[class_]->dropitem[i].p;
 						id->mob[k].id = class_;
 					}
-				}
-				if (status->max_hp <= 0) {
-					ShowWarning ("Mob %d (%s) has no HP, using poring data for it\n", class_, mob_db_data[class_]->sprite);
-					mob_makedummymobdb(class_);
 				}
 			}
 

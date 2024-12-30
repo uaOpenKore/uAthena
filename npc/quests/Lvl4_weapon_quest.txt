@@ -1,12 +1,12 @@
 //===== eAthena Script ======================================= 
 //= Grade A and Grade S weapon quests
-//===== By: ================================================== 
+//===== By: ==================================================
 //= Vicious_Pucca, Reddozen & MasterOfMuppets
-//===== Current Version: ===================================== 
-//= 1.1
-//===== Compatible With: ===================================== 
+//===== Current Version: =====================================
+//= 1.21
+//===== Compatible With: =====================================
 //= eAthena SVN 3422+(Requires jA Script System)
-//===== Description: ========================================= 
+//===== Description: =========================================
 //= Grade A and Grade S weapon quests
 //===== Additional Comments: ================================= 
 //= 1.0 First Version, Credits goes to Vicious_Pucca for converting [MasterOfMuppets]
@@ -14,7 +14,8 @@
 //=	reddozen for fixing bugs.
 //= 1.1 Many fixes to spelling, grammar, and sentence order. [Silent]
 //= 1.2 A small fix, thanks to vicious_pucca [MasterOfMuppets]
-//============================================================ 
+//= 1.21 Fixing MoM's typos (Citrin -> Citrine) [erKURITA]
+//============================================================
 
 //---------------------------------------------------------------
 // Initialize the basic materials for easier reading/conversion 
@@ -132,7 +133,7 @@ L4_0_1:
 			mes "For that, I need some rare ores...";
 			next;
 			mes "[Bazo]";
-			mes "Please bring me 30 of either Citrin, Turquoise or Agate.";
+			mes "Please bring me 30 of either Citrine, Turquoise or Agate.";
 			mes "Each one of them possess their own attribute";
 			mes "and following by the ore you have brought,";
 			mes "my product will possess a special trait.";
@@ -190,7 +191,7 @@ LV4_1_CTA:
 	switch( select( "Citrine", "Turquoise", "Agate" ) ) {
 		case 1:
 			mes "[Bazo]";
-			mes "Citrin...okay. Before we start,";
+			mes "Citrine...okay. Before we start,";
 			set @gem, $@LV4_Citrine;
 			set @gemstring$,"Citrine";
 			break;
@@ -222,7 +223,7 @@ LV4_1_CT:
 	switch( select( "Citrine", "Turquoise" ) ) {
 		case 1:
 			mes "[Bazo]";
-			mes "Citrin...okay. Before we start,";
+			mes "Citrine...okay. Before we start,";
 			set @gem, $@LV4_Citrine;
 			set @gemstring$,"Citrine";
 			break;
@@ -248,7 +249,7 @@ LV4_1_CA:
 	switch( select( "Citrine", "Agate" ) ) {
 		case 1:
 			mes "[Bazo]";
-			mes "Citrin...okay. Before we start,";
+			mes "Citrine...okay. Before we start,";
 			set @gem, $@LV4_Citrine;
 			set @gemstring$,"Citrine";
 			break;
@@ -289,10 +290,10 @@ LV4_1_TA:
 	goto LV4_1_PICK;
 	end; // shouldn't be here
 	
-	
+
 LV4_1_C:
 	mes "[Bazo]";
-	mes "Citrin...okay. Before we start,";
+	mes "Citrine...okay. Before we start,";
 	set @gem, $@LV4_Citrine;
 	set @gemstring$,"Citrine";
 	goto LV4_1_PICK;
@@ -381,7 +382,7 @@ LV4_1_FAIL:
 	mes "For that, I need some rare ores...";
 	next;
 	mes "[Bazo]";
-	mes "Please bring me 30 of either Citrin, Turquoise or Agate.";
+	mes "Please bring me 30 of either Citrine, Turquoise or Agate.";
 	mes "Each one of them possess their own attribute";
 	mes "and using the ore you have brought,";
 	mes "my product will possess a special trait.";
@@ -920,7 +921,7 @@ LV4_8_FAIL:
 	mes "For that, I need some rare ores...";
 	next;
 	mes "[Hibilaithan]";
-	mes "Please bring me 30 of an ore among Citrin, Biotite or Pyroxene.";
+	mes "Please bring me 30 of an ore among Citrine, Biotite or Pyroxene.";
 	mes "Each one of them possess their own attributes";
 	mes "and by using the ore you have brought,";
 	mes "my product will possess a special trait.";

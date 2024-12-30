@@ -1111,7 +1111,7 @@ int npc_buylist(struct map_session_data *sd,int n,unsigned short *item_list)
 		pc_additem(sd,&item_tmp,item_list[i*2]);
 
 		//Logs items, Bought in NPC (S)hop [Lupus]
-		if(sd && log_config.pick > 0 )
+		if(log_config.enable_logs&0x20)
 			log_pick(sd, "S", 0, item_tmp.nameid, item_list[i*2], NULL);
 		//Logs
 	}
@@ -1170,7 +1170,7 @@ int npc_selllist(struct map_session_data *sd,int n,unsigned short *item_list)
 				intif_delete_petdata(MakeDWord(sd->status.inventory[idx].card[1],sd->status.inventory[idx].card[2]));
 		}
 
-		if(log_config.pick) //Logs items, Sold to NPC (S)hop [Lupus]
+		if(log_config.enable_logs&0x20) //Logs items, Sold to NPC (S)hop [Lupus]
 			log_pick(sd, "S", 0, nameid, -qty, &sd->status.inventory[idx]);
 
 		itemamount+=qty;
@@ -1484,11 +1484,11 @@ static int npc_parse_shop (char *w1, char *w2, char *w3, char *w4)
 		if (value/124. < id->value_sell/75.) {  //Clened up formula to prevent overflows.
 			printf("\r"); //Carriage return to clear the 'loading..' line. [Skotlex]
 			if (value < id->value_sell)
-				ShowWarning ("Item %s [%d] buying price (%d) is less than selling price (%d)\n",
-					id->name, id->nameid, value, id->value_sell);
+				ShowWarning ("Item %s [%d] buying price (%d) is less than selling price (%d) at %s\n",
+					id->name, id->nameid, value, id->value_sell, current_file);
 			else
-				ShowWarning ("Item %s [%d] discounted buying price (%d) is less than overcharged selling price (%d)\n",
-					id->name, id->nameid, value/100*75, id->value_sell/100*124);
+				ShowWarning ("Item %s [%d] discounted buying price (%d) is less than overcharged selling price (%d) at %s\n",
+					id->name, id->nameid, value/100*75, id->value_sell/100*124, current_file);
 		}
 		//for logs filters, atcommands and iteminfo script command
 		if (id->maxchance<=0)
@@ -2633,7 +2633,7 @@ static int npc_cleanup_sub (struct block_list *bl, va_list ap) {
 		npc_unload((struct npc_data *)bl);
 		break;
 	case BL_MOB:
-		unit_free(bl);
+		unit_free(bl,0);
 		break;
 	}
 
