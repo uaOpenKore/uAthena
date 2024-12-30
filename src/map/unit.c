@@ -124,12 +124,6 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 	if(ud->walkpath.path_pos>=ud->walkpath.path_len)
 		return 0;
 
-	//^C}[
-	if(sd) {
-		sd->inchealspirithptick = 0;
-		sd->inchealspiritsptick = 0;
-	}
-	
 	if(ud->walkpath.path[ud->walkpath.path_pos]>=8)
 		return 1;
 	x = bl->x;
@@ -532,7 +526,11 @@ int unit_warp(struct block_list *bl,int m,short x,short y,int type)
 	
 	if (!unit_remove_map(bl, type))
 		return 3;
-	
+
+	if (bl->m != m && battle_config.clear_unit_onwarp &&
+		battle_config.clear_unit_onwarp&bl->type)
+		skill_clear_unitgroup(bl);
+
 	bl->x=ud->to_x=x;
 	bl->y=ud->to_y=y;
 	bl->m=m;

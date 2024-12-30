@@ -9,7 +9,7 @@
 #include "../common/mapindex.h"
 #include "../common/db.h"
 
-//Uncomment to enable the Cell Stack Limit mod. (EXPERIMENTAL)
+//Uncomment to enable the Cell Stack Limit mod.
 //It's only config is the battle_config cell_stack_limit.
 //Only chars affected are those defined in BL_CHAR (mobs and players currently)
 //#define CELL_NOSTACK
@@ -323,6 +323,7 @@ struct skill_unit_group {
 		unsigned ammo_consume : 1;
 		unsigned magic_power : 1;
 		unsigned into_abyss : 1;
+		unsigned song_dance : 2; //0x1 Song/Dance, 0x2 Ensemble
 	} state;
 };
 struct skill_unit_group_tickset {
@@ -464,6 +465,50 @@ struct view_data {
 	unsigned dead_sit : 2;
 };
 
+//Additional regen data that only players have.
+struct regen_data_sub {
+	unsigned short
+		hp,sp;
+
+	//tick accumulation before healing.
+	struct {
+		unsigned int hp,sp;
+	} tick;
+
+	//Regen rates (where every 1 means +100% regen)
+	struct {
+		unsigned char hp,sp;
+	} rate;
+};
+
+struct regen_data {
+
+	unsigned short flag; //Marks what stuff you may heal or not.
+	unsigned short
+		hp,sp,shp,ssp;
+
+	//tick accumulation before healing.
+	struct {
+		unsigned int hp,sp,shp,ssp;
+	} tick;
+
+	//Regen rates (where every 1 means +100% regen)
+	struct {
+		unsigned char
+		hp,sp,shp,ssp;
+	} rate;
+
+	struct {
+		unsigned walk:1; //Can you regen even when walking?
+		unsigned gc:1;	//Tags when you should have double regen due to GVG castle
+		unsigned overweight :2; //overweight state (1: 50%, 2: 90%)
+		unsigned block :2; //Block regen flag (1: Hp, 2: Sp)
+	} state;
+
+	//skill-regen, sitting-skill-regen (since not all chars with regen need it)
+	struct regen_data_sub *sregen, *ssregen;
+};
+
 struct party_member_data {
 	struct map_session_data *sd;
 	unsigned int hp; //For HP,x,y refreshing.
@@ -494,6 +539,8 @@ struct map_session_data {
 	struct status_data base_status, battle_status;
 	struct weapon_atk base_lhw, battle_lhw; //Left-hand weapon atk data.
 	struct status_change sc;
+	struct regen_data regen;
+	struct regen_data_sub sregen, ssregen;
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct {
@@ -597,11 +644,8 @@ struct map_session_data {
 
 	int invincible_timer;
 	unsigned int canlog_tick;
-	unsigned int canregen_tick;
 	unsigned int canuseitem_tick;	// [Skotlex]
 	unsigned int cantalk_tick;
-	int hp_sub,sp_sub;
-	int inchealhptick,inchealsptick,inchealspirithptick,inchealspiritsptick;
 
 	short weapontype1,weapontype2;
 	short disguise; // [Valaris]
@@ -690,7 +734,6 @@ struct map_session_data {
 	unsigned short unbreakable;	// chance to prevent ANY equipment breaking [celest]
 	unsigned short unbreakable_equip; //100% break resistance on certain equipment
 	unsigned short unstripable_equip;
-	short no_regen;
 	short add_def_count,add_mdef_count;
 	short add_dmg_count,add_mdmg_count;
 
