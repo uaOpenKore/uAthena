@@ -41,6 +41,9 @@
 #define MOB_LAZYWARPPERC 20	// Warp probability in the negligent mode MOB (rate of 1000 minute)
 
 #define MAX_MINCHASE 30	//Max minimum chase value to use for mobs.
+
+#define RUDE_ATTACKED_COUNT 2	//After how many rude-attacks should the skill be used?
+
 //Dynamic mob database, allows saving of memory when there's big gaps in the mob_db [Skotlex]
 struct mob_db *mob_db_data[MAX_MOB_DB+1];
 struct mob_db *mob_dummy = NULL;	//Dummy mob to be returned when a non-existant one is requested.
@@ -294,7 +297,7 @@ int mob_once_spawn (struct map_session_data *sd, char *mapname,
 	else
 		m = map_mapname2mapid(mapname);
 
-	if (m < 0 || amount <= 0)	// 値が異常なら召喚を止める
+	if (m < 0 || amount <= 0)	// l~
 		return 0;
 	
 	for (count = 0; count < amount; count++) {
@@ -349,7 +352,7 @@ int mob_once_spawn_area(struct map_session_data *sd,char *mapname,
 	max=(y1-y0+1)*(x1-x0+1)*3;
 	if(max>1000)max=1000;
 
-	if (m < 0 || amount <= 0)	// 値が異常なら召喚を止める
+	if (m < 0 || amount <= 0)	// l~
 		return 0;
 
 	for(i=0;i<amount;i++){
@@ -982,7 +985,7 @@ int mob_randomwalk(struct mob_data *md,int tick)
 		md->move_fail_count++;
 		if(md->move_fail_count>1000){
 			if(battle_config.error_log)
-				ShowWarning("MOB cant move. random spawn %d, class = %d\n",md->bl.id,md->class_);
+				ShowWarning("MOB cant move. random spawn %d, class = %d, at %s (%d,%d)\n",md->bl.id,md->class_,map[md->bl.m].name, md->bl.x, md->bl.y);
 			md->move_fail_count=0;
 			mob_spawn(md);
 		}
@@ -1069,7 +1072,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 				!battle_check_range(&md->bl, tbl, md->status.rhw.range))
 			{	//Rude-attacked (avoid triggering due to can-walk delay).
 				if (DIFF_TICK(tick, md->ud.canmove_tick) > 0 &&
-				  	md->attacked_count++ > 3)
+					md->attacked_count++ >= RUDE_ATTACKED_COUNT)
 					mobskill_use(md, tick, MSC_RUDEATTACKED);
 			}
 		} else
@@ -1084,10 +1087,10 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 					((TBL_PC*)abl)->state.gangsterparadise
 				)
 			)	{	//Can't attack back
-				if (md->attacked_count++ > 3) {
+				if (md->attacked_count++ >= RUDE_ATTACKED_COUNT) {
 					if (mobskill_use(md, tick, MSC_RUDEATTACKED) == 0 && can_move)
 					{
-						int dist = rand() % 10 + 1;//後退する距離
+						int dist = rand() % 10 + 1;//
 						int dir = map_calc_dir(abl, bl->x, bl->y);
 						int mask[8][2] = {{0,1},{-1,1},{-1,0},{-1,-1},{0,-1},{1,-1},{1,0},{1,1}};
 						unit_walktoxy(&md->bl, md->bl.x + dist * mask[dir][0], md->bl.y + dist * mask[dir][1], 0);
@@ -1213,7 +1216,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 				}
 				if (!can_move) //Stuck. Wait before walking.
 					return 0;
-				md->state.skillstate = MSS_LOOT;	// ルート時スキル使用
+				md->state.skillstate = MSS_LOOT;	// [gXLgp
 				if (!unit_walktobl(&md->bl, tbl, 0, 1))
 					mob_unlocktarget(md, tick); //Can't loot...
 				return 0;
@@ -1307,7 +1310,7 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list app)
 	if (md->bl.prev==NULL || md->status.hp == 0)
 		return 1;
 
-	// 取り巻きモンスターの処理（呼び戻しされた時）
+	// X^[ij
 	if (md->master_id) {
 		mob_ai_sub_hard_slavemob (md,tick);
 		return 0;
@@ -1591,9 +1594,9 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 			md->dmglog[minpos].dmg=damage;
 		}
 	}
-	
-	if(md->special_state.ai==2 && md->master_id == src->id)
-	{
+
+	if(md->special_state.ai==2/* && md->master_id == src->id*/)
+	{	//LOne WOlf explained that ANYONE can trigger the marine countdown skill. [Skotlex]
 		md->state.alchemist = 1;
 		mobskill_use(md, gettick(), MSC_ALCHEMIST);
 	}
@@ -1698,7 +1701,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		unsigned int base_exp,job_exp;
 		double per; //Your share of the mob's exp
 		int bonus; //Bonus on top of your share.
-		
+
+		if (status_isdead(&tmpsd[i]->bl) || tmpsd[i]->bl.m != md->bl.m)
+			continue; //When someone is dead or on another map, their share of exp is gone.
+
 		if (!battle_config.exp_calc_type && md->tdmg)
 			//jAthena's exp formula based on total damage.
 			per = (double)md->dmglog[i].dmg/(double)md->tdmg;
@@ -1732,7 +1738,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		if (map[md->bl.m].flag.nobaseexp)
 			base_exp=0; 
 		else {
-			temp = bonus; //Do not alter bonus for the jExp section below.
+			temp = bonus; //Do not alter bonus for the xp section below.
 			if (map[md->bl.m].bexp != 100)
 				temp = map[md->bl.m].bexp*temp/100;
 			if (temp != 100)
@@ -2191,7 +2197,7 @@ int mob_class_change (struct mob_data *md, int class_)
 }
 
 /*==========================================
- * mob回復
+ * mob
  *------------------------------------------
  */
 void mob_heal(struct mob_data *md,unsigned int heal)
@@ -2239,7 +2245,7 @@ int mob_warpslave(struct block_list *bl, int range)
 }
 
 /*==========================================
- * 画面内の取り巻きの数計算用(foreachinarea)
+ * vZp(foreachinarea)
  *------------------------------------------
  */
 int mob_countslave_sub(struct block_list *bl,va_list ap)
@@ -2255,7 +2261,7 @@ int mob_countslave_sub(struct block_list *bl,va_list ap)
 }
 
 /*==========================================
- * 画面内の取り巻きの数計算
+ * vZ
  *------------------------------------------
  */
 int mob_countslave(struct block_list *bl)
@@ -2341,7 +2347,7 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 }
 
 /*==========================================
- *MOBskillから該当skillidのskillidxを返す
+ *MOBskillYskillidskillidx
  *------------------------------------------
  */
 int mob_skillid2skillidx(int class_,int skillid)
@@ -2508,7 +2514,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 		if (rand() % 10000 > ms[i].permillage) //Lupus (max value = 10000)
 			continue;
 
-		// 条件判定
+		// 
 		flag = (event == ms[i].cond1);
 		//Avoid entering on defined events to avoid "hyper-active skill use" due to the overflow of calls to this function
 		//in battle. The only exception is MSC_SKILLUSED which explicitly uses the event value to trigger. [Skotlex]
@@ -2558,7 +2564,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 				case MSC_SKILLUSED:		// specificated skill used
 					flag = ((event & 0xffff) == MSC_SKILLUSED && ((event >> 16) == c2 || c2 == 0)); break;
 				case MSC_RUDEATTACKED:
-					flag = (md->attacked_count >= 3);
+					flag = (md->attacked_count >= RUDE_ATTACKED_COUNT);
 					if (flag) md->attacked_count = 0;	//Rude attacked count should be reset after the skill condition is met. Thanks to Komurka [Skotlex]
 					break;
 				case MSC_MASTERHPLTMAXRATE:
@@ -2907,7 +2913,7 @@ int mob_clone_delete(int class_)
 }
 
 //
-// 初期化
+// 
 //
 /*==========================================
  * Since un-setting [ mob ] up was used, it is an initial provisional value setup.
@@ -3001,8 +3007,7 @@ static int mob_readdb(void)
 				} else
 					str[i]=p;
 			}
-
-			class_ = atoi(str[0]);
+			class_ = str[0]?atoi(str[0]):0;
 			if (class_ == 0)
 				continue; //Leave blank lines alone... [Skotlex]
 
@@ -3013,6 +3018,10 @@ static int mob_readdb(void)
 			} else if (pcdb_checkid(class_))
 			{
 				ShowWarning("Mob with ID: %d not loaded. That ID is reserved for player classes.\n");
+				continue;
+			}
+			if(i < 38+2*MAX_MOB_DROP) {
+				ShowWarning("mob_readdb: Insufficient columns for mob with ID: %d\n", class_);
 				continue;
 			}
 			if (mob_db_data[class_] == NULL)
@@ -3225,8 +3234,9 @@ static int mob_readdb(void)
 					}
 					if (k == MAX_SEARCH)
 						continue;
-				
-					memmove(&id->mob[k+1], &id->mob[k], (MAX_SEARCH-k-1)*sizeof(id->mob[0]));
+
+					if (id->mob[k].id != class_)
+						memmove(&id->mob[k+1], &id->mob[k], (MAX_SEARCH-k-1)*sizeof(id->mob[0]));
 					id->mob[k].chance = mob_db_data[class_]->dropitem[i].p;
 					id->mob[k].id = class_;
 				}
@@ -3282,7 +3292,7 @@ static int mob_readdb_mobavail(void)
 		if (class_ == 0)
 			continue; //Leave blank lines alone... [Skotlex]
 		
-		if(mob_db(class_) == mob_dummy)	// 値が異常なら処理しない。
+		if(mob_db(class_) == mob_dummy)	// lB
 			continue;
 
 		k=atoi(str[1]);
@@ -3332,7 +3342,7 @@ static int mob_read_randommonster(void)
 		"mob_boss.txt" };
 
 	for(i=0;i<MAX_RANDOMMONSTER;i++){
-		mob_db_data[0]->summonper[i] = 1002;	// 設定し忘れた場合はポリンが出るようにしておく
+		mob_db_data[0]->summonper[i] = 1002;	// Y|o
 		sprintf(line, "%s/%s", db_path, mobfile[i]);
 		fp=fopen(line,"r");
 		if(fp==NULL){
@@ -3895,8 +3905,8 @@ static int mob_read_sqldb(void)
 						}
 						if (k == MAX_SEARCH)
 							continue;
-					
-						memmove(&id->mob[k+1], &id->mob[k], (MAX_SEARCH-k-1)*sizeof(id->mob[0]));
+						if (id->mob[k].id != class_)
+							memmove(&id->mob[k+1], &id->mob[k], (MAX_SEARCH-k-1)*sizeof(id->mob[0]));
 						id->mob[k].chance = mob_db_data[class_]->dropitem[i].p;
 						id->mob[k].id = class_;
 					}

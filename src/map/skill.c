@@ -822,14 +822,11 @@ int can_copy (struct map_session_data *sd, int skillid)
 
 // [MouseJstr] - skill ok to cast? and when?
 int skillnotok (int skillid, struct map_session_data *sd)
-{	
-	int i = skillid;
+{
+	int i = skillid,m;
 	nullpo_retr (1, sd);
-	//if (sd == 0)
-		//return 0; 
-		//return 1;
-	// I think it was meant to be "no skills allowed when not a valid sd"
-	
+	m = sd->bl.m;
+
 	if (skillid >= GD_SKILLRANGEMIN && skillid <= GD_SKILLRANGEMAX)
 		return 1;
 
@@ -846,34 +843,34 @@ int skillnotok (int skillid, struct map_session_data *sd)
 		return 0;  // gm's can do anything damn thing they want
 
 	// Check skill restrictions [Celest]
-	if(!map_flag_vs(sd->bl.m) && skill_get_nocast (skillid) & 1)
+	if(!map_flag_vs(m) && skill_get_nocast (skillid) & 1)
 		return 1;
-	if(map[sd->bl.m].flag.pvp && skill_get_nocast (skillid) & 2)
+	if(map[m].flag.pvp && skill_get_nocast (skillid) & 2)
 		return 1;
-	if(map_flag_gvg(sd->bl.m) && skill_get_nocast (skillid) & 4)
+	if(map_flag_gvg(m) && skill_get_nocast (skillid) & 4)
 		return 1;
 	if(agit_flag && skill_get_nocast (skillid) & 8)
 		return 1;
-	if(map[sd->bl.m].flag.restricted && map[sd->bl.m].zone && skill_get_nocast (skillid) & (8*map[sd->bl.m].zone))
+	if(map[m].flag.restricted && map[m].zone && skill_get_nocast (skillid) & (8*map[m].zone))
 		return 1;
 
 	switch (skillid) {
 		case AL_WARP:
-			if(map[sd->bl.m].flag.nowarp) {
+			if(map[m].flag.nowarp) {
 				clif_skill_teleportmessage(sd,0);
 				return 1;
 			}
 			return 0;
 		break;
 		case AL_TELEPORT:
-			if(map[sd->bl.m].flag.noteleport) {
+			if(map[m].flag.noteleport) {
 				clif_skill_teleportmessage(sd,0);
 				return 1;
 			}
 			return 0;
 		case TK_HIGHJUMP:
-			if(map[sd->bl.m].flag.noteleport && !map_flag_vs(sd->bl.m))
-		  	{	//Can't be used on noteleport maps, except for vs maps [Skotlex]
+			if(map[m].flag.noteleport && !map_flag_vs(m))
+			{	//Can't be used on noteleport maps, except for vs maps [Skotlex]
 				clif_skill_fail(sd,skillid,0,0);
 				return 1;
 			}
@@ -881,7 +878,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 		case WE_CALLPARTNER:
 		case WE_CALLPARENT:
 		case WE_CALLBABY:
-			if (map[sd->bl.m].flag.nomemo) {
+			if (map[m].flag.nomemo) {
 				clif_skill_teleportmessage(sd,1);
 				return 1;
 			}
@@ -891,7 +888,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 			return 0; // always allowed
 		case WZ_ICEWALL:
 			// noicewall flag [Valaris]
-			if (map[sd->bl.m].flag.noicewall) {
+			if (map[m].flag.noicewall) {
 				clif_skill_fail(sd,skillid,0,0);
 				return 1;
 			}
@@ -905,7 +902,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 			}
 			break;
 	}
-	return (map[sd->bl.m].flag.noskill);
+	return (map[m].flag.noskill);
 }
 
 struct skill_unit_layout skill_unit_layout[MAX_SKILL_UNIT_LAYOUT];
@@ -1000,8 +997,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				(skill*15 + 55) + pc_checkskill(sd,TF_STEAL)*10 > rand()%1000) {
 				if(pc_steal_item(sd,bl))
 					clif_skill_nodamage(src,bl,TF_STEAL,skill,1);
-				else if (battle_config.display_snatcher_skill_fail)
-					clif_skill_fail(sd,skillid,0,0);
+				else
+					clif_skill_fail(sd,RG_SNATCHER,0,0);
 			}
 			// Chance to trigger Taekwon kicks [Dralnu]
 			if(sd->sc.count && sd->sc.data[SC_COMBO].timer == -1) {
@@ -1397,6 +1394,32 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			break; //Only one auto skill comes off at a time.
 		}
 	}
+
+	//Polymorph
+	if(sd && sd->classchange && attack_type&BF_WEAPON &&
+		dstmd && !(tstatus->mode&MD_BOSS) && !dstmd->guardian_data &&
+		(dstmd->class_ < 1324 || dstmd->class_ > 1363) && //Treasure boxes
+		!mob_is_clone(dstmd->class_) &&
+		(rand()%10000 < sd->classchange))
+	{
+		struct mob_db *mob;
+		int class_;
+		skill = 0;
+		do {
+			do {
+				class_ = rand() % MAX_MOB_DB;
+			} while (!mobdb_checkid(class_));
+
+			rate = rand() % 1000000;
+			mob = mob_db(class_);
+		} while (
+			(mob->status.mode&(MD_BOSS|MD_PLANT) || mob->summonper[0] <= rate) &&
+			(skill++) < 2000);
+		if (skill < 2000)
+			mob_class_change(dstmd,class_);
+	}
+
+
 	return 0;
 }
 
@@ -1769,10 +1792,10 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	if (sc && !sc->count) sc = NULL; //Don't need it.
 
 	if (attack_type&BF_MAGIC) {
-	 	if(sc && sc->data[SC_KAITE].timer != -1 && (dmg.damage || dmg.damage2)
-			&& !(sstatus->mode&MD_BOSS) && (sd || status_get_lv(dsrc) <= 80) 
-		) {	//Works on players or mobs with level under 80.
-			clif_skill_nodamage(bl,bl,SL_KAITE,sc->data[SC_KAITE].val1,1);
+		if(sc && sc->data[SC_KAITE].timer != -1 && (dmg.damage || dmg.damage2)
+			&& !(sstatus->mode&MD_BOSS) && (sd || status_get_lv(src) <= 80) )
+		{	//Works on players or mobs with level under 80.
+			clif_specialeffect(bl, 438, AREA);
 			if (--sc->data[SC_KAITE].val2 <= 0)
 				status_change_end(bl, SC_KAITE, -1);
 			bl = src; //Just make the skill attack yourself @.@
@@ -1949,7 +1972,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			if (ud && ud->skilltarget == bl->id)
 				dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion, damage, dmg.div_, skillid, (lv!=0)?lv:skilllv, type);
 			else
-				dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion, damage, dmg.div_, skillid, -1, 5);
+				dmg.dmotion = clif_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,8,dmg.damage2); // can't know why 8, but it works for all skills...
 			break;
 		}
 	case PA_GOSPEL: //Should look like Holy Cross [Skotlex]
@@ -2650,13 +2673,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				break;
 			}
 			clif_slide(src,src->x,src->y);
-			if (skillid != MO_EXTREMITYFIST || battle_check_target(src, bl, BCT_ENEMY) > 0) //Check must be done here because EF should be broken this way.. [Skotlex]
-				skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
-			else if (sd)
-				clif_skill_fail(sd,skillid,0,0);
-		}
-		else //Assume minimum distance of 1 for Charge.
-			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,skillid == KN_CHARGEATK?1:flag);
+		} else //Assume minimum distance of 1 for Charge.
+			flag = 1;
+		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
 	//Splash attack skills.
@@ -2750,14 +2769,14 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		if(flag&1){
 			if (bl->id==skill_area_temp[1])
 				break;
-			if (skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,0x0500) && !status_get_mexp(bl))
+			if (skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,0x0500))
 				skill_blown(src,bl,skill_area_temp[2]);
 		} else {
 			int x=bl->x,y=bl->y,i,dir;
 			dir = map_calc_dir(bl,src->x,src->y);
 			skill_area_temp[1] = bl->id;
 			skill_area_temp[2] = skill_get_blewcount(skillid,skilllv)|dir<<20;
-			if (skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,0) && !status_get_mexp(bl))
+			if (skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,0))
 				skill_blown(src,bl,skill_area_temp[2]);
 			for (i=0;i<4;i++) {
 				map_foreachincell(skill_area_sub,bl->m,x,y,BL_CHAR,
@@ -3044,7 +3063,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		return 1;
 	if(status_isdead(src))
 		return 1;
-if(src!=bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_REDEMPTIO)
+	if(src!=bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_REDEMPTIO)
 		return 1;
 
 	tstatus = status_get_status_data(bl);
@@ -4198,14 +4217,24 @@ if(src!=bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_
 		int strip_fix, equip = 0;
 		int sclist[4] = {0,0,0,0};
 
-		if (skillid == RG_STRIPWEAPON || skillid == ST_FULLSTRIP || skillid == GS_DISARM)
-		   equip |= EQP_HAND_R;
-		if (skillid == RG_STRIPSHIELD || skillid == ST_FULLSTRIP)
-		   equip |= EQP_SHIELD;
-		if (skillid == RG_STRIPARMOR || skillid == ST_FULLSTRIP)
-		   equip |= EQP_ARMOR;
-		if (skillid == RG_STRIPHELM || skillid == ST_FULLSTRIP)
-		   equip |= EQP_HELM;
+		switch (skillid) {
+		case RG_STRIPWEAPON:
+		case GS_DISARM:
+		   equip = EQP_WEAPON;
+			break;
+		case RG_STRIPSHIELD:
+		   equip = EQP_SHIELD;
+			break;
+		case RG_STRIPARMOR:
+		   equip = EQP_ARMOR;
+			break;
+		case RG_STRIPHELM:
+		   equip = EQP_HELM;
+			break;
+		case ST_FULLSTRIP:
+		   equip = EQP_WEAPON|EQP_SHIELD|EQP_ARMOR|EQP_HELM;
+			break;
+		}
 
 		strip_fix = sstatus->dex - tstatus->dex;
 		if(strip_fix < 0)
@@ -4222,7 +4251,7 @@ if(src!=bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_
 					continue;
 				switch (i) {
 				case EQI_HAND_L: //Shield / left-hand weapon
-					if(dstsd->inventory_data[dstsd->equip_index[EQI_HAND_L]]->type == IT_ARMOR)
+					if(dstsd->inventory_data[dstsd->equip_index[i]]->type == IT_ARMOR)
 					{ //Shield
 						if (equip&EQP_SHIELD &&
 							!(dstsd->unstripable_equip&EQP_SHIELD) &&
@@ -4235,9 +4264,9 @@ if(src!=bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_
 					}
 					//Continue to weapon
 				case EQI_HAND_R:
-					if (equip&EQP_HAND_R &&
+					if (equip&EQP_WEAPON &&
 						!(dstsd->unstripable_equip&EQP_WEAPON) &&
-				  		!(tsc && tsc->data[SC_CP_WEAPON].timer != -1)
+						!(tsc && tsc->data[SC_CP_WEAPON].timer != -1)
 					) {
 						sclist[0] = SC_STRIPWEAPON; // Okay, we found a weapon to strip - It can be a right-hand, left-hand or two-handed weapon
 						pc_unequipitem(dstsd,dstsd->equip_index[i],3);
@@ -5278,7 +5307,7 @@ int skill_castend_id (int tid, unsigned int tick, int id, int data)
 	struct map_session_data* sd = NULL;
 	struct mob_data* md = NULL;
 	struct unit_data* ud = unit_bl2ud(src);
-	struct status_change *sc;
+	struct status_change *sc = NULL;
 	int inf,inf2;
 
 	nullpo_retr(0, ud);
@@ -5432,6 +5461,38 @@ int skill_castend_id (int tid, unsigned int tick, int id, int data)
 		return 1;
 	} while(0);
 	//Skill failed.
+	if (ud->skillid == MO_EXTREMITYFIST && sd &&
+		!(sc && sc->count && sc->data[SC_FOGWALL].timer != -1))
+	{	//When Asura fails... (except when it fails from Fog of Wall)
+		//Consume SP/spheres
+		skill_check_condition(sd,ud->skillid, ud->skilllv,1);
+		status_set_sp(src, 0, 0);
+		sc = &sd->sc;
+		if (sc->count)
+		{	//End states
+			if (sc->data[SC_EXPLOSIONSPIRITS].timer != -1)
+				status_change_end(src, SC_EXPLOSIONSPIRITS, -1);
+			if (sc->data[SC_BLADESTOP].timer != -1)
+				status_change_end(src,SC_BLADESTOP,-1);
+		}
+		if (target && target->m == src->m)
+		{	//Move character to target anyway.
+			int dx,dy;
+			dx = target->x - src->x;
+			dy = target->y - src->y;
+			if(dx > 0) dx++;
+			else if(dx < 0) dx--;
+			if (dy > 0) dy++;
+			else if(dy < 0) dy--;
+
+			if (unit_movepos(src, src->x+dx, src->y+dy, 1, 1))
+			{	//Display movement + animation.
+				clif_slide(src,src->x,src->y);
+				clif_skill_damage(src,target,tick,sd->battle_status.amotion,0,0,1,ud->skillid, ud->skilllv, 5);
+			}
+			clif_skill_fail(sd,ud->skillid,0,0);
+		}
+	}
 	ud->skillid = ud->skilllv = ud->skilltarget = 0;
 	ud->canact_tick = tick;
 	if(sd) sd->skillitem = sd->skillitemlv = -1;
@@ -5689,9 +5750,7 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 	case HP_BASILICA:
 		skill_clear_unitgroup(src);
 		sg = skill_unitsetting(src,skillid,skilllv,x,y,0);
-		sc_start4(src,type,100,
-			skilllv,0,BCT_SELF,sg->group_id,
-			skill_get_time(skillid,skilllv));
+		sc_start(src,type,100,skilllv,skill_get_time(skillid,skilllv));
 		flag|=1;
 		break;
 	case CG_HERMODE:
@@ -6429,7 +6488,8 @@ int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, unsigned 
 	case UNT_SIEGFRIED:
 	case UNT_HERMODE:
 		 //Needed to check when a dancer/bard leaves their ensemble area.
-		if (sg->src_id==bl->id && (!sc || sc->data[SC_SPIRIT].timer == -1 || sc->data[SC_SPIRIT].val2 != SL_BARDDANCER))
+		if (sg->src_id==bl->id &&
+			!(sc && sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_BARDDANCER))
 			return sg->skill_id;
 		if (sc && sc->data[type].timer==-1)
 			sc_start4(bl,type,100,sg->skill_lv,sg->val1,sg->val2,0,sg->limit);
@@ -6878,7 +6938,6 @@ int skill_unit_onout (struct skill_unit *src, struct block_list *bl, unsigned in
 		if (sc && sc->data[type].timer!=-1)
 			status_change_end(bl,type,-1);
 		break;
-	case UNT_BASILICA: //Clear basilica if the owner moved [Skotlex]
 	case UNT_HERMODE:	//Clear Hermode if the owner moved.
 		if (sc && sc->data[type].timer!=-1 && sc->data[type].val3 == BCT_SELF && sc->data[type].val4 == sg->group_id)
 			status_change_end(bl,type,-1);
@@ -7005,9 +7064,7 @@ int skill_unit_effect (struct block_list *bl, va_list ap)
 	int flag;
 	unsigned int tick;
 
-	nullpo_retr(0, bl);
-	nullpo_retr(0, ap);
-	nullpo_retr(0, unit=va_arg(ap,struct skill_unit*));
+	unit=va_arg(ap,struct skill_unit*);
 	tick = va_arg(ap,unsigned int);
 	flag = va_arg(ap,unsigned int);
 
@@ -8637,8 +8694,8 @@ int skill_attack_area (struct block_list *bl, va_list ap)
 	int atk_type,skillid,skilllv,flag,type;
 	unsigned int tick;
 
-	nullpo_retr(0, bl);
-	nullpo_retr(0, ap);
+	if(status_isdead(bl))
+		return 0;
 
 	atk_type = va_arg(ap,int);
 	if((src=va_arg(ap,struct block_list*)) == NULL)
@@ -9325,8 +9382,6 @@ int skill_unit_timer_sub_onplace (struct block_list *bl, va_list ap)
 	struct skill_unit_group *group;
 	unsigned int tick;
 
-	nullpo_retr(0, bl);
-	nullpo_retr(0, ap);
 	unit = va_arg(ap,struct skill_unit *);
 	tick = va_arg(ap,unsigned int);
 
@@ -9357,9 +9412,7 @@ int skill_unit_timer_sub (struct block_list *bl, va_list ap)
 	struct skill_unit_group *group;
 	unsigned int tick;
 
-	nullpo_retr(0, bl);
-	nullpo_retr(0, ap);
-	nullpo_retr(0, unit=(struct skill_unit *)bl);
+	unit=(struct skill_unit *)bl;
 	tick=va_arg(ap,unsigned int);
 
 	if(!unit->alive)

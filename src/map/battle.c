@@ -313,7 +313,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 			rand()%100 < sc->data[SC_KAUPE].val2 &&
 			(src->type == BL_PC || !skill_num))
 		{	//Kaupe only blocks all skills of players.
-			clif_skill_nodamage(bl,bl,SL_KAUPE,1,1);
+			clif_specialeffect(bl, 462, AREA);
 			if (--sc->data[SC_KAUPE].val3 <= 0) //We make it work like Safety Wall, even though it only blocks 1 time.
 				status_change_end(bl, SC_KAUPE, -1);
 			return 0;
@@ -890,12 +890,9 @@ static struct Damage battle_calc_weapon_attack(
 		else
 			wd.flag=(wd.flag&~BF_RANGEMASK)|BF_LONG;
 	}
-	
-	if(is_boss(target)) //Bosses can't be knocked-back
-		wd.blewcount = 0;
 
 /* Apparently counter attack no longer causes you to be critical'ed by mobs. [Skotlex]
-	//Check for counter 
+	//Check for counter
 	if(!skill_num)
 	{
 		if(tsc && tsc->data[SC_AUTOCOUNTER].timer != -1)
@@ -1717,19 +1714,16 @@ static struct Damage battle_calc_weapon_attack(
 	if(skill_num==TF_POISON)
 		ATK_ADD(15*skill_lv);
 
-	if (skill_num || !(battle_config.attack_attr_none&src->type))
+	if (s_ele != ELE_NEUTRAL || !(battle_config.attack_attr_none&src->type))
 	{	//Elemental attribute fix
-		if	(!(!sd && tsd && battle_config.mob_ghostring_fix && tstatus->def_ele==ELE_GHOST))
+		if (wd.damage > 0)
 		{
-			if (wd.damage > 0)
-			{
-				wd.damage=battle_attr_fix(src,target,wd.damage,s_ele,tstatus->def_ele, tstatus->ele_lv);
-				if(skill_num==MC_CARTREVOLUTION) //Cart Revolution applies the element fix once more with neutral element
-					wd.damage = battle_attr_fix(src,target,wd.damage,ELE_NEUTRAL,tstatus->def_ele, tstatus->ele_lv);
-			}
-			if (flag.lh && wd.damage2 > 0)
-				wd.damage2 = battle_attr_fix(src,target,wd.damage2,s_ele_,tstatus->def_ele, tstatus->ele_lv);
+			wd.damage=battle_attr_fix(src,target,wd.damage,s_ele,tstatus->def_ele, tstatus->ele_lv);
+			if(skill_num==MC_CARTREVOLUTION) //Cart Revolution applies the element fix once more with neutral element
+				wd.damage = battle_attr_fix(src,target,wd.damage,ELE_NEUTRAL,tstatus->def_ele, tstatus->ele_lv);
 		}
+		if (flag.lh && wd.damage2 > 0)
+			wd.damage2 = battle_attr_fix(src,target,wd.damage2,s_ele_,tstatus->def_ele, tstatus->ele_lv);
 		if(sc && sc->data[SC_WATK_ELEMENT].timer != -1)
 		{	//Descriptions indicate this means adding a percent of a normal attack in another element. [Skotlex]
 			int damage= battle_calc_base_damage(sstatus, &sstatus->rhw, sc, tstatus->size, sd, (flag.arrow?2:0));
@@ -1953,27 +1947,6 @@ static struct Damage battle_calc_weapon_attack(
 		}
 	}
 
-	if(sd && sd->classchange && target->type == BL_MOB && !(tstatus->mode&MD_BOSS) && (rand()%10000 < sd->classchange))
-	{
-		struct mob_data *tmd = (TBL_MOB*)target;
-		if (!tmd->guardian_data && (tmd->class_ < 1324 || tmd->class_ > 1363) && !mob_is_clone(tmd->class_))
-		{	//Classchange:
-			struct mob_db *mob;
-			int k, class_;
-			i = 0;
-			do {
-				do {
-					class_ = rand() % MAX_MOB_DB;
-				} while (!mobdb_checkid(class_));
-				
-				k = rand() % 1000000;
-				mob = mob_db(class_);
-			} while ((mob->status.mode&(MD_BOSS|MD_PLANT) || mob->summonper[0] <= k) && (i++) < 2000);
-			if (i< 2000)
-				mob_class_change(tmd,class_);
-		}
-	}
-	
 	if (wd.damage || wd.damage2) {
 		if (sd && battle_config.equip_self_break_rate)
 		{	// Self weapon breaking
@@ -2139,9 +2112,6 @@ struct Damage battle_calc_magic_attack(
 			flag.cardfix = 0;
 			break;
 	}
-
-	if(is_boss(target)) //Bosses can't be knocked-back
-		ad.blewcount = 0;
 
 	if (!flag.infdef) //No need to do the math for plants
 	{
@@ -2369,10 +2339,10 @@ struct Damage battle_calc_magic_attack(
 	}
 
 	damage_div_fix(ad.damage, ad.div_);
-	
+
 	if (flag.infdef && ad.damage)
-		ad.damage/= ad.damage; //Why this? Because, well, if damage is absorbed, it should heal 1, not do 1 dmg.
-		
+		ad.damage = ad.damage>0?1:-1;
+
 	ad.damage=battle_calc_damage(src,target,ad.damage,ad.div_,skill_num,skill_lv,ad.flag);
 	if (map_flag_gvg(target->m))
 		ad.damage=battle_calc_gvg_damage(src,target,ad.damage,ad.div_,skill_num,skill_lv,ad.flag);
@@ -2431,9 +2401,6 @@ struct Damage  battle_calc_misc_attack(
 				md.blewcount += sd->skillblown[i].val;
 		}
 	}
-
-	if(is_boss(target))
-		md.blewcount = 0;
 
 	s_ele = skill_get_pl(skill_num);
 	if (s_ele < 0) //Attack that takes weapon's element for misc attacks? Make it neutral [Skotlex]
@@ -2649,9 +2616,11 @@ struct Damage battle_calc_attack(	int attack_type,
 		memset(&d,0,sizeof(d));
 		break;
 	}
-	if (d.damage + d.damage2 < 1 && d.dmg_lv != ATK_LUCKY)
+	if (d.damage + d.damage2 < 1)
 	{	//Miss/Absorbed
-		d.dmg_lv = ATK_FLEE;
+		//Weapon attacks should go through to cause additional effects.
+		if (d.dmg_lv != ATK_LUCKY && attack_type&(BF_MAGIC|BF_MISC))
+			d.dmg_lv = ATK_FLEE;
 		d.dmotion = 0;
 	}
 	return d;
@@ -2985,6 +2954,30 @@ int battle_check_undead(int race,int element)
 			return 1;
 	}
 	return 0;
+}
+
+//Returns the upmost level master starting with the given object
+struct block_list* battle_get_master(struct block_list *src)
+{
+	struct block_list *prev; //Used for infinite loop check (master of yourself?)
+	do {
+		prev = src;
+		switch (src->type) {
+			case BL_PET:
+				if (((TBL_PET*)src)->msd)
+					src = (struct block_list*)((TBL_PET*)src)->msd;
+				break;
+			case BL_MOB:
+				if (((TBL_MOB*)src)->master_id)
+					src = map_id2bl(((TBL_MOB*)src)->master_id);
+				break;
+			case BL_SKILL:
+				if (((TBL_SKILL*)src)->group && ((TBL_SKILL*)src)->group->src_id)
+					src = map_id2bl(((TBL_SKILL*)src)->group->src_id);
+				break;
+		}
+	} while (src && src != prev);
+	return prev;
 }
 
 /*==========================================
@@ -3457,8 +3450,7 @@ static const struct battle_data_short {
 	{ "making_arrow_name_input",           &battle_config.making_arrow_name_input	},
 	{ "holywater_name_input",              &battle_config.holywater_name_input		},
 	{ "cdp_name_input",                    &battle_config.cdp_name_input		},
-	{ "display_delay_skill_fail",          &battle_config.display_delay_skill_fail	},
-	{ "display_snatcher_skill_fail",       &battle_config.display_snatcher_skill_fail	},
+	{ "display_skill_fail",                &battle_config.display_skill_fail	},
 	{ "chat_warpportal",                   &battle_config.chat_warpportal			},
 	{ "mob_warp",                          &battle_config.mob_warp	},
 	{ "dead_branch_active",                &battle_config.dead_branch_active			},
@@ -3467,7 +3459,6 @@ static const struct battle_data_short {
 	{ "show_party_share_picker",           &battle_config.party_show_share_picker },
 	{ "party_update_interval",             &battle_config.party_update_interval },
 	{ "party_item_share_type",             &battle_config.party_share_type },
-	{ "mob_ghostring_fix",                 &battle_config.mob_ghostring_fix		},
 	{ "attack_attr_none",                  &battle_config.attack_attr_none		},
 	{ "gx_allhit",                         &battle_config.gx_allhit				},
 	{ "gx_disptype",                       &battle_config.gx_disptype				},
@@ -3870,8 +3861,7 @@ void battle_set_defaults() {
 	battle_config.making_arrow_name_input = 1;
 	battle_config.holywater_name_input = 1;
 	battle_config.cdp_name_input = 1;
-	battle_config.display_delay_skill_fail = 1;
-	battle_config.display_snatcher_skill_fail = 1;
+	battle_config.display_skill_fail = 0;
 	battle_config.chat_warpportal = 0;
 	battle_config.mob_warp = 0;
 	battle_config.dead_branch_active = 0;
@@ -3881,8 +3871,7 @@ void battle_set_defaults() {
 	battle_config.party_share_type = 0;
 	battle_config.party_hp_mode = 0;
 	battle_config.party_show_share_picker = 0;
-	battle_config.attack_attr_none = 0;
-	battle_config.mob_ghostring_fix = 1;
+	battle_config.attack_attr_none = ~BL_PC;
 	battle_config.gx_allhit = 1;
 	battle_config.gx_disptype = 1;
 	battle_config.devotion_level_difference = 10;
