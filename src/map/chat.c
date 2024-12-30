@@ -297,7 +297,7 @@ int chat_createnpcchat(struct npc_data *nd,int limit,int pub,int trigger,char* t
 	} else
 		memcpy(cd->npc_event,ev,strlen(ev)+1); //Include the \0
 
-	cd->bl.id = map_addobject(&cd->bl);
+	cd->bl.id = map_addobject(&cd->bl);	
 	if(cd->bl.id==0){
 		aFree(cd);
 		return 0;

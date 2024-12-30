@@ -17,7 +17,7 @@
 #include "pc.h"
 
 // ** ITEMDB_OVERRIDE_NAME_VERBOSE **
-//   `Aitemdb.txtgrfOA\.
+//   定義すると、itemdb.txtとgrfで名前が異なる場合、表示します.
 //#define ITEMDB_OVERRIDE_NAME_VERBOSE	1
 
 static struct dbt* item_db;
@@ -27,7 +27,7 @@ static struct item_group itemgroup_db[MAX_ITEMGROUP];
 struct item_data dummy_item; //This is the default dummy item used for non-existant items. [Skotlex]
 
 /*==========================================
- * Op
+ * 名前で検索用
  *------------------------------------------
  */
 // name = item alias, so we should find items aliases first. if not found then look for "jname" (full name)
@@ -44,7 +44,7 @@ int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
 }
 
 /*==========================================
- * Op
+ * 名前で検索用
  *------------------------------------------
  */
 int itemdb_searchjname_sub(int key,void *data,va_list ap)
@@ -59,7 +59,7 @@ int itemdb_searchjname_sub(int key,void *data,va_list ap)
 }
 
 /*==========================================
- * O
+ * 名前で検索
  *------------------------------------------
  */
 struct item_data* itemdb_searchname(const char *str)
@@ -94,7 +94,7 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 
 
 /*==========================================
- * nACe
+ * 箱系アイテム検索
  *------------------------------------------
  */
 int itemdb_searchrandomid(int group)
@@ -106,7 +106,7 @@ int itemdb_searchrandomid(int group)
 	}
 	if (itemgroup_db[group].qty)
 		return itemgroup_db[group].nameid[rand()%itemgroup_db[group].qty];
-
+	
 	if (battle_config.error_log)
 		ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group);
 	return UNKNOWN_ITEM_ID;
@@ -124,7 +124,7 @@ int itemdb_group_bonus(struct map_session_data *sd, int itemid)
 			continue;
 		for (j=0; j < itemgroup_db[i].qty; j++) {
 			if (itemgroup_db[i].nameid[j] == itemid)
-			{
+		 	{
 				bonus += sd->itemgrouphealrate[i];
 				continue;
 			}
@@ -134,7 +134,7 @@ int itemdb_group_bonus(struct map_session_data *sd, int itemid)
 }
 
 /*==========================================
- * DBmF
+ * DBの存在確認
  *------------------------------------------
  */
 struct item_data* itemdb_exists(int nameid)
@@ -235,7 +235,7 @@ struct item_data* itemdb_load(int nameid)
 {
 	struct item_data *id = idb_ensure(item_db,nameid,create_item_data);
 	if (id == &dummy_item)
-	{	//Remove dummy_item, replace by real data.
+  	{	//Remove dummy_item, replace by real data.
 		DBKey key;
 		key.i = nameid;
 		idb_remove(item_db,nameid);
@@ -282,7 +282,7 @@ int itemdb_isequip(int nameid)
  *------------------------------------------
  */
 int itemdb_isequip2(struct item_data *data)
-{
+{ 
 	nullpo_retr(0, data);
 	switch(data->type) {
 		case IT_WEAPON:
@@ -356,17 +356,17 @@ int itemdb_cansell_sub(struct item_data* item, int gmlv, int unused)
 }
 
 int itemdb_cancartstore_sub(struct item_data* item, int gmlv, int unused)
-{
+{	
 	return (item && (!(item->flag.trade_restriction&16) || gmlv >= item->gm_lv_trade_override));
 }
 
 int itemdb_canstore_sub(struct item_data* item, int gmlv, int unused)
-{
+{	
 	return (item && (!(item->flag.trade_restriction&32) || gmlv >= item->gm_lv_trade_override));
 }
 
 int itemdb_canguildstore_sub(struct item_data* item, int gmlv, int unused)
-{
+{	
 	return (item && (!(item->flag.trade_restriction&64) || gmlv >= item->gm_lv_trade_override));
 }
 
@@ -377,10 +377,10 @@ int itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(stru
 
 	if (!func(item_data, gmlv, gmlv2))
 		return 0;
-
+	
 	if(item_data->slot == 0 || itemdb_isspecial(item->card[0]))
 		return 1;
-
+	
 	for(i = 0; i < item_data->slot; i++) {
 		if (!item->card[i]) continue;
 		if (!func(itemdb_search(item->card[i]), gmlv, gmlv2))
@@ -407,7 +407,7 @@ int itemdb_isidentified(int nameid)
 }
 
 /*==========================================
- * ACegp\tOI[o[Ch
+ * アイテム使用可能フラグのオーバーライド
  *------------------------------------------
  */
 static int itemdb_read_itemavail (void)
@@ -564,7 +564,7 @@ static void itemdb_read_itemgroup(void)
 	return;
 }
 /*==========================================
- * ACeOe[u
+ * アイテムの名前テーブルを読み込む
  *------------------------------------------
  */
 static int itemdb_read_itemnametable(void)
@@ -606,7 +606,7 @@ static int itemdb_read_itemnametable(void)
 }
 
 /*==========================================
- * J[hCXg\[XOe[u
+ * カードイラストのリソース名前テーブルを読み込む
  *------------------------------------------
  */
 static int itemdb_read_cardillustnametable(void)
@@ -640,7 +640,7 @@ static int itemdb_read_cardillustnametable(void)
 }
 
 //
-// 
+// 初期化
 //
 /*==========================================
  *
@@ -711,7 +711,7 @@ static int itemdb_read_itemslotcounttable(void)
 }
 
 /*==========================================
- * t@Co
+ * 装備制限ファイル読み出し
  *------------------------------------------
  */
 static int itemdb_read_noequip(void)
@@ -1002,7 +1002,7 @@ static int itemdb_read_sqldb(void)
 #endif /* not TXT_ONLY */
 
 /*==========================================
- * ACef[^x[X
+ * アイテムデータベースの読み込み
  *------------------------------------------
  */
 static int itemdb_readdb(void)
@@ -1069,8 +1069,8 @@ static int itemdb_readdb(void)
 					id->value_buy = buy;
 					id->value_sell = sell;
 				} else {
-					// buysell*2  item_value_db.txt wB
-					if (sell) {		// selllD
+					// buy≠sell*2 は item_value_db.txt で指定してください。
+					if (sell) {		// sell値を優先とする
 						id->value_buy = sell*2;
 						id->value_sell = sell;
 					} else {
@@ -1230,7 +1230,7 @@ static int itemdb_final_sub (DBKey key,void *data,va_list ap)
 		id->unequip_script = NULL;
 	}
 	// Whether to clear the item data (exception: do not clear the dummy item data
-	if (flag && id != &dummy_item)
+	if (flag && id != &dummy_item) 
 		aFree(id);
 
 	return 0;

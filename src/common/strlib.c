@@ -139,7 +139,7 @@ char *trim(char *str, const char *delim)
 }
 
 
-//stristr: Case insensitive version of strstr, code taken from
+//stristr: Case insensitive version of strstr, code taken from 
 //http://www.daniweb.com/code/snippet313.html, Dave Sinkula
 //
 const char *stristr(const char *haystack, const char *needle)

@@ -1258,11 +1258,11 @@ int charcommand_fakename(
 		clif_displaymessage(sd->fd,"Fake name must be at least two characters.");
 		return 0;
 	}
-
+	
 	memcpy(pl_sd->fakename,name, NAME_LENGTH-1);
 	clif_charnameack(0, &pl_sd->bl);
 	clif_displaymessage(sd->fd,"Fake name enabled.");
-
+	
 	return 0;
 }
 

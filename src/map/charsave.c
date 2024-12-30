@@ -237,7 +237,7 @@ struct mmo_charstatus *charsave_loadchar(int charid){
 				c->global_reg_num = i;
          }
 */
-
+	
 	//Shamelessly stolen from its_sparky (ie: thanks) and then assimilated by [Skotlex]
 	//Friend list
 	sprintf(tmp_sql, "SELECT f.friend_account, f.friend_id, c.name FROM friends f LEFT JOIN `char` c ON f.friend_account=c.account_id AND f.friend_id=c.char_id WHERE f.char_id='%d'", charid);

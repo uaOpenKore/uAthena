@@ -10,7 +10,7 @@
 #include <winsock.h>
 #else
 #include <sys/socket.h>
-#include <netinet/in.h>
+#include <netinet/in.h> 
 #include <arpa/inet.h>
 #endif
 
@@ -1600,7 +1600,7 @@ int delete_char_sql(int char_id, int partner_id)
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 	}
-
+	
 	/* delete skills */
 	sprintf(tmp_sql,"DELETE FROM `%s` WHERE `char_id`='%d'",skill_db, char_id);
 	if(mysql_query(&mysql_handle, tmp_sql)) {
@@ -1834,10 +1834,10 @@ int parse_tologin(int fd) {
 				//exit(1); //fixed for server shutdown.
 			}else {
 				ShowStatus("Connected to login-server (connection #%d).\n", fd);
-
+				
 				//Send online accounts to login server.
 				send_accounts_tologin(-1, gettick(), 0, 0);
-
+			
 				// if no map-server already connected, display a message...
 				for(i = 0; i < MAX_MAP_SERVERS; i++)
 					if (server_fd[i] > 0 && server[i].map[0]) // if map-server online and at least 1 map
@@ -2053,7 +2053,7 @@ int parse_tologin(int fd) {
 		  }
 			break;
 
-		// account_reg2Xm
+		// account_reg2変更通知
 		case 0x2729:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
 				return 0;
@@ -2320,7 +2320,7 @@ void char_read_fame_list(void)
 			strncpy(fame_item.name, sql_row[2], NAME_LENGTH);
 
 			memcpy(&taekwon_fame_list[i], &fame_item, sizeof(struct fame_list));
-
+			
 			if (++i == fame_list_size_taekwon)
 				break;
 		}
@@ -2332,7 +2332,7 @@ void char_read_fame_list(void)
 int char_send_fame_list(int fd) {
 	int i, len = 8;
 	unsigned char buf[32000];
-
+	
 	WBUFW(buf,0) = 0x2b1b;
 
 	for(i = 0; i < fame_list_size_smith && smith_fame_list[i].id; i++) {
@@ -2364,7 +2364,7 @@ int char_send_fame_list(int fd) {
 }
 
 int search_mapserver(unsigned short map, long ip, short port);
-
+				
 //Loads a character's name and stores it in the buffer given (must be NAME_LENGTH in size)
 //Returns 1 on found, 0 on not found (buffer is filled with Unknown char name)
 int char_loadName(int char_id, char* name)
@@ -2374,7 +2374,7 @@ int char_loadName(int char_id, char* name)
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 	}
-
+	
 	sql_res = mysql_store_result(&mysql_handle);
 	sql_row = sql_res?mysql_fetch_row(sql_res):NULL;
 
@@ -2470,7 +2470,7 @@ int parse_frommap(int fd) {
 				ShowStatus("Map-Server %d connected: %d maps, from IP %d.%d.%d.%d port %d.\n",
 				       id, j, p[0], p[1], p[2], p[3], server[id].port);
 				ShowStatus("Map-server %d loading complete.\n", id);
-
+				
 				if (max_account_id != DEFAULT_MAX_ACCOUNT_ID || max_char_id != DEFAULT_MAX_CHAR_ID)
 					mapif_send_maxid(max_account_id, max_char_id); //Send the current max ids to the server to keep in sync [Skotlex]
 			}
@@ -2623,11 +2623,11 @@ int parse_frommap(int fd) {
 			{
 				memcpy(&char_dat, RFIFOP(fd,13), sizeof(struct mmo_charstatus));
 				mmo_char_tosql(cid, &char_dat);
-			} else
+			} else 
 				ShowError("parse_from_map (save-char): Received data for non-existant/offline character (%d:%d)!\n", aid, cid);
 
 			if (RFIFOB(fd,12))
-			{ //Flag? Set character offline after saving [Skotlex]
+		  	{ //Flag? Set character offline after saving [Skotlex]
 				set_char_offline(cid, aid);
 				WFIFOW(fd, 0) = 0x2b21; //Save ack only needed on final save.
 				WFIFOL(fd, 2) = aid;
@@ -2680,13 +2680,13 @@ int parse_frommap(int fd) {
 					map_fd = server_fd[map_id];
 				//Char should just had been saved before this packet, so this should be safe. [Skotlex]
 				char_data = uidb_get(char_db_,RFIFOL(fd,14));
-				if (char_data == NULL)
+				if (char_data == NULL) 
 				{	//Really shouldn't happen.
 					mmo_char_fromsql(RFIFOL(fd,14), &char_dat);
 					char_data = &char_dat;
 				}
 				//Tell the new map server about this player using Kevin's new auth packet. [Skotlex]
-				if (map_fd>=0 && session[map_fd] && char_data)
+				if (map_fd>=0 && session[map_fd] && char_data) 
 				{	//Send the map server the auth of this player.
 					//Update the "last map" as this is where the player must be spawned on the new map server.
 					char_data->last_point.map = RFIFOW(fd,18);
@@ -2885,7 +2885,7 @@ int parse_frommap(int fd) {
 				int size = 0;
 				struct fame_list *list = NULL;
 				RFIFOSKIP(fd,12);
-
+				
 				switch(type) {
 					case 1:
 						size = fame_list_size_smith;
@@ -2903,7 +2903,7 @@ int parse_frommap(int fd) {
 				if(!size) break; //No list.
 				if(pos)
 				{
-					pos--; //Convert from pos to index.
+				 	pos--; //Convert from pos to index.
 					if(
 						(pos == 0 || fame < list[pos-1].fame) &&
 						(pos == size-1 || fame > list[pos+1].fame)
@@ -3123,12 +3123,12 @@ int parse_char(int fd) {
 
 	while(RFIFOREST(fd) >= 2 && !session[fd]->eof) {
 		cmd = RFIFOW(fd,0);
-		// crc32XLbvp
-		if(	sd==NULL			&&	// OCorpPbg
-			RFIFOREST(fd)>=4	&&	// oCg  0x7530,0x7532pP
-			RFIFOREST(fd)<=21	&&	// oCg  T[o[OC
-			cmd!=0x20b	&&	// md5mpPbg
-			(RFIFOREST(fd)<6 || RFIFOW(fd,4)==0x65)	){	// pPbgA
+		// crc32のスキップ用
+		if(	sd==NULL			&&	// 未ログインor管理パケット
+			RFIFOREST(fd)>=4	&&	// 最低バイト数制限 ＆ 0x7530,0x7532管理パケ除去
+			RFIFOREST(fd)<=21	&&	// 最大バイト数制限 ＆ サーバーログイン除去
+			cmd!=0x20b	&&	// md5通知パケット除去
+			(RFIFOREST(fd)<6 || RFIFOW(fd,4)==0x65)	){	// 次に何かパケットが来てるなら、接続でないとだめ
 			RFIFOSKIP(fd,4);
 			cmd = RFIFOW(fd,0);
 			ShowDebug("parse_char : %d crc32 skipped\n",fd);
@@ -3290,7 +3290,7 @@ int parse_char(int fd) {
 				}
 			}
 			ShowInfo("Selected char: (Account %d: %d - %s)" RETCODE, sd->account_id, RFIFOB(fd, 2), char_dat.name);
-
+			
 			i = search_mapserver(char_dat.last_point.map, -1, -1);
 
 			// if map is not found, we check major cities
@@ -3766,7 +3766,7 @@ int send_accounts_tologin(int tid, unsigned int tick, int id, int data) {
 }
 
 int check_connect_login_server(int tid, unsigned int tick, int id, int data) {
-	if (login_fd > 0 && session[login_fd] != NULL)
+	if (login_fd > 0 && session[login_fd] != NULL) 
 		return 0;
 
 	ShowInfo("Attempt to connect to login-server...\n");
@@ -3810,7 +3810,7 @@ static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, int dat
 
 //----------------------------------------------------------
 // Return numerical value of a switch configuration by [Yor]
-// on/off, english, franais, deutsch, espaol
+// on/off, english, fran軋is, deutsch, espal
 //----------------------------------------------------------
 int config_switch(const char *str) {
 	if (strcmpi(str, "on") == 0 || strcmpi(str, "yes") == 0 || strcmpi(str, "oui") == 0 || strcmpi(str, "ja") == 0 || strcmpi(str, "si") == 0)
@@ -4218,7 +4218,7 @@ int do_init(int argc, char **argv){
 	
 	ShowInfo("Finished reading the char-server configuration.\n");
 
-	inter_init((argc > 2) ? argv[2] : inter_cfgName); // inter server 
+	inter_init((argc > 2) ? argv[2] : inter_cfgName); // inter server ﾃﾊｱ篳ｭ
 	ShowInfo("Finished reading the inter-server configuration.\n");
 	
 	//Read ItemDB
@@ -4245,20 +4245,20 @@ int do_init(int argc, char **argv){
             ShowStatus("Multiple interfaces detected..  using %s as our IP address\n", buf);
           else
             ShowStatus("Defaulting to %s as our IP address\n", buf);
-		  if (!login_ip) {	
+          if (!login_ip) {
           	strcpy(login_ip_str, buf);
 				login_ip = inet_addr(login_ip_str);
 			 }
           if (!char_ip) {
           	strcpy(char_ip_str, buf);
 				char_ip = inet_addr(char_ip_str);
-			 }          if (ptr[0] == 192 && ptr[1] == 168)
+			 }
+          if (ptr[0] == 192 && ptr[1] == 168)
 		ShowWarning("Firewall detected.. edit subnet_athena.conf and char_athena.conf\n");
         }
 
 	ShowInfo("open port %d.....\n",char_port);
 	char_fd = make_listen_bind(bind_ip?bind_ip:INADDR_ANY,char_port);
-
 
 	add_timer_func_list(check_connect_login_server, "check_connect_login_server");
 	add_timer_func_list(send_users_tologin, "send_users_tologin");

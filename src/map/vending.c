@@ -17,7 +17,7 @@
 #include "log.h"
 
 /*==========================================
- * IX
+ * ˜I“X•Â½
  *------------------------------------------
 */
 void vending_closevending(struct map_session_data *sd)
@@ -30,7 +30,7 @@ void vending_closevending(struct map_session_data *sd)
 }
 
 /*==========================================
- * IXACeXgv
+ * ˜I“XƒAƒCƒeƒ€ƒŠƒXƒg—v‹
  *------------------------------------------
  */
 void vending_vendinglistreq(struct map_session_data *sd,int id)
@@ -47,7 +47,7 @@ void vending_vendinglistreq(struct map_session_data *sd,int id)
 }
 
 /*==========================================
- * IXACew
+ * ˜I“XƒAƒCƒeƒ€w“ü
  *------------------------------------------
  */
 void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned char *p)
@@ -195,7 +195,7 @@ void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned cha
 }
 
 /*==========================================
- * IXJ
+ * ˜I“XŠJÝ
  *------------------------------------------
  */
 void vending_openvending(struct map_session_data *sd,int len,char *message,int flag,unsigned char *p)
@@ -239,7 +239,7 @@ void vending_openvending(struct map_session_data *sd,int len,char *message,int f
 				sd->vending[i].value=battle_config.vending_max_value;
 			else if(sd->vending[i].value < 1)
 				sd->vending[i].value = 1000000;	// auto set to 1 million [celest]
-			// J[gACeACe~
+			// ƒJ[ƒg“à‚ÌƒAƒCƒeƒ€”‚Æ”Ì”„‚·‚éƒAƒCƒeƒ€”‚É‘Šˆá‚ª‚ ‚Á‚½‚ç’†Ž~
 			if(pc_cartitem_amount(sd, sd->vending[i].index, sd->vending[i].amount) < 0) { // fixes by Valaris and fritz
 				clif_skill_fail(sd, MC_VENDING, 0, 0);
 				return;

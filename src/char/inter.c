@@ -38,7 +38,7 @@ struct accreg {
 
 unsigned int party_share_level = 10;
 
-// MpPbgXg
+// 送信パケット長リスト
 int inter_send_packet_length[] = {
 	-1,-1,27,-1, -1, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3000-0x300f
 	-1, 7, 0, 0,  0, 0, 0, 0, -1,11, 0, 0,  0, 0,  0, 0,
@@ -74,7 +74,7 @@ static int wis_dellist[WISDELLIST_MAX], wis_delnum;
 
 //--------------------------------------------------------
 
-// AJEg
+// アカウント変数を文字列へ変換
 int inter_accreg_tostr(char *str, struct accreg *reg) {
 	int j;
 	char *p = str;
@@ -87,7 +87,7 @@ int inter_accreg_tostr(char *str, struct accreg *reg) {
 	return 0;
 }
 
-// AJEg
+// アカウント変数を文字列から変換
 int inter_accreg_fromstr(const char *str, struct accreg *reg) {
 	int j, n;
 	const char *p = str;
@@ -104,7 +104,7 @@ int inter_accreg_fromstr(const char *str, struct accreg *reg) {
 	return 0;
 }
 
-// AJEg
+// アカウント変数の読み込み
 int inter_accreg_init(void) {
 	char line[8192];
 	FILE *fp;
@@ -137,7 +137,7 @@ int inter_accreg_init(void) {
 	return 0;
 }
 
-// AJEgZ[up
+// アカウント変数のセーブ用
 int inter_accreg_save_sub(DBKey key, void *data, va_list ap) {
 	char line[8192];
 	FILE *fp;
@@ -152,7 +152,7 @@ int inter_accreg_save_sub(DBKey key, void *data, va_list ap) {
 	return 0;
 }
 
-// AJEgZ[u
+// アカウント変数のセーブ
 int inter_accreg_save(void) {
 	FILE *fp;
 	int lock;
@@ -171,7 +171,7 @@ int inter_accreg_save(void) {
 //--------------------------------------------------------
 
 /*==========================================
- * t@C
+ * 設定ファイルを読み込む
  *------------------------------------------
  */
 int inter_config_read(const char *cfgName) {
@@ -222,7 +222,7 @@ int inter_config_read(const char *cfgName) {
 	return 0;
 }
 
-// Oo
+// ログ書き出し
 int inter_log(char *fmt,...) {
 	FILE *logfp;
 	va_list ap;
@@ -238,7 +238,7 @@ int inter_log(char *fmt,...) {
 	return 0;
 }
 
-// Z[u
+// セーブ
 int inter_save(void) {
 #ifdef ENABLE_SC_SAVING
 	inter_status_save();
@@ -253,7 +253,7 @@ int inter_save(void) {
 	return 0;
 }
 
-// 
+// 初期化
 int inter_init(const char *file) {
 	inter_config_read(file);
 
@@ -281,7 +281,7 @@ void inter_final(void) {
 	return;
 }
 
-// }bvT[o[
+// マップサーバー接続
 int inter_mapif_init(int fd) {
 	inter_guild_mapif_init(fd);
 
@@ -302,7 +302,7 @@ void mapif_send_maxid(int account_id, int char_id)
 	mapif_sendall(buf, 10);
 }
 
-// GMbZ[WM
+// GMメッセージ送信
 int mapif_GMmessage(unsigned char *mes, int len, unsigned long color, int sfd) {
 	unsigned char buf[2048];
 
@@ -346,7 +346,7 @@ int mapif_wis_end(struct WisData *wd, int flag) {
 	return 0;
 }
 
-// AJEgM
+// アカウント変数送信
 int mapif_account_reg(int fd, unsigned char *src) {
 	unsigned char *buf = aCalloc(1,WBUFW(src,2));
 
@@ -359,7 +359,7 @@ int mapif_account_reg(int fd, unsigned char *src) {
 	return 0;
 }
 
-// AJEgvM
+// アカウント変数要求返信
 int mapif_account_reg_reply(int fd,int account_id, int char_id) {
 	struct accreg *reg = idb_get(accreg_db,account_id);
 
@@ -433,7 +433,7 @@ int check_ttl_wisdata(void) {
 //--------------------------------------------------------
 // received packets from map-server
 
-// GMbZ[WM
+// GMメッセージ送信
 int mapif_parse_GMmessage(int fd) {
 	RFIFOHEAD(fd);
 	mapif_GMmessage(RFIFOP(fd,8), RFIFOW(fd,2), RFIFOL(fd,4), fd);
@@ -542,7 +542,7 @@ static void* create_accreg(DBKey key, va_list args) {
 	return reg;
 }
 
-// AJEgv
+// アカウント変数保存要求
 int mapif_parse_Registry(int fd) {
 	int j, p, len;
 	struct accreg *reg;
@@ -569,7 +569,7 @@ int mapif_parse_Registry(int fd) {
 		p +=len+1;
 	}
 	reg->reg_num=j;
-	mapif_account_reg(fd, RFIFOP(fd,0));	// MAPT[o[M
+	mapif_account_reg(fd, RFIFOP(fd,0));	// 他のMAPサーバーに送信
 
 	return 0;
 }
@@ -591,23 +591,23 @@ int mapif_parse_RegistryRequest(int fd)
 
 //--------------------------------------------------------
 
-// map server MiPpPbgj
-// G[0(false)A1A
-// pPbg2
+// map server からの通信（１パケットのみ解析すること）
+// エラーなら0(false)、処理できたなら1、
+// パケット長が足りなければ2をかえさなければならない
 int inter_parse_frommap(int fd) {
 	int cmd, len;
 	RFIFOHEAD(fd);
 	cmd = RFIFOW(fd,0);
 	len = 0;
 
-	// interI
+	// inter鯖管轄かを調べる
 	if (cmd < 0x3000 || cmd >= 0x3000 + (sizeof(inter_recv_packet_length) / sizeof(inter_recv_packet_length[0])))
 		return 0;
 	
 	if (inter_recv_packet_length[cmd-0x3000] == 0) //This is necessary, because otherwise we return 2 and the char server will just hang waiting for packets! [Skotlex]
 		return 0;
 
-	// pPbg
+	// パケット長を調べる
 	if ((len = inter_check_length(fd, inter_recv_packet_length[cmd - 0x3000])) == 0)
 		return 2;
 
@@ -633,17 +633,17 @@ int inter_parse_frommap(int fd) {
 	return 1;
 }
 
-// RFIFOpPbgmF
-// KvpPbgpPbgA0
+// RFIFOのパケット長確認
+// 必要パケット長があればパケット長、まだ足りなければ0
 int inter_check_length(int fd, int length) {
-	if (length == -1) {	// pPbg
+	if (length == -1) {	// 可変パケット長
 		RFIFOHEAD(fd);
-		if (RFIFOREST(fd) < 4)	// pPbg
+		if (RFIFOREST(fd) < 4)	// パケット長が未着
 			return 0;
 		length = RFIFOW(fd,2);
 	}
 
-	if ((int)RFIFOREST(fd) < length)	// pPbg
+	if ((int)RFIFOREST(fd) < length)	// パケットが未着
 		return 0;
 
 	return length;

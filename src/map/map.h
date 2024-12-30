@@ -165,7 +165,7 @@ enum {
 //Caps values to min/max
 #define cap_value(a, min, max) (a>max?max:a<min?min:a)
 
-//This stackable implementation does not means a BL can be more than one type at a time, but it's
+//This stackable implementation does not means a BL can be more than one type at a time, but it's 
 //meant to make it easier to check for multiple types at a time on invocations such as
 // map_foreach* calls [Skotlex]
 enum { 
@@ -381,7 +381,7 @@ struct status_data {
 		speed,
 		amotion, adelay, dmotion,
 		mode;
-	short
+	short 
 		hit, flee, cri, flee2,
 		def2, mdef2,
 		aspd_rate;
@@ -607,7 +607,7 @@ struct map_session_data {
 	short disguise; // [Valaris]
 
 	struct weapon_data right_weapon, left_weapon;
-
+	
 	// here start arrays to be globally zeroed at the beginning of status_calc_pc()
 	int param_bonus[6],param_equip[6]; //Stores card/equipment bonuses.
 	int subele[ELE_MAX];
@@ -677,7 +677,7 @@ struct map_session_data {
 	int classchange; // [Valaris]
 	int speed_add_rate, aspd_add_rate;
 	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
-
+	
 	short splash_range, splash_add_range;
 	short add_steal_rate;
 	short hp_loss_value;
@@ -910,10 +910,10 @@ struct mob_data {
 	short move_fail_count;
 	short lootitem_count;
 	short min_chase;
-
+	
 	int deletetimer;
 	int master_id,master_dist;
-
+	
 	short skillidx;
 	unsigned int skilldelay[MAX_MOBSKILL];
 	char npc_event[50];
@@ -980,12 +980,12 @@ struct pet_data {
 	struct map_session_data *msd;
 };
 
-enum { ATK_LUCKY=1,ATK_FLEE,ATK_DEF};	// yieBvZp
+enum { ATK_LUCKY=1,ATK_FLEE,ATK_DEF};	// 囲まれペナルティ計算用
 
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// NULLmap_data_other_server
+	unsigned char *gat;	// NULLなら下のmap_data_other_serverとして扱う
 	unsigned char *cell; //Contains temporary cell data that is set/unset on tiles.
 #ifdef CELL_NOSTACK
 	unsigned char *cell_bl; //Holds amount of bls in any given cell.
@@ -1064,7 +1064,7 @@ struct map_data {
 struct map_data_other_server {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// NULLf
+	unsigned char *gat;	// NULL固定にして判断
 	unsigned long ip;
 	unsigned int port;
 };
@@ -1117,7 +1117,7 @@ enum {
 	SP_HP_DRAIN_VALUE,SP_SP_DRAIN_VALUE, // 1079-1080
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
 	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
-
+	
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_NO_MISC_DAMAGE,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010
 	SP_UNBREAKABLE_SHIELD, SP_LONG_ATK_RATE, // 2011-2012
@@ -1150,34 +1150,34 @@ enum {
 #define CELL_MOONLIT	0x40
 #define CELL_ICEWALL	0x80
 /*
- * map_getcell()gptO
+ * map_getcell()で使用されるフラグ
  */
 typedef enum {
-	CELL_CHKWALL=0,		// (Z^Cv1)
-	CELL_CHKWATER,		// (Z^Cv3)
-	CELL_CHKGROUND,		// nQ(Z^Cv5)
-	CELL_CHKPASS,		// \(Z^Cv1,5O)
+	CELL_CHKWALL=0,		// 壁(セルタイプ1)
+	CELL_CHKWATER,		// 水場(セルタイプ3)
+	CELL_CHKGROUND,		// 地面障害物(セルタイプ5)
+	CELL_CHKPASS,		// 通過可能(セルタイプ1,5以外)
 	CELL_CHKREACH,		// Same as PASS, but ignores the cell-stacking mod.
-	CELL_CHKNOPASS,		// s(Z^Cv1,5)
+	CELL_CHKNOPASS,		// 通過不可(セルタイプ1,5)
 	CELL_CHKNOREACH,	// Same as NOPASS, but ignores the cell-stacking mod.
-	CELL_GETTYPE,		// Z^Cv
+	CELL_GETTYPE,		// セルタイプを返す
 	CELL_GETCELLTYPE,
-	CELL_CHKNPC=0x10,	// ^b`^CvNPC(Z^Cv0x80tO)
+	CELL_CHKNPC=0x10,	// タッチタイプのNPC(セルタイプ0x80フラグ)
 	CELL_CHKREGEN,		// cells that improve regeneration
 	CELL_CHKPNEUMA,
 	CELL_CHKSAFETYWALL,
-	CELL_CHKBASILICA,	// oWJ(Z^Cv0x40tO)
+	CELL_CHKBASILICA,	// バジリカ(セルタイプ0x40フラグ)
 	CELL_CHKLANDPROTECTOR,
 	CELL_CHKMOONLIT,
 	CELL_CHKICEWALL,
 	CELL_CHKSTACK,
 } cell_t;
-// map_setcell()gptO
+// map_setcell()で使用されるフラグ
 enum {
-	CELL_SETNPC=0x10,	// ^b`^CvNPCZbg
+	CELL_SETNPC=0x10,	// タッチタイプのNPCをセット
 	CELL_CLRNPC,
-	CELL_SETBASILICA,	// oWJZbg
-	CELL_CLRBASILICA,	// oWJNA
+	CELL_SETBASILICA,	// バジリカをセット
+	CELL_CLRBASILICA,	// バジリカをクリア
 	CELL_SETREGEN,		// set regen cell
 	CELL_SETLANDPROTECTOR, //Set/Clear Magnetic Earth
 	CELL_CLRLANDPROTECTOR,
@@ -1215,11 +1215,11 @@ extern int night_flag; // 0=day, 1=night [Yor]
 extern int enable_spy; //Determines if @spy commands are active.
 extern char db_path[256];
 
-// gat?
+// gat?ﾖｧ
 int map_getcell(int,int,int,cell_t);
 int map_getcellp(struct map_data*,int,int,cell_t);
 void map_setcell(int,int,int,int);
-extern int map_read_flag; // 0: grfE1: E2: E?)
+extern int map_read_flag; // 0: grfｫﾕｫ｡ｫ､ｫ・1: ｫｭｫ罩ﾃｫｷｫ・2: ｫｭｫ罩ﾃｫｷｫ・?)
 enum {
 	READ_FROM_GAT, READ_FROM_AFM,
 	READ_FROM_BITMAP, CREATE_BITMAP,
@@ -1235,14 +1235,14 @@ extern char talkie_mes[];
 
 extern char wisp_server_name[];
 
-// IS
+// 鯖全体情報
 void map_setusers(int);
 int map_getusers(void);
-// blockA
+// block削除関連
 int map_freeblock(struct block_list *bl);
 int map_freeblock_lock(void);
 int map_freeblock_unlock(void);
-// blockA
+// block関連
 int map_addblock_sub(struct block_list *, int);
 int map_delblock_sub(struct block_list *, int);
 #define map_addblock(bl) map_addblock_sub(bl,1)
@@ -1257,10 +1257,10 @@ int map_foreachinmovearea(int (*)(struct block_list*,va_list),int,int,int,int,in
 int map_foreachinpath(int (*func)(struct block_list*,va_list),int m,int x0,int y0,int x1,int y1,int range,int type,...); // Celest
 int map_foreachinmap(int (*)(struct block_list*,va_list),int,int,...);
 int map_countnearpc(int,int,int);
-//blockA
+//block関連に追加
 int map_count_oncell(int m,int x,int y,int type);
 struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *);
-// IobjectA
+// 一時的object関連
 int map_addobject(struct block_list *);
 int map_delobject(int);
 int map_delobjectnofree(int id);
@@ -1272,13 +1272,13 @@ void map_quit_ack(struct map_session_data *);
 // npc
 int map_addnpc(int,struct npc_data *);
 
-// ACeA
+// 床アイテム関連
 int map_clearflooritem_timer(int,unsigned int,int,int);
 int map_removemobs_timer(int,unsigned int,int,int);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
 int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,struct map_session_data *,struct map_session_data *,int);
 
-// LidL A
+// キャラid＝＞キャラ名 変換関連
 void map_addchariddb(int charid,char *name);
 void map_delchariddb(int charid);
 int map_reqchariddb(struct map_session_data * sd,int charid);
@@ -1302,7 +1302,7 @@ void map_addnickdb(struct map_session_data *);
 struct map_session_data * map_nick2sd(char*);
 int compare_item(struct item *a, struct item *b);
 
-// 
+// その他
 int map_check_dir(int s_dir,int t_dir);
 int map_calc_dir( struct block_list *src,int x,int y);
 int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
@@ -1312,7 +1312,7 @@ int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
 int map_setwaterheight(int m, char *mapname, int height);
 int map_waterheight(char *mapname);
 
-// path.c
+// path.cより
 int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int flag,cell_t flag2);
 #define path_search(wpd,m,x0,y0,x1,y1,flag)  path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKNOPASS)
 #define path_search2(wpd,m,x0,y0,x1,y1,flag) path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKWALL)

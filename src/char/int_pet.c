@@ -397,11 +397,11 @@ int mapif_parse_RenamePet(int fd){
 	return 0;
 }
 
-// map server M
-// EPpPbg
-// EpPbgf[^inter.cZbg
-// EpPbg`FbNARFIFOSKIPoss
-// EG[0(false)A1(true)
+// map server からの通信
+// ・１パケットのみ解析すること
+// ・パケット長データはinter.cにセットしておくこと
+// ・パケット長チェックや、RFIFOSKIPは呼び出し元で行われるので行ってはならない
+// ・エラーなら0(false)、そうでないなら1(true)をかえさなければならない
 int inter_pet_parse_frommap(int fd)
 {
 	RFIFOHEAD(fd);

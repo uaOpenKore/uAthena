@@ -94,14 +94,14 @@ void trade_tradeack(struct map_session_data *sd, int type) {
 	if (type == 3 && pc_isGM(target_sd) < lowest_gm_level && (sd->bl.m != target_sd->bl.m ||
 		 (sd->bl.x - target_sd->bl.x <= -5 || sd->bl.x - target_sd->bl.x >= 5) ||
 		 (sd->bl.y - target_sd->bl.y <= -5 || sd->bl.y - target_sd->bl.y >= 5)))
-	{
+  	{
 		sd->trade_partner=0;
 		target_sd->trade_partner = 0;
 		clif_tradestart(sd, 0); // too far
 		return;
 	}
 
-	//TODO: Type 4/3? What would 1/2 and the rest do?
+	//TODO: Type 4/3? What would 1/2 and the rest do?	
 	if (type == 4) { // Cancel
 		sd->state.deal_locked = 0;
 		sd->trade_partner = 0;
@@ -216,7 +216,7 @@ int trade_check(struct map_session_data *sd, struct map_session_data *tsd) {
 			n = sd->deal.item[trade_i].index;
 			if (amount > inventory[n].amount)
 				return 0; //qty Exploit?
-
+			
 			data = itemdb_search(inventory[n].nameid);
 			i = MAX_INVENTORY;
 			if (itemdb_isstackable2(data)) { //Stackable item.
@@ -542,8 +542,8 @@ void trade_tradecommit(struct map_session_data *sd) {
 	clif_tradecompleted(tsd, 0);
 	// save both player to avoid crash: they always have no advantage/disadvantage between the 2 players
 	if (save_settings&1)
-	{
-		chrif_save(sd,0);
+  	{
+		chrif_save(sd,0); 
 		chrif_save(tsd,0);
 	}
 }

@@ -28,12 +28,12 @@ int party_share_level = 10;
 int party_send_xy_timer(int tid,unsigned int tick,int id,int data);
 
 /*==========================================
- * Fills the given party_member structure according to the sd provided.
+ * Fills the given party_member structure according to the sd provided. 
  * Used when creating/adding people to a party. [Skotlex]
  *------------------------------------------
  */
 static void party_fill_member(struct party_member *member, struct map_session_data *sd) {
-	member->account_id = sd->status.account_id;
+  	member->account_id = sd->status.account_id;
 	member->char_id = sd->status.char_id;
 	memcpy(member->name,sd->status.name,NAME_LENGTH);
 	member->class_ = sd->status.class_;
@@ -44,14 +44,14 @@ static void party_fill_member(struct party_member *member, struct map_session_da
 }
 
 /*==========================================
- * I
+ * I—¹
  *------------------------------------------
  */
 void do_final_party(void)
 {
 	party_db->destroy(party_db,NULL);
 }
-// 
+// ‰Šú‰»
 void do_init_party(void)
 {
 	party_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
@@ -59,7 +59,7 @@ void do_init_party(void)
 	add_timer_interval(gettick()+battle_config.party_update_interval,party_send_xy_timer,0,0,battle_config.party_update_interval);
 }
 
-//
+// ŒŸõ
 struct party_data *party_search(int party_id)
 {
 	if(!party_id) return NULL;
@@ -114,7 +114,7 @@ int party_created(int account_id,int char_id,int fail,int party_id,char *name)
 	nullpo_retr(0, sd);
 	if (sd->status.char_id != char_id)
 		return 0; //unlikely failure...
-
+	
 	if(fail){
 		clif_party_created(sd,1);
 		return 0;
@@ -223,7 +223,7 @@ int party_recv_info(struct party *sp)
 	struct map_session_data *sd;
 	struct party_data *p;
 	int i;
-
+	
 	nullpo_retr(0, sp);
 
 	p= idb_ensure(party_db, sp->party_id, create_party);
@@ -251,7 +251,7 @@ int party_recv_info(struct party *sp)
 		clif_party_info(p,-1);
 		sd->state.party_sent=1;
 	}
-
+	
 	return 0;
 }
 
@@ -259,7 +259,7 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 {
 	struct party_data *p=party_search(sd->status.party_id);
 	int i,flag=0;
-
+	
 	nullpo_retr(0, sd);
 
 	if(tsd==NULL || p==NULL)
@@ -372,7 +372,7 @@ int party_removemember(struct map_session_data *sd,int account_id,char *name)
 	}
 	if (i >= MAX_PARTY) //Request from someone not in party? o.O
 		return 0;
-
+	
 	for(i=0;i<MAX_PARTY;i++){
 		if(p->party.member[i].account_id==account_id &&
 			strncmp(p->party.member[i].name,name,NAME_LENGTH)==0)
@@ -393,7 +393,7 @@ int party_leave(struct map_session_data *sd)
 	
 	if( (p = party_search(sd->status.party_id)) == NULL )
 		return 0;
-
+	
 	for(i=0;i<MAX_PARTY;i++){
 		if(p->party.member[i].account_id==sd->status.account_id &&
 			p->party.member[i].char_id==sd->status.char_id){
@@ -437,7 +437,7 @@ int party_broken(int party_id)
 	int i;
 	if( (p=party_search(party_id))==NULL )
 		return 0;
-
+	
 	for(i=0;i<MAX_PARTY;i++){
 		if(p->data[i].sd!=NULL){
 			clif_party_leaved(p,p->data[i].sd,
@@ -506,7 +506,7 @@ int party_recv_movemap(int party_id,int account_id,int char_id, unsigned short m
 			ShowError("party: not found member %d/%d on %d[%s]",account_id,char_id,party_id,p->party.name);
 		return 0;
 	}
-
+	
 	clif_party_info(p,-1);
 	return 0;
 }
@@ -531,14 +531,14 @@ int party_send_movemap(struct map_session_data *sd)
 				continue;
 			clif_party_xy_single(sd->fd, p->data[i].sd);
 		}
-
+		
 	}
-
+	
 	if( sd->state.party_sent )
 		return 0;
 
 	party_check_conflict(sd);
-
+	
 	if(p){
 		party_check_member(&p->party);
 		if(sd->status.party_id==p->party.party_id){
@@ -548,7 +548,7 @@ int party_send_movemap(struct map_session_data *sd)
 			sd->state.party_sent=1;
 		}
 	}
-
+	
 	return 0;
 }
 
@@ -559,7 +559,7 @@ int party_send_logout(struct map_session_data *sd)
 
 	if(!sd->status.party_id)
 		return 0;
-
+	
 	intif_party_changemap(sd,0);
 	p=party_search(sd->status.party_id);
 	if(!p) return 0;
@@ -567,7 +567,7 @@ int party_send_logout(struct map_session_data *sd)
 	for(i=0;i<MAX_PARTY && p->data[i].sd != sd;i++);
 	if (i < MAX_PARTY)
 		memset(&p->data[i], 0, sizeof(p->data[0]));
-
+	
 	return 1;
 }
 
@@ -625,7 +625,7 @@ int party_skill_check(struct map_session_data *sd, int party_id, int skillid, in
 		default:
 			return 0; //Unknown case?
 	}
-
+	
 	for(i=0;i<MAX_PARTY;i++){
 		if ((p_sd = p->data[i].sd) == NULL)
 			continue;
@@ -761,7 +761,7 @@ int party_share_loot(struct party_data *p, TBL_PC *sd, struct item *item_data, i
 					psd->chatID || psd->vender_id || (psd->idletime < (last_tick - battle_config.idle_no_share)))
 				))
 					continue;
-
+				
 				if (pc_additem(psd,item_data,item_data->amount))
 					continue; //Chosen char can't pick up loot.
 				//Successful pick.
@@ -777,7 +777,7 @@ int party_share_loot(struct party_data *p, TBL_PC *sd, struct item *item_data, i
 				if ((psd[count]=p->data[i].sd) && psd[count]->bl.m == sd->bl.m &&
 					!pc_isdead(psd[count]) && (!battle_config.idle_no_share || (
 						!psd[count]->chatID && !psd[count]->vender_id &&
-						(psd[count]->idletime >= (last_tick - battle_config.idle_no_share)))
+					  	(psd[count]->idletime >= (last_tick - battle_config.idle_no_share)))
 				))
 					count++;
 			}
@@ -850,7 +850,7 @@ int party_foreachsamemap(int (*func)(struct block_list*,va_list),struct map_sess
 	y1=sd->bl.y+range;
 
 	va_start(ap,range);
-
+	
 	for(i=0;i<MAX_PARTY;i++){
 		struct map_session_data *psd=p->data[i].sd;
 		if(!psd) continue;
@@ -860,11 +860,11 @@ int party_foreachsamemap(int (*func)(struct block_list*,va_list),struct map_sess
 			(psd->bl.x<x0 || psd->bl.y<y0 ||
 			 psd->bl.x>x1 || psd->bl.y>y1 ) )
 			continue;
-		list[blockcount++]=&psd->bl;
+		list[blockcount++]=&psd->bl; 
 	}
 
 	map_freeblock_lock();
-
+	
 	for(i=0;i<blockcount;i++)
 		total += func(list[i],ap);
 

@@ -300,7 +300,7 @@ ACMD_FUNC(noask); //LuzZza
 ACMD_FUNC(request); //[Skotlex]
 
 /*==========================================
- *AtCommandInfo atcommand_info[]\`
+ *AtCommandInfo atcommand_info[]構造体の定義
  *------------------------------------------
  */
 
@@ -739,7 +739,7 @@ int e_mail_check(char *email) {
 }
 
 /*==========================================
- * get_atcommand_level @R}hKvx
+ * get_atcommand_level @コマンドの必要レベルを取得
  *------------------------------------------
  */
 int get_atcommand_level(const AtCommandType type) {
@@ -753,7 +753,7 @@ int get_atcommand_level(const AtCommandType type) {
 }
 
 /*==========================================
- *is_atcommand @R}hmF
+ *is_atcommand @コマンドに存在するかどうか確認する
  *------------------------------------------
  */
 AtCommandType
@@ -1005,7 +1005,7 @@ int duel_checktime(struct map_session_data* sd) {
 	
 	diff = t->tm_mday*24*60 + t->tm_hour*60 + t->tm_min -
 		pc_readglobalreg(sd, "PC_LAST_DUEL_TIME");
-
+	
 	return !(diff >= 0 && diff < battle_config.duel_time_interval);
 }
 static int duel_showinfo_sub(struct map_session_data* sd,va_list va) {
@@ -1014,7 +1014,7 @@ static int duel_showinfo_sub(struct map_session_data* sd,va_list va) {
 	char output[256];
 
 	if (sd->duel_group != ssd->duel_group) return 0;
-
+	
 	sprintf(output, "      %d. %s", ++(*p), (unsigned char *)sd->status.name);
 	clif_disp_onlyself(ssd, output, strlen(output));
 	return 1;
@@ -1097,18 +1097,18 @@ int duel_leave(
 	const unsigned int did, struct map_session_data* sd)
 {
 	char output[256];
-
+	
 	// " <- Player %s has left duel --"
 	sprintf(output, msg_txt(375), (unsigned char *)sd->status.name);
 	clif_disp_message(&sd->bl, output, strlen(output), DUEL_WOS);
-
+	
 	duel_list[did].members_count--;
-
+	
 	if(duel_list[did].members_count == 0) {
-		clif_foreachclient(duel_leave_sub, did);
+		clif_foreachclient(duel_leave_sub, did); 
 		duel_count--;
 	}
-
+	
 	sd->duel_group = 0;
 	duel_savetime(sd);
 	clif_set0199(sd->fd, 0);
@@ -1119,12 +1119,12 @@ int duel_accept(
 	const unsigned int did, struct map_session_data* sd)
 {
 	char output[256];
-
+	
 	duel_list[did].members_count++;
 	sd->duel_group = sd->duel_invite;
 	duel_list[did].invites_count--;
 	sd->duel_invite = 0;
-
+	
 	// " -> Player %s has accepted duel --"
 	sprintf(output, msg_txt(376), (unsigned char *)sd->status.name);
 	clif_disp_message(&sd->bl, output, strlen(output), DUEL_WOS);
@@ -1138,11 +1138,11 @@ int duel_reject(
 	const unsigned int did, struct map_session_data* sd)
 {
 	char output[256];
-
+	
 	// " -- Player %s has rejected duel --"
 	sprintf(output, msg_txt(377), (unsigned char *)sd->status.name);
 	clif_disp_message(&sd->bl, output, strlen(output), DUEL_WOS);
-
+	
 	duel_list[did].invites_count--;
 	sd->duel_invite = 0;
 	return 0;
@@ -1196,7 +1196,7 @@ int atcommand_commands(
 
 	clif_displaymessage(fd,(char*)cz_line_buff);
 	sprintf(atcmd_output, msg_txt(274), count); //There will always be at least 1 command (@commands)
-	clif_displaymessage(fd, atcmd_output);
+	clif_displaymessage(fd, atcmd_output);	
 	return 0;
 }
 
@@ -2227,7 +2227,7 @@ int atcommand_hide(
 }
 
 /*==========================================
- * ]E upperw]{q
+ * 転職する upperを指定すると転生や養子にもなれる
  *------------------------------------------
  */
 int atcommand_jobchange(
@@ -2453,7 +2453,7 @@ int atcommand_kami(
 			clif_displaymessage(fd, "Please, enter color and message (usage: @kamic <color> <message>).");
 			return -1;
 		}
-
+	
 		if(color > 0xFFFFFF) {
 			clif_displaymessage(fd, "Invalid color.");
 			return -1;
@@ -2484,7 +2484,7 @@ int atcommand_heal(
 			clif_displaymessage(fd, msg_table[17]); // HP, SP recovered.
 		return 0;
 	}
-
+	
 	if(hp > 0 && sp >= 0) {
 		if(!status_heal(&sd->bl, hp, sp, 0))
 			clif_displaymessage(fd, msg_table[157]); // HP and SP are already with the good value.
@@ -2964,7 +2964,7 @@ int atcommand_pvpoff(
 		clif_send0199(sd->bl.m, 0);
 
 		pl_allsd = map_getallusers(&users);
-		for (i = 0; i < users; i++) {	//l[v
+		for (i = 0; i < users; i++) {	//人数分ループ
 			if ((pl_sd = pl_allsd[i]) && sd->bl.m == pl_sd->bl.m) {
 				clif_pvpset(pl_sd, 0, 0, 2);
 				if (pl_sd->pvp_timer != -1) {
@@ -3088,10 +3088,10 @@ int atcommand_model(
 		hair_color >= MIN_HAIR_COLOR && hair_color <= MAX_HAIR_COLOR &&
 		cloth_color >= MIN_CLOTH_COLOR && cloth_color <= MAX_CLOTH_COLOR) {
 		/* Removed because this check is TOO strange. [Skotlex]
-		//bFX
+		//秒ﾌ色変更
 		if (cloth_color != 0 && sd->status.sex == 1 && (sd->status.class_ == JOB_ASSASSIN ||  sd->status.class_ == JOB_ROGUE)) {
 			//The hell? Why Rogue/Assassins can't... change their option if they have clothes colors and are males? o.O [Skotlex]
-			//bFE
+			//秒ﾌ色未実装職の判定
 			clif_displaymessage(fd, msg_table[35]); // You can't use this command with this class.
 			return -1;
 		} else {
@@ -3662,11 +3662,11 @@ static int atkillmonster_sub(struct block_list *bl, va_list ap) {
 
 	if (md->guardian_data)
 		return 0; //Do not touch WoE mobs!
-
+	
 	if (flag)
 		status_kill(bl);
 	else //FIXME: Eh.. what exactly is the difference here?
-		status_kill(bl);
+		status_kill(bl);	
 	return 1;
 }
 void atcommand_killmonster_sub(
@@ -4391,13 +4391,13 @@ int atcommand_petfriendly(
 		clif_displaymessage(fd, msg_table[184]); // Sorry, but you have no pet.
 		return -1;
 	}
-
+	
 	if (friendly < 0 || friendly > 1000)
 	{
 		clif_displaymessage(fd, msg_table[37]); // An invalid number was specified.
 		return -1;
 	}
-
+	
 	if (friendly == sd->pet.intimate) {
 		clif_displaymessage(fd, msg_table[183]); // Pet friendly is already the good value.
 		return -1;
@@ -4539,17 +4539,17 @@ int atcommand_revive(
 		clif_displaymessage(fd, "Please, enter a player name (usage: @revive <char name>).");
 		return -1;
 	}
-
+	
 	pl_sd = map_nick2sd(atcmd_player_name);
-
+	
 	if (!pl_sd) {
 		clif_displaymessage(fd, msg_table[3]); // Character not found.
 		return -1;
 	}
-
+	
 	if (!status_revive(&sd->bl, 100, 0))
 		return -1;
-
+	
 	clif_skill_nodamage(&sd->bl,&sd->bl,ALL_RESURRECTION,4,1);
 	clif_displaymessage(fd, msg_table[51]); // Character revived.
 	return 0;
@@ -5181,7 +5181,7 @@ int atcommand_agitend(
 }
 
 /*==========================================
- * @mapexit}bvT[o[I
+ * @mapexitでマップサーバーを終了させる
  *------------------------------------------
  */
 int atcommand_mapexit(
@@ -5454,7 +5454,7 @@ int atcommand_reloadskilldb(
 
 /*==========================================
  * @reloadatcommand
- *   atcommand_athena.conf [h
+ *   atcommand_athena.conf のリロード
  *------------------------------------------
  */
 int
@@ -5468,7 +5468,7 @@ atcommand_reloadatcommand(
 }
 /*==========================================
  * @reloadbattleconf
- *   battle_athena.conf [h
+ *   battle_athena.conf のリロード
  *------------------------------------------
  */
 int
@@ -5485,7 +5485,7 @@ atcommand_reloadbattleconf(
  * @reloadstatusdb
  *   job_db1.txt job_db2.txt job_db2-2.txt 
  *   refine_db.txt size_fix.txt
- *   [h
+ *   のリロード
  *------------------------------------------
  */
 int
@@ -5500,7 +5500,7 @@ atcommand_reloadstatusdb(
 /*==========================================
  * @reloadpcdb
  *   exp.txt skill_tree.txt attr_fix.txt 
- *   [h
+ *   のリロード
  *------------------------------------------
  */
 int
@@ -5720,7 +5720,7 @@ int atcommand_mapinfo(
 		strcat(atcmd_output, "NoSkill | ");
 	if (map[m_id].flag.noicewall)
 		strcat(atcmd_output, "NoIcewall | ");
-
+		
 	clif_displaymessage(fd, atcmd_output);
 
 	strcpy(atcmd_output,"Other Flags: ");
@@ -7069,12 +7069,12 @@ atcommand_follow(const int fd, struct map_session_data* sd,
 
 	if (!message || !*message) { 
 		if (sd->followtarget == -1) 
-			return -1;
-
-		pc_stop_following (sd);
-		clif_displaymessage(fd, "Follow mode OFF.");
-		return 0;
-	}
+			return -1; 
+	
+		pc_stop_following (sd); 
+		clif_displaymessage(fd, "Follow mode OFF."); 
+		return 0; 
+	} 
 	if ((pl_sd = map_nick2sd((char *) message)) != NULL) {
 		if (sd->followtarget == pl_sd->bl.id) {
 			pc_stop_following (sd);
@@ -7088,7 +7088,7 @@ atcommand_follow(const int fd, struct map_session_data* sd,
 		clif_displaymessage(fd, "Character not found.");
 		return -1;
 	}
-
+	
 	return 1;
 }
 
@@ -7162,7 +7162,7 @@ atcommand_storeall(const int fd, struct map_session_data* sd,
 	nullpo_retr(-1, sd);
 
 	if (sd->state.storage_flag != 1)
-	{	//Open storage.
+  	{	//Open storage.
 		switch (storage_storageopen(sd)) {
 		case 2: //Try again
 			clif_displaymessage(fd, "run this command again..");
@@ -7204,7 +7204,7 @@ atcommand_charstoreall(const int fd, struct map_session_data* sd,
 		return -1;
 
 	if (pl_sd->state.storage_flag != 1)
-	{	//Open storage.
+  	{	//Open storage.
 		switch (storage_storageopen(pl_sd)) {
 		case 2: //Try again
 			clif_displaymessage(fd, "Had to open the characters storage window...");
@@ -7668,9 +7668,9 @@ atcommand_changeleader(
 		clif_displaymessage(fd, msg_txt(282));
 		return -1;
 	}
-
+	
 	for (mi = 0; mi < MAX_PARTY && p->data[mi].sd != sd; mi++);
-
+	
 	if (mi == MAX_PARTY)
 		return -1; //Shouldn't happen
 
@@ -7679,20 +7679,20 @@ atcommand_changeleader(
 		clif_displaymessage(fd, msg_txt(282));
 		return -1;
 	}
-
+	
 	if (strlen(message)==0)
 	{
 		clif_displaymessage(fd, "Command usage: @changeleader <party member name>");
 		return -1;
 	}
-
+	
 	if((pl_sd=map_nick2sd((char *) message)) == NULL || pl_sd->status.party_id != sd->status.party_id) {
 		clif_displaymessage(fd, msg_txt(283));
 		return -1;
 	}
 
 	for (pl_mi = 0; pl_mi < MAX_PARTY && p->data[pl_mi].sd != pl_sd; pl_mi++);
-
+	
 	if (pl_mi == MAX_PARTY)
 		return -1; //Shouldn't happen
 
@@ -7709,8 +7709,8 @@ atcommand_changeleader(
 	clif_party_main_info(p,-1);
 	clif_party_info(p,-1);
 	
-	return 0;
-}
+	return 0;  
+}   
 
 /*==========================================
  * Used to change the item share setting of a party.
@@ -7732,9 +7732,9 @@ atcommand_partyoption(
 		clif_displaymessage(fd, msg_txt(282));
 		return -1;
 	}
-
+	
 	for (mi = 0; mi < MAX_PARTY && p->data[mi].sd != sd; mi++);
-
+	
 	if (mi == MAX_PARTY)
 		return -1; //Shouldn't happen
 
@@ -7743,7 +7743,7 @@ atcommand_partyoption(
 		clif_displaymessage(fd, msg_txt(282));
 		return -1;
 	}
-
+	
 	if(!message || !*message || sscanf(message, "%15s %15s", w1, w2) < 2)
 	{
 		clif_displaymessage(fd, "Command usage: @changeoption <pickup share: yes/no> <item distribution: yes/no>");
@@ -7751,15 +7751,15 @@ atcommand_partyoption(
 	}
 	w1[14] = w2[14] = '\0'; //Assure a proper string terminator.
 	option = (battle_config_switch(w1)?1:0)|(battle_config_switch(w2)?2:0);
-
+	
 	//Change item share type.
 	if (option != p->party.item)
 		party_changeoption(sd, p->party.exp, option);
 	else
 		clif_displaymessage(fd, msg_txt(286));
 
-	return 0;
-}
+	return 0;  
+} 
 
 /*==========================================
  *Turns on/off AutoLoot for a specific player
@@ -8082,12 +8082,12 @@ int atcommand_mobsearch(
 
 	map_foreachinmap(atmobsearch_sub, map_id, BL_MOB, mob_id, fd);
 
-	atmobsearch_sub(&sd->bl,0);		// Zbg
+	atmobsearch_sub(&sd->bl,0);		// 番号リセット
 
 	return 0;
 }
 /*==========================================
- * hbvACe|
+ * ドロップアイテムの掃除
  *------------------------------------------
  */
 /*==========================================
@@ -8116,7 +8116,7 @@ atcommand_cleanmap(
 }
 
 /*==========================================
- * NPC/PETb
+ * NPC/PETに話させる
  *------------------------------------------
  */
 int
@@ -8166,8 +8166,8 @@ atcommand_pettalk(
 
 /*==========================================
  * @users
- * T[o[l}bv\
- * dlB
+ * サーバー内の人数マップを表示させる
+ * 手抜きのため汚くなっているのは仕様です。
  *------------------------------------------
  */
 
@@ -9401,7 +9401,7 @@ int atcommand_mobinfo(
 			mob->status.def, mob->status.mdef, mob->status.str, mob->status.agi,
 			mob->status.vit, mob->status.int_, mob->status.dex, mob->status.luk);
 		clif_displaymessage(fd, atcmd_output);
-
+		
 		sprintf(atcmd_output, " ATK:%d~%d  Range:%d~%d~%d  Size:%s  Race: %s  Element: %s (Lv:%d)",
 			mob->status.rhw.atk, mob->status.rhw.atk2, mob->status.rhw.range,
 			mob->range2 , mob->range3, msize[mob->status.size],
@@ -9491,7 +9491,7 @@ int atcommand_iteminfo(
 		item_data = item_array[i];
 		sprintf(atcmd_output, "Item: '%s'/'%s'[%d] (%d) Type: %s | Extra Effect: %s",
 			item_data->name,item_data->jname,item_data->slot,item_data->nameid,
-			item_data->type < 12 ? itype[item_data->type] : "BUG!",
+			item_data->type < 12 ? itype[item_data->type] : "BUG!", 
 			(item_data->script==NULL)? "None" : "With script"
 		);
 		clif_displaymessage(fd, atcmd_output);
@@ -9754,7 +9754,7 @@ int atcommand_me(
 	char tempmes[200];
 	nullpo_retr(-1, sd);
    	
-	memset(tempmes, '\0', sizeof(tempmes));
+	memset(tempmes, '\0', sizeof(tempmes));    
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
 
 	if (sd->sc.count && //no "chatting" while muted.
@@ -9843,7 +9843,7 @@ int atcommand_fakename(
 	
 	char name[NAME_LENGTH];
 	nullpo_retr(-1, sd);
-
+	
 	if((!message || !*message) && strlen(sd->fakename) > 1) {
 		sd->fakename[0]='\0';
 		clif_charnameack(0, &sd->bl);
@@ -10175,7 +10175,7 @@ int atcommand_clone(
 		x = sd->bl.x;
 		y = sd->bl.y;
 	}
-
+		
 	if((x = mob_clone_spawn(pl_sd, sd->bl.m, x, y, "", master, 0, flag?1:0, 0)) > 0) {
 		clif_displaymessage(fd, msg_txt(128+flag*2));
 		return 0;
@@ -10254,7 +10254,7 @@ int atcommand_noask(
 		clif_displaymessage(fd, msg_txt(390)); // Autorejecting is activated.
 		sd->state.noask = 1;
 	}
-
+	
 	return 0;
 }
 

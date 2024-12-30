@@ -804,7 +804,7 @@ unsigned int guild_nextexp(int level)
 	return 0;
 }
 
-// MhXLEmF
+// ギルドスキルが・るか確認
 int guild_checkskill(struct guild *g,int id) {
 
 	int idx = id - GD_SKILLBASE;
@@ -818,18 +818,18 @@ int guild_checkskill(struct guild *g,int id) {
 
 }
 
-// MhvZ
+// ギルドの情報の再計算
 int guild_calcinfo(struct guild *g)
 {
 	int i,c;
 	unsigned int nextexp;
 	struct guild before=*g;
 
-	// XLID
+	// スキルIDの設定
 	for(i=0;i<MAX_GUILDSKILL;i++)
 		g->skill[i].id=i+GD_SKILLBASE;
 
-	// Mhx
+	// ギルドレベル
 	if(g->guild_lv<=0) g->guild_lv=1;
 	nextexp = guild_nextexp(g->guild_lv);
 	if(nextexp > 0) {
@@ -841,10 +841,10 @@ int guild_calcinfo(struct guild *g)
 		}
 	}
 
-	// Mhol
+	// ギルドの次の経験値
 	g->next_exp = guild_nextexp(g->guild_lv);
 
-	// oiMhgKpj
+	// メンバ上限（ギルド拡張適用）
 	g->max_member = 16 + guild_checkskill(g, GD_EXTENSION) * 6; //Guild Extention skill - currently adds 6 to max per skill lv.
 	if(g->max_member > MAX_GUILD)
 	{	
@@ -852,7 +852,7 @@ int guild_calcinfo(struct guild *g)
 		g->max_member = MAX_GUILD;
 	}
 	
-	// xICl
+	// 平均レベルとオンライン人数
 	g->average_lv=0;
 	g->connect_member=0;
 	for(i=c=0;i<g->max_member;i++){
@@ -866,7 +866,7 @@ int guild_calcinfo(struct guild *g)
 	}
 	if(c) g->average_lv/=c;
 
-	// Sf[^KvE
+	// 全データを送る必要が・りそう
 	if(g->max_member!=before.max_member	||
 		g->guild_lv!=before.guild_lv		||
 		g->skill_point!=before.skill_point	){
@@ -878,9 +878,9 @@ int guild_calcinfo(struct guild *g)
 }
 
 //-------------------------------------------------------------------
-// map serverM
+// map serverへの通信
 
-// Mh
+// ギルド作成可否
 int mapif_guild_created(int fd,int account_id,struct guild *g)
 {
 	WFIFOW(fd,0)=0x3830;
@@ -894,7 +894,7 @@ int mapif_guild_created(int fd,int account_id,struct guild *g)
 	WFIFOSET(fd,10);
 	return 0;
 }
-// Mh
+// ギルド情報見つからず
 int mapif_guild_noinfo(int fd,int guild_id)
 {
 	unsigned char buf[12];
@@ -908,7 +908,7 @@ int mapif_guild_noinfo(int fd,int guild_id)
 		mapif_send(fd,buf,8);
 	return 0;
 }
-// Mh
+// ギルド情報まとめ送り
 int mapif_guild_info(int fd,struct guild *g)
 {
 	unsigned char buf[8+sizeof(struct guild)];
@@ -922,7 +922,7 @@ int mapif_guild_info(int fd,struct guild *g)
 	return 0;
 }
 
-// o
+// メンバ追加可否
 int mapif_guild_memberadded(int fd,int guild_id,int account_id,int char_id,int flag)
 {
 	WFIFOW(fd,0)=0x3832;
@@ -933,7 +933,7 @@ int mapif_guild_memberadded(int fd,int guild_id,int account_id,int char_id,int f
 	WFIFOSET(fd,15);
 	return 0;
 }
-// E/m
+// 脱退/追放通知
 int mapif_guild_leaved(int guild_id,int account_id,int char_id,int flag,
 	const char *name,const char *mes)
 {
@@ -951,7 +951,7 @@ int mapif_guild_leaved(int guild_id,int account_id,int char_id,int flag,
 	return 0;
 }
 
-// ICLvXVm
+// オンライン状態とLv更新通知
 int mapif_guild_memberinfoshort(struct guild *g,int idx)
 {
 	unsigned char buf[32];
@@ -966,7 +966,7 @@ int mapif_guild_memberinfoshort(struct guild *g,int idx)
 	return 0;
 }
 
-// Um
+// 解散通知
 int mapif_guild_broken(int guild_id,int flag)
 {
 	unsigned char buf[16];
@@ -978,7 +978,7 @@ int mapif_guild_broken(int guild_id,int flag)
 	return 0;
 }
 
-// Mh
+// ギルド内発言
 int mapif_guild_message(int guild_id,int account_id,char *mes,int len, int sfd)
 {
 	unsigned char buf[512];
@@ -991,7 +991,7 @@ int mapif_guild_message(int guild_id,int account_id,char *mes,int len, int sfd)
 	return 0;
 }
 
-// Mh{Xm
+// ギルド基本情報変更通知
 int mapif_guild_basicinfochanged(int guild_id,int type,const void *data,int len)
 {
 	unsigned char buf[2048];
@@ -1003,7 +1003,7 @@ int mapif_guild_basicinfochanged(int guild_id,int type,const void *data,int len)
 	mapif_sendall(buf,len+10);
 	return 0;
 }
-// MhoXm
+// ギルドメンバ情報変更通知
 int mapif_guild_memberinfochanged(int guild_id,int account_id,int char_id,
 	int type,const void *data,int len)
 {
@@ -1018,7 +1018,7 @@ int mapif_guild_memberinfochanged(int guild_id,int account_id,int char_id,
 	mapif_sendall(buf,len+18);
 	return 0;
 }
-// MhXLAbvm
+// ギルドスキルアップ通知
 int mapif_guild_skillupack(int guild_id,int skill_num,int account_id)
 {
 	unsigned char buf[16];
@@ -1029,7 +1029,7 @@ int mapif_guild_skillupack(int guild_id,int skill_num,int account_id)
 	mapif_sendall(buf,14);
 	return 0;
 }
-// Mh/Gm
+// ギルド同盟/敵対通知
 int mapif_guild_alliance(int guild_id1,int guild_id2,int account_id1,int account_id2,
 	int flag,const char *name1,const char *name2)
 {
@@ -1048,7 +1048,7 @@ int mapif_guild_alliance(int guild_id1,int guild_id2,int account_id1,int account
 	return 0;
 }
 
-// MhEXm
+// ギルド役職変更通知
 int mapif_guild_position(struct guild *g,int idx)
 {
 	unsigned char buf[128];
@@ -1061,7 +1061,7 @@ int mapif_guild_position(struct guild *g,int idx)
 	return 0;
 }
 
-// MhmXm
+// ギルド告知変更通知
 int mapif_guild_notice(struct guild *g)
 {
 	unsigned char buf[256];
@@ -1072,7 +1072,7 @@ int mapif_guild_notice(struct guild *g)
 	mapif_sendall(buf,186);
 	return 0;
 }
-// MhGuXm
+// ギルドエンブレム変更通知
 int mapif_guild_emblem(struct guild *g)
 {
 	unsigned char buf[2048];
@@ -1171,10 +1171,10 @@ int mapif_guild_castle_alldataload(int fd) {
 
 
 //-------------------------------------------------------------------
-// map serverM
+// map serverからの通信
 
 
-// Mhv
+// ギルド作成要求
 int mapif_parse_CreateGuild(int fd,int account_id,char *name,struct guild_member *master)
 {
 	struct guild *g;
@@ -1292,13 +1292,13 @@ int mapif_parse_GuildLeave(int fd,int guild_id,int account_id,int char_id,int fl
 		for(i=0;i<g->max_member;i++){
 			if( g->member[i].account_id==account_id &&
 				g->member[i].char_id==char_id){
-				if(flag){	// Xg
+				if(flag){	// 追放の場合追放リストに入れる
 					int j;
 					for(j=0;j<MAX_GUILDEXPLUSION;j++){
 						if(g->explusion[j].account_id==0)
 							break;
 					}
-					if(j==MAX_GUILDEXPLUSION){	// t
+					if(j==MAX_GUILDEXPLUSION){	// 一杯なので古いのを消す
 						for(j=0;j<MAX_GUILDEXPLUSION-1;j++)
 							g->explusion[j]=g->explusion[j+1];
 						j=MAX_GUILDEXPLUSION-1;
@@ -1459,12 +1459,12 @@ int mapif_parse_BreakGuild(int fd,int guild_id)
 	return 0;
 }
 
-// MhbZ[WM
+// ギルドメッセージ送信
 int mapif_parse_GuildMessage(int fd,int guild_id,int account_id,char *mes,int len)
 {
 	return mapif_guild_message(guild_id,account_id,mes,len, fd);
 }
-// Mh{f[^Xv
+// ギルド基本データ変更要求
 int mapif_parse_GuildBasicInfoChange(int fd,int guild_id,
 	int type,const char *data,int len)
 {
@@ -1494,7 +1494,7 @@ int mapif_parse_GuildBasicInfoChange(int fd,int guild_id,
 	return 0;
 }
 
-// Mhof[^Xv
+// ギルドメンバデータ変更要求
 int mapif_parse_GuildMemberInfoChange(int fd,int guild_id,int account_id,int char_id,
 	int type,const char *data,int len)
 {
@@ -1516,7 +1516,7 @@ int mapif_parse_GuildMemberInfoChange(int fd,int guild_id,int account_id,int cha
 		return 0;
 	}
 	switch(type){
-	case GMI_POSITION:	// E
+	case GMI_POSITION:	// 役職
 	  {
 	    g->member[i].position=*((int *)data);
 	    mapif_guild_memberinfochanged(guild_id,account_id,char_id,type,data,len);
@@ -1591,7 +1591,7 @@ int inter_guild_sex_changed(int guild_id,int account_id,int char_id, int gender)
 	return mapif_parse_GuildMemberInfoChange(0, guild_id, account_id, char_id, GMI_GENDER, (const char*)&gender, sizeof(gender));
 }
 
-// MhEXv
+// ギルド役職名変更要求
 int mapif_parse_GuildPosition(int fd,int guild_id,int idx,struct guild_position *p)
 {
 	// Could make some improvement in speed, because only change guild_position
@@ -1607,7 +1607,7 @@ int mapif_parse_GuildPosition(int fd,int guild_id,int idx,struct guild_position 
 	g->save_flag |= GS_POSITION; // Change guild_position
 	return 0;
 }
-// MhXLAbvv
+// ギルドスキルアップ要求
 int mapif_parse_GuildSkillUp(int fd,int guild_id,int skill_num,int account_id)
 {
 	// Could make some improvement in speed, because only change guild_position
@@ -1651,7 +1651,7 @@ static int mapif_parse_GuildDeleteAlliance(struct guild *g, int guild_id, int ac
 	g->save_flag |= GS_ALLIANCE;
 	return 0;
 }
-// Mhv
+// ギルド同盟要求
 int mapif_parse_GuildAlliance(int fd,int guild_id1,int guild_id2,
 	int account_id1,int account_id2,int flag)
 {
@@ -1678,7 +1678,7 @@ int mapif_parse_GuildAlliance(int fd,int guild_id1,int guild_id2,
 					break;
 				}
 		}
-	}else{	// W
+	}else{	// 関係解消
 		for(i=0;i<2-(flag&1);i++){
 			for(j=0;j<MAX_GUILDALLIANCE;j++)
 				if(g[i]->alliance[j].guild_id==g[1-i]->guild_id &&
@@ -1694,7 +1694,7 @@ int mapif_parse_GuildAlliance(int fd,int guild_id1,int guild_id2,
 	g[1]->save_flag |= GS_ALLIANCE;
 	return 0;
 }
-// MhmXv
+// ギルド告知変更要求
 int mapif_parse_GuildNotice(int fd,int guild_id,const char *mes1,const char *mes2)
 {
 	struct guild *g;
@@ -1708,7 +1708,7 @@ int mapif_parse_GuildNotice(int fd,int guild_id,const char *mes1,const char *mes
 	g->save_flag |= GS_BASIC;	//Change mes of guild
 	return mapif_guild_notice(g);
 }
-// MhGuXv
+// ギルドエンブレム変更要求
 int mapif_parse_GuildEmblem(int fd,int len,int guild_id,int dummy,const char *data)
 {
 	struct guild * g;
@@ -1850,18 +1850,18 @@ int mapif_parse_GuildMasterChange(int fd, int guild_id, const char* name, int le
 	return mapif_guild_master_changed(g, pos);
 }
 
-// Mh`FbNv
+// ギルドチェック要求
 int mapif_parse_GuildCheck(int fd,int guild_id,int account_id,int char_id)
 {
 	// What does this mean? Check if belong to another guild?
 	return 0;
 }
 
-// map server M
-// EPpPbg
-// EpPbgf[^inter.cZbg
-// EpPbg`FbNARFIFOSKIPoss
-// EG[0(false)A1(true)
+// map server からの通信
+// ・１パケットのみ解析すること
+// ・パケット長データはinter.cにセットしておくこと
+// ・パケット長チェックや、RFIFOSKIPは呼び出し元で行われるので行ってはならない
+// ・エラーなら0(false)、そうでないなら1(true)をかえさなければならない
 int inter_guild_parse_frommap(int fd)
 {
 	switch(RFIFOW(fd,0)){
@@ -1895,7 +1895,7 @@ int inter_guild_mapif_init(int fd)
 	return mapif_guild_castle_alldataload(fd);
 }
 
-// T[o[EviLpj
+// サーバーから脱退要求（キャラ削除用）
 int inter_guild_leave(int guild_id,int account_id,int char_id)
 {
 	return mapif_parse_GuildLeave(-1,guild_id,account_id,char_id,0,"** Character Deleted **");

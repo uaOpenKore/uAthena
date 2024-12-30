@@ -20,7 +20,7 @@ enum {
 	IT_UNKNOWN2,//9
 	IT_AMMO,    //10
 	IT_DELAYCONSUME,//11
-	IT_MAX
+	IT_MAX 
 } item_types;
 
 #define CARD0_FORGE 0x00FF
@@ -124,8 +124,8 @@ int itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(stru
 #define itemdb_canpartnertrade(item, gmlv, gmlv2) itemdb_isrestricted(item, gmlv, gmlv2, itemdb_canpartnertrade_sub)
 #define itemdb_cansell(item, gmlv) itemdb_isrestricted(item, gmlv, 0, itemdb_cansell_sub)
 #define itemdb_cancartstore(item, gmlv)  itemdb_isrestricted(item, gmlv, 0, itemdb_cancartstore_sub)
-#define itemdb_canstore(item, gmlv) itemdb_isrestricted(item, gmlv, 0, itemdb_canstore_sub)
-#define itemdb_canguildstore(item, gmlv) itemdb_isrestricted(item , gmlv, 0, itemdb_canguildstore_sub)
+#define itemdb_canstore(item, gmlv) itemdb_isrestricted(item, gmlv, 0, itemdb_canstore_sub) 
+#define itemdb_canguildstore(item, gmlv) itemdb_isrestricted(item , gmlv, 0, itemdb_canguildstore_sub) 
 
 int itemdb_isequip(int);
 int itemdb_isequip2(struct item_data *);
@@ -133,10 +133,10 @@ int itemdb_isidentified(int);
 int itemdb_isstackable(int);
 int itemdb_isstackable2(struct item_data *);
 
-// itemdb_equip}Nitemdb_equippoint
-// OIdb`l
-// sessiondatal\
-// g
+// itemdb_equipマクロとitemdb_equippointとの違いは
+// 前者が鯖側dbで定義された値そのものを返すのに対し
+// 後者はsessiondataを考慮した鞍側での装備可能場所
+// すべての組み合わせを返す
 
 void itemdb_reload(void);
 

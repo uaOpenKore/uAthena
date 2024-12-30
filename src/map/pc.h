@@ -51,7 +51,7 @@ enum {
 } ammo_type;
 //Equip position constants
 enum {
-	EQP_HEAD_LOW = 0x0001,
+	EQP_HEAD_LOW = 0x0001, 
 	EQP_HEAD_MID = 0x0200, //512
 	EQP_HEAD_TOP = 0x0100, //256
 	EQP_HAND_R   = 0x0002,

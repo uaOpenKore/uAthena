@@ -12,7 +12,7 @@
 #include <winsock2.h>
 #else
 #include <sys/socket.h>
-#include <netinet/in.h>
+#include <netinet/in.h> 
 #include <arpa/inet.h>
 #endif
 #endif
@@ -154,7 +154,7 @@ static void* create_online_user(DBKey key, va_list args) {
 	p = aCalloc(1, sizeof(struct online_login_data));
 	p->account_id = key.i;
 	p->char_server = -1;
-	return p;
+	return p;	
 }
 
 int charif_sendallwos(int sfd, unsigned char *buf, unsigned int len);
@@ -641,7 +641,7 @@ int mmo_auth( struct mmo_account* account , int fd){
 			mysql_free_result(sql_res);
 			return 5;
 		}
-	}
+	}           
 
 	// Documented by CLOWNISIUS || LLRO || Gunstar lead this one with me
 	// IF changed to diferent returns~ you get diferent responses from your msgstringtable.txt
@@ -1450,7 +1450,7 @@ int login_ip_ban_check(unsigned char *p)
 		mysql_free_result(sql_res);
 		return 0;
 	}
-
+		
 	// ip ban ok.
 	ShowWarning("packet from banned ip : %d.%d.%d.%d\n" RETCODE, p[0], p[1], p[2], p[3]);
 
@@ -1988,7 +1988,7 @@ int login_lan_config_read(const char *lancfgName) {
 		line[sizeof(line)-1] = '\0';
 		if(sscanf(line,"%[^:]: %[^:]:%[^:]:%[^\r\n]", w1, w2, w3, w4) != 4) {
 
-			ShowWarning("Error syntax of configuration file %s in line %d.\n", lancfgName, line_num);
+			ShowWarning("Error syntax of configuration file %s in line %d.\n", lancfgName, line_num);	
 			continue;
 		}
 

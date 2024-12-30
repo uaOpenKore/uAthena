@@ -257,7 +257,7 @@ enum AtCommandType {
 	AtCommand_ChangeGM,//durf
 	AtCommand_ChangeLeader,
 	AtCommand_PartyOption,
-
+	
 	AtCommand_Invite, // By LuzZza
 	AtCommand_Duel, // By LuzZza
 	AtCommand_Leave, // By LuzZza

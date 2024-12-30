@@ -1883,7 +1883,7 @@ int parse_fromchar(int fd) {
 			{
 				struct online_login_data *p;
 				int aid;
-				unsigned int users;
+			  	unsigned int users;
 				online_db->foreach(online_db,online_db_setoffline,id); //Set all chars from this char-server offline first
 				users = RFIFOW(fd,4);
 				for (i = 0; i < users; i++) {
@@ -3085,7 +3085,7 @@ int parse_login(int fd) {
 						return 0;
 					break;
 			}
-
+			
 			account.version = RFIFOL(fd, 2);	//for exe version check [Sirius]
 			memcpy(account.userid,RFIFOP(fd,6),NAME_LENGTH);
 			account.userid[23] = '\0';
@@ -3614,7 +3614,7 @@ int login_config_read(const char *cfgName) {
 				new_account_flag = config_switch(w2);
 			} else if (strcmpi(w1, "bind_ip") == 0) {
 				bind_ip = resolve_hostbyname(w2, NULL, bind_ip_str);
-				if (bind_ip)
+				if (bind_ip) 
 					ShowStatus("Login server binding IP address : %s -> %s\n", w2, bind_ip_str);
 			} else if (strcmpi(w1, "login_port") == 0) {
 				login_port = atoi(w2);
@@ -4138,17 +4138,17 @@ int do_init(int argc, char **argv) {
 	add_timer_func_list(check_GM_file, "check_GM_file");
 	add_timer_interval(gettick() + j * 1000, check_GM_file, 0, 0, j * 1000); // every x sec we check if gm file has been changed
 
-
+	
 	add_timer_func_list(online_data_cleanup, "online_data_cleanup");
 	add_timer_interval(gettick() + 600*1000, online_data_cleanup, 0, 0, 600*1000); // every 10 minutes cleanup online account db.
-
+	
 	if (ip_sync_interval) {
 		add_timer_func_list(sync_ip_addresses, "sync_ip_addresses");
 		add_timer_interval(gettick() + ip_sync_interval, sync_ip_addresses, 0, 0, ip_sync_interval);
 	}
 	if(console) {
 		set_defaultconsoleparse(parse_console);
-		start_console();
+	   	start_console();
 	}
 
 	login_log("The login-server is ready (Server is listening on the port %d)." RETCODE, login_port);

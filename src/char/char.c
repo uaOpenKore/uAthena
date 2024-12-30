@@ -214,7 +214,7 @@ struct mmo_charstatus* search_character(int aid, int cid) {
 	}
 	return NULL;
 }
-
+	
 //----------------------------------------------
 // Search an character id
 //   (return character index or -1 (if not found))
@@ -592,7 +592,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	p->account_id = tmp_int[1];
 	p->char_num = tmp_int[2];
 	p->class_ = tmp_int[3];
-	//Temporal fix until all chars are reverted from peco-flying-class to
+	//Temporal fix until all chars are reverted from peco-flying-class to 
 	//normal classes. [Skotlex]
 	switch (p->class_) {
 		case JOB_KNIGHT2: //Job_Knight2
@@ -684,7 +684,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	}
 
 	if (str[next] == '\n' || str[next] == '\r')
-		return 1;	// VKf[^
+		return 1;	// 新規データ
 
 	next++;
 
@@ -762,7 +762,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 
 	next++;
 
-	for(i = 0; str[next] && str[next] != '\t' && str[next] != '\n' && str[next] != '\r'; i++) { // global_regOathena.txt'\n'`FbN
+	for(i = 0; str[next] && str[next] != '\t' && str[next] != '\n' && str[next] != '\r'; i++) { // global_reg実装以前のathena.txt互換のため一応'\n'チェック
 		if (sscanf(str + next, "%[^,],%[^ ] %n", reg[i].str, reg[i].value, &len) != 2) { 
 			// because some scripts are not correct, the str can be "". So, we must check that.
 			// If it's, we must not refuse the character, but just this REG value.
@@ -1687,7 +1687,7 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 	return 0;
 }
 
-// (chargp)
+// 離婚(char削除時に使用)
 int char_divorce(struct mmo_charstatus *cs) {
 	if (cs == NULL)
 		return 0;
@@ -1717,13 +1717,13 @@ int char_married(int pl1,int pl2) {
 int char_child(int parent_id, int child_id) {
 	return (char_dat[parent_id].status.child == char_dat[child_id].status.char_id && 
 		((char_dat[parent_id].status.char_id == char_dat[child_id].status.father) || 
-		(char_dat[parent_id].status.char_id == char_dat[child_id].status.mother)));
+		(char_dat[parent_id].status.char_id == char_dat[child_id].status.mother)));		
 }
 
 int char_family(int cid1, int cid2, int cid3) {
 	int i, idx1 = -1, idx2 =-1;//, idx3 =-1;
 	for(i = 0; i < char_num && (idx1 == -1 || idx2 == -1/* || idx3 == 1*/); i++)
-	{
+  	{
 		if (char_dat[i].status.char_id == cid1)
 			idx1 = i;
 		if (char_dat[i].status.char_id == cid2)
@@ -1732,9 +1732,9 @@ int char_family(int cid1, int cid2, int cid3) {
 //			idx3 = i;
 	}
 	if (idx1 == -1 || idx2 == -1/* || idx3 == -1*/)
-		return 0; //Some character not found??
+  		return 0; //Some character not found??
 
-	//Unless the dbs are corrupted, these 3 checks should suffice, even though
+	//Unless the dbs are corrupted, these 3 checks should suffice, even though 
 	//we could do a lot more checks and force cross-reference integrity.
 	if(char_dat[idx1].status.partner_id == cid2 &&
 		char_dat[idx1].status.child == cid3)
@@ -1751,13 +1751,13 @@ int char_family(int cid1, int cid2, int cid3) {
 }
 
 //Clears the given party id from all characters.
-//Since sometimes the party format changes and parties must be wiped, this
+//Since sometimes the party format changes and parties must be wiped, this 
 //method is required to prevent stress during the "party not found!" stages.
-void char_clearparty(int party_id)
+void char_clearparty(int party_id) 
 {
 	int i;
 	for(i = 0; i < char_num; i++)
-	{
+  	{
 		if (char_dat[i].status.party_id == party_id)
 			char_dat[i].status.party_id = 0;
 	}
@@ -1822,11 +1822,11 @@ int disconnect_player(int account_id) {
 	return 0;
 }
 
-// Lf[^
+// キャラ削除に伴うデータ削除
 static int char_delete(struct mmo_charstatus *cs) {
 	int j;
 
-	// ybg
+	// ペット削除
 	if (cs->pet_id)
 		inter_pet_delete(cs->pet_id);
 	for (j = 0; j < MAX_INVENTORY; j++)
@@ -1835,21 +1835,21 @@ static int char_delete(struct mmo_charstatus *cs) {
 	for (j = 0; j < MAX_CART; j++)
 		if (cs->cart[j].card[0] == (short)0xff00)
 			inter_pet_delete( MakeDWord(cs->cart[j].card[1],cs->cart[j].card[2]) );
-	// MhE
+	// ギルド脱退
 	if (cs->guild_id)
 		inter_guild_leave(cs->guild_id, cs->account_id, cs->char_id);
-	// p[eB[E
+	// パーティー脱退
 	if (cs->party_id)
 		inter_party_leave(cs->party_id, cs->account_id, cs->char_id);
-	// 
+	// 離婚
 	if (cs->partner_id){
-		// mapm
+		// 離婚情報をmapに通知
 		unsigned char buf[10];
 		WBUFW(buf,0) = 0x2b12;
 		WBUFL(buf,2) = cs->char_id;
 		WBUFL(buf,6) = cs->partner_id;
 		mapif_sendall(buf,10);
-		// 
+		// 離婚
 		char_divorce(cs);
 	}
 	return 0;
@@ -1893,7 +1893,7 @@ int parse_tologin(int fd) {
 				exit(1);
 			} else {
 				ShowStatus("Connected to login-server (connection #%d).\n", fd);
-
+				
 				//Send to login accounts currently connected.
 				send_accounts_tologin(-1, gettick(), 0, 0);
 
@@ -2158,7 +2158,7 @@ int parse_tologin(int fd) {
 			RFIFOSKIP(fd,8 + RFIFOL(fd,4));
 			break;
 
-		// account_reg2Xm
+		// account_reg2変更通知
 		case 0x2729:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
 				return 0;
@@ -2538,7 +2538,7 @@ void char_read_fame_list(void)
 int char_send_fame_list(int fd) {
 	int i, len = 8;
 	unsigned char buf[32000];
-
+	
 	WBUFW(buf,0) = 0x2b1b;
 
 	for(i = 0; i < fame_list_size_smith && smith_fame_list[i].id; i++) {
@@ -2763,7 +2763,7 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,6+i*8);
 			break;
 
-		// Lf[^
+		// キャラデータ保存
 		// Recieve character data from map-server
 		case 0x2b01:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
@@ -2786,7 +2786,7 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,RFIFOW(fd,2));
 			break;
 
-		// LZv
+		// キャラセレ要求
 		case 0x2b02:
 			if (RFIFOREST(fd) < 18)
 				return 0;
@@ -2863,7 +2863,7 @@ int parse_frommap(int fd) {
 			}
 			break;
 
-		// L
+		// キャラ名検索
 		case 0x2b08:
 			if (RFIFOREST(fd) < 6)
 				return 0;
@@ -3030,7 +3030,7 @@ int parse_frommap(int fd) {
 				int size;
 				struct fame_list *list = NULL;
 				RFIFOSKIP(fd,12);
-
+				
 				switch(type) {
 					case 1:
 						size = fame_list_size_smith;
@@ -3052,7 +3052,7 @@ int parse_frommap(int fd) {
 					break;
 				if(pos)
 				{
-					pos--; //Convert from pos to index.
+				 	pos--; //Convert from pos to index.
 					if(
 						(pos == 0 || fame < list[pos-1].fame) &&
 						(pos == size-1 || fame > list[pos+1].fame)
@@ -3153,15 +3153,15 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,6);
 			break;
 		default:
-			// inter servern
+			// inter server処理に渡す
 			{
 				int r = inter_parse_frommap(fd);
-				if (r == 1) // 
+				if (r == 1) // 処理できた
 					break;
-				if (r == 2) // pPbg
+				if (r == 2) // パケット長が足りない
 					return 0;
 			}
-			// inter serverf
+			// inter server処理でもない場合は切断
 			ShowError("Unknown packet 0x%04x from map server, disconnecting.\n", RFIFOW(fd,0));
 			session[fd]->eof = 1;
 			return 0;
@@ -3187,7 +3187,7 @@ int search_mapserver(unsigned short map, long ip, short port) {
 	return -1;
 }
 
-// char_mapifiinter_mapifj
+// char_mapifの初期化処理（現在はinter_mapif初期化のみ）
 static int char_mapif_init(int fd) {
 	return inter_mapif_init(fd);
 }
@@ -3249,12 +3249,12 @@ int parse_char(int fd) {
 
 	while(RFIFOREST(fd) >= 2 && !session[fd]->eof) {
 		cmd = RFIFOW(fd,0);
-		// crc32XLbvp
-		if(	sd==NULL			&&	// OCorpPbg
-			RFIFOREST(fd)>=4	&&	// oCg  0x7530,0x7532pP
-			RFIFOREST(fd)<=21	&&	// oCg  T[o[OC
-			cmd!=0x20b	&&	// md5mpPbg
-			(RFIFOREST(fd)<6 || RFIFOW(fd,4)==0x65)	){	// pPbgA
+		// crc32のスキップ用
+		if(	sd==NULL			&&	// 未ログインor管理パケット
+			RFIFOREST(fd)>=4	&&	// 最低バイト数制限 ＆ 0x7530,0x7532管理パケ除去
+			RFIFOREST(fd)<=21	&&	// 最大バイト数制限 ＆ サーバーログイン除去
+			cmd!=0x20b	&&	// md5通知パケット除去
+			(RFIFOREST(fd)<6 || RFIFOW(fd,4)==0x65)	){	// 次に何かパケットが来てるなら、接続でないとだめ
 			RFIFOSKIP(fd,4);
 			cmd = RFIFOW(fd,0);
 			ShowDebug("parse_char : %d crc32 skipped\n",fd);
@@ -3266,13 +3266,13 @@ int parse_char(int fd) {
 #define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL) { RFIFOSKIP(fd,rest); return 0; } }
 
 		switch(cmd){
-		case 0x20b:	//20040622ragexe
+		case 0x20b:	//20040622暗号化ragexe対応
 			if (RFIFOREST(fd) < 19)
 				return 0;
 			RFIFOSKIP(fd,19);
 			break;
 
-		case 0x65:	// v
+		case 0x65:	// 接続要求
 			if (RFIFOREST(fd) < 17)
 				return 0;
 		  {
@@ -3388,7 +3388,7 @@ int parse_char(int fd) {
 			RFIFOSKIP(fd,17);
 			break;
 
-		case 0x66:	// LI
+		case 0x66:	// キャラ選択
 			FIFOSD_CHECK(3);
 		{
 			int char_num = RFIFOB(fd,2);
@@ -3523,7 +3523,7 @@ int parse_char(int fd) {
 		}
 		break;
 
-		case 0x67:	// 
+		case 0x67:	// 作成
 			FIFOSD_CHECK(37);
 				
 			if(char_new == 0) //turn character creation on/off [Kevin]
@@ -3703,7 +3703,7 @@ int parse_char(int fd) {
 			}
 			break;
 
-		case 0x2af8:	// }bvT[o[OC
+		case 0x2af8:	// マップサーバーログイン
 			if (RFIFOREST(fd) < 60)
 				return 0;
 			WFIFOW(fd,0) = 0x2af9;
@@ -3742,13 +3742,13 @@ int parse_char(int fd) {
 			}
 			break;
 
-		case 0x187:	// AliveMH
+		case 0x187:	// Alive信号？
 			if (RFIFOREST(fd) < 6)
 				return 0;
 			RFIFOSKIP(fd, 6);
 			break;
 
-		case 0x7530:	// Athena
+		case 0x7530:	// Athena情報所得
 			WFIFOW(fd,0) = 0x7531;
 			WFIFOB(fd,2) = ATHENA_MAJOR_VERSION;
 			WFIFOB(fd,3) = ATHENA_MINOR_VERSION;
@@ -3761,7 +3761,7 @@ int parse_char(int fd) {
 			RFIFOSKIP(fd,2);
 			return 0;
 
-		case 0x7532:	// f(defaultI)
+		case 0x7532:	// 接続の切断(defaultと処理は一緒だが明示的にするため)
 		default:
 			session[fd]->eof = 1;
 			return 0;
@@ -3795,7 +3795,7 @@ int parse_console(char *buf) {
     return 0;
 }
 
-// SMAPT[o[f[^MiMmapIj
+// 全てのMAPサーバーにデータ送信（送信したmap鯖の数を返す）
 int mapif_sendall(unsigned char *buf, unsigned int len) {
 	int i, c;
 
@@ -3821,7 +3821,7 @@ int mapif_sendall(unsigned char *buf, unsigned int len) {
 	return c;
 }
 
-// OSMAPT[o[f[^MiMmapIj
+// 自分以外の全てのMAPサーバーにデータ送信（送信したmap鯖の数を返す）
 int mapif_sendallwos(int sfd, unsigned char *buf, unsigned int len) {
 	int i, c;
 
@@ -3839,7 +3839,7 @@ int mapif_sendallwos(int sfd, unsigned char *buf, unsigned int len) {
 	}
 	return c;
 }
-// MAPT[o[f[^MimapImFLj
+// MAPサーバーにデータ送信（map鯖生存確認有り）
 int mapif_send(int fd, unsigned char *buf, unsigned int len) {
 	int i;
 
@@ -3932,7 +3932,7 @@ int check_connect_login_server(int tid, unsigned int tick, int id, int data) {
 	WFIFOW(login_fd,82) = char_maintenance;
 
 	WFIFOW(login_fd,84) = char_new_display; //only display (New) if they want to [Kevin]
-
+	
 	WFIFOSET(login_fd,86);
 	return 1;
 }
@@ -3953,7 +3953,7 @@ static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, int dat
 
 //----------------------------------------------------------
 // Return numerical value of a switch configuration by [Yor]
-// on/off, english, franais, deutsch, espaol
+// on/off, english, fran軋is, deutsch, espal
 //----------------------------------------------------------
 int config_switch(const char *str) {
 	if (strcmpi(str, "on") == 0 || strcmpi(str, "yes") == 0 || strcmpi(str, "oui") == 0 || strcmpi(str, "ja") == 0 || strcmpi(str, "si") == 0)
@@ -4227,7 +4227,7 @@ void do_final(void) {
 	inter_save();
 	set_all_offline(-1);
 	flush_fifos();
-
+	
 	if(gm_account) aFree(gm_account);
 	if(char_dat) aFree(char_dat);
 
@@ -4322,7 +4322,7 @@ int do_init(int argc, char **argv) {
 	update_online = time(NULL);
 	create_online_files(); // update online players files at start of the server
 
-	inter_init((argc > 2) ? argv[2] : inter_cfgName);	// inter server 
+	inter_init((argc > 2) ? argv[2] : inter_cfgName);	// inter server 初期化
 
 	set_defaultparse(parse_char);
 
@@ -4342,10 +4342,10 @@ int do_init(int argc, char **argv) {
 	add_timer_interval(gettick() + autosave_interval, mmo_char_sync_timer, 0, 0, autosave_interval);
 
 	char_read_fame_list(); //Read fame lists.
-
+	
 	if(console) {
 	    set_defaultconsoleparse(parse_console);
-		start_console();
+	   	start_console();
 	}
 
 	char_log("The char-server is ready (Server is listening on the port %d)." RETCODE, char_port);

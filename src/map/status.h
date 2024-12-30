@@ -12,7 +12,7 @@
 
 extern unsigned long StatusChangeFlagTable[];
 
-// Status changes listing. These code are for use by the server.
+// Status changes listing. These code are for use by the server. 
 enum {
 	//First we enumerate common status ailments which are often used around.
 	SC_STONE = 0,
@@ -378,8 +378,8 @@ enum {
 //	166 | The three show the exact same display: ultra red character (165, 166, 167)	
 //	167 |	
 	SI_SUN_COMFORT		= 169,
-	SI_MOON_COMFORT		= 170,
-	SI_STAR_COMFORT		= 171,
+	SI_MOON_COMFORT		= 170,	
+	SI_STAR_COMFORT		= 171,	
 	SI_PRESERVE		= 181,
 	SI_INCSTR	= 182,
 	SI_INTRAVISION	= 184, //WTF?? creates the black shape of 4_m_02 NPC, with NPC talk cursor. Supposedly intravision shows this.
