@@ -620,8 +620,8 @@ int mapif_parse_PartyLeave(int fd, int party_id, int account_id, int char_id) {
 	return 0;
 }
 
-// p?eB}bvXVv
-int mapif_parse_PartyChangeMap(int fd, int party_id, int account_id, int char_id, unsigned short map, int online, int lv) {
+int mapif_parse_PartyChangeMap(int fd, int party_id, int account_id, int char_id, unsigned short map, int online, int lv)
+{
 	struct party_data *p;
 	int i;
 
@@ -634,10 +634,24 @@ int mapif_parse_PartyChangeMap(int fd, int party_id, int account_id, int char_id
 			p->party.member[i].char_id == char_id)
 		{
 			p->party.member[i].map = map;
-			if (p->party.member[i].online != online) {
+			if (p->party.member[i].online != online)
+			{
 				p->party.member[i].online = online;
-				if (online) p->party.count++;
-				else p->party.count--;
+				if (online)
+					p->party.count++;
+				else
+					p->party.count--;
+				// Even share check situations: Family state (always breaks)
+				// character logging on/off is max/min level (update level range)
+				// or character logging on/off has a different level (update level range using new level)
+				if (p->family ||
+					(p->party.member[i].lv <= p->min_lv || p->party.member[i].lv >= p->max_lv) ||
+					(p->party.member[i].lv != lv && (lv <= p->min_lv || lv >= p->max_lv))
+					)
+				{
+					p->party.member[i].lv = lv;
+					int_party_check_lv(p);
+				}
 			}
 			if (p->party.member[i].lv != lv) {
 				if(p->party.member[i].lv == p->min_lv ||
@@ -652,7 +666,6 @@ int mapif_parse_PartyChangeMap(int fd, int party_id, int account_id, int char_id
 			break;
 		}
 	}
-
 	return 0;
 }
 

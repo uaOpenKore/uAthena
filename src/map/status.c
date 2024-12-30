@@ -924,6 +924,23 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				default: return 0;
 			}
 		}
+
+		if (sc->data[SC_DANCING].timer != -1 && flag!=2)
+		{
+			if(sc->data[SC_LONGING].timer != -1)
+			{	//Allow everything except dancing/re-dancing. [Skotlex]
+				if (skill_num == BD_ENCORE ||
+					skill_get_inf2(skill_num)&(INF2_SONG_DANCE|INF2_ENSEMBLE_SKILL)
+				)
+					return 0;
+			} else
+			if (skill_num != BD_ADAPTATION && skill_num != CG_LONGINGFREEDOM
+				&& skill_num != BA_MUSICALSTRIKE && skill_num != DC_THROWARROW)
+				return 0;
+			if (sc->data[SC_DANCING].val1 == CG_HERMODE && skill_num == BD_ADAPTATION)
+				return 0;	//Can't amp out of Wand of Hermode :/ [Skotlex]
+		}
+
 		if (skill_num && //Do not block item-casted skills.
 			(src->type != BL_PC || ((TBL_PC*)src)->skillitem != skill_num)
 		) {	//Skills blocked through status changes...
@@ -945,21 +962,6 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			)
 				return 0;
 
-			if (flag!=2 && sc->data[SC_DANCING].timer != -1)
-			{
-				if(sc->data[SC_LONGING].timer != -1)
-				{	//Allow everything except dancing/re-dancing. [Skotlex]
-					if (skill_num == BD_ENCORE ||
-						skill_get_inf2(skill_num)&(INF2_SONG_DANCE|INF2_ENSEMBLE_SKILL)
-					)
-						return 0;
-				} else
-				if (skill_num != BD_ADAPTATION && skill_num != CG_LONGINGFREEDOM
-					&& skill_num != BA_MUSICALSTRIKE && skill_num != DC_THROWARROW)
-					return 0;
-				if (sc->data[SC_DANCING].val1 == CG_HERMODE && skill_num == BD_ADAPTATION)
-					return 0;	//Can't amp out of Wand of Hermode :/ [Skotlex]
-			}
 		}
 	}
 
@@ -1394,7 +1396,7 @@ static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct sta
 		+ hp_sigma_val[sd->status.class_][sd->status.base_level-1])/100
 		* (100 + status->vit)/100 + sd->param_equip[2];
 	if (sd->class_&JOBL_UPPER)
-		val += val * 30/100;
+		val += val * 25/100;
 	else if (sd->class_&JOBL_BABY)
 		val -= val * 30/100;
 	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->char_id, MAPID_TAEKWON))
@@ -1411,7 +1413,7 @@ static unsigned int status_base_pc_maxsp(struct map_session_data* sd, struct sta
 	val = (1000 + sd->status.base_level*sp_coefficient[sd->status.class_])/100
 		* (100 + status->int_)/100 + sd->param_equip[3];
 	if (sd->class_&JOBL_UPPER)
-		val += val * 30/100;
+		val += val * 25/100;
 	else if (sd->class_&JOBL_BABY)
 		val -= val * 30/100;
 	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->char_id, MAPID_TAEKWON))
@@ -5306,6 +5308,9 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 
 	if (vd && pcdb_checkid(vd->class_)) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
 		clif_status_change(bl,StatusIconChangeTable[type],1);
+	else if (sd) //Send packet to self otherwise (disguised player?)
+		clif_status_load(bl,StatusIconChangeTable[type],1);
+
 	(sc->count)++;
 
 	sc->data[type].val1 = val1;
@@ -5795,6 +5800,8 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	//On Aegis, when turning off a status change, first goes the sc packet, then the option packet.
 	if (vd && pcdb_checkid(vd->class_))
 		clif_status_change(bl,StatusIconChangeTable[type],0);
+	else if (sd)
+		clif_status_load(bl,StatusIconChangeTable[type],0);
 
 	if(opt_flag)
 		clif_changeoption(bl);
