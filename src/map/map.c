@@ -141,7 +141,7 @@ char *SCRIPT_CONF_NAME;
 char *MSG_CONF_NAME;
 char *GRF_PATH_FILENAME;
 
-//  static?J?
+// ïïï staticïïï?ïJïïïï?ïïï
 static struct dbt * id_db=NULL;
 static struct dbt * pc_db=NULL;
 static struct dbt * map_db=NULL;
@@ -177,10 +177,10 @@ struct charid2nick {
 	int req_id;
 };
 
-// (map_athana.conf?read_map_from_cacheE)
-// 0: 1:? 2:?
+// ïïïïïïïïïïïïïïïïïï(map_athana.conf?ïïread_map_from_cacheïïïïïE)
+// 0:ïïïïïïïï 1:ï?ïïïïïï 2:?ïïïïïï
 int  map_read_flag = READ_FROM_GAT;
-char map_cache_file[256]="db/map.info"; // E
+char map_cache_file[256]="db/map.info"; // ïïïïïïïïïïïïïïïïïïïEï
 
 char db_path[256] = "db";
 char motd_txt[256] = "conf/motd.txt";
@@ -197,8 +197,8 @@ static const int dirx[8]={0,-1,-1,-1,0,1,1,1};
 static const int diry[8]={1,1,0,-1,-1,-1,0,1};
 
 /*==========================================
- * SmapI?v??
- * (charI)
+ * ïSmapïI?ïvïïïï??ïïï
+ * (charïIïïïïïïïïïïïïï)
  *------------------------------------------
  */
 void map_setusers(int fd)
@@ -213,7 +213,7 @@ void map_setusers(int fd)
 }
 
 /*==========================================
- * SmapI?v?? (/w?p)
+ * ïSmapïI?ïvïïïï??ïï (/wïïï?ïïïp)
  *------------------------------------------
  */
 int map_getusers(void) {
@@ -250,12 +250,12 @@ unsigned int distance(int dx, int dy) {
 }
 
 //
-// blockSm?
+// blockïïïïïïSïïïmïï?ïï
 //
 
 /*==========================================
- * blockfreefree?
- * bNobt@
+ * blockïïfreeïïïïïïïfreeïï?ïïïïïïïï
+ * ïïïbïNïïïïïïïïïïïïïïoïbïtï@ïïïïïï
  *------------------------------------------
  */
 int map_freeblock (struct block_list *bl)
@@ -274,7 +274,7 @@ int map_freeblock (struct block_list *bl)
 	return block_free_lock;
 }
 /*==========================================
- * blockfreesI~
+ * blockïïfreeïïïïïsIïïï~ïïïï
  *------------------------------------------
  */
 int map_freeblock_lock (void)
@@ -283,9 +283,9 @@ int map_freeblock_lock (void)
 }
 
 /*==========================================
- * blockfreebN
- * AbNS
- * obt@blockS
+ * blockïïfreeïïïïbïNïïïïïïïïïï
+ * ïïïïïïïAïïïbïNïïïïïSïïïïïïïïï
+ * ïoïbïtï@ïïïïïïïïïïïblockïïïSïïïï
  *------------------------------------------
  */
 int map_freeblock_unlock (void)
@@ -301,16 +301,16 @@ int map_freeblock_unlock (void)
 	} else if (block_free_lock < 0) {
 		if (battle_config.error_log)
 			ShowError("map_freeblock_unlock: lock count < 0 !\n");
-		block_free_lock = 0; // ~bNxoZbg
+		block_free_lock = 0; // ïïïïïï~ïïïïbïNïïxïïïoïïïïïïïïïïZïbïg
 	}
 
 	return block_free_lock;
 }
 
-// map_freeblock_lock()  map_freeblock_unlock() 
-// AIblock_free_lockZbgB
-// Ado_timer() gbvxA
-// block_free_lock xB
+// map_freeblock_lock() ïïïïïïï map_freeblock_unlock() ïïïïïïï
+// ïïïïïïïïïïïïïïAïïïïïIïïblock_free_lockïïïïïZïbïgïïïïïïïïïïïïB
+// ïïïïïïïïAdo_timer() ïïgïbïvïïïxïïïïïïïïïïïïïïïA
+// block_free_lock ïïïïïïïïïïïïxïïïïïïïïB
 
 int map_freeblock_timer (int tid, unsigned int tick, int id, int data)
 {
@@ -324,11 +324,11 @@ int map_freeblock_timer (int tid, unsigned int tick, int id, int data)
 }
 
 //
-// block?
+// blockïï?ïï
 //
 /*==========================================
- * map[]block_list?
- * bl->prevbl_headAhX
+ * map[]ïïblock_listïïïï?ïïïïïïïïïïïïï
+ * bl->prevïïbl_headïïAïhïïïXïïïïïïïïïïï
  *------------------------------------------
  */
 static struct block_list bl_head;
@@ -428,10 +428,10 @@ int map_delblock_sub (struct block_list *bl, int flag)
 	int b;
 	nullpo_retr(0, bl);
 
-	// ?blocklist?
+	// ?ïïblocklistïïïï?ïïïïïïï
 	if (bl->prev == NULL) {
 		if (bl->next != NULL) {
-			// prevNULLnextNULLL
+			// prevïïNULLïïnextïïNULLïïïïïïïLïïïïïïïïïï
 			if(battle_config.error_log)
 				ShowError("map_delblock error : bl->next!=NULL\n");
 		}
@@ -451,7 +451,7 @@ int map_delblock_sub (struct block_list *bl, int flag)
 	if (bl->next)
 		bl->next->prev = bl->prev;
 	if (bl->prev == &bl_head) {
-		// XgAmap[]block_listXV
+		// ïïïXïgïïïïïïïAmap[]ïïblock_listïïïXïVïïïï
 		if (bl->type == BL_MOB) {
 			map[bl->m].block_mob[b] = bl->next;
 			if ((map[bl->m].block_mob_count[b]--) < 0)
@@ -532,7 +532,7 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick) {
 }
 	
 /*==========================================
- * ?PCl?? (unused)
+ * ïï?ïïPCïl?ïï?ïïïï (unused)
  *------------------------------------------
  */
 int map_countnearpc (int m, int x, int y)
@@ -582,7 +582,7 @@ int map_count_oncell(int m, int x, int y, int type) {
 		for(i=0;i<c && bl;i++,bl=bl->next)
 			if(bl->x == x && bl->y == y && bl->type&type) count++;
 	}
-
+	
 	if (type&BL_MOB)
 	{
 		bl = map[m].block_mob[bx+by*map[m].bxs];
@@ -593,7 +593,7 @@ int map_count_oncell(int m, int x, int y, int type) {
 	return count;
 }
 /*
- * EE
+ * ïïïïEïïïïïïïïïïïïïïïïïïïïïEïïïïïïïïïï
  */
 struct skill_unit *map_find_skill_unit_oncell(struct block_list *target,int x,int y,int skill_id,struct skill_unit *out_unit)
 {
@@ -685,13 +685,13 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list),struct block_list
 			ShowWarning("map_foreachinrange: block count too many!\n");
 	}
 
-	map_freeblock_lock();	// ~
+	map_freeblock_lock();	// ïïïïïïïïïïïïïïïïïïï~ïïïï
 
 	for(i=blockcount;i<bl_list_count;i++)
-		if(bl_list[i]->prev)	// L?`FbN
+		if(bl_list[i]->prev)	// ïL?ïïïïïïïï`ïFïbïN
 			returnCount += func(bl_list[i],ap);
 
-	map_freeblock_unlock();	// 
+	map_freeblock_unlock();	// ïïïïïïïïïïïïï
 
 	va_end(ap);
 	bl_list_count = blockcount;
@@ -757,13 +757,13 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 			ShowWarning("map_foreachinrange: block count too many!\n");
 	}
 
-	map_freeblock_lock();	// ~
+	map_freeblock_lock();	// ïïïïïïïïïïïïïïïïïïï~ïïïï
 
 	for(i=blockcount;i<bl_list_count;i++)
-		if(bl_list[i]->prev)	// L?`FbN
+		if(bl_list[i]->prev)	// ïL?ïïïïïïïï`ïFïbïN
 			returnCount += func(bl_list[i],ap);
 
-	map_freeblock_unlock();	// 
+	map_freeblock_unlock();	// ïïïïïïïïïïïïï
 
 	va_end(ap);
 	bl_list_count = blockcount;
@@ -771,9 +771,9 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 }
 
 /*==========================================
- * map m (x0,y0)-(x1,y1)?Sobj?
- * func
- * type!=0 
+ * map m (x0,y0)-(x1,y1)?ïïSobjïï?ïïïï
+ * funcïïïïï
+ * type!=0 ïïïïïïïïïï
  *------------------------------------------
  */
 int map_foreachinarea(int (*func)(struct block_list*,va_list),int m,int x0,int y0,int x1,int y1,int type,...) {
@@ -831,13 +831,13 @@ int map_foreachinarea(int (*func)(struct block_list*,va_list),int m,int x0,int y
 			ShowWarning("map_foreachinarea: block count too many!\n");
 	}
 
-	map_freeblock_lock();	// ~
+	map_freeblock_lock();	// ïïïïïïïïïïïïïïïïïïï~ïïïï
 
 	for(i=blockcount;i<bl_list_count;i++)
-		if(bl_list[i]->prev)	// L?`FbN
+		if(bl_list[i]->prev)	// ïL?ïïïïïïïï`ïFïbïN
 			returnCount += func(bl_list[i],ap);
 
-	map_freeblock_unlock();	// 
+	map_freeblock_unlock();	// ïïïïïïïïïïïïï
 
 	va_end(ap);
 	bl_list_count = blockcount;
@@ -845,11 +845,11 @@ int map_foreachinarea(int (*func)(struct block_list*,va_list),int m,int x0,int y
 }
 
 /*==========================================
- * `(x0,y0)-(x1,y1)(dx,dy)b
- * O(`L`)?obj
- * ?func
+ * ïïï`(x0,y0)-(x1,y1)ïï(dx,dy)ïïïïïïïïbï
+ * ïïïïOïïïïïïï(ïïï`ïïLïïï`)?ïïobjïï
+ * ?ïïïïfuncïïïïï
  *
- * dx,dy-1,0,1ilHj
+ * dx,dyïï-1,0,1ïïïïïïïïiïïïïïlïïïïïïïïïïïïïHïj
  *------------------------------------------
  */
 int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,int y0,int x1,int y1,int dx,int dy,int type,...) {
@@ -873,7 +873,7 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,i
 		y1 = bx;
 	}
 	if(dx==0 || dy==0){
-		// `
+		// ïïï`ïïïïïï
 		if(dx==0){
 			if(dy<0){
 				y0=y1+dy+1;
@@ -912,7 +912,7 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,i
 			}
 		}
 	}else{
-		// L
+		// Lïïïïïïïï
 
 		if(x0<0) x0=0;
 		if(y0<0) y0=0;
@@ -954,17 +954,17 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,i
 			ShowWarning("map_foreachinmovearea: block count too many!\n");
 	}
 
-	map_freeblock_lock();	// ~
+	map_freeblock_lock();	// ïïïïïïïïïïïïïïïïïïï~ïïïï
 
 	for(i=blockcount;i<bl_list_count;i++)
-		if(bl_list[i]->prev) {	// L?`FbN
+		if(bl_list[i]->prev) {	// ïL?ïïïïïïïï`ïFïbïN
 			if (bl_list[i]->type == BL_PC
 			  && session[((struct map_session_data *) bl_list[i])->fd] == NULL)
 				continue;
 			returnCount += func(bl_list[i],ap);
 		}
 
-	map_freeblock_unlock();	// 
+	map_freeblock_unlock();	// ïïïïïïïïïïïïï
 
 	va_end(ap);
 	bl_list_count = blockcount;
@@ -1014,13 +1014,13 @@ int map_foreachincell(int (*func)(struct block_list*,va_list),int m,int x,int y,
 			ShowWarning("map_foreachincell: block count too many!\n");
 	}
 
-	map_freeblock_lock();	// ~
+	map_freeblock_lock();	// ïïïïïïïïïïïïïïïïïïï~ïïïï
 
 	for(i=blockcount;i<bl_list_count;i++)
-		if(bl_list[i]->prev)	// L?`FbN
+		if(bl_list[i]->prev)	// ïL?ïïïïïïïï`ïFïbïN
 			returnCount += func(bl_list[i],ap);
 
-	map_freeblock_unlock();	// 
+	map_freeblock_unlock();	// ïïïïïïïïïïïïï
 
 	va_end(ap);
 	bl_list_count = blockcount;
@@ -1136,11 +1136,11 @@ int map_foreachinpath(int (*func)(struct block_list*,va_list),int m,int x0,int y
 					{
 						xi = bl->x;
 						yi = bl->y;
-
+					
 						k = (xi-x0)*(x1-x0) + (yi-y0)*(y1-y0);
 						if (k < 0 || k > magnitude2) //Since more skills use this, check for ending point as well.
 							continue;
-
+					
 						//All these shifts are to increase the precision of the intersection point and distance considering how it's
 						//int math.
 						k = (k<<4)/magnitude2; //k will be between 1~16 instead of 0~1
@@ -1172,7 +1172,7 @@ int map_foreachinpath(int (*func)(struct block_list*,va_list),int m,int x0,int y
 						k = (xi-x0)*(x1-x0) + (yi-y0)*(y1-y0);
 						if (k < 0 || k > magnitude2)
 							continue;
-
+					
 						k = (k<<4)/magnitude2; //k will be between 1~16 instead of 0~1
 						xi<<=4;
 						yi<<=4;
@@ -1250,13 +1250,13 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list),int m,int type,...)
 			ShowWarning("map_foreachinmap: block count too many!\n");
 	}
 
-	map_freeblock_lock();	// ~
+	map_freeblock_lock();	// ïïïïïïïïïïïïïïïïïïï~ïïïï
 
 	for(i=blockcount;i<bl_list_count;i++)
-		if(bl_list[i]->prev)	// L?`FbN
+		if(bl_list[i]->prev)	// ïL?ïïïïïïïï`ïFïbïN
 			returnCount += func(bl_list[i],ap);
 
-	map_freeblock_unlock();	// 
+	map_freeblock_unlock();	// ïïïïïïïïïïïïï
 
 	va_end(ap);
 	bl_list_count = blockcount;
@@ -1264,10 +1264,10 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list),int m,int type,...)
 }
 
 /*==========================================
- * ACeGtFNgpObj?
- * object[]id_dbo?
+ * ïïïAïCïeïïïïïGïtïFïNïgïpïïïïObjïïïï?ïï
+ * object[]ïïïïïïïid_dbïo?ïïï
  *
- * bl->id?
+ * bl->idïïïïïïïïïïïïïïïïïï?
  *------------------------------------------
  */
 int map_addobject(struct block_list *bl) {
@@ -1293,8 +1293,8 @@ int map_addobject(struct block_list *bl) {
 }
 
 /*==========================================
- * Object
- *	map_delobjectfreeo?W
+ * ïïïObjectïïïïï
+ *	map_delobjectïïfreeïïïïïïo?ïWïïïï
  *------------------------------------------
  */
 int map_delobjectnofree(int id) {
@@ -1315,11 +1315,11 @@ int map_delobjectnofree(int id) {
 }
 
 /*==========================================
- * Object
- * block_listAid_db
- * object datafreeAobject[]NULL
+ * ïïïObjectïïïïï
+ * block_listïïïïïïïïAid_dbïïïïïïï
+ * object dataïïfreeïAobject[]ïïïNULLïïïï
  *
- * add???
+ * addïïï??ïïïïïïïïïïï?ïïïï
  *------------------------------------------
  */
 int map_delobject(int id) {
@@ -1335,7 +1335,7 @@ int map_delobject(int id) {
 }
 
 /*==========================================
- * SObjfunc
+ * ïSïïïObjïïïïïïfuncïïïïï
  *
  *------------------------------------------
  */
@@ -1372,12 +1372,12 @@ void map_foreachobject(int (*func)(struct block_list*,va_list),int type,...) {
 }
 
 /*==========================================
- * ACe
+ * ïïïAïCïeïïïïïïïï
  *
- * data==0btimer * data!=0bEb
+ * data==0ïïbïtimerïïïïïïïïï * data!=0ïïbïEïïïïïïïïïïïïbïïïïïïï
  *
- * Amap_clearflooritem(id)
- * map.h?#define
+ * ïïïïïAmap_clearflooritem(id)ïï
+ * map.h?ïï#defineïïïïïïï
  *------------------------------------------
  */
 int map_clearflooritem_timer(int tid,unsigned int tick,int id,int data) {
@@ -1485,7 +1485,7 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
 		tries = map[m].xs*map[m].ys;
 		if (tries > 500) tries = 500;
 	}
-
+	
 	while(tries--) {
 		*x = (rx >= 0)?(rand()%rx2-rx+bx):(rand()%(map[m].xs-2)+1);
 		*y = (ry >= 0)?(rand()%ry2-ry+by):(rand()%(map[m].ys-2)+1);
@@ -1502,7 +1502,7 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
 				if (spawn++ < battle_config.no_spawn_on_player &&
 					map_foreachinarea(map_count_sub, m,
 						*x-AREA_SIZE, *y-AREA_SIZE,
-						*x+AREA_SIZE, *y+AREA_SIZE, BL_PC)
+					  	*x+AREA_SIZE, *y+AREA_SIZE, BL_PC)
 				)
 				continue;
 			}
@@ -1515,9 +1515,9 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
 }
 
 /*==========================================
- * (m,x,y)S3x3?ACeu
+ * (m,x,y)ïïSïï3x3ïï?ïïïïAïCïeïïïïu
  *
- * item_dataamountOcopy
+ * item_dataïïamountïïOïïcopyïïïï
  * type flag: &1 MVP item. &2 do stacking check.
  *------------------------------------------
  */
@@ -1586,7 +1586,7 @@ static void* create_charid2nick(DBKey key, va_list args) {
 	return p;
 }
 /*==========================================
- * charid_db(MM)
+ * charid_dbïïïï(ïïMïïïïïïïïïïïïM)
  *------------------------------------------
  */
 void map_addchariddb(int charid, char *name) {
@@ -1606,7 +1606,7 @@ void map_addchariddb(int charid, char *name) {
 }
 
 /*==========================================
- * charid_dbiMvj
+ * charid_dbïïïïïiïïMïvïïïïïj
  *------------------------------------------
  */
 int map_reqchariddb(struct map_session_data * sd,int charid) {
@@ -1623,7 +1623,7 @@ int map_reqchariddb(struct map_session_data * sd,int charid) {
 }
 
 /*==========================================
- * id_dbbl
+ * id_dbïïblïïïïï
  *------------------------------------------
  */
 void map_addiddb(struct block_list *bl) {
@@ -1635,7 +1635,7 @@ void map_addiddb(struct block_list *bl) {
 }
 
 /*==========================================
- * id_dbbl
+ * id_dbïïïïblïïïï
  *------------------------------------------
  */
 void map_deliddb(struct block_list *bl) {
@@ -1647,9 +1647,9 @@ void map_deliddb(struct block_list *bl) {
 }
 
 /*==========================================
- * PCquit? map.c?
+ * PCïïquit?ïï map.c?ïï
  *
- * quit???
+ * quit?ïïïïï?ïïïïïïïï?ïïïïïïïïï
  *------------------------------------------
  */
 int map_quit(struct map_session_data *sd) {
@@ -1695,7 +1695,7 @@ int map_quit(struct map_session_data *sd) {
 		sd->regstr_num = 0;
 	}
 	if(sd->fd)
-	{	//Player will be free'd on save-ack. [Skotlex]
+  	{	//Player will be free'd on save-ack. [Skotlex]
 		if (session[sd->fd])
 			session[sd->fd]->session_data = NULL;
 		sd->fd = 0;
@@ -1725,7 +1725,7 @@ void do_reconnect_map(void) {
 }
 
 /*==========================================
- * id?PCTBNULL
+ * idïï?ïïPCïïïTïïïBïïïïïïïïïNULL
  *------------------------------------------
  */
 struct map_session_data * map_id2sd(int id) {
@@ -1735,7 +1735,7 @@ struct map_session_data * map_id2sd(int id) {
 }
 
 /*==========================================
- * char_id?OT
+ * char_idïï?ïïïïOïïïTïï
  *------------------------------------------
  */
 char * map_charid2nick(int id) {
@@ -1799,8 +1799,8 @@ struct map_session_data * map_nick2sd(char *nick) {
 }
 
 /*==========================================
- * id?T
- * Objectz
+ * idïï?ïïïïïïTïï
+ * ïïïObjectïïïïïzïïïïïïïïïïï
  *------------------------------------------
  */
 struct block_list * map_id2bl(int id)
@@ -1867,7 +1867,7 @@ void map_foreachpc(int (*func)(DBKey,void*,va_list),...) {
 }
 
 /*==========================================
- * id_db?Sfunc?s
+ * id_db?ïïSïïïfuncïï?ïs
  *------------------------------------------
  */
 int map_foreachiddb(int (*func)(DBKey,void*,va_list),...) {
@@ -1880,7 +1880,7 @@ int map_foreachiddb(int (*func)(DBKey,void*,va_list),...) {
 }
 
 /*==========================================
- * map.npc (warp)
+ * map.npcïïïï (warpïïïïïïïïïïï)
  *------------------------------------------
  */
 int map_addnpc(int m,struct npc_data *nd) {
@@ -1981,10 +1981,10 @@ int mob_cache_cleanup_sub(struct block_list *bl, va_list ap) {
 	//Mob has the cached flag on 0
 	if (!md->special_state.cached)
 		return 0;
-	if (!battle_config.mob_remove_damaged &&
+	if (!battle_config.mob_remove_damaged && 
 		md->status.hp < md->status.max_hp)
 		return 0; //Do not remove damaged mobs.
-
+	
 	unit_free(&md->bl);
 
 	return 1;
@@ -2025,7 +2025,7 @@ void map_removemobs(int m)
 }
 
 /*==========================================
- * mapmap??
+ * mapïïïïïïmapïï?ïï?ïï
  *------------------------------------------
  */
 int map_mapname2mapid(char *name) {
@@ -2053,7 +2053,7 @@ int map_mapindex2mapid(unsigned short mapindex) {
 }
 
 /*==========================================
- * Imapip,port?
+ * ïïïImapïïïïïïip,port?ïï
  *------------------------------------------
  */
 int map_mapname2ipport(unsigned short name,int *ip,int *port) {
@@ -2124,24 +2124,24 @@ int map_calc_dir( struct block_list *src,int x,int y) {
 
 	dx=x-src->x;
 	dy=y-src->y;
-	if( dx==0 && dy==0 ){	// v
-		dir=0;	// 
-	}else if( dx>=0 && dy>=0 ){	// IE
-		dir=7;						// E
-		if( dx*2-1<dy ) dir=0;		// 
-		if( dx>dy*2 ) dir=6;		// E
-	}else if( dx>=0 && dy<=0 ){	// IE
-		dir=5;						// E
-		if( dx*2-1<-dy ) dir=4;		// 
-		if( dx>-dy*2 ) dir=6;		// E
-	}else if( dx<=0 && dy<=0 ){ // I
-		dir=3;						// 
-		if( dx*2+1>dy ) dir=4;		// 
-		if( dx<dy*2 ) dir=2;		// 
-	}else{						// I
-		dir=1;						// 
-		if( -dx*2-1<dy ) dir=0;		// 
-		if( -dx>dy*2 ) dir=2;		// 
+	if( dx==0 && dy==0 ){	// ïïïïïïïïïv
+		dir=0;	// ïï
+	}else if( dx>=0 && dy>=0 ){	// ïïïïïIïïEïï
+		dir=7;						// ïEïï
+		if( dx*2-1<dy ) dir=0;		// ïï
+		if( dx>dy*2 ) dir=6;		// ïE
+	}else if( dx>=0 && dy<=0 ){	// ïïïïïIïïEïï
+		dir=5;						// ïEïï
+		if( dx*2-1<-dy ) dir=4;		// ïï
+		if( dx>-dy*2 ) dir=6;		// ïE
+	}else if( dx<=0 && dy<=0 ){ // ïïïïïIïïïïï
+		dir=3;						// ïïïï
+		if( dx*2+1>dy ) dir=4;		// ïï
+		if( dx<dy*2 ) dir=2;		// ïï
+	}else{						// ïïïïïIïïïïï
+		dir=1;						// ïïïï
+		if( -dx*2-1<dy ) dir=0;		// ïï
+		if( -dx>dy*2 ) dir=2;		// ïï
 	}
 	return dir;
 }
@@ -2180,9 +2180,9 @@ int map_random_dir(struct block_list *bl, short *x, short *y) {
 	}
 	return 0;
 }
-// gatn
+// gatïn
 /*==========================================
- * (m,x,y)
+ * (m,x,y)ïïïïïïïï
  *------------------------------------------
  */
 
@@ -2263,7 +2263,7 @@ int map_getcellp(struct map_data* m,int x,int y,cell_t cellchk)
 }
 
 /*==========================================
- * (m,x,y)
+ * (m,x,y)ïïïïïïïïïïï
  *------------------------------------------
  */
 void map_setcell(int m,int x,int y,int cell)
@@ -2333,14 +2333,14 @@ static void* create_map_data_other_server(DBKey key, va_list args) {
 	return mdos;
 }
 /*==========================================
- * I}bvdb
+ * ïïïIïïïïï}ïbïvïïdbïïïï
  *------------------------------------------
  */
 int map_setipport(unsigned short mapindex,unsigned long ip,int port) {
 	struct map_data_other_server *mdos=NULL;
 
 	mdos=(struct map_data_other_server *)uidb_ensure(map_db,(unsigned int)mapindex, create_map_data_other_server);
-
+	
 	if(mdos->gat) //Local map,Do nothing. Give priority to our own local maps over ones from another server. [Skotlex]
 		return 0;
 	if(ip == clif_getip_long() && port == clif_getport()) {
@@ -2354,7 +2354,7 @@ int map_setipport(unsigned short mapindex,unsigned long ip,int port) {
 }
 
 /*==========================================
- * I}bvS
+ * ïïïIïïïïï}ïbïvïïïSïïï
  *------------------------------------------
  */
 int map_eraseallipport_sub(DBKey key,void *data,va_list va) {
@@ -2372,7 +2372,7 @@ int map_eraseallipport(void) {
 }
 
 /*==========================================
- * I}bvdb
+ * ïïïIïïïïï}ïbïvïïdbïïïïïï
  *------------------------------------------
  */
 int map_eraseipport(unsigned short mapindex,unsigned long ip,int port)
@@ -2479,27 +2479,27 @@ int map_waterheight(char *mapname) {
 }
 
 /*==========================================
-* }bvLbV
+* ï}ïbïvïLïïïbïVïïïïïïïïïï
 *===========================================*/
 
-// }bvLbVl
+// ï}ïbïvïLïïïbïVïïïïïïïl
 #define MAX_MAP_CACHE 768
 
-//e}bvAREAD_FROM_BITMAPp
+//ïeï}ïbïvïïïïïïïïïïïïïïïïïïïïïïïïïAREAD_FROM_BITMAPïp
 struct map_cache_info {
-	char fn[32];//t@C
-	int xs,ys; //
+	char fn[32];//ïtï@ïCïïïï
+	int xs,ys; //ïïïïïïï
 	int water_height;
-	int pos;  // f[^
-	int compressed;     // zilb\
-	int compressed_len; // zilb\
+	int pos;  // ïfï[ï^ïïïïïïïïïïïïï
+	int compressed;     // zilbïïïïïïïïïïïïïïï\ïï
+	int compressed_len; // zilbïïïïïïïïïïïïïïï\ïï
 }; // 56 byte
 
 struct map_cache_head {
 	int sizeof_header;
 	int sizeof_map;
-	// Qs
-	int nmaps; // }bv
+	// ïïïïQïïïïïsïï
+	int nmaps; // ï}ïbïvïïïï
 	int filesize;
 };
 
@@ -2528,7 +2528,7 @@ static int map_cache_open(char *fn)
 			map_cache.head.sizeof_map    == sizeof(struct map_cache_info) &&
 			map_cache.head.filesize      == ftell(map_cache.fp)
 		) {
-			// LbVb
+			// ïLïïïbïVïïïïïbïïïï
 			map_cache.map = (struct map_cache_info *) aMalloc(sizeof(struct map_cache_info) * map_cache.head.nmaps);
 			fseek(map_cache.fp,sizeof(struct map_cache_head),SEEK_SET);
 			fread(map_cache.map,sizeof(struct map_cache_info),map_cache.head.nmaps,map_cache.fp);
@@ -2536,7 +2536,7 @@ static int map_cache_open(char *fn)
 		}
 		fclose(map_cache.fp);
 	}
-	// bsVK
+	// ïïïbïïïïsïïïïïïïVïKïïïïïïï
 	map_cache.fp = fopen(fn,"wb");
 	if(map_cache.fp) {
 		memset(&map_cache.head,0,sizeof(struct map_cache_head));
@@ -2575,7 +2575,7 @@ int map_cache_read(struct map_data *m)
 	for(i = 0;i < map_cache.head.nmaps ; i++) {
 		if(!strcmp(m->name,map_cache.map[i].fn)) {
 			if(map_cache.map[i].compressed == 0) {
-				// kt@C
+				// ïïkïtï@ïCïï
 				int size = map_cache.map[i].xs * map_cache.map[i].ys;
 				m->xs = map_cache.map[i].xs;
 				m->ys = map_cache.map[i].ys;
@@ -2583,15 +2583,15 @@ int map_cache_read(struct map_data *m)
 				m->gat = (unsigned char *)aCalloc(m->xs * m->ys,sizeof(unsigned char));
 				fseek(map_cache.fp,map_cache.map[i].pos,SEEK_SET);
 				if(fread(m->gat,1,size,map_cache.fp) == size) {
-					// 
+					// ïïïï
 					return 1;
 				} else {
-					// t@C
+					// ïïïïïïtï@ïCïïïïïïïïïïïïïïïïïïïïï
 					m->xs = 0; m->ys = 0; aFree(m->gat); m->gat = NULL;
 					return 0;
 				}
 			} else if(map_cache.map[i].compressed == 1) {
-				// ktO=1 : zlib
+				// ïïïkïtïïïO=1 : zlib
 				unsigned char *buf;
 				unsigned long dest_len;
 				int size_compress = map_cache.map[i].compressed_len;
@@ -2602,7 +2602,7 @@ int map_cache_read(struct map_data *m)
 				buf = (unsigned char*)aMalloc(size_compress);
 				fseek(map_cache.fp,map_cache.map[i].pos,SEEK_SET);
 				if(fread(buf,1,size_compress,map_cache.fp) != size_compress) {
-					// t@C
+					// ïïïïïïtï@ïCïïïïïïïïïïïïïïïïïïïïï
 					ShowError("fread error\n");
 					aFree(m->gat); m->xs = 0; m->ys = 0; m->gat = NULL;
 					aFree(buf);
@@ -2611,7 +2611,7 @@ int map_cache_read(struct map_data *m)
 				dest_len = m->xs * m->ys;
 				decode_zip(m->gat,&dest_len,buf,size_compress);
 				if(dest_len != map_cache.map[i].xs * map_cache.map[i].ys) {
-					// o
+					// ïïïïïïïïïoïïïïïï
 					aFree(m->gat); m->xs = 0; m->ys = 0; m->gat = NULL;
 					aFree(buf);
 					return 0;
@@ -2632,18 +2632,18 @@ static int map_cache_write(struct map_data *m)
 	if(!map_cache.fp) { return 0; }
 	for(i = 0;i < map_cache.head.nmaps ; i++) {
 		if(!strcmp(m->name,map_cache.map[i].fn)) {
-			// Gg[
+			// ïïïïïGïïïgïïï[ïïïïïïïïïïï
 			if(map_cache.map[i].compressed == 0) {
 				len_old = map_cache.map[i].xs * map_cache.map[i].ys;
 			} else if(map_cache.map[i].compressed == 1) {
 				len_old = map_cache.map[i].compressed_len;
 			} else {
-				// T|[g`O
+				// ïTï|ï[ïgïïïïïïïïï`ïïïïïïïïïïO
 				len_old = 0;
 			}
 			if(map_read_flag == 2) {
-				// k
-				// Q{c
+				// ïïïkïïï
+				// ïïïïïïïïQï{ïïcïïïïïïïïïïïïïïïïï
 				write_buf = (char *) aMalloc(m->xs * m->ys * 2);
 				len_new = m->xs * m->ys * 2;
 				encode_zip((unsigned char *) write_buf,&len_new,m->gat,m->xs * m->ys);
@@ -2656,11 +2656,11 @@ static int map_cache_write(struct map_data *m)
 				map_cache.map[i].compressed_len = 0;
 			}
 			if(len_new <= len_old) {
-				// TCY
+				// ïTïCïYïïïïïïïïïïïïïïïïïïïïïïïïïïïïïïïï
 				fseek(map_cache.fp,map_cache.map[i].pos,SEEK_SET);
 				fwrite(write_buf,1,len_new,map_cache.fp);
 			} else {
-				// Vo^
+				// ïVïïïïïïïïoï^
 				fseek(map_cache.fp,map_cache.head.filesize,SEEK_SET);
 				fwrite(write_buf,1,len_new,map_cache.fp);
 				map_cache.map[i].pos = map_cache.head.filesize;
@@ -2676,10 +2676,10 @@ static int map_cache_write(struct map_data *m)
 			return 0;
 		}
 	}
-	// GgbT
+	// ïïïïïGïïïgïïïïïïïïïïïïïïïïbïïïïïïïTïï
 	for(i = 0;i < map_cache.head.nmaps ; i++) {
 		if(map_cache.map[i].fn[0] == 0) {
-			// Vo^
+			// ïVïïïïïïïïoï^
 			if(map_read_flag == 2) {
 				write_buf = (char *) aMalloc(m->xs * m->ys * 2);
 				len_new = m->xs * m->ys * 2;
@@ -2706,12 +2706,12 @@ static int map_cache_write(struct map_data *m)
 			return 0;
 		}
 	}
-	// b
+	// ïïïïïbïïïïïïï
 	return 1;
 }
 
 /*==========================================
- * ??map
+ * ?ïï?ïïmapïïïïïïïïï
  *------------------------------------------
  */
 int map_addmap(char *mapname) {
@@ -2742,7 +2742,7 @@ static void map_delmapid(int id)
 }
 
 /*==========================================
- * ??map
+ * ?ïï?ïïmapïïïïïïïï
  *------------------------------------------
  */
 int map_delmap(char *mapname) {
@@ -2872,7 +2872,7 @@ int map_readafm (struct map_data *m)
 	} else {
 		strcpy(afm_name, m->name);
 	}
-
+	
 	sprintf(fn, "%s\\%s", afm_dir, afm_name);
 	for (p = &fn[0]; *p != 0; p++)
 		if (*p == '\\') *p = '/';	// * At the time of Unix
@@ -2929,7 +2929,7 @@ int map_readaf2 (struct map_data *m)
 
 
 /*==========================================
- * }bv1b
+ * ï}ïbïv1ïïïïïbï
  * ===================================================*/
 //static int map_readmap(int m,char *fn, char *alias, int *map_cache, int maxmap) {
 
@@ -2964,7 +2964,7 @@ int map_readgat (struct map_data *m)
 		p = (struct gat_1cell*)(gat+y*xs*20+14);
 		for (x = 0; x < xs; x++) {
 			if (wh != NO_WATER && p->type == 0)
-				// 
+				// ïïïïïï
 				m->gat[x+y*xs] = (p->high[0]>wh || p->high[1]>wh || p->high[2]>wh || p->high[3]>wh) ? 3 : 0;
 			else
 				m->gat[x+y*xs] = p->type;
@@ -3155,11 +3155,11 @@ int map_readallmaps (void)
 
 				map[i].bxs = (map[i].xs + BLOCK_SIZE - 1) / BLOCK_SIZE;
 				map[i].bys = (map[i].ys + BLOCK_SIZE - 1) / BLOCK_SIZE;
-
+				
 				// default experience multiplicator
 				map[i].jexp = 100;
 				map[i].bexp = 100;
-
+				
 				size = map[i].bxs * map[i].bys * sizeof(struct block_list*);
 				map[i].block = (struct block_list**)aCalloc(size, 1);
 				map[i].block_mob = (struct block_list**)aCalloc(size, 1);
@@ -3236,7 +3236,7 @@ int parse_console(char *buf) {
 			return 0;
 		}
 		sd.bl.m = m;
-		map_search_freecell(&sd.bl, m, &sd.bl.x, &sd.bl.y, -1, -1, 0);
+		map_search_freecell(&sd.bl, m, &sd.bl.x, &sd.bl.y, -1, -1, 0); 
 		if (x > 0)
 			sd.bl.x = x;
 
@@ -3269,7 +3269,7 @@ int parse_console(char *buf) {
 }
 
 /*==========================================
- * t@C??
+ * ïïïïtï@ïCïïïï?ïï?ïï
  *------------------------------------------
  */
 int map_config_read(char *cfgName) {
@@ -3632,7 +3632,7 @@ static int cleanup_db_sub(DBKey key,void *data,va_list va) {
 static int cleanup_db_subpc(DBKey key,void *data,va_list va) {
 	struct map_session_data *sd = (TBL_PC*)data;
 	if (!sd->state.finalsave)
-	{	//Error?
+  	{	//Error?
 		ShowError("do_final: Player character in DB which was not sent to save! %d:%d\n", sd->status.account_id, sd->status.char_id);
 		map_quit(sd); //Attempt force-save
 	}
@@ -3642,7 +3642,7 @@ static int cleanup_db_subpc(DBKey key,void *data,va_list va) {
 }
 
 /*==========================================
- * mapIIE
+ * mapïIïIïïïEïï
  *------------------------------------------
  */
 void do_final(void) {
@@ -3655,7 +3655,7 @@ void do_final(void) {
 	//map_cache_close();
 
 	// We probably don't need the grfio after server bootup 'yet' too. So this is closed near the end of do_init [Lance]
-	if((battle_config.cardillust_read_grffile || battle_config.item_equip_override_grffile ||
+	if((battle_config.cardillust_read_grffile || battle_config.item_equip_override_grffile || 
 		battle_config.item_slots_override_grffile || battle_config.item_name_override_grffile ||
 		battle_config.skill_sp_override_grffile))
 		grfio_final();
@@ -3668,17 +3668,17 @@ void do_final(void) {
 	pl_allsd = map_getallusers(&j);
 	for (i = 0; i < j; i++)
 		map_quit(pl_allsd[i]);
-
+		
 	id_db->foreach(id_db,cleanup_db_sub);
 	chrif_char_reset_offline();
 	chrif_flush_fifo();
-	//Online players were sent to save, but the ack will not arrive on time!
+  	//Online players were sent to save, but the ack will not arrive on time!
 	//They have to be removed from memory, and assume the char-server saved them.
 	pc_db->foreach(pc_db,cleanup_db_subpc);
 
 	do_final_atcommand();
 	do_final_battle();
-	do_final_chrif(); // LSf
+	do_final_chrif(); // ïïïïïïïïïLïïïïïïïSïïïfïïïï
 	do_final_npc();
 //	map_removenpc();
 	do_final_script();
@@ -3909,7 +3909,7 @@ int do_init(int argc, char *argv[]) {
 	do_init_clif();
 	do_init_script();
 	do_init_itemdb();
-	do_init_mob();	// npcEmob_spawnAmob_db?init_npc
+	do_init_mob();	// npcïïïïïïïïEïïmob_spawnïïïïAmob_dbïï?ïïïïïïïïinit_npcïïïïïï
 	do_init_pc();
 	do_init_status();
 	do_init_party();
@@ -3935,7 +3935,7 @@ int do_init(int argc, char *argv[]) {
 	}
 #endif /* not TXT_ONLY */
 
-	npc_event_do_oninit();	// npcOnInitCxg?s
+	npc_event_do_oninit();	// npcïïOnInitïCïxïïïg?ïs
 
 	if ( console ) {
 		set_defaultconsoleparse(parse_console);
@@ -3945,7 +3945,7 @@ int do_init(int argc, char *argv[]) {
 	if (battle_config.pk_mode == 1)
 		ShowNotice("Server is running on '"CL_WHITE"PK Mode"CL_RESET"'.\n");
 
-	if(!(battle_config.cardillust_read_grffile || battle_config.item_equip_override_grffile ||
+	if(!(battle_config.cardillust_read_grffile || battle_config.item_equip_override_grffile || 
 		battle_config.item_slots_override_grffile || battle_config.item_name_override_grffile ||
 		battle_config.skill_sp_override_grffile))
 		grfio_final(); // Unused after reading all maps.
