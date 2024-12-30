@@ -2535,11 +2535,11 @@ int pc_payzeny(struct map_session_data *sd,int zeny)
 	if(sd->state.finalsave)
 		return 1;
 
-	if (zeny > 0 && sd->status.zeny < zeny)
-		return 1; //Not enough.
+	if (zeny < 0)
+		return pc_getzeny(sd, -zeny);
 
-	if (zeny < 0 && sd->status.zeny > MAX_ZENY +zeny)
-		return 1; //Overflow
+	if (sd->status.zeny < zeny)
+		return 1; //Not enough.
 
 	sd->status.zeny-=zeny;
 	clif_updatestatus(sd,SP_ZENY);
@@ -2553,23 +2553,25 @@ int pc_payzeny(struct map_session_data *sd,int zeny)
  */
 int pc_getzeny(struct map_session_data *sd,int zeny)
 {
-	double z;
-
 	nullpo_retr(0, sd);
 
-	z = (double)sd->status.zeny;
-	if(z + (double)zeny > MAX_ZENY) {
-		zeny = 0;
-		sd->status.zeny = MAX_ZENY;
-	}
+	if(sd->state.finalsave)
+		return 1;
+
+	if(zeny < 0)
+		return pc_payzeny(sd, -zeny);
+
+	if (sd->status.zeny > MAX_ZENY -zeny)
+		return 1; //Overflow
+
 	sd->status.zeny+=zeny;
 	clif_updatestatus(sd,SP_ZENY);
+
 	if(zeny > 0 && sd->state.showzeny){
 		char output[255];
 		sprintf(output, "Gained %dz.", zeny);
 		clif_disp_onlyself(sd,output,strlen(output));
 	}
-
 	return 0;
 }
 
@@ -2604,6 +2606,9 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 
 	nullpo_retr(1, sd);
 	nullpo_retr(1, item_data);
+
+	if(sd->state.finalsave)
+		return 1;
 
 	if(item_data->nameid <= 0 || amount <= 0)
 		return 1;
@@ -2893,12 +2898,12 @@ int pc_useitem(struct map_session_data *sd,int n)
 	if (sd->sc.count && (
 		sd->sc.data[SC_BERSERK].timer!=-1 ||
 		sd->sc.data[SC_MARIONETTE].timer!=-1 ||
-		sd->sc.data[SC_GRAVITATION].timer!=-1 ||
+		(sd->sc.data[SC_GRAVITATION].timer!=-1 && sd->sc.data[SC_GRAVITATION].val3 == BCT_SELF) ||
 		//Cannot use Potions/Healing items while under Gospel.
-		(sd->sc.data[SC_GOSPEL].timer!=-1 && sd->sc.data[SC_GOSPEL].val4 == BCT_SELF && sd->inventory_data[n]->type == 0)
+		(sd->sc.data[SC_GOSPEL].timer!=-1 && sd->sc.data[SC_GOSPEL].val4 == BCT_SELF && sd->inventory_data[n]->type == IT_HEALING)
 	))
 		return 0;
-	
+
 	sd->itemid = sd->status.inventory[n].nameid;
 	sd->itemindex = n;
 	amount = sd->status.inventory[n].amount;
@@ -3273,8 +3278,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 				sd->state.waitingdisconnect=1;
 				pc_clean_skilltree(sd);
 				if(sd->status.pet_id > 0 && sd->pd) {
+					intif_save_petdata(sd->status.account_id,&sd->pd->pet);
 					unit_remove_map(&sd->pd->bl, clrtype);
-					intif_save_petdata(sd->status.account_id,&sd->pet);
 				}
 				chrif_save(sd,2);
 				chrif_changemapserver(sd, mapindex, x, y, ip, (short)port);
@@ -3318,7 +3323,7 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 	sd->bl.x = sd->ud.to_x = x;
 	sd->bl.y = sd->ud.to_y = y;
 
-	if(sd->status.pet_id > 0 && sd->pd && sd->pet.intimate > 0) {
+	if(sd->status.pet_id > 0 && sd->pd && sd->pd->pet.intimate > 0) {
 		sd->pd->bl.m = m;
 		sd->pd->bl.x = sd->pd->ud.to_x = x;
 		sd->pd->bl.y = sd->pd->ud.to_y = y;
@@ -3415,7 +3420,7 @@ int pc_memo(struct map_session_data *sd, int i) {
 int pc_checkskill(struct map_session_data *sd,int skill_id)
 {
 	if(sd == NULL) return 0;
-	if( skill_id>=10000 ){
+	if( skill_id>=GD_SKILLBASE){
 		struct guild *g;
 		if( sd->status.guild_id>0 && (g=guild_search(sd->status.guild_id))!=NULL)
 			return guild_checkskill(g,skill_id);
@@ -4727,11 +4732,12 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 
 	if(sd->status.pet_id > 0 && sd->pd)
 	{
+		struct s_pet *pet = &sd->pd->pet;
 		if(!map[sd->bl.m].flag.nopenalty){
-			sd->pet.intimate -= sd->pd->petDB->die;
-			if(sd->pet.intimate < 0)
-				sd->pet.intimate = 0;
-			clif_send_petdata(sd,1,sd->pet.intimate);
+			pet->intimate -= sd->pd->petDB->die;
+			if(pet->intimate < 0)
+				pet->intimate = 0;
+			clif_send_petdata(sd,1,pet->intimate);
 		}
 		if(sd->pd->target_id) // Unlock all targets...
 			pet_unlocktarget(sd->pd);
@@ -7080,8 +7086,8 @@ static int last_save_id=0,save_flag=0;
 static int pc_autosave_sub(DBKey key,void * data,va_list app)
 {
 	struct map_session_data *sd = (TBL_PC*)data;
-	
-	if(sd->bl.id == last_save_id) {
+
+	if(sd->bl.id == last_save_id && save_flag != 1) {
 		save_flag = 1;
 		return 1;
 	}
@@ -7098,10 +7104,10 @@ static int pc_autosave_sub(DBKey key,void * data,va_list app)
 
 	// pet
 	if(sd->status.pet_id > 0 && sd->pd)
-		intif_save_petdata(sd->status.account_id,&sd->pet);
+		intif_save_petdata(sd->status.account_id,&sd->pd->pet);
 
 	if(sd->state.finalsave)
-  	{	//Save ack hasn't returned from char-server yet? Retry.
+	{	//Save ack hasn't returned from char-server yet? Retry.
 		ShowDebug("pc_autosave: Resending to save logging out char %d:%d (save ack from char-server hasn't arrived yet)\n", sd->status.account_id, sd->status.char_id);
 		sd->state.finalsave = 0;
 		chrif_save(sd,1);
@@ -7124,12 +7130,9 @@ int pc_autosave(int tid,unsigned int tick,int id,int data)
 		save_flag = 1; //Noone was saved, so save first found char.
 	map_foreachpc(pc_autosave_sub);
 
-	if (autosave_interval < 0)
-		return 0; //Fixed interval for saving. [Skotlex]
-
 	interval = autosave_interval/(clif_countusers()+1);
-	if(interval <= 0)
-		interval = 1;
+	if(interval < minsave_interval)
+		interval = minsave_interval;
 	add_timer(gettick()+interval,pc_autosave,0,0);
 
 	return 0;
@@ -7543,10 +7546,7 @@ int do_init_pc(void) {
 	natural_heal_prev_tick = gettick();
 	add_timer_interval(natural_heal_prev_tick + NATURAL_HEAL_INTERVAL, pc_natural_heal, 0, 0, NATURAL_HEAL_INTERVAL);
 
-	if (autosave_interval > 0) //Normal saving.
-		add_timer(gettick() + autosave_interval, pc_autosave, 0, 0);
-	else //Constant save interval.
-		add_timer_interval(gettick() -autosave_interval, pc_autosave, 0, 0, -autosave_interval);
+	add_timer(gettick() + autosave_interval, pc_autosave, 0, 0);
 
 	if (battle_config.day_duration > 0 && battle_config.night_duration > 0) {
 		int day_duration = battle_config.day_duration;

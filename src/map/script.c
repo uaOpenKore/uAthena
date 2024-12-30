@@ -2977,12 +2977,12 @@ int script_reload()
 {
 	if(mapreg_dirty>=0)
 		script_save_mapreg();
-	
+
 	mapreg_db->clear(mapreg_db, NULL);
-	mapregstr_db->clear(mapreg_db, NULL);
-	userfunc_db->clear(mapreg_db, NULL);
-	scriptlabel_db->clear(mapreg_db, NULL);
-	
+	mapregstr_db->clear(mapregstr_db, NULL);
+	userfunc_db->clear(userfunc_db, NULL);
+	scriptlabel_db->clear(scriptlabel_db, NULL);
+
 	script_load_mapreg();
 	return 0;
 }
@@ -5021,10 +5021,8 @@ int buildin_delitem(struct script_state *st)
 		}
 		//is this item important? does it have cards? or Player's name? or Refined/Upgraded
 		if(itemdb_isspecial(sd->status.inventory[i].card[0]) ||
-			sd->status.inventory[i].card[1] ||
-			sd->status.inventory[i].card[2] ||
-		  	sd->status.inventory[i].card[3] ||
-		  	sd->status.inventory[i].refine) {
+			sd->status.inventory[i].card[0] ||
+			sd->status.inventory[i].refine) {
 			//this is important item, count it (except for pet eggs)
 			if(sd->status.inventory[i].card[0] != CARD0_PET)
 				important_item++;
@@ -9002,7 +9000,7 @@ int buildin_petskillbonus(struct script_state *st)
 		pd->state.skillbonus=0;	// waiting state
 
 	// wait for timer to start
-	if (battle_config.pet_equip_required && pd->equip == 0)
+	if (battle_config.pet_equip_required && pd->pet.equip == 0)
 		pd->bonus->timer=-1;
 	else
 		pd->bonus->timer=add_timer(gettick()+pd->bonus->delay*1000, pet_skill_bonus_timer, sd->bl.id, 0);
@@ -9329,7 +9327,7 @@ int buildin_petheal(struct script_state *st)
 	pd->s_skill->sp=conv_num(st,& (st->stack->stack_data[st->start+5]));
 
 	//Use delay as initial offset to avoid skill/heal exploits
-	if (battle_config.pet_equip_required && pd->equip == 0)
+	if (battle_config.pet_equip_required && pd->pet.equip == 0)
 		pd->s_skill->timer=-1;
 	else
 		pd->s_skill->timer=add_timer(gettick()+pd->s_skill->delay*1000,pet_heal_timer,sd->bl.id,0);
@@ -9419,7 +9417,7 @@ int buildin_petskillsupport(struct script_state *st)
 	pd->s_skill->sp=conv_num(st,& (st->stack->stack_data[st->start+6]));
 
 	//Use delay as initial offset to avoid skill/heal exploits
-	if (battle_config.pet_equip_required && pd->equip == 0)
+	if (battle_config.pet_equip_required && pd->pet.equip == 0)
 		pd->s_skill->timer=-1;
 	else
 		pd->s_skill->timer=add_timer(gettick()+pd->s_skill->delay*1000,pet_skill_support_timer,sd->bl.id,0);
@@ -9624,29 +9622,29 @@ int buildin_recovery(struct script_state *st)
 int buildin_getpetinfo(struct script_state *st)
 {
 	struct map_session_data *sd=script_rid2sd(st);
+	struct pet_data *pd;
 	int type=conv_num(st,& (st->stack->stack_data[st->start+2]));
 
-	if(sd && sd->status.pet_id){
+	if(sd && sd->status.pet_id && sd->pd){
+		pd = sd->pd;
 		switch(type){
 			case 0:
 				push_val(st->stack,C_INT,sd->status.pet_id);
 				break;
 			case 1:
-				push_val(st->stack,C_INT,sd->pet.class_);
+				push_val(st->stack,C_INT,pd->pet.class_);
 				break;
 			case 2:
-				if(sd->pet.name)
-					push_str(st->stack,C_CONSTSTR,(unsigned char *) sd->pet.name);
+				if(pd->pet.name)
+					push_str(st->stack,C_CONSTSTR,(unsigned char *) pd->pet.name);
 				else
 					push_str(st->stack,C_CONSTSTR, (unsigned char *) "null");
 				break;
 			case 3:
-				//if(sd->pet.intimate)
-				push_val(st->stack,C_INT,sd->pet.intimate);
+				push_val(st->stack,C_INT,pd->pet.intimate);
 				break;
 			case 4:
-				//if(sd->pet.hungry)
-				push_val(st->stack,C_INT,sd->pet.hungry);
+				push_val(st->stack,C_INT,pd->pet.hungry);
 				break;
 			default:
 				push_val(st->stack,C_INT,0);
@@ -10816,37 +10814,37 @@ int buildin_getd (struct script_state *st)
 // Pet stat [Lance]
 int buildin_petstat(struct script_state *st){
 	struct map_session_data *sd = NULL;
+	struct pet_data *pd;
 	char *tmp;
 	int flag = conv_num(st, & (st->stack->stack_data[st->start+2]));
 	sd = script_rid2sd(st);
-	if(!sd || !sd->pet.pet_id){
+	if(!sd || !sd->status.pet_id || !sd->pd){
 		if(flag == 2)
 			push_str(st->stack, C_CONSTSTR, "");
 		else
 			push_val(st->stack, C_INT, 0);
 	}
-	else {
-		switch(flag){
-			case 1:
-				push_val(st->stack, C_INT, (int)sd->pet.class_);
-				break;
-			case 2:
-				tmp = aStrdup(sd->pet.name);
-				push_str(st->stack, C_STR, tmp);
-				break;
-			case 3:
-				push_val(st->stack, C_INT, (int)sd->pet.level);
-				break;
-			case 4:
-				push_val(st->stack, C_INT, (int)sd->pet.hungry);
-				break;
-			case 5:
-				push_val(st->stack, C_INT, (int)sd->pet.intimate);
-				break;
-			default:
-				push_val(st->stack, C_INT, 0);
-				break;
-		}
+	pd = sd->pd;
+	switch(flag){
+		case 1:
+			push_val(st->stack, C_INT, (int)pd->pet.class_);
+			break;
+		case 2:
+			tmp = aStrdup(pd->pet.name);
+			push_str(st->stack, C_STR, tmp);
+			break;
+		case 3:
+			push_val(st->stack, C_INT, (int)pd->pet.level);
+			break;
+		case 4:
+			push_val(st->stack, C_INT, (int)pd->pet.hungry);
+			break;
+		case 5:
+			push_val(st->stack, C_INT, (int)pd->pet.intimate);
+			break;
+		default:
+			push_val(st->stack, C_INT, 0);
+			break;
 	}
 	return 0;
 }

@@ -360,7 +360,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 			int per = 100*status->sp / status->max_sp;
 			per /=20; //Uses 20% SP intervals.
 			//SP Cost: 1% + 0.5% per every 20% SP
-			if (!status_charge(bl, 0, (10+5*per)*status->max_sp/10000))
+			if (!status_charge(bl, 0, (10+5*per)*status->max_sp/1000))
 				status_change_end( bl,SC_ENERGYCOAT,-1 );
 			//Reduction: 6% + 6% every 20%
 			damage -= damage * 6 * (1+per) / 100;
@@ -694,12 +694,21 @@ static int battle_calc_base_damage(struct status_data *status, struct weapon_atk
 		damage += status->matk_min;
 	else
 		damage += status->batk;
-	
+
 	//rodatazone says that Overrefine bonuses are part of baseatk
+	//Here we also apply the weapon_atk_rate bonus so it is correctly applied on left/right hands.
 	if(sd) {
-		type = (wa == status->lhw)?sd->left_weapon.overrefine:sd->right_weapon.overrefine;
-		if (type > 0)
-			damage += rand()%type+1;
+		if (type == EQI_HAND_L) {
+			if(sd->left_weapon.overrefine)
+				damage += rand()%sd->left_weapon.overrefine+1;
+			if (sd->weapon_atk_rate[sd->weapontype2])
+				damage += damage*sd->weapon_atk_rate[sd->weapontype2]/100;;
+		} else { //Right hand
+			if(sd->right_weapon.overrefine)
+				damage += rand()%sd->right_weapon.overrefine+1;
+			if (sd->weapon_atk_rate[sd->weapontype1])
+				damage += damage*sd->weapon_atk_rate[sd->weapontype1]/100;;
+		}
 	}
 	return damage;
 }
@@ -727,6 +736,9 @@ void battle_consume_ammo(TBL_PC*sd, int skill, int lv)
 	if(sd->equip_index[10]>=0) //Qty check should have been done in skill_check_condition
 		pc_delitem(sd,sd->equip_index[10],qty,0);
 }
+
+struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag);
+struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag);
 
 //For quick div adjustment.
 #define damage_div_fix(dmg, div) { if (div > 1) (dmg)*=div; else if (div < 0) (div)*=-1; }
@@ -921,17 +933,15 @@ static struct Damage battle_calc_weapon_attack(
 	if (skill_num == GS_GROUNDDRIFT)
 		s_ele = s_ele_ = wflag; //element comes in flag.
 
-	if (sd && sd->weapontype1 == 0 && sd->weapontype2 > 0)
-	{
-		flag.rh=0;
-		flag.lh=1;
-	}
-	if (sstatus->lhw && sstatus->lhw->atk)
-		flag.lh=1;
-
-	if (skill_num == ASC_BREAKER)
-	{	//Soul Breaker disregards dual-wielding.
-		flag.rh = 1; flag.lh = 0;
+	if(!skill_num)
+	{	//Skills ALWAYS use ONLY your right-hand weapon (tested on Aegis 10.2)
+		if (sd && sd->weapontype1 == 0 && sd->weapontype2 > 0)
+		{
+			flag.rh=0;
+			flag.lh=1;
+		}
+		if (sstatus->lhw && sstatus->lhw->atk)
+			flag.lh=1;
 	}
 
 	//Check for critical
@@ -1112,7 +1122,6 @@ static struct Damage battle_calc_weapon_attack(
 			case PA_SACRIFICE:
 				wd.damage = sstatus->max_hp* 9/100;
 				status_zap(src, wd.damage, 0);//Damage to self is always 9%
-				clif_damage(src,src, gettick(), 0, 0, wd.damage, 0 , 0, 0);
 				wd.damage2 = 0;
 
 				if (sc && sc->data[SC_SACRIFICE].timer != -1)
@@ -1150,9 +1159,8 @@ static struct Damage battle_calc_weapon_attack(
 			case PA_SHIELDCHAIN:
 				if (sd) {
 					short index = sd->equip_index[8];
-					
+
 					wd.damage = sstatus->batk;
-					if (flag.lh) wd.damage2 = wd.damage;
 
 					if (index >= 0 &&
 						sd->inventory_data[index] &&
@@ -1179,14 +1187,14 @@ static struct Damage battle_calc_weapon_attack(
 				  i |= 16; // for ex. shuriken must not be influenced by DEX
 				}
 				wd.damage = battle_calc_base_damage(sstatus, &sstatus->rhw, sc, tstatus->size, sd, i);
-				if (sstatus->lhw)
+				if (flag.lh)
 					wd.damage2 = battle_calc_base_damage(sstatus, sstatus->lhw, sc, tstatus->size, sd, i);
 
 				//Add any bonuses that modify the base baseatk+watk (pre-skills)
 				if(sd)
 				{
-					if (sd->status.weapon < MAX_WEAPON_TYPE && (sd->atk_rate != 100 || sd->weapon_atk_rate[sd->status.weapon] != 0))
-						ATK_RATE(sd->atk_rate + sd->weapon_atk_rate[sd->status.weapon]);
+					if (sd->atk_rate != 100)
+						ATK_RATE(sd->atk_rate);
 
 					if(flag.cri && sd->crit_atk_rate)
 						ATK_ADDRATE(sd->crit_atk_rate);
@@ -1403,7 +1411,7 @@ static struct Damage battle_calc_weapon_attack(
 				case AS_SPLASHER:
 					i = 400+50*skill_lv;
 					if (sd) i += 20*pc_checkskill(sd,AS_POISONREACT);
-					if (wflag) i/=2; //Splash damage is half.
+					if (wflag>1) i/=wflag; //Splash damage is half.
 					skillratio += i;
 					flag.cardfix = 0;
 					break;
@@ -1686,7 +1694,8 @@ static struct Damage battle_calc_weapon_attack(
 			}
 
 			wd.damage = battle_addmastery(sd,target,wd.damage,0);
-			if (flag.lh) wd.damage2 = battle_addmastery(sd,target,wd.damage2,1);
+			if (flag.lh)
+				wd.damage2 = battle_addmastery(sd,target,wd.damage2,1);
 
 			if((skill=pc_checkskill(sd,SG_STAR_ANGER)) >0 && (t_class == sd->hate_mob[2] || (sc && sc->data[SC_MIRACLE].timer!=-1)))
 			{
@@ -1863,29 +1872,29 @@ static struct Damage battle_calc_weapon_attack(
 			//Do not return if you are supposed to deal greater damage to plants than 1. [Skotlex]
 			return wd;
 	}
-	
+
 	if(sd && !skill_num && !flag.cri)
 	{	//Check for double attack.
-		if(( (skill_lv = 5*pc_checkskill(sd,TF_DOUBLE)) > 0 && sd->weapontype1 == W_DAGGER) ||
-			sd->double_rate > 0) //Success chance is not added, the higher one is used? [Skotlex]
-		{
-			if (rand()%100 < (skill_lv>sd->double_rate?skill_lv:sd->double_rate))
+		if(((skill_lv = pc_checkskill(sd,TF_DOUBLE)) > 0 && sd->weapontype1 == W_DAGGER) || sd->double_rate > 0)
+		{	//Success chance is not added, the higher one is used [Skotlex]
+			if (rand()%100 < (5*skill_lv>sd->double_rate?5*skill_lv:sd->double_rate))
 			{
-				wd.div_=skill_get_num(TF_DOUBLE,skill_lv?skill_lv/5:1);
+				wd.div_=skill_get_num(TF_DOUBLE,skill_lv?skill_lv:1);
 				damage_div_fix(wd.damage, wd.div_);
 				wd.type = 0x08;
 			}
-		} else if ((skill_lv = pc_checkskill(sd,GS_CHAINACTION)) > 0 && sd->weapontype1 == W_REVOLVER)
+		} else
+		if (sd->weapontype1 == W_REVOLVER &&
+			(skill_lv = pc_checkskill(sd,GS_CHAINACTION)) > 0 &&
+			(rand()%100 < 5*skill_lv)
+			)
 		{
-			if (rand()%100 < 5*skill_lv)
-			{
-				wd.div_=skill_get_num(GS_CHAINACTION,skill_lv);
-				damage_div_fix(wd.damage, wd.div_);
-				wd.type = 0x08;
-			}
+			wd.div_=skill_get_num(GS_CHAINACTION,skill_lv);
+			damage_div_fix(wd.damage, wd.div_);
+			wd.type = 0x08;
 		}
 	}
-	
+
 	if (sd)
 	{
 		if (!flag.rh && flag.lh) 
@@ -1908,8 +1917,8 @@ static struct Damage battle_calc_weapon_attack(
 				wd.damage2 = wd.damage2 * (30 + (skill * 10))/100;
 				if(wd.damage2 < 1) wd.damage2 = 1;
 			}
-		} else if(sd->status.weapon == W_KATAR)
-		{ //Katars
+		} else if(sd->status.weapon == W_KATAR && !skill_num)
+		{ //Katars (offhand damage only applies to normal attacks, tested on Aegis 10.2)
 			skill = pc_checkskill(sd,TF_DOUBLE);
 			wd.damage2 = wd.damage * (1 + (skill * 2))/100;
 
@@ -2169,20 +2178,12 @@ struct Damage battle_calc_magic_attack(
 
 				switch(skill_num){
 					case MG_NAPALMBEAT:
+					case MG_FIREBALL:
 						skillratio += skill_lv*10-30;
 						break;
 					case MG_SOULSTRIKE:
 						if (battle_check_undead(tstatus->race,tstatus->def_ele))
 							skillratio += 5*skill_lv;
-						break;
-					case MG_FIREBALL:
-						if(mflag>2)
-							ad.damage = 0;
-						else {
-							int drate[]={100,90,70};
-							MATK_RATE(drate[mflag]);
-							skillratio += 70+10*skill_lv;
-						}
 						break;
 					case MG_FIREWALL:
 						skillratio -= 50;
@@ -2410,7 +2411,9 @@ struct Damage  battle_calc_misc_attack(
 	switch(skill_num){
 	case PA_PRESSURE:
 	case GS_FLING:
-		flag.elefix = flag.cardfix = 0;
+		flag.cardfix = 0;
+	case ASC_BREAKER:
+		flag.elefix = 0;
 	case HT_BLITZBEAT:
 	case TF_THROWSTONE:
 	case SN_FALCONASSAULT:
@@ -2418,7 +2421,7 @@ struct Damage  battle_calc_misc_attack(
 	case CR_ACIDDEMONSTRATION:
 		md.flag = (md.flag&~BF_RANGEMASK)|BF_LONG;
 		break;
-	case HVAN_EXPLOSION:	//[orn]
+	case HVAN_EXPLOSION:
 	case NPC_SELFDESTRUCTION:
 	case NPC_SMOKING:
 		flag.elefix = flag.cardfix = 0;
@@ -2508,8 +2511,11 @@ struct Damage  battle_calc_misc_attack(
 	case GS_FLING:
 		md.damage = sd?sd->status.job_level:status_get_lv(src);
 		break;
+	case ASC_BREAKER:
+		md.damage = 500+rand()%500 + 5*skill_lv * sstatus->int_;
+		break;
 	}
-	
+
 	damage_div_fix(md.damage, md.div_);
 	
 	if (!flag.hit)
@@ -2630,8 +2636,8 @@ int battle_calc_return_damage(struct block_list *bl, int *damage, int flag) {
 	struct map_session_data *sd=NULL;
 	struct status_change *sc;
 	int rdamage = 0;
-	
-	if (bl->type == BL_PC) sd = (struct map_session_data*)bl;
+
+	BL_CAST(BL_PC, bl, sd);
 	sc = status_get_sc(bl);
 
 	if(flag&BF_WEAPON) {
@@ -2914,11 +2920,14 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 				battle_drain(sd, target, wd.damage, wd.damage2, tstatus->race, is_boss(target));
 		}
 	}
-	if (rdamage > 0) //By sending attack type "none" skill_additional_effect won't be invoked. [Skotlex]
+	if (rdamage > 0) { //By sending attack type "none" skill_additional_effect won't be invoked. [Skotlex]
+		if(tsd && src != target)
+			battle_drain(tsd, src, rdamage, rdamage, sstatus->race, is_boss(src));
 		battle_delay_damage(tick+wd.amotion, target, src, 0, 0, 0, rdamage, ATK_DEF, rdelay);
+	}
 
 	if (tsc) {
-		if (tsc->data[SC_POISONREACT].timer != -1 && 
+		if (tsc->data[SC_POISONREACT].timer != -1 &&
 			(rand()%100 < tsc->data[SC_POISONREACT].val3
 			|| sstatus->def_ele == ELE_POISON) &&
 //			check_distance_bl(src, target, tstatus->rhw.range+1) && Doesn't checks range! o.O;
@@ -3008,46 +3017,71 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			return -1;
 	}
 
-	if (target->type == BL_SKILL) //Needed out of the switch in case the ownership needs to be passed skill->mob->master
-	{
-		struct skill_unit *su = (struct skill_unit *)target;
-		if (!su->group)
-			return 0;
-		if (skill_get_inf2(su->group->skill_id)&INF2_TRAP)
-		{	//Only a few skills can target traps...
-			switch (battle_getcurrentskill(src))
-			{
-				case HT_REMOVETRAP:
-				case AC_SHOWER:
-				case WZ_HEAVENDRIVE:
-					state |= BCT_ENEMY;
-					strip_enemy = 0;
-					break;
-				default:
-					return 0;
+	//t_bl/s_bl hold the 'master' of the attack, while src/target are the actual
+	//objects involved.
+	if ((t_bl = battle_get_master(target)) == NULL)
+		t_bl = target;
+
+	if ((s_bl = battle_get_master(src)) == NULL)
+		s_bl = src;
+
+	switch (target->type)
+	{	//Checks on actual target
+		case BL_PC:
+			if (((TBL_PC*)target)->invincible_timer != -1 || pc_isinvisible((TBL_PC*)target))
+				return -1; //Cannot be targeted yet.
+			break;
+		case BL_MOB:
+			if (((TBL_MOB*)target)->special_state.ai > 1 &&
+				s_bl->type == BL_PC && src->type != BL_MOB)
+			{	//Alchemist summoned mobs are always targettable by players
+				state |= BCT_ENEMY;
+				strip_enemy = 0;
 			}
-		} else if (su->group->skill_id==WZ_ICEWALL)
-		{	//Icewall can be hit by anything except skills.
-			if (src->type == BL_SKILL)
+			break;
+		case BL_SKILL:
+		{
+			TBL_SKILL *su = (TBL_SKILL*)target;
+			if (!su->group)
 				return 0;
-			state |= BCT_ENEMY;
-			strip_enemy = 0;
-		} else	//Excepting traps and icewall, you should not be able to target skills.
+			if (skill_get_inf2(su->group->skill_id)&INF2_TRAP)
+			{	//Only a few skills can target traps...
+				switch (battle_getcurrentskill(src))
+				{
+					case HT_REMOVETRAP:
+					case AC_SHOWER:
+					case WZ_HEAVENDRIVE:
+						state |= BCT_ENEMY;
+						strip_enemy = 0;
+						break;
+					default:
+						return 0;
+				}
+			} else if (su->group->skill_id==WZ_ICEWALL)
+			{	//Icewall can be hit by anything except skills.
+				if (src->type == BL_SKILL)
+					return 0;
+				state |= BCT_ENEMY;
+				strip_enemy = 0;
+			} else	//Excepting traps and icewall, you should not be able to target skills.
+				return 0;
+		}
+		//Valid targets with no special checks here.
+//		case BL_HOM:
+//			break;
+		//All else not specified is an invalid target.
+		default:
 			return 0;
-		if ((t_bl = map_id2bl(su->group->src_id)) == NULL)
-			t_bl = target; //Fallback on the trap itself, otherwise consider this a "versus caster" scenario.
 	}
 
 	switch (t_bl->type)
-	{
+	{	//Checks on target master
 		case BL_PC:
 		{
 			TBL_PC *sd = (TBL_PC*)t_bl;
-			if (sd->invincible_timer != -1 || pc_isinvisible(sd))
-				return -1; //Cannot be targeted yet.
 			if (sd->state.monster_ignore && t_bl != s_bl && flag&BCT_ENEMY)
 				return 0; //Global inmunity to attacks.
-			if (sd->special_state.killable && t_bl != s_bl)
+			if (sd->state.killable && t_bl != s_bl)
 			{
 				state |= BCT_ENEMY; //Universal Victim
 				strip_enemy = 0;
@@ -3057,52 +3091,50 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 		case BL_MOB:
 		{
 			TBL_MOB *md = (TBL_MOB*)t_bl;
+
 			if (!agit_flag && md->guardian_data && md->guardian_data->guild_id)
 				return 0; //Disable guardians/emperiums owned by Guilds on non-woe times.
-			if (md->special_state.ai == 2)
-			{	//Mines are sort of universal enemies.
-				state |= BCT_ENEMY;
-				strip_enemy = 0;
-			}
-			if (md->master_id && (t_bl = map_id2bl(md->master_id)) == NULL)
-				t_bl = &md->bl; //Fallback on the mob itself, otherwise consider this a "versus master" scenario.
 			break;
 		}
-		case BL_PET:
-		{
-			return 0; //Pets cannot be targetted.
-		}
-		case BL_SKILL: //Skill with no owner? Kinda odd... but.. let it through.
-			break;
-		default:	//Invalid target
-			return 0;
 	}
 
-	if (src->type == BL_SKILL)
-	{
-		struct skill_unit *su = (struct skill_unit *)src;
-		if (!su->group)
-			return 0;
-
-		if (su->group->src_id == target->id)
+	switch(src->type)
+	{	//Checks on actual src type
+		case BL_MOB:
+			if (!agit_flag && ((TBL_MOB*)src)->guardian_data && ((TBL_MOB*)src)->guardian_data->guild_id)
+				return 0; //Disable guardians/emperium owned by Guilds on non-woe times.
+			break;
+		case BL_PET:
+			if (t_bl->type != BL_MOB && flag&BCT_ENEMY)
+				return 0; //Pet may not attack non-mobs.
+			if (t_bl->type == BL_MOB && ((TBL_MOB*)t_bl)->guardian_data && flag&BCT_ENEMY)
+				return 0; //pet may not attack Guardians/Emperium
+			break;
+		case BL_SKILL:
 		{
-			int inf2;
-			inf2 = skill_get_inf2(su->group->skill_id);
-			if (inf2&INF2_NO_TARGET_SELF)
-				return -1;
-			if (inf2&INF2_TARGET_SELF)
-				return 1;
+			struct skill_unit *su = (struct skill_unit *)src;
+			if (!su->group)
+				return 0;
+
+			if (su->group->src_id == target->id)
+			{
+				int inf2;
+				inf2 = skill_get_inf2(su->group->skill_id);
+				if (inf2&INF2_NO_TARGET_SELF)
+					return -1;
+				if (inf2&INF2_TARGET_SELF)
+					return 1;
+			}
+			break;
 		}
-		if ((s_bl = map_id2bl(su->group->src_id)) == NULL)
-			s_bl = src; //Fallback on the trap itself, otherwise consider this a "caster versus enemy" scenario.
 	}
 
 	switch (s_bl->type)
-	{
+	{	//Checks on source master
 		case BL_PC:
 		{
 			TBL_PC *sd = (TBL_PC*) s_bl;
-			if (sd->special_state.killer && s_bl != t_bl)
+			if (sd->state.killer && s_bl != t_bl)
 			{
 				state |= BCT_ENEMY; //Is on a killing rampage :O
 				strip_enemy = 0;
@@ -3141,30 +3173,16 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 				if (t_bl->type == BL_MOB && !((TBL_MOB*)t_bl)->special_state.ai)
 					state |= BCT_ENEMY; //Natural enemy for AI mobs are normal mobs.
 			}
-			if (md->master_id && (s_bl = map_id2bl(md->master_id)) == NULL)
-				s_bl = &md->bl; //Fallback on the mob itself, otherwise consider this a "from master" scenario.
 			break;
 		}
-		case BL_PET:
-		{
-			TBL_PET *pd = (TBL_PET*)s_bl;
-			if (t_bl->type != BL_MOB && flag&BCT_ENEMY)
-				return 0; //Pet may not attack non-mobs.
-			if (t_bl->type == BL_MOB && ((TBL_MOB*)t_bl)->guardian_data && flag&BCT_ENEMY)
-				return 0; //pet may not attack Guardians/Emperium
-			if (t_bl->type != BL_PC)
-				state |= BCT_ENEMY; //Stock enemy type.
-			if (pd->msd)
-				s_bl = &pd->msd->bl; //"My master's enemies are my enemies..."
+		default:
+		//Need some sort of default behaviour for unhandled types.
+			if (t_bl->type != s_bl->type)
+				state |= BCT_ENEMY;
 			break;
-		}
-		case BL_SKILL: //Skill with no owner? Fishy, but let it through.
-			break;
-		default:	//Invalid source of attack?
-			return 0;
 	}
-	
-	if ((flag&BCT_ALL) == BCT_ALL) { //All actually stands for all attackable chars 
+
+	if ((flag&BCT_ALL) == BCT_ALL) { //All actually stands for all attackable chars
 		if (target->type&BL_CHAR)
 			return 1;
 		else
@@ -3343,6 +3361,7 @@ static const struct battle_data_short {
 	{ "mob_count_rate",                    &battle_config.mob_count_rate			},
 	{ "mob_spawn_delay",                   &battle_config.mob_spawn_delay			},
 	{ "no_spawn_on_player",                &battle_config.no_spawn_on_player	},
+	{ "force_random_spawn",                &battle_config.force_random_spawn	},
 	{ "plant_spawn_delay",                 &battle_config.plant_spawn_delay			},
 	{ "boss_spawn_delay",                  &battle_config.boss_spawn_delay			},
 	{ "slaves_inherit_mode",               &battle_config.slaves_inherit_mode	},
@@ -3731,7 +3750,7 @@ void battle_set_defaults() {
 	battle_config.gm_join_chat=0;
 	battle_config.gm_kick_chat=0;
 	battle_config.guild_max_castles=0;
-	battle_config.emergency_call=2;
+	battle_config.emergency_call=15;
 	battle_config.skillfree = 0;
 	battle_config.skillup_limit = 0;
 	battle_config.wp_rate=100;
@@ -3744,6 +3763,7 @@ void battle_set_defaults() {
 	battle_config.mob_count_rate=100;
 	battle_config.mob_spawn_delay=100;
 	battle_config.no_spawn_on_player=0;
+	battle_config.force_random_spawn=0;
 	battle_config.plant_spawn_delay=100;
 	battle_config.boss_spawn_delay=100;
 	battle_config.slaves_inherit_mode=1;

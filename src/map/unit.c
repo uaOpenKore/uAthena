@@ -28,8 +28,8 @@
 #include "intif.h"
 #include "chrif.h"
 
-static int dirx[8]={0,-1,-1,-1,0,1,1,1};
-static int diry[8]={1,1,0,-1,-1,-1,0,1};
+const int dirx[8]={0,-1,-1,-1,0,1,1,1};
+const int diry[8]={1,1,0,-1,-1,-1,0,1};
 
 struct unit_data* unit_bl2ud(struct block_list *bl) {
 	if( bl == NULL) return NULL;
@@ -119,12 +119,12 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 		return 0;
 	}
 	ud->walktimer=-1;
-	if( bl->prev == NULL ) return 0; // block_list から抜けているので移動停止する
+	if( bl->prev == NULL ) return 0; // block_list ~
 
 	if(ud->walkpath.path_pos>=ud->walkpath.path_len)
 		return 0;
 
-	//歩いたので息吹のタイマーを初期化
+	//^C}[
 	if(sd) {
 		sd->inchealspirithptick = 0;
 		sd->inchealspiritsptick = 0;
@@ -146,7 +146,7 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 	if(map_getcell(bl->m,x+dx,y+dy,CELL_CHKNOPASS))
 		return unit_walktoxy_sub(bl);
 	
-	// バシリカ判定
+	// oVJ
 
 	map_foreachinmovearea(clif_outsight,bl->m,
 		x-AREA_SIZE,y-AREA_SIZE,x+AREA_SIZE,y+AREA_SIZE,
@@ -173,14 +173,14 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 		if (sd->state.gmaster_flag)
 		{ //Guild Aura: Likely needs to be recoded, this method seems inefficient.
 			struct guild *g = sd->state.gmaster_flag;
-			int skill, guildflag = 0;
-			if ((skill = guild_checkskill(g, GD_LEADERSHIP)) > 0) guildflag |= skill<<12;
-			if ((skill = guild_checkskill(g, GD_GLORYWOUNDS)) > 0) guildflag |= skill<<8;
-			if ((skill = guild_checkskill(g, GD_SOULCOLD)) > 0) guildflag |= skill<<4;
-			if ((skill = guild_checkskill(g, GD_HAWKEYES)) > 0) guildflag |= skill;
-			if (guildflag)
+			int skill, strvit= 0, agidex = 0;
+			if ((skill = guild_checkskill(g, GD_LEADERSHIP)) > 0) strvit |= (skill&0xFFFF)<<16;
+			if ((skill = guild_checkskill(g, GD_GLORYWOUNDS)) > 0) strvit |= (skill&0xFFFF);
+			if ((skill = guild_checkskill(g, GD_SOULCOLD)) > 0) agidex |= (skill&0xFFFF)<<16;
+			if ((skill = guild_checkskill(g, GD_HAWKEYES)) > 0) agidex |= skill&0xFFFF;
+			if (strvit || agidex)
 				map_foreachinrange(skill_guildaura_sub, bl,2, BL_PC,
-					bl->id, sd->status.guild_id, &guildflag);
+					bl->id, sd->status.guild_id, strvit, agidex);
 		}
 		if (
 			(sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
@@ -282,8 +282,8 @@ int unit_walktoxy( struct block_list *bl, int x, int y, int easy) {
 		map_random_dir(bl, &ud->to_x, &ud->to_y);
 
 	if(ud->walktimer != -1) {
-		// 現在歩いている最中の目的地変更なのでマス目の中心に来た時に
-		// timer関数からunit_walktoxy_subを呼ぶようにする
+		// InX}XS
+		// timerunit_walktoxy_sub
 		ud->state.change_walk_target = 1;
 		return 1;
 	} else {
@@ -433,10 +433,10 @@ int unit_movepos(struct block_list *bl,int dst_x,int dst_y, int easy, int checkp
 				return 0;
 		} else
 			sd->areanpc_id=0;
-		if(sd->status.pet_id > 0 && sd->pd && sd->pet.intimate > 0)
+		if(sd->status.pet_id > 0 && sd->pd && sd->pd->pet.intimate > 0)
 		{	//Check if pet needs to be teleported. [Skotlex]
 			int flag = 0;
-			bl = &sd->pd->bl; //Note that bl now points to the pet! 
+			bl = &sd->pd->bl; //Note that bl now points to the pet!
 			if (!checkpath && path_search(&wpd,bl->m,bl->x,bl->y,dst_x,dst_y,0))
 				flag = 1;
 			else if (!check_distance_bl(&sd->bl, bl, AREA_SIZE)) //Too far, teleport.
@@ -544,7 +544,7 @@ int unit_warp(struct block_list *bl,int m,short x,short y,int type)
 }
 
 /*==========================================
- * 歩行停止
+ * s~
  *------------------------------------------
  */
 int unit_stop_walking(struct block_list *bl,int type)
@@ -641,23 +641,24 @@ int unit_can_move(struct block_list *bl)
 			return 0;
 
 		if (sc->count && (
-			sc->data[SC_ANKLE].timer != -1 ||
-			sc->data[SC_AUTOCOUNTER].timer !=-1 ||
-			sc->data[SC_TRICKDEAD].timer !=-1 ||
-			sc->data[SC_BLADESTOP].timer !=-1 ||
-			sc->data[SC_BLADESTOP_WAIT].timer !=-1 ||
-			sc->data[SC_SPIDERWEB].timer !=-1 ||
-			(sc->data[SC_DANCING].timer !=-1 && (
+			sc->data[SC_ANKLE].timer != -1
+			|| sc->data[SC_AUTOCOUNTER].timer !=-1
+			|| sc->data[SC_TRICKDEAD].timer !=-1
+			|| sc->data[SC_BLADESTOP].timer !=-1
+			|| sc->data[SC_BLADESTOP_WAIT].timer !=-1
+			|| sc->data[SC_SPIDERWEB].timer !=-1
+			|| (sc->data[SC_DANCING].timer !=-1 && (
 				(sc->data[SC_DANCING].val4 && sc->data[SC_LONGING].timer == -1) ||
 				sc->data[SC_DANCING].val1 == CG_HERMODE	//cannot move while Hermod is active.
-			)) ||
-			sc->data[SC_MOONLIT].timer != -1 ||
-			(sc->data[SC_GOSPEL].timer !=-1 && sc->data[SC_GOSPEL].val4 == BCT_SELF) ||	// cannot move while gospel is in effect
-			sc->data[SC_STOP].timer != -1 ||
-			sc->data[SC_CLOSECONFINE].timer != -1 ||
-			sc->data[SC_CLOSECONFINE2].timer != -1 ||
-			(sc->data[SC_CLOAKING].timer != -1 && //Need wall at level 1-2
-			 sc->data[SC_CLOAKING].val1 < 3 && !(sc->data[SC_CLOAKING].val4&1))
+			))
+			|| sc->data[SC_MOONLIT].timer != -1
+			|| (sc->data[SC_GOSPEL].timer !=-1 && sc->data[SC_GOSPEL].val4 == BCT_SELF)	// cannot move while gospel is in effect
+			|| sc->data[SC_STOP].timer != -1
+			|| sc->data[SC_CLOSECONFINE].timer != -1
+			|| sc->data[SC_CLOSECONFINE2].timer != -1
+			|| (sc->data[SC_CLOAKING].timer != -1 && //Need wall at level 1-2
+				sc->data[SC_CLOAKING].val1 < 3 && !(sc->data[SC_CLOAKING].val4&1))
+			|| sc->data[SC_MADNESSCANCEL].timer != -1
 		))
 			return 0;
 	}
@@ -708,11 +709,11 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 
 	nullpo_retr(0, src);
 	if(status_isdead(src))
-		return 0; // 死んでいないか
+		return 0; //
 
-	if( BL_CAST( BL_PC,  src, sd ) ) {
+	if( BL_CAST( BL_PC,  src, sd ) )
 		ud = &sd->ud;
-	} else
+	else
 		ud = unit_bl2ud(src);
 
 	if(ud == NULL) return 0;
@@ -761,9 +762,9 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 	if(!target && (target=map_id2bl(target_id)) == NULL )
 		return 0;
 	if(src->m != target->m)
-		return 0; // 同じマップかどうか
+		return 0; // }bv
 	if(!src->prev || !target->prev)
-		return 0; // map 上に存在するか
+		return 0; // map 
 
 	//Normally not needed because clif.c checks for it, but the at/char/script commands don't! [Skotlex]
 	if(ud->skilltimer != -1 && skill_num != SA_CASTCANCEL)
@@ -776,7 +777,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 		return 0;
 
 	tstatus = status_get_status_data(target);
-	//直前のスキル状況の記録
+	//OXLL^
 	if(sd) {
 		switch(skill_num){
 		case SA_CASTCANCEL:
@@ -949,7 +950,7 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 
 	nullpo_retr(0, src);
 
-	if(!src->prev) return 0; // map 上に存在するか
+	if(!src->prev) return 0; // map 
 	if(status_isdead(src)) return 0;
 
 	if( BL_CAST( BL_PC, src, sd ) ) {
@@ -980,7 +981,7 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 		return 0;
 	}
 
-	/* 射程と障害物チェック */
+	/* Q`FbN */
 	bl.type = BL_NUL;
 	bl.m = src->m;
 	bl.x = skill_x;
@@ -1057,8 +1058,8 @@ int unit_unattackable(struct block_list *bl) {
 }
 
 /*==========================================
- * 攻撃要求
- * typeが1なら継続攻撃
+ * Uv
+ * type1pU
  *------------------------------------------
  */
 
@@ -1115,10 +1116,10 @@ int unit_can_reach_pos(struct block_list *bl,int x,int y, int easy)
 
 	nullpo_retr(0, bl);
 
-	if( bl->x==x && bl->y==y )	// 同じマス
+	if( bl->x==x && bl->y==y )	// }X
 		return 1;
 
-	// 障害物判定
+	// Q
 	wpd.path_len=0;
 	wpd.path_pos=0;
 	wpd.path_half=0;
@@ -1171,7 +1172,7 @@ int unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, i
 
 
 /*==========================================
- * PCの攻撃 (timer関数)
+ * PCU (timer)
  *------------------------------------------
  */
 static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int tick)
@@ -1350,7 +1351,7 @@ int unit_skillcastcancel(struct block_list *bl,int type)
 	return 1;
 }
 
-// unit_data の初期化処理
+// unit_data 
 void unit_dataset(struct block_list *bl) {
 	struct unit_data *ud;
 	nullpo_retv(ud = unit_bl2ud(bl));
@@ -1366,7 +1367,7 @@ void unit_dataset(struct block_list *bl) {
 }
 
 /*==========================================
- * 自分をロックしているユニットの数を数える(foreachclient)
+ * bNjbg(foreachclient)
  *------------------------------------------
  */
 static int unit_counttargeted_sub(struct block_list *bl, va_list ap)
@@ -1400,8 +1401,8 @@ int unit_fixdamage(struct block_list *src,struct block_list *target,unsigned int
 	return status_fix_damage(src,target,damage+damage2,clif_damage(target,target,tick,sdelay,ddelay,damage,div,type,damage2));
 }
 /*==========================================
- * 自分をロックしている対象の数を返す
- * 戻りは整数で0以上
+ * bN
+ * 0
  *------------------------------------------
  */
 int unit_counttargeted(struct block_list *bl,int target_lv)
@@ -1412,7 +1413,7 @@ int unit_counttargeted(struct block_list *bl,int target_lv)
 }
 
 /*==========================================
- * 見た目のサイズを変更する
+ * TCYX
  *------------------------------------------
  */
 int unit_changeviewsize(struct block_list *bl,short size)
@@ -1459,8 +1460,7 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 		unit_skillcastcancel(bl,0);
 // Do not reset can-act delay. [Skotlex]
 	ud->attackabletime = ud->canmove_tick /*= ud->canact_tick*/ = gettick();
-	clif_clearchar_area(bl,clrtype);
-	
+
 	if(sc && sc->count ) { //map-change/warp dispells.
 		if(sc->data[SC_BLADESTOP].timer!=-1)
 			status_change_end(bl,SC_BLADESTOP,-1);
@@ -1500,7 +1500,7 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 
 	if (bl->type&BL_CHAR) {
 		skill_unit_move(bl,gettick(),4);
-		skill_cleartimerskill(bl);			// タイマースキルクリア
+		skill_cleartimerskill(bl);			// ^C}[XLNA
 	}
 
 	if(bl->type == BL_PC) {
@@ -1548,26 +1548,15 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 		md->state.skillstate= MSS_IDLE;
 	} else if (bl->type == BL_PET) {
 		struct pet_data *pd = (struct pet_data*)bl;
-		struct map_session_data *sd = pd->msd;
-		
-		if(!sd) {
-			map_delblock(bl);
-			unit_free(bl);
-			map_freeblock_unlock();
-			return 0;
-		}
-		if (sd->pet.intimate <= 0)
-		{	//Remove pet.
-			intif_delete_petdata(sd->status.pet_id);
-			sd->status.pet_id = 0;
-			sd->pd = NULL;
-			pd->msd = NULL;
+		if(pd->pet.intimate <= 0) {
+			clif_clearchar_area(bl,clrtype);
 			map_delblock(bl);
 			unit_free(bl);
 			map_freeblock_unlock();
 			return 0;
 		}
 	}
+	clif_clearchar_area(bl,clrtype);
 	map_delblock(bl);
 	map_freeblock_unlock();
 	return 1;
@@ -1698,11 +1687,14 @@ int unit_free(struct block_list *bl) {
 			aFree (pd->loot);
 			pd->loot = NULL;
 		}
-		if (sd) {
-			if(sd->pet.intimate > 0)
-				intif_save_petdata(sd->status.account_id,&sd->pet);
-			sd->pd = NULL;
+		if(pd->pet.intimate > 0)
+			intif_save_petdata(pd->pet.account_id,&pd->pet);
+		else
+		{	//Remove pet.
+			intif_delete_petdata(pd->pet.pet_id);
+			if (sd) sd->status.pet_id = 0;
 		}
+		if (sd) sd->pd = NULL;
 	} else if(bl->type == BL_MOB) {
 		struct mob_data *md = (struct mob_data*)bl;
 		if(md->deletetimer!=-1) {

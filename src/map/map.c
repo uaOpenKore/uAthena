@@ -167,6 +167,7 @@ int map_num = 0;
 int map_port=0;
 
 int autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;
+int minsave_interval = 100;
 int save_settings = 0xFFFF;
 int charsave_method = 0; //Default 'OLD' Save method (SQL ONLY!) [Sirius]
 int agit_flag = 0;
@@ -192,9 +193,6 @@ char wisp_server_name[NAME_LENGTH] = "Server"; // can be modified in char-server
 
 int console = 0;
 int enable_spy = 0; //To enable/disable @spy commands, which consume too much cpu time when sending packets. [Skotlex]
-
-static const int dirx[8]={0,-1,-1,-1,0,1,1,1};
-static const int diry[8]={1,1,0,-1,-1,-1,0,1};
 
 /*==========================================
  * SmapI?v??
@@ -3325,12 +3323,14 @@ int map_config_read(char *cfgName) {
 				npc_delsrcfile(w2);
 			} else if (strcmpi(w1, "autosave_time") == 0) {
 				autosave_interval = atoi(w2);
-				if (!autosave_interval) //Revert to default saving.
+				if (autosave_interval < 1) //Revert to default saving.
 					autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;
-				else if (autosave_interval > 0) //Pass from MS to seconds
-					autosave_interval *= 1000;
-				else if (autosave_interval > -100) //Use lower cap of 100ms
-					autosave_interval = -100;
+				else
+					autosave_interval *= 1000; //Pass from sec to ms
+			} else if (strcmpi(w1, "minsave_time") == 0) {
+				minsave_interval= atoi(w2);
+				if (minsave_interval < 1)
+					minsave_interval = 1;
 			} else if (strcmpi(w1, "save_settings") == 0) {
 				save_settings = atoi(w2);
 			} else if (strcmpi(w1, "motd_txt") == 0) {

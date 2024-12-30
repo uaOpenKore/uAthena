@@ -173,7 +173,7 @@ enum {
 	BL_PC = 0x001,
 	BL_MOB = 0x002,
 	BL_PET = 0x004,
-	BL_HOM = 0x008,	//[blackhole89]
+//	BL_HOM = 0x008,	//[blackhole89]
 	BL_ITEM = 0x010,
 	BL_SKILL = 0x020,
 	BL_NPC = 0x040,
@@ -536,13 +536,13 @@ struct map_session_data {
 		unsigned night :1; //Holds whether or not the player currently has the SI_NIGHT effect on. [Skotlex]
 		unsigned finalsave :1; //Signals whether the final save for the char was done or not yet. Meant to prevent exploits and the like. [Skotlex]
 		unsigned rewarp :1; //Signals that a player should warp as soon as he is done loading a map. [Skotlex]
+		unsigned killer : 1;
+		unsigned killable : 1;
 		unsigned short autoloot;
 		struct guild *gmaster_flag;
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
-		unsigned killer : 1;
-		unsigned killable : 1;
 		unsigned restart_full_recover : 1;
 		unsigned no_castcancel : 1;
 		unsigned no_castcancel2 : 1;
@@ -747,7 +747,6 @@ struct map_session_data {
 	char message[MESSAGE_SIZE];
 	struct vending vending[MAX_VENDING];
 
-	struct s_pet pet;
 	struct pet_data *pd;
 
 	struct{
@@ -853,7 +852,8 @@ struct guardian_data {
 // Expanded to specify all mob-related spawn data by [Skotlex]
 struct spawn_data {
 	short class_; //Class, used because a mob can change it's class
-	unsigned short m,x,y,xs,ys;	//Spawn information (map, point, spawn-area around point)
+	unsigned short m,x,y;	//Spawn information (map, point, spawn-area around point)
+	signed short xs,ys;
 	unsigned short num; //Number of mobs using this structure.
 	unsigned int level; //Custom level.
 	unsigned int delay1,delay2; //Min delay before respawning after spawn/death
@@ -923,15 +923,13 @@ struct pet_data {
 	struct block_list bl;
 	struct unit_data ud;
 	struct view_data vd;
+	struct s_pet pet;
 	struct status_data status;
 	struct mob_db *db;
 	struct pet_db *petDB;
 	int pet_hungry_timer;
 	int target_id;
 	short n;
-	short class_;
-	short equip;
-	char name[NAME_LENGTH];
 	struct {
 		unsigned skillbonus : 1;
 	} state;
@@ -1132,7 +1130,6 @@ enum {
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
 	//Before adding another, note that
 	//1077 (SP_FREE, previously disguise),
-	//2007 (SP_FREE2, previously Infinite Endure)
 	//are available!
 };
 
@@ -1209,6 +1206,7 @@ struct chat_data {
 extern struct map_data map[];
 extern int map_num;
 extern int autosave_interval;
+extern int minsave_interval;
 extern int save_settings;
 extern int agit_flag;
 extern int night_flag; // 0=day, 1=night [Yor]
