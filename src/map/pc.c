@@ -640,6 +640,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	for(i = 0; i < MAX_EVENTTIMER; i++)
 		sd->eventtimer[i] = -1;
 
+	sd->npc_timer_id = -1;
+
 	// Moved PVP timer initialisation before set_pos
 	sd->pvp_timer = -1;
 
@@ -1443,8 +1445,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			sd->speed_add_rate = sd->speed_add_rate * (100-val)/100;
 		break;
 	case SP_ASPD:	//Raw increase
-		if(sd->state.lr_flag != 2)
-			status->amotion -= val*10;
+//		if(sd->state.lr_flag != 2)
+//			status->amotion -= val*10;
+		if (battle_config.error_log)
+			ShowError("pc_bonus: bonus bAspd is no longer supported!\n");
 		break;
 	case SP_ASPD_RATE:	//Non stackable increase
 		if(sd->state.lr_flag != 2 && status->aspd_rate > 1000-val*10)
@@ -2880,7 +2884,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 {
 	unsigned int tick = gettick();
 	int amount;
-	unsigned char *script;
+	struct script_code *script;
 
 	nullpo_retr(0, sd);
 
@@ -2928,7 +2932,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 	}
 
 	sd->canuseitem_tick= tick + battle_config.item_use_interval; //Update item use time.
-	run_script(script,0,sd->bl.id,0);
+	run_script(script,0,sd->bl.id,fake_nd->bl.id);
 	potion_flag = 0;
 	return 1;
 }
@@ -4782,7 +4786,10 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			pc_setglobalreg(sd,"killerrid",src->id);
 		npc_script_event(sd,NPCE_DIE);
 	}
-	
+
+	if ( sd && sd->spiritball && (sd->class_&MAPID_BASEMASK)==MAPID_GUNSLINGER ) // maybe also monks' spiritballs ?
+		pc_delspiritball(sd,sd->spiritball,0);
+
 	if (src)
 	switch (src->type) {
 	case BL_MOB:
@@ -6296,7 +6303,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 		int i;
 		struct item_data *data;
 		if (sd->inventory_data[n]->equip_script)
-			run_script(sd->inventory_data[n]->equip_script,0,sd->bl.id,0);
+			run_script(sd->inventory_data[n]->equip_script,0,sd->bl.id,fake_nd->bl.id);
 		if(itemdb_isspecial(sd->status.inventory[n].card[0]))
 			; //No cards
 		else
@@ -6306,7 +6313,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 				continue;
 			data = itemdb_exists(sd->status.inventory[n].card[i]);
 			if (data && data->equip_script)
-				run_script(data->equip_script,0,sd->bl.id,0);
+				run_script(data->equip_script,0,sd->bl.id,fake_nd->bl.id);
 		}
 	}
 	return 0;
@@ -6392,7 +6399,7 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 	if (sd->inventory_data[n]) {
 		struct item_data *data;
 		if (sd->inventory_data[n]->unequip_script)
-			run_script(sd->inventory_data[n]->unequip_script,0,sd->bl.id,0);
+			run_script(sd->inventory_data[n]->unequip_script,0,sd->bl.id,fake_nd->bl.id);
 		if(itemdb_isspecial(sd->status.inventory[n].card[0]))
 			; //No cards
 		else
@@ -6402,7 +6409,7 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 				continue;
 			data = itemdb_exists(sd->status.inventory[n].card[i]);
 			if (data && data->unequip_script)
-				run_script(data->unequip_script,0,sd->bl.id,0);
+				run_script(data->unequip_script,0,sd->bl.id,fake_nd->bl.id);
 		}
 	}
 
@@ -6633,8 +6640,9 @@ int pc_divorce(struct map_session_data *sd)
  * sd - father dstsd - mother jasd - child
  */
 int pc_adoption(struct map_session_data *sd,struct map_session_data *dstsd, struct map_session_data *jasd)
-{       
-	int j;          
+{
+	int j,level, job;
+	unsigned int exp;
 	if (sd == NULL || dstsd == NULL || jasd == NULL ||
 		sd->status.partner_id <= 0 || dstsd->status.partner_id <= 0 ||
 		sd->status.partner_id != dstsd->status.char_id || dstsd->status.partner_id != sd->status.char_id ||
@@ -6649,8 +6657,19 @@ int pc_adoption(struct map_session_data *sd,struct map_session_data *dstsd, stru
 		if(jasd->status.inventory[j].nameid>0 && jasd->status.inventory[j].equip!=0)
 			pc_unequipitem(jasd, j, 3);
 	}
-	if (pc_jobchange(jasd, 4023, 0) == 0)
+
+	//Preserve level and exp.
+	level = jasd->status.job_level;
+	exp = jasd->status.job_exp;
+	job = jasd->class_|JOBL_BABY; //Preserve current Job by babyfying it. [Skotlex]
+	job = pc_mapid2jobid(job, jasd->status.sex);
+	if (job != -1 && pc_jobchange(jasd, job, 0) == 0)
 	{	//Success, and give Junior the Baby skills. [Skotlex]
+		//Restore job level and experience.
+		jasd->status.job_level = level;
+		jasd->status.job_exp = exp;
+		clif_updatestatus(jasd,SP_JOBLEVEL);
+		clif_updatestatus(jasd,SP_JOBEXP);
 		pc_skill(jasd,WE_BABY,1,0);
 		pc_skill(jasd,WE_CALLPARENT,1,0);
 		clif_displaymessage(jasd->fd, msg_txt(12)); // Your job has been changed.

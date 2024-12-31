@@ -166,9 +166,12 @@ static int storage_additem(struct map_session_data *sd,struct storage *stor,stru
 	struct item_data *data;
 	int i;
 
+	if (sd->state.finalsave)
+		return 1;
+
 	if(item_data->nameid <= 0 || amount <= 0)
 		return 1;
-	
+
 	data = itemdb_search(item_data->nameid);
 
 	if (!itemdb_canstore(item_data, pc_isGM(sd)))

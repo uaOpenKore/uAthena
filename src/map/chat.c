@@ -17,7 +17,7 @@
 int chat_triggerevent(struct chat_data *cd);
 
 /*==========================================
- * チャットルーム作成
+ * `bg[
  *------------------------------------------
  */
 int chat_createchat(struct map_session_data *sd,int limit,int pub,char* pass,char* title,int titlelen)
@@ -34,7 +34,7 @@ int chat_createchat(struct map_session_data *sd,int limit,int pub,char* pass,cha
 		return 0; //Can't create chatrooms on this map.
 	}
 	pc_stop_walking(sd,1);
-	cd = (struct chat_data *) aCalloc(1,sizeof(struct chat_data));
+	cd = (struct chat_data *) aMalloc(sizeof(struct chat_data));
 
 	cd->limit = limit;
 	cd->pub = pub;
@@ -51,8 +51,8 @@ int chat_createchat(struct map_session_data *sd,int limit,int pub,char* pass,cha
 	cd->bl.x = sd->bl.x;
 	cd->bl.y = sd->bl.y;
 	cd->bl.type = BL_CHAT;
-
-	cd->bl.id = map_addobject(&cd->bl);	
+	cd->bl.next = cd->bl.prev = NULL;
+	cd->bl.id = map_addobject(&cd->bl);
 	if(cd->bl.id==0){
 		clif_createchat(sd,1);
 		aFree(cd);
@@ -67,7 +67,7 @@ int chat_createchat(struct map_session_data *sd,int limit,int pub,char* pass,cha
 }
 
 /*==========================================
- * 既存チャットルームに参加
+ * `bg[Q
  *------------------------------------------
  */
 int chat_joinchat (struct map_session_data *sd, int chatid, char* pass)
@@ -99,17 +99,17 @@ int chat_joinchat (struct map_session_data *sd, int chatid, char* pass)
 
 	pc_setchatid(sd,cd->bl.id);
 
-	clif_joinchatok(sd,cd);	// 新たに参加した人には全員のリスト
-	clif_addchat(cd,sd);	// 既に中に居た人には追加した人の報告
-	clif_dispchat(cd,0);	// 周囲の人には人数変化報告
+	clif_joinchatok(sd,cd);	// VQlSXg
+	clif_addchat(cd,sd);	// ll
+	clif_dispchat(cd,0);	// ll
 
-	chat_triggerevent(cd); // イベント
+	chat_triggerevent(cd); // Cxg
 	
 	return 0;
 }
 
 /*==========================================
- * チャットルームから抜ける
+ * `bg[
  *------------------------------------------
  */
 int chat_leavechat(struct map_session_data *sd)
@@ -129,32 +129,34 @@ int chat_leavechat(struct map_session_data *sd)
 			break;
 		}
 	}
-	if(leavechar<0)	// そのchatに所属していないらしい (バグ時のみ)
+	if(leavechar<0)	// chat (oO)
 		return -1;
 
 	if(leavechar==0 && cd->users>1 && (*cd->owner)->type==BL_PC){
-		// 所有者だった&他に人が居る&PCのチャット
+		// L&l&PC`bg
 		clif_changechatowner(cd,cd->usersd[1]);
 		clif_clearchat(cd,0);
 	}
 
-	// 抜けるPCにも送るのでusersを減らす前に実行
+	// PCusersOs
 	clif_leavechat(cd,sd);
 
 	cd->users--;
 	pc_setchatid(sd,0);
 
 	if(cd->users == 0 && (*cd->owner)->type==BL_PC){
-			// 全員居なくなった&PCのチャットなので消す
+		//Delete empty chatroom
 		clif_clearchat(cd,0);
-		map_delobject(cd->bl.id);	// freeまでしてくれる
+		map_delobject(cd->bl.id);
 	} else {
 		for(i=leavechar;i < cd->users;i++)
 			cd->usersd[i] = cd->usersd[i+1];
 		if(leavechar==0 && (*cd->owner)->type==BL_PC){
-			// PCのチャットなので所有者が抜けたので位置変更
+			//Adjust Chat location after owner has been changed.
+			map_delblock( &cd->bl );
 			cd->bl.x=cd->usersd[0]->bl.x;
 			cd->bl.y=cd->usersd[0]->bl.y;
+			map_addblock( &cd->bl );
 		}
 		clif_dispchat(cd,0);
 	}
@@ -163,7 +165,7 @@ int chat_leavechat(struct map_session_data *sd)
 }
 
 /*==========================================
- * チャットルームの持ち主を譲る
+ * `bg[
  *------------------------------------------
  */
 int chat_changechatowner(struct map_session_data *sd,char *nextownername)
@@ -184,31 +186,32 @@ int chat_changechatowner(struct map_session_data *sd,char *nextownername)
 			break;
 		}
 	}
-	if(nextowner<0) // そんな人は居ない
+	if(nextowner<0) // l
 		return -1;
 
 	clif_changechatowner(cd,cd->usersd[nextowner]);
-	// 一旦消す
+	// U
 	clif_clearchat(cd,0);
 
-	// userlistの順番変更 (0が所有者なので)
+	// userlistX (0L)
 	if( (tmp_sd = cd->usersd[0]) == NULL )
-		return 1; //ありえるのかな？
+		return 1; //H
 	cd->usersd[0] = cd->usersd[nextowner];
 	cd->usersd[nextowner] = tmp_sd;
 
-	// 新しい所有者の位置へ変更
+	map_delblock( &cd->bl );
 	cd->bl.x=cd->usersd[0]->bl.x;
 	cd->bl.y=cd->usersd[0]->bl.y;
+	map_addblock( &cd->bl );
 
-	// 再度表示
+	// x
 	clif_dispchat(cd,0);
 
 	return 0;
 }
 
 /*==========================================
- * チャットの状態(タイトル等)を変更
+ * `bg(^Cg)X
  *------------------------------------------
  */
 int chat_changechatstatus(struct map_session_data *sd,int limit,int pub,char* pass,char* title,int titlelen)
@@ -236,7 +239,7 @@ int chat_changechatstatus(struct map_session_data *sd,int limit,int pub,char* pa
 }
 
 /*==========================================
- * チャットルームから蹴り出す
+ * `bg[Ro
  *------------------------------------------
  */
 int chat_kickchat(struct map_session_data *sd,char *kickusername)
@@ -263,7 +266,7 @@ int chat_kickchat(struct map_session_data *sd,char *kickusername)
 }
 
 /*==========================================
- * npcチャットルーム作成
+ * npc`bg[
  *------------------------------------------
  */
 int chat_createnpcchat(struct npc_data *nd,int limit,int pub,int trigger,char* title,int titlelen,const char *ev)
@@ -272,7 +275,7 @@ int chat_createnpcchat(struct npc_data *nd,int limit,int pub,int trigger,char* t
 
 	nullpo_retr(1, nd);
 
-	cd = (struct chat_data *) aCalloc(1,sizeof(struct chat_data));
+	cd = (struct chat_data *) aMalloc(sizeof(struct chat_data));
 
 	cd->limit = cd->trigger = limit;
 	if(trigger>0)
@@ -288,6 +291,7 @@ int chat_createnpcchat(struct npc_data *nd,int limit,int pub,int trigger,char* t
 	cd->bl.x = nd->bl.x;
 	cd->bl.y = nd->bl.y;
 	cd->bl.type = BL_CHAT;
+	cd->bl.prev= cd->bl.next = NULL;
 	cd->owner_ = (struct block_list *)nd;
 	cd->owner = &cd->owner_;
 	if (strlen(ev) > 49)
@@ -309,7 +313,7 @@ int chat_createnpcchat(struct npc_data *nd,int limit,int pub,int trigger,char* t
 	return 0;
 }
 /*==========================================
- * npcチャットルーム削除
+ * npc`bg[
  *------------------------------------------
  */
 int chat_deletenpcchat(struct npc_data *nd)
@@ -321,14 +325,14 @@ int chat_deletenpcchat(struct npc_data *nd)
 	
 	chat_npckickall(cd);
 	clif_clearchat(cd,0);
-	map_delobject(cd->bl.id);	// freeまでしてくれる
+	map_delobject(cd->bl.id);	// free
 	nd->chat_id=0;
 	
 	return 0;
 }
 
 /*==========================================
- * 規定人数以上でイベントが定義されてるなら実行
+ * KlCxg`s
  *------------------------------------------
  */
 int chat_triggerevent(struct chat_data *cd)
@@ -341,7 +345,7 @@ int chat_triggerevent(struct chat_data *cd)
 }
 
 /*==========================================
- * イベントの有効化
+ * CxgL
  *------------------------------------------
  */
 int chat_enableevent(struct chat_data *cd)
@@ -353,7 +357,7 @@ int chat_enableevent(struct chat_data *cd)
 	return 0;
 }
 /*==========================================
- * イベントの無効化
+ * Cxg
  *------------------------------------------
  */
 int chat_disableevent(struct chat_data *cd)
@@ -364,7 +368,7 @@ int chat_disableevent(struct chat_data *cd)
 	return 0;
 }
 /*==========================================
- * チャットルームから全員蹴り出す
+ * `bg[SRo
  *------------------------------------------
  */
 int chat_npckickall(struct chat_data *cd)

@@ -1755,7 +1755,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		//When caster is not the src of attack, this is a ground skill, and as such, do the relevant target checking. [Skotlex]
 		if (!status_check_skilluse(battle_config.skill_caster_check?src:NULL, bl, skillid, 2))
 			return 0;
-	} else if ((flag&0xFFF) && skill_get_nk(skillid)&NK_SPLASH) {
+	} else if ((flag&SD_ANIMATION) && skill_get_nk(skillid)&NK_SPLASH) {
 		//Note that splash attacks often only check versus the targetted mob, those around the splash area normally don't get checked for being hidden/cloaked/etc. [Skotlex]
 		if (!status_check_skilluse(src, bl, skillid, 2))
 			return 0;
@@ -4371,6 +4371,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					|| i==SC_COMBO || i==SC_DANCING || i==SC_GUILDAURA || i==SC_EDP
 					|| i==SC_AUTOBERSERK  || i==SC_CARTBOOST || i==SC_MELTDOWN || i==SC_MOONLIT
 					|| i==SC_SAFETYWALL || i==SC_SMA || i==SC_SPEEDUP0
+					|| i==SC_NOCHAT
 					)
 					continue;
 				if(i==SC_BERSERK) tsc->data[i].val2=0; //Mark a dispelled berserk to avoid setting hp to 100 by setting hp penalty to 0.
@@ -5425,6 +5426,7 @@ int skill_castend_id (int tid, unsigned int tick, int id, int data)
 	ud->skillid = ud->skilllv = ud->skilltarget = 0;
 	ud->canact_tick = tick;
 	if(sd) sd->skillitem = sd->skillitemlv = -1;
+	else
 	if(md) md->skillidx = -1;
 	return 0;
 }
@@ -9111,15 +9113,16 @@ void skill_stop_dancing (struct block_list *src)
 		sc->data[SC_DANCING].val4 = 0;
 	}
 
-	if (group)
-		skill_delunitgroup(NULL, group, 0);
+	status_change_end(src, SC_DANCING, -1);
 
 	if (dsd)
 	{
 		dsd->sc.data[SC_DANCING].val4 = dsd->sc.data[SC_DANCING].val2 = 0;
 		status_change_end(&dsd->bl, SC_DANCING, -1);
 	}
-	status_change_end(src, SC_DANCING, -1);
+
+	if (group)
+		skill_delunitgroup(NULL, group, 0);
 }
 
 /*==========================================
@@ -9355,7 +9358,7 @@ int skill_delunitgroup (struct block_list *src, struct skill_unit_group *group, 
 		group->valstr=NULL;
 	}
 
-	map_freeblock((struct block_list*)group->unit);
+	map_freeblock(&group->unit->bl);
 	group->unit=NULL;
 	group->group_id=0;
 	group->unit_count=0;

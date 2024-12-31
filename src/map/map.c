@@ -218,14 +218,20 @@ int map_getusers(void) {
 	return map_users;
 }
 
-
 //Distance functions, taken from http://www.flipcode.com/articles/article_fastdistance.shtml
 int check_distance(int dx, int dy, int distance) {
+#ifdef CIRCULAR_AREA
 	//In this case, we just do a square comparison. Add 1 tile grace for diagonal range checks.
 	return (dx*dx + dy*dy <= distance*distance + (dx&&dy?1:0));
+#else
+	if (dx < 0) dx = -dx;
+	if (dy < 0) dy = -dy;
+	return ((dx<dy?dy:dx) <= distance);
+#endif
 }
 
 unsigned int distance(int dx, int dy) {
+#ifdef CIRCULAR_AREA
 	unsigned int min, max;
 
 	if ( dx < 0 ) dx = -dx;
@@ -245,6 +251,11 @@ unsigned int distance(int dx, int dy) {
    // coefficients equivalent to ( 123/128 * max ) and ( 51/128 * min )
 	return ((( max << 8 ) + ( max << 3 ) - ( max << 4 ) - ( max << 1 ) +
 		( min << 7 ) - ( min << 5 ) + ( min << 3 ) - ( min << 1 )) >> 8 );
+#else
+	if (dx < 0) dx = -dx;
+	if (dy < 0) dy = -dy;
+	return (dx<dy?dy:dx);
+#endif
 }
 
 //
@@ -657,10 +668,10 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list),struct block_list
 				for(i=0;i<c && bl;i++,bl=bl->next){
 					if(bl && bl->type&type
 						&& bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1
-						//For speed purposes, it does not checks actual range by default.
-						//Feel free to uncomment if you want a more "exact" approach.
-//						&& check_distance_bl(center, bl, range)
-					  	&& bl_list_count<BL_LIST_MAX)
+#ifdef CIRCULAR_AREA
+						&& check_distance_bl(center, bl, range)
+#endif
+						&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
 				}
 			}
@@ -673,7 +684,9 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list),struct block_list
 				for(i=0;i<c && bl;i++,bl=bl->next){
 					if(bl
 						&& bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1
-//						&& check_distance_bl(center, bl, range)
+#ifdef CIRCULAR_AREA
+						&& check_distance_bl(center, bl, range)
+#endif
 						&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
 				}
@@ -731,8 +744,11 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 				for(i=0;i<c && bl;i++,bl=bl->next){
 					if(bl && bl->type&type
 						&& bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1
+#ifdef CIRCULAR_AREA
+						&& check_distance_bl(center, bl, range)
+#endif
 						&& path_search_long(NULL,center->m,center->x,center->y,bl->x,bl->y)
-					  	&& bl_list_count<BL_LIST_MAX)
+						&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
 				}
 			}
@@ -745,6 +761,9 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 				for(i=0;i<c && bl;i++,bl=bl->next){
 					if(bl
 						&& bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1
+#ifdef CIRCULAR_AREA
+						&& check_distance_bl(center, bl, range)
+#endif
 						&& path_search_long(NULL,center->m,center->x,center->y,bl->x,bl->y)
 						&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
@@ -1656,8 +1675,9 @@ int map_quit(struct map_session_data *sd) {
 
 	//nullpo_retr(0, sd); //Utterly innecessary, all invokations to this function already have an SD non-null check.
 	//Learn to use proper coding and stop relying on nullpo_'s for safety :P [Skotlex]
-
 	if(!sd->state.waitingdisconnect) {
+		if (sd->npc_timer_id != -1) //Cancel the event timer.
+			npc_timerevent_quit(sd);
 		if (sd->state.event_disconnect)
 			npc_script_event(sd, NPCE_LOGOUT);
 
@@ -1690,9 +1710,12 @@ int map_quit(struct map_session_data *sd) {
 		sd->regstr = NULL;
 		sd->regstr_num = 0;
 	}
-	if (sd->stack) {
-		script_free_stack(sd->stack);
-		sd->stack= NULL;
+	if (sd->st) {
+		if (sd->st->stack)
+			script_free_stack (sd->st->stack);
+		aFree(sd->st);
+		sd->st = NULL;
+		sd->npc_id = 0;
 	}
 #ifndef TXT_ONLY
 	if(charsave_method)
@@ -1776,34 +1799,38 @@ struct map_session_data * map_charid2sd(int id) {
  *------------------------------------------
  */
 struct map_session_data * map_nick2sd(char *nick) {
-	int i, quantity=0, nicklen, users;
-	struct map_session_data *sd = NULL;
+	int i, users;
 	struct map_session_data *pl_sd = NULL, **pl_allsd;
 
 	if (nick == NULL)
 		return NULL;
 
-    nicklen = strlen(nick);
-
-	 pl_allsd = map_getallusers(&users);
-	 
-	for (i = 0; i < users; i++) {
-		pl_sd = pl_allsd[i];
-		// Without case sensitive check (increase the number of similar character names found)
-		if (strnicmp(pl_sd->status.name, nick, nicklen) == 0) {
-			// Strict comparison (if found, we finish the function immediatly with correct value)
-			if (strcmp(pl_sd->status.name, nick) == 0)
-				return pl_sd;
-			quantity++;
-			sd = pl_sd;
+	pl_allsd = map_getallusers(&users);
+	if (battle_config.partial_name_scan)
+	{
+		int qty = 0, nicklen = strlen(nick);
+		struct map_session_data *sd = NULL;
+		for (i = 0; i < users; i++) {
+			pl_sd = pl_allsd[i];
+			// Without case sensitive check (increase the number of similar character names found)
+			if (strnicmp(pl_sd->status.name, nick, nicklen) == 0) {
+				// Strict comparison (if found, we finish the function immediatly with correct value)
+				if (strcmp(pl_sd->status.name, nick) == 0)
+					return pl_sd;
+				qty++;
+				sd = pl_sd;
+			}
+		}
+		// We return the found index of a similar account ONLY if there is 1 similar character
+		if (qty == 1)
+			return sd;
+	} else { //Exact Search
+		for (i = 0; i < users; i++) {
+			if (strcasecmp(pl_allsd[i]->status.name, nick) == 0)
+				return pl_allsd[i];
 		}
 	}
-	// Here, the exact character name is not found
-	// We return the found index of a similar account ONLY if there is 1 similar character
-	if (quantity == 1)
-		return sd;
-
-	// Exact character name is not found and 0 or more than 1 similar characters have been found ==> we say not found
+	//Not found.
 	return NULL;
 }
 
@@ -2966,7 +2993,7 @@ int map_readgat (struct map_data *m)
 
 	xs = m->xs = *(int*)(gat+6);
 	ys = m->ys = *(int*)(gat+10);
-	m->gat = (unsigned char *)aCallocA(m->xs * m->ys, sizeof(unsigned char));
+	m->gat = (unsigned char *)aMallocA((m->xs * m->ys)*sizeof(unsigned char));
 
 	m->water_height = wh = map_waterheight(m->name);
 	for (y = 0; y < ys; y++) {
