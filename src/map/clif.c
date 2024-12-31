@@ -102,7 +102,7 @@ static const int packet_len_table[MAX_PACKET_DB] = {
 //#0x200
    26, -1,  26, 10, 18, 26, 11, 34,  14, 36, 10, 0,  0, -1, 32, 10, // 0x20c change to 0 (was 19)
    22,  0,  26, 26, 42, -1, -1,  2,   2,282,282,10, 10, -1, -1, 66,
-   10, -1,  -1,  8, 10,  2,282, 18,  18, 15, 58, 57, 64, 5, 69,  5,
+   10, -1,  -1,  8, 10,  2,282, 18,  18, 15, 58, 57, 64, 5, 71,  5,
    12, 26,   9, 11, -1, -1, 10,  2, 282, 11,  4, 36, -1,-1,  4,  2,
    -1, -1,  -1, -1, -1,  3,  4,  8,  -1,  3, 70,  4,  8,12,  4, 10,
     3, 32,  -1,  3,  3,  5,  5,  8,   2,  3, -1, -1,  4,-1,  4
@@ -6952,7 +6952,7 @@ int clif_guild_leave(struct map_session_data *sd,const char *name,const char *me
  * Mhom
  *------------------------------------------
  */
-int clif_guild_explusion(struct map_session_data *sd,const char *name,const char *mes,
+int clif_guild_expulsion(struct map_session_data *sd,const char *name,const char *mes,
 	int account_id)
 {
 	unsigned char buf[128];
@@ -6970,7 +6970,7 @@ int clif_guild_explusion(struct map_session_data *sd,const char *name,const char
  * MhoXg
  *------------------------------------------
  */
-int clif_guild_explusionlist(struct map_session_data *sd)
+int clif_guild_expulsionlist(struct map_session_data *sd)
 {
 	int fd;
 	int i,c;
@@ -6982,10 +6982,10 @@ int clif_guild_explusionlist(struct map_session_data *sd)
 	g=guild_search(sd->status.guild_id);
 	if(g==NULL)
 		return 0;
-	WFIFOHEAD(fd,MAX_GUILDEXPLUSION * 88 + 4);
+	WFIFOHEAD(fd,MAX_GUILDEXPULSION * 88 + 4);
 	WFIFOW(fd,0)=0x163;
-	for(i=c=0;i<MAX_GUILDEXPLUSION;i++){
-		struct guild_explusion *e=&g->explusion[i];
+	for(i=c=0;i<MAX_GUILDEXPULSION;i++){
+		struct guild_expulsion *e=&g->expulsion[i];
 		if(e->account_id>0){
 			memcpy(WFIFOP(fd,c*88+ 4),e->name,NAME_LENGTH);
 			memcpy(WFIFOP(fd,c*88+28),e->acc,24);
@@ -7792,7 +7792,7 @@ void clif_feel_info(struct map_session_data *sd, int feel_level)
  * Info about Star Glaldiator hate mob [Komurka]
  *------------------------------------------
  */
-void clif_hate_mob(struct map_session_data *sd, int skilllv,int mob_id)
+void clif_hate_mob(struct map_session_data *sd, int type,int mob_id)
 {
 	int fd=sd->fd;
 	WFIFOHEAD(fd,packet_len_table[0x20e]);
@@ -7804,7 +7804,7 @@ void clif_hate_mob(struct map_session_data *sd, int skilllv,int mob_id)
 	else //Really shouldn't happen...
 		memset(WFIFOP(fd,2), 0, NAME_LENGTH);
 	WFIFOL(fd,26)=sd->bl.id;
-	WFIFOW(fd,30)=0xa00+skilllv-1;
+	WFIFOW(fd,30)=0xa00+type;
 	WFIFOSET(fd, packet_len_table[0x20e]);
 }
 
@@ -8647,8 +8647,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		)) //No sitting during these states neither.
 		break;
 		pc_setsit(sd);
-		skill_gangsterparadise(sd, 1); // MOX^[p_CX fixed Valaris
-		skill_rest(sd, 1); // TK_HPTIME sitting down mode [Dralnu]
+		skill_sit(sd, 1);
 		clif_sitting(sd);
 		break;
 	case 0x03: // standup
@@ -8661,8 +8660,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			return;
 		}
 		pc_setstand(sd);
-		skill_gangsterparadise(sd, 0); 
-		skill_rest(sd, 0); // TK_HPTIME standing up mode [Dralnu]
+		skill_sit(sd, 0);
 		WBUFW(buf, 0) = 0x8a;
 		WBUFL(buf, 2) = sd->bl.id;
 		WBUFB(buf,26) = 3;
@@ -10180,7 +10178,7 @@ void clif_parse_GuildRequestInfo(int fd, struct map_session_data *sd) {
 		clif_guild_skillinfo(sd);
 		break;
 	case 4:	// Xg
-		clif_guild_explusionlist(sd);
+		clif_guild_expulsionlist(sd);
 		break;
 	default:
 		if (battle_config.error_log)
@@ -10288,9 +10286,9 @@ void clif_parse_GuildLeave(int fd,struct map_session_data *sd) {
  * Mh
  *------------------------------------------
  */
-void clif_parse_GuildExplusion(int fd,struct map_session_data *sd) {
+void clif_parse_GuildExpulsion(int fd,struct map_session_data *sd) {
 	RFIFOHEAD(fd);
-	guild_explusion(sd,RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),(char*)RFIFOP(fd,14));
+	guild_expulsion(sd,RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),(char*)RFIFOP(fd,14));
 }
 
 /*==========================================
@@ -10449,7 +10447,7 @@ void clif_parse_GMKick(int fd, struct map_session_data *sd) {
  *------------------------------------------
  */
 void clif_parse_Shift(int fd, struct map_session_data *sd) {	// Rewriten by [Yor]
-	char player_name[NAME_LENGTH+1];
+	char player_name[NAME_LENGTH];
 
 	memset(player_name, '\0', sizeof(player_name));
 
@@ -10468,7 +10466,7 @@ void clif_parse_Shift(int fd, struct map_session_data *sd) {	// Rewriten by [Yor
  *------------------------------------------
  */
 void clif_parse_Recall(int fd, struct map_session_data *sd) {	// Added by RoVeRT
-	char player_name[25];
+	char player_name[NAME_LENGTH];
 
 	memset(player_name, '\0', sizeof(player_name));
 
@@ -10765,14 +10763,17 @@ void clif_parse_PMIgnoreList(int fd,struct map_session_data *sd)
  *------------------------------------------
  */
 void clif_parse_NoviceDoriDori(int fd, struct map_session_data *sd) {
-	int level;
-	
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
-		sd->doridori_counter++;
-	
-	if ((sd->class_&MAPID_BASEMASK) == MAPID_TAEKWON
-		&& sd->state.rest && (level = pc_checkskill(sd,TK_SPTIME)))
-		sc_start(&sd->bl,SkillStatusChangeTable(TK_SPTIME),100,level,skill_get_time(TK_SPTIME, level));
+	if (sd->state.doridori) return;
+
+	switch (sd->class_&MAPID_UPPERMASK)
+	{
+		case MAPID_TAEKWON:
+			if (!sd->state.rest)
+				break;
+		case MAPID_SUPER_NOVICE:
+			sd->state.doridori=1;
+			break;
+	}
 	return;
 }
 /*==========================================
@@ -11197,15 +11198,15 @@ void clif_parse_FeelSaveOk(int fd,struct map_session_data *sd)
 	sd->feel_map[i].index = map[sd->bl.m].index;
 	sd->feel_map[i].m = sd->bl.m;
 	pc_setglobalreg(sd,feel_var[i],map[sd->bl.m].index);
-	
+
+	clif_misceffect2(&sd->bl, 0x1b0);
+	clif_misceffect2(&sd->bl, 0x21f);
 	WFIFOHEAD(fd,packet_len_table[0x20e]);
 	WFIFOW(fd,0)=0x20e;
 	memcpy(WFIFOP(fd,2),map[sd->bl.m].name, MAP_NAME_LENGTH);
 	WFIFOL(fd,26)=sd->bl.id;
 	WFIFOW(fd,30)=i;
 	WFIFOSET(fd, packet_len_table[0x20e]);
-	
-	clif_skill_nodamage(&sd->bl,&sd->bl,sd->menuskill_id,sd->menuskill_lv,1);
 	sd->menuskill_lv = sd->menuskill_id = 0;
 }
 
@@ -11380,7 +11381,7 @@ int clif_parse(int fd) {
 	if ((int)RFIFOREST(fd) < packet_len)
 		return 0; // 1pPbgf[^
 
-	#if DUMP_ALL_PACKETS
+#if DUMP_ALL_PACKETS
 	{
 		int i;
 		FILE *fp;
@@ -11413,7 +11414,7 @@ int clif_parse(int fd) {
 			fclose(fp);
 		}
 	}
-	#endif
+#endif
 
 	if (sd && sd->state.auth == 1 && sd->state.waitingdisconnect == 1) { // fpPbg
 
@@ -11596,7 +11597,7 @@ static int packetdb_readdb(void)
 		{clif_parse_GuildInvite,"guildinvite"},
 		{clif_parse_GuildReplyInvite,"guildreplyinvite"},
 		{clif_parse_GuildLeave,"guildleave"},
-		{clif_parse_GuildExplusion,"guildexplusion"},
+		{clif_parse_GuildExpulsion,"guildexplusion"},
 		{clif_parse_GuildMessage,"guildmessage"},
 		{clif_parse_GuildRequestAlliance,"guildrequestalliance"},
 		{clif_parse_GuildReplyAlliance,"guildreplyalliance"},

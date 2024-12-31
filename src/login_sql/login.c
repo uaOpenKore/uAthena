@@ -48,6 +48,8 @@
 //-----------------------------------------------------
 // global variable
 //-----------------------------------------------------
+int use_dnsbl=0; // [Zido]
+char dnsbl_servs[1024];
 int server_num;
 int new_account_flag = 0; //Set from config too XD [Sirius]
 in_addr_t bind_ip= 0;
@@ -564,6 +566,7 @@ int mmo_auth( struct mmo_account* account , int fd){
 	char tmpstr[256];
 	char t_uid[256], t_pass[256];
 	char user_password[256];
+	char *dnsbl_serv;
 
 	//added for account creation _M _F
 	int len;
@@ -577,6 +580,30 @@ int mmo_auth( struct mmo_account* account , int fd){
 
 	unsigned char * sin_addr = (unsigned char *)&session[fd]->client_addr.sin_addr.s_addr;
 
+	char r_ip[16]; // [Zido]
+	char ip_dnsbl[256]; // [Zido]
+
+	// Start DNS Blacklist check [Zido]
+	if(use_dnsbl) {
+		sprintf(r_ip, "%d.%d.%d.%d", sin_addr[3], sin_addr[2], sin_addr[1], sin_addr[0]);
+
+		dnsbl_serv=strtok(dnsbl_servs,",");
+		sprintf(ip_dnsbl,"%s.%s",r_ip,dnsbl_serv);
+		if(resolve_hostbyname(ip_dnsbl, NULL, NULL)) {
+			ShowInfo("DNSBL: (%s) Blacklisted. User Kicked.\n",ip);
+			return 3;
+		}
+
+		while((dnsbl_serv=strtok(dnsbl_servs,","))!=NULL) {
+			sprintf(ip_dnsbl,"%s.%s",r_ip,dnsbl_serv);
+			if(resolve_hostbyname(ip_dnsbl, NULL, NULL)) {
+				ShowInfo("DNSBL: (%s) Blacklisted. User Kicked.\n",ip);
+				return 3;
+			}
+		}
+
+	}
+	// End DNS Blacklist check [Zido]
 
 	sprintf(ip, "%d.%d.%d.%d", sin_addr[0], sin_addr[1], sin_addr[2], sin_addr[3]);
 	//ShowInfo("auth start for %s...\n", ip);
@@ -613,7 +640,7 @@ int mmo_auth( struct mmo_account* account , int fd){
 
 	// make query
 	sprintf(tmpsql, "SELECT `%s`,`%s`,`%s`,`lastlogin`,`logincount`,`sex`,`connect_until`,`last_ip`,`ban_until`,`state`,`%s`"
-		" FROM `%s` WHERE %s `%s`='%s'", login_db_account_id, login_db_userid, login_db_user_pass, login_db_level, login_db, case_sensitive ? "BINARY" : "", login_db_userid, t_uid);
+		" FROM `%s` WHERE `%s`= %s '%s'", login_db_account_id, login_db_userid, login_db_user_pass, login_db_level, login_db, login_db_userid, case_sensitive ? "BINARY" : "", t_uid);
 	//login {0-account_id/1-userid/2-user_pass/3-lastlogin/4-logincount/5-sex/6-connect_untl/7-last_ip/8-ban_until/9-state/10-level}
 
 	// query
@@ -763,26 +790,11 @@ int mmo_auth( struct mmo_account* account , int fd){
 		if (ban_until_time > time(NULL)) // always banned
 			return 6; // 6 = Your are Prohibited to log in until %s
 
-		sprintf(tmpsql, "UPDATE `%s` SET `ban_until`='0' WHERE %s `%s`='%s'", login_db, case_sensitive ? "BINARY" : "", login_db_userid, t_uid);
+		sprintf(tmpsql, "UPDATE `%s` SET `ban_until`='0' WHERE `%s`= %s '%s'", login_db, login_db_userid, case_sensitive ? "BINARY" : "", t_uid);
 		if (mysql_query(&mysql_handle, tmpsql)) {
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		}
-
-		// ban is finished
-			// reset the ban time
-/*		//Removed "state" of bans, it behaves now like their TXT counter-part. [Skotlex]
-			if (atoi(sql_row[9])==7) {//it was a temp ban - so we set STATE to 0
-				sprintf(tmpsql, "UPDATE `%s` SET `ban_until`='0', `state`='0' WHERE %s `%s`='%s'", login_db, case_sensitive ? "BINARY" : "", login_db_userid, t_uid);
-				strcpy(sql_row[9],"0"); //we clear STATE
-			} else //it was a permanent ban + temp ban. So we leave STATE = 5, but clear the temp ban
-				sprintf(tmpsql, "UPDATE `%s` SET `ban_until`='0' WHERE %s `%s`='%s'", login_db, case_sensitive ? "BINARY" : "", login_db_userid, t_uid);
-
-			if (mysql_query(&mysql_handle, tmpsql)) {
-				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-*/
 	}
 
 	if (atoi(sql_row[9])) {
@@ -848,8 +860,8 @@ int mmo_auth( struct mmo_account* account , int fd){
 
 	if (account->sex != 2 && account->account_id < START_ACCOUNT_NUM)
 		ShowWarning("Account %s has account id %d! Account IDs must be over %d to work properly!\n", account->userid, account->account_id, START_ACCOUNT_NUM);
-	sprintf(tmpsql, "UPDATE `%s` SET `lastlogin` = NOW(), `logincount`=`logincount` +1, `last_ip`='%s'  WHERE %s  `%s` = '%s'",
-		login_db, ip, case_sensitive ? "BINARY" : "", login_db_userid, sql_row[1]);
+	sprintf(tmpsql, "UPDATE `%s` SET `lastlogin` = NOW(), `logincount`=`logincount` +1, `last_ip`='%s'  WHERE `%s` = %s '%s'",
+		login_db, ip, login_db_userid, case_sensitive ? "BINARY" : "", sql_row[1]);
 	mysql_free_result(sql_res) ; //resource free
 	if (mysql_query(&mysql_handle, tmpsql)) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -879,6 +891,7 @@ int parse_fromchar(int fd){
 	MYSQL_ROW  sql_row = NULL;
 
 	unsigned char *p = (unsigned char *) &session[fd]->client_addr.sin_addr.s_addr;
+	unsigned long ipl = session[fd]->client_addr.sin_addr.s_addr;
 	char ip[16];
 
 	sprintf(ip, "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
@@ -914,7 +927,7 @@ int parse_fromchar(int fd){
 		case 0x2709:
 			if (log_login)
 			{
-				sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', '%s','%s', 'GM reload request')", loginlog_db, *((unsigned int*)p),server[id].name, RETCODE);
+				sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', '%s','%s', 'GM reload request')", loginlog_db, (unsigned int)ntohl(ipl),server[id].name, RETCODE);
 				if (mysql_query(&mysql_handle, tmpsql)) {
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
@@ -1425,7 +1438,7 @@ int lan_subnetcheck(long p) {
 	return 0;
 }
 
-int login_ip_ban_check(unsigned char *p)
+int login_ip_ban_check(unsigned char *p, unsigned long ipl)
 {
 	MYSQL_RES* sql_res;
 	MYSQL_ROW  sql_row;
@@ -1456,7 +1469,7 @@ int login_ip_ban_check(unsigned char *p)
 
 	if (log_login)
 	{
-		sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', 'unknown','-3', 'ip banned')", loginlog_db, *((unsigned int *)p));
+		sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', 'unknown','-3', 'ip banned')", loginlog_db, (unsigned int)ntohl(ipl));
 		// query
 		if(mysql_query(&mysql_handle, tmpsql)) {
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -1520,7 +1533,7 @@ int parse_login(int fd) {
 			packet_len = RFIFOREST(fd);
 
 			//Perform ip-ban check ONLY on login packets
-			if (ipban > 0 && login_ip_ban_check(p))
+			if (ipban > 0 && login_ip_ban_check(p,ipl))
 			{
 				RFIFOSKIP(fd,packet_len);
 				session[fd]->eof = 1;
@@ -1768,7 +1781,7 @@ int parse_login(int fd) {
 					//result = 5;
 				}
 
-				sprintf(tmpsql,"SELECT `ban_until` FROM `%s` WHERE %s `%s` = '%s'",login_db, case_sensitive ? "BINARY" : "",login_db_userid, t_uid);
+				sprintf(tmpsql,"SELECT `ban_until` FROM `%s` WHERE `%s` = %s '%s'",login_db, login_db_userid, case_sensitive ? "BINARY" : "", t_uid);
 				if(mysql_query(&mysql_handle, tmpsql)) {
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
@@ -2172,6 +2185,10 @@ int login_config_read(const char *cfgName){
 				log_login = atoi(w2);
 		} else if (strcmpi(w1, "import") == 0) {
 			login_config_read(w2);
+		} else if(strcmpi(w1,"use_dnsbl")==0) { // [Zido]
+			use_dnsbl=atoi(w2);
+		} else if(strcmpi(w1,"dnsbl_servers")==0) { // [Zido]
+			strcpy(dnsbl_servs,w2);
 		} else if(strcmpi(w1,"ip_sync_interval")==0) {
 			ip_sync_interval = 1000*60*atoi(w2); //w2 comes in minutes.
 		}
@@ -2268,6 +2285,7 @@ void sql_config_read(const char *cfgName){ /* Kalaspuff, to get login_db */
 void do_final(void) {
 	//sync account when terminating.
 	//but no need when you using DBMS (mysql)
+	ShowStatus("Terminating...\n");
 	mmo_db_close();
 	online_db->destroy(online_db, NULL);
 	if (gm_account_db)

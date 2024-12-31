@@ -80,7 +80,9 @@ CREATE TABLE `char` (
   PRIMARY KEY  (`char_id`),
   KEY `account_id` (`account_id`),
   KEY `party_id` (`party_id`),
-  KEY `guild_id` (`guild_id`)
+  KEY `guild_id` (`guild_id`),
+  KEY `name` (`name`),
+  KEY `online` (`online`)
 ) TYPE=InnoDB AUTO_INCREMENT=150000;
 
 --
@@ -112,7 +114,8 @@ DROP TABLE IF EXISTS `friends`;
 CREATE TABLE `friends` (
   `char_id` int(11) NOT NULL default '0',
   `friend_account` int(11) NOT NULL default '0',
-  `friend_id` int(11) NOT NULL default '0'
+  `friend_id` int(11) NOT NULL default '0',
+  KEY  `char_id` (`char_id`)
 ) TYPE=MyISAM;
 
 --
@@ -152,7 +155,7 @@ CREATE TABLE `guild` (
   `mes2` varchar(120) NOT NULL default '',
   `emblem_len` int(11) unsigned NOT NULL default '0',
   `emblem_id` int(11) unsigned NOT NULL default '0',
-  `emblem_data` blob NOT NULL,
+  `emblem_data` blob,
   PRIMARY KEY  (`guild_id`,`char_id`),
   UNIQUE KEY `guild_id` (`guild_id`),
   KEY `char_id` (`char_id`),
@@ -383,6 +386,19 @@ CREATE TABLE `login` (
 INSERT INTO `login` (`account_id`, `userid`, `user_pass`, `sex`, `email`) VALUES ('1', 's1', 'p1', 'S','athena@athena.com');
 
 --
+-- Table structure for table `mapreg`
+--
+
+DROP TABLE IF EXISTS `mapreg`;
+CREATE TABLE `mapreg` (
+  `varname` varchar(32) NOT NULL,
+  `index` int(11) unsigned NOT NULL default '0',
+  `value` varchar(255) NOT NULL,
+  KEY `varname` (`varname`),
+  KEY `index` (`index`)
+) TYPE=MyISAM;
+
+--
 -- Table structure for table `sc_data`
 --
 
@@ -409,11 +425,11 @@ CREATE TABLE `sc_data` (
 DROP TABLE IF EXISTS `loginlog`;
 CREATE TABLE `loginlog` (
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `ip` varchar(64) NOT NULL default '',
+  `ip` int(10) unsigned NOT NULL default '0',
   `user` varchar(32) NOT NULL default '',
   `rcode` tinyint(4) NOT NULL default '0',
   `log` varchar(255) NOT NULL default '',
-  KEY (`ip`)
+  INDEX (`ip`)
 ) TYPE=MyISAM;
 
 --
@@ -427,7 +443,8 @@ CREATE TABLE `memo` (
   `map` varchar(255) NOT NULL default '',
   `x` smallint(9) unsigned NOT NULL default '0',
   `y` smallint(9) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`memo_id`)
+  PRIMARY KEY  (`memo_id`),
+  KEY `char_id` (`char_id`)
 ) TYPE=MyISAM;
 
 --
@@ -524,17 +541,4 @@ CREATE TABLE `storage` (
   `card3` smallint(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `account_id` (`account_id`)
-) TYPE=MyISAM;
-
---
--- Table structure for table `mapreg`
---
-
-DROP TABLE IF EXISTS `mapreg`;
-CREATE TABLE `mapreg` (
-  `varname` varchar(32) NOT NULL,
-  `index` int(11) unsigned NOT NULL default '0',
-  `value` varchar(255) NOT NULL,
-  KEY `varname` (`varname`),
-  KEY `index` (`index`)
 ) TYPE=MyISAM;

@@ -65,6 +65,9 @@ static int GM_num = 0;
 #define MOTD_LINE_SIZE 128
 char motd_text[MOTD_LINE_SIZE][256]; // Message of the day buffer [Valaris]
 
+static const char feel_var[3][NAME_LENGTH] = {"PC_FEEL_SUN","PC_FEEL_MOON","PC_FEEL_STAR"};
+static const char hate_var[3][NAME_LENGTH] = {"PC_HATE_MOB_SUN","PC_HATE_MOB_MOON","PC_HATE_MOB_STAR"};
+
 int pc_isGM(struct map_session_data *sd) {
 	int i;
 
@@ -645,6 +648,9 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	// Moved PVP timer initialisation before set_pos
 	sd->pvp_timer = -1;
 
+	for (i = 0; i < 3; i++)
+		sd->hate_mob[i] = -1;
+
 	// u
 	if ((i=pc_setpos(sd,sd->status.last_point.map, sd->status.last_point.x, sd->status.last_point.y, 0)) != 0) {
 		if(battle_config.error_log)
@@ -759,6 +765,30 @@ int pc_authfail(struct map_session_data *sd) {
 	return 0;
 }
 
+//Attempts to set a mob.
+int pc_set_hate_mob(struct map_session_data *sd, int pos, struct block_list *bl)
+{
+	const char hate_var[3][NAME_LENGTH] = {"PC_HATE_MOB_SUN","PC_HATE_MOB_MOON","PC_HATE_MOB_STAR"};
+	int class_;
+	if (!sd || !bl || pos < 0 || pos > 2)
+		return 0;
+
+// TODO: Pending Angel of the blah blah merging before uncommenting this block.
+//	if (sd->hate_mob[pos] != -1)	//Can't change hate targets.
+//		return 0;
+
+	class_ = status_get_class(bl);
+	if (!pcdb_checkid(class_)) {
+		unsigned int max_hp = status_get_max_hp(bl);
+		if ((pos == 1 && max_hp < 6000) || (pos == 2 && max_hp < 20000))
+			return 0;
+	}
+	sd->hate_mob[pos] = class_;
+	pc_setglobalreg(sd,hate_var[pos],class_+1);
+	clif_hate_mob(sd,pos,class_);
+	return 1;
+}
+
 /*==========================================
  * Invoked once after the char/account/account2 registry variables are received. [Skotlex]
  *------------------------------------------
@@ -766,9 +796,7 @@ int pc_authfail(struct map_session_data *sd) {
 int pc_reg_received(struct map_session_data *sd)
 {
 	int i,j;
-	char feel_var[3][NAME_LENGTH] = {"PC_FEEL_SUN","PC_FEEL_MOON","PC_FEEL_STAR"};
-	char hate_var[3][NAME_LENGTH] = {"PC_HATE_MOB_SUN","PC_HATE_MOB_MOON","PC_HATE_MOB_STAR"};
-	
+
 	sd->change_level = pc_readglobalreg(sd,"jobchange_level");
 	sd->die_counter = pc_readglobalreg(sd,"PC_DIE_COUNTER");
 	if (!sd->die_counter && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
@@ -791,8 +819,7 @@ int pc_reg_received(struct map_session_data *sd)
 			sd->feel_map[i].index = 0;
 			sd->feel_map[i].m = -1;
 		}
-		sd->hate_mob[i] = pc_readglobalreg(sd,hate_var[i])  - 1;
-		
+		sd->hate_mob[i] = pc_readglobalreg(sd,hate_var[i])-1;
 	}
 
 	if ((i = pc_checkskill(sd,RG_PLAGIARISM)) > 0) {
@@ -1681,7 +1708,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_PERFECT_HIDE: // [Valaris]
 		if(sd->state.lr_flag!=2)
-			sd->state.perfect_hiding=1;
+			sd->special_state.perfect_hiding=1;
 		break;
 	case SP_UNBREAKABLE:
 		if(sd->state.lr_flag!=2)
@@ -3309,8 +3336,7 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 #ifdef CELL_NOSTACK
 		!map_getcell(m, x, y, CELL_CHKSTACK) &&
 #endif
-		!map_getcell(m, x, y, CELL_CHKICEWALL) &&
-		!map_getcell(m, x, y, CELL_CHKMOONLIT))
+		!map_getcell(m, x, y, CELL_CHKICEWALL))
 	){ //It is allowed on top of Moonlight/icewall tiles to prevent force-warping 'cheats' [Skotlex]
 		if(x||y) {
 			if(battle_config.error_log)
@@ -4681,7 +4707,6 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 int pc_resetfeel(struct map_session_data* sd)
 {
 	int i;
-	char feel_var[3][NAME_LENGTH] = {"PC_FEEL_SUN","PC_FEEL_MOON","PC_FEEL_STAR"};
 	nullpo_retr(0, sd);
 
 	for (i=0; i<3; i++)
@@ -4691,6 +4716,19 @@ int pc_resetfeel(struct map_session_data* sd)
 		pc_setglobalreg(sd,feel_var[i],0);
 	}
 
+	return 0;
+}
+
+int pc_resethate(struct map_session_data* sd)
+{
+	int i;
+	nullpo_retr(0, sd);
+
+	for (i=0; i<3; i++)
+	{
+		sd->hate_mob[i] = -1;
+		pc_setglobalreg(sd,hate_var[i],0);
+	}
 	return 0;
 }
 
@@ -4717,8 +4755,7 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 
 	if(pc_issit(sd)) {
 		pc_setstand(sd);
-		skill_gangsterparadise(sd,0);
-		skill_rest(sd,0);
+		skill_sit(sd,0);
 	}
 
 	clif_updatestatus(sd,SP_HP);
@@ -5798,10 +5835,10 @@ int pc_setregstr(struct map_session_data *sd,int reg,char *str)
 	return 0;
 }
 
-int pc_readregistry(struct map_session_data *sd,char *reg,int type) {
+int pc_readregistry(struct map_session_data *sd,const char *reg,int type) {
 	struct global_reg *sd_reg;
 	int i,max;
-	
+
 	nullpo_retr(0, sd);
 	switch (type) {
 	case 3: //Char reg
@@ -5868,7 +5905,7 @@ char* pc_readregistry_str(struct map_session_data *sd,char *reg,int type) {
 	return NULL;
 }
 
-int pc_setregistry(struct map_session_data *sd,char *reg,int val,int type) {
+int pc_setregistry(struct map_session_data *sd,const char *reg,int val,int type) {
 	struct global_reg *sd_reg;
 	int i,*max, regmax;
 

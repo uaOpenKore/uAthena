@@ -684,16 +684,24 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	}
 
 	if (str[next] == '\n' || str[next] == '\r')
-		return 1;	// 新規データ
+		return 1;	// VKf[^
 
 	next++;
 
 	for(i = 0; str[next] && str[next] != '\t'; i++) {
-		if (sscanf(str+next, "%[^,],%d,%d%n", tmp_str[0], &tmp_int[0], &tmp_int[1], &len) != 3)
-			return -3;
-		p->memo_point[i].map = mapindex_name2id(tmp_str[0]);
-		p->memo_point[i].x = tmp_int[0];
-		p->memo_point[i].y = tmp_int[1];
+		//mapindex memo format
+		if (sscanf(str+next, "%d,%d,%d%n", &tmp_int[2], &tmp_int[0], &tmp_int[1], &len) != 3)
+		{	//Old string-based memo format.
+			if (sscanf(str+next, "%[^,],%d,%d%n", tmp_str[0], &tmp_int[0], &tmp_int[1], &len) != 3)
+				return -3;
+			tmp_int[2] = mapindex_name2id(tmp_str[0]);
+		}
+		if (i < MAX_MEMOPOINTS)
+		{	//Avoid overflowing (but we must also read through all saved memos)
+			p->memo_point[i].x = tmp_int[0];
+			p->memo_point[i].y = tmp_int[1];
+			p->memo_point[i].map = tmp_int[2];
+		}
 		next += len;
 		if (str[next] == ' ')
 			next++;
@@ -762,7 +770,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 
 	next++;
 
-	for(i = 0; str[next] && str[next] != '\t' && str[next] != '\n' && str[next] != '\r'; i++) { // global_reg実装以前のathena.txt互換のため一応'\n'チェック
+	for(i = 0; str[next] && str[next] != '\t' && str[next] != '\n' && str[next] != '\r'; i++) { // global_regOathena.txt'\n'`FbN
 		if (sscanf(str + next, "%[^,],%[^ ] %n", reg[i].str, reg[i].value, &len) != 2) { 
 			// because some scripts are not correct, the str can be "". So, we must check that.
 			// If it's, we must not refuse the character, but just this REG value.
@@ -1687,7 +1695,7 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 	return 0;
 }
 
-// 離婚(char削除時に使用)
+// (chargp)
 int char_divorce(struct mmo_charstatus *cs) {
 	if (cs == NULL)
 		return 0;
@@ -1822,11 +1830,11 @@ int disconnect_player(int account_id) {
 	return 0;
 }
 
-// キャラ削除に伴うデータ削除
+// Lf[^
 static int char_delete(struct mmo_charstatus *cs) {
 	int j;
 
-	// ペット削除
+	// ybg
 	if (cs->pet_id)
 		inter_pet_delete(cs->pet_id);
 	for (j = 0; j < MAX_INVENTORY; j++)
@@ -1835,23 +1843,26 @@ static int char_delete(struct mmo_charstatus *cs) {
 	for (j = 0; j < MAX_CART; j++)
 		if (cs->cart[j].card[0] == (short)0xff00)
 			inter_pet_delete( MakeDWord(cs->cart[j].card[1],cs->cart[j].card[2]) );
-	// ギルド脱退
+	// MhE
 	if (cs->guild_id)
 		inter_guild_leave(cs->guild_id, cs->account_id, cs->char_id);
-	// パーティー脱退
+	// p[eB[E
 	if (cs->party_id)
 		inter_party_leave(cs->party_id, cs->account_id, cs->char_id);
-	// 離婚
+	// 
 	if (cs->partner_id){
-		// 離婚情報をmapに通知
+		// mapm
 		unsigned char buf[10];
 		WBUFW(buf,0) = 0x2b12;
 		WBUFL(buf,2) = cs->char_id;
 		WBUFL(buf,6) = cs->partner_id;
 		mapif_sendall(buf,10);
-		// 離婚
+		//
 		char_divorce(cs);
 	}
+#ifdef ENABLE_SC_SAVING
+	status_delete_scdata(cs->account_id, cs->char_id);
+#endif
 	return 0;
 }
 
@@ -2158,7 +2169,7 @@ int parse_tologin(int fd) {
 			RFIFOSKIP(fd,8 + RFIFOL(fd,4));
 			break;
 
-		// account_reg2変更通知
+		// account_reg2Xm
 		case 0x2729:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
 				return 0;
@@ -2763,7 +2774,7 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,6+i*8);
 			break;
 
-		// キャラデータ保存
+		// Lf[^
 		// Recieve character data from map-server
 		case 0x2b01:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
@@ -2786,7 +2797,7 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,RFIFOW(fd,2));
 			break;
 
-		// キャラセレ要求
+		// LZv
 		case 0x2b02:
 			if (RFIFOREST(fd) < 18)
 				return 0;
@@ -2863,7 +2874,7 @@ int parse_frommap(int fd) {
 			}
 			break;
 
-		// キャラ名検索
+		// L
 		case 0x2b08:
 			if (RFIFOREST(fd) < 6)
 				return 0;
@@ -3155,15 +3166,15 @@ int parse_frommap(int fd) {
 			RFIFOSKIP(fd,6);
 			break;
 		default:
-			// inter server処理に渡す
+			// inter servern
 			{
 				int r = inter_parse_frommap(fd);
-				if (r == 1) // 処理できた
+				if (r == 1) // 
 					break;
-				if (r == 2) // パケット長が足りない
+				if (r == 2) // pPbg
 					return 0;
 			}
-			// inter server処理でもない場合は切断
+			// inter serverf
 			ShowError("Unknown packet 0x%04x from map server, disconnecting.\n", RFIFOW(fd,0));
 			session[fd]->eof = 1;
 			return 0;
@@ -3189,7 +3200,7 @@ int search_mapserver(unsigned short map, long ip, short port) {
 	return -1;
 }
 
-// char_mapifの初期化処理（現在はinter_mapif初期化のみ）
+// char_mapifiinter_mapifj
 static int char_mapif_init(int fd) {
 	return inter_mapif_init(fd);
 }
@@ -3251,12 +3262,12 @@ int parse_char(int fd) {
 
 	while(RFIFOREST(fd) >= 2 && !session[fd]->eof) {
 		cmd = RFIFOW(fd,0);
-		// crc32のスキップ用
-		if(	sd==NULL			&&	// 未ログインor管理パケット
-			RFIFOREST(fd)>=4	&&	// 最低バイト数制限 ＆ 0x7530,0x7532管理パケ除去
-			RFIFOREST(fd)<=21	&&	// 最大バイト数制限 ＆ サーバーログイン除去
-			cmd!=0x20b	&&	// md5通知パケット除去
-			(RFIFOREST(fd)<6 || RFIFOW(fd,4)==0x65)	){	// 次に何かパケットが来てるなら、接続でないとだめ
+		// crc32XLbvp
+		if(	sd==NULL			&&	// OCorpPbg
+			RFIFOREST(fd)>=4	&&	// oCg  0x7530,0x7532pP
+			RFIFOREST(fd)<=21	&&	// oCg  T[o[OC
+			cmd!=0x20b	&&	// md5mpPbg
+			(RFIFOREST(fd)<6 || RFIFOW(fd,4)==0x65)	){	// pPbgA
 			RFIFOSKIP(fd,4);
 			cmd = RFIFOW(fd,0);
 			ShowDebug("parse_char : %d crc32 skipped\n",fd);
@@ -3268,13 +3279,13 @@ int parse_char(int fd) {
 #define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL) { RFIFOSKIP(fd,rest); return 0; } }
 
 		switch(cmd){
-		case 0x20b:	//20040622暗号化ragexe対応
+		case 0x20b:	//20040622ragexe
 			if (RFIFOREST(fd) < 19)
 				return 0;
 			RFIFOSKIP(fd,19);
 			break;
 
-		case 0x65:	// 接続要求
+		case 0x65:	// v
 			if (RFIFOREST(fd) < 17)
 				return 0;
 		  {
@@ -3390,7 +3401,7 @@ int parse_char(int fd) {
 			RFIFOSKIP(fd,17);
 			break;
 
-		case 0x66:	// キャラ選択
+		case 0x66:	// LI
 			FIFOSD_CHECK(3);
 		{
 			int char_num = RFIFOB(fd,2);
@@ -3525,7 +3536,7 @@ int parse_char(int fd) {
 		}
 		break;
 
-		case 0x67:	// 作成
+		case 0x67:	// 
 			FIFOSD_CHECK(37);
 				
 			if(char_new == 0) //turn character creation on/off [Kevin]
@@ -3705,7 +3716,7 @@ int parse_char(int fd) {
 			}
 			break;
 
-		case 0x2af8:	// マップサーバーログイン
+		case 0x2af8:	// }bvT[o[OC
 			if (RFIFOREST(fd) < 60)
 				return 0;
 			WFIFOW(fd,0) = 0x2af9;
@@ -3744,13 +3755,13 @@ int parse_char(int fd) {
 			}
 			break;
 
-		case 0x187:	// Alive信号？
+		case 0x187:	// AliveMH
 			if (RFIFOREST(fd) < 6)
 				return 0;
 			RFIFOSKIP(fd, 6);
 			break;
 
-		case 0x7530:	// Athena情報所得
+		case 0x7530:	// Athena
 			WFIFOW(fd,0) = 0x7531;
 			WFIFOB(fd,2) = ATHENA_MAJOR_VERSION;
 			WFIFOB(fd,3) = ATHENA_MINOR_VERSION;
@@ -3763,7 +3774,7 @@ int parse_char(int fd) {
 			RFIFOSKIP(fd,2);
 			return 0;
 
-		case 0x7532:	// 接続の切断(defaultと処理は一緒だが明示的にするため)
+		case 0x7532:	// f(defaultI)
 		default:
 			session[fd]->eof = 1;
 			return 0;
@@ -3797,7 +3808,7 @@ int parse_console(char *buf) {
     return 0;
 }
 
-// 全てのMAPサーバーにデータ送信（送信したmap鯖の数を返す）
+// SMAPT[o[f[^MiMmapIj
 int mapif_sendall(unsigned char *buf, unsigned int len) {
 	int i, c;
 
@@ -3823,7 +3834,7 @@ int mapif_sendall(unsigned char *buf, unsigned int len) {
 	return c;
 }
 
-// 自分以外の全てのMAPサーバーにデータ送信（送信したmap鯖の数を返す）
+// OSMAPT[o[f[^MiMmapIj
 int mapif_sendallwos(int sfd, unsigned char *buf, unsigned int len) {
 	int i, c;
 
@@ -3841,7 +3852,7 @@ int mapif_sendallwos(int sfd, unsigned char *buf, unsigned int len) {
 	}
 	return c;
 }
-// MAPサーバーにデータ送信（map鯖生存確認有り）
+// MAPT[o[f[^MimapImFLj
 int mapif_send(int fd, unsigned char *buf, unsigned int len) {
 	int i;
 
@@ -3955,7 +3966,7 @@ static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, int dat
 
 //----------------------------------------------------------
 // Return numerical value of a switch configuration by [Yor]
-// on/off, english, fran軋is, deutsch, espal
+// on/off, english, franais, deutsch, espaol
 //----------------------------------------------------------
 int config_switch(const char *str) {
 	if (strcmpi(str, "on") == 0 || strcmpi(str, "yes") == 0 || strcmpi(str, "oui") == 0 || strcmpi(str, "ja") == 0 || strcmpi(str, "si") == 0)
@@ -4324,7 +4335,7 @@ int do_init(int argc, char **argv) {
 	update_online = time(NULL);
 	create_online_files(); // update online players files at start of the server
 
-	inter_init((argc > 2) ? argv[2] : inter_cfgName);	// inter server 初期化
+	inter_init((argc > 2) ? argv[2] : inter_cfgName);	// inter server 
 
 	set_defaultparse(parse_char);
 

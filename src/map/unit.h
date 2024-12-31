@@ -37,8 +37,7 @@ int unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, i
 // UA
 int unit_stop_attack(struct block_list *bl);
 int unit_attack(struct block_list *src,int target_id,int type);
-
-// int unit_setpos( struct block_list *bl, const char* map, int x, int y);
+int unit_cancel_combo(struct block_list *bl);
 
 // XLgp
 int unit_skilluse_id(struct block_list *src, int target_id, int skill_num, int skill_lv);
