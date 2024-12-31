@@ -864,13 +864,6 @@ int skillnotok (int skillid, struct map_session_data *sd)
 				return 1;
 			}
 			return 0;
-		case TK_HIGHJUMP:
-			if(map[m].flag.noteleport && !map_flag_vs(m))
-			{	//Can't be used on noteleport maps, except for vs maps [Skotlex]
-				clif_skill_fail(sd,skillid,0,0);
-				return 1;
-			}
-			break;
 		case WE_CALLPARTNER:
 		case WE_CALLPARENT:
 		case WE_CALLBABY:
@@ -1847,6 +1840,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	if(skillid == CR_GRANDCROSS||skillid == NPC_GRANDDARKNESS) {
 		if(battle_config.gx_disptype) dsrc = src;
 		if(src == bl) type = 4;
+		else flag|=SD_ANIMATION;
 	}
 
 	if(sd) {
@@ -1977,19 +1971,13 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	case NPC_SPLASHATTACK:
 	case TF_DOUBLE:
 	case GS_CHAINACTION:
-	case SN_SHARPSHOOTING:
 		dmg.dmotion = clif_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,dmg.type,dmg.damage2);
 		break;
-	case CR_GRANDCROSS:
-	case NPC_GRANDDARKNESS:
-		//Only show animation when hitting yourself. [Skotlex]
-		if (src!=bl) {
-			dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion, damage, dmg.div_, skillid, -1, 5);
-			break;
-		}
 	default:
+		//Disabling skill animation doesn't works on multi-hit.
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion,
-			damage, dmg.div_, skillid, flag&SD_LEVEL?-1:skilllv, type);
+			damage, dmg.div_, skillid, flag&SD_LEVEL?-1:skilllv,
+			(flag&SD_ANIMATION && dmg.div_ < 2?5:type));
 		break;
 	}
 
@@ -2588,6 +2576,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			BF_WEAPON, src, src, skillid, skilllv, tick, flag, BCT_ENEMY);
 		break;
 
+	case KN_CHARGEATK:
+		flag = distance_bl(src, bl);
 	case TK_JUMPKICK:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		if (unit_movepos(src, bl->x, bl->y, 0, 0))
@@ -2647,28 +2637,43 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			if (sc->data[SC_BLADESTOP].timer != -1)
 				status_change_end(src,SC_BLADESTOP,-1);
 		}
-	case KN_CHARGEATK:
-		if(!check_distance_bl(src, bl, 2)) { //Need to move to target.
-			int dx,dy;
+		//Client expects you to move to target regardless of distance
+		{
+			struct unit_data *ud = unit_bl2ud(src);
+			short dx,dy;
+			int i,speed;
 
 			dx = bl->x - src->x;
 			dy = bl->y - src->y;
-			if(dx > 0) dx++;
-			else if(dx < 0) dx--;
-			if (dy > 0) dy++;
-			else if(dy < 0) dy--;
-
-			if (skillid == KN_CHARGEATK) //Store distance in flag [Skotlex]
-				flag = distance_bl(src, bl);
-			
-			if (!unit_movepos(src, src->x+dx, src->y+dy, 1, 1)) {
-				if (sd) clif_skill_fail(sd,skillid,0,0);
-				break;
+			if (dx < 0) dx--;
+			else if (dx > 0) dx++;
+			if (dy < 0) dy--;
+			else if (dy > 0) dy++;
+			if (!dx && !dy) dy++;
+			if (map_getcell(src->m, src->x+dx, src->y+dy, CELL_CHKNOPASS))
+			{
+				dx = bl->x;
+				dy = bl->y;
+			} else {
+				dx = src->x + dx;
+				dy = src->y + dy;
 			}
-			clif_slide(src,src->x,src->y);
-		} else //Assume minimum distance of 1 for Charge.
-			flag = 1;
-		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+
+			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+
+			if(unit_walktoxy(src, dx, dy, 2) && ud) {
+				//Increase can't walk delay to not alter your walk path
+				ud->canmove_tick = tick;
+				speed = status_get_speed(src);
+				for (i = 0; i < ud->walkpath.path_len; i ++)
+				{
+					if(ud->walkpath.path[i]&1)
+						ud->canmove_tick+=7*speed/5;
+					else
+						ud->canmove_tick+=speed;
+				}
+			}
+		}
 		break;
 
 	//Splash attack skills.
@@ -3035,19 +3040,22 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					heal = heal*2;
 			}
 
-			if (tsc && tsc->count && tsc->data[SC_KAITE].timer != -1 
-				&& !(sstatus->mode&MD_BOSS)
-			) { //Bounce back heal
-				if (--tsc->data[SC_KAITE].val2 <= 0)
-					status_change_end(bl, SC_KAITE, -1);
-				if (src == bl)
-					heal=0; //When you try to heal yourself under Kaite, the heal is voided.
-				else {
-					bl = src;
-					dstsd = sd;
-				}
+			if (tsc && tsc->count)
+			{
+				if (tsc->data[SC_KAITE].timer != -1 && !(sstatus->mode&MD_BOSS)
+				) { //Bounce back heal
+					if (--tsc->data[SC_KAITE].val2 <= 0)
+						status_change_end(bl, SC_KAITE, -1);
+					if (src == bl)
+						heal=0; //When you try to heal yourself under Kaite, the heal is voided.
+					else {
+						bl = src;
+						dstsd = sd;
+					}
+				} else
+				if (tsc->data[SC_BERSERK].timer != -1)
+					heal = 0; //Needed so that it actually displays 0 when healing.
 			}
-
 			heal_get_jobexp = status_heal(bl,heal,0,0);
 			clif_skill_nodamage (src, bl, skillid, heal, 1);
 
@@ -3768,6 +3776,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case WZ_FROSTNOVA:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		skill_area_temp[1] = 0;
 		map_foreachinrange(skill_attack_area, src,
 			skill_get_splash(skillid, skilllv), BL_CHAR,
@@ -3873,12 +3882,16 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case TK_RUN:
 			if (tsc && tsc->data[type].timer != -1)
-				i = status_change_end(bl, type, -1);
-			else
-				i = sc_start4(bl,type,100,skilllv,unit_getdir(bl),0,0,0);
-//			If the client receives a skill-use packet inmediately before
-//			a walkok packet, it will discard the walk packet! [Skotlex]
-//			clif_skill_nodamage(src,bl,skillid,skilllv,i);
+				clif_skill_nodamage(src,bl,skillid,skilllv,
+					status_change_end(bl, type, -1));
+			else {
+				clif_skill_nodamage(src,bl,skillid,skilllv,
+					sc_start4(bl,type,100,skilllv,unit_getdir(bl),0,0,0));
+//				If the client receives a skill-use packet inmediately before
+//				a walkok packet, it will discard the walk packet! [Skotlex]
+//				So aegis has to resend the walk ok.
+				if (sd) clif_walkok(sd);
+			}
 		break;
 	case AS_CLOAKING:
 		if(tsc && tsc->data[type].timer!=-1 )
@@ -4390,13 +4403,19 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{
 			int x,y, dir = unit_getdir(src);
 
-			x = src->x + dirx[dir]*skilllv*2;
-			y = src->y + diry[dir]*skilllv*2;
-			
+			//Fails on noteleport maps, except for vs maps [Skotlex]
+			if(map[src->m].flag.noteleport && !map_flag_vs(src->m)) {
+				x = src->x;
+				y = src->y;
+			} else {
+				x = src->x + dirx[dir]*skilllv*2;
+				y = src->y + diry[dir]*skilllv*2;
+			}
+
 			clif_skill_nodamage(src,bl,TK_HIGHJUMP,skilllv,1);
 			if(map_getcell(src->m,x,y,CELL_CHKPASS)) {
-				unit_movepos(src, x, y, 1, 0);
 				clif_slide(src,x,y);
+				unit_movepos(src, x, y, 1, 0);
 			}
 		}
 		break;
@@ -5649,9 +5668,9 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 		break;
 	case CG_HERMODE:
 		skill_clear_unitgroup(src);
-		sg = skill_unitsetting(src,skillid,skilllv,x,y,0);
-		sc_start4(src,SC_DANCING,100,
-			skillid,0,skilllv,sg->group_id,skill_get_time(skillid,skilllv));
+		if ((sg = skill_unitsetting(src,skillid,skilllv,x,y,0)))
+			sc_start4(src,SC_DANCING,100,
+				skillid,0,skilllv,sg->group_id,skill_get_time(skillid,skilllv));
 		flag|=1;
 		break;
 	case RG_CLEANER: // [Valaris]
@@ -7461,7 +7480,7 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 
 	if (!ammo && skill && skill_isammotype(sd, skill))
 	{	//Assume this skill is using the weapon, therefore it requires arrows.
-		ammo = 2;  //1<<1 <- look 1 (arrows) moved right 1 times.
+		ammo = 0xFFFFFFFF; //Enable use on all ammo types.
 		ammo_qty = skill_get_num(skill, lv);
 		if (ammo_qty < 0) ammo_qty *= -1;
 	}

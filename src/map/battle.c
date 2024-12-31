@@ -1589,7 +1589,7 @@ static struct Damage battle_calc_weapon_attack(
 					(target->type == BL_MOB && sd->right_weapon.ignore_def_mob & (is_boss(target)?2:1)) ||
 					sd->right_weapon.ignore_def_ele & (1<<tstatus->def_ele) ||
 					sd->right_weapon.ignore_def_race & (1<<tstatus->race) ||
-					sd->right_weapon.ignore_def_race & (is_boss(target)?1<<10:1<<11)
+					sd->right_weapon.ignore_def_race & (is_boss(target)?1<<RC_BOSS:1<<RC_NONBOSS)
 				))
 					flag.idef = 1;
 
@@ -1597,7 +1597,7 @@ static struct Damage battle_calc_weapon_attack(
 					(target->type == BL_MOB && sd->left_weapon.ignore_def_mob & (is_boss(target)?2:1)) ||
 					sd->left_weapon.ignore_def_ele & (1<<tstatus->def_ele) ||
 					sd->left_weapon.ignore_def_race & (1<<tstatus->race) ||
-					sd->left_weapon.ignore_def_race & (is_boss(target)?1<<10:1<<11)
+					sd->left_weapon.ignore_def_race & (is_boss(target)?1<<RC_BOSS:1<<RC_NONBOSS)
 				)) {
 						if(battle_config.left_cardfix_to_right && flag.rh) //Move effect to right hand. [Skotlex]
 							flag.idef = 1;
@@ -3070,8 +3070,6 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 		}
 			break;
 		//Valid targets with no special checks here.
-//		case BL_HOM:
-//			break;
 		//All else not specified is an invalid target.
 		default:
 			return 0;
@@ -3544,7 +3542,6 @@ static const struct battle_data_short {
 	{ "backstab_bow_penalty",              &battle_config.backstab_bow_penalty	},
 	{ "night_at_start",                    &battle_config.night_at_start	}, // added by [Yor]
 	{ "show_mob_info",                     &battle_config.show_mob_info }, // [Valaris]
-	{ "ban_spoof_namer",                   &battle_config.ban_spoof_namer	}, // added by [Yor]
 	{ "hack_info_GM_level",                &battle_config.hack_info_GM_level	}, // added by [Yor]
 	{ "any_warp_GM_min_level",             &battle_config.any_warp_GM_min_level	}, // added by [Yor]
 	{ "packet_ver_flag",                   &battle_config.packet_ver_flag	}, // added by [Yor]
@@ -3566,7 +3563,6 @@ static const struct battle_data_short {
 	{ "skill_steal_max_tries",			&battle_config.skill_steal_max_tries}, // [Lupus]
 //	{ "night_darkness_level",              &battle_config.night_darkness_level}, // [celest]
 	{ "motd_type",                         &battle_config.motd_type}, // [celest]
-	{ "allow_atcommand_when_mute",         &battle_config.allow_atcommand_when_mute}, // [celest]
 	{ "finding_ore_rate",                  &battle_config.finding_ore_rate}, // [celest]
 	{ "exp_calc_type",                     &battle_config.exp_calc_type}, // [celest]
 	{ "min_skill_delay_limit",             &battle_config.min_skill_delay_limit}, // [celest]
@@ -3626,7 +3622,7 @@ static const struct battle_data_short {
 	{ "mob_luk_status_def",					&battle_config.mob_luk_sc_def },
 	{ "pc_max_status_def",					&battle_config.pc_max_sc_def },
 	{ "mob_max_status_def",					&battle_config.mob_max_sc_def },
-	{ "sg_miracle_skill_ratio",				&battle_config.sg_miracle_skill_ratio },
+	{ "sg_miracle_skill_ratio",			&battle_config.sg_miracle_skill_ratio },
 	{ "autospell_stacking", 				&battle_config.autospell_stacking },
 	{ "override_mob_names", 				&battle_config.override_mob_names },
 	{ "min_chat_delay",						&battle_config.min_chat_delay },
@@ -3672,7 +3668,8 @@ static const struct battle_data_int {
 	{ "night_duration",                    &battle_config.night_duration	}, // added by [Yor]
 	{ "max_heal",                          &battle_config.max_heal },
 	{ "mob_remove_delay",                  &battle_config.mob_remove_delay	},
-	{ "sg_miracle_skill_duration",				&battle_config.sg_miracle_skill_duration },
+	{ "sg_miracle_skill_min_duration",		&battle_config.sg_miracle_skill_duration_min },
+	{ "sg_miracle_skill_max_duration",		&battle_config.sg_miracle_skill_duration_max },
 
 };
 
@@ -3974,7 +3971,6 @@ void battle_set_defaults() {
 	battle_config.day_duration = 2*60*60*1000; // added by [Yor] (2 hours)
 	battle_config.night_duration = 30*60*1000; // added by [Yor] (30 minutes)
 	battle_config.show_mob_info = 0;
-	battle_config.ban_spoof_namer = 5; // added by [Yor] (default: 5 minutes)
 	battle_config.hack_info_GM_level = 60; // added by [Yor] (default: 60, GM level)
 	battle_config.any_warp_GM_min_level = 20; // added by [Yor]
 	battle_config.packet_ver_flag = 1023; // added by [Yor]
@@ -3994,7 +3990,6 @@ void battle_set_defaults() {
 	battle_config.skill_steal_max_tries = 15; //=16 tries
 //	battle_config.night_darkness_level = 9;
 	battle_config.motd_type = 0;
-	battle_config.allow_atcommand_when_mute = 0;
 	battle_config.finding_ore_rate = 100;
 	battle_config.castrate_dex_scale = 150;
 	battle_config.area_size = 14;
@@ -4059,7 +4054,8 @@ void battle_set_defaults() {
 	battle_config.pc_max_sc_def = 10000;
 	battle_config.mob_max_sc_def = 5000;
 	battle_config.sg_miracle_skill_ratio=1;
-	battle_config.sg_miracle_skill_duration=600000;
+	battle_config.sg_miracle_skill_duration_min=3000000;
+	battle_config.sg_miracle_skill_duration_max=9000000;
 	battle_config.autospell_stacking = 0;
 	battle_config.override_mob_names = 0;
 	battle_config.min_chat_delay = 0;
@@ -4189,9 +4185,6 @@ void battle_validate_conf() {
 	if (battle_config.night_duration != 0 && battle_config.night_duration < 60000) // added by [Yor]
 		battle_config.night_duration = 60000;
 
-	if (battle_config.ban_spoof_namer > SHRT_MAX)
-		battle_config.ban_spoof_namer = SHRT_MAX;
-
 	if (battle_config.hack_info_GM_level > 100)
 		battle_config.hack_info_GM_level = 100;
 
@@ -4231,6 +4224,17 @@ void battle_validate_conf() {
 
 	if (battle_config.sg_miracle_skill_ratio > 10000)
 		battle_config.sg_miracle_skill_ratio = 10000;
+
+
+	if (battle_config.sg_miracle_skill_duration_min < 1000)
+		battle_config.sg_miracle_skill_duration_min = 1000;
+
+	//Store duration variation in the max setting
+	battle_config.sg_miracle_skill_duration_max -=
+		battle_config.sg_miracle_skill_duration_min;
+
+	if (battle_config.sg_miracle_skill_duration_max < 2000)
+		battle_config.sg_miracle_skill_duration_max = 2000;
 
 	if (battle_config.skill_steal_max_tries > UCHAR_MAX)
 		battle_config.skill_steal_max_tries = UCHAR_MAX;

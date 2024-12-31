@@ -222,9 +222,9 @@ static void report_src(struct script_state *st) {
 		break;
 		default:
 			if (bl->m >=0)
-				ShowDebug("Source (Non-NPC): type %d at %s (%d,%d)\n", bl->type, map[bl->m].name, bl->x, bl->y);
+				ShowDebug("Source (Non-NPC type %d): name %s at %s (%d,%d)\n", bl->type, status_get_name(bl), map[bl->m].name, bl->x, bl->y);
 			else
-				ShowDebug("Source (Non-NPC): type %d (invisible/not on a map)\n", bl->type);
+				ShowDebug("Source (Non-NPC type %d): name %s (invisible/not on a map)\n", bl->type, status_get_name(bl));
 		break;
 	}
 }
@@ -1925,12 +1925,13 @@ char* conv_str(struct script_state *st,struct script_data *data)
 		snprintf(buf,ITEM_NAME_LENGTH, "%d",data->u.num);
 		data->type=C_STR;
 		data->u.str=buf;
-#if 1
+	} else if(data->type==C_POS) {
+		// Protect form crashes by passing labels to string-expected args [jA2200]
+		data->type = C_CONSTSTR;
+		data->u.str = "** SCRIPT ERROR **";
 	} else if(data->type==C_NAME){
-		// e|B{
 		data->type=C_CONSTSTR;
 		data->u.str=str_buf+str_data[data->u.num].str;
-#endif
 	}
 	return data->u.str;
 }
@@ -10153,7 +10154,7 @@ int buildin_select(struct script_state *st)
 		st->state=END;
 	} else {
 		//Skip empty menu entries which weren't displayed on the client (Skotlex)
-		for(i=st->start+2;i<= (st->start+sd->npc_menu) && sd->npc_menu<(st->end-st->start);i++) {
+		for(i=st->start+2;i< (st->start+2+sd->npc_menu) && sd->npc_menu < (st->end-st->start-2);i++) {
 			conv_str(st,& (st->stack->stack_data[i])); // we should convert variables to strings before access it [jA1983] [EoE]
 			if((int)strlen(st->stack->stack_data[i].u.str) < 1)
 				sd->npc_menu++; //Empty selection which wasn't displayed on the client.
@@ -11167,7 +11168,7 @@ int buildin_query_sql(struct script_state *st) {
 
 		if (nb_rows > 32)
 		{
-			ShowWarning("buildin_query_sql: too much rows!\n");
+			ShowWarning("buildin_query_sql: too many rows!\n");
 			push_val(st->stack,C_INT,0);
 			return 1;
 		}
