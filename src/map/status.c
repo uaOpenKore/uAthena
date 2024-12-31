@@ -2078,9 +2078,43 @@ int status_calc_pc(struct map_session_data* sd,int first)
 			sd->dsprate -= sd->sc.data[SC_SERVICE4U].val3;
 	}
 
-	if(sd->dsprate < 0) sd->dsprate = 0;
-	if(sd->hprate<0) sd->hprate = 0;
-	if(sd->sprate<0) sd->sprate = 0;
+	//Underflow protections.
+	if(sd->sprate < 0)
+		sd->sprate = 0;
+	if(sd->dsprate < 0)
+		sd->dsprate = 0;
+	if(sd->hprate < 0)
+		sd->hprate = 0;
+	if(sd->sprate < 0)
+		sd->sprate = 0;
+	if(sd->castrate < 0)
+		sd->castrate = 0;
+	if(sd->delayrate < 0)
+		sd->delayrate = 0;
+	if(sd->speed_rate < 0)
+		sd->speed_rate = 0;
+	if(sd->hprecov_rate < 0)
+		sd->hprecov_rate = 0;
+	if(sd->sprecov_rate < 0)
+		sd->sprecov_rate = 0;
+	if(sd->matk_rate < 0)
+		sd->matk_rate = 0;
+	if(sd->critical_rate < 0)
+		sd->critical_rate = 0;
+	if(sd->hit_rate < 0)
+		sd->hit_rate = 0;
+	if(sd->flee_rate < 0)
+		sd->flee_rate = 0;
+	if(sd->flee2_rate < 0)
+		sd->flee2_rate = 0;
+	if(sd->def_rate < 0)
+		sd->def_rate = 0;
+	if(sd->def2_rate < 0)
+		sd->def2_rate = 0;
+	if(sd->mdef_rate < 0)
+		sd->mdef_rate = 0;
+	if(sd->mdef2_rate < 0)
+		sd->mdef2_rate = 0;
 
 	// Anti-element and anti-race
 	if((skill=pc_checkskill(sd,CR_TRUST))>0)
@@ -2335,8 +2369,8 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 		|| sc->data[SC_DANCING].timer != -1
 		|| (sc->data[SC_EXPLOSIONSPIRITS].timer != -1
 			&& (sc->data[SC_SPIRIT].timer==-1 || sc->data[SC_SPIRIT].val2 != SL_MONK))
-	)	//No SP regen
-		regen->flag &=~(RGN_SP|RGN_SSP);
+	)	//No natural SP regen
+		regen->flag &=~RGN_SP;
 
 	if(
 		sc->data[SC_TENSIONRELAX].timer!=-1
@@ -2661,7 +2695,7 @@ void status_calc_bl(struct block_list *bl, unsigned long flag)
 
 	if(flag&SCB_LUK) {
 		status->luk = status_calc_luk(bl, sc, b_status->luk);
-		flag|=SCB_CRI|SCB_FLEE2;
+		flag|=SCB_BATK|SCB_CRI|SCB_FLEE2;
 	}
 
 	if(flag&SCB_BATK && b_status->batk) {
@@ -5266,7 +5300,9 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break; // It just change the armor element of the player (used by battle_attr_fix)
 				   // So it has no SCB and no skill associated (used by potion scripts)
 		default:
-			if (calc_flag == SCB_NONE && StatusSkillChangeTable[type]==0)
+			if (calc_flag == SCB_NONE &&
+				StatusSkillChangeTable[type]==0 &&
+				StatusIconChangeTable[type]==0)
 			{	//Status change with no calc, and no skill associated...? unknown?
 				if(battle_config.error_log)
 					ShowError("UnknownStatusChange [%d]\n", type);
@@ -5771,7 +5807,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			if(sc->data[SC_ENDURE].timer != -1)
 				status_change_end(bl, SC_ENDURE, -1);
 			sc_start4(bl, SC_REGENERATION, 100, 10,0,0,1,
-				gettick()+skill_get_time(LK_BERSERK, sc->data[type].val1));
+				skill_get_time(LK_BERSERK, sc->data[type].val1));
 			break;
 		case SC_GRAVITATION:
 			if (sc->data[type].val3 == BCT_SELF) {

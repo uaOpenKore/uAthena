@@ -1802,15 +1802,17 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			tsd = (bl->type == BL_PC)?(TBL_PC*)bl:NULL;
 			if (sc && !sc->count)
 				sc = NULL; //Don't need it.
-			if (sc && sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_WIZARD)
-			{	//Spirit of Wizard blocks bounced back spells.
+			//Spirit of Wizard blocks bounced back spells.
+			if (sc && sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_WIZARD
+				&& !(tsd && (type = pc_search_inventory (tsd, 7321)) < 0))
+			{
+				if (tsd) pc_delitem(tsd, type, 1, 0);
 				dmg.damage = dmg.damage2 = 0;
 				dmg.dmg_lv = ATK_FLEE;
 			}
 		}
-	
+
 		if(sc && sc->data[SC_MAGICROD].timer != -1 && src == dsrc) {
-			struct unit_data *ud;
 			int sp = skill_get_sp(skillid,skilllv);
 			dmg.damage = dmg.damage2 = 0;
 			dmg.dmg_lv = ATK_FLEE; //This will prevent skill additional effect from taking effect. [Skotlex]
@@ -1819,9 +1821,6 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 				sp = sp/((skilllv|1)*(skilllv|1)); //Estimate SP cost of a single water-ball
 			status_heal(bl, 0, sp, 2);
 			clif_skill_nodamage(bl,bl,SA_MAGICROD,sc->data[SC_MAGICROD].val1,1);
-			ud = unit_bl2ud(bl);
-			if (ud) ud->canact_tick = tick
-				+ skill_delayfix(bl, SA_MAGICROD, sc->data[SC_MAGICROD].val1);
 		}
 	}
 
@@ -5865,7 +5864,7 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 		}
 		break;
 	case NJ_TATAMIGAESHI:
-		sc_start(src,type,100,skilllv,skill_get_time(skillid,skilllv));
+		sc_start(src,type,100,skilllv,skill_get_time2(skillid,skilllv));
 		skill_unitsetting(src,skillid,skilllv,src->x,src->y,0);
 		break;
 
@@ -7950,6 +7949,7 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 		}
 	}
 
+	if(!type)//States are only checked on begin-casting. [Skotlex]
 	switch(state) {
 	case ST_HIDING:
 		if(!(sc && sc->option&OPTION_HIDE)) {
@@ -7994,7 +7994,7 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 		}
 		break;
 	case ST_SIGHT:
-		if((!sc || sc->data[SC_SIGHT].timer == -1) && type&1) {
+		if(!sc || sc->data[SC_SIGHT].timer == -1) {
 			clif_skill_fail(sd,skill,0,0);
 			return 0;
 		}
@@ -8018,12 +8018,9 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 		}
 		break;
 	case ST_MOVE_ENABLE:
-		if(type)//Check only on begin casting. [Skotlex]
-			break;
-		
 		if (sc && sc->data[SC_COMBO].timer != -1 && sc->data[SC_COMBO].val1 == skill)
 			sd->ud.canmove_tick = gettick(); //When using a combo, cancel the can't move delay to enable the skill. [Skotlex]
-			
+
 		if (!unit_can_move(&sd->bl)) {
 			clif_skill_fail(sd,skill,0,0);
 			return 0;
@@ -9845,7 +9842,8 @@ int skill_can_produce_mix (struct map_session_data *sd, int nameid, int trigger,
 				return 0;
 		}
 	}
-	if( (j=skill_produce_db[i].req_skill)>0 && pc_checkskill(sd,j)<=0 )
+	if((j=skill_produce_db[i].req_skill)>0 &&
+		pc_checkskill(sd,j) < skill_produce_db[i].req_skill_lv)
 		return 0;
 
 	for(j=0;j<MAX_PRODUCE_RESOURCE;j++){
@@ -10840,12 +10838,12 @@ int skill_readdb (void)
 		}
 		k=0;
 		while(fgets(line,1020,fp)){
-			char *split[6 + MAX_PRODUCE_RESOURCE * 2];
+			char *split[7 + MAX_PRODUCE_RESOURCE * 2];
 			int x,y;
 			if(line[0]=='/' && line[1]=='/')
 				continue;
 			memset(split,0,sizeof(split));
-			j = skill_split_str(line,split,(3 + MAX_PRODUCE_RESOURCE * 2));
+			j = skill_split_str(line,split,(4 + MAX_PRODUCE_RESOURCE * 2));
 			if(split[0]==0) //fixed by Lupus
 				continue;
 			i=atoi(split[0]);
@@ -10854,8 +10852,9 @@ int skill_readdb (void)
 			skill_produce_db[k].nameid=i;
 			skill_produce_db[k].itemlv=atoi(split[1]);
 			skill_produce_db[k].req_skill=atoi(split[2]);
+			skill_produce_db[k].req_skill_lv=atoi(split[3]);
 
-			for(x=3,y=0; split[x] && split[x+1] && y<MAX_PRODUCE_RESOURCE; x+=2,y++){
+			for(x=4,y=0; split[x] && split[x+1] && y<MAX_PRODUCE_RESOURCE; x+=2,y++){
 				skill_produce_db[k].mat_id[y]=atoi(split[x]);
 				skill_produce_db[k].mat_amount[y]=atoi(split[x+1]);
 			}

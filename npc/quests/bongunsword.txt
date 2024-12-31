@@ -1,16 +1,18 @@
 //===== eAthena Script ======================================= 
 //= Munak and Bongun accessory / Taming items Quest
-//===== By: ================================================== 
+//===== By: ==================================================
 //= eAthena Team
-//===== Current Version: ===================================== 
-//= 1.0
-//===== Compatible With: ===================================== 
+//===== Current Version: =====================================
+//= 1.2
+//===== Compatible With: =====================================
 //= eAthena 1.0
-//===== Description: ========================================= 
+//===== Description: =========================================
 //= Quest itms:Sword o'Chinese Exorcist,No Recipient,Her Heart
-//===== Additional Comments: ================================= 
+//===== Additional Comments: =================================
 //= 1.0. merged 3 sep. files, fixed exploits [Lupus]
-//============================================================ 
+//= 1.1	Added missing next;'s [Evera]
+//= 1.2 Added another missing next; [Evera]
+//============================================================
 
 
 comodo.gat,135,227,5	script	Sherri	93,{
@@ -28,6 +30,7 @@ comodo.gat,135,227,5	script	Sherri	93,{
 	next;
 	mes "[Sherri]";
 	mes "Can you please help me?";
+	next;
 
 	menu "What do I need again?",-,"Here! I got what you need!",ExCreate,"Sorry, I can't help you.",ExEnd;
 
@@ -82,6 +85,7 @@ izlude_in.gat,115,76,5	script	Evan	47,{
 	next;
 	mes "[Evan]";
 	mes "Whaddaya say? ..pal?";
+	next;
 
 	menu "What do I need again?",-,"Here! I got what you need!",ExCreate,"Sorry, I can't help you.",ExEnd;
 
@@ -124,7 +128,7 @@ gef_fild07.gat,183,239,5	script	Old Smith	120,{
 	if(countitem(7110)<1) goto L_NoItemS;//Items: Broken_Sword,
 	mes "[Old Smith]";
 	mes "Hmm, it seems as if you need something. What would that be?";
-
+	next;
 	menu "Can you fix this broken sword?",-,"Nothing really...",ExEnd;
 
 	mes "[Old Smith]";

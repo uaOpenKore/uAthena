@@ -589,11 +589,7 @@ int pet_catch_process2(struct map_session_data *sd,int target_id)
 		return 1;
 	}
 
-	//target_id‚É‚æ‚é“G¨—‘”»’è
-//	if(battle_config.etc_log)
-//		printf("mob_id = %d, mob_class = %d\n",md->bl.id,md->class_);
-		//¬Œ÷‚Ìê‡
-	pet_catch_rate = (pet_db[i].capture + (sd->status.base_level - md->db->lv)*30 + sd->battle_status.luk*20)*(200 - md->status.hp*100/md->status.max_hp)/100;
+	pet_catch_rate = (pet_db[i].capture + (sd->status.base_level - md->level)*30 + sd->battle_status.luk*20)*(200 - md->status.hp*100/md->status.max_hp)/100;
 	if(pet_catch_rate < 1) pet_catch_rate = 1;
 	if(battle_config.pet_catch_rate != 100)
 		pet_catch_rate = (pet_catch_rate*battle_config.pet_catch_rate)/100;
@@ -1087,7 +1083,7 @@ int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd)
 	memset(pd->loot->item,0,pd->loot->max * sizeof(struct item));
 	pd->loot->count = 0;
 	pd->loot->weight = 0;
-	pd->ud.canact_tick = gettick()+10000;	//	10*1000ms‚ÌŠÔE‚í‚È‚¢
+	pd->ud.canact_tick = gettick()+10000;	//	10*1000msE
 
 	if (dlist->item)
 		add_timer(gettick()+540,pet_delay_item_drop,(int)dlist,0);
@@ -1261,7 +1257,7 @@ int pet_skill_support_timer(int tid,unsigned int tick,int id,int data)
 }
 
 /*==========================================
- *ƒyƒbƒgƒf[ƒ^“Ç‚İ‚İ
+ *ybgf[^
  *------------------------------------------
  */ 
 int read_petdb()
@@ -1312,10 +1308,14 @@ int read_petdb()
 			}
 
 			nameid=atoi(str[0]);
-			if(nameid<=0 || nameid>2000)
+			if(nameid<=0)
 				continue;
-		
-			//MobID,Name,JName,ItemID,EggID,AcceID,FoodID,"Fullness (1‰ñ‚Ì‰a‚Å‚Ì–• “x‘‰Á—¦%)","HungryDeray (/min)","R_Hungry (‹ó• ‰a‚â‚èe–§“x‘‰Á—¦%)","R_Full (‚Æ‚Ä‚à–• ‰a‚â‚èe–§“xŒ¸­—¦%)","Intimate (•ßŠle–§“x%)","Die (€–Se–§“xŒ¸­—¦%)","Capture (•ßŠl—¦%)",(Name)
+
+			if (!mobdb_checkid(nameid)) {
+				ShowWarning("pet_db reading: Invalid mob-class %d, pet not read.\n", nameid);
+				continue;
+			}
+
 			pet_db[j].class_ = nameid;
 			memcpy(pet_db[j].name,str[1],NAME_LENGTH-1);
 			memcpy(pet_db[j].jname,str[2],NAME_LENGTH-1);
@@ -1353,7 +1353,7 @@ int read_petdb()
 }
 
 /*==========================================
- * ƒXƒLƒ‹ŠÖŒW‰Šú‰»ˆ—
+ * XLW
  *------------------------------------------
  */
 int do_init_pet(void)
