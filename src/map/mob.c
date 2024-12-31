@@ -630,11 +630,13 @@ int mob_spawn (struct mob_data *md)
 	md->last_thinktime = tick -MIN_MOBTHINKTIME;
 	if (md->bl.prev != NULL)
 		unit_remove_map(&md->bl,2);
-	else if (md->vd->class_ != md->class_) {
+	else
+	if (md->spawn && md->class_ != md->spawn->class_)
+	{
+		md->class_ = md->spawn->class_;
 		status_set_viewdata(&md->bl, md->class_);
 		md->db = mob_db(md->class_);
-		if (md->spawn)
-			memcpy(md->name,md->spawn->name,NAME_LENGTH);
+		memcpy(md->name,md->spawn->name,NAME_LENGTH);
 	}
 
 	if (md->spawn) { //Respawn data
@@ -1049,7 +1051,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 		tbl = map_id2bl(md->target_id);
 		if (!tbl || tbl->m != md->bl.m ||
 			(md->ud.attacktimer == -1 && !status_check_skilluse(&md->bl, tbl, 0, 0)) ||
-			(md->ud.walktimer != -1 && !check_distance_bl(&md->bl, tbl, md->min_chase)) ||
+			(md->ud.walktimer != -1 && !(battle_config.mob_ai&1) && !check_distance_bl(&md->bl, tbl, md->min_chase)) ||
 			(
 				tbl->type == BL_PC && !(mode&MD_BOSS) &&
 				((TBL_PC*)tbl)->state.gangsterparadise
@@ -1520,9 +1522,9 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 	if(md->guardian_data && md->guardian_data->number < MAX_GUARDIANS) // guardian hp update [Valaris] (updated by [Skotlex])
 		md->guardian_data->castle->guardian[md->guardian_data->number].hp = md->status.hp;
 
-	if (battle_config.show_mob_hp)
+	if (battle_config.show_mob_info&3)
 		clif_charnameack (0, &md->bl);
-	
+
 	if (!src)
 		return;
 	
@@ -2027,12 +2029,14 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	}
 
 	if(md->npc_event[0]){
+		md->status.hp = 0; //So that npc_event invoked functions KNOW that I am dead.
 		if(src && src->type == BL_PET)
 			sd = ((struct pet_data *)src)->msd;
 		if(sd && battle_config.mob_npc_event_type)
 			npc_event(sd,md->npc_event,0);
 		else if(mvp_sd)
 			npc_event(mvp_sd,md->npc_event,0);
+		md->status.hp = 1;
 	} else if (mvp_sd) {	//lordalfa
 		pc_setglobalreg(mvp_sd,"killedrid",md->class_);
 		if(mvp_sd->state.event_kill_mob)
@@ -2072,7 +2076,7 @@ void mob_revive(struct mob_data *md, unsigned int hp)
 	clif_spawn(&md->bl);
 	skill_unit_move(&md->bl,tick,1);
 	mobskill_use(md, tick, MSC_SPAWN);
-	if (battle_config.show_mob_hp)
+	if (battle_config.show_mob_info&3)
 		clif_charnameack (0, &md->bl);
 }
 
@@ -2169,10 +2173,14 @@ int mob_class_change (struct mob_data *md, int class_)
 	if (md->class_ >= 1324 && md->class_ <= 1363)
 		return 0; //Treasure Boxes
 
+	if (md->special_state.ai > 1)
+		return 0; //Marine Spheres and Floras.
+
 	if (mob_is_clone(md->class_))
 		return 0; //Clones
 
 	hp_rate = md->status.hp*100/md->status.max_hp;
+	md->class_ = class_;
 	md->db = mob_db(class_);
 	if (battle_config.override_mob_names==1)
 		memcpy(md->name,md->db->name,NAME_LENGTH-1);
@@ -2216,7 +2224,7 @@ void mob_heal(struct mob_data *md,unsigned int heal)
 	// guardian hp update [Valaris] (updated by [Skotlex])
 		md->guardian_data->castle->guardian[md->guardian_data->number].hp = md->status.hp;
 
-	if (battle_config.show_mob_hp)
+	if (battle_config.show_mob_info&3)
 		clif_charnameack (0, &md->bl);
 }
 
@@ -2995,7 +3003,9 @@ static int mob_readdb(void)
 	char *filename[]={ "mob_db.txt","mob_db2.txt" };
 	struct status_data *status;
 	int class_, i, fi, k;
-
+	struct mob_data data;
+	memset(&data, 0, sizeof(struct mob_data));
+	data.bl.type = BL_MOB;
 	for(fi=0;fi<2;fi++){
 		sprintf(line, "%s/%s", db_path, filename[fi]);
 		fp=fopen(line,"r");
@@ -3132,8 +3142,9 @@ static int mob_readdb(void)
 			if(battle_config.monster_damage_delay_rate != 100)
 				status->dmotion = status->dmotion*battle_config.monster_damage_delay_rate/100;
 
-			status_calc_misc(status, BL_MOB, mob_db_data[class_]->lv);
-				
+			data.level = mob_db_data[class_]->lv;
+			memcpy(&data.status, status, sizeof(struct status_data));
+			status_calc_misc(&data.bl, status, mob_db_data[class_]->lv);
 			// MVP EXP Bonus, Chance: MEXP,ExpPer
 			mob_db_data[class_]->mexp=atoi(str[30])*battle_config.mvp_exp_rate/100;
 			mob_db_data[class_]->mexpper=atoi(str[31]);
@@ -3706,6 +3717,9 @@ static int mob_read_sqldb(void)
 	long unsigned int ln = 0;
 	struct status_data *status;
 	char *mob_db_name[] = { mob_db_db, mob_db2_db };
+	struct mob_data data;
+	memset(&data, 0, sizeof(struct mob_data));
+	data.bl.type = BL_MOB;
 
 	//For easier handling of converting. [Skotlex]
 #define TO_INT(a) (sql_row[a]==NULL?0:atoi(sql_row[a]))
@@ -3812,8 +3826,10 @@ static int mob_read_sqldb(void)
 				if(battle_config.monster_damage_delay_rate != 100)
 					status->dmotion = status->dmotion*battle_config.monster_damage_delay_rate/100;
 
-				status_calc_misc(status, BL_MOB, mob_db_data[class_]->lv);
-				
+				data.level = mob_db_data[class_]->lv;
+				memcpy(&data.status, status, sizeof(struct status_data));
+				status_calc_misc(&data.bl, status, mob_db_data[class_]->lv);
+
 				// MVP EXP Bonus, Chance: MEXP,ExpPer
 				mob_db_data[class_]->mexp = TO_INT(30) * battle_config.mvp_exp_rate / 100;
 				mob_db_data[class_]->mexpper = TO_INT(31);

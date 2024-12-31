@@ -353,13 +353,14 @@ enum {
 	SI_JOINTBEAT		= 125,
 	SI_DEVOTION		= 130,
 	SI_STEELBODY		= 132,
-	//134 - Soullink-like effect which makes the character get wavy.
+	SI_RUN			= 133,
+	SI_BUMP			= 134,
 	SI_READYSTORM		= 135,
 	SI_READYDOWN		= 137,
 	SI_READYTURN		= 139,
 	SI_READYCOUNTER		= 141,
 	SI_DODGE		= 143,
-	SI_RUN		= 144,
+	//SI_RUN		= 144,  //is not RUN. need info on what this is.
 	SI_SPURT			= 145,
 	SI_SHADOWWEAPON		= 146,
 	SI_ADRENALINE2		= 147,
@@ -557,6 +558,7 @@ int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per
 struct regen_data *status_get_regen_data(struct block_list *bl);
 struct status_data *status_get_status_data(struct block_list *bl);
 struct status_data *status_get_base_status(struct block_list *bl);
+const char * status_get_name(struct block_list *bl);
 int status_get_class(struct block_list *bl);
 int status_get_lv(struct block_list *bl);
 #define status_get_range(bl) status_get_status_data(bl)->rhw.range
@@ -634,7 +636,7 @@ int status_calc_pet(struct pet_data* pd, int first); // [Skotlex]
 int status_calc_pc(struct map_session_data* sd,int first);
 int status_calc_mob(struct mob_data* md, int first); //[Skotlex]
 
-void status_calc_misc(struct status_data *status, int type, int level);
+void status_calc_misc(struct block_list *bl, struct status_data *status, int level);
 void status_calc_regen(struct block_list *bl, struct status_data *status, struct regen_data *regen);
 void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, struct status_change *sc);
 

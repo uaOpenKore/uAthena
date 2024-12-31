@@ -199,8 +199,6 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			ratio += enchant_eff[sc->data[SC_VIOLENTGALE].val1-1];
 		if(sc->data[SC_DELUGE].timer!=-1 && atk_elem == ELE_WATER)
 			ratio += enchant_eff[sc->data[SC_DELUGE].val1-1];
-		if(sc->data[SC_SPIDERWEB].timer!=-1 && atk_elem == ELE_FIRE) // [Celest]
-			damage *= 2; //FIXME: Double damage instead of double ratio?
 	}
 	if (tsc && tsc->count)
 	{
@@ -212,6 +210,8 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			if (tsc->data[SC_ARMOR_ELEMENT].val3 == atk_elem)
 				ratio -= tsc->data[SC_ARMOR_ELEMENT].val4;
 		}
+		if(tsc->data[SC_SPIDERWEB].timer!=-1 && atk_elem == ELE_FIRE) // [Celest]
+			damage <<= 1;
 	}
 	return damage*ratio/100;
 }
@@ -301,7 +301,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 			if (sd && pc_issit(sd)) pc_setstand(sd); //Stand it to dodge.
 			clif_skill_nodamage(bl,bl,TK_DODGE,1,1);
 			if (sc->data[SC_COMBO].timer == -1)
-				sc_start4(bl, SC_COMBO, 100, TK_JUMPKICK, src->id, 0, 0, 2000);
+				sc_start4(bl, SC_COMBO, 100, TK_JUMPKICK, src->id, 1, 0, 2000);
 			return 0;
 		}
 
@@ -1029,6 +1029,11 @@ static struct Damage battle_calc_weapon_attack(
 					break;
 				case CR_SHIELDBOOMERANG:
 					if (sc && sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_CRUSADER)
+						flag.hit = 1;
+					break;
+				case 0:
+					//If flag, this is splash damage from Baphomet Card and it always hits.
+					if (wflag)
 						flag.hit = 1;
 					break;
 			}
@@ -1936,18 +1941,18 @@ static struct Damage battle_calc_weapon_attack(
 	{	//There is a total damage value
 		if(!wd.damage2) {
 			wd.damage=battle_calc_damage(src,target,wd.damage,wd.div_,skill_num,skill_lv,wd.flag);
-			if (map_flag_gvg(target->m))
+			if (map_flag_gvg2(target->m))
 				wd.damage=battle_calc_gvg_damage(src,target,wd.damage,wd.div_,skill_num,skill_lv,wd.flag);
 		} else
 		if(!wd.damage) {
 			wd.damage2=battle_calc_damage(src,target,wd.damage2,wd.div_,skill_num,skill_lv,wd.flag);
-			if (map_flag_gvg(target->m))
+			if (map_flag_gvg2(target->m))
 				wd.damage2=battle_calc_gvg_damage(src,target,wd.damage2,wd.div_,skill_num,skill_lv,wd.flag);
 		} else
 		{
 			int d1=wd.damage+wd.damage2,d2=wd.damage2;
 			wd.damage=battle_calc_damage(src,target,d1,wd.div_,skill_num,skill_lv,wd.flag);
-			if (map_flag_gvg(target->m))
+			if (map_flag_gvg2(target->m))
 				wd.damage=battle_calc_gvg_damage(src,target,wd.damage,wd.div_,skill_num,skill_lv,wd.flag);
 			wd.damage2=(d2*100/d1)*wd.damage/100;
 			if(wd.damage > 1 && wd.damage2 < 1) wd.damage2=1;
@@ -2350,7 +2355,7 @@ struct Damage battle_calc_magic_attack(
 		ad.damage = ad.damage>0?1:-1;
 
 	ad.damage=battle_calc_damage(src,target,ad.damage,ad.div_,skill_num,skill_lv,ad.flag);
-	if (map_flag_gvg(target->m))
+	if (map_flag_gvg2(target->m))
 		ad.damage=battle_calc_gvg_damage(src,target,ad.damage,ad.div_,skill_num,skill_lv,ad.flag);
 	return ad;
 }
@@ -2590,7 +2595,7 @@ struct Damage  battle_calc_misc_attack(
 		md.damage=battle_attr_fix(src, target, md.damage, s_ele, tstatus->def_ele, tstatus->ele_lv);
 
 	md.damage=battle_calc_damage(src,target,md.damage,md.div_,skill_num,skill_lv,md.flag);
-	if (map_flag_gvg(target->m))
+	if (map_flag_gvg2(target->m))
 		md.damage=battle_calc_gvg_damage(src,target,md.damage,md.div_,skill_num,skill_lv,md.flag);
 
 	return md;
@@ -3538,7 +3543,7 @@ static const struct battle_data_short {
 	{ "max_exp_gain_rate",                 &battle_config.max_exp_gain_rate	}, // [Skotlex]
 	{ "backstab_bow_penalty",              &battle_config.backstab_bow_penalty	},
 	{ "night_at_start",                    &battle_config.night_at_start	}, // added by [Yor]
-	{ "show_mob_hp",                       &battle_config.show_mob_hp	}, // [Valaris]
+	{ "show_mob_info",                     &battle_config.show_mob_info }, // [Valaris]
 	{ "ban_spoof_namer",                   &battle_config.ban_spoof_namer	}, // added by [Yor]
 	{ "hack_info_GM_level",                &battle_config.hack_info_GM_level	}, // added by [Yor]
 	{ "any_warp_GM_min_level",             &battle_config.any_warp_GM_min_level	}, // added by [Yor]
@@ -3968,7 +3973,7 @@ void battle_set_defaults() {
 	battle_config.night_at_start = 0; // added by [Yor]
 	battle_config.day_duration = 2*60*60*1000; // added by [Yor] (2 hours)
 	battle_config.night_duration = 30*60*1000; // added by [Yor] (30 minutes)
-	battle_config.show_mob_hp = 0; // [Valaris]
+	battle_config.show_mob_info = 0;
 	battle_config.ban_spoof_namer = 5; // added by [Yor] (default: 5 minutes)
 	battle_config.hack_info_GM_level = 60; // added by [Yor] (default: 60, GM level)
 	battle_config.any_warp_GM_min_level = 20; // added by [Yor]

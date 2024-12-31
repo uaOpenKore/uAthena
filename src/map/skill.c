@@ -1192,8 +1192,15 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case NPC_MENTALBREAKER:
-		status_percent_damage(src, bl, 0, -(10+skilllv));
+	{	//Based on observations by Tharis, Mental Breaker should do SP damage
+		//equal to Matk*skLevel.
+		rate = sstatus->matk_min;
+		if (rate < sstatus->matk_max)
+			rate += rand()%(sstatus->matk_max - sstatus->matk_min);
+		rate*=skilllv;
+		status_zap(bl, 0, rate);
 		break;
+	}
 	// Equipment breaking monster skills [Celest]
 	case NPC_BREAKWEAPON:
 		skill_break_equip(bl, EQP_WEAPON, 150*skilllv, BCT_ENEMY);
@@ -4659,12 +4666,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case NPC_INVISIBLE:
-		//On level 1, use level 10 cloaking (no speed penalty) 
+		//On level 1, use level 10 cloaking (no speed penalty)
 		//with val4 passed as 1 is for "infinite cloak".
 		clif_skill_nodamage(src,bl,skillid,skilllv,
-			sc_start4(bl,type,100,9+skilllv,0,0,1,skill_get_time(skillid,skilllv)));
+			sc_start4(bl,type,100,9+skilllv,0,0,2,skill_get_time(skillid,skilllv)));
 		break;
-		
+
 	case NPC_SIEGEMODE:
 		// not sure what it does
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -5694,13 +5701,13 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 		break;
 	case AM_SPHEREMINE:
 	case AM_CANNIBALIZE:
-		if(sd) {
+		{
 			int summons[5] = { 1020, 1068, 1118, 1500, 1368 };
 			int class_ = skillid==AM_SPHEREMINE?1142:summons[skilllv-1];
 			struct mob_data *md;
 
 			// Correct info, don't change any of this! [celest]
-			md = mob_once_spawn_sub(src, src->m, x, y, sd->status.name,class_,"");
+			md = mob_once_spawn_sub(src, src->m, x, y, status_get_name(src),class_,"");
 			if (md) {
 				md->master_id = src->id;
 				md->special_state.ai = skillid==AM_SPHEREMINE?2:3;
@@ -7803,7 +7810,7 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 		clif_skill_fail(sd,skill,0,0);
 		return 0;
 	case SG_FUSION:
-		if (!sc || sc->data[SC_FUSION].timer!=-1)
+		if (sc && sc->data[SC_FUSION].timer!=-1)
 			return 1;
 		if (sc && sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_STAR)
 			break;
@@ -8322,6 +8329,7 @@ void skill_repairweapon (struct map_session_data *sd, int idx)
 		clif_skill_fail(sd,sd->menuskill_id,0,0);
 		return;
 	}
+	clif_skill_nodamage(&sd->bl,&target_sd->bl,sd->menuskill_id,1,1);
 	item->attribute=0;
 	clif_equiplist(target_sd);
 	pc_delitem(sd,pc_search_inventory(sd,material),1,0);
@@ -8526,7 +8534,7 @@ static int skill_sit_out (struct block_list *bl, va_list ap)
 int skill_sit (struct map_session_data *sd, int type)
 {
 	int flag = 0;
-	int range, lv;
+	int range = 0, lv;
 	nullpo_retr(0, sd);
 
 
@@ -8545,13 +8553,11 @@ int skill_sit (struct map_session_data *sd, int type)
 
 	if (!flag) return 0;
 
-	if(type==1) {
+	if(type) {
 		if (map_foreachinrange(skill_sit_count,&sd->bl, range, BL_PC, flag) > 1)
 			map_foreachinrange(skill_sit_in,&sd->bl, range, BL_PC, flag);
 		return 0;
-	}
-	else
-	if(type==0) {
+	} else {
 		if (map_foreachinrange(skill_sit_count,&sd->bl, range, BL_PC, flag) < 2)
 			map_foreachinrange(skill_sit_out,&sd->bl, range, BL_PC, flag);
 		return 0;

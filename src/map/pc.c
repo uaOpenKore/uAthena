@@ -782,6 +782,8 @@ int pc_set_hate_mob(struct map_session_data *sd, int pos, struct block_list *bl)
 		unsigned int max_hp = status_get_max_hp(bl);
 		if ((pos == 1 && max_hp < 6000) || (pos == 2 && max_hp < 20000))
 			return 0;
+		if (pos != status_get_size(bl))
+			return 0; //Wrong size
 	}
 	sd->hate_mob[pos] = class_;
 	pc_setglobalreg(sd,hate_var[pos],class_+1);
@@ -1469,7 +1471,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_SPEED_ADDRATE:	//Stackable increase
 		if(sd->state.lr_flag != 2)
-			sd->speed_add_rate = sd->speed_add_rate * (100-val)/100;
+			sd->speed_add_rate -= val;
 		break;
 	case SP_ASPD:	//Raw increase
 //		if(sd->state.lr_flag != 2)
@@ -2931,7 +2933,10 @@ int pc_useitem(struct map_session_data *sd,int n)
 		sd->sc.data[SC_MARIONETTE].timer!=-1 ||
 		(sd->sc.data[SC_GRAVITATION].timer!=-1 && sd->sc.data[SC_GRAVITATION].val3 == BCT_SELF) ||
 		//Cannot use Potions/Healing items while under Gospel.
-		(sd->sc.data[SC_GOSPEL].timer!=-1 && sd->sc.data[SC_GOSPEL].val4 == BCT_SELF && sd->inventory_data[n]->type == IT_HEALING)
+		(sd->sc.data[SC_GOSPEL].timer!=-1 && sd->sc.data[SC_GOSPEL].val4 == BCT_SELF && sd->inventory_data[n]->type == IT_HEALING) ||
+		sd->sc.data[SC_TRICKDEAD].timer != -1 ||
+		sd->sc.data[SC_BLADESTOP].timer != -1 ||
+		(sd->sc.data[SC_NOCHAT].timer!=-1 && sd->sc.data[SC_NOCHAT].val1&MANNER_NOITEM)
 	))
 		return 0;
 
@@ -3640,8 +3645,6 @@ int pc_jobid2mapid(unsigned short b_class)
 			class_ = MAPID_XMAS;
 			break;
 		default:
-			if (battle_config.error_log)
-				ShowError("pc_jobid2mapid: Unrecognized job %d!\n", b_class);
 			return -1;
 	}
 	return class_;
@@ -3791,8 +3794,6 @@ int pc_mapid2jobid(unsigned short class_, int sex) {
 		case MAPID_BABY_ROGUE:
 			return JOB_BABY_ROGUE;
 		default:
-			if (battle_config.error_log)
-				ShowError("pc_mapid2jobid: Unrecognized job %d!\n", class_);
 			return -1;
 	}
 }

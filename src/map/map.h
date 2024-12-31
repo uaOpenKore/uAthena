@@ -168,7 +168,8 @@ enum {
 #define map_flag_vs(m) (map[m].flag.pvp || map[m].flag.gvg_dungeon || map[m].flag.gvg || (agit_flag && map[m].flag.gvg_castle))
 //Specifies maps that have special GvG/WoE restrictions
 #define map_flag_gvg(m) (map[m].flag.gvg || (agit_flag && map[m].flag.gvg_castle))
-
+//Specifies if the map is tagged as GvG/WoE (regardless of agit_flag status)
+#define map_flag_gvg2(m) (map[m].flag.gvg || map[m].flag.gvg_castle)
 //Caps values to min/max
 #define cap_value(a, min, max) (a>max?max:a<min?min:a)
 
@@ -1088,7 +1089,6 @@ struct map_data {
 		unsigned nomvploot	: 1; // [Lorky]
 		unsigned nightenabled :1; //For night display. [Skotlex]
 		unsigned restricted	: 1; // [Komurka]
-		unsigned nocommand : 1; //Blocks @/# commands for non-gms. [Skotlex]
 		unsigned nodrop : 1;
 		unsigned novending : 1;
 		unsigned loadevent : 1;
@@ -1107,6 +1107,7 @@ struct map_data {
 	int zone;	// [Komurka]
 	int jexp;	// map experience multiplicator
 	int bexp;	// map experience multiplicator
+	int nocommand; //Blocks @/# commands for non-gms. [Skotlex]
 };
 
 struct map_data_other_server {
@@ -1194,7 +1195,6 @@ enum {
 #define CELL_SAFETYWALL	0x8
 #define CELL_LANDPROTECTOR	0x10
 #define CELL_BASILICA	0x20
-#define CELL_MOONLIT	0x40
 #define CELL_ICEWALL	0x80
 /*
  * map_getcell()gptO
