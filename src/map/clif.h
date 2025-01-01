@@ -137,6 +137,7 @@ void clif_sitting(struct map_session_data *sd);
 void clif_soundeffect(struct map_session_data *sd,struct block_list *bl,char *name,int type);
 int clif_soundeffectall(struct block_list *bl, char *name, int type, int coverage);
 void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, int target_id, unsigned int tick);
+void clif_parse_LoadEndAck(int fd,struct map_session_data *sd);
 
 // trade
 int clif_traderequest(struct map_session_data *sd,char *name);
@@ -345,10 +346,11 @@ int do_init_clif(void);
 void clif_get_weapon_view(TBL_PC* sd, unsigned short *rhand, unsigned short *lhand);
 
 int clif_party_xy_remove(struct map_session_data *sd); //Fix for minimap [Kevin]
+void clif_gospel_info(struct map_session_data *sd, int type);
 void clif_parse_ReqFeel(int fd, struct map_session_data *sd, int skilllv);
-void clif_feel_info(struct map_session_data *sd, int feel_level);
-void clif_hate_mob(struct map_session_data *sd, int type,int mob_id);
-void clif_mission_mob(struct map_session_data *sd, unsigned short mob_id, unsigned short progress);
+void clif_feel_info(struct map_session_data *sd, unsigned char feel_level, unsigned char type);
+void clif_hate_info(struct map_session_data *sd, unsigned char hate_level,int class_, unsigned char type);
+void clif_mission_info(struct map_session_data *sd, int mob_id, unsigned char progress);
 void clif_feel_hate_reset(struct map_session_data *sd);
 #endif
 

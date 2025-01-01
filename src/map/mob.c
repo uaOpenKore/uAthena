@@ -157,20 +157,28 @@ int mob_parse_dataset(struct spawn_data *data) {
 		return 0;
 
 	//better safe than sorry, current md->npc_event has a size of 50
-	if (strlen(data->eventname) >= 50)
+	if ((i=strlen(data->eventname)) >= 50)
 		return 0;
 
-	if (data->eventname[0] && strlen(data->eventname) <= 2)
-	{ //Portable monster big/small implementation. [Skotlex]
-		i = atoi(data->eventname);
-		if (i) {
-			if (i&2)
-				data->state.size=1;
-			else if (i&4)
-				data->state.size=2;
-			if (i&8)
-				data->state.ai=1;
-			data->eventname[0] = '\0'; //Clear event as it is not used.
+	if (data->eventname[0])
+	{
+		if(i <= 2)
+		{	//Portable monster big/small implementation. [Skotlex]
+			i = atoi(data->eventname);
+			if (i) {
+				if (i&2)
+					data->state.size=1;
+				else if (i&4)
+					data->state.size=2;
+				if (i&8)
+					data->state.ai=1;
+				data->eventname[0] = '\0'; //Clear event as it is not used.
+			}
+		} else {
+			if (data->eventname[i-1] == '"')
+				data->eventname[i-1] = '\0'; //Remove trailing quote.
+			if (data->eventname[0] == '"') //Strip leading quotes
+				memmove(data->eventname, data->eventname+1, i-1);
 		}
 	}
 	if (!data->level)
@@ -1677,7 +1685,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				sd->mission_mobid = temp;
 				pc_setglobalreg(sd,"TK_MISSION_ID", temp);
 				sd->mission_count = 0;
-				clif_mission_mob(sd, temp, 0);
+				clif_mission_info(sd, temp, 0);
 			}
 			pc_setglobalreg(sd,"TK_MISSION_COUNT", sd->mission_count);
 		}
@@ -2673,7 +2681,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 			}
 			md->skillidx = i;
 			flag = unit_skilluse_pos2(&md->bl, x, y, ms[i].skill_id, ms[i].skill_lv,
-				skill_castfix_sc(&md->bl, ms[i].casttime), ms[i].cancel);
+				ms[i].casttime, ms[i].cancel);
 			if (!flag) md->skillidx = -1; //Skill failed.
 			return flag;
 		} else {
@@ -2703,7 +2711,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 				}
 				md->skillidx = i;
 				flag = (bl && unit_skilluse_id2(&md->bl, bl->id, ms[i].skill_id, ms[i].skill_lv,
-					skill_castfix_sc(&md->bl,ms[i].casttime),	ms[i].cancel));
+					ms[i].casttime, ms[i].cancel));
 				if (!flag) md->skillidx = -1;
 				return flag;
 			} else {

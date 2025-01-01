@@ -938,10 +938,13 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 
 	if(sc && sc->count)
 	{
-		if(sc->opt1 >0 && flag != 1)
-			//When sc do not cancel casting, the spell should come out, and when it does, we can never have
-			//a flag == 1 && sc->opt1 case, since cancelling should had been stopped before.
-			return 0;
+		if(sc->opt1 >0)
+		{	//Stuned/Frozen/etc
+			if (flag != 1) //Can't cast, casted stuff can't damage.
+				return 0;
+			if (!skill_get_inf(skill_num)&INF_GROUND_SKILL)
+				return 0; //Targetted spells can't come off.
+		}
 
 		if (
 			(sc->data[SC_TRICKDEAD].timer != -1 && skill_num != NV_TRICKDEAD)
@@ -1494,6 +1497,9 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	int b_weight,b_max_weight;
 	int i,index;
 	int skill,refinedef=0;
+
+	if(sd->state.connect_new && !first&1) //Shouldn't invoke yet until player is done loading.
+		return -1;
 
 	if (++calculating > 10) //Too many recursive calls!
 		return -1;
@@ -3756,8 +3762,8 @@ struct regen_data *status_get_regen_data(struct block_list *bl)
 
 struct status_data *status_get_status_data(struct block_list *bl)
 {
-	nullpo_retr(NULL, bl);
-		
+	nullpo_retr(&dummy_status, bl);
+
 	switch (bl->type) {
 		case BL_PC:
 			return &((TBL_PC*)bl)->battle_status;
@@ -3911,10 +3917,11 @@ int status_isimmune(struct block_list *bl)
 {
 	struct status_change *sc =status_get_sc(bl);
 	if (sc && sc->count && sc->data[SC_HERMODE].timer != -1)
-		return 1;
+		return 100;
+
 	if (bl->type == BL_PC &&
-		((TBL_PC*)bl)->special_state.no_magic_damage)
-		return ((TBL_PC*)bl)->special_state.no_magic_damage > battle_config.gtb_sc_immunity;
+		((TBL_PC*)bl)->special_state.no_magic_damage > battle_config.gtb_sc_immunity)
+		return ((TBL_PC*)bl)->special_state.no_magic_damage;
 	return 0;
 }
 
@@ -4552,6 +4559,16 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 		case SC_ENDURE:
 			val2 = 7; // Hit-count [Celest]
+			if (!(flag&1) && sd && !map_flag_gvg(bl->m))
+			{
+				struct map_session_data *tsd;
+				int i;
+				for (i = 0; i < 5; i++)
+				{	//See if there are devoted characters, and pass the status to them. [Skotlex]
+					if (sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])))
+						status_change_start(&tsd->bl,type,10000,val1,val2,val3,val4,tick,1);
+				}
+			}
 			break;
 		case SC_AUTOBERSERK:
 			if (status->hp < status->max_hp>>2 &&
@@ -4611,7 +4628,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 		case SC_REFLECTSHIELD:
 			val2=10+val1*3; //% Dmg reflected
-			if (sd)
+			if (sd && !(flag&1))
 			{	//Pass it to devoted chars.
 				struct map_session_data *tsd;
 				int i;
@@ -4830,7 +4847,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 
 		case SC_AUTOGUARD:
-			if (!flag)
+			if (!(flag&1))
 			{
 				struct map_session_data *tsd;
 				int i,t;
@@ -4848,8 +4865,8 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 
 		case SC_DEFENDER:
-			if (!flag)
-			{	
+			if (!(flag&1))
+			{
 				struct map_session_data *tsd;
 				int i;
 				val2 = 5 + 15*val1; //Damage reduction
@@ -5087,17 +5104,17 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			if ((src = map_id2sd(val1)) && src->sc.count)
 			{	//Try to inherit the status from the Crusader [Skotlex]
 			//Ideally, we should calculate the remaining time and use that, but we'll trust that
-			//once the Crusader's status changes, it will reflect on the others. 
-				int type2 = SC_AUTOGUARD;
-				if (src->sc.data[type2].timer != -1)
-					sc_start(bl,type2,100,src->sc.data[type2].val1,skill_get_time(StatusSkillChangeTable[type2],src->sc.data[type2].val1));
-				type2 = SC_DEFENDER;
-				if (src->sc.data[type2].timer != -1)
-					sc_start(bl,type2,100,src->sc.data[type2].val1,skill_get_time(StatusSkillChangeTable[type2],src->sc.data[type2].val1));
-				type2 = SC_REFLECTSHIELD;
-				if (src->sc.data[type2].timer != -1)
-					sc_start(bl,type2,100,src->sc.data[type2].val1,skill_get_time(StatusSkillChangeTable[type2],src->sc.data[type2].val1));
-
+			//once the Crusader's status changes, it will reflect on the others.
+				const int types[] = { SC_AUTOGUARD, SC_DEFENDER, SC_REFLECTSHIELD, SC_ENDURE };
+				int type2;
+				int i = map_flag_gvg(bl->m)?2:3;
+				while (i >= 0) {
+					type2 = types[i];
+					if (src->sc.data[type2].timer != -1)
+						sc_start(bl,type2,100,src->sc.data[type2].val1,
+							skill_get_time(StatusSkillChangeTable[type2],src->sc.data[type2].val1));
+					i--;
+				}
 			}
 			break;
 		}
@@ -5713,6 +5730,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 		case SC_DEFENDER:
 		case SC_REFLECTSHIELD:
 		case SC_AUTOGUARD:
+		case SC_ENDURE:
 		if (sd) {
 			struct map_session_data *tsd;
 			int i;
@@ -5739,6 +5757,8 @@ int status_change_end( struct block_list* bl , int type,int tid )
 				status_change_end(bl,SC_DEFENDER,-1);
 			if (sc->data[SC_REFLECTSHIELD].timer != -1)
 				status_change_end(bl,SC_REFLECTSHIELD,-1);
+			if (sc->data[SC_ENDURE].timer != -1)
+				status_change_end(bl,SC_ENDURE,-1);
 			break;
 		}
 		case SC_BLADESTOP:

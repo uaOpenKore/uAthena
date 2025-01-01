@@ -77,8 +77,10 @@ int unit_walktoxy_sub(struct block_list *bl)
 
 	ud->state.change_walk_target=0;
 
-	if (bl->type == BL_PC)
+	if (bl->type == BL_PC) {
+		((TBL_PC *)bl)->head_dir = 0;
 		clif_walkok((TBL_PC*)bl);
+	}
 	clif_move(bl);
 
 	if(ud->walkpath.path_pos>=ud->walkpath.path_len)
@@ -131,8 +133,6 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 
 	dir = ud->walkpath.path[ud->walkpath.path_pos];
 	ud->dir = dir;
-	if (sd) 
-		sd->head_dir = dir;
 
 	dx = dirx[(int)dir];
 	dy = diry[(int)dir];
@@ -331,7 +331,6 @@ int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, int 
 	if (sc && sc->count && sc->data[SC_CONFUSION].timer != -1) //Randomize the target position
 		map_random_dir(bl, &ud->to_x, &ud->to_y);
 
-	
 	if(ud->walktimer != -1) {
 		ud->state.change_walk_target = 1;
 		return 1;
@@ -424,7 +423,6 @@ int unit_movepos(struct block_list *bl,int dst_x,int dst_y, int easy, int checkp
 
 	dir = map_calc_dir(bl, dst_x,dst_y);
 	ud->dir = dir;
-	if(sd) sd->head_dir = dir;
 
 	dx = dst_x - bl->x;
 	dy = dst_y - bl->y;
@@ -474,8 +472,8 @@ int unit_setdir(struct block_list *bl,unsigned char dir)
 	ud = unit_bl2ud(bl);
 	if (!ud) return 0;
 	ud->dir = dir;
-	if (bl->type == BL_PC) 
-		((TBL_PC *)bl)->head_dir = dir;
+	if (bl->type == BL_PC)
+		((TBL_PC *)bl)->head_dir = 0;
 	clif_changed_dir(bl, AREA);
 	return 0;
 }
@@ -896,7 +894,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 		break;
 	}
 
-	if( casttime>0 || temp){ 
+	if (!(skill_get_castnodex(skill_num, skill_lv)&2))
+		casttime = skill_castfix_sc(src, casttime);
+
+	if( casttime>0 || temp){
 
 		clif_skillcasting(src, src->id, target_id, 0,0, skill_num,casttime);
 
@@ -1011,6 +1012,10 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 
 	unit_stop_attack(src);
 	ud->state.skillcastcancel = castcancel;
+
+
+	if (!(skill_get_castnodex(skill_num, skill_lv)&2))
+		casttime = skill_castfix_sc(src, casttime);
 
 	if( casttime>0 ) {
 		unit_stop_walking( src, 1);
@@ -1294,7 +1299,6 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 		if (battle_config.attack_direction_change &&
 			(src->type&battle_config.attack_direction_change)) {
 			ud->dir = map_calc_dir(src, target->x,target->y );
-			if (sd) sd->head_dir = ud->dir;
 		}
 		if(ud->walktimer != -1)
 			unit_stop_walking(src,1);
@@ -1676,6 +1680,13 @@ int unit_free(struct block_list *bl, int clrtype) {
 		}
 		if (sd->followtimer != -1)
 			pc_stop_following(sd);
+		// Force exiting from duel and rejecting
+	// all duel invitations when player quit [LuzZza]
+		if(sd->duel_group > 0)
+			duel_leave(sd->duel_group, sd);
+
+		if(sd->duel_invite > 0)
+			duel_reject(sd->duel_invite, sd);
 
 		// Notify friends that this char logged out. [Skotlex]
 		clif_foreachclient(clif_friendslist_toggle_sub, sd->status.account_id, sd->status.char_id, 0);

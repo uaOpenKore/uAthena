@@ -590,9 +590,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 		sd->status.class_ = JOB_NOVICE;
 		sd->class_ = MAPID_NOVICE;
 	} else
-		sd->class_ = i; 
+		sd->class_ = i;
 	//Initializations to null/0 unneeded since map_session_data was filled with 0 upon allocation.
-	// {I
 	sd->state.connect_new = 1;
 
 	sd->followtimer = -1; // [MouseJstr]
@@ -707,11 +706,20 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	{	//Add IP field
 		unsigned char *ip = (unsigned char *) &session[sd->fd]->client_addr.sin_addr;
 		if (pc_isGM(sd))
-			ShowInfo("GM Character '"CL_WHITE"%s"CL_RESET"' logged in. (Acc. ID: '"CL_WHITE"%d"CL_RESET"', Connection: '"CL_WHITE"%d"CL_RESET"', Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"', GM Level '"CL_WHITE"%d"CL_RESET"').\n", sd->status.name, sd->status.account_id, sd->fd, sd->packet_ver, ip[0],ip[1],ip[2],ip[3], pc_isGM(sd));
+			ShowInfo("GM '"CL_WHITE"%s"CL_RESET"' logged in."
+				" (AID/CID: '"CL_WHITE"%d/%d"CL_RESET"',"
+				" Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"',"
+				" GM Level '"CL_WHITE"%d"CL_RESET"').\n",
+				sd->status.name, sd->status.account_id, sd->status.char_id,
+				sd->packet_ver, ip[0],ip[1],ip[2],ip[3], pc_isGM(sd));
 		else
-			ShowInfo("Character '"CL_WHITE"%s"CL_RESET"' logged in. (Account ID: '"CL_WHITE"%d"CL_RESET"', Connection: '"CL_WHITE"%d"CL_RESET"', Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"').\n", sd->status.name, sd->status.account_id, sd->fd, sd->packet_ver, ip[0],ip[1],ip[2],ip[3]);
+			ShowInfo("'"CL_WHITE"%s"CL_RESET"' logged in."
+				" (AID/CID: '"CL_WHITE"%d/%d"CL_RESET"',"
+				" Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"').\n",
+				sd->status.name, sd->status.account_id, sd->status.char_id,
+				sd->packet_ver, ip[0],ip[1],ip[2],ip[3]);
 	}
-	
+
 	// Send friends list
 	clif_friendslist_send(sd);
 
@@ -722,14 +730,11 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	}
 
 	// Message of the Day [Valaris]
-	{
-		int ln;
-		for(ln=0; motd_text[ln][0] && ln < MOTD_LINE_SIZE; ln++) {
-			if (battle_config.motd_type)
-				clif_disp_onlyself(sd,motd_text[ln],strlen(motd_text[ln]));
-			else
-				clif_displaymessage(sd->fd, motd_text[ln]);
-		}
+	for(i=0; motd_text[i][0] && i < MOTD_LINE_SIZE; i++) {
+		if (battle_config.motd_type)
+			clif_disp_onlyself(sd,motd_text[i],strlen(motd_text[i]));
+		else
+			clif_displaymessage(sd->fd, motd_text[i]);
 	}
 
 #ifndef TXT_ONLY
@@ -741,6 +746,14 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	if (connect_until_time != 0) { // don't display if it's unlimited or unknow value
 		char tmpstr[1024];
 		strftime(tmpstr, sizeof(tmpstr) - 1, msg_txt(501), localtime(&connect_until_time)); // "Your account time limit is: %d-%m-%Y %H:%M:%S."
+		clif_wis_message(sd->fd, wisp_server_name, tmpstr, strlen(tmpstr)+1);
+	}
+
+	//Night message
+	if (night_flag)
+	{
+		char tmpstr[1024];
+		strcpy(tmpstr, msg_txt(500)); // Actually, it's the night...
 		clif_wis_message(sd->fd, wisp_server_name, tmpstr, strlen(tmpstr)+1);
 	}
 
@@ -766,13 +779,12 @@ int pc_authfail(struct map_session_data *sd) {
 //Attempts to set a mob.
 int pc_set_hate_mob(struct map_session_data *sd, int pos, struct block_list *bl)
 {
-	const char hate_var[3][NAME_LENGTH] = {"PC_HATE_MOB_SUN","PC_HATE_MOB_MOON","PC_HATE_MOB_STAR"};
 	int class_;
 	if (!sd || !bl || pos < 0 || pos > 2)
 		return 0;
 	if (sd->hate_mob[pos] != -1)
 	{	//Can't change hate targets.
-		clif_hate_mob(sd,pos,sd->hate_mob[pos]); //Display current
+		clif_hate_info(sd, pos, sd->hate_mob[pos], 0); //Display current
 		return 0;
 	}
 
@@ -786,7 +798,7 @@ int pc_set_hate_mob(struct map_session_data *sd, int pos, struct block_list *bl)
 	}
 	sd->hate_mob[pos] = class_;
 	pc_setglobalreg(sd,hate_var[pos],class_+1);
-	clif_hate_mob(sd,pos,class_);
+	clif_hate_info(sd, pos, class_, 1);
 	return 1;
 }
 
@@ -800,6 +812,7 @@ int pc_reg_received(struct map_session_data *sd)
 
 	sd->change_level = pc_readglobalreg(sd,"jobchange_level");
 	sd->die_counter = pc_readglobalreg(sd,"PC_DIE_COUNTER");
+	chrif_scdata_request(sd->status.account_id, sd->status.char_id);
 	if (!sd->die_counter && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
 		status_calc_pc(sd, 0); //Check +10 to all stats bonus.
 	if (pc_checkskill(sd, TK_MISSION)) {
@@ -3135,28 +3148,18 @@ int pc_show_steal(struct block_list *bl,va_list ap)
 {
 	struct map_session_data *sd;
 	int itemid;
-	int type;
 
 	struct item_data *item=NULL;
 	char output[100];
 
-	nullpo_retr(0, bl);
-	nullpo_retr(0, ap);
-	nullpo_retr(0, sd=va_arg(ap,struct map_session_data *));
-
+	sd=va_arg(ap,struct map_session_data *);
 	itemid=va_arg(ap,int);
-	type=va_arg(ap,int);
 
-	if(!type){
-		if((item=itemdb_exists(itemid))==NULL)
-			sprintf(output,"%s stole an Unknown Item.",sd->status.name);
-		else
-			sprintf(output,"%s stole %s.",sd->status.name,item->jname);
-		clif_displaymessage( ((struct map_session_data *)bl)->fd, output);
-	}else{
-		sprintf(output,"%s has not stolen the item because of being overweight.",sd->status.name);
-		clif_displaymessage( ((struct map_session_data *)bl)->fd, output);
-	}
+	if((item=itemdb_exists(itemid))==NULL)
+		sprintf(output,"%s stole an Unknown Item.",sd->status.name);
+	else
+		sprintf(output,"%s stole %s.",sd->status.name,item->jname);
+	clif_displaymessage( ((struct map_session_data *)bl)->fd, output);
 
 	return 0;
 }
@@ -3165,9 +3168,9 @@ int pc_show_steal(struct block_list *bl,va_list ap)
  *------------------------------------------
  */
 //** pc.c:
-int pc_steal_item(struct map_session_data *sd,struct block_list *bl)
+int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 {
-	int i,skill,itemid,flag;
+	int i,rate,itemid,flag;
 	struct status_data *sd_status, *md_status;
 	struct mob_data *md;
 	struct item tmp_item;
@@ -3175,69 +3178,75 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl)
 	if(!sd || !bl || bl->type!=BL_MOB)
 		return 0;
 
-	sd_status= status_get_status_data(&sd->bl);
-	md_status= status_get_status_data(bl);
 	md = (TBL_MOB *)bl;
 
-	if(md->state.steal_flag>=battle_config.skill_steal_max_tries ||
-		md_status->mode&MD_BOSS || md->master_id ||
+	if(md->state.steal_flag == UCHAR_MAX || md->sc.opt1) //already stolen from / status change check
+		return 0;
+
+	sd_status= status_get_status_data(&sd->bl);
+	md_status= status_get_status_data(bl);
+
+	if(md->master_id || md_status->mode&MD_BOSS ||
 		(md->class_>=1324 && md->class_<1364) || // prevent stealing from treasure boxes [Valaris]
-		map[md->bl.m].flag.nomobloot ||        // check noloot map flag [Lorky]
-		md->sc.data[SC_STONE].timer != -1 || md->sc.data[SC_FREEZE].timer != -1 //status change check
-  	)
+		map[bl->m].flag.nomobloot || // check noloot map flag [Lorky]
+		(battle_config.skill_steal_max_tries && //Reached limit of steal attempts. [Lupus]
+			md->state.steal_flag++ >= battle_config.skill_steal_max_tries)
+	) { //Can't steal from
+		md->state.steal_flag = UCHAR_MAX;
 		return 0;
-	
-	skill = battle_config.skill_steal_type == 1
-		? (sd_status->dex - md_status->dex)/2 + pc_checkskill(sd,TF_STEAL)*6 + 10
-		: sd_status->dex - md_status->dex + pc_checkskill(sd,TF_STEAL)*3 + 10;
+	}
 
-	skill+= sd->add_steal_rate; //Better make the steal_Rate addition affect % rather than an absolute on top of the total drop rate. [Skotlex]
-		
-	if (skill < 1)
+	rate = battle_config.skill_steal_type
+		? (sd_status->dex - md_status->dex)/2 + lv*6 + 10
+		: (sd_status->dex - md_status->dex)   + lv*3 + 10;
+
+	rate += sd->add_steal_rate; //Better make the steal_Rate addition affect % rather than an absolute on top of the total drop rate. [Skotlex]
+
+	if (rate < 1)
 		return 0;
 
-	md->state.steal_flag++; //increase steal tries number
 
-	for(i = 0; i<MAX_MOB_DROP; i++)//Pick one mobs drop slot.
+	for(i = 0; i<MAX_MOB_DROP-1; i++)//Last slot can't be stolen (cards)
 	{
 		itemid = md->db->dropitem[i].nameid;
-		if(itemid <= 0 || (itemid>4000 && itemid<5000 && pc_checkskill(sd,TF_STEAL) <= 5))
+		if(itemid <= 0)
 			continue;
-		if(rand() % 10000 < md->db->dropitem[i].p*skill/100)
+		if(rand() % 10000 < md->db->dropitem[i].p*rate/100)
 			break;
 	}
 	if (i == MAX_MOB_DROP)
 		return 0;
-	
-	md->state.steal_flag = UCHAR_MAX; //you can't steal from this mob any more
-	
+
 	memset(&tmp_item,0,sizeof(tmp_item));
 	tmp_item.nameid = itemid;
 	tmp_item.amount = 1;
 	tmp_item.identify = itemdb_isidentified(itemid);
 	flag = pc_additem(sd,&tmp_item,1);
 
-	if(battle_config.show_steal_in_same_party)
-		party_foreachsamemap(pc_show_steal,sd,AREA_SIZE,sd,tmp_item.nameid,flag?1:0);
-	if(flag)
-		clif_additem(sd,0,0,flag);
-	else
-	{	//Only invoke logs if item was successfully added (otherwise logs lie about actual item transaction)
-		//Logs items, Stolen from mobs [Lupus]
-		if(log_config.enable_logs&0x80) {
-			log_pick_mob(md, "M", itemid, -1, NULL);
-			log_pick_pc(sd, "P", itemid, 1, NULL);
-		}
+	md->state.steal_flag = UCHAR_MAX; //you can't steal from this mob any more
 
-		//A Rare Steal Global Announce by Lupus
-		if(md->db->dropitem[i].p<=battle_config.rare_drop_announce) {
-			struct item_data *i_data;
-			char message[128];
-			i_data = itemdb_search(itemid);
-			sprintf (message, msg_txt(542), (sd->status.name != NULL)?sd->status.name :"GM", md->db->jname, i_data->jname, (float)md->db->dropitem[i].p/100);
-			//MSG: "'%s' stole %s's %s (chance: %%%0.02f)"
-			intif_GMmessage(message,strlen(message)+1,0);
-		}
+	if(flag) { //Failed to steal due to overweight
+		clif_additem(sd,0,0,flag);
+		return 0;
+	}
+
+	if(battle_config.show_steal_in_same_party)
+		party_foreachsamemap(pc_show_steal,sd,AREA_SIZE,sd,tmp_item.nameid);
+
+	//Logs items, Stolen from mobs [Lupus]
+	if(log_config.enable_logs&0x80) {
+		log_pick_mob(md, "M", itemid, -1, NULL);
+		log_pick_pc(sd, "P", itemid, 1, NULL);
+	}
+
+	//A Rare Steal Global Announce by Lupus
+	if(md->db->dropitem[i].p<=battle_config.rare_drop_announce) {
+		struct item_data *i_data;
+		char message[128];
+		i_data = itemdb_search(itemid);
+		sprintf (message, msg_txt(542), (sd->status.name != NULL)?sd->status.name :"GM", md->db->jname, i_data->jname, (float)md->db->dropitem[i].p/100);
+		//MSG: "'%s' stole %s's %s (chance: %%%0.02f)"
+		intif_GMmessage(message,strlen(message)+1,0);
 	}
 	return 1;
 }
@@ -6096,7 +6105,7 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
  * Cxg^C}??
  *------------------------------------------
  */
-int pc_eventtimer(int tid,unsigned int tick,int id,int data)
+static int pc_eventtimer(int tid,unsigned int tick,int id,int data)
 {
 	struct map_session_data *sd=map_id2sd(id);
 	char *p = (char *)data;
@@ -6104,19 +6113,16 @@ int pc_eventtimer(int tid,unsigned int tick,int id,int data)
 	if(sd==NULL)
 		return 0;
 
-	for(i=0;i < MAX_EVENTTIMER;i++){
-		if( sd->eventtimer[i]==tid ){
-			sd->eventtimer[i]=-1;
-			npc_event(sd,p,0);
-			break;
-		}
-	}
-	if (p) aFree(p);
-	if(i==MAX_EVENTTIMER) {
-		if(battle_config.error_log)
-			ShowError("pc_eventtimer: no such event timer\n");
-	}
+	for(i=0;i < MAX_EVENTTIMER && sd->eventtimer[i]!=tid; i++);
 
+	if(i < MAX_EVENTTIMER){
+		sd->eventcount--;
+		sd->eventtimer[i]=-1;
+		npc_event(sd,p,0);
+	} else if(battle_config.error_log)
+		ShowError("pc_eventtimer: no such event timer\n");
+
+	if (p) aFree(p);
 	return 0;
 }
 
@@ -6127,22 +6133,21 @@ int pc_eventtimer(int tid,unsigned int tick,int id,int data)
 int pc_addeventtimer(struct map_session_data *sd,int tick,const char *name)
 {
 	int i;
+	char *evname;
 
 	nullpo_retr(0, sd);
 
-	for(i=0;i<MAX_EVENTTIMER;i++)
-		if( sd->eventtimer[i]==-1 )
-			break;
-	if(i<MAX_EVENTTIMER){
-		char *evname = aStrdup(name);
-		//char *evname=(char *)aMallocA((strlen(name)+1)*sizeof(char));
-		//memcpy(evname,name,(strlen(name)+1));
-		sd->eventtimer[i]=add_timer(gettick()+tick,
-			pc_eventtimer,sd->bl.id,(int)evname);
-		sd->eventcount++;
-	}
+	for(i=0;i<MAX_EVENTTIMER && sd->eventtimer[i]!=-1;i++);
 
-	return 0;
+	if(i==MAX_EVENTTIMER)
+		return 0;
+
+	evname = aStrdup(name);
+	sd->eventtimer[i]=add_timer(gettick()+tick,
+		pc_eventtimer,sd->bl.id,(int)evname);
+	sd->eventcount++;
+
+	return 1;
 }
 
 /*==========================================
@@ -6845,7 +6850,7 @@ int pc_setsavepoint(struct map_session_data *sd, short mapindex,int x,int y)
  *------------------------------------------
  */
 static int last_save_id=0,save_flag=0;
-static int pc_autosave_sub(DBKey key,void * data,va_list app)
+static int pc_autosave_sub(DBKey key,void * data,va_list ap)
 {
 	struct map_session_data *sd = (TBL_PC*)data;
 
@@ -6979,6 +6984,177 @@ void pc_setstand(struct map_session_data *sd){
 	//Reset sitting tick.
 	sd->ssregen.tick.hp = sd->ssregen.tick.sp = 0;
 	sd->state.dead_sit = sd->vd.dead_sit = 0;
+}
+
+/*==========================================
+ * Duel organizing functions [LuzZza]
+ *------------------------------------------
+ */
+void duel_savetime(struct map_session_data* sd) {
+
+	time_t timer;
+	struct tm *t;
+
+	time(&timer);
+	t = localtime(&timer);
+
+	pc_setglobalreg(sd, "PC_LAST_DUEL_TIME",
+		t->tm_mday*24*60 + t->tm_hour*60 + t->tm_min);
+	return;
+}
+
+int duel_checktime(struct map_session_data* sd) {
+
+	int diff;
+	time_t timer;
+	struct tm *t;
+
+	time(&timer);
+    t = localtime(&timer);
+
+	diff = t->tm_mday*24*60 + t->tm_hour*60 + t->tm_min -
+		pc_readglobalreg(sd, "PC_LAST_DUEL_TIME");
+
+	return !(diff >= 0 && diff < battle_config.duel_time_interval);
+}
+static int duel_showinfo_sub(struct map_session_data* sd,va_list va) {
+	struct map_session_data *ssd = va_arg(va, struct map_session_data*);
+	int *p = va_arg(va, int*);
+	char output[256];
+
+	if (sd->duel_group != ssd->duel_group) return 0;
+
+	sprintf(output, "      %d. %s", ++(*p), (unsigned char *)sd->status.name);
+	clif_disp_onlyself(ssd, output, strlen(output));
+	return 1;
+}
+
+int duel_showinfo(
+	const unsigned int did, struct map_session_data* sd)
+{
+	int p=0;
+	char output[256];
+
+	if(duel_list[did].max_players_limit > 0)
+		sprintf(output, msg_txt(370), //" -- Duels: %d/%d, Members: %d/%d, Max players: %d --"
+			did, duel_count,
+			duel_list[did].members_count,
+			duel_list[did].members_count + duel_list[did].invites_count,
+			duel_list[did].max_players_limit);
+	else
+		sprintf(output, msg_txt(371), //" -- Duels: %d/%d, Members: %d/%d --"
+			did, duel_count,
+			duel_list[did].members_count,
+			duel_list[did].members_count + duel_list[did].invites_count);
+
+	clif_disp_onlyself(sd, output, strlen(output));
+   clif_foreachclient(duel_showinfo_sub, sd, &p);
+	return 0;
+}
+
+int duel_create(
+	struct map_session_data* sd, const unsigned int maxpl)
+{
+	int i=1;
+	char output[256];
+
+	while(duel_list[i].members_count > 0 && i < MAX_DUEL) i++;
+	if(i == MAX_DUEL) return 0;
+
+	duel_count++;
+	sd->duel_group = i;
+	duel_list[i].members_count++;
+	duel_list[i].invites_count = 0;
+	duel_list[i].max_players_limit = maxpl;
+
+	strcpy(output, msg_txt(372)); // " -- Duel has been created (@invite/@leave) --"
+	clif_disp_onlyself(sd, output, strlen(output));
+
+	clif_set0199(sd->fd, 1);
+	//clif_misceffect2(&sd->bl, 159);
+	return i;
+}
+
+int duel_invite(
+	const unsigned int did, struct map_session_data* sd,
+	struct map_session_data* target_sd)
+{
+	char output[256];
+
+	sprintf(output, msg_txt(373), // " -- Player %s invites %s to duel --"
+		(unsigned char *)sd->status.name, (unsigned char *)target_sd->status.name);
+
+	clif_disp_message(&sd->bl, output, strlen(output), DUEL_WOS);
+
+	target_sd->duel_invite = did;
+	duel_list[did].invites_count++;
+
+	// "Blue -- Player %s invites you to PVP duel (@accept/@reject) --"
+	sprintf(output, msg_txt(374), (unsigned char *)sd->status.name);
+	clif_GMmessage((struct block_list *)target_sd, output, strlen(output)+1, 3);
+	return 0;
+}
+
+static int duel_leave_sub(struct map_session_data* sd,va_list va) {
+	int did = va_arg(va, int);
+	if (sd->duel_invite == did)
+		sd->duel_invite = 0;
+	return 0;
+}
+
+int duel_leave(
+	const unsigned int did, struct map_session_data* sd)
+{
+	char output[256];
+
+	// " <- Player %s has left duel --"
+	sprintf(output, msg_txt(375), (unsigned char *)sd->status.name);
+	clif_disp_message(&sd->bl, output, strlen(output), DUEL_WOS);
+
+	duel_list[did].members_count--;
+
+	if(duel_list[did].members_count == 0) {
+		clif_foreachclient(duel_leave_sub, did);
+		duel_count--;
+	}
+
+	sd->duel_group = 0;
+	duel_savetime(sd);
+	clif_set0199(sd->fd, 0);
+	return 0;
+}
+
+int duel_accept(
+	const unsigned int did, struct map_session_data* sd)
+{
+	char output[256];
+
+	duel_list[did].members_count++;
+	sd->duel_group = sd->duel_invite;
+	duel_list[did].invites_count--;
+	sd->duel_invite = 0;
+
+	// " -> Player %s has accepted duel --"
+	sprintf(output, msg_txt(376), (unsigned char *)sd->status.name);
+	clif_disp_message(&sd->bl, output, strlen(output), DUEL_WOS);
+
+	clif_set0199(sd->fd, 1);
+	//clif_misceffect2(&sd->bl, 159);
+	return 0;
+}
+
+int duel_reject(
+	const unsigned int did, struct map_session_data* sd)
+{
+	char output[256];
+
+	// " -- Player %s has rejected duel --"
+	sprintf(output, msg_txt(377), (unsigned char *)sd->status.name);
+	clif_disp_message(&sd->bl, output, strlen(output), DUEL_WOS);
+
+	duel_list[did].invites_count--;
+	sd->duel_invite = 0;
+	return 0;
 }
 
 int pc_split_str(char *str,char **val,int num)
