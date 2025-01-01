@@ -689,9 +689,6 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	if (map_charid2nick(sd->status.char_id) == NULL)
 		map_addchariddb(sd->status.char_id, sd->status.name);
 
-	// Notify everyone that this char logged in [Skotlex].
-	clif_foreachclient(clif_friendslist_toggle_sub, sd->status.account_id, sd->status.char_id, 1);
-	
 	//Prevent S. Novices from getting the no-death bonus just yet. [Skotlex]
 	sd->die_counter=-1;
 	//Until the reg values arrive, set them to not require trigger...
@@ -3206,7 +3203,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 		return 0;
 
 
-	for(i = 0; i<MAX_MOB_DROP-1; i++)//Last slot can't be stolen (cards)
+	for(i = 0; i<MAX_STEAL_DROP; i++)
 	{
 		itemid = md->db->dropitem[i].nameid;
 		if(itemid <= 0)
@@ -3214,7 +3211,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 		if(rand() % 10000 < md->db->dropitem[i].p*rate/100)
 			break;
 	}
-	if (i == MAX_MOB_DROP)
+	if (i == MAX_STEAL_DROP)
 		return 0;
 
 	memset(&tmp_item,0,sizeof(tmp_item));
@@ -6605,14 +6602,8 @@ int pc_calc_pvprank(struct map_session_data *sd)
 {
 	int old;
 	struct map_data *m;
-
-	nullpo_retr(0, sd);
-	nullpo_retr(0, m=&map[sd->bl.m]);
-
+	m=&map[sd->bl.m];
 	old=sd->pvp_rank;
-
-	if( !(m->flag.pvp) )
-		return 0;
 	sd->pvp_rank=1;
 	map_foreachinmap(pc_calc_pvprank_sub,sd->bl.m,BL_PC,sd);
 	if(old!=sd->pvp_rank || sd->pvp_lastusers!=m->users)
@@ -6626,8 +6617,6 @@ int pc_calc_pvprank(struct map_session_data *sd)
 int pc_calc_pvprank_timer(int tid,unsigned int tick,int id,int data)
 {
 	struct map_session_data *sd=NULL;
-	if(battle_config.pk_mode) // disable pvp ranking if pk_mode on [Valaris]
-		return 0;
 
 	sd=map_id2sd(id);
 	if(sd==NULL)

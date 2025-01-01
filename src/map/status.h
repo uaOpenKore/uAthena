@@ -112,7 +112,7 @@ enum {
 	SC_DELUGE,
 	SC_VIOLENTGALE,
 	SC_WATK_ELEMENT,
-	SC_LANDPROTECTOR, //Available
+	SC_ARMOR,
 	SC_ARMOR_ELEMENT,
 	SC_NOCHAT,
 	SC_BABY,
@@ -418,7 +418,7 @@ extern int percentrefinery[5][MAX_REFINE+1]; //The last slot always has a 0% suc
 #define MD_PLANT 0x040
 #define MD_CANATTACK 0x080
 #define MD_DETECTOR 0x100
-//#define MD_CHANGETARGET 0x200 //Mode deprecated, figured out through mob_can_changetarget()
+#define MD_CHANGETARGET 0x200
 #define MD_CHANGECHASE 0x400
 #define MD_ANGRY 0x800
 #define MD_MASK 0xFFF
@@ -444,22 +444,7 @@ enum {
 //0x020 - nothing
 //0x040 - nothing
 #define OPT2_DPOISON 0x080
-//0x100 
-
-//Opt3: Skill state changes, stackable.
-#define OPT3_SPEEDUP 0x001 //Quicken skills
-#define OPT3_POWERUP 0x002 //Power Thrust
-#define OPT3_SHIELD 0x004 //Energy Coat
-#define OPT3_FURY 0x008 //Explosion spirits
-#define OPT3_ELECTRIC 0x010 //Steel Body
-#define OPT3_STOP 0x020 //Blade Stop
-//64 Unknown
-#define OPT3_BERSERK 0x080 //Berserk
-//256 Unknown
-//512 Unknown
-#define OPT3_PINKAURA 0x400 //Marionette
-#define OPT3_AURASHIELD 0x800 //Assumptio
-#define OPT3_HEAT 0x1000 //Warmth Skills
+//0x100
 
 #define OPTION_SIGHT 0x00000001
 #define OPTION_HIDE 0x00000002

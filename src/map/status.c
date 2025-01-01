@@ -211,7 +211,8 @@ void initChangeTables(void) {
 	add_sc(NPC_SLEEPATTACK, SC_SLEEP);
 	set_sc(NPC_KEEPING, SC_KEEPING, SI_BLANK, SCB_DEF);
 	add_sc(NPC_DARKBLESSING, SC_COMA);
-	set_sc(NPC_BARRIER, SC_BARRIER, SI_BLANK, SCB_MDEF);
+	set_sc(NPC_BARRIER, SC_BARRIER, SI_BLANK, SCB_MDEF|SCB_DEF);
+	add_sc(NPC_DEFENDER, SC_ARMOR);
 	add_sc(NPC_LICK, SC_STUN);
 	set_sc(NPC_HALLUCINATION, SC_HALLUCINATION, SI_HALLUCINATION, SCB_NONE);
 	add_sc(NPC_REBIRTH, SC_KAIZEL);
@@ -1003,7 +1004,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			//Skill blocking.
 			if (
 				(sc->data[SC_VOLCANO].timer != -1 && skill_num == WZ_ICEWALL) ||
-				(sc->data[SC_ROKISWEIL].timer != -1 && skill_num != BD_ADAPTATION && !(status->mode&MD_BOSS)) ||
+				(sc->data[SC_ROKISWEIL].timer != -1 && skill_num != BD_ADAPTATION) ||
 				(sc->data[SC_HERMODE].timer != -1 && skill_get_inf(skill_num) & INF_SUPPORT_SKILL) ||
 				(sc->data[SC_NOCHAT].timer != -1 && sc->data[SC_NOCHAT].val1&MANNER_NOSKILL)
 			)
@@ -1074,8 +1075,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		//TODO: Would be nice if this could be used to judge whether the player can or not pick up the item it targets. [Skotlex]
 		if (status->mode&MD_LOOTER)
 			return 1;
-		else
-			return 0;
+		return 0;
 	default:
 		//Check for chase-walk/hiding/cloaking opponents.
 		if (tsc && !(status->mode&MD_BOSS))
@@ -1288,10 +1288,11 @@ int status_calc_mob(struct mob_data* md, int first)
 
 	if (flag&8 && mbl) {
 		struct status_data *mstatus = status_get_base_status(mbl);
-		if (mstatus)
+		if (mstatus &&
+			battle_config.slaves_inherit_speed&(mstatus->mode&MD_CANMOVE?1:2))
 			status->speed = mstatus->speed;
 	}
-		
+
 	if (flag&16 && mbl)
 	{	//Max HP setting from Summon Flora/marine Sphere
 		struct unit_data *ud = unit_bl2ud(mbl);
@@ -2729,12 +2730,17 @@ void status_calc_bl(struct block_list *bl, unsigned long flag)
 
 	if(flag&SCB_WATK) {
 		status->rhw.atk = status_calc_watk(bl, sc, b_status->rhw.atk);
-		status->rhw.atk2 = status_calc_watk(bl, sc, b_status->rhw.atk2);
+		if (!sd) //Should not affect weapon refine bonus
+			status->rhw.atk2 = status_calc_watk(bl, sc, b_status->rhw.atk2);
 		if(status->lhw && b_status->lhw && b_status->lhw->atk) {
-			if (sd) sd->state.lr_flag = 1;
-			status->lhw->atk = status_calc_watk(bl, sc, b_status->lhw->atk);
-			status->lhw->atk2 = status_calc_watk(bl, sc, b_status->lhw->atk2);
-			if (sd) sd->state.lr_flag = 0;
+			if (sd) {
+				sd->state.lr_flag = 1;
+				status->lhw->atk = status_calc_watk(bl, sc, b_status->lhw->atk);
+				sd->state.lr_flag = 0;
+			} else {
+				status->lhw->atk = status_calc_watk(bl, sc, b_status->lhw->atk);
+				status->lhw->atk2= status_calc_watk(bl, sc, b_status->lhw->atk2);
+			}
 		}
 	}
 
@@ -3281,16 +3287,18 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 
 	if(sc->data[SC_BERSERK].timer!=-1)
 		return 0;
-	if(sc->data[SC_KEEPING].timer!=-1)
-		return 100;
 	if(sc->data[SC_SKA].timer != -1)
 		return sc->data[SC_SKA].val3;
-	if (sc->data[SC_DEFENCE].timer != -1)	//[orn]
-		def += sc->data[SC_DEFENCE].val2 ;
+	if(sc->data[SC_BARRIER].timer!=-1)
+		return 100;
+	if(sc->data[SC_KEEPING].timer!=-1)
+		return 90;
 	if(sc->data[SC_STEELBODY].timer!=-1)
 		return 90;
 	if(sc->data[SC_DRUMBATTLE].timer!=-1)
 		def += sc->data[SC_DRUMBATTLE].val3;
+	if (sc->data[SC_DEFENCE].timer != -1)	//[orn]
+		def += sc->data[SC_DEFENCE].val2 ;
 	if(sc->data[SC_INCDEFRATE].timer!=-1)
 		def += def * sc->data[SC_INCDEFRATE].val1/100;
 	if(sc->data[SC_FREEZE].timer!=-1)
@@ -3397,26 +3405,27 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	if(sc->data[SC_WEDDING].timer!=-1)
 		speed += 300;
 
-	//% increases (they don't stack, with the exception of Speedup1? @.@)
-	if(sc->data[SC_SPEEDUP1].timer!=-1)
-		speed -= speed * 50/100;
-	if(sc->data[SC_RUN].timer!=-1)
-		speed -= speed * 50/100;
-	else if(sc->data[SC_SPEEDUP0].timer!=-1)
-		speed -= speed * 25/100;
-	else if(sc->data[SC_INCREASEAGI].timer!=-1)
-		speed -= speed * 25/100;
-	else if(sc->data[SC_FUSION].timer != -1)
-		speed -= speed * 25/100;
-	else if(sc->data[SC_CARTBOOST].timer!=-1)
-		speed -= speed * 20/100;
-	else if(sc->data[SC_BERSERK].timer!=-1)
-		speed -= speed * 20/100;
-	else if(sc->data[SC_AVOID].timer!=-1)
-		speed -= speed * sc->data[SC_AVOID].val2/100;
-	else if(sc->data[SC_WINDWALK].timer!=-1)
-		speed -= speed * sc->data[SC_WINDWALK].val3/100;
-
+	if(sc->data[SC_GATLINGFEVER].timer==-1)
+	{	//% increases (they don't stack, with the exception of Speedup1? @.@)
+		if(sc->data[SC_SPEEDUP1].timer!=-1)
+			speed -= speed * 50/100;
+		if(sc->data[SC_RUN].timer!=-1)
+			speed -= speed * 50/100;
+		else if(sc->data[SC_SPEEDUP0].timer!=-1)
+			speed -= speed * 25/100;
+		else if(sc->data[SC_INCREASEAGI].timer!=-1)
+			speed -= speed * 25/100;
+		else if(sc->data[SC_FUSION].timer != -1)
+			speed -= speed * 25/100;
+		else if(sc->data[SC_CARTBOOST].timer!=-1)
+			speed -= speed * 20/100;
+		else if(sc->data[SC_BERSERK].timer!=-1)
+			speed -= speed * 20/100;
+		else if(sc->data[SC_AVOID].timer!=-1)
+			speed -= speed * sc->data[SC_AVOID].val2/100;
+		else if(sc->data[SC_WINDWALK].timer!=-1)
+			speed -= speed * sc->data[SC_WINDWALK].val3/100;
+	}
 	//% reductions	 (they stack)
 	if(sc->data[SC_DANCING].timer!=-1 && sc->data[SC_DANCING].val3&0xFFFF)
 		speed += speed*(sc->data[SC_DANCING].val3&0xFFFF)/100;
@@ -4039,8 +4048,8 @@ void status_set_viewdata(struct block_list *bl, int class_)
 	}
 	vd = status_get_viewdata(bl);
 	if (vd && vd->cloth_color && (
-		(vd->class_==JOB_WEDDING && !battle_config.wedding_ignorepalette)
-		|| (vd->class_==JOB_XMAS && !battle_config.xmas_ignorepalette)
+		(vd->class_==JOB_WEDDING && battle_config.wedding_ignorepalette)
+		|| (vd->class_==JOB_XMAS && battle_config.xmas_ignorepalette)
 	))
 		vd->cloth_color = 0;
 }
@@ -4335,6 +4344,9 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			struct status_data *bstatus = status_get_base_status(bl);
 			if (!bstatus) return 0;
 			mode = val2?val2:bstatus->mode; //Base mode
+			//Mode added AND removed? Added has priority.
+			if ((val3&val4))
+				val4&= ~(val3&val4);
 			if (val3) mode|= val3; //Add mode
 			if (val4) mode&=~val4; //Del mode
 			if (mode == bstatus->mode) { //No change.
@@ -4585,6 +4597,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 		case SC_EDP:	// [Celest]
 			val2 = val1 + 2; //Chance to Poison enemies.
+			val3 = 50*(val1+1); //Damage increase (+50 +50*lv%)
 			break;
 		case SC_POISONREACT:
 			val2=(val1+1)/2 + val1/10; // Number of counters [Skotlex]
@@ -5267,7 +5280,10 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 
 		case SC_FLING:
-			val2 = 5*val1; //Def reduction
+			if (bl->type == BL_PC)
+				val2 = 0; //No armor reduction to players.
+			else
+				val2 = 5*val1; //Def reduction
 			val3 = 5*val1; //Def2 reduction
 			break;
 		case SC_PROVOKE:
@@ -5339,8 +5355,15 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				tick = 3000;
 			break;
 		case SC_SPIDERWEB:
-			if (map[bl->m].flag.pvp)
+			if (bl->type == BL_PC)
 				tick /=2;
+			break;
+		case SC_ARMOR:
+			//NPC_DEFENDER:
+			val2 = 80; //Damage reduction
+			//Attack requirements to be blocked:
+			val3 = BF_LONG; //Range
+			val4 = BF_WEAPON|BF_MISC; //Type
 			break;
 		case SC_INTRAVISION:
 		case SC_ARMOR_ELEMENT:
@@ -5448,18 +5471,18 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_TWOHANDQUICKEN:
 		case SC_SPEARQUICKEN:
 		case SC_CONCENTRATION:
-			sc->opt3 |= 1;
+			sc->opt3 |= 0x1;
 			opt_flag = 0;
 			break;
 		case SC_MAXOVERTHRUST:
 		case SC_OVERTHRUST:
 		case SC_SWOO:	//Why does it shares the same opt as Overthrust? Perhaps we'll never know...
-			sc->opt3 |= 2;
+			sc->opt3 |= 0x2;
 			opt_flag = 0;
 			break;
 		case SC_ENERGYCOAT:
 		case SC_SKE:
-			sc->opt3 |= 4;
+			sc->opt3 |= 0x4;
 			opt_flag = 0;
 			break;
 		case SC_INCATKRATE:
@@ -5469,37 +5492,37 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				break;
 			}
 		case SC_EXPLOSIONSPIRITS:
-			sc->opt3 |= 8;
+			sc->opt3 |= 0x8;
 			opt_flag = 0;
 			break;
 		case SC_STEELBODY:
 		case SC_SKA:
-			sc->opt3 |= 16;
+			sc->opt3 |= 0x10;
 			opt_flag = 0;
 			break;
 		case SC_BLADESTOP:
-			sc->opt3 |= 32;
+			sc->opt3 |= 0x20;
 			opt_flag = 0;
 			break;
 		case SC_BERSERK:
-			sc->opt3 |= 128;
+			sc->opt3 |= 0x80;
 			opt_flag = 0;
 			break;
 		case SC_MARIONETTE:
 		case SC_MARIONETTE2:
-			sc->opt3 |= 1024;
+			sc->opt3 |= 0x400;
 			opt_flag = 0;
 			break;
 		case SC_ASSUMPTIO:
-			sc->opt3 |= 2048;
+			sc->opt3 |= 0x800;
 			opt_flag = 0;
 			break;
 		case SC_WARM: //SG skills [Komurka]
-			sc->opt3 |= 4096;
+			sc->opt3 |= 0x1000;
 			opt_flag = 0;
 			break;
 		case SC_KAITE:
-			sc->opt3 |= 8192;
+			sc->opt3 |= 0x2000;
 			opt_flag = 0;
 			break;
 		//OPTION
@@ -5981,55 +6004,55 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	case SC_ONEHAND:
 	case SC_SPEARQUICKEN:
 	case SC_CONCENTRATION:
-		sc->opt3 &= ~1;
+		sc->opt3 &= ~0x1;
 		opt_flag = 0;
 		break;
 	case SC_OVERTHRUST:
 	case SC_MAXOVERTHRUST:
 	case SC_SWOO:
-		sc->opt3 &= ~2;
+		sc->opt3 &= ~0x2;
 		opt_flag = 0;
 		break;
 	case SC_ENERGYCOAT:
 	case SC_SKE:
-		sc->opt3 &= ~4;
+		sc->opt3 &= ~0x4;
 		opt_flag = 0;
 		break;
 	case SC_INCATKRATE: //Simulated Explosion spirits effect.
 		if (bl->type != BL_MOB)
 			break;
 	case SC_EXPLOSIONSPIRITS:
-		sc->opt3 &= ~8;
+		sc->opt3 &= ~0x8;
 		opt_flag = 0;
 		break;
 	case SC_STEELBODY:
 	case SC_SKA:
-		sc->opt3 &= ~16;
+		sc->opt3 &= ~0x10;
 		opt_flag = 0;
 		break;
 	case SC_BLADESTOP:
-		sc->opt3 &= ~32;
+		sc->opt3 &= ~0x20;
 		opt_flag = 0;
 		break;
 	case SC_BERSERK:
-		sc->opt3 &= ~128;
+		sc->opt3 &= ~0x80;
 		opt_flag = 0;
 		break;
 	case SC_MARIONETTE:
 	case SC_MARIONETTE2:
-		sc->opt3 &= ~1024;
+		sc->opt3 &= ~0x400;
 		opt_flag = 0;
 		break;
 	case SC_ASSUMPTIO:
-		sc->opt3 &= ~2048;
+		sc->opt3 &= ~0x800;
 		opt_flag = 0;
 		break;
 	case SC_WARM: //SG skills [Komurka]
-		sc->opt3 &= ~4096;
+		sc->opt3 &= ~0x1000;
 		opt_flag = 0;
 		break;
 	case SC_KAITE:
-		sc->opt3 &= ~8192;
+		sc->opt3 &= ~0x2000;
 		opt_flag = 0;
 		break;
 	default:
@@ -6368,8 +6391,10 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 			}
 		}
 		break;
-		
+
 	case SC_BERSERK:
+		//The damage below should be made aware that Berserk is active.
+		sc->data[type].timer = temp_timerid;
 		// 5% every 10 seconds [DracoRPG]
 		if((--sc->data[type].val3)>0 && status_charge(bl, sc->data[type].val2, 0))
 		{

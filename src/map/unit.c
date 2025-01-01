@@ -845,10 +845,18 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 
 	//Check range when not using skill on yourself or is a combo-skill during attack
 	//(these are supposed to always have the same range as your attack)
-	if(src->id != target_id && (!temp || ud->attacktimer == -1) &&
-		!battle_check_range(src,target,skill_get_range2(src, skill_num,skill_lv)
-		+(skill_num==RG_CLOSECONFINE?0:1))) //Close confine is exploitable thanks to this extra range "feature" of the client. [Skotlex]
-		return 0;
+	if(src->id != target_id && (!temp || ud->attacktimer == -1))
+	{
+		if (skill_get_state(ud->skillid) == ST_MOVE_ENABLE)
+		{
+			if (!unit_can_reach_bl(src, target, skill_get_range2(src, skill_num,skill_lv)+1, 1, NULL, NULL))
+				return 0; //Walk-path check failed.
+		} else
+		if	(!battle_check_range(src, target, skill_get_range2(src, skill_num,skill_lv)
+			+(skill_num==RG_CLOSECONFINE?0:1)))
+			//Close confine is exploitable thanks to this extra range "feature" of the client. [Skotlex]
+			return 0; //Arrow-path check failed.
+	}
 
 	if (!temp) //Stop attack on non-combo skills [Skotlex]
 		unit_stop_attack(src);
@@ -1006,9 +1014,14 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 	bl.m = src->m;
 	bl.x = skill_x;
 	bl.y = skill_y;
-	if(skill_num != TK_HIGHJUMP &&
-		!battle_check_range(src,&bl,skill_get_range2(src, skill_num,skill_lv)+1))
-		return 0;
+
+	if (skill_get_state(ud->skillid) == ST_MOVE_ENABLE)
+	{
+		if (!unit_can_reach_bl(src, &bl, skill_get_range2(src, skill_num,skill_lv)+1, 1, NULL, NULL))
+			return 0; //Walk-path check failed.
+	} else
+	if	(!battle_check_range(src,&bl,skill_get_range2(src, skill_num,skill_lv)+1))
+		return 0; //Arrow-path check failed.
 
 	unit_stop_attack(src);
 	ud->state.skillcastcancel = castcancel;
@@ -1274,12 +1287,10 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 
 	if(!check_distance_bl(src,target,range) ) {
 		//Chase if required.
-		if(ud->state.attack_continue) {
-			if(sd)
-				clif_movetoattack(sd,target);
-			else
-				unit_walktobl(src,target,ud->chaserange,ud->state.walk_easy|2);
-		}
+		if(sd)
+			clif_movetoattack(sd,target);
+		else if(ud->state.attack_continue)
+			unit_walktobl(src,target,ud->chaserange,ud->state.walk_easy|2);
 		return 1;
 	}
 	if(!battle_check_range(src,target,range)) {
@@ -1591,7 +1602,9 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 		md->state.skillstate= MSS_IDLE;
 	} else if (bl->type == BL_PET) {
 		struct pet_data *pd = (struct pet_data*)bl;
-		if(pd->pet.intimate <= 0) {
+		if(pd->pet.intimate <= 0 &&
+			!(pd->msd && pd->msd->state.waitingdisconnect)
+		) {	//If logging out, this is deleted on unit_free
 			clif_clearchar_area(bl,clrtype);
 			map_delblock(bl);
 			unit_free(bl,0);

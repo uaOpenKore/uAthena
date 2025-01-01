@@ -959,14 +959,10 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,i
 	map_freeblock_lock();	// ~
 
 	for(i=blockcount;i<bl_list_count;i++)
-		if(bl_list[i]->prev) {	// L?`FbN
-			if (bl_list[i]->type == BL_PC
-			  && session[((struct map_session_data *) bl_list[i])->fd] == NULL)
-				continue;
+		if(bl_list[i]->prev)
 			returnCount += func(bl_list[i],ap);
-		}
 
-	map_freeblock_unlock();	// 
+	map_freeblock_unlock();	//
 
 	va_end(ap);
 	bl_list_count = blockcount;
@@ -1706,7 +1702,7 @@ int map_quit(struct map_session_data *sd) {
 	if(charsave_method)
 	{	//Let player be free'd on closing the connection.
 		idb_remove(pc_db,sd->status.account_id);
-		if (!(sd->fd && session[sd->fd]->session_data))
+		if (!(sd->fd && session[sd->fd]->session_data == sd))
 			aFree(sd); //In case player was not attached to session.
 		return 0;
 	}
@@ -3507,7 +3503,7 @@ int inter_config_read(char *cfgName)
 
 int map_sql_init(void){
 
-    mysql_init(&mmysql_handle);
+	mysql_init(&mmysql_handle);
 
 	//DB connection start
 	ShowInfo("Connecting to the Map DB Server....\n");
