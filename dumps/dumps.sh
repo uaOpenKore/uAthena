@@ -55,7 +55,7 @@ function create_db {
  }
 
 function update_db {
-   mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "drop table migrations"
+   mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB -sN -e "drop table migrations"
   cat ./migrations/1-migrations.sql | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB
   for x in ./migrations/*.sql;
    do
