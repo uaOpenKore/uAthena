@@ -1138,13 +1138,13 @@ static struct Damage battle_calc_weapon_attack(
 				break;
 			case LK_SPIRALPIERCE:
 				if (sd) {
-					short index = sd->equip_index[9];
+					short index = sd->equip_index[EQI_HAND_R];
 
 					if (index >= 0 &&
 						sd->inventory_data[index] &&
-						sd->inventory_data[index]->type == 4)
+						sd->inventory_data[index]->type == IT_WEAPON)
 						wd.damage = sd->inventory_data[index]->weight*8/100; //80% of weight
-					
+
 					ATK_ADDRATE(50*skill_lv); //Skill modifier applies to weight only.
 					index = sstatus->str/10;
 					index = index*index;
@@ -1164,13 +1164,13 @@ static struct Damage battle_calc_weapon_attack(
 			case CR_SHIELDBOOMERANG:
 			case PA_SHIELDCHAIN:
 				if (sd) {
-					short index = sd->equip_index[8];
+					short index = sd->equip_index[EQI_HAND_L];
 
 					wd.damage = sstatus->batk;
 
 					if (index >= 0 &&
 						sd->inventory_data[index] &&
-						sd->inventory_data[index]->type == 5)
+						sd->inventory_data[index]->type == IT_ARMOR)
 						ATK_ADD(sd->inventory_data[index]->weight/10);
 					break;
 				}
@@ -1824,12 +1824,12 @@ static struct Damage battle_calc_weapon_attack(
 			if (cardfix != 1000 || cardfix_ != 1000)
 				ATK_RATE2(cardfix/10, cardfix_/10);	//What happens if you use right-to-left and there's no right weapon, only left?
 		}
-		
+
 		if (skill_num == CR_SHIELDBOOMERANG || skill_num == PA_SHIELDCHAIN) { //Refine bonus applies after cards and elements.
-			short index= sd->equip_index[8];
+			short index= sd->equip_index[EQI_HAND_L];
 			if (index >= 0 &&
 				sd->inventory_data[index] &&
-				sd->inventory_data[index]->type == 5)
+				sd->inventory_data[index]->type == IT_ARMOR)
 				ATK_ADD(10*sd->status.inventory[index].refine);
 		}
 	} //if (sd)

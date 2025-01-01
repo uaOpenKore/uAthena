@@ -1833,8 +1833,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	//Skill hit type
 	type=(skillid==0)?5:skill_get_hit(skillid);
 
-	if((damage <= 0 || damage < dmg.div_)
-			&& skillid != CH_PALMSTRIKE) //Palm Strike is the only skill that will knockback even if it misses. [Skotlex]
+	if(damage < dmg.div_
+		&& skillid != CH_PALMSTRIKE) //Palm Strike is the only skill that will knockback even if it misses. [Skotlex]
 		dmg.blewcount = 0;
 
 	if(skillid == CR_GRANDCROSS||skillid == NPC_GRANDDARKNESS) {
@@ -3084,7 +3084,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				break;
 			}
 			skill_area_temp[0] = 5 - skill_area_temp[0]; // The actual penalty...
-			if (skill_area_temp[0] > 0 && !map[src->m].flag.nopenalty) { //Apply penalty
+			if (skill_area_temp[0] > 0 && !map[src->m].flag.noexppenalty) { //Apply penalty
 				sd->status.base_exp -= pc_nextbaseexp(sd) * skill_area_temp[0] * 2/1000; //0.2% penalty per each.
 				sd->status.job_exp -= pc_nextjobexp(sd) * skill_area_temp[0] * 2/1000;
 				clif_updatestatus(sd,SP_BASEEXP);
@@ -5662,8 +5662,8 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 		break;
 	case HP_BASILICA:
 		skill_clear_unitgroup(src);
-		sg = skill_unitsetting(src,skillid,skilllv,x,y,0);
-		sc_start(src,type,100,skilllv,skill_get_time(skillid,skilllv));
+		if (skill_unitsetting(src,skillid,skilllv,x,y,0))
+			sc_start(src,type,100,skilllv,skill_get_time(skillid,skilllv));
 		flag|=1;
 		break;
 	case CG_HERMODE:
@@ -5802,10 +5802,10 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 			return 1;
 		}
 		break;
-	
+
 	case HW_GRAVITATION:
-		sg = skill_unitsetting(src,skillid,skilllv,x,y,0);	
-		sc_start4(src,type,100,skilllv,0,BCT_SELF,(int)sg,skill_get_time(skillid,skilllv));
+		if ((sg = skill_unitsetting(src,skillid,skilllv,x,y,0)))
+			sc_start4(src,type,100,skilllv,0,BCT_SELF,(int)sg,skill_get_time(skillid,skilllv));
 		flag|=1;
 		break;
 
@@ -5831,8 +5831,8 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 	case SG_SUN_WARM:
 	case SG_MOON_WARM:
 	case SG_STAR_WARM:
-		sg = skill_unitsetting(src,skillid,skilllv,src->x,src->y,0);
-		sc_start4(src,type,100,skilllv,0,0,(int)sg,skill_get_time(skillid,skilllv));
+		if ((sg = skill_unitsetting(src,skillid,skilllv,src->x,src->y,0)))
+			sc_start4(src,type,100,skilllv,0,0,(int)sg,skill_get_time(skillid,skilllv));
 		flag|=1;
 		break;
 
@@ -5840,16 +5840,13 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 		if (sc && sc->data[type].timer != -1 && sc->data[type].val4 == BCT_SELF)
 			status_change_end(src,SC_GOSPEL,-1);
 		else
-	  	{
+		{
 			sg = skill_unitsetting(src,skillid,skilllv,src->x,src->y,0);
+			if (!sg) break;
 			if (sc && sc->data[type].timer != -1)
 				status_change_end(src,type,-1); //Was under someone else's Gospel. [Skotlex]
 			sc_start4(src,type,100,skilllv,0,(int)sg,BCT_SELF,skill_get_time(skillid,skilllv));
 		}
-		break;
-	case NJ_TATAMIGAESHI:
-		sc_start(src,type,100,skilllv,skill_get_time2(skillid,skilllv));
-		skill_unitsetting(src,skillid,skilllv,src->x,src->y,0);
 		break;
 
 	default:
@@ -8680,6 +8677,9 @@ int skill_attack_area (struct block_list *bl, va_list ap)
 	if(battle_check_target(dsrc,bl,type) <= 0 ||
 		!status_check_skilluse(NULL, bl, skillid, 2))
 		return 0;
+
+	if (skillid == WZ_FROSTNOVA) //Only skill that doesn't requires the animation to be removed :X
+		return skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag);
 
 	//Area-splash, disable skill animation.
 	return skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag|SD_ANIMATION);

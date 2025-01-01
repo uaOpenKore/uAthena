@@ -18,6 +18,8 @@
 #include "atcommand.h"
 #include "log.h"
 
+//Max distance from traders to enable a trade to take place.
+#define TRADE_DISTANCE 2
 
 /*==========================================
  * Initiates a trade request.
@@ -57,11 +59,11 @@ void trade_traderequest(struct map_session_data *sd, struct map_session_data *ta
 		trade_tradecancel(sd); // GM is not allowed to trade
 		return;
 	} 
-	
-	//Fixed. Only real GMs can request trade from far away! [Lupus] 
+
+	//Fixed. Only real GMs can request trade from far away! [Lupus]
 	if (level < lowest_gm_level && (sd->bl.m != target_sd->bl.m ||
-		 (sd->bl.x - target_sd->bl.x <= -5 || sd->bl.x - target_sd->bl.x >= 5) ||
-		 (sd->bl.y - target_sd->bl.y <= -5 || sd->bl.y - target_sd->bl.y >= 5))) {
+		!check_distance_bl(&sd->bl, &target_sd->bl, TRADE_DISTANCE)
+	)) {
 		clif_tradestart(sd, 0); // too far
 		return ;
 	}
@@ -92,9 +94,8 @@ void trade_tradeack(struct map_session_data *sd, int type) {
 
 	//Copied here as well since the original character could had warped.
 	if (type == 3 && pc_isGM(target_sd) < lowest_gm_level && (sd->bl.m != target_sd->bl.m ||
-		 (sd->bl.x - target_sd->bl.x <= -5 || sd->bl.x - target_sd->bl.x >= 5) ||
-		 (sd->bl.y - target_sd->bl.y <= -5 || sd->bl.y - target_sd->bl.y >= 5)))
-  	{
+		!check_distance_bl(&sd->bl, &target_sd->bl, TRADE_DISTANCE)
+	)) {
 		sd->trade_partner=0;
 		target_sd->trade_partner = 0;
 		clif_tradestart(sd, 0); // too far
@@ -170,7 +171,7 @@ int impossible_trade_check(struct map_session_data *sd) {
 				chrif_char_ask_name(-1, sd->status.name, 1, 0, 0, 0, 0, 0, 0); // type: 1 - block
 				clif_setwaitclose(sd->fd); // forced to disconnect because of the hack
 				// message about the ban
-				sprintf(message_to_gm, msg_txt(540), battle_config.ban_hack_trade); //  This player has been definitivly blocked.
+				sprintf(message_to_gm, msg_txt(540)); //  This player has been definitivly blocked.
 			// if we ban people
 			} else if (battle_config.ban_hack_trade > 0) {
 				chrif_char_ask_name(-1, sd->status.name, 2, 0, 0, 0, 0, battle_config.ban_hack_trade, 0); // type: 2 - ban (year, month, day, hour, minute, second)
@@ -484,9 +485,10 @@ void trade_tradecommit(struct map_session_data *sd) {
 			flag = pc_additem(tsd, &sd->status.inventory[n], sd->deal.item[trade_i].amount);
 			if (flag == 0) {
 				//Logs (T)rade [Lupus]
-				if(log_config.enable_logs&0x2)
+				if(log_config.enable_logs&0x2) {
 					log_pick(sd, "T", 0, sd->status.inventory[n].nameid, -(sd->deal.item[trade_i].amount), &sd->status.inventory[n]);
 					log_pick(tsd, "T", 0, sd->status.inventory[n].nameid, sd->deal.item[trade_i].amount, &sd->status.inventory[n]);
+				}
 				//Logs
 				pc_delitem(sd, n, sd->deal.item[trade_i].amount, 1);
 			} else
@@ -500,9 +502,10 @@ void trade_tradecommit(struct map_session_data *sd) {
 			flag = pc_additem(sd, &tsd->status.inventory[n], tsd->deal.item[trade_i].amount);
 			if (flag == 0) {
 				//Logs (T)rade [Lupus]
-				if(log_config.enable_logs&0x2)
+				if(log_config.enable_logs&0x2) {
 					log_pick(tsd, "T", 0, tsd->status.inventory[n].nameid, -(tsd->deal.item[trade_i].amount), &tsd->status.inventory[n]);
 					log_pick(sd, "T", 0, tsd->status.inventory[n].nameid, tsd->deal.item[trade_i].amount, &tsd->status.inventory[n]);
+				}
 				//Logs
 				pc_delitem(tsd, n, tsd->deal.item[trade_i].amount, 1);
 			} else
