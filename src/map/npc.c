@@ -2148,11 +2148,11 @@ static int npc_parse_function (char *w1, char *w2, char *w3, char *w4, char *fir
 	strncpy(p, w3, 50);
 
 	user_db = script_get_userfunc_db();
-	if(strdb_get(user_db, p) != NULL) {
-		printf("\r"); //Carriage return to clear the 'loading..' line. [Skotlex]
+   if(strdb_get(user_db, p) != NULL) {
+      printf("\r"); //Carriage return to clear the 'loading..' line. [Skotlex]
 		ShowWarning("parse_function: Duplicate user function [%s] (%s:%d)\n", p, file, *lines);
-		aFree(p);
-		script_free_code(script);
+      aFree(p);
+      script_free_code(script);
 	} else
 		strdb_put(user_db, p, script);
 

@@ -1480,11 +1480,7 @@ int clif_spawn(struct block_list *bl)
  */
 int clif_walkok(struct map_session_data *sd)
 {
-	int fd;
-
-	nullpo_retr(0, sd);
-
-	fd=sd->fd;
+	int fd=sd->fd;
 	WFIFOHEAD(fd, packet_len_table[0x87]);
 	WFIFOW(fd,0)=0x87;
 	WFIFOL(fd,2)=gettick();
@@ -1690,9 +1686,10 @@ int clif_changemapserver(struct map_session_data *sd, char *mapname, int x, int 
 
 int clif_blown(struct block_list *bl) {
 //Previous Aegis versions simply used clif_fixpos, but it seems clif_slide works better on current clients.
-//	return clif_fixpos(bl);
-	return clif_slide(bl, bl->x, bl->y);
-	
+// However, because of client desyncs, and because current Aegis captures show that they still use fixpos, keep using that for now.
+	return clif_fixpos(bl);
+//	return clif_slide(bl, bl->x, bl->y);
+
 }
 /*==========================================
  *
@@ -1805,13 +1802,9 @@ int clif_selllist(struct map_session_data *sd) {
  *------------------------------------------
  */
 int clif_scriptmes(struct map_session_data *sd, int npcid, char *mes) {
-	int fd;
+	int fd = sd->fd;
 	int slen = strlen(mes) + 9;
 	WFIFOHEAD(fd, slen);
-
-	nullpo_retr(0, sd);
-
-	fd=sd->fd;
 	WFIFOW(fd,0)=0xb4;
 	WFIFOW(fd,2)=slen;
 	WFIFOL(fd,4)=npcid;
@@ -1863,7 +1856,7 @@ int clif_scriptclose(struct map_session_data *sd, int npcid) {
  */
 void clif_sendfakenpc(struct map_session_data *sd, int npcid) {
 	int fd = sd->fd;
-	//sd->npc_id = npcid;
+	WFIFOHEAD(fd, packet_len_table[0x78]);
 	sd->state.using_fake_npc = 1;
 	memset(WFIFOP(fd,0), 0, packet_len_table[0x78]);
 	WFIFOW(fd,0)=0x78;
@@ -1881,19 +1874,16 @@ void clif_sendfakenpc(struct map_session_data *sd, int npcid) {
  *------------------------------------------
  */
 int clif_scriptmenu(struct map_session_data *sd, int npcid, char *mes) {
-	int fd;
+	int fd = sd->fd;
 	int slen = strlen(mes) + 8;
 	struct block_list *bl = NULL;
 	WFIFOHEAD(fd, slen);
-
-	nullpo_retr(0, sd);
 
 	if (!sd->state.using_fake_npc && (npcid == fake_nd->bl.id || ((bl = map_id2bl(npcid)) && (bl->m!=sd->bl.m ||
 	   bl->x<sd->bl.x-AREA_SIZE-1 || bl->x>sd->bl.x+AREA_SIZE+1 ||
 	   bl->y<sd->bl.y-AREA_SIZE-1 || bl->y>sd->bl.y+AREA_SIZE+1))))
 	   clif_sendfakenpc(sd, npcid);
 
-	fd=sd->fd;
 	WFIFOW(fd,0)=0xb7;
 	WFIFOW(fd,2)=slen;
 	WFIFOL(fd,4)=npcid;
@@ -6898,7 +6888,7 @@ int clif_guild_skillinfo(struct map_session_data *sd)
 			WFIFOW(fd,c*37+12) = g->skill[i].lv;
 			WFIFOW(fd,c*37+14) = skill_get_sp(id,g->skill[i].lv);
 			WFIFOW(fd,c*37+16) = skill_get_range(id,g->skill[i].lv);
-			memset(WFIFOP(fd,c*37+18),0,24);
+			strncpy(WFIFOP(fd,c*37+18), skill_get_name(id), NAME_LENGTH);
 			if(g->skill[i].lv < guild_skill_get_max(id) && (sd == g->member[0].sd))
 				up = 1;
 			else
@@ -8098,7 +8088,6 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		else
 			pc_setinvincibletimer(sd,battle_config.pc_invincible_time);
 	}
-
 	map_addblock(&sd->bl);	// ubNo^
 	clif_spawn(&sd->bl);	// spawn
 
@@ -8139,6 +8128,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_send_petdata(sd,0,0);
 		clif_send_petdata(sd,5,battle_config.pet_hair_style);
 		clif_send_petstatus(sd);
+//		skill_unit_move(&sd->pd->bl,gettick(),1);
 	}
 
 
@@ -8225,12 +8215,16 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	else
 		sd->areanpc_id = 0;
 
-  	// If player is dead, and is spawned (such as @refresh) send death packet. [Valaris]
+	// If player is dead, and is spawned (such as @refresh) send death packet. [Valaris]
 	if(pc_isdead(sd))
 		clif_clearchar_area(&sd->bl,1);
+
 // Uncomment if you want to make player face in the same direction he was facing right before warping. [Skotlex]
 //	else
 //		clif_changed_dir(&sd->bl, SELF);
+//	Trigger skill effects if you appear standing on them
+	if(!battle_config.pc_invincible_time)
+		skill_unit_move(&sd->bl,gettick(),1);
 }
 
 /*==========================================
@@ -8742,6 +8736,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
  *------------------------------------------
  */
 void clif_parse_ActionRequest(int fd, struct map_session_data *sd) {
+	RFIFOHEAD(fd);
 	clif_parse_ActionRequest_sub(sd,
 		RFIFOB(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]),
 		RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]),
@@ -8913,7 +8908,7 @@ void clif_parse_Wis(int fd, struct map_session_data *sd) { // S 0096 <len>.w <ni
 		if(!sd->state.mainchat)
 			clif_displaymessage(fd, msg_txt(388)); // You should enable main chat with "@main on" command.
 		else {
-			sprintf(output, msg_txt(386), sd->status.name, msg);
+			snprintf(output, sizeof(output)/sizeof(char), msg_txt(386), sd->status.name, msg);
 			intif_announce(output, strlen(output) + 1, 0xFE000000, 0);
 		}
 		aFree(command);
@@ -10606,9 +10601,9 @@ void clif_parse_Shift(int fd, struct map_session_data *sd) {	// Rewriten by [Yor
 
 	if ((battle_config.atc_gmonly == 0 || pc_isGM(sd)) &&
 	    (pc_isGM(sd) >= get_atcommand_level(AtCommand_JumpTo))) {
-          RFIFOHEAD(fd);
-          memcpy(player_name, RFIFOP(fd,2), NAME_LENGTH);
-          atcommand_jumpto(fd, sd, "@jumpto", player_name); // as @jumpto
+		RFIFOHEAD(fd);
+		memcpy(player_name, RFIFOP(fd,2), NAME_LENGTH);
+		atcommand_jumpto(fd, sd, "@jumpto", player_name); // as @jumpto
 	}
 
 	return;
@@ -10781,16 +10776,6 @@ void clif_parse_PMIgnore(int fd, struct map_session_data *sd) {	// Rewritten by 
 
 	WFIFOW(fd,0) = 0x0d1; // R 00d1 <type>.B <fail>.B: type: 0: deny, 1: allow, fail: 0: success, 1: fail
 	WFIFOB(fd,2) = RFIFOB(fd,26);
-	// do nothing only if nick can not exist
-	if (strlen(nick) < 4) {
-		WFIFOB(fd,3) = 1; // fail
-		WFIFOSET(fd, packet_len_table[0x0d1]);
-		clif_wis_message(fd, wisp_server_name,
-			"This player name is not valid.",
-			strlen("This player name is not valid.")+1);
-		return;
-	}
-	// name can exist
 	// deny action (we add nick only if it's not already exist
 	if (RFIFOB(fd,26) == 0) { // Add block
 		for(i = 0; i < MAX_IGNORE_LIST &&
@@ -10801,9 +10786,6 @@ void clif_parse_PMIgnore(int fd, struct map_session_data *sd) {	// Rewritten by 
 		if (i == MAX_IGNORE_LIST) { //Full List
 			WFIFOB(fd,3) = 1; // fail
 			WFIFOSET(fd, packet_len_table[0x0d1]);
-			clif_wis_message(fd, wisp_server_name,
-				"You can not block more people.",
-				strlen("You can not block more people.") + 1);
 			if (strcmp(wisp_server_name, nick) == 0)
 			{	// to found possible bot users who automaticaly ignore people.
 				sprintf(output, "Character '%s' (account: %d) has tried to block wisps from '%s' (wisp name of the server). Bot user?", sd->status.name, sd->status.account_id, wisp_server_name);
@@ -10813,11 +10795,8 @@ void clif_parse_PMIgnore(int fd, struct map_session_data *sd) {	// Rewritten by 
 		}
 		if(sd->ignore[i].name[0] != '\0')
 		{	//Name already exists.
-			WFIFOB(fd,3) = 1; // fail
+			WFIFOB(fd,3) = 0; // Aegis reports success.
 			WFIFOSET(fd, packet_len_table[0x0d1]);
-			clif_wis_message(fd, wisp_server_name,
-				"This player is already blocked.",
-				strlen("This player is already blocked.") + 1);
 			if (strcmp(wisp_server_name, nick) == 0) { // to found possible bot users who automaticaly ignore people.
 				sprintf(output, "Character '%s' (account: %d) has tried AGAIN to block wisps from '%s' (wisp name of the server). Bot user?", sd->status.name, sd->status.account_id, wisp_server_name);
 				intif_wis_message_to_gm(wisp_server_name, battle_config.hack_info_GM_level, output);
@@ -10851,9 +10830,6 @@ void clif_parse_PMIgnore(int fd, struct map_session_data *sd) {	// Rewritten by 
 	{	//Not found
 		WFIFOB(fd,3) = 1; // fail
 		WFIFOSET(fd, packet_len_table[0x0d1]);
-		clif_wis_message(fd, wisp_server_name,
-			"This player is not blocked by you.",
-			strlen("This player is not blocked by you.") + 1);
 		return;
 	}
 	//Move everything one place down to overwrite removed entry.
@@ -10882,9 +10858,6 @@ void clif_parse_PMIgnoreAll(int fd, struct map_session_data *sd) { // Rewritten 
 		if (sd->state.ignoreAll) {
 			WFIFOB(fd,3) = 1; // fail
 			WFIFOSET(fd, packet_len_table[0x0d2]);
-			clif_wis_message(fd, wisp_server_name,
-				"You already block everyone.",
-				strlen("You already block everyone.") + 1);
 			return;
 		}
 		sd->state.ignoreAll = 1;
@@ -10894,11 +10867,15 @@ void clif_parse_PMIgnoreAll(int fd, struct map_session_data *sd) { // Rewritten 
 	}
 	//Unblock everyone
 	if (!sd->state.ignoreAll) {
+		if (sd->ignore[0].name[0] != '\0')
+		{  //Wipe the ignore list.
+			memset(sd->ignore, 0, sizeof(sd->ignore));
+			WFIFOB(fd,3) = 0;
+			WFIFOSET(fd, packet_len_table[0x0d2]);
+			return;
+		}
 		WFIFOB(fd,3) = 1; // fail
 		WFIFOSET(fd, packet_len_table[0x0d2]);
-		clif_wis_message(fd, wisp_server_name,
-			"You already allow everyone.",
-			strlen("You already allow everyone.") + 1);
 		return;
 	}
 	sd->state.ignoreAll = 0;
@@ -11445,20 +11422,27 @@ int clif_parse(int fd) {
 
 	sd = (struct map_session_data*)session[fd]->session_data;
 	if (session[fd]->eof) {
-		if (sd && sd->state.autotrade) {
-			//Disassociate character from the socket connection.
-			session[fd]->session_data = NULL;
-			sd->fd = 0;
-			ShowInfo("%sCharacter '"CL_WHITE"%s"CL_RESET"' logged off (using @autotrade).\n", (pc_isGM(sd))?"GM ":"",sd->status.name); // Player logout display [Valaris]
-		} else if (sd && sd->state.auth) {
-			clif_quitsave(fd, sd); // the function doesn't send to inter-server/char-server if it is not connected [Yor]
-			if (sd->status.name != NULL)
-				ShowInfo("%sCharacter '"CL_WHITE"%s"CL_RESET"' logged off.\n", (pc_isGM(sd))?"GM ":"",sd->status.name); // Player logout display [Valaris]
-			else
-				ShowInfo("%sCharacter with Account ID '"CL_WHITE"%d"CL_RESET"' logged off.\n", (pc_isGM(sd))?"GM ":"", sd->bl.id); // Player logout display [Yor]
+		if (sd) {
+			if (sd->state.autotrade) {
+				//Disassociate character from the socket connection.
+				session[fd]->session_data = NULL;
+				sd->fd = 0;
+				ShowInfo("%sCharacter '"CL_WHITE"%s"CL_RESET"' logged off (using @autotrade).\n",
+					(pc_isGM(sd))?"GM ":"",sd->status.name);
+			} else
+			if (sd->state.auth) {
+				 // Player logout display [Valaris]
+				ShowInfo("%sCharacter '"CL_WHITE"%s"CL_RESET"' logged off.\n",
+					(pc_isGM(sd))?"GM ":"",sd->status.name);
+				clif_quitsave(fd, sd);
+			} else {
+				ShowInfo("Player AID:%d/CID:%d (not authenticated) logged off.\n",
+					sd->bl.id, sd->status.char_id);
+				map_quit(sd);
+			}
 		} else {
 			unsigned char *ip = (unsigned char *) &session[fd]->client_addr.sin_addr;
-			ShowInfo("Player not identified with IP '"CL_WHITE"%d.%d.%d.%d"CL_RESET"' logged off.\n", ip[0],ip[1],ip[2],ip[3]);
+			ShowInfo("Closed connection from '"CL_WHITE"%d.%d.%d.%d"CL_RESET"'.\n", ip[0],ip[1],ip[2],ip[3]);
 		}
 		do_close(fd);
 		return 0;

@@ -629,10 +629,8 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list),struct block_list
 	struct block_list *bl=NULL;
 	int blockcount=bl_list_count,i,c;
 	int x0,x1,y0,y1;
-	m = center->m;
-	if (m < 0)
-		return 0;
 	va_start(ap,type);
+	m = center->m;
 	x0 = center->x-range;
 	x1 = center->x+range;
 	y0 = center->y-range;
@@ -854,14 +852,23 @@ int map_foreachinarea(int (*func)(struct block_list*,va_list),int m,int x0,int y
  * dx,dy-1,0,1ilHj
  *------------------------------------------
  */
-int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,int y0,int x1,int y1,int dx,int dy,int type,...) {
-	int bx,by;
+int map_foreachinmovearea(int (*func)(struct block_list*,va_list),struct block_list *center,int range, int dx,int dy,int type,...) {
+	int bx,by,m;
 	int returnCount =0;  //total sum of returned values of func() [Skotlex]
 	struct block_list *bl=NULL;
 	va_list ap;
 	int blockcount=bl_list_count,i,c;
+	int x0, x1, y0, y1;
 
+	if (!range) return 0;
+	if (!dx && !dy) return 0; //No movement.
 	va_start(ap,type);
+	m = center->m;
+	x0 = center->x-range;
+	x1 = center->x+range;
+	y0 = center->y-range;
+	y1 = center->y+range;
+
 	if (x1 < x0)
 	{	//Swap range
 		bx = x0;
@@ -875,19 +882,17 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,i
 		y1 = bx;
 	}
 	if(dx==0 || dy==0){
-		// `
+		//Movement along one axis only.
 		if(dx==0){
-			if(dy<0){
+			if(dy<0) //Moving south
 				y0=y1+dy+1;
-			} else {
+			else //North
 				y1=y0+dy-1;
-			}
-		} else if(dy==0){
-			if(dx<0){
+		} else { //dy == 0
+			if(dx<0) //West
 				x0=x1+dx+1;
-			} else {
+			else //East
 				x1=x0+dx-1;
-			}
 		}
 		if(x0<0) x0=0;
 		if(y0<0) y0=0;
@@ -899,7 +904,10 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,i
 					bl = map[m].block[bx+by*map[m].bxs];
 					c = map[m].block_count[bx+by*map[m].bxs];
 					for(i=0;i<c && bl;i++,bl=bl->next){
-						if(bl && bl->type&type && bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1 && bl_list_count<BL_LIST_MAX)
+						if(bl->type&type &&
+							bl->x>=x0 && bl->x<=x1 &&
+							bl->y>=y0 && bl->y<=y1 &&
+							bl_list_count<BL_LIST_MAX)
 							bl_list[bl_list_count++]=bl;
 					}
 				}
@@ -907,15 +915,16 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,i
 					bl = map[m].block_mob[bx+by*map[m].bxs];
 					c = map[m].block_mob_count[bx+by*map[m].bxs];
 					for(i=0;i<c && bl;i++,bl=bl->next){
-						if(bl && bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1 && bl_list_count<BL_LIST_MAX)
+						if(bl->x>=x0 && bl->x<=x1 &&
+							bl->y>=y0 && bl->y<=y1 &&
+							bl_list_count<BL_LIST_MAX)
 							bl_list[bl_list_count++]=bl;
 					}
 				}
 			}
 		}
 	}else{
-		// L
-
+		// Diagonal movement
 		if(x0<0) x0=0;
 		if(y0<0) y0=0;
 		if(x1>=map[m].xs) x1=map[m].xs-1;
@@ -926,23 +935,31 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list),int m,int x0,i
 					bl = map[m].block[bx+by*map[m].bxs];
 					c = map[m].block_count[bx+by*map[m].bxs];
 					for(i=0;i<c && bl;i++,bl=bl->next){
-						if(!bl || !(bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1))
+						if(!(bl->type&type &&
+							bl->x>=x0 && bl->x<=x1 &&
+							bl->y>=y0 && bl->y<=y1 &&
+							bl_list_count<BL_LIST_MAX))
 							continue;
-						if(bl && bl->type&type && ((dx>0 && bl->x<x0+dx) || (dx<0 && bl->x>x1+dx) ||
-							(dy>0 && bl->y<y0+dy) || (dy<0 && bl->y>y1+dy)) &&
-							bl_list_count<BL_LIST_MAX)
-								bl_list[bl_list_count++]=bl;
+						if((dx>0 && bl->x<x0+dx) ||
+							(dx<0 && bl->x>x1+dx) ||
+							(dy>0 && bl->y<y0+dy) ||
+							(dy<0 && bl->y>y1+dy))
+							bl_list[bl_list_count++]=bl;
 					}
 				}
 				if (type & BL_MOB) {
 					bl = map[m].block_mob[bx+by*map[m].bxs];
 					c = map[m].block_mob_count[bx+by*map[m].bxs];
 					for(i=0;i<c && bl;i++,bl=bl->next){
-						if(!bl || !(bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1))
+						if(!(
+							bl->x>=x0 && bl->x<=x1 &&
+							bl->y>=y0 && bl->y<=y1 &&
+							bl_list_count<BL_LIST_MAX))
 							continue;
-						if(bl && ((dx>0 && bl->x<x0+dx) || (dx<0 && bl->x>x1+dx) ||
-							(dy>0 && bl->y<y0+dy) || (dy<0 && bl->y>y1+dy)) &&
-							bl_list_count<BL_LIST_MAX)
+						if((dx>0 && bl->x<x0+dx) ||
+							(dx<0 && bl->x>x1+dx) ||
+							(dy>0 && bl->y<y0+dy) ||
+							(dy<0 && bl->y>y1+dy))
 								bl_list[bl_list_count++]=bl;
 					}
 				}
@@ -1654,8 +1671,12 @@ void map_deliddb(struct block_list *bl) {
  */
 int map_quit(struct map_session_data *sd) {
 
-	//nullpo_retr(0, sd); //Utterly innecessary, all invokations to this function already have an SD non-null check.
-	//Learn to use proper coding and stop relying on nullpo_'s for safety :P [Skotlex]
+	if(!sd->state.auth) { //Removing a player that hasn't even finished loading
+		idb_remove(pc_db,sd->status.account_id);
+		idb_remove(charid_db,sd->status.char_id);
+		idb_remove(id_db,sd->bl.id);
+		return 0;
+	}
 	if(!sd->state.waitingdisconnect) {
 		if (sd->npc_timer_id != -1) //Cancel the event timer.
 			npc_timerevent_quit(sd);

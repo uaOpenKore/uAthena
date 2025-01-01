@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= SinSloth(Most of the NPCs), MasterOfMuppets(Some of the NPCs + bug fixes) & Kargha(The quiz NPCs)
 //===== Current Version: =====================================
-//= 1.5
+//= 1.6
 //===== Compatible With: =====================================
 //= eAthena SVN 3422+(Requires jA Script System)
 //===== Description: =========================================
@@ -24,6 +24,7 @@
 //=     Also moved the Alberta sign since another NPC was on top of it. [Llyr]
 //= 1.5 Fixed exploits and bugs. Plus add a removal of exttra sobbing pieces
 //= 	as suggested Tantarian, to let people Reborn [Lupus]
+//= 1.6 Minor fix, thanks to theultramage for pointing it out. [MasterOfMuppets]
 //============================================================
 //===== Configuration : ======================================
 prontera.gat,1,1,1	script	TheSignConfig	-1,{
@@ -2448,12 +2449,13 @@ if($signmazemonster == 0)
 }
 else
 {
-	killmonster "prt_maze02.gat","OnMonsterDeadSign";
+	killmonster "prt_maze02.gat","Sign_Alch_Summon::OnMonsterDead";
 	set $signmazemonster,0;
 	goto Loopback;
 }
-OnMonsterDeadSign:
+OnMonsterDead:
 	set $signmazemonster,$signmazemonster - 1;
+	end;
 
 }
 
@@ -7610,14 +7612,14 @@ L_Check:
 	mes "Muhahahahahaha!";
 	mes "That's not the right spell!";
 	mes "Now death awaits you!";
-	killmonster "niflheim.gat","#signbruce::Onmymob2";
-	monster "niflheim.gat",349,256,"Orc Skeleton",1462,1,"#signbruce::Onmymob2";
-	monster "niflheim.gat",347,258,"Orc Skeleton",1462,1,"#signbruce::Onmymob2";
-	monster "niflheim.gat",347,254,"Orc Skeleton",1462,1,"#signbruce::Onmymob2";
-	monster "niflheim.gat",350,252,"Orc Skeleton",1462,1,"#signbruce::Onmymob2";
-	monster "niflheim.gat",344,255,"Orc Skeleton",1462,1,"#signbruce::Onmymob2";
-	monster "niflheim.gat",348,252,"Orc Skeleton",1462,1,"#signbruce::Onmymob2";
-	monster "niflheim.gat",347,259,"Orc Skeleton",1462,1,"#signbruce::Onmymob2";
+	killmonster "niflheim.gat","#signbruce::Onmymob";
+	monster "niflheim.gat",349,256,"Orc Skeleton",1462,1,"#signbruce::Onmymob";
+	monster "niflheim.gat",347,258,"Orc Skeleton",1462,1,"#signbruce::Onmymob";
+	monster "niflheim.gat",347,254,"Orc Skeleton",1462,1,"#signbruce::Onmymob";
+	monster "niflheim.gat",350,252,"Orc Skeleton",1462,1,"#signbruce::Onmymob";
+	monster "niflheim.gat",344,255,"Orc Skeleton",1462,1,"#signbruce::Onmymob";
+	monster "niflheim.gat",348,252,"Orc Skeleton",1462,1,"#signbruce::Onmymob";
+	monster "niflheim.gat",347,259,"Orc Skeleton",1462,1,"#signbruce::Onmymob";
 	close;
 
 L_Success:

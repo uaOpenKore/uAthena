@@ -139,12 +139,11 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 
 	if(map_getcell(bl->m,x+dx,y+dy,CELL_CHKNOPASS))
 		return unit_walktoxy_sub(bl);
-	
+
 	// oVJ
 
-	map_foreachinmovearea(clif_outsight,bl->m,
-		x-AREA_SIZE,y-AREA_SIZE,x+AREA_SIZE,y+AREA_SIZE,
-		dx,dy,sd?BL_ALL:BL_PC,bl);
+	map_foreachinmovearea(clif_outsight,bl, AREA_SIZE,
+		dx, dy, sd?BL_ALL:BL_PC, bl);
 
 	x += dx;
 	y += dy;
@@ -152,11 +151,10 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 	ud->walk_count++; //walked cell counter, to be used for walk-triggered skills. [Skotlex]
 
 	ud->walktimer = 1;
-	map_foreachinmovearea(clif_insight,bl->m,
-		x-AREA_SIZE,y-AREA_SIZE,x+AREA_SIZE,y+AREA_SIZE,
-		-dx,-dy,sd?BL_ALL:BL_PC,bl);
+	map_foreachinmovearea(clif_insight, bl, AREA_SIZE,
+		-dx, -dy, sd?BL_ALL:BL_PC, bl);
 	ud->walktimer = -1;
-	
+
 	if(sd) {
 		if(map_getcell(bl->m,x,y,CELL_CHKNPC)) {
 			npc_touch_areanpc(sd,bl->m,x,y);
@@ -238,9 +236,10 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 		}
 		if (tbl->m == bl->m && check_distance_bl(bl, tbl, ud->chaserange))
 		{	//Reached destination.
-			if (ud->state.attack_continue) {
-				clif_fixpos(bl); //Aegis uses one before every attack, we should
-				  //only need this one for syncing purposes. [Skotlex]
+			if (ud->state.attack_continue)
+			{	//Aegis uses one before every attack, we should
+				//only need this one for syncing purposes. [Skotlex]
+				clif_fixpos(bl);
 				unit_attack(bl, tbl->id, ud->state.attack_continue);
 			}
 		} else { //Update chase-path
@@ -330,6 +329,10 @@ int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, int 
 	sc = status_get_sc(bl);
 	if (sc && sc->count && sc->data[SC_CONFUSION].timer != -1) //Randomize the target position
 		map_random_dir(bl, &ud->to_x, &ud->to_y);
+
+	//Set Mob's CHASE/FOLLOW states.
+	if(bl->type == BL_MOB && flag&2)
+		((TBL_MOB*)bl)->state.skillstate = ((TBL_MOB*)bl)->state.aggressive?MSS_FOLLOW:MSS_RUSH;
 
 	if(ud->walktimer != -1) {
 		ud->state.change_walk_target = 1;
@@ -427,18 +430,16 @@ int unit_movepos(struct block_list *bl,int dst_x,int dst_y, int easy, int checkp
 	dx = dst_x - bl->x;
 	dy = dst_y - bl->y;
 
-	map_foreachinmovearea(clif_outsight,bl->m,
-		bl->x-AREA_SIZE,bl->y-AREA_SIZE,bl->x+AREA_SIZE,bl->y+AREA_SIZE,
-		dx,dy,sd?BL_ALL:BL_PC,bl);
+	map_foreachinmovearea(clif_outsight, bl, AREA_SIZE,
+		dx, dy, sd?BL_ALL:BL_PC, bl);
 
 	map_moveblock(bl, dst_x, dst_y, gettick());
-	
+
 	ud->walktimer = 1;
-	map_foreachinmovearea(clif_insight,bl->m,
-		bl->x-AREA_SIZE,bl->y-AREA_SIZE,bl->x+AREA_SIZE,bl->y+AREA_SIZE,
-		-dx,-dy,sd?BL_ALL:BL_PC,bl);
+	map_foreachinmovearea(clif_insight, bl, AREA_SIZE,
+		-dx, -dy, sd?BL_ALL:BL_PC, bl);
 	ud->walktimer = -1;
-		
+
 	if(sd) {
 		if(map_getcell(bl->m,bl->x,bl->y,CELL_CHKNPC)) {
 			npc_touch_areanpc(sd,bl->m,bl->x,bl->y);
@@ -676,6 +677,7 @@ int unit_can_move(struct block_list *bl)
 			|| (sc->data[SC_CLOAKING].timer != -1 && //Need wall at level 1-2
 				sc->data[SC_CLOAKING].val1 < 3 && !(sc->data[SC_CLOAKING].val4&1))
 			|| sc->data[SC_MADNESSCANCEL].timer != -1
+			|| (sc->data[SC_GRAVITATION].timer != -1 && sc->data[SC_GRAVITATION].val3 == BCT_SELF)
 		))
 			return 0;
 	}
@@ -914,20 +916,27 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 			TBL_MOB *md = (TBL_MOB*)target;
 			mobskill_event(md, src, tick, -1); //Cast targetted skill event.
 			//temp: used to store mob's mode now.
-			if (tstatus->mode&MD_CASTSENSOR &&
+			if (tstatus->mode&(MD_CASTSENSOR_IDLE|MD_CASTSENSOR_CHASE) &&
 				battle_check_target(target, src, BCT_ENEMY) > 0)
 			{
 				switch (md->state.skillstate) {
-				case MSS_ANGRY:
 				case MSS_RUSH:
 				case MSS_FOLLOW:
-					if (!(tstatus->mode&(MD_AGGRESSIVE|MD_ANGRY)))
-						break; //Only Aggressive mobs change target while chasing.
-				case MSS_IDLE:
-				case MSS_WALK:
+					if (!(tstatus->mode&MD_CASTSENSOR_CHASE) &&
+						!(tstatus->mode&(MD_AGGRESSIVE|MD_ANGRY)))
+						break;
 					md->target_id = src->id;
 					md->state.aggressive = (temp&MD_ANGRY)?1:0;
 					md->min_chase = md->db->range3;
+					break;
+				case MSS_IDLE:
+				case MSS_WALK:
+					if (!(tstatus->mode&MD_CASTSENSOR_IDLE))
+						break;
+					md->target_id = src->id;
+					md->state.aggressive = (temp&MD_ANGRY)?1:0;
+					md->min_chase = md->db->range3;
+					break;
 				}
 			}
 		}
@@ -1131,6 +1140,10 @@ int unit_attack(struct block_list *src,int target_id,int type)
 	//Just change target/type. [Skotlex]
 	if(ud->attacktimer != -1)
 		return 0;
+
+	//Set Mob's ANGRY/BERSERK states.
+	if(src->type == BL_MOB)
+		((TBL_MOB*)src)->state.skillstate = ((TBL_MOB*)src)->state.aggressive?MSS_ANGRY:MSS_BERSERK;
 
 	if(DIFF_TICK(ud->attackabletime, gettick()) > 0)
 		//Do attack next time it is possible. [Skotlex]
@@ -1587,6 +1600,7 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 		if(sd->pvp_timer!=-1) {
 			delete_timer(sd->pvp_timer,pc_calc_pvprank_timer);
 			sd->pvp_timer = -1;
+			sd->pvp_rank = 0;
 		}
 
 		if(pc_issit(sd)) {

@@ -618,7 +618,7 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 					status_change_end(target, SC_GRAVITATION, -1);
 				}
 			}
-			if(sc->data[SC_DANCING].timer != -1 && hp > (signed int)status->max_hp>>2)
+			if(sc->data[SC_DANCING].timer != -1 && (unsigned int)hp > status->max_hp>>2)
 				skill_stop_dancing(target);
 		}
 		unit_skillcastcancel(target, 2);
@@ -1442,8 +1442,11 @@ int status_calc_pet(struct pet_data *pd, int first)
 			if (!first)	//Not done the first time because the pet is not visible yet
 				clif_send_petstatus(sd);
 		}
-	} else if (first)
+	} else if (first) {
 		status_calc_misc(&pd->bl, &pd->status, pd->db->lv);
+		if (!battle_config.pet_lv_rate && pd->pet.level != pd->db->lv)
+			pd->pet.level = pd->db->lv;
+	}
 
 	//Support rate modifier (1000 = 100%)
 	pd->rate_fix = 1000*(pd->pet.intimate - battle_config.pet_support_min_friendly)/(1000- battle_config.pet_support_min_friendly) +500;
@@ -1462,9 +1465,15 @@ static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct sta
 		val += val * 25/100;
 	else if (sd->class_&JOBL_BABY)
 		val -= val * 30/100;
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->char_id, MAPID_TAEKWON))
+
+	if((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA ||
+		(sd->class_&MAPID_UPPERMASK) == MAPID_GUNSLINGER)
+		val += 100; //Since their HP can't be approximated well enough without this.
+	if((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON &&
+		sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
 		val *= 3; //Triple max HP for top ranking Taekwons over level 90.
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE &&
+		sd->status.base_level >= 99)
 		val += 2000;
 
 	return val;
@@ -1479,9 +1488,9 @@ static unsigned int status_base_pc_maxsp(struct map_session_data* sd, struct sta
 		val += val * 25/100;
 	else if (sd->class_&JOBL_BABY)
 		val -= val * 30/100;
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->char_id, MAPID_TAEKWON))
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
 		val *= 3; //Triple max SP for top ranking Taekwons over level 90.
-	
+
 	return val;
 }
 
@@ -1592,7 +1601,9 @@ int status_calc_pc(struct map_session_data* sd,int first)
 
 	//FIXME: Most of these stuff should be calculated once, but how do I fix the memset above to do that? [Skotlex]
 	status->speed = DEFAULT_WALK_SPEED;
-	status->mode = MD_CANMOVE|MD_CANATTACK|MD_LOOTER|MD_ASSIST|MD_AGGRESSIVE|MD_CASTSENSOR;
+	//Give them all modes except these (useful for clones)
+	status->mode = MD_MASK&~(MD_BOSS|MD_PLANT|MD_DETECTOR|MD_ANGRY);
+
 	status->size = (sd->class_&JOBL_BABY)?0:1;
 	if (battle_config.character_size && pc_isriding(sd)) { //[Lupus]
 		if (sd->class_&JOBL_BABY) {
@@ -4343,12 +4354,15 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			int mode;
 			struct status_data *bstatus = status_get_base_status(bl);
 			if (!bstatus) return 0;
+			if (sc->data[type].timer != -1)
+			{	//Pile up with previous values.
+				if(!val2) val2 = sc->data[type].val2;
+				val3 |= sc->data[type].val3;
+				val4 |= sc->data[type].val4;
+			}
 			mode = val2?val2:bstatus->mode; //Base mode
-			//Mode added AND removed? Added has priority.
-			if ((val3&val4))
-				val4&= ~(val3&val4);
-			if (val3) mode|= val3; //Add mode
 			if (val4) mode&=~val4; //Del mode
+			if (val3) mode|= val3; //Add mode
 			if (mode == bstatus->mode) { //No change.
 				if (sc->data[type].timer != -1) //Abort previous status
 					return status_change_end(bl, type, -1);
@@ -4752,9 +4766,9 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val3 = vd->shield;
 			val4 = vd->cloth_color;
 			unit_stop_attack(bl);
-			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:JOB_XMAS);
 			clif_changelook(bl,LOOK_WEAPON,0);
 			clif_changelook(bl,LOOK_SHIELD,0);
+			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:JOB_XMAS);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
 			break;
 		case SC_NOCHAT:
@@ -5089,13 +5103,6 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 
 		case SC_GRAVITATION:
 			val2 = 50*val1; //aspd reduction
-			if (val3 == BCT_SELF) {
-				struct unit_data *ud = unit_bl2ud(bl);
-				if (ud) {
-					ud->canmove_tick += tick;
-					ud->canact_tick += tick;
-				}
-			} 
 			break;
 
 		case SC_HERMODE:
@@ -5384,11 +5391,11 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 	switch (type) {
 		case SC_WEDDING:
 		case SC_XMAS:
-			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:JOB_XMAS);
 			clif_changelook(bl,LOOK_WEAPON,0);
 			clif_changelook(bl,LOOK_SHIELD,0);
+			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:JOB_XMAS);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,val4);
-			break;	
+			break;
 		case SC_KAAHI:
 			val4 = -1;
 			break;
@@ -5504,10 +5511,12 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			sc->opt3 |= 0x20;
 			opt_flag = 0;
 			break;
+		//0x40 missing?
 		case SC_BERSERK:
 			sc->opt3 |= 0x80;
 			opt_flag = 0;
 			break;
+		//0x100, 0x200 missing?
 		case SC_MARIONETTE:
 		case SC_MARIONETTE2:
 			sc->opt3 |= 0x400;
@@ -5726,9 +5735,9 @@ int status_change_end( struct block_list* bl , int type,int tid )
 				vd->cloth_color = sc->data[type].val4;
 			}
 			clif_changelook(bl,LOOK_BASE,vd->class_);
+			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
 			clif_changelook(bl,LOOK_WEAPON,vd->weapon);
 			clif_changelook(bl,LOOK_SHIELD,vd->shield);
-			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
 		break;
 		case SC_RUN:
 		{
@@ -5894,13 +5903,6 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			sc_start4(bl, SC_REGENERATION, 100, 10,0,0,(RGN_HP|RGN_SP),
 				skill_get_time(LK_BERSERK, sc->data[type].val1));
 			break;
-		case SC_GRAVITATION:
-			if (sc->data[type].val3 == BCT_SELF) {
-				struct unit_data *ud = unit_bl2ud(bl);
-				if (ud)
-					ud->canmove_tick = ud->canact_tick = gettick();
-			}
-			break;
 		case SC_GOSPEL: //Clear the buffs from other chars.
 			if (sc->data[type].val3) { //Clear the group.
 				struct skill_unit_group *group = (struct skill_unit_group *)sc->data[type].val3;
@@ -5968,15 +5970,15 @@ int status_change_end( struct block_list* bl , int type,int tid )
 
 	case SC_HIDING:
 		sc->option &= ~OPTION_HIDE;
-		opt_flag = 2; //Check for warp trigger.
+		opt_flag|= 2|4; //Check for warp trigger + AoE trigger
 		break;
 	case SC_CLOAKING:
 		sc->option &= ~OPTION_CLOAK;
-		opt_flag = 2;
+		opt_flag|= 2;
 		break;
 	case SC_CHASEWALK:
 		sc->option &= ~(OPTION_CHASEWALK|OPTION_CLOAK);
-		opt_flag = 2;
+		opt_flag|= 2;
 		break;
 	case SC_SIGHT:
 		sc->option &= ~OPTION_SIGHT;
@@ -6078,7 +6080,10 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	if (calc_flag)
 		status_calc_bl(bl,calc_flag);
 
-	if(opt_flag == 2 && sd && map_getcell(bl->m,bl->x,bl->y,CELL_CHKNPC))
+	if(opt_flag&4) //Out of hiding, invoke on place.
+		skill_unit_move(bl,gettick(),1);
+
+	if(opt_flag&2 && sd && map_getcell(bl->m,bl->x,bl->y,CELL_CHKNPC))
 		npc_touch_areanpc(sd,bl->m,bl->x,bl->y); //Trigger on-touch event.
 
 	return 1;
