@@ -5,10 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "map.h"
-#include "battle.h"
+#include "../common/cbasetypes.h"
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
+#include "../common/malloc.h"
+#include "map.h"
+#include "battle.h"
 
 #ifdef MEMWATCH
 #include "memwatch.h"
@@ -21,8 +23,15 @@
 struct tmp_path { short x,y,dist,before,cost,flag;};
 #define calc_index(x,y) (((x)+(y)*MAX_WALKPATH) & (MAX_WALKPATH*MAX_WALKPATH-1))
 
+const char walk_choices [3][3] =
+{
+	{1,0,7},
+	{2,-1,6},
+	{3,4,5},
+};
+
 /*==========================================
- * 経路探索補助heap push
+ * oHTheap push
  *------------------------------------------
  */
 static void push_heap_path(int *heap,struct tmp_path *tp,int index)
@@ -39,8 +48,8 @@ static void push_heap_path(int *heap,struct tmp_path *tp,int index)
 }
 
 /*==========================================
- * 経路探索補助heap update
- * costが減ったので根の方へ移動
+ * oHTheap update
+ * cost
  *------------------------------------------
  */
 static void update_heap_path(int *heap,struct tmp_path *tp,int index)
@@ -62,7 +71,7 @@ static void update_heap_path(int *heap,struct tmp_path *tp,int index)
 }
 
 /*==========================================
- * 経路探索補助heap pop
+ * oHTheap pop
  *------------------------------------------
  */
 static int pop_heap_path(int *heap,struct tmp_path *tp)
@@ -94,7 +103,7 @@ static int pop_heap_path(int *heap,struct tmp_path *tp)
 }
 
 /*==========================================
- * 現在の点のcost計算
+ * _costvZ
  *------------------------------------------
  */
 static int calc_cost(struct tmp_path *p,int x1,int y1)
@@ -109,7 +118,7 @@ static int calc_cost(struct tmp_path *p,int x1,int y1)
 }
 
 /*==========================================
- * 必要ならpathを追加/修正する
+ * Kvpath/C
  *------------------------------------------
  */
 static int add_path(int *heap,struct tmp_path *tp,int x,int y,int dist,int before,int cost)
@@ -148,8 +157,8 @@ static int add_path(int *heap,struct tmp_path *tp,int x,int y,int dist,int befor
 
 
 /*==========================================
- * (x,y)が移動不可能地帯かどうか
- * flag 0x10000 遠距離攻撃判定
+ * (x,y)s\n
+ * flag 0x10000 U
  *------------------------------------------
  */
 static int can_place(struct map_data *m,int x,int y,int flag)
@@ -167,7 +176,7 @@ static int can_place(struct map_data *m,int x,int y,int flag)
 }
 
 /*==========================================
- * (x0,y0)から(x1,y1)へ1歩で移動可能か計算
+ * (x0,y0)(x1,y1)1\vZ
  *------------------------------------------
  */
 static int can_move(struct map_data *m,int x0,int y0,int x1,int y1,int flag)
@@ -191,8 +200,8 @@ static int can_move(struct map_data *m,int x0,int y0,int x1,int y1,int flag)
 }
 
 /*==========================================
- * (x0,y0)から(dx,dy)方向へcountセル分
- * 吹き飛ばしたあとの座標を所得
+ * (x0,y0)(dx,dy)countZ
+ * W
  *------------------------------------------
  */
 int path_blownpos(int m,int x0,int y0,int dx,int dy,int count)
@@ -233,10 +242,9 @@ int path_blownpos(int m,int x0,int y0,int dx,int dy,int count)
 }
 
 /*==========================================
- *  遠距離攻撃が可能かどうかを返す
+ *  U\
  *------------------------------------------
  */
-#define swap(x,y) { int t; t = x; x = y; y = t; }
 int path_search_long_real(struct shootpath_data *spd,int m,int x0,int y0,int x1,int y1,cell_t flag)
 {
 	int dx, dy;
@@ -303,17 +311,17 @@ int path_search_long_real(struct shootpath_data *spd,int m,int x0,int y0,int x1,
 }
 
 /*==========================================
- * path探索 (x0,y0)->(x1,y1)
+ * pathT (x0,y0)->(x1,y1)
  *------------------------------------------
  */
+
 int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int flag,cell_t flag2)
 {
 	int heap[MAX_HEAP+1];
 	struct tmp_path tp[MAX_WALKPATH*MAX_WALKPATH];
-	int i,rp,x,y;
-	int xs,ys;
+	register int i,x,y,dx,dy;
+	int rp,xs,ys;
 	struct map_data *md;
-	int dx,dy;
 
 	nullpo_retr(0, wpd);
 
@@ -330,36 +338,36 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 	if(x1<0 || x1>=md->xs || y1<0 || y1>=md->ys || map_getcellp(md,x1,y1,flag2))
 		return -1;
 
-	// easy
-	// この内部では、0 <= x+dx < sx, 0 <= y+dy < sy は保証されている
-	dx = (x1-x0<0) ? -1 : 1;
-	dy = (y1-y0<0) ? -1 : 1;
-	for(x=x0,y=y0,i=0;x!=x1 || y!=y1;){
-		if(i>=sizeof(wpd->path))
-			return -1;
-		if(x!=x1 && y!=y1){
-			if(map_getcellp(md,x+dx,y   ,flag2))
-				break;
-			if(map_getcellp(md,x   ,y+dy,flag2))
-				break;
-			if(map_getcellp(md,x+dx,y+dy,flag2))
-				break;
-			x+=dx;
-			y+=dy;
-			wpd->path[i++]=(dx<0) ? ((dy>0)? 1 : 3) : ((dy<0)? 5 : 7);
-		} else if(x!=x1){
-			if(map_getcellp(md,x+dx,y   ,flag2))
-				break;
-			x+=dx;
-			wpd->path[i++]=(dx<0) ? 2 : 6;
-		} else if(y!=y1){
-			if(map_getcellp(md,x   ,y+dy,flag2))
-				break;
-			y+=dy;
-			wpd->path[i++]=(dy>0) ? 0 : 4;
-		}
+	// easy and better [Meruru]
+	dx = ((dx = x1-x0)) ? ((dx<0) ? -1 : 1) : 0;
+	dy = ((dy = y1-y0)) ? ((dy<0) ? -1 : 1) : 0;
+
+	//Better faster stronger simple path algo. [Meruru]
+	for(x=x0,y=y0,i=0;i < sizeof(wpd->path);)
+	{
+		wpd->path[i++] = walk_choices[-dy + 1][dx + 1];
+
+		x += dx;
+		y += dy;
+
+		if(x == x1) dx = 0;
+		if(y == y1) dy = 0;
+
+		if((!dx && !dy) || map_getcellp(md,x,y,flag2))
+			break;
 	}
-	if (x==x1 && y==y1) { //easy path successful.
+
+	/*
+	You may be thinking what about diagonal
+	moves? Cant they cause a error with this some how?
+	Answer is NO! The only time this can cause a error
+	is if the target block lies on the diagonal and
+	is non walkable. But rember we already checked that
+	up above! So no problems here... I think [Meruru]
+	*/
+
+	if (x==x1 && y==y1)
+	{ //easy path successful.
 		wpd->path_len=i;
 		wpd->path_pos=0;
 		wpd->path_half=0;
@@ -380,7 +388,7 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 	tp[i].flag=0;
 	heap[0]=0;
 	push_heap_path(heap,tp,calc_index(x0,y0));
-	xs = md->xs-1; // あらかじめ１減算しておく
+	xs = md->xs-1; // PZ
 	ys = md->ys-1;
 	while(1){
 		int e=0,f=0,dist,cost,dc[4];
@@ -394,10 +402,10 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 		cost = tp[rp].cost;
 		if(x==x1 && y==y1) break;
 
-		// dc[0] : y++ の時のコスト増分
-		// dc[1] : x-- の時のコスト増分
-		// dc[2] : y-- の時のコスト増分
-		// dc[3] : x++ の時のコスト増分
+		// dc[0] : y++ RXg
+		// dc[1] : x-- RXg
+		// dc[2] : y-- RXg
+		// dc[3] : x++ RXg
 
 		if(y < ys && !map_getcellp(md,x  ,y+1,flag2)) {
 			f |= 1; dc[0] = (y >= y1 ? 20 : 0);
@@ -476,7 +484,7 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 
 /*==========================================
 
- * path探索 (x0,y0)->(x1,y1)
+ * pathT (x0,y0)->(x1,y1)
 
  *------------------------------------------
  
@@ -493,7 +501,7 @@ char gat[64][64]={
 struct map_data map[1];
 
 /*==========================================
- * 経路探索ルーチン単体テスト用main関数
+ * oHT[`PeXgpmain
  *------------------------------------------
  */
 void main(int argc,char *argv[])

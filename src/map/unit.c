@@ -142,7 +142,7 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 
 	// oVJ
 
-	map_foreachinmovearea(clif_outsight,bl, AREA_SIZE,
+	map_foreachinmovearea(clif_outsight, bl, AREA_SIZE,
 		dx, dy, sd?BL_ALL:BL_PC, bl);
 
 	x += dx;
@@ -922,8 +922,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 				switch (md->state.skillstate) {
 				case MSS_RUSH:
 				case MSS_FOLLOW:
-					if (!(tstatus->mode&MD_CASTSENSOR_CHASE) &&
-						!(tstatus->mode&(MD_AGGRESSIVE|MD_ANGRY)))
+					if (!(tstatus->mode&MD_CASTSENSOR_CHASE))
 						break;
 					md->target_id = src->id;
 					md->state.aggressive = (temp&MD_ANGRY)?1:0;
@@ -954,7 +953,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 
 	if(sc && sc->data[SC_CLOAKING].timer != -1 &&
 		!(sc->data[SC_CLOAKING].val4&4) && skill_num != AS_CLOAKING)
+	{
 		status_change_end(src,SC_CLOAKING,-1);
+		if (!src->prev) return 0; //Warped away!
+	}
 
 	if(casttime > 0) {
 		ud->skilltimer = add_timer( tick+casttime, skill_castend_id, src->id, 0 );
@@ -1054,7 +1056,10 @@ int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int sk
 
 	if (sc && sc->data[SC_CLOAKING].timer != -1 &&
 		!(sc->data[SC_CLOAKING].val4&4))
+	{
 		status_change_end(src,SC_CLOAKING,-1);
+		if (!src->prev) return 0; //Warped away!
+	}
 
 	if(casttime > 0) {
 		ud->skilltimer = add_timer( tick+casttime, skill_castend_pos, src->id, 0 );
@@ -1594,6 +1599,8 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 			guild_reply_invite(sd,sd->guild_invite,0);
 		if(sd->guild_alliance>0)
 			guild_reply_reqalliance(sd,sd->guild_alliance_account,0);
+		if(sd->menuskill_id)
+			sd->menuskill_id = sd->menuskill_lv = 0;
 
 		pc_delinvincibletimer(sd);
 

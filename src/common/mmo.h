@@ -5,32 +5,8 @@
 #define	_MMO_H_
 
 #include <time.h>
+#include "cbasetypes.h"
 #include "utils.h" // _WIN32
-
-#if ! defined(Assert)
-#if defined(RELEASE)
-#define Assert(EX)
-#else
-// extern "C" {
-#include <assert.h>
-// }
-#ifndef DEFCPP
-#if defined(_WIN32) && !defined(MINGW)
-#include <crtdbg.h>
-#endif
-#endif
-#define Assert(EX) assert(EX)
-#endif
-#endif /* ! defined(Assert) */
-
-#ifdef CYGWIN
-// txtやlogなどの書き出すファイルの改行コード
-#define RETCODE	"\r\n"	// (CR/LF：Windows系)
-#else
-#define RETCODE "\n"	// (LF：Unix系）
-#endif
-
-#define RET RETCODE
 
 #define FIFOSIZE_SERVERLINK	256*1024
 
@@ -112,6 +88,10 @@
 //These are just meant to minimize the updating needed between char/map servers as players login.
 //Room for initial 10K accounts
 #define DEFAULT_MAX_ACCOUNT_ID 2010000
+
+#define START_ACCOUNT_NUM 2000000
+#define END_ACCOUNT_NUM 100000000
+
 //Room for initial 100k characters
 #define DEFAULT_MAX_CHAR_ID 250000
 
@@ -364,14 +344,14 @@ struct fame_list {
 };
 
 enum {
-	GBI_EXP	=1,		// ギルドのEXP
-	GBI_GUILDLV,		// ギルドのLv
-	GBI_SKILLPOINT,		// ギルドのスキルポイント
-	GBI_SKILLLV,		// ギルドスキルLv
+	GBI_EXP	=1,		// MhEXP
+	GBI_GUILDLV,		// MhLv
+	GBI_SKILLPOINT,		// MhXL|Cg
+	GBI_SKILLLV,		// MhXLLv
 };
 
 enum {
-	GMI_POSITION	=0,		// メンバーの役職変更
+	GMI_POSITION	=0,		// o[EX
 	GMI_EXP,
 	GMI_HAIR,
 	GMI_HAIR_COLOR,

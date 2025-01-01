@@ -1314,6 +1314,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case GS_FLING:
 		sc_start(bl,SC_FLING,100, sd?sd->spiritball_old:5,skill_get_time(skillid,skilllv));
 		break;
+	case GS_DISARM:
+		rate = 3*skilllv;
+		if (sstatus->dex > tstatus->dex)
+			rate += (sstatus->dex - tstatus->dex)/5;
+		skill_strip_equip(bl, EQP_WEAPON, rate, skilllv, skill_get_time(skillid,skilllv));
+		break;
 	}
 
 	if(sd && attack_type&BF_WEAPON &&
@@ -1598,6 +1604,7 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 				case W_MACE: // Axes and Maces can't be broken [DracoRPG]
 				case W_STAFF:
 				case W_BOOK: //Rods and Books can't be broken [Skotlex]
+				case W_HUUMA:
 					where &= ~EQP_WEAPON;
 			}
 		}
@@ -1654,6 +1661,36 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 
 	return where; //Return list of pieces broken.
 }
+
+int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int lv, int time)
+{
+	struct status_change *sc;
+	const int pos[4]    = {EQP_WEAPON, EQP_SHIELD, EQP_ARMOR, EQP_HELM};
+	const int sc_atk[4] = {SC_STRIPWEAPON, SC_STRIPSHIELD, SC_STRIPARMOR, SC_STRIPHELM};
+	const int sc_def[4] = {SC_CP_WEAPON, SC_CP_SHIELD, SC_CP_ARMOR, SC_CP_HELM};
+	int i;
+
+	if (rand()%100 >= rate)
+		return 0;
+
+	sc = status_get_sc(bl);
+	if (!sc)
+		return 0;
+
+	for (i = 0; i < sizeof(pos)/sizeof(pos[0]); i++) {
+		if (where&pos[i] && sc->data[sc_def[i]].timer != -1)
+			where&=~pos[i];
+	}
+	if (!where) return 0;
+
+	for (i = 0; i < sizeof(pos)/sizeof(pos[0]); i++) {
+		if (where&pos[i] && !sc_start(bl, sc_atk[i], 100, lv, time))
+			where&=~pos[i];
+	}
+	return where?1:0;
+}
+
+
 /*=========================================================================
  Used to knock back players, monsters, traps, etc
  If count&0xf00000, the direction is send in the 6th byte.
@@ -1664,7 +1701,6 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 int skill_blown (struct block_list *src, struct block_list *target, int count)
 {
 	int dx=0,dy=0,nx,ny;
-	int x=target->x,y=target->y;
 	int dir,ret;
 	struct skill_unit *su=NULL;
 
@@ -1700,15 +1736,15 @@ int skill_blown (struct block_list *src, struct block_list *target, int count)
 		dy = -diry[dir];
 	}
 
-	ret=path_blownpos(target->m,x,y,dx,dy,count&0xffff);
+	ret=path_blownpos(target->m,target->x,target->y,dx,dy,count&0xffff);
 	nx=ret>>16;
 	ny=ret&0xffff;
 
 	if (!su)
-		unit_stop_walking(target,0); 
+		unit_stop_walking(target,0);
 
-	dx = nx - x;
-	dy = ny - y;
+	dx = nx - target->x;
+	dy = ny - target->y;
 
 	if (!dx && !dy) //Could not knockback.
 		return 0;
@@ -1727,8 +1763,9 @@ int skill_blown (struct block_list *src, struct block_list *target, int count)
 	if(!(count&0x20000))
 		clif_blown(target);
 
-	if(target->type == BL_PC && map_getcell(target->m,x,y,CELL_CHKNPC))
-		npc_touch_areanpc((TBL_PC*)target,target->m,x,y); //Invoke area NPC
+	if(target->type == BL_PC &&
+		map_getcell(target->m, target->x, target->y, CELL_CHKNPC))
+		npc_touch_areanpc((TBL_PC*)target, target->m, target->x, target->y); //Invoke area NPC
 
 	return (count&0xFFFF); //Return amount of knocked back cells.
 }
@@ -2076,7 +2113,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
  *------------------------------------------
  */
 static int skill_area_temp[8];
-static int skill_unit_temp[24];	/* For storing skill_unit ids as players move in/out of them. [Skotlex] */
+static int skill_unit_temp[64];	/* For storing skill_unit ids as players move in/out of them. [Skotlex] */
 static int skill_unit_index=0;	//Well, yeah... am too lazy to pass pointers around :X
 typedef int (*SkillFunc)(struct block_list *, struct block_list *, int, int, unsigned int, int);
 int skill_area_sub (struct block_list *bl, va_list ap)
@@ -2548,6 +2585,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GS_PIERCINGSHOT:
 	case GS_RAPIDSHOWER:
 	case GS_DUST:
+	case GS_DISARM:				// Added disarm. [Reddozen]
 	case GS_FULLBUSTER:
 	case NJ_SYURIKEN:
 	case NJ_KUNAI:
@@ -4192,108 +4230,32 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RG_STRIPSHIELD:
 	case RG_STRIPARMOR:
 	case RG_STRIPHELM:
-	case ST_FULLSTRIP:			// Rewritten most of the code [DracoRPG]
-	case GS_DISARM:				// Added disarm. [Reddozen]
-		{
-		int strip_fix, equip = 0;
-		int sclist[4] = {0,0,0,0};
-
+	case ST_FULLSTRIP:
+		i = 5+2*skilllv;
+		if (sstatus->dex > tstatus->dex)
+			i += (sstatus->dex - tstatus->dex)/5;
 		switch (skillid) {
 		case RG_STRIPWEAPON:
-		case GS_DISARM:
-		   equip = EQP_WEAPON;
+			type = EQP_WEAPON;
 			break;
 		case RG_STRIPSHIELD:
-		   equip = EQP_SHIELD;
+			type = EQP_SHIELD;
 			break;
 		case RG_STRIPARMOR:
-		   equip = EQP_ARMOR;
+			type = EQP_ARMOR;
 			break;
 		case RG_STRIPHELM:
-		   equip = EQP_HELM;
+			type = EQP_HELM;
 			break;
 		case ST_FULLSTRIP:
-		   equip = EQP_WEAPON|EQP_SHIELD|EQP_ARMOR|EQP_HELM;
+			type = EQP_WEAPON|EQP_SHIELD|EQP_ARMOR|EQP_HELM;
 			break;
 		}
-
-		strip_fix = sstatus->dex - tstatus->dex;
-		if(strip_fix < 0)
-			strip_fix=0;
-		if (rand()%100 >= 5+2*skilllv+strip_fix/5)
-		{
-			if (sd)
-				clif_skill_fail(sd,skillid,0,0);
-			break;
-		}
-		if (dstsd) {
-			for (i=0;i<EQI_MAX;i++) {
-				if (dstsd->equip_index[i]<0 || !dstsd->inventory_data[dstsd->equip_index[i]])
-					continue;
-				switch (i) {
-				case EQI_HAND_L: //Shield / left-hand weapon
-					if(dstsd->inventory_data[dstsd->equip_index[i]]->type == IT_ARMOR)
-					{ //Shield
-						if (equip&EQP_SHIELD &&
-							!(dstsd->unstripable_equip&EQP_SHIELD) &&
-						  	!(tsc && tsc->data[SC_CP_SHIELD].timer != -1)
-						){
-							sclist[1] = SC_STRIPSHIELD; // Okay, we found a shield to strip - It is really a shield, not a two-handed weapon or a left-hand weapon
-							pc_unequipitem(dstsd,dstsd->equip_index[i],3);
-						}
-						continue;
-					}
-					//Continue to weapon
-				case EQI_HAND_R:
-					if (equip&EQP_WEAPON &&
-						!(dstsd->unstripable_equip&EQP_WEAPON) &&
-						!(tsc && tsc->data[SC_CP_WEAPON].timer != -1)
-					) {
-						sclist[0] = SC_STRIPWEAPON; // Okay, we found a weapon to strip - It can be a right-hand, left-hand or two-handed weapon
-						pc_unequipitem(dstsd,dstsd->equip_index[i],3);
-					}
-					break;
-				case EQI_ARMOR: //Armor
-					if (equip &EQP_ARMOR && 
-						!(dstsd->unstripable_equip &EQP_ARMOR) &&
-					  	!(tsc && tsc->data[SC_CP_ARMOR].timer != -1)
-					) {
-						sclist[2] = SC_STRIPARMOR; // Okay, we found an armor to strip
-						pc_unequipitem(dstsd,dstsd->equip_index[i],3);
-					}
-					break;
-				case EQI_HEAD_TOP: //Helm  
-					if (equip &EQP_HELM &&
-						!(dstsd->unstripable_equip &EQP_HELM) &&
-						!(tsc && tsc->data[SC_CP_HELM].timer != -1)
-					 ) {
-						sclist[3] = SC_STRIPHELM; // Okay, we found a helm to strip
-						pc_unequipitem(dstsd,dstsd->equip_index[i],3);
-					}
-					break;
-				}
-			}
-		} else if (!(tstatus->mode&MD_BOSS)) {
-			if (equip&EQP_WEAPON && !(tsc && tsc->data[SC_CP_WEAPON].timer != -1))
-				sclist[0] = SC_STRIPWEAPON;
-			if (equip&EQP_SHIELD && !(tsc && tsc->data[SC_CP_SHIELD].timer != -1))
-				sclist[1] = SC_STRIPSHIELD;
-			if (equip&EQP_ARMOR && !(tsc && tsc->data[SC_CP_ARMOR].timer != -1))
-				sclist[2] = SC_STRIPARMOR;
-			if (equip&EQP_HELM && !(tsc && tsc->data[SC_CP_HELM].timer != -1))
-				sclist[3] = SC_STRIPHELM;
-		}
-		equip = 0; //Reuse equip to hold how many stats are invoked.
-		for (i=0;i<4;i++) {
-			if (sclist[i]) // Start the SC only if an equipment was stripped from this location
-			equip+=sc_start(bl,sclist[i],100,skilllv,skill_get_time(skillid,skilllv)+strip_fix/2);
-		}
-		if (equip)
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		else if (sd) //Nothing stripped.
-			clif_skill_fail(sd,skillid,0,0);
+		if (!clif_skill_nodamage(src,bl,skillid,skilllv,
+				skill_strip_equip(bl, type, i, skilllv, skill_get_time(skillid,skilllv)))
+			&& sd)
+			clif_skill_fail(sd,skillid,0,0); //Nothing stripped.
 		break;
-		}
 
 	/* PotionPitcher */
 	case AM_BERSERKPITCHER:
@@ -5457,7 +5419,7 @@ int skill_castend_id (int tid, unsigned int tick, int id, int data)
 	}
 	ud->skillid = ud->skilllv = ud->skilltarget = 0;
 	ud->canact_tick = tick;
-	if(sd) sd->skillitem = sd->skillitemlv = -1;
+	if(sd) sd->skillitem = sd->skillitemlv = 0;
 	else
 	if(md) md->skillidx = -1;
 	return 0;
@@ -5574,7 +5536,7 @@ int skill_castend_pos (int tid, unsigned int tick, int id, int data)
 	ud->skillid = ud->skilllv = 0;
 	if(sd) {
 		clif_skill_fail(sd,ud->skillid,0,0);
-		sd->skillitem = sd->skillitemlv = -1;
+		sd->skillitem = sd->skillitemlv = 0;
 	}
 	if(md) md->skillidx  = -1;
 	return 0;
@@ -7538,7 +7500,9 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 		pc_isGM(sd)>= battle_config.gm_skilluncond &&
 		sd->skillitem != skill)
 	{	//GMs don't override the skillItem check, otherwise they can use items without them being consumed! [Skotlex]
-		sd->skillitem = sd->skillitemlv = -1;
+		sd->skillitem = sd->skillitemlv = 0;
+		//Need to do arrow state check.
+		sd->state.arrow_atk = skill_get_ammotype(skill)?1:0;
 		return 1;
 	}
 
@@ -7546,25 +7510,25 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 	sc = &sd->sc;
 	if (!sc->count)
 		sc = NULL;
-	
+
 	if(pc_is90overweight(sd)) {
 		clif_skill_fail(sd,skill,9,0);
-		sd->skillitem = sd->skillitemlv = -1;
+		sd->skillitem = sd->skillitemlv = 0;
 		return 0;
 	}
 
 	if (sd->state.abra_flag)
 	{
-		sd->skillitem = sd->skillitemlv = -1;
+		sd->skillitem = sd->skillitemlv = 0;
 		if(type&1) sd->state.abra_flag = 0;
 		return 1;
 	}
 
 	if (sd->menuskill_id == AM_PHARMACY &&
 		(skill == AM_PHARMACY || skill == AC_MAKINGARROW || skill == BS_REPAIRWEAPON ||
-		skill == AM_TWILIGHT1 || skill == AM_TWILIGHT2  || skill == AM_TWILIGHT3 
+		skill == AM_TWILIGHT1 || skill == AM_TWILIGHT2  || skill == AM_TWILIGHT3
 	)) {
-		sd->skillitem = sd->skillitemlv = -1;
+		sd->skillitem = sd->skillitemlv = 0;
 		return 0;
 	}
 
@@ -7590,7 +7554,7 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 				pc_delitem(sd,i,1,0);
 		}
 		if (type&1) //Casting finished
-			sd->skillitem = sd->skillitemlv = -1;
+			sd->skillitem = sd->skillitemlv = 0;
 		return 1;
 	}
 	// for the guild skills [celest]
