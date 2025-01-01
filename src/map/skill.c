@@ -21,6 +21,7 @@
 #include "status.h"
 #include "pet.h"
 #include "mob.h"
+#include "npc.h"
 #include "battle.h"
 #include "party.h"
 #include "itemdb.h"
@@ -679,7 +680,7 @@ int	skill_get_maxcount( int id ){ skill_get (skill_db[id].maxcount, id, 1); }
 int	skill_get_blewcount( int id ,int lv ){ skill_get (skill_db[id].blewcount[lv-1], id, lv); }
 int	skill_get_mhp( int id ,int lv ){ skill_get (skill_db[id].mhp[lv-1], id, lv); }
 int	skill_get_castnodex( int id ,int lv ){ skill_get (skill_db[id].castnodex[lv-1], id, lv); }
-int	skill_get_delaynodex( int id ,int lv ){ skill_get (skill_db[id].delaynodex[lv-1], id, lv); }
+int	skill_get_delaynodex( int id ,int lv ){ skill_get (skill_db[id].delaynoagi[lv-1], id, lv); }
 int	skill_get_nocast ( int id ){ skill_get (skill_db[id].nocast, id, 1); }
 int	skill_get_type( int id ){ skill_get (skill_db[id].skill_type, id, 1); }
 int	skill_get_unit_id ( int id, int flag ){ skill_get (skill_db[id].unit_id[flag], id, 1); }
@@ -887,7 +888,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 				!(battle_config.emergency_call&(agit_flag?2:1)) ||
 				!(battle_config.emergency_call&
 					(map[m].flag.gvg || map[m].flag.gvg_castle?8:4)) ||
-				(battle_config.emergency_call&16 && map[m].flag.nowarpto)
+				(battle_config.emergency_call&16 && map[m].flag.nowarpto && !map[m].flag.gvg_castle)
 			)	{
 				clif_skill_fail(sd,skillid,0,0);
 				return 1;
@@ -1715,8 +1716,11 @@ int skill_blown (struct block_list *src, struct block_list *target, int count)
 		nx-AREA_SIZE,ny-AREA_SIZE,nx+AREA_SIZE,ny+AREA_SIZE,
 		-dx,-dy,target->type==BL_PC?BL_ALL:BL_PC,target);
 	
-	if(!(count&0x20000)) 
+	if(!(count&0x20000))
 		clif_blown(target);
+
+	if(target->type == BL_PC && map_getcell(target->m,x,y,CELL_CHKNPC))
+		npc_touch_areanpc((TBL_PC*)target,target->m,x,y); //Invoke area NPC
 
 	return (count&0xFFFF); //Return amount of knocked back cells.
 }
@@ -1766,29 +1770,35 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 
 	sstatus = status_get_status_data(src);
 	tstatus = status_get_status_data(bl);
+	sc= status_get_sc(bl);
+	if (sc && !sc->count) sc = NULL; //Don't need it.
+
 // Is this check really needed? FrostNova won't hurt you if you step right where the caster is?
 	if(skillid == WZ_FROSTNOVA && dsrc->x == bl->x && dsrc->y == bl->y)
+		return 0;
+	 //Trick Dead protects you from damage, but not from buffs and the like, hence it's placed here.
+	if (sc && sc->data[SC_TRICKDEAD].timer != -1 && !(sstatus->mode&MD_BOSS))
 		return 0;
 
 	dmg=battle_calc_attack(attack_type,src,bl,skillid,skilllv,flag&0xFFF);
 
 	//Skotlex: Adjusted to the new system
-	if(src->type==BL_PET && (struct pet_data *)src)
+	if(src->type==BL_PET)
 	{ // [Valaris]
-		struct pet_data *pd = (struct pet_data *)src;
+		struct pet_data *pd = (TBL_PET*)src;
 		if (pd->a_skill && pd->a_skill->div_ && pd->a_skill->id == skillid)
 		{
 			int element = skill_get_pl(skillid);
 			if (skillid == -1)
 				element = sstatus->rhw.ele;
-			dmg.damage=battle_attr_fix(src, bl, skilllv, element, tstatus->def_ele, tstatus->ele_lv);
+			if (element != ELE_NEUTRAL || !(battle_config.attack_attr_none&BL_PET))
+				dmg.damage=battle_attr_fix(src, bl, skilllv, element, tstatus->def_ele, tstatus->ele_lv);
+			else
+				dmg.damage= skilllv;
 			dmg.damage2=0;
 			dmg.div_= pd->a_skill->div_;
 		}
 	}
-
-	sc= status_get_sc(bl);
-	if (sc && !sc->count) sc = NULL; //Don't need it.
 
 	if (attack_type&BF_MAGIC) {
 		if(sc && sc->data[SC_KAITE].timer != -1 && (dmg.damage || dmg.damage2)
@@ -1834,7 +1844,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	type=(skillid==0)?5:skill_get_hit(skillid);
 
 	if(damage < dmg.div_
-		&& skillid != CH_PALMSTRIKE) //Palm Strike is the only skill that will knockback even if it misses. [Skotlex]
+		//Only skills that knockback even when they miss. [Skotlex]
+		&& skillid != CH_PALMSTRIKE
+		&& skillid != HT_PHANTASMIC)
 		dmg.blewcount = 0;
 
 	if(skillid == CR_GRANDCROSS||skillid == NPC_GRANDDARKNESS) {
@@ -1844,8 +1856,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	}
 
 	if(sd) {
-		//Sorry for removing the Japanese comments, but they were actually distracting 
-		//from the actual code and I couldn't understand a thing anyway >.< [Skotlex]
+		int flag = 0; //Used to signal if this skill can be combo'ed later on.
 		if (sd->sc.data[SC_COMBO].timer!=-1)
 		{	//End combo state after skill is invoked. [Skotlex]
 			switch (skillid) {
@@ -1871,65 +1882,29 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		switch(skillid)
 		{
 			case MO_TRIPLEATTACK:
-			{
-				int delay = 1000 - 4*sstatus->agi - 2*sstatus->dex;
 				if (pc_checkskill(sd, MO_CHAINCOMBO) > 0)
-					delay += 300 * battle_config.combo_delay_rate / 100;
-				sc_start(src,SC_COMBO,100,MO_TRIPLEATTACK,delay);
-				clif_combo_delay(src, delay);
-				
-				if (sd->status.party_id>0) //bonus from SG_FRIEND [Komurka]
-					party_skill_check(sd, sd->status.party_id, MO_TRIPLEATTACK, skilllv);
+					flag=1;
 				break;
-			}
 			case MO_CHAINCOMBO:
-			{
-				int delay = 1000 - 4*sstatus->agi - 2*sstatus->dex;
 				if(pc_checkskill(sd, MO_COMBOFINISH) > 0 && sd->spiritball > 0)
-					delay += 300 * battle_config.combo_delay_rate /100;
-				sc_start(src,SC_COMBO,100,MO_CHAINCOMBO,delay);
-				clif_combo_delay(src,delay);
+					flag=1;
 				break;
-			}
 			case MO_COMBOFINISH:
-			{
-				int delay = 700 - 4*sstatus->agi - 2*sstatus->dex;
-				if (
-					(pc_checkskill(sd, MO_EXTREMITYFIST) > 0 && sd->spiritball >= 4 && sd->sc.data[SC_EXPLOSIONSPIRITS].timer != -1) ||
-					(pc_checkskill(sd, CH_TIGERFIST) > 0 && sd->spiritball > 0) ||
-					(pc_checkskill(sd, CH_CHAINCRUSH) > 0 && sd->spiritball > 1)
-				)
-					delay += 300 * battle_config.combo_delay_rate /100;
-				sc_start(src,SC_COMBO,100,MO_COMBOFINISH,delay);
-				clif_combo_delay(src,delay);
-				break;
-			}
+				if (sd->status.party_id>0) //bonus from SG_FRIEND [Komurka]
+					party_skill_check(sd, sd->status.party_id, MO_COMBOFINISH, skilllv);
+				if (pc_checkskill(sd, CH_TIGERFIST) > 0 && sd->spiritball > 0)
+					flag=1;
 			case CH_TIGERFIST:
-			{	//Tigerfist is now a combo-only skill. [Skotlex]
-				int delay = 1000 - 4*sstatus->agi - 2*sstatus->dex;
-				if(
-					(pc_checkskill(sd, MO_EXTREMITYFIST) > 0 && sd->spiritball >= 3 && sd->sc.data[SC_EXPLOSIONSPIRITS].timer != -1) ||
-					(pc_checkskill(sd, CH_CHAINCRUSH) > 0)
-				)
-					delay += 300 * battle_config.combo_delay_rate /100;
-				sc_start(src,SC_COMBO,100,CH_TIGERFIST,delay);
-				clif_combo_delay(src,delay);
-				break;
-			}
+				if (!flag && pc_checkskill(sd, CH_CHAINCRUSH) > 0 && sd->spiritball > 1)
+					flag=1;
 			case CH_CHAINCRUSH:
-			{
-				int delay = 1000 - 4*sstatus->agi - 2*sstatus->dex;
-				if(pc_checkskill(sd, MO_EXTREMITYFIST) > 0 &&
-					sd->spiritball >= 1 &&
-					sd->sc.data[SC_EXPLOSIONSPIRITS].timer != -1)
-					delay += 300 * battle_config.combo_delay_rate /100;
-				sc_start(src,SC_COMBO,100,CH_CHAINCRUSH,delay);
-				clif_combo_delay(src,delay);
+				if (!flag && pc_checkskill(sd, MO_EXTREMITYFIST) > 0 && sd->spiritball > 0 && sd->sc.data[SC_EXPLOSIONSPIRITS].timer != -1)
+					flag=1;
 				break;
-			}
 			case AC_DOUBLE:
 				if((tstatus->race == RC_BRUTE || tstatus->race == RC_INSECT) &&
-					pc_checkskill(sd, HT_POWER)) {
+					pc_checkskill(sd, HT_POWER))
+				{
 					//TODO: This code was taken from Triple Blows, is this even how it should be? [Skotlex]
 					sc_start4(src,SC_COMBO,100,HT_POWER,bl->id,0,0,2000);
 					clif_combo_delay(src,2000);
@@ -1952,6 +1927,13 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 				sd->ud.attackabletime = sd->canuseitem_tick = sd->ud.canact_tick;
 				break;
 		}	//Switch End
+		if (flag) { //Possible to chain
+			flag = DIFF_TICK(sd->ud.canact_tick, tick);
+			if (flag < 0) flag = 0;
+			flag += 300 * battle_config.combo_delay_rate/100;
+			sc_start(src,SC_COMBO,100,skillid,flag);
+			clif_combo_delay(src, flag);
+		}
 	}
 
 	//Display damage.
@@ -2630,7 +2612,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case MO_EXTREMITYFIST:
-		if (sc && sc->count)
+		if (sc)
 		{
 			if (sc->data[SC_EXPLOSIONSPIRITS].timer != -1)
 				status_change_end(src, SC_EXPLOSIONSPIRITS, -1);
@@ -2739,7 +2721,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		if(flag&1){
 			if(bl->id==skill_area_temp[1])
 				break;
-			//Splash damage is always two hits for 500%
+			//two hits for 500%
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,SD_ANIMATION);
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,SD_ANIMATION);
 		} else {
@@ -2756,21 +2738,19 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				if(skill_area_temp[0]>1) break;
 			}
 			clif_blown(bl); //Update target pos.
-			if (i==c) { //No targets found. Single attack for 600%
-				skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,1);
-			} else {
+			if (i!=c) { //Splash
 				skill_area_temp[1]=bl->id;
 				map_foreachinrange(skill_area_sub,bl,
 					skill_get_splash(skillid, skilllv),BL_CHAR,
 					src,skillid,skilllv,tick, flag|BCT_ENEMY|1,
 					skill_castend_damage_id);
-				//Weirdo dual-hit property, two attacks for 500%
-				skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,0);
-				skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,0);
-			} 
+			}
+			//Weirdo dual-hit property, two attacks for 500%
+			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,0);
+			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,0);
 		}
 		break;
-	
+
 	case KN_SPEARSTAB:
 		if(flag&1){
 			if (bl->id==skill_area_temp[1])
@@ -2862,9 +2842,11 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_attack(BF_MAGIC, src, src, bl, skillid, skilllv, tick, flag);
 	break;
 
+	case SL_SMA:
+		if (sc && sc->data[SC_SMA].timer != -1)
+			status_change_end(src,SC_SMA,-1);
 	case SL_STIN:
 	case SL_STUN:
-	case SL_SMA:
 		if (sd && !battle_config.allow_es_magic_pc && bl->type != BL_MOB) {
 			status_change_start(src,SC_STUN,10000,skilllv,0,0,0,500,10);
 			clif_skill_fail(sd,skillid,0,0);
@@ -6011,13 +5993,10 @@ static int skill_dance_overlap_sub(struct block_list *bl, va_list ap)
 		return 0;
 	if (!(target->val2 & src->val2 & ~UF_ENSEMBLE)) //They don't match (song + dance) is valid.
 		return 0;
-	if (flag) { //Set dissonance
-		target->val1 = src->val1 = target->val2&UF_SONG?BA_DISSONANCE:DC_UGLYDANCE;
+	if (flag) //Set dissonance
 		target->val2 |= UF_ENSEMBLE; //Add ensemble to signal this unit is overlapping.
-	} else { //Remove dissonance
-		target->val1 = target->group->skill_id; //Restore skill id
+	else //Remove dissonance
 		target->val2 &= ~UF_ENSEMBLE;
-	}
 	clif_skill_setunit(target); //Update look of affected cell.
 	return 1;
 }
@@ -6038,6 +6017,55 @@ int skill_dance_overlap(struct skill_unit *unit, int flag)
 	}
 	return map_foreachincell(skill_dance_overlap_sub,
 		unit->bl.m,unit->bl.x,unit->bl.y,BL_SKILL,unit,flag);
+}
+
+/*==========================================
+ * Converts this group information so that it is handled
+ * as a Dissonance or Ugly Dance cell.
+ * Flag: 0 - Convert, 1 - Revert, 2 - Initialize.
+ *------------------------------------------
+ */
+#define skill_dance_switch(unit, group, flag) ((group->state.song_dance&0x1 && unit->val2&UF_ENSEMBLE)?skill_dance_switch_sub(unit, group, flag):0)
+static int skill_dance_switch_sub(struct skill_unit *unit, struct skill_unit_group *group, int flag)
+{
+	static struct skill_unit_group original, dissonance, uglydance, *group2;
+
+	if (flag&2) { //initialize
+		memset(&dissonance, 0, sizeof(dissonance));
+		memset(&uglydance, 0, sizeof(uglydance));
+		group2 = &dissonance;
+		group2->skill_id = BA_DISSONANCE;
+		group2->unit_id = skill_get_unit_id(group2->skill_id,0);
+		group2->target_flag = skill_get_unit_target(group2->skill_id);
+		group2->bl_flag= skill_get_unit_bl_target(group2->skill_id);
+		group2->interval = skill_get_unit_interval(group2->skill_id);
+
+		group2 = &uglydance;
+		group2->skill_id = DC_UGLYDANCE;
+		group2->unit_id = skill_get_unit_id(group2->skill_id,0);
+		group2->target_flag = skill_get_unit_target(group2->skill_id);
+		group2->bl_flag= skill_get_unit_bl_target(group2->skill_id);
+		group2->interval = skill_get_unit_interval(group2->skill_id);
+		return 0;
+	}
+
+	if (!flag)
+	{	//Transform
+		memcpy(&original, group, sizeof(struct skill_unit_group)); //Backup
+		group2 = unit->val2&UF_SONG?&dissonance:&uglydance;
+		group->skill_id = group2->skill_id;
+		group->unit_id = group2->unit_id;
+		group->target_flag = group2->target_flag;
+		group->bl_flag= group2->bl_flag;
+		group->interval = group2->interval;
+	} else { //Restore only relevant values (should the backup be 5 ints rather than the whole structure?)
+		group->skill_id = original.skill_id;
+		group->unit_id = original.unit_id;
+		group->target_flag = original.target_flag;
+		group->bl_flag = original.bl_flag;
+		group->interval = original.interval;
+	}
+	return 1;
 }
 
 /*==========================================
@@ -6335,10 +6363,8 @@ struct skill_unit_group *skill_unitsetting (struct block_list *src, int skillid,
 			uy+=(i/5-2);
 			break;
 		default:
-			if (group->state.song_dance&0x1) {
-				val1 = skillid; //Holds SKILL id to use.
+			if (group->state.song_dance&0x1)
 				val2 = unit_flag&(UF_DANCE|UF_SONG); //Store whether this is a song/dance
-			}
 			break;
 		}
 		if(range<=0)
@@ -7064,7 +7090,7 @@ int skill_unit_effect (struct block_list *bl, va_list ap)
 {
 	struct skill_unit *unit;
 	struct skill_unit_group *group;
-	int flag,unit_id=0,skill_id;
+	int flag,skill_id;
 	unsigned int tick;
 
 	unit=va_arg(ap,struct skill_unit*);
@@ -7076,6 +7102,9 @@ int skill_unit_effect (struct block_list *bl, va_list ap)
 
 	nullpo_retr(0, group=unit->group);
 
+	if (skill_dance_switch(unit, group, 0))
+		flag|=64; //Converted cell, remember to restore it.
+
 	//Necessary in case the group is deleted after calling on_place/on_out [Skotlex]
 	skill_id = group->skill_id;
 
@@ -7084,22 +7113,9 @@ int skill_unit_effect (struct block_list *bl, va_list ap)
 	{
 		if (flag&4 && group->src_id == bl->id && group->state.song_dance&0x2)
 			skill_unit_onleft(skill_id, bl, tick);//Ensemble check to terminate it.
+		if (flag&64)
+			skill_dance_switch(unit, group, 1);
 		return 0;
-	}
-
-	if (group->state.song_dance&0x1 && unit->val2&UF_ENSEMBLE)
-	{	//Treat this group as if it were BA_DISSONANCE/DC_UGLYDANCE.
-		//Values will be restored on proper switch case.
-		flag|=64; //Signal to remember to restore it.
-		unit_id = group->unit_id;
-		unit->val1 = group->skill_id;
-		if (unit->val2&UF_SONG) {
-			group->unit_id = UNT_DISSONANCE;
-			group->skill_id = BA_DISSONANCE;
-		} else {
-			group->unit_id = UNT_UGLYDANCE;
-			group->skill_id = DC_UGLYDANCE;
-		}
 	}
 
 	if (flag&1)
@@ -7107,16 +7123,11 @@ int skill_unit_effect (struct block_list *bl, va_list ap)
 	else
 		skill_unit_onout(unit,bl,tick);
 
-	if (flag&64)
-	{	//TODO: Normally, this is dangerous since the unit and group could be freed
-		//inside the onout/onplace functions. Currently it is safe because we know song/dance
-		//cells do not get deleted within them. [Skotlex]
-		skill_id = group->skill_id;
-		group->unit_id = unit_id;
-		group->skill_id = unit->val1;
-	}
+	if (flag&4)
+		skill_unit_onleft(skill_id, bl, tick);
 
-	if (flag&4) skill_unit_onleft(skill_id, bl, tick);
+	if (flag&64)
+		skill_dance_switch(unit, group, 1);
 	return 0;
 }
 
@@ -8113,13 +8124,13 @@ int skill_castfix_sc (struct block_list *bl, int time)
  */
 int skill_delayfix (struct block_list *bl, int skill_id, int skill_lv)
 {
-	int delaynodex = skill_get_delaynodex(skill_id, skill_lv);
+	int delaynochange = skill_get_delaynodex(skill_id, skill_lv);
 	int time = skill_get_delay(skill_id, skill_lv);
-	
+
 	nullpo_retr(0, bl);
 
 	if (bl->type&battle_config.no_skill_delay)
-		return battle_config.min_skill_delay_limit; 
+		return battle_config.min_skill_delay_limit;
 
 	// instant cast attack skills depend on aspd as delay [celest]
 	if (time == 0) {
@@ -8129,14 +8140,25 @@ int skill_delayfix (struct block_list *bl, int skill_id, int skill_lv)
 			time = battle_config.default_skill_delay;
 	} else if (time < 0)
 		time = -time + status_get_amotion(bl);	// if set to <0, the attack motion is added.
-
-	if (battle_config.delay_dependon_dex && !(delaynodex&1))
-	{	// if skill casttime is allowed to be reduced by dex
-		int scale = battle_config.castrate_dex_scale - status_get_dex(bl);
-		if (scale > 0)
-			time = time * scale / battle_config.castrate_dex_scale;
-		else //To be capped later to minimum.
-			time = 0;
+	else //Agi reduction should apply only to non-zero delay skills.
+	switch (skill_id)
+	{	//Monk combo skills have their delay reduced by agi/dex.
+	case MO_TRIPLEATTACK:
+	case MO_CHAINCOMBO:
+	case MO_COMBOFINISH:
+	case CH_TIGERFIST:
+	case CH_CHAINCRUSH:
+		time -= 4*status_get_agi(bl) - 2*status_get_dex(bl);
+		break;
+	default:
+		if (battle_config.delay_dependon_agi && !(delaynochange&1))
+		{	// if skill casttime is allowed to be reduced by dex
+			int scale = battle_config.castrate_dex_scale - status_get_agi(bl);
+			if (scale > 0)
+				time = time * scale / battle_config.castrate_dex_scale;
+			else //To be capped later to minimum.
+				time = 0;
+		}
 	}
 
 	if (bl->type == BL_PC && ((TBL_PC*)bl)->delayrate != 100)
@@ -8145,7 +8167,7 @@ int skill_delayfix (struct block_list *bl, int skill_id, int skill_lv)
 	if (battle_config.delay_rate != 100)
 		time = time * battle_config.delay_rate / 100;
 
-	if (!(delaynodex&2))
+	if (!(delaynochange&2))
 	{
 		struct status_change *sc;
 		sc= status_get_sc(bl);
@@ -8808,8 +8830,8 @@ int skill_landprotector (struct block_list *bl, va_list ap)
 			}
 			//Delete the rest of types.
 		case HW_GANBANTEIN:
-			if(skill_get_type(unit->group->skill_id) == BF_MAGIC)
-			{	//Delete Magical effects
+			if(!unit->group->state.song_dance)
+			{	//It deletes everything except songs/dances/encores.
 				skill_delunit(unit, 1);
 				return 1;
 			}
@@ -8835,8 +8857,8 @@ int skill_landprotector (struct block_list *bl, va_list ap)
 			break;
 	}
 	if (unit->group->skill_id == SA_LANDPROTECTOR &&
-		skill_get_type(skillid) == BF_MAGIC)
-	{	//Magic tile won't be activated
+		!(skill_get_inf2(skillid)&(UF_DANCE|UF_SONG|UF_ENSEMBLE)))
+	{	//It deletes everything except songs/dances/encores.
 		(*alive) = 0;
 		return 1;
 	}
@@ -9372,25 +9394,8 @@ int skill_unit_timer_sub_onplace (struct block_list *bl, va_list ap)
 	if (battle_check_target(&unit->bl,bl,group->target_flag)<=0)
 		return 0;
 
-	if (group->state.song_dance&0x1 && unit->val2&UF_ENSEMBLE)
-	{	//Treat this group as if it were BA_DISSONANCE/DC_UGLYDANCE.
-		//Values will be restored on proper switch case.
-		int id = group->unit_id;
-		unit->val1 = group->skill_id;
-		if (unit->val2&UF_SONG) {
-			group->unit_id = UNT_DISSONANCE;
-			group->skill_id = BA_DISSONANCE;
-		} else {
-			group->unit_id = UNT_UGLYDANCE;
-			group->skill_id = DC_UGLYDANCE;
-		}
-		skill_unit_onplace_timer(unit,bl,tick);
-		group->unit_id = id;
-		group->skill_id = unit->val1;
-	} else
-		skill_unit_onplace_timer(unit,bl,tick);
-
-	return 0;
+	skill_unit_onplace_timer(unit,bl,tick);
+	return 1;
 }
 
 /*==========================================
@@ -9402,6 +9407,7 @@ int skill_unit_timer_sub (struct block_list *bl, va_list ap)
 	struct skill_unit *unit;
 	struct skill_unit_group *group;
 	unsigned int tick;
+	int flag;
 
 	unit=(struct skill_unit *)bl;
 	tick=va_arg(ap,unsigned int);
@@ -9412,6 +9418,7 @@ int skill_unit_timer_sub (struct block_list *bl, va_list ap)
 
 	nullpo_retr(0, group);
 
+	flag = skill_dance_switch(unit, group, 0);
 	if (unit->range>=0 && group->interval!=-1) {
 		if (battle_config.skill_wall_check)
 			map_foreachinshootrange(skill_unit_timer_sub_onplace, bl, unit->range,
@@ -9420,8 +9427,14 @@ int skill_unit_timer_sub (struct block_list *bl, va_list ap)
 			map_foreachinrange(skill_unit_timer_sub_onplace, bl, unit->range,
 				group->bl_flag,bl,tick);
 		if (!unit->alive)
+		{
+			if (flag)
+				skill_dance_switch(unit, group, 1);
 			return 0;
+		}
 	}
+	if (flag)
+		skill_dance_switch(unit, group, 1);
 
 	if((DIFF_TICK(tick,group->tick)>=group->limit || DIFF_TICK(tick,group->tick)>=unit->limit)){
 		switch(group->unit_id){
@@ -9503,7 +9516,7 @@ int skill_unit_move_sub (struct block_list *bl, va_list ap)
 	struct skill_unit_group *group;
 	struct block_list *target;
 	unsigned int tick,flag,result;
-	int skill_id,unit_id=0; //Set to 0 to shut-up compiler warnings.
+	int skill_id;
 
 	target=va_arg(ap,struct block_list*);
 	tick = va_arg(ap,unsigned int);
@@ -9514,12 +9527,20 @@ int skill_unit_move_sub (struct block_list *bl, va_list ap)
 	if (!unit->alive || target->prev==NULL)
 		return 0;
 
+
+	if (skill_dance_switch(unit, group, 0))
+		flag|=64; //Signal to remember to restore it.
+
 	//Necessary in case the group is deleted after calling on_place/on_out [Skotlex]
 	skill_id = unit->group->skill_id;
 
 	if (unit->group->interval!=-1 &&
-		!(skill_get_unit_flag(skill_id)&UF_DUALMODE)) //Skills in dual mode have to trigger both. [Skotlex]
+		!(skill_get_unit_flag(skill_id)&UF_DUALMODE))
+	{	//Skills in dual mode have to trigger both. [Skotlex]
+		if (flag&64)
+			skill_dance_switch(unit, group, 1);
 		return 0;
+	}
 
 	//Target-type check.
 	if(!(group->bl_flag&target->type && battle_check_target(&unit->bl,target,group->target_flag)>0))
@@ -9544,22 +9565,9 @@ int skill_unit_move_sub (struct block_list *bl, va_list ap)
 			if (flag&4)
 				skill_unit_onleft(skill_id,target,tick);
 		}
+		if (flag&64)
+			skill_dance_switch(unit, group, 1);
 		return 0;
-	}
-
-	if (group->state.song_dance&0x1 && unit->val2&UF_ENSEMBLE)
-	{	//Treat this group as if it were BA_DISSONANCE/DC_UGLYDANCE.
-		//Values will be restored on proper switch case.
-		flag|=64; //Signal to remember to restore it.
-		unit_id = group->unit_id;
-		unit->val1 = group->skill_id;
-		if (unit->val2&UF_SONG) {
-			group->unit_id = UNT_DISSONANCE;
-			group->skill_id = BA_DISSONANCE;
-		} else {
-			group->unit_id = UNT_UGLYDANCE;
-			group->skill_id = DC_UGLYDANCE;
-		}
 	}
 
 	if (flag&1)
@@ -9581,13 +9589,7 @@ int skill_unit_move_sub (struct block_list *bl, va_list ap)
 	}
 
 	if (flag&64)
-	{	//TODO: Normally, this is dangerous since the unit and group could be freed
-		//inside the onout/onplace functions. Currently it is safe because we know song/dance
-		//cells do not get deleted within them. [Skotlex]
-		skill_id = group->skill_id;
-		group->unit_id = unit_id;
-		group->skill_id = unit->val1;
-	}
+		skill_dance_switch(unit, group, 1);
 
 	if (flag&4)
 		skill_unit_onleft(skill_id,target,tick);
@@ -10869,7 +10871,7 @@ int skill_readdb (void)
 		skill_split_atoi(split[1],skill_db[i].castnodex);
 		if (!split[2])
 			continue;
-		skill_split_atoi(split[2],skill_db[i].delaynodex);
+		skill_split_atoi(split[2],skill_db[i].delaynoagi);
 	}
 	fclose(fp);
 	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n",path);
@@ -10962,7 +10964,8 @@ void skill_reload (void)
 int do_init_skill (void)
 {
 	skill_readdb();
-	
+	skill_dance_switch_sub(NULL, NULL, 2); //Initialize Song/Dance overlap switch code.
+
 	skill_unit_ers = ers_new((uint32)sizeof(struct skill_unit_group));
 	skill_timer_ers  = ers_new((uint32)sizeof(struct skill_timerskill));
 	

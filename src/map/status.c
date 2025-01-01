@@ -109,7 +109,7 @@ void initChangeTables(void) {
 	StatusSkillChangeTable[SC_DPOISON] =   NPC_POISON;
 
 	//These are the status-change flags for the common ailments.
-	StatusChangeFlagTable[SC_STONE] =     SCB_DEF_ELE;
+	StatusChangeFlagTable[SC_STONE] =     SCB_DEF_ELE|SCB_DEF|SCB_MDEF;
 	StatusChangeFlagTable[SC_FREEZE] =    SCB_DEF_ELE|SCB_DEF|SCB_MDEF;
 //	StatusChangeFlagTable[SC_STUN] =      SCB_NONE;
 //	StatusChangeFlagTable[SC_SLEEP] =     SCB_NONE;
@@ -908,15 +908,11 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			return 0;
 	}
 
-	if (skill_num == PA_PRESSURE && flag) {
-	//Gloria Avoids pretty much everything....
-		tsc = target?status_get_sc(target):NULL;
-		if(tsc) {
-			if (tsc->option&OPTION_HIDE)
-				return 0;
-			if (tsc->count && tsc->data[SC_TRICKDEAD].timer != -1)
-				return 0;
-		}
+	if (skill_num == PA_PRESSURE && flag && target) {
+		//Gloria Avoids pretty much everything....
+		tsc = status_get_sc(target);
+		if(tsc && tsc->option&OPTION_HIDE)
+			return 0;
 		return 1;
 	}
 
@@ -933,11 +929,12 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 	}	
 
 	if (src) sc = status_get_sc(src);
-	
+
 	if(sc && sc->count)
 	{
-		if(sc->opt1 >0 && (battle_config.sc_castcancel || flag != 1))
-			//When sc do not cancel casting, the spell should come out.
+		if(sc->opt1 >0 && flag != 1)
+			//When sc do not cancel casting, the spell should come out, and when it does, we can never have
+			//a flag == 1 && sc->opt1 case, since cancelling should had been stopped before.
 			return 0;
 
 		if (
@@ -1027,10 +1024,10 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		return 1;
 
 	tsc = status_get_sc(target);
-	
+
 	if(tsc && tsc->count)
-	{	
-		if (!(status->mode&MD_BOSS) && tsc->data[SC_TRICKDEAD].timer != -1)
+	{
+		if(!skill_num && !(status->mode&MD_BOSS) && tsc->data[SC_TRICKDEAD].timer != -1)
 			return 0;
 		if(skill_num == WZ_STORMGUST && tsc->data[SC_FREEZE].timer != -1)
 			return 0;
@@ -1160,8 +1157,14 @@ static int status_base_atk(struct block_list *bl, struct status_data *status)
 		str = status->str;
 		dex = status->dex;
 	}
+	//Normally only players have base-atk, but homunc have a different batk
+	// equation, hinting that perhaps non-players should use this for batk.
+	// [Skotlex]
 	dstr = str/10;
-	return str + dstr*dstr + dex/5 + status->luk/5;
+	str += dstr*dstr;
+	if (bl->type == BL_PC)
+		str+= dex/5 + status->luk/5;
+	return str;
 }
 
 #define status_base_matk_max(status) (status->int_+(status->int_/5)*(status->int_/5))
@@ -3683,16 +3686,17 @@ const char * status_get_name(struct block_list *bl)
 	nullpo_retr(0, bl);
 	switch (bl->type) {
 	case BL_MOB:
-		return ((struct mob_data *)bl)->name;
+		return ((TBL_MOB*)bl)->name;
 	case BL_PC:
-		return ((struct map_session_data *)bl)->status.name;
+		if(strlen(((TBL_PC *)bl)->fakename)>0)
+			return ((TBL_PC*)bl)->fakename;
+		return ((TBL_PC*)bl)->status.name;
 	case BL_PET:
-		return ((struct pet_data *)bl)->pet.name;
+		return ((TBL_PET*)bl)->pet.name;
 	case BL_NPC:
-		return ((struct npc_data*)bl)->name;
-	default:
-		return "Unknown";
+		return ((TBL_NPC*)bl)->name;
 	}
+	return "Unknown";
 }
 
 /*==========================================
@@ -4475,12 +4479,12 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			case SC_BLIND:
 			case SC_BLEEDING:
 			case SC_DPOISON:
-			case SC_COMBO: //You aren't supposed to change the combo (and it gets turned off when you trigger it)
 			case SC_CLOSECONFINE2: //Can't be re-closed in.
 			case SC_MARIONETTE:
 			case SC_MARIONETTE2:
 			case SC_NOCHAT:
 				return 0;
+			case SC_COMBO:
 			case SC_DANCING:
 			case SC_DEVOTION:
 			case SC_ASPDPOTION0:
@@ -4708,8 +4712,9 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val2 = status->max_hp/100; //Petrified damage per second: 1%
 			if (!val2) val2 = 1;
 			val3 = tick/1000; //Petrified HP-damage iterations.
-			if(val3 < 1) val3 = 1; 
+			if(val3 < 1) val3 = 1;
 			tick = 5000; //Petrifying time.
+			calc_flag = 0; //Actual status changes take effect on petrified state.
 			break;
 
 		case SC_DPOISON:
@@ -5142,12 +5147,8 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val4 = gettick(); //Store time at which you started running.
 			break;
 		case SC_KAAHI:
-			if(flag&4) {
-				val4 = -1;
-				break;
-			}
 			val2 = 200*val1; //HP heal
-			val3 = 5*val1; //SP cost 
+			val3 = 5*val1; //SP cost
 			val4 = -1;	//Kaahi Timer.
 			break;
 		case SC_BLESSING:
@@ -5342,7 +5343,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			unit_stop_attack(bl);
 			skill_stop_dancing(bl);
 			// Cancel cast when get status [LuzZza]
-			if (battle_config.sc_castcancel)
+			if (battle_config.sc_castcancel&bl->type)
 				unit_skillcastcancel(bl, 0);
 		case SC_STOP:
 		case SC_CONFUSION:
@@ -5358,7 +5359,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			unit_stop_attack(bl);
 		break;
 		case SC_SILENCE:
-			if (battle_config.sc_castcancel)
+			if (battle_config.sc_castcancel&bl->type)
 				unit_skillcastcancel(bl, 0);
 		break;
 	}
@@ -5486,6 +5487,16 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 	// then the sc packet.
 	if(opt_flag)
 		clif_changeoption(bl);
+
+	if (calc_flag&SCB_DYE)
+	{	//Reset DYE color
+		if (vd && vd->cloth_color)
+		{
+			val4 = vd->cloth_color;
+			clif_changelook(bl,LOOK_CLOTHES_COLOR,0);
+		}
+		calc_flag&=~SCB_DYE;
+	}
 
 	if (vd && pcdb_checkid(vd->class_)) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
 		clif_status_change(bl,StatusIconChangeTable[type],1);
@@ -5734,13 +5745,10 @@ int status_change_end( struct block_list* bl , int type,int tid )
 				status_change_end(bl,SC_LONGING,-1);
 			break;
 		case SC_NOCHAT:
-			if (sd) {
-				if (sd->status.manner < 0 && tid != -1)
-					sd->status.manner = 0;
-				clif_updatestatus(sd,SP_MANNER);
-			}
+			if (sd && sd->status.manner < 0 && tid != -1)
+				sd->status.manner = 0;
 			break;
-		case SC_SPLASHER:	
+		case SC_SPLASHER:
 			{
 				struct block_list *src=map_id2bl(sc->data[type].val3);
 				if(src && tid!=-1)
@@ -5971,6 +5979,13 @@ int status_change_end( struct block_list* bl , int type,int tid )
 		opt_flag = 0;
 	}
 
+	if (calc_flag&SCB_DYE)
+	{	//Restore DYE color
+		if (vd && !vd->cloth_color && sc->data[type].val4)
+			clif_changelook(bl,LOOK_CLOTHES_COLOR,sc->data[type].val4);
+		calc_flag&=~SCB_DYE;
+	}
+
 	//On Aegis, when turning off a status change, first goes the sc packet, then the option packet.
 	if (vd && pcdb_checkid(vd->class_))
 		clif_status_change(bl,StatusIconChangeTable[type],0);
@@ -6149,7 +6164,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 			sc->opt1 = OPT1_STONE;
 			clif_changeoption(bl);
 			sc->data[type].timer=add_timer(1000+tick,status_change_timer, bl->id, data );
-			status_calc_bl(bl, SCB_DEF_ELE);
+			status_calc_bl(bl, StatusChangeFlagTable[type]);
 			return 0;
 		}
 		if((--sc->data[type].val3) > 0) {
@@ -6448,13 +6463,11 @@ int status_change_timer_sub(struct block_list *bl, va_list ap )
 		}
 		break;
 	case SC_SIGHTBLASTER:
+		if (battle_check_target( src, bl, BCT_ENEMY ) > 0 &&
+			status_check_skilluse(src, bl, WZ_SIGHTBLASTER, 2))
 		{
-			if (sc && sc->count && sc->data[type].val2 > 0 && battle_check_target( src, bl, BCT_ENEMY ) > 0 &&
-				status_check_skilluse(src, bl, WZ_SIGHTBLASTER, 2))
-			{	//sc_ check prevents a single round of Sight Blaster hitting multiple opponents. [Skotlex]
-				skill_attack(BF_MAGIC,src,src,bl,WZ_SIGHTBLASTER,1,tick,0);
-				sc->data[type].val2 = 0; //This signals it to end.
-			}
+			skill_attack(BF_MAGIC,src,src,bl,WZ_SIGHTBLASTER,1,tick,0);
+			if (sc) sc->data[type].val2 = 0; //This signals it to end.
 		}
 		break;
 	case SC_CLOSECONFINE:
@@ -6714,6 +6727,15 @@ static int status_natural_heal(DBKey key,void * data,va_list app)
 				if ((rate = pc_checkskill(sd,TK_SPTIME)))
 					sc_start(bl,SkillStatusChangeTable(TK_SPTIME),
 						100,rate,skill_get_time(TK_SPTIME, rate));
+				if (
+					(sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
+					rand()%10000 < battle_config.sg_angel_skill_ratio
+				) { //Angel of the Sun/Moon/Star
+					pc_resethate(sd);
+					pc_resetfeel(sd);
+					//TODO: Figure out how to make the client-side msg show up.
+					clif_displaymessage(sd->fd,"[Angel of the Sun, Moon and Stars]");
+				}
 			}
 			sregen->tick.sp -= battle_config.natural_heal_skill_interval;
 			if(status_heal(bl, 0, val, 3) < val)

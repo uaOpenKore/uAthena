@@ -55,11 +55,11 @@ char guild_skill_db[256] = "guild_skill";
 char guild_storage_db[256] = "guild_storage";
 char party_db[256] = "party";
 char pet_db[256] = "pet";
-char gm_db[256] = "gm_accounts";
 char friend_db[256] = "friends";
 int db_use_sqldbs;
 int connection_ping_interval = 0;
 
+char login_db[256] = "login";
 char login_db_account_id[32] = "account_id";
 char login_db_level[32] = "level";
 
@@ -367,7 +367,7 @@ void read_gm_account(void) {
 		aFree(gm_account);
 	GM_num = 0;
 
-	sprintf(tmp_sql, "SELECT `%s`,`%s` FROM `%s` WHERE `%s`>='%d'",login_db_account_id,login_db_level,gm_db,login_db_level,lowest_gm_level);
+	sprintf(tmp_sql, "SELECT `%s`,`%s` FROM `%s` WHERE `%s`>='%d'",login_db_account_id,login_db_level,login_db,login_db_level,lowest_gm_level);
 	if (mysql_query(&lmysql_handle, tmp_sql)) {
 		ShowSQL("DB error - %s\n",mysql_error(&lmysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
@@ -640,71 +640,6 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		} else //Skills removed (reset?)
 			strcat(save_status, " skills");
 	}
-/* Saving of global registry values is now handled by the inter-server. [Skotlex]
-	diff = 0;
-	for(i=0;i<p->global_reg_num;i++) {
-		if ((p->global_reg[i].str == NULL) && (cp->global_reg[i].str == NULL))
-			continue;
-		if (((p->global_reg[i].str == NULL) != (cp->global_reg[i].str == NULL)) ||
-			strcmp(p->global_reg[i].value, cp->global_reg[i].value) != 0 ||
-			strcmp(p->global_reg[i].str, cp->global_reg[i].str) != 0
-		) {
-			diff = 1;
-			break;
-		}
-	}
-
-	if (diff)
-	{	//Save global registry.
-		//`global_reg_value` (`char_id`, `str`, `value`)
-		
-		sprintf(tmp_sql,"DELETE FROM `%s` WHERE `type`=3 AND `char_id`='%d'",reg_db, p->char_id);
-		if (mysql_query(&mysql_handle, tmp_sql))
-		{
-			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-		}
-
-		//insert here.
-		tmp_ptr = tmp_sql;
-		tmp_ptr += sprintf(tmp_ptr,"INSERT INTO `%s` (`type`, `char_id`, `str`, `value`) VALUES", reg_db);
-		count = 0;
-		for(i=0;i<p->global_reg_num;i++)
-		{
-			if (p->global_reg[i].str && p->global_reg[i].value)
-			{
-				tmp_ptr += sprintf(tmp_ptr,"('3','%d','%s','%s'),",
-					char_id, jstrescapecpy(temp_str,p->global_reg[i].str), jstrescapecpy(temp_str2,p->global_reg[i].value));
-				if (++count%100 == 0)
-				{ //Save every X registers to avoid overflowing tmp_sql [Skotlex]
-					tmp_ptr[-1] = '\0';
-					if(mysql_query(&mysql_handle, tmp_sql))
-					{
-						ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-						ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-					} else
-						strcat(save_status, " global_reg");
-						
-					tmp_ptr = tmp_sql;
-					tmp_ptr += sprintf(tmp_ptr,"INSERT INTO `%s` (`type`, `char_id`, `str`, `value`) VALUES", reg_db);
-					count = 0;
-				}
-			}
-		}
-
-		if (count)
-		{
-			tmp_ptr[-1] = '\0';
-			if(mysql_query(&mysql_handle, tmp_sql))
-			{
-				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			} else
-				strcat(save_status, " global_reg");
-		} else //Values cleared.
-			strcat(save_status, " global_reg");
-	}
-*/
 	diff = 0;
 	for(i = 0; i < MAX_FRIENDS; i++){
 		if(p->friends[i].char_id != cp->friends[i].char_id ||
@@ -1393,7 +1328,7 @@ int make_new_char_sql(int fd, unsigned char *dat) {
 	//	fd, dat[30], dat, dat[24], dat[25], dat[26], dat[27], dat[28], dat[29], dat[33], dat[31]);
 
 	//Check Name (already in use?)
-	sprintf(tmp_sql, "SELECT `name` FROM `%s` WHERE `name` = '%s'",char_db, t_name);
+	sprintf(tmp_sql, "SELECT 1 FROM `%s` WHERE `name` = '%s'",char_db, t_name);
 	if (mysql_query(&mysql_handle, tmp_sql)) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
@@ -1688,19 +1623,6 @@ int delete_char_sql(int char_id, int partner_id)
 }
 
 //==========================================================================================================
-
-void mmo_char_sync(void)
-{
-	ShowWarning("mmo_char_sync() - nothing to do\n");
-}
-
-// to do
-///////////////////////////
-
-int mmo_char_sync_timer(int tid, unsigned int tick, int id, int data) {
-	ShowWarning("mmo_char_sync_timer() tic - no works to do\n");
-	return 0;
-}
 
 int count_users(void) {
 	int i, users;
@@ -3353,7 +3275,7 @@ int parse_char(int fd) {
 					for(j = 0; j < MAX_MAP_SERVERS; j++)
 						if (server_fd[j] > 0 && server[j].map[0])  {
 							i = j;
-							ShowDebug("Map-server #%d found with a map: '%s'.\n", j, server[j].map[0]);
+							ShowDebug("Map-server #%d found with a map: '%s'.\n", j, mapindex_id2name(server[j].map[0]));
 							break;
 						}
 					// if no map-servers are connected, we send: server closed
@@ -3971,15 +3893,23 @@ void sql_config_read(const char *cfgName){ /* Kalaspuff, to get login_db */
 		if (sscanf(line, "%[^:]: %[^\r\n]", w1, w2) != 2)
 			continue;
 
-		if(strcmpi(w1, "gm_read_method") == 0) {
+		if(strcmpi(w1,"char_db")==0){
+			strcpy(char_db,w2);
+		} else if(strcmpi(w1, "gm_read_method") == 0) {
 			if(atoi(w2) != 0)
 				char_gm_read = true;
 			else
 				char_gm_read = false;
-		} else if(strcmpi(w1, "gm_db") == 0) {
-			strcpy(gm_db, w2);
-		} else if(strcmpi(w1,"char_db")==0){
-			strcpy(char_db,w2);
+		//custom columns for login database
+		}else if(strcmpi(w1,"login_db")==0){
+			strcpy(login_db, w2);
+		}else if(strcmpi(w1,"login_db_level")==0){
+			strcpy(login_db_level,w2);
+		}else if(strcmpi(w1,"login_db_account_id")==0){
+			strcpy(login_db_account_id,w2);
+		}else if(strcmpi(w1,"lowest_gm_level")==0){
+			lowest_gm_level = atoi(w2);
+			ShowStatus("set lowest_gm_level : %s\n",w2);
 		}else if(strcmpi(w1,"scdata_db")==0){
 			strcpy(scdata_db,w2);
 		}else if(strcmpi(w1,"cart_db")==0){
@@ -4032,14 +3962,6 @@ void sql_config_read(const char *cfgName){ /* Kalaspuff, to get login_db */
 			strcpy(item_db2_db,w2);
 		} else if(strcmpi(w1,"connection_ping_interval")==0) {
 			connection_ping_interval = config_switch(w2);
-		//custom columns for login database
-		}else if(strcmpi(w1,"login_db_level")==0){
-			strcpy(login_db_level,w2);
-		}else if(strcmpi(w1,"login_db_account_id")==0){
-			strcpy(login_db_account_id,w2);
-		}else if(strcmpi(w1,"lowest_gm_level")==0){
-			lowest_gm_level = atoi(w2);
-			ShowStatus("set lowest_gm_level : %s\n",w2);
 		//support the import command, just like any other config
 		}else if(strcmpi(w1,"import")==0){
 			sql_config_read(w2);

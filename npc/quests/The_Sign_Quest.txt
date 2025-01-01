@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= SinSloth(Most of the NPCs), MasterOfMuppets(Some of the NPCs + bug fixes) & Kargha(The quiz NPCs)
 //===== Current Version: =====================================
-//= 1.3
+//= 1.5
 //===== Compatible With: =====================================
 //= eAthena SVN 3422+(Requires jA Script System)
 //===== Description: =========================================
@@ -18,6 +18,12 @@
 //= 1.2 Fixed a minor bug that prevented people from advancing [MasterOfMuppets]
 //= 	quest at one point.
 //= 1.3 Removed duplicates [Toms]
+//= 1.4 Fixed a bug in Dearles script where it was checking for the wrong items.
+//=     Fixed a major bug that was allowing players to continue before
+//=     getting all the Sobbing Starlight pieces.
+//=     Also moved the Alberta sign since another NPC was on top of it. [Llyr]
+//= 1.5 Fixed exploits and bugs. Plus add a removal of exttra sobbing pieces
+//= 	as suggested Tantarian, to let people Reborn [Lupus]
 //============================================================
 //===== Configuration : ======================================
 prontera.gat,1,1,1	script	TheSignConfig	-1,{
@@ -38,7 +44,7 @@ OnInit:
 }
 //============================================================
 
-alberta.gat,35,241,1	script	Sign::GeffeniaSigns	111,{
+alberta.gat,34,241,1	script	Sign::GeffeniaSigns	111,{
 
 	if($signbmps)
 {
@@ -1890,7 +1896,6 @@ s_No:
 s_Last:
 	if(@DaewoonTest == 5)
 {
-	getitem 7177,1;
 	mes "[Daewoon]";
 	mes "You know, after talking with";
 	mes "you for a while, I now feel fairly";
@@ -1914,6 +1919,7 @@ s_Last:
 	mes "Alright, then.";
 	mes "Good luck in";
 	mes "Al de Baran~!";
+	getitem 7177,1;
 	set signquest,6;
 	close;
 }
@@ -2117,13 +2123,13 @@ if(@sign_jore$ == "Red Gemstone") {
 	mes "any power.";
 	next;
 	getitem 7177,1;
+	set signquest,9;
 	mes "[Sir Jore]";
 	mes "Take that starry fragment.";
 	mes "I'll inform my friend about you.";
 	mes "Look for ^FF0000Jesqurienne^000000.";
 	mes "She often spends her time";
 	mes "in the bars of Geffen.";
-	set signquest,9;
 	next;
 	mes "[Sir Jore]";
 	mes "I have to return to my researches..";
@@ -3664,6 +3670,7 @@ L_quiztime:
 	mes "to keep it, but I suppose";
 	mes "you're its true owner...";
 	getitem 7177,1;
+	set signquest,10;
 	next;
 	mes "[Jesqurienne]";
 	mes "If you want to know more about the";
@@ -3680,7 +3687,6 @@ L_quiztime:
 	mes "so I think I'll stay here";
 	mes "and have another drink.";
 	mes "Farewell, " + @quizname$ + ".";
-	set signquest,10;
 	close;
 }
 
@@ -3925,9 +3931,14 @@ L_Check:
 	if(countitem(741))set @dearles_check,@dearles_check+1;
 	if(countitem(742))set @dearles_check,@dearles_check+1;
 	if(countitem(743))set @dearles_check,@dearles_check+2;
-	if(countitem(744))set @dearles_check,@dearles_check+1;
-	if(countitem(745))set @dearles_check,@dearles_check+1;
-	if(countitem(746))set @dearles_check,@dearles_check+1;
+	// Was checking the wrong items here [Llyr]
+	// Script was checking for:
+	// Bouquet (ID: 744) instead of Red Frame (ID: 734)
+	// Wedding Bouquet (ID: 745) instead of Chung Jah (ID: 735)
+	// Glass Bead (ID: 746) instead of China (ID: 736)
+	if(countitem(734))set @dearles_check,@dearles_check+1;
+	if(countitem(735))set @dearles_check,@dearles_check+1;
+	if(countitem(736))set @dearles_check,@dearles_check+1;
 	if(countitem(747))set @dearles_check,@dearles_check+2;
 	if(countitem(750))set @dearles_check,@dearles_check+10;
 	if(countitem(751))set @dearles_check,@dearles_check+12;
@@ -5407,18 +5418,6 @@ L_Never:
 
 
 geffen_in.gat,159,48,5	script	Woman	711,{
-
-	if(!signquest)
-	{
-	mes "[Brenda Howard]";
-	mes "Hmm...";
-	mes "What should I make for";
-	mes "dinner today? Pickled cabbage?";
-	mes "I learned how to make it a while";
-	mes "ago, but I've never gotten the";
-	mes "chance to make it yet...";
-	close;
-	}
 	if(signquest > 22) goto L_Cherish;
 	if(signquest > 19) goto L_Done;
 	if(signquest == 19 && countitem(7278)) goto L_Letter;
@@ -5451,6 +5450,17 @@ geffen_in.gat,159,48,5	script	Woman	711,{
 	set @signbrenda,1;
 	close;
 }
+	// Script could get to this point if the variable "signquest" was non-zero
+	// It would then continue running at the label "L_Husband" [Llyr]
+
+	mes "[Brenda Howard]";
+	mes "Hmm...";
+	mes "What should I make for";
+	mes "dinner today? Pickled cabbage?";
+	mes "I learned how to make it a while";
+	mes "ago, but I've never gotten the";
+	mes "chance to make it yet...";
+	close;
 
 L_Husband:
 	mes "[Brenda Howard]";
@@ -5534,6 +5544,8 @@ L_Cherish:
 }
 
 mjo_dun02.gat,88,295,3		script	Flaming Spirit Man	85,{
+	//get rid of some pieces, to let player reborn in future
+	if(signquest > 22) delitem 7177,countitem(7177);
 
 	if(signquest > 62) goto L_Improve;
 	if(signquest > 61) goto L_Hour;
@@ -5679,16 +5691,13 @@ L_Check:
 	mes "Let me see what you've";
 	mes "brought.";
 	next;
-	if((countitem(612) > 4) && countitem(615) > 1)
-{
-	if(countitem(986)) { set signanvil,1; goto L_Forge1; }
-	if(countitem(987)) { set signanvil,2; goto L_Forge2; }
-	if(countitem(988)) { set signanvil,3; goto L_Forge3; }
-	if(countitem(989)) { set signanvil,4; goto L_Forge4; }
-	goto L_NotEnough;
-}
-	else
-{
+	if((countitem(612) > 4) && countitem(615) > 1){
+		if(countitem(986)) { set signanvil,1; goto L_Forge1; }
+		if(countitem(987)) { set signanvil,2; goto L_Forge2; }
+		if(countitem(988)) { set signanvil,3; goto L_Forge3; }
+		if(countitem(989)) { set signanvil,4; goto L_Forge4; }
+	}
+
 L_NotEnough:
 	mes "[Engel]";
 	mes "I'm sorry but you didn't";
@@ -5704,7 +5713,6 @@ L_NotEnough:
 	mes "anvils won't be good enough for";
 	mes "this kind of work.";
 	close;
-}
 
 L_Forge1:
 	mes "[Engel]";
@@ -5752,6 +5760,8 @@ L_Forge4:
 	goto L_Forge;
 
 L_Forge:
+	delitem 612,5;
+	delitem 615,2;
 	next;
 	if(signquest == 22) goto L_Refine;
 	mes "[Engel]";
@@ -5766,11 +5776,9 @@ L_Forge:
 	mes "Well then...";
 	mes "I wish you safety";
 	mes "in your travels.";
-	set signquest,19;
-	delitem 612,5;
-	delitem 615,2;
-	delitem 7177,7;
+	delitem 7177,5; //we'll delete all sobbing pieces later
 	getitem 7278,1;
+	set signquest,19;
 	close;
 
 L_Refine:
@@ -5792,12 +5800,12 @@ L_Refine:
 	close;
 
 L_Success:
+	delitem 7177,countitem(7177); //we delete all the pieces, or else u can't reborn
 	mes "While you were gone, I managed to";
 	mes "restore the Sobbing Starlight. Why";
 	mes "dont you go ahead and take a";
 	mes "look?";
 	next;
-	delitem 7177,7;
 	getitem 7178,1;
 	set signquest,23;
 	specialeffect2 94;
@@ -6029,6 +6037,7 @@ L_Ok:
 	mes "thank you thank you";
 	mes "soooooooooo much!";
 	delitem 2278,1;
+	set signquest,26;
 	next;
 	mes "[Laotan]";
 	mes "Oh right~!";
@@ -6036,7 +6045,6 @@ L_Ok:
 	mes "was in our village for a while, but";
 	mes "ever since he went into that big";
 	mes "tree, nobody's seen him!";
-	set signquest,26;
 	close;
 
 L_Thanks:
@@ -6399,7 +6407,6 @@ L_FirstTouch:
 L_Warp:
 	warp "himinn.gat",49,10;
 	end;
-
 }
 
 himinn.gat,48,86,5	script	Valkyrie#2	811,{
@@ -9068,6 +9075,7 @@ L_Work:
 	mes "humans know it, may actually be";
 	mes "different than the truth.";
 	getitem 7025,1;
+	set signquest,66;
 	next;
 	mes "[Lady Hell]";
 	mes "^881010In other words, there";
@@ -9082,7 +9090,6 @@ L_Work:
 	mes "you for now, mortal. It will";
 	mes "be your job to discover the";
 	mes "truth of the legends...";
-	set signquest,66;
 	close;
 
 L_Greet:
