@@ -1244,7 +1244,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			if (md->lootitem_count < LOOTITEM_SIZE) {
 				memcpy (&md->lootitem[md->lootitem_count++], &fitem->item_data, sizeof(md->lootitem[0]));
 				if(log_config.enable_logs&0x10)	//Logs items, taken by (L)ooter Mobs [Lupus]
-					log_pick((struct map_session_data*)md, "L", md->class_, md->lootitem[md->lootitem_count-1].nameid, md->lootitem[md->lootitem_count-1].amount, &md->lootitem[md->lootitem_count-1]);
+					log_pick_mob(md, "L", md->lootitem[md->lootitem_count-1].nameid, md->lootitem[md->lootitem_count-1].amount, &md->lootitem[md->lootitem_count-1]);
 			} else {	//Destroy first looted item...
 				if (md->lootitem[0].card[0] == (short)0xff00)
 					intif_delete_petdata( MakeDWord(md->lootitem[0].card[1],md->lootitem[0].card[2]) );
@@ -1451,9 +1451,9 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 	if(log_config.enable_logs&0x10)
 	{	//Logs items, dropped by mobs [Lupus]
 		if (loot)
-			log_pick((struct map_session_data*)md, "L", md->class_, ditem->item_data.nameid, -ditem->item_data.amount, &ditem->item_data);
+			log_pick_mob(md, "L", ditem->item_data.nameid, -ditem->item_data.amount, &ditem->item_data);
 		else
-			log_pick((struct map_session_data*)md, "M", md->class_, ditem->item_data.nameid, -ditem->item_data.amount, NULL);
+			log_pick_mob(md, "M", ditem->item_data.nameid, -ditem->item_data.amount, NULL);
 	}
 
 	if (dlist->first_sd && dlist->first_sd->state.autoloot &&
@@ -1530,7 +1530,8 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 {
 	int char_id = 0;
 
-	md->tdmg+=damage; //Store total damage...
+	if (damage > 0) //Store total damage...
+		md->tdmg+=damage;
 
 	if(md->guardian_data && md->guardian_data->number < MAX_GUARDIANS) // guardian hp update [Valaris] (updated by [Skotlex])
 		md->guardian_data->castle->guardian[md->guardian_data->number].hp = md->status.hp;
@@ -2018,8 +2019,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 
 			if(log_config.enable_logs&0x200)	{//Logs items, MVP prizes [Lupus]
-				log_pick((struct map_session_data*)md, "M", md->class_, item.nameid, -1, NULL);
-				log_pick(mvp_sd, "P", 0, item.nameid, 1, NULL);
+				log_pick_mob(md, "M", item.nameid, -1, NULL);
+				log_pick_pc(mvp_sd, "P", item.nameid, 1, NULL);
 			}
 			break;
 		}
@@ -2045,8 +2046,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		if(src && src->type == BL_PET)
 			sd = ((struct pet_data *)src)->msd;
 		if(sd && battle_config.mob_npc_event_type) {
+			pc_setglobalreg(sd,"killerrid",sd->bl.id);
 			npc_event(sd,md->npc_event,0);
 		} else if(mvp_sd) {
+			pc_setglobalreg(mvp_sd,"killerrid",sd?sd->bl.id:0);
 			npc_event(mvp_sd,md->npc_event,0);
 		}
 		md->status.hp = 1;
@@ -2353,9 +2356,9 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 		data.level = 0;
 		if (!mob_parse_dataset(&data))
 			continue;
-		
+
 		md= mob_spawn_dataset(&data);
-		md->special_state.cached= battle_config.dynamic_mobs;	//[Skotlex]
+		md->special_state.cached= md2->special_state.cached;	//[Skotlex]
 		if(skill_id == NPC_SUMMONSLAVE){
 			md->master_id=md2->bl.id;
 			md->special_state.ai = md2->special_state.ai;
@@ -2551,7 +2554,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 		flag = (event == ms[i].cond1);
 		//Avoid entering on defined events to avoid "hyper-active skill use" due to the overflow of calls to this function
 		//in battle. The only exception is MSC_SKILLUSED which explicitly uses the event value to trigger. [Skotlex]
-		if (!flag && (event == -1 || event == MSC_SKILLUSED)){
+		if (!flag && (event == -1 || (event & 0xffff) == MSC_SKILLUSED)){
 			switch (ms[i].cond1)
 			{
 				case MSC_ALWAYS:

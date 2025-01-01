@@ -7601,10 +7601,10 @@ int clif_charnameack (int fd, struct block_list *bl)
 		}
 		break;
 	case BL_PET:
-		memcpy(WBUFP(buf,6), ((struct pet_data*)bl)->pet.name, NAME_LENGTH);
+		memcpy(WBUFP(buf,6), ((TBL_PET*)bl)->pet.name, NAME_LENGTH);
 		break;
 	case BL_NPC:
-		memcpy(WBUFP(buf,6), ((struct npc_data*)bl)->name, NAME_LENGTH);
+		memcpy(WBUFP(buf,6), ((TBL_NPC*)bl)->name, NAME_LENGTH);
 		break;
 	case BL_MOB:
 		{
@@ -10935,7 +10935,24 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd) {
 		memcpy(f_sd->status.friends[i].name, sd->status.name, NAME_LENGTH);
 		clif_friendslist_reqack(f_sd, sd, 0);
 
-//		clif_friendslist_send(sd); //This is not needed anymore.
+		if (battle_config.friend_auto_add) {
+			// Also add f_sd to sd's friendlist.
+			for (i = 0; i < MAX_FRIENDS; i++) {
+				if (sd->status.friends[i].char_id == f_sd->status.char_id)
+					return; //No need to add anything.
+				if (sd->status.friends[i].char_id == 0)
+					break;
+			}
+			if (i == MAX_FRIENDS) {
+				clif_friendslist_reqack(sd, f_sd, 2);
+				return;
+			}
+
+			sd->status.friends[i].account_id = f_sd->status.account_id;
+			sd->status.friends[i].char_id = f_sd->status.char_id;
+			memcpy(sd->status.friends[i].name, f_sd->status.name, NAME_LENGTH);
+			clif_friendslist_reqack(sd, f_sd, 0);
+		}
 	}
 
 	return;

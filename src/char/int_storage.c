@@ -15,15 +15,16 @@
 #include "int_pet.h"
 #include "int_guild.h"
 
-// ファイル名のデフォルト
-// inter_config_read()で再設定される
+// t@CftHg
+// inter_config_read()
 char storage_txt[1024]="save/storage.txt";
 char guild_storage_txt[1024]="save/g_storage.txt";
 
+#ifndef TXT_SQL_CONVERT
 static struct dbt *storage_db;
 static struct dbt *guild_storage_db;
 
-// 倉庫データを文字列に変換
+// qf[^
 int storage_tostr(char *str,struct storage *p)
 {
 	int i,j,f=0;
@@ -48,8 +49,8 @@ int storage_tostr(char *str,struct storage *p)
 		str[0]=0;
 	return 0;
 }
-
-// 文字列を倉庫データに変換
+#endif //TXT_SQL_CONVERT
+// qf[^
 int storage_fromstr(char *str,struct storage *p)
 {
 	int tmp_int[256];
@@ -89,7 +90,7 @@ int storage_fromstr(char *str,struct storage *p)
 		ShowWarning("storage_fromstr: Found a storage line with more items than MAX_STORAGE (%d), remaining items have been discarded!\n", MAX_STORAGE);
 	return 0;
 }
-
+#ifndef TXT_SQL_CONVERT
 int guild_storage_tostr(char *str,struct guild_storage *p)
 {
 	int i,j,f=0;
@@ -114,7 +115,7 @@ int guild_storage_tostr(char *str,struct guild_storage *p)
 		str[0]=0;
 	return 0;
 }
-
+#endif //TXT_SQL_CONVERT
 int guild_storage_fromstr(char *str,struct guild_storage *p)
 {
 	int tmp_int[256];
@@ -153,7 +154,7 @@ int guild_storage_fromstr(char *str,struct guild_storage *p)
 		ShowWarning("guild_storage_fromstr: Found a storage line with more items than MAX_GUILD_STORAGE (%d), remaining items have been discarded!\n", MAX_GUILD_STORAGE);
 	return 0;
 }
-
+#ifndef TXT_SQL_CONVERT
 static void* create_storage(DBKey key, va_list args) {
 	struct storage *s;
 	s = (struct storage *) aCalloc(sizeof(struct storage), 1);
@@ -161,7 +162,7 @@ static void* create_storage(DBKey key, va_list args) {
 	return s;
 }
 
-// アカウントから倉庫データインデックスを得る（新規倉庫追加可能）
+// AJEgqf[^CfbNXiVKq\j
 struct storage *account2storage(int account_id)
 {
 	struct storage *s;
@@ -185,7 +186,7 @@ struct guild_storage *guild2storage(int guild_id)
 }
 
 //---------------------------------------------------------
-// 倉庫データを読み込む
+// qf[^
 int inter_storage_init()
 {
 	char line[65536];
@@ -269,7 +270,7 @@ int inter_storage_save_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 //---------------------------------------------------------
-// 倉庫データを書き込む
+// qf[^
 int inter_storage_save()
 {
 	FILE *fp;
@@ -297,7 +298,7 @@ int inter_guild_storage_save_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 //---------------------------------------------------------
-// 倉庫データを書き込む
+// qf[^
 int inter_guild_storage_save()
 {
 	FILE *fp;
@@ -312,7 +313,7 @@ int inter_guild_storage_save()
 	return 0;
 }
 
-// 倉庫データ削除
+// qf[^
 int inter_storage_delete(int account_id)
 {
 	struct storage *s = idb_get(storage_db,account_id);
@@ -327,7 +328,7 @@ int inter_storage_delete(int account_id)
 	return 0;
 }
 
-// ギルド倉庫データ削除
+// Mhqf[^
 int inter_guild_storage_delete(int guild_id)
 {
 	struct guild_storage *gs = idb_get(guild_storage_db,guild_id);
@@ -343,9 +344,9 @@ int inter_guild_storage_delete(int guild_id)
 }
 
 //---------------------------------------------------------
-// map serverへの通信
+// map serverM
 
-// 倉庫データの送信
+// qf[^M
 int mapif_load_storage(int fd,int account_id)
 {
 	struct storage *s=account2storage(account_id);
@@ -357,7 +358,7 @@ int mapif_load_storage(int fd,int account_id)
 	WFIFOSET(fd,WFIFOW(fd,2));
 	return 0;
 }
-// 倉庫データ保存完了送信
+// qf[^M
 int mapif_save_storage_ack(int fd,int account_id)
 {
         WFIFOHEAD(fd, 7);
@@ -400,16 +401,16 @@ int mapif_save_guild_storage_ack(int fd,int account_id,int guild_id,int fail)
 }
 
 //---------------------------------------------------------
-// map serverからの通信
+// map serverM
 
-// 倉庫データ要求受信
+// qf[^vM
 int mapif_parse_LoadStorage(int fd)
 {
 	RFIFOHEAD(fd);
 	mapif_load_storage(fd,RFIFOL(fd,2));
 	return 0;
 }
-// 倉庫データ受信＆保存
+// qf[^M
 int mapif_parse_SaveStorage(int fd)
 {
 	struct storage *s;
@@ -456,11 +457,11 @@ int mapif_parse_SaveGuildStorage(int fd)
 	return 0;
 }
 
-// map server からの通信
-// ・１パケットのみ解析すること
-// ・パケット長データはinter.cにセットしておくこと
-// ・パケット長チェックや、RFIFOSKIPは呼び出し元で行われるので行ってはならない
-// ・エラーなら0(false)、そうでないなら1(true)をかえさなければならない
+// map server M
+// EPpPbg
+// EpPbgf[^inter.cZbg
+// EpPbg`FbNARFIFOSKIPoss
+// EG[0(false)A1(true)
 int inter_storage_parse_frommap(int fd)
 {
 	RFIFOHEAD(fd);
@@ -474,3 +475,4 @@ int inter_storage_parse_frommap(int fd)
 	}
 	return 1;
 }
+#endif //TXT_SQL_CONVERT

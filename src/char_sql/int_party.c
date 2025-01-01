@@ -14,6 +14,7 @@
 #include "../common/socket.h"
 #include "../common/showmsg.h"
 
+#ifndef TXT_SQL_CONVERT
 struct party_data {
 	struct party party;
 	unsigned int min_lv, max_lv;
@@ -40,20 +41,6 @@ int mapif_party_optionchanged(int fd,struct party *p, int account_id, int flag);
 
 #endif
 
-//Party Flags on what to save/delete.
-//Create a new party entry (index holds leader's info) 
-#define PS_CREATE 0x01
-//Update basic party info.
-#define PS_BASIC 0x02
-//Update party's leader
-#define PS_LEADER 0x04
-//Specify new party member (index specifies which party member)
-#define PS_ADDMEMBER 0x08
-//Specify member that left (index specifies which party member)
-#define PS_DELMEMBER 0x10
-//Specify that this party must be deleted.
-#define PS_BREAK 0x20
-	
 //Updates party's level range and unsets even share if broken.
 static int int_party_check_lv(struct party_data *p) {
 	int i;
@@ -114,17 +101,15 @@ static void int_party_calc_state(struct party_data *p)
 	}
 	return;
 }
-
+#endif //TXT_SQL_CONVERT
 // Save party to mysql
-int inter_party_tosql(struct party_data *party, int flag, int index)
+int inter_party_tosql(struct party *p, int flag, int index)
 {
 	// 'party' ('party_id','name','exp','item','leader_id','leader_char')
 	char t_name[NAME_LENGTH*2]; //Required for jstrescapecpy [Skotlex]
-	struct party *p;
 	int party_id;
-	if (party == NULL || party->party.party_id == 0)
+	if (p == NULL || p->party_id == 0)
 		return 0;
-	p = &party->party;
 	party_id = p->party_id;
 
 #ifdef NOISY
@@ -132,6 +117,7 @@ int inter_party_tosql(struct party_data *party, int flag, int index)
 #endif
 	jstrescapecpy(t_name, p->name);
 
+#ifndef TXT_SQL_CONVERT
 	if (flag&PS_BREAK) { //Break the party
 		// we'll skip name-checking and just reset everyone with the same party id [celest]
 		sprintf (tmp_sql, "UPDATE `%s` SET `party_id`='0' WHERE `party_id`='%d'", char_db, party_id);
@@ -148,8 +134,9 @@ int inter_party_tosql(struct party_data *party, int flag, int index)
 		idb_remove(party_db_, party_id);
 		return 1;
 	}
-
+#endif //TXT_SQL_CONVERT
 	if(flag&PS_CREATE) { //Create party
+#ifndef TXT_SQL_CONVERT
 		sprintf(tmp_sql, "INSERT INTO `%s` "
 			"(`name`, `exp`, `item`, `leader_id`, `leader_char`) "
 			"VALUES ('%s', '%d', '%d', '%d', '%d')",
@@ -157,21 +144,29 @@ int inter_party_tosql(struct party_data *party, int flag, int index)
 		if (mysql_query(&mysql_handle, tmp_sql)) {
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			aFree(party); //Free party, couldn't create it.
 			return 0;
 		}
 		if(mysql_field_count(&mysql_handle) == 0 &&
 			mysql_insert_id(&mysql_handle) != 0)
 			party_id = p->party_id = (int)mysql_insert_id(&mysql_handle);
-		else { //Failed to retrieve ID??
-			aFree(party); //Free party, couldn't create it.
+		else //Failed to retrieve ID??
+			return 0;
+#else
+		//During conversion, you want to specify the id, and allow overwriting
+		//(in case someone is re-running the process.
+		sprintf(tmp_sql, "REPLACE INTO `%s` "
+			"(`party_id`, `name`, `exp`, `item`, `leader_id`, `leader_char`) "
+			"VALUES ('%d', '%s', '%d', '%d', '%d', '%d')",
+			party_db, p->party_id, t_name, p->exp, p->item, p->member[index].account_id, p->member[index].char_id);
+		if (mysql_query(&mysql_handle, tmp_sql)) {
+			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 			return 0;
 		}
-		//Add party to db
-		int_party_calc_state(party);
-		idb_put(party_db_, party_id, party);
+#endif
 	}
 
+#ifndef TXT_SQL_CONVERT
 	if (flag&PS_BASIC) {
 		//Update party info.
 		sprintf(tmp_sql, "UPDATE `%s` SET `name`='%s', `exp`='%d', `item`='%d' WHERE `party_id`='%d'",
@@ -211,12 +206,12 @@ int inter_party_tosql(struct party_data *party, int flag, int index)
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		}
 	}
-
+#endif //TXT_SQL_CONVERT
 	if (save_log)
 		ShowInfo("Party Saved (%d - %s)\n", party_id, p->name);
 	return 1;
 }
-
+#ifndef TXT_SQL_CONVERT
 // Read party from mysql
 struct party_data *inter_party_fromsql(int party_id)
 {
@@ -365,7 +360,7 @@ int party_check_empty(struct party_data *p)
 	if (i < MAX_PARTY) return 0;
 	// If there is no member, then break the party
 	mapif_party_broken(p->party.party_id,0);
-	inter_party_tosql(p, PS_BREAK, 0);
+	inter_party_tosql(&p->party, PS_BREAK, 0);
 	return 1;
 }
 
@@ -377,9 +372,9 @@ int party_check_conflict(int party_id,int account_id,int char_id)
 }
 
 //-------------------------------------------------------------------
-// map serverへの通信
+// map serverM
 
-// パーティ作成可否
+// p[eB
 int mapif_party_created(int fd,int account_id,int char_id,struct party *p)
 {
 	WFIFOW(fd,0)=0x3820;
@@ -400,7 +395,7 @@ int mapif_party_created(int fd,int account_id,int char_id,struct party *p)
 	return 0;
 }
 
-// パーティ情報見つからず
+// p[eB
 int mapif_party_noinfo(int fd,int party_id)
 {
 	WFIFOW(fd,0)=0x3821;
@@ -410,7 +405,7 @@ int mapif_party_noinfo(int fd,int party_id)
 	ShowWarning("int_party: info not found %d\n",party_id);
 	return 0;
 }
-// パーティ情報まとめ送り
+// p[eB
 int mapif_party_info(int fd,struct party *p)
 {
 	unsigned char buf[5+sizeof(struct party)];
@@ -424,7 +419,7 @@ int mapif_party_info(int fd,struct party *p)
 		mapif_send(fd,buf,WBUFW(buf,2));
 	return 0;
 }
-// パーティメンバ追加可否
+// p[eBo
 int mapif_party_memberadded(int fd, int party_id, int account_id, int char_id, int flag) {
 	WFIFOHEAD(fd, 15);
 	WFIFOW(fd,0) = 0x3822;
@@ -437,7 +432,7 @@ int mapif_party_memberadded(int fd, int party_id, int account_id, int char_id, i
 	return 0;
 }
 
-// パーティ設定変更通知
+// p[eBXm
 int mapif_party_optionchanged(int fd,struct party *p,int account_id,int flag)
 {
 	unsigned char buf[16];
@@ -486,7 +481,7 @@ int inter_party_logged(int party_id, int account_id, int char_id)
 	return 0;
 }
 
-// パーティ脱退通知
+// p[eBEm
 int mapif_party_leaved(int party_id,int account_id, int char_id) {
 	unsigned char buf[16];
 
@@ -498,7 +493,7 @@ int mapif_party_leaved(int party_id,int account_id, int char_id) {
 	return 0;
 }
 
-// パーティマップ更新通知
+// p[eB}bvXVm
 int mapif_party_membermoved(struct party *p,int idx)
 {
 	unsigned char buf[20];
@@ -514,7 +509,7 @@ int mapif_party_membermoved(struct party *p,int idx)
 	return 0;
 }
 
-// パーティ解散通知
+// p[eBUm
 int mapif_party_broken(int party_id,int flag)
 {
 	unsigned char buf[16];
@@ -525,7 +520,7 @@ int mapif_party_broken(int party_id,int flag)
 	//printf("int_party: broken %d\n",party_id);
 	return 0;
 }
-// パーティ内発言
+// p[eB
 int mapif_party_message(int party_id,int account_id,char *mes,int len, int sfd)
 {
 	unsigned char buf[512];
@@ -539,7 +534,7 @@ int mapif_party_message(int party_id,int account_id,char *mes,int len, int sfd)
 }
 
 //-------------------------------------------------------------------
-// map serverからの通信
+// map serverM
 
 
 // Create Party
@@ -577,15 +572,20 @@ int mapif_parse_CreateParty(int fd, char *name, int item, int item2, struct part
 	p->party.member[0].online=1;
 
 	p->party.party_id=-1;//New party.
-	if (inter_party_tosql(p,PS_CREATE|PS_ADDMEMBER,0)) {
+	if (inter_party_tosql(&p->party,PS_CREATE|PS_ADDMEMBER,0)) {
+		//Add party to db
+		int_party_calc_state(p);
+		idb_put(party_db_, p->party.party_id, p);
 		mapif_party_created(fd,leader->account_id,leader->char_id,&p->party);
 		mapif_party_info(fd,&p->party);
-	} else //Failed to create party.
+	} else { //Failed to create party.
+		aFree(p);
 		mapif_party_created(fd,leader->account_id,leader->char_id,NULL);
+	}
 
 	return 0;
 }
-// パーティ情報要求
+// p[eBv
 int mapif_parse_PartyInfo(int fd,int party_id)
 {
 	struct party_data *p;
@@ -597,7 +597,7 @@ int mapif_parse_PartyInfo(int fd,int party_id)
 		mapif_party_noinfo(fd,party_id);
 	return 0;
 }
-// パーティ追加要求
+// p[eBv
 int mapif_parse_PartyAddMember(int fd, int party_id, struct party_member *member) {
 	struct party_data *p;
 	int i;
@@ -627,14 +627,14 @@ int mapif_parse_PartyAddMember(int fd, int party_id, struct party_member *member
 
 		mapif_party_memberadded(fd,party_id,member->account_id,member->char_id,0);
 		mapif_party_info(-1,&p->party);
-		inter_party_tosql(p, PS_ADDMEMBER, i);
+		inter_party_tosql(&p->party, PS_ADDMEMBER, i);
 		return 0;
 	}
 	//Party full
 	mapif_party_memberadded(fd,party_id,member->account_id,member->char_id,1);
 	return 0;
 }
-// パーティー設定変更要求
+// p[eB[Xv
 int mapif_parse_PartyChangeOption(int fd,int party_id,int account_id,int exp,int item)
 {
 	struct party_data *p;
@@ -651,10 +651,10 @@ int mapif_parse_PartyChangeOption(int fd,int party_id,int account_id,int exp,int
 	}
 	p->party.item = item&0x3; //Filter out invalid values.
 	mapif_party_optionchanged(fd,&p->party,account_id,flag);
-	inter_party_tosql(p, PS_BASIC, 0);
+	inter_party_tosql(&p->party, PS_BASIC, 0);
 	return 0;
 }
-// パーティ脱退要求
+// p[eBEv
 int mapif_parse_PartyLeave(int fd, int party_id, int account_id, int char_id)
 {
 	struct party_data *p;
@@ -691,7 +691,7 @@ int mapif_parse_PartyLeave(int fd, int party_id, int account_id, int char_id)
 		}
 		//Party gets deleted on the check_empty call below.
 	} else {
-		inter_party_tosql(p,PS_DELMEMBER,i);
+		inter_party_tosql(&p->party,PS_DELMEMBER,i);
 		j = p->party.member[i].lv;
 		if(p->party.member[i].online) p->party.count--;
 		memset(&p->party.member[i], 0, sizeof(struct party_member));
@@ -756,7 +756,7 @@ int mapif_parse_PartyChangeMap(int fd, int party_id, int account_id, int char_id
 	}
 	return 0;
 }
-// パーティ解散要求
+// p[eBUv
 int mapif_parse_BreakParty(int fd,int party_id)
 {
 	struct party_data *p;
@@ -765,16 +765,16 @@ int mapif_parse_BreakParty(int fd,int party_id)
 
 	if(!p)
 		return 0;
-	inter_party_tosql(p,PS_BREAK,0);
+	inter_party_tosql(&p->party,PS_BREAK,0);
 	mapif_party_broken(fd,party_id);
 	return 0;
 }
-// パーティメッセージ送信
+// p[eBbZ[WM
 int mapif_parse_PartyMessage(int fd,int party_id,int account_id,char *mes,int len)
 {
 	return mapif_party_message(party_id,account_id,mes,len, fd);
 }
-// パーティチェック要求
+// p[eB`FbNv
 int mapif_parse_PartyCheck(int fd,int party_id,int account_id,int char_id)
 {
 	return party_check_conflict(party_id,account_id,char_id);
@@ -796,19 +796,19 @@ int mapif_parse_PartyLeaderChange(int fd,int party_id,int account_id,int char_id
 			p->party.member[i].leader = 0;
 		if(p->party.member[i].account_id == account_id &&
 			p->party.member[i].char_id == char_id)
-	  	{
+		{
 			p->party.member[i].leader = 1;
-			inter_party_tosql(p,PS_LEADER, i);
+			inter_party_tosql(&p->party,PS_LEADER, i);
 		}
 	}
 	return 1;
 }
 
-// map server からの通信
-// ・１パケットのみ解析すること
-// ・パケット長データはinter.cにセットしておくこと
-// ・パケット長チェックや、RFIFOSKIPは呼び出し元で行われるので行ってはならない
-// ・エラーなら0(false)、そうでないなら1(true)をかえさなければならない
+// map server M
+// EPpPbg
+// EpPbgf[^inter.cZbg
+// EpPbg`FbNARFIFOSKIPoss
+// EG[0(false)A1(true)
 int inter_party_parse_frommap(int fd)
 {
 	RFIFOHEAD(fd);
@@ -829,7 +829,7 @@ int inter_party_parse_frommap(int fd)
 	return 1;
 }
 
-// サーバーから脱退要求（キャラ削除用）
+// T[o[EviLpj
 int inter_party_leave(int party_id,int account_id, int char_id)
 {
 	return mapif_parse_PartyLeave(-1,party_id,account_id, char_id);
@@ -927,3 +927,4 @@ int inter_party_CharOffline(int char_id, int party_id) {
 		idb_remove(party_db_, party_id);
 	return 1;
 }
+#endif //TXT_SQL_CONVERT

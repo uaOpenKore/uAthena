@@ -153,7 +153,7 @@ L_Start:
 		mes "I'm Father Thomas.  I'm in charge of protecting Prontera from the evil spirits that plague the lands of Rune Midgard.";
 		next;
 		mes "[Father Thomas]";
-		mes "Please fill out this application form so that I can review your qualifications for becoming a Preist.";
+		mes "Please fill out this application form so that I can review your qualifications for becoming a Priest.";
 		next;
 		mes "(you fill out the form and hand it back)";
 		next;
@@ -493,9 +493,9 @@ L_Start:
 		mes "[Father Peter]";
 		mes "Oh, is that so, i think i'll need to explain it to you.";
 		mes "After listening to what i have to say, i think you'll understand.";
-		next;
 
 	L_Cont:
+	next;
 	mes "[Father Peter]";
 	mes "What is overcoming evil? its basically destroying it.";
 	mes "What is evil? its basically devil, ghosts etc...";
