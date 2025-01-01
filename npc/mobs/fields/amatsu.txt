@@ -9,6 +9,7 @@
 //===== Additional Comments: =================================
 //= 1.1 replaced Hydra -> G_Hydra (to fix drops exploit) [Lupus]
 //= 1.2 Official kRO 10.1 spawns [Playtester]
+//= Note: Please don't change spawns without official info
 //============================================================
 
 //==================================================

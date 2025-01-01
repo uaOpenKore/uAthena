@@ -1021,7 +1021,9 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			case NJ_KIRIKAGE:
 				break;
 			default:
-				return 0;
+				//Non players can use all skills while hidden.
+				if (!skill_num || src->type == BL_PC)
+					return 0;
 		}
 		if (sc->option&OPTION_CHASEWALK && skill_num != ST_CHASEWALK)
 			return 0;
@@ -2934,7 +2936,7 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi -= sc->data[SC_DECREASEAGI].val2;
 	if(sc->data[SC_QUAGMIRE].timer!=-1)
 		agi -= sc->data[SC_QUAGMIRE].val2;
-	if(sc->data[SC_SUITON].timer!=-1 && sc->data[SC_SUITON].val3) // does not affect players when not in PVP nor WoE. Does not affect Ninjas.
+	if(sc->data[SC_SUITON].timer!=-1 && sc->data[SC_SUITON].val3)
 		agi -= sc->data[SC_SUITON].val2;
 	if(sc->data[SC_MARIONETTE].timer!=-1)
 		agi -= (sc->data[SC_MARIONETTE].val3>>8)&0xFF;
@@ -3908,11 +3910,11 @@ int status_isdead(struct block_list *bl)
 int status_isimmune(struct block_list *bl)
 {
 	struct status_change *sc =status_get_sc(bl);
+	if (sc && sc->count && sc->data[SC_HERMODE].timer != -1)
+		return 1;
 	if (bl->type == BL_PC &&
 		((TBL_PC*)bl)->special_state.no_magic_damage)
 		return ((TBL_PC*)bl)->special_state.no_magic_damage > battle_config.gtb_sc_immunity;
-	if (sc && sc->count && sc->data[SC_HERMODE].timer != -1)
-		return 1;
 	return 0;
 }
 
@@ -4616,7 +4618,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				for (i = 0; i < 5; i++)
 				{	//Pass the status to the other affected chars. [Skotlex]
 					if (sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])))
-						status_change_start(&tsd->bl,SC_AUTOGUARD,10000,val1,val2,0,0,tick,1);
+						status_change_start(&tsd->bl,type,10000,val1,val2,0,0,tick,1);
 				}
 			}
 			break;
@@ -4661,11 +4663,12 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				val2 = 0;
 			break;
 		case SC_SUITON:
-			val2 = 0; //Agi penalty
-			val3 = 0; //Walk speed penalty
-			if (status_get_class(bl) == JOB_NINJA ||
-				(sd && !map_flag_vs(bl->m)))
+			if (!val2 || (sd && (sd->class_&MAPID_UPPERMASK) == MAPID_NINJA)) {
+				//No penalties.
+				val2 = 0; //Agi penalty
+				val3 = 0; //Walk speed penalty
 				break;
+			}
 			val3 = 50;
 			val2 = 3*((val1+1)/3);
 			if (val1 > 4) val2--;
@@ -4735,7 +4738,9 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			if (!val2) val2 = 1;
 			val3 = tick/1000; //Petrified HP-damage iterations.
 			if(val3 < 1) val3 = 1;
-			tick = 5000; //Petrifying time.
+			tick = val4; //Petrifying time.
+			if (tick < 1000)
+				tick = 1000; //Min time
 			calc_flag = 0; //Actual status changes take effect on petrified state.
 			break;
 
@@ -4786,7 +4791,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			if (map_flag_gvg(bl->m)) val4 *= 5;
 			break;
 		case SC_CLOAKING:
-			if (!sd) //Monsters should be able to walk no penalties. [Skotlex]
+			if (!sd) //Monsters should be able to walk with no penalties. [Skotlex]
 				val1 = 10;
 			val2 = tick>0?tick:60000; //SP consumption rate.
 			val3 = 0;
@@ -4796,11 +4801,12 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val3+= 70+val1*3; //Speed adjustment without a wall.
 			//With a wall, it is val3 +25.
 			//val4&1 signals the presence of a wall.
-			//val4&2 signals eternal cloaking (not cancelled on attack) [Skotlex]
+			//val4&2 makes cloak not end on normal attacks [Skotlex]
+			//val4&4 makes cloak not end on using skills
 			if (bl->type == BL_PC)	//Standard cloaking.
-				val4 |= battle_config.pc_cloak_check_type&3;
+				val4 |= battle_config.pc_cloak_check_type&7;
 			else
-				val4 |= battle_config.monster_cloak_check_type&3;
+				val4 |= battle_config.monster_cloak_check_type&7;
 			break;
 		case SC_SIGHT:			/* TCg/At */
 		case SC_RUWACH:
@@ -4836,7 +4842,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				for (i = 0; i < 5; i++)
 				{	//Pass the status to the other affected chars. [Skotlex]
 					if (sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])))
-						status_change_start(&tsd->bl,SC_AUTOGUARD,10000,val1,val2,0,0,tick,1);
+						status_change_start(&tsd->bl,type,10000,val1,val2,0,0,tick,1);
 				}
 			}
 			break;
@@ -4854,7 +4860,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				for (i = 0; i < 5; i++)
 				{	//See if there are devoted characters, and pass the status to them. [Skotlex]
 					if (sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])))
-						status_change_start(&tsd->bl,SC_DEFENDER,10000,val1,5+val1*5,val3,val4,tick,1);
+						status_change_start(&tsd->bl,type,10000,val1,5+val1*5,val3,val4,tick,1);
 				}
 			}
 			break;
@@ -5244,8 +5250,8 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			break;
 
 		case SC_FLING:
-			val2 = 3*val1; //Def reduction
-			val3 = 3*val1; //Def2 reduction
+			val2 = 5*val1; //Def reduction
+			val3 = 5*val1; //Def2 reduction
 			break;
 		case SC_PROVOKE:
 			//val2 signals autoprovoke.
@@ -5726,7 +5732,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 				md->devotion[sc->data[type].val2] = 0;
 				clif_devotion(md);
 			}
-			//Remove AutoGuard and Defender [Skotlex]
+			//Remove inherited status [Skotlex]
 			if (sc->data[SC_AUTOGUARD].timer != -1)
 				status_change_end(bl,SC_AUTOGUARD,-1);
 			if (sc->data[SC_DEFENDER].timer != -1)
@@ -6590,7 +6596,7 @@ int status_change_clear_buffs (struct block_list *bl, int type)
 
 //Natural regen related stuff.
 static unsigned int natural_heal_prev_tick,natural_heal_diff_tick;
-static int status_natural_heal(DBKey key,void * data,va_list app)
+static int status_natural_heal(DBKey key,void * data,va_list ap)
 {
 	struct block_list *bl = (struct block_list*)data;
 	struct regen_data *regen;
@@ -6762,10 +6768,9 @@ static int status_natural_heal(DBKey key,void * data,va_list app)
 					(sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
 					rand()%10000 < battle_config.sg_angel_skill_ratio
 				) { //Angel of the Sun/Moon/Star
+					clif_feel_hate_reset(sd);
 					pc_resethate(sd);
 					pc_resetfeel(sd);
-					//TODO: Figure out how to make the client-side msg show up.
-					clif_displaymessage(sd->fd,"[Angel of the Sun, Moon and Stars]");
 				}
 			}
 			sregen->tick.sp -= battle_config.natural_heal_skill_interval;

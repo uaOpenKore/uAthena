@@ -11,9 +11,9 @@
 //= Rents PecoPecos, Falcons, Carts 
 //===== Additional Comments: ================================= 
 //= See config.txt for configuration.
-//============================================================ 
+//============================================================
 
--	script	keInit_rent	{
+-	script	keInit_rent	-1,{
 OnInit:	//Load Config
 	donpcevent "keConfig::OnLoadRent";
 	end;

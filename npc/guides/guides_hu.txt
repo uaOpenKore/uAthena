@@ -4,15 +4,17 @@
 //= erKURITA
 //===== Current Version: =====================================
 //= 1.0a
+//=1/1
 //===== Compatible With: =====================================
 //= eAthena 1.0
 //===== Description: =========================================
 //= Guard/Guide NPC of City of Hugel.
 //===== Additional Comments: =================================
 //= 1.0 Started the script. [erKURITA]
+//= 1.1 Removed Duplicates [Silent]
 //============================================================
 
-hugel.gat,98,57,3	script	Old Lady	863,{
+hugel.gat,98,57,3	script	Old Lady#hu1	863,{
 	mes "[Old Lady]";
 	mes "Welcome to Hugel, the Power Source City.";
 	next;
@@ -95,12 +97,12 @@ M_Menu:
 			goto sL_Wipe;
 		M_1_9:
 			mes "[Old Lady]";
-			mes "The '^000066Poring Track Nº1^000000' is new and exciting entertaintment, make sure to check it!";
+			mes "The '^000066Poring Track N1^000000' is new and exciting entertaintment, make sure to check it!";
 			viewpoint 1,58,72,7,0xFF8000;
 			goto sL_Wipe;
 		M_1_10:
 			mes "[Old Lady]";
-			mes "The '^000066Poring Track Nº2^000000' is new and exciting entertaintment, make sure to check it!";
+			mes "The '^000066Poring Track N2^000000' is new and exciting entertaintment, make sure to check it!";
 			viewpoint 1,62,68,7,0xFF8000;
 			goto sL_Wipe;
 		M_1_11:

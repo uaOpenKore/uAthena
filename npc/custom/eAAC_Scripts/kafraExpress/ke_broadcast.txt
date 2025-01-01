@@ -15,9 +15,9 @@
 //= See config.txt for configuration.
 //= For the PVP broadcasts, variables from the Pvp Warping
 //= Module are used.
-//============================================================ 
+//============================================================
 
--	script	keInit_broadcast	{
+-	script	keInit_broadcast	-1,{
 OnInit:	//Load Config
 	donpcevent "keConfig::OnLoadBroadcast";
 	end;

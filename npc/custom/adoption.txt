@@ -62,6 +62,7 @@ prt_church.gat,166,176,3	script	Adoption Man	61,{
 		callfunc "AdoptReset","GM reset";
 		close;
 	}
+L_SKIP:
 
 	if($@AdoptionActive == 1) goto A_Cannot;
 	mes "[Oliver]";
