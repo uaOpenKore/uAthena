@@ -6,8 +6,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include <limits.h>
 
+#include "../common/cbasetypes.h"
 #include "../common/socket.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
@@ -28,7 +28,7 @@
 #include "charcommand.h"
 #include "atcommand.h"
 
-static char command_symbol = '#';
+char charcommand_symbol = '#';
 
 extern char *msg_table[1000]; // Server messages (0-499 reserved for GM commands, 500-999 reserved for others)
 
@@ -64,7 +64,7 @@ CCMD_FUNC(help);
 
 
 /*==========================================
- *CharCommandInfo charcommand_info[]構造体の定義
+ *CharCommandInfo charcommand_info[]\`
  *------------------------------------------
  */
 
@@ -122,33 +122,13 @@ int get_charcommand_level(const CharCommandType type) {
 	return 100; // 100: command can not be used
 }
 
-/*==========================================
- *is_charcommand @コマンドに存在するかどうか確認する
- *------------------------------------------
- */
 CharCommandType
-is_charcommand(const int fd, struct map_session_data* sd, const char* message, int gmlvl) {
-	const char* str = message;
-	int s_flag = 0;
+is_charcommand_sub(const int fd, struct map_session_data* sd, const char* str, int gmlvl) {
 	CharCommandInfo info;
 	CharCommandType type;
 
-	nullpo_retr(CharCommand_None, sd);
-
-	if (!message || !*message)
-		return CharCommand_None;
-
 	memset(&info, 0, sizeof(info));
-	str += strlen(sd->status.name);
-	while (*str && (isspace(*str) || (s_flag == 0 && *str == ':'))) {
-		if (*str == ':')
-			s_flag = 1;
-		str++;
-	}
-	if (!*str)
-		return CharCommand_None;
 
-	if (!gmlvl) gmlvl = pc_isGM(sd);
 	type = charcommand(sd, gmlvl, str, &info);
 	if (type != CharCommand_None) {
 		char command[100];
@@ -191,6 +171,36 @@ is_charcommand(const int fd, struct map_session_data* sd, const char* message, i
 }
 
 /*==========================================
+ *is_charcommand @R}hmF
+ *------------------------------------------
+ */
+CharCommandType
+is_charcommand(const int fd, struct map_session_data* sd, const char* message) {
+	const char* str = message;
+	int s_flag = 0;
+
+	nullpo_retr(CharCommand_None, sd);
+
+	if (!message || !*message)
+		return CharCommand_None;
+
+	str += strlen(sd->status.name);
+	while (*str && (isspace(*str) || (s_flag == 0 && *str == ':'))) {
+		if (*str == ':')
+			s_flag = 1;
+		str++;
+	}
+
+	if (!*str)
+		return CharCommand_None;
+
+	if(str[0] == '|' && strlen(str) >= 4 && str[3] == charcommand_symbol)
+		str += 3; // skip 10/11-langtype's codepage indicator, if detected
+
+	return is_charcommand_sub(fd,sd,str,pc_isGM(sd));
+}
+
+/*==========================================
  *
  *------------------------------------------
  */
@@ -206,7 +216,7 @@ CharCommandType charcommand(struct map_session_data* sd, const int level, const 
 		return CharCommand_None;
 	}
 
-	if (*p == command_symbol) { // check first char.
+	if (*p == charcommand_symbol) { // check first char
 		char command[101];
 		int i = 0;
 		memset(info, 0, sizeof(CharCommandInfo));
@@ -289,7 +299,7 @@ int charcommand_config_read(const char *cfgName) {
 				w2[0] != '%' && // symbol of party chat speaking
 				w2[0] != '$' && // symbol of guild chat speaking
 				w2[0] != '@')	// symbol of atcommand
-			command_symbol = w2[0];
+			charcommand_symbol = w2[0];
 	}
 	fclose(fp);
 
@@ -297,7 +307,7 @@ int charcommand_config_read(const char *cfgName) {
 }
 
 /*==========================================
- * 対象キャラクターを転職させる upper指定で転生や養子も可能
+ * LN^[]E upperw]{q\
  *------------------------------------------
  */
 int charcommand_jobchange(
@@ -315,9 +325,9 @@ int charcommand_jobchange(
 		return -1;
 	}
 
-	if (sscanf(message, "%d %d %99[^\n]", &job, &upper, character) < 3) { //upper指定してある
+	if (sscanf(message, "%d %d %99[^\n]", &job, &upper, character) < 3) { //upperw
 		upper = -1;
-		if (sscanf(message, "%d %99[^\n]", &job, character) < 2) { //upper指定してない上に何か足りない
+		if (sscanf(message, "%d %99[^\n]", &job, character) < 2) { //upperw
 			clif_displaymessage(fd, "Please, enter a job and a player name (usage: #job/#jobchange <job ID> <char name>).");
 			return -1;
 		}
@@ -1344,7 +1354,7 @@ int charcommand_baselevel(
 		return -1;
 	}
 
-	return 0; //正常終了
+	return 0; //I
 }
 
 /*==========================================
@@ -1359,7 +1369,7 @@ int charcommand_joblevel(
 	struct map_session_data *pl_sd;
 	char player[NAME_LENGTH];
 	int level = 0;
-	//転生や養子の場合の元の職業を算出する
+	//]{qEZo
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message || sscanf(message, "%d %23[^\n]", &level, player) < 2 || level == 0) {

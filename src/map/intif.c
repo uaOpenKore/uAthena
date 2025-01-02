@@ -24,9 +24,10 @@
 #include "guild.h"
 #include "pet.h"
 #include "atcommand.h"
+#include "mercenary.h" //albator
 
 static const int packet_len_table[]={
-	-1,-1,27,-1, -1, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3800-0x380f
+	-1,-1,27,-1, -1, 0,37, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3800-0x380f
 	-1, 7, 0, 0,  0, 0, 0, 0, -1,11, 0, 0,  0, 0,  0, 0, //0x3810
 	39,-1,15,15, 14,19, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
 	10,-1,15, 0, 79,19, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
@@ -34,11 +35,12 @@ static const int packet_len_table[]={
 	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
 	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
 	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
-	11,-1, 7, 3, 36, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3880
+	11,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3880
+	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
 };
 
 extern int char_fd;		// inter serverfdchar_fdg
-#define inter_fd (char_fd)	// GCAX
+#define inter_fd char_fd	// GCAX
 
 //-----------------------------------------------------------------
 // inter serverM
@@ -110,20 +112,21 @@ int intif_delete_petdata(int pet_id)
 
 	return 1;
 }
-int intif_rename_pet(struct map_session_data *sd,char *name)
+
+int intif_rename(struct map_session_data *sd, int type, char *name)
 {
 	if (CheckForCharServer())
 		return 1;
 
 	WFIFOHEAD(inter_fd,NAME_LENGTH+11);
-	WFIFOW(inter_fd,0) = 0x3084;
+	WFIFOW(inter_fd,0) = 0x3006;
 	WFIFOL(inter_fd,2) = sd->status.account_id;
 	WFIFOL(inter_fd,6) = sd->status.char_id;
-	memcpy(WFIFOP(inter_fd,10),name, NAME_LENGTH);
-	WFIFOSET(inter_fd,NAME_LENGTH+11);
+	WFIFOB(inter_fd,10) = type;  //Type: 0 - PC, 1 - PET, 2 - HOM
+	memcpy(WFIFOP(inter_fd,11),name, NAME_LENGTH);
+	WFIFOSET(inter_fd,NAME_LENGTH+12);
 	return 0;
 }
-
 
 // GMbZ[WM
 int intif_GMmessage(char* mes,int len,int flag)
@@ -362,7 +365,7 @@ int intif_send_guild_storage(int account_id,struct guild_storage *gstor)
 		return 0;
 	WFIFOHEAD(inter_fd,sizeof(struct guild_storage)+12);
 	WFIFOW(inter_fd,0) = 0x3019;
-	WFIFOW(inter_fd,2) = sizeof(struct guild_storage)+12;
+	WFIFOW(inter_fd,2) = (unsigned short)sizeof(struct guild_storage)+12;
 	WFIFOL(inter_fd,4) = account_id;
 	WFIFOL(inter_fd,8) = gstor->guild_id;
 	memcpy( WFIFOP(inter_fd,12),gstor, sizeof(struct guild_storage) );
@@ -692,17 +695,16 @@ int intif_guild_position(int guild_id,int idx,struct guild_position *p)
 	return 0;
 }
 // MhXLAbvv
-int intif_guild_skillup(int guild_id,int skill_num,int account_id,int flag)
+int intif_guild_skillup(int guild_id, int skill_num, int account_id)
 {
-	if (CheckForCharServer())
+	if( CheckForCharServer() )
 		return 0;
-	WFIFOHEAD(inter_fd,14);
-	WFIFOW(inter_fd, 0)=0x303c;
-	WFIFOL(inter_fd, 2)=guild_id;
-	WFIFOL(inter_fd, 6)=skill_num;
-	WFIFOL(inter_fd,10)=account_id;
-	//WFIFOL(inter_fd,14)=flag;
-	WFIFOSET(inter_fd,14);
+	WFIFOHEAD(inter_fd, 14);
+	WFIFOW(inter_fd, 0)  = 0x303c;
+	WFIFOL(inter_fd, 2)  = guild_id;
+	WFIFOL(inter_fd, 6)  = skill_num;
+	WFIFOL(inter_fd, 10) = account_id;
+	WFIFOSET(inter_fd, 14);
 	return 0;
 }
 // Mh/Gv
@@ -775,6 +777,62 @@ int intif_guild_castle_datasave(int castle_id,int index, int value)
 	WFIFOSET(inter_fd,9);
 	return 0;
 }
+
+//-----------------------------------------------------------------
+// Homunculus Packets send to Inter server [albator]
+//-----------------------------------------------------------------
+
+int intif_homunculus_create(int account_id, struct s_homunculus *sh)
+{
+	if (CheckForCharServer())
+		return 0;
+	WFIFOHEAD(inter_fd, sizeof(struct s_homunculus)+8);
+	WFIFOW(inter_fd,0) = 0x3090;
+	WFIFOW(inter_fd,2) = sizeof(struct s_homunculus)+8;
+	WFIFOL(inter_fd,4) = account_id;
+	memcpy(WFIFOP(inter_fd,8),sh,sizeof(struct s_homunculus));
+	WFIFOSET(inter_fd, WFIFOW(inter_fd,2));
+	return 0;
+}
+
+int intif_homunculus_requestload(int account_id, int homun_id)
+{
+	if (CheckForCharServer())
+		return 0;
+	WFIFOHEAD(inter_fd, 10);
+	WFIFOW(inter_fd,0) = 0x3091;
+	WFIFOL(inter_fd,2) = account_id;
+	WFIFOL(inter_fd,6) = homun_id;
+	WFIFOSET(inter_fd, 10);
+	return 1;
+}
+
+int intif_homunculus_requestsave(int account_id, struct s_homunculus* sh)
+{
+	if (CheckForCharServer())
+		return 0;
+	WFIFOHEAD(inter_fd, sizeof(struct s_homunculus)+8);
+	WFIFOW(inter_fd,0) = 0x3092;
+	WFIFOW(inter_fd,2) = sizeof(struct s_homunculus)+8;
+	WFIFOL(inter_fd,4) = account_id;
+	memcpy(WFIFOP(inter_fd,8),sh,sizeof(struct s_homunculus));
+	WFIFOSET(inter_fd, WFIFOW(inter_fd,2));
+	return 0;
+
+}
+
+int intif_homunculus_requestdelete(int homun_id)
+{
+	if (CheckForCharServer())
+		return 0;
+	WFIFOHEAD(inter_fd, 6);
+	WFIFOW(inter_fd, 0) = 0x3093;
+	WFIFOL(inter_fd,2) = homun_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+
+}
+
 
 //-----------------------------------------------------------------
 // Packets receive from inter server
@@ -1357,22 +1415,80 @@ int intif_parse_DeletePetOk(int fd)
 	return 0;
 }
 
-int intif_parse_RenamePetOk(int fd)
+int intif_parse_ChangeNameOk(int fd)
 {
 	struct map_session_data *sd = NULL;
 	RFIFOHEAD(fd);
 	if((sd=map_id2sd(RFIFOL(fd,2)))==NULL ||
 		sd->status.char_id != RFIFOL(fd,6))
 		return 0;
-	if (RFIFOB(fd,10) == 0) {
-		clif_displaymessage(sd->fd, msg_txt(280)); // You cannot use this name for your pet.
-		clif_send_petstatus(sd); //Send status so client knows oet name change got rejected.
-		return 0;
+
+	switch (RFIFOB(fd,10)) {
+	case 0: //Players [NOT SUPPORTED YET]
+		break;
+	case 1: //Pets
+		pet_change_name_ack(sd, RFIFOP(fd,12), RFIFOB(fd,11));
+		break;
+	case 2: //Hom
+		merc_hom_change_name_ack(sd, RFIFOP(fd,12), RFIFOB(fd,11));
+		break;
 	}
-	pet_change_name(sd, RFIFOP(fd,11),1);
 	return 0;
 }
 
+//----------------------------------------------------------------
+// Homunculus recv packets [albator]
+
+int intif_parse_CreateHomunculus(int fd)
+{
+	int len;
+	RFIFOHEAD(fd);
+	len=RFIFOW(fd,2)-9;
+	if(sizeof(struct s_homunculus)!=len) {
+		if(battle_config.etc_log)
+			ShowError("intif: create homun data: data size error %d != %d\n",sizeof(struct s_homunculus),len);
+		return 0;
+	}
+	merc_hom_recv_data(RFIFOL(fd,4), (struct s_homunculus*)RFIFOP(fd,9), RFIFOB(fd,8)) ;
+	return 0;
+}
+
+int intif_parse_RecvHomunculusData(int fd)
+{
+	int len;
+
+	RFIFOHEAD(fd);
+	len=RFIFOW(fd,2)-9;
+
+	if(sizeof(struct s_homunculus)!=len) {
+		if(battle_config.etc_log)
+			ShowError("intif: homun data: data size error %d %d\n",sizeof(struct s_homunculus),len);
+		return 0;
+	}
+	merc_hom_recv_data(RFIFOL(fd,4), (struct s_homunculus*)RFIFOP(fd,9), RFIFOB(fd,8));
+	return 0;
+}
+
+int intif_parse_SaveHomunculusOk(int fd)
+{
+	RFIFOHEAD(fd);
+	if(RFIFOB(fd,6) != 1) {
+		if(battle_config.error_log)
+			ShowError("homunculus data save failure for account %d\n", RFIFOL(fd,2));
+	}
+	return 0;
+}
+
+int intif_parse_DeleteHomunculusOk(int fd)
+{
+	RFIFOHEAD(fd);
+	if(RFIFOB(fd,2) != 1) {
+		if(battle_config.error_log)
+			ShowError("Homunculus data delete failure\n");
+	}
+
+	return 0;
+}
 //-----------------------------------------------------------------
 // inter serverM
 // G[0(false)
@@ -1413,6 +1529,7 @@ int intif_parse(int fd)
 	case 0x3802:	intif_parse_WisEnd(fd); break;
 	case 0x3803:	mapif_parse_WisToGM(fd); break;
 	case 0x3804:	intif_parse_Registers(fd); break;
+	case 0x3806:   intif_parse_ChangeNameOk(fd); break;
 	case 0x3810:	intif_parse_LoadStorage(fd); break;
 	case 0x3811:	intif_parse_SaveStorage(fd); break;
 	case 0x3818:	intif_parse_LoadGuildStorage(fd); break;
@@ -1447,7 +1564,10 @@ int intif_parse(int fd)
 	case 0x3881:	intif_parse_RecvPetData(fd); break;
 	case 0x3882:	intif_parse_SavePetOk(fd); break;
 	case 0x3883:	intif_parse_DeletePetOk(fd); break;
-	case 0x3884:   intif_parse_RenamePetOk(fd); break;
+	case 0x3890:	intif_parse_CreateHomunculus(fd); break;
+	case 0x3891:	intif_parse_RecvHomunculusData(fd); break;
+	case 0x3892:	intif_parse_SaveHomunculusOk(fd); break;
+	case 0x3893:	intif_parse_DeleteHomunculusOk(fd); break;
 	default:
 		if(battle_config.error_log)
 			ShowError("intif_parse : unknown packet %d %x\n",fd,RFIFOW(fd,0));

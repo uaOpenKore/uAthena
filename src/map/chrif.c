@@ -6,8 +6,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
-#include <limits.h>
 
+#include "../common/cbasetypes.h"
 #include "../common/malloc.h"
 #include "../common/socket.h"
 #include "../common/timer.h"
@@ -22,6 +22,7 @@
 #include "npc.h"
 #include "pc.h"
 #include "status.h"
+#include "mercenary.h"
 #ifndef TXT_ONLY
 #include "charsave.h"
 #endif
@@ -103,7 +104,7 @@ int other_mapserver_count=0; //Holds count of how many other map servers are onl
 //This define should spare writing the check in every function. [Skotlex]
 #define chrif_check(a) { if(!chrif_isconnect()) return a; }
 
-// 設定ファイル読み込み関係
+// t@CW
 /*==========================================
  *
  *------------------------------------------
@@ -226,6 +227,10 @@ int chrif_save(struct map_session_data *sd, int flag)
 	WFIFOB(char_fd,12) = (flag==1)?1:0; //Flag to tell char-server this character is quitting.
 	memcpy(WFIFOP(char_fd,13), &sd->status, sizeof(sd->status));
 	WFIFOSET(char_fd, WFIFOW(char_fd,2));
+
+	if (sd->hd && merc_is_hom_active(sd->hd))
+		merc_save(sd->hd);
+
 	if (flag)
 		sd->state.finalsave = 1; //Mark the last save as done.
 	return 0;
@@ -251,7 +256,7 @@ int chrif_connect(int fd)
 }
 
 /*==========================================
- * マップ送信
+ * }bvM
  *------------------------------------------
  */
 int chrif_sendmap(int fd)
@@ -269,7 +274,7 @@ int chrif_sendmap(int fd)
 }
 
 /*==========================================
- * マップ受信
+ * }bvM
  *------------------------------------------
  */
 int chrif_recvmap(int fd)
@@ -324,7 +329,7 @@ int chrif_save_ack(int fd) {
 }
 
 /*==========================================
- * マップ鯖間移動のためのデータ準備要求
+ * }bvIf[^v
  *------------------------------------------
  */
 int chrif_changemapserver(struct map_session_data *sd, short map, int x, int y, int ip, short port)
@@ -365,7 +370,7 @@ int chrif_changemapserver(struct map_session_data *sd, short map, int x, int y, 
 }
 
 /*==========================================
- * マップ鯖間移動ack
+ * }bvIack
  *------------------------------------------
  */
 int chrif_changemapserverack(int fd)
@@ -588,7 +593,7 @@ int chrif_charselectreq(struct map_session_data *sd, unsigned long s_ip)
 }
 
 /*==========================================
- * キャラ名問い合わせ
+ * L
  *------------------------------------------
  */
 int chrif_searchcharid(int char_id)
@@ -606,7 +611,7 @@ int chrif_searchcharid(int char_id)
 }
 
 /*==========================================
- * GMに変化要求
+ * GMv
  *------------------------------------------
  */
 int chrif_changegm(int id, const char *pass, int len)
@@ -616,7 +621,7 @@ int chrif_changegm(int id, const char *pass, int len)
 
 	chrif_check(-1);
 
-        WFIFOHEAD(char_fd, len + 8);
+	WFIFOHEAD(char_fd, len + 8);
 	WFIFOW(char_fd,0) = 0x2b0a;
 	WFIFOW(char_fd,2) = len + 8;
 	WFIFOL(char_fd,4) = id;
@@ -682,7 +687,7 @@ int chrif_char_ask_name(int id, char * character_name, short operation_type, int
 }
 
 /*==========================================
- * 性別変化要求
+ * v
  *------------------------------------------
  */
 int chrif_changesex(int id, int sex) {
@@ -842,7 +847,7 @@ int chrif_changedgm(int fd)
 }
 
 /*==========================================
- * 性別変化終了 (modified by Yor)
+ * I (modified by Yor)
  *------------------------------------------
  */
 int chrif_changedsex(int fd)
@@ -914,7 +919,7 @@ int chrif_changedsex(int fd)
 }
 
 /*==========================================
- * 離婚情報同期要求
+ * v
  *------------------------------------------
  */
 int chrif_divorce(int char_id, int partner_id)
@@ -924,13 +929,13 @@ int chrif_divorce(int char_id, int partner_id)
 	if (!char_id || !partner_id)
 		return 0;
 
-	nullpo_retr(0, sd = map_nick2sd(map_charid2nick(partner_id)));
+	nullpo_retr(0, sd = map_charid2sd(partner_id));
 	if (sd->status.partner_id == char_id) {
 		int i;
-		//離婚(相方は既にキャラが消えている筈なので)
+		//(L)
 		sd->status.partner_id = 0;
 
-		//相方の結婚指輪を剥奪
+		//wD
 		for(i = 0; i < MAX_INVENTORY; i++)
 			if (sd->status.inventory[i].nameid == WEDDING_RING_M || sd->status.inventory[i].nameid == WEDDING_RING_F)
 				pc_delitem(sd, i, 1, 0);
@@ -1440,10 +1445,10 @@ int chrif_parse(int fd)
 		if (cmd < 0x2af8 || cmd >= 0x2af8 + (sizeof(packet_len_table) / sizeof(packet_len_table[0])) ||
 		    packet_len_table[cmd-0x2af8] == 0) {
 
-			int r = intif_parse(fd); // intifに渡す
+			int r = intif_parse(fd); // intifn
 
-			if (r == 1) continue;	// intifで処理した
-			if (r == 2) return 0;	// intifで処理したが、データが足りない
+			if (r == 1) continue;	// intif
+			if (r == 2) return 0;	// intifAf[^
 
 			session[fd]->eof = 1;
 			ShowWarning("chrif_parse: session #%d, intif_parse failed -> disconnected.\n", fd);
@@ -1515,8 +1520,8 @@ int send_usercount_tochar(int tid, unsigned int tick, int id, int data) {
 }
 
 /*==========================================
- * timer関数
- * 今このmap鯖に繋がっているクライアント人数をchar鯖へ送る
+ * timer
+ * mapIqNCAglcharI
  *------------------------------------------
  */
 int send_users_tochar(int tid, unsigned int tick, int id, int data) {
@@ -1541,8 +1546,8 @@ int send_users_tochar(int tid, unsigned int tick, int id, int data) {
 }
 
 /*==========================================
- * timer関数
- * char鯖との接続を確認し、もし切れていたら再度接続する
+ * timer
+ * charImFAx
  *------------------------------------------
  */
 int check_connect_char_server(int tid, unsigned int tick, int id, int data) {
@@ -1595,7 +1600,7 @@ int auth_db_final(DBKey k,void *d,va_list ap) {
 }
 
 /*==========================================
- * 終了
+ * I
  *------------------------------------------
  */
 int do_final_chrif(void)

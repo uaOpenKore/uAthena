@@ -6,8 +6,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <limits.h>
 
+#include "../common/cbasetypes.h"
 #include "../common/socket.h" // [Valaris]
 #include "../common/timer.h"
 #include "../common/nullpo.h"
@@ -24,6 +24,7 @@
 #include "npc.h"
 #include "mob.h"
 #include "pet.h"
+#include "mercenary.h"	//orn
 #include "itemdb.h"
 #include "script.h"
 #include "battle.h"
@@ -124,21 +125,16 @@ static int pc_invincible_timer(int tid,unsigned int tick,int id,int data) {
 int pc_setinvincibletimer(struct map_session_data *sd,int val) {
 	nullpo_retr(0, sd);
 
-	if(sd->invincible_timer != -1)
+	if(sd->invincible_timer != INVALID_TIMER)
 		delete_timer(sd->invincible_timer,pc_invincible_timer);
 	sd->invincible_timer = add_timer(gettick()+val,pc_invincible_timer,sd->bl.id,0);
 	return 0;
 }
 
-int pc_delinvincibletimer(struct map_session_data *sd) {
-	nullpo_retr(0, sd);
-
-	if(sd->invincible_timer != -1) {
-		delete_timer(sd->invincible_timer,pc_invincible_timer);
-		sd->invincible_timer = -1;
-		skill_unit_move(&sd->bl,gettick(),1);
-	}
-	return 0;
+void pc_delinvincibletimer_sub(struct map_session_data *sd) {
+	delete_timer(sd->invincible_timer,pc_invincible_timer);
+	sd->invincible_timer = INVALID_TIMER;
+	skill_unit_move(&sd->bl,gettick(),1);
 }
 
 static int pc_spiritball_timer(int tid,unsigned int tick,int id,int data) {
@@ -580,6 +576,14 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 		clif_authfail_fd(sd->fd, 0);
 		return 1;
 	}
+
+	if (map_id2sd(st->account_id) != NULL)
+	{	//Somehow a second connection has managed to go through the double-connection
+		//check in clif_parse_WantToConnection! [Skotlex]
+		clif_authfail_fd(sd->fd, 0);
+		return 1;
+	}
+
 	memcpy(&sd->status, st, sizeof(*st));
 
 	//Set the map-server used job id. [Skotlex]
@@ -597,6 +601,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 
 	sd->followtimer = -1; // [MouseJstr]
 	sd->invincible_timer = -1;
+	sd->npc_timer_id = -1;
+	sd->pvp_timer = -1;
 
 	sd->canuseitem_tick = tick;
 	sd->cantalk_tick = tick;
@@ -641,11 +647,6 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	for(i = 0; i < MAX_EVENTTIMER; i++)
 		sd->eventtimer[i] = -1;
 
-	sd->npc_timer_id = -1;
-
-	// Moved PVP timer initialisation before set_pos
-	sd->pvp_timer = -1;
-
 	for (i = 0; i < 3; i++)
 		sd->hate_mob[i] = -1;
 
@@ -666,6 +667,9 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	if (sd->status.pet_id > 0)
 		intif_request_petdata(sd->status.account_id, sd->status.char_id, sd->status.pet_id);
 
+	// Homunculus [albator]
+	if (sd->status.hom_id > 0)
+		intif_homunculus_requestload(sd->status.account_id, sd->status.hom_id);
 
 	clif_authok(sd);
 	map_addiddb(&sd->bl);
@@ -914,8 +918,9 @@ int pc_calc_skilltree(struct map_session_data *sd)
 		if (sd->status.skill[i].flag != 13) //Don't touch plagiarized skills
 			sd->status.skill[i].id=0; //First clear skills.
 	}
-	for(i=0;i<MAX_SKILL;i++){ 
-		if (sd->status.skill[i].flag && sd->status.skill[i].flag != 13){ //Restore original level of skills after deleting earned skills.	
+
+	for(i=0;i<MAX_SKILL;i++){
+		if (sd->status.skill[i].flag && sd->status.skill[i].flag != 13){ //Restore original level of skills after deleting earned skills.
 			sd->status.skill[i].lv=(sd->status.skill[i].flag==1)?0:sd->status.skill[i].flag-2;
 			sd->status.skill[i].flag=0;
 		}
@@ -942,41 +947,49 @@ int pc_calc_skilltree(struct map_session_data *sd)
 		}
 		return 0;
 	}
+
 	do {
-		flag=0;
-		for(i=0;i < MAX_SKILL_TREE && (id=skill_tree[c][i].id)>0;i++){
-			int j,f=1;
+		flag = 0;
+		for(i = 0; i < MAX_SKILL_TREE && (id = skill_tree[c][i].id) > 0; i++) {
+			int j, f, inf2;
+
 			if(sd->status.skill[id].id)
 				continue; //Skill already known.
+
+			f = 1;
 			if(!battle_config.skillfree) {
-				for(j=0;j<5;j++) {
-					if( skill_tree[c][i].need[j].id &&
-						pc_checkskill(sd,skill_tree[c][i].need[j].id) <
-						skill_tree[c][i].need[j].lv) {
-						f=0;
+				for(j = 0; j < 5; j++) {
+					if( skill_tree[c][i].need[j].id && pc_checkskill(sd,skill_tree[c][i].need[j].id) < skill_tree[c][i].need[j].lv) {
+						f = 0; // one or more prerequisites wasn't satisfied
 						break;
 					}
 				}
 				if (sd->status.job_level < skill_tree[c][i].joblv)
-					f=0;
-				else if (pc_checkskill(sd, NV_BASIC) < 9 && id != NV_BASIC && !(skill_get_inf2(id)&INF2_QUEST_SKILL))
-					f=0; // Do not unlock normal skills when Basic Skills is not maxed out (can happen because of skill reset)
+					f = 0; // job level requirement wasn't satisfied
 			}
-			if(skill_get_inf2(id)&INF2_SPIRIT_SKILL)
-			{	//Spirit skills cannot be learned, they will only show up on your tree when you get buffed.
-				if (sd->sc.count && sd->sc.data[SC_SPIRIT].timer != -1)
-				{	//Enable Spirit Skills. [Skotlex]
-					sd->status.skill[id].id=id;
-					sd->status.skill[id].lv=1;
-					sd->status.skill[id].flag=1; //So it is not saved, and tagged as a "bonus" skill.
-					flag=1;
+
+			if (f) {
+				inf2 = skill_get_inf2(id);
+
+				if(!sd->status.skill[id].lv && (
+					(inf2&INF2_QUEST_SKILL && !battle_config.quest_skill_learn) ||
+					inf2&INF2_WEDDING_SKILL ||
+					(inf2&INF2_SPIRIT_SKILL && !(sd->sc.count && sd->sc.data[SC_SPIRIT].timer != -1))
+				))
+					continue; //Cannot be learned via normal means. Note this check DOES allows raising already known skills.
+
+				sd->status.skill[id].id = id;
+
+				if(inf2&INF2_SPIRIT_SKILL)
+				{	//Spirit skills cannot be learned, they will only show up on your tree when you get buffed.
+					sd->status.skill[id].lv = 1; // need to manually specify a skill level
+					sd->status.skill[id].flag = 1; //So it is not saved, and tagged as a "bonus" skill.
 				}
-			} else if (f){
-				sd->status.skill[id].id=id;
-				flag=1;
+				flag = 1; // skill list has changed, perform another pass
 			}
 		}
 	} while(flag);
+
 	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON)) {
 		//Grant all Taekwon Tree, but only as bonus skills in case they drop from ranking. [Skotlex]
 		for(i=0;i < MAX_SKILL_TREE && (id=skill_tree[c][i].id)>0;i++){
@@ -1030,12 +1043,15 @@ static void pc_check_skilltree(struct map_session_data *sd, int skill) {
 				continue;
 			if (sd->status.job_level < skill_tree[c][i].joblv)
 				continue;
-			else if (pc_checkskill(sd, NV_BASIC) < 9 && id != NV_BASIC && !(skill_get_inf2(id)&INF2_QUEST_SKILL))
-				continue; // Do not unlock normal skills when Basic Skills is not maxed out (can happen because of skill reset)
-			
-			if(skill_get_inf2(id)&INF2_SPIRIT_SKILL)
-				//Spirit skills cannot be learned
-				continue;
+
+			j = skill_get_inf2(id);
+			if(!sd->status.skill[id].lv && (
+				(j&INF2_QUEST_SKILL && !battle_config.quest_skill_learn) ||
+				j&INF2_WEDDING_SKILL ||
+				(j&INF2_SPIRIT_SKILL && !(sd->sc.count && sd->sc.data[SC_SPIRIT].timer != -1))
+			))
+				continue; //Cannot be learned via normal means.
+
 			sd->status.skill[id].id=id;
 			flag=1;
 		}
@@ -1064,15 +1080,18 @@ int pc_clean_skilltree(struct map_session_data *sd) {
 int pc_calc_skilltree_normalize_job(struct map_session_data *sd) {
 	int skill_point;
 	int c = sd->class_;
-	
-	if (!battle_config.skillup_limit || !(sd->class_&JOBL_2) || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
-		return c; //Only Normalize non-first classes (and non-super novice)
-	
+
+	if (!battle_config.skillup_limit)
+		return c;
+
 	skill_point = pc_calc_skillpoint(sd);
-	if(skill_point < 9)
+	if(pc_checkskill(sd, NV_BASIC) < 9) //Consider Novice Tree when you don't have NV_BASIC maxed.
 		c = MAPID_NOVICE;
-	else if (sd->status.skill_point >= (int)sd->status.job_level
-		&& ((sd->change_level > 0 && skill_point < sd->change_level+8) || skill_point < 58)) {
+	else
+	//Do not send S. Novices to first class (Novice)
+	if ((sd->class_&JOBL_2) && (sd->class_&MAPID_UPPERMASK) != MAPID_SUPER_NOVICE &&
+		sd->status.skill_point >= (int)sd->status.job_level &&
+		((sd->change_level > 0 && skill_point < sd->change_level+8) || skill_point < 58)) {
 		//Send it to first class.
 		c &= MAPID_BASEMASK;
 	}
@@ -1085,37 +1104,40 @@ int pc_calc_skilltree_normalize_job(struct map_session_data *sd) {
 }
 
 /*==========================================
- * dACRmF
+ * Updates the weight status
  *------------------------------------------
+ * 1: overweight 50%
+ * 2: overweight 90%
+ * It's assumed that SC_WEIGHT50 and SC_WEIGHT90 are only started/stopped here.
  */
-int pc_checkweighticon(struct map_session_data *sd)
+int pc_updateweightstatus(struct map_session_data *sd)
 {
-	int flag=0;
+	int old_overweight;
+	int new_overweight;
 
-	nullpo_retr(0, sd);
+	nullpo_retr(1, sd);
 
-	//Consider the battle option 50% criteria....
-	if(sd->weight*100 >= sd->max_weight*battle_config.natural_heal_weight_rate)
-		flag=1;
-	if(sd->weight*10 >= sd->max_weight*9)
-		flag=2;
+	old_overweight = (sd->sc.data[SC_WEIGHT90].timer != -1) ? 2 : (sd->sc.data[SC_WEIGHT50].timer != -1) ? 1 : 0;
+	new_overweight = (pc_is90overweight(sd)) ? 2 : (pc_is50overweight(sd)) ? 1 : 0;
 
-	if(flag==1){
-		if(sd->sc.data[SC_WEIGHT50].timer==-1)
-			sc_start(&sd->bl,SC_WEIGHT50,100,0,0);
-	}else{
-		if(sd->sc.data[SC_WEIGHT50].timer!=-1)
-			status_change_end(&sd->bl,SC_WEIGHT50,-1);
-	} 
-	if(flag==2){
-		if(sd->sc.data[SC_WEIGHT90].timer==-1)
-			sc_start(&sd->bl,SC_WEIGHT90,100,0,0);
-	}else{
-		if(sd->sc.data[SC_WEIGHT90].timer!=-1)
-			status_change_end(&sd->bl,SC_WEIGHT90,-1);
-	}
-	if (flag != sd->regen.state.overweight)
-		sd->regen.state.overweight = flag;
+	if( old_overweight == new_overweight )
+		return 0; // no change
+
+	// stop old status change
+	if( old_overweight == 1 )
+		status_change_end(&sd->bl, SC_WEIGHT50, -1);
+	else if( old_overweight == 2 )
+		status_change_end(&sd->bl, SC_WEIGHT90, -1);
+
+	// start new status change
+	if( new_overweight == 1 )
+		sc_start(&sd->bl, SC_WEIGHT50, 100, 0, 0);
+	else if( new_overweight == 2 )
+		sc_start(&sd->bl, SC_WEIGHT90, 100, 0, 0);
+
+	// update overweight status
+	sd->regen.state.overweight = new_overweight;
+
 	return 0;
 }
 
@@ -1675,8 +1697,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			sd->special_state.no_gemstone = 1;
 		break;
 	case SP_INTRAVISION: // Maya Purple Card effect allowing to see Hiding/Cloaking people [DracoRPG]
-		if(sd->state.lr_flag != 2)
+		if(sd->state.lr_flag != 2) {
 			sd->special_state.intravision = 1;
+			clif_status_load(&sd->bl, SI_INTRAVISION, 1);
+		}
 		break;
 	case SP_SPLASH_RANGE:
 		if(sd->state.lr_flag != 2 && sd->splash_range < val)
@@ -2392,47 +2416,47 @@ int pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type4
  *	2 - Like 1, except the level granted can stack with previously learned level.
  *------------------------------------------
  */
-int pc_skill(struct map_session_data *sd,int id,int level,int flag)
+int pc_skill(TBL_PC* sd, int id, int level, int flag)
 {
 	nullpo_retr(0, sd);
 
-	if(level>MAX_SKILL_LEVEL){
-		if(battle_config.error_log)
+	if( level > MAX_SKILL_LEVEL ){
+		if( battle_config.error_log )
 			ShowError("pc_skill: Skill level %d too high. Max lv supported is MAX_SKILL_LEVEL (%d)\n", level, MAX_SKILL_LEVEL);
 		return 0;
 	}
-	switch (flag) {
+	switch( flag ){
 	case 0: //Set skill data overwriting whatever was there before.
-		sd->status.skill[id].id=id;
-		sd->status.skill[id].lv=level;
-		sd->status.skill[id].flag=0;
-		if (!level) //Remove skill.
+		sd->status.skill[id].id   = id;
+		sd->status.skill[id].lv   = level;
+		sd->status.skill[id].flag = 0;
+		if( !level ) //Remove skill.
 			sd->status.skill[id].id = 0;
-		if (!skill_get_inf(id)) //Only recalculate for passive skills.
-			status_calc_pc(sd,0);
+		if( !skill_get_inf(id) ) //Only recalculate for passive skills.
+			status_calc_pc(sd, 0);
 		clif_skillinfoblock(sd);
 	break;
 	case 2: //Add skill bonus on top of what you had.
-		if (sd->status.skill[id].id==id) {
-			if (!sd->status.skill[id].flag)
-				sd->status.skill[id].flag=sd->status.skill[id].lv+2; //Store previous level.
+		if( sd->status.skill[id].id == id ){
+			if( !sd->status.skill[id].flag ) // Store previous level.
+				sd->status.skill[id].flag = sd->status.skill[id].lv + 2;
 		} else {
-			sd->status.skill[id].id=id;
-			sd->status.skill[id].flag=1; //Set that this is a bonus skill.
+			sd->status.skill[id].id   = id;
+			sd->status.skill[id].flag = 1; //Set that this is a bonus skill.
 		}
-		sd->status.skill[id].lv+=level;
+		sd->status.skill[id].lv += level;
 	break;
 	case 1: //Item bonus skill.
-		if(sd->status.skill[id].lv >= level)
+		if( sd->status.skill[id].lv >= level )
 			return 0;
-		if(sd->status.skill[id].id==id) {
-			if (!sd->status.skill[id].flag) //Non-granted skill, store it's level.
-				sd->status.skill[id].flag=sd->status.skill[id].lv+2;
+		if( sd->status.skill[id].id == id ){
+			if( !sd->status.skill[id].flag ) //Non-granted skill, store it's level.
+				sd->status.skill[id].flag = sd->status.skill[id].lv + 2;
 		} else {
-			sd->status.skill[id].id=id;
-			sd->status.skill[id].flag=1;
+			sd->status.skill[id].id   = id;
+			sd->status.skill[id].flag = 1;
 		}
-		sd->status.skill[id].lv=level;
+		sd->status.skill[id].lv = level;
 	break;
 	default: //Unknown flag?
 		return 0;
@@ -2462,6 +2486,8 @@ int pc_insert_card(struct map_session_data *sd,int idx_card,int idx_equip)
 
 	//Check validity
 	if( nameid <= 0 || cardid <= 0 ||
+		sd->status.inventory[idx_equip].amount < 1 || //These two should never be required due to pc_delitem zero'ing the data.
+		sd->status.inventory[idx_card].amount < 1 ||
 		(sd->inventory_data[idx_equip]->type!=IT_WEAPON && sd->inventory_data[idx_equip]->type!=IT_ARMOR)||
 		sd->inventory_data[idx_card]->type!=IT_CARD || // Prevent Hack [Ancyker]
 		sd->status.inventory[idx_equip].identify==0 ||
@@ -3243,7 +3269,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 		char message[128];
 		i_data = itemdb_search(itemid);
 		sprintf (message, msg_txt(542), (sd->status.name != NULL)?sd->status.name :"GM", md->db->jname, i_data->jname, (float)md->db->dropitem[i].p/100);
-		//MSG: "'%s' stole %s's %s (chance: %%%0.02f)"
+		//MSG: "'%s' stole %s's %s (chance: %0.02f%%)"
 		intif_GMmessage(message,strlen(message)+1,0);
 	}
 	return 1;
@@ -3341,6 +3367,9 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 					intif_save_petdata(sd->status.account_id,&sd->pd->pet);
 					unit_remove_map(&sd->pd->bl, clrtype);
 				}
+				if(merc_is_hom_active(sd->hd)) //Hom is auto-saved in chrif_save
+					unit_remove_map(&sd->hd->bl, clrtype);
+
 				chrif_save(sd,2);
 				chrif_changemapserver(sd, mapindex, x, y, ip, (short)port);
 				return 0;
@@ -3372,6 +3401,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 		unit_remove_map(&sd->bl, clrtype);
 		if(sd->status.pet_id > 0 && sd->pd)
 			unit_remove_map(&sd->pd->bl, clrtype);
+		if(merc_is_hom_active(sd->hd))
+			unit_remove_map(&sd->hd->bl, clrtype);
 		clif_changemap(sd,map[m].index,x,y); // [MouseJstr]
 	} else if(sd->state.auth)
 		//Tag player for rewarping after map-loading is done. [Skotlex]
@@ -3394,6 +3425,13 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 		sd->pd->bl.x = sd->pd->ud.to_x = x;
 		sd->pd->bl.y = sd->pd->ud.to_y = y;
 		sd->pd->ud.dir = sd->ud.dir;
+	}
+
+	if(merc_is_hom_active(sd->hd)) {	//orn
+		sd->hd->bl.m = m;
+		sd->hd->bl.x = sd->hd->ud.to_x = x;
+		sd->hd->bl.y = sd->hd->ud.to_y = y;
+		sd->hd->ud.dir = sd->ud.dir;
 	}
 
 	return 0;
@@ -4444,12 +4482,18 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 	nullpo_retr(0, sd);
 
 	if(skill_num >= GD_SKILLBASE){
-		guild_skillup(sd,skill_num,0);
+		guild_skillup(sd, skill_num);
 		return 0;
 	}
+
+	if(skill_num >= HM_SKILLBASE && sd->hd){
+		merc_hom_skillup(sd->hd, skill_num);
+		return 0;
+	}
+
 	if (skill_num < 0 || skill_num >= MAX_SKILL)
 		return 0;
-	
+
 	if(sd->status.skill_point>0 &&
 		sd->status.skill[skill_num].id &&
 		sd->status.skill[skill_num].flag==0 && //Don't allow raising while you have granted skills. [Skotlex]
@@ -4480,37 +4524,38 @@ int pc_allskillup(struct map_session_data *sd)
 	nullpo_retr(0, sd);
 
 	for(i=0;i<MAX_SKILL;i++){
-		sd->status.skill[i].id=0;
-		if (sd->status.skill[i].flag && sd->status.skill[i].flag != 13){	// cardXLA
-			sd->status.skill[i].lv=(sd->status.skill[i].flag==1)?0:sd->status.skill[i].flag-2;	// {?lv
-			sd->status.skill[i].flag=0;	// flag0
+		if (sd->status.skill[i].flag && sd->status.skill[i].flag != 13){
+			sd->status.skill[i].lv=(sd->status.skill[i].flag==1)?0:sd->status.skill[i].flag-2;
+			sd->status.skill[i].flag=0;
+			if (!sd->status.skill[i].lv)
+				sd->status.skill[i].id=0;
 		}
 	}
 
-	if (battle_config.gm_allskill > 0 && pc_isGM(sd) >= battle_config.gm_allskill){
-		// SXL
+	//pc_calc_skilltree takes care of setting the ID to valid skills. [Skotlex]
+	if (battle_config.gm_allskill > 0 && pc_isGM(sd) >= battle_config.gm_allskill)
+	{	//Get ALL skills except npc/guild ones. [Skotlex]
+		//and except SG_DEVIL [Komurka]
 		for(i=0;i<MAX_SKILL;i++){
-			if(!(skill_get_inf2(i)&(INF2_NPC_SKILL|INF2_GUILD_SKILL))) //Get ALL skills except npc/guild ones. [Skotlex]
-				if (i!=SG_DEVIL) //and except SG_DEVIL [Komurka]
-					sd->status.skill[i].lv=skill_get_max(i); //Nonexistant skills should return a max of 0 anyway.
+			if(!(skill_get_inf2(i)&(INF2_NPC_SKILL|INF2_GUILD_SKILL)) && i!=SG_DEVIL)
+				sd->status.skill[i].lv=skill_get_max(i); //Nonexistant skills should return a max of 0 anyway.
 		}
 	}
-	else {
+	else
+	{
 		int inf2;
 		for(i=0;i < MAX_SKILL_TREE && (id=skill_tree[sd->status.class_][i].id)>0;i++){
 			inf2 = skill_get_inf2(id);
-			if(sd->status.skill[id].id==0 &&
-				(!(inf2&INF2_QUEST_SKILL) || battle_config.quest_skill_learn) &&
-				!(inf2&(INF2_WEDDING_SKILL|INF2_SPIRIT_SKILL)) &&
-				(id!=SG_DEVIL))
-			 {
-				sd->status.skill[id].id = id;	// celest
-				sd->status.skill[id].lv = skill_tree_get_max(id, sd->status.class_);	// celest
-			}
+			if (
+				(inf2&INF2_QUEST_SKILL && !battle_config.quest_skill_learn) ||
+				(inf2&(INF2_WEDDING_SKILL|INF2_SPIRIT_SKILL)) ||
+				id==SG_DEVIL
+			)
+				continue; //Cannot be learned normally.
+			sd->status.skill[id].lv = skill_tree_get_max(id, sd->status.class_);	// celest
 		}
 	}
 	status_calc_pc(sd,0);
-
 	return 0;
 }
 
@@ -4818,6 +4863,9 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			pet_unlocktarget(sd->pd);
 	}
 
+	if(sd->status.hom_id > 0)	//orn
+		merc_hom_vaporize(sd, 0);
+
 	// Leave duel if you die [LuzZza]
 	if(battle_config.duel_autoleave_when_die) {
 		if(sd->duel_group > 0)
@@ -4898,7 +4946,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	}
 	break;
 	}
-		
+
 
 	// PK/Karma system code (not enabled yet) [celest]
 	/*
@@ -5003,7 +5051,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		}
 	}
 
-	if(map[sd->bl.m].flag.pvp_nightmaredrop){ // Moved this outside so it works when PVP isnt enabled and during pk mode [Ancyker]
+	if(map[sd->bl.m].flag.pvp_nightmaredrop){ // Moved this outside so it works when PVP isn't enabled and during pk mode [Ancyker]
 		for(j=0;j<MAX_DROP_PER_MAP;j++){
 			int id = map[sd->bl.m].drop_list[j].drop_id;
 			int type = map[sd->bl.m].drop_list[j].drop_type;
@@ -5537,6 +5585,9 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	if(i != sd->sc.option)
 		pc_setoption(sd, i);
 
+	if(merc_is_hom_active(sd->hd) && !pc_checkskill(sd, AM_CALLHOMUN))
+		merc_hom_vaporize(sd, 0);
+
 	if(sd->status.manner < 0)
 		clif_changestatus(&sd->bl,SP_MANNER,sd->status.manner);
 
@@ -5750,13 +5801,16 @@ int pc_setcart(struct map_session_data *sd,int type)
 }
 
 /*==========================================
- * 
+ *
  *------------------------------------------
  */
-int pc_setfalcon(struct map_session_data *sd)
+int pc_setfalcon(TBL_PC* sd, int flag)
 {
-	if(pc_checkskill(sd,HT_FALCON)>0){	// t@R}X^?XL
-		pc_setoption(sd,sd->sc.option|OPTION_FALCON);
+	if( flag ){
+		if( pc_checkskill(sd,HT_FALCON)>0 )	// t@R}X^?XL
+			pc_setoption(sd,sd->sc.option|OPTION_FALCON);
+	} else if( pc_isfalcon(sd) ){
+		pc_setoption(sd,sd->sc.option&~OPTION_FALCON); // remove falcon
 	}
 
 	return 0;
@@ -5766,11 +5820,15 @@ int pc_setfalcon(struct map_session_data *sd)
  * yRyR
  *------------------------------------------
  */
-int pc_setriding(struct map_session_data *sd)
+int pc_setriding(TBL_PC* sd, int flag)
 {
-	if((pc_checkskill(sd,KN_RIDING)>0)){ // CfBOXL
-		pc_setoption(sd,sd->sc.option|OPTION_RIDING);
+	if( flag ){
+		if( pc_checkskill(sd,KN_RIDING) > 0 ) // CfBOXL
+			pc_setoption(sd, sd->sc.option|OPTION_RIDING);
+	} else if( pc_isriding(sd) ){
+		pc_setoption(sd, sd->sc.option&~OPTION_RIDING);
 	}
+
 	return 0;
 }
 
@@ -6260,11 +6318,11 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 		clif_equipitemack(sd,n,0,0);	// fail
 		return 0;
 	}
-	
+
 	if(pos == EQP_ACC) { //Accesories should only go in one of the two,
 		pos = req_pos&EQP_ACC;
-		if (pos == EQP_ACC) //User specified both slots.. 
-			pos = sd->equip_index[EQI_ACC_L] >= 0 ? EQP_ACC_R : EQP_ACC_L;
+		if (pos == EQP_ACC) //User specified both slots..
+			pos = sd->equip_index[EQI_ACC_R] >= 0 ? EQP_ACC_L : EQP_ACC_R;
 	}
 
 	if(pos == EQP_ARMS && id->equip == EQP_HAND_R)
@@ -6291,7 +6349,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 			sd->equip_index[i] = n;
 		}
 	}
-	
+
 	if(pos==EQP_AMMO){
 		clif_arrowequip(sd,n);
 		clif_arrow_fail(sd,3);
@@ -6634,7 +6692,7 @@ int pc_calc_pvprank_timer(int tid,unsigned int tick,int id,int data)
 	sd=map_id2sd(id);
 	if(sd==NULL)
 		return 0;
-	sd->pvp_timer=-1;
+	sd->pvp_timer=UINT_MAX;
 	if( pc_calc_pvprank(sd)>0 )
 		sd->pvp_timer=add_timer(
 			gettick()+PVP_CALCRANK_INTERVAL,
@@ -7248,7 +7306,7 @@ int pc_readdb(void)
 	while(fgets(line, sizeof(line)-1, fp)){
 		int jobs[MAX_PC_CLASS], job_count, job;
 		int type;
-		unsigned int max;
+		unsigned int ui,maxlv;
 		char *split[4];
 		if(line[0]=='/' && line[1]=='/')
 			continue;
@@ -7268,23 +7326,27 @@ int pc_readdb(void)
 			ShowError("pc_readdb: Invalid type %d (must be 0 for base levels, 1 for job levels).\n", type);
 			continue;
 		}
-		max = atoi(split[0]);
-		if (max > MAX_LEVEL) {
-			ShowWarning("pc_readdb: Specified max level %d for job %d is beyond server's limit (%d).\n ", max, job, MAX_LEVEL);
-			max = MAX_LEVEL;
+		maxlv = atoi(split[0]);
+		if (maxlv > MAX_LEVEL) {
+			ShowWarning("pc_readdb: Specified max level %u for job %d is beyond server's limit (%u).\n ", maxlv, job, MAX_LEVEL);
+			maxlv = MAX_LEVEL;
 		}
 		//We send one less and then one more because the last entry in the exp array should hold 0.
-		max_level[job][type] = pc_split_atoui(split[3], exp_table[job][type],',',max-1)+1;
+		max_level[job][type] = pc_split_atoui(split[3], exp_table[job][type],',',maxlv-1)+1;
 		//Reverse check in case the array has a bunch of trailing zeros... [Skotlex]
 		//The reasoning behind the -2 is this... if the max level is 5, then the array
 		//should look like this:
 	   //0: x, 1: x, 2: x: 3: x 4: 0 <- last valid value is at 3.
-		while ((i = max_level[job][type]-2) >= 0 && exp_table[job][type][i] <= 0)
+		while ((ui = max_level[job][type]) >= 2 && exp_table[job][type][ui-2] <= 0)
 			max_level[job][type]--;
-		if (max_level[job][type] < max) {
-			ShowWarning("pc_readdb: Specified max %d for job %d, but that job's exp table only goes up to level %d.\n", max, job, max_level[job][type]);
-			ShowNotice("(You may still reach lv %d through scripts/gm-commands)\n", max);
-			max_level[job][type] = max;
+		if (max_level[job][type] < maxlv) {
+			ShowWarning("pc_readdb: Specified max %u for job %d, but that job's exp table only goes up to level %u.\n", maxlv, job, max_level[job][type]);
+			ShowInfo("Filling the missing values with the last exp entry.\n");
+			//Fill the requested values with the last entry.
+			ui = (max_level[job][type] <= 2? 0: max_level[job][type]-2);
+			for (; ui+2 < maxlv; ui++)
+				exp_table[job][type][ui] = exp_table[job][type][ui-1];
+			max_level[job][type] = maxlv;
 		}
 //		ShowDebug("%s - Class %d: %d\n", type?"Job":"Base", job, max_level[job][type]);
 		for (i = 1; i < job_count; i++) {
@@ -7294,8 +7356,8 @@ int pc_readdb(void)
 				continue;
 			}
 			memcpy(exp_table[job][type], exp_table[jobs[0]][type], sizeof(exp_table[0][0]));
-			max_level[job][type] = max;
-//			ShowDebug("%s - Class %d: %d\n", type?"Job":"Base", job, max_level[job][type]);
+			max_level[job][type] = maxlv;
+//			ShowDebug("%s - Class %d: %u\n", type?"Job":"Base", job, max_level[job][type]);
 		}
 	}
 	fclose(fp);

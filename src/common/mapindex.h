@@ -4,7 +4,8 @@
 extern char mapindex_cfgfile[80];
 
 //whether to enable auto-adding of maps during run. Not so secure as the map indexes will vary!
-#define MAPINDEX_AUTOADD
+// disabled - since mapindex.h wasn't included in mapindex.c it never got enabled anyway... [FlavioJS]
+//#define MAPINDEX_AUTOADD
 
 //Some definitions for the mayor city maps.
 #define MAP_PRONTERA "prontera.gat"
@@ -28,7 +29,10 @@ extern char mapindex_cfgfile[80];
 #define MAP_LIGHTHALZEN "lighthalzen.gat"
 #define MAP_EINBECH "einbech.gat"
 #define MAP_HUGEL "hugel.gat"
+#define MAP_RACHEL "rachel.gat"
+#define MAP_VEINS "veins.gat"
 #define MAP_JAIL "sec_pri.gat"
+#define MAP_NOVICE "new_zone01.gat"
 unsigned short mapindex_name2id(char*);
 const char* mapindex_id2name(unsigned short);
 void mapindex_init(void);

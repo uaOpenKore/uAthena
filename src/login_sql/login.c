@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 #ifdef LCCWIN32
-#include <winsock.h>
+#include <winsock2.h>
 #else
 #ifdef __WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -41,7 +41,7 @@
 #include "login.h"
 
 #ifdef PASSWORDENC
-#include "md5calc.h"
+#include "../common/md5calc.h"
 #endif
 
 #define J_MAX_MALLOC_SIZE 65535
@@ -471,7 +471,7 @@ int mmo_auth_new(struct mmo_account* account, char sex)
 	unsigned int tick = gettick();
 	char user_password[256];
 	//Account Registration Flood Protection by [Kevin]
-	if(tick <= new_reg_tick && num_regs >= allowed_regs) {
+	if(DIFF_TICK(tick, new_reg_tick) < 0 && num_regs >= allowed_regs) {
 		ShowNotice("Account registration denied (registration limit exceeded)\n");
 		return 3;
 	}
@@ -531,10 +531,10 @@ int mmo_auth_new(struct mmo_account* account, char sex)
 		}
 		ShowNotice("Updated New account %s's ID %d->%d (account_id must be %d or higher).", account->userid, id, START_ACCOUNT_NUM, START_ACCOUNT_NUM);
 	}
-	if(tick > new_reg_tick)
+	if(DIFF_TICK(tick, new_reg_tick) > 0)
 	{	//Update the registration check.
 		num_regs=0;
-		new_reg_tick=gettick()+time_allowed*1000;
+		new_reg_tick=tick+time_allowed*1000;
 	}
 	num_regs++;
 
@@ -1668,8 +1668,8 @@ int parse_login(int fd) {
 						sprintf(error,"dynamic ban (ip and account).");
 						break;
 					case 1:	// 0 = Unregistered ID
-						sprintf(tmpsql,tmp_sql,"Unregisterd ID.");
-						sprintf(error,"Unregisterd ID.");
+						sprintf(tmpsql,tmp_sql,"Unregistered ID.");
+						sprintf(error,"Unregistered ID.");
 						break;
 					case 2:	// 1 = Incorrect Password
 						sprintf(tmpsql,tmp_sql,"Incorrect Password.");
@@ -1951,25 +1951,31 @@ int parse_login(int fd) {
 }
 
 // Console Command Parser [Wizputer]
-int parse_console(char *buf) {
-	char *type,*command;
+int parse_console(char* buf)
+{
+	char command[256];
 
-	type = (char *)aMalloc(64);
-	command = (char *)aMalloc(64);
+	memset(command, 0, sizeof(command));
 
-	memset(type,0,64);
-	memset(command,0,64);
+	sscanf(buf, "%[^\n]", command);
 
-	ShowInfo("Console: %s\n",buf);
+	//login_log("Console command :%s" RETCODE, command);
 
-	if ( sscanf(buf, "%[^:]:%[^\n]", type , command ) < 2 )
-		sscanf(buf,"%[^\n]",type);
-
-	ShowInfo("Type of command: %s || Command: %s \n",type,command);
-
-	if(buf) aFree(buf);
-	if(type) aFree(type);
-	if(command) aFree(command);
+	if( strcmpi("shutdown", command) == 0 ||
+		strcmpi("exit", command) == 0 ||
+		strcmpi("quit", command) == 0 ||
+		strcmpi("end", command) == 0 )
+		runflag = 0;
+	else if( strcmpi("alive", command) == 0 ||
+			strcmpi("status", command) == 0 )
+		ShowInfo(CL_CYAN"Console: "CL_BOLD"I'm Alive."CL_RESET"\n");
+	else if( strcmpi("help", command) == 0 ){
+		printf(CL_BOLD"Help of commands:"CL_RESET"\n");
+		printf("  To shutdown the server:\n");
+		printf("  'shutdown|exit|qui|end'\n");
+		printf("  To know if server is alive:\n");
+		printf("  'alive|status'\n");
+	}
 
 	return 0;
 }
@@ -2391,6 +2397,8 @@ int do_init(int argc,char **argv){
 		set_defaultconsoleparse(parse_console);
 		start_console();
 	}
+
+	new_reg_tick=gettick();
 
 	ShowStatus("The login-server is "CL_GREEN"ready"CL_RESET" (Server is listening on the port %d).\n\n", login_port);
 

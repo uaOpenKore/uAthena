@@ -36,7 +36,6 @@
  * @version 0.1 - Initial version                                            *
  * @author Flavio @ Amazon Project                                           *
  * @encoding US-ASCII                                                        *
- * @see common#ers.c                                                         *
 \*****************************************************************************/
 #ifndef _ERS_H_
 #define _ERS_H_
@@ -47,7 +46,7 @@
  *  (1) All public parts of the Entry Reusage System.                        *
  *  DISABLE_ERS           - Define to disable this system.                   *
  *  ERS_ALIGNED           - Alignment of the entries in the blocks.          *
- *  ERInterface           - Interface of the entry manager.                  *
+ *  ERS                   - Entry manager.                                   *
  *  ers_new               - Allocate an instance of an entry manager.        *
  *  ers_report            - Print a report about the current state.          *
  *  ers_force_destroy_all - Force the destruction of all the managers.       *
@@ -56,8 +55,7 @@
 /**
  * Define this to disable the Entry Reusage System.
  * All code except the typedef of ERInterface will be disabled.
- * To allow a smooth transition, 
- * @public
+ * To allow a smooth transition,
  */
 //#define DISABLE_ERS
 
@@ -65,10 +63,8 @@
  * Entries are aligned to ERS_ALIGNED bytes in the blocks of entries.
  * By default it aligns to one byte, using the "natural order" of the entries.
  * This should NEVER be set to zero or less.
- * If greater than one, some memory can be wasted. This should never be needed 
+ * If greater than one, some memory can be wasted. This should never be needed
  * but is here just in case some aligment issues arise.
- * @public
- * @see #ers_new(uint32)
  */
 #ifndef ERS_ALIGNED
 #	define ERS_ALIGNED 1
@@ -80,8 +76,6 @@
  * @param free Free an entry allocated from this manager
  * @param entry_size Return the size of the entries of this manager
  * @param destroy Destroy this instance of the manager
- * @public
- * @see #ers_new(uint32)
  */
 typedef struct eri {
 
@@ -90,9 +84,6 @@ typedef struct eri {
 	 * If there are reusable entries available, it reuses one instead.
 	 * @param self Interface of the entry manager
 	 * @return An entry
-	 * @protected
-	 * @see #ERInterface
-	 * @see ERInterface#free(ERInterface,void *)
 	 */
 	void *(*alloc)(struct eri *self);
 
@@ -102,9 +93,6 @@ typedef struct eri {
 	 * Freeing such an entry can lead to unexpected behaviour.
 	 * @param self Interface of the entry manager
 	 * @param entry Entry to be freed
-	 * @protected
-	 * @see #ERInterface
-	 * @see ERInterface#alloc(ERInterface)
 	 */
 	void (*free)(struct eri *self, void *entry);
 
@@ -112,24 +100,19 @@ typedef struct eri {
 	 * Return the size of the entries allocated from this manager.
 	 * @param self Interface of the entry manager
 	 * @return Size of the entries of this manager in bytes
-	 * @protected
-	 * @see #ERInterface
 	 */
 	uint32 (*entry_size)(struct eri *self);
 
 	/**
 	 * Destroy this instance of the manager.
 	 * The manager is actually only destroyed when all the instances are destroyed.
-	 * When destroying the manager a warning is shown if the manager has 
+	 * When destroying the manager a warning is shown if the manager has
 	 * missing/extra entries.
 	 * @param self Interface of the entry manager
-	 * @protected
-	 * @see #ERInterface
-	 * @see #ers_new(uint32)
 	 */
 	void (*destroy)(struct eri *self);
 
-} *ERInterface;
+} *ERS;
 
 #ifdef DISABLE_ERS
 // Use memory manager to allocate/free and disable other interface functions
@@ -158,22 +141,15 @@ typedef struct eri {
  * ERS_ALIGNED that is greater or equal to size is what's actually used.
  * @param The requested size of the entry in bytes
  * @return Interface of the object
- * @public
- * @see #ERS_ALIGNED
- * @see #ERInterface
- * @see ERInterface#destroy(ERInterface)
- * @see common\ers.c#ers_new(uint32)
  */
-ERInterface ers_new(uint32 size);
+ERS ers_new(size_t size);
 
 /**
  * Print a report about the current state of the Entry Reusage System.
  * Shows information about the global system and each entry manager.
- * The number of entries are checked and a warning is shown if extra reusable 
+ * The number of entries are checked and a warning is shown if extra reusable
  * entries are found.
  * The extra entries are included in the count of reusable entries.
- * @public
- * @see common\ers.c#ers_report(void)
  */
 void ers_report(void);
 
@@ -182,10 +158,8 @@ void ers_report(void);
  * The system is left as if no instances or entries had ever been allocated.
  * All previous entries and instances of the managers become invalid.
  * The use of this is NOT recommended.
- * It should only be used in extreme situations to make shure all the memory 
+ * It should only be used in extreme situations to make shure all the memory
  * allocated by this system is released.
- * @public
- * @see common\ers.c#ers_force_destroy_all(void)
  */
 void ers_force_destroy_all(void);
 #endif /* DISABLE_ERS / not DISABLE_ERS */

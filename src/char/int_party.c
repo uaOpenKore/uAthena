@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 
+#include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/socket.h"
 #include "../common/db.h"
@@ -236,7 +236,7 @@ int inter_party_save() {
 	int lock;
 
 	if ((fp = lock_fopen(party_txt, &lock)) == NULL) {
-		ShowError("int_party: cant write [%s] !!! data is lost !!!\n", party_txt);
+		ShowError("int_party: can't write [%s] !!! data is lost !!!\n", party_txt);
 		return 1;
 	}
 	party_db->foreach(party_db, inter_party_save_sub, fp);

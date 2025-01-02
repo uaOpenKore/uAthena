@@ -19,12 +19,12 @@
 //=	  was inapropriate for a kids game)
 //= 1.1 - Minor correction, replaced missing close; and mes :D
 //= 1.0 - First Release, most likely going to have some bugs
-//=	  Is using @adopt instead of proper NPC script command 
+//=	  Is using @adopt instead of proper NPC script command
 //===== Compatible With ===================================
 //= eAthena Final (SVN), any version that contained the GM command @adopt
-//= This is any version released after 03/29/05, dont know the number
+//= This is any version released after 03/29/05, don't know the number
 //===== Description =======================================
-//= A simple adoption script that lets couples adopt a 
+//= A simple adoption script that lets couples adopt a
 //= lvl 1/1 novice without the help of a GM there
 //===== Comments ==========================================
 //= List or Variables used
@@ -44,7 +44,7 @@
 //= before the adoption is completed.
 //= Lupus removed:
 //= 	*event_adopt = Put on the parents so they cannot adopt again.
-//= 	*event_adopted = Put on baby so it cant be adopted again.
+//= 	*event_adopted = Put on baby so it can't be adopted again.
 //= 	Use "getchildid()>0" insread of event_adopt
 //= 	Use "Upper==2" insread of event_adopted
 //=========================================================
@@ -55,7 +55,7 @@ prt_church.gat,162,171,0	warp	prtch01-3	1,2,prt_church.gat,113,122
 prt_church.gat,166,176,3	script	Adoption Man	61,{
 
 	//If u're a GM you can always reset current Adoption process
-	if(getgmlevel(99)>=90) {
+	if(getgmlevel()>=90) {
 		mes "[GM Menu]";
 		mes "Would you like to reset curent adoption?";
 		next;
@@ -84,20 +84,20 @@ A_Cannot:
 A_Yes:
 	mes "[Oliver]";
 	mes "Good to hear it!";
-	mes "But do you meet the requirments for adoption?";
+	mes "But do you meet the requirements for adoption?";
 	next;
 	mes "[Oliver]";
-	mes "We cant just give out babies at the drop of a hat.";
+	mes "We can't just give out babies at the drop of a hat.";
 	mes "Before we can let you leave with a baby we have to know you are strong enough to take care of it.";
 	next;
 	mes "[Oliver]";
 	mes "We also need to know you have a partner you are married to.";
-	mes "We wont give a baby to an un-married couple.";
+	mes "We won't give a baby to an un-married couple.";
 	next;
 	mes "[Oliver]";
 	mes "Do you think you meet these criteria?";
 	next;
-	menu "Yes, I would love to adopt?",-,"No, I dont think I can",A_No;
+	menu "Yes, I would love to adopt?",-,"No, I don't think I can",A_No;
 	mes "[Oliver]";
 	mes "Well you seem set on this.";
 	next;
@@ -143,17 +143,17 @@ prt_church.gat,172,177,3	script	Adoption Lady	103,{
 	mes "[Inanna]";
 	deltimer "timeadopt::OnAdopt";
 	addtimer 300000,"timeadopt::OnAdopt";
-	mes "So you think you meet our strict requirments?";
+	mes "So you think you meet our strict requirements?";
 	mes "Let's see here, are you over level 70?";
 	next;
 	menu "Yes, I am over level 70",A_lvl,"No, sorry to bother you",-;
 	mes "[Inanna]";
-	mes "Oh, I am sorry to hear that, please return when you meet this requirment.";
-	callfunc "AdoptReset","the parent didnt meet level requirments";
+	mes "Oh, I am sorry to hear that, please return when you meet this requirement.";
+	callfunc "AdoptReset","the parent didn't meet level requirements";
 	close;
 A_SeeFriend:
 	mes "[Inanna]";
-	mes "Seems you havent talked to my friend here.";
+	mes "Seems you haven't talked to my friend here.";
 	mes "He will refer you to me, when he thinks you are ready.";
 	close;
 A_lvl:
@@ -161,9 +161,9 @@ A_lvl:
 	mes "[Inanna]";
 	mes "Not only should I fail you on being a low level, but you also lied to me.";
 	next;
- 	mes "[Inanna]";
-	mes "I cant give a baby to you";
-	callfunc "AdoptReset","the parent didnt meet level requirments";
+	mes "[Inanna]";
+	mes "I can't give a baby to you";
+	callfunc "AdoptReset","the parent didn't meet level requirements";
 	close;
 A_lvlpassed:
 	mes "[Inanna]";
@@ -176,18 +176,18 @@ A_lvlpassed:
 	mes "[Inanna]";
 	mes "Do you have you wedding ring on you now?";
 	next;
-	menu "Yes, here you go",A_Wedring,"No, Sorry I dont",A_Noring,"I am not married",-;
+	menu "Yes, here you go",A_Wedring,"No, Sorry I don't",A_Noring,"I am not married",-;
 	mes "[Inanna]";
 	mes "Well, as my fried said here, we will not give a baby to a family that is not married";
-	callfunc "AdoptReset","the parent isnt married";
+	callfunc "AdoptReset","the parent isn't married";
 	close;
 A_Noring:
 	mes "[Inanna]";
-	mes "I cant believe you are in a loving marrige when you dont have your ring on you at all times!!!";
+	mes "I can't believe you are in a loving marriage when you don't have your ring on you at all times!!!";
 	next;
 	mes "[Inanna]";
-	mes "I dont believe you deserve a baby.";
-	callfunc "AdoptReset","the parent hasnt got a wedding ring as proof of marriage.";
+	mes "I don't believe you deserve a baby.";
+	callfunc "AdoptReset","the parent hasn't got a wedding ring as proof of marriage.";
 	close;
 A_Wedring:
 	if ( countitem(2634)>0 || countitem(2635)>0 ) goto A_Wedringpassed;
@@ -228,10 +228,10 @@ A_SecondReg:
 	mes "[Inanna]";
 	mes "Do you agree with "+$@ParentOne$+", do you want to adopt?";
 	next;
-	menu "Yes, I agree with them",A_agree,"No, I dont want to adopt",-;
+	menu "Yes, I agree with them",A_agree,"No, I don't want to adopt",-;
 	mes "[Inanna]";
 	mes "This is bad news, I am very sorry to hear this.";
-	callfunc "AdoptReset","the 2nd parent does not want to adopt"; 
+	callfunc "AdoptReset","the 2nd parent does not want to adopt";
 	close;
 A_agree:
 	mes "[Inanna]";
@@ -240,18 +240,18 @@ A_agree:
 	if(BaseLevel >= 70) goto A_lvltwo;
 	mes "[Inanna]";
 	mes "Sorry you are not over level 70.";
-	callfunc "AdoptReset","the 2nd parent didnt meet the level requirments";
+	callfunc "AdoptReset","the 2nd parent didn't meet the level requirements";
 	close;
 A_lvltwo:
 	if ( countitem(2634)>0 || countitem(2635)>0 ) goto A_Wedringtwo;
 	mes "[Inanna]";
-	mes "Sorry you dont have a wedding ring on you as proof of marriage.";
+	mes "Sorry you don't have a wedding ring on you as proof of marriage.";
 	callfunc "AdoptReset","the 2nd parent hasnt got a wedding ring as proof of marriage";
 	close;
 A_Wedringtwo:
 	if (getchildid()>0) goto A_AlreadyHaveBaby;
 	mes "[Inanna]";
-	mes "You have checked out, and have passed all the requirments.";
+	mes "You have checked out, and have passed all the requirements.";
 	mes "All you need is a novice to adopt.";
 	next;
 	mes "[Inanna]";
@@ -295,7 +295,7 @@ A_FinalTest:
 	mes "[Inanna]";
 	mes "Please calm down.";
 	mes "I will try and find better parents for you next time.";
-	callfunc "AdoptReset","the novice didnt want to be adopted";
+	callfunc "AdoptReset","the novice didn't want to be adopted";
 	close;
 A_BabyYes:
 	mes "[Inanna]";
@@ -324,7 +324,7 @@ A_Ready:
 	close;
 A_AlreadyAdopted:
 	mes "[Inanna]";
-	mes "Oh you are already adopted, so you cant be adopted again.";
+	mes "Oh you are already adopted, so you can't be adopted again.";
 	callfunc "AdoptReset","the person that would be adopted has already been adopted before";
 	close;
 A_CantBeAdopted:
@@ -350,7 +350,7 @@ A_ParentOneEnd:
 	mes "I cannot believe you would come this far to say no!";
 	mes "Are you sure you want to stop now?";
 	next;
-	menu "Yes, I dont want to adopt",-,"No, I made a mistake",A_ParentOneEnd;
+	menu "Yes, I don't want to adopt",-,"No, I made a mistake",A_ParentOneEnd;
 A_Failend:
 	mes "[Inanna]";
 	mes "Well if you are sure";
@@ -381,7 +381,7 @@ A_ParentTwoEnd:
 	mes "I cannot believe you would come this far to say no!";
 	mes "Are you sure you want to stop now?";
 	next;
-	menu "Yes, I dont want to adopt",A_Failend,"No, I made a mistake",A_ParentTwoEnd;
+	menu "Yes, I don't want to adopt",A_Failend,"No, I made a mistake",A_ParentTwoEnd;
 A_AlreadyReged:
 	mes "[Inanna]";
 	mes "Please wait for the others to talk to me";
@@ -403,7 +403,7 @@ A_BabyEnd:
 	mes "I cannot believe you would come this far to say no!";
 	mes "Are you sure you want to stop now?";
 	next;
-	menu "Yes, I dont want to adopt",A_Failend,"No, I made a mistake",A_BabyEnd;
+	menu "Yes, I don't want to adopt",A_Failend,"No, I made a mistake",A_BabyEnd;
 A_FinalYesB:
 	mes "[Inanna]";
 	mes "OK everything is ready to start this adoption";
@@ -414,7 +414,7 @@ A_FinalYesB:
 	close;
 A_SameFail:
 	mes "[Inanna]";
-	mes "Sorry, it seems you have registerd as both parents, this isnt allowed";
+	mes "Sorry, it seems you have registerd as both parents, this isn't allowed";
 	callfunc "AdoptReset","both parents are the same person";
 	close;
 

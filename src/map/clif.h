@@ -6,9 +6,6 @@
 
 #include "map.h"
 
-// protocol version
-#define PACKETVER			7
-
 // packet DB
 #define MAX_PACKET_DB		0x300
 #define MAX_PACKET_VER		25
@@ -98,7 +95,7 @@ int clif_additem(struct map_session_data*,int,int,int);	//self
 int clif_delitem(struct map_session_data*,int,int);	//self
 int clif_updatestatus(struct map_session_data*,int);	//self
 int clif_changestatus(struct block_list*,int,int);	//area
-int clif_damage(struct block_list *,struct block_list *,unsigned int,int,int,int,int,int,int);	// area
+int clif_damage(struct block_list *src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);	// area
 #define clif_takeitem(src,dst) clif_damage(src,dst,0,0,0,0,0,1,0)
 int clif_changelook(struct block_list *,int,int);	// area
 void clif_changetraplook(struct block_list *bl,int val); // area
@@ -323,7 +320,6 @@ int clif_pet_performance(struct block_list *bl,int param);
 int clif_pet_equip(struct pet_data *pd);
 int clif_pet_food(struct map_session_data *sd,int foodid,int fail);
 int clif_send(unsigned char *buf, int len, struct block_list *bl, int type);
-int clif_send_debug(struct map_session_data *sd, int cmd, int* args, int args_num);
 
 //friends list
 int clif_friendslist_toggle_sub(struct map_session_data *sd,va_list ap);
@@ -356,6 +352,16 @@ void clif_feel_info(struct map_session_data *sd, unsigned char feel_level, unsig
 void clif_hate_info(struct map_session_data *sd, unsigned char hate_level,int class_, unsigned char type);
 void clif_mission_info(struct map_session_data *sd, int mob_id, unsigned char progress);
 void clif_feel_hate_reset(struct map_session_data *sd);
+
+// [blackhole89]
+int clif_spawnhomun(struct homun_data *hd);
+int clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag);
+int clif_homskillinfoblock(struct map_session_data *sd);
+void clif_homskillup(struct map_session_data *sd, int skill_num) ;	//[orn]
+int clif_hom_food(struct map_session_data *sd,int foodid,int fail);	//[orn]
+void clif_send_homdata(struct map_session_data *sd, int type, int param);	//[orn]
+int clif_hwalkok(struct homun_data *hd);	//[orn]
+
 #endif
 
 

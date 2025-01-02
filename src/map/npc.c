@@ -7,8 +7,8 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <limits.h>
 
+#include "../common/cbasetypes.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
@@ -1110,8 +1110,13 @@ int npc_scriptcont(struct map_session_data *sd,int id)
 {
 	nullpo_retr(1, sd);
 
-	if (id!=sd->npc_id){
-		ShowWarning("npc_scriptcont: sd->npc_id (%d) is not id (%d).\n", sd->npc_id, id);
+	if( id != sd->npc_id ){
+		TBL_NPC* nd_sd=(TBL_NPC*)map_id2bl(sd->npc_id);
+		TBL_NPC* nd=(TBL_NPC*)map_id2bl(id);
+		if( nd_sd && nd )
+			ShowWarning("npc_scriptcont: %s (sd->npc_id=%d) is not %s (id=%d).\n", nd_sd->name, sd->npc_id, nd->name, id);
+		else
+			ShowDebug("npc_scriptcont: Invalid npc ID, npc_id variable not cleared? %x (sd->npc_id=%d) is not %x (id=%d)\n", (int)nd_sd, sd->npc_id, (int)nd, id);
 		return 1;
 	}
 
@@ -1360,7 +1365,7 @@ int npc_selllist(struct map_session_data *sd,int n,unsigned short *item_list)
 	return 0;
 }
 
-int npc_remove_map (struct npc_data *nd)
+int npc_remove_map(struct npc_data *nd)
 {
 	int m,i;
 	nullpo_retr(1, nd);
@@ -1430,11 +1435,11 @@ void npc_unload_duplicates (struct npc_data *nd)
 	map_foreachiddb(npc_unload_dup_sub,nd->bl.id);
 }
 
-int npc_unload (struct npc_data *nd)
+int npc_unload(struct npc_data *nd)
 {
 	nullpo_ret(nd);
 
-	npc_remove_map (nd);
+	npc_remove_map(nd);
 	map_deliddb(&nd->bl);
 
 	if (nd->chat_id) {
@@ -1465,6 +1470,7 @@ int npc_unload (struct npc_data *nd)
 			}
 		}
 	}
+	script_stop_sleeptimers(nd->bl.id);
 	aFree(nd);
 
 	return 0;
@@ -1719,13 +1725,13 @@ static int npc_parse_shop (char *w1, char *w2, char *w3, char *w4)
  */
 int npc_convertlabel_db (DBKey key, void *data, va_list ap)
 {
-	unsigned char *lname = key.str;
+	const char *lname = (const char*)key.str;
 	int pos = (int)data;
 	struct npc_data *nd;
 	struct npc_label_list *lst;
 	int num;
-	char *p;
-	char c;
+	const char *p;
+	int len;
 
 	nullpo_retr(0, ap);
 	nullpo_retr(0, nd = va_arg(ap,struct npc_data *));
@@ -1740,18 +1746,17 @@ int npc_convertlabel_db (DBKey key, void *data, va_list ap)
 
 	// In case of labels not terminated with ':', for user defined function support
 	p = lname;
-	while(isalnum(*(unsigned char*)p) || *p == '_') { p++; }
-	c = *p;
-	*p='\0';
+	while( ISALNUM(*p) || *p == '_' )
+		p++;
+	len = p-lname;
 
 	// here we check if the label fit into the buffer
-	if (strlen(lname) > 23) {
+	if (len > 23) {
 		ShowError("npc_parse_script: label name longer than 23 chars! '%s'\n (%s)", lname, current_file);
 		exit(1);
 	}
-	memcpy(lst[num].name, lname, strlen(lname)+1); //including EOS
-
-	*p = c;
+	memcpy(lst[num].name, lname, len);
+	lst[num].name[len]=0;
 	lst[num].pos = pos;
 	nd->u.scr.label_list = lst;
 	nd->u.scr.label_list_num = num+1;
@@ -1862,7 +1867,7 @@ static int npc_parse_script(char *w1,char *w2,char *w3,char *w4,char *first_line
 	unsigned char line[1024];
 	int i;
 	struct npc_data *nd, *dnd;
-	struct dbt *label_db;
+	DB label_db;
 	char *p;
 	struct npc_label_list *label_dup = NULL;
 	int label_dupnum = 0;
@@ -1914,7 +1919,7 @@ static int npc_parse_script(char *w1,char *w2,char *w3,char *w4,char *first_line
 			script = NULL;
 		} else {
 			// printf("Ok line %d\n",*lines);
-			script = parse_script((unsigned char *) srcbuf, file, startline);
+			script = parse_script(srcbuf, file, startline, SCRIPT_USE_LABEL_DB);
 		}
 		if (script == NULL) {
 			// script parse error?
@@ -2033,6 +2038,7 @@ static int npc_parse_script(char *w1,char *w2,char *w3,char *w4,char *first_line
 		// xf[^Ro[g
 		label_db = script_get_label_db();
 		label_db->foreach(label_db, npc_convertlabel_db, nd);
+		label_db->clear(label_db,NULL); // not needed anymore, so clear the db
 
 		// gobt@
 		aFree(srcbuf);
@@ -2149,7 +2155,7 @@ static int npc_parse_function (char *w1, char *w2, char *w3, char *w4, char *fir
 		ShowError("Missing right curly at file %s, line %d\n",file, *lines);
 		script = NULL;
 	} else {
-		script = parse_script(srcbuf, file, startline);
+		script = parse_script(srcbuf, file, startline,0);
 	}
 	if (script == NULL) {
 		// script parse error?
@@ -2214,7 +2220,7 @@ int npc_parse_mob (char *w1, char *w2, char *w3, char *w4)
 
 	// `FbN
 	if (sscanf(w1, "%15[^,],%d,%d,%d,%d", mapname, &x, &y, &xs, &ys) < 3 ||
-		sscanf(w4, "%d,%d,%u,%u,%49[^\r\n]", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname) < 2 ) {
+		sscanf(w4, "%d,%d,%u,%u,%49[^\t\r\n]", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname) < 2 ) {
 		ShowError("bad monster line : %s %s %s (file %s)\n", w1, w3, w4, current_file);
 		return 1;
 	}
@@ -2265,20 +2271,21 @@ int npc_parse_mob (char *w1, char *w2, char *w3, char *w4)
 	mode = mob_db(class_)->status.mode;
 	if (mode & MD_BOSS) {	//Bosses
 		if (battle_config.boss_spawn_delay != 100)
-		{
-			mob.delay1 = mob.delay1*battle_config.boss_spawn_delay/100;
-			mob.delay2 = mob.delay2*battle_config.boss_spawn_delay/100;
+		{	// Divide by 100 first to prevent overflows
+			//(precision loss is minimal as duration is in ms already)
+			mob.delay1 = mob.delay1/100*battle_config.boss_spawn_delay;
+			mob.delay2 = mob.delay2/100*battle_config.boss_spawn_delay;
 		}
 	} else if (mode&MD_PLANT) {	//Plants
 		if (battle_config.plant_spawn_delay != 100)
 		{
-			mob.delay1 = mob.delay1*battle_config.plant_spawn_delay/100;
-			mob.delay2 = mob.delay2*battle_config.plant_spawn_delay/100;
+			mob.delay1 = mob.delay1/100*battle_config.plant_spawn_delay;
+			mob.delay2 = mob.delay2/100*battle_config.plant_spawn_delay;
 		}
 	} else if (battle_config.mob_spawn_delay != 100)
 	{	//Normal mobs
-		mob.delay1 = mob.delay1*battle_config.mob_spawn_delay/100;
-		mob.delay2 = mob.delay2*battle_config.mob_spawn_delay/100;
+		mob.delay1 = mob.delay1/100*battle_config.mob_spawn_delay;
+		mob.delay2 = mob.delay2/100*battle_config.mob_spawn_delay;
 	}
 
 	// parse MOB_NAME,[MOB LEVEL]
@@ -2793,34 +2800,6 @@ static void npc_read_event_script(void)
 		}
 	}
 }
-static int npc_read_indoors (void)
-{
-	char *buf, *p;
-	int s, m;
-
-	buf = (char *)grfio_reads("data\\indoorrswtable.txt",&s);
-	if (buf == NULL)
-		return -1;
-	buf[s] = 0;
-
-	for (p = buf; p - buf < s; ) {
-		char map_name[64];
-		if (sscanf(p, "%15[^#]#", map_name) == 1) {
-			size_t pos = strlen(map_name) - 4;	// replace '.xxx' extension
-			memcpy(map_name+pos,".gat",4);		// with '.gat'
-			if ((m = map_mapname2mapid(map_name)) >= 0)
-				map[m].flag.indoors = 1;
-		}
-
-		p = strchr(p, 10);
-		if (!p) break;
-		p++;
-	}
-	aFree(buf);
-	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n","data\\indoorrswtable.txt");
-
-	return 0;
-}
 
 /*==========================================
  *
@@ -2908,7 +2887,7 @@ int npc_reload (void)
 
 	//Re-read the NPC Script Events cache.
 	npc_read_event_script();
-	
+
 	//Execute the OnInit event for freshly loaded npcs. [Skotlex]
 	ShowStatus("Event '"CL_WHITE"OnInit"CL_RESET"' executed with '"
 	CL_WHITE"%d"CL_RESET"' NPCs.\n",npc_event_doall("OnInit"));
@@ -2996,12 +2975,9 @@ int do_init_npc(void)
 	//Stock view data for normal npcs.
 	memset(&npc_viewdb, 0, sizeof(npc_viewdb));
 	npc_viewdb[0].class_ = INVISIBLE_CLASS; //Invisible class is stored here.
-	for (busy = 1; busy < MAX_NPC_CLASS; busy++) 
+	for (busy = 1; busy < MAX_NPC_CLASS; busy++)
 		npc_viewdb[busy].class_ = busy;
 	busy = 0;
-	// indoorrswtable.txt and etcinfo.txt [Celest]
-	if (battle_config.indoors_override_grffile)
-		npc_read_indoors();
 
 	// comparing only the first 24 chars of labels that are 50 chars long isn't that nice
 	// will cause "duplicated" labels where actually no dup is...
@@ -3009,7 +2985,7 @@ int do_init_npc(void)
 	npcname_db = db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_BASE,NAME_LENGTH);
 
 	memset(&ev_tm_b, -1, sizeof(ev_tm_b));
-	timer_event_ers = ers_new((uint32)sizeof(struct timer_event_data));
+	timer_event_ers = ers_new(sizeof(struct timer_event_data));
 
 	for (nsl = npc_src_first; nsl; nsl = nsl->next) {
 		npc_parsesrcfile(nsl->name);

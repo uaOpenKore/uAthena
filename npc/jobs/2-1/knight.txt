@@ -426,10 +426,10 @@ L_Test:
 	mes "This test will be on your knowledge of Knights.  You will also be asked about your opinions of Knights...";
 	next;
 	mes "[Sir James Syracuse]";
-	mes "Dont' be nervous, I'll only be asking a few simple questions.";
+	mes "Don't be nervous, I'll only be asking a few simple questions.";
 	next;
 	menu "Let's go",M_0,"I'm not ready yet.",M_End;
-	
+
 	M_0:
 		mes "[Sir James Syracuse]";
 		mes "Okay lets start, please answer the questions as quickly as you can.  If you get an answer wrong you will have to start the test all over again.";
@@ -1081,7 +1081,7 @@ L_Knight:
 		M_Yes:
 			mes "^FF0000(SLAPP!! SMACK!! BASH!!)^000000";
 			emotion e_an;
-			percentheal (-10),0;
+			percentheal -10,0;
 			next;
 			mes "[Lady Amy Beatris]";
 			mes "How dare you!! Just what kind of girl do you take me for?";

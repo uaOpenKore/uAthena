@@ -8,17 +8,12 @@
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
-#include "../common/grfio.h"
 #include "../common/strlib.h"
 #include "map.h"
 #include "battle.h"
 #include "itemdb.h"
 #include "script.h"
 #include "pc.h"
-
-// ** ITEMDB_OVERRIDE_NAME_VERBOSE **
-//   定義すると、itemdb.txtとgrfで名前が異なる場合、表示します.
-//#define ITEMDB_OVERRIDE_NAME_VERBOSE	1
 
 static struct dbt* item_db;
 
@@ -27,7 +22,7 @@ static struct item_group itemgroup_db[MAX_ITEMGROUP];
 struct item_data dummy_item; //This is the default dummy item used for non-existant items. [Skotlex]
 
 /*==========================================
- * 名前で検索用
+ * Op
  *------------------------------------------
  */
 // name = item alias, so we should find items aliases first. if not found then look for "jname" (full name)
@@ -44,7 +39,7 @@ int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
 }
 
 /*==========================================
- * 名前で検索用
+ * Op
  *------------------------------------------
  */
 int itemdb_searchjname_sub(int key,void *data,va_list ap)
@@ -60,7 +55,7 @@ int itemdb_searchjname_sub(int key,void *data,va_list ap)
 }
 
 /*==========================================
- * 名前で検索
+ * O
  *------------------------------------------
  */
 struct item_data* itemdb_searchname(const char *str)
@@ -95,7 +90,7 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 
 
 /*==========================================
- * 箱系アイテム検索
+ * nACe
  *------------------------------------------
  */
 int itemdb_searchrandomid(int group)
@@ -135,7 +130,7 @@ int itemdb_group_bonus(struct map_session_data *sd, int itemid)
 }
 
 /*==========================================
- * DBの存在確認
+ * DBmF
  *------------------------------------------
  */
 struct item_data* itemdb_exists(int nameid)
@@ -412,7 +407,7 @@ int itemdb_isidentified(int nameid)
 }
 
 /*==========================================
- * アイテム使用可能フラグのオーバーライド
+ * ACegp\tOI[o[Ch
  *------------------------------------------
  */
 static int itemdb_read_itemavail (void)
@@ -571,155 +566,9 @@ static void itemdb_read_itemgroup(void)
 	}
 	return;
 }
-/*==========================================
- * アイテムの名前テーブルを読み込む
- *------------------------------------------
- */
-static int itemdb_read_itemnametable(void)
-{
-	char *buf,*p;
-	int s;
-
-	buf=(char *) grfio_reads("data\\idnum2itemdisplaynametable.txt",&s);
-
-	if(buf==NULL)
-		return -1;
-
-	buf[s]=0;
-	for(p=buf;p-buf<s;){
-		int nameid;
-		char buf2[64]; //Why 64? What's this for, other than holding an item's name? [Skotlex]
-
-		if(	sscanf(p,"%d#%[^#]#",&nameid,buf2)==2 ){
-
-#ifdef ITEMDB_OVERRIDE_NAME_VERBOSE
-			if( itemdb_exists(nameid) &&
-				strncmp(itemdb_search(nameid)->jname,buf2,ITEM_NAME_LENGTH)!=0 ){
-				ShowNotice("[override] %d %s => %s\n",nameid
-					,itemdb_search(nameid)->jname,buf2);
-			}
-#endif
-
-			strncpy(itemdb_search(nameid)->jname,buf2,ITEM_NAME_LENGTH-1);
-		}
-
-		p=strchr(p,10);
-		if(!p) break;
-		p++;
-	}
-	aFree(buf);
-	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n","data\\idnum2itemdisplaynametable.txt");
-
-	return 0;
-}
 
 /*==========================================
- * カードイラストのリソース名前テーブルを読み込む
- *------------------------------------------
- */
-static int itemdb_read_cardillustnametable(void)
-{
-	char *buf,*p;
-	int s;
-
-	buf=(char *) grfio_reads("data\\num2cardillustnametable.txt",&s);
-
-	if(buf==NULL)
-		return -1;
-
-	buf[s]=0;
-	for(p=buf;p-buf<s;){
-		int nameid;
-		char buf2[64];
-
-		if(	sscanf(p,"%d#%[^#]#",&nameid,buf2)==2 ){
-			strcat(buf2,".bmp");
-			memcpy(itemdb_search(nameid)->cardillustname,buf2,64);
-		}
-		
-		p=strchr(p,10);
-		if(!p) break;
-		p++;
-	}
-	aFree(buf);
-	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n","data\\num2cardillustnametable.txt");
-
-	return 0;
-}
-
-//
-// 初期化
-//
-/*==========================================
- *
- *------------------------------------------
- */
-static int itemdb_read_itemslottable(void)
-{
-	char *buf, *p;
-	int s;
-
-	buf = (char *)grfio_reads("data\\itemslottable.txt", &s);
-	if (buf == NULL)
-		return -1;
-	buf[s] = 0;
-	for (p = buf; p - buf < s; ) {
-		int nameid, equip;
-		struct item_data* item;
-		sscanf(p, "%d#%d#", &nameid, &equip);
-		item = itemdb_search(nameid);
-		if (equip && item && itemdb_isequip2(item))
-			item->equip = equip;
-		p = strchr(p, 10);
-		if(!p) break;
-		p++;
-		p=strchr(p, 10);
-		if(!p) break;
-		p++;
-	}
-	aFree(buf);
-	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n","data\\itemslottable.txt");
-
-	return 0;
-}
-
-/*==========================================
- *
- *------------------------------------------
- */
-static int itemdb_read_itemslotcounttable(void)
-{
-	char *buf, *p;
-	int s;
-
-	buf = (char *)grfio_reads("data\\itemslotcounttable.txt", &s);
-	if (buf == NULL)
-		return -1;
-	buf[s] = 0;
-	for (p = buf; p - buf < s;){
-		int nameid, slot;
-		sscanf(p, "%d#%d#", &nameid, &slot);
-		if (slot > MAX_SLOTS)
-		{
-			ShowWarning("itemdb_read_itemslotcounttable: Item %d specifies %d slots, but the server only supports up to %d\n", nameid, slot, MAX_SLOTS);
-			slot = MAX_SLOTS;
-		}
-		itemdb_slot(nameid) = slot;
-		p = strchr(p,10);
-		if(!p) break;
-		p++;
-		p = strchr(p,10);
-		if(!p) break;
-		p++;
-	}
-	aFree(buf);
-	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n", "data\\itemslotcounttable.txt");
-
-	return 0;
-}
-
-/*==========================================
- * 装備制限ファイル読み出し
+ * t@Co
  *------------------------------------------
  */
 static int itemdb_read_noequip(void)
@@ -954,10 +803,10 @@ static int itemdb_read_sqldb(void)
 						script_free_code(id->script);
 					if (sql_row[19] != NULL) {
 						if (sql_row[19][0] == '{')
-							id->script = parse_script((unsigned char *) sql_row[19],item_db_name[i], 0);
+							id->script = parse_script(sql_row[19],item_db_name[i], ln, 0);
 						else {
 							sprintf(script, "{%s}", sql_row[19]);
-							id->script = parse_script((unsigned char *) script, item_db_name[i], 0);
+							id->script = parse_script(script, item_db_name[i], ln, 0);
 						}
 					} else id->script = NULL;
 
@@ -965,10 +814,10 @@ static int itemdb_read_sqldb(void)
 						script_free_code(id->equip_script);
 					if (sql_row[20] != NULL) {
 						if (sql_row[20][0] == '{')
-							id->equip_script = parse_script((unsigned char *) sql_row[20], item_db_name[i], 0);
+							id->equip_script = parse_script(sql_row[20], item_db_name[i], ln, 0);
 						else {
 							sprintf(script, "{%s}", sql_row[20]);
-							id->equip_script = parse_script((unsigned char *) script, item_db_name[i], 0);
+							id->equip_script = parse_script(script, item_db_name[i], ln, 0);
 						}
 					} else id->equip_script = NULL;
 
@@ -976,10 +825,10 @@ static int itemdb_read_sqldb(void)
 						script_free_code(id->unequip_script);
 					if (sql_row[21] != NULL) {
 						if (sql_row[21][0] == '{')
-							id->unequip_script = parse_script((unsigned char *) sql_row[21],item_db_name[i], 0);
+							id->unequip_script = parse_script(sql_row[21],item_db_name[i], ln, 0);
 						else {
 							sprintf(script, "{%s}", sql_row[21]);
-							id->unequip_script = parse_script((unsigned char *) script, item_db_name[i], 0);
+							id->unequip_script = parse_script(script, item_db_name[i], ln, 0);
 						}
 					} else id->unequip_script = NULL;
 
@@ -1010,7 +859,7 @@ static int itemdb_read_sqldb(void)
 #endif /* not TXT_ONLY */
 
 /*==========================================
- * アイテムデータベースの読み込み
+ * ACef[^x[X
  *------------------------------------------
  */
 static int itemdb_readdb(void)
@@ -1077,8 +926,8 @@ static int itemdb_readdb(void)
 					id->value_buy = buy;
 					id->value_sell = sell;
 				} else {
-					// buy≠sell*2 は item_value_db.txt で指定してください。
-					if (sell) {		// sell値を優先とする
+					// buysell*2  item_value_db.txt wB
+					if (sell) {		// selllD
 						id->value_buy = sell*2;
 						id->value_sell = sell;
 					} else {
@@ -1138,43 +987,43 @@ static int itemdb_readdb(void)
 
 			if((p=strchr(np,'{'))==NULL)
 				continue;
-			
+
 			str[19] = p; //Script
 			np = strchr(p,'}');
-			
+
 			while (np && np[1] && np[1] != ',')
 				np = strchr(np+1,'}'); //Jump close brackets until the next field is found.
 			if (!np || !np[1]) {
 				//Couldn't find the end of the script field.
-				id->script = parse_script((unsigned char *) str[19],filename[i],lines);
+				id->script = parse_script(str[19],filename[i],lines,0);
 				continue;
 			}
 			np[1] = '\0'; //Set end of script
-			id->script = parse_script((unsigned char *) str[19],filename[i],lines);
+			id->script = parse_script(str[19],filename[i],lines,0);
 			np+=2; //Skip to next field
 
 			if(!np || (p=strchr(np,'{'))==NULL)
 				continue;
-			
+
 			str[20] = p; //Equip Script
 			np = strchr(p,'}');
-			
+
 			while (np && np[1] && np[1] != ',')
 				np = strchr(np+1,'}'); //Jump close brackets until the next field is found.
 			if (!np || !np[1]) {
 				//Couldn't find the end of the script field.
-				id->equip_script = parse_script((unsigned char *) str[20],filename[i],lines);
+				id->equip_script = parse_script(str[20],filename[i],lines,0);
 				continue;
 			}
 
 			np[1] = '\0'; //Set end of script
-			id->equip_script = parse_script((unsigned char *) str[20],filename[i],lines);
+			id->equip_script = parse_script(str[20],filename[i],lines,0);
 			np+=2; //Skip comma, to next field
 
 			if(!np || (p=strchr(np,'{'))==NULL)
 				continue;
 			//Unequip script, last column.
-			id->unequip_script = parse_script((unsigned char *) p,filename[i],lines);
+			id->unequip_script = parse_script(p,filename[i],lines,0);
 		}
 		fclose(fp);
 		if (ln > 0) {
@@ -1202,14 +1051,6 @@ static void itemdb_read(void)
 	itemdb_read_itemavail();
 	itemdb_read_noequip();
 	itemdb_read_itemtrade();
-	if (battle_config.cardillust_read_grffile)
-		itemdb_read_cardillustnametable();
-	if (battle_config.item_equip_override_grffile)
-		itemdb_read_itemslottable();
-	if (battle_config.item_slots_override_grffile)
-		itemdb_read_itemslotcounttable();
-	if (battle_config.item_name_override_grffile)
-		itemdb_read_itemnametable();
 }
 
 /*==========================================

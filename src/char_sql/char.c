@@ -7,10 +7,10 @@
 #include <sys/types.h>
 
 #ifdef _WIN32
-#include <winsock.h>
+#include <winsock2.h>
 #else
 #include <sys/socket.h>
-#include <netinet/in.h> 
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
 
@@ -21,17 +21,19 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
-#include "char.h"
+#include "../common/cbasetypes.h"
 #include "../common/utils.h"
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
+
 #include "itemdb.h"
 #include "inter.h"
 #include "db.h"
 #include "malloc.h"
 #include "int_guild.h"
+#include "int_homun.h"
+#include "char.h"
 
 #ifndef TXT_SQL_CONVERT
 static struct dbt *char_db_;
@@ -518,7 +520,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		(p->int_ != cp->int_) || (p->dex != cp->dex) || (p->luk != cp->luk) ||
 		(p->option != cp->option) ||
 		(p->party_id != cp->party_id) || (p->guild_id != cp->guild_id) ||
-		(p->pet_id != cp->pet_id) || (p->weapon != cp->weapon) ||
+		(p->pet_id != cp->pet_id) || (p->weapon != cp->weapon) || (p->hom_id != cp->hom_id) ||
 		(p->shield != cp->shield) || (p->head_top != cp->head_top) ||
 		(p->head_mid != cp->head_mid) || (p->head_bottom != cp->head_bottom)
 	)
@@ -527,7 +529,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			"`base_exp`='%u', `job_exp`='%u', `zeny`='%d',"
 			"`max_hp`='%d',`hp`='%d',`max_sp`='%d',`sp`='%d',`status_point`='%d',`skill_point`='%d',"
 			"`str`='%d',`agi`='%d',`vit`='%d',`int`='%d',`dex`='%d',`luk`='%d',"
-			"`option`='%d',`party_id`='%d',`guild_id`='%d',`pet_id`='%d',"
+			"`option`='%d',`party_id`='%d',`guild_id`='%d',`pet_id`='%d',`homun_id`='%d',"	//[orn] add homun_id (homunculus id)
 			"`weapon`='%d',`shield`='%d',`head_top`='%d',`head_mid`='%d',`head_bottom`='%d',"
 			"`last_map`='%s',`last_x`='%d',`last_y`='%d',`save_map`='%s',`save_x`='%d',`save_y`='%d'"
 			" WHERE  `account_id`='%d' AND `char_id` = '%d'",
@@ -535,7 +537,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			p->base_exp, p->job_exp, p->zeny,
 			p->max_hp, p->hp, p->max_sp, p->sp, p->status_point, p->skill_point,
 			p->str, p->agi, p->vit, p->int_, p->dex, p->luk,
-			p->option, p->party_id, p->guild_id, p->pet_id,
+			p->option, p->party_id, p->guild_id, p->pet_id, p->hom_id,	//[orn] add homun_id (homunculus id)
 			p->weapon, p->shield, p->head_top, p->head_mid, p->head_bottom,
 			mapindex_id2name(p->last_point.map), p->last_point.x, p->last_point.y,
 			mapindex_id2name(p->save_point.map), p->save_point.x, p->save_point.y,
@@ -932,7 +934,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus *p){
 
 	sprintf(tmp_sql, "SELECT `option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`hair`,`hair_color`,"
 		"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,"
-		"`last_map`,`last_x`,`last_y`,`save_map`,`save_x`,`save_y`, `partner_id`, `father`, `mother`, `child`, `fame`"
+		"`last_map`,`last_x`,`last_y`,`save_map`,`save_x`,`save_y`, `partner_id`, `father`, `mother`, `child`, `fame`, `homun_id`"	//[orn] homun_id
 		"FROM `%s` WHERE `char_id` = '%d'",char_db, char_id); // TBR
 	if (mysql_query(&mysql_handle, tmp_sql)) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -953,6 +955,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus *p){
 		p->save_point.map = mapindex_name2id(sql_row[17]); p->save_point.x = atoi(sql_row[18]);	p->save_point.y = atoi(sql_row[19]);
 		p->partner_id = atoi(sql_row[20]); p->father = atoi(sql_row[21]); p->mother = atoi(sql_row[22]); p->child = atoi(sql_row[23]);
 		p->fame = atoi(sql_row[24]);
+		p->hom_id = atoi(sql_row[25]);	//[orn] homunculus id
 
 		strcat (t_msg, " status2");
 	} else
@@ -1453,9 +1456,9 @@ int make_new_char_sql(int fd, unsigned char *dat) {
 int delete_char_sql(int char_id, int partner_id)
 {
 	char char_name[NAME_LENGTH], t_name[NAME_LENGTH*2]; //Name needs be escaped.
-	int account_id=0, party_id=0, guild_id=0, char_base_level=0;
+	int account_id, party_id, guild_id, hom_id, char_base_level;
 
-	sprintf(tmp_sql, "SELECT `name`,`account_id`,`party_id`,`guild_id`,`base_level` FROM `%s` WHERE `char_id`='%d'",char_db, char_id);
+	sprintf(tmp_sql, "SELECT `name`,`account_id`,`party_id`,`guild_id`,`base_level`,`homun_id` FROM `%s` WHERE `char_id`='%d'",char_db, char_id);
 
 	if (mysql_query(&mysql_handle, tmp_sql)) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -1481,6 +1484,7 @@ int delete_char_sql(int char_id, int partner_id)
 	party_id = atoi(sql_row[2]);
 	guild_id = atoi(sql_row[3]);
 	char_base_level = atoi(sql_row[4]);
+	hom_id = atoi(sql_row[5]);
 	mysql_free_result(sql_res); //Let's free this as soon as possible to avoid problems later on.
 
 	//check for config char del condition [Lupus]
@@ -1542,6 +1546,10 @@ int delete_char_sql(int char_id, int partner_id)
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		}
 	}
+
+	/* remove homunculus */
+	if (hom_id)
+		inter_delete_homunculus(hom_id);
 
 	/* delete char's friends list */
 	sprintf(tmp_sql, "DELETE FROM `%s` WHERE `char_id` = '%d'",friend_db, char_id);
@@ -1679,7 +1687,7 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 	int i, j, found_num = 0;
 	struct mmo_charstatus *p = NULL;
 	const int offset = 24;
-	WFIFOHEAD(fd, offset +9*106);
+	WFIFOHEAD(fd, offset +9*108);
 
 	set_char_online(-1, 99,sd->account_id);
 
@@ -1704,9 +1712,15 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 	for(i = found_num; i < 9; i++)
 		sd->found_char[i] = -1;
 
+#if PACKETVER > 7
+	//Updated packet structure with rename-button included. Credits to Sara-chan
+	memset(WFIFOP(fd, 0), 0, offset + found_num * 108);
+	WFIFOW(fd, 2) = offset + found_num * 108;
+#else
 	memset(WFIFOP(fd, 0), 0, offset + found_num * 106);
-	WFIFOW(fd, 0) = 0x6b;
 	WFIFOW(fd, 2) = offset + found_num * 106;
+#endif
+	WFIFOW(fd, 0) = 0x6b;
 
 	if (save_log)
 		ShowInfo("Loading Char Data ("CL_BOLD"%d"CL_RESET")\n",sd->account_id);
@@ -1716,7 +1730,11 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 
 		p = &char_dat;
 
+#if PACKETVER > 7
+		j = offset + (i * 108);
+#else
 		j = offset + (i * 106); // increase speed of code
+#endif
 
 		WFIFOL(fd,j) = p->char_id;
 		WFIFOL(fd,j+4) = p->base_exp>LONG_MAX?LONG_MAX:p->base_exp;
@@ -1757,9 +1775,14 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 		WFIFOB(fd,j+101) = (p->int_ > UCHAR_MAX) ? UCHAR_MAX : p->int_;
 		WFIFOB(fd,j+102) = (p->dex > UCHAR_MAX) ? UCHAR_MAX : p->dex;
 		WFIFOB(fd,j+103) = (p->luk > UCHAR_MAX) ? UCHAR_MAX : p->luk;
+#if PACKETVER > 7
+		//Updated packet structure with rename-button included. Credits to Sara-chan
+		WFIFOW(fd,j+104) = p->char_num;
+		WFIFOW(fd,j+106) = 1; //TODO: Handle this rename bit: 0 to enable renaming
+#else
 		WFIFOB(fd,j+104) = p->char_num;
+#endif
 	}
-
 	WFIFOSET(fd,WFIFOW(fd,2));
 //	printf("mmo_char_send006b end..\n");
 	return 0;
@@ -3415,12 +3438,12 @@ int parse_char(int fd) {
 				break;
 			}
 		{	//Send data.
-			WFIFOHEAD(fd, 108);
+			WFIFOHEAD(fd, 110);
 			WFIFOW(fd, 0) = 0x6d;
-			memset(WFIFOP(fd, 2), 0x00, 106);
+			memset(WFIFOP(fd, 2), 0x00, 108);
 
 			mmo_char_fromsql_short(i, &char_dat); //Only the short data is needed.
-			WFIFOL(fd, 2) = char_dat.char_id;
+			WFIFOL(fd,2) = char_dat.char_id;
 			WFIFOL(fd,2+4) = char_dat.base_exp>LONG_MAX?LONG_MAX:char_dat.base_exp;
 			WFIFOL(fd,2+8) = char_dat.zeny;
 			WFIFOL(fd,2+12) = char_dat.job_exp>LONG_MAX?LONG_MAX:char_dat.job_exp;
@@ -3454,9 +3477,15 @@ int parse_char(int fd) {
 			WFIFOB(fd,2+101) = char_dat.int_>UCHAR_MAX?UCHAR_MAX:char_dat.int_;
 			WFIFOB(fd,2+102) = char_dat.dex>UCHAR_MAX?UCHAR_MAX:char_dat.dex;
 			WFIFOB(fd,2+103) = char_dat.luk>UCHAR_MAX?UCHAR_MAX:char_dat.luk;
+#if PACKETVER > 7
+			//Updated packet structure with rename-button included. Credits to Sara-chan
+			WFIFOW(fd,2+104) = char_dat.char_num;
+			WFIFOB(fd,2+106) = 1; //Rename bit.
+			WFIFOSET(fd, 110);
+#else
 			WFIFOB(fd,2+104) = char_dat.char_num;
-
 			WFIFOSET(fd, 108);
+#endif
 			RFIFOSKIP(fd, 37);
 		}
 			//to do
@@ -3477,24 +3506,15 @@ int parse_char(int fd) {
 			RFIFOSKIP(fd, 46);
 
 			/* Check if e-mail is correct */
-			if(strcmpi(email, sd->email)){
-				if(strcmp("a@a.com", sd->email) == 0){
-					if(strcmp("a@a.com", email) == 0 || strcmp("", email) == 0){
-						//ignore
-					}else{
-						//del fail
-						WFIFOW(fd, 0) = 0x70;
-						WFIFOB(fd, 2) = 0;
-						WFIFOSET(fd, 3);
-						break;
-					}
-				}else{
-					//del fail
-					WFIFOW(fd, 0) = 0x70;
-					WFIFOB(fd, 2) = 0;
-					WFIFOSET(fd, 3);
-					break;
-				}
+			if(strcmpi(email, sd->email) && //email does not matches and
+			(
+				strcmp("a@a.com", sd->email) || //it is not default email, or
+				(strcmp("a@a.com", email) && strcmp("", email)) //email sent does not matches default
+			)) {	//Fail
+				WFIFOW(fd, 0) = 0x70;
+				WFIFOB(fd, 2) = 0;
+				WFIFOSET(fd, 3);
+				break;
 			}
 
 			for(i = 0; i < 9; i++) {
@@ -3635,27 +3655,33 @@ int parse_char(int fd) {
 }
 
 // Console Command Parser [Wizputer]
-int parse_console(char *buf) {
-    char *type,*command;
+int parse_console(char* buf)
+{
+	char command[256];
 
-    type = (char *)aMalloc(64);
-    command = (char *)aMalloc(64);
+	memset(command, 0, sizeof(command));
 
-    memset(type,0,64);
-    memset(command,0,64);
+	sscanf(buf, "%[^\n]", command);
 
-    ShowNotice("Console: %s\n",buf);
+	//login_log("Console command :%s" RETCODE, command);
 
-    if ( sscanf(buf, "%[^:]:%[^\n]", type , command ) < 2 )
-        sscanf(buf,"%[^\n]",type);
+	if( strcmpi("shutdown", command) == 0 ||
+		strcmpi("exit", command) == 0 ||
+		strcmpi("quit", command) == 0 ||
+		strcmpi("end", command) == 0 )
+		runflag = 0;
+	else if( strcmpi("alive", command) == 0 ||
+			strcmpi("status", command) == 0 )
+		ShowInfo(CL_CYAN"Console: "CL_BOLD"I'm Alive."CL_RESET"\n");
+	else if( strcmpi("help", command) == 0 ){
+		printf(CL_BOLD"Help of commands:"CL_RESET"\n");
+		printf("  To shutdown the server:\n");
+		printf("  'shutdown|exit|qui|end'\n");
+		printf("  To know if server is alive:\n");
+		printf("  'alive|status'\n");
+	}
 
-    ShowNotice("Type of command: %s || Command: %s \n",type,command);
-
-    if(buf) aFree(buf);
-    if(type) aFree(type);
-    if(command) aFree(command);
-
-    return 0;
+	return 0;
 }
 
 // MAP send all
@@ -3667,6 +3693,7 @@ int mapif_sendall(unsigned char *buf, unsigned int len) {
 	for(i = 0; i < MAX_MAP_SERVERS; i++) {
 		if ((fd = server_fd[i]) > 0) { //0 Should not be a valid server_fd [Skotlex]
 			WFIFOHEAD(fd,len);
+#if 0 //This seems to have been fixed long long ago.
 			if (session[fd] == NULL)
 			{	//Could this be the crash's source? [Skotlex]
 				ShowError("mapif_sendall: Attempting to write to invalid session %d! Map Server #%d disconnected.\n", fd, i);
@@ -3674,8 +3701,7 @@ int mapif_sendall(unsigned char *buf, unsigned int len) {
 				memset(&server[i], 0, sizeof(struct mmo_map_server));
 				continue;
 			}
-			if (WFIFOSPACE(fd) < len) //Increase buffer size.
-				realloc_writefifo(fd, len);
+#endif
 			memcpy(WFIFOP(fd,0), buf, len);
 			WFIFOSET(fd,len);
 			c++;
@@ -3693,8 +3719,6 @@ int mapif_sendallwos(int sfd, unsigned char *buf, unsigned int len) {
 	for(i=0, c=0;i<MAX_MAP_SERVERS;i++){
 		if ((fd = server_fd[i]) > 0 && fd != sfd) {
 			WFIFOHEAD(fd, len);
-			if (WFIFOSPACE(fd) < len) //Increase buffer size.
-				realloc_writefifo(fd, len);
 			memcpy(WFIFOP(fd,0), buf, len);
 			WFIFOSET(fd, len);
 			c++;
@@ -3711,8 +3735,6 @@ int mapif_send(int fd, unsigned char *buf, unsigned int len) {
 		for(i = 0; i < MAX_MAP_SERVERS; i++) {
 			if (fd == server_fd[i]) {
 				WFIFOHEAD(fd,len);
-				if (WFIFOSPACE(fd) < len) //Increase buffer size.
-					realloc_writefifo(fd, len);
 				memcpy(WFIFOP(fd,0), buf, len);
 				WFIFOSET(fd,len);
 				return 1;

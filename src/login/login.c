@@ -35,7 +35,7 @@
 #include "login.h"
 
 #ifdef PASSWORDENC
-#include "md5calc.h"
+#include "../common/md5calc.h"
 #endif
 
 int account_id_count = START_ACCOUNT_NUM;
@@ -1191,16 +1191,13 @@ int mmo_auth(struct mmo_account* account, int fd) {
 		(account->userid[len+1] == 'F' || account->userid[len+1] == 'M' ||
 		account->userid[len+1] == 'f' || account->userid[len+1] == 'm')
 		&& new_account_flag && account_id_count <= END_ACCOUNT_NUM && len >= 4 && strlen(account->passwd) >= 4) {
-						
+
 		//only continue if amount in this time limit is allowed (account registration flood protection)[Kevin]
-		if(gettick() <= new_reg_tick && num_regs >= allowed_regs) {
+		if(DIFF_TICK(gettick(), new_reg_tick) < 0 && num_regs >= allowed_regs) {
 			ShowNotice("Account registration denied (registration limit exceeded) to %s!\n", ip);
 			login_log("Notice: Account registration denied (registration limit exceeded) to %s!", ip);
 			return 3;
-		} else {
-			num_regs=0;
 		}
-		
 		newaccount = 1;
 		account->userid[len] = '\0';
 	}
@@ -1359,13 +1356,15 @@ int mmo_auth(struct mmo_account* account, int fd) {
 			return 0; // 0 = Unregistered ID
 		} else {
 			int new_id = mmo_auth_new(account, account->userid[len+1], "a@a.com");
+			unsigned int tick = gettick();
 			login_log("Account creation and authentification accepted (account %s (id: %d), pass: %s, sex: %c, connection with _F/_M, ip: %s)" RETCODE,
 			          account->userid, new_id, account->passwd, account->userid[len+1], ip);
 			auth_before_save_file = 0; // Creation of an account -> save accounts file immediatly
-			
-			//restart ticker (account registration flood protection)[Kevin]
-			if(num_regs==0) {
-				new_reg_tick=gettick()+time_allowed*1000;
+
+			if(DIFF_TICK(tick, new_reg_tick) > 0)
+			{	//Update the registration check.
+				num_regs = 0;
+				new_reg_tick=tick +time_allowed*1000;
 			}
 			num_regs++;
 		}
@@ -3466,24 +3465,25 @@ int parse_login(int fd) {
 //-----------------------
 // Console Command Parser [Wizputer]
 //-----------------------
-int parse_console(char *buf) {
+int parse_console(char *buf)
+{
 	char command[256];
 
-	memset(command,0,sizeof(command));
+	memset(command, 0, sizeof(command));
 
 	sscanf(buf, "%[^\n]", command);
 
 	login_log("Console command :%s" RETCODE, command);
 
-	if(strcmpi("shutdown", command) == 0 ||
+	if( strcmpi("shutdown", command) == 0 ||
 		strcmpi("exit", command) == 0 ||
 		strcmpi("quit", command) == 0 ||
-		strcmpi("end", command) == 0)
+		strcmpi("end", command) == 0 )
 		runflag = 0;
-	else if(strcmpi("alive", command) == 0 ||
-		strcmpi("status", command) == 0)
+	else if( strcmpi("alive", command) == 0 ||
+			strcmpi("status", command) == 0 )
 		ShowInfo(CL_CYAN"Console: "CL_BOLD"I'm Alive."CL_RESET"\n");
-	else if(strcmpi("help", command) == 0) {
+	else if( strcmpi("help", command) == 0 ){
 		printf(CL_BOLD"Help of commands:"CL_RESET"\n");
 		printf("  To shutdown the server:\n");
 		printf("  'shutdown|exit|qui|end'\n");
@@ -4188,8 +4188,10 @@ int do_init(int argc, char **argv) {
 	}
 	if(console) {
 		set_defaultconsoleparse(parse_console);
-	   	start_console();
+		start_console();
 	}
+
+	new_reg_tick=gettick();
 
 	login_log("The login-server is ready (Server is listening on the port %d)." RETCODE, login_port);
 	ShowStatus("The login-server is "CL_GREEN"ready"CL_RESET" (Server is listening on the port %d).\n\n", login_port);

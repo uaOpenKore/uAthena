@@ -11,6 +11,7 @@
 #include <unistd.h>
 #endif
 
+#include "../common/cbasetypes.h"
 #include "../common/core.h"
 #include "../common/timer.h"
 #include "../common/grfio.h"
@@ -39,16 +40,13 @@
 #include "script.h"
 #include "guild.h"
 #include "pet.h"
+#include "mercenary.h"	//[orn]
 #include "atcommand.h"
 #include "charcommand.h"
 
 #include "log.h"
 
 #include "charsave.h"
-
-
-// maybe put basic macros to somewhere else
-#define swap(a,b) ((a == b) || ((a ^= b), (b ^= a), (a ^= b)))
 
 #ifndef TXT_ONLY
 
@@ -1685,6 +1683,7 @@ int map_quit(struct map_session_data *sd) {
 
 		sd->state.waitingdisconnect = 1;
 		if (sd->pd) unit_free(&sd->pd->bl,0);
+		if (sd->hd) unit_free(&sd->hd->bl,0);
 		unit_free(&sd->bl,3);
 		chrif_save(sd,1);
 	} else { //Try to free some data, without saving anything (this could be invoked on map server change. [Skotlex]
@@ -1870,7 +1869,7 @@ static int map_getallpc_sub(DBKey key,void * data,va_list ap)
 struct map_session_data** map_getallusers(int *users) {
 	static struct map_session_data **all_sd=NULL;
 	static unsigned int all_count = 0;
-	
+
 	if (users == NULL)
 	{	//Free up data
 		if (all_sd) aFree(all_sd);
@@ -3246,45 +3245,54 @@ static int char_ip_set = 0;
  * Console Command Parser [Wizputer]
  *------------------------------------------
  */
-int parse_console(char *buf) {
-	char type[64],command[64],map[64], buf2[72];
-	int x = 0, y = 0;
-	int m, n;
+int parse_console(char* buf)
+{
+	char type[64];
+	char command[64];
+	char map[64];
+	int x = 0;
+	int y = 0;
+	int m;
+	int n;
 	struct map_session_data sd;
 
 	memset(&sd, 0, sizeof(struct map_session_data));
-	strcpy( sd.status.name , "console");
+	strcpy(sd.status.name, "console");
 
-	if ( ( n = sscanf(buf, "%[^:]:%[^:]:%99s %d %d[^\n]", type , command , map , &x , &y )) < 5 )
-		if ( ( n = sscanf(buf, "%[^:]:%[^\n]", type , command )) < 2 )
+	if( (n=sscanf(buf, "%[^:]:%[^:]:%99s %d %d[^\n]",type,command,map,&x,&y)) < 5 )
+		if( (n=sscanf(buf, "%[^:]:%[^\n]",type,command)) < 2 )
 			n = sscanf(buf,"%[^\n]",type);
 
-	if ( n == 5 ) {
+	if( n == 5 ) {
 		m = map_mapname2mapid(map);
-		if ( m < 0 ) {
+		if( m < 0 ){
 			ShowWarning("Console: Unknown map\n");
 			return 0;
 		}
 		sd.bl.m = m;
-		map_search_freecell(&sd.bl, m, &sd.bl.x, &sd.bl.y, -1, -1, 0); 
-		if (x > 0)
+		map_search_freecell(&sd.bl, m, &sd.bl.x, &sd.bl.y, -1, -1, 0);
+		if( x > 0 )
 			sd.bl.x = x;
-
-		if (y > 0)
+		if( y > 0 )
 			sd.bl.y = y;
+	} else {
+		map[0] = '\0';
+		if( n < 2 ) command[0] = '\0';
+		if( n < 1 ) type[0] = '\0';
 	}
 
-	ShowInfo("Type of command: %s || Command: %s || Map: %s Coords: %d %d\n",type,command,map,x,y);
+	ShowInfo("Type of command: '%s' || Command: '%s' || Map: '%s' Coords: %d %d\n", type, command, map, x, y);
 
-	if ( strcmpi("admin",type) == 0 && n == 5 ) {
-		sprintf(buf2,"console: %s",command);
-		if( is_atcommand(sd.fd,&sd,buf2,99) == AtCommand_None )
+	if( n == 5 && strcmpi("admin",type) == 0 ){
+		if( is_atcommand_sub(sd.fd,&sd,command,99) == AtCommand_None )
 			printf("Console: not atcommand\n");
-	} else if ( strcmpi("server",type) == 0 && n == 2 ) {
-		if ( strcmpi("shutdown", command) == 0 || strcmpi("exit",command) == 0 || strcmpi("quit",command) == 0 ) {
+	} else if( n == 2 && strcmpi("server",type) == 0 ){
+		if( strcmpi("shutdown",command) == 0 ||
+			strcmpi("exit",command) == 0 ||
+			strcmpi("quit",command) == 0 ){
 			runflag = 0;
 		}
-	} else if ( strcmpi("help",type) == 0 ) {
+	} else if( strcmpi("help",type) == 0 ){
 		ShowNotice("To use GM commands:\n");
 		printf("admin:<gm command>:<map of \"gm\"> <x> <y>\n");
 		printf("You can use any GM command that doesn't require the GM.\n");
@@ -3686,12 +3694,6 @@ void do_final(void) {
 	//we probably don't need the cache open at all times 'yet', so this is closed by mapsource_final [celest]
 	//map_cache_close();
 
-	// We probably don't need the grfio after server bootup 'yet' too. So this is closed near the end of do_init [Lance]
-	if((battle_config.cardillust_read_grffile || battle_config.item_equip_override_grffile || 
-		battle_config.item_slots_override_grffile || battle_config.item_name_override_grffile ||
-		battle_config.skill_sp_override_grffile))
-		grfio_final();
-
 	for (i = 0; i < map_num; i++)
 		if (map[i].m >= 0)
 			map_foreachinmap(cleanup_sub, i, BL_ALL);
@@ -3949,6 +3951,7 @@ int do_init(int argc, char *argv[]) {
 	do_init_storage();
 	do_init_skill();
 	do_init_pet();
+	do_init_merc();	//[orn]
 	do_init_npc();
 	do_init_unit();
 #ifndef TXT_ONLY /* mail system [Valaris] */
@@ -3967,6 +3970,9 @@ int do_init(int argc, char *argv[]) {
 
 	npc_event_do_oninit();	// npcOnInitCxg?s
 
+	//Done loading with the maps, no need for the grf module anymore.
+	grfio_final();
+
 	if ( console ) {
 		set_defaultconsoleparse(parse_console);
 		start_console();
@@ -3974,17 +3980,6 @@ int do_init(int argc, char *argv[]) {
 
 	if (battle_config.pk_mode == 1)
 		ShowNotice("Server is running on '"CL_WHITE"PK Mode"CL_RESET"'.\n");
-
-	if(!(battle_config.cardillust_read_grffile || battle_config.item_equip_override_grffile || 
-		battle_config.item_slots_override_grffile || battle_config.item_name_override_grffile ||
-		battle_config.skill_sp_override_grffile))
-		grfio_final(); // Unused after reading all maps.
-
-	//However, some reload functions still use it,disable them.
-	//battle_config.cardillust_read_grffile =
-	//battle_config.item_equip_override_grffile =
-	//battle_config.item_slots_override_grffile =
-	//battle_config.item_name_override_grffile = 0;
 
 	ShowStatus("Server is '"CL_GREEN"ready"CL_RESET"' and listening on port '"CL_WHITE"%d"CL_RESET"'.\n\n", map_port);
 

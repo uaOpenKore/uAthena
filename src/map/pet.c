@@ -26,6 +26,7 @@
 #include "script.h"
 #include "skill.h"
 #include "unit.h"
+#include "atcommand.h"
 
 #define MIN_PETTHINKTIME 100
 
@@ -683,7 +684,7 @@ int pet_menu(struct map_session_data *sd,int menunum)
 	return 0;
 }
 
-int pet_change_name(struct map_session_data *sd,char *name, int flag) //flag 0 = check name, 1 = good name
+int pet_change_name(struct map_session_data *sd,char *name)
 {
 	int i;
 	struct pet_data *pd;
@@ -698,19 +699,24 @@ int pet_change_name(struct map_session_data *sd,char *name, int flag) //flag 0 =
 			return 1;
 	}
 
-	if (!flag)
-		return intif_rename_pet(sd, name);
+	return intif_rename_pet(sd, name);
+}
 
-	pet_stop_walking(pd,1);
-
+int pet_change_name_ack(struct map_session_data *sd, char* name, int flag)
+{
+	struct pet_data *pd = sd->pd;
+	if (!pd) return 0;
+	if (!flag) {
+		clif_displaymessage(sd->fd, msg_txt(280)); // You cannot use this name for your pet.
+		clif_send_petstatus(sd); //Send status so client knows oet name change got rejected.
+		return 0;
+	}
 	memcpy(pd->pet.name, name, NAME_LENGTH-1);
-
 	clif_charnameack (0,&pd->bl);
 	pd->pet.rename_flag = 1;
 	clif_pet_equip(pd);
 	clif_send_petstatus(sd);
-
-	return 0;
+	return 1;
 }
 
 int pet_equipitem(struct map_session_data *sd,int index)
@@ -861,7 +867,7 @@ static int pet_randomwalk(struct pet_data *pd,unsigned int tick)
 				pd->move_fail_count++;
 				if(pd->move_fail_count>1000){
 					if(battle_config.error_log)
-						ShowWarning("PET cant move. hold position %d, class = %d\n",pd->bl.id,pd->pet.class_);
+						ShowWarning("PET can't move. hold position %d, class = %d\n",pd->bl.id,pd->pet.class_);
 					pd->move_fail_count=0;
 					pd->ud.canmove_tick = tick + 60000;
 					return 0;
@@ -1351,7 +1357,7 @@ int read_petdb()
 			pet_db[j].script = NULL;
 			if((np=strchr(p,'{'))==NULL)
 				continue;
-			pet_db[j].script = parse_script((unsigned char *) np, filename[i], lines);
+			pet_db[j].script = parse_script(np, filename[i], lines, 0);
 			j++;
 		}
 		if (j >= MAX_PET_DB)
@@ -1371,9 +1377,9 @@ int do_init_pet(void)
 	memset(pet_db,0,sizeof(pet_db));
 	read_petdb();
 
-	item_drop_ers = ers_new((uint32)sizeof(struct item_drop));
-	item_drop_list_ers = ers_new((uint32)sizeof(struct item_drop_list));
-	
+	item_drop_ers = ers_new(sizeof(struct item_drop));
+	item_drop_list_ers = ers_new(sizeof(struct item_drop_list));
+
 	add_timer_func_list(pet_hungry,"pet_hungry");
 	add_timer_func_list(pet_ai_hard,"pet_ai_hard");
 	add_timer_func_list(pet_skill_bonus_timer,"pet_skill_bonus_timer"); // [Valaris]

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "malloc.h"
+#include "../common/malloc.h"
 #include "../common/core.h"
 #include "../common/showmsg.h"
 
@@ -12,101 +12,73 @@
 	#undef LOG_MEMMGR
 #endif
 
-void* aMalloc_ (size_t size, const char *file, int line, const char *func)
+void* aMalloc_(size_t size, const char *file, int line, const char *func)
 {
-#ifndef MEMWATCH
-	void *ret = MALLOC(size);
-#else
-	void *ret = mwMalloc(size, file, line);
-#endif
-	// ShowMessage("%s:%d: in func %s: malloc %d\n",file,line,func,size);
+	void *ret = MALLOC(size, file, line, func);
+	// ShowMessage("%s:%d: in func %s: aMalloc %d\n",file,line,func,size);
 	if (ret == NULL){
-		ShowFatalError("%s:%d: in func %s: malloc error out of memory!\n",file,line,func);
+		ShowFatalError("%s:%d: in func %s: aMalloc error out of memory!\n",file,line,func);
 		exit(1);
 	}
 
 	return ret;
 }
-void* aMallocA_ (size_t size, const char *file, int line, const char *func)
+void* aMallocA_(size_t size, const char *file, int line, const char *func)
 {
-#ifndef MEMWATCH
-	void *ret = MALLOCA(size);
-#else
-	void *ret = mwMalloc(size, file, line);
-#endif
-	// ShowMessage("%s:%d: in func %s: malloc %d\n",file,line,func,size);
+	void *ret = MALLOCA(size, file, line, func);
+	// ShowMessage("%s:%d: in func %s: aMallocA %d\n",file,line,func,size);
 	if (ret == NULL){
-		ShowFatalError("%s:%d: in func %s: malloc error out of memory!\n",file,line,func);
+		ShowFatalError("%s:%d: in func %s: aMallocA error out of memory!\n",file,line,func);
 		exit(1);
 	}
 
 	return ret;
 }
-void* aCalloc_ (size_t num, size_t size, const char *file, int line, const char *func)
+void* aCalloc_(size_t num, size_t size, const char *file, int line, const char *func)
 {
-#ifndef MEMWATCH
-	void *ret = CALLOC(num, size);
-#else
-	void *ret = mwCalloc(num, size, file, line);
-#endif
-	// ShowMessage("%s:%d: in func %s: calloc %d %d\n",file,line,func,num,size);
+	void *ret = CALLOC(num, size, file, line, func);
+	// ShowMessage("%s:%d: in func %s: aCalloc %d %d\n",file,line,func,num,size);
 	if (ret == NULL){
-		ShowFatalError("%s:%d: in func %s: calloc error out of memory!\n", file, line, func);
+		ShowFatalError("%s:%d: in func %s: aCalloc error out of memory!\n", file, line, func);
 		exit(1);
 	}
 	return ret;
 }
-void* aCallocA_ (size_t num, size_t size, const char *file, int line, const char *func)
+void* aCallocA_(size_t num, size_t size, const char *file, int line, const char *func)
 {
-#ifndef MEMWATCH
-	void *ret = CALLOCA(num, size);
-#else
-	void *ret = mwCalloc(num, size, file, line);
-#endif
-	// ShowMessage("%s:%d: in func %s: calloc %d %d\n",file,line,func,num,size);
+	void *ret = CALLOCA(num, size, file, line, func);
+	// ShowMessage("%s:%d: in func %s: aCallocA %d %d\n",file,line,func,num,size);
 	if (ret == NULL){
-		ShowFatalError("%s:%d: in func %s: calloc error out of memory!\n",file,line,func);
+		ShowFatalError("%s:%d: in func %s: aCallocA error out of memory!\n",file,line,func);
 		exit(1);
 	}
 	return ret;
 }
-void* aRealloc_ (void *p, size_t size, const char *file, int line, const char *func)
+void* aRealloc_(void *p, size_t size, const char *file, int line, const char *func)
 {
-#ifndef MEMWATCH
-	void *ret = REALLOC(p, size);
-#else
-	void *ret = mwRealloc(p, size, file, line);
-#endif
-	// ShowMessage("%s:%d: in func %s: realloc %p %d\n",file,line,func,p,size);
+	void *ret = REALLOC(p, size, file, line, func);
+	// ShowMessage("%s:%d: in func %s: aRealloc %p %d\n",file,line,func,p,size);
 	if (ret == NULL){
-		ShowFatalError("%s:%d: in func %s: realloc error out of memory!\n",file,line,func);
+		ShowFatalError("%s:%d: in func %s: aRealloc error out of memory!\n",file,line,func);
 		exit(1);
 	}
 	return ret;
 }
-char* aStrdup_ (const char *p, const char *file, int line, const char *func)
+char* aStrdup_(const char *p, const char *file, int line, const char *func)
 {
-#ifndef MEMWATCH
-	char *ret = STRDUP(p);
-#else
-	char *ret = mwStrdup(p, file, line);
-#endif
-	// ShowMessage("%s:%d: in func %s: strdup %p\n",file,line,func,p);
+	char *ret = STRDUP(p, file, line, func);
+	// ShowMessage("%s:%d: in func %s: aStrdup %p\n",file,line,func,p);
 	if (ret == NULL){
-		ShowFatalError("%s:%d: in func %s: strdup error out of memory!\n", file, line, func);
+		ShowFatalError("%s:%d: in func %s: aStrdup error out of memory!\n", file, line, func);
 		exit(1);
 	}
 	return ret;
 }
-void aFree_ (void *p, const char *file, int line, const char *func)
+void aFree_(void *p, const char *file, int line, const char *func)
 {
-	// ShowMessage("%s:%d: in func %s: free %p\n",file,line,func,p);
+	// ShowMessage("%s:%d: in func %s: aFree %p\n",file,line,func,p);
 	if (p)
-	#ifndef MEMWATCH
-		FREE(p);
-	#else
-		mwFree(p, file, line);
-	#endif
+		FREE(p, file, line, func);
 
 	p = NULL;
 }
@@ -140,43 +112,43 @@ char* _bstrdup(const char *chr)
 /* USE_MEMMGR */
 
 /*
- * メモリマネージャ
- *     malloc , free の処理を効率的に出来るようにしたもの。
- *     複雑な処理を行っているので、若干重くなるかもしれません。
+ * }l[W
+ *     malloc , free IoB
+ *     GsAdB
  *
- * データ構造など（説明下手ですいません^^; ）
- *     ・メモリを複数の「ブロック」に分けて、さらにブロックを複数の「ユニット」
- *       に分けています。ユニットのサイズは、１ブロックの容量を複数個に均等配分
- *       したものです。たとえば、１ユニット32KBの場合、ブロック１つは32Byteのユ
- *       ニットが、1024個集まって出来ていたり、64Byteのユニットが 512個集まって
- *       出来ていたりします。（padding,unit_head を除く）
+ * f[^\i^^; j
+ *     EuubNvAubNujbgv
+ *       BjbgTCYAPubNez
+ *       BAPjbg32KBAubNP32Byte
+ *       jbgA1024WoA64Bytejbg 512W
+ *       oBipadding,unit_head j
  *
- *     ・ブロック同士はリンクリスト(block_prev,block_next) でつながり、同じサイ
- *       ズを持つブロック同士もリンクリスト(samesize_prev,samesize_nect) でつな
- *       がっています。それにより、不要となったメモリの再利用が効率的に行えます。
+ *     EubNmNXg(block_prev,block_next) ATC
+ *       YubNmNXg(samesize_prev,samesize_nect) 
+ *       BAsvpIsB
  */
 
-/* ブロックに入るデータ量 */
+/* ubNf[^ */
 #define BLOCK_DATA_SIZE	80*1024
 
-/* 一度に確保するブロックの数。 */
+/* xmubNB */
 #define BLOCK_ALLOC		32
 
-/* ブロックのアライメント */
+/* ubNACg */
 #define BLOCK_ALIGNMENT	64
 
-/* ブロック */
+/* ubN */
 struct block {
-	int    block_no;		/* ブロック番号 */
-	struct block* block_prev;		/* 前に確保した領域 */
-	struct block* block_next;		/* 次に確保した領域 */
-	int    samesize_no;     /* 同じサイズの番号 */
-	struct block* samesize_prev;	/* 同じサイズの前の領域 */
-	struct block* samesize_next;	/* 同じサイズの次の領域 */
-	size_t unit_size;		/* ユニットのバイト数 0=未使用 */
-	size_t unit_hash;		/* ユニットのハッシュ */
-	int    unit_count;		/* ユニットの数 */
-	int    unit_used;		/* 使用済みユニット */
+	int    block_no;		/* ubN */
+	struct block* block_prev;		/* Om */
+	struct block* block_next;		/* m */
+	int    samesize_no;     /* TCY */
+	struct block* samesize_prev;	/* TCYO */
+	struct block* samesize_next;	/* TCY */
+	size_t unit_size;		/* jbgoCg 0=gp */
+	size_t unit_hash;		/* jbgnbV */
+	int    unit_count;		/* jbg */
+	int    unit_used;		/* gpjbg */
 	char   data[BLOCK_DATA_SIZE];
 };
 
@@ -197,12 +169,12 @@ static struct block* block_first  = NULL;
 static struct block* block_last   = NULL;
 static struct block* block_unused = NULL;
 
-/* ユニットへのハッシュ。80KB/64Byte = 1280個 */
-static struct block* unit_first[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];		/* 最初 */
-static struct block* unit_unfill[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];	/* 埋まってない */
-static struct block* unit_last[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];		/* 最後 */
+/* jbgnbVB80KB/64Byte = 1280 */
+static struct block* unit_first[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];		/*  */
+static struct block* unit_unfill[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];	/*  */
+static struct block* unit_last[BLOCK_DATA_SIZE/BLOCK_ALIGNMENT];		/*  */
 
-/* メモリを使い回せない領域用のデータ */
+/* gpf[^ */
 struct unit_head_large {
 	struct unit_head_large* prev;
 	struct unit_head_large* next;
@@ -233,14 +205,10 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 	}
 	memmgr_usage_bytes += size;
 
-	/* ブロック長を超える領域の確保には、malloc() を用いる */
-	/* その際、unit_head.block に NULL を代入して区別する */
+	/* ubNmAmalloc() p */
+	/* Aunit_head.block  NULL  */
 	if(size_hash * BLOCK_ALIGNMENT > BLOCK_DATA_SIZE - sizeof(struct unit_head)) {
-#ifdef MEMWATCH
-		struct unit_head_large* p = (struct unit_head_large*)mwMalloc(sizeof(struct unit_head_large) + size,file,line);
-#else
-		struct unit_head_large* p = (struct unit_head_large*) MALLOC (sizeof(struct unit_head_large) + size);
-#endif
+		struct unit_head_large* p = (struct unit_head_large*)MALLOC(sizeof(struct unit_head_large)+size,file,line,func);
 		if(p != NULL) {
 			p->unit_head.block = NULL;
 			p->unit_head.size  = size;
@@ -262,18 +230,18 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 		}
 	}
 
-	/* 同一サイズのブロックが確保されていない時、新たに確保する */
+	/* TCYubNmAVm */
 	if(unit_unfill[size_hash] == NULL) {
 		block = block_malloc();
 		if(unit_first[size_hash] == NULL) {
-			/* 初回確保 */
+			/* m */
 			unit_first[size_hash] = block;
 			unit_last[size_hash] = block;
 			block->samesize_no = 0;
 			block->samesize_prev = NULL;
 			block->samesize_next = NULL;
 		} else {
-			/* 連結作業 */
+			/* A */
 			unit_last[size_hash]->samesize_next = block;
 			block->samesize_no   = unit_last[size_hash]->samesize_no + 1;
 			block->samesize_prev = unit_last[size_hash];
@@ -285,16 +253,16 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 		block->unit_count = (int)(BLOCK_DATA_SIZE / block->unit_size);
 		block->unit_used  = 0;
 		block->unit_hash  = size_hash;
-		/* 未使用Flagを立てる */
+		/* gpFlag */
 		for(i=0;i<block->unit_count;i++) {
 			((struct unit_head*)(&block->data[block->unit_size * i]))->block = NULL;
 		}
 	}
-	/* ユニット使用個数加算 */
+	/* jbggpZ */
 	block = unit_unfill[size_hash];
 	block->unit_used++;
 
-	/* ユニット内を全て使い果たした */
+	/* jbgSg */
 	if(block->unit_count == block->unit_used) {
 		do {
 			unit_unfill[size_hash] = unit_unfill[size_hash]->samesize_next;
@@ -304,7 +272,7 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 		);
 	}
 
-	/* ブロックの中の空きユニット捜索 */
+	/* ubNjbg{ */
 	for(i=0;i<block->unit_count;i++) {
 		struct unit_head *head = (struct unit_head*)(&block->data[block->unit_size * i]);
 		if(head->block == NULL) {
@@ -316,7 +284,7 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func ) {
 			return (char *)head + sizeof(struct unit_head) - sizeof(int);
 		}
 	}
-	// ここに来てはいけない。
+	// B
 	ShowFatalError("Memory manager::memmgr_malloc() serious error (allocating %d+%d bytes at %s:%d)\n", sizeof(struct unit_head_large), size, file, line);
 	memmgr_info();
 	exit(1);
@@ -337,10 +305,10 @@ void* _mrealloc(void *memblock, size_t size, const char *file, int line, const c
 
 	old_size = ((struct unit_head *)((char *)memblock - sizeof(struct unit_head) + sizeof(int)))->size;
 	if(old_size > size) {
-		// サイズ縮小 -> そのまま返す（手抜き）
+		// TCYk -> ij
 		return memblock;
 	}  else {
-		// サイズ拡大
+		// TCYg
 		void *p = _mmalloc(size,file,line,func);
 		if(p != NULL) {
 			memcpy(p,memblock,old_size);
@@ -373,7 +341,7 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 
 	if(head->block == NULL) {
 		if(size_hash * BLOCK_ALIGNMENT > BLOCK_DATA_SIZE - sizeof(struct unit_head)) {
-			/* malloc() で直に確保された領域 */
+			/* malloc() m */
 			struct unit_head_large *head_large = (struct unit_head_large *)((char *)ptr - sizeof(struct unit_head_large) + sizeof(int));
 			if(
 				*(int*)((char*)head_large + sizeof(struct unit_head_large) - sizeof(int) + head->size)
@@ -391,14 +359,14 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 			}
 			head->block = NULL;
 			memmgr_usage_bytes -= head->size;
-			FREE (head_large);			
+			FREE(head_large,file,line,func);
 		} else {
-			ShowError("Memory manager: args of aFree is freed pointer %s line %d\n", file, line);
+			ShowError("Memory manager: args of aFree is freed pointer %s:%d@%s\n", file, line, func);
 		}
 		ptr = NULL;
 		return;
 	} else {
-		/* ユニット解放 */
+		/* jbg */
 		struct block *block = head->block;
 		if((unsigned long)block % sizeof(struct block) != 0) {
 			ShowError("Memory manager: args of aFree is not valid pointer %s line %d\n", file, line);
@@ -408,9 +376,9 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 			head->block = NULL;
 			memmgr_usage_bytes -= head->size;
 			if(--block->unit_used == 0) {
-				/* ブロックの解放 */
+				/* ubN */
 				if(unit_unfill[block->unit_hash] == block) {
-					/* 空きユニットに指定されている */
+					/* jbgw */
 					do {
 						unit_unfill[block->unit_hash] = unit_unfill[block->unit_hash]->samesize_next;
 					} while(
@@ -419,26 +387,26 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 					);
 				}
 				if(block->samesize_prev == NULL && block->samesize_next == NULL) {
-					/* 独立ブロックの解放 */
+					/* ubN */
 					unit_first[block->unit_hash]  = NULL;
 					unit_last[block->unit_hash]   = NULL;
 					unit_unfill[block->unit_hash] = NULL;
 				} else if(block->samesize_prev == NULL) {
-					/* 先頭ブロックの解放 */
+					/* ubN */
 					unit_first[block->unit_hash] = block->samesize_next;
 					(block->samesize_next)->samesize_prev = NULL;
 				} else if(block->samesize_next == NULL) {
-					/* 末端ブロックの解放 */
+					/* [ubN */
 					unit_last[block->unit_hash] = block->samesize_prev; 
 					(block->samesize_prev)->samesize_next = NULL;
 				} else {
-					/* 中間ブロックの解放 */
+					/* ubN */
 					(block->samesize_next)->samesize_prev = block->samesize_prev;
 					(block->samesize_prev)->samesize_next = block->samesize_next;
 				}
 				block_free(block);
 			} else {
-				/* 空きユニットの再設定 */
+				/* jbg */
 				if(
 					unit_unfill[block->unit_hash] == NULL ||
 					unit_unfill[block->unit_hash]->samesize_no > block->samesize_no
@@ -451,7 +419,7 @@ void _mfree(void *ptr, const char *file, int line, const char *func ) {
 	}
 }
 
-/* 現在の状況を表示する */
+/* \ */
 static void memmgr_info(void) {
 	int i;
 	struct block *p;
@@ -492,29 +460,29 @@ static void memmgr_info(void) {
 	}
 }
 
-/* ブロックを確保する */
+/* ubNm */
 static struct block* block_malloc(void) {
 	if(block_unused != NULL) {
-		/* ブロック用の領域は確保済み */
+		/* ubNpm */
 		struct block* ret = block_unused;
 		do {
 			block_unused = block_unused->block_next;
 		} while(block_unused != NULL && block_unused->unit_size != 0);
 		return ret;
 	} else {
-		/* ブロック用の領域を新たに確保する */
+		/* ubNpVm */
 		int i;
 		int block_no;
 		struct block* p;
 		struct chunk* chunk;
-		char *pb = (char *) CALLOC (sizeof(struct block),BLOCK_ALLOC + 1);
+		char *pb = (char *)CALLOC(sizeof(struct block),BLOCK_ALLOC+1,file,line,func);
 		if(pb == NULL) {
 			ShowFatalError("Memory manager::block_alloc failed.\n");
 			exit(1);
 		}
 
 		// store original block address in chunk
-		chunk = (struct chunk *) MALLOC (sizeof(struct chunk));
+		chunk = (struct chunk *)MALLOC(sizeof(struct chunk),file,line,func);
 		if (chunk == NULL) {
 			ShowFatalError("Memory manager::block_alloc failed.\n");
 			exit(1);
@@ -523,12 +491,12 @@ static struct block* block_malloc(void) {
 		chunk->next = (chunk_first) ? chunk_first : NULL;
 		chunk_first = chunk;
 
-		// ブロックのポインタの先頭をsizeof(block) アライメントに揃える
-		// このアドレスをfree() することはないので、直接ポインタを変更している。
+		// ubN|C^sizeof(block) ACg
+		// AhXfree() A|C^XB
 		pb += sizeof(struct block) - ((unsigned long)pb % sizeof(struct block));
 		p   = (struct block*)pb;
 		if(block_first == NULL) {
-			/* 初回確保 */
+			/* m */
 			block_no     = 0;
 			block_first  = p;
 		} else {
@@ -537,7 +505,7 @@ static struct block* block_malloc(void) {
 			p->block_prev = block_last;
 		}
 		block_last = &p[BLOCK_ALLOC - 1];
-		/* ブロックを連結させる */
+		/* ubNA */
 		for(i=0;i<BLOCK_ALLOC;i++) {
 			if(i != 0) {
 				p[i].block_prev = &p[i-1];
@@ -548,7 +516,7 @@ static struct block* block_malloc(void) {
 			p[i].block_no = block_no + i;
 		}
 
-		/* 未使用ブロックへのポインタを更新 */
+		/* gpubN|C^XV */
 		block_unused = &p[1];
 		p->unit_size = 1;
 		return p;
@@ -556,9 +524,9 @@ static struct block* block_malloc(void) {
 }
 
 static void block_free(struct block* p) {
-	/* free() せずに、未使用フラグを付けるだけ */
+	/* free() AgptOt */
 	p->unit_size = 0;
-	/* 未使用ポインターを更新する */
+	/* gp|C^[XV */
 	if(block_unused == NULL) {
 		block_unused = p;
 	} else if(block_unused->block_no > p->block_no) {
@@ -580,7 +548,7 @@ static void memmgr_log (char *buf)
 	if (!log_fp) {
 		log_fp = fopen(memmer_logfile,"w");
 		if (!log_fp) log_fp = stdout;
-		fprintf(log_fp, "Memory manager: Memory leaks found.\n");
+		fprintf(log_fp, "Memory manager: Memory leaks found (Revision %s).\n", get_svn_revision());
 	}
 	fprintf(log_fp, buf);
 	return;
@@ -646,8 +614,8 @@ static void memmgr_final (void)
 	chunk = chunk_first;
 	while (chunk) {
 		chunk2 = chunk->next;
-		FREE(chunk->block);
-		FREE(chunk);
+		FREE(chunk->block,file,line,func);
+		FREE(chunk,file,line,func);
 		chunk = chunk2;
 	}
 
@@ -659,7 +627,7 @@ static void memmgr_final (void)
 			large->unit_head.file, large->unit_head.line, large->unit_head.size);
 		memmgr_log (buf);
 	#endif
-		FREE (large);
+		FREE(large,file,line,func);
 		large = large2;
 	}
 #ifdef LOG_MEMMGR

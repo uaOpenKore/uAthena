@@ -187,7 +187,6 @@ enum AtCommandType {
 	AtCommand_ChangeSex, // by MC Cameri
 	AtCommand_Mute, // [celest]
 	AtCommand_WhoZeny, // [Valaris] <-- LOL...(MC Cameri) worth it.
-	AtCommand_HappyHappyJoyJoy, // [Valaris]
 	AtCommand_Refresh, // by MC Cameri
 	AtCommand_PetId, // by MC Cameri
 	AtCommand_Identify, // by MC Cameri
@@ -244,7 +243,6 @@ enum AtCommandType {
 	AtCommand_Version, // by Ancyker
 
 	AtCommand_MuteArea, // MouseJstr
-	AtCommand_Shuffle, // MouseJstr
 	AtCommand_Rates, // MouseJstr
 
 	AtCommand_ItemInfo, // Lupus
@@ -274,8 +272,17 @@ enum AtCommandType {
 	AtCommand_ToNPC, // LuzZza
 	AtCommand_Commands, // [Skotlex]
 	AtCommand_NoAsk, // [LuzZza]
-	AtCommand_Request, // [Skotlex], supposedly taken from Freya (heard the command was there, but I haven't seen the code yet)
-	AtCommand_ShowMobs,	//KarLaeda
+	AtCommand_Request, // [Skotlex]
+	AtCommand_HomLevel, //[orn]
+	AtCommand_HomEvolution, //[orn]
+	AtCommand_MakeHomun, //[orn]
+	AtCommand_HomFriendly, //[orn]
+	AtCommand_HomHungry, //[orn]
+	AtCommand_HomTalk, //[orn]
+	AtCommand_HomInfo, //[Toms]
+	AtCommand_HomStats, //[Skotlex]
+	AtCommand_HomShuffle, //[Skotlex]
+	AtCommand_ShowMobs, //KarLaeda
 	// end <- Ahem, guys, don't place AtCommands after AtCommand_Unknown! [Skotlex]
 	AtCommand_Unknown,
 	AtCommand_MAX
@@ -287,20 +294,16 @@ typedef struct AtCommandInfo {
 	AtCommandType type;
 	const char* command;
 	int level;
-	int (*proc)(const int, struct map_session_data*,
-		const char* command, const char* message);
+	int (*proc)(const int fd, struct map_session_data* sd, const char* command, const char* message);
 } AtCommandInfo;
 
-AtCommandType
-is_atcommand(const int fd, struct map_session_data* sd, const char* message, int gmlvl);
-
-AtCommandType atcommand(
-	struct map_session_data *sd,
-	const int level, const char* message, AtCommandInfo* info);
+AtCommandType is_atcommand(const int fd, struct map_session_data* sd, const char* message);
+AtCommandType is_atcommand_sub(const int fd, struct map_session_data* sd, const char* str, int gmlvl);
+AtCommandType atcommand(struct map_session_data *sd, const int level, const char* message, AtCommandInfo* info);
 int get_atcommand_level(const AtCommandType type);
 
-char * msg_txt(int msg_number); // [Yor]
-char * player_title_txt(int level); // [Lupus]
+char* msg_txt(int msg_number); // [Yor]
+char* player_title_txt(int level); // [Lupus]
 
 void do_init_atcommand(void);
 void do_final_atcommand(void);
@@ -315,12 +318,12 @@ int atcommand_config_read(const char *cfgName);
 int msg_config_read(const char *cfgName);
 void do_final_msg(void);
 
-char *estr_lower(char *str);
+char* estr_lower(char* str);
 
-int e_mail_check(char *email);
-
+int e_mail_check(char* email);
+extern char atcommand_symbol;
 #define MAX_MSG 1000
-extern char *msg_table[MAX_MSG];
+extern char* msg_table[MAX_MSG];
 
 #endif
 

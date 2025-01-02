@@ -167,6 +167,7 @@ extern struct Battle_Config {
 	unsigned short guild_exp_limit;
 	unsigned short guild_max_castles;
 	unsigned short emergency_call;
+	unsigned short guild_aura;
 	unsigned short pc_invincible_time;
 	unsigned short pet_catch_rate;
 	unsigned short pet_rename;
@@ -202,12 +203,6 @@ extern struct Battle_Config {
 	int natural_healsp_interval;
 	int natural_heal_skill_interval;
 	unsigned short natural_heal_weight_rate;
-	unsigned short item_name_override_grffile;
-	unsigned short indoors_override_grffile;	// [Celest]
-	unsigned short skill_sp_override_grffile;	// [Celest]
-	unsigned short cardillust_read_grffile;
-	unsigned short item_equip_override_grffile;
-	unsigned short item_slots_override_grffile;
 	unsigned short arrow_decrement;
 	unsigned short max_aspd;
 	unsigned short max_walk_speed;	//Maximum walking speed after buffs [Skotlex]
@@ -382,6 +377,7 @@ extern struct Battle_Config {
 	unsigned short berserk_cancels_buffs; // [Aru]
 	unsigned short debuff_on_logout; // Removes a few "official" negative Scs on logout. [Skotlex]
 	unsigned short mob_ai; //Configures various mob_ai settings to make them smarter or dumber(official). [Skotlex]
+	unsigned short hom_setting; //Configures various homunc settings which make them behave unlike normal characters.. [Skotlex]
 	unsigned short dynamic_mobs; // Dynamic Mobs [Wizputer] - battle_athena flag implemented by [random]
 	unsigned short mob_remove_damaged; // Dynamic Mobs - Remove mobs even if damaged [Wizputer]
 	int mob_remove_delay; // Dynamic Mobs - delay before removing mobs from a map [Skotlex]
@@ -438,6 +434,10 @@ extern struct Battle_Config {
 	unsigned short override_mob_names; //Enables overriding spawn mob names with the mob_db names. [Skotlex]
 	unsigned short min_chat_delay; //Minimum time between client messages. [Skotlex]
 	unsigned short friend_auto_add; //When accepting friends, both get friended. [Skotlex]
+	unsigned int hvan_explosion_intimate ;	// fix [albator]
+	unsigned short hom_rename;
+	unsigned short homunculus_show_growth ;	//[orn]
+	unsigned short homunculus_friendly_rate;
 } battle_config;
 
 void do_init_battle(void);

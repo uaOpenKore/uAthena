@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 
+#include "../common/cbasetypes.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
@@ -25,12 +25,11 @@
 #include "skill.h"
 #include "log.h"
 
-static struct guild* guild_cache; //For fast retrieval of the same guild over and over. [Skotlex]
-static struct dbt *guild_db;
-static struct dbt *castle_db;
-static struct dbt *guild_expcache_db;
-static struct dbt *guild_infoevent_db;
-static struct dbt *guild_castleinfoevent_db;
+static DB guild_db;
+static DB castle_db;
+static DB guild_expcache_db;
+static DB guild_infoevent_db;
+static DB guild_castleinfoevent_db;
 
 struct eventlist {
 	char name[50];
@@ -206,7 +205,7 @@ void do_init_guild(void)
 	castle_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	guild_expcache_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	guild_infoevent_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
-	expcache_ers = ers_new((uint32)sizeof(struct guild_expcache)); 
+	expcache_ers = ers_new(sizeof(struct guild_expcache));
 	guild_castleinfoevent_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 
 	guild_read_castledb();
@@ -222,13 +221,10 @@ void do_init_guild(void)
 }
 
 
-// 
+//
 struct guild *guild_search(int guild_id)
 {
-	if(guild_cache && guild_cache->guild_id == guild_id)
-		return guild_cache;
-	guild_cache = idb_get(guild_db,guild_id);
-	return guild_cache;
+	return idb_get(guild_db,guild_id);
 }
 int guild_searchname_sub(DBKey key,void *data,va_list ap)
 {
@@ -1175,26 +1171,23 @@ int guild_getexp(struct map_session_data *sd,int exp)
 }
 
 // XL|CgU
-int guild_skillup(struct map_session_data *sd,int skill_num,int flag)
+int guild_skillup(TBL_PC* sd, int skill_num)
 {
-	struct guild *g;
+	struct guild* g;
 	int idx = skill_num - GD_SKILLBASE;
 
 	nullpo_retr(0, sd);
 
-	if(idx < 0 || idx >= MAX_GUILDSKILL)
-
-		return 0;
-	if(sd->status.guild_id==0 || (g=guild_search(sd->status.guild_id))==NULL)
-		return 0;
-	if(strcmp(sd->status.name,g->master))
+	if( idx < 0 || idx >= MAX_GUILDSKILL || // not a guild skill
+			sd->status.guild_id == 0 || (g=guild_search(sd->status.guild_id)) == NULL || // no guild
+			strcmp(sd->status.name, g->master) ) // not the guild master
 		return 0;
 
-	if( (g->skill_point>0 || flag&1) &&
-		g->skill[idx].id!=0 &&
-		g->skill[idx].lv < guild_skill_get_max(skill_num) ){
-		intif_guild_skillup(g->guild_id,skill_num,sd->status.account_id,flag);
-	}
+	if( g->skill_point > 0 &&
+			g->skill[idx].id != 0 &&
+			g->skill[idx].lv < guild_skill_get_max(skill_num) )
+		intif_guild_skillup(g->guild_id, skill_num, sd->status.account_id);
+
 	return 0;
 }
 // XL|CgUm
@@ -1576,8 +1569,6 @@ int guild_broken(int guild_id,int flag)
 
 	guild_db->foreach(guild_db,guild_broken_sub,guild_id);
 	castle_db->foreach(castle_db,castle_guild_broken_sub,guild_id);
-	if (guild_cache && guild_cache->guild_id == guild_id)
-		guild_cache = NULL;
 	guild_storage_delete(guild_id);
 	idb_remove(guild_db,guild_id);
 	return 0;
@@ -1904,8 +1895,7 @@ int guild_agit_break(struct mob_data *md)
 {	// Run One NPC_Event[OnAgitBreak]
 	char *evname;
 
-	nullpo_retr(0, md);
-
+	if(!agit_flag) return 0;	// Agit already End
 	evname=(char *)aMallocA((strlen(md->npc_event) + 1)*sizeof(char));
 
 	strcpy(evname,md->npc_event);
@@ -1914,23 +1904,22 @@ int guild_agit_break(struct mob_data *md)
 // But Script will be stop, so nothing...
 // Maybe will be changed in the futher..
 //      int c = npc_event_do(evname);
-	if(!agit_flag) return 0;	// Agit already End
 	add_timer(gettick()+battle_config.gvg_eliminate_time,guild_gvg_eliminate_timer,md->bl.m,(int)evname);
 	return 0;
 }
 
-// [MouseJstr]
-//   How many castles does this guild have?
-int guild_checkcastles(struct guild *g) {
-	int i,nb_cas=0, id,cas_id=0;
-	struct guild_castle *gc;
-		id=g->guild_id;
-	for(i=0;i<MAX_GUILDCASTLE;i++){
-		gc=guild_castle_search(i);
-		cas_id=gc->guild_id;
-		if(g->guild_id==cas_id)
-			nb_cas=nb_cas+1;
-		} //end for
+// How many castles does this guild have?
+int guild_checkcastles(struct guild *g)
+{
+	int i, nb_cas = 0;
+	struct guild_castle* gc;
+
+	for(i = 0; i < MAX_GUILDCASTLE; i++) {
+		gc = guild_castle_search(i);
+		if(gc && gc->guild_id == g->guild_id)
+			nb_cas++;
+	}
+
 	return nb_cas;
 }
 

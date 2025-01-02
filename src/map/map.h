@@ -171,17 +171,17 @@ enum {
 //Specifies if the map is tagged as GvG/WoE (regardless of agit_flag status)
 #define map_flag_gvg2(m) (map[m].flag.gvg || map[m].flag.gvg_castle)
 //Caps values to min/max
-#define cap_value(a, min, max) (a>max?max:a<min?min:a)
+#define cap_value(a, min, max) (a>=max?max:a<=min?min:a)
 
-//This stackable implementation does not means a BL can be more than one type at a time, but it's 
+//This stackable implementation does not means a BL can be more than one type at a time, but it's
 //meant to make it easier to check for multiple types at a time on invocations such as
 // map_foreach* calls [Skotlex]
-enum { 
+enum bl_type {
 	BL_NUL = 0x000,
 	BL_PC = 0x001,
 	BL_MOB = 0x002,
 	BL_PET = 0x004,
-//	BL_HOM = 0x008,	//[blackhole89]
+	BL_HOM = 0x008,	//[blackhole89]
 	BL_ITEM = 0x010,
 	BL_SKILL = 0x020,
 	BL_NPC = 0x040,
@@ -189,10 +189,10 @@ enum {
 };
 
 //For common mapforeach calls. Since pets cannot be affected, they aren't included here yet.
-#define BL_CHAR (BL_PC|BL_MOB)
+#define BL_CHAR (BL_PC|BL_MOB|BL_HOM)
 #define BL_ALL 0xfff
 
-enum { WARP, SHOP, SCRIPT, MONS };
+enum bl_subtype { WARP, SHOP, SCRIPT, MONS };
 
 enum {
 	RC_FORMLESS=0,
@@ -537,6 +537,7 @@ struct party_data {
 
 struct npc_data;
 struct pet_db;
+struct homunculus_db;	//[orn]
 struct item_data;
 struct square;
 
@@ -797,6 +798,7 @@ struct map_session_data {
 	struct vending vending[MAX_VENDING];
 
 	struct pet_data *pd;
+	struct homun_data *hd;	// [blackhole89]
 
 	struct{
 		int  m; //-1 - none, other: map index corresponding to map name.
@@ -946,6 +948,7 @@ struct mob_data {
 	struct {
 		int id;
 		int dmg;
+		unsigned flag : 1; //0: Normal. 1: Homunc exp
 	} dmglog[DAMAGELOG_SIZE];
 	struct spawn_data *spawn; //Spawn data.
 	struct item *lootitem;
@@ -966,6 +969,23 @@ struct mob_data {
 	short skillidx;
 	unsigned int skilldelay[MAX_MOBSKILL];
 	char npc_event[50];
+};
+
+/* [blackhole89] */
+struct homun_data {
+	struct block_list bl;
+	struct unit_data  ud;
+	struct view_data *vd;
+	struct status_data base_status, battle_status;
+	struct status_change sc;
+	struct regen_data regen;
+	struct homunculus_db *homunculusDB;	//[orn]
+	struct s_homunculus homunculus ;	//[orn]
+
+	struct map_session_data *master; //pointer back to its master
+	int hungry_timer;	//[orn]
+	unsigned int exp_next;
+	char blockskill[MAX_SKILL];	// [orn]
 };
 
 struct pet_data {
@@ -1047,7 +1067,7 @@ struct map_data {
 	int water_height;
 	int npc_num;
 	int users;
-	struct {
+	struct map_flag {
 		unsigned alias : 1;
 		unsigned nomemo : 1;
 		unsigned noteleport : 1;
@@ -1127,7 +1147,7 @@ struct flooritem_data {
 	struct item item_data;
 };
 
-enum {
+enum _sp {
 	SP_SPEED,SP_BASEEXP,SP_JOBEXP,SP_KARMA,SP_MANNER,SP_HP,SP_MAXHP,SP_SP,	// 0-7
 	SP_MAXSP,SP_STATUSPOINT,SP_0a,SP_BASELEVEL,SP_SKILLPOINT,SP_STR,SP_AGI,SP_VIT,	// 8-15
 	SP_INT,SP_DEX,SP_LUK,SP_CLASS,SP_ZENY,SP_SEX,SP_NEXTBASEEXP,SP_NEXTJOBEXP,	// 16-23
@@ -1184,8 +1204,17 @@ enum {
 	//are available!
 };
 
-enum {
-	LOOK_BASE,LOOK_HAIR,LOOK_WEAPON,LOOK_HEAD_BOTTOM,LOOK_HEAD_TOP,LOOK_HEAD_MID,LOOK_HAIR_COLOR,LOOK_CLOTHES_COLOR,LOOK_SHIELD,LOOK_SHOES
+enum _look {
+	LOOK_BASE,
+	LOOK_HAIR,
+	LOOK_WEAPON,
+	LOOK_HEAD_BOTTOM,
+	LOOK_HEAD_TOP,
+	LOOK_HEAD_MID,
+	LOOK_HAIR_COLOR,
+	LOOK_CLOTHES_COLOR,
+	LOOK_SHIELD,
+	LOOK_SHOES
 };
 
 // CELLs for non-permanent cell-based effects (Pneuma, Basilica, Npcs, etc)
@@ -1452,6 +1481,7 @@ typedef struct flooritem_data   TBL_ITEM;
 typedef struct chat_data        TBL_CHAT;
 typedef struct skill_unit       TBL_SKILL;
 typedef struct pet_data         TBL_PET;
+typedef struct homun_data       TBL_HOM;
 
 #define BL_CAST(type_, bl , dest) \
 	(((bl) == NULL || (bl)->type != type_) ? ((dest) = NULL, 0) : ((dest) = (T ## type_ *)(bl), 1))

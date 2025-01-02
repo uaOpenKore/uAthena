@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 #ifdef _WIN32
-#include <winsock.h>
+#include <winsock2.h>
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -18,8 +18,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
+#include "../common/cbasetypes.h"
 #include "../common/strlib.h"
 #include "../common/core.h"
 #include "../common/socket.h"
@@ -34,6 +34,7 @@
 #include "char.h"
 #include "inter.h"
 #include "int_pet.h"
+#include "int_homun.h"
 #include "int_guild.h"
 #include "int_party.h"
 #include "int_storage.h"
@@ -431,9 +432,9 @@ int mmo_char_tostr(char *str, struct mmo_charstatus *p, struct global_reg *reg, 
 	str_p += sprintf(str_p,
 		"%d\t%d,%d\t%s\t%d,%d,%d\t%u,%u,%d" //Up to Zeny field
 		"\t%d,%d,%d,%d\t%d,%d,%d,%d,%d,%d\t%d,%d" //Up to Skill Point
-		"\t%d,%d,%d\t%d,%d,%d" //Up to pet id
+		"\t%d,%d,%d\t%d,%d,%d,%d" //Up to hom id
 		"\t%d,%d,%d\t%d,%d,%d,%d,%d" //Up to head bottom
-		"\t%s,%d,%d\t%s,%d,%d" //last point + save point
+		"\t%d,%d,%d\t%d,%d,%d" //last point + save point
 		",%d,%d,%d,%d,%d\t",	//Family info
 		p->char_id, p->account_id, p->char_num, p->name, //
 		p->class_, p->base_level, p->job_level,
@@ -442,11 +443,11 @@ int mmo_char_tostr(char *str, struct mmo_charstatus *p, struct global_reg *reg, 
 		p->str, p->agi, p->vit, p->int_, p->dex, p->luk,
 		p->status_point, p->skill_point,
 		p->option, p->karma, p->manner,	//
-		p->party_id, p->guild_id, p->pet_id,
+		p->party_id, p->guild_id, p->pet_id, p->hom_id,
 		p->hair, p->hair_color, p->clothes_color,
 		p->weapon, p->shield, p->head_top, p->head_mid, p->head_bottom,
-		mapindex_id2name(p->last_point.map), p->last_point.x, p->last_point.y, //
-		mapindex_id2name(p->save_point.map), p->save_point.x, p->save_point.y,
+		p->last_point.map, p->last_point.x, p->last_point.y, //
+		p->save_point.map, p->save_point.x, p->save_point.y,
 		p->partner_id,p->father,p->mother,p->child,p->fame);
 	for(i = 0; i < MAX_MEMOPOINTS; i++)
 		if (p->memo_point[i].map) {
@@ -503,7 +504,26 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	// initilialise character
 	memset(p, '\0', sizeof(struct mmo_charstatus));
 
-	// If it's not char structure of version 1488 and after
+// Char structure of version 1500 (homun + mapindex maps)
+	if (sscanf(str, "%d\t%d,%d\t%127[^\t]\t%d,%d,%d\t%u,%u,%d\t%d,%d,%d,%d\t%d,%d,%d,%d,%d,%d\t%d,%d"
+		"\t%d,%d,%d\t%d,%d,%d,%d\t%d,%d,%d\t%d,%d,%d,%d,%d"
+		"\t%d,%d,%d\t%d,%d,%d,%d,%d,%d,%d,%d%n",
+		&tmp_int[0], &tmp_int[1], &tmp_int[2], tmp_str[0],
+		&tmp_int[3], &tmp_int[4], &tmp_int[5],
+		&tmp_uint[0], &tmp_uint[1], &tmp_int[8],
+		&tmp_int[9], &tmp_int[10], &tmp_int[11], &tmp_int[12],
+		&tmp_int[13], &tmp_int[14], &tmp_int[15], &tmp_int[16], &tmp_int[17], &tmp_int[18],
+		&tmp_int[19], &tmp_int[20],
+		&tmp_int[21], &tmp_int[22], &tmp_int[23], //
+		&tmp_int[24], &tmp_int[25], &tmp_int[26], &tmp_int[44],
+		&tmp_int[27], &tmp_int[28], &tmp_int[29],
+		&tmp_int[30], &tmp_int[31], &tmp_int[32], &tmp_int[33], &tmp_int[34],
+		&tmp_int[45], &tmp_int[35], &tmp_int[36],
+		&tmp_int[46], &tmp_int[37], &tmp_int[38], &tmp_int[39],
+		&tmp_int[40], &tmp_int[41], &tmp_int[42], &tmp_int[43], &next) != 48)
+	{
+	tmp_int[44] = 0; //Hom ID.
+// Char structure of version 1488 (fame field addition)
 	if (sscanf(str, "%d\t%d,%d\t%127[^\t]\t%d,%d,%d\t%u,%u,%d\t%d,%d,%d,%d\t%d,%d,%d,%d,%d,%d\t%d,%d"
 		"\t%d,%d,%d\t%d,%d,%d\t%d,%d,%d\t%d,%d,%d,%d,%d"
 		"\t%127[^,],%d,%d\t%127[^,],%d,%d,%d,%d,%d,%d,%d%n",
@@ -604,6 +624,10 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	}	// Char structure version 1008 (marriage partner addition)
 	}	// Char structure of version 1363 (family data addition)
 	}	// Char structure of version 1488 (fame field addition)
+	//Convert save data from string to integer for older formats
+		tmp_int[45] = mapindex_name2id(tmp_str[1]);
+		tmp_int[46] = mapindex_name2id(tmp_str[2]);
+	}	// Char structure of version 1500 (homun + mapindex maps)
 
 	memcpy(p->name, tmp_str[0], NAME_LENGTH-1); //Overflow protection [Skotlex]
 	p->char_id = tmp_int[0];
@@ -668,10 +692,8 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	p->head_top = tmp_int[32];
 	p->head_mid = tmp_int[33];
 	p->head_bottom = tmp_int[34];
-	p->last_point.map = mapindex_name2id(tmp_str[1]);
 	p->last_point.x = tmp_int[35];
 	p->last_point.y = tmp_int[36];
-	p->save_point.map = mapindex_name2id(tmp_str[2]);
 	p->save_point.x = tmp_int[37];
 	p->save_point.y = tmp_int[38];
 	p->partner_id = tmp_int[39];
@@ -679,6 +701,9 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	p->mother = tmp_int[41];
 	p->child = tmp_int[42];
 	p->fame = tmp_int[43];
+	p->hom_id = tmp_int[44];
+	p->last_point.map = tmp_int[45];
+	p->save_point.map = tmp_int[46];
 
 #ifndef TXT_SQL_CONVERT
 	// Some checks
@@ -1640,11 +1665,8 @@ int count_users(void) {
 int mmo_char_send006b(int fd, struct char_session_data *sd) {
 	int i, j, found_num;
 	struct mmo_charstatus *p;
-//#ifdef NEW_006b
 	const int offset = 24;
-//#else
-//	const int offset = 4;
-//#endif
+	WFIFOHEAD(fd, offset + 9*108);
 
 	set_char_online(-1, 99,sd->account_id);
 
@@ -1660,14 +1682,23 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 	for(i = found_num; i < 9; i++)
 		sd->found_char[i] = -1;
 
-	WFIFOHEAD(fd, offset + found_num * 106);
+#if PACKETVER > 7
+	//Updated packet structure with rename-button included. Credits to Sara-chan
+	memset(WFIFOP(fd,0), 0, offset + found_num * 108);
+	WFIFOW(fd,2) = offset + found_num * 108;
+#else
 	memset(WFIFOP(fd,0), 0, offset + found_num * 106);
-	WFIFOW(fd,0) = 0x6b;
 	WFIFOW(fd,2) = offset + found_num * 106;
+#endif
+	WFIFOW(fd,0) = 0x6b;
 
 	for(i = 0; i < found_num; i++) {
 		p = &char_dat[sd->found_char[i]].status;
+#if PACKETVER > 7
+		j = offset + (i * 108); // increase speed of code
+#else
 		j = offset + (i * 106); // increase speed of code
+#endif
 
 		WFIFOL(fd,j) = p->char_id;
 		WFIFOL(fd,j+4) = p->base_exp>LONG_MAX?LONG_MAX:p->base_exp;
@@ -1682,7 +1713,7 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 		WFIFOL(fd,j+32) = p->karma;
 		WFIFOL(fd,j+36) = p->manner;
 
-		WFIFOW(fd,j+40) = (p->status_point>SHRT_MAX) ? SHRT_MAX : p->status_point;
+		WFIFOW(fd,j+40) = (p->status_point > SHRT_MAX) ? SHRT_MAX : p->status_point;
 		WFIFOW(fd,j+42) = (p->hp > SHRT_MAX) ? SHRT_MAX : p->hp;
 		WFIFOW(fd,j+44) = (p->max_hp > SHRT_MAX) ? SHRT_MAX : p->max_hp;
 		WFIFOW(fd,j+46) = (p->sp > SHRT_MAX) ? SHRT_MAX : p->sp;
@@ -1692,7 +1723,7 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 		WFIFOW(fd,j+54) = p->hair;
 		WFIFOW(fd,j+56) = p->option&0x20?0:p->weapon; //When the weapon is sent and your option is riding, the client crashes on login!?
 		WFIFOW(fd,j+58) = p->base_level;
-		WFIFOW(fd,j+60) = (p->skill_point>SHRT_MAX)? SHRT_MAX : p->skill_point;
+		WFIFOW(fd,j+60) = (p->skill_point > SHRT_MAX) ? SHRT_MAX : p->skill_point;
 		WFIFOW(fd,j+62) = p->head_bottom;
 		WFIFOW(fd,j+64) = p->shield;
 		WFIFOW(fd,j+66) = p->head_top;
@@ -1702,13 +1733,18 @@ int mmo_char_send006b(int fd, struct char_session_data *sd) {
 
 		memcpy(WFIFOP(fd,j+74), p->name, NAME_LENGTH);
 
-		WFIFOB(fd,j+98) = (p->str > 255) ? 255 : p->str;
-		WFIFOB(fd,j+99) = (p->agi > 255) ? 255 : p->agi;
-		WFIFOB(fd,j+100) = (p->vit > 255) ? 255 : p->vit;
-		WFIFOB(fd,j+101) = (p->int_ > 255) ? 255 : p->int_;
-		WFIFOB(fd,j+102) = (p->dex > 255) ? 255 : p->dex;
-		WFIFOB(fd,j+103) = (p->luk > 255) ? 255 : p->luk;
+		WFIFOB(fd,j+98) = (p->str > UCHAR_MAX) ? UCHAR_MAX : p->str;
+		WFIFOB(fd,j+99) = (p->agi > UCHAR_MAX) ? UCHAR_MAX : p->agi;
+		WFIFOB(fd,j+100) = (p->vit > UCHAR_MAX) ? UCHAR_MAX : p->vit;
+		WFIFOB(fd,j+101) = (p->int_ > UCHAR_MAX) ? UCHAR_MAX : p->int_;
+		WFIFOB(fd,j+102) = (p->dex > UCHAR_MAX) ? UCHAR_MAX : p->dex;
+		WFIFOB(fd,j+103) = (p->luk > UCHAR_MAX) ? UCHAR_MAX : p->luk;
+#if PACKETVER > 7
+		WFIFOW(fd,j+104) = p->char_num;
+		WFIFOW(fd,j+106) = 1; //TODO: Handle this rename bit: 0 to enable renaming
+#else
 		WFIFOB(fd,j+104) = p->char_num;
+#endif
 	}
 
 	WFIFOSET(fd,WFIFOW(fd,2));
@@ -1858,6 +1894,8 @@ static int char_delete(struct mmo_charstatus *cs) {
 	// ybg
 	if (cs->pet_id)
 		inter_pet_delete(cs->pet_id);
+	if (cs->hom_id)
+		inter_homun_delete(cs->hom_id);
 	for (j = 0; j < MAX_INVENTORY; j++)
 		if (cs->inventory[j].card[0] == (short)0xff00)
 			inter_pet_delete(MakeDWord(cs->inventory[j].card[1],cs->inventory[j].card[2]));
@@ -2769,6 +2807,7 @@ int parse_frommap(int fd) {
 		case 0x2aff:
 			if (RFIFOREST(fd) < 6 || RFIFOREST(fd) < RFIFOW(fd,2))
 				return 0;
+			//TODO: When data mismatches memory, update guild/party online/offline states.
 			server[id].users = RFIFOW(fd,4);
 			// add online players in the list by [Yor], adapted to use dbs by [Skotlex]
 			j = 0;
@@ -3592,9 +3631,9 @@ int parse_char(int fd) {
 				break;
 			}
 		{	//Send to player.
-			WFIFOHEAD(fd, 108);
+			WFIFOHEAD(fd, 110);
 			WFIFOW(fd,0) = 0x6d;
-			memset(WFIFOP(fd,2), 0, 106);
+			memset(WFIFOP(fd,2), 0, 108);
 
 			WFIFOL(fd,2) = char_dat[i].status.char_id;
 			WFIFOL(fd,2+4) = char_dat[i].status.base_exp>LONG_MAX?LONG_MAX:char_dat[i].status.base_exp;
@@ -3610,7 +3649,7 @@ int parse_char(int fd) {
 			WFIFOW(fd,2+44) = (char_dat[i].status.max_hp > SHRT_MAX) ? SHRT_MAX : char_dat[i].status.max_hp;
 			WFIFOW(fd,2+46) = (char_dat[i].status.sp > SHRT_MAX) ? SHRT_MAX : char_dat[i].status.sp;
 			WFIFOW(fd,2+48) = (char_dat[i].status.max_sp > SHRT_MAX) ? SHRT_MAX : char_dat[i].status.max_sp;
-			WFIFOW(fd,2+50) = DEFAULT_WALK_SPEED; // char_dat[i].status.speed;
+			WFIFOW(fd,2+50) = DEFAULT_WALK_SPEED;
 			WFIFOW(fd,2+52) = char_dat[i].status.class_;
 			WFIFOW(fd,2+54) = char_dat[i].status.hair;
 
@@ -3630,9 +3669,15 @@ int parse_char(int fd) {
 			WFIFOB(fd,2+101) = (char_dat[i].status.int_ > UCHAR_MAX) ? UCHAR_MAX : char_dat[i].status.int_;
 			WFIFOB(fd,2+102) = (char_dat[i].status.dex > UCHAR_MAX) ? UCHAR_MAX : char_dat[i].status.dex;
 			WFIFOB(fd,2+103) = (char_dat[i].status.luk > UCHAR_MAX) ? UCHAR_MAX : char_dat[i].status.luk;
+#if PACKETVER > 7
+			//Updated packet structure with rename-button included. Credits to Sara-chan
+			WFIFOW(fd,2+104) = char_dat[i].status.char_num;
+			WFIFOB(fd,2+106) = 1; //Rename bit.
+			WFIFOSET(fd,110);
+#else
 			WFIFOB(fd,2+104) = char_dat[i].status.char_num;
-
 			WFIFOSET(fd,108);
+#endif
 			RFIFOSKIP(fd,37);
 		}
 			for(ch = 0; ch < 9; ch++) {
@@ -3645,9 +3690,12 @@ int parse_char(int fd) {
 		case 0x68:	// delete char //Yor's Fix
 			FIFOSD_CHECK(46);
 		{
+			int cid = RFIFOL(fd,2);
+			struct mmo_charstatus *cs = NULL;
 			WFIFOHEAD(fd, 46);
 			WFIFOHEAD(login_fd,46);
 			memcpy(email, RFIFOP(fd,6), 40);
+			RFIFOSKIP(fd,46);
 			if (e_mail_check(email) == 0)
 				strncpy(email, "a@a.com", 40); // default e-mail
 
@@ -3658,90 +3706,78 @@ int parse_char(int fd) {
 					WFIFOW(fd, 0) = 0x70;
 					WFIFOB(fd, 2) = 0; // 00 = Incorrect Email address
 					WFIFOSET(fd, 3);
-					RFIFOSKIP(fd,46);
-				// we act like we have selected a character
-				} else {
-					// we change the packet to set it like selection.
-					for (i = 0; i < 9; i++)
-						if (char_dat[sd->found_char[i]].status.char_id == RFIFOL(fd,2)) {
-							// we save new e-mail
-							memcpy(sd->email, email, 40);
-							// we send new e-mail to login-server ('online' login-server is checked before)
-							WFIFOW(login_fd,0) = 0x2715;
-							WFIFOL(login_fd,2) = sd->account_id;
-							memcpy(WFIFOP(login_fd, 6), email, 40);
-							WFIFOSET(login_fd,46);
-							// skip part of the packet! (46, but leave the size of select packet: 3)
-							RFIFOSKIP(fd,43);
-							// change value to put new packet (char selection)
-							RFIFOW(fd, 0) = 0x66;
-							RFIFOB(fd, 2) = char_dat[sd->found_char[i]].status.char_num;
-							// not send packet, it's modify of actual packet
-							break;
-						}
-					if (i == 9) {
-						WFIFOW(fd, 0) = 0x70;
-						WFIFOB(fd, 2) = 0; // 00 = Incorrect Email address
-						WFIFOSET(fd, 3);
-						RFIFOSKIP(fd,46);
-					}
+					break;
 				}
-
-			// otherwise, we delete the character
-			} else {
-				if (strcmpi(email, sd->email) != 0) { // if it's an invalid email
+				// we change the packet to set it like selection.
+				for (i = 0; i < 9; i++)
+					if (sd->found_char[i] != -1 && char_dat[sd->found_char[i]].status.char_id == cid) {
+						// we save new e-mail
+						memcpy(sd->email, email, 40);
+						// we send new e-mail to login-server ('online' login-server is checked before)
+						WFIFOW(login_fd,0) = 0x2715;
+						WFIFOL(login_fd,2) = sd->account_id;
+						memcpy(WFIFOP(login_fd, 6), email, 40);
+						WFIFOSET(login_fd,46);
+						// change value to put new packet (char selection)
+						RFIFOSKIP(fd,-3); //FIXME: Will this work? Messing with the received buffer is ugly anyway...
+						RFIFOW(fd, 0) = 0x66;
+						RFIFOB(fd, 2) = char_dat[sd->found_char[i]].status.char_num;
+						// not send packet, it's modify of actual packet
+						break;
+					}
+				if (i == 9) {
 					WFIFOW(fd, 0) = 0x70;
 					WFIFOB(fd, 2) = 0; // 00 = Incorrect Email address
 					WFIFOSET(fd, 3);
-				// if mail is correct
-				} else {
-					for (i = 0; i < 9; i++) {
-						struct mmo_charstatus *cs = NULL;
-						if ((cs = &char_dat[sd->found_char[i]].status)->char_id == RFIFOL(fd,2)) {
-							char_delete(cs); // deletion process
-
-							if (sd->found_char[i] != char_num - 1) {
-								memcpy(&char_dat[sd->found_char[i]], &char_dat[char_num-1], sizeof(struct mmo_charstatus));
-								// Correct moved character reference in the character's owner
-								{
-									int j, k;
-									struct char_session_data *sd2;
-									for (j = 0; j < fd_max; j++) {
-										if (session[j] && (sd2 = (struct char_session_data*)session[j]->session_data) &&
-											sd2->account_id == char_dat[char_num-1].status.account_id) {
-											for (k = 0; k < 9; k++) {
-												if (sd2->found_char[k] == char_num-1) {
-													sd2->found_char[k] = sd->found_char[i];
-													break;
-												}
-											}
-											break;
-										}
-									}
-								}
+				}
+				break;
+			}
+			// otherwise, we delete the character
+			if (strcmpi(email, sd->email) != 0) { // if it's an invalid email
+				WFIFOW(fd, 0) = 0x70;
+				WFIFOB(fd, 2) = 0; // 00 = Incorrect Email address
+				WFIFOSET(fd, 3);
+				break;
+			}
+			for (i = 0; i < 9; i++) {
+				if (sd->found_char[i] == -1) continue;
+				if (char_dat[sd->found_char[i]].status.char_id == cid) break;
+			}
+			if (i == 9) {
+				WFIFOW(fd,0) = 0x70;
+				WFIFOB(fd,2) = 0;
+				WFIFOSET(fd,3);
+				break;
+			}
+			// deletion process
+			cs = &char_dat[sd->found_char[i]].status;
+			char_delete(cs);
+			if (sd->found_char[i] != char_num - 1) {
+				int j, k;
+				struct char_session_data *sd2;
+				memcpy(&char_dat[sd->found_char[i]], &char_dat[char_num-1], sizeof(struct mmo_charstatus));
+				// Correct moved character reference in the character's owner
+				for (j = 0; j < fd_max; j++) {
+					if (session[j] && (sd2 = (struct char_session_data*)session[j]->session_data) &&
+						sd2->account_id == char_dat[char_num-1].status.account_id) {
+						for (k = 0; k < 9; k++) {
+							if (sd2->found_char[k] == char_num-1) {
+								sd2->found_char[k] = sd->found_char[i];
+								break;
 							}
-
-							char_num--;
-							for(ch = i; ch < 9-1; ch++)
-								sd->found_char[ch] = sd->found_char[ch+1];
-							sd->found_char[8] = -1;
-							WFIFOW(fd,0) = 0x6f;
-							WFIFOSET(fd,2);
-							break;
 						}
-					}
-
-					if (i == 9) {
-						WFIFOW(fd,0) = 0x70;
-						WFIFOB(fd,2) = 0;
-						WFIFOSET(fd,3);
+						break;
 					}
 				}
-				RFIFOSKIP(fd,46);
 			}
-		}
+			char_num--;
+			for(ch = i; ch < 9-1; ch++)
+				sd->found_char[ch] = sd->found_char[ch+1];
+			sd->found_char[8] = -1;
+			WFIFOW(fd,0) = 0x6f;
+			WFIFOSET(fd,2);
 			break;
-
+		}
 		case 0x2af8:	// }bvT[o[OC
 			if (RFIFOREST(fd) < 60)
 				return 0;
@@ -3822,27 +3858,33 @@ int parse_char(int fd) {
 }
 
 // Console Command Parser [Wizputer]
-int parse_console(char *buf) {
-    char *type,*command;
+int parse_console(char* buf)
+{
+	char command[256];
 
-	type = (char *)aCalloc(64,1);
-	command = (char *)aCalloc(64,1);
+	memset(command, 0, sizeof(command));
 
-//	memset(type,0,64);
-//	memset(command,0,64);
+	sscanf(buf, "%[^\n]", command);
 
-    ShowStatus("Console: %s\n",buf);
+	//login_log("Console command :%s" RETCODE, command);
 
-    if ( sscanf(buf, "%[^:]:%[^\n]", type , command ) < 2 )
-        sscanf(buf,"%[^\n]",type);
+	if( strcmpi("shutdown", command) == 0 ||
+		strcmpi("exit", command) == 0 ||
+		strcmpi("quit", command) == 0 ||
+		strcmpi("end", command) == 0 )
+		runflag = 0;
+	else if( strcmpi("alive", command) == 0 ||
+			strcmpi("status", command) == 0 )
+		ShowInfo(CL_CYAN"Console: "CL_BOLD"I'm Alive."CL_RESET"\n");
+	else if( strcmpi("help", command) == 0 ){
+		printf(CL_BOLD"Help of commands:"CL_RESET"\n");
+		printf("  To shutdown the server:\n");
+		printf("  'shutdown|exit|qui|end'\n");
+		printf("  To know if server is alive:\n");
+		printf("  'alive|status'\n");
+	}
 
-    ShowDebug("Type of command: %s || Command: %s \n",type,command);
-
-    if(buf) aFree(buf);
-    if(type) aFree(type);
-    if(command) aFree(command);
-
-    return 0;
+	return 0;
 }
 
 // SMAPT[o[f[^MiMmapIj
@@ -3863,8 +3905,6 @@ int mapif_sendall(unsigned char *buf, unsigned int len) {
 			}
 #endif
 			WFIFOHEAD(fd, len);
-			if (WFIFOSPACE(fd) < len) //Increase buffer size.
-				realloc_writefifo(fd, len);
 			memcpy(WFIFOP(fd,0), buf, len);
 			WFIFOSET(fd,len);
 			c++;

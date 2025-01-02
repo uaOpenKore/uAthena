@@ -1,6 +1,3 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
-// For more information, see LICENCE in the main folder
-
 /***********************************************************
  * md5 calculation algorithm
  *
@@ -20,7 +17,7 @@
 // Global variable
 static unsigned int *pX;
 
-// Stirng Table
+// String Table
 static const unsigned int T[] = {
    0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, //0
    0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501, //4
@@ -236,4 +233,3 @@ void MD5_String(const char * string, char * output)
 		digest[ 8], digest[ 9], digest[10], digest[11],
 		digest[12], digest[13], digest[14], digest[15]);
 }
-

@@ -330,6 +330,7 @@ enum {
 	SI_WATERWEAPON		= 91,
 	SI_WINDWEAPON		= 92,
 	SI_EARTHWEAPON		= 93,
+	SI_UNDEAD			= 97,
 // 102 = again gloria - from what I saw on screenshots, I wonder if it isn't gospel... [DracoRPG]
 	SI_AURABLADE		= 103,
 	SI_PARRYING		= 104,
@@ -365,7 +366,6 @@ enum {
 	SI_SHADOWWEAPON		= 146,
 	SI_ADRENALINE2		= 147,
 	SI_GHOSTWEAPON		= 148,
-	SI_NIGHT		= 149,
 	SI_SPIRIT		= 149,
 	SI_DEVIL		= 152,
 	SI_KAITE		= 153,
@@ -373,10 +373,10 @@ enum {
 	SI_KAAHI		= 157,
 	SI_KAUPE		= 158,
 	SI_SMA		= 159,
-// 160
+	SI_NIGHT		= 160,
 	SI_ONEHAND		= 161,
-	SI_WARM			= 165,	
-//	166 | The three show the exact same display: ultra red character (165, 166, 167)	
+	SI_WARM			= 165,
+//	166 | The three show the exact same display: ultra red character (165, 166, 167)
 //	167 |	
 	SI_SUN_COMFORT		= 169,
 	SI_MOON_COMFORT		= 170,	
@@ -399,8 +399,26 @@ enum {
 	SI_BUNSINJYUTSU		= 207,
 	SI_NEN				= 208,
 	SI_ADJUSTMENT		= 209,
-	SI_ACCURACY			= 210
+	SI_ACCURACY			= 210,
+	SI_FOODSTR			= 241,
+	SI_FOODAGI			= 242,
+	SI_FOODVIT			= 243,
+	SI_FOODDEX			= 244,
+	SI_FOODINT			= 245,
+	SI_FOODLUK			= 246,
+	SI_FOODFLEE			= 247,
+	SI_FOODHIT			= 248,
+	SI_FOODCRI			= 249,
 };
+
+// JOINTBEAT stackable ailments
+#define BREAK_ANKLE    0x01 // MoveSpeed reduced by 50%
+#define BREAK_WRIST    0x02 // ASPD reduced by 25%
+#define BREAK_KNEE     0x04 // MoveSpeed reduced by 30%, ASPD reduced by 10%
+#define BREAK_SHOULDER 0x08 // DEF reduced by 50%
+#define BREAK_WAIST    0x10 // DEF reduced by 25%, ATK reduced by 25%
+#define BREAK_NECK     0x20 // current attack does 2x damage, inflicts 'bleeding' for 30 seconds
+#define BREAK_FLAGS    ( BREAK_ANKLE | BREAK_WRIST | BREAK_KNEE | BREAK_SHOULDER | BREAK_WAIST | BREAK_NECK )
 
 extern int current_equip_item_index;
 extern int current_equip_card_id;
@@ -517,9 +535,9 @@ enum {
 #define SCB_ALL	0x3FFFFFFF
 
 //Define to determine who gets HP/SP consumed on doing skills/etc. [Skotlex]
-#define BL_CONSUME (BL_PC)
+#define BL_CONSUME (BL_PC|BL_HOM)
 //Define to determine who has regen
-#define BL_REGEN (BL_PC)
+#define BL_REGEN (BL_PC|BL_HOM)
 
 int status_damage(struct block_list *src,struct block_list *target,int hp,int sp, int walkdelay, int flag);
 //Define for standard HP damage attacks.
@@ -611,6 +629,7 @@ int status_get_sc_def(struct block_list *bl, int type);
 
 //Short version, receives rate in 1->100 range, and does not uses a flag setting.
 #define sc_start(bl, type, rate, val1, tick) status_change_start(bl,type,100*(rate),val1,0,0,0,tick,0)
+#define sc_start2(bl, type, rate, val1, val2, tick) status_change_start(bl,type,100*(rate),val1,val2,0,0,tick,0)
 #define sc_start4(bl, type, rate, val1, val2, val3, val4, tick) status_change_start(bl,type,100*(rate),val1,val2,val3,val4,tick,0)
 
 int status_change_start(struct block_list *bl,int type,int rate,int val1,int val2,int val3,int val4,int tick,int flag);
@@ -625,7 +644,7 @@ void status_calc_bl(struct block_list *bl, unsigned long flag);
 int status_calc_pet(struct pet_data* pd, int first); // [Skotlex]
 int status_calc_pc(struct map_session_data* sd,int first);
 int status_calc_mob(struct mob_data* md, int first); //[Skotlex]
-
+int status_calc_homunculus(struct homun_data *hd, int first);
 void status_calc_misc(struct block_list *bl, struct status_data *status, int level);
 void status_calc_regen(struct block_list *bl, struct status_data *status, struct regen_data *regen);
 void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, struct status_change *sc);

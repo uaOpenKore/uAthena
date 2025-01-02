@@ -98,8 +98,8 @@ enum {
 #define pc_isfalcon(sd) ((sd)->sc.option&OPTION_FALCON)
 #define pc_isriding(sd) ((sd)->sc.option&OPTION_RIDING)
 #define pc_isinvisible(sd) ((sd)->sc.option&OPTION_INVISIBLE)
-#define pc_is50overweight(sd) (sd->weight*2 >= sd->max_weight) 
-#define pc_is90overweight(sd) (sd->weight*10 >= sd->max_weight*9)
+#define pc_is50overweight(sd) ( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
+#define pc_is90overweight(sd) ( (sd)->weight*10 >= (sd)->max_weight*9 )
 #define pc_maxparameter(sd) ((sd->class_&JOBL_BABY) ? battle_config.max_baby_parameter : battle_config.max_parameter)
 
 #define pc_stop_attack(sd) { if (sd->ud.attacktimer!=-1) { unit_stop_attack(&sd->bl); sd->ud.target = 0; } }
@@ -159,13 +159,13 @@ int pc_cartitem_amount(struct map_session_data *sd,int idx,int amount);
 int pc_takeitem(struct map_session_data*,struct flooritem_data*);
 int pc_dropitem(struct map_session_data*,int,int);
 
-int pc_checkweighticon(struct map_session_data *sd);
+int pc_updateweightstatus(struct map_session_data *sd);
 
 int pc_bonus(struct map_session_data*,int,int);
 int pc_bonus2(struct map_session_data *sd,int,int,int);
 int pc_bonus3(struct map_session_data *sd,int,int,int,int);
 int pc_bonus4(struct map_session_data *sd,int,int,int,int,int);
-int pc_skill(struct map_session_data*,int,int,int);
+int pc_skill(struct map_session_data* sd, int id, int level, int flag);
 
 int pc_insert_card(struct map_session_data *sd,int idx_card,int idx_equip);
 
@@ -208,9 +208,9 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp);
 int pc_percentheal(struct map_session_data *sd,int,int);
 int pc_jobchange(struct map_session_data *,int, int);
 int pc_setoption(struct map_session_data *,int);
-int pc_setcart(struct map_session_data *sd,int type);
-int pc_setfalcon(struct map_session_data *sd);
-int pc_setriding(struct map_session_data *sd);
+int pc_setcart(struct map_session_data* sd, int type);
+int pc_setfalcon(struct map_session_data* sd, int flag);
+int pc_setriding(struct map_session_data* sd, int flag);
 int pc_changelook(struct map_session_data *,int,int);
 int pc_equiplookall(struct map_session_data *sd);
 
@@ -279,7 +279,9 @@ extern struct skill_tree_entry skill_tree[MAX_PC_CLASS][MAX_SKILL_TREE];
 
 int pc_read_gm_account(int fd);
 int pc_setinvincibletimer(struct map_session_data *sd,int);
-int pc_delinvincibletimer(struct map_session_data *sd);
+void pc_delinvincibletimer_sub(struct map_session_data *sd);
+#define pc_delinvincibletimer(sd) if ((sd)->invincible_timer != INVALID_TIMER) pc_delinvincibletimer_sub(sd)
+
 int pc_addspiritball(struct map_session_data *sd,int,int);
 int pc_delspiritball(struct map_session_data *sd,int,int);
 void pc_addfame(struct map_session_data *sd,int count);
