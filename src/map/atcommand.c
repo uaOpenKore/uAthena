@@ -100,7 +100,6 @@ ACMD_FUNC(produce);
 ACMD_FUNC(memo);
 ACMD_FUNC(gat);
 ACMD_FUNC(packet);
-ACMD_FUNC(waterlevel);
 ACMD_FUNC(statuspoint);
 ACMD_FUNC(skillpoint);
 ACMD_FUNC(zeny);
@@ -390,7 +389,6 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_GAT,                "@gat",             99, atcommand_gat }, // debug function
 	{ AtCommand_Packet,             "@packet",          99, atcommand_packet }, // debug function
 	{ AtCommand_Packet,             "@packetmode",      99, atcommand_packet }, // debug function
-	{ AtCommand_WaterLevel,         "@waterlevel",      99, atcommand_waterlevel }, // debug function
 	{ AtCommand_StatusPoint,        "@stpoint",         60, atcommand_statuspoint },
 	{ AtCommand_SkillPoint,         "@skpoint",         60, atcommand_skillpoint },
 	{ AtCommand_Zeny,               "@zeny",            60, atcommand_zeny },
@@ -2166,8 +2164,11 @@ int atcommand_storage(const int fd, struct map_session_data* sd, const char* com
 {
 	nullpo_retr(-1, sd);
 
+	if (sd->npc_id || sd->vender_id || sd->state.trading || sd->state.storage_flag)
+		return -1;
+
 	if (storage_storageopen(sd) == 1)
-  	{	//Already open.
+	{	//Already open.
 		clif_displaymessage(fd, msg_txt(250));
 		return -1;
 	}
@@ -2184,21 +2185,24 @@ int atcommand_guildstorage(const int fd, struct map_session_data* sd, const char
 	struct storage *stor; //changes from Freya/Yor
 	nullpo_retr(-1, sd);
 
-	if (sd->status.guild_id > 0) {
-		if (sd->state.storage_flag) {
-			clif_displaymessage(fd, msg_txt(251));
-			return -1;
-		}
-		if ((stor = account2storage2(sd->status.account_id)) != NULL && stor->storage_status == 1) {
-			clif_displaymessage(fd, msg_txt(251));
-			return -1;
-		}
-		storage_guild_storageopen(sd);
-	} else {
+	if (!sd->status.guild_id) {
 		clif_displaymessage(fd, msg_txt(252));
 		return -1;
 	}
 
+	if (sd->npc_id || sd->vender_id || sd->state.trading || sd->state.storage_flag)
+		return -1;
+
+	if (sd->state.storage_flag) {
+		clif_displaymessage(fd, msg_txt(251));
+		return -1;
+	}
+
+	if ((stor = account2storage2(sd->status.account_id)) != NULL && stor->storage_status == 1) {
+		clif_displaymessage(fd, msg_txt(251));
+		return -1;
+	}
+	storage_guild_storageopen(sd);
 	return 0;
 }
 
@@ -2725,10 +2729,6 @@ int atcommand_baselevelup(const int fd, struct map_session_data* sd, const char*
 		else
 			sd->status.status_point += status_point;
 		sd->status.base_level += (unsigned int)level;
-		clif_updatestatus(sd, SP_BASELEVEL);
-		clif_updatestatus(sd, SP_NEXTBASEEXP);
-		clif_updatestatus(sd, SP_STATUSPOINT);
-		status_calc_pc(sd, 0);
 		status_percent_heal(&sd->bl, 100, 100);
 		clif_misceffect(&sd->bl, 0);
 		clif_displaymessage(fd, msg_txt(21)); /* Base level raised. */
@@ -2748,14 +2748,15 @@ int atcommand_baselevelup(const int fd, struct map_session_data* sd, const char*
 			sd->status.status_point = 0;
 		else
 			sd->status.status_point -= status_point;
-		clif_updatestatus(sd, SP_STATUSPOINT);
 		sd->status.base_level -= (unsigned int)level;
-		clif_updatestatus(sd, SP_BASELEVEL);
-		clif_updatestatus(sd, SP_NEXTBASEEXP);
-		status_calc_pc(sd, 0);
 		clif_displaymessage(fd, msg_txt(22)); /* Base level lowered. */
 	}
-
+	clif_updatestatus(sd, SP_STATUSPOINT);
+	clif_updatestatus(sd, SP_BASELEVEL);
+	clif_updatestatus(sd, SP_NEXTBASEEXP);
+	status_calc_pc(sd, 0);
+	if(sd->status.party_id)
+		party_send_levelup(sd);
 	return 0;
 }
 
@@ -2921,6 +2922,19 @@ int atcommand_gm(const int fd, struct map_session_data* sd, const char* command,
 	return 0;
 }
 
+// helper function, used in foreach calls to stop auto-attack timers
+// parameter: '0' - everyone, 'id' - only those attacking someone with that id
+static int atcommand_stopattack(struct block_list *bl,va_list ap)
+{
+	struct unit_data *ud = unit_bl2ud(bl);
+	int id = va_arg(ap, int);
+	if (ud && ud->attacktimer != INVALID_TIMER && (!id || id == ud->target))
+	{
+		unit_stop_attack(bl);
+		return 1;
+	}
+	return 0;
+}
 /*==========================================
  *
  *------------------------------------------
@@ -2952,6 +2966,7 @@ int atcommand_pvpoff(const int fd, struct map_session_data* sd, const char* comm
 	map[sd->bl.m].flag.pvp = 0;
 	clif_send0199(sd->bl.m, 0);
 	map_foreachinmap(atcommand_pvpoff_sub,sd->bl.m, BL_PC);
+	map_foreachinmap(atcommand_stopattack,sd->bl.m, BL_CHAR, 0);
 	clif_displaymessage(fd, msg_txt(31)); // PvP: Off.
 	return 0;
 }
@@ -3004,6 +3019,7 @@ int atcommand_gvgoff(const int fd, struct map_session_data* sd, const char* comm
 	if (map[sd->bl.m].flag.gvg) {
 		map[sd->bl.m].flag.gvg = 0;
 		clif_send0199(sd->bl.m, 0);
+		map_foreachinmap(atcommand_stopattack,sd->bl.m, BL_CHAR, 0);
 		clif_displaymessage(fd, msg_txt(33)); // GvG: Off.
 	} else {
 		clif_displaymessage(fd, msg_txt(162)); // GvG is already Off.
@@ -3716,7 +3732,7 @@ int atcommand_refine(const int fd, struct map_session_data* sd, const char* comm
 			sd->status.inventory[i].refine = final_refine;
 			current_position = sd->status.inventory[i].equip;
 			pc_unequipitem(sd, i, 3);
-			clif_refine(fd, sd, 0, i, sd->status.inventory[i].refine);
+			clif_refine(fd, 0, i, sd->status.inventory[i].refine);
 			clif_delitem(sd, i, 1);
 			clif_additem(sd, i, 1, 0);
 			pc_equipitem(sd, i, current_position);
@@ -3935,32 +3951,6 @@ int atcommand_packet(const int fd, struct map_session_data* sd, const char* comm
 		//added later
 	}
 
-	return 0;
-}
-
-/*==========================================
- * @waterlevel [Skotlex]
- *------------------------------------------
- */
-int atcommand_waterlevel(const int fd, struct map_session_data* sd, const char* command, const char* message)
-{
-	int newlevel;
-	if (!message || !*message || sscanf(message, "%d", &newlevel) < 1) {
-		sprintf(atcmd_output, "%s's current water level: %d", map[sd->bl.m].name, map_waterheight(map[sd->bl.m].name));
-		clif_displaymessage(fd, atcmd_output);
-		return 0;
-	}
-
-	if (map_setwaterheight(sd->bl.m, map[sd->bl.m].name, newlevel)) {
-		if (newlevel > 0)
-			sprintf(atcmd_output, "%s's water level changed to: %d", map[sd->bl.m].name, newlevel);
-		else
-			sprintf(atcmd_output, "Removed %s's water level information.", map[sd->bl.m].name);
-		clif_displaymessage(fd, atcmd_output);
-	} else {
-		sprintf(atcmd_output, "Failed to change %s's water level.", map[sd->bl.m].name);
-		clif_displaymessage(fd, atcmd_output);
-	}
 	return 0;
 }
 
@@ -6476,29 +6466,26 @@ int atcommand_charjailtime(const int fd, struct map_session_data* sd, const char
 		return -1;
 	}
 
-	if ((pl_sd = map_nick2sd(atcmd_player_name)) != NULL) {
-		if (pc_isGM(pl_sd) < pc_isGM(sd)) { // only lower or same level
-			if (pl_sd->bl.m != map_mapname2mapid(MAP_JAIL)) {
-				clif_displaymessage(fd, "This player is not in jail."); // You are not in jail.
-				return -1;
-			}
-			if (!pl_sd->sc.count || pl_sd->sc.data[SC_JAILED].timer == -1 || pl_sd->sc.data[SC_JAILED].val1 <= 0) { // Was not jailed with @jailfor (maybe @jail?)
-				clif_displaymessage(fd, "This player has been jailed for an unknown amount of time.");
-				return -1;
-			}
-			//Get remaining jail time
-			get_jail_time(pl_sd->sc.data[SC_JAILED].val1,&year,&month,&day,&hour,&minute);
-			sprintf(atcmd_output,msg_txt(402),"This player will remain",year,month,day,hour,minute); 
-			clif_displaymessage(fd, atcmd_output);
-		} else {
-			clif_displaymessage(fd, msg_txt(81)); // Your GM level don't authorize you to do this action on this player.
-			return -1;
-		}
-	} else {
+	if ((pl_sd = map_nick2sd(atcmd_player_name)) == NULL) {
 		clif_displaymessage(fd, msg_txt(3)); // Character not found.
 		return -1;
 	}
-
+	if (pc_isGM(pl_sd) >= pc_isGM(sd)) {
+		clif_displaymessage(fd, msg_txt(81)); // Your GM level don't authorize you to do this action on this player.
+		return -1;
+	}
+	if (pl_sd->bl.m != map_mapname2mapid(MAP_JAIL)) {
+		clif_displaymessage(fd, "This player is not in jail."); // You are not in jail.
+		return -1;
+	}
+	if (!pl_sd->sc.count || pl_sd->sc.data[SC_JAILED].timer == -1 || pl_sd->sc.data[SC_JAILED].val1 <= 0) { // Was not jailed with @jailfor (maybe @jail?)
+		clif_displaymessage(fd, "This player has been jailed for an unknown amount of time.");
+		return -1;
+	}
+	//Get remaining jail time
+	get_jail_time(pl_sd->sc.data[SC_JAILED].val1,&year,&month,&day,&hour,&minute);
+	sprintf(atcmd_output,msg_txt(402),"This player will remain",year,month,day,hour,minute);
+	clif_displaymessage(fd, atcmd_output);
 	return 0;
 }
 
@@ -6915,10 +6902,11 @@ int atcommand_killer(const int fd, struct map_session_data* sd, const char* comm
 	sd->state.killer = !sd->state.killer;
 
 	if(sd->state.killer)
-	  clif_displaymessage(fd, msg_txt(241));
-	else
-	  clif_displaymessage(fd, msg_txt(287));
-
+		clif_displaymessage(fd, msg_txt(241));
+	else {
+		clif_displaymessage(fd, msg_txt(287));
+		pc_stop_attack(sd);
+	}
 	return 0;
 }
 
@@ -6933,10 +6921,11 @@ int atcommand_killable(const int fd, struct map_session_data* sd, const char* co
 	sd->state.killable = !sd->state.killable;
 
 	if(sd->state.killable)
-	  clif_displaymessage(fd, msg_txt(242));
-	else
-	  clif_displaymessage(fd, msg_txt(288));
-
+		clif_displaymessage(fd, msg_txt(242));
+	else {
+		clif_displaymessage(fd, msg_txt(288));
+		map_foreachinrange(atcommand_stopattack,&sd->bl, AREA_SIZE, BL_CHAR, sd->bl.id);
+	}
 	return 0;
 }
 
@@ -8191,24 +8180,38 @@ int atcommand_summon(const int fd, struct map_session_data* sd, const char* comm
  */
 int atcommand_adjcmdlvl(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
-    int i, newlev;
-    char cmd[100];
+	int i, newlev;
+	char cmd[100];
 	nullpo_retr(-1, sd);
 
-    if (!message || !*message || sscanf(message, "%d %s", &newlev, cmd) != 2) {
-        clif_displaymessage(fd, "Usage: @adjcmdlvl <lvl> <command>.");
-        return -1;
-    }
+	if (!message || !*message || sscanf(message, "%d %100s", &newlev, cmd) != 2)
+	{
+		clif_displaymessage(fd, "Usage: @adjcmdlvl <lvl> <command>.");
+		return -1;
+	}
 
-    for (i = 0; (atcommand_info[i].command) && atcommand_info[i].type != AtCommand_None; i++)
-        if (strcmpi(cmd, atcommand_info[i].command+1) == 0) {
-            atcommand_info[i].level = newlev;
-            clif_displaymessage(fd, "@command level changed.");
-            return 0;
-        }
+	if (newlev > pc_isGM(sd))
+	{
+		clif_displaymessage(fd, "You can't make a command require higher GM level than your own.");
+		return -1;
+	}
 
-    clif_displaymessage(fd, "@command not found.");
-    return -1;
+	for (i = 0; atcommand_info[i].command && atcommand_info[i].type != AtCommand_None; i++)
+	{
+		if (strcmpi(cmd, atcommand_info[i].command+1) != 0)
+			continue;
+		if (atcommand_info[i].level > pc_isGM(sd))
+		{
+			clif_displaymessage(fd, "You can't adjust the level of a command which's level is above your own.");
+			return -1;
+		}
+		atcommand_info[i].level = newlev;
+		clif_displaymessage(fd, "@command level changed.");
+		return 0;
+	}
+
+	clif_displaymessage(fd, "@command not found.");
+	return -1;
 }
 
 /*==========================================

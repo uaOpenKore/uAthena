@@ -1,6 +1,6 @@
-// Copyright (c) jAthena Dev Teams - Licensed under GNU GPL
+// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
-// Merged originally from jA by Skotlex
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -695,9 +695,12 @@ int unit_can_move(struct block_list *bl)
 	if (DIFF_TICK(ud->canmove_tick, gettick()) > 0)
 		return 0;
 
-	if (sd && pc_issit(sd))
+	if (sd && (
+		pc_issit(sd) ||
+		sd->state.blockedmove
+	))
 		return 0; //Can't move
-	
+
 	if (sc) {
 		if (sc->opt1 > 0 && sc->opt1 != OPT1_STONEWAIT)
 			return 0;
@@ -797,6 +800,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 		//Target_id checking.
 		if(skillnotok(skill_num, sd)) // [MouseJstr]
 			return 0;
+
 		switch(skill_num)
 		{	//Check for skills that auto-select target
 		case MO_CHAINCOMBO:
@@ -953,7 +957,6 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 		if (sc && sc->data[SC_RUN].timer != -1)
 			casttime = 0;
 		break;
-	case SA_MAGICROD:
 	case SA_SPELLBREAKER:
 		temp =1;
 		break;
@@ -1726,6 +1729,8 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 /*==========================================
  * Function to free all related resources to the bl
  * if unit is on map, it is removed using the clrtype specified
+ * If clrtype is <0, no saving is performed. This is only for non-authed
+ * objects that shouldn't be on a map yet.
  *------------------------------------------
  */
 
@@ -1810,11 +1815,13 @@ int unit_free(struct block_list *bl, int clrtype) {
 		clif_foreachclient(clif_friendslist_toggle_sub, sd->status.account_id, sd->status.char_id, 0);
 		party_send_logout(sd);
 		guild_send_memberinfoshort(sd,0);
-		pc_cleareventtimer(sd);		
+		pc_cleareventtimer(sd);
 		pc_delspiritball(sd,sd->spiritball,1);
-		chrif_save_scdata(sd); //Save status changes, then clear'em out from memory. [Skotlex]
-		pc_makesavestatus(sd);
-		pc_clean_skilltree(sd);
+		if (clrtype >= 0) {
+			chrif_save_scdata(sd); //Save status changes, then clear'em out from memory. [Skotlex]
+			pc_makesavestatus(sd);
+			pc_clean_skilltree(sd);
+		}
 	} else if( bl->type == BL_PET ) {
 		struct pet_data *pd = (struct pet_data*)bl;
 		struct map_session_data *sd = pd->msd;
@@ -1857,12 +1864,14 @@ int unit_free(struct block_list *bl, int clrtype) {
 			aFree (pd->loot);
 			pd->loot = NULL;
 		}
-		if(pd->pet.intimate > 0)
-			intif_save_petdata(pd->pet.account_id,&pd->pet);
-		else
-		{	//Remove pet.
-			intif_delete_petdata(pd->pet.pet_id);
-			if (sd) sd->status.pet_id = 0;
+		if (clrtype >= 0) {
+			if(pd->pet.intimate > 0)
+				intif_save_petdata(pd->pet.account_id,&pd->pet);
+			else
+			{	//Remove pet.
+				intif_delete_petdata(pd->pet.pet_id);
+				if (sd) sd->status.pet_id = 0;
+			}
 		}
 		if (sd) sd->pd = NULL;
 	} else if(bl->type == BL_MOB) {
@@ -1899,12 +1908,14 @@ int unit_free(struct block_list *bl, int clrtype) {
 		struct map_session_data *sd = hd->master;
 		// Desactive timers
 		merc_hom_hungry_timer_delete(hd);
-		if (hd->homunculus.intimacy > 0)
-			merc_save(hd);
-		else
-		{
-			intif_homunculus_requestdelete(hd->homunculus.hom_id);
-			if (sd) sd->status.hom_id = 0;
+		if (clrtype >= 0) {
+			if (hd->homunculus.intimacy > 0)
+				merc_save(hd);
+			else
+			{
+				intif_homunculus_requestdelete(hd->homunculus.hom_id);
+				if (sd) sd->status.hom_id = 0;
+			}
 		}
 		if(sd) sd->hd = NULL;
 	}

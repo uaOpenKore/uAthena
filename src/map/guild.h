@@ -24,8 +24,8 @@ struct guild *guild_search(int guild_id);
 struct guild *guild_searchname(char *str);
 struct guild_castle *guild_castle_search(int gcid);
 
-struct guild_castle *guild_mapname2gc(char *mapname);
-struct guild_castle *guild_mapindex2gc(short mapname);
+struct guild_castle *guild_mapname2gc(const char *mapname);
+struct guild_castle *guild_mapindex2gc(short mapindex);
 
 struct map_session_data *guild_getavailablesd(struct guild *g);
 int guild_getindex(struct guild *g,int account_id,int char_id);
@@ -76,7 +76,7 @@ int guild_skillupack(int guild_id,int skill_num,int account_id);
 int guild_break(struct map_session_data *sd,char *name);
 int guild_broken(int guild_id,int flag);
 int guild_gm_change(int guild_id, struct map_session_data *sd);
-int guild_gm_changed(int guild_id, int pos);
+int guild_gm_changed(int guild_id, int account_id, int char_id);
 
 int guild_addcastleinfoevent(int castle_id,int index,const char *name);
 int guild_castledataload(int castle_id,int index);
@@ -91,4 +91,4 @@ int guild_agit_break(struct mob_data *md);
 
 void do_final_guild(void);
 
-#endif
+#endif /* _GUILD_H_ */

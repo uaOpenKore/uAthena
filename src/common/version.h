@@ -17,14 +17,14 @@
 #define ATHENA_SERVER_INTER	4	// inter server
 #define ATHENA_SERVER_MAP	8	// map server
 
-// ATHENA_MOD_VERSIONはパッチ番号です。
-// これは無理に変えなくても気が向いたら変える程度の扱いで。
-// （毎回アップロードの度に変更するのも面倒と思われるし、そもそも
-// 　この項目を参照する人がいるかどうかで疑問だから。）
-// その程度の扱いなので、サーバーに問い合わせる側も、あくまで目安程度の扱いで
-// あんまり信用しないこと。
-// 鯖snapshotの時や、大きな変更があった場合は設定してほしいです。
-// C言語の仕様上、最初に0を付けると8進数になるので間違えないで下さい。
+// ATHENA_MOD_VERSIONpb`B
+// CxB
+// iAbv[hxX|vA
+// @Ql^Bj
+// xAT[o[Ax
+// MpB
+// IsnapshotAXB
+// CdlA0t8iB
 #define ATHENA_MOD_VERSION	1249	// mod version (patch No.)
 
-#endif
+#endif /* _VERSION_H_ */

@@ -31,7 +31,7 @@
 #define LIFETIME_FLOORITEM 60
 #define DAMAGELOG_SIZE 30
 #define LOOTITEM_SIZE 10
-#define MAX_STATUSCHANGE 250
+#define MAX_STATUSCHANGE 251
 //Quick defines to know which are the min-max common ailments. [Skotlex]
 //Because of the way the headers are included.. these must be replaced for actual values.
 //Remember to update as needed! Min is SC_STONE and max is SC_DPOISON currently.
@@ -450,7 +450,6 @@ struct weapon_data {
 	int addrace2[RC_MAX];
 	int addsize[3];
 
-	short ignore_def_mob;
 	struct drain_data {
 		short rate;
 		short per;
@@ -596,6 +595,7 @@ struct map_session_data {
 		unsigned size :2; // for tiny/large types
 		unsigned night :1; //Holds whether or not the player currently has the SI_NIGHT effect on. [Skotlex]
 		unsigned finalsave :1; //Signals whether the final save for the char was done or not yet. Meant to prevent exploits and the like. [Skotlex]
+		unsigned blockedmove :1;
 		unsigned using_fake_npc :1;
 		unsigned rewarp :1; //Signals that a player should warp as soon as he is done loading a map. [Skotlex]
 		unsigned killer : 1;
@@ -612,8 +612,9 @@ struct map_session_data {
 		unsigned no_castcancel2 : 1;
 		unsigned no_sizefix : 1;
 		unsigned no_gemstone : 1;
-		unsigned intravision : 1; // Maya Purple Card effect allowing to see Hiding/Cloaking people [DracoRPG]
+		unsigned intravision : 1; // Maya Purple Card effect [DracoRPG]
 		unsigned perfect_hiding : 1; // [Valaris]
+		unsigned no_knockback : 1;
 	} special_state;
 	int login_id1, login_id2;
 	unsigned short class_;	//This is the internal job ID used by the map server to simplify comparisons/queries/etc. [Skotlex]
@@ -625,7 +626,7 @@ struct map_session_data {
 	struct item_data *inventory_data[MAX_INVENTORY];
 	short equip_index[11];
 	unsigned int weight,max_weight;
-	int cart_weight,cart_max_weight,cart_num,cart_max_num;
+	int cart_weight,cart_num;
 	int fd;
 	unsigned short mapindex;
 	unsigned short prev_speed,prev_adelay;
@@ -913,6 +914,7 @@ struct spawn_data {
 	unsigned short m,x,y;	//Spawn information (map, point, spawn-area around point)
 	signed short xs,ys;
 	unsigned short num; //Number of mobs using this structure.
+	unsigned short skip; //Number of mobs to skip when spawning them (for mob_remove_damageed: no)
 	unsigned int level; //Custom level.
 	unsigned int delay1,delay2; //Min delay before respawning after spawn/death
 	struct {
@@ -1188,7 +1190,7 @@ enum _sp {
 	SP_SHORT_WEAPON_DAMAGE_RETURN,SP_LONG_WEAPON_DAMAGE_RETURN,SP_WEAPON_COMA_ELE,SP_WEAPON_COMA_RACE, // 1063-1066
 	SP_ADDEFF2,SP_BREAK_WEAPON_RATE,SP_BREAK_ARMOR_RATE,SP_ADD_STEAL_RATE, // 1067-1070
 	SP_MAGIC_DAMAGE_RETURN,SP_RANDOM_ATTACK_INCREASE,SP_ALL_STATS,SP_AGI_VIT,SP_AGI_DEX_STR,SP_PERFECT_HIDE, // 1071-1076
-	SP_FREE,SP_CLASSCHANGE, // 1077-1078
+	SP_NO_KNOCKBACK,SP_CLASSCHANGE, // 1077-1078
 	SP_HP_DRAIN_VALUE,SP_SP_DRAIN_VALUE, // 1079-1080
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
 	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
@@ -1199,7 +1201,7 @@ enum _sp {
 
 	SP_CRIT_ATK_RATE, SP_CRITICAL_ADDRACE, SP_NO_REGEN, SP_ADDEFF_WHENHIT, SP_AUTOSPELL_WHENHIT, // 2013-2017
 	SP_SKILL_ATK, SP_UNSTRIPABLE, SP_ADD_DAMAGE_BY_CLASS, // 2018-2020
-	SP_SP_GAIN_VALUE, SP_IGNORE_DEF_MOB, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
+	SP_SP_GAIN_VALUE, SP_FREE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
 	SP_SUBSIZE, SP_HP_DRAIN_VALUE_RACE, SP_ADD_ITEM_HEAL_RATE, SP_SP_DRAIN_VALUE_RACE, SP_EXP_ADDRACE,	// 2026-2030
 	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_ADDEFF_WHENHIT_SHORT,	// 2031-2033
 	SP_UNSTRIPABLE_WEAPON,SP_UNSTRIPABLE_ARMOR,SP_UNSTRIPABLE_HELM,SP_UNSTRIPABLE_SHIELD,  // 2034-2037
@@ -1207,7 +1209,7 @@ enum _sp {
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
 	//Before adding another, note that these are free:
 	//1024 (SP_FREE2, previous matk)
-	//1077 (SP_FREE, previously disguise)
+	//2022 (SP_FREE, previous bDefIgnoreMob)
 };
 
 enum _look {
@@ -1368,7 +1370,7 @@ struct map_session_data * map_charid2sd(int);
 struct map_session_data * map_id2sd(int);
 struct block_list * map_id2bl(int);
 int map_mapindex2mapid(unsigned short mapindex);
-int map_mapname2mapid(char*);
+int map_mapname2mapid(const char* name);
 int map_mapname2ipport(unsigned short,int*,int*);
 int map_setipport(unsigned short map,unsigned long ip,int port);
 int map_eraseipport(unsigned short map,unsigned long ip,int port);
@@ -1379,10 +1381,10 @@ struct map_session_data** map_getallusers(int *users);
 void map_foreachpc(int (*func)(DBKey,void*,va_list),...);
 int map_foreachiddb(int (*)(DBKey,void*,va_list),...);
 void map_addnickdb(struct map_session_data *);
-struct map_session_data * map_nick2sd(char*);
+struct map_session_data * map_nick2sd(const char*);
 int compare_item(struct item *a, struct item *b);
 
-// 
+//
 int map_check_dir(int s_dir,int t_dir);
 int map_calc_dir( struct block_list *src,int x,int y);
 int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
@@ -1423,9 +1425,6 @@ void map_spawnmobs(int); // [Wizputer]
 void map_removemobs(int); // [Wizputer]
 void do_reconnect_map(void); //Invoked on map-char reconnection [Skotlex]
 
-//Added for own save method
-int charsql_db_init(int method);
-
 extern char *INTER_CONF_NAME;
 extern char *LOG_CONF_NAME;
 extern char *MAP_CONF_NAME;
@@ -1436,8 +1435,6 @@ extern char *SCRIPT_CONF_NAME;
 extern char *MSG_CONF_NAME;
 extern char *GRF_PATH_FILENAME;
 
-
-extern int charsave_method; //needed ..
 extern char *map_server_dns;
 
 #ifndef TXT_ONLY
@@ -1455,10 +1452,6 @@ extern int db_use_sqldbs;
 extern MYSQL mmysql_handle;
 extern MYSQL_RES*	sql_res ;
 extern MYSQL_ROW	sql_row ;
-
-extern MYSQL charsql_handle;
-extern MYSQL_RES*	charsql_res;
-extern MYSQL_ROW	charsql_row;
 
 extern MYSQL logmysql_handle;
 extern MYSQL_RES*	logsql_res ;

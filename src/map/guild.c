@@ -249,7 +249,7 @@ struct guild_castle *guild_castle_search(int gcid)
 }
 
 // mapnameAWggc
-struct guild_castle *guild_mapname2gc(char *mapname)
+struct guild_castle *guild_mapname2gc(const char *mapname)
 {
 	int i;
 	struct guild_castle *gc=NULL;
@@ -261,14 +261,15 @@ struct guild_castle *guild_mapname2gc(char *mapname)
 	return NULL;
 }
 
-struct guild_castle *guild_mapindex2gc(short mapname)
+struct guild_castle *guild_mapindex2gc(short mapindex)
 {
 	int i;
 	struct guild_castle *gc=NULL;
+
 	for(i=0;i<MAX_GUILDCASTLE;i++){
 		gc=guild_castle_search(i);
 		if(!gc) continue;
-		if(strcmp(gc->map_name,mapindex_id2name(mapname))==0) return gc;
+		if(strcmp(gc->map_name,mapindex_id2name(mapindex))==0) return gc;
 	}
 	return NULL;
 }
@@ -789,6 +790,7 @@ int guild_leave(struct map_session_data *sd,int guild_id,
 int guild_expulsion(struct map_session_data *sd,int guild_id,
 	int account_id,int char_id,const char *mes)
 {
+	struct map_session_data *tsd;
 	struct guild *g;
 	int i,ps;
 
@@ -799,11 +801,17 @@ int guild_expulsion(struct map_session_data *sd,int guild_id,
 	if(g==NULL)
 		return 0;
 
-	if(sd->status.guild_id!=guild_id || map[sd->bl.m].flag.gvg_castle) //Can't leave inside guild castles.
+	if(sd->status.guild_id!=guild_id)
 		return 0;
 
 	if( (ps=guild_getposition(sd,g))<0 || !(g->position[ps].mode&0x0010) )
 		return 0;	//Expulsion permission
+
+	//Can't leave inside guild castles.
+	if ((tsd = map_id2sd(account_id)) &&
+		tsd->status.char_id == char_id &&
+		map[tsd->bl.m].flag.gvg_castle)
+		return 0;
 
 	for(i=0;i<g->max_member;i++){	//
 		if(g->member[i].account_id==account_id &&
@@ -1596,16 +1604,24 @@ int guild_gm_change(int guild_id, struct map_session_data *sd)
 }
 
 //Notification from Char server that a guild's master has changed. [Skotlex]
-int guild_gm_changed(int guild_id, int pos)
+int guild_gm_changed(int guild_id, int account_id, int char_id)
 {
 	struct guild *g;
 	struct guild_member gm;
-	
+	int pos;
+
 	g=guild_search(guild_id);
-	
-	if (!g || pos < 0 || pos > g->max_member)
+
+	if (!g)
 		return 0;
-	
+
+	for(pos=0; pos<g->max_member && !(
+		g->member[pos].account_id==account_id &&
+		g->member[pos].char_id==char_id);
+		pos++);
+
+	if (pos == 0 || pos == g->max_member) return 0;
+
 	memcpy(&gm, &g->member[pos], sizeof (struct guild_member));
 	memcpy(&g->member[pos], &g->member[0], sizeof(struct guild_member));
 	memcpy(&g->member[0], &gm, sizeof(struct guild_member));

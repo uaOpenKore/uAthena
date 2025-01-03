@@ -19,4 +19,4 @@ int decode_zip(unsigned char *dest, unsigned long* destLen, const unsigned char*
 int encode_zip(unsigned char *dest, unsigned long* destLen, const unsigned char* source, unsigned long sourceLen);
 int deflate_file (const char *source, const char *filename);
 
-#endif	// _GRFIO_H_
+#endif /* _GRFIO_H_ */

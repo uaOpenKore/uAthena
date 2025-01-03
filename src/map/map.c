@@ -46,63 +46,51 @@
 
 #include "log.h"
 
-#include "charsave.h"
-
 #ifndef TXT_ONLY
 
-#include "mail.h" // mail system [Valaris]
+#include "mail.h"
 
-MYSQL mmysql_handle;
-MYSQL_RES* 	sql_res ;
-MYSQL_ROW	sql_row ;
 char tmp_sql[65535]="";
-
-MYSQL logmysql_handle; //For the log database - fix by [Maeki]
-MYSQL_RES* logsql_res ;
-MYSQL_ROW  logsql_row ;
-
-MYSQL mail_handle; // mail system [Valaris]
-MYSQL_RES* 	mail_res ;
-MYSQL_ROW	mail_row ;
+char default_codepage[32] = "";
 
 int map_server_port = 3306;
 char map_server_ip[16] = "127.0.0.1";
 char map_server_id[32] = "ragnarok";
 char map_server_pw[32] = "ragnarok";
 char map_server_db[32] = "ragnarok";
-char default_codepage[32] = ""; //Feature by irmin.
-int db_use_sqldbs = 0;
+MYSQL mmysql_handle;
+MYSQL_RES* sql_res;
+MYSQL_ROW sql_row;
 
+int db_use_sqldbs = 0;
 char item_db_db[32] = "item_db";
 char item_db2_db[32] = "item_db2";
 char mob_db_db[32] = "mob_db";
 char mob_db2_db[32] = "mob_db2";
 
-int log_db_port = 3306;
+char char_db[32] = "char";
+
+// log database
 char log_db_ip[16] = "127.0.0.1";
+int log_db_port = 3306;
 char log_db_id[32] = "ragnarok";
 char log_db_pw[32] = "ragnarok";
 char log_db[32] = "log";
+MYSQL logmysql_handle;
+MYSQL_RES* logsql_res;
+MYSQL_ROW logsql_row;
 
-int mail_server_port = 3306;
+// mail system
+int mail_server_enable = 0;
 char mail_server_ip[16] = "127.0.0.1";
+int mail_server_port = 3306;
 char mail_server_id[32] = "ragnarok";
 char mail_server_pw[32] = "ragnarok";
 char mail_server_db[32] = "ragnarok";
-int mail_server_enable = 0;
-
-char char_db[32] = "char";
-
 char mail_db[32] = "mail";
-
-char charsql_host[40] = "localhost";
-int charsql_port = 3306;
-char charsql_user[32] = "ragnarok";
-char charsql_pass[32] = "eAthena";
-char charsql_db[40] = "ragnarok";
-MYSQL charsql_handle;
-MYSQL_RES* charsql_res;
-MYSQL_ROW charsql_row;
+MYSQL mail_handle;
+MYSQL_RES* mail_res;
+MYSQL_ROW mail_row;
 
 #endif /* not TXT_ONLY */
 
@@ -150,7 +138,6 @@ int map_port=0;
 int autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;
 int minsave_interval = 100;
 int save_settings = 0xFFFF;
-int charsave_method = 0; //Default 'OLD' Save method (SQL ONLY!) [Sirius]
 int agit_flag = 0;
 int night_flag = 0; // 0=day, 1=night [Yor]
 
@@ -159,11 +146,8 @@ struct charid2nick {
 	int req_id;
 };
 
-// (map_athana.conf?read_map_from_cacheE)
-// 0: 1:? 2:?
-int  map_read_flag = READ_FROM_GAT;
 char map_cache_file[256]="db/map.info"; // E
-
+int  map_read_flag = READ_FROM_GAT;
 char db_path[256] = "db";
 char motd_txt[256] = "conf/motd.txt";
 char help_txt[256] = "conf/help.txt";
@@ -186,7 +170,7 @@ void map_setusers(int fd)
 	WFIFOHEAD(fd, 2);
 
 	map_users = RFIFOL(fd,2);
-	// send some anser
+	// send some answer
 	WFIFOW(fd,0) = 0x2718;
 	WFIFOSET(fd,2);
 }
@@ -494,6 +478,10 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick) {
 //				status_change_end(bl, SC_BLADESTOP, -1);
 			if (sc->data[SC_BASILICA].timer != -1)
 				status_change_end(bl, SC_BASILICA, -1);
+			if (sc->data[SC_TATAMIGAESHI].timer != -1)
+				status_change_end(bl, SC_TATAMIGAESHI, -1);
+			if (sc->data[SC_MAGICROD].timer != -1)
+				status_change_end(bl, SC_MAGICROD, -1);
 		}
 	}
 	if (moveblock) map_delblock_sub(bl,0);
@@ -1671,6 +1659,8 @@ void map_deliddb(struct block_list *bl) {
 int map_quit(struct map_session_data *sd) {
 
 	if(!sd->state.auth) { //Removing a player that hasn't even finished loading
+		if (sd->pd) unit_free(&sd->pd->bl,-1);
+		if (sd->hd) unit_free(&sd->hd->bl,-1);
 		idb_remove(pc_db,sd->status.account_id);
 		idb_remove(charid_db,sd->status.char_id);
 		idb_remove(id_db,sd->bl.id);
@@ -1721,15 +1711,6 @@ int map_quit(struct map_session_data *sd) {
 		sd->st = NULL;
 		sd->npc_id = 0;
 	}
-#ifndef TXT_ONLY
-	if(charsave_method)
-	{	//Let player be free'd on closing the connection.
-		idb_remove(pc_db,sd->status.account_id);
-		if (!(sd->fd && session[sd->fd]->session_data == sd))
-			aFree(sd); //In case player was not attached to session.
-		return 0;
-	}
-#endif
 	if(sd->fd)
 	{	//Player will be free'd on save-ack. [Skotlex]
 		if (session[sd->fd])
@@ -1802,7 +1783,7 @@ struct map_session_data * map_charid2sd(int id) {
  * return map_session_data pointer or NULL
  *------------------------------------------
  */
-struct map_session_data * map_nick2sd(char *nick) {
+struct map_session_data * map_nick2sd(const char *nick) {
 	int i, users;
 	struct map_session_data *pl_sd = NULL, **pl_allsd;
 
@@ -2021,9 +2002,13 @@ int mob_cache_cleanup_sub(struct block_list *bl, va_list ap) {
 	//Mob has the cached flag on 0
 	if (!md->special_state.cached)
 		return 0;
-	if (!battle_config.mob_remove_damaged && 
+	if (!battle_config.mob_remove_damaged &&
 		md->status.hp < md->status.max_hp)
+	{
+		if (md->spawn && md->spawn_n >= 0) //Do not respawn mob later.
+			map[md->spawn->m].moblist[md->spawn_n]->skip++;
 		return 0; //Do not remove damaged mobs.
+	}
 
 	unit_free(&md->bl,0);
 
@@ -2068,7 +2053,7 @@ void map_removemobs(int m)
  * mapmap??
  *------------------------------------------
  */
-int map_mapname2mapid(char *name) {
+int map_mapname2mapid(const char* name) {
 	unsigned short map_index;
 	map_index = mapindex_name2id(name);
 	if (!map_index)
@@ -3460,10 +3445,8 @@ int inter_config_read(char *cfgName)
 		/* Main chat nick [LuzZza] */
 		} else if(strcmpi(w1, "main_chat_nick")==0){
 			strcpy(main_chat_nick, w2);
-			
+
 	#ifndef TXT_ONLY
-		} else if(strcmpi(w1,"charsave_method")==0){
-			charsave_method = atoi(w2); //New char saving method.
 		} else if(strcmpi(w1,"item_db_db")==0){
 			strcpy(item_db_db,w2);
 		} else if(strcmpi(w1,"mob_db_db")==0){
@@ -3490,16 +3473,6 @@ int inter_config_read(char *cfgName)
 		} else if(strcmpi(w1,"use_sql_db")==0){
 			db_use_sqldbs = battle_config_switch(w2);
 			ShowStatus ("Using SQL dbs: %s\n",w2);
-		}else if(strcmpi(w1, "char_server_ip") == 0){
-			strcpy(charsql_host, w2);
-		}else if(strcmpi(w1, "char_server_port") == 0){
-			charsql_port = atoi(w2);
-		}else if(strcmpi(w1, "char_server_id") == 0){
-			strcpy(charsql_user, w2);
-		}else if(strcmpi(w1, "char_server_pw") == 0){
-			strcpy(charsql_pass, w2);
-		}else if(strcmpi(w1, "char_server_db") == 0){
-			strcpy(charsql_db, w2);
 		} else if(strcmpi(w1,"log_db")==0) {
 			strcpy(log_db, w2);
 		} else if(strcmpi(w1,"log_db_ip")==0) {
@@ -3732,9 +3705,6 @@ void do_final(void) {
 
 	ShowStatus("Terminating...\n");
 
-	//we probably don't need the cache open at all times 'yet', so this is closed by mapsource_final [celest]
-	//map_cache_close();
-
 	for (i = 0; i < map_num; i++)
 		if (map[i].m >= 0)
 			map_foreachinmap(cleanup_sub, i, BL_ALL);
@@ -3753,9 +3723,8 @@ void do_final(void) {
 
 	do_final_atcommand();
 	do_final_battle();
-	do_final_chrif(); // LSf
+	do_final_chrif();
 	do_final_npc();
-//	map_removenpc();
 	do_final_script();
 	do_final_itemdb();
 	do_final_storage();
@@ -3789,17 +3758,13 @@ void do_final(void) {
 	}
 
 	mapindex_final();
-	
+
 	id_db->destroy(id_db, NULL);
 	pc_db->destroy(pc_db, NULL);
 	charid_db->destroy(charid_db, NULL);
 
-//#endif
-
 #ifndef TXT_ONLY
     map_sql_close();
-	if(charsave_method)
-		charsql_db_init(0); //Connecting to chardb
 #endif /* not TXT_ONLY */
 	ShowStatus("Successfully terminated.\n");
 }
@@ -3944,8 +3909,6 @@ int do_init(int argc, char *argv[]) {
 	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 #ifndef TXT_ONLY
 	map_sql_init();
-	if(charsave_method)
-		charsql_db_init(1); //Connecting to chardb
 #endif /* not TXT_ONLY */
 
 	mapindex_init();
@@ -4016,32 +3979,3 @@ int compare_item(struct item *a, struct item *b) {
 	}
 	return 0;
 }
-
-#ifndef TXT_ONLY
-int charsql_db_init(int method){
-
-	if(method == 1){ //'INIT / START'
-		ShowInfo("Connecting to 'character' Database... ");
-		mysql_init(&charsql_handle);
-
-		if(!mysql_real_connect(&charsql_handle, charsql_host, charsql_user, charsql_pass, charsql_db, charsql_port, (char *)NULL, 0)){
-			ShowSQL("DB error - %s\n",mysql_error(&charsql_handle));
-			exit(1);
-		}else{
-			printf("success.\n");
-			if( strlen(default_codepage) > 0 ) {
-				sprintf( tmp_sql, "SET NAMES %s", default_codepage );
-				if (mysql_query(&charsql_handle, tmp_sql)) {
-					ShowSQL("DB error - %s\n",mysql_error(&charsql_handle));
-					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-				}
-			}
-		}
-	}else if(method == 0){ //'FINAL' / Shutdown
-		ShowInfo("Closing 'character' Database connection ... ");
-		mysql_close(&charsql_handle);
-		printf("done.\n");
-	}
-	return 0;
-}
-#endif

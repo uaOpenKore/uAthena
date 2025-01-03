@@ -310,7 +310,7 @@ struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m,
  * The MOB appearance for one time (for scripts)
  *------------------------------------------
  */
-int mob_once_spawn (struct map_session_data *sd, char *mapname,
+int mob_once_spawn (struct map_session_data *sd, const char *mapname,
 	short x, short y, const char *mobname, int class_, int amount, const char *event)
 {
 	struct mob_data *md = NULL;
@@ -363,7 +363,7 @@ int mob_once_spawn (struct map_session_data *sd, char *mapname,
  * The MOB appearance for one time (& area specification for scripts)
  *------------------------------------------
  */
-int mob_once_spawn_area(struct map_session_data *sd,char *mapname,
+int mob_once_spawn_area(struct map_session_data *sd,const char *mapname,
 	int x0,int y0,int x1,int y1,
 	const char *mobname,int class_,int amount,const char *event)
 {
@@ -458,7 +458,7 @@ static int mob_spawn_guardian_sub(int tid,unsigned int tick,int id,int data)
  * Summoning Guardians [Valaris]
  *------------------------------------------
  */
-int mob_spawn_guardian(char *mapname,short x,short y,const char *mobname,int class_,const char *event,int guardian)
+int mob_spawn_guardian(const char* mapname, short x, short y, const char* mobname, int class_, const char* event, int guardian)
 {
 	struct mob_data *md=NULL;
 	struct spawn_data data;
@@ -2055,7 +2055,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				intif_GMmessage(message,strlen(message)+1,0);
 			}
 
-			if(mvp_sd->weight*2 > mvp_sd->max_weight)
+			if((temp = mvp_sd->weight*2 > mvp_sd->max_weight))
 				map_addflooritem(&item,1,mvp_sd->bl.m,mvp_sd->bl.x,mvp_sd->bl.y,mvp_sd,second_sd,third_sd,1);
 			else if((temp = pc_additem(mvp_sd,&item,1))) {
 				clif_additem(sd,0,0,temp);
@@ -2064,7 +2064,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 			if(log_config.enable_logs&0x200)	{//Logs items, MVP prizes [Lupus]
 				log_pick_mob(md, "M", item.nameid, -1, NULL);
-				log_pick_pc(mvp_sd, "P", item.nameid, 1, NULL);
+				if (!temp)
+					log_pick_pc(mvp_sd, "P", item.nameid, 1, NULL);
 			}
 			break;
 		}
@@ -2611,10 +2612,10 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 			continue;
 
 		c2 = ms[i].cond2;
-		
+
 		if (ms[i].state != md->state.skillstate) {
-			if (md->state.skillstate != MSS_DEAD && (
-				ms[i].state == MSS_ANY || (ms[i].state == MSS_ANYTARGET && md->target_id)
+			if (md->state.skillstate != MSS_DEAD && (ms[i].state == MSS_ANY ||
+				(ms[i].state == MSS_ANYTARGET && md->target_id && md->state.skillstate != MSS_LOOT)
 			)) //ANYTARGET works with any state as long as there's a target. [Skotlex]
 				;
 			else

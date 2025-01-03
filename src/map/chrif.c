@@ -23,9 +23,7 @@
 #include "pc.h"
 #include "status.h"
 #include "mercenary.h"
-#ifndef TXT_ONLY
-#include "charsave.h"
-#endif
+
 //Updated table (only doc^^) [Sirius]
 //Used Packets: U->2af8
 //Free Packets: F->2af8
@@ -38,7 +36,7 @@ static const int packet_len_table[0x3d] = {
 	 6,30,-1,10,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, U->2b0a, U->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
 	 0,-1,10, 6,11,-1, 0, 0,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, U->2b13, U->2b14, U->2b15, U->2b16, U->2b17
 	-1,-1,-1,-1,-1,-1, 2, 7,		// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
-	-1,10,-1,-1,-1,-1,-1,-1,	// 2b20-2b27: U->2b20, U->2b21, F->2b22, F->2b23, F->2b24, F->2b25, F->2b26, F->2b27
+	-1,10, 8,-1,-1,-1,-1,-1,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, F->2b24, F->2b25, F->2b26, F->2b27
 };
 
 //Used Packets:
@@ -84,7 +82,8 @@ static const int packet_len_table[0x3d] = {
 //2b1f: Incomming, chrif_disconnectplayer -> 'disconnects a player (aid X) with the message XY ... 0x81 ..' [Sirius]
 //2b20: Incomming, chrif_removemap -> 'remove maps of a server (sample: its going offline)' [Sirius]
 //2b21: Incomming, chrif_save_ack. Returned after a character has been "final saved" on the char-server. [Skotlex]
-//2b22-2b27: FREE
+//2b22: Incomming, chrif_updatefamelist_ack. Updated one position in the fame list.
+//2b24-2b27: FREE
 
 int chrif_connected = 0;
 int char_fd = 0; //Using 0 instead of -1 is safer against crashes. [Skotlex]
@@ -185,10 +184,10 @@ int chrif_isconnect(void)
 int chrif_save(struct map_session_data *sd, int flag)
 {
 	nullpo_retr(-1, sd);
-	
-	pc_makesavestatus(sd);
+
+		pc_makesavestatus(sd);
 	if(!chrif_isconnect())
-  	{
+	{
 		if (flag) sd->state.finalsave = 1; //Will save character on reconnect.
 		return -1;
 	}
@@ -209,16 +208,7 @@ int chrif_save(struct map_session_data *sd, int flag)
 		intif_saveregistry(sd, 2); //Save account regs
 	if (sd->state.reg_dirty&1)
 		intif_saveregistry(sd, 1); //Save account2 regs
-#ifndef TXT_ONLY
-	if(charsave_method){ //New 'Local' save
-		charsave_savechar(sd->status.char_id, &sd->status);
-		if (flag) //Character final saved.
-			sd->state.finalsave = 1;
-		if (flag == 1)
-			chrif_char_offline(sd); //Tell char server that character went offline.
-		return 0;
-	}
-#endif
+
 	WFIFOHEAD(char_fd, sizeof(sd->status) + 13);
 	WFIFOW(char_fd,0) = 0x2b01;
 	WFIFOW(char_fd,2) = sizeof(sd->status) + 13;
@@ -455,10 +445,6 @@ int chrif_sendmapack(int fd)
 int chrif_scdata_request(int account_id, int char_id)
 {
 #ifdef ENABLE_SC_SAVING
-#ifndef TXT_ONLY
-	if (charsave_method)
-		return charsave_load_scdata(account_id, char_id);
-#endif
 	chrif_check(-1);
 
 	WFIFOHEAD(char_fd, 10);
@@ -1192,6 +1178,32 @@ int chrif_recvfamelist(int fd)
 	return 0;
 }
 
+int chrif_updatefamelist_ack(int fd)
+{
+	struct fame_list *list;
+	char index;
+	RFIFOHEAD(fd);
+	switch (RFIFOB(fd, 2))
+	{
+		case 1:
+			list = smith_fame_list;
+			break;
+		case 2:
+			list = chemist_fame_list;
+			break;
+		case 3:
+			list = taekwon_fame_list;
+			break;
+		default:
+			return 0;
+	}
+	index = RFIFOB(fd, 3);
+	if (index < 0 || index >= MAX_FAME_LIST)
+		return 0;
+	list[(int)index].fame = RFIFOL(fd, 4);
+	return 1;
+}
+
 int chrif_save_scdata(struct map_session_data *sd)
 {	//parses the sc_data of the player and sends it to the char-server for saving. [Skotlex]
 #ifdef ENABLE_SC_SAVING
@@ -1202,14 +1214,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 
 	if (sd->state.finalsave) //Character was already saved?
 		return -1;
-#ifndef TXT_ONLY
-	if(charsave_method) //New 'Local' save
-	{
-		charsave_save_scdata(sd->status.account_id, sd->status.char_id, &sd->sc, MAX_STATUSCHANGE);
-		return 0;
-	}
-#endif
-	
+
 	chrif_check(-1);
 	tick = gettick();
 	
@@ -1480,6 +1485,7 @@ int chrif_parse(int fd)
 		case 0x2b1f: chrif_disconnectplayer(fd); break;
 		case 0x2b20: chrif_removemap(fd); break;
 		case 0x2b21: chrif_save_ack(fd); break;
+		case 0x2b22: chrif_updatefamelist_ack(fd); break;
 
 		default:
 			if (battle_config.error_log)
@@ -1599,7 +1605,8 @@ int auth_db_final(DBKey k,void *d,va_list ap) {
  */
 int do_final_chrif(void)
 {
-	delete_session(char_fd);
+	if (char_fd > 0)
+		do_close(char_fd);
 	auth_db->destroy(auth_db, auth_db_final);
 	return 0;
 }

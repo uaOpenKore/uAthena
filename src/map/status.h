@@ -136,7 +136,7 @@ enum {
 	SC_REJECTSWORD,
 	SC_MARIONETTE,
 	SC_MARIONETTE2,
-	SC_UNUSED,	//Unused (was SC_MOONLIT)
+	SC_CHANGEUNDEAD,
 	SC_JOINTBEAT,
 	SC_MINDBREAKER, //130
 	SC_MEMORIZE,
@@ -236,7 +236,6 @@ enum {
 	SC_SKA, // [marquis007]
 	SC_TKREST, // [marquis007]
 	SC_MIRACLE, //SG 'hidden' skill [Komurka]
-	//Ninja/GS states
 	SC_MADNESSCANCEL,
 	SC_ADJUSTMENT,
 	SC_INCREASING,  //230
@@ -259,6 +258,7 @@ enum {
 	SC_INCAGIRATE,
 	SC_INCDEXRATE,
 	SC_JAILED,
+	SC_ENCHANTARMS,
 	SC_MAX, //Automatically updated max, used in for's and at startup to check we are within bounds. [Skotlex]
 };
 int SkillStatusChangeTable(int skill);
@@ -480,11 +480,9 @@ enum {
 #define OPTION_WEDDING 0x00001000
 #define OPTION_RUWACH 0x00002000
 #define OPTION_CHASEWALK 0x00004000
-//Note that clientside Flying and Xmas are 0x8000!!
-#define OPTION_XMAS 0x00020000
+//Note that clientside Flying and Xmas are 0x8000 for clients prior to 2007.
 #define OPTION_FLYING 0x0008000
-//TODO: Get these Missing options...
-#define OPTION_SIGHTTRASHER 0x00010000
+#define OPTION_XMAS 0x00010000
 
 #define OPTION_CART (OPTION_CART1|OPTION_CART2|OPTION_CART3|OPTION_CART4|OPTION_CART5)
 
@@ -657,4 +655,4 @@ int status_check_visibility(struct block_list *src, struct block_list *target); 
 int status_readdb(void);
 int do_init_status(void);
 
-#endif
+#endif /* _STATUS_H_ */

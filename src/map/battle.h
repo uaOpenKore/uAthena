@@ -29,6 +29,8 @@ int battle_calc_return_damage(struct block_list *bl, int *damage, int flag);
 
 void battle_drain(struct map_session_data *sd, struct block_list *tbl, int rdamage, int ldamage, int race, int boss);
 
+int battle_skillatk_bonus(struct map_session_data *sd, int skill_num);
+
 int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv);
 
 // _[WIvZ
@@ -441,7 +443,7 @@ void do_final_battle(void);
 extern int battle_config_read(const char *cfgName);
 extern void battle_validate_conf(void);
 extern void battle_set_defaults(void);
-extern int battle_set_value(char *, char *);
-int battle_get_value(char *);
+int battle_set_value(const char* w1, const char* w2);
+int battle_get_value(const char* w1);
 
-#endif
+#endif /* _BATTLE_H_ */

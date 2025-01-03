@@ -35,8 +35,6 @@ OPT += -Wall
 OPT += -Wno-sign-compare
 OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno-unused -Wno-parentheses -fstack-protector
 
-# OPT += -DMAPREGSQL
-
 OPT += -DPCRE_SUPPORT
 
 OPT += -I../common
@@ -53,6 +51,17 @@ LIBS += -lmysqlclient
 
 LIBS += -ldl
 GOPT += -m32
+
+
+# Server Packet Protocol version (also defined in src/common/mmo.h)
+# OPT += -DPACKETVER=8
+# Makes map-wide script variables be saved to SQL instead of TXT files.
+# OPT += -DMAPREGSQL
+# OPT += -DCHRIF_OLDINFO
+# Turbo is an alternate socket access implementation which should be faster.
+# DO NOT ENABLE YET as it isn't quite ready for general usage.
+# OPT += -DTURBO
+
 
 PLATFORM = $(shell uname)
 

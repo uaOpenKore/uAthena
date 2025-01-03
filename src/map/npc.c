@@ -130,8 +130,8 @@ int npc_enable(const char *name,int flag)
 	else	//Can't change the view_data to invisible class because the view_data for all npcs is shared! [Skotlex]
 		nd->sc.option|= OPTION_INVISIBLE;
 
-	if (nd->class_ == WARP_CLASS)
-	{	//Client won't display option changes for warp portals [Toms]
+	if (nd->class_ == WARP_CLASS || nd->class_ == FLAG_CLASS)
+	{	//Client won't display option changes for these classes [Toms]
 		if (nd->sc.option&(OPTION_HIDE|OPTION_INVISIBLE))
 			clif_clearchar(&nd->bl, 0);
 		else
@@ -743,6 +743,8 @@ int npc_timerevent_stop(struct npc_data *nd)
  */
 void npc_timerevent_quit(struct map_session_data *sd) {
 	struct TimerData *td;
+	struct npc_data* nd;
+	struct timer_event_data *ted;
 	if (sd->npc_timer_id == -1)
 		return;
 	td = get_timer(sd->npc_timer_id);
@@ -750,9 +752,43 @@ void npc_timerevent_quit(struct map_session_data *sd) {
 		sd->npc_timer_id = -1;
 		return; //??
 	}
-	delete_timer(sd->npc_timer_id,npc_timerevent);
+	nd = (struct npc_data *)map_id2bl(td->id);
+	ted = (struct timer_event_data*)td->data;
+	delete_timer(sd->npc_timer_id, npc_timerevent);
 	sd->npc_timer_id = -1;
-	ers_free(timer_event_ers, (struct event_timer_data*)td->data);
+	if (nd && nd->bl.type == BL_NPC)
+	{	//Execute OnTimerQuit
+		char buf[sizeof(nd->exname)+sizeof("::OnTimerQuit")+1];
+		struct event_data *ev;
+		sprintf(buf,"%s::OnTimerQuit",nd->exname);
+		ev = strdb_get(ev_db,(unsigned char*)buf);
+		if(ev && ev->nd != nd) {
+			ShowWarning("npc_timerevent_quit: Unable to execute \"OnTimerQuit\", two NPCs have the same event name [%s]!\n",buf);
+			ev = NULL;
+		}
+		if (ev) {
+			int old_rid,old_timer;
+			unsigned int old_tick;
+			//Set timer related info.
+			old_rid = nd->u.scr.rid;
+			nd->u.scr.rid = sd->bl.id;
+
+			old_tick = nd->u.scr.timertick;
+			nd->u.scr.timertick=ted->otick;
+
+			old_timer = nd->u.scr.timer;
+			nd->u.scr.timer=ted->time;
+
+			//Execute label
+			run_script(nd->u.scr.script,ev->pos,sd->bl.id,nd->bl.id);
+
+			//Restore previous data.
+			nd->u.scr.rid = old_rid;
+			nd->u.scr.timer = old_timer;
+			nd->u.scr.timertick = old_tick;
+		}
+	}
+	ers_free(timer_event_ers, ted);
 }
 
 /*==========================================
@@ -878,13 +914,13 @@ int npc_event (struct map_session_data *sd, const unsigned char *eventname, int 
 
 int npc_command_sub(DBKey key,void *data,va_list ap)
 {
-	unsigned char *p = key.str;
+	const char* p = (const char*)key.str;
 	struct event_data *ev=(struct event_data *)data;
-	unsigned char *npcname=va_arg(ap,char *);
-	char *command=va_arg(ap,char *);
+	const char* npcname = va_arg(ap, const char*);
+	const char* command = va_arg(ap, const char*);
 	unsigned char temp[100];
 
-	if(strcmp(ev->nd->name,npcname)==0 && (p=strchr(p,':')) && p && strnicmp("::OnCommand",p,10)==0 ){
+	if(strcmp(ev->nd->name,npcname)==0 && (p=strchr(p,':')) && strnicmp("::OnCommand",p,10)==0 ){
 		sscanf(&p[11],"%s",temp);
 
 		if (strcmp(command,temp)==0)
@@ -894,9 +930,9 @@ int npc_command_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 
-int npc_command(struct map_session_data *sd,const unsigned char *npcname,char *command)
+int npc_command(struct map_session_data* sd, const char* npcname, const char* command)
 {
-	ev_db->foreach(ev_db,npc_command_sub,npcname,command);
+	ev_db->foreach(ev_db, npc_command_sub, npcname, command);
 
 	return 0;
 }
@@ -1116,7 +1152,7 @@ TBL_NPC *npc_checknear(struct map_session_data *sd,struct block_list *bl)
  * NPCI[v`bg
  *------------------------------------------
  */
-int npc_globalmessage(const char *name,char *mes)
+int npc_globalmessage(const char *name,const char *mes)
 {
 	struct npc_data *nd=(struct npc_data *) strdb_get(npcname_db,(unsigned char*)name);
 	char temp[100];
@@ -1266,8 +1302,7 @@ int npc_buylist(struct map_session_data *sd,int n,unsigned short *item_list)
 
 	for(i=0,w=0,z=0;i<n;i++) {
 		for(j=0;nd->u.shop_item[j].nameid;j++) {
-			if (nd->u.shop_item[j].nameid==item_list[i*2+1] || //Normal items
-				itemdb_viewid(nd->u.shop_item[j].nameid)==item_list[i*2+1]) //item_avail replacement
+			if (nd->u.shop_item[j].nameid==item_list[i*2+1])
 				break;
 		}
 		if (nd->u.shop_item[j].nameid==0)
@@ -1531,6 +1566,7 @@ int npc_unload(struct npc_data *nd)
 			if (nd->u.scr.label_list) {
 				aFree(nd->u.scr.label_list);
 				nd->u.scr.label_list = NULL;
+				nd->u.scr.label_list_num = 0;
 			}
 		}
 	}
@@ -1625,7 +1661,7 @@ void npc_delsrcfile (char *name)
 int npc_parse_warp (char *w1,char *w2,char *w3,char *w4)
 {
 	int x, y, xs, ys, to_x, to_y, m;
-	int i, j;
+	int i;
 	char mapname[MAP_NAME_LENGTH], to_mapname[MAP_NAME_LENGTH];
 	struct npc_data *nd;
 
@@ -1667,18 +1703,10 @@ int npc_parse_warp (char *w1,char *w2,char *w3,char *w4)
 	nd->u.warp.y = to_y;
 	nd->u.warp.xs = xs;
 	nd->u.warp.ys = ys;
-
-	for (i = 0; i < ys; i++) {
-		for (j = 0; j < xs; j++) {
-			if (map_getcell(m, x-xs/2+j, y-ys/2+i, CELL_CHKNOPASS))
-				continue;
-			map_setcell(m, x-xs/2+j, y-ys/2+i, CELL_SETNPC);
-		}
-	}
-
 	npc_warp++;
 	nd->bl.type = BL_NPC;
 	nd->bl.subtype = WARP;
+	npc_setcells(nd);
 	map_addblock(&nd->bl);
 	status_set_viewdata(&nd->bl, nd->class_);
 	status_change_init(&nd->bl);
@@ -2013,20 +2041,9 @@ static int npc_parse_script(char *w1,char *w2,char *w3,char *w4,char *first_line
 
 	if (sscanf(w4, "%d,%d,%d", &class_, &xs, &ys) == 3) {
 		// G^NPC
-		int i, j;
 
 		if (xs >= 0) xs = xs * 2 + 1;
 		if (ys >= 0) ys = ys * 2 + 1;
-
-		if (m >= 0) {
-			for (i = 0; i < ys; i++) {
-				for (j = 0; j < xs; j++) {
-					if (map_getcell(m, x - xs/2 + j, y - ys/2 + i, CELL_CHKNOPASS))
-						continue;
-					map_setcell(m, x - xs/2 + j, y - ys/2 + i, CELL_SETNPC);
-				}
-			}
-		}
 		nd->u.scr.xs = xs;
 		nd->u.scr.ys = ys;
 	} else {
@@ -2036,8 +2053,10 @@ static int npc_parse_script(char *w1,char *w2,char *w3,char *w4,char *first_line
 		nd->u.scr.ys = 0;
 	}
 
-	while ((p = strchr(w3,':'))) {
+	p = strchr(w3,':');
+	while (p) {
 		if (p[1] == ':') break;
+		p = strchr(p+1, ':');
 	}
 	if (p) {
 		*p = 0;
@@ -2075,6 +2094,7 @@ static int npc_parse_script(char *w1,char *w2,char *w3,char *w4,char *first_line
 		status_change_init(&nd->bl);
 		unit_dataset(&nd->bl);
 		nd->ud.dir = dir;
+		npc_setcells(nd);
 		map_addblock(&nd->bl);
 		// Unused. You can always use xxx::OnXXXX events. Have this removed to improve perfomance.
 		/*if (evflag) {	// Cxg^
@@ -2173,6 +2193,86 @@ static int npc_parse_script(char *w1,char *w2,char *w3,char *w4,char *first_line
 	return 0;
 }
 
+void npc_setcells(struct npc_data *nd)
+{
+	int m = nd->bl.m, x = nd->bl.x, y = nd->bl.y, xs, ys;
+	int i,j;
+
+	if (nd->bl.subtype == WARP) {
+		xs = nd->u.warp.xs;
+		ys = nd->u.warp.ys;
+	} else {
+		xs = nd->u.scr.xs;
+		ys = nd->u.scr.ys;
+	}
+
+	if (m < 0 || xs < 1 || ys < 1)
+		return;
+
+	for (i = 0; i < ys; i++) {
+		for (j = 0; j < xs; j++) {
+			if (map_getcell(m, x-xs/2+j, y-ys/2+i, CELL_CHKNOPASS))
+				continue;
+			map_setcell(m, x-xs/2+j, y-ys/2+i, CELL_SETNPC);
+		}
+	}
+}
+
+int npc_unsetcells_sub(struct block_list *bl, va_list ap)
+{
+	struct npc_data *nd = (struct npc_data*)bl;
+	int id =  va_arg(ap,int);
+	if (nd->bl.id == id) return 0;
+	npc_setcells(nd);
+	return 1;
+}
+
+void npc_unsetcells(struct npc_data *nd)
+{
+	int m = nd->bl.m, x = nd->bl.x, y = nd->bl.y, xs, ys;
+	int i,j, x0, x1, y0, y1;
+
+	if (nd->bl.subtype == WARP) {
+		xs = nd->u.warp.xs;
+		ys = nd->u.warp.ys;
+	} else {
+		xs = nd->u.scr.xs;
+		ys = nd->u.scr.ys;
+	}
+
+	if (m < 0 || xs < 1 || ys < 1)
+		return;
+
+	//Locate max range on which we can localte npce cells
+	for(x0 = x-xs/2; x0 > 0 && map_getcell(m, x0, y, CELL_CHKNPC); x0--);
+	for(x1 = x+xs/2-1; x1 < map[m].xs && map_getcell(m, x1, y, CELL_CHKNPC); x1++);
+	for(y0 = y-ys/2; y0 > 0 && map_getcell(m, x, y0, CELL_CHKNPC); y0--);
+	for(y1 = y+ys/2-1; y1 < map[m].xs && map_getcell(m, x, y1, CELL_CHKNPC); y1++);
+
+	for (i = 0; i < ys; i++) {
+		for (j = 0; j < xs; j++)
+			map_setcell(m, x-xs/2+j, y-ys/2+i, CELL_CLRNPC);
+	}
+	//Reset NPC cells for other nearby npcs.
+	map_foreachinarea( npc_unsetcells_sub, m, x0, y0, x1, y1, BL_NPC, nd->bl.id);
+}
+
+void npc_movenpc(struct npc_data *nd, int x, int y)
+{
+	const int m = nd->bl.m;
+	if (m < 0 || nd->bl.prev == NULL) return;	//Not on a map.
+
+	if (x < 0) x = 0;
+	else if (x >= map[m].xs) x = map[m].xs-1;
+	if (y < 0) y = 0;
+	else if (y >= map[m].ys) y = map[m].ys-1;
+
+	npc_unsetcells(nd);
+	map_foreachinrange(clif_outsight, &nd->bl, AREA_SIZE, BL_PC, &nd->bl);
+	map_moveblock(&nd->bl, x, y, gettick());
+	map_foreachinrange(clif_insight, &nd->bl, AREA_SIZE, BL_PC, &nd->bl);
+	npc_setcells(nd);
+}
 /*==========================================
  * functions
  *------------------------------------------
@@ -2262,14 +2362,14 @@ int npc_parse_mob2 (struct spawn_data *mob, int index)
 	int i;
 	struct mob_data *md;
 
-	for (i = 0; i < mob->num; i++) {
+	for (i = mob->skip; i < mob->num; i++) {
 		md = mob_spawn_dataset(mob);
 		md->spawn = mob;
 		md->spawn_n = index;
 		md->special_state.cached = (index>=0);	//If mob is cached on map, it is dynamically removed
 		mob_spawn(md);
 	}
-
+	mob->skip = 0;
 	return 1;
 }
 

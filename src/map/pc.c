@@ -46,7 +46,7 @@
 #define PVP_CALCRANK_INTERVAL 1000	// PVPvZu
 static unsigned int exp_table[MAX_PC_CLASS][2][MAX_LEVEL];
 static unsigned int max_level[MAX_PC_CLASS][2];
-static short statp[MAX_LEVEL];
+static short statp[MAX_LEVEL+1];
 
 // h-files are for declarations, not for implementations... [Shinomori]
 struct skill_tree_entry skill_tree[MAX_PC_CLASS][MAX_SKILL_TREE];
@@ -358,7 +358,8 @@ int pc_setnewpc(struct map_session_data *sd, int account_id, int char_id, int lo
 	sd->bl.type      = BL_PC;
 	sd->canlog_tick  = gettick();
 	sd->state.waitingdisconnect = 0;
-
+	//Required to prevent homunculus copuing a base speed of 0.
+	sd->battle_status.speed = sd->base_status.speed = DEFAULT_WALK_SPEED;
 	return 0;
 }
 
@@ -556,6 +557,7 @@ int pc_isequip(struct map_session_data *sd,int n)
  */
 int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_time, struct mmo_charstatus *st)
 {
+	TBL_PC* old_sd;
 	int i;
 	unsigned long tick = gettick();
 
@@ -572,10 +574,14 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 		return 1;
 	}
 
-	if (map_id2sd(st->account_id) != NULL)
-	{	//Somehow a second connection has managed to go through the double-connection
-		//check in clif_parse_WantToConnection! [Skotlex]
-		clif_authfail_fd(sd->fd, 0);
+	if( (old_sd=map_id2sd(st->account_id)) != NULL ){
+		if (old_sd->state.finalsave || !old_sd->state.auth)
+			; //Previous player is not done loading/quiting, No need to kick.
+		else if (old_sd->fd)
+			clif_authfail_fd(old_sd->fd, 2); // same id
+		else
+			map_quit(old_sd);
+		clif_authfail_fd(sd->fd, 8); // still recognizes last connection
 		return 1;
 	}
 	memcpy(&sd->status, st, sizeof(*st));
@@ -1515,9 +1521,11 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			ShowError("pc_bonus: bonus bAspd is no longer supported!\n");
 		break;
 	case SP_ASPD_RATE:	//Non stackable increase
-		if(sd->state.lr_flag != 2 && status->aspd_rate > 1000-val*10)
-			status->aspd_rate = 1000-val*10;
-		break;
+		if(val >= 0) { //Let negative ASPD bonuses become AddRate ones.
+			if(sd->state.lr_flag != 2 && status->aspd_rate > 1000-val*10)
+				status->aspd_rate = 1000-val*10;
+			break;
+		}
 	case SP_ASPD_ADDRATE:	//Stackable increase - Made it linear as per rodatazone
 		if(sd->state.lr_flag != 2)
 			sd->aspd_add_rate -= val;
@@ -1702,6 +1710,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			clif_status_load(&sd->bl, SI_INTRAVISION, 1);
 		}
 		break;
+	case SP_NO_KNOCKBACK:
+		if(sd->state.lr_flag != 2)
+			sd->special_state.no_knockback = 1;
+		break;
 	case SP_SPLASH_RANGE:
 		if(sd->state.lr_flag != 2 && sd->splash_range < val)
 			sd->splash_range = val;
@@ -1841,12 +1853,6 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 	case SP_SP_GAIN_VALUE:
 		if(!sd->state.lr_flag)
 			sd->sp_gain_value += val;
-		break;
-	case SP_IGNORE_DEF_MOB:	// 0:normal monsters only, 1:affects boss monsters as well
-		if(!sd->state.lr_flag)
-			sd->right_weapon.ignore_def_mob |= 1<<val;
-		else if(sd->state.lr_flag == 1)
-			sd->left_weapon.ignore_def_mob |= 1<<val;
 		break;
 	case SP_HP_GAIN_VALUE:
 		if(!sd->state.lr_flag)
@@ -2392,12 +2398,12 @@ int pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type4
 	switch(type){
 	case SP_AUTOSPELL:
 		if(sd->state.lr_flag != 2)
-			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, (val?type2:-type2), type3, type4, current_equip_card_id);
+			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, current_equip_card_id);
 		break;
 
 	case SP_AUTOSPELL_WHENHIT:
 		if(sd->state.lr_flag != 2)
-			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, (val?type2:-type2), type3, type4, current_equip_card_id);
+			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, current_equip_card_id);
 		break;
 	default:
 		if(battle_config.error_log)
@@ -2771,10 +2777,12 @@ int pc_dropitem(struct map_session_data *sd,int n,int amount)
 	if(amount <= 0)
 		return 0;
 
-	if (sd->status.inventory[n].nameid <= 0 ||
-	    sd->status.inventory[n].amount < amount ||
-	    sd->trade_partner != 0 || sd->vender_id != 0 ||
-	    sd->status.inventory[n].amount <= 0)
+	if(sd->status.inventory[n].nameid <= 0 ||
+		sd->status.inventory[n].amount < amount ||
+		sd->trade_partner != 0 || sd->vender_id != 0 ||
+		sd->status.inventory[n].amount <= 0 ||
+		!sd->inventory_data[n] //pc_delitem would fail on this case.
+		)
 		return 0;
 
 	if (map[sd->bl.m].flag.nodrop) {
@@ -3035,7 +3043,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 		return 1;
 	}
 
-	if((w=data->weight*amount) + sd->cart_weight > sd->cart_max_weight)
+	if((w=data->weight*amount) + sd->cart_weight > battle_config.max_cart_weight)
 		return 1;
 
 	i=MAX_CART;
@@ -3330,10 +3338,6 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 
 	if (sd->mapindex != mapindex)
 	{	//Misc map-changing settings
-		party_send_dot_remove(sd); //minimap dot fix [Kevin]
-		guild_send_dot_remove(sd);
-		if (sd->regen.state.gc)
-			sd->regen.state.gc = 0;
 		if (sd->sc.count)
 		{ //Cancel some map related stuff.
 			if (sd->sc.data[SC_WARM].timer != -1)
@@ -3351,6 +3355,10 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 		}
 		if (battle_config.clear_unit_onwarp&BL_PC)
 			skill_clear_unitgroup(&sd->bl);
+		party_send_dot_remove(sd); //minimap dot fix [Kevin]
+		guild_send_dot_remove(sd);
+		if (sd->regen.state.gc)
+			sd->regen.state.gc = 0;
 	}
 
 	if(m<0){
@@ -4664,6 +4672,14 @@ int pc_resetstate(struct map_session_data* sd)
 	if (battle_config.use_statpoint_table)
 	{	// New statpoint table used here - Dexity
 		int stat;
+		if (sd->status.base_level > MAX_LEVEL)
+		{	//statp[] goes out of bounds, can't reset!
+			if (battle_config.error_log)
+				ShowError("pc_resetstate: Can't reset stats of %d:%d, the base level (%d) is greater than the max level supported (%d)\n",
+					sd->status.account_id, sd->status.char_id, sd->status.base_level,
+					MAX_LEVEL);
+			return 0;
+		}
 		stat = statp[sd->status.base_level];
 		if (sd->class_&JOBL_UPPER)
 			stat+=52;	// extra 52+48=100 stat points
@@ -4711,7 +4727,7 @@ int pc_resetstate(struct map_session_data* sd)
 	clif_updatestatus(sd,SP_STATUSPOINT);
 	status_calc_pc(sd,0);
 
-	return 0;
+	return 1;
 }
 
 /*==========================================
@@ -5428,7 +5444,7 @@ int pc_setparam(struct map_session_data *sd,int type,int val)
 	}
 	clif_updatestatus(sd,type);
 
-	return 0;
+	return 1;
 }
 
 /*==========================================
@@ -5798,6 +5814,8 @@ int pc_setoption(struct map_session_data *sd,int type)
 		new_look = sd->vd.class_;
 	}
 	if (new_look) {
+		//Stop attacking on new view change (to prevent wedding/santa attacks.
+		pc_stop_attack(sd);
 		clif_changelook(&sd->bl,LOOK_BASE,new_look);
 		if (sd->vd.cloth_color)
 			clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->vd.cloth_color);
@@ -5904,7 +5922,7 @@ int pc_setreg(struct map_session_data *sd,int reg,int val)
 	for (i = 0; i < sd->reg_num; i++) {
 		if (sd->reg[i].index == reg){
 			sd->reg[i].data = val;
-			return 0;
+			return 1;
 		}
 	}
 	sd->reg_num++;
@@ -5913,7 +5931,7 @@ int pc_setreg(struct map_session_data *sd,int reg,int val)
 	sd->reg[i].index = reg;
 	sd->reg[i].data = val;
 
-	return 0;
+	return 1;
 }
 
 /*==========================================
@@ -5950,7 +5968,7 @@ int pc_setregstr(struct map_session_data *sd,int reg,char *str)
 	for(i=0;i<sd->regstr_num;i++)
 		if(sd->regstr[i].index==reg){
 			strcpy(sd->regstr[i].data,str);
-			return 0;
+			return 1;
 		}
 
 	sd->regstr_num++;
@@ -5963,7 +5981,7 @@ int pc_setregstr(struct map_session_data *sd,int reg,char *str)
 	sd->regstr[i].index = reg;
 	strcpy(sd->regstr[i].data, str);
 
-	return 0;
+	return 1;
 }
 
 int pc_readregistry(struct map_session_data *sd,const char *reg,int type) {
@@ -6093,14 +6111,14 @@ int pc_setregistry(struct map_session_data *sd,const char *reg,int val,int type)
 				break;
 			}
 		}
-		return 0;
+		return 1;
 	}
 	// change value if found
 	for(i = 0; i < *max; i++) {
 		if (strcmp(sd_reg[i].str, reg) == 0) {
-			sprintf(sd_reg[i].value, "%d", val); 
+			sprintf(sd_reg[i].value, "%d", val);
 			sd->state.reg_dirty |= 1<<(type-1);
-			return 0;
+			return 1;
 		}
 	}
 
@@ -6108,16 +6126,16 @@ int pc_setregistry(struct map_session_data *sd,const char *reg,int val,int type)
 	if (i < regmax) {
 		memset(&sd_reg[i], 0, sizeof(struct global_reg));
 		strncpy(sd_reg[i].str, reg, 32);
-		sprintf(sd_reg[i].value, "%d", val); 
+		sprintf(sd_reg[i].value, "%d", val);
 		(*max)++;
 		sd->state.reg_dirty |= 1<<(type-1);
-		return 0;
+		return 1;
 	}
 
 	if(battle_config.error_log)
 		ShowError("pc_setregistry : couldn't set %s, limit of registries reached (%d)\n", reg, regmax);
 
-	return 1;
+	return 0;
 }
 
 int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type) {
@@ -6128,7 +6146,7 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
 	if (reg[strlen(reg)-1] != '$') {
 		if(battle_config.error_log)
 			ShowError("pc_setregistry_str : reg %s must be string (end in '$') to use this!\n", reg);
-		return 1;
+		return 0;
 	}
 
 	switch (type) {
@@ -6153,9 +6171,9 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
 	if (*max == -1) {
 		if(battle_config.error_log)
 			ShowError("pc_setregistry_str : refusing to set %s (type %d) until vars are received.\n", reg, type);
-		return 1;
+		return 0;
 	}
-	
+
 	// delete reg
 	if (strcmp(val,"")==0) {
 		for(i = 0; i < *max; i++) {
@@ -6169,7 +6187,7 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
 				break;
 			}
 		}
-		return 0;
+		return 1;
 	}
 	// change value if found
 	for(i = 0; i < *max; i++) {
@@ -6177,7 +6195,7 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
 			strncpy(sd_reg[i].value, val, 256);
 			sd->state.reg_dirty |= 1<<(type-1); //Mark this registry as "need to be saved"
 			if (type!=3) intif_saveregistry(sd,type);
-			return 0;
+			return 1;
 		}
 	}
 
@@ -6189,13 +6207,13 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
 		(*max)++;
 		sd->state.reg_dirty |= 1<<(type-1); //Mark this registry as "need to be saved"
 		if (type!=3) intif_saveregistry(sd,type);
-		return 0;
+		return 1;
 	}
 
 	if(battle_config.error_log)
 		ShowError("pc_setregistry : couldn't set %s, limit of registries reached (%d)\n", reg, regmax);
 
-	return 1;
+	return 0;
 }
 
 /*==========================================
@@ -6391,25 +6409,25 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 	sd->status.inventory[n].equip=pos;
 
 	if(pos & EQP_HAND_R) {
-		if(sd->inventory_data[n])
-			sd->weapontype1 = sd->inventory_data[n]->look;
+		if(id)
+			sd->weapontype1 = id->look;
 		else
 			sd->weapontype1 = 0;
 		pc_calcweapontype(sd);
 		clif_changelook(&sd->bl,LOOK_WEAPON,sd->status.weapon);
 	}
 	if(pos & EQP_HAND_L) {
-		if(sd->inventory_data[n]) {
-			if(sd->inventory_data[n]->type == IT_WEAPON) {
+		if(id) {
+			if(id->type == IT_WEAPON) {
 				sd->status.shield = 0;
 				if(sd->status.inventory[n].equip == EQP_HAND_L)
-					sd->weapontype2 = sd->inventory_data[n]->look;
+					sd->weapontype2 = id->look;
 				else
 					sd->weapontype2 = 0;
 			}
 			else
-			if(sd->inventory_data[n]->type == IT_ARMOR) {
-				sd->status.shield = sd->inventory_data[n]->look;
+			if(id->type == IT_ARMOR) {
+				sd->status.shield = id->look;
 				sd->weapontype2 = 0;
 			}
 		}
@@ -6421,22 +6439,22 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 	//Added check to prevent sending the same look on multiple slots ->
 	//causes client to redraw item on top of itself. (suggested by Lupus)
 	if(pos & EQP_HEAD_LOW) {
-		if(sd->inventory_data[n] && !(pos&(EQP_HEAD_TOP|EQP_HEAD_MID)))
-			sd->status.head_bottom = sd->inventory_data[n]->look;
+		if(id && !(pos&(EQP_HEAD_TOP|EQP_HEAD_MID)))
+			sd->status.head_bottom = id->look;
 		else
 			sd->status.head_bottom = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
 	}
 	if(pos & EQP_HEAD_TOP) {
-		if(sd->inventory_data[n])
-			sd->status.head_top = sd->inventory_data[n]->look;
+		if(id)
+			sd->status.head_top = id->look;
 		else
 			sd->status.head_top = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
 	}
 	if(pos & EQP_HEAD_MID) {
-		if(sd->inventory_data[n] && !(pos&EQP_HEAD_TOP))
-			sd->status.head_mid = sd->inventory_data[n]->look;
+		if(id && !(pos&EQP_HEAD_TOP))
+			sd->status.head_mid = id->look;
 		else
 			sd->status.head_mid = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_MID,sd->status.head_mid);
@@ -6447,29 +6465,20 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 	pc_checkallowskill(sd); //Check if status changes should be halted.
 
 
-/* WTF? pc_checkequip returns an item index, pc_search_inventory expects a 
- * nameid as argument. This function is totally broken, so most (all?) of the
- *  time it would return arrow == -1 anyway...?? [Skotlex]
-	arrow=pc_search_inventory(sd,pc_checkequip(sd,EQI_AMMO));	// Added by RoVeRT
-	if (itemdb_look(sd->status.inventory[n].nameid) == W_BOW && (arrow >= 0)){	// Added by RoVeRT
-		clif_arrowequip(sd,arrow);
-		sd->status.inventory[arrow].equip=EQP_AMMO;
-	}
-*/
 	status_calc_pc(sd,0);
 	if (flag) //Update skill data
 		clif_skillinfoblock(sd);
 
 	//OnEquip script [Skotlex]
-	if (sd->inventory_data[n]) {
+	if (id) {
 		int i;
 		struct item_data *data;
-		if (sd->inventory_data[n]->equip_script)
-			run_script(sd->inventory_data[n]->equip_script,0,sd->bl.id,fake_nd->bl.id);
+		if (id->equip_script)
+			run_script(id->equip_script,0,sd->bl.id,fake_nd->bl.id);
 		if(itemdb_isspecial(sd->status.inventory[n].card[0]))
 			; //No cards
 		else
-		for(i=0;i<sd->inventory_data[n]->slot; i++)
+		for(i=0;i<id->slot; i++)
 		{
 			if (!sd->status.inventory[n].card[i])
 				continue;
@@ -7512,18 +7521,18 @@ int pc_readdb(void)
 				continue;
 			if ((j=atoi(line))<0)
 				j=0;
-			if (i >= MAX_LEVEL)
+			if (i > MAX_LEVEL)
 				break;
-			statp[i]=j;			
+			statp[i]=j;
 			i++;
 		}
 		fclose(fp);
 		ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n","statpoint.txt");
 	}
 	// generate the remaining parts of the db if necessary
-	for (; i < MAX_LEVEL; i++) {
+	for (; i <= MAX_LEVEL; i++) {
 		j += (i+15)/5;
-		statp[i] = j;		
+		statp[i] = j;
 	}
 
 	return 0;

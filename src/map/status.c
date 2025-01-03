@@ -278,7 +278,7 @@ void initChangeTables(void) {
 	add_sc(NPC_STOP, SC_STOP);
 	set_sc(NPC_BREAKWEAPON, SC_BROKENWEAPON, SI_BROKENWEAPON, SCB_NONE);
 	set_sc(NPC_BREAKARMOR, SC_BROKENARMOR, SI_BROKENARMOR, SCB_NONE);
-	add_sc(NPC_CHANGEUNDEAD, SC_ELEMENTALCHANGE);
+	set_sc(NPC_CHANGEUNDEAD, SC_CHANGEUNDEAD, SI_UNDEAD, SCB_DEF_ELE);
 	set_sc(NPC_POWERUP, SC_INCDEXRATE, SI_BLANK, SCB_DEX);
 	set_sc(NPC_AGIUP, SC_INCFLEERATE, SI_BLANK, SCB_AGI);
 	add_sc(NPC_INVISIBLE, SC_CLOAKING);
@@ -351,6 +351,7 @@ void initChangeTables(void) {
 	set_sc(WS_OVERTHRUSTMAX, SC_MAXOVERTHRUST, SI_MAXOVERTHRUST, SCB_NONE);
 	set_sc(CG_LONGINGFREEDOM, SC_LONGING, SI_BLANK, SCB_SPEED|SCB_ASPD);
 	add_sc(CG_HERMODE, SC_HERMODE);
+	set_sc(ITEM_ENCHANTARMS, SC_ENCHANTARMS, SI_BLANK, SCB_ATK_ELE);
 	set_sc(SL_HIGH, SC_SPIRIT, SI_SPIRIT, SCB_PC);
 	set_sc(KN_ONEHAND, SC_ONEHAND, SI_ONEHAND, SCB_ASPD);
 	set_sc(GS_FLING, SC_FLING, SI_BLANK, SCB_DEF|SCB_DEF2);
@@ -421,14 +422,13 @@ void initChangeTables(void) {
 	//This seems wrong as it sets the same icon to all skills that change your
 	//element, but alas, all of them are mob-target only with the exception of
 	//NPC_CHANGEUNDEAD, so this should be alright. [Skotlex]
-	StatusIconChangeTable[SC_ELEMENTALCHANGE] = SI_UNDEAD;
 	StatusIconChangeTable[SC_STRFOOD] = SI_FOODSTR;
 	StatusIconChangeTable[SC_AGIFOOD] = SI_FOODAGI;
 	StatusIconChangeTable[SC_VITFOOD] = SI_FOODVIT;
 	StatusIconChangeTable[SC_INTFOOD] = SI_FOODINT;
 	StatusIconChangeTable[SC_DEXFOOD] = SI_FOODDEX;
 	StatusIconChangeTable[SC_LUKFOOD] = SI_FOODLUK;
-	StatusIconChangeTable[SC_FLEEFOOD] = SI_FOODFLEE;
+	StatusIconChangeTable[SC_FLEEFOOD]= SI_FOODFLEE;
 	StatusIconChangeTable[SC_HITFOOD] = SI_FOODHIT;
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -897,9 +897,13 @@ int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per
 
 	if(hp > status->max_hp - status->hp)
 		hp = status->max_hp - status->hp;
+	else if (per_hp && !hp)
+		hp = 1;
 
 	if(sp > status->max_sp - status->sp)
 		sp = status->max_sp - status->sp;
+	else if (per_sp && !sp)
+		sp = 1;
 
 	status->hp += hp;
 	status->sp += sp;
@@ -988,7 +992,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			|| (sc->data[SC_AUTOCOUNTER].timer != -1 && !flag)
 			|| (sc->data[SC_GOSPEL].timer != -1 && sc->data[SC_GOSPEL].val4 == BCT_SELF && skill_num != PA_GOSPEL)
 			|| (sc->data[SC_GRAVITATION].timer != -1 && sc->data[SC_GRAVITATION].val3 == BCT_SELF && skill_num != HW_GRAVITATION)
-			|| (sc->data[SC_CLOAKING].timer != -1 && sc->data[SC_CLOAKING].val1 < 3 && skill_num != AS_CLOAKING)
+//			|| (sc->data[SC_CLOAKING].timer != -1 && sc->data[SC_CLOAKING].val1 < 3 && skill_num != AS_CLOAKING) //Official sites say it blocks attack/skill usage, ingame proof says it does not.
 		)
 			return 0;
 
@@ -1562,9 +1566,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 				continue;
 			sd->weight += sd->inventory_data[i]->weight*sd->status.inventory[i].amount;
 		}
-		sd->cart_max_weight=battle_config.max_cart_weight;
 		sd->cart_weight=0;
-		sd->cart_max_num=MAX_CART;
 		sd->cart_num=0;
 		for(i=0;i<MAX_CART;i++){
 			if(sd->status.cart[i].nameid==0)
@@ -2370,8 +2372,7 @@ int status_calc_homunculus(struct homun_data *hd, int first)
 		status->rhw.range = 1 + status->size;
 		status->mode = MD_CANMOVE|MD_CANATTACK;
 		status->speed = DEFAULT_WALK_SPEED;
-		if (battle_config.hom_setting&0x8 &&
-			hd->master && hd->master->state.auth) //Master needs be authed to have valid speed.
+		if (battle_config.hom_setting&0x8 && hd->master)
 			status->speed = status_get_speed(&hd->master->bl);
 
 		status->hp = 1;
@@ -3872,6 +3873,8 @@ static unsigned char status_calc_element(struct block_list *bl, struct status_ch
 		return ELE_EARTH;
 	if( sc->data[SC_BENEDICTIO].timer!=-1 )
 		return ELE_HOLY;
+	if( sc->data[SC_CHANGEUNDEAD].timer!=-1)
+		return sc->data[SC_CHANGEUNDEAD].val3;
 	if( sc->data[SC_ELEMENTALCHANGE].timer!=-1)
 		return sc->data[SC_ELEMENTALCHANGE].val3;
 	return cap_value(element,0,UCHAR_MAX);
@@ -3887,6 +3890,8 @@ static unsigned char status_calc_element_lv(struct block_list *bl, struct status
 		return 1;
 	if( sc->data[SC_BENEDICTIO].timer!=-1 )
 		return 1;
+	if( sc->data[SC_CHANGEUNDEAD].timer!=-1)
+		return 1;
 	if(sc->data[SC_ELEMENTALCHANGE].timer!=-1)
 		return sc->data[SC_ELEMENTALCHANGE].val4;
 	return cap_value(lv,1,4);
@@ -3897,6 +3902,8 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 {
 	if(!sc || !sc->count)
 		return element;
+	if( sc->data[SC_ENCHANTARMS].timer!=-1)
+		return sc->data[SC_ENCHANTARMS].val2;
 	if( sc->data[SC_WATERWEAPON].timer!=-1)
 		return ELE_WATER;
 	if( sc->data[SC_EARTHWEAPON].timer!=-1)
@@ -4418,7 +4425,6 @@ int status_get_sc_def(struct block_list *bl, int type)
 	case SC_STONE:
 	case SC_FREEZE:
 	case SC_DECREASEAGI:
-	case SC_COMA:
 		sc_def = 300 +100*status->mdef;
 		break;
 	case SC_CURSE:
@@ -4433,6 +4439,10 @@ int status_get_sc_def(struct block_list *bl, int type)
 	case SC_CONFUSION:
 		sc_def = 300 +50*status->str +50*status->int_;
 		break;
+	case SC_ANKLE:
+		sc_def = 100*status->agi;
+		break;
+
 	default:
 		return 0; //Effect that cannot be reduced? Likely a buff.
 	}
@@ -4562,6 +4572,10 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 	case SC_CURSE:
 		//Dark Elementals are inmune to curse.
 		if (status->def_ele == ELE_DARK && !(flag&1))
+			return 0;
+	break;
+	case SC_CHANGEUNDEAD: //Undead/Dark are inmune to it.
+		if ((status->def_ele == ELE_DARK || undead_flag) && !(flag&1))
 			return 0;
 	break;
 	case SC_COMA:
@@ -5175,7 +5189,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val2 = tick>0?tick:10000; //Interval at which SP is drained.
 			val3 = 65+val1*5; //Speed adjustment.
 			if (sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_ROGUE)
-				val3 += 10; //TODO: Figure out real bonus. Temp value +10%
+				val3 += 60;
 			val4 = 10+val1*2; //SP cost.
 			if (map_flag_gvg(bl->m)) val4 *= 5;
 			break;
@@ -5698,12 +5712,6 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				tick /= 5; //TODO: Reduce skill's duration. But for how long?
 			break;
 		case SC_ANKLE:
-			if (sd && battle_config.pc_sc_def_rate != 100)
-				tick -= tick*status->agi*battle_config.pc_sc_def_rate/10000;
-			else if (battle_config.mob_sc_def_rate != 100)
-				tick -= tick*status->agi*battle_config.mob_sc_def_rate/10000;
-			else
-				tick -= tick*status->agi/100;
 			if(status->mode&MD_BOSS) // Lasts 5 times less on bosses
 				tick /= 5;
 			// Minimum trap time of 3+0.03*skilllv seconds [celest]
@@ -5721,6 +5729,13 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			//Attack requirements to be blocked:
 			val3 = BF_LONG; //Range
 			val4 = BF_WEAPON|BF_MISC; //Type
+			break;
+		case SC_ENCHANTARMS:
+			//Make sure the received element is valid.
+			if (val2 >= ELE_MAX)
+				val2 = val2%ELE_MAX;
+			else if (val2 < 0)
+				val2 = rand()%ELE_MAX;
 			break;
 		case SC_ARMOR_ELEMENT:
 			//Place here SCs that have no SCB_* data, no skill associated, no ICON
@@ -5908,9 +5923,6 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		case SC_ORCISH:
 			sc->option |= OPTION_ORCISH;
 			break;
-		case SC_SIGHTTRASHER:
-			sc->option |= OPTION_SIGHTTRASHER;
-			break;
 		case SC_FUSION:
 			sc->option |= OPTION_FLYING;
 			break;
@@ -6005,17 +6017,6 @@ int status_change_clear(struct block_list *bl,int type)
 		case SC_READYTURN:
 		case SC_DODGE:
 		case SC_JAILED:
-		case SC_STRFOOD:
-		case SC_AGIFOOD:
-		case SC_VITFOOD:
-		case SC_INTFOOD:
-		case SC_DEXFOOD:
-		case SC_LUKFOOD:
-		case SC_HITFOOD:
-		case SC_FLEEFOOD:
-		case SC_BATKFOOD:
-		case SC_WATKFOOD:
-		case SC_MATKFOOD:
 			continue;
 		}
 		status_change_end(bl, i, -1);
@@ -6379,9 +6380,6 @@ int status_change_end( struct block_list* bl , int type,int tid )
 		break;
 	case SC_RUWACH:
 		sc->option &= ~OPTION_RUWACH;
-		break;
-	case SC_SIGHTTRASHER:
-		sc->option &= ~OPTION_SIGHTTRASHER;
 		break;
 	case SC_FUSION:
 		sc->option &= ~OPTION_FLYING;
@@ -6994,8 +6992,19 @@ int status_change_clear_buffs (struct block_list *bl, int type)
 			case SC_CP_SHIELD:
 			case SC_CP_ARMOR:
 			case SC_CP_HELM:
+			case SC_STRFOOD:
+			case SC_AGIFOOD:
+			case SC_VITFOOD:
+			case SC_INTFOOD:
+			case SC_DEXFOOD:
+			case SC_LUKFOOD:
+			case SC_HITFOOD:
+			case SC_FLEEFOOD:
+			case SC_BATKFOOD:
+			case SC_WATKFOOD:
+			case SC_MATKFOOD:
 				continue;
-				
+
 			//Debuffs that can be removed.
 			case SC_HALLUCINATION:
 			case SC_QUAGMIRE:
