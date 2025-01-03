@@ -125,7 +125,7 @@ char date_format[32] = "%Y-%m-%d %H:%M:%S";
 //
 //  check <account_name> <password>
 //    Check the validity of a password for an account
-//    NOTE: Server will never sends back a password.
+//    NOTE: Server will never send back a password.
 //          It's the only method you have to know if a password is correct.
 //          The other method is to have a ('physical') access to the accounts file.
 //
@@ -358,45 +358,6 @@ int verify_accountname(char* account_name) {
 		return 0;
 	}
 
-	return 1;
-}
-
-//---------------------------------------------------
-// E-mail check: return 0 (not correct) or 1 (valid).
-//---------------------------------------------------
-int e_mail_check(char *email) {
-	char ch;
-	char* last_arobas;
-
-	// athena limits
-	if (strlen(email) < 3 || strlen(email) > 39)
-		return 0;
-
-	// part of RFC limits (official reference of e-mail description)
-	if (strchr(email, '@') == NULL || email[strlen(email)-1] == '@')
-		return 0;
-
-	if (email[strlen(email)-1] == '.')
-		return 0;
-
-	last_arobas = strrchr(email, '@');
-
-	if (strstr(last_arobas, "@.") != NULL ||
-	    strstr(last_arobas, "..") != NULL)
-		return 0;
-
-	for(ch = 1; ch < 32; ch++) {
-		if (strchr(last_arobas, ch) != NULL) {
-			return 0;
-			break;
-		}
-	}
-
-	if (strchr(last_arobas, ' ') != NULL ||
-	    strchr(last_arobas, ';') != NULL)
-		return 0;
-
-	// all correct
 	return 1;
 }
 
@@ -933,7 +894,7 @@ void display_help(char* param, int language) {
 		} else if (strcmp(command, "check") == 0) {
 			printf("check <account_name> <password>\n");
 			printf("  Check the validity of a password for an account.\n");
-			printf("  NOTE: Server will never sends back a password.\n");
+			printf("  NOTE: Server will never send back a password.\n");
 			printf("        It's the only method you have to know if a password is correct.\n");
 			printf("        The other method is to have a ('physical') access to the accounts file.\n");
 		} else if (strcmp(command, "create") == 0) {
@@ -2237,11 +2198,11 @@ int changememo(char* param) {
 
 	if (strlen(memo) > 254) {
 		if (defaultlanguage == 'F') {
-			printf("Mmo trop long (%d caractres).\n", strlen(memo));
+			printf("Mmo trop long (%lu caractres).\n", (unsigned long)strlen(memo));
 			printf("Entrez un mmo de 254 caractres maximum svp.\n");
 			ladmin_log("Mmo trop long (%d caractres). Entrez un mmo de 254 caractres maximum svp." RETCODE, strlen(memo));
 		} else {
-			printf("Memo is too long (%d characters).\n", strlen(memo));
+			printf("Memo is too long (%lu characters).\n", (unsigned long)strlen(memo));
 			printf("Please input a memo of 254 bytes at the maximum.\n");
 			ladmin_log("Email is too long (%d characters). Please input a memo of 254 bytes at the maximum." RETCODE, strlen(memo));
 		}
@@ -4256,19 +4217,6 @@ int Connect_login_server(void) {
 	return 0;
 }
 
-//-------------------------------------------------
-// Return numerical value of a switch configuration
-// on/off, english, franais, deutsch, espaol
-//-------------------------------------------------
-int config_switch(const char *str) {
-	if (strcmpi(str, "on") == 0 || strcmpi(str, "yes") == 0 || strcmpi(str, "oui") == 0 || strcmpi(str, "ja") == 0 || strcmpi(str, "si") == 0)
-		return 1;
-	if (strcmpi(str, "off") == 0 || strcmpi(str, "no") == 0 || strcmpi(str, "non") == 0 || strcmpi(str, "nein") == 0)
-		return 0;
-
-	return atoi(str);
-}
-
 //-----------------------------------
 // Reading general configuration file
 //-----------------------------------
@@ -4297,8 +4245,8 @@ int ladmin_config_read(const char *cfgName) {
 
 		line[sizeof(line)-1] = '\0';
 		if (sscanf(line, "%[^:]: %[^\r\n]", w1, w2) == 2) {
-			remove_control_chars((unsigned char *) w1);
-			remove_control_chars((unsigned char *) w2);
+			remove_control_chars(w1);
+			remove_control_chars(w2);
 
 			if(strcmpi(w1,"login_ip")==0){
 				struct hostent *h = gethostbyname (w2);

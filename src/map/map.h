@@ -9,6 +9,8 @@
 #include "../common/mapindex.h"
 #include "../common/db.h"
 
+#include "itemdb.h" // MAX_ITEMGROUP
+
 //Uncomment to enable the Cell Stack Limit mod.
 //It's only config is the battle_config cell_stack_limit.
 //Only chars affected are those defined in BL_CHAR (mobs and players currently)
@@ -48,7 +50,7 @@
 #define MAX_EVENTTIMER 32
 #define NATURAL_HEAL_INTERVAL 500
 #define MAX_FLOORITEM 500000
-#define MAX_LEVEL 1000
+#define MAX_LEVEL 99
 #define MAX_WALKPATH 32
 #define MAX_DROP_PER_MAP 48
 #define MAX_IGNORE_LIST 80
@@ -56,8 +58,6 @@
 #define MOBID_EMPERIUM 1288
 
 #define MAX_PC_BONUS 10
-//Designed for search functions, species max number of matches to display.
-#define MAX_SEARCH 5
 #define MAX_DUEL 1024
 
 #define map_id2index(id) map[(id)].index
@@ -229,51 +229,12 @@ enum {
 	ELE_MAX
 };
 
-enum {
-	IG_BLUEBOX=1,
-	IG_VIOLETBOX,	//2
-	IG_CARDALBUM,	//3
-	IG_GIFTBOX,	//4
-	IG_SCROLLBOX,	//5
-	IG_FINDINGORE,	//6
-	IG_COOKIEBAG,	//7
-	IG_POTION,	//8
-	IG_HERBS,	//9
-	IG_FRUITS,	//10
-	IG_MEAT,	//11
-	IG_CANDY,	//12
-	IG_JUICE,	//13
-	IG_FISH,	//14
-	IG_BOXES,	//15
-	IG_GEMSTONE,	//16
-	IG_JELLOPY,	//17
-	IG_ORE,	//18
-	IG_FOOD,	//19
-	IG_RECOVERY,	//20
-	IG_MINERALS,	//21
-	IG_TAMING,	//22
-	IG_SCROLLS,	//23
-	IG_QUIVERS,	//24
-	IG_MASKS,	//25
-	IG_ACCESORY,	//26
-	IG_JEWELS,	//27
-	IG_GIFTBOX_1,	//28
-	IG_GIFTBOX_2,	//29
-	IG_GIFTBOX_3,	//30
-	IG_GIFTBOX_4,	//31
-	IG_EGGBOY,	//32
-	IG_EGGGIRL,	//33
-	IG_GIFTBOXCHINA,	//34
-	IG_LOTTOBOX,	//35
-	MAX_ITEMGROUP,
-} item_group_list;
-
-enum {
+enum auto_trigger_flag {
 	ATF_SELF=0x01,
 	ATF_TARGET=0x02,
 	ATF_SHORT=0x04,
 	ATF_LONG=0x08
-} auto_trigger_flag;
+};
 
 struct block_list {
 	struct block_list *next,*prev;
@@ -558,7 +519,7 @@ struct map_session_data {
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct {
 		unsigned auth : 1;
-		unsigned menu_or_input : 1;
+		unsigned menu_or_input : 1;// if a script is waiting for feedback from the player
 		unsigned dead_sit : 2;
 		unsigned waitingdisconnect : 1;
 		unsigned lr_flag : 2;
@@ -615,6 +576,7 @@ struct map_session_data {
 		unsigned intravision : 1; // Maya Purple Card effect [DracoRPG]
 		unsigned perfect_hiding : 1; // [Valaris]
 		unsigned no_knockback : 1;
+		unsigned bonus_coma : 1;
 	} special_state;
 	int login_id1, login_id2;
 	unsigned short class_;	//This is the internal job ID used by the map server to simplify comparisons/queries/etc. [Skotlex]
@@ -692,7 +654,7 @@ struct map_session_data {
 	// zeroed arrays end here.
 	// zeroed structures start here
 	struct s_autospell{
-		short id, lv, rate, card_id;
+		short id, lv, rate, card_id, flag;
 	} autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS];
 	struct s_addeffect{
 		short id, rate, arrow_rate;
@@ -735,9 +697,9 @@ struct map_session_data {
 	int hp_loss_rate;
 	int sp_loss_rate;
 	int classchange; // [Valaris]
-	int speed_add_rate, aspd_add_rate;
+	int speed_add_rate, aspd_add;
 	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
-	
+
 	short splash_range, splash_add_range;
 	short add_steal_rate;
 	short hp_loss_value;
@@ -863,8 +825,8 @@ struct npc_data {
 	short n;
 	short class_;
 	short speed;
-	unsigned char name[NAME_LENGTH];
-	unsigned char exname[NAME_LENGTH];
+	char name[NAME_LENGTH];
+	char exname[NAME_LENGTH];
 	int chat_id;
 	unsigned int next_walktime;
 
@@ -955,7 +917,7 @@ struct mob_data {
 	struct guardian_data* guardian_data;
 	struct {
 		int id;
-		int dmg;
+		unsigned int dmg;
 		unsigned flag : 1; //0: Normal. 1: Homunc exp
 	} dmglog[DAMAGELOG_SIZE];
 	struct spawn_data *spawn; //Spawn data.
@@ -1060,7 +1022,7 @@ enum { ATK_LUCKY=1,ATK_FLEE,ATK_DEF};	// yieBvZp
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// NULLmap_data_other_server
+	unsigned char *gat;	// If this is NULL the map is not on this map-server
 	unsigned char *cell; //Contains temporary cell data that is set/unset on tiles.
 #ifdef CELL_NOSTACK
 	unsigned char *cell_bl; //Holds amount of bls in any given cell.
@@ -1142,8 +1104,8 @@ struct map_data_other_server {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
 	unsigned char *gat;	// NULLf
-	unsigned long ip;
-	unsigned int port;
+	uint32 ip;
+	uint16 port;
 };
 
 struct flooritem_data {
@@ -1178,7 +1140,7 @@ enum _sp {
 	SP_CRITICAL_DEF,SP_NEAR_ATK_DEF,SP_LONG_ATK_DEF, // 1019-1021
 	SP_DOUBLE_RATE, SP_DOUBLE_ADD_RATE, SP_FREE2, SP_MATK_RATE, // 1022-1025
 	SP_IGNORE_DEF_ELE,SP_IGNORE_DEF_RACE, // 1026-1027
-	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_ASPD_ADDRATE, // 1028-1030
+	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_FREE3, // 1028-1030
 	SP_MAGIC_ATK_DEF,SP_MISC_ATK_DEF, // 1031-1032
 	SP_IGNORE_MDEF_ELE,SP_IGNORE_MDEF_RACE, // 1033-1034
 	SP_MAGIC_ADDELE,SP_MAGIC_ADDRACE,SP_MAGIC_ADDSIZE, // 1035-1037
@@ -1209,6 +1171,7 @@ enum _sp {
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
 	//Before adding another, note that these are free:
 	//1024 (SP_FREE2, previous matk)
+	//1030 (SP_FREE3, previous AspdAddRate)
 	//2022 (SP_FREE, previous bDefIgnoreMob)
 };
 
@@ -1275,8 +1238,8 @@ enum {
 struct chat_data {
 	struct block_list bl;
 
-	unsigned char pass[8+1];   /* password */
-	unsigned char title[60+1]; /* room title */
+	char pass[8+1];   /* password */
+	char title[60+1]; /* room title */
 	unsigned char limit;     /* join limit */
 	unsigned char trigger;
 	unsigned char users;     /* current users */
@@ -1321,9 +1284,7 @@ int map_getusers(void);
 // blockA
 int map_freeblock(struct block_list *bl);
 int map_freeblock_lock(void);
-//int map_freeblock_unlock(void);
-int map_freeblock_unlock_sub (char *file, int lineno);
-#define map_freeblock_unlock() map_freeblock_unlock_sub (__FILE__, __LINE__)
+int map_freeblock_unlock(void);
 // blockA
 int map_addblock_sub(struct block_list *, int);
 int map_delblock_sub(struct block_list *, int);
@@ -1371,9 +1332,9 @@ struct map_session_data * map_id2sd(int);
 struct block_list * map_id2bl(int);
 int map_mapindex2mapid(unsigned short mapindex);
 int map_mapname2mapid(const char* name);
-int map_mapname2ipport(unsigned short,int*,int*);
-int map_setipport(unsigned short map,unsigned long ip,int port);
-int map_eraseipport(unsigned short map,unsigned long ip,int port);
+int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port);
+int map_setipport(unsigned short map, uint32 ip, uint16 port);
+int map_eraseipport(unsigned short map, uint32 ip, uint16 port);
 int map_eraseallipport(void);
 void map_addiddb(struct block_list *);
 void map_deliddb(struct block_list *bl);
@@ -1382,7 +1343,6 @@ void map_foreachpc(int (*func)(DBKey,void*,va_list),...);
 int map_foreachiddb(int (*)(DBKey,void*,va_list),...);
 void map_addnickdb(struct map_session_data *);
 struct map_session_data * map_nick2sd(const char*);
-int compare_item(struct item *a, struct item *b);
 
 //
 int map_check_dir(int s_dir,int t_dir);
@@ -1439,10 +1399,8 @@ extern char *map_server_dns;
 
 #ifndef TXT_ONLY
 
-// MySQL
-#ifdef __WIN32
-#include <my_global.h>
-#include <my_sys.h>
+#ifdef _WIN32
+#include <windows.h> // SOCKET
 #endif
 #include <mysql.h>
 

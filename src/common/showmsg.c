@@ -27,7 +27,6 @@
 	#endif
 #else
 	#include <unistd.h>
-	#include <ctype.h>
 
 	#ifdef DEBUGLOGMAP
 		#define DEBUGLOGPATH "log/map-server.log"
@@ -49,7 +48,7 @@
 /// if false removes the escape sequences
 int stdout_with_ansisequence = 0;
 
-int msg_silent; //Specifies how silent the console is.
+int msg_silent = 0; //Specifies how silent the console is.
 
 ///////////////////////////////////////////////////////////////////////////////
 /// static/dynamic buffer for the messages
@@ -242,7 +241,7 @@ int	VFPRINTF(HANDLE handle, const char *fmt, va_list argptr)
 			q=q+2;
 			while(1)
 			{
-				if( isdigit((int)((unsigned char)*q)) )
+				if( ISDIGIT(*q) )
 				{	// add number to number array, only accept 2digits, shift out the rest
 					// so // \033[123456789m will become \033[89m
 					numbers[numpoint] = (numbers[numpoint]<<4) | (*q-'0');
@@ -350,6 +349,7 @@ int	VFPRINTF(HANDLE handle, const char *fmt, va_list argptr)
 					//    \033[2J - Clears the screen and moves the cursor to the home position (line 1, column 1).
 					uint8 num = (numbers[numpoint]>>4)*10+(numbers[numpoint]&0x0F);
 					int cnt;
+					DWORD tmp;
 					COORD origin = {0,0};
 					if(num==1)
 					{	// chars from start up to and including cursor
@@ -365,8 +365,8 @@ int	VFPRINTF(HANDLE handle, const char *fmt, va_list argptr)
 						origin = info.dwCursorPosition;
 						cnt = info.dwSize.X * (info.dwSize.Y - info.dwCursorPosition.Y) - info.dwCursorPosition.X;
 					}
-					FillConsoleOutputAttribute(handle,info.wAttributes,cnt,origin,NULL);
-					FillConsoleOutputCharacter(handle,' ',             cnt,origin,NULL);
+					FillConsoleOutputAttribute(handle, info.wAttributes, cnt, origin, &tmp);
+					FillConsoleOutputCharacter(handle, ' ',              cnt, origin, &tmp);
 				}
 				else if( *q=='K' )
 				{	// \033[K  : clear line from actual position to end of the line
@@ -377,6 +377,7 @@ int	VFPRINTF(HANDLE handle, const char *fmt, va_list argptr)
 					uint8 num = (numbers[numpoint]>>4)*10+(numbers[numpoint]&0x0F);
 					COORD origin = {0,info.dwCursorPosition.Y};
 					SHORT cnt;
+					DWORD tmp;
 					if(num==1)
 					{
 						cnt = info.dwCursorPosition.X + 1;
@@ -390,16 +391,16 @@ int	VFPRINTF(HANDLE handle, const char *fmt, va_list argptr)
 						origin = info.dwCursorPosition;
 						cnt = info.dwSize.X - info.dwCursorPosition.X; // how many spaces until line is full
 					}
-					FillConsoleOutputAttribute(handle, info.wAttributes, cnt, origin, NULL);
-					FillConsoleOutputCharacter(handle, ' ',              cnt, origin, NULL);
+					FillConsoleOutputAttribute(handle, info.wAttributes, cnt, origin, &tmp);
+					FillConsoleOutputCharacter(handle, ' ',              cnt, origin, &tmp);
 				}
 				else if( *q == 'H' || *q == 'f' )
 				{	// \033[#;#H - Cursor Position (CUP)
 					// \033[#;#f - Horizontal & Vertical Position
 					// The first # specifies the line number, the second # specifies the column.
 					// The default for both is 1
-					info.dwCursorPosition.X = (numbers[numpoint])?(numbers[numpoint]>>4)*10+(numbers[numpoint]&0x0F-1):0;
-					info.dwCursorPosition.Y = (numpoint && numbers[numpoint-1])?(numbers[numpoint-1]>>4)*10+(numbers[numpoint-1]&0x0F-1):0;
+					info.dwCursorPosition.X = (numbers[numpoint])?(numbers[numpoint]>>4)*10+((numbers[numpoint]&0x0F)-1):0;
+					info.dwCursorPosition.Y = (numpoint && numbers[numpoint-1])?(numbers[numpoint-1]>>4)*10+((numbers[numpoint-1]&0x0F)-1):0;
 
 					if( info.dwCursorPosition.X >= info.dwSize.X ) info.dwCursorPosition.Y = info.dwSize.X-1;
 					if( info.dwCursorPosition.Y >= info.dwSize.Y ) info.dwCursorPosition.Y = info.dwSize.Y-1;
@@ -478,7 +479,7 @@ int	VFPRINTF(HANDLE handle, const char *fmt, va_list argptr)
 				else if( *q == 'G' )
 				{	// \033[#G - Cursor Horizontal Absolute (CHA)
 					// Moves the cursor to indicated column in current row.
-					info.dwCursorPosition.X = (numbers[numpoint])?(numbers[numpoint]>>4)*10+(numbers[numpoint]&0x0F-1):0;
+					info.dwCursorPosition.X = (numbers[numpoint])?(numbers[numpoint]>>4)*10+((numbers[numpoint]&0x0F)-1):0;
 
 					if( info.dwCursorPosition.X >= info.dwSize.X )
 						info.dwCursorPosition.X = info.dwSize.X-1;
@@ -565,7 +566,7 @@ int	VFPRINTF(FILE *file, const char *fmt, va_list argptr)
 			q=q+2;
 			while(1)
 			{
-				if( isdigit((int)((unsigned char)*q)) )
+				if( ISDIGIT(*q) )
 				{
 					++q;
 					// and next character

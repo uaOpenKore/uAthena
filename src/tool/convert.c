@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define RETCODE	"\r\n"
 
@@ -280,10 +281,11 @@ int mmo_char_convert(char *fname1,char *fname2)
     ret=mmo_char_fromstr(line,&char_dat);
     if(ret){
 	    mmo_char_tostr(line,&char_dat);
-  	  fprintf(ofp,"%s" RETCODE,line);
+	  fprintf(ofp,"%s" RETCODE,line);
     }
   }
-  fcloseall();
+  fclose(ifp);
+  fclose(ofp);
   return 0;
 }
 

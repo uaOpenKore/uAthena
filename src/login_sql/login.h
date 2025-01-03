@@ -11,13 +11,9 @@
 #define LAN_CONF_NAME "conf/subnet_athena.conf"
 
 #ifndef SQL_DEBUG
-
-#define mysql_query(_x, _y) mysql_real_query(_x, _y, strlen(_y)) //supports ' in names and runs faster [Kevin]
-
-#else 
-
-#define mysql_query(_x, _y)  debug_mysql_query(__FILE__, __LINE__, _x, _y)
-
+	#define mysql_query(_x, _y) mysql_query(_x, _y)
+#else
+	#define mysql_query(_x, _y)  debug_mysql_query(__FILE__, __LINE__, _x, _y)
 #endif
 
 #define PASSWORDENC		3	// A definition is given when making an encryption password correspond.
@@ -26,29 +22,27 @@
 							// When it is made 3, it corresponds to both.
 
 struct mmo_account {
-	int version;	//Added by sirius for versioncheck
+	int version;
 	char userid[NAME_LENGTH];
 	char passwd[NAME_LENGTH];
 	int passwdenc;
-	
-	
-	long account_id;
+
+	int account_id;
+	int char_id;
 	long login_id1;
 	long login_id2;
-	long char_id;
 	char lastlogin[24];
 	int sex;
-	int level; // added [zzo]
+	int level;
 };
 
 struct mmo_char_server {
 	char name[20];
-	long ip;
-	short port;
+	uint32 ip;
+	uint16 port;
 	int users;
 	int maintenance;
 	int new_;
 };
-
 
 #endif /* _LOGIN_SQL_H_ */

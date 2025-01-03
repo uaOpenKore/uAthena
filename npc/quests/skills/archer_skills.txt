@@ -23,8 +23,8 @@
 
 
 
-//<======================== Roberto: Arrow crafting =========================>\
-morocc.gat,121,109,5	script	Roberto	88,{
+//<======================== Roberto: Arrow crafting =========================>
+morocc,121,109,5	script	Roberto	88,{
 	mes "[Roberto]";
 	if(baseClass == Job_Archer) goto L_Start;
 
@@ -146,8 +146,8 @@ L_LowLvl:
 }
 
 
-//<============================== Arrow Repel ===============================>\
-payon.gat,103,63,5	script	Jason	88,{
+//<============================== Arrow Repel ===============================>
+payon,103,63,5	script	Jason	88,{
 	mes "[Jason]";
 	if(baseClass == Job_Archer) goto L_Start;
 

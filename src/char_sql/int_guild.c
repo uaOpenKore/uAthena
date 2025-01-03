@@ -12,12 +12,11 @@
 #include "../common/cbasetypes.h"
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
-// #include "int_storage.h"
+#include "../common/db.h"
+#include "../common/malloc.h"
+#include "../common/socket.h"
 #include "inter.h"
 #include "int_guild.h"
-#include "socket.h"
-#include "db.h"
-#include "malloc.h"
 #include "char.h"
 
 #define GS_MEMBER_UNMODIFIED 0x00
@@ -31,7 +30,7 @@
 #define GUILD_ALLIANCE_TYPE_MASK 0x01
 #define GUILD_ALLIANCE_REMOVE 0x08
 
-static char dataToHex[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+static const char dataToHex[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 #ifndef TXT_SQL_CONVERT
 //Guild cache
@@ -1201,7 +1200,7 @@ int mapif_guild_emblem(struct guild *g)
 
 int mapif_guild_master_changed(struct guild *g, int aid, int cid)
 {
-	unsigned char buf[10];
+	unsigned char buf[14];
 	WBUFW(buf,0)=0x3843;
 	WBUFL(buf,2)=g->guild_id;
 	WBUFL(buf,6)=aid;

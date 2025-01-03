@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <time.h>
 
 #include "../common/cbasetypes.h"
@@ -318,7 +317,22 @@ int pc_makesavestatus(struct map_session_data *sd)
 	if(!battle_config.save_clothcolor)
 		sd->status.clothes_color=0;
 
-	sd->status.option = sd->sc.option; //Since the option saved is in 
+	//Only copy the Cart/Peco/Falcon options, the rest are handled via
+	//status change load/saving. [Skotlex]
+	sd->status.option = sd->sc.option&(OPTION_CART|OPTION_FALCON|OPTION_RIDING);
+
+	if (sd->sc.count && sd->sc.data[SC_JAILED].timer != -1)
+	{	//When Jailed, do not move last point.
+		if(pc_isdead(sd))
+			pc_setrestartvalue(sd,0);
+		sd->status.hp = sd->battle_status.hp;
+		sd->status.sp = sd->battle_status.sp;
+		sd->status.last_point.map = sd->mapindex;
+		sd->status.last_point.x = sd->bl.x;
+		sd->status.last_point.y = sd->bl.y;
+		return 0;
+	}
+
 	if(pc_isdead(sd)){
 		pc_setrestartvalue(sd,0);
 		memcpy(&sd->status.last_point,&sd->status.save_point,sizeof(sd->status.last_point));
@@ -568,6 +582,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	}
 
 	sd->login_id2 = login_id2;
+	memcpy(&sd->status, st, sizeof(*st));
 
 	if (st->sex != sd->status.sex) {
 		clif_authfail_fd(sd->fd, 0);
@@ -584,7 +599,6 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 		clif_authfail_fd(sd->fd, 8); // still recognizes last connection
 		return 1;
 	}
-	memcpy(&sd->status, st, sizeof(*st));
 
 	//Set the map-server used job id. [Skotlex]
 	i = pc_jobid2mapid(sd->status.class_);
@@ -685,20 +699,20 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	sd->state.event_kill_mob = 1;
 
 	{	//Add IP field
-		unsigned char *ip = (unsigned char *) &session[sd->fd]->client_addr.sin_addr;
+		uint32 ip = session[sd->fd]->client_addr;
 		if (pc_isGM(sd))
 			ShowInfo("GM '"CL_WHITE"%s"CL_RESET"' logged in."
 				" (AID/CID: '"CL_WHITE"%d/%d"CL_RESET"',"
 				" Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"',"
 				" GM Level '"CL_WHITE"%d"CL_RESET"').\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id,
-				sd->packet_ver, ip[0],ip[1],ip[2],ip[3], pc_isGM(sd));
+				sd->packet_ver, CONVIP(ip), pc_isGM(sd));
 		else
 			ShowInfo("'"CL_WHITE"%s"CL_RESET"' logged in."
 				" (AID/CID: '"CL_WHITE"%d/%d"CL_RESET"',"
 				" Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"').\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id,
-				sd->packet_ver, ip[0],ip[1],ip[2],ip[3]);
+				sd->packet_ver, CONVIP(ip));
 	}
 
 	// Send friends list
@@ -1222,7 +1236,7 @@ static int pc_bonus_autospell_del(struct s_autospell *spell, int max, short id, 
 	return rate;
 }
 
-static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, short lv, short rate, short card_id) {
+static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, short lv, short rate, short flag, short card_id) {
 	int i;
 	if (rate < 0) return //Remove the autobonus.
 		pc_bonus_autospell_del(spell, max, id, lv, -rate, card_id);
@@ -1246,6 +1260,14 @@ static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, shor
 	spell[i].id = id;
 	spell[i].lv = lv;
 	spell[i].rate = rate;
+	//Auto-update flag value.
+	if (!(flag&BF_RANGEMASK)) flag|=BF_SHORT|BF_LONG; //No range defined? Use both.
+	if (!(flag&BF_WEAPONMASK)) flag|=BF_WEAPON; //No attack type defined? Use weapon.
+	if (!(flag&BF_SKILLMASK)) {
+		if (flag&(BF_MAGIC|BF_MISC)) flag|=BF_SKILL; //These two would never trigger without BF_SKILL
+		if (flag&BF_WEAPON) flag|=BF_NORMAL; //By default autospells should only trigger on normal weapon attacks.
+	}
+	spell[i].flag|= flag;
 	spell[i].card_id = card_id;
 	return 1;
 }
@@ -1428,7 +1450,20 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		switch (sd->state.lr_flag)
 		{
 		case 2:
-			sd->arrow_ele=val;
+			switch (sd->status.weapon) {
+				case W_BOW:
+				case W_REVOLVER:
+				case W_RIFLE:
+				case W_SHOTGUN:
+				case W_GATLING:
+				case W_GRENADE:
+					//Become weapon element.
+					status->rhw.ele=val;
+					break;
+				default: //Become arrow element.
+					sd->arrow_ele=val;
+					break;
+			}
 			break;
 		case 1:
 			status->lhw->ele=val;
@@ -1515,20 +1550,12 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			sd->speed_add_rate -= val;
 		break;
 	case SP_ASPD:	//Raw increase
-//		if(sd->state.lr_flag != 2)
-//			status->amotion -= val*10;
-		if (battle_config.error_log)
-			ShowError("pc_bonus: bonus bAspd is no longer supported!\n");
-		break;
-	case SP_ASPD_RATE:	//Non stackable increase
-		if(val >= 0) { //Let negative ASPD bonuses become AddRate ones.
-			if(sd->state.lr_flag != 2 && status->aspd_rate > 1000-val*10)
-				status->aspd_rate = 1000-val*10;
-			break;
-		}
-	case SP_ASPD_ADDRATE:	//Stackable increase - Made it linear as per rodatazone
 		if(sd->state.lr_flag != 2)
-			sd->aspd_add_rate -= val;
+			sd->aspd_add -= 10*val;
+		break;
+	case SP_ASPD_RATE:	//Stackable increase - Made it linear as per rodatazone
+		if(sd->state.lr_flag != 2)
+			status->aspd_rate -= 10*val;
 		break;
 	case SP_HP_RECOV_RATE:
 		if(sd->state.lr_flag != 2)
@@ -2119,12 +2146,16 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 				ShowError("pc_bonus2: SP_WEAPON_COMA_ELE: Invalid element %d\n", type2);
 			break;
 		}
-		if(sd->state.lr_flag != 2)
-			sd->weapon_coma_ele[type2] += val;
+		if(sd->state.lr_flag == 2)
+			break;
+		sd->weapon_coma_ele[type2] += val;
+		sd->special_state.bonus_coma = 1;
 		break;
 	case SP_WEAPON_COMA_RACE:
-		if(sd->state.lr_flag != 2)
-			sd->weapon_coma_race[type2] += val;
+		if(sd->state.lr_flag == 2)
+			break;
+		sd->weapon_coma_race[type2] += val;
+		sd->special_state.bonus_coma = 1;
 		break;
 	case SP_RANDOM_ATTACK_INCREASE:	// [Valaris]
 		if(sd->state.lr_flag !=2){
@@ -2305,11 +2336,11 @@ int pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 		break;
 	case SP_AUTOSPELL:
 		if(sd->state.lr_flag != 2)
-			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, type2, type3, val, current_equip_card_id);
+			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, type2, type3, val, 0, current_equip_card_id);
 		break;
 	case SP_AUTOSPELL_WHENHIT:
 		if(sd->state.lr_flag != 2)
-			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, type2, type3, val, current_equip_card_id);
+			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, type2, type3, val, 0, current_equip_card_id);
 		break;
 	case SP_HP_LOSS_RATE:
 		if(sd->state.lr_flag != 2) {
@@ -2398,16 +2429,39 @@ int pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type4
 	switch(type){
 	case SP_AUTOSPELL:
 		if(sd->state.lr_flag != 2)
-			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, current_equip_card_id);
+			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, 0, current_equip_card_id);
 		break;
 
 	case SP_AUTOSPELL_WHENHIT:
 		if(sd->state.lr_flag != 2)
-			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, current_equip_card_id);
+			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, 0, current_equip_card_id);
 		break;
 	default:
 		if(battle_config.error_log)
 			ShowWarning("pc_bonus4: unknown type %d %d %d %d %d!\n",type,type2,type3,type4,val);
+		break;
+	}
+
+	return 0;
+}
+
+int pc_bonus5(struct map_session_data *sd,int type,int type2,int type3,int type4,int type5,int val)
+{
+	nullpo_retr(0, sd);
+
+	switch(type){
+	case SP_AUTOSPELL:
+		if(sd->state.lr_flag != 2)
+			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, type5, current_equip_card_id);
+		break;
+
+	case SP_AUTOSPELL_WHENHIT:
+		if(sd->state.lr_flag != 2)
+			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, type5, current_equip_card_id);
+		break;
+	default:
+		if(battle_config.error_log)
+			ShowWarning("pc_bonus5: unknown type %d %d %d %d %d %d!\n",type,type2,type3,type4,type5,val);
 		break;
 	}
 
@@ -2778,9 +2832,9 @@ int pc_dropitem(struct map_session_data *sd,int n,int amount)
 		return 0;
 
 	if(sd->status.inventory[n].nameid <= 0 ||
-		sd->status.inventory[n].amount < amount ||
-		sd->trade_partner != 0 || sd->vender_id != 0 ||
 		sd->status.inventory[n].amount <= 0 ||
+		sd->status.inventory[n].amount < amount ||
+		sd->state.trading || sd->vender_id != 0 ||
 		!sd->inventory_data[n] //pc_delitem would fail on this case.
 		)
 		return 0;
@@ -3340,6 +3394,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 	{	//Misc map-changing settings
 		if (sd->sc.count)
 		{ //Cancel some map related stuff.
+			if (sd->sc.data[SC_JAILED].timer != -1)
+				return 1; //You may not get out!
 			if (sd->sc.data[SC_WARM].timer != -1)
 				status_change_end(&sd->bl,SC_WARM,-1);
 			if (sd->sc.data[SC_SUN_COMFORT].timer != -1)
@@ -3361,10 +3417,11 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 			sd->regen.state.gc = 0;
 	}
 
-	if(m<0){
-		if(sd->mapindex){
-			int ip,port;
-			if(map_mapname2ipport(mapindex,&ip,&port)==0){
+	if(m<0) {
+		if(sd->mapindex) {
+			uint32 ip;
+			uint16 port;
+			if(map_mapname2ipport(mapindex,&ip,&port)==0) {
 				unit_remove_map(&sd->bl,clrtype);
 				sd->mapindex = mapindex;
 				sd->bl.x=x;
@@ -5483,7 +5540,7 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 		if (potion_flag > 1)
 			bonus += bonus*(potion_flag-1)*50/100;
 		//Item Group bonuses
-		bonus += bonus*itemdb_group_bonus(sd, itemid)/100;
+		bonus += bonus*itemdb_group_bonus(sd->itemgrouphealrate, itemid)/100;
 		//Individual item bonuses.
 		for(i = 0; i < MAX_PC_BONUS && sd->itemhealrate[i].nameid; i++)
 		{
@@ -5960,16 +6017,24 @@ int pc_setregstr(struct map_session_data *sd,int reg,char *str)
 
 	nullpo_retr(0, sd);
 
-	if(strlen(str)+1 >= sizeof(sd->regstr[0].data)){
+	if(str && strlen(str)+1 >= sizeof(sd->regstr[0].data)){
 		ShowWarning("pc_setregstr: string too long !\n");
 		return 0;
 	}
 
 	for(i=0;i<sd->regstr_num;i++)
 		if(sd->regstr[i].index==reg){
-			strcpy(sd->regstr[i].data,str);
+			if (str && strcmp(str,"")!=0)
+				strcpy(sd->regstr[i].data,str);
+			else { //Delete last entry.
+				sd->regstr_num--;
+				memcpy(&sd->regstr[i], &sd->regstr[sd->regstr_num], sizeof(sd->regstr[0]));
+				sd->regstr = (struct script_regstr *) aRealloc(sd->regstr, sizeof(sd->regstr[0]) * sd->regstr_num);
+			}
 			return 1;
 		}
+
+	if (!str) return 1;
 
 	sd->regstr_num++;
 	sd->regstr = (struct script_regstr *) aRealloc(sd->regstr, sizeof(sd->regstr[0]) * sd->regstr_num);
@@ -6175,7 +6240,7 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
 	}
 
 	// delete reg
-	if (strcmp(val,"")==0) {
+	if (!val || strcmp(val,"")==0) {
 		for(i = 0; i < *max; i++) {
 			if (strcmp(sd_reg[i].str, reg) == 0) {
 				if (i != *max - 1)

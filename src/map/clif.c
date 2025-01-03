@@ -5,7 +5,6 @@
 #define DUMP_ALL_PACKETS	0
 
 #include <stdio.h>
-#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -50,7 +49,7 @@ struct Clif_Config {
 	int connect_cmd[MAX_PACKET_VER + 1]; //Store the connect command for all versions. [Skotlex]
 } clif_config;
 
-struct packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB];
+struct packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB + 1];
 
 //Converts item type in case of pet eggs.
 #define itemtype(a) (a == 7)?4:a
@@ -95,9 +94,9 @@ struct packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB];
 //Guarantees that the given string does not exceeds the allowed size, as well as making sure it's null terminated. [Skotlex\]
 #define mes_len_check(mes, len, max) if (len > max) { mes[max-1] = '\0'; len = max; } else mes[len-1] = '\0';
 static char map_ip_str[128];
-static in_addr_t map_ip;
-static in_addr_t bind_ip = INADDR_ANY;
-static int map_port = 5121;
+static uint32 map_ip;
+static uint32 bind_ip = INADDR_ANY;
+static uint16 map_port = 5121;
 int map_fd;
 
 //These two will be used to verify the incoming player's validity.
@@ -115,23 +114,23 @@ static void clif_hpmeter_single(int fd, struct map_session_data *sd);
 int clif_setip(const char* ip)
 {
 	char ip_str[16];
-	map_ip = resolve_hostbyname(ip,NULL,ip_str);
+	map_ip = host2ip(ip);
 	if (!map_ip) {
 		ShowWarning("Failed to Resolve Map Server Address! (%s)\n", ip);
 		return 0;
 	}
 
 	strncpy(map_ip_str, ip, sizeof(map_ip_str));
-	ShowInfo("Map Server IP Address : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%s"CL_RESET"'.\n", ip, ip_str);
+	ShowInfo("Map Server IP Address : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%s"CL_RESET"'.\n", ip, ip2str(map_ip, ip_str));
 	return 1;
 }
 
 void clif_setbindip(const char* ip)
 {
-	unsigned char ip_str[4];
-	bind_ip = resolve_hostbyname(ip,ip_str,NULL);
+	char ip_str[16];
+	bind_ip = host2ip(ip);
 	if (bind_ip) {
-		ShowInfo("Map Server Bind IP Address : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%d.%d.%d.%d"CL_RESET"'.\n", ip, ip_str[0], ip_str[1], ip_str[2], ip_str[3]);
+		ShowInfo("Map Server Bind IP Address : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%s"CL_RESET"'.\n", ip, ip2str(bind_ip, ip_str));
 	} else {
 		ShowWarning("Failed to Resolve Map Server Address! (%s)\n", ip);
 	}
@@ -141,7 +140,7 @@ void clif_setbindip(const char* ip)
  * mapIport
  *------------------------------------------
  */
-void clif_setport(int port)
+void clif_setport(uint16 port)
 {
 	map_port = port;
 }
@@ -150,27 +149,21 @@ void clif_setport(int port)
  * mapIipo
  *------------------------------------------
  */
-in_addr_t clif_getip(void)
+uint32 clif_getip(void)
 {
 	return map_ip;
 }
 
-//Returns the ip casted as a basic type, to avoid needing to include the socket/net related libs by calling modules.
-unsigned long clif_getip_long(void)
+//Refreshes map_server ip, returns the new ip if the ip changed, otherwise it returns 0.
+uint32 clif_refresh_ip(void)
 {
-	return (unsigned long)map_ip;
-}
+	uint32 new_ip;
 
-//Refreshes map_server ip, returns the new ip if the ip changed, otherwise it 
-//returns 0.
-unsigned long clif_refresh_ip(void) {
-	in_addr_t new_ip;
-
-	new_ip = resolve_hostbyname(map_ip_str, NULL, NULL);
+	new_ip = host2ip(map_ip_str);
 	if (new_ip && new_ip != map_ip) {
 		map_ip = new_ip;
-		ShowInfo("Updating IP resolution of [%s].\n",map_ip_str);
-		return (unsigned long)map_ip;
+		ShowInfo("Updating IP resolution of [%s].\n", map_ip_str);
+		return map_ip;
 	}
 	return 0;
 }
@@ -179,7 +172,7 @@ unsigned long clif_refresh_ip(void) {
  * mapIporto
  *------------------------------------------
  */
-int clif_getport(void)
+uint16 clif_getport(void)
 {
 	return map_port;
 }
@@ -939,18 +932,28 @@ static int clif_set0078(struct block_list *bl, struct view_data *vd, unsigned ch
 	}
 	WBUFW(buf,14)=vd->class_;
 	WBUFW(buf,16)=vd->hair_style;  //Required for pets.
+	//18W: Weapon
 	WBUFW(buf,20)=vd->head_bottom;	//Pet armor
 	if (bl->type == BL_NPC && vd->class_ == FLAG_CLASS)
 	{	//The hell, why flags work like this?
 		WBUFL(buf,22)=emblem_id;
 		WBUFL(buf,26)=guild_id;
 	}
+	//22W: shield
+	//24W: Head top
+	//26W: Head mid
+	//28W: Hair color
+	//30W: Clothes color
 	WBUFW(buf,32)=dir;
 	WBUFL(buf,34)=guild_id;
 	WBUFL(buf,38)=emblem_id;
+	//42W: Manner
+	//44B: Karma
+	//45B: Sex
 	WBUFPOS(buf,46,bl->x,bl->y,dir);
 	WBUFB(buf,49)=5;
 	WBUFB(buf,50)=5;
+	//51BL Sit/Stand
 	WBUFW(buf,52)=clif_setlevel(lv);
 	return packet_len(0x78);
 }
@@ -1680,10 +1683,10 @@ int clif_changemap(struct map_session_data *sd, short map, int x, int y) {
 }
 
 /*==========================================
- *
- *------------------------------------------
- */
-int clif_changemapserver(struct map_session_data* sd, const char* mapname, int x, int y, int ip, int port) {
+ * Tells the client to connect to another map-server
+ *------------------------------------------*/
+int clif_changemapserver(struct map_session_data* sd, const char* mapname, int x, int y, uint32 ip, uint16 port)
+{
 	int fd;
 
 	nullpo_retr(0, sd);
@@ -1696,8 +1699,8 @@ int clif_changemapserver(struct map_session_data* sd, const char* mapname, int x
 	WFIFOB(fd,17) = 0;	//Null terminator for mapname
 	WFIFOW(fd,18) = x;
 	WFIFOW(fd,20) = y;
-	WFIFOL(fd,22) = ip;
-	WFIFOW(fd,26) = port;
+	WFIFOL(fd,22) = htonl(ip);
+	WFIFOW(fd,26) = ntows(htons(port)); // [!] LE byte order here [!]
 	WFIFOSET(fd, packet_len(0x92));
 
 	return 0;
@@ -3132,6 +3135,31 @@ int clif_changeoption(struct block_list* bl)
 	return 0;
 }
 
+int clif_changeoption2(struct block_list* bl)
+{
+	unsigned char buf[20];
+	struct status_change *sc;
+
+	sc = status_get_sc(bl);
+	if (!sc) return 0; //How can an option change if there's no sc?
+
+	WBUFW(buf,0) = 0x28a;
+	WBUFL(buf,2) = bl->id;
+	WBUFL(buf,6) = sc->option;
+	WBUFL(buf,10) = clif_setlevel(status_get_lv(bl));
+	WBUFL(buf,14) = sc->opt3;
+	if(disguised(bl)) {
+		clif_send(buf,packet_len(0x28a),bl,AREA_WOS);
+		WBUFL(buf,2) = -bl->id;
+		clif_send(buf,packet_len(0x28a),bl,SELF);
+		WBUFL(buf,2) = bl->id;
+		WBUFL(buf,6) = OPTION_INVISIBLE;
+		clif_send(buf,packet_len(0x28a),bl,SELF);
+	} else
+		clif_send(buf,packet_len(0x28a),bl,AREA);
+	return 0;
+}
+
 /*==========================================
  *
  *------------------------------------------
@@ -4284,9 +4312,8 @@ int clif_skillup(struct map_session_data *sd,int skill_num)
  *------------------------------------------
  */
 int clif_skillcasting(struct block_list* bl,
-	int src_id,int dst_id,int dst_x,int dst_y,int skill_num,int casttime)
+	int src_id,int dst_id,int dst_x,int dst_y,int skill_num,int pl, int casttime)
 {
-	int pl = skill_get_pl(skill_num);
 	unsigned char buf[32];
 	WBUFW(buf,0) = 0x13e;
 	WBUFL(buf,2) = src_id;
@@ -5021,7 +5048,7 @@ int clif_heal(int fd,int type,int val)
 	WFIFOHEAD(fd,packet_len(0x13d));
 	WFIFOW(fd,0)=0x13d;
 	WFIFOW(fd,2)=type;
-	WFIFOW(fd,4)=val;
+	WFIFOW(fd,4)=cap_value(val,0,SHRT_MAX);
 	WFIFOSET(fd,packet_len(0x13d));
 
 	return 0;
@@ -5648,9 +5675,9 @@ int clif_openvending(struct map_session_data *sd,int id,struct vending *vending)
 	nullpo_retr(0, sd);
 
 	fd=sd->fd;
-        WFIFOHEAD(fd, 8+sd->vend_num*22);
+	WFIFOHEAD(fd, 8+sd->vend_num*22);
 	buf = WFIFOP(fd,0);
-	for(i=0,n=0;i<sd->vend_num;i++){
+	for(i = 0, n = 0; i < sd->vend_num; i++) {
 		if (sd->vend_num > 2+pc_checkskill(sd,MC_VENDING)) return 0;
 		WBUFL(buf,8+n*22)=vending[i].value;
 		WBUFW(buf,12+n*22)=(index=vending[i].index)+2;
@@ -5670,7 +5697,7 @@ int clif_openvending(struct map_session_data *sd,int id,struct vending *vending)
 		clif_addcards(WBUFP(buf, 22+n*22), &sd->status.cart[index]);
 		n++;
 	}
-	if(n > 0){
+	if(n > 0) {
 		WBUFW(buf,0)=0x136;
 		WBUFW(buf,2)=8+n*22;
 		WBUFL(buf,4)=id;
@@ -8876,7 +8903,7 @@ void clif_parse_Restart(int fd, struct map_session_data *sd) {
 		/*	Rovert's Prevent logout option - Fixed [Valaris]	*/
 		if (!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout)
 		{	//Send to char-server for character selection.
-			chrif_charselectreq(sd, session[fd]->client_addr.sin_addr.s_addr);
+			chrif_charselectreq(sd, session[fd]->client_addr);
 		} else {
 			WFIFOHEAD(fd,packet_len(0x18b));
 			WFIFOW(fd,0)=0x18b;
@@ -9545,6 +9572,8 @@ void clif_parse_PutItemToCart(int fd,struct map_session_data *sd)
 
 	if (clif_trading(sd))
 		return;
+	if (!pc_iscarton(sd))
+		return;
 	pc_putitemtocart(sd,RFIFOW(fd,2)-2,RFIFOL(fd,4));
 }
 /*==========================================
@@ -9554,6 +9583,8 @@ void clif_parse_PutItemToCart(int fd,struct map_session_data *sd)
 void clif_parse_GetItemFromCart(int fd,struct map_session_data *sd)
 {
 	RFIFOHEAD(fd);
+	if (!pc_iscarton(sd))
+		return;
 	pc_getitemfromcart(sd,RFIFOW(fd,2)-2,RFIFOL(fd,4));
 }
 
@@ -9846,22 +9877,21 @@ void clif_parse_UseSkillToPosMoreInfo(int fd, struct map_session_data *sd) {
  */
 void clif_parse_UseSkillMap(int fd,struct map_session_data *sd)
 {
+	int skill_num;
 	RFIFOHEAD(fd);
+	skill_num = RFIFOW(fd,2);
+
+	if(skill_num != sd->menuskill_id)
+		return;
 
 	if (clif_cant_act(sd))
+	{
+		sd->menuskill_id = sd->menuskill_lv = 0;
 		return;
-
-	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS))
-		return;
-
-	if(sd->menuskill_id &&
-		sd->menuskill_id != RFIFOW(fd,2) &&
-		sd->menuskill_id != SA_AUTOSPELL)
-		return; //Can't use skills while a menu is open.
+	}
 
 	pc_delinvincibletimer(sd);
-
-	skill_castend_map(sd,RFIFOW(fd,2),(char*)RFIFOP(fd,4));
+	skill_castend_map(sd,skill_num,(char*)RFIFOP(fd,4));
 }
 /*==========================================
  * v
@@ -10181,9 +10211,10 @@ void clif_parse_MoveFromKafra(int fd,struct map_session_data *sd) {
 void clif_parse_MoveToKafraFromCart(int fd, struct map_session_data *sd) {
 	RFIFOHEAD(fd);
 
-	if(sd->vender_id)	
+	if(sd->vender_id)
 		return;
-
+	if (!pc_iscarton(sd))
+		return;
 	if (sd->state.storage_flag == 1)
 		storage_storageaddfromcart(sd, RFIFOW(fd,2) - 2, RFIFOL(fd,4));
 	else	if (sd->state.storage_flag == 2)
@@ -10198,6 +10229,8 @@ void clif_parse_MoveFromKafraToCart(int fd, struct map_session_data *sd) {
 	RFIFOHEAD(fd);
 
 	if (sd->vender_id)
+		return;
+	if (!pc_iscarton(sd))
 		return;
 	if (sd->state.storage_flag == 1)
 		storage_storagegettocart(sd, RFIFOW(fd,2)-1, RFIFOL(fd,4));
@@ -11704,7 +11737,8 @@ void clif_parse_debug(int fd,struct map_session_data *sd)
  * socket.cdo_parsepacketo
  *------------------------------------------
  */
-int clif_parse(int fd) {
+int clif_parse(int fd)
+{
 	int packet_len = 0, cmd, packet_ver, err, dump = 0;
 	TBL_PC *sd;
 	RFIFOHEAD(fd);
@@ -11730,8 +11764,8 @@ int clif_parse(int fd) {
 				map_quit(sd);
 			}
 		} else {
-			unsigned char *ip = (unsigned char *) &session[fd]->client_addr.sin_addr;
-			ShowInfo("Closed connection from '"CL_WHITE"%d.%d.%d.%d"CL_RESET"'.\n", ip[0],ip[1],ip[2],ip[3]);
+			uint32 ip = session[fd]->client_addr;
+			ShowInfo("Closed connection from '"CL_WHITE"%d.%d.%d.%d"CL_RESET"'.\n", CONVIP(ip));
 		}
 		do_close(fd);
 		return 0;
@@ -11784,7 +11818,7 @@ int clif_parse(int fd) {
 	}
 
 	// Q[pOpPbgAFIO0072OAf
-	if (cmd >= MAX_PACKET_DB || packet_db[packet_ver][cmd].len == 0) {	// if packet is not inside these values: session is incorrect?? or auth packet is unknown
+	if (cmd > MAX_PACKET_DB || packet_db[packet_ver][cmd].len == 0) {	// if packet is not inside these values: session is incorrect?? or auth packet is unknown
 		ShowWarning("clif_parse: Received unsupported packet (packet 0x%04x, %d bytes received), disconnecting session #%d.\n", cmd, RFIFOREST(fd), fd);
 		session[fd]->eof = 1;
 		return 0;
@@ -11925,7 +11959,7 @@ static int packetdb_readdb(void)
 	int skip_ver = 0;
 	int warned = 0;
 	char *str[64],*p,*str2[64],*p2,w1[64],w2[64];
-	int packet_len_table[0x260] = {
+	int packet_len_table[0x290] = {
 	   10,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
@@ -11980,7 +12014,11 @@ static int packetdb_readdb(void)
 	   12, 26,   9, 11, -1, -1, 10,  2, 282, 11,  4, 36, -1,-1,  4,  2,
 	//#0x0240
 	   -1, -1,  -1, -1, -1,  3,  4,  8,  -1,  3, 70,  4,  8,12,  4, 10,
-	    3, 32,  -1,  3,  3,  5,  5,  8,   2,  3, -1, -1,  4,-1,  4,  0
+	    3, 32,  -1,  3,  3,  5,  5,  8,   2,  3, -1, -1,  4,-1,  4,  0,
+		 0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0, 0,  0,  0,
+		 0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0, 0,  0,  0,
+	//#0x0280
+		 0,  0,   0,  0,  0,  0,  0,  0,   0,  0, 18,  0,  0, 0,  0,  0
 	};
 	struct {
 		void (*func)(int, struct map_session_data *);
@@ -12123,7 +12161,7 @@ static int packetdb_readdb(void)
 
 	// Set server packet lengths - packet_db[SERVER]
 	memset(packet_db,0,sizeof(packet_db));
-	for( i = 0; i < 0x260; ++i )
+	for( i = 0; i < sizeof(packet_len_table)/sizeof(packet_len_table[0]); ++i )
 		packet_len(i) = packet_len_table[i];
 
 	sprintf(line, "%s/packet_db.txt", db_path);
@@ -12134,10 +12172,13 @@ static int packetdb_readdb(void)
 
 	clif_config.packet_db_ver = MAX_PACKET_VER;
 	packet_ver = MAX_PACKET_VER;	// read into packet_db's version by default
-	while(fgets(line,1020,fp)){
+	while( fgets(line,sizeof(line),fp) )
+	{
+		ln++;
 		if(line[0]=='/' && line[1]=='/')
 			continue;
-		if (sscanf(line,"%[^:]: %[^\r\n]",w1,w2) == 2) {
+		if (sscanf(line,"%256[^:]: %256[^\r\n]",w1,w2) == 2)
+		{
 			if(strcmpi(w1,"packet_ver")==0) {
 				int prev_ver = packet_ver;
 				skip_ver = 0;
@@ -12194,7 +12235,8 @@ static int packetdb_readdb(void)
 			continue; // Skipping current packet version
 
 		memset(str,0,sizeof(str));
-		for(j=0,p=line;j<4 && p;j++){
+		for(j=0,p=line;j<4 && p; ++j)
+		{
 			str[j]=p;
 			p=strchr(p,',');
 			if(p) *p++=0;
@@ -12204,7 +12246,7 @@ static int packetdb_readdb(void)
 		cmd=strtol(str[0],(char **)NULL,0);
 		if(max_cmd < cmd)
 			max_cmd = cmd;
-		if(cmd<=0 || cmd>=MAX_PACKET_DB)
+		if(cmd <= 0 || cmd > MAX_PACKET_DB)
 			continue;
 		if(str[1]==NULL){
 			ShowError("packet_db: packet len error\n");
@@ -12224,9 +12266,9 @@ static int packetdb_readdb(void)
 			{
 				if (packet_db[packet_ver][cmd].func != clif_parse_func[j].func)
 				{	//If we are updating a function, we need to zero up the previous one. [Skotlex]
-					for(i=0;i<MAX_PACKET_DB;i++){
+					for(i=0;i<=MAX_PACKET_DB;i++){
 						if (packet_db[packet_ver][i].func == clif_parse_func[j].func)
-						{	
+						{
 							memset(&packet_db[packet_ver][i], 0, sizeof(struct packet_db));
 							break;
 						}
@@ -12252,10 +12294,6 @@ static int packetdb_readdb(void)
 			// if (packet_db[packet_ver][cmd].pos[j] != k && clif_config.prefer_packet_db)	// not used for now
 			packet_db[packet_ver][cmd].pos[j] = k;
 		}
-
-		ln++;
-//		if(packet_db[clif_config.packet_db_ver][cmd].len > 2 /* && packet_db[cmd].pos[0] == 0 */)
-//			printf("packet_db ver %d: %d 0x%x %d %s %p\n",packet_ver,ln,cmd,packet_db[packet_ver][cmd].len,str[2],packet_db[packet_ver][cmd].func);
 	}
 	fclose(fp);
 	if(max_cmd > MAX_PACKET_DB)
@@ -12277,8 +12315,8 @@ static int packetdb_readdb(void)
  *
  *------------------------------------------
  */
-int do_init_clif(void) {
-	
+int do_init_clif(void)
+{
 	clif_config.packet_db_ver = -1; // the main packet version of the DB
 	memset(clif_config.connect_cmd, 0, sizeof(clif_config.connect_cmd)); //The default connect command will be determined after reading the packet_db [Skotlex]
 

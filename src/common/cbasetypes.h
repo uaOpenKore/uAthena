@@ -29,6 +29,10 @@
 #define WIN32
 #endif
 
+#if defined(__MINGW32__) && !defined(MINGW)
+#define MINGW
+#endif
+
 // __APPLE__ is the only predefined macro on MacOS X
 #if defined(__APPLE__)
 #define __DARWIN__
@@ -49,7 +53,7 @@
 #endif
 
 // disable attributed stuff on non-GNU
-#ifndef __GNUC__
+#if !defined(__GNUC__) && !defined(MINGW)
 #  define  __attribute__(x)
 #endif
 
@@ -70,26 +74,10 @@
 // Integers with guaranteed _exact_ size.
 //////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////
-#ifdef WIN32
-//////////////////////////////
 #define SIZEOF_LONG 4
 #define SIZEOF_INT 4
 #define HAVE_INT_8_16_32
-typedef          __int8		int8;
-typedef          __int16	int16;
-typedef          __int32	int32;
 
-typedef signed __int8		sint8;
-typedef signed __int16		sint16;
-typedef signed __int32		sint32;
-
-typedef unsigned __int8		uint8;
-typedef unsigned __int16	uint16;
-typedef unsigned __int32	uint32;
-//////////////////////////////
-#else // GNU
-//////////////////////////////
 typedef char				int8;
 typedef short				int16;
 typedef int					int32;
@@ -101,9 +89,6 @@ typedef signed int			sint32;
 typedef unsigned char		uint8;
 typedef unsigned short		uint16;
 typedef unsigned int		uint32;
-//////////////////////////////
-#endif
-//////////////////////////////
 
 #undef UINT8_MIN
 #undef UINT16_MIN
@@ -151,9 +136,10 @@ typedef unsigned long int   ppuint32;
 
 //////////////////////////////////////////////////////////////////////////
 // integer with exact processor width (and best speed)
-//						size_t already defined in stdio.h
 //////////////////////////////
-#ifdef WIN32 // does not have a signed size_t
+#include <stddef.h> // size_t
+
+#if defined(WIN32) && !defined(MINGW) // does not have a signed size_t
 //////////////////////////////
 #if defined(_WIN64)	// naive 64bit windows platform
 typedef __int64			ssize_t;
@@ -197,8 +183,14 @@ typedef unsigned long long	uint64;
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 #define strcasecmp			stricmp
 #define strncasecmp			strnicmp
+#define strncmpi			strnicmp
 #define snprintf			_snprintf
 #define vsnprintf			_vsnprintf
+#else
+#define strcmpi				strcasecmp
+#define stricmp				strcasecmp
+#define strncmpi			strncasecmp
+#define strnicmp			strncasecmp
 #endif
 
 // keyword replacement in windows
@@ -227,9 +219,11 @@ typedef char bool;
 #undef swap
 #endif
 // hmm only ints?
-//#define swap(a,b) { int temp=a; a=b; b=temp;} 
+//#define swap(a,b) { int temp=a; a=b; b=temp;}
 // if using macros then something that is type independent
-#define swap(a,b) ((a == b) || ((a ^= b), (b ^= a), (a ^= b)))
+//#define swap(a,b) ((a == b) || ((a ^= b), (b ^= a), (a ^= b)))
+// Avoid "value computed is not used" warning and generates the same assembly code
+#define swap(a,b) if (a != b) ((a ^= b), (b ^= a), (a ^= b))
 
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -267,8 +261,10 @@ typedef char bool;
 
 #if defined(WIN32) || defined(CYGWIN)
 #define RETCODE	"\r\n"	// CR/LF : Windows systems
+/*FIXME: Mac OSX also uses \n, only pre-OSX uses \r
 #elif defined(__APPLE__)
 #define RETCODE "\r"	// CR : Macintosh systems
+*/
 #else
 #define RETCODE "\n"	// LF : Unix systems
 #endif
@@ -294,9 +290,21 @@ typedef char bool;
 
 //////////////////////////////////////////////////////////////////////////
 // Has to be unsigned to avoid problems in some systems
-#define TOLOWER(c) ((char)tolower((unsigned char)(c)))
-#define ISSPACE(c) (isspace((unsigned char)(c)))
-#define ISALPHA(c) (isalpha((unsigned char)(c)))
+// Problems arise when these functions expect an argument in the range [0,256[ and are fed a signed char.
+#include <ctype.h>
 #define ISALNUM(c) (isalnum((unsigned char)(c)))
+#define ISALPHA(c) (isalpha((unsigned char)(c)))
+#define ISCNTRL(c) (iscntrl((unsigned char)(c)))
+#define ISDIGIT(c) (isdigit((unsigned char)(c)))
+#define ISGRAPH(c) (isgraph((unsigned char)(c)))
+#define ISLOWER(c) (islower((unsigned char)(c)))
+#define ISPRINT(c) (isprint((unsigned char)(c)))
+#define ISPUNCT(c) (ispunct((unsigned char)(c)))
+#define ISSPACE(c) (isspace((unsigned char)(c)))
+#define ISUPPER(c) (isupper((unsigned char)(c)))
+#define ISXDIGIT(c) (isxdigit((unsigned char)(c)))
+#define TOASCII(c) (toascii((unsigned char)(c)))
+#define TOLOWER(c) (tolower((unsigned char)(c)))
+#define TOUPPER(c) (toupper((unsigned char)(c)))
 
 #endif /* _CBASETYPES_H_ */

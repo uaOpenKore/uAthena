@@ -12,6 +12,7 @@
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
 #include "../common/ers.h"
+#include "../common/strlib.h"
 
 #include "map.h"
 #include "pc.h"
@@ -117,7 +118,8 @@ static int battle_getenemy_sub(struct block_list *bl, va_list ap)
 		return 0;
 	if (*c >= 24)
 		return 0;
-
+	if (status_isdead(bl))
+		return 0;
 	if (battle_check_target(target, bl, BCT_ENEMY) > 0) {
 		bl_list[(*c)++] = bl;
 		return 1;
@@ -147,7 +149,7 @@ struct delay_damage {
 	unsigned short skill_lv;
 	unsigned short skill_id;
 	unsigned short dmg_lv;
-	unsigned char attack_type;
+	unsigned short attack_type;
 };
 
 int battle_delay_damage_sub (int tid, unsigned int tick, int id, int data)
@@ -161,7 +163,7 @@ int battle_delay_damage_sub (int tid, unsigned int tick, int id, int data)
 		if ((dat->dmg_lv == ATK_DEF || dat->damage > 0) && dat->attack_type)
 		{
 			if (!status_isdead(target))
-				skill_additional_effect(dat->src,target,dat->skill_id,dat->skill_lv,dat->attack_type, tick);
+				skill_additional_effect(dat->src,target,dat->skill_id,dat->skill_lv,dat->attack_type,tick);
 			skill_counter_additional_effect(dat->src,target,dat->skill_id,dat->skill_lv,dat->attack_type,tick);
 		}
 
@@ -363,9 +365,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 
 		if ((sc->data[SC_UTSUSEMI].timer != -1 || sc->data[SC_BUNSINJYUTSU].timer != -1)
 		&&
-			(flag&BF_WEAPON || (flag&(BF_MISC|BF_SHORT)) == (BF_MISC|BF_SHORT)) &&
-			!(skill_get_nk(skill_num)&NK_NO_CARDFIX_ATK)
-		)
+			flag&BF_WEAPON && !(skill_get_nk(skill_num)&NK_NO_CARDFIX_ATK))
 		{
 			if (sc->data[SC_UTSUSEMI].timer != -1) {
 				clif_specialeffect(bl, 462, AREA);
@@ -991,7 +991,7 @@ static struct Damage battle_calc_weapon_attack(
 	}
 
 	t_class = status_get_class(target);
-	s_ele = s_ele_ = skill_get_pl(skill_num);
+	s_ele = s_ele_ = skill_get_pl(skill_num, skill_lv);
 	if (!skill_num || s_ele == -1) { //Take weapon's element
 		s_ele = sstatus->rhw.ele;
 		s_ele_ = sstatus->lhw?sstatus->lhw->ele:0;
@@ -1208,36 +1208,37 @@ static struct Damage battle_calc_weapon_attack(
 						sd->inventory_data[index] &&
 						sd->inventory_data[index]->type == IT_WEAPON)
 						wd.damage = sd->inventory_data[index]->weight*8/100; //80% of weight
+				} else
+					wd.damage = sstatus->rhw.atk2*8/10; //Else use Atk2
 
-					ATK_ADDRATE(50*skill_lv); //Skill modifier applies to weight only.
-					index = sstatus->str/10;
-					index = index*index;
-					ATK_ADD(index); //Add str bonus.
-
-					switch (tstatus->size) { //Size-fix. Is this modified by weapon perfection?
-						case 0: //Small: 125%
-							ATK_RATE(125);
-							break;
-						//case 1: //Medium: 100%
-						case 2: //Large: 75%
-							ATK_RATE(75);
-							break;
-					}
-					break;
+				ATK_ADDRATE(50*skill_lv); //Skill modifier applies to weight only.
+				i = sstatus->str/10;
+				i*=i;
+				ATK_ADD(i); //Add str bonus.
+				switch (tstatus->size) { //Size-fix. Is this modified by weapon perfection?
+					case 0: //Small: 125%
+						ATK_RATE(125);
+						break;
+					//case 1: //Medium: 100%
+					case 2: //Large: 75%
+						ATK_RATE(75);
+						break;
 				}
+				break;
 			case CR_SHIELDBOOMERANG:
 			case PA_SHIELDCHAIN:
+				wd.damage = sstatus->batk;
 				if (sd) {
 					short index = sd->equip_index[EQI_HAND_L];
-
-					wd.damage = sstatus->batk;
 
 					if (index >= 0 &&
 						sd->inventory_data[index] &&
 						sd->inventory_data[index]->type == IT_ARMOR)
 						ATK_ADD(sd->inventory_data[index]->weight/10);
 					break;
-				}
+				} else
+					ATK_ADD(sstatus->rhw.atk2); //Else use Atk2
+				break;
 			case HFLI_SBR44:	//[orn]
 				if(src->type == BL_HOM) {
 					wd.damage = ((TBL_HOM*)src)->homunculus.intimacy ;
@@ -1380,7 +1381,7 @@ static struct Damage battle_calc_weapon_attack(
 					if(sd && sd->cart_weight)
 						skillratio += 100*sd->cart_weight/battle_config.max_cart_weight; // +1% every 1% weight
 					else if (!sd)
-						skillratio += 150; //Max damage for non players.
+						skillratio += 100; //Max damage for non players.
 					break;
 				case NPC_RANDOMATTACK:
 					skillratio += rand()%150-50;
@@ -1818,8 +1819,8 @@ static struct Damage battle_calc_weapon_attack(
 	if(skill_num==TF_POISON)
 		ATK_ADD(15*skill_lv);
 
-	if (!(nk&NK_NO_ELEFIX) ||
-		(s_ele == ELE_NEUTRAL && (battle_config.attack_attr_none&src->type)))
+	if(!(nk&NK_NO_ELEFIX || (s_ele == ELE_NEUTRAL &&
+		battle_config.attack_attr_none&src->type)))
 	{	//Elemental attribute fix
 		if (wd.damage > 0)
 		{
@@ -2153,7 +2154,7 @@ struct Damage battle_calc_magic_attack(
 	BL_CAST(BL_PC, target, tsd);
 
 	//Initialize variables that will be used afterwards
-	s_ele = skill_get_pl(skill_num);
+	s_ele = skill_get_pl(skill_num, skill_lv);
 
 	if (s_ele == -1) // pl=-1 : the skill takes the weapon's element
 		s_ele = sstatus->rhw.ele;
@@ -2473,7 +2474,7 @@ struct Damage  battle_calc_misc_attack(
 		md.blewcount += battle_blewcount_bonus(sd, skill_num);
 	}
 
-	s_ele = skill_get_pl(skill_num);
+	s_ele = skill_get_pl(skill_num, skill_lv);
 	if (s_ele < 0) //Attack that takes weapon's element for misc attacks? Make it neutral [Skotlex]
 		s_ele = ELE_NEUTRAL;
 
@@ -2636,7 +2637,7 @@ struct Damage  battle_calc_misc_attack(
 
 	if(md.damage < 0)
 		md.damage = 0;
-	else if(md.damage && tstatus->mode&MD_PLANT && skill_num != PA_PRESSURE) //Pressure can vaporize plants
+	else if(md.damage && tstatus->mode&MD_PLANT)
 		md.damage = 1;
 
 	if(!(nk&NK_NO_ELEFIX))
@@ -2784,8 +2785,7 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, 
  * ??U??
  *------------------------------------------
  */
-int battle_weapon_attack( struct block_list *src,struct block_list *target,
-	 unsigned int tick,int flag)
+int battle_weapon_attack(struct block_list* src, struct block_list* target, unsigned int tick, int flag)
 {
 	struct map_session_data *sd = NULL, *tsd = NULL;
 	struct status_data *sstatus, *tstatus;
@@ -2928,21 +2928,7 @@ int battle_weapon_attack( struct block_list *src,struct block_list *target,
 
 	map_freeblock_lock();
 
-	battle_delay_damage(tick+wd.amotion, src, target, BF_WEAPON, 0, 0, damage, wd.dmg_lv, wd.dmotion);
-
-	if (!status_isdead(target) && damage > 0) {
-		if (sd) {
-			int rate = 0;
-			if (sd->weapon_coma_ele[tstatus->def_ele] > 0)
-				rate += sd->weapon_coma_ele[tstatus->def_ele];
-			if (sd->weapon_coma_race[tstatus->race] > 0)
-				rate += sd->weapon_coma_race[tstatus->race];
-			if (sd->weapon_coma_race[tstatus->mode&MD_BOSS?RC_BOSS:RC_NONBOSS] > 0)
-				rate += sd->weapon_coma_race[tstatus->mode&MD_BOSS?RC_BOSS:RC_NONBOSS];
-			if (rate)
-				status_change_start(target, SC_COMA, rate, 0, 0, 0, 0, 0, 0);
-		}
-	}
+	battle_delay_damage(tick+wd.amotion, src, target, wd.flag, 0, 0, damage, wd.dmg_lv, wd.dmotion);
 
 	if (sc && sc->data[SC_AUTOSPELL].timer != -1 && rand()%100 < sc->data[SC_AUTOSPELL].val4) {
 		int sp = 0;
@@ -3121,9 +3107,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 						return 0;
 				}
 			} else if (su->group->skill_id==WZ_ICEWALL)
-			{	//Icewall can be hit by anything except skills.
-				if (src->type == BL_SKILL)
-					return 0;
+			{
 				state |= BCT_ENEMY;
 				strip_enemy = 0;
 			} else	//Excepting traps and icewall, you should not be able to target skills.
@@ -3348,26 +3332,6 @@ int battle_check_range(struct block_list *src,struct block_list *bl,int range)
 
 	// ?Q
 	return path_search_long(NULL,src->m,src->x,src->y,bl->x,bl->y);
-}
-
-/*==========================================
- * Return numerical value of a switch configuration (modified by [Yor])
- * on/off, english, franais, deutsch, espaol
- *------------------------------------------
- */
-int battle_config_switch(const char *str) {
-	if(strncmpi(str, "on",2) == 0 ||
-		strncmpi(str, "yes",3) == 0 ||
-		strncmpi(str, "oui",3) == 0 ||
-		strncmpi(str, "ja",2) == 0 ||
-		strncmpi(str, "si",2) == 0)
-		return 1;
-	if(strncmpi(str, "off",3) == 0 ||
-		strncmpi(str, "no",2) == 0 ||
-		strncmpi(str, "non",3) == 0 ||
-		strncmpi(str, "nein",4) == 0)
-		return 0;
-	return (int)strtol(str,NULL,0);
 }
 
 static const struct battle_data_short {
@@ -3689,6 +3653,7 @@ static const struct battle_data_short {
 	{ "hom_rename",                     &battle_config.hom_rename },
 	{ "homunculus_show_growth",					&battle_config.homunculus_show_growth },	//[orn]
 	{ "homunculus_friendly_rate",				&battle_config.homunculus_friendly_rate },
+	{ "vending_tax",                       &battle_config.vending_tax },
 };
 
 static const struct battle_data_int {
@@ -3740,12 +3705,12 @@ int battle_set_value(const char* w1, const char* w2) {
 	int i;
 	for(i = 0; i < sizeof(battle_data_short) / (sizeof(battle_data_short[0])); i++)
 		if (strcmpi(w1, battle_data_short[i].str) == 0) {
-			* battle_data_short[i].val = battle_config_switch(w2);
+			*battle_data_short[i].val = config_switch(w2);
 			return 1;
 		}
 	for(i = 0; i < sizeof(battle_data_int) / (sizeof(battle_data_int[0])); i++)
 		if (strcmpi(w1, battle_data_int[i].str) == 0) {
-			*battle_data_int[i].val = battle_config_switch(w2);
+			*battle_data_int[i].val = config_switch(w2);
 			return 1;
 		}
 	return 0;
@@ -3755,7 +3720,7 @@ int battle_get_value(const char* w1) {
 	int i;
 	for(i = 0; i < sizeof(battle_data_short) / (sizeof(battle_data_short[0])); i++)
 		if (strcmpi(w1, battle_data_short[i].str) == 0) {
-			return * battle_data_short[i].val;
+			return *battle_data_short[i].val;
 		}
 	for(i = 0; i < sizeof(battle_data_int) / (sizeof(battle_data_int[0])); i++)
 		if (strcmpi(w1, battle_data_int[i].str) == 0) {
@@ -3952,6 +3917,7 @@ void battle_set_defaults() {
 	battle_config.mob_warp = 0;
 	battle_config.dead_branch_active = 0;
 	battle_config.vending_max_value = 10000000;
+	battle_config.vending_tax = 0;
 	battle_config.show_steal_in_same_party = 0;
 	battle_config.party_update_interval = 1000;
 	battle_config.party_share_type = 0;
@@ -4108,8 +4074,8 @@ void battle_set_defaults() {
 	battle_config.mob_sc_def_rate = 100;
 	battle_config.pc_luk_sc_def = 300;
 	battle_config.mob_luk_sc_def = 300;
-	battle_config.pc_max_sc_def = 10000;
-	battle_config.mob_max_sc_def = 5000;
+	battle_config.pc_max_sc_def = 100;
+	battle_config.mob_max_sc_def = 100;
 	battle_config.sg_miracle_skill_ratio=1;
 	battle_config.sg_angel_skill_ratio=1;
 	battle_config.sg_miracle_skill_duration=3600000;
@@ -4265,8 +4231,11 @@ void battle_validate_conf() {
 	if (battle_config.any_warp_GM_min_level > 100)
 		battle_config.any_warp_GM_min_level = 100;
 
-	if (battle_config.vending_max_value > MAX_ZENY || battle_config.vending_max_value==0)
+	if (battle_config.vending_max_value > MAX_ZENY || battle_config.vending_max_value <= 0)
 		battle_config.vending_max_value = MAX_ZENY;
+
+	if (battle_config.vending_tax > 10000)
+		battle_config.vending_tax = 10000;
 
 	if (battle_config.min_skill_delay_limit < 10)
 		battle_config.min_skill_delay_limit = 10;	// minimum delay of 10ms
@@ -4350,16 +4319,15 @@ int battle_config_read(const char *cfgName)
 	}
 	fclose(fp);
 
-	if (--count == 0) {
+	if (--count == 0)
 		battle_validate_conf();
-		add_timer_func_list(battle_delay_damage_sub, "battle_delay_damage_sub");
-	}
 
 	return 0;
 }
 
 void do_init_battle(void) {
 	delay_damage_ers = ers_new(sizeof(struct delay_damage));
+	add_timer_func_list(battle_delay_damage_sub, "battle_delay_damage_sub");
 }
 
 void do_final_battle(void) {

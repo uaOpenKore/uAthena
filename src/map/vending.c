@@ -17,7 +17,7 @@
 #include "log.h"
 
 /*==========================================
- * ˜I“X•Â½
+ * IX
  *------------------------------------------
 */
 void vending_closevending(struct map_session_data *sd)
@@ -29,7 +29,7 @@ void vending_closevending(struct map_session_data *sd)
 }
 
 /*==========================================
- * ˜I“XƒAƒCƒeƒ€ƒŠƒXƒg—v‹
+ * IXACeXgv
  *------------------------------------------
  */
 void vending_vendinglistreq(struct map_session_data *sd,int id)
@@ -46,7 +46,7 @@ void vending_vendinglistreq(struct map_session_data *sd,int id)
 }
 
 /*==========================================
- * ˜I“XƒAƒCƒeƒ€w“ü
+ * IXACew
  *------------------------------------------
  */
 void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned char *p)
@@ -66,6 +66,13 @@ void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned cha
 		return;
 	if (vsd->vender_id == sd->bl.id)
 		return;
+	if (sd->bl.m != vsd->bl.m || !check_distance_bl(&sd->bl, &vsd->bl, AREA_SIZE)
+	) {
+		clif_buyvending(sd, 0, 32767, 4); // too far [Lupus]
+		//probably... we should add either a hack log / or a proper message. But normal player won't see ie anyway
+		return;
+	}
+
 
 	// check number of buying items
 	if (len < 8 + 4 || len > 8 + 4 * MAX_VENDING) {
@@ -147,6 +154,8 @@ void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned cha
 	//Logs
 
 	pc_payzeny(sd, (int)z);
+	if (battle_config.vending_tax)
+		z = z*(1 - battle_config.vending_tax/10000);
 	pc_getzeny(vsd, (int)z);
 
 	for(i = 0; 8 + 4 * i < len; i++) {
@@ -194,7 +203,7 @@ void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned cha
 }
 
 /*==========================================
- * ˜I“XŠJÝ
+ * IXJ
  *------------------------------------------
  */
 void vending_openvending(struct map_session_data *sd,int len,char *message,int flag,unsigned char *p)
@@ -214,7 +223,7 @@ void vending_openvending(struct map_session_data *sd,int len,char *message,int f
 
 	vending_skill_lvl = pc_checkskill(sd, MC_VENDING);
 	if(!vending_skill_lvl || !pc_iscarton(sd)) {	// cart skill and cart check [Valaris]
-		clif_skill_fail(sd,MC_VENDING,0,0);
+		clif_skill_fail(sd, MC_VENDING, 0, 0);
 		return;
 	}
 
@@ -234,11 +243,11 @@ void vending_openvending(struct map_session_data *sd,int len,char *message,int f
 			}
 			sd->vending[i].amount = *(short*)(p+2+8*j);
 			sd->vending[i].value = *(int*)(p+4+8*j);
-			if(sd->vending[i].value > battle_config.vending_max_value)
-				sd->vending[i].value=battle_config.vending_max_value;
+			if(sd->vending[i].value > (unsigned int)battle_config.vending_max_value)
+				sd->vending[i].value = (unsigned int)battle_config.vending_max_value;
 			else if(sd->vending[i].value < 1)
 				sd->vending[i].value = 1000000;	// auto set to 1 million [celest]
-			// ƒJ[ƒg“à‚ÌƒAƒCƒeƒ€”‚Æ”Ì”„‚·‚éƒAƒCƒeƒ€”‚É‘Šˆá‚ª‚ ‚Á‚½‚ç’†Ž~
+			// J[gACeACe~
 			if(pc_cartitem_amount(sd, sd->vending[i].index, sd->vending[i].amount) < 0) { // fixes by Valaris and fritz
 				clif_skill_fail(sd, MC_VENDING, 0, 0);
 				return;

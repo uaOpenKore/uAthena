@@ -1,6 +1,12 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/cbasetypes.h"
+#include "../common/mmo.h"
+#include "../common/malloc.h"
+#include "../common/showmsg.h"
+#include "utils.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -14,42 +20,41 @@
 	#include <sys/stat.h>
 #endif
 
-#include "utils.h"
-#include "../common/mmo.h"
-#include "../common/malloc.h"
-#include "../common/showmsg.h"
-#include "../common/cbasetypes.h"
-
-void dump(unsigned char *buffer, int num)
+#ifdef UTIL_DUMP
+void dump(const unsigned char* buffer, int num)
 {
-   int     icnt,jcnt;
+	int icnt, jcnt;
 
-   printf("         Hex                                                  ASCII\n");
-   printf("         -----------------------------------------------      ----------------");
+	printf("         Hex                                                  ASCII\n");
+	printf("         -----------------------------------------------      ----------------");
 
-   for (icnt=0;icnt<num;icnt+=16) {
-	printf("\n%p ",&buffer[icnt]);
-    for (jcnt=icnt;jcnt<icnt+16;++jcnt) {
-	    if (jcnt < num) {
-              printf("%02hX ",buffer[jcnt]);
-		}  else
-              printf("   ");
-    }
+	for (icnt = 0; icnt < num; icnt += 16)
+	{
+		printf("\n%p ", &buffer[icnt]);
+		for (jcnt = icnt; jcnt < icnt + 16; ++jcnt)
+		{
+			if (jcnt < num)
+				printf("%02hX ", buffer[jcnt]);
+			else
+				printf("   ");
+		}
 
-    printf("  |  ");
+		printf("  |  ");
 
-	for (jcnt=icnt;jcnt<icnt+16;++jcnt) {
-        if (jcnt < num) {
-            if (buffer[jcnt] > 31 && buffer[jcnt] < 127)
-                   printf("%c",buffer[jcnt]);
-               else
-                   printf(".");
-           }  else
-               printf(" ");
-       }
-   }
-   printf("\n");
+		for (jcnt = icnt; jcnt < icnt + 16; ++jcnt)
+		{
+			if (jcnt < num) {
+				if (buffer[jcnt] > 31 && buffer[jcnt] < 127)
+					printf("%c", buffer[jcnt]);
+				else
+					printf(".");
+			} else
+				printf(" ");
+		}
+	}
+	printf("\n");
 }
+#endif
 
 // Allocate a StringBuf  [MouseJstr]
 struct StringBuf * StringBuf_Malloc()
@@ -141,7 +146,7 @@ char * StringBuf_Value(struct StringBuf *sbuf)
 
 #ifdef WIN32
 
-char* checkpath(char *path, const char *srcpath)
+static char* checkpath(char *path, const char *srcpath)
 {	// just make sure the char*path is not const
 	char *p=path;
 	if(NULL!=path && NULL!=srcpath)
@@ -202,7 +207,7 @@ void findfile(const char *p, const char *pat, void (func)(const char*))
 
 #define MAX_DIR_PATH 2048
 
-char* checkpath(char *path, const char*srcpath)
+static char* checkpath(char *path, const char*srcpath)
 {	// just make sure the char*path is not const
 	char *p=path;
 	if(NULL!=path && NULL!=srcpath)
@@ -266,30 +271,20 @@ void findfile(const char *p, const char *pat, void (func)(const char*))
 
 unsigned char GetByte(unsigned long val, size_t num)
 {
-	switch(num)
-	{
-	case 0:
-		return (unsigned char)((val & 0x000000FF)      );
-	case 1:
-		return (unsigned char)((val & 0x0000FF00)>>0x08);
-	case 2:
-		return (unsigned char)((val & 0x00FF0000)>>0x10);
-	case 3:
-		return (unsigned char)((val & 0xFF000000)>>0x18);
-	default:
-		return 0;	//better throw something here
+	switch(num) {
+	case 0:  return (unsigned char)((val & 0x000000FF)      );
+	case 1:	 return (unsigned char)((val & 0x0000FF00)>>0x08);
+	case 2:	 return (unsigned char)((val & 0x00FF0000)>>0x10);
+	case 3:	 return (unsigned char)((val & 0xFF000000)>>0x18);
+	default: return 0;	//better throw something here
 	}
 }
 unsigned short GetWord(unsigned long val, size_t num)
 {
-	switch(num)
-	{
-	case 0:
-		return (unsigned short)((val & 0x0000FFFF)      );
-	case 1:
-		return (unsigned short)((val & 0xFFFF0000)>>0x10);
-	default:
-		return 0;	//better throw something here
+	switch(num) {
+	case 0:  return (unsigned short)((val & 0x0000FFFF)      );
+	case 1:  return (unsigned short)((val & 0xFFFF0000)>>0x10);
+	default: return 0;	//better throw something here
 	}
 }
 unsigned short MakeWord(unsigned char byte0, unsigned char byte1)

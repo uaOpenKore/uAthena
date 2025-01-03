@@ -85,9 +85,7 @@ int battle_check_target(struct block_list *src, struct block_list *target,int fl
 int battle_check_range(struct block_list *src,struct block_list *bl,int range);
 
 void battle_consume_ammo(struct map_session_data* sd, int skill, int lv);
-// 
-
-int battle_config_switch(const char *str); // [Valaris]
+//
 
 extern struct Battle_Config {
 	unsigned short warp_point_debug;
@@ -261,7 +259,8 @@ extern struct Battle_Config {
 	unsigned short chat_warpportal;
 	unsigned short mob_warp;
 	unsigned short dead_branch_active;
-	unsigned int vending_max_value;
+	int vending_max_value;
+	unsigned short vending_tax;
 	unsigned short show_steal_in_same_party;
 	unsigned short party_share_type;
 	unsigned short party_hp_mode;

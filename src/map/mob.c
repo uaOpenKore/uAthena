@@ -973,11 +973,36 @@ int mob_unlocktarget(struct mob_data *md,int tick)
 {
 	nullpo_retr(0, md);
 
-	md->target_id=0;
-	md->state.skillstate=MSS_IDLE;
-	md->next_walktime=tick+rand()%3000+3000;
-	mob_stop_attack(md);
-	md->ud.target = 0;
+	switch (md->state.skillstate) {
+	case MSS_WALK:
+		if (md->ud.walktimer != -1)
+			break;
+		//Because it is not unset when the mob finishes walking.
+		md->state.skillstate = MSS_IDLE;
+	case MSS_IDLE:
+		// Idle skill.
+		if (!(++md->ud.walk_count%IDLE_SKILL_INTERVAL) &&
+			mobskill_use(md, tick, -1))
+			break;
+		//Random walk.
+		if (!md->master_id &&
+			DIFF_TICK(md->next_walktime, tick) <= 0 &&
+			!mob_randomwalk(md,tick))
+			//Delay next random walk when this one failed.
+			md->next_walktime=tick+rand()%3000;
+		break;
+	default:
+		mob_stop_attack(md);
+		if (battle_config.mob_ai&0x8)
+			mob_stop_walking(md,1); //Inmediately stop chasing.
+		md->state.skillstate = MSS_IDLE;
+		md->next_walktime=tick+rand()%3000+3000;
+		break;
+	}
+	if (md->target_id) {
+		md->target_id=0;
+		md->ud.target = 0;
+	}
 	return 0;
 }
 /*==========================================
@@ -1087,8 +1112,6 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 				((((TBL_PC*)tbl)->state.gangsterparadise && !(mode&MD_BOSS)) ||
 				((TBL_PC*)tbl)->invincible_timer != INVALID_TIMER)
 		)) {	//Unlock current target.
-			if (battle_config.mob_ai&0x8) //Inmediately stop chasing.
-				mob_stop_walking(md,1);
 			mob_unlocktarget(md, tick-(battle_config.mob_ai&0x8?3000:0)); //Imediately do random walk.
 			tbl = NULL;
 		}
@@ -1128,7 +1151,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			)	{	//Rude attacked
 				if (md->state.attacked_count++ >= RUDE_ATTACKED_COUNT &&
 					!mobskill_use(md, tick, MSC_RUDEATTACKED) && can_move &&
-					unit_escape(bl, abl, rand()%10 +1))
+					!tbl && unit_escape(bl, abl, rand()%10 +1))
 				{	//Escaped.
 					//TODO: Maybe it shouldn't attempt to run if it has another, valid target?
 					md->attacked_id = 0;
@@ -1182,16 +1205,8 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 	if (!tbl) { //No targets available.
 		if (mode&MD_ANGRY && !md->state.aggressive)
 			md->state.aggressive = 1; //Restore angry state when no targets are available.
-
-		if(md->ud.walktimer == -1) {
-			// Idle skill.
-			md->state.skillstate = MSS_IDLE;
-			if (!(++md->ud.walk_count%IDLE_SKILL_INTERVAL) && mobskill_use(md, tick, -1))
-				return 0;
-		}
-		// Random walk.
-		if (can_move && !md->master_id && DIFF_TICK(md->next_walktime, tick) <= 0)
-			mob_randomwalk(md,tick);
+		//This handles triggering idle walk/skill.
+		mob_unlocktarget(md, tick);
 		return 0;
 	}
 
@@ -1204,7 +1219,6 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 		if (md->lootitem == NULL)
 		{	//Can't loot...
 			mob_unlocktarget (md, tick);
-			mob_stop_walking(md,0);
 			return 0;
 		}
 		if (!check_distance_bl(&md->bl, tbl, 1))
@@ -1284,9 +1298,10 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 		return 0;
 
 	//Follow up if possible.
-	if (!mob_can_reach(md, tbl, md->min_chase, MSS_RUSH) ||
+	if(!mob_can_reach(md, tbl, md->min_chase, MSS_RUSH) ||
 		!unit_walktobl(&md->bl, tbl, md->status.rhw.range, 2))
 		mob_unlocktarget(md,tick);
+
 	return 0;
 }
 
@@ -1605,8 +1620,9 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 	}
 	//Log damage...
 	if (char_id && damage > 0) {
-		int i,minpos,mindmg;
-		for(i=0,minpos=DAMAGELOG_SIZE-1,mindmg=INT_MAX;i<DAMAGELOG_SIZE;i++){
+		int i,minpos;
+		unsigned int mindmg;
+		for(i=0,minpos=DAMAGELOG_SIZE-1,mindmg=UINT_MAX;i<DAMAGELOG_SIZE;i++){
 			if(md->dmglog[i].id==char_id &&
 				md->dmglog[i].flag==flag)
 				break;
@@ -1707,12 +1723,18 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		}
 	}
 
-	for(i=0,mvp_damage=0;i<DAMAGELOG_SIZE && md->dmglog[i].id;i++)
+	for(i=count=0,mvp_damage=0;i<DAMAGELOG_SIZE && md->dmglog[i].id;i++)
 	{
 		tmpsd[i] = map_charid2sd(md->dmglog[i].id);
 		if(tmpsd[i] == NULL)
 			continue;
-		if(tmpsd[i]->bl.m != m || pc_isdead(tmpsd[i]))
+		if(tmpsd[i]->bl.m != m)
+		{
+			tmpsd[i] = NULL;
+			continue;
+		}
+		count++; //Only logged into same map chars are counted for the total.
+		if (pc_isdead(tmpsd[i]))
 		{
 			tmpsd[i] = NULL;
 			continue;
@@ -1722,15 +1744,13 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			tmpsd[i] = NULL;
 			continue;
 		}
-
-		if(mvp_damage<(unsigned int)md->dmglog[i].dmg){
+		if(mvp_damage<md->dmglog[i].dmg){
 			third_sd = second_sd;
 			second_sd = mvp_sd;
 			mvp_sd=tmpsd[i];
 			mvp_damage=md->dmglog[i].dmg;
 		}
 	}
-	count = i; //Total number of attackers.
 
 	if(!battle_config.exp_calc_type && count > 1)
 	{	//Apply first-attacker 200% exp share bonus
@@ -2588,8 +2608,9 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 {
 	struct mob_skill *ms;
 	struct block_list *fbl = NULL; //Friend bl, which can either be a BL_PC or BL_MOB depending on the situation. [Skotlex]
+	struct block_list *bl;
 	struct mob_data *fmd = NULL;
-	int i,n;
+	int i,j,n;
 
 	nullpo_retr (0, md);
 	nullpo_retr (0, ms = md->db->skill);
@@ -2647,7 +2668,6 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 					if (!md->sc.count) {
 						flag = 0;
 					} else if (ms[i].cond2 == -1) {
-						int j;
 						for (j = SC_COMMON_MIN; j <= SC_COMMON_MAX; j++)
 							if ((flag = (md->sc.data[j].timer != -1)) != 0)
 								break;
@@ -2689,105 +2709,97 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 		if (!flag)
 			continue; //Skill requisite failed to be fulfilled.
 
-		//Execute skill	
+		//Execute skill
 		if (skill_get_casttype(ms[i].skill_id) == CAST_GROUND)
-		{
-			struct block_list *bl = NULL;
-			short x = 0, y = 0;
-			if (ms[i].target <= MST_AROUND) {
-				switch (ms[i].target) {
-					case MST_RANDOM: //Pick a random enemy within skill range.
-						bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
-							skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
+		{	//Ground skill.
+			short x, y;
+			switch (ms[i].target) {
+				case MST_RANDOM: //Pick a random enemy within skill range.
+					bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
+						skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
+					break;
+				case MST_TARGET:
+				case MST_AROUND5:
+				case MST_AROUND6:
+				case MST_AROUND7:
+				case MST_AROUND8:
+					bl = map_id2bl(md->target_id);
+					break;
+				case MST_MASTER:
+					bl = &md->bl;
+					if (md->master_id)
+						bl = map_id2bl(md->master_id);
+					if (bl) //Otherwise, fall through.
 						break;
-					case MST_TARGET:
-					case MST_AROUND5:
-					case MST_AROUND6:
-					case MST_AROUND7:
-					case MST_AROUND8:
-						bl = map_id2bl(md->target_id);
-						break;
-					case MST_MASTER:
-						bl = &md->bl;
-						if (md->master_id) 
-							bl = map_id2bl(md->master_id);
-						if (bl) //Otherwise, fall through.
-							break;
-					case MST_FRIEND:
-						if (fbl)
-						{
-							bl = fbl;
-							break;
-						} else if (fmd) {
-							bl= &fmd->bl;
-							break;
-						} // else fall through
-					default:
-						bl = &md->bl;
-						break;
-				}
-				if (bl != NULL) {
-					x = bl->x; y=bl->y;
-				}
+				case MST_FRIEND:
+					bl = fbl?fbl:(fmd?&fmd->bl:&md->bl);
+					break;
+				default:
+					bl = &md->bl;
+					break;
 			}
-			if (x <= 0 || y <= 0)
-				continue;
+			if (!bl) continue;
+			x = bl->x;
+			y = bl->y;
 			// Look for an area to cast the spell around...
 			if (ms[i].target >= MST_AROUND1 || ms[i].target >= MST_AROUND5) {
-				int r = ms[i].target >= MST_AROUND1?
+				j = ms[i].target >= MST_AROUND1?
 					(ms[i].target-MST_AROUND1) +1:
 					(ms[i].target-MST_AROUND5) +1;
-				map_search_freecell(&md->bl, md->bl.m, &x, &y, r, r, 3);
+				map_search_freecell(&md->bl, md->bl.m, &x, &y, j, j, 3);
 			}
 			md->skillidx = i;
-			flag = unit_skilluse_pos2(&md->bl, x, y, ms[i].skill_id, ms[i].skill_lv,
-				ms[i].casttime, ms[i].cancel);
-			if (!flag) md->skillidx = -1; //Skill failed.
-			return flag;
-		} else {
-			if (ms[i].target <= MST_MASTER) {
-				struct block_list *bl;
-				switch (ms[i].target) {
-					case MST_RANDOM: //Pick a random enemy within skill range.
-						bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
-							skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
-						break;
-					case MST_TARGET:
-						bl = map_id2bl(md->target_id);
-						break;
-					case MST_MASTER:
-						bl = &md->bl;
-						if (md->master_id) 
-							bl = map_id2bl(md->master_id);
-						if (bl) //Otherwise, fall through.
-							break;
-					case MST_FRIEND:
-						if (fbl) {
-							bl = fbl;
-							break;
-						} else if (fmd) {
-							bl = &fmd->bl;
-							break;
-						} // else fall through
-					default:
-						bl = &md->bl;
-						break;
-				}
-				md->skillidx = i;
-				flag = (bl && unit_skilluse_id2(&md->bl, bl->id, ms[i].skill_id, ms[i].skill_lv,
-					ms[i].casttime, ms[i].cancel));
-				if (!flag) md->skillidx = -1;
-				return flag;
-			} else {
-				if (battle_config.error_log)
-					ShowWarning("Wrong mob skill target 'around' for non-ground skill %d (%s). Mob %d - %s\n",
-						ms[i].skill_id, skill_get_name(ms[i].skill_id), md->class_, md->db->sprite);
+			if (!unit_skilluse_pos2(&md->bl, x, y,
+				ms[i].skill_id, ms[i].skill_lv,
+				ms[i].casttime, ms[i].cancel))
 				continue;
+		} else {
+			//Targetted skill
+			switch (ms[i].target) {
+				case MST_RANDOM: //Pick a random enemy within skill range.
+					bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
+						skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
+					break;
+				case MST_TARGET:
+					bl = map_id2bl(md->target_id);
+					break;
+				case MST_MASTER:
+					bl = &md->bl;
+					if (md->master_id)
+						bl = map_id2bl(md->master_id);
+					if (bl) //Otherwise, fall through.
+						break;
+				case MST_FRIEND:
+					if (fbl) {
+						bl = fbl;
+						break;
+					} else if (fmd) {
+						bl = &fmd->bl;
+						break;
+					} // else fall through
+				default:
+					bl = &md->bl;
+					break;
 			}
+			if (!bl) continue;
+			md->skillidx = i;
+			if (!unit_skilluse_id2(&md->bl, bl->id,
+				ms[i].skill_id, ms[i].skill_lv,
+				ms[i].casttime, ms[i].cancel))
+				continue;
 		}
+		//Skill used. Post-setups...
+		if(battle_config.mob_ai&0x200)
+		{ //pass on delay to same skill.
+			for (j = 0; j < md->db->maxskill; j++)
+				if (md->db->skill[j].skill_id == ms[i].skill_id)
+					md->skilldelay[j]=tick;
+		} else
+			md->skilldelay[i]=tick;
 		return 1;
 	}
-
+	//No skill was used.
+	md->skillidx = -1;
 	return 0;
 }
 /*==========================================
@@ -3203,7 +3215,10 @@ int mob_parse_dbrow(char** str)
 	status_calc_misc(&data.bl, status, db->lv);
 
 	// MVP EXP Bonus, Chance: MEXP,ExpPer
-	db->mexp = atoi(str[30]) * battle_config.mvp_exp_rate / 100;
+	// Some new MVP's MEXP multipled by high exp-rate cause overflow. [LuzZza]
+	exp = (double)atoi(str[30]) * (double)battle_config.mvp_exp_rate / 100.;
+	db->mexp = (unsigned int)cap_value(exp, 0, UINT_MAX);
+
 	db->mexpper = atoi(str[31]);
 
 	//Now that we know if it is an mvp or not, apply battle_config modifiers [Skotlex]
@@ -3645,7 +3660,7 @@ static int mob_readskilldb(void)
 			if (mob_id > 0 && mob_db(mob_id) == mob_dummy)
 			{
 				if (mob_id != last_mob_id) {
-					ShowWarning("mob_skill: Non existant Mob id %d at %s, line %d\n", mob_id, filename[x], count);
+					ShowError("mob_skill: Non existant Mob id %d at %s, line %d\n", mob_id, filename[x], count);
 					last_mob_id = mob_id;
 				}
 				continue;
@@ -3668,7 +3683,7 @@ static int mob_readskilldb(void)
 						break;
 				if(i==MAX_MOBSKILL){
 					if (mob_id != last_mob_id) {
-						ShowWarning("mob_skill: readdb: too many skill! Line %d in %d[%s]\n",
+						ShowError("mob_skill: readdb: too many skill! Line %d in %d[%s]\n",
 							count,mob_id,mob_db_data[mob_id]->sprite);
 						last_mob_id = mob_id;
 					}
@@ -3681,17 +3696,19 @@ static int mob_readskilldb(void)
 			for(j=0;j<tmp && strcmp(sp[2],state[j].str);j++);
 			if (j < tmp)
 				ms->state=state[j].id;
-			else
-				ShowError("mob_skill: Unrecognized state %s at %s, line %d\n", sp[2], filename[x], count);
+			else if (!ms->state) {
+				ShowWarning("mob_skill: Unrecognized state %s at %s, line %d\n", sp[2], filename[x], count);
+				ms->state=MSS_ANY;
+			}
 
 			//Skill ID
 			j=atoi(sp[3]);
 			if (j<=0 || j>MAX_SKILL_DB) //fixed Lupus
 			{
 				if (mob_id < 0)
-					ShowWarning("Invalid Skill ID (%d) for all mobs\n", j);
+					ShowError("Invalid Skill ID (%d) for all mobs\n", j);
 				else
-					ShowWarning("Invalid Skill ID (%d) for mob %d (%s)\n", j, mob_id, mob_db_data[mob_id]->sprite);
+					ShowError("Invalid Skill ID (%d) for mob %d (%s)\n", j, mob_id, mob_db_data[mob_id]->sprite);
 				continue;
 			}
 			ms->skill_id=j;
@@ -3720,13 +3737,35 @@ static int mob_readskilldb(void)
 				if( strcmp(sp[9],target[j].str)==0)
 					ms->target=target[j].id;
 			}
-			ms->cond1=-1;
+
+			//Check that the target condition is right for the skill type. [Skotlex]
+			if (skill_get_casttype(ms->skill_id) == CAST_GROUND)
+			{	//Ground skill.
+				if (ms->target > MST_AROUND)
+				{
+					if (battle_config.error_log)
+						ShowWarning("Wrong mob skill target for ground skill %d (%s) for %s.\n",
+							ms->skill_id, skill_get_name(ms->skill_id),
+							mob_id < 0?"all mobs":mob_db_data[mob_id]->sprite);
+					ms->target = MST_TARGET;
+				}
+			} else if (ms->target > MST_MASTER) {
+				if (battle_config.error_log)
+					ShowWarning("Wrong mob skill target 'around' for non-ground skill %d (%s) for %s\n.",
+						ms->skill_id, skill_get_name(ms->skill_id),
+						mob_id < 0?"all mobs":mob_db_data[mob_id]->sprite);
+				ms->target = MST_TARGET;
+			}
+
 			tmp = sizeof(cond1)/sizeof(cond1[0]);
 			for(j=0;j<tmp && strcmp(sp[10],cond1[j].str);j++);
 			if (j < tmp)
 				ms->cond1=cond1[j].id;
-			else
-				ShowError("mob_skill: Unrecognized condition 1 %s at %s, line %d\n", sp[10], filename[x], count);
+			else {
+				ShowWarning("mob_skill: Unrecognized condition 1 %s at %s, line %d\n",
+					sp[10], filename[x], count);
+				ms->cond1=-1;
+			}
 
 			ms->cond2=atoi(sp[11]);
 			tmp = sizeof(cond2)/sizeof(cond2[0]);

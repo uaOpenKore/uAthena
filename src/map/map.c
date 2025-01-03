@@ -20,6 +20,7 @@
 #include "../common/showmsg.h"
 #include "../common/version.h"
 #include "../common/nullpo.h"
+#include "../common/strlib.h"
 
 #include "map.h"
 #include "chrif.h"
@@ -263,16 +264,13 @@ int map_freeblock_lock (void)
  * obt@blockS
  *------------------------------------------
  */
-//int map_freeblock_unlock (void)
-int map_freeblock_unlock_sub(char *file, int lineno)
+int map_freeblock_unlock (void)
 {
 	if ((--block_free_lock) == 0) {
 		int i;
 		for (i = 0; i < block_free_count; i++)
 		{
-//			aFree(block_free[i]);
-//			_mfree(block_free[i], file, lineno, __func__);
-			_mfree(block_free[i], file, ((block_free[i]?block_free[i]->type:0)*100000)+lineno, __func__);
+			aFree(block_free[i]);
 			block_free[i] = NULL;
 		}
 		block_free_count = 0;
@@ -1659,11 +1657,15 @@ void map_deliddb(struct block_list *bl) {
 int map_quit(struct map_session_data *sd) {
 
 	if(!sd->state.auth) { //Removing a player that hasn't even finished loading
+		TBL_PC *sd2 = map_id2sd(sd->status.account_id);
 		if (sd->pd) unit_free(&sd->pd->bl,-1);
 		if (sd->hd) unit_free(&sd->hd->bl,-1);
+		//Double login, let original do the cleanups below.
+		if (sd2 && sd2 != sd)
+			return 0;
+		idb_remove(id_db,sd->bl.id);
 		idb_remove(pc_db,sd->status.account_id);
 		idb_remove(charid_db,sd->status.char_id);
-		idb_remove(id_db,sd->bl.id);
 		return 0;
 	}
 	if(!sd->state.waitingdisconnect) {
@@ -1679,13 +1681,11 @@ int map_quit(struct map_session_data *sd) {
 		chrif_save(sd,1);
 	} else { //Try to free some data, without saving anything (this could be invoked on map server change. [Skotlex]
 		if (sd->bl.prev != NULL)
-		{	//Remove from map...
 			unit_remove_map(&sd->bl, 0);
-			if (sd->pd && sd->pd->bl.prev != NULL)
-				unit_remove_map(&sd->pd->bl, 0);
-			if (sd->hd && sd->hd->bl.prev != NULL)
-				unit_remove_map(&sd->hd->bl, 0);
-		}
+		if (sd->pd && sd->pd->bl.prev != NULL)
+			unit_remove_map(&sd->pd->bl, 0);
+		if (sd->hd && sd->hd->bl.prev != NULL)
+			unit_remove_map(&sd->hd->bl, 0);
 	}
 
 	//Do we really need to remove the name?
@@ -2079,9 +2079,9 @@ int map_mapindex2mapid(unsigned short mapindex) {
 
 /*==========================================
  * Imapip,port?
- *------------------------------------------
- */
-int map_mapname2ipport(unsigned short name,int *ip,int *port) {
+ *------------------------------------------*/
+int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port)
+{
 	struct map_data_other_server *mdos=NULL;
 
 	mdos = (struct map_data_other_server*)uidb_get(map_db,(unsigned int)name);
@@ -2351,16 +2351,16 @@ static void* create_map_data_other_server(DBKey key, va_list args) {
 }
 /*==========================================
  * I}bvdb
- *------------------------------------------
- */
-int map_setipport(unsigned short mapindex,unsigned long ip,int port) {
+ *------------------------------------------*/
+int map_setipport(unsigned short mapindex, uint32 ip, uint16 port)
+{
 	struct map_data_other_server *mdos=NULL;
 
 	mdos=(struct map_data_other_server *)uidb_ensure(map_db,(unsigned int)mapindex, create_map_data_other_server);
-	
+
 	if(mdos->gat) //Local map,Do nothing. Give priority to our own local maps over ones from another server. [Skotlex]
 		return 0;
-	if(ip == clif_getip_long() && port == clif_getport()) {
+	if(ip == clif_getip() && port == clif_getport()) {
 		//That's odd, we received info that we are the ones with this map, but... we don't have it.
 		ShowFatalError("map_setipport : received info that this map-server SHOULD have map '%s', but it is not loaded.\n",mapindex_id2name(mapindex));
 		exit(1);
@@ -2390,12 +2390,10 @@ int map_eraseallipport(void) {
 
 /*==========================================
  * I}bvdb
- *------------------------------------------
- */
-int map_eraseipport(unsigned short mapindex,unsigned long ip,int port)
+ *------------------------------------------*/
+int map_eraseipport(unsigned short mapindex, uint32 ip, uint16 port)
 {
 	struct map_data_other_server *mdos;
-//	unsigned char *p=(unsigned char *)&ip;
 
 	mdos = uidb_get(map_db,(unsigned int)mapindex);
 	if(!mdos || mdos->gat) //Map either does not exists or is a local map.
@@ -2747,10 +2745,6 @@ int map_addmap(char *mapname) {
 	return 0;
 }
 
-/*==========================================
- * Removes the map in the index passed.
- *------------------------------------------
- */
 static void map_delmapid(int id)
 {
 	ShowNotice("Removing map [ %s ] from maplist\n",map[id].name);
@@ -2758,10 +2752,6 @@ static void map_delmapid(int id)
 	map_num--;
 }
 
-/*==========================================
- * ??map
- *------------------------------------------
- */
 int map_delmap(char *mapname) {
 
 	int i;
@@ -3294,18 +3284,6 @@ int parse_console(char* buf)
 	return 0;
 }
 
-//-------------------------------------------------
-// Return numerical value of a switch configuration
-// on/off, english, franais, deutsch, espaol
-//-------------------------------------------------
-int config_switch(const char *str) {
-	if (strcmpi(str, "on") == 0 || strcmpi(str, "yes") == 0 || strcmpi(str, "oui") == 0 || strcmpi(str, "ja") == 0 || strcmpi(str, "si") == 0)
-		return 1;
-	if (strcmpi(str, "off") == 0 || strcmpi(str, "no") == 0 || strcmpi(str, "non") == 0 || strcmpi(str, "nein") == 0)
-		return 0;
-	return atoi(str);
-}
-
 /*==========================================
  * t@C??
  *------------------------------------------
@@ -3338,7 +3316,6 @@ int map_config_read(char *cfgName) {
 			} else if(strcmpi(w1,"stdout_with_ansisequence")==0){
 				stdout_with_ansisequence = config_switch(w2);
 			} else if(strcmpi(w1,"console_silent")==0){
-				msg_silent = 0; //To always allow the next line to show up.
 				ShowInfo("Console Silent Setting: %d\n", atoi(w2));
 				msg_silent = atoi(w2);
 			} else if (strcmpi(w1, "userid")==0){
@@ -3438,10 +3415,10 @@ int inter_config_read(char *cfgName)
 		if(i!=2)
 			continue;
 		if(strcmpi(w1,"party_share_level")==0){
-			party_share_level = battle_config_switch(w2);
+			party_share_level = config_switch(w2);
 		} else if(strcmpi(w1,"lowest_gm_level")==0){
 			lowest_gm_level = atoi(w2);
-		
+
 		/* Main chat nick [LuzZza] */
 		} else if(strcmpi(w1, "main_chat_nick")==0){
 			strcpy(main_chat_nick, w2);
@@ -3471,7 +3448,7 @@ int inter_config_read(char *cfgName)
 		} else if(strcmpi(w1,"default_codepage")==0){
 			strcpy(default_codepage, w2);
 		} else if(strcmpi(w1,"use_sql_db")==0){
-			db_use_sqldbs = battle_config_switch(w2);
+			db_use_sqldbs = config_switch(w2);
 			ShowStatus ("Using SQL dbs: %s\n",w2);
 		} else if(strcmpi(w1,"log_db")==0) {
 			strcpy(log_db, w2);
@@ -3485,9 +3462,9 @@ int inter_config_read(char *cfgName)
 			strcpy(log_db_pw, w2);
 		} else if(strcmpi(w1,"log_db_port")==0) {
 			log_db_port = atoi(w2);
-		// Mail Server SQL 
+		// Mail Server SQL
 		} else if(strcmpi(w1,"mail_server_enable")==0){
-			mail_server_enable = battle_config_switch(w2);
+			mail_server_enable = config_switch(w2);
 			ShowStatus ("Using Mail Server: %s\n",w2);
 		} else if(strcmpi(w1,"mail_server_ip")==0){
 			strcpy(mail_server_ip, w2);
@@ -3813,13 +3790,14 @@ void map_versionscreen(int flag) {
 
 /*======================================================
  * Map-Server Init and Command-line Arguments [Valaris]
- *------------------------------------------------------
- */
+ *------------------------------------------------------*/
 void set_server_type(void)
 {
 	SERVER_TYPE = ATHENA_SERVER_MAP;
 }
-int do_init(int argc, char *argv[]) {
+
+int do_init(int argc, char *argv[])
+{
 	int i;
 
 #ifdef GCOLLECT
@@ -3871,24 +3849,22 @@ int do_init(int argc, char *argv[]) {
 	chrif_checkdefaultlogin();
 
 	if (!map_ip_set || !char_ip_set) {
-		// The map server should know what IP address it is running on
-		//   - MouseJstr
-		int localaddr = ntohl(addr_[0]);
-		unsigned char *ptr = (unsigned char *) &localaddr;
-		char buf[16];
-		if (naddr_ == 0) {
-			ShowError("\nUnable to determine your IP address... please edit the map_athena.conf file and set it.\n");
-			ShowError("(127.0.0.1 is valid if you have no network interface)\n");
-		}
-		sprintf(buf, "%d.%d.%d.%d", ptr[0], ptr[1], ptr[2], ptr[3]);;
-		if (naddr_ != 1)
-			ShowNotice("Multiple interfaces detected..  using %s as our IP address\n", buf);
-		else
-			ShowInfo("Defaulting to %s as our IP address\n", buf);
+		char ip_str[16];
+		ip2str(addr_[0], ip_str);
+
+		ShowError("\nNot all IP addresses in map_athena.conf configured, autodetecting...\n");
+
+		if (naddr_ == 0)
+			ShowError("Unable to determine your IP address...\n");
+		else if (naddr_ > 1)
+			ShowNotice("Multiple interfaces detected...\n");
+
+		ShowInfo("Defaulting to %s as our IP address\n", ip_str);
+
 		if (!map_ip_set)
-			clif_setip(buf);
+			clif_setip(ip_str);
 		if (!char_ip_set)
-			chrif_setip(buf);
+			chrif_setip(ip_str);
 	}
 
 	if (SHOW_DEBUG_MSG)
@@ -3927,13 +3903,13 @@ int do_init(int argc, char *argv[]) {
 	do_init_clif();
 	do_init_script();
 	do_init_itemdb();
-	do_init_mob();	// npcEmob_spawnAmob_db?init_npc
+	do_init_skill();
+	do_init_mob();
 	do_init_pc();
 	do_init_status();
 	do_init_party();
 	do_init_guild();
 	do_init_storage();
-	do_init_skill();
 	do_init_pet();
 	do_init_merc();	//[orn]
 	do_init_npc();
@@ -3963,19 +3939,5 @@ int do_init(int argc, char *argv[]) {
 
 	ShowStatus("Server is '"CL_GREEN"ready"CL_RESET"' and listening on port '"CL_WHITE"%d"CL_RESET"'.\n\n", map_port);
 
-	return 0;
-}
-
-int compare_item(struct item *a, struct item *b) {
-
-	if (a->nameid == b->nameid &&
-		a->identify == b->identify &&
-		a->refine == b->refine &&
-		a->attribute == b->attribute)
-	{
-		int i;
-		for (i = 0; i < MAX_SLOTS && (a->card[i] == b->card[i]); i++);
-		return (i == MAX_SLOTS);
-	}
 	return 0;
 }

@@ -6,14 +6,11 @@
 
 #include <stdarg.h>
 
-#ifndef NULL
-#define NULL (void *)0
+// Function that dumps the hex of the first num bytes of the buffer to the screen
+//#define UTIL_DUMP
+#ifdef UTIL_DUMP
+void dump(const unsigned char* buffer, int num);
 #endif
-
-#define LOWER(c)   (((c)>='A'  && (c) <= 'Z') ? ((c)+('a'-'A')) : (c))
-#define UPPER(c)   (((c)>='a'  && (c) <= 'z') ? ((c)+('A'-'a')) : (c) )
-
-void dump(unsigned char *buffer, int num);
 
 struct StringBuf {
 	char *buf_;

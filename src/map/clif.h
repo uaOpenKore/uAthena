@@ -8,7 +8,7 @@
 
 // packet DB
 #define MAX_PACKET_DB		0x300
-#define MAX_PACKET_VER		25
+#define MAX_PACKET_VER		21
 
 struct packet_db {
 	short len;
@@ -48,15 +48,15 @@ enum {
 // packet_db[SERVER] is reserved for server use
 #define SERVER 0
 #define packet_len(x) packet_db[SERVER][x].len
-extern struct packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB];
+extern struct packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB + 1];
 
 int clif_setip(const char* ip);
 void clif_setbindip(const char* ip);
-void clif_setport(int);
+void clif_setport(uint16 port);
 
-unsigned long clif_getip_long(void);
-unsigned long clif_refresh_ip(void);
-int clif_getport(void);
+uint32 clif_getip(void);
+uint32 clif_refresh_ip(void);
+uint16 clif_getport(void);
 int clif_countusers(void);
 void clif_setwaitclose(int);
 
@@ -75,7 +75,7 @@ int clif_spawn(struct block_list*);	//area
 int clif_walkok(struct map_session_data*);	// self
 int clif_move(struct block_list*);	// area
 int clif_changemap(struct map_session_data*,short,int,int);	//self
-int clif_changemapserver(struct map_session_data* sd, const char* mapname, int x, int y, int ip, int port);	//self
+int clif_changemapserver(struct map_session_data* sd, const char* mapname, int x, int y, uint32 ip, uint16 port);	//self
 int clif_blown(struct block_list *); // area
 int clif_slide(struct block_list *,int,int); // area
 int clif_fixpos(struct block_list *);	// area
@@ -109,6 +109,7 @@ int clif_unequipitemack(struct map_session_data *,int,int,int);	// self
 int clif_misceffect(struct block_list*,int);	// area
 int clif_misceffect2(struct block_list *bl,int type);
 int clif_changeoption(struct block_list*);	// area
+int clif_changeoption2(struct block_list*);	// area
 int clif_useitemack(struct map_session_data*,int,int,int);	// self
 void clif_GlobalMessage(struct block_list* bl, const char* message);
 int clif_createchat(struct map_session_data*,int);	// self
@@ -171,7 +172,7 @@ int clif_skillinfoblock(struct map_session_data *sd);
 int clif_skillup(struct map_session_data *sd,int skill_num);
 
 int clif_skillcasting(struct block_list* bl,
-	int src_id,int dst_id,int dst_x,int dst_y,int skill_num,int casttime);
+	int src_id,int dst_id,int dst_x,int dst_y,int skill_num,int pl, int casttime);
 int clif_skillcastcancel(struct block_list* bl);
 int clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype);
 int clif_skill_damage(struct block_list *src,struct block_list *dst,

@@ -1,15 +1,14 @@
 
 #include <stdio.h>
 #include <string.h>
-#ifndef _WIN32
-	#include <unistd.h>
+
+#if !defined _WIN32 || defined MINGW
+	#include <unistd.h> // getpid(), unlink()
 #else
+	#include <windows.h>
 	#define getpid GetCurrentProcessId
 #endif
-#ifdef MINGW
-	#include <process.h>
-	#include <io.h>
-#endif
+
 #include "../common/plugin.h"
 
 PLUGIN_INFO = {

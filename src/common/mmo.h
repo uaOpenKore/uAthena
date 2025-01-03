@@ -215,8 +215,8 @@ struct mmo_charstatus {
 	short str,agi,vit,int_,dex,luk;
 	unsigned char char_num,sex;
 
-	unsigned long mapip;
-	unsigned int mapport;
+	uint32 mapip;
+	uint16 mapport;
 
 	struct point last_point,save_point,memo_point[MAX_MEMOPOINTS];
 	struct item inventory[MAX_INVENTORY],cart[MAX_CART];
@@ -487,26 +487,5 @@ enum {
 	JOB_STAR_GLADIATOR2,
 	JOB_SOUL_LINKER,
 };
-
-#ifndef __WIN32
-	#ifndef strcmpi
-		#define strcmpi strcasecmp
-	#endif
-	#ifndef stricmp
-		#define stricmp strcasecmp
-	#endif
-	#ifndef strncmpi
-		#define strncmpi strncasecmp
-	#endif
-	#ifndef strnicmp
-		#define strnicmp strncasecmp
-	#endif
-#else
-	#define snprintf _snprintf
-	#define vsnprintf _vsnprintf
-	#ifndef strncmpi
-		#define strncmpi strnicmp
-	#endif
-#endif
 
 #endif /* _MMO_H_ */
