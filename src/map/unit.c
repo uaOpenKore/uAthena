@@ -42,6 +42,7 @@ struct unit_data* unit_bl2ud(struct block_list *bl) {
 	return NULL;
 }
 
+static int unit_attack_timer(int tid,unsigned int tick,int id,int data);
 static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data);
 
 int unit_walktoxy_sub(struct block_list *bl)
@@ -181,15 +182,10 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 		}
 		if (
 			(sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
-			sd->sc.data[SC_MIRACLE].timer==-1 &&
 			!(ud->walk_count%WALK_SKILL_INTERVAL) &&
 			rand()%10000 < battle_config.sg_miracle_skill_ratio
-		) {	//SG_MIRACLE [Komurka]
-			clif_displaymessage(sd->fd,"[Miracle of the Sun, Moon and Stars]");
-			sc_start(&sd->bl,SC_MIRACLE,100,1,
-				battle_config.sg_miracle_skill_duration_min+
-				rand()%battle_config.sg_miracle_skill_duration_max);
-		}
+		)	//SG_MIRACLE [Komurka]
+			sc_start(&sd->bl,SC_MIRACLE,100,1,battle_config.sg_miracle_skill_duration);
 	} else if (md) {
 		if(battle_config.mob_warp&1 && map_getcell(bl->m,x,y,CELL_CHKNPC) &&
 			npc_touch_areanpc2(bl)) // Enable mobs to step on warps. [Skotlex]
@@ -258,21 +254,41 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 	return 0;
 }
 
-//Easy parameter: &1 -> 1/0 = easy/hard, &2 -> force walking.
-int unit_walktoxy( struct block_list *bl, int x, int y, int easy) {
+static int unit_delay_walktoxy_timer(int tid, unsigned int tick, int id, int data)
+{
+	struct block_list *bl = map_id2bl(id);
+
+	if (!bl || bl->prev == NULL)
+		return 0;
+	unit_walktoxy(bl, data>>16, data&0xffff, 0);
+	return 1;
+}
+
+//flag parameter:
+//&1 -> 1/0 = easy/hard
+//&2 -> force walking
+//&4 -> Delay walking if the reason you can't walk is the canwalk delay
+int unit_walktoxy( struct block_list *bl, int x, int y, int flag) {
 	struct unit_data        *ud = NULL;
 	struct status_change		*sc = NULL;
 
 	nullpo_retr(0, bl);
 	
 	ud = unit_bl2ud(bl);
-	
+
 	if( ud == NULL) return 0;
 
-	if(!(easy&2) && (!status_get_mode(bl)&MD_CANMOVE || !unit_can_move(bl)))
+	if (flag&4 && DIFF_TICK(ud->canmove_tick, gettick()) > 0 &&
+		DIFF_TICK(ud->canmove_tick, gettick()) < 2000)
+	{	// Delay walking command. [Skotlex]
+		add_timer(ud->canmove_tick+1, unit_delay_walktoxy_timer, bl->id, (x<<16)|(y&0xFFFF));
+		return 1;
+	}
+
+	if(!(flag&2) && (!(status_get_mode(bl)&MD_CANMOVE) || !unit_can_move(bl)))
 		return 0;
-	
-	ud->state.walk_easy = easy&1;
+
+	ud->state.walk_easy = flag&1;
 	ud->target = 0;
 	ud->to_x = x;
 	ud->to_y = y;
@@ -286,9 +302,14 @@ int unit_walktoxy( struct block_list *bl, int x, int y, int easy) {
 		// timerunit_walktoxy_sub
 		ud->state.change_walk_target = 1;
 		return 1;
-	} else {
-		return unit_walktoxy_sub(bl);
 	}
+
+	if(ud->attacktimer != -1) {
+		delete_timer( ud->attacktimer, unit_attack_timer );
+		ud->attacktimer = -1;
+	}
+
+	return unit_walktoxy_sub(bl);
 }
 
 static int unit_walktobl_sub(int tid,unsigned int tick,int id,int data)
@@ -343,13 +364,21 @@ int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, int 
 		ud->state.change_walk_target = 1;
 		return 1;
 	}
-	if (DIFF_TICK(ud->canmove_tick, gettick()) > 0)
+
+	if(DIFF_TICK(ud->canmove_tick, gettick()) > 0)
 	{	//Can't move, wait a bit before invoking the movement.
 		add_timer(ud->canmove_tick+1, unit_walktobl_sub, bl->id, ud->target);
 		return 1;
-	} else if (!unit_can_move(bl))
+	}
+
+	if(!unit_can_move(bl))
 		return 0;
-	
+
+	if(ud->attacktimer != -1) {
+		delete_timer( ud->attacktimer, unit_attack_timer );
+		ud->attacktimer = -1;
+	}
+
 	return unit_walktoxy_sub(bl);
 }
 
@@ -1610,6 +1639,8 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
 			status_change_end(bl, SC_GOSPEL, -1);
 		if (sc->data[SC_CHANGE].timer!=-1)
 			status_change_end(bl, SC_CHANGE, -1);
+		if (sc->data[SC_MIRACLE].timer!=-1)
+			status_change_end(bl, SC_MIRACLE, -1);
 	}
 
 	if (bl->type&BL_CHAR) {
@@ -1893,7 +1924,7 @@ int do_init_unit(void) {
 	add_timer_func_list(unit_attack_timer,  "unit_attack_timer");
 	add_timer_func_list(unit_walktoxy_timer,"unit_walktoxy_timer");
 	add_timer_func_list(unit_walktobl_sub, "unit_walktobl_sub");
-
+	add_timer_func_list(unit_delay_walktoxy_timer,"unit_delay_walktoxy_timer");
 	return 0;
 }
 

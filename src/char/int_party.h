@@ -11,10 +11,10 @@ int inter_party_save(void);
 int inter_party_parse_frommap(int fd);
 
 int inter_party_leave(int party_id,int account_id, int char_id);
-int inter_party_logged(int party_id, int account_id, int char_id);
 
 extern char party_txt[1024];
 
 //For the TXT->SQL converter
 int inter_party_fromstr(char *str, struct party *p);
-#endif
+
+#endif /* _INT_PARTY_H_ */

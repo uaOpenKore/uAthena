@@ -53,9 +53,6 @@ static int battle_gettargeted_sub(struct block_list *bl, va_list ap)
 	int target_id;
 	int *c;
 
-	nullpo_retr(0, bl);
-	nullpo_retr(0, ap);
-
 	bl_list = va_arg(ap, struct block_list **);
 	c = va_arg(ap, int *);
 	target_id = va_arg(ap, int);
@@ -105,7 +102,42 @@ int battle_gettarget(struct block_list *bl)
 	}
 	return 0;
 }
-// ƒ_ƒ??[ƒW‚Ì’x‰„
+
+static int battle_getenemy_sub(struct block_list *bl, va_list ap)
+{
+	struct block_list **bl_list;
+	struct block_list *target;
+	int *c;
+
+	bl_list = va_arg(ap, struct block_list **);
+	c = va_arg(ap, int *);
+	target = va_arg(ap, struct block_list *);
+
+	if (bl->id == target->id)
+		return 0;
+	if (*c >= 24)
+		return 0;
+
+	if (battle_check_target(target, bl, BCT_ENEMY) > 0) {
+		bl_list[(*c)++] = bl;
+		return 1;
+	}
+	return 0;
+}
+
+// Picks a random enemy of the given type (BL_PC, BL_CHAR, etc) within the range given. [Skotlex]
+struct block_list* battle_getenemy(struct block_list *target, int type, int range)
+{
+	struct block_list *bl_list[24];
+	int c = 0;
+	memset(bl_list, 0, sizeof(bl_list));
+	map_foreachinrange(battle_getenemy_sub, target, range, type, bl_list, &c, target);
+	if (c == 0 || c > 24)
+		return NULL;
+	return bl_list[rand()%c];
+}
+
+// _??[Wx
 struct delay_damage {
 	struct block_list *src;
 	int target;
@@ -222,7 +254,7 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 }
 
 /*==========================================
- * ƒ_ƒ??[ƒW?Å?IŒvŽZ
+ * _??[W??IvZ
  *------------------------------------------
  */
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag)
@@ -453,9 +485,9 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 	sc = status_get_sc(src);
 	if (sc && sc->count) {
 	}
-*/	
-	if (battle_config.pk_mode && sd && damage)
-  	{
+*/
+	if (battle_config.pk_mode && sd && bl->type == BL_PC && damage)
+	{
 		if (flag & BF_SKILL) { //Skills get a different reduction than non-skills. [Skotlex]
 			if (flag&BF_WEAPON)
 				damage = damage * battle_config.pk_weapon_damage_rate/100;
@@ -561,7 +593,7 @@ int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int dama
 }
 
 /*==========================================
- * HP/SP‹zŽû‚ÌŒvŽZ
+ * HP/SPzvZ
  *------------------------------------------
  */
 static int battle_calc_drain(int damage, int rate, int per)
@@ -581,7 +613,7 @@ static int battle_calc_drain(int damage, int rate, int per)
 }
 
 /*==========================================
- * ?C—ûƒ_ƒ??[ƒW
+ * ?C_??[W
  *------------------------------------------
  */
 int battle_addmastery(struct map_session_data *sd,struct block_list *target,int dmg,int type)
@@ -777,15 +809,11 @@ void battle_consume_ammo(TBL_PC*sd, int skill, int lv)
 	if (skill)
 	{
 		qty = skill_get_ammo_qty(skill, lv);
-		if (!qty) {	//Generic skill that consumes ammo?
-			qty = skill_get_num(skill, lv);
-			if (qty < 0) qty *= -1;
-			else
-			if (qty == 0) qty = 1;
-		}
+		if (!qty) qty = 1;
 	}
-	if(sd->equip_index[10]>=0) //Qty check should have been done in skill_check_condition
-		pc_delitem(sd,sd->equip_index[10],qty,0);
+
+	if(sd->equip_index[EQI_AMMO]>=0) //Qty check should have been done in skill_check_condition
+		pc_delitem(sd,sd->equip_index[EQI_AMMO],qty,0);
 }
 
 struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag);
@@ -956,7 +984,7 @@ static struct Damage battle_calc_weapon_attack(
 	if (skill_num && battle_config.skillrange_by_distance &&
 		(src->type&battle_config.skillrange_by_distance)
 	) { //Skill range based on distance between src/target [Skotlex]
-		if (check_distance_bl(src, target, 3))
+		if (check_distance_bl(src, target, 5))
 			wd.flag=(wd.flag&~BF_RANGEMASK)|BF_SHORT;
 		else
 			wd.flag=(wd.flag&~BF_RANGEMASK)|BF_LONG;
@@ -1402,7 +1430,8 @@ static struct Damage battle_calc_weapon_attack(
 				case NPC_DARKNESSATTACK:
 				case NPC_UNDEADATTACK:
 				case NPC_TELEKINESISATTACK:
-					skillratio += 25*skill_lv;
+				case NPC_BLOODDRAIN:
+					skillratio += 100*(skill_lv-1);
 					break;
 				case RG_BACKSTAP:
 					if(sd && sd->status.weapon == W_BOW && battle_config.backstab_bow_penalty)
@@ -1642,7 +1671,8 @@ static struct Damage battle_calc_weapon_attack(
 
 			if(sc->data[SC_EDP].timer != -1 &&
 				skill_num != ASC_BREAKER &&
-				skill_num != ASC_METEORASSAULT)
+				skill_num != ASC_METEORASSAULT &&
+				skill_num != AS_VENOMKNIFE)
 				ATK_ADDRATE(sc->data[SC_EDP].val3);
 		}
 
@@ -2202,7 +2232,7 @@ struct Damage battle_calc_magic_attack(
 	if (battle_config.skillrange_by_distance &&
 		(src->type&battle_config.skillrange_by_distance)
 	)	{ //Skill range based on distance between src/target [Skotlex]
-		if (check_distance_bl(src, target, 3))
+		if (check_distance_bl(src, target, 5))
 			ad.flag=(ad.flag&~BF_RANGEMASK)|BF_SHORT;
 		else
 			ad.flag=(ad.flag&~BF_RANGEMASK)|BF_LONG;
@@ -2379,6 +2409,7 @@ struct Damage battle_calc_magic_attack(
 						skillratio += 60 + 40*skill_lv;
 						break;
 					case NJ_KAMAITACHI:
+					case NPC_ENERGYDRAIN:
 						skillratio += 100*skill_lv;
 						break;
 				}
@@ -2496,7 +2527,7 @@ struct Damage battle_calc_magic_attack(
 }
 
 /*==========================================
- * ‚»‚Ì‘¼ƒ_ƒ??[ƒWŒvŽZ
+ * _??[WvZ
  *------------------------------------------
  */
 struct Damage  battle_calc_misc_attack(
@@ -2580,7 +2611,7 @@ struct Damage  battle_calc_misc_attack(
 	if (battle_config.skillrange_by_distance &&
 		(src->type&battle_config.skillrange_by_distance)
 	) { //Skill range based on distance between src/target [Skotlex]
-		if (check_distance_bl(src, target, 3))
+		if (check_distance_bl(src, target, 5))
 			md.flag=(md.flag&~BF_RANGEMASK)|BF_SHORT;
 		else
 			md.flag=(md.flag&~BF_RANGEMASK)|BF_LONG;
@@ -2700,7 +2731,7 @@ struct Damage  battle_calc_misc_attack(
 			else if (hitrate < battle_config.min_hitrate)
 				hitrate = battle_config.min_hitrate;
 
-			if(rand()%100 >= hitrate)
+			if(rand()%100 < hitrate)
 				flag.hit = 1;
 		}
 		if (!flag.hit) {
@@ -2756,7 +2787,7 @@ struct Damage  battle_calc_misc_attack(
 	return md;
 }
 /*==========================================
- * ƒ_ƒ??[ƒWŒvŽZˆêŠ‡?ˆ—?—p
+ * _??[WvZ??p
  *------------------------------------------
  */
 struct Damage battle_calc_attack(	int attack_type,
@@ -2881,7 +2912,7 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, 
 }
 
 /*==========================================
- * ’Ê?í?UŒ‚?ˆ—?‚Ü‚Æ‚ß
+ * ??U??
  *------------------------------------------
  */
 int battle_weapon_attack( struct block_list *src,struct block_list *target,
@@ -3429,7 +3460,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 	return (flag&state)?1:-1;
 }
 /*==========================================
- * ŽË’ö”»’è
+ * 
  *------------------------------------------
  */
 int battle_check_range(struct block_list *src,struct block_list *bl,int range)
@@ -3437,7 +3468,7 @@ int battle_check_range(struct block_list *src,struct block_list *bl,int range)
 	nullpo_retr(0, src);
 	nullpo_retr(0, bl);
 
-	if(src->m != bl->m)	// ˆá‚¤ƒ}ƒbƒv
+	if(src->m != bl->m)	// }bv
 		return 0;
 
 	if (!check_distance_bl(src, bl, range))
@@ -3446,13 +3477,13 @@ int battle_check_range(struct block_list *src,struct block_list *bl,int range)
 	if(distance_bl(src, bl) < 2) //No need for path checking.
 		return 1;
 
-	// ?áŠQ•¨”»’è
+	// ?Q
 	return path_search_long(NULL,src->m,src->x,src->y,bl->x,bl->y);
 }
 
 /*==========================================
  * Return numerical value of a switch configuration (modified by [Yor])
- * on/off, english, français, deutsch, español
+ * on/off, english, franais, deutsch, espaol
  *------------------------------------------
  */
 int battle_config_switch(const char *str) {
@@ -3635,10 +3666,6 @@ static const struct battle_data_short {
 	{ "party_skill_penalty",               &battle_config.party_skill_penalty		},
 	{ "monster_class_change_full_recover", &battle_config.monster_class_change_full_recover },
 	{ "produce_item_name_input",           &battle_config.produce_item_name_input	},
-	{ "produce_potion_name_input",         &battle_config.produce_potion_name_input},
-	{ "making_arrow_name_input",           &battle_config.making_arrow_name_input	},
-	{ "holywater_name_input",              &battle_config.holywater_name_input		},
-	{ "cdp_name_input",                    &battle_config.cdp_name_input		},
 	{ "display_skill_fail",                &battle_config.display_skill_fail	},
 	{ "chat_warpportal",                   &battle_config.chat_warpportal			},
 	{ "mob_warp",                          &battle_config.mob_warp	},
@@ -3836,8 +3863,7 @@ static const struct battle_data_int {
 	{ "night_duration",                    &battle_config.night_duration	}, // added by [Yor]
 	{ "max_heal",                          &battle_config.max_heal },
 	{ "mob_remove_delay",                  &battle_config.mob_remove_delay	},
-	{ "sg_miracle_skill_min_duration",		&battle_config.sg_miracle_skill_duration_min },
-	{ "sg_miracle_skill_max_duration",		&battle_config.sg_miracle_skill_duration_max },
+	{ "sg_miracle_skill_duration",         &battle_config.sg_miracle_skill_duration },
 	{ "hvan_explosion_intimate",				&battle_config.hvan_explosion_intimate },	//[orn]
 };
 
@@ -4051,11 +4077,7 @@ void battle_set_defaults() {
 	battle_config.land_skill_limit = BL_ALL;
 	battle_config.party_skill_penalty = 1;
 	battle_config.monster_class_change_full_recover = 1;
-	battle_config.produce_item_name_input = 1;
-	battle_config.produce_potion_name_input = 1;
-	battle_config.making_arrow_name_input = 1;
-	battle_config.holywater_name_input = 1;
-	battle_config.cdp_name_input = 1;
+	battle_config.produce_item_name_input = 0x3;
 	battle_config.display_skill_fail = 0;
 	battle_config.chat_warpportal = 0;
 	battle_config.mob_warp = 0;
@@ -4221,8 +4243,7 @@ void battle_set_defaults() {
 	battle_config.mob_max_sc_def = 5000;
 	battle_config.sg_miracle_skill_ratio=1;
 	battle_config.sg_angel_skill_ratio=1;
-	battle_config.sg_miracle_skill_duration_min=3000000;
-	battle_config.sg_miracle_skill_duration_max=9000000;
+	battle_config.sg_miracle_skill_duration=3600000;
 	battle_config.autospell_stacking = 0;
 	battle_config.override_mob_names = 0;
 	battle_config.min_chat_delay = 0;
@@ -4400,17 +4421,6 @@ void battle_validate_conf() {
 	if (battle_config.sg_miracle_skill_ratio > 10000)
 		battle_config.sg_miracle_skill_ratio = 10000;
 
-
-	if (battle_config.sg_miracle_skill_duration_min < 1000)
-		battle_config.sg_miracle_skill_duration_min = 1000;
-
-	//Store duration variation in the max setting
-	battle_config.sg_miracle_skill_duration_max -=
-		battle_config.sg_miracle_skill_duration_min;
-
-	if (battle_config.sg_miracle_skill_duration_max < 2000)
-		battle_config.sg_miracle_skill_duration_max = 2000;
-
 	if (battle_config.skill_steal_max_tries >= UCHAR_MAX)
 		battle_config.skill_steal_max_tries = UCHAR_MAX;
 
@@ -4430,7 +4440,7 @@ void battle_validate_conf() {
 }
 
 /*==========================================
- * ?Ý’èƒtƒ@ƒCƒ‹‚ð“Ç‚Ý?ž‚Þ
+ * ?t@C?
  *------------------------------------------
  */
 int battle_config_read(const char *cfgName)

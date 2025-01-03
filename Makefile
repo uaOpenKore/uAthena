@@ -89,7 +89,7 @@ MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS) $(GOPT)" LIB_S="$(LIBS) $(GOPT)"
 endif
 
 .PHONY: txt sql common login login_sql char char_sql map map_sql ladmin converters \
-	addons plugins tools webserver clean zlib depend
+	addons plugins tools clean zlib depend
 
 all: txt sql
 
@@ -128,9 +128,6 @@ ladmin: src/ladmin/GNUmakefile common
 
 plugins addons: src/plugins/GNUmakefile common
 	$(MAKE) -C src/plugins $(MKDEF)
-
-webserver:
-	$(MAKE) -C src/$@ $(MKDEF)
 
 tools:
 	$(MAKE) -C src/tool $(MKDEF)

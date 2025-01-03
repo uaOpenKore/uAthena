@@ -77,11 +77,6 @@ int pc_isGM(struct map_session_data *sd) {
 	if(sd->bl.type!=BL_PC )
 		return 0;
 
-
-	//For console [Wizputer] //Unfortunately the console is "broken" because it shares fd 0 with disconnected players. [Skotlex]
-//	if ( sd->fd == 0 )
-//	    return 99;
-
 	for(i = 0; i < GM_num; i++)
 		if (gm_account[i].account_id == sd->status.account_id)
 			return gm_account[i].level;
@@ -282,9 +277,9 @@ int pc_setrestartvalue(struct map_session_data *sd,int type) {
 	if (type&1)
 	{	//Normal resurrection
 		status->hp = 1; //Otherwise status_heal may fail if dead.
-		if(sd->state.snovice_flag == 4) { // [Celest]
+		if(sd->state.snovice_dead_flag == 1) { // [Celest]
 			status_heal(&sd->bl, status->max_hp, status->max_sp, 1);
-			sd->state.snovice_flag = 0;
+			sd->state.snovice_dead_flag = 2;
 			sc_start(&sd->bl,SkillStatusChangeTable(MO_STEELBODY),100,1,skill_get_time(MO_STEELBODY,1));
 		} else
 			status_heal(&sd->bl, b_status->hp, b_status->sp>status->sp?b_status->sp-status->sp:0, 1);
@@ -583,7 +578,6 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 		clif_authfail_fd(sd->fd, 0);
 		return 1;
 	}
-
 	memcpy(&sd->status, st, sizeof(*st));
 
 	//Set the map-server used job id. [Skotlex]
@@ -618,7 +612,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	if (battle_config.disp_zeny)
 		sd->state.showzeny = 1;
 
-	if (!battle_config.display_skill_fail&2)
+	if (!(battle_config.display_skill_fail&2))
 		sd->state.showdelay = 1;
 
 	// Request all registries.
@@ -951,7 +945,7 @@ int pc_calc_skilltree(struct map_session_data *sd)
 	do {
 		flag = 0;
 		for(i = 0; i < MAX_SKILL_TREE && (id = skill_tree[c][i].id) > 0; i++) {
-			int j, f, inf2;
+			int j, f, k, inf2;
 
 			if(sd->status.skill[id].id)
 				continue; //Skill already known.
@@ -959,9 +953,19 @@ int pc_calc_skilltree(struct map_session_data *sd)
 			f = 1;
 			if(!battle_config.skillfree) {
 				for(j = 0; j < 5; j++) {
-					if( skill_tree[c][i].need[j].id && pc_checkskill(sd,skill_tree[c][i].need[j].id) < skill_tree[c][i].need[j].lv) {
-						f = 0; // one or more prerequisites wasn't satisfied
-						break;
+					if((k=skill_tree[c][i].need[j].id))
+					{
+						if (!sd->status.skill[k].id || sd->status.skill[k].flag == 13)
+							k = 0; //Not learned.
+						else if (sd->status.skill[k].flag) //Real lerned level
+							k = sd->status.skill[skill_tree[c][i].need[j].id].flag-2;
+						else
+							k = pc_checkskill(sd,k);
+						if (k < skill_tree[c][i].need[j].lv)
+						{
+							f=0;
+							break;
+						}
 					}
 				}
 				if (sd->status.job_level < skill_tree[c][i].joblv)
@@ -1026,17 +1030,25 @@ static void pc_check_skilltree(struct map_session_data *sd, int skill) {
 	do {
 		flag=0;
 		for(i=0;i < MAX_SKILL_TREE && (id=skill_tree[c][i].id)>0;i++){
-			int j,f=1;
+			int j,f=1, k;
 
 			if(sd->status.skill[id].id) //Already learned
 				continue;
-			
+
 			for(j=0;j<5;j++) {
-				if( skill_tree[c][i].need[j].id &&
-					pc_checkskill(sd,skill_tree[c][i].need[j].id) <
-					skill_tree[c][i].need[j].lv) {
-					f=0;
-					break;
+				if((k=skill_tree[c][i].need[j].id))
+				{
+					if (!sd->status.skill[k].id || sd->status.skill[k].flag == 13)
+						k = 0; //Not learned.
+					else if (sd->status.skill[k].flag) //Real lerned level
+						k = sd->status.skill[skill_tree[c][i].need[j].id].flag-2;
+					else
+						k = pc_checkskill(sd,k);
+					if (k < skill_tree[c][i].need[j].lv)
+					{
+						f=0;
+						break;
+					}
 				}
 			}
 			if (!f)
@@ -1180,7 +1192,7 @@ static int pc_bonus_autospell_del(struct s_autospell *spell, int max, short id, 
 	if (i<0) return 0; //Nothing to substract from.
 
 	j = i;
-	for(; i>=0 && rate > 0; i--)
+	for(; i>=0 && rate>0; i--)
 	{
 		if (spell[i].id != id || spell[i].lv != lv) continue;
 		if (rate >= spell[i].rate) {
@@ -1194,6 +1206,13 @@ static int pc_bonus_autospell_del(struct s_autospell *spell, int max, short id, 
 			rate = 0;
 		}
 	}
+	if (rate > 0 && ++j < max)
+	{	 //Tag this as "pending" autospell to remove.
+		spell[j].id = id;
+		spell[j].lv = lv;
+		spell[j].rate = -rate;
+		spell[j].card_id = 0;
+	}
 	return rate;
 }
 
@@ -1203,12 +1222,13 @@ static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, shor
 		pc_bonus_autospell_del(spell, max, id, lv, -rate, card_id);
 
 	for (i = 0; i < max && spell[i].id; i++) {
-		if (spell[i].card_id == card_id &&
+		if ((spell[i].card_id == card_id || !spell[i].card_id) &&
 			spell[i].id == id && spell[i].lv == lv)
 		{
-			if (!battle_config.autospell_stacking)
+			if (!battle_config.autospell_stacking && spell[i].rate > 0)
 				return 0;
 			rate += spell[i].rate;
+			if (rate < 0) card_id = 0; //Reduced from debted autospell.
 			break;
 		}
 	}
@@ -1341,26 +1361,6 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(sd->state.lr_flag != 2) {
 			bonus = status->batk + val;
 			status->batk = cap_value(bonus, 0, USHRT_MAX);
-		}
-		break;
-	case SP_MATK1:
-		if(sd->state.lr_flag != 2) {
-			bonus = status->matk_max + val;
-			status->matk_max = cap_value(bonus, 0, USHRT_MAX);
-		}
-		break;
-	case SP_MATK2:
-		if(sd->state.lr_flag != 2) {
-			bonus = status->matk_min + val;
-			status->matk_min = cap_value(bonus, 0, USHRT_MAX);
-		}
-		break;
-	case SP_MATK:
-		if(sd->state.lr_flag != 2) {
-			bonus = status->matk_max + val;
-			status->matk_max = cap_value(bonus, 0, USHRT_MAX);
-			bonus = status->matk_min + val;
-			status->matk_min = cap_value(bonus, 0, USHRT_MAX);
 		}
 		break;
 	case SP_DEF1:
@@ -2899,7 +2899,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 		clif_displaymessage(sd->fd, "Duel: Can't use this item in duel.");
 		return 0;
 	}
-	//Butterfly Wing (can't use noreturn flag is on and if duel)
+	//Butterfly Wing (can't use noreturn flag is on)
 	if(nameid == 602 && map[sd->bl.m].flag.noreturn)
 		return 0;
 	//Dead Branch & Bloody Branch & Porings Box (can't use at GVG and when nobranch flag is on)
@@ -3180,7 +3180,7 @@ int pc_show_steal(struct block_list *bl,va_list ap)
 	itemid=va_arg(ap,int);
 
 	if((item=itemdb_exists(itemid))==NULL)
-		sprintf(output,"%s stole an Unknown Item.",sd->status.name);
+		sprintf(output,"%s stole an Unknown Item (id: %i).",sd->status.name, itemid);
 	else
 		sprintf(output,"%s stole %s.",sd->status.name,item->jname);
 	clif_displaymessage( ((struct map_session_data *)bl)->fd, output);
@@ -4091,6 +4091,8 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 		sc_start(&sd->bl,SkillStatusChangeTable(PR_MAGNIFICAT),100,1,skill_get_time(PR_MAGNIFICAT,1));
 		sc_start(&sd->bl,SkillStatusChangeTable(PR_GLORIA),100,1,skill_get_time(PR_GLORIA,1));
 		sc_start(&sd->bl,SkillStatusChangeTable(PR_SUFFRAGIUM),100,1,skill_get_time(PR_SUFFRAGIUM,1));
+		if (sd->state.snovice_dead_flag == 2)
+			sd->state.snovice_dead_flag = 0; //Reenable steelbody resurrection on dead.
 	} else
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON || (sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR)
 	{
@@ -4101,6 +4103,9 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	//LORDALFA - LVLUPEVENT
 	if(sd->state.event_baselvup)
 		npc_script_event(sd, NPCE_BASELVUP);
+
+	if(sd->status.party_id)
+		party_send_levelup(sd);
 	return 1;
 }
 
@@ -4556,6 +4561,9 @@ int pc_allskillup(struct map_session_data *sd)
 		}
 	}
 	status_calc_pc(sd,0);
+	//Required because if you could level up all skills previously,
+	//the update will not be sent as only the lv variable changes.
+	clif_skillinfoblock(sd);
 	return 0;
 }
 
@@ -4637,10 +4645,9 @@ int pc_resetlvl(struct map_session_data* sd,int type)
 				pc_unequipitem(sd,sd->equip_index[i],2);
 	}
 
-	if ((type == 1 || type == 2 || type == 3) && sd->status.party_id) {
-		//Send map-change packet to do a level range check and break party settings. [Skotlex]
-		party_send_movemap(sd);
-	}
+	if ((type == 1 || type == 2 || type == 3) && sd->status.party_id)
+		party_send_levelup(sd);
+
 	status_calc_pc(sd,0);
 	clif_skillinfoblock(sd);
 
@@ -4715,48 +4722,68 @@ int pc_resetstate(struct map_session_data* sd)
  */
 int pc_resetskill(struct map_session_data* sd, int flag)
 {
-	int i, skill, inf2, skill_point=0;
+	int i, lv, inf2, skill_point=0;
 	nullpo_retr(0, sd);
 
-	if (pc_checkskill(sd, SG_DEVIL) &&  !pc_nextjobexp(sd))
-		clif_status_load(&sd->bl, SI_DEVIL, 0); //Remove perma blindness due to skill-reset. [Skotlex]
-	
+	if(!(flag&2))
+	{	//Remove stuff lost when resetting skills.
+		if (pc_checkskill(sd, SG_DEVIL) &&  !pc_nextjobexp(sd))
+			clif_status_load(&sd->bl, SI_DEVIL, 0); //Remove perma blindness due to skill-reset. [Skotlex]
+		i = sd->sc.option;
+		if (i&OPTION_RIDING && pc_checkskill(sd, KN_RIDING))
+		i&=~OPTION_RIDING;
+		if(i&OPTION_CART && pc_checkskill(sd, MC_PUSHCART))
+			i&=~OPTION_CART;
+		if(i&OPTION_FALCON && pc_checkskill(sd, HT_FALCON))
+			i&=~OPTION_FALCON;
+
+		if(i != sd->sc.option)
+			pc_setoption(sd, i);
+
+		if(merc_is_hom_active(sd->hd) && pc_checkskill(sd, AM_CALLHOMUN))
+			merc_hom_vaporize(sd, 0);
+	}
+
 	for (i = 1; i < MAX_SKILL; i++) {
-		if ((skill = sd->status.skill[i].lv) > 0) {
-			inf2 = skill_get_inf2(i);	
-			if ((!(inf2&INF2_QUEST_SKILL) || battle_config.quest_skill_learn) &&
-				!(inf2&(INF2_WEDDING_SKILL|INF2_SPIRIT_SKILL))) //Avoid reseting wedding/linker skills.
-			{
-					if (!sd->status.skill[i].flag)
-						skill_point += skill;
-					else if (sd->status.skill[i].flag > 2 && sd->status.skill[i].flag != 13)
-						skill_point += (sd->status.skill[i].flag - 2);
-					if (!(flag&2)) {
-						sd->status.skill[i].lv = 0;
-						sd->status.skill[i].flag = 0;
-					}
-			}
-			else if (battle_config.quest_skill_reset && (inf2&INF2_QUEST_SKILL) && !(flag&2))
-			{
+		lv= sd->status.skill[i].lv;
+		if (lv < 1) continue;
+
+		inf2 = skill_get_inf2(i);
+
+		if(inf2&(INF2_WEDDING_SKILL|INF2_SPIRIT_SKILL)) //Avoid reseting wedding/linker skills.
+			continue;
+
+		if (inf2&INF2_QUEST_SKILL && !battle_config.quest_skill_learn)
+		{	//Only handle quest skills in a special way when you can't learn them manually
+			if (battle_config.quest_skill_reset && !(flag&2))
+			{	//Wipe them
 				sd->status.skill[i].lv = 0;
 				sd->status.skill[i].flag = 0;
 			}
-		} else {
+			continue;
+		}
+		if (!sd->status.skill[i].flag)
+			skill_point += lv;
+		else if (sd->status.skill[i].flag > 2 && sd->status.skill[i].flag != 13)
+			skill_point += (sd->status.skill[i].flag - 2);
+
+		if (!(flag&2)) {
 			sd->status.skill[i].lv = 0;
+			sd->status.skill[i].flag = 0;
 		}
 	}
-	
-	if (!(flag&2)) {
-		if (sd->status.skill_point > USHRT_MAX - skill_point)
-			sd->status.skill_point = USHRT_MAX;
-		else
-			sd->status.skill_point += skill_point;
-	
-		if (flag&1) {
-			clif_updatestatus(sd,SP_SKILLPOINT);
-			clif_skillinfoblock(sd);
-			status_calc_pc(sd,0);
-		}
+
+	if (flag&2 || !skill_point) return skill_point;
+
+	if (sd->status.skill_point > USHRT_MAX - skill_point)
+		sd->status.skill_point = USHRT_MAX;
+	else
+		sd->status.skill_point += skill_point;
+
+	if (flag&1) {
+		clif_updatestatus(sd,SP_SKILLPOINT);
+		clif_skillinfoblock(sd);
+		status_calc_pc(sd,0);
 	}
 	return skill_point;
 }
@@ -4875,6 +4902,11 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	}
 
 	pc_setdead(sd);
+	//Reset menu skills/item skills
+	if (sd->skillitem)
+		sd->skillitem = sd->skillitemlv = 0;
+	if (sd->menuskill_id)
+		sd->menuskill_id = sd->menuskill_lv = 0;
 	//Reset ticks.
 	sd->hp_loss_tick = sd->sp_loss_tick = 0;
 
@@ -4989,15 +5021,16 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	}
 
 	// activate Steel body if a super novice dies at 99+% exp [celest]
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE) {
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && !sd->state.snovice_dead_flag)
+	{
 		if ((i=pc_nextbaseexp(sd))<=0)
 			i=sd->status.base_exp;
-		if (i>0 && (j=sd->status.base_exp*1000/i)>=990 && j<1000)
-			sd->state.snovice_flag = 4;
+		if (i>0 && (j=sd->status.base_exp*1000/i)>=990 && j<1000 && !map_flag_gvg(sd->bl.m))
+			sd->state.snovice_dead_flag = 1;
 	}
 
 	// changed penalty options, added death by player if pk_mode [Valaris]
-	if(battle_config.death_penalty_type && sd->state.snovice_flag != 4
+	if(battle_config.death_penalty_type && sd->state.snovice_dead_flag != 1
 		&& (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE	// only novices will receive no penalty
 		&& !map[sd->bl.m].flag.noexppenalty && !map_flag_gvg(sd->bl.m)
 		&& sd->sc.data[SC_BABY].timer == -1)
@@ -5140,14 +5173,14 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		sc_start(&sd->bl,SkillStatusChangeTable(PR_KYRIE),100,10,skill_get_time2(SL_KAIZEL,j));
 		return 0;
 	}
-	if (sd->state.snovice_flag == 4)
+	if (sd->state.snovice_dead_flag == 1)
 	{
 		pc_setstand(sd);
 		status_change_clear(&sd->bl,0);
 		clif_skill_nodamage(&sd->bl,&sd->bl,ALL_RESURRECTION,1,1);
 		status_percent_heal(&sd->bl, 100, 100);
 		clif_resurrection(&sd->bl, 1);
-		sd->state.snovice_flag = 0;
+		sd->state.snovice_dead_flag = 2;
 		if(battle_config.pc_invincible_time)
 			pc_setinvincibletimer(sd, battle_config.pc_invincible_time);
 		sc_start(&sd->bl,SkillStatusChangeTable(MO_STEELBODY),100,1,skill_get_time(MO_STEELBODY,1));
@@ -5727,16 +5760,19 @@ int pc_setoption(struct map_session_data *sd,int type)
 		status_calc_pc(sd,0); //Mounting/Umounting affects walk and attack speeds.
 	}
 	if(type&OPTION_CART && !(p_type&OPTION_CART))
-  	{ //Cart On
+	{ //Cart On
+		clif_cartlist(sd);
+		clif_updatestatus(sd, SP_CARTINFO);
 		if(pc_checkskill(sd, MC_PUSHCART) < 10)
 			status_calc_pc(sd,0); //Apply speed penalty.
 	} else
 	if(!(type&OPTION_CART) && p_type&OPTION_CART)
 	{ //Cart Off
+		clif_clearcart(sd->fd);
 		if(pc_checkskill(sd, MC_PUSHCART) < 10)
 			status_calc_pc(sd,0); //Remove speed penalty.
 	}
-			
+
 	if (type&OPTION_FALCON && !(p_type&OPTION_FALCON)) //Falcon ON
 		clif_status_load(&sd->bl,SI_FALCON,1);
 	else if (!(type&OPTION_FALCON) && p_type&OPTION_FALCON) //Falcon OFF
@@ -5775,27 +5811,22 @@ int pc_setoption(struct map_session_data *sd,int type)
  */
 int pc_setcart(struct map_session_data *sd,int type)
 {
-	int cart[6]={0x0000,OPTION_CART1,OPTION_CART2,OPTION_CART3,OPTION_CART4,OPTION_CART5};
+	int cart[6] = {0x0000,OPTION_CART1,OPTION_CART2,OPTION_CART3,OPTION_CART4,OPTION_CART5};
 	int option;
-	nullpo_retr(0, sd);
-	
-	if (type < 0 || type > 5)
-		return 0; //Never trust the values sent by the client! [Skotlex]
 
-	if(pc_checkskill(sd,MC_PUSHCART)>0){ // vbVJ?gXL
-		option = sd->sc.option;
-		//This should preserve the current option, only modifying the cart bit.
-		option&=~OPTION_CART;
-		option|=cart[type];
-		if(!pc_iscarton(sd)){ // J?gt
-			pc_setoption(sd,option);
-			clif_cartlist(sd);
-			clif_updatestatus(sd,SP_CARTINFO);
-		}
-		else{
-			pc_setoption(sd,option);
-		}
-	}
+	nullpo_retr(0, sd);
+
+	if( type < 0 || type > 5 )
+		return 1;// Never trust the values sent by the client! [Skotlex]
+
+	if( pc_checkskill(sd,MC_PUSHCART) <= 0 )
+		return 1;// Push cart is required
+
+	// Update option
+	option = sd->sc.option;
+	option &= ~OPTION_CART;// clear cart bits
+	option |= cart[type]; // set cart
+	pc_setoption(sd, option);
 
 	return 0;
 }

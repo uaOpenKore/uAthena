@@ -851,9 +851,6 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	if (battle_config.gm_skilluncond && pc_isGM(sd) >= battle_config.gm_skilluncond)
 		return 0;  // gm's can do anything damn thing they want
 
-	if(sd->menuskill_id && skillid != sd->menuskill_id)
-		return 1; //Can't use skills while a menu is open.
-
 	// Check skill restrictions [Celest]
 	if(!map_flag_vs(m) && skill_get_nocast (skillid) & 1)
 		return 1;
@@ -1113,7 +1110,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case WZ_STORMGUST:
-		if(tsc->data[SC_FREEZE].val3 >= 3) //Tharis pointed out that this is normal freeze chance with a base of 300%
+		//Use two since the counter is increased AFTER the attack.
+		if(tsc->data[SC_FREEZE].val3 >= 2) //Tharis pointed out that this is normal freeze chance with a base of 300%
 			sc_start(bl,SC_FREEZE,300,skilllv,skill_get_time2(skillid,skilllv));
 		break;
 
@@ -3050,12 +3048,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				src,skillid,skilllv,tick,flag|BCT_ENEMY|1,
 				skill_castend_nodamage_id);
 	}
-		break;	
+		break;
 	case CH_PALMSTRIKE: //	Palm Strike takes effect 1sec after casting. [Skotlex]
 	//	clif_skill_nodamage(src,bl,skillid,skilllv,0); //Can't make this one display the correct attack animation delay :/
-		clif_damage(src,bl,tick,status_get_amotion(src),0,0,1,4,0); //Displays MISS, but better than nothing :X
+		clif_damage(src,bl,tick,status_get_amotion(src),0,-1,1,4,0); //Display an absorbed damage attack.
 		skill_addtimerskill(src, tick + 1000, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag);
-		break;	
+		break;
 
 	case PR_TURNUNDEAD:
 	case ALL_RESURRECTION:
@@ -3307,7 +3305,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			return skill_castend_damage_id (src, bl, skillid, skilllv, tick, flag);
 		default:
 			//Skill is actually ground placed.
-			if ((src == bl || skillid == PF_SPIDERWEB) && skill_get_unit_id(skillid,0))
+			if (src == bl && skill_get_unit_id(skillid,0))
 				return skill_castend_pos2(src,bl->x,bl->y,skillid,skilllv,tick,0);
 	}
 
@@ -4099,10 +4097,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		i = ((!md || md->special_state.ai == 2) && !map_flag_vs(src->m))?
 			BCT_ENEMY:BCT_ALL;
 		clif_skill_nodamage(src, src, skillid, -1, 1);
+		map_delblock(src); //Required to prevent chain-self-destructions hitting back.
 		map_foreachinrange(skill_area_sub, bl,
 			skill_get_splash(skillid, skilllv), BL_CHAR,
 			src, skillid, skilllv, tick, flag|i,
 			skill_castend_damage_id);
+		map_addblock(src);
 		status_damage(src, src, sstatus->max_hp,0,0,1);
 		break;
 
@@ -4926,7 +4926,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NPC_AGIUP:
 		sc_start(bl,SC_SPEEDUP1,100,skilllv,skill_get_time(skillid, skilllv));
 		clif_skill_nodamage(src,bl,skillid,skilllv,
-			sc_start(bl,type,100,40*skilllv,skill_get_time(skillid, skilllv)));
+			sc_start(bl,type,100,100,skill_get_time(skillid, skilllv)));
 		break;
 
 	case NPC_INVISIBLE:
@@ -5550,23 +5550,6 @@ int skill_castend_id (int tid, unsigned int tick, int id, int data)
 		return 0;
 	}
 
-	switch (ud->skillid) {
-		//These should become skill_castend_pos
-		case WE_CALLPARTNER:
-		case WE_CALLPARENT:
-		case WE_CALLBABY:
-		case AM_RESURRECTHOMUN:
-			//Find a random spot to place the skill. [Skotlex]
-			inf2 = skill_get_splash(ud->skillid, ud->skilllv);
-			ud->skillx = src->x + inf2;
-			ud->skilly = src->y + inf2;
-			if (!map_random_dir(src, &ud->skillx, &ud->skilly)) {
-				ud->skillx = src->x;
-				ud->skilly = src->y;
-			}
-			return skill_castend_pos(tid,tick,id,data);
-	}
-
 	if(ud->skillid != SA_CASTCANCEL ) {
 		if( ud->skilltimer != tid ) {
 			ShowError("skill_castend_id: Timer mismatch %d!=%d!\n", ud->skilltimer, tid);
@@ -5588,6 +5571,25 @@ int skill_castend_id (int tid, unsigned int tick, int id, int data)
 		if(!target || target->prev==NULL) break;
 
 		if(src->m != target->m || status_isdead(src)) break;
+
+		switch (ud->skillid) {
+			//These should become skill_castend_pos
+			case WE_CALLPARTNER:
+			case WE_CALLPARENT:
+			case WE_CALLBABY:
+			case AM_RESURRECTHOMUN:
+			case PF_SPIDERWEB:
+				//Find a random spot to place the skill. [Skotlex]
+				inf2 = skill_get_splash(ud->skillid, ud->skilllv);
+				ud->skillx = target->x + inf2;
+				ud->skilly = target->y + inf2;
+				if (inf2 && !map_random_dir(target, &ud->skillx, &ud->skilly)) {
+					ud->skillx = target->x;
+					ud->skilly = target->y;
+				}
+				ud->skilltimer=tid;
+				return skill_castend_pos(tid,tick,id,data);
+		}
 
 		if(ud->skillid == RG_BACKSTAP) {
 			int dir = map_calc_dir(src,target->x,target->y),t_dir = unit_getdir(target);
@@ -6751,8 +6753,10 @@ struct skill_unit_group *skill_unitsetting (struct block_list *src, int skillid,
 			ShowFatalError("skill_castend_map: out of memory !\n");
 			exit(1);
 		}
-		memcpy(group->valstr,talkie_mes,MESSAGE_SIZE-1);
-		group->valstr[MESSAGE_SIZE-1] = '\0';
+		if (sd)
+			memcpy(group->valstr,sd->message,MESSAGE_SIZE);
+		else //Eh... we have to write something here... even though mobs shouldn't use this. [Skotlex]
+			strcpy(group->valstr, "Boo!");
 	}
 
 	//Why redefine local variables when the ones of the function can be reused? [Skotlex]
@@ -7122,11 +7126,9 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 						skill_attack(BF_WEAPON,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 				break;
 				case WZ_STORMGUST:
-					if (tsc)
-					{	//This should be safe as skill_additional_effect
-						//won't be triggered if the attack is absorbed. [Skotlex]
-						//And if the target is already frozen,
-						//the counter is reset when it ends.
+					if (skill_attack(skill_get_type(sg->skill_id),ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0) > 0
+						&& tsc)
+					{	//Increase freeze counter if attack connects.
 						if (tsc->data[SC_FREEZE].val4 == sg->group_id)
 							tsc->data[SC_FREEZE].val3++; //SG hit counter.
 						else { //New SG
@@ -7134,6 +7136,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 							tsc->data[SC_FREEZE].val3 = 1;
 						}
 					}
+				break;
 				default:
 					skill_attack(skill_get_type(sg->skill_id),ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 			}
@@ -7165,11 +7168,11 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 
 		case UNT_SPIDERWEB:
 		case UNT_ANKLESNARE:
-			if(sg->val2==0 && tsc && tsc->data[type].timer==-1){
+			if(sg->val2==0 && tsc){
 				int sec = skill_get_time2(sg->skill_id,sg->skill_lv);
-				if (sc_start(bl,type,100,sg->skill_lv,sec))
+				if (sc_start2(bl,type,100,sg->skill_lv,sg->group_id,sec))
 				{
-					struct TimerData* td = get_timer(tsc->data[type].timer); 
+					struct TimerData* td = get_timer(tsc->data[type].timer);
 					if (td) sec = DIFF_TICK(td->tick, tick);
 					map_moveblock(bl, src->bl.x, src->bl.y, tick);
 					clif_fixpos(bl);
@@ -7439,7 +7442,8 @@ int skill_unit_onout (struct skill_unit *src, struct block_list *bl, unsigned in
 			struct block_list *target = map_id2bl(sg->val2);
 			if (target && target==bl)
 			{
-				status_change_end(bl,SC_SPIDERWEB,-1);
+				if (sc && sc->data[type].timer!=-1 && sc->data[type].val2 == sg->group_id)
+					status_change_end(bl,type,-1);
 				sg->limit = DIFF_TICK(tick,sg->tick)+1000;
 			}
 			break;
@@ -7808,18 +7812,8 @@ static int skill_check_condition_mob_master_sub (struct block_list *bl, va_list 
 	return 1;
 }
 
-static int skill_check_condition_hermod_sub(struct block_list *bl,va_list ap)
-{
-	struct npc_data *nd;
-	nd=(struct npc_data*)bl;
-
-	if (nd->bl.subtype == WARP)
-		return 1;
-	return 0;
-}
-
 /*==========================================
- * Determines if a given skill should be made to consume ammo 
+ * Determines if a given skill should be made to consume ammo
  * when used by the player. [Skotlex]
  *------------------------------------------
  */
@@ -7945,10 +7939,15 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 	hp_rate = skill_db[j].hp_rate[lv-1];
 	sp_rate = skill_db[j].sp_rate[lv-1];
 	zeny = skill_db[j].zeny[lv-1];
-	weapon = skill_db[j].weapon;
-	ammo = skill_db[j].ammo;
-	ammo_qty = skill_db[j].ammo_qty[lv-1];
-	state = skill_db[j].state;
+
+	if (!type) { //These should only be checked on begin casting.
+		weapon = skill_db[j].weapon;
+		ammo = skill_db[j].ammo;
+		ammo_qty = skill_db[j].ammo_qty[lv-1];
+		state = skill_db[j].state;
+	} else
+		weapon = ammo = ammo_qty = state = 0;
+
 	spiritball = skill_db[j].spiritball[lv-1];
 	mhp = skill_db[j].mhp[lv-1];
 	for(i = 0; i < 10; i++) {
@@ -7970,12 +7969,14 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 	else
 		sp += (status->max_sp * (-sp_rate))/100;
 
-	if (!ammo && skill && skill_isammotype(sd, skill))
+	if (weapon && !ammo && skill && skill_isammotype(sd, skill))
 	{	//Assume this skill is using the weapon, therefore it requires arrows.
 		ammo = 0xFFFFFFFF; //Enable use on all ammo types.
-		ammo_qty = skill_get_num(skill, lv);
-		if (ammo_qty < 0) ammo_qty *= -1;
+		ammo_qty = 1;
 	}
+
+	//Can only update state when weapon/arrow info is checked.
+	if (weapon) sd->state.arrow_atk = ammo?1:0;
 
 	switch(skill) { // Check for cost reductions due to skills & SCs
 		case MC_MAMMONITE:
@@ -8262,8 +8263,7 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 		break;
 	}
 	case CG_HERMODE:
-		if (map_foreachinrange (skill_check_condition_hermod_sub, &sd->bl,
-			skill_get_splash(skill, lv), BL_NPC) < 1)
+		if(!npc_check_areanpc(1,sd->bl.m,sd->bl.x,sd->bl.y,skill_get_splash(skill, lv)))
 		{
 			clif_skill_fail(sd,skill,0,0);
 			return 0;
@@ -8408,12 +8408,12 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 			clif_skill_fail(sd,skill,1,0);		/* SP */
 			return 0;
 		}
-		if( zeny>0 && sd->status.zeny < zeny) {
+		if(zeny>0 && sd->status.zeny < zeny) {
 			clif_skill_fail(sd,skill,5,0);
 			return 0;
 		}
-	
-		if(!pc_check_weapontype(sd,weapon)) {
+
+		if(weapon && !pc_check_weapontype(sd,weapon)) {
 			clif_skill_fail(sd,skill,6,0);
 			return 0;
 		}
@@ -8439,7 +8439,6 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 		}
 	}
 
-	if(!type)//States are only checked on begin-casting. [Skotlex]
 	switch(state) {
 	case ST_HIDING:
 		if(!(sc && sc->option&OPTION_HIDE)) {
@@ -8565,8 +8564,6 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 
 	if(!(type&1))
 		return 1;
-
-	sd->state.arrow_atk = ammo?1:0; //Update arrow-atk state on cast-end.
 
 	if(delitem_flag) {
 		for(i=0;i<10;i++) {
@@ -10611,20 +10608,29 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, int nameid, in
 		} else {
 			//Flag is only used on the end, so it can be used here. [Skotlex]
 			switch (skill_id) {
+				case BS_DAGGER:
+				case BS_SWORD:
+				case BS_TWOHANDSWORD:
+				case BS_AXE:
+				case BS_MACE:
+				case BS_KNUCKLE:
+				case BS_SPEAR:
+					flag = battle_config.produce_item_name_input&0x1;
+					break;
 				case AM_PHARMACY:
 				case AM_TWILIGHT1:
 				case AM_TWILIGHT2:
 				case AM_TWILIGHT3:
-					flag = battle_config.produce_potion_name_input;
+					flag = battle_config.produce_item_name_input&0x2;
 					break;
 				case AL_HOLYWATER:
-					flag = battle_config.holywater_name_input;
+					flag = battle_config.produce_item_name_input&0x8;
 					break;
 				case ASC_CDP:
-					flag = battle_config.cdp_name_input;
+					flag = battle_config.produce_item_name_input&0x10;
 					break;
 				default:
-					flag = battle_config.produce_item_name_input;
+					flag = battle_config.produce_item_name_input&0x80;
 					break;
 			}
 			if (flag) {
@@ -10771,7 +10777,7 @@ int skill_arrow_create (struct map_session_data *sd, int nameid)
 		tmp_item.identify = 1;
 		tmp_item.nameid = skill_arrow_db[index].cre_id[i];
 		tmp_item.amount = skill_arrow_db[index].cre_amount[i];
-		if(battle_config.making_arrow_name_input) {
+		if(battle_config.produce_item_name_input&0x4) {
 			tmp_item.card[0]=CARD0_CREATE;
 			tmp_item.card[1]=0;
 			tmp_item.card[2]=GetWord(sd->status.char_id,0); // CharId
@@ -11192,7 +11198,7 @@ int skill_readdb (void)
 		skill_db[i].hit=atoi(split[2]);
 		skill_db[i].inf=atoi(split[3]);
 		skill_db[i].pl=atoi(split[4]);
-		skill_db[i].nk=atoi(split[5]);
+		skill_db[i].nk=(int)strtol(split[5], NULL, 0);
 		skill_split_atoi(split[6],skill_db[i].splash);
 		skill_db[i].max=atoi(split[7]);
 		skill_split_atoi(split[8],skill_db[i].num);
@@ -11202,7 +11208,7 @@ int skill_readdb (void)
 		else
 			skill_db[i].castcancel=0;
 		skill_db[i].cast_def_rate=atoi(split[10]);
-		skill_db[i].inf2=atoi(split[11]);
+		skill_db[i].inf2=(int)strtol(split[11], NULL, 0);
 		skill_db[i].maxcount=atoi(split[12]);
 		if(strcmpi(split[13],"weapon") == 0)
 			skill_db[i].skill_type=BF_WEAPON;
@@ -11406,6 +11412,7 @@ int skill_readdb (void)
 	skill_init_unit_layout();
 
 	memset(skill_produce_db,0,sizeof(skill_produce_db));
+	k=0;
 	for(m=0;m<2;m++){
 		sprintf(path, "%s/%s", db_path, filename[m]);
 		fp=fopen(path,"r");
@@ -11415,7 +11422,6 @@ int skill_readdb (void)
 			ShowError("can't read %s\n",path);
 			return 1;
 		}
-		k=0;
 		while(fgets(line,1020,fp)){
 			char *split[7 + MAX_PRODUCE_RESOURCE * 2];
 			int x,y;
@@ -11439,7 +11445,10 @@ int skill_readdb (void)
 			}
 			k++;
 			if(k >= MAX_SKILL_PRODUCE_DB)
+			{
+				ShowError("Reached the max number of produce_db entries (%d), consider raising the value of MAX_SKILL_PRODUCE_DB and recompile.\n", MAX_SKILL_PRODUCE_DB);
 				break;
+			}
 		}
 		fclose(fp);
 		ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n",k,path);

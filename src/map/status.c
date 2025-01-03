@@ -280,7 +280,7 @@ void initChangeTables(void) {
 	set_sc(NPC_BREAKARMOR, SC_BROKENARMOR, SI_BROKENARMOR, SCB_NONE);
 	add_sc(NPC_CHANGEUNDEAD, SC_ELEMENTALCHANGE);
 	set_sc(NPC_POWERUP, SC_INCDEXRATE, SI_BLANK, SCB_DEX);
-	set_sc(NPC_AGIUP, SC_INCAGIRATE, SI_BLANK, SCB_AGI);
+	set_sc(NPC_AGIUP, SC_INCFLEERATE, SI_BLANK, SCB_AGI);
 	add_sc(NPC_INVISIBLE, SC_CLOAKING);
 	set_sc(LK_AURABLADE, SC_AURABLADE, SI_AURABLADE, SCB_NONE);
 	set_sc(LK_PARRYING, SC_PARRYING, SI_PARRYING, SCB_NONE);
@@ -979,7 +979,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		{	//Stuned/Frozen/etc
 			if (flag != 1) //Can't cast, casted stuff can't damage.
 				return 0;
-			if (!skill_get_inf(skill_num)&INF_GROUND_SKILL)
+			if (!(skill_get_inf(skill_num)&INF_GROUND_SKILL))
 				return 0; //Targetted spells can't come off.
 		}
 
@@ -1211,13 +1211,12 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 	//Non players get the value set, players need to stack with previous bonuses.
 	if (bl->type != BL_PC)
 		status->batk =
-		status->matk_min = status->matk_max =
 		status->hit = status->flee =
 		status->def2 = status->mdef2 =
 		status->cri = status->flee2 = 0;
 
-	status->matk_min += status_base_matk_min(status);
-	status->matk_max += status_base_matk_max(status);
+	status->matk_min = status_base_matk_min(status);
+	status->matk_max = status_base_matk_max(status);
 
 	status->hit += level + status->dex;
 	status->flee += level + status->agi;
@@ -1531,7 +1530,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	int i,index;
 	int skill,refinedef=0;
 
-	if(sd->state.connect_new && !first&1) //Shouldn't invoke yet until player is done loading.
+	if(!sd->state.auth && !(first&1)) //Shouldn't invoke yet until player is done loading.
 		return -1;
 
 	if (++calculating > 10) //Too many recursive calls!
@@ -2421,6 +2420,7 @@ int status_calc_homunculus(struct homun_data *hd, int first)
 	status->adelay = status->amotion; //It seems adelay = amotion for Homunculus.
 
 	status_calc_misc(&hd->bl, status, hom->level);
+	status_cpy(&hd->battle_status, status);
 	status_calc_bl(&hd->bl, SCB_ALL); //Status related changes.
 
 	if (memcmp(&b_status, status, sizeof(struct status_data)))
@@ -2665,8 +2665,10 @@ void status_calc_bl_sub_pc(struct map_session_data *sd, unsigned long flag)
 		status->matk_max = status_base_matk_max(status);
 
 		//Bonuses from previous matk
-		status->matk_max += b_status->matk_max - status_base_matk_max(b_status);
-		status->matk_min += b_status->matk_min - status_base_matk_min(b_status);
+		if(sd->matk_rate != 100){
+			status->matk_max = status->matk_max * sd->matk_rate/100;
+			status->matk_min = status->matk_min * sd->matk_rate/100;
+		}
 
 		status->matk_min = status_calc_matk(&sd->bl, &sd->sc, status->matk_min);
 		status->matk_max = status_calc_matk(&sd->bl, &sd->sc, status->matk_max);
@@ -2920,7 +2922,7 @@ void status_calc_bl(struct block_list *bl, unsigned long flag)
 		return;
 	}
 
-	if((!bl->type&(BL_REGEN)) && (!sc || !sc->count)) { //No difference.
+	if((!(bl->type&BL_REGEN)) && (!sc || !sc->count)) { //No difference.
 		status_cpy(status, b_status);
 		return;
 	}
@@ -3654,9 +3656,12 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 		speed += 300;
 
 	if(sc->data[SC_GATLINGFEVER].timer==-1)
-	{	//% increases (they don't stack, with the exception of Speedup1? @.@)
+	{	//% increases (they don't stack, with a few exceptions)
 		if(sc->data[SC_SPEEDUP1].timer!=-1)
 			speed -= speed * 50/100;
+		else if(sc->data[SC_AVOID].timer!=-1)
+			speed -= speed * sc->data[SC_AVOID].val2/100;
+
 		if(sc->data[SC_RUN].timer!=-1)
 			speed -= speed * 50/100;
 		else if(sc->data[SC_SPEEDUP0].timer!=-1)
@@ -3669,8 +3674,6 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			speed -= speed * 20/100;
 		else if(sc->data[SC_BERSERK].timer!=-1)
 			speed -= speed * 20/100;
-		else if(sc->data[SC_AVOID].timer!=-1)
-			speed -= speed * sc->data[SC_AVOID].val2/100;
 		else if(sc->data[SC_WINDWALK].timer!=-1)
 			speed -= speed * sc->data[SC_WINDWALK].val3/100;
 	}
@@ -6625,7 +6628,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 		break;
 
 	case SC_STONE:
-		if(sc->opt1 == OPT1_STONEWAIT) {
+		if(sc->opt1 == OPT1_STONEWAIT && sc->data[type].val3) {
 			sc->data[type].val4 = 0;
 			unit_stop_walking(bl,1);
 			sc->opt1 = OPT1_STONE;

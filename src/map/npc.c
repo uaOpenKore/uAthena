@@ -1005,8 +1005,69 @@ int npc_touch_areanpc2(struct block_list *bl)
 	return 1;
 }
 
+//Checks if there are any NPC on-touch objects on the given range.
+//Flag determines the type of object to check for:
+//&1: NPC Warps
+//&2: NPCs with on-touch events.
+int npc_check_areanpc(int flag,int m,int x,int y,int range)
+{
+	int i;
+	int x0,y0,x1,y1;
+	int xs,ys;
+
+	if (range < 0) return 0;
+	x0 = x-range;
+	x1 = x+range;
+	y0 = y-range;
+	y1 = y+range;
+
+	//First check for npc_cells on the range given
+	if (x0 < 0) x0 = 0;
+	if (y0 < 0) y0 = 0;
+	if (x1 >= map[m].xs) x1 = map[m].xs-1;
+	if (y1 >= map[m].ys) y1 = map[m].ys-1;
+	i = 0;
+	for (ys = y0; ys <= y1 && !i; ys++) {
+		for(xs = x0; xs <= x1 && !i; xs++){
+			if (map_getcell(m,xs,ys,CELL_CHKNPC))
+				i = 1;
+		}
+	}
+	if (!i) return 0; //No NPC_CELLs.
+
+	//Now check for the actual NPC on said range.
+	for(i=0;i<map[m].npc_num;i++) {
+		if (map[m].npc[i]->sc.option&OPTION_INVISIBLE)
+			continue;
+
+		switch(map[m].npc[i]->bl.subtype) {
+		case WARP:
+			if (!(flag&1))
+				continue;
+			xs=map[m].npc[i]->u.warp.xs;
+			ys=map[m].npc[i]->u.warp.ys;
+			break;
+		case SCRIPT:
+			if (!(flag&2))
+				continue;
+			xs=map[m].npc[i]->u.scr.xs;
+			ys=map[m].npc[i]->u.scr.ys;
+			break;
+		default:
+			continue;
+		}
+		if (x1 >= map[m].npc[i]->bl.x-xs/2 && x0 < map[m].npc[i]->bl.x-xs/2+xs &&
+			y1 >= map[m].npc[i]->bl.y-ys/2 && y0 < map[m].npc[i]->bl.y-ys/2+ys)
+			break;
+	}
+	if (i==map[m].npc_num)
+		return 0;
+
+	return (map[m].npc[i]->bl.id);
+}
+
 /*==========================================
- * 
+ *
  *------------------------------------------
  */
 int npc_checknear2(struct map_session_data *sd,struct block_list *bl)
@@ -1205,7 +1266,8 @@ int npc_buylist(struct map_session_data *sd,int n,unsigned short *item_list)
 
 	for(i=0,w=0,z=0;i<n;i++) {
 		for(j=0;nd->u.shop_item[j].nameid;j++) {
-			if (nd->u.shop_item[j].nameid==item_list[i*2+1])
+			if (nd->u.shop_item[j].nameid==item_list[i*2+1] || //Normal items
+				itemdb_viewid(nd->u.shop_item[j].nameid)==item_list[i*2+1]) //item_avail replacement
 				break;
 		}
 		if (nd->u.shop_item[j].nameid==0)
@@ -1296,10 +1358,11 @@ int npc_selllist(struct map_session_data *sd,int n,unsigned short *item_list)
 	nd = nd->master_nd; //For OnSell triggers.
 
 	for(i=0,z=0;i<n;i++) {
-		int nameid, idx, qty;
+		int nameid, idx;
+		short qty;
 		idx = item_list[i*2]-2;
-		qty = item_list[i*2+1];
-		
+		qty = (short)item_list[i*2+1];
+
 		if (idx <0 || idx >=MAX_INVENTORY || qty < 0)
 			break;
 		
@@ -1313,7 +1376,8 @@ int npc_selllist(struct map_session_data *sd,int n,unsigned short *item_list)
 		else
 			z+=(double)qty*pc_modifysellvalue(sd,sd->inventory_data[idx]->value_sell);
 
-		if(sd->inventory_data[idx]->type==7 && sd->status.inventory[idx].card[0] == (short)0xff00)
+		if(sd->inventory_data[idx]->type == IT_PETEGG &&
+			sd->status.inventory[idx].card[0] == CARD0_PET)
 		{
 			if(search_petDB_index(sd->status.inventory[idx].nameid, PET_EGG) >= 0)
 				intif_delete_petdata(MakeDWord(sd->status.inventory[idx].card[1],sd->status.inventory[idx].card[2]));
@@ -2752,7 +2816,7 @@ static int npc_read_event_script_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 
-static void npc_read_event_script(void)
+void npc_read_event_script(void)
 {
 	int i;
 	unsigned char buf[64]="::";
@@ -2814,9 +2878,7 @@ static int npc_cleanup_sub (struct block_list *bl, va_list ap) {
 		npc_unload((struct npc_data *)bl);
 		break;
 	case BL_MOB:
-		//This is used only on reloading npcs, so let's not free spawn-once mobs. [Skotlex]
-		if (((TBL_MOB*)bl)->spawn)
-			unit_free(bl,0);
+		unit_free(bl,0);
 		break;
 	}
 
@@ -2913,7 +2975,7 @@ int do_final_npc(void)
 		if ((bl = map_id2bl(i))){
 			if (bl->type == BL_NPC)
 				npc_unload((struct npc_data *)bl);
-			else if (bl->type&(BL_MOB|BL_PET))
+			else if (bl->type&(BL_MOB|BL_PET|BL_HOM))
 				unit_free(bl, 0);
 		}
 	}

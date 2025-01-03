@@ -57,6 +57,7 @@ int battle_weapon_attack( struct block_list *bl,struct block_list *target,
 // ep[^
 struct block_list* battle_get_master(struct block_list *src);
 struct block_list* battle_gettargeted(struct block_list *target);
+struct block_list* battle_getenemy(struct block_list *target, int type, int range);
 int battle_gettarget(struct block_list *bl);
 int battle_getcurrentskill(struct block_list *bl);
 
@@ -254,10 +255,6 @@ extern struct Battle_Config {
 	unsigned short party_skill_penalty;
 	unsigned short monster_class_change_full_recover;
 	unsigned short produce_item_name_input;
-	unsigned short produce_potion_name_input;
-	unsigned short making_arrow_name_input;
-	unsigned short holywater_name_input;
-	unsigned short cdp_name_input;
 	unsigned short display_skill_fail;
 	unsigned short chat_warpportal;
 	unsigned short mob_warp;
@@ -428,8 +425,7 @@ extern struct Battle_Config {
 
 	unsigned short sg_angel_skill_ratio;
 	unsigned short sg_miracle_skill_ratio;
-	int sg_miracle_skill_duration_min;
-	int sg_miracle_skill_duration_max;
+	int sg_miracle_skill_duration;
 	unsigned short autospell_stacking; //Enables autospell cards to stack. [Skotlex]
 	unsigned short override_mob_names; //Enables overriding spawn mob names with the mob_db names. [Skotlex]
 	unsigned short min_chat_delay; //Minimum time between client messages. [Skotlex]

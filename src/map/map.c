@@ -72,7 +72,6 @@ char map_server_pw[32] = "ragnarok";
 char map_server_db[32] = "ragnarok";
 char default_codepage[32] = ""; //Feature by irmin.
 int db_use_sqldbs = 0;
-int connection_ping_interval = 0;
 
 char item_db_db[32] = "item_db";
 char item_db2_db[32] = "item_db2";
@@ -995,6 +994,8 @@ int map_foreachincell(int (*func)(struct block_list*,va_list),int m,int x,int y,
 	va_list ap;
 	int blockcount=bl_list_count,i,c;
 
+	if (x < 0 || y < 0 || x >= map[m].xs || y >= map[m].ys) return 0;
+
 	va_start(ap,type);
 
 	by=y/BLOCK_SIZE;
@@ -1692,6 +1693,8 @@ int map_quit(struct map_session_data *sd) {
 			unit_remove_map(&sd->bl, 0);
 			if (sd->pd && sd->pd->bl.prev != NULL)
 				unit_remove_map(&sd->pd->bl, 0);
+			if (sd->hd && sd->hd->bl.prev != NULL)
+				unit_remove_map(&sd->hd->bl, 0);
 		}
 	}
 
@@ -3487,8 +3490,6 @@ int inter_config_read(char *cfgName)
 		} else if(strcmpi(w1,"use_sql_db")==0){
 			db_use_sqldbs = battle_config_switch(w2);
 			ShowStatus ("Using SQL dbs: %s\n",w2);
-		} else if(strcmpi(w1,"connection_ping_interval")==0) {
-			connection_ping_interval = battle_config_switch(w2);
 		}else if(strcmpi(w1, "char_server_ip") == 0){
 			strcpy(charsql_host, w2);
 		}else if(strcmpi(w1, "char_server_port") == 0){
@@ -3541,9 +3542,7 @@ int inter_config_read(char *cfgName)
 #ifndef TXT_ONLY
 /*=======================================
  *  MySQL Init
- *---------------------------------------
- */
-
+ *---------------------------------------*/
 int map_sql_init(void){
 
 	mysql_init(&mmysql_handle);
@@ -3576,6 +3575,7 @@ int map_sql_init(void){
 			}
 		}
 	}
+
 	if( strlen(default_codepage) > 0 ) {
 		sprintf( tmp_sql, "SET NAMES %s", default_codepage );
 		if (mysql_query(&mmysql_handle, tmp_sql)) {
@@ -3583,6 +3583,7 @@ int map_sql_init(void){
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		}
 	}
+
 	return 0;
 }
 
@@ -3620,6 +3621,46 @@ int log_sql_init(void){
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		}
 	}
+	return 0;
+}
+
+/*=============================================
+ * Does a mysql_ping to all connection handles
+ *---------------------------------------------*/
+int map_sql_ping(int tid, unsigned int tick, int id, int data)
+{
+	ShowInfo("Pinging SQL server to keep connection alive...\n");
+	mysql_ping(&mmysql_handle);
+	if (log_config.sql_logs)
+		mysql_ping(&logmysql_handle);
+	if(mail_server_enable)
+		mysql_ping(&mail_handle);
+	return 0;
+}
+
+int sql_ping_init(void)
+{
+	int connection_timeout, connection_ping_interval;
+
+	// set a default value first
+	connection_timeout = 28800; // 8 hours
+
+	// ask the mysql server for the timeout value
+	if (!mysql_query(&mmysql_handle, "SHOW VARIABLES LIKE 'wait_timeout'")
+	&& (sql_res = mysql_store_result(&mmysql_handle)) != NULL) {
+		sql_row = mysql_fetch_row(sql_res);
+		if (sql_row)
+			connection_timeout = atoi(sql_row[1]);
+		if (connection_timeout < 60)
+			connection_timeout = 60;
+		mysql_free_result(sql_res);
+	}
+
+	// establish keepalive
+	connection_ping_interval = connection_timeout - 30; // 30-second reserve
+	add_timer_func_list(map_sql_ping, "map_sql_ping");
+	add_timer_interval(gettick() + connection_ping_interval*1000, map_sql_ping, 0, 0, connection_ping_interval*1000);
+
 	return 0;
 }
 #endif /* not TXT_ONLY */
@@ -3805,24 +3846,6 @@ void map_versionscreen(int flag) {
 	if (flag) exit(1);
 }
 
-
-#ifndef TXT_ONLY
-/*======================================================
- * Does a mysql_ping to all connection handles. [Skotlex]
- *------------------------------------------------------
- */
-int map_sql_ping(int tid, unsigned int tick, int id, int data) 
-{
-	ShowInfo("Pinging SQL server to keep connection alive...\n");
-	mysql_ping(&mmysql_handle);
-	if (log_config.sql_logs)
-		mysql_ping(&logmysql_handle);
-	if(mail_server_enable)
-		mysql_ping(&mail_handle);
-	return 0;
-}
-#endif
-
 /*======================================================
  * Map-Server Init and Command-line Arguments [Valaris]
  *------------------------------------------------------
@@ -3901,8 +3924,6 @@ int do_init(int argc, char *argv[]) {
 			clif_setip(buf);
 		if (!char_ip_set)
 			chrif_setip(buf);
-		if (ptr[0] == 192 && ptr[1] == 168)
-			ShowNotice("\nFirewall detected.. \n    edit subnet_athena.conf and map_athena.conf\n\n");
 	}
 
 	if (SHOW_DEBUG_MSG)
@@ -3961,11 +3982,7 @@ int do_init(int argc, char *argv[]) {
 	if (log_config.sql_logs)
 		log_sql_init();
 
-	if (connection_ping_interval) {
-		add_timer_func_list(map_sql_ping, "map_sql_ping");
-		add_timer_interval(gettick()+connection_ping_interval*60*60*1000,
-				map_sql_ping, 0, 0, connection_ping_interval*60*60*1000);
-	}
+	sql_ping_init();
 #endif /* not TXT_ONLY */
 
 	npc_event_do_oninit();	// npcOnInitCxg?s
@@ -3973,9 +3990,9 @@ int do_init(int argc, char *argv[]) {
 	//Done loading with the maps, no need for the grf module anymore.
 	grfio_final();
 
-	if ( console ) {
-		set_defaultconsoleparse(parse_console);
-		start_console();
+	if( console )
+	{
+		//##TODO invoke a CONSOLE_START plugin event
 	}
 
 	if (battle_config.pk_mode == 1)

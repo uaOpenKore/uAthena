@@ -7,6 +7,7 @@
 
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
+#include "../common/malloc.h"
 #include "../common/socket.h"
 #include "../common/db.h"
 #include "../common/lock.h"
@@ -393,31 +394,6 @@ int mapif_party_optionchanged(int fd,struct party *p, int account_id, int flag) 
 	return 0;
 }
 
-//Checks whether the even-share setting of a party is broken when a character logs in. [Skotlex]
-int inter_party_logged(int party_id, int account_id, int char_id)
-{
-	struct party_data *p;
-	int i;
-	if (!party_id)
-		return 0;
-
-	p = idb_get(party_db, party_id);
-	if(p==NULL)
-		return 0;
-	for (i = 0; i < MAX_PARTY; i++) 
-		if(p->party.member[i].account_id == account_id &&
-			p->party.member[i].char_id == char_id)
-	  	{
-			p->party.member[i].online = 1;
-			p->party.count++;
-			if(p->party.member[i].lv < p->min_lv ||
-				p->party.member[i].lv > p->max_lv)
-				int_party_check_lv(p);
-			break;
-		}
-	return 0;
-}
-
 // p?eB?m
 int mapif_party_leaved(int party_id,int account_id, int char_id) {
 	unsigned char buf[16];
@@ -637,42 +613,47 @@ int mapif_parse_PartyChangeMap(int fd, int party_id, int account_id, int char_id
 	if (p == NULL)
 		return 0;
 
-	for(i = 0; i < MAX_PARTY; i++) {
-		if(p->party.member[i].account_id == account_id &&
-			p->party.member[i].char_id == char_id)
+	for(i = 0; i < MAX_PARTY &&
+		(p->party.member[i].account_id != account_id ||
+		p->party.member[i].char_id != char_id); i++);
+
+	if (i == MAX_PARTY) return 0;
+
+	if (p->party.member[i].online != online)
+	{
+		p->party.member[i].online = online;
+		if (online)
+			p->party.count++;
+		else
+			p->party.count--;
+		// Even share check situations: Family state (always breaks)
+		// character logging on/off is max/min level (update level range)
+		// or character logging on/off has a different level (update level range using new level)
+		if (p->family ||
+			(p->party.member[i].lv <= p->min_lv || p->party.member[i].lv >= p->max_lv) ||
+			(p->party.member[i].lv != lv && (lv <= p->min_lv || lv >= p->max_lv))
+			)
 		{
-			p->party.member[i].map = map;
-			if (p->party.member[i].online != online)
-			{
-				p->party.member[i].online = online;
-				if (online)
-					p->party.count++;
-				else
-					p->party.count--;
-				// Even share check situations: Family state (always breaks)
-				// character logging on/off is max/min level (update level range) 
-				// or character logging on/off has a different level (update level range using new level)
-				if (p->family ||
-					(p->party.member[i].lv <= p->min_lv || p->party.member[i].lv >= p->max_lv) ||
-					(p->party.member[i].lv != lv && (lv <= p->min_lv || lv >= p->max_lv))
-					)
-				{
-					p->party.member[i].lv = lv;
-					int_party_check_lv(p);
-				}
-			}
-			if (p->party.member[i].lv != lv) {
-				if(p->party.member[i].lv == p->min_lv ||
-					p->party.member[i].lv == p->max_lv)
-				{
-					p->party.member[i].lv = lv;
-					int_party_check_lv(p);
-				} else
-					p->party.member[i].lv = lv;
-			}
-			mapif_party_membermoved(&p->party, i);
-			break;
+			p->party.member[i].lv = lv;
+			int_party_check_lv(p);
 		}
+		//Send online/offline update.
+		mapif_party_membermoved(&p->party, i);
+	}
+	if (p->party.member[i].lv != lv) {
+		if(p->party.member[i].lv == p->min_lv ||
+			p->party.member[i].lv == p->max_lv)
+		{
+			p->party.member[i].lv = lv;
+			int_party_check_lv(p);
+		} else
+			p->party.member[i].lv = lv;
+		//There is no need to send level update to map servers
+		//since they do nothing with it.
+	}
+	if (p->party.member[i].map != map) {
+		p->party.member[i].map = map;
+		mapif_party_membermoved(&p->party, i);
 	}
 	return 0;
 }

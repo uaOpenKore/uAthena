@@ -60,6 +60,7 @@ struct mob_db {
 
 enum {
 	MST_TARGET =	0,
+	MST_RANDOM,	//Random Target!
 	MST_SELF,
 	MST_FRIEND,
 	MST_MASTER,
@@ -143,8 +144,7 @@ int mob_once_spawn_area(struct map_session_data *sd,char *mapname,
 	int x0,int y0,int x1,int y1,
 	const char *mobname,int class_,int amount,const char *event);
 
-int mob_spawn_guardian(struct map_session_data *sd,char *mapname,	// Spawning Guardians [Valaris]
-	int x,int y,const char *mobname,int class_,int amount,const char *event,int guardian);	// Spawning Guardians [Valaris]
+int mob_spawn_guardian(char *mapname,short x,short y,const char *mobname,int class_,const char *event,int guardian);	// Spawning Guardians [Valaris]
 int mob_guardian_guildchange(struct block_list *bl,va_list ap); //Change Guardian's ownership. [Skotlex]
 
 int mob_randomwalk(struct mob_data *md,int tick);

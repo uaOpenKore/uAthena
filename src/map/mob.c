@@ -45,6 +45,9 @@
 
 #define RUDE_ATTACKED_COUNT 2	//After how many rude-attacks should the skill be used?
 
+//Used to determine default enemy type of mobs (for use in eachinrange calls)
+#define DEFAULT_ENEMY_TYPE(md) (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM)
+
 //Dynamic mob database, allows saving of memory when there's big gaps in the mob_db [Skotlex]
 struct mob_db *mob_db_data[MAX_MOB_DB+1];
 struct mob_db *mob_dummy = NULL;	//Dummy mob to be returned when a non-existant one is requested.
@@ -256,6 +259,7 @@ int mob_get_random_id(int type, int flag, int lv) {
 		class_ = rand() % MAX_MOB_DB;
 		mob = mob_db(class_);
 	} while ((mob == mob_dummy ||
+		mob_is_clone(class_) ||
 		(flag&1 && mob->summonper[type] <= rand() % 1000000) ||
 		(flag&2 && lv < mob->lv) ||
 		(flag&4 && mob->status.mode&MD_BOSS) ||
@@ -454,28 +458,30 @@ static int mob_spawn_guardian_sub(int tid,unsigned int tick,int id,int data)
  * Summoning Guardians [Valaris]
  *------------------------------------------
  */
-int mob_spawn_guardian(struct map_session_data *sd,char *mapname,
-	int x,int y,const char *mobname,int class_,int amount,const char *event,int guardian)
+int mob_spawn_guardian(char *mapname,short x,short y,const char *mobname,int class_,const char *event,int guardian)
 {
 	struct mob_data *md=NULL;
 	struct spawn_data data;
 	struct guild *g=NULL;
 	struct guild_castle *gc;
-	int m, count;
+	int m;
 	memset(&data, 0, sizeof(struct spawn_data));
 	data.num = 1;
 
-	if( sd && strcmp(mapname,"this")==0)
-		m=sd->bl.m;
-	else
-		m=map_mapname2mapid(mapname);
+	m=map_mapname2mapid(mapname);
 
-	if(m<0 || amount<=0)
+	if(m<0)
+	{
+		ShowWarning("mob_spawn_guardian: Map [%s] not found.\n", mapname);
 		return 0;
+	}
 	data.m = m;
-	data.num = amount;
-	if(class_<0)
-		return 0;
+	data.num = 1;
+	if(class_<=0) {
+		class_ = mob_get_random_id(-class_-1, 1, 99);
+		if (!class_) return 0;
+	}
+
 	data.class_ = class_;
 
 	if(guardian < 0 || guardian >= MAX_GUARDIANS)
@@ -483,15 +489,12 @@ int mob_spawn_guardian(struct map_session_data *sd,char *mapname,
 		ShowError("mob_spawn_guardian: Invalid guardian index %d for guardian %d (castle map %s)\n", guardian, class_, map[m].name);
 		return 0;
 	}
-	if (amount > 1)
-		ShowWarning("mob_spawn_guardian: Spawning %d guardians in position %d (castle map %s)\n", amount, map[m].name);
-	
-	if(sd){
-		if(x<=0) x=sd->bl.x;
-		if(y<=0) y=sd->bl.y;
+
+	if((x<=0 || y<=0) && !map_search_freecell(NULL, m, &x, &y, -1,-1, 0))
+	{
+		ShowWarning("mob_spawn_guardian: Couldn't locate a spawn cell for guardian class %d (index %d) at castle map %s\n",class_, guardian, map[m].name);
+		return 0;
 	}
-	else if(x<=0 || y<=0)
-		ShowWarning("mob_spawn_guardian: Invalid coordinates (%d,%d)\n",x,y);
 	data.x = x;
 	data.y = y;
 	strncpy(data.name, mobname, NAME_LENGTH-1);
@@ -511,26 +514,32 @@ int mob_spawn_guardian(struct map_session_data *sd,char *mapname,
 		g = guild_search(gc->guild_id);
 
 	if (gc->guardian[guardian].id)
-		ShowWarning("mob_spawn_guardian: Spawning guardian in position %d which already has a guardian (castle map %s)\n", guardian, map[m].name);
-	
-	for(count=0;count<data.num;count++){
-		md= mob_spawn_dataset(&data);
-		md->guardian_data = aCalloc(1, sizeof(struct guardian_data));
-		md->guardian_data->number = guardian;
-		md->guardian_data->guild_id = gc->guild_id;
-		md->guardian_data->castle = gc;
-		gc->guardian[guardian].id = md->bl.id;
-		if (g)
+	{	//Check if guardian already exists, refuse to spawn if so.
+		struct mob_data *md2 = (TBL_MOB*)map_id2bl(gc->guardian[guardian].id);
+		if (md2 && md2->bl.type == BL_MOB &&
+			md2->guardian_data && md2->guardian_data->number == guardian)
 		{
-			md->guardian_data->emblem_id = g->emblem_id;
-			memcpy (md->guardian_data->guild_name, g->name, NAME_LENGTH);
-			md->guardian_data->guardup_lv = guild_checkskill(g,GD_GUARDUP);
-		} else if (md->guardian_data->guild_id)
-			add_timer(gettick()+5000,mob_spawn_guardian_sub,md->bl.id,md->guardian_data->guild_id);
-		mob_spawn(md);
+			ShowError("mob_spawn_guardian: Attempted to spawn guardian in position %d which already has a guardian (castle map %s)\n", guardian, map[m].name);
+			return 0;
+		}
 	}
 
-	return (amount>0)?md->bl.id:0;
+	md= mob_spawn_dataset(&data);
+	md->guardian_data = aCalloc(1, sizeof(struct guardian_data));
+	md->guardian_data->number = guardian;
+	md->guardian_data->guild_id = gc->guild_id;
+	md->guardian_data->castle = gc;
+	gc->guardian[guardian].id = md->bl.id;
+	if (g)
+	{
+		md->guardian_data->emblem_id = g->emblem_id;
+		memcpy (md->guardian_data->guild_name, g->name, NAME_LENGTH);
+		md->guardian_data->guardup_lv = guild_checkskill(g,GD_GUARDUP);
+	} else if (md->guardian_data->guild_id)
+		add_timer(gettick()+5000,mob_spawn_guardian_sub,md->bl.id,md->guardian_data->guild_id);
+	mob_spawn(md);
+
+	return md->bl.id;
 }
 
 /*==========================================
@@ -723,13 +732,13 @@ static int mob_can_changetarget(struct mob_data* md, struct block_list* target, 
 	{
 		if (md->state.provoke_flag == target->id)
 			return 1;
-		else if (!battle_config.mob_ai&0x4)
+		else if (!(battle_config.mob_ai&0x4))
 			return 0;
 	}
 
 	switch (md->state.skillstate) {
 		case MSS_BERSERK:
-			if (!mode&MD_CHANGETARGET_MELEE)
+			if (!(mode&MD_CHANGETARGET_MELEE))
 				return 0;
 			return (battle_config.mob_ai&0x4 || check_distance_bl(&md->bl, target, 3));
 		case MSS_RUSH:
@@ -1074,8 +1083,8 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			(md->ud.attacktimer == -1 && !status_check_skilluse(&md->bl, tbl, 0, 0)) ||
 			(md->ud.walktimer != -1 && !(battle_config.mob_ai&0x1) && !check_distance_bl(&md->bl, tbl, md->min_chase)) ||
 			(
-				tbl->type == BL_PC && !(mode&MD_BOSS) &&
-				(((TBL_PC*)tbl)->state.gangsterparadise ||
+				tbl->type == BL_PC &&
+				((((TBL_PC*)tbl)->state.gangsterparadise && !(mode&MD_BOSS)) ||
 				((TBL_PC*)tbl)->invincible_timer != INVALID_TIMER)
 		)) {	//Unlock current target.
 			if (battle_config.mob_ai&0x8) //Inmediately stop chasing.
@@ -1089,37 +1098,44 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 	if (md->attacked_id && mode&MD_CANATTACK)
 	{
 		if (md->attacked_id == md->target_id)
-		{
+		{	//Rude attacked check.
 			if (!battle_check_range(&md->bl, tbl, md->status.rhw.range) &&
-				(
-					(!can_move && battle_config.mob_ai&0x2) ||
+				(	//Can't attack back and can't reach back.
+					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 &&
+						(battle_config.mob_ai&0x2 || md->sc.data[SC_SPIDERWEB].timer != -1)) ||
 					(!mob_can_reach(md, tbl, md->min_chase, MSS_RUSH))
 				) &&
-				DIFF_TICK(tick, md->ud.canmove_tick) > 0 &&
-				md->state.attacked_count++ >= RUDE_ATTACKED_COUNT
-			)
-			{	//Rude-attacked (avoid triggering due to can-walk delay).
-				if (!mobskill_use(md, tick, MSC_RUDEATTACKED) && can_move)
-					unit_escape(bl, tbl, rand()%10 +1);
+				md->state.attacked_count++ >= RUDE_ATTACKED_COUNT &&
+				!mobskill_use(md, tick, MSC_RUDEATTACKED) && //If can't rude Attack
+				can_move && unit_escape(bl, tbl, rand()%10 +1)) //Attempt escape
+			{	//Escaped
+				md->attacked_id = 0;
+				return 0;
 			}
 		} else
 		if ((abl= map_id2bl(md->attacked_id)) && (!tbl || mob_can_changetarget(md, abl, mode))) {
 			if (md->bl.m != abl->m || abl->prev == NULL ||
 				(dist = distance_bl(&md->bl, abl)) >= MAX_MINCHASE ||
 				battle_check_target(bl, abl, BCT_ENEMY) <= 0 ||
-				(battle_config.mob_ai&0x2 && !status_check_skilluse(bl, abl, 0, 0)) ||
-				!mob_can_reach(md, abl, dist+md->db->range3, MSS_RUSH) ||
-				(	//Gangster Paradise check
-					abl->type == BL_PC && !(mode&MD_BOSS) &&
-					((TBL_PC*)abl)->state.gangsterparadise
+				(battle_config.mob_ai&0x2 && !status_check_skilluse(bl, abl, 0, 0)) || //Retaliate check
+				(!battle_check_range(&md->bl, abl, md->status.rhw.range) &&
+					( //Reach check
+					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 &&
+							(battle_config.mob_ai&0x2 || md->sc.data[SC_SPIDERWEB].timer != -1)) ||
+						!mob_can_reach(md, abl, dist+md->db->range3, MSS_RUSH)
+					)
 				)
-			)	{	//Can't attack back
+			)	{	//Rude attacked
 				if (md->state.attacked_count++ >= RUDE_ATTACKED_COUNT &&
-					!mobskill_use(md, tick, MSC_RUDEATTACKED) && can_move)
-						unit_escape(bl, abl, rand()%10 +1);
+					!mobskill_use(md, tick, MSC_RUDEATTACKED) && can_move &&
+					unit_escape(bl, abl, rand()%10 +1))
+				{	//Escaped.
+					//TODO: Maybe it shouldn't attempt to run if it has another, valid target?
+					md->attacked_id = 0;
+					return 0;
+				}
 			} else if (!(battle_config.mob_ai&0x2) && !status_check_skilluse(bl, abl, 0, 0)) {
 				//Can't attack back, but didn't invoke a rude attacked skill...
-				md->attacked_id = 0; //Simply unlock, shouldn't attempt to run away when in dumb_ai mode.
 			} else { //Attackable
 				if (!tbl || dist < md->status.rhw.range || !check_distance_bl(&md->bl, tbl, dist)
 					|| battle_gettarget(tbl) != md->bl.id)
@@ -1154,13 +1170,13 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 	if ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW)
 	{
 		map_foreachinrange (mob_ai_sub_hard_activesearch, &md->bl,
-			view_range, md->special_state.ai?BL_CHAR:BL_PC|BL_HOM, md, &tbl);
+			view_range, DEFAULT_ENEMY_TYPE(md), md, &tbl);
 	} else
 	if (mode&MD_CHANGECHASE && (md->state.skillstate == MSS_RUSH || md->state.skillstate == MSS_FOLLOW))
 	{
 		search_size = view_range<md->status.rhw.range ? view_range:md->status.rhw.range;
 		map_foreachinrange (mob_ai_sub_hard_changechase, &md->bl,
-				search_size, (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM), md, &tbl);
+				search_size, DEFAULT_ENEMY_TYPE(md), md, &tbl);
 	}
 
 	if (!tbl) { //No targets available.
@@ -1994,7 +2010,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		double exp;
 
 		//mapflag: noexp check [Lorky]
-		if (map[m].flag.nobaseexp)
+		if (map[m].flag.nobaseexp || type&2)
 			exp =1;
 		else {
 			exp = md->db->mexp;
@@ -2008,7 +2024,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		clif_mvp_exp(mvp_sd,mexp);
 		pc_gainexp(mvp_sd, &md->bl, mexp,0);
 		log_mvp[1] = mexp;
-		if(!map[m].flag.nomvploot)
+		if(map[m].flag.nomvploot || type&1)
+			; //No drops.
+		else
 		for(j=0;j<3;j++){
 			i = rand() % 3;
 
@@ -2388,7 +2406,13 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 			data.x = md2->bl.x;
 			data.y = md2->bl.y;
 		}
-		strcpy(data.name, "--ja--");	//These two need to be loaded from the db for each slave.
+
+		//These two need to be loaded from the db for each slave.
+		if(battle_config.override_mob_names==1)
+			strcpy(data.name,"--en--");
+		else
+			strcpy(data.name,"--ja--");
+
 		data.level = 0;
 		if (!mob_parse_dataset(&data))
 			continue;
@@ -2671,6 +2695,10 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 			short x = 0, y = 0;
 			if (ms[i].target <= MST_AROUND) {
 				switch (ms[i].target) {
+					case MST_RANDOM: //Pick a random enemy within skill range.
+						bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
+							skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
+						break;
 					case MST_TARGET:
 					case MST_AROUND5:
 					case MST_AROUND6:
@@ -2719,6 +2747,10 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 			if (ms[i].target <= MST_MASTER) {
 				struct block_list *bl;
 				switch (ms[i].target) {
+					case MST_RANDOM: //Pick a random enemy within skill range.
+						bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
+							skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
+						break;
 					case MST_TARGET:
 						bl = map_id2bl(md->target_id);
 						break;
@@ -2775,9 +2807,9 @@ int mobskill_event(struct mob_data *md, struct block_list *src, unsigned int tic
 		res = mobskill_use(md, tick, flag);
 	else if (flag&BF_SHORT)
 		res = mobskill_use(md, tick, MSC_CLOSEDATTACKED);
-	else if (flag&BF_LONG)
+	else if (flag&BF_LONG && !(flag&BF_MAGIC)) //Long-attacked should not include magic.
 		res = mobskill_use(md, tick, MSC_LONGRANGEATTACKED);
-	
+
 	if (!res)
 	//Restore previous target only if skill condition failed to trigger. [Skotlex]
 		md->target_id = target_id;
@@ -3555,6 +3587,7 @@ static int mob_readskilldb(void)
 		{	"anytarget",MSS_ANYTARGET	}, //Berserk+Angry+Rush+Follow
 	}, target[] = {
 		{	"target",	MST_TARGET	},
+		{	"randomtarget",	MST_RANDOM	},
 		{	"self",		MST_SELF	},
 		{	"friend",	MST_FRIEND	},
 		{	"master",	MST_MASTER	},

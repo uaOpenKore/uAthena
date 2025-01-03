@@ -19,7 +19,6 @@
 #include "../common/db.h"
 #include "../common/socket.h"
 #include "../common/timer.h"
-#include "../common/graph.h"
 #include "../common/plugins.h"
 #endif
 
@@ -258,7 +257,6 @@ int main (int argc, char **argv)
 	plugins_init();
 
 	do_init(argc,argv);
-	graph_init();
 	plugin_event_trigger(EVENT_ATHENA_INIT);
 
 	{// Main runtime cycle
@@ -266,14 +264,11 @@ int main (int argc, char **argv)
 		while (runflag) {
 			next = do_timer(gettick_nocache());
 			do_sendrecv(next);
-	#ifndef TURBO
 			do_parsepacket();
-	#endif
 		}
 	}
 
 	plugin_event_trigger(EVENT_ATHENA_FINAL);
-	graph_final();
 	do_final();
 
 	timer_final();

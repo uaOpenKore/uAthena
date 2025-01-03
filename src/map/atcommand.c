@@ -27,6 +27,7 @@
 #include "status.h"
 #include "skill.h"
 #include "mob.h"
+#include "npc.h"
 #include "pet.h"
 #include "mercenary.h" //[orn]
 #include "battle.h"
@@ -1030,15 +1031,15 @@ int atcommand_config_read(const char *cfgName)
  */
 int atcommand_commands(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
-	char cz_line_buff[MESSAGE_SIZE+1];
+	char cz_line_buff[CHATBOX_SIZE+1];
 
 	register char *lpcz_cur = cz_line_buff;
 	register unsigned int ui_slen;
 
 	int i_cur_cmd,gm_lvl = pc_isGM(sd), count = 0;
 
-	memset(cz_line_buff,' ',MESSAGE_SIZE);
-	cz_line_buff[MESSAGE_SIZE] = 0;
+	memset(cz_line_buff,' ',CHATBOX_SIZE);
+	cz_line_buff[CHATBOX_SIZE] = 0;
 
 	clif_displaymessage(fd, msg_txt(273));
 
@@ -1050,13 +1051,13 @@ int atcommand_commands(const int fd, struct map_session_data* sd, const char* co
 		count++;
 		ui_slen = (unsigned int)strlen(atcommand_info[i_cur_cmd].command);
 
-		//rember not <= bc we need null terminator
-		if(((MESSAGE_SIZE+(int)cz_line_buff)-(int)lpcz_cur) < (int)ui_slen)
+		//remember not <= bc we need null terminator
+		if(((CHATBOX_SIZE+(int)cz_line_buff)-(int)lpcz_cur) < (int)ui_slen)
 		{
 			clif_displaymessage(fd,(char*)cz_line_buff);
 			lpcz_cur = cz_line_buff;
-			memset(cz_line_buff,' ',MESSAGE_SIZE);
-			cz_line_buff[MESSAGE_SIZE] = 0;
+			memset(cz_line_buff,' ',CHATBOX_SIZE);
+			cz_line_buff[CHATBOX_SIZE] = 0;
 		}
 
 		memcpy(lpcz_cur,atcommand_info[i_cur_cmd].command,ui_slen);
@@ -2217,12 +2218,8 @@ int atcommand_option(const int fd, struct map_session_data* sd, const char* comm
 
 	sd->sc.opt1 = param1;
 	sd->sc.opt2 = param2;
-	if (!(sd->sc.option & OPTION_CART) && param3 & OPTION_CART) {
-		clif_cartlist(sd);
-		clif_updatestatus(sd, SP_CARTINFO);
-	}
 	pc_setoption(sd, param3);
-	
+
 	clif_displaymessage(fd, msg_txt(9)); // Options changed.
 
 	return 0;
@@ -2549,7 +2546,10 @@ int atcommand_item(const int fd, struct map_session_data* sd, const char* comman
 
 	memset(item_name, '\0', sizeof(item_name));
 
-	if (!message || !*message || sscanf(message, "%99s %d", item_name, &number) < 1) {
+	if (!message || !*message || (
+		sscanf(message, "\"%99[^\"]\" %d", item_name, &number) < 1 &&
+		sscanf(message, "%99s %d", item_name, &number) < 1
+	)) {
 		clif_displaymessage(fd, "Please, enter an item name/id (usage: @item <item name or ID> [quantity]).");
 		return -1;
 	}
@@ -2608,7 +2608,10 @@ int atcommand_item2(const int fd, struct map_session_data* sd, const char* comma
 
 	memset(item_name, '\0', sizeof(item_name));
 
-	if (!message || !*message || sscanf(message, "%99s %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4) < 9) {
+	if (!message || !*message || (
+		sscanf(message, "\"%99[^\"]\" %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4) < 9 &&
+		sscanf(message, "%99s %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4) < 9
+	)) {
 		clif_displaymessage(fd, "Please, enter all informations (usage: @item2 <item name or ID> <quantity>");
 		clif_displaymessage(fd, "  <Identify_flag> <refine> <attribut> <Card1> <Card2> <Card3> <Card4>).");
 		return -1;
@@ -2737,17 +2740,15 @@ int atcommand_baselevelup(const int fd, struct map_session_data* sd, const char*
 		level*=-1;
 		if ((unsigned int)level >= sd->status.base_level)
 			level = sd->status.base_level-1;
-		if (sd->status.status_point > 0) {
-			for (i = 0; i > -level; i--)
-				status_point += (sd->status.base_level + i + 14) / 5;
-			if (sd->status.status_point < status_point)
-				pc_resetstate(sd);
-			if (sd->status.status_point < status_point)
-				sd->status.status_point = 0;
-			else
-				sd->status.status_point -= status_point;
-			clif_updatestatus(sd, SP_STATUSPOINT);
-		} /* to add: remove status points from stats */
+		for (i = 0; i > -level; i--)
+			status_point += (sd->status.base_level + i + 14) / 5;
+		if (sd->status.status_point < status_point)
+			pc_resetstate(sd);
+		if (sd->status.status_point < status_point)
+			sd->status.status_point = 0;
+		else
+			sd->status.status_point -= status_point;
+		clif_updatestatus(sd, SP_STATUSPOINT);
 		sd->status.base_level -= (unsigned int)level;
 		clif_updatestatus(sd, SP_BASELEVEL);
 		clif_updatestatus(sd, SP_NEXTBASEEXP);
@@ -3752,7 +3753,10 @@ int atcommand_produce(const int fd, struct map_session_data* sd, const char* com
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
 	memset(item_name, '\0', sizeof(item_name));
 
-	if (!message || !*message || sscanf(message, "%99s %d %d", item_name, &attribute, &star) < 1) {
+	if (!message || !*message || (
+		sscanf(message, "\"%99[^\"]\" %d %d", item_name, &attribute, &star) < 1 &&
+		sscanf(message, "%99s %d %d", item_name, &attribute, &star) < 1
+	)) {
 		clif_displaymessage(fd, "Please, enter at least an item name/id (usage: @produce <equip name or equip ID> <element> <# of very's>).");
 		return -1;
 	}
@@ -4159,14 +4163,14 @@ int atcommand_stat_all(const int fd, struct map_session_data* sd, const char* co
 			*status[index] = new_value;
 			clif_updatestatus(sd, SP_STR + index);
 			clif_updatestatus(sd, SP_USTR + index);
-			status_calc_pc(sd, 0);
 			count++;
 		}
 	}
 
-	if (count > 0) // if at least 1 stat modified
+	if (count > 0) { // if at least 1 stat modified
+		status_calc_pc(sd, 0);
 		clif_displaymessage(fd, msg_txt(84)); // All stats changed!
-	else {
+	} else {
 		if (value < 0)
 			clif_displaymessage(fd, msg_txt(177)); // Impossible to decrease a stat.
 		else
@@ -5658,14 +5662,14 @@ int atcommand_mount_peco(const int fd, struct map_session_data* sd, const char* 
 
 	if (!pc_isriding(sd)) { // if actually no peco
 		if (pc_checkskill(sd, KN_RIDING)) {
-			pc_setoption(sd, sd->sc.option | 0x0020);
+			pc_setoption(sd, sd->sc.option | OPTION_RIDING);
 			clif_displaymessage(fd, msg_txt(102)); // Mounted Peco.
 		} else {
 			clif_displaymessage(fd, msg_txt(213)); // You can not mount a peco with your job.
 			return -1;
 		}
 	} else {	//Dismount
-		pc_setoption(sd, sd->sc.option & ~0x0020);
+		pc_setoption(sd, sd->sc.option & ~OPTION_RIDING);
 		clif_displaymessage(fd, msg_txt(214)); // Unmounted Peco.
 	}
 
@@ -5692,14 +5696,14 @@ int atcommand_char_mount_peco(const int fd, struct map_session_data* sd, const c
 
 		if (!pc_isriding(pl_sd)) { // if actually no peco
 			if (pc_checkskill(pl_sd, KN_RIDING)) {
-				pc_setoption(pl_sd, pl_sd->sc.option | 0x0020);
+				pc_setoption(pl_sd, pl_sd->sc.option | OPTION_RIDING);
 				clif_displaymessage(fd, msg_txt(216)); // Mounted Peco.
 			} else {
 				clif_displaymessage(fd, msg_txt(217)); // You can not mount a peco with your job.
 				return -1;
 			}
 		} else {	//Dismount
-			pc_setoption(pl_sd, pl_sd->sc.option & ~0x0020);
+			pc_setoption(pl_sd, pl_sd->sc.option & ~OPTION_RIDING);
 			clif_displaymessage(fd, msg_txt(218)); // Unmounted Peco.
 		}
 	} else {
@@ -5961,6 +5965,7 @@ int atcommand_loadnpc(const int fd, struct map_session_data* sd, const char* com
 	// add to list of script sources and run it
 	npc_addsrcfile((char *)message);
 	npc_parsesrcfile((char *)message);
+	npc_read_event_script();
 
 	clif_displaymessage(fd, msg_txt(262));
 
@@ -6125,7 +6130,10 @@ int atcommand_chardelitem(const int fd, struct map_session_data* sd, const char*
 	memset(item_name, '\0', sizeof(item_name));
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
 
-	if (!message || !*message || sscanf(message, "%s %d %99[^\n]", item_name, &number, atcmd_player_name) < 3 || number < 1) {
+	if (!message || !*message || (
+		sscanf(message, "\"%99[^\"]\" %d %99[^\n]", item_name, &number, atcmd_player_name) < 3 &&
+		sscanf(message, "%s %d %99[^\n]", item_name, &number, atcmd_player_name) < 3
+	) || number < 1) {
 		clif_displaymessage(fd, "Please, enter an item name/id, a quantity and a player name (usage: @chardelitem <item_name_or_ID> <quantity> <player>).");
 		return -1;
 	}
@@ -6837,7 +6845,7 @@ int atcommand_character_cart_list(const int fd, struct map_session_data* sd, con
 	memset(outputtmp, '\0', sizeof(outputtmp));
 
 	if (!message || !*message || sscanf(message, "%23[^\n]", atcmd_player_name) < 1) {
-		clif_displaymessage(fd, "Please, enter a player name (usage: @charitemlist <char name>).");
+		clif_displaymessage(fd, "Please, enter a player name (usage: @cartlist <char name>).");
 		return -1;
 	}
 
@@ -7662,11 +7670,10 @@ int atcommand_changeleader(const int fd, struct map_session_data* sd, const char
 
 	intif_party_leaderchange(p->party.party_id,p->party.member[pl_mi].account_id,p->party.member[pl_mi].char_id);
 	//Update info.
-	clif_party_main_info(p,-1);
-	clif_party_info(p,-1);
-	
-	return 0;  
-}   
+	clif_party_info(p,NULL);
+
+	return 0;
+}
 
 /*==========================================
  * @partyoption by Skotlex
@@ -9337,7 +9344,7 @@ int atcommand_homhungry(const int fd, struct map_session_data* sd, const char* c
 }
 
 /*==========================================
- * modify homunculus hunger [orn]
+ * make the homunculus speak [orn]
  *------------------------------------------
  */
 int atcommand_homtalk(const int fd, struct map_session_data* sd, const char* command, const char* message)
@@ -9426,27 +9433,27 @@ int atcommand_homstats(const int fd, struct map_session_data* sd, const char* co
 	clif_displaymessage(fd, atcmd_output);
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"Str: %d (%d~%d)",
-		hom->str/10, db->baseSTR +lv*db->gminSTR/10, db->baseSTR +lv*db->gmaxSTR/10);
+		hom->str/10, db->baseSTR +lv*(db->gminSTR/10), db->baseSTR +lv*(db->gmaxSTR/10));
 	clif_displaymessage(fd, atcmd_output);
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"Agi: %d (%d~%d)",
-		hom->agi/10, db->baseAGI +lv*db->gminAGI/10, db->baseAGI +lv*db->gmaxAGI/10);
+		hom->agi/10, db->baseAGI +lv*(db->gminAGI/10), db->baseAGI +lv*(db->gmaxAGI/10));
 	clif_displaymessage(fd, atcmd_output);
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"Vit: %d (%d~%d)",
-		hom->vit/10, db->baseVIT +lv*db->gminVIT/10, db->baseVIT +lv*db->gmaxVIT/10);
+		hom->vit/10, db->baseVIT +lv*(db->gminVIT/10), db->baseVIT +lv*(db->gmaxVIT/10));
 	clif_displaymessage(fd, atcmd_output);
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"Int: %d (%d~%d)",
-		hom->int_/10, db->baseINT +lv*db->gminINT/10, db->baseINT +lv*db->gmaxINT/10);
+		hom->int_/10, db->baseINT +lv*(db->gminINT/10), db->baseINT +lv*(db->gmaxINT/10));
 	clif_displaymessage(fd, atcmd_output);
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"Dex: %d (%d~%d)",
-		hom->dex/10, db->baseDEX +lv*db->gminDEX/10, db->baseDEX +lv*db->gmaxDEX/10);
+		hom->dex/10, db->baseDEX +lv*(db->gminDEX/10), db->baseDEX +lv*(db->gmaxDEX/10));
 	clif_displaymessage(fd, atcmd_output);
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"Luk: %d (%d~%d)",
-		hom->luk/10, db->baseLUK +lv*db->gminLUK/10, db->baseLUK +lv*db->gmaxLUK/10);
+		hom->luk/10, db->baseLUK +lv*(db->gminLUK/10), db->baseLUK +lv*(db->gmaxLUK/10));
 	clif_displaymessage(fd, atcmd_output);
 
 	return 0;
@@ -9850,11 +9857,12 @@ int atcommand_fakename(const int fd, struct map_session_data* sd, const char* co
 		clif_displaymessage(sd->fd,"Fake name must be at least two characters.");
 		return 0;
 	}
-	
-	memcpy(sd->fakename,name,NAME_LENGTH-1);
+
+	memcpy(sd->fakename,name,NAME_LENGTH);
+	sd->fakename[NAME_LENGTH-1] = '\0';
 	clif_charnameack(0, &sd->bl);
 	clif_displaymessage(sd->fd,"Fake name enabled.");
-	
+
 	return 0;
 }
 

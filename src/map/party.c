@@ -242,12 +242,12 @@ int party_recv_info(struct party *sp)
 		sd = p->data[i].sd;
 		if(!sd || sd->state.party_sent)
 			continue;
-		clif_party_main_info(p,-1);
+		clif_party_member_info(p,sd);
 		clif_party_option(p,sd,0x100);
-		clif_party_info(p,-1);
+		clif_party_info(p,NULL);
 		sd->state.party_sent=1;
 	}
-	
+
 	return 0;
 }
 
@@ -339,7 +339,7 @@ int party_member_added(int party_id,int account_id,int char_id, int flag)
 		sd->state.party_sent=0;
 		sd->status.party_id=party_id;
 		party_check_conflict(sd);
-		clif_party_join_info(&p->party,sd);
+		clif_party_member_info(p,sd);
 		clif_party_hp(sd);
 		clif_party_xy(sd);
 		clif_charnameupdate(sd); //Update char name's display [Skotlex]
@@ -472,7 +472,7 @@ int party_optionchanged(int party_id,int account_id,int exp,int item,int flag)
 	}
 	if(!(flag&0x10) && p->party.item != item) {
 		p->party.item=item;
-		clif_party_main_info(p,-1);
+		clif_party_member_info(p,sd);
 	}
 	if(flag&0x01) //Send denied message
 		clif_party_option(p,sd,flag);
@@ -503,20 +503,19 @@ int party_recv_movemap(int party_id,int account_id,int char_id, unsigned short m
 			ShowError("party: not found member %d/%d on %d[%s]",account_id,char_id,party_id,p->party.name);
 		return 0;
 	}
-	
-	clif_party_info(p,-1);
+
+	clif_party_info(p,NULL);
 	return 0;
 }
 
-int party_send_movemap(struct map_session_data *sd)
+void party_send_movemap(struct map_session_data *sd)
 {
 	int i;
 	struct party_data *p;
 
-	nullpo_retr(0, sd);
-
 	if( sd->status.party_id==0 )
-		return 0;
+		return;
+
 	intif_party_changemap(sd,1);
 
 	p=party_search(sd->status.party_id);
@@ -530,23 +529,28 @@ int party_send_movemap(struct map_session_data *sd)
 		}
 		
 	}
-	
+
 	if( sd->state.party_sent )
-		return 0;
+		return;
 
 	party_check_conflict(sd);
-	
+
 	if(p){
 		party_check_member(&p->party);
 		if(sd->status.party_id==p->party.party_id){
-			clif_party_main_info(p,sd->fd);
+			clif_party_member_info(p,sd);
 			clif_party_option(p,sd,0x100);
-			clif_party_info(p,sd->fd);
+			clif_party_info(p,sd);
 			sd->state.party_sent=1;
 		}
 	}
-	
-	return 0;
+
+	return;
+}
+
+void party_send_levelup(struct map_session_data *sd)
+{
+	intif_party_changemap(sd,1);
 }
 
 int party_send_logout(struct map_session_data *sd)

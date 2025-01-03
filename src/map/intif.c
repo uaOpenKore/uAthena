@@ -118,7 +118,7 @@ int intif_rename(struct map_session_data *sd, int type, char *name)
 	if (CheckForCharServer())
 		return 1;
 
-	WFIFOHEAD(inter_fd,NAME_LENGTH+11);
+	WFIFOHEAD(inter_fd,NAME_LENGTH+12);
 	WFIFOW(inter_fd,0) = 0x3006;
 	WFIFOL(inter_fd,2) = sd->status.account_id;
 	WFIFOL(inter_fd,6) = sd->status.char_id;
@@ -1267,6 +1267,8 @@ int intif_parse_GuildMemberInfoChanged(int fd)
 	if( g==NULL )
 		return 0;
 	idx=guild_getindex(g,account_id,char_id);
+	if (idx == -1)
+		return 0;
 	switch(type){
 	case GMI_POSITION:
 		g->member[idx].position=dd;

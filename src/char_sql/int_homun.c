@@ -1,11 +1,12 @@
-// Homunculus saving by Albator and Orn for eAthena.
-// GNU/GPL rulez !
+// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+// For more information, see LICENCE in the main folder
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "char.h"
+#include "../common/malloc.h"
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
 
@@ -106,8 +107,6 @@ int mapif_save_homunculus(int fd, int account_id, struct s_homunculus *hd)
 
 	if(hd->hom_id==0) // new homunculus
 	{
-		ShowInfo("New homunculus name : %s\n",hd->name);
-
 		sprintf(tmp_sql, "INSERT INTO `homunculus` "
 			"(`char_id`, `class`,`name`,`level`,`exp`,`intimacy`,`hunger`, `str`, `agi`, `vit`, `int`, `dex`, `luk`, `hp`,`max_hp`,`sp`,`max_sp`,`skill_point`, `rename_flag`, `vaporize`) "
 			"VALUES ('%d', '%d', '%s', '%d', '%u', '%u', '%d', '%d', %d, '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
@@ -208,7 +207,8 @@ int mapif_load_homunculus(int fd){
 
 	mysql_free_result(sql_res);
 
-	ShowInfo("Homunculus loaded (%d - %s).\n", homun_pt->hom_id, homun_pt->name);
+	if (save_log)
+		ShowInfo("Homunculus loaded (%d - %s).\n", homun_pt->hom_id, homun_pt->name);
 	return mapif_info_homunculus(fd, RFIFOL(fd,2), homun_pt);
 }
 

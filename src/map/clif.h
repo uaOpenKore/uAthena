@@ -225,6 +225,7 @@ void clif_equiplist(struct map_session_data *sd);
 int clif_cart_additem(struct map_session_data*,int,int,int);
 int clif_cart_delitem(struct map_session_data*,int,int);
 void clif_cartlist(struct map_session_data *sd);
+void clif_clearcart(int fd);
 
 int clif_item_identify_list(struct map_session_data *sd);
 int clif_item_identified(struct map_session_data *sd,int idx,int flag);
@@ -252,9 +253,8 @@ int clif_movetoattack(struct map_session_data *sd,struct block_list *bl);
 
 // party
 int clif_party_created(struct map_session_data *sd,int flag);
-int clif_party_main_info(struct party_data *p, int fd);
-int clif_party_join_info(struct party *p, struct map_session_data *sd);
-int clif_party_info(struct party_data *p,int fd);
+int clif_party_member_info(struct party_data *p, struct map_session_data *sd);
+int clif_party_info(struct party_data *p, struct map_session_data *sd);
 int clif_party_invite(struct map_session_data *sd,struct map_session_data *tsd);
 int clif_party_inviteack(struct map_session_data *sd,char *nick,int flag);
 int clif_party_option(struct party_data *p,struct map_session_data *sd,int flag);
@@ -362,6 +362,4 @@ int clif_hom_food(struct map_session_data *sd,int foodid,int fail);	//[orn]
 void clif_send_homdata(struct map_session_data *sd, int type, int param);	//[orn]
 int clif_hwalkok(struct homun_data *hd);	//[orn]
 
-#endif
-
-
+#endif /* _CLIF_H_ */
