@@ -36,5 +36,5 @@ for x in "${MOBSUARO[@]}"; do
 done
 
 for x in "${MOBSUARO[@]}"; do
-  sed -i '/^$/d' $x
+  sed -i '/^$/d' ./mobs_uaro/$x
 done
