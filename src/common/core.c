@@ -69,8 +69,7 @@ sigfunc *compat_signal(int signo, sigfunc *func)
 
 /*======================================
  *	CORE : Signal Sub Function
- *--------------------------------------
- */
+ *--------------------------------------*/
 static void sig_proc(int sn)
 {
 	static int is_called = 0;
@@ -167,8 +166,7 @@ const char* get_svn_revision(void)
 
 /*======================================
  *	CORE : Display title
- *--------------------------------------
- */
+ *--------------------------------------*/
 static void display_title(void)
 {
 	//ClearScreen(); // clear screen and go up/left (0, 0 position in text)
@@ -187,7 +185,6 @@ static void display_title(void)
 	ShowMessage(""CL_XXBL"          ("CL_BOLD" ( e | n | g | l | i | s | h ) ( A | t | h | e | n | a ) "CL_XXBL")"CL_CLL""CL_NORMAL"\n"); // 1: bold char, 0: normal char
 	ShowMessage(""CL_XXBL"          ("CL_BOLD"  \\_/ \\_/ \\_/ \\_/ \\_/ \\_/ \\_/   \\_/ \\_/ \\_/ \\_/ \\_/ \\_/  "CL_XXBL")"CL_CLL""CL_NORMAL"\n"); // 1: bold char, 0: normal char
 	ShowMessage(""CL_XXBL"          ("CL_BOLD"                                                         "CL_XXBL")"CL_CLL""CL_NORMAL"\n"); // yellow writing (33)
-	ShowMessage(""CL_XXBL"          ("CL_BT_YELLOW"  Advanced Fusion Maps (c) 2003-2005 The Fusion Project  "CL_XXBL")"CL_CLL""CL_NORMAL"\n"); // yellow writing (33)
 	ShowMessage(""CL_WTBL"          (=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=)"CL_CLL""CL_NORMAL"\n\n"); // reset color
 
 	ShowInfo("SVN Revision: '"CL_WHITE"%s"CL_RESET"'.\n", get_svn_revision());
@@ -207,8 +204,7 @@ void usercheck(void)
 
 /*======================================
  *	CORE : MAINROUTINE
- *--------------------------------------
- */
+ *--------------------------------------*/
 int main (int argc, char **argv)
 {
 	{// initialize program arguments

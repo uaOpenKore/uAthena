@@ -1,9 +1,32 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/cbasetypes.h"
+#include "../common/strlib.h"
+#include "../common/core.h"
+#include "../common/socket.h"
+#include "../common/timer.h"
+#include "../common/mmo.h"
+#include "../common/db.h"
+#include "../common/version.h"
+#include "../common/lock.h"
+#include "../common/showmsg.h"
+#include "../common/malloc.h"
+
+#include "inter.h"
+#include "int_pet.h"
+#include "int_homun.h"
+#include "int_guild.h"
+#include "int_party.h"
+#include "int_storage.h"
+#ifdef ENABLE_SC_SAVING
+#include "int_status.h"
+#endif
+#include "char.h"
+
 #include <sys/types.h>
 
-#ifdef _WIN32
+#ifdef WIN32
 #include <winsock2.h>
 #else
 #include <sys/socket.h>
@@ -18,29 +41,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "../common/cbasetypes.h"
-#include "../common/strlib.h"
-#include "../common/core.h"
-#include "../common/socket.h"
-#include "../common/timer.h"
-#include "../common/mmo.h"
-#include "../common/db.h"
-#include "../common/version.h"
-#include "../common/lock.h"
-#include "../common/showmsg.h"
-#include "../common/malloc.h"
-
-#include "char.h"
-#include "inter.h"
-#include "int_pet.h"
-#include "int_homun.h"
-#include "int_guild.h"
-#include "int_party.h"
-#include "int_storage.h"
-#ifdef ENABLE_SC_SAVING
-#include "int_status.h"
-#endif
 
 #ifndef TXT_SQL_CONVERT
 struct mmo_map_server{
@@ -412,8 +412,8 @@ void set_all_offline(int id) {
 /*---------------------------------------------------
   Make a data line for friends list
  --------------------------------------------------*/
-
-int mmo_friends_list_data_str(char *str, struct mmo_charstatus *p) {
+int mmo_friends_list_data_str(char *str, struct mmo_charstatus *p)
+{
 	int i;
 	char *str_p = str;
 	str_p += sprintf(str_p, "%d", p->char_id);
@@ -435,14 +435,6 @@ int mmo_char_tostr(char *str, struct mmo_charstatus *p, struct global_reg *reg, 
 	int i,j;
 	char *str_p = str;
 
-	/* We shouldn't need this anymore... [Skotlex]
-	// on multi-map server, sometimes it's posssible that last_point become void. (reason???) We check that to not lost character at restart.
-	if (!p->last_point.map) {
-		p->last_point.map = mapindex_name2id(MAP_PRONTERA);
-		p->last_point.x = 273;
-		p->last_point.y = 354;
-	}
-	*/
 	str_p += sprintf(str_p,
 		"%d\t%d,%d\t%s\t%d,%d,%d\t%u,%u,%d" //Up to Zeny field
 		"\t%d,%d,%d,%d\t%d,%d,%d,%d,%d,%d\t%d,%d" //Up to Skill Point
@@ -648,33 +640,6 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	p->account_id = tmp_int[1];
 	p->char_num = tmp_int[2];
 	p->class_ = tmp_int[3];
-/* Unneeded unless you are running a real old character database now.
-	//Temporal fix until all chars are reverted from peco-flying-class to
-	//normal classes. [Skotlex]
-	switch (p->class_) {
-		case JOB_KNIGHT2: //Job_Knight2
-			p->class_ = JOB_KNIGHT;
-			break;
-		case JOB_CRUSADER2: //Job_Crusader2
-			p->class_ = JOB_CRUSADER;
-			break;
-		case JOB_LORD_KNIGHT2: //Job_Lord_Knight2
-			p->class_	= JOB_LORD_KNIGHT;
-			break;
-		case JOB_PALADIN2: //Job_Paladin2
-			p->class_ = JOB_PALADIN;
-			break;
-		case JOB_BABY_KNIGHT2: //Job_Baby_Knight2
-			p->class_ = JOB_BABY_KNIGHT;
-			break;
-		case JOB_BABY_CRUSADER2: //Job_Baby_Crusader2
-			p->class_ = JOB_BABY_CRUSADER;
-			break;
-		case JOB_STAR_GLADIATOR2: //Job_Star_Gladiator2
-			p->class_ = JOB_STAR_GLADIATOR;
-			break;
-	}
-*/
 	p->base_level = tmp_int[4];
 	p->job_level = tmp_int[5];
 	p->base_exp = tmp_uint[0];
@@ -1854,7 +1819,7 @@ int disconnect_player(int account_id) {
 	for(i = 0; i < fd_max; i++) {
 		if (session[i] && (sd = (struct char_session_data*)session[i]->session_data)) {
 			if (sd->account_id == account_id) {
-				session[i]->eof = 1;
+				set_eof(i);
 				return 1;
 			}
 		}
@@ -1956,7 +1921,7 @@ int parse_tologin(int fd) {
 	// only login-server can have an access to here.
 	// so, if it isn't the login-server, we disconnect the session (fd != login_fd).
 	if (fd != login_fd)
-		session[fd]->eof = 1;
+		set_eof(fd);
 	if(session[fd]->eof) {
 		if (fd == login_fd) {
 			ShowWarning("Connection to login-server lost (connection #%d).\n", fd);
@@ -2459,7 +2424,7 @@ int parse_tologin(int fd) {
 		}
 		default:
 			ShowWarning("Unknown packet 0x%04x received from login-server, disconnecting.\n", RFIFOW(fd,0));
-			session[fd]->eof = 1;
+			set_eof(fd);
 			return 0;
 		}
 	}
@@ -2668,7 +2633,7 @@ int parse_frommap(int fd)
 		if (server_fd[id] == fd)
 			break;
 	if(id==MAX_MAP_SERVERS)
-		session[fd]->eof=1;
+		set_eof(fd);
 	if(session[fd]->eof){
 		if (id < MAX_MAP_SERVERS) {
 			unsigned char buf[16384];
@@ -3245,7 +3210,7 @@ int parse_frommap(int fd)
 			}
 			// inter serverf
 			ShowError("Unknown packet 0x%04x from map server, disconnecting.\n", RFIFOW(fd,0));
-			session[fd]->eof = 1;
+			set_eof(fd);
 			return 0;
 		}
 	}
@@ -3311,7 +3276,7 @@ int parse_char(int fd)
 	sd = (struct char_session_data*)session[fd]->session_data;
 
 	if(login_fd < 0)
-		session[fd]->eof = 1;
+		set_eof(fd);
 	if(session[fd]->eof) { // disconnect any player (already connected to char-server or coming back from map-server) if login-server is diconnected.
 		if (fd == login_fd)
 			login_fd = -1;
@@ -3756,7 +3721,7 @@ int parse_char(int fd)
 		}
 		case 0x7532:	// disconnect(default also disconnect)
 		default:
-			session[fd]->eof = 1;
+			set_eof(fd);
 			return 0;
 		}
 	}

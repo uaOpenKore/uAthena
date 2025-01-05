@@ -400,8 +400,7 @@ extern struct Battle_Config {
 	unsigned short title_lvl6; // Players titles [Lupus]
 	unsigned short title_lvl7; // Players titles [Lupus]
 	unsigned short title_lvl8; // Players titles [Lupus]
-	
-	unsigned short duel_enable; // [LuzZza]
+
 	unsigned short duel_allow_pvp; // [LuzZza]
 	unsigned short duel_allow_gvg; // [LuzZza]
 	unsigned short duel_allow_teleport; // [LuzZza]

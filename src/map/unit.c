@@ -32,7 +32,8 @@
 const int dirx[8]={0,-1,-1,-1,0,1,1,1};
 const int diry[8]={1,1,0,-1,-1,-1,0,1};
 
-struct unit_data* unit_bl2ud(struct block_list *bl) {
+struct unit_data* unit_bl2ud(struct block_list *bl)
+{
 	if( bl == NULL) return NULL;
 	if( bl->type == BL_PC)  return &((struct map_session_data*)bl)->ud;
 	if( bl->type == BL_MOB) return &((struct mob_data*)bl)->ud;
@@ -268,7 +269,8 @@ static int unit_delay_walktoxy_timer(int tid, unsigned int tick, int id, int dat
 //&1 -> 1/0 = easy/hard
 //&2 -> force walking
 //&4 -> Delay walking if the reason you can't walk is the canwalk delay
-int unit_walktoxy( struct block_list *bl, int x, int y, int flag) {
+int unit_walktoxy( struct block_list *bl, int x, int y, int flag)
+{
 	struct unit_data        *ud = NULL;
 	struct status_change		*sc = NULL;
 
@@ -329,7 +331,8 @@ static int unit_walktobl_sub(int tid,unsigned int tick,int id,int data)
 
 // Chases a tbl. If the flag&1, use hard-path seek,
 // if flag&2, start attacking upon arrival within range, otherwise just walk to that character.
-int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, int flag) {
+int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, int flag)
+{
 	struct unit_data        *ud = NULL;
 	struct status_change		*sc = NULL;
 	nullpo_retr(0, bl);
@@ -610,8 +613,7 @@ int unit_warp(struct block_list *bl,int m,short x,short y,int type)
 
 /*==========================================
  * s~
- *------------------------------------------
- */
+ *------------------------------------------*/
 int unit_stop_walking(struct block_list *bl,int type)
 {
 	struct unit_data *ud;
@@ -652,8 +654,8 @@ int unit_stop_walking(struct block_list *bl,int type)
 	return 1;
 }
 
-int unit_skilluse_id(struct block_list *src, int target_id, int skill_num, int skill_lv) {
-
+int unit_skilluse_id(struct block_list *src, int target_id, int skill_num, int skill_lv)
+{
 	if(skill_num < 0) return 0;
 
 	return unit_skilluse_id2(
@@ -673,8 +675,7 @@ int unit_is_walking(struct block_list *bl)
 
 /*==========================================
  * Determines if the bl can move based on status changes. [Skotlex]
- *------------------------------------------
- */
+ *------------------------------------------*/
 int unit_can_move(struct block_list *bl)
 {
 	struct map_session_data *sd;
@@ -736,11 +737,10 @@ int unit_can_move(struct block_list *bl)
 }
 
 /*==========================================
- * Applies walk delay to character, considering that 
+ * Applies walk delay to character, considering that
  * if type is 0, this is a damage induced delay: if previous delay is active, do not change it.
  * if type is 1, this is a skill induced delay: walk-delay may only be increased, not decreased.
- *------------------------------------------
- */
+ *------------------------------------------*/
 int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int type)
 {
 	struct unit_data *ud = unit_bl2ud(bl);
@@ -768,7 +768,8 @@ int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int 
 	return 1;
 }
 
-int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int skill_lv, int casttime, int castcancel) {
+int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int skill_lv, int casttime, int castcancel)
+{
 	struct unit_data *ud;
 	struct status_data *tstatus;
 	struct status_change *sc;
@@ -933,38 +934,42 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 
 	//temp: Used to signal force cast now.
 	temp = 0;
-	
+
 	switch(skill_num){
 	case ALL_RESURRECTION:
-		if(battle_check_undead(tstatus->race,tstatus->def_ele)){	
-			temp=1;
+		if(battle_check_undead(tstatus->race,tstatus->def_ele)) {
+			temp = 1;
 			casttime = skill_castfix(src, PR_TURNUNDEAD, skill_lv);
 		} else if (!status_isdead(target))
 			return 0; //Can't cast on non-dead characters.
-		break;
+	break;
 	case MO_FINGEROFFENSIVE:
 		if(sd)
 			casttime += casttime * ((skill_lv > sd->spiritball)? sd->spiritball:skill_lv);
-		break;
+	break;
 	case MO_EXTREMITYFIST:
 		if (sc && sc->data[SC_COMBO].timer != -1 &&
-			(sc->data[SC_COMBO].val1 == MO_COMBOFINISH ||
+		   (sc->data[SC_COMBO].val1 == MO_COMBOFINISH ||
 			sc->data[SC_COMBO].val1 == CH_TIGERFIST ||
 			sc->data[SC_COMBO].val1 == CH_CHAINCRUSH))
 			casttime = 0;
 		temp = 1;
-		break;
+	break;
+	case SA_SPELLBREAKER:
+		temp = 1;
+	break;
+	case ST_CHASEWALK:
+		if (sc && sc->data[SC_CHASEWALK].timer != -1)
+			casttime = 0;
+	break;
 	case TK_RUN:
 		if (sc && sc->data[SC_RUN].timer != -1)
 			casttime = 0;
-		break;
-	case SA_SPELLBREAKER:
-		temp =1;
-		break;
+	break;
 	case KN_CHARGEATK:
 		//Taken from jA: Casttime is increased by dist/3*100%
 		casttime+= casttime * (distance_bl(src,target)-1)/3;
-		break;
+	break;
 	}
 
 	if (!(skill_get_castnodex(skill_num, skill_lv)&2))
@@ -1033,7 +1038,8 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 	return 1;
 }
 
-int unit_skilluse_pos(struct block_list *src, int skill_x, int skill_y, int skill_num, int skill_lv) {
+int unit_skilluse_pos(struct block_list *src, int skill_x, int skill_y, int skill_num, int skill_lv)
+{
 	if(skill_num < 0)
 		return 0;
 	return unit_skilluse_pos2(
@@ -1043,7 +1049,8 @@ int unit_skilluse_pos(struct block_list *src, int skill_x, int skill_y, int skil
 	);
 }
 
-int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int skill_num, int skill_lv, int casttime, int castcancel) {
+int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int skill_num, int skill_lv, int casttime, int castcancel)
+{
 	struct map_session_data *sd = NULL;
 	struct unit_data        *ud = NULL;
 	struct status_change *sc;
@@ -1155,7 +1162,8 @@ int unit_stop_attack(struct block_list *bl)
 }
 
 //Means current target is unattackable. For now only unlocks mobs.
-int unit_unattackable(struct block_list *bl) {
+int unit_unattackable(struct block_list *bl)
+{
 	struct unit_data *ud = unit_bl2ud(bl);
 	if (ud) {
 		ud->target = 0;
@@ -1172,9 +1180,7 @@ int unit_unattackable(struct block_list *bl) {
 /*==========================================
  * Uv
  * type1pU
- *------------------------------------------
- */
-
+ *------------------------------------------*/
 int unit_attack(struct block_list *src,int target_id,int continuous)
 {
 	struct block_list *target;
@@ -1254,8 +1260,7 @@ int unit_cancel_combo(struct block_list *bl)
 }
 /*==========================================
  *
- *------------------------------------------
- */
+ *------------------------------------------*/
 int unit_can_reach_pos(struct block_list *bl,int x,int y, int easy)
 {
 	struct walkpath_data wpd;
@@ -1274,8 +1279,7 @@ int unit_can_reach_pos(struct block_list *bl,int x,int y, int easy)
 
 /*==========================================
  *
- *------------------------------------------
- */
+ *------------------------------------------*/
 int unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, int easy, short *x, short *y)
 {
 	struct walkpath_data wpd;
@@ -1319,8 +1323,7 @@ int unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, i
 
 /*==========================================
  * PCU (timer)
- *------------------------------------------
- */
+ *------------------------------------------*/
 static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int tick)
 {
 	struct block_list *target;
@@ -1436,7 +1439,8 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 	return 1;
 }
 
-static int unit_attack_timer(int tid,unsigned int tick,int id,int data) {
+static int unit_attack_timer(int tid,unsigned int tick,int id,int data)
+{
 	struct block_list *bl;
 	bl = map_id2bl(id);
 	if(bl && unit_attack_timer_sub(bl, tid, tick) == 0)
@@ -1448,8 +1452,7 @@ static int unit_attack_timer(int tid,unsigned int tick,int id,int data) {
  * Cancels an ongoing skill cast.
  * flag&1: Cast-Cancel invoked.
  * flag&2: Cancel only if skill is cancellable.
- *------------------------------------------
- */
+ *------------------------------------------*/
 int unit_skillcastcancel(struct block_list *bl,int type)
 {
 	struct map_session_data *sd = NULL;
@@ -1496,8 +1499,9 @@ int unit_skillcastcancel(struct block_list *bl,int type)
 	return 1;
 }
 
-// unit_data 
-void unit_dataset(struct block_list *bl) {
+// unit_data
+void unit_dataset(struct block_list *bl)
+{
 	struct unit_data *ud;
 	nullpo_retv(ud = unit_bl2ud(bl));
 
@@ -1512,15 +1516,14 @@ void unit_dataset(struct block_list *bl) {
 }
 
 /*==========================================
- * bNjbg(foreachclient)
- *------------------------------------------
- */
-static int unit_counttargeted_sub(struct block_list *bl, va_list ap)
+ * Returns 1 if this unit is attacking target 'id'
+ *------------------------------------------*/
+static int unit_counttargeted_sub(struct block_list* bl, va_list ap)
 {
-	int id, target_lv;
-	struct unit_data *ud;
-	id = va_arg(ap,int);
-	target_lv = va_arg(ap,int);
+	int id = va_arg(ap, int);
+	int target_lv = va_arg(ap, int); // extra condition
+	struct unit_data* ud;
+
 	if(bl->id == id)
 		return 0;
 
@@ -1529,38 +1532,34 @@ static int unit_counttargeted_sub(struct block_list *bl, va_list ap)
 	if (ud && ud->target == id && ud->attacktimer != -1 && ud->attacktarget_lv >= target_lv)
 		return 1;
 
-	return 0;	
+	return 0;
+}
+
+/*==========================================
+ * Counts the number of units attacking 'bl'
+ *------------------------------------------*/
+int unit_counttargeted(struct block_list* bl, int target_lv)
+{
+	nullpo_retr(0, bl);
+	return (map_foreachinrange(unit_counttargeted_sub, bl, AREA_SIZE, BL_CHAR, bl->id, target_lv));
 }
 
 /*==========================================
  *
- *------------------------------------------
- */
+ *------------------------------------------*/
 int unit_fixdamage(struct block_list *src,struct block_list *target,unsigned int tick,int sdelay,int ddelay,int damage,int div,int type,int damage2)
 {
 	nullpo_retr(0, target);
 
 	if(damage+damage2 <= 0)
 		return 0;
-	
+
 	return status_fix_damage(src,target,damage+damage2,clif_damage(target,target,tick,sdelay,ddelay,damage,div,type,damage2));
-}
-/*==========================================
- * bN
- * 0
- *------------------------------------------
- */
-int unit_counttargeted(struct block_list *bl,int target_lv)
-{
-	nullpo_retr(0, bl);
-	return (map_foreachinrange(unit_counttargeted_sub, bl, AREA_SIZE, BL_CHAR,
-		bl->id, target_lv));
 }
 
 /*==========================================
  * TCYX
- *------------------------------------------
- */
+ *------------------------------------------*/
 int unit_changeviewsize(struct block_list *bl,short size)
 {
 	nullpo_retr(0, bl);
@@ -1581,12 +1580,12 @@ int unit_changeviewsize(struct block_list *bl,short size)
 /*==========================================
  * Removes a bl/ud from the map.
  * Returns 1 on success. 0 if it couldn't be removed or the bl was free'd
- * if clrtype is 1 (death), appropiate cleanup is performed. 
+ * if clrtype is 1 (death), appropiate cleanup is performed.
  * Otherwise it is assumed bl is being warped.
  * On-Kill specific stuff is not performed here, look at status_damage for that.
- *------------------------------------------
- */
-int unit_remove_map(struct block_list *bl, int clrtype) {
+ *------------------------------------------*/
+int unit_remove_map(struct block_list *bl, int clrtype)
+{
 	struct unit_data *ud = unit_bl2ud(bl);
 	struct status_change *sc = status_get_sc(bl);
 	nullpo_retr(0, ud);
@@ -1732,10 +1731,9 @@ int unit_remove_map(struct block_list *bl, int clrtype) {
  * if unit is on map, it is removed using the clrtype specified
  * If clrtype is <0, no saving is performed. This is only for non-authed
  * objects that shouldn't be on a map yet.
- *------------------------------------------
- */
-
-int unit_free(struct block_list *bl, int clrtype) {
+ *------------------------------------------*/
+int unit_free(struct block_list *bl, int clrtype)
+{
 	struct unit_data *ud = unit_bl2ud( bl );
 	nullpo_retr(0, ud);
 
@@ -1777,29 +1775,13 @@ int unit_free(struct block_list *bl, int clrtype) {
 					status_change_end(bl,SC_REGENERATION,-1);
 			}
 			if (battle_config.debuff_on_logout&2)
-			{	//Food items are removed on logout.
-				if(sd->sc.data[SC_STRFOOD].timer!=-1)
-					status_change_end(bl,SC_STRFOOD,-1);
-				if(sd->sc.data[SC_AGIFOOD].timer!=-1)
-					status_change_end(bl,SC_AGIFOOD,-1);
-				if(sd->sc.data[SC_VITFOOD].timer!=-1)
-					status_change_end(bl,SC_VITFOOD,-1);
-				if(sd->sc.data[SC_INTFOOD].timer!=-1)
-					status_change_end(bl,SC_INTFOOD,-1);
-				if(sd->sc.data[SC_DEXFOOD].timer!=-1)
-					status_change_end(bl,SC_DEXFOOD,-1);
-				if(sd->sc.data[SC_LUKFOOD].timer!=-1)
-					status_change_end(bl,SC_LUKFOOD,-1);
-				if(sd->sc.data[SC_HITFOOD].timer!=-1)
-					status_change_end(bl,SC_HITFOOD,-1);
-				if(sd->sc.data[SC_FLEEFOOD].timer!=-1)
-					status_change_end(bl,SC_FLEEFOOD,-1);
-				if(sd->sc.data[SC_BATKFOOD].timer!=-1)
-					status_change_end(bl,SC_BATKFOOD,-1);
-				if(sd->sc.data[SC_WATKFOOD].timer!=-1)
-					status_change_end(bl,SC_WATKFOOD,-1);
-				if(sd->sc.data[SC_MATKFOOD].timer!=-1)
-					status_change_end(bl,SC_MATKFOOD,-1);
+			{
+				if(sd->sc.data[SC_MAXIMIZEPOWER].timer!=-1)
+					status_change_end(bl,SC_MAXIMIZEPOWER,-1);
+				if(sd->sc.data[SC_MAXOVERTHRUST].timer!=-1)
+					status_change_end(bl,SC_MAXOVERTHRUST,-1);
+				if(sd->sc.data[SC_STEELBODY].timer!=-1)
+					status_change_end(bl,SC_STEELBODY,-1);
 			}
 		}
 		if (sd->followtimer != -1)
@@ -1932,7 +1914,8 @@ int unit_free(struct block_list *bl, int clrtype) {
 	return 0;
 }
 
-int do_init_unit(void) {
+int do_init_unit(void)
+{
 	add_timer_func_list(unit_attack_timer,  "unit_attack_timer");
 	add_timer_func_list(unit_walktoxy_timer,"unit_walktoxy_timer");
 	add_timer_func_list(unit_walktobl_sub, "unit_walktobl_sub");
@@ -1940,7 +1923,8 @@ int do_init_unit(void) {
 	return 0;
 }
 
-int do_final_unit(void) {
+int do_final_unit(void)
+{
 	// nothing to do
 	return 0;
 }

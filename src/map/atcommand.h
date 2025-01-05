@@ -4,6 +4,12 @@
 #ifndef _ATCOMMAND_H_
 #define _ATCOMMAND_H_
 
+//This is the distance at which @autoloot works,
+//if the item drops farther from the player than this,
+//it will not be autolooted. [Skotlex]
+//Note: The range is unlimited unless this define is set.
+//#define AUTOLOOT_DISTANCE AREA_SIZE
+
 enum AtCommandType {
 	AtCommand_None = -1,
 	AtCommand_Broadcast = 0,
@@ -218,18 +224,11 @@ enum AtCommandType {
 	AtCommand_DMStart, // by MouseJstr
 	AtCommand_DMTick, // by MouseJstr
 
-	AtCommand_JumpToId, // by Dino9021
 	AtCommand_JumpToId2, // by Dino9021
-	AtCommand_RecallId, // by Dino9021
 	AtCommand_RecallId2, // by Dino9021
-	AtCommand_KickId, // by Dino9021
 	AtCommand_KickId2, // by Dino9021
-	AtCommand_ReviveId, // by Dino9021
 	AtCommand_ReviveId2, // by Dino9021
-	AtCommand_KillId, // by Dino9021
 	AtCommand_KillId2, // by Dino9021
-	AtCommand_CharKillableId, // by Dino9021
-	AtCommand_CharKillableId2, // by Dino9021
 	AtCommand_Sound,
 	AtCommand_UndisguiseAll,
 	AtCommand_DisguiseAll,

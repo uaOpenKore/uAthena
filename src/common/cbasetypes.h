@@ -185,7 +185,9 @@ typedef unsigned long long	uint64;
 #define strncasecmp			strnicmp
 #define strncmpi			strnicmp
 #define snprintf			_snprintf
+#if defined(_MSC_VER) && _MSC_VER < 1400
 #define vsnprintf			_vsnprintf
+#endif
 #else
 #define strcmpi				strcasecmp
 #define stricmp				strcasecmp
@@ -306,5 +308,9 @@ typedef char bool;
 #define TOASCII(c) (toascii((unsigned char)(c)))
 #define TOLOWER(c) (tolower((unsigned char)(c)))
 #define TOUPPER(c) (toupper((unsigned char)(c)))
+
+//////////////////////////////////////////////////////////////////////////
+// length of a static array
+#define ARRAYLENGTH(A) ( sizeof(A)/sizeof((A)[0]) )
 
 #endif /* _CBASETYPES_H_ */

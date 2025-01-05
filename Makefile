@@ -99,7 +99,7 @@ MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS) $(GOPT)" LIB_S="$(LIBS) $(GOPT)"
 endif
 
 .PHONY: txt sql common login login_sql char char_sql map map_sql ladmin converters \
-	addons plugins tools clean zlib depend
+	addons plugins tools clean depend
 
 all: txt sql
 
@@ -150,9 +150,6 @@ converters:
 	$(MAKE) SQLFLAG=1 $@
 endif
 
-zlib:
-	$(MAKE) -C src/$@ $(MKDEF)
-
 clean: src/common/GNUmakefile src/login/GNUmakefile src/login_sql/GNUmakefile \
 	src/char/GNUmakefile src/char_sql/GNUmakefile src/map/GNUmakefile \
 	src/ladmin/GNUmakefile src/plugins/GNUmakefile src/txt-converter/GNUmakefile
@@ -165,7 +162,6 @@ clean: src/common/GNUmakefile src/login/GNUmakefile src/login_sql/GNUmakefile \
 	$(MAKE) -C src/map $@
 	$(MAKE) -C src/ladmin $@
 	$(MAKE) -C src/plugins $@
-	$(MAKE) -C src/zlib $@
 	$(MAKE) -C src/txt-converter $@
 
 depend: src/common/GNUmakefile src/login/GNUmakefile src/login_sql/GNUmakefile \

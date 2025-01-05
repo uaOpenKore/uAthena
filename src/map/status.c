@@ -88,7 +88,8 @@ static void set_sc(int skill, int sc, int icon, unsigned int flag)
 
 //Initializes the StatusIconChangeTable variable. May seem somewhat slower than directly defining the array,
 //but it is much less prone to errors. [Skotlex]
-void initChangeTables(void) {
+void initChangeTables(void)
+{
 	int i;
 	for (i = 0; i < SC_MAX; i++)
 		StatusIconChangeTable[i] = SI_BLANK;
@@ -189,7 +190,7 @@ void initChangeTables(void) {
 	add_sc(AS_VENOMDUST, SC_POISON);
 	add_sc(AS_SPLASHER, SC_SPLASHER);
 	set_sc(NV_TRICKDEAD, SC_TRICKDEAD, SI_TRICKDEAD, SCB_REGEN);
-	set_sc(SM_AUTOBERSERK, SC_AUTOBERSERK, SI_STEELBODY, SCB_NONE);
+	set_sc(SM_AUTOBERSERK, SC_AUTOBERSERK, SI_AUTOBERSERK, SCB_NONE);
 	add_sc(TF_SPRINKLESAND, SC_BLIND);
 	add_sc(TF_THROWSTONE, SC_STUN);
 	set_sc(MC_LOUD, SC_LOUD, SI_LOUD, SCB_STR);
@@ -212,6 +213,7 @@ void initChangeTables(void) {
 	add_sc(NPC_PETRIFYATTACK, SC_STONE);
 	add_sc(NPC_CURSEATTACK, SC_CURSE);
 	add_sc(NPC_SLEEPATTACK, SC_SLEEP);
+	add_sc(NPC_MAGICALATTACK, SC_MAGICALATTACK);
 	set_sc(NPC_KEEPING, SC_KEEPING, SI_BLANK, SCB_DEF);
 	add_sc(NPC_DARKBLESSING, SC_COMA);
 	set_sc(NPC_BARRIER, SC_BARRIER, SI_BLANK, SCB_MDEF|SCB_DEF);
@@ -238,7 +240,7 @@ void initChangeTables(void) {
 	set_sc(CR_PROVIDENCE, SC_PROVIDENCE, SI_PROVIDENCE, SCB_PC);
 	set_sc(CR_DEFENDER, SC_DEFENDER, SI_DEFENDER, SCB_SPEED|SCB_ASPD);
 	set_sc(CR_SPEARQUICKEN, SC_SPEARQUICKEN, SI_SPEARQUICKEN, SCB_ASPD);
-	set_sc(MO_STEELBODY, SC_STEELBODY, SI_STEELBODY, SCB_DEF|SCB_MDEF|SCB_ASPD|SCB_SPEED);
+	set_sc(MO_STEELBODY, SC_STEELBODY, SI_BLANK, SCB_DEF|SCB_MDEF|SCB_ASPD|SCB_SPEED);
 	add_sc(MO_BLADESTOP, SC_BLADESTOP_WAIT);
 	add_sc(MO_BLADESTOP, SC_BLADESTOP);
 	set_sc(MO_EXPLOSIONSPIRITS, SC_EXPLOSIONSPIRITS, SI_EXPLOSIONSPIRITS, SCB_CRI|SCB_REGEN);
@@ -484,10 +486,11 @@ int SkillStatusChangeTable(int skill)
 	return SkillStatusChangeTableArray[sk];
 }
 int StatusIconChangeTable[SC_MAX]; //Stores the icon that should be associated to this status change.
-static void initDummyData(void) {
+static void initDummyData(void)
+{
 	memset(&dummy_status, 0, sizeof(dummy_status));
-	dummy_status.hp = 
-	dummy_status.max_hp = 
+	dummy_status.hp =
+	dummy_status.max_hp =
 	dummy_status.max_sp = 
 	dummy_status.str =
 	dummy_status.agi =
@@ -506,8 +509,7 @@ static void initDummyData(void) {
 
 /*==========================================
  * B{[iX
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_getrefinebonus(int lv,int type)
 {
 	if (lv >= 0 && lv < 5 && type >= 0 && type < 3)
@@ -930,10 +932,9 @@ int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per
  * 	1 - Cast bar is done.
  * 	2 - Skill already pulled off, check is due to ground-based skills or splash-damage ones.
  * src MAY be null to indicate we shouldn't check it, this is a ground-based skill attack.
- * target MAY Be null, in which case the checks are only to see 
+ * target MAY Be null, in which case the checks are only to see
  * whether the source can cast or not the skill on the ground.
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_check_skilluse(struct block_list *src, struct block_list *target, int skill_num, int flag)
 {
 	struct status_data *status;
@@ -1434,7 +1435,6 @@ int status_calc_mob(struct mob_data* md, int first)
 //Skotlex: Calculates the stats of the given pet.
 int status_calc_pet(struct pet_data *pd, int first)
 {
-
 	nullpo_retr(0, pd);
 
 	if (first) {
@@ -3110,12 +3110,11 @@ void status_calc_bl(struct block_list *bl, unsigned long flag)
 }
 /*==========================================
  * Apply shared stat mods from status changes [DracoRPG]
- *------------------------------------------
- */
+ *------------------------------------------*/
 static unsigned short status_calc_str(struct block_list *bl, struct status_change *sc, int str)
 {
 	if(!sc || !sc->count)
-		return cap_value(str,1,USHRT_MAX);
+		return cap_value(str,0,USHRT_MAX);
 
 	if(sc->data[SC_INCALLSTATUS].timer!=-1)
 		str += sc->data[SC_INCALLSTATUS].val1;
@@ -3148,13 +3147,13 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 	if(sc->data[SC_SPIRIT].timer!=-1 && sc->data[SC_SPIRIT].val2 == SL_HIGH && str < 50)
 		str = 50;
 
-	return cap_value(str,1,USHRT_MAX);
+	return cap_value(str,0,USHRT_MAX);
 }
 
 static unsigned short status_calc_agi(struct block_list *bl, struct status_change *sc, int agi)
 {
 	if(!sc || !sc->count)
-		return cap_value(agi,1,USHRT_MAX);
+		return cap_value(agi,0,USHRT_MAX);
 
 	if(sc->data[SC_CONCENTRATE].timer!=-1 && sc->data[SC_QUAGMIRE].timer == -1)
 		agi += (agi-sc->data[SC_CONCENTRATE].val3)*sc->data[SC_CONCENTRATE].val2/100;
@@ -3187,13 +3186,13 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 	if(sc->data[SC_SPIRIT].timer!=-1 && sc->data[SC_SPIRIT].val2 == SL_HIGH && agi < 50)
 		agi = 50;
 
-	return cap_value(agi,1,USHRT_MAX);
+	return cap_value(agi,0,USHRT_MAX);
 }
 
 static unsigned short status_calc_vit(struct block_list *bl, struct status_change *sc, int vit)
 {
 	if(!sc || !sc->count)
-		return cap_value(vit,1,USHRT_MAX);
+		return cap_value(vit,0,USHRT_MAX);
 
 	if(sc->data[SC_INCALLSTATUS].timer!=-1)
 		vit += sc->data[SC_INCALLSTATUS].val1;
@@ -3216,13 +3215,13 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 	if(sc->data[SC_SPIRIT].timer!=-1 && sc->data[SC_SPIRIT].val2 == SL_HIGH && vit < 50)
 		vit = 50;
 
-	return cap_value(vit,1,USHRT_MAX);
+	return cap_value(vit,0,USHRT_MAX);
 }
 
 static unsigned short status_calc_int(struct block_list *bl, struct status_change *sc, int int_)
 {
 	if(!sc || !sc->count)
-		return cap_value(int_,1,USHRT_MAX);
+		return cap_value(int_,0,USHRT_MAX);
 
 	if(sc->data[SC_INCALLSTATUS].timer!=-1)
 		int_ += sc->data[SC_INCALLSTATUS].val1;
@@ -3253,13 +3252,13 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 	if(sc->data[SC_SPIRIT].timer!=-1 && sc->data[SC_SPIRIT].val2 == SL_HIGH && int_ < 50)
 		int_ = 50;
 
-	return cap_value(int_,1,USHRT_MAX);
+	return cap_value(int_,0,USHRT_MAX);
 }
 
 static unsigned short status_calc_dex(struct block_list *bl, struct status_change *sc, int dex)
 {
 	if(!sc || !sc->count)
-		return cap_value(dex,1,USHRT_MAX);
+		return cap_value(dex,0,USHRT_MAX);
 
 	if(sc->data[SC_CONCENTRATE].timer!=-1 && sc->data[SC_QUAGMIRE].timer == -1)
 		dex += (dex-sc->data[SC_CONCENTRATE].val4)*sc->data[SC_CONCENTRATE].val2/100;
@@ -3295,13 +3294,13 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 	if(sc->data[SC_SPIRIT].timer!=-1 && sc->data[SC_SPIRIT].val2 == SL_HIGH && dex < 50)
 		dex  = 50;
 
-	return cap_value(dex,1,USHRT_MAX);
+	return cap_value(dex,0,USHRT_MAX);
 }
 
 static unsigned short status_calc_luk(struct block_list *bl, struct status_change *sc, int luk)
 {
 	if(!sc || !sc->count)
-		return cap_value(luk,1,USHRT_MAX);
+		return cap_value(luk,0,USHRT_MAX);
 
 	if(sc->data[SC_CURSE].timer!=-1)
 		return 0;
@@ -3322,7 +3321,7 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 	if(sc->data[SC_SPIRIT].timer!=-1 && sc->data[SC_SPIRIT].val2 == SL_HIGH && luk < 50)
 		luk = 50;
 
-	return cap_value(luk,1,USHRT_MAX);
+	return cap_value(luk,0,USHRT_MAX);
 }
 
 static unsigned short status_calc_batk(struct block_list *bl, struct status_change *sc, int batk)
@@ -3922,8 +3921,7 @@ static unsigned short status_calc_mode(struct block_list *bl, struct status_chan
 
 /*==========================================
  * Quick swap of adelay/speed when starting ending SA_FREECAST
- *------------------------------------------
- */
+ *------------------------------------------*/
 void status_freecast_switch(struct map_session_data *sd)
 {
 	struct status_data *status;
@@ -3968,8 +3966,7 @@ const char * status_get_name(struct block_list *bl)
 /*==========================================
  * Class(p)
  * 0
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_get_class(struct block_list *bl)
 {
 	nullpo_retr(0, bl);
@@ -3986,8 +3983,7 @@ int status_get_class(struct block_list *bl)
 /*==========================================
  * x(p)
  * 0
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_get_lv(struct block_list *bl)
 {
 	nullpo_retr(0, bl);
@@ -4521,8 +4517,7 @@ int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int f
  * &2: Tick should not be reduced (by vit, luk, lv, etc)
  * &4: sc_data loaded, no value has to be altered.
  * &8: rate should not be reduced
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_change_start(struct block_list *bl,int type,int rate,int val1,int val2,int val3,int val4,int tick,int flag)
 {
 	struct map_session_data *sd = NULL;
@@ -4593,10 +4588,14 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 		//Only affects demons and undead.
 		if(status->race != RC_DEMON && !undead_flag)
 			return 0;
-		break;
+	break;
 	case SC_AETERNA:
-	  if (sc->data[SC_STONE].timer != -1 || sc->data[SC_FREEZE].timer != -1)
-		  return 0;
+		if (sc->data[SC_STONE].timer != -1 || sc->data[SC_FREEZE].timer != -1)
+			return 0;
+	break;
+	case SC_KYRIE:
+		if (bl->type == BL_MOB)
+			return 0;
 	break;
 	case SC_OVERTHRUST:
 		if (sc->data[SC_MAXOVERTHRUST].timer != -1)
@@ -5745,6 +5744,8 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			val4 = BF_WEAPON|BF_MISC; //Type
 			break;
 		case SC_ENCHANTARMS:
+			//end previous enchants
+			skill_enchant_elemental_end(bl,type);
 			//Make sure the received element is valid.
 			if (val2 >= ELE_MAX)
 				val2 = val2%ELE_MAX;
@@ -5997,8 +5998,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 }
 /*==========================================
  * Xe[^XS
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_change_clear(struct block_list *bl,int type)
 {
 	struct status_change* sc;
@@ -6055,8 +6055,7 @@ int status_change_clear(struct block_list *bl,int type)
 
 /*==========================================
  * Xe[^XI
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_change_end( struct block_list* bl , int type,int tid )
 {
 	struct map_session_data *sd;
@@ -6519,8 +6518,7 @@ int kaahi_heal_timer(int tid, unsigned int tick, int id, int data)
 
 /*==========================================
  * Xe[^XI^C}[
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_change_timer(int tid, unsigned int tick, int id, int data)
 {
 	int type = data;
@@ -6901,8 +6899,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 
 /*==========================================
  * Xe[^X^C}[
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_change_timer_sub(struct block_list *bl, va_list ap )
 {
 	struct block_list *src;
@@ -6965,8 +6962,7 @@ int status_change_timer_sub(struct block_list *bl, va_list ap )
 /*==========================================
  * Clears buffs/debuffs of a character.
  * type&1 -> buffs, type&2 -> debuffs
- *------------------------------------------
- */
+ *------------------------------------------*/
 int status_change_clear_buffs (struct block_list *bl, int type)
 {
 	int i;
@@ -7265,7 +7261,8 @@ static int status_calc_sigma(void)
 	return 0;
 }
 
-int status_readdb(void) {
+int status_readdb(void)
+{
 	int i,j;
 	FILE *fp;
 	char line[1024], path[1024],*p;
@@ -7402,15 +7399,9 @@ int status_readdb(void) {
 
 /*==========================================
  * XLW
- *------------------------------------------
- */
+ *------------------------------------------*/
 int do_init_status(void)
 {
-	if (SC_MAX > MAX_STATUSCHANGE)
-	{
-		ShowDebug("status.h defines %d status changes, but the MAX_STATUSCHANGE is %d! Fix it.\n", SC_MAX, MAX_STATUSCHANGE);
-		exit(1);
-	}
 	add_timer_func_list(status_change_timer,"status_change_timer");
 	add_timer_func_list(kaahi_heal_timer,"kaahi_heal_timer");
 	add_timer_func_list(status_natural_heal_timer,"status_natural_heal_timer");

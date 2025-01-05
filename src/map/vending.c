@@ -18,8 +18,7 @@
 
 /*==========================================
  * IX
- *------------------------------------------
-*/
+ *------------------------------------------*/
 void vending_closevending(struct map_session_data *sd)
 {
 	nullpo_retv(sd);
@@ -30,8 +29,7 @@ void vending_closevending(struct map_session_data *sd)
 
 /*==========================================
  * IXACeXgv
- *------------------------------------------
- */
+ *------------------------------------------*/
 void vending_vendinglistreq(struct map_session_data *sd,int id)
 {
 	struct map_session_data *vsd;
@@ -47,8 +45,7 @@ void vending_vendinglistreq(struct map_session_data *sd,int id)
 
 /*==========================================
  * IXACew
- *------------------------------------------
- */
+ *------------------------------------------*/
 void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned char *p)
 {
 	int i, j, w, new_ = 0, blank, vend_list[MAX_VENDING];
@@ -204,8 +201,7 @@ void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned cha
 
 /*==========================================
  * IXJ
- *------------------------------------------
- */
+ *------------------------------------------*/
 void vending_openvending(struct map_session_data *sd,int len,char *message,int flag,unsigned char *p)
 {
 	int i, j;
@@ -268,4 +264,3 @@ void vending_openvending(struct map_session_data *sd,int len,char *message,int f
 			sd->vender_id = 0;
 	}
 }
-

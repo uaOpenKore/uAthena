@@ -16,7 +16,7 @@
 #define MAX_RANDITEM	2000
 
 // ** ITEMDB_OVERRIDE_NAME_VERBOSE **
-//   定義すると、itemdb.txtとgrfで名前が異なる場合、表示します.
+//   `Aitemdb.txtgrfOA\.
 //#define ITEMDB_OVERRIDE_NAME_VERBOSE	1
 
 char item_db_db[256]="item_db"; // added to specify item_db sql table [Valaris]
@@ -33,9 +33,8 @@ static void* create_item(DBKey key, va_list args) {
 	return id;
 }
 /*==========================================
- * DBの検索
- *------------------------------------------
- */
+ * DB
+ *------------------------------------------*/
 struct item_data* itemdb_search(int nameid)
 {
 	return idb_ensure(item_db,nameid,create_item);
@@ -43,8 +42,7 @@ struct item_data* itemdb_search(int nameid)
 
 /*==========================================
  *
- *------------------------------------------
- */
+ *------------------------------------------*/
 int itemdb_isequip(int nameid)
 {
 	int type=itemdb_type(nameid);
@@ -54,8 +52,7 @@ int itemdb_isequip(int nameid)
 }
 /*==========================================
  *
- *------------------------------------------
- */
+ *------------------------------------------*/
 int itemdb_isequip2(struct item_data *data)
 {
 	if(data) {
@@ -71,9 +68,8 @@ int itemdb_isequip2(struct item_data *data)
 
 
 /*==========================================
- * アイテムデータベースの読み込み
- *------------------------------------------
- */
+ * ACef[^x[X
+ *------------------------------------------*/
 static int itemdb_readdb(void)
 {
 	FILE *fp;
@@ -202,8 +198,7 @@ static int itemdb_read_sqldb(void) // sql item_db read, shortened version of map
 
 /*==========================================
  *
- *------------------------------------------
- */
+ *------------------------------------------*/
 void do_final_itemdb(void)
 {
 	if(item_db){

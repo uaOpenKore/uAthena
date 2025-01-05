@@ -6,15 +6,14 @@
 #include <string.h>
 #include "nullpo.h"
 #include "../common/showmsg.h"
-// #include "logs.h" // 布石してみる
+// #include "logs.h" // z
 
 static void nullpo_info_core(const char *file, int line, const char *func, 
                              const char *fmt, va_list ap);
 
 /*======================================
- * Nullチェック 及び 情報出力
- *--------------------------------------
- */
+ * Null`FbN y o
+ *--------------------------------------*/
 int nullpo_chk_f(const char *file, int line, const char *func, const void *target,
                  const char *fmt, ...)
 {
@@ -40,10 +39,9 @@ int nullpo_chk(const char *file, int line, const char *func, const void *target)
 
 
 /*======================================
- * nullpo情報出力(外部呼出し向けラッパ)
- *--------------------------------------
- */
-void nullpo_info_f(const char *file, int line, const char *func, 
+ * nullpoo(Oobp)
+ *--------------------------------------*/
+void nullpo_info_f(const char *file, int line, const char *func,
                  const char *fmt, ...)
 {
 	va_list ap;
@@ -60,10 +58,9 @@ void nullpo_info(const char *file, int line, const char *func)
 
 
 /*======================================
- * nullpo情報出力(Main)
- *--------------------------------------
- */
-static void nullpo_info_core(const char *file, int line, const char *func, 
+ * nullpoo(Main)
+ *--------------------------------------*/
+static void nullpo_info_core(const char *file, int line, const char *func,
                              const char *fmt, va_list ap)
 {
 	if (file == NULL)
@@ -82,13 +79,13 @@ static void nullpo_info_core(const char *file, int line, const char *func,
 		{
 			vprintf(fmt, ap);
 			
-			// 最後に改行したか確認
+			// smF
 			if (fmt[strlen(fmt)-1] != '\n')
 				ShowMessage("\n");
 		}
 	}
 	ShowMessage("--- end nullpo info ----------------------------------------\n");
 	
-	// ここらでnullpoログをファイルに書き出せたら
-	// まとめて提出できるなと思っていたり。
+	// nullpoOt@Co
+	// ovB
 }

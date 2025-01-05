@@ -45,8 +45,7 @@ int battle_getcurrentskill(struct block_list *bl)
 
 /*==========================================
  * Get random targetting enemy
- *------------------------------------------
- */
+ *------------------------------------------*/
 static int battle_gettargeted_sub(struct block_list *bl, va_list ap)
 {
 	struct block_list **bl_list;
@@ -203,11 +202,10 @@ int battle_delay_damage (unsigned int tick, struct block_list *src, struct block
 	return 0;
 }
 /*==========================================
- * Does attribute fix modifiers. 
+ * Does attribute fix modifiers.
  * Added passing of the chars so that the status changes can affect it. [Skotlex]
  * Note: Passing src/target == NULL is perfectly valid, it skips SC_ checks.
- *------------------------------------------
- */
+ *------------------------------------------*/
 int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv)
 {
 	struct status_change *sc=NULL, *tsc=NULL;
@@ -257,8 +255,7 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 
 /*==========================================
  * _??[W??IvZ
- *------------------------------------------
- */
+ *------------------------------------------*/
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag)
 {
 	struct map_session_data *sd = NULL;
@@ -514,8 +511,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 
 /*==========================================
  * Calculates GVG related damage adjustments.
- *------------------------------------------
- */
+ *------------------------------------------*/
 int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag)
 {
 	struct mob_data *md = NULL;
@@ -583,8 +579,7 @@ int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int dama
 
 /*==========================================
  * HP/SPzvZ
- *------------------------------------------
- */
+ *------------------------------------------*/
 static int battle_calc_drain(int damage, int rate, int per)
 {
 	int diff = 0;
@@ -603,8 +598,7 @@ static int battle_calc_drain(int damage, int rate, int per)
 
 /*==========================================
  * ?C_??[W
- *------------------------------------------
- */
+ *------------------------------------------*/
 int battle_addmastery(struct map_session_data *sd,struct block_list *target,int dmg,int type)
 {
 	int damage,skill;
@@ -787,8 +781,7 @@ static int battle_calc_base_damage(struct status_data *status, struct weapon_atk
 
 /*==========================================
  * Consumes ammo for the given skill.
- *------------------------------------------
- */
+ *------------------------------------------*/
 void battle_consume_ammo(TBL_PC*sd, int skill, int lv)
 {
 	int qty=1;
@@ -856,8 +849,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 #define damage_div_fix(dmg, div) { if (div > 1) (dmg)*=div; else if (div < 0) (div)*=-1; }
 /*==========================================
  * battle_calc_weapon_attack (by Skotlex)
- *------------------------------------------
- */
+ *------------------------------------------*/
 static struct Damage battle_calc_weapon_attack(
 	struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int wflag)
 {
@@ -2113,8 +2105,7 @@ static struct Damage battle_calc_weapon_attack(
 
 /*==========================================
  * battle_calc_magic_attack [DracoRPG]
- *------------------------------------------
- */
+ *------------------------------------------*/
 struct Damage battle_calc_magic_attack(
 	struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
 	{
@@ -2435,8 +2426,7 @@ struct Damage battle_calc_magic_attack(
 
 /*==========================================
  * _??[WvZ
- *------------------------------------------
- */
+ *------------------------------------------*/
 struct Damage  battle_calc_misc_attack(
 	struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
 {
@@ -2658,10 +2648,8 @@ struct Damage  battle_calc_misc_attack(
 }
 /*==========================================
  * _??[WvZ??p
- *------------------------------------------
- */
-struct Damage battle_calc_attack(	int attack_type,
-	struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int flag)
+ *------------------------------------------*/
+struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int flag)
 {
 	struct Damage d;
 	switch(attack_type){
@@ -2783,8 +2771,7 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, 
 
 /*==========================================
  * ??U??
- *------------------------------------------
- */
+ *------------------------------------------*/
 int battle_weapon_attack(struct block_list* src, struct block_list* target, unsigned int tick, int flag)
 {
 	struct map_session_data *sd = NULL, *tsd = NULL;
@@ -2899,8 +2886,12 @@ int battle_weapon_attack(struct block_list* src, struct block_list* target, unsi
 		if (rand()%100 < triple_rate)
 			return skill_attack(BF_WEAPON,src,src,target,MO_TRIPLEATTACK,damage,tick,0);
 	}
-	else if (sc && sc->data[SC_SACRIFICE].timer != -1)
-		return skill_attack(BF_WEAPON,src,src,target,PA_SACRIFICE,sc->data[SC_SACRIFICE].val1,tick,0);
+	else if (sc) {
+		if (sc->data[SC_SACRIFICE].timer != -1)
+			return skill_attack(BF_WEAPON,src,src,target,PA_SACRIFICE,sc->data[SC_SACRIFICE].val1,tick,0);
+		if (sc->data[SC_MAGICALATTACK].timer != -1)
+			return skill_attack(BF_MAGIC,src,src,target,NPC_MAGICALATTACK,sc->data[SC_MAGICALATTACK].val1,tick,0);
+	}
 
 	wd = battle_calc_weapon_attack(src, target, 0, 0, flag);
 
@@ -3046,8 +3037,7 @@ struct block_list* battle_get_master(struct block_list *src)
  * 1: flag holds true (is enemy, party, etc)
  * -1: flag fails
  * 0: Invalid target (non-targetable ever)
- *------------------------------------------
- */
+ *------------------------------------------*/
 int battle_check_target( struct block_list *src, struct block_list *target,int flag)
 {
 	int m,state = 0; //Initial state none
@@ -3313,9 +3303,8 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 	return (flag&state)?1:-1;
 }
 /*==========================================
- * 
- *------------------------------------------
- */
+ *
+ *------------------------------------------*/
 int battle_check_range(struct block_list *src,struct block_list *bl,int range)
 {
 	nullpo_retr(0, src);
@@ -3625,8 +3614,7 @@ static const struct battle_data_short {
 	{ "title_lvl6",				&battle_config.title_lvl6}, // [Lupus]
 	{ "title_lvl7",				&battle_config.title_lvl7}, // [Lupus]
 	{ "title_lvl8",				&battle_config.title_lvl8}, // [Lupus]
-	
-	{ "duel_enable",						&battle_config.duel_enable}, // [LuzZza]
+
 	{ "duel_allow_pvp",						&battle_config.duel_allow_pvp}, // [LuzZza]
 	{ "duel_allow_gvg",						&battle_config.duel_allow_gvg}, // [LuzZza]
 	{ "duel_allow_teleport",				&battle_config.duel_allow_teleport}, // [LuzZza]
@@ -3701,7 +3689,8 @@ static const struct battle_data_int {
 	{ "hvan_explosion_intimate",				&battle_config.hvan_explosion_intimate },	//[orn]
 };
 
-int battle_set_value(const char* w1, const char* w2) {
+int battle_set_value(const char* w1, const char* w2)
+{
 	int i;
 	for(i = 0; i < sizeof(battle_data_short) / (sizeof(battle_data_short[0])); i++)
 		if (strcmpi(w1, battle_data_short[i].str) == 0) {
@@ -3716,7 +3705,8 @@ int battle_set_value(const char* w1, const char* w2) {
 	return 0;
 }
 
-int battle_get_value(const char* w1) {
+int battle_get_value(const char* w1)
+{
 	int i;
 	for(i = 0; i < sizeof(battle_data_short) / (sizeof(battle_data_short[0])); i++)
 		if (strcmpi(w1, battle_data_short[i].str) == 0) {
@@ -3729,7 +3719,8 @@ int battle_get_value(const char* w1) {
 	return 0;
 }
 
-void battle_set_defaults() {
+void battle_set_defaults()
+{
 	battle_config.warp_point_debug=0;
 	battle_config.enable_critical=BL_PC;
 	battle_config.mob_critical_rate=100;
@@ -4055,8 +4046,7 @@ void battle_set_defaults() {
 	battle_config.title_lvl6 = 60;
 	battle_config.title_lvl7 = 80;
 	battle_config.title_lvl8 = 99;
-	
-	battle_config.duel_enable = 1;
+
 	battle_config.duel_allow_pvp = 0;
 	battle_config.duel_allow_gvg = 0;
 	battle_config.duel_allow_teleport = 0;
@@ -4291,8 +4281,7 @@ void battle_validate_conf() {
 
 /*==========================================
  * ?t@C?
- *------------------------------------------
- */
+ *------------------------------------------*/
 int battle_config_read(const char *cfgName)
 {
 	char line[1024], w1[1024], w2[1024];
@@ -4325,11 +4314,13 @@ int battle_config_read(const char *cfgName)
 	return 0;
 }
 
-void do_init_battle(void) {
+void do_init_battle(void)
+{
 	delay_damage_ers = ers_new(sizeof(struct delay_damage));
 	add_timer_func_list(battle_delay_damage_sub, "battle_delay_damage_sub");
 }
 
-void do_final_battle(void) {
+void do_final_battle(void)
+{
 	ers_destroy(delay_damage_ers);
 }

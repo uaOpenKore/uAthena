@@ -4,12 +4,17 @@
 #ifndef _MAP_H_
 #define _MAP_H_
 
-#include <stdarg.h>
+#ifndef _CBASETYPES_H_
+#include "../common/cbasetypes.h"
+#endif
 #include "../common/mmo.h"
 #include "../common/mapindex.h"
 #include "../common/db.h"
 
 #include "itemdb.h" // MAX_ITEMGROUP
+#include "status.h" // SC_MAX
+
+#include <stdarg.h>
 
 //Uncomment to enable the Cell Stack Limit mod.
 //It's only config is the battle_config cell_stack_limit.
@@ -33,7 +38,6 @@
 #define LIFETIME_FLOORITEM 60
 #define DAMAGELOG_SIZE 30
 #define LOOTITEM_SIZE 10
-#define MAX_STATUSCHANGE 251
 //Quick defines to know which are the min-max common ailments. [Skotlex]
 //Because of the way the headers are included.. these must be replaced for actual values.
 //Remember to update as needed! Min is SC_STONE and max is SC_DPOISON currently.
@@ -383,10 +387,12 @@ struct status_change_entry {
 };
 
 struct status_change {
-	struct status_change_entry data[MAX_STATUSCHANGE];
+	struct status_change_entry data[SC_MAX];
 	short count;
-	unsigned short opt1,opt2;
-	unsigned int opt3, option; //Note that older packet versions use short here.
+	unsigned short opt1;// body state
+	unsigned short opt2;// health state
+	unsigned int opt3;
+	unsigned int option;// effect state
 };
 
 struct vending {
@@ -1017,7 +1023,12 @@ struct pet_data {
 	struct map_session_data *msd;
 };
 
-enum { ATK_LUCKY=1,ATK_FLEE,ATK_DEF};	// yieBvZp
+// state of a single attack attempt; used in flee/def penalty calculations when mobbed
+enum {
+	ATK_LUCKY=1, // attack was lucky-dodged
+	ATK_FLEE,    // attack was dodged
+	ATK_DEF      // attack connected
+};
 
 struct map_data {
 	char name[MAP_NAME_LENGTH];
@@ -1399,8 +1410,8 @@ extern char *map_server_dns;
 
 #ifndef TXT_ONLY
 
-#ifdef _WIN32
-#include <windows.h> // SOCKET
+#ifdef WIN32
+#include <winsock2.h>
 #endif
 #include <mysql.h>
 

@@ -38,7 +38,7 @@ char login_db[256]="login";
 static struct dbt *gm_account_db;
 
 int db_server_port = 3306;
-char db_server_ip[16] = "127.0.0.1";
+char db_server_ip[32] = "127.0.0.1";
 char db_server_id[32] = "ragnarok";
 char db_server_pw[32] = "ragnarok";
 char db_server_logindb[32] = "ragnarok";
@@ -161,7 +161,8 @@ int mmo_auth_init(void)
 	return 0;
 }
 
-int login_config_read(const char *cfgName){
+int login_config_read(const char *cfgName)
+{
 	int i;
 	char line[1024], w1[1024], w2[1024];
 	FILE *fp;
@@ -229,4 +230,4 @@ int do_init(int argc,char **argv)
 }
 
 
-void do_final() {}
+void do_final(void) {}

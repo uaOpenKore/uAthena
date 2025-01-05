@@ -1,27 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <sys/types.h>
-
-#ifdef __WIN32
-	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
-	#include <winsock2.h>
-#else
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <arpa/inet.h>
-	#include <netdb.h>
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/stat.h> // for stat/lstat/fstat
-#include <signal.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdarg.h>
-
 #include "../common/cbasetypes.h"
 #include "../common/core.h"
 #include "../common/socket.h"
@@ -35,6 +14,13 @@
 #include "../common/version.h"
 #include "../common/md5calc.h"
 #include "login.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h> // for stat/lstat/fstat
+#include <signal.h>
+#include <fcntl.h>
+#include <string.h>
 
 uint32 account_id_count = START_ACCOUNT_NUM;
 bool new_account_flag = true;
@@ -115,14 +101,13 @@ struct login_session_data {
 };
 
 #define AUTH_FIFO_SIZE 256
-struct auth_fifo {
+struct _auth_fifo {
 	uint32 account_id;
 	uint32 login_id1, login_id2;
 	uint32 ip;
 	uint8 sex;
 	bool delflag;
-};
-struct auth_fifo auth_fifo[AUTH_FIFO_SIZE];
+} auth_fifo[AUTH_FIFO_SIZE];
 int auth_fifo_pos = 0;
 
 struct online_login_data {
@@ -131,10 +116,13 @@ struct online_login_data {
 	int char_server;
 };
 
-struct auth_dat {
+// holds info about all existing accounts
+struct auth_data {
 	uint32 account_id;
 	uint8 sex; // 0, 1, 2
-	char userid[24], pass[32+1], lastlogin[24];
+	char userid[24];
+	char pass[32+1]; // 23+1 for normal, 32+1 for md5-ed passwords
+	char lastlogin[24];
 	int logincount;
 	uint32 state; // packet 0x006a value + 1 (0: compte OK)
 	char email[40]; // e-mail (by default: a@a.com)
@@ -144,9 +132,8 @@ struct auth_dat {
 	char last_ip[16]; // save of last IP of connection
 	char memo[255]; // a memo field
 	int account_reg2_num;
-	struct global_reg account_reg2[ACCOUNT_REG2_NUM];
-};
-struct auth_dat* auth_dat = NULL;
+	struct global_reg account_reg2[ACCOUNT_REG2_NUM]; // account script variables
+} *auth_dat = NULL;
 
 uint32 auth_num = 0, auth_max = 0;
 
@@ -179,7 +166,8 @@ int charif_sendallwos(int sfd, unsigned char *buf, unsigned int len);
 //------------------------------
 // Writing function of logs file
 //------------------------------
-int login_log(char *fmt, ...) {
+int login_log(char *fmt, ...)
+{
 	if (log_login) {
 		va_list ap;
 		time_t raw_time;
@@ -270,7 +258,8 @@ static int sync_ip_addresses(int tid, unsigned int tick, int id, int data)
 // Determine if an account (id) is a GM account
 // and returns its level (or 0 if it isn't a GM account or if not found)
 //----------------------------------------------------------------------
-int isGM(int account_id) {
+int isGM(int account_id)
+{
 	unsigned int i;
 	for(i=0; i < GM_num; i++)
 		if(gm_account_db[i].account_id == account_id)
@@ -322,7 +311,8 @@ void addGM(uint32 account_id, int level)
 //-------------------------------------------------------
 // Reading function of GM accounts file (and their level)
 //-------------------------------------------------------
-int read_gm_account(void) {
+int read_gm_account(void)
+{
 	char line[512];
 	FILE *fp;
 	int account_id, level;
@@ -507,7 +497,8 @@ int check_ladminip(uint32 ip)
 //   and returns index if only 1 account is found
 //   and similar to the searched name.
 //-----------------------------------------------
-int search_account_index(char* account_name) {
+int search_account_index(char* account_name)
+{
 	unsigned int i, quantity;
 	int index;
 
@@ -536,7 +527,8 @@ int search_account_index(char* account_name) {
 //--------------------------------------------------------
 // Create a string to save the account in the account file
 //--------------------------------------------------------
-int mmo_auth_tostr(char *str, struct auth_dat *p) {
+int mmo_auth_tostr(char* str, struct auth_data* p)
+{
 	int i;
 	char *str_p = str;
 
@@ -572,7 +564,7 @@ int mmo_auth_init(void)
 	int server_count = 0;
 
 	auth_max = 256;
-	auth_dat = (struct auth_dat*)aCalloc(auth_max, sizeof(struct auth_dat));
+	auth_dat = (struct auth_data*)aCalloc(auth_max, sizeof(struct auth_data));
 
 	if ((fp = fopen(account_filename, "r")) == NULL) {
 		// no account file -> no account -> no login, including char-server (ERROR)
@@ -641,18 +633,18 @@ int mmo_auth_init(void)
 
 			if (auth_num >= auth_max) {
 				auth_max += 256;
-				auth_dat = (struct auth_dat*)aRealloc(auth_dat, sizeof(struct auth_dat) * auth_max);
+				auth_dat = (struct auth_data*)aRealloc(auth_dat, sizeof(struct auth_data) * auth_max);
 			}
 
-			memset(&auth_dat[auth_num], '\0', sizeof(struct auth_dat));
+			memset(&auth_dat[auth_num], '\0', sizeof(struct auth_data));
 
 			auth_dat[auth_num].account_id = account_id;
 
 			strncpy(auth_dat[auth_num].userid, userid, 24);
 
-			pass[23] = '\0';
+			pass[32] = '\0';
 			remove_control_chars(pass);
-			strncpy(auth_dat[auth_num].pass, pass, 24);
+			strncpy(auth_dat[auth_num].pass, pass, 32);
 
 			lastlogin[23] = '\0';
 			remove_control_chars(lastlogin);
@@ -763,10 +755,10 @@ int mmo_auth_init(void)
 
 			if (auth_num >= auth_max) {
 				auth_max += 256;
-				auth_dat = (struct auth_dat*)aRealloc(auth_dat, sizeof(struct auth_dat) * auth_max);
+				auth_dat = (struct auth_data*)aRealloc(auth_dat, sizeof(struct auth_data) * auth_max);
 			}
 
-			memset(&auth_dat[auth_num], '\0', sizeof(struct auth_dat));
+			memset(&auth_dat[auth_num], '\0', sizeof(struct auth_data));
 
 			auth_dat[auth_num].account_id = account_id;
 
@@ -883,7 +875,8 @@ int mmo_auth_init(void)
 // Writing of the accounts database file
 //   (accounts are sorted by id before save)
 //------------------------------------------
-void mmo_auth_sync(void) {
+void mmo_auth_sync(void)
+{
 	FILE *fp;
 	unsigned int i, j, k;
 	int lock;
@@ -958,7 +951,8 @@ void mmo_auth_sync(void) {
 //       immediatly and set  the minimum of
 //       authentifications to its initialization value.
 //-----------------------------------------------------
-int check_auth_sync(int tid, unsigned int tick, int id, int data) {
+int check_auth_sync(int tid, unsigned int tick, int id, int data)
+{
 	// we only save if necessary:
 	// we have do some authentifications without do saving
 	if (auth_before_save_file < AUTH_BEFORE_SAVE_FILE ||
@@ -1021,7 +1015,8 @@ void send_GM_accounts(void)
 //-----------------------------------------------------
 // Check if GM file account have been changed
 //-----------------------------------------------------
-int check_GM_file(int tid, unsigned int tick, int id, int data) {
+int check_GM_file(int tid, unsigned int tick, int id, int data)
+{
 	struct stat file_stat;
 	long new_time;
 
@@ -1043,6 +1038,37 @@ int check_GM_file(int tid, unsigned int tick, int id, int data) {
 	return 0;
 }
 
+
+//-----------------------------------------------------
+// encrypted/unencrypted password check
+//-----------------------------------------------------
+bool check_encrypted(const char* str1, const char* str2, const char* passwd)
+{
+	char md5str[64], md5bin[32];
+	snprintf(md5str, sizeof(md5str), "%s%s", str1, str2); md5str[sizeof(md5str)-1] = '\0';
+	MD5_String2binary(md5str, md5bin);
+
+	return (0==memcmp(passwd, md5bin, 16));
+}
+
+bool check_password(struct login_session_data* ld, int passwdenc, const char* passwd, const char* refpass)
+{
+	if(passwdenc == 0)
+	{
+		return (0==strcmp(passwd, refpass));
+	}
+	else if (ld)
+	{
+		// password mode set to 1 -> (md5key, refpass) enable with <passwordencrypt></passwordencrypt>
+		// password mode set to 2 -> (refpass, md5key) enable with <passwordencrypt2></passwordencrypt2>
+
+		return ((passwdenc&0x01) && check_encrypted(ld->md5key, refpass, passwd)) ||
+		       ((passwdenc&0x02) && check_encrypted(refpass, ld->md5key, passwd));
+	}
+	return false;
+}
+
+
 //-------------------------------------
 // Account creation (with e-mail check)
 //-------------------------------------
@@ -1054,17 +1080,21 @@ int mmo_auth_new(struct mmo_account* account, char sex, char* email)
 
 	if (auth_num >= auth_max) {
 		auth_max += 256;
-		auth_dat = (struct auth_dat*)aRealloc(auth_dat, sizeof(struct auth_dat) * auth_max);
+		auth_dat = (struct auth_data*)aRealloc(auth_dat, sizeof(struct auth_data) * auth_max);
 	}
 
-	memset(&auth_dat[i], '\0', sizeof(struct auth_dat));
+	memset(&auth_dat[i], '\0', sizeof(struct auth_data));
 
 	while (isGM(account_id_count) > 0)
 		account_id_count++;
 
 	auth_dat[i].account_id = account_id_count++;
 	strncpy(auth_dat[i].userid, account->userid, NAME_LENGTH); auth_dat[i].userid[23] = '\0';
-	strncpy(auth_dat[i].pass, account->passwd, NAME_LENGTH); auth_dat[i].pass[23] = '\0';
+	if (use_md5_passwds) {
+		MD5_String(account->passwd, auth_dat[i].pass);
+	} else {
+		strncpy(auth_dat[i].pass, account->passwd, NAME_LENGTH); auth_dat[i].pass[23] = '\0';
+	}
 	memcpy(auth_dat[i].lastlogin, "-", 2);
 	auth_dat[i].sex = (sex == 'M' || sex == 'm');
 	auth_dat[i].logincount = 0;
@@ -1096,7 +1126,7 @@ int mmo_auth_new(struct mmo_account* account, char sex, char* email)
 }
 
 //---------------------------------------
-// Check/authentification of a connection
+// Check/authentication of a connection
 //---------------------------------------
 int mmo_auth(struct mmo_account* account, int fd)
 {
@@ -1105,11 +1135,6 @@ int mmo_auth(struct mmo_account* account, int fd)
 	char tmpstr[256];
 	int len;
 	int newaccount = 0;
-#ifdef PASSWORDENC
-	struct login_session_data *ld;
-#endif
-	int encpasswdok;
-	char md5str[64], md5bin[32];
 	char user_password[256];
 
 	char ip[16];
@@ -1130,7 +1155,7 @@ int mmo_auth(struct mmo_account* account, int fd)
 		{
 			if (!matched) {
 				sprintf(ip_dnsbl, "%s.%s", r_ip, dnsbl_serv);
-				if(gethostbyname(ip_dnsbl))
+				if(host2ip(ip_dnsbl))
 					matched = true;
 			}
 		}
@@ -1163,7 +1188,7 @@ int mmo_auth(struct mmo_account* account, int fd)
 		}
 	}
 
-	//EXE Version check [Sirius]
+	//Client Version check
 	if (check_client_version && account->version != 0 &&
 		account->version != client_version_to_connect)
 		return 5;
@@ -1188,56 +1213,16 @@ int mmo_auth(struct mmo_account* account, int fd)
 			          account->userid, account->userid[len+1], auth_dat[i].pass, account->passwd, ip);
 			return 1; // 1 = Incorrect Password
 		}
+
 		if(use_md5_passwds)
 			MD5_String(account->passwd, user_password);
 		else
 			memcpy(user_password, account->passwd, NAME_LENGTH);
-		encpasswdok = 0;
-#ifdef PASSWORDENC
-		ld = (struct login_session_data*)session[fd]->session_data;
-		if (account->passwdenc > 0) {
-			int j = account->passwdenc;
-			if (!ld) {
-				login_log("Md5 key not created (account: %s, ip: %s)" RETCODE, account->userid, ip);
-				return 1; // 1 = Incorrect Password
-			}
-			if (j > 2)
-				j = 1;
-			do {
-				if (j == 1) {
-					sprintf(md5str, "%s%s", ld->md5key, auth_dat[i].pass); // 20 + 24
-				} else if (j == 2) {
-					sprintf(md5str, "%s%s", auth_dat[i].pass, ld->md5key); // 24 + 20
-				} else
-					md5str[0] = '\0';
-				md5str[sizeof(md5str)-1] = '\0'; // 64
-				MD5_String2binary(md5str, md5bin);
-				encpasswdok = (memcmp(account->passwd, md5bin, 16) == 0);
-			} while (j < 2 && !encpasswdok && (j++) != account->passwdenc);
-//			printf("key[%s] md5 [%s] ", md5key, md5);
-//			printf("client [%s] accountpass [%s]\n", account->passwd, auth_dat[i].pass);
-		}
-#endif
-		if ((strcmp(account->passwd, auth_dat[i].pass) && !encpasswdok)) {
-			if (account->passwdenc == 0)
-				login_log("Invalid password (account: %s, pass: %s, received pass: %s, ip: %s)" RETCODE, account->userid, auth_dat[i].pass, account->passwd, ip);
-#ifdef PASSWORDENC
-			else {
-				char logbuf[512], *p = logbuf;
-				unsigned int j;
-				p += sprintf(p, "Invalid password (account: %s, received md5[", account->userid);
-				for(j = 0; j < 16; j++)
-					p += sprintf(p, "%02x", ((unsigned char *)account->passwd)[j]);
-				p += sprintf(p,"] calculated md5[");
-				for(j = 0; j < 16; j++)
-					p += sprintf(p, "%02x", ((unsigned char *)md5bin)[j]);
-				p += sprintf(p, "] md5 key[");
-				for(j = 0; j < ld->md5keylen; j++)
-					p += sprintf(p, "%02x", ((unsigned char *)ld->md5key)[j]);
-				p += sprintf(p, "], ip: %s)" RETCODE, ip);
-				login_log(logbuf);
-			}
-#endif
+
+		if (!check_password(session[fd]->session_data, account->passwdenc, user_password, auth_dat[i].pass))
+		{
+			login_log("Invalid password (account: %s, pass: %s, received pass: %s, ip: %s)" RETCODE,
+			          account->userid, auth_dat[i].pass, (account->passwdenc) ? "[MD5]" : account->passwd, ip);
 			return 1; // 1 = Incorrect Password
 		}
 
@@ -1388,27 +1373,31 @@ int parse_fromchar(int fd)
 	for(id = 0; id < MAX_SERVERS; id++)
 		if (server_fd[id] == fd)
 			break;
-
-	if (id == MAX_SERVERS)
-		session[fd]->eof = 1;
-	if(session[fd]->eof) {
-		if (id < MAX_SERVERS) {
-			ShowStatus("Char-server '%s' has disconnected.\n", server[id].name);
-			login_log("Char-server '%s' has disconnected (ip: %s)." RETCODE, server[id].name, ip);
-			server_fd[id] = -1;
-			memset(&server[id], 0, sizeof(struct mmo_char_server));
-			online_db->foreach(online_db,online_db_setoffline,id); //Set all chars from this char server to offline.
-		}
+	if (id == MAX_SERVERS) { // not a char server
+		set_eof(fd);
 		do_close(fd);
 		return 0;
 	}
 
-	while (RFIFOREST(fd) >= 2) {
+	if(session[fd]->eof) {
+		ShowStatus("Char-server '%s' has disconnected.\n", server[id].name);
+		login_log("Char-server '%s' has disconnected (ip: %s)." RETCODE, server[id].name, ip);
+		server_fd[id] = -1;
+		memset(&server[id], 0, sizeof(struct mmo_char_server));
+		online_db->foreach(online_db,online_db_setoffline,id); //Set all chars from this char server to offline.
+		do_close(fd);
+		return 0;
+	}
 
-		if (display_parse_fromchar == 2 || (display_parse_fromchar == 1 && RFIFOW(fd,0) != 0x2714)) // 0x2714 is done very often (number of players)
-			ShowDebug("parse_fromchar: connection #%d, packet: 0x%x (with being read: %d bytes).\n", fd, RFIFOW(fd,0), RFIFOREST(fd));
+	while (RFIFOREST(fd) >= 2)
+	{
+		uint16 command = RFIFOW(fd,0);
 
-		switch (RFIFOW(fd,0)) {
+		if (display_parse_fromchar == 2 || (display_parse_fromchar == 1 && command != 0x2714)) // 0x2714 is done very often (number of players)
+			ShowDebug("parse_fromchar: connection #%d, packet: 0x%x (with being read: %d bytes).\n", fd, command, RFIFOREST(fd));
+
+		switch (command)
+		{
 
 		case 0x2709: // request from map-server via char-server to reload GM accounts
 			login_log("Char-server '%s': Request to re-load GM configuration file (ip: %s)." RETCODE, server[id].name, ip);
@@ -1426,10 +1415,10 @@ int parse_fromchar(int fd)
 			for(i = 0; i < AUTH_FIFO_SIZE; i++)
 			{
 				if (auth_fifo[i].account_id == RFIFOL(fd,2) &&
-				    auth_fifo[i].login_id1 == RFIFOL(fd,6) &&
-				    auth_fifo[i].login_id2 == RFIFOL(fd,10) && // relate to the versions higher than 18
-				    auth_fifo[i].sex == RFIFOB(fd,14) &&
-				    auth_fifo[i].ip == ntohl(RFIFOL(fd,15)) &&
+				    auth_fifo[i].login_id1  == RFIFOL(fd,6) &&
+				    auth_fifo[i].login_id2  == RFIFOL(fd,10) && // relate to the versions higher than 18
+				    auth_fifo[i].sex        == RFIFOB(fd,14) &&
+				    auth_fifo[i].ip         == ntohl(RFIFOL(fd,15)) &&
 				    !auth_fifo[i].delflag)
 				{
 					unsigned int k;
@@ -1595,12 +1584,8 @@ int parse_fromchar(int fd)
 		{
 			char actual_email[40], new_email[40];
 			uint32 acc = RFIFOL(fd,2);
-			memcpy(actual_email, RFIFOP(fd,6), 40);
-			actual_email[39] = '\0';
-			remove_control_chars(actual_email);
-			memcpy(new_email, RFIFOP(fd,46), 40);
-			new_email[39] = '\0';
-			remove_control_chars(new_email);
+			memcpy(actual_email, RFIFOP(fd,6), 40); actual_email[39] = '\0'; remove_control_chars(actual_email);
+			memcpy(new_email, RFIFOP(fd,46), 40); new_email[39] = '\0'; remove_control_chars(new_email);
 			if (e_mail_check(actual_email) == 0)
 				login_log("Char-server '%s': Attempt to modify an e-mail on an account (@email GM command), but actual email is invalid (account: %d, ip: %s)" RETCODE,
 				          server[id].name, acc, ip);
@@ -1936,7 +1921,7 @@ int parse_fromchar(int fd)
 					time(&raw_time);
 					strftime(tmpstr, 23, date_format, localtime(&raw_time));
 					fprintf(logfp, "%s: receiving of an unknown packet -> disconnection" RETCODE, tmpstr);
-					fprintf(logfp, "parse_fromchar: connection #%d (ip: %s), packet: 0x%x (with being read: %lu)." RETCODE, fd, ip, RFIFOW(fd,0), (unsigned long)RFIFOREST(fd));
+					fprintf(logfp, "parse_fromchar: connection #%d (ip: %s), packet: 0x%x (with being read: %lu)." RETCODE, fd, ip, command, (unsigned long)RFIFOREST(fd));
 					fprintf(logfp, "Detail (in hex):" RETCODE);
 					fprintf(logfp, "---- 00-01-02-03-04-05-06-07  08-09-0A-0B-0C-0D-0E-0F" RETCODE);
 					memset(tmpstr, '\0', sizeof(tmpstr));
@@ -1967,8 +1952,8 @@ int parse_fromchar(int fd)
 					fclose(logfp);
 				}
 			}
-			ShowError("parse_fromchar: Unknown packet 0x%x from a char-server! Disconnecting!\n", RFIFOW(fd,0));
-			session[fd]->eof = 1;
+			ShowError("parse_fromchar: Unknown packet 0x%x from a char-server! Disconnecting!\n", command);
+			set_eof(fd);
 			return 0;
 		}
 	}
@@ -1995,13 +1980,16 @@ int parse_admin(int fd)
 		return 0;
 	}
 
-	while(RFIFOREST(fd) >= 2) {
-          if (display_parse_admin == 1) {
+	while (RFIFOREST(fd) >= 2)
+	{
+		uint16 command = RFIFOW(fd,0);
 
-			ShowDebug("parse_admin: connection #%d, packet: 0x%x (with being read: %d).\n", fd, RFIFOW(fd,0), RFIFOREST(fd));
-          }
+        if (display_parse_admin)
+			ShowDebug("parse_admin: connection #%d, packet: 0x%x (with being read: %d).\n", fd, command, RFIFOREST(fd));
 
-		switch(RFIFOW(fd,0)) {
+		switch(command)
+		{
+
 		case 0x7530:	// Request of the server version
 			login_log("'ladmin': Sending of the server version (ip: %s)" RETCODE, ip);
 			WFIFOHEAD(fd,10);
@@ -2020,7 +2008,7 @@ int parse_admin(int fd)
 		case 0x7532:	// Request of end of connection
 			login_log("'ladmin': End of connection (ip: %s)" RETCODE, ip);
 			RFIFOSKIP(fd,2);
-			session[fd]->eof = 1;
+			set_eof(fd);
 			break;
 
 		case 0x7920:	// Request of an accounts list
@@ -2902,7 +2890,7 @@ int parse_admin(int fd)
 					time(&raw_time);
 					strftime(tmpstr, 23, date_format, localtime(&raw_time));
 					fprintf(logfp, "%s: receiving of an unknown packet -> disconnection" RETCODE, tmpstr);
-					fprintf(logfp, "parse_admin: connection #%d (ip: %s), packet: 0x%x (with being read: %lu)." RETCODE, fd, ip, RFIFOW(fd,0), (unsigned long)RFIFOREST(fd));
+					fprintf(logfp, "parse_admin: connection #%d (ip: %s), packet: 0x%x (with being read: %lu)." RETCODE, fd, ip, command, (unsigned long)RFIFOREST(fd));
 					fprintf(logfp, "Detail (in hex):" RETCODE);
 					fprintf(logfp, "---- 00-01-02-03-04-05-06-07  08-09-0A-0B-0C-0D-0E-0F" RETCODE);
 					memset(tmpstr, '\0', sizeof(tmpstr));
@@ -2934,7 +2922,7 @@ int parse_admin(int fd)
 				}
 			}
 			login_log("'ladmin': End of connection, unknown packet (ip: %s)" RETCODE, ip);
-			session[fd]->eof = 1;
+			set_eof(fd);
 			ShowWarning("Remote administration has been disconnected (unknown packet).\n");
 			return 0;
 		}
@@ -2982,85 +2970,81 @@ int parse_login(int fd)
 		return 0;
 	}
 
-	while(RFIFOREST(fd) >= 2) {
-		if (display_parse_login == 1) {
-			if (RFIFOW(fd,0) == 0x64 || RFIFOW(fd,0) == 0x01dd) {
-				if ((int)RFIFOREST(fd) >= ((RFIFOW(fd,0) == 0x64) ? 55 : 47))
-					ShowDebug("parse_login: connection #%d, packet: 0x%x (with being read: %d), account: %s.\n", fd, RFIFOW(fd,0), RFIFOREST(fd), RFIFOP(fd,6));
-			} else if (RFIFOW(fd,0) == 0x2710) {
+	while (RFIFOREST(fd) >= 2)
+	{
+		uint16 command = RFIFOW(fd,0);
+
+		if (display_parse_login)
+		{
+			if (command == 0x0064 || command == 0x01dd)
+			{
+				if ((int)RFIFOREST(fd) >= ((command == 0x0064) ? 55 : 47))
+					ShowDebug("parse_login: connection #%d, packet: 0x%x (with being read: %d), account: %s.\n", fd, command, RFIFOREST(fd), RFIFOP(fd,6));
+			}
+			else if (command == 0x2710)
+			{
 				if (RFIFOREST(fd) >= 86)
-					ShowDebug("parse_login: connection #%d, packet: 0x%x (with being read: %d), server: %s.\n", fd, RFIFOW(fd,0), RFIFOREST(fd), RFIFOP(fd,60));
-			} else
-				ShowDebug("parse_login: connection #%d, packet: 0x%x (with being read: %d).\n", fd, RFIFOW(fd,0), RFIFOREST(fd));
+					ShowDebug("parse_login: connection #%d, packet: 0x%x (with being read: %d), server: %s.\n", fd, command, RFIFOREST(fd), RFIFOP(fd,60));
+			}
+			else
+				ShowDebug("parse_login: connection #%d, packet: 0x%x (with being read: %d).\n", fd, command, RFIFOREST(fd));
 		}
 
-		switch(RFIFOW(fd,0)) {
-		case 0x200:		// New alive packet: structure: 0x200 <account.userid>.24B. used to verify if client is always alive.
+		switch(command)
+		{
+		case 0x0200:		// New alive packet: structure: 0x200 <account.userid>.24B. used to verify if client is always alive.
 			if (RFIFOREST(fd) < 26)
 				return 0;
 			RFIFOSKIP(fd,26);
 			break;
 
-		case 0x204:		// New alive packet: structure: 0x204 <encrypted.account.userid>.16B. (new ragexe from 22 june 2004)
+		case 0x0204:		// New alive packet: structure: 0x204 <encrypted.account.userid>.16B. (new ragexe from 22 june 2004)
 			if (RFIFOREST(fd) < 18)
 				return 0;
 			RFIFOSKIP(fd,18);
 			break;
 
-		case 0x277:		// New login packet
-		case 0x64:		// request client login
-		case 0x01dd:	// request client login with encrypt
+		case 0x0064:		// request client login
+		case 0x0277:		// New login packet (layout is same as 0x64 but different length)
+		case 0x01dd:		// request client login (encryption mode)
 		{
 			int packet_len = RFIFOREST(fd);
 
 			//Perform ip-ban check
-			if (!check_ip(ipl)) {
+			if (!check_ip(ipl))
+			{
 				login_log("Connection refused: IP isn't authorised (deny/allow, ip: %s)." RETCODE, ip);
 				WFIFOHEAD(fd,23);
 				WFIFOW(fd,0) = 0x6a;
 				WFIFOB(fd,2) = 3; // 3 = Rejected from Server
 				WFIFOSET(fd,23);
 				RFIFOSKIP(fd,packet_len);
+				set_eof(fd);
 				break;
 			}
 
-			switch(RFIFOW(fd,0)){
-				case 0x64:
-					if(packet_len < 55)
-						return 0;
-					break;
-				case 0x01dd:
-					if(packet_len < 47)
-						return 0;
-					break;
-				case 0x277:
-					if(packet_len < 84)
-						return 0;
-					break;
-			}
+			if ((command == 0x0064 && packet_len < 55) ||
+				(command == 0x0277 && packet_len < 84) ||
+				(command == 0x01dd && packet_len < 47))
+				return 0;
 
-			account.version = RFIFOL(fd, 2);
+			// S 0064 <version>.l <account name>.24B <password>.24B <version2>.B
+			// S 0277 ??
+			// S 01dd <version>.l <account name>.24B <md5 binary>.16B <version2>.B
+
+			account.version = RFIFOL(fd,2);
 			if (!account.version) account.version = 1; //Force some version...
-			memcpy(account.userid,RFIFOP(fd, 6),NAME_LENGTH);
-			account.userid[23] = '\0';
+			memcpy(account.userid,RFIFOP(fd,6),NAME_LENGTH); account.userid[23] = '\0';
 			remove_control_chars(account.userid);
-			if (RFIFOW(fd,0) != 0x01dd) {
+			if (command != 0x01dd) {
 				login_log("Request for connection (non encryption mode) of %s (ip: %s)." RETCODE, account.userid, ip);
-				memcpy(account.passwd, RFIFOP(fd,30), NAME_LENGTH);
-				account.passwd[23] = '\0';
+				memcpy(account.passwd, RFIFOP(fd,30), NAME_LENGTH); account.passwd[23] = '\0';
 				remove_control_chars(account.passwd);
 			} else {
 				login_log("Request for connection (encryption mode) of %s (ip: %s)." RETCODE, account.userid, ip);
-				 // If remove control characters from received password encrypted by md5,
-				// there would be a wrong result and failed to authentication. [End_of_exam]
-				memcpy(account.passwd, RFIFOP(fd,30), 16);
-				account.passwd[16] = '\0';
+				memcpy(account.passwd, RFIFOP(fd,30), 16); account.passwd[16] = '\0'; // binary data here
 			}
-#ifdef PASSWORDENC
-			account.passwdenc = (RFIFOW(fd,0) != 0x01dd) ? 0 : PASSWORDENC;
-#else
-			account.passwdenc = 0;
-#endif
+			account.passwdenc = (command != 0x01dd) ? 0 : PASSWORDENC;
 
 			result = mmo_auth(&account, fd);
 			if (result == -1) { // auth success
@@ -3142,33 +3126,35 @@ int parse_login(int fd)
 
 		case 0x01db:	// Sending request of the coding key
 		case 0x791a:	// Sending request of the coding key (administration packet)
-			{
-				struct login_session_data *ld;
-				if (session[fd]->session_data) {
-					ShowWarning("login: abnormal request of MD5 key (already opened session).\n");
-					session[fd]->eof = 1;
-					return 0;
-				}
-				ld = (struct login_session_data*)aCalloc(1, sizeof(struct login_session_data));
-				session[fd]->session_data = ld;
-				if (RFIFOW(fd,0) == 0x01db)
-					login_log("Sending request of the coding key (ip: %s)" RETCODE, ip);
-				else
-					login_log("'ladmin': Sending request of the coding key (ip: %s)" RETCODE, ip);
-				// Creation of the coding key
-				memset(ld->md5key, '\0', sizeof(ld->md5key));
-				ld->md5keylen = (uint16)(12 + rand() % 4);
-				for(i = 0; i < ld->md5keylen; i++)
-					ld->md5key[i] = (char)(1 + rand() % 255);
-
-				RFIFOSKIP(fd,2);
-				WFIFOHEAD(fd,4 + ld->md5keylen);
-				WFIFOW(fd,0) = 0x01dc;
-				WFIFOW(fd,2) = 4 + ld->md5keylen;
-				memcpy(WFIFOP(fd,4), ld->md5key, ld->md5keylen);
-				WFIFOSET(fd,WFIFOW(fd,2));
+		{
+			struct login_session_data* ld;
+			if (session[fd]->session_data) {
+				ShowWarning("login: abnormal request of MD5 key (already opened session).\n");
+				set_eof(fd);
+				return 0;
 			}
-			break;
+
+			ld = (struct login_session_data*)aCalloc(1, sizeof(struct login_session_data));
+			session[fd]->session_data = ld;
+			if (command == 0x01db)
+				login_log("Sending request of the coding key (ip: %s)" RETCODE, ip);
+			else
+				login_log("'ladmin': Sending request of the coding key (ip: %s)" RETCODE, ip);
+
+			// Creation of the coding key
+			memset(ld->md5key, '\0', sizeof(ld->md5key));
+			ld->md5keylen = (uint16)(12 + rand() % 4);
+			for(i = 0; i < ld->md5keylen; i++)
+				ld->md5key[i] = (char)(1 + rand() % 255);
+
+			RFIFOSKIP(fd,2);
+			WFIFOHEAD(fd,4 + ld->md5keylen);
+			WFIFOW(fd,0) = 0x01dc;
+			WFIFOW(fd,2) = 4 + ld->md5keylen;
+			memcpy(WFIFOP(fd,4), ld->md5key, ld->md5keylen);
+			WFIFOSET(fd,WFIFOW(fd,2));
+		}
+		break;
 
 		case 0x2710:	// Connection request of a char-server
 			if (RFIFOREST(fd) < 86)
@@ -3180,7 +3166,7 @@ int parse_login(int fd)
 				uint16 server_port;
 
 				WFIFOHEAD(fd,3);
-				memcpy(account.userid,RFIFOP(fd,2),NAME_LENGTH); account.userid[23] = '\0'; remove_control_chars(account.userid);
+				memcpy(account.userid, RFIFOP(fd,2), NAME_LENGTH); account.userid[23] = '\0'; remove_control_chars(account.userid);
 				memcpy(account.passwd, RFIFOP(fd,26), NAME_LENGTH); account.passwd[23] = '\0'; remove_control_chars(account.passwd);
 				account.passwdenc = 0;
 				server_name = (char*)RFIFOP(fd,60); server_name[20] = '\0'; remove_control_chars(server_name);
@@ -3264,7 +3250,7 @@ int parse_login(int fd)
 
 		case 0x7532:	// Request to end connection
 			login_log("End of connection (ip: %s)" RETCODE, ip);
-			session[fd]->eof = 1;
+			set_eof(fd);
 			return 0;
 
 		case 0x7918:	// Request for administation login
@@ -3329,7 +3315,7 @@ int parse_login(int fd)
 					time(&raw_time);
 					strftime(tmpstr, 23, date_format, localtime(&raw_time));
 					fprintf(logfp, "%s: receiving of an unknown packet -> disconnection" RETCODE, tmpstr);
-					fprintf(logfp, "parse_login: connection #%d (ip: %s), packet: 0x%x (with being read: %lu)." RETCODE, fd, ip, RFIFOW(fd,0), (unsigned long)RFIFOREST(fd));
+					fprintf(logfp, "parse_login: connection #%d (ip: %s), packet: 0x%x (with being read: %lu)." RETCODE, fd, ip, command, (unsigned long)RFIFOREST(fd));
 					fprintf(logfp, "Detail (in hex):" RETCODE);
 					fprintf(logfp, "---- 00-01-02-03-04-05-06-07  08-09-0A-0B-0C-0D-0E-0F" RETCODE);
 					memset(tmpstr, '\0', sizeof(tmpstr));
@@ -3360,8 +3346,8 @@ int parse_login(int fd)
 					fclose(logfp);
 				}
 			}
-			login_log("Abnormal end of connection (ip: %s): Unknown packet 0x%x " RETCODE, ip, RFIFOW(fd,0));
-			session[fd]->eof = 1;
+			login_log("Abnormal end of connection (ip: %s): Unknown packet 0x%x " RETCODE, ip, command);
+			set_eof(fd);
 			return 0;
 		}
 	}
@@ -3677,7 +3663,8 @@ int login_config_read(const char* cfgName)
 //-------------------------------------
 // Displaying of configuration warnings
 //-------------------------------------
-void display_conf_warnings(void) {
+void display_conf_warnings(void)
+{
 	if (admin_state != 0 && admin_state != 1) {
 		ShowWarning("Invalid value for admin_state parameter -> setting to 0 (no remote admin).\n");
 		admin_state = 0;
@@ -3789,7 +3776,8 @@ void display_conf_warnings(void) {
 //-------------------------------
 // Save configuration in log file
 //-------------------------------
-void save_config_in_log(void) {
+void save_config_in_log(void)
+{
 	int i;
 
 	// a newline in the log...
@@ -3927,7 +3915,8 @@ void save_config_in_log(void) {
 //--------------------------------------
 // Function called at exit of the server
 //--------------------------------------
-void do_final(void) {
+void do_final(void)
+{
 	int i, fd;
 	ShowInfo("Terminating...\n");
 	fflush(stdout);
@@ -3977,17 +3966,17 @@ int do_init(int argc, char **argv)
 
 	for(i = 0; i< AUTH_FIFO_SIZE; i++)
 		auth_fifo[i].delflag = 1;
+
 	for(i = 0; i < MAX_SERVERS; i++)
 		server_fd[i] = -1;
 
 	mmo_auth_init();
 	read_gm_account();
 	set_defaultparse(parse_login);
+
 	// Online user database init
 	online_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));	// reinitialise
 	add_timer_func_list(waiting_disconnect_timer, "waiting_disconnect_timer");
-
-	login_fd = make_listen_bind(login_ip, login_port);
 
 	add_timer_func_list(check_auth_sync, "check_auth_sync");
 	add_timer_interval(gettick() + 60000, check_auth_sync, 0, 0, 60000); // every 60 sec we check if we must save accounts file (only if necessary to save)
@@ -4015,6 +4004,9 @@ int do_init(int argc, char **argv)
 	}
 
 	new_reg_tick = gettick();
+
+	// server port open & binding
+	login_fd = make_listen_bind(login_ip, login_port);
 
 	login_log("The login-server is ready (Server is listening on the port %d)." RETCODE, login_port);
 	ShowStatus("The login-server is "CL_GREEN"ready"CL_RESET" (Server is listening on the port %d).\n\n", login_port);
