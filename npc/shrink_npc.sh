@@ -46,12 +46,11 @@ done
 echo "Stage 4"
 
 for x in "${MOBSUARO[@]}"; do
-  while IFS= read -r var1 ; do
+  while IFS=$'\n' read -r var1 ; do
     sed -i "s/^$var1$//" ./mobs_uaro/$x
   done < "./mobs/$x"
   echo "Done: $x"
 done
-
 
 echo "Stage 5"
 
