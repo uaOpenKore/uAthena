@@ -9,24 +9,24 @@ CC = gcc -pipe
 MAKE = make
 # MAKE = gmake
 
+OPT = -Os
 # OPT = -O2
+# OPT = -O3
 # OPT += -g
-# OPT += -O3
+OPT += -g3
+
 # OPT += -march=generic -mtune=generic
-# OPT += -rdynamic
-# OPT += -fbounds-checking
-# OPT += -fomit-frame-pointer
-# OPT += -DCHRIF_OLDINFO
+ OPT += -rdynamic
+ OPT += -fomit-frame-pointer
+ OPT += -DCHRIF_OLDINFO
 # OPT += -DGCOLLECT
 # OPT += -DMEMWATCH
 # OPT += -DDMALLOC -DDMALLOC_FUNC_CHECK
-# OPT += -DBCHECK
+ OPT += -DBCHECK
 
 # LIBS += -lgc
 # LIBS += -ldmalloc
 
-OPT = -Os
-OPT += -g3
 OPT += -ffast-math
 OPT += -fcommon
 OPT += -march=native -mtune=native
@@ -56,9 +56,10 @@ GOPT += -m32
 # Server Packet Protocol version (also defined in src/common/mmo.h)
 # OPT += -DPACKETVER=8
 OPT += -DPACKETVER=7
+
 # Makes map-wide script variables be saved to SQL instead of TXT files.
-# OPT += -DMAPREGSQL
-# OPT += -DCHRIF_OLDINFO
+ OPT += -DMAPREGSQL
+
 # Turbo is an alternate socket access implementation which should be faster.
 # DO NOT ENABLE YET as it isn't quite ready for general usage.
 # OPT += -DTURBO
