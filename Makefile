@@ -55,7 +55,7 @@ GOPT += -m32
 
 # Server Packet Protocol version (also defined in src/common/mmo.h)
 # OPT += -DPACKETVER=8
-OPT += -DPACKETVER=7
+#OPT += -DPACKETVER=7
 
 # Makes map-wide script variables be saved to SQL instead of TXT files.
  OPT += -DMAPREGSQL
