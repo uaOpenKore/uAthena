@@ -189,3 +189,42 @@ src/map/GNUmakefile: src/map/Makefile
 src/plugins/GNUmakefile: src/plugins/Makefile
 src/ladmin/GNUmakefile: src/ladmin/Makefile
 src/txt-converter/GNUmakefile: src/txt-converter/Makefile
+
+install:
+		$(shell mkdir -p /opt/uathena/bin/log/)
+		$(shell mkdir -p /opt/uathena/backup/)
+		$(shell cp -r save  /opt/uathena/)
+		$(shell cp -r db    /opt/uathena/)
+		$(shell cp -r conf  /opt/uathena/)
+		$(shell cp -r conf-tmpl  /opt/uathena/)
+		$(shell cp -r npc   /opt/uathena/)
+		$(shell cp *-server* /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/save/    /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/db/      /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/conf/    /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/npc/     /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/bin/log/ /opt/uathena/)
+		$(shell cp scripts/uA* /etc/systemd/system/)
+		$(shell systemctl daemon-reload)
+		$(shell cp scripts/ua-*.sh /opt/uathena/bin/)
+
+uninstall:
+		$(shell rm -fr /opt/uathena/bin)
+		$(shell rm -fr /opt/uathena/db)
+		$(shell rm -fr /opt/uathena/conf)
+		$(shell rm -fr /opt/uathena/conf-tmpl)
+		$(shell rm -fr /opt/uathena/npc)
+		$(shell rm -fr /opt/uathena/bin)
+		$(shell rm -fr /opt/uathena/save)
+		$(shell rm -f  /opt/uathena/log)
+		$(shell rm -f /etc/systemd/system/uA*)
+		$(shell systemctl daemon-reload)
+
+erase:
+		$(shell rm -rf /opt/uathena/)
+
+update:
+		$(shell cp -f *-server* /opt/uathena/bin/)
+		$(shell cp -rf db    /opt/uathena/)
+		$(shell cp -rf npc   /opt/uathena/)
+
