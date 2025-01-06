@@ -1093,15 +1093,15 @@ static struct Damage battle_calc_weapon_attack(
 
 		if(battle_config.agi_penalty_type &&
 			battle_config.agi_penalty_target&target->type)
-		{	
-			unsigned char target_count; //256 max targets should be a sane max
-			target_count = unit_counttargeted(target,battle_config.agi_penalty_count_lv);
-			if(target_count >= battle_config.agi_penalty_count)
+		{
+			unsigned char attacker_count; //256 max targets should be a sane max
+			attacker_count = unit_counttargeted(target,battle_config.agi_penalty_count_lv);
+			if(attacker_count >= battle_config.agi_penalty_count)
 			{
 				if (battle_config.agi_penalty_type == 1)
-					flee = (flee * (100 - (target_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num))/100;
+					flee = (flee * (100 - (attacker_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num))/100;
 				else //asume type 2: absolute reduction
-					flee -= (target_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num;
+					flee -= (attacker_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num;
 				if(flee < 1) flee = 1;
 			}
 		}
@@ -2572,17 +2572,17 @@ struct Damage  battle_calc_misc_attack(
 				flee = tstatus->flee,
 				hitrate=80; //Default hitrate
 
-			if(battle_config.agi_penalty_type && 
+			if(battle_config.agi_penalty_type &&
 				battle_config.agi_penalty_target&target->type)
-			{	
-				unsigned char target_count; //256 max targets should be a sane max
-				target_count = unit_counttargeted(target,battle_config.agi_penalty_count_lv);
-				if(target_count >= battle_config.agi_penalty_count)
+			{
+				unsigned char attacker_count; //256 max targets should be a sane max
+				attacker_count = unit_counttargeted(target,battle_config.agi_penalty_count_lv);
+				if(attacker_count >= battle_config.agi_penalty_count)
 				{
 					if (battle_config.agi_penalty_type == 1)
-						flee = (flee * (100 - (target_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num))/100;
+						flee = (flee * (100 - (attacker_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num))/100;
 					else //asume type 2: absolute reduction
-						flee -= (target_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num;
+						flee -= (attacker_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num;
 					if(flee < 1) flee = 1;
 				}
 			}
@@ -2778,6 +2778,7 @@ int battle_weapon_attack(struct block_list* src, struct block_list* target, unsi
 	struct status_data *sstatus, *tstatus;
 	struct status_change *sc, *tsc;
 	int damage,rdamage=0,rdelay=0;
+	int skillv;
 	struct Damage wd;
 
 	nullpo_retr(0, src);
@@ -2874,19 +2875,21 @@ int battle_weapon_attack(struct block_list* src, struct block_list* target, unsi
 			}
 		}
 	}
-	//Recycled the damage variable rather than use a new one... [Skotlex]
-	if(sd && (damage = pc_checkskill(sd,MO_TRIPLEATTACK)) > 0)
+
+	if(sd && (skillv = pc_checkskill(sd,MO_TRIPLEATTACK)) > 0)
 	{
-		int triple_rate= 30 - damage; //Base Rate
+		int triple_rate= 30 - skillv; //Base Rate
 		if (sc && sc->data[SC_SKILLRATE_UP].timer!=-1 && sc->data[SC_SKILLRATE_UP].val1 == MO_TRIPLEATTACK)
 		{
 			triple_rate+= triple_rate*(sc->data[SC_SKILLRATE_UP].val2)/100;
 			status_change_end(src,SC_SKILLRATE_UP,-1);
 		}
 		if (rand()%100 < triple_rate)
-			return skill_attack(BF_WEAPON,src,src,target,MO_TRIPLEATTACK,damage,tick,0);
+			return skill_attack(BF_WEAPON,src,src,target,MO_TRIPLEATTACK,skillv,tick,0);
 	}
-	else if (sc) {
+
+	if (sc)
+	{
 		if (sc->data[SC_SACRIFICE].timer != -1)
 			return skill_attack(BF_WEAPON,src,src,target,PA_SACRIFICE,sc->data[SC_SACRIFICE].val1,tick,0);
 		if (sc->data[SC_MAGICALATTACK].timer != -1)
@@ -3335,7 +3338,7 @@ static const struct battle_data_short {
 	{ "enable_perfect_flee",               &battle_config.enable_perfect_flee		},
 	{ "casting_rate",                      &battle_config.cast_rate				},
 	{ "delay_rate",                        &battle_config.delay_rate				},
-	{ "delay_dependon_agi",                &battle_config.delay_dependon_agi },
+	{ "delay_dependon_dex",                &battle_config.delay_dependon_dex },
 	{ "skill_delay_attack_enable",         &battle_config.sdelay_attack_enable		},
 	{ "left_cardfix_to_right",             &battle_config.left_cardfix_to_right	},
 	{ "skill_add_range",            			&battle_config.skill_add_range		},
@@ -3729,7 +3732,7 @@ void battle_set_defaults()
 	battle_config.enable_perfect_flee = BL_PC|BL_PET;
 	battle_config.cast_rate=100;
 	battle_config.delay_rate=100;
-	battle_config.delay_dependon_agi=0;
+	battle_config.delay_dependon_dex=0;
 	battle_config.sdelay_attack_enable=0;
 	battle_config.left_cardfix_to_right=0;
 	battle_config.skill_add_range=0;
@@ -4296,7 +4299,8 @@ int battle_config_read(const char *cfgName)
 		ShowError("File not found: %s\n", cfgName);
 		return 1;
 	}
-	while(fgets(line,1020,fp)){
+	while(fgets(line, sizeof(line), fp))
+	{
 		if (line[0] == '/' && line[1] == '/')
 			continue;
 		if (sscanf(line, "%[^:]:%s", w1, w2) != 2)

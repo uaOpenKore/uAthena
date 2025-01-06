@@ -94,7 +94,7 @@ extern struct Battle_Config {
 	unsigned short critical_rate;
 	unsigned short enable_baseatk;
 	unsigned short enable_perfect_flee;
-	unsigned short cast_rate,delay_rate,delay_dependon_agi;
+	unsigned short cast_rate,delay_rate,delay_dependon_dex;
 	unsigned short sdelay_attack_enable;
 	unsigned short left_cardfix_to_right;
 	unsigned short skill_add_range;
@@ -430,7 +430,7 @@ extern struct Battle_Config {
 	unsigned short override_mob_names; //Enables overriding spawn mob names with the mob_db names. [Skotlex]
 	unsigned short min_chat_delay; //Minimum time between client messages. [Skotlex]
 	unsigned short friend_auto_add; //When accepting friends, both get friended. [Skotlex]
-	unsigned int hvan_explosion_intimate ;	// fix [albator]
+	int hvan_explosion_intimate;	// fix [albator]
 	unsigned short hom_rename;
 	unsigned short homunculus_show_growth ;	//[orn]
 	unsigned short homunculus_friendly_rate;

@@ -312,6 +312,56 @@ enum {
 	MF_GUILDLOCK
 };
 
+const char* script_op2name(int op)
+{
+#define RETURN_OP_NAME(type) case type: return #type
+	switch( op )
+	{
+	RETURN_OP_NAME(C_NOP);
+	RETURN_OP_NAME(C_POS);
+	RETURN_OP_NAME(C_INT);
+	RETURN_OP_NAME(C_PARAM);
+	RETURN_OP_NAME(C_FUNC);
+	RETURN_OP_NAME(C_STR);
+	RETURN_OP_NAME(C_CONSTSTR);
+	RETURN_OP_NAME(C_ARG);
+	RETURN_OP_NAME(C_NAME);
+	RETURN_OP_NAME(C_EOL);
+	RETURN_OP_NAME(C_RETINFO);
+	RETURN_OP_NAME(C_USERFUNC);
+	RETURN_OP_NAME(C_USERFUNC_POS);
+
+	// operators
+	RETURN_OP_NAME(C_OP3);
+	RETURN_OP_NAME(C_LOR);
+	RETURN_OP_NAME(C_LAND);
+	RETURN_OP_NAME(C_LE);
+	RETURN_OP_NAME(C_LT);
+	RETURN_OP_NAME(C_GE);
+	RETURN_OP_NAME(C_GT);
+	RETURN_OP_NAME(C_EQ);
+	RETURN_OP_NAME(C_NE);
+	RETURN_OP_NAME(C_XOR);
+	RETURN_OP_NAME(C_OR);
+	RETURN_OP_NAME(C_AND);
+	RETURN_OP_NAME(C_ADD);
+	RETURN_OP_NAME(C_SUB);
+	RETURN_OP_NAME(C_MUL);
+	RETURN_OP_NAME(C_DIV);
+	RETURN_OP_NAME(C_MOD);
+	RETURN_OP_NAME(C_NEG);
+	RETURN_OP_NAME(C_LNOT);
+	RETURN_OP_NAME(C_NOT);
+	RETURN_OP_NAME(C_R_SHIFT);
+	RETURN_OP_NAME(C_L_SHIFT);
+
+	default:
+		ShowDebug("script_op2name: unexpected op=%d\n", op);
+		return "???";
+	}
+#undef RETURN_OP_NAME
+}
+
 //Reports on the console the src of a script error.
 static void report_src(struct script_state *st)
 {
@@ -361,7 +411,7 @@ static void check_event(struct script_state *st, const char *evt)
  * nbVvZ
  *------------------------------------------*/
 #define calc_hash(x) (calc_hash2(x)%SCRIPT_HASH_SIZE)
-static unsigned int calc_hash2(const unsigned char *p)
+static unsigned int calc_hash2(const char* p)
 {
 #if defined(SCRIPT_HASH_DJB2)
 	unsigned int h = 5381;
@@ -1661,7 +1711,8 @@ static void read_constdb(void)
 		ShowError("can't read %s\n", line);
 		return ;
 	}
-	while(fgets(line,1020,fp)){
+	while(fgets(line, sizeof(line), fp))
+	{
 		if(line[0]=='/' && line[1]=='/')
 			continue;
 		type=0;
@@ -2368,7 +2419,7 @@ void op_3(struct script_state* st, int op)
 		flag = data->u.num;
 	else
 	{
-		ShowError("script:op_3: invalid type of data op:%d data:%d\n", op, data->type);
+		ShowError("script:op_3: invalid type of data op:%s data:%s\n", script_op2name(op), script_op2name(data->type));
 		report_src(st);
 		script_removetop(st, -3, 0);
 		script_pushnil(st);
@@ -2409,7 +2460,7 @@ void op_2str(struct script_state* st, int op, const char* s1, const char* s2)
 			return;
 		}
 	default:
-		ShowError("script:op2_str: unexpected string operator op:%d\n", op);
+		ShowError("script:op2_str: unexpected string operator op:%s\n", script_op2name(op));
 		report_src(st);
 		script_pushnil(st);
 		st->state = END;
@@ -2445,7 +2496,7 @@ void op_2num(struct script_state* st, int op, int i1, int i2)
 	case C_MOD:
 		if( i2 == 0 )
 		{
-			ShowError("script:op_2num: division by zero detected op:%d\n", op);
+			ShowError("script:op_2num: division by zero detected op:%s\n", script_op2name(op));
 			report_src(st);
 			script_pushnil(st);
 			st->state = END;
@@ -2463,20 +2514,20 @@ void op_2num(struct script_state* st, int op, int i1, int i2)
 		case C_SUB: ret = i1 - i2; ret_double = (double)i1 - (double)i2; break;
 		case C_MUL: ret = i1 * i2; ret_double = (double)i1 * (double)i2; break;
 		default:
-			ShowError("script:op_2num: unexpected number operator op:%d\n", op);
+			ShowError("script:op_2num: unexpected number operator op:%s\n", script_op2name(op));
 			report_src(st);
 			script_pushnil(st);
 			return;
 		}
 		if( ret_double < INT_MIN )
 		{
-			ShowWarning("script:op_2num: underflow detected op:%d\n", op);
+			ShowWarning("script:op_2num: underflow detected op:%s\n", script_op2name(op));
 			report_src(st);
 			ret = INT_MIN;
 		}
 		else if( ret_double > INT_MAX )
 		{
-			ShowWarning("script:op_2num: overflow detected op:%d\n", op);
+			ShowWarning("script:op_2num: overflow detected op:%s\n", script_op2name(op));
 			report_src(st);
 			ret = INT_MAX;
 		}
@@ -2522,7 +2573,7 @@ void op_2(struct script_state *st, int op)
 	}
 	else
 	{// invalid argument
-		ShowError("script:op_2: invalid type of data op:%d left:%d right:%d\n", op, left->type, right->type);
+		ShowError("script:op_2: invalid type of data op:%s left:%s right:%s\n", script_op2name(op), script_op2name(left->type), script_op2name(right->type));
 		report_src(st);
 		script_removetop(st, -2, 0);
 		script_pushnil(st);
@@ -2544,7 +2595,7 @@ void op_1(struct script_state* st, int op)
 
 	if( !data_isint(data) )
 	{// not a number
-		ShowError("script:op_1: invalid type of data op:%d data:%d\n", op, data->type);
+		ShowError("script:op_1: invalid type of data op:%s data:%s\n", script_op2name(op), script_op2name(data->type));
 		report_src(st);
 		script_pushnil(st);
 		st->state = END;
@@ -2559,7 +2610,7 @@ void op_1(struct script_state* st, int op)
 	case C_NOT: i1 = ~i1; break;
 	case C_LNOT: i1 = !i1; break;
 	default:
-		ShowError("script:op_1: unexpected operator op:%d\n", op);
+		ShowError("script:op_1: unexpected operator op:%s\n", script_op2name(op));
 		report_src(st);
 		script_pushnil(st);
 		st->state = END;
@@ -2838,7 +2889,7 @@ void run_script_main(struct script_state *st)
 			push_val(stack,c,0);
 			break;
 		case C_STR:
-			push_str(stack,C_CONSTSTR,(st->script->script_buf+st->pos));
+			push_str(stack,C_CONSTSTR,(char*)(st->script->script_buf+st->pos));
 			while(st->script->script_buf[st->pos++]);
 			break;
 		case C_FUNC:
@@ -2929,7 +2980,7 @@ void run_script_main(struct script_state *st)
 		if (sd)
 		{	//Restore previous stack and save char.
 			if(sd->state.using_fake_npc){
-				clif_clearchar_id(sd->npc_id, 0, sd->fd);
+				clif_clearunit_single(sd->npc_id, 0, sd->fd);
 				sd->state.using_fake_npc = 0;
 			}
 			//Restore previous script if any.
@@ -3056,7 +3107,8 @@ static int script_load_mapreg(void)
 	if( (fp=fopen(mapreg_txt,"rt"))==NULL )
 		return -1;
 
-	while(fgets(line,sizeof(line),fp)){
+	while(fgets(line,sizeof(line),fp))
+	{
 		char buf1[256],buf2[1024],*p;
 		int n,v,s,i;
 		if( sscanf(line,"%255[^,],%d\t%n",buf1,&i,&n)!=2 &&
@@ -3250,7 +3302,8 @@ int script_config_read_sub(char *cfgName)
 		ShowError("file not found: [%s]\n", cfgName);
 		return 1;
 	}
-	while(fgets(line,sizeof(line)-1,fp)){
+	while(fgets(line, sizeof(line), fp))
+	{
 		if(line[0] == '/' && line[1] == '/')
 			continue;
 		i=sscanf(line,"%[^:]: %[^\r\n]",w1,w2);
@@ -4455,7 +4508,7 @@ BUILDIN_FUNC(callfunc)
 	struct script_code *scr, *oldscr;
 	const char *str=script_getstr(st,2);
 
-	if( (scr=strdb_get(userfunc_db,(unsigned char*)str)) ){
+	if( (scr = strdb_get(userfunc_db, str)) ){
 		int i,j;
 		struct linkdb_node **oldval = st->stack->var_function;
 		for(i=st->start+3,j=0;i<st->end;i++,j++)
@@ -6032,7 +6085,7 @@ char *buildin_getpartyname_sub(int party_id)
 	if(p!=NULL){
 		char *buf;
 		buf=(char *)aMallocA(NAME_LENGTH*sizeof(char));
-		memcpy(buf, p->party.name, NAME_LENGTH-1);
+		memcpy(buf, p->party.name, NAME_LENGTH);
 		buf[NAME_LENGTH-1] = '\0';
 		return buf;
 	}
@@ -6148,7 +6201,7 @@ char *buildin_getguildname_sub(int guild_id)
 	if(g!=NULL){
 		char *buf;
 		buf=(char *)aMallocA(NAME_LENGTH*sizeof(char));
-		memcpy(buf, g->name, NAME_LENGTH-1);
+		memcpy(buf, g->name, NAME_LENGTH);
 		buf[NAME_LENGTH-1] = '\0';
 		return buf;
 	}
@@ -6177,7 +6230,7 @@ char *buildin_getguildmaster_sub(int guild_id)
 	if(g!=NULL){
 		char *buf;
 		buf=(char *)aMallocA(NAME_LENGTH*sizeof(char));
-		memcpy(buf, g->master, NAME_LENGTH-1);
+		memcpy(buf, g->master, NAME_LENGTH);
 		buf[NAME_LENGTH-1] = '\0';
 		return buf;
 	}
@@ -10150,7 +10203,7 @@ BUILDIN_FUNC(petloot)
 BUILDIN_FUNC(getinventorylist)
 {
 	TBL_PC *sd=script_rid2sd(st);
-	unsigned char card_var[NAME_LENGTH];
+	char card_var[NAME_LENGTH];
 
 	int i,j=0,k;
 	if(!sd) return 0;
@@ -10898,16 +10951,17 @@ BUILDIN_FUNC(message)
  *------------------------------------------*/
 BUILDIN_FUNC(npctalk)
 {
-	const char *str;
+	const char* str;
 	char message[255];
 
-	struct npc_data *nd=(struct npc_data *)map_id2bl(st->oid);
-	str=script_getstr(st,2);
+	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
+	str = script_getstr(st,2);
 
 	if(nd) {
 		memcpy(message, nd->name, NAME_LENGTH);
-		strcat(message," : ");
-		strncat(message,str, 254); //Prevent overflow possibility. [Skotlex]
+		strtok(message, "#"); // discard extra name identifier if present
+		strcat(message, " : ");
+		strncat(message, str, 254); //Prevent overflow possibility. [Skotlex]
 		clif_message(&(nd->bl), message);
 	}
 

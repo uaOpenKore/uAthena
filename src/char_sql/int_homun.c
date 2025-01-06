@@ -12,17 +12,6 @@
 
 struct s_homunculus *homun_pt;
 
-#ifndef SQL_DEBUG
-
-#define mysql_query(_x, _y) mysql_real_query(_x, _y, strlen(_y)) //supports ' in names and runs faster [Kevin]
-
-#else
-
-#define mysql_query(_x, _y) debug_mysql_query(__FILE__, __LINE__, _x, _y)
-
-#endif
-
-
 int inter_homunculus_sql_init(void){
 	//memory alloc
 	homun_pt = (struct s_homunculus*)aCalloc(sizeof(struct s_homunculus), 1);
@@ -158,7 +147,7 @@ int mapif_load_homunculus(int fd){
 
 		homun_pt->hom_id = RFIFOL(fd,6) ; //RFIFOL(fd,2);
 		homun_pt->class_ = atoi(sql_row[2]);
-		memcpy(homun_pt->name, sql_row[3],NAME_LENGTH-1);
+		strncpy(homun_pt->name, sql_row[3], NAME_LENGTH);
 		homun_pt->char_id = atoi(sql_row[1]);
 		homun_pt->level = atoi(sql_row[4]);
 		homun_pt->exp = atoi(sql_row[5]);

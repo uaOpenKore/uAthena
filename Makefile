@@ -60,11 +60,6 @@ OPT += -DPACKETVER=7
 # Makes map-wide script variables be saved to SQL instead of TXT files.
  OPT += -DMAPREGSQL
 
-# Turbo is an alternate socket access implementation which should be faster.
-# DO NOT ENABLE YET as it isn't quite ready for general usage.
-# OPT += -DTURBO
-
-
 PLATFORM = $(shell uname)
 
 CFLAGS = $(OPT) $(OS_TYPE)

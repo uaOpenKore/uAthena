@@ -1,9 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-// original code from athena
-// SQL conversion by hack
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,16 +30,6 @@ int party_check_empty(struct party_data *p);
 int mapif_parse_PartyLeave(int fd, int party_id, int account_id, int char_id);
 int party_check_exp_share(struct party_data *p);
 int mapif_party_optionchanged(int fd,struct party *p, int account_id, int flag);
-
-#ifndef SQL_DEBUG
-
-#define mysql_query(_x, _y) mysql_real_query(_x, _y, strlen(_y)) //supports ' in names and runs faster [Kevin]
-
-#else 
-
-#define mysql_query(_x, _y) debug_mysql_query(__FILE__, __LINE__, _x, _y)
-
-#endif
 
 //Updates party's level range and unsets even share if broken.
 static int int_party_check_lv(struct party_data *p) {
@@ -257,7 +244,7 @@ struct party_data *inter_party_fromsql(int party_id)
 		return NULL;
 	}
 	p->party.party_id = party_id;
-	memcpy(&p->party.name, sql_row[1], NAME_LENGTH-1);
+	strncpy(p->party.name, sql_row[1], NAME_LENGTH);
 	p->party.exp = atoi(sql_row[2])?1:0;
 	p->party.item = atoi(sql_row[3]);
 	leader_id = atoi(sql_row[4]);

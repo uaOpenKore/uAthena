@@ -863,7 +863,8 @@ int msg_config_read(const char *cfgName)
 
 	if ((--called) == 0)
 		memset(msg_table, 0, sizeof(msg_table[0]) * MAX_MSG);
-	while(fgets(line, sizeof(line)-1, fp)) {
+	while(fgets(line, sizeof(line), fp))
+	{
 		if (line[0] == '/' && line[1] == '/')
 			continue;
 		if (sscanf(line, "%[^:]: %[^\r\n]", w1, w2) == 2) {
@@ -925,7 +926,8 @@ int atcommand_config_read(const char *cfgName)
 		return 1;
 	}
 
-	while (fgets(line, sizeof(line)-1, fp)) {
+	while(fgets(line, sizeof(line), fp))
+	{
 		if (line[0] == '/' && line[1] == '/')
 			continue;
 
@@ -2037,8 +2039,7 @@ int atcommand_speed(const int fd, struct map_session_data* sd, const char* comma
 
 /*==========================================
  *
- *------------------------------------------
- */
+ *------------------------------------------*/
 int atcommand_charspeed(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	struct map_session_data *pl_sd;
@@ -2742,7 +2743,7 @@ int atcommand_help(const int fd, struct map_session_data* sd, const char* comman
 	if ((fp = fopen(help_txt, "r")) != NULL) {
 		clif_displaymessage(fd, msg_txt(26)); // Help commands:
 		gm_level = pc_isGM(sd);
-		while(fgets(buf, sizeof(buf) - 1, fp) != NULL) {
+		while(fgets(buf, sizeof(buf), fp) != NULL) {
 			if (buf[0] == '/' && buf[1] == '/')
 				continue;
 			for (i = 0; buf[i] != '\0'; i++) {
@@ -2780,7 +2781,7 @@ int atcommand_help2(const int fd, struct map_session_data* sd, const char* comma
 	if ((fp = fopen(help2_txt, "r")) != NULL) {
 		clif_displaymessage(fd, msg_txt(26)); // Help commands:
 		gm_level = pc_isGM(sd);
-		while(fgets(buf, sizeof(buf) - 1, fp) != NULL) {
+		while(fgets(buf, sizeof(buf), fp) != NULL) {
 			if (buf[0] == '/' && buf[1] == '/')
 				continue;
 			for (i = 0; buf[i] != '\0'; i++) {
@@ -3985,9 +3986,9 @@ int atcommand_param(const int fd, struct map_session_data* sd, const char* comma
  *------------------------------------------*/
 int atcommand_stat_all(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
-	int index, count, value = 0, max, new_value;
+	int index, count, value, max, new_value;
 	short* status[6];
- 	//we don't use direct initialization because it isn't part of the c standard.
+	//we don't use direct initialization because it isn't part of the c standard.
 	nullpo_retr(-1, sd);
 	
 	status[0] = &sd->status.str;
@@ -3997,11 +3998,14 @@ int atcommand_stat_all(const int fd, struct map_session_data* sd, const char* co
 	status[4] = &sd->status.dex;
 	status[5] = &sd->status.luk;
 
-	if (!message || !*message || sscanf(message, "%d", &value) < 1 || value == 0)
+	if (!message || !*message || sscanf(message, "%d", &value) < 1 || value == 0) {
 		value = pc_maxparameter(sd);
+		max = pc_maxparameter(sd);
+	} else {
+		max = SHRT_MAX;
+	}
 
 	count = 0;
-	max = pc_maxparameter(sd);
 	for (index = 0; index < (int)(sizeof(status) / sizeof(status[0])); index++) {
 
 		if (value > 0 && *status[index] > max - value)
@@ -5178,7 +5182,7 @@ int atcommand_reloadstatusdb(const int fd, struct map_session_data* sd, const ch
 	return 0;
 }
 /*==========================================
- * @reloadpcdb - reloads exp.txt skill_tree.txt attr_fix.txt
+ * @reloadpcdb - reloads exp.txt skill_tree.txt attr_fix.txt statpoint.txt
  *------------------------------------------*/
 int atcommand_reloadpcdb(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
@@ -5482,8 +5486,7 @@ int atcommand_mount_peco(const int fd, struct map_session_data* sd, const char* 
 
 /*==========================================
  *
- *------------------------------------------
- */
+ *------------------------------------------*/
 int atcommand_char_mount_peco(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	struct map_session_data *pl_sd;
@@ -6457,8 +6460,7 @@ int atcommand_localbroadcast(const int fd, struct map_session_data* sd, const ch
 
 /*==========================================
  * @chardisguise <mob_id> <character> by Kalaspuff (based off Valaris' and Yor's work)
- *------------------------------------------
- */
+ *------------------------------------------*/
 int atcommand_chardisguise(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	int mob_id;
@@ -7148,21 +7150,18 @@ int atcommand_skilltree(const int fd, struct map_session_data* sd, const char* c
 }
 
 // Hand a ring with partners name on it to this char
-void getring (struct map_session_data *sd)
+void getring (struct map_session_data* sd)
 {
-	int flag,item_id = 0;
+	int flag, item_id;
 	struct item item_tmp;
-	if(sd->status.sex==0)
-		item_id = 2635;
-	else
-		item_id = 2634;
+	item_id = (sd->status.sex) ? WEDDING_RING_M : WEDDING_RING_F;
 
-	memset(&item_tmp,0,sizeof(item_tmp));
-	item_tmp.nameid=item_id;
-	item_tmp.identify=1;
-	item_tmp.card[0]=255;
-	item_tmp.card[2]=sd->status.partner_id;
-	item_tmp.card[3]=sd->status.partner_id >> 16;
+	memset(&item_tmp, 0, sizeof(item_tmp));
+	item_tmp.nameid = item_id;
+	item_tmp.identify = 1;
+	item_tmp.card[0] = 255;
+	item_tmp.card[2] = sd->status.partner_id;
+	item_tmp.card[3] = sd->status.partner_id >> 16;
 
 	//Logs (A)dmins items [Lupus]
 	if(log_config.enable_logs&0x400)
@@ -7172,7 +7171,6 @@ void getring (struct map_session_data *sd)
 		clif_additem(sd,0,0,flag);
 		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,NULL,NULL,NULL,0);
 	}
-
 }
 
 /*==========================================
@@ -7270,8 +7268,7 @@ int atcommand_dmtick(const int fd, struct map_session_data* sd, const char* comm
 
 /*==========================================
  * @grind by [MouseJstr]
- *------------------------------------------
- */
+ *------------------------------------------*/
 int atcommand_grind(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	struct map_session_data *pl_sd = NULL;
@@ -7820,13 +7817,23 @@ int atcommand_npctalk(const int fd, struct map_session_data* sd, const char* com
 	char name[NAME_LENGTH],mes[100],temp[100];
 	struct npc_data *nd;
 
-	if (sscanf(message, "%23[^,],%99[^\n]", name, mes) < 2)
+	if (sd->sc.count && //no "chatting" while muted.
+		(sd->sc.data[SC_BERSERK].timer!=-1 ||
+		(sd->sc.data[SC_NOCHAT].timer != -1 && sd->sc.data[SC_NOCHAT].val1&MANNER_NOCHAT)))
 		return -1;
 
-	if (!(nd = npc_name2id(name)))
+	if (!message || !*message || sscanf(message, "%23[^,], %99[^\n]", name, mes) < 2) {
+		clif_displaymessage(fd, "Please, enter the correct info (usage: @npctalk <npc name>, <message>).");
 		return -1;
-	
-	snprintf(temp, sizeof temp ,"%s : %s",name,mes);
+	}
+
+	if (!(nd = npc_name2id(name))) {
+		clif_displaymessage(fd, msg_txt(111)); // This NPC doesn't exist
+		return -1;
+	}
+
+	strtok(name, "#"); // discard extra name identifier if present
+	snprintf(temp, sizeof(temp), "%s : %s", name, mes);
 	clif_message(&nd->bl, temp);
 
 	return 0;
@@ -8230,11 +8237,12 @@ int atcommand_gmotd(const int fd, struct map_session_data* sd, const char* comma
 		char buf[256];
 		FILE *fp;
 	nullpo_retr(-1, sd);
-		if(	(fp = fopen(motd_txt, "r"))!=NULL){
-			while (fgets(buf, 250, fp) != NULL){
+		if((fp = fopen(motd_txt, "r"))!=NULL){
+			while(fgets(buf, sizeof(buf), fp) != NULL)
+			{
 				int i;
-				for( i=0; buf[i]; i++){
-					if( buf[i]=='\r' || buf[i]=='\n'){
+				for(i=0; buf[i]; i++){
+					if(buf[i]=='\r' || buf[i]=='\n'){
 						buf[i]=0;
 						break;
 					}
@@ -9636,8 +9644,7 @@ int atcommand_clone(const int fd, struct map_session_data* sd, const char* comma
 /*===================================
  * Main chat [LuzZza]
  * Usage: @main <on|off|message>
- *-----------------------------------
- */
+ *-----------------------------------*/
 int atcommand_main(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	if(strlen(message) > 0) {
@@ -9670,8 +9677,12 @@ int atcommand_main(const int fd, struct map_session_data* sd, const char* comman
 			// main chat message. 0xFE000000 is invalid color, same using
 			// 0xFF000000 for simple (not colored) GM messages. [LuzZza]
 			intif_announce(atcmd_output, strlen(atcmd_output) + 1, 0xFE000000, 0);
+
+			// Chat logging type 'M' / Main Chat
+			if( log_config.chat&16 && !(agit_flag && log_config.chat&32) )
+				log_chat("M", 0, sd->status.char_id, sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y, NULL, message);
 		}
-		
+
 	} else {
 
 		if(sd->state.mainchat)

@@ -66,6 +66,7 @@ auction_02	mapflag	nobranch
 p_track01	mapflag	nobranch
 p_track02	mapflag	nobranch
 ra_in01	mapflag	nobranch
+ra_temin	mapflag	nobranch
 ra_temple	mapflag	nobranch
 ra_temsky	mapflag	nobranch
 ve_in	mapflag	nobranch
@@ -109,6 +110,7 @@ kh_vila	mapflag	nobranch
 kh_kiehl01	mapflag	nobranch
 kh_kiehl02	mapflag	nobranch
 que_rachel	mapflag	nobranch
+que_san04	mapflag	nobranch
 que_thor	mapflag	nobranch
 
 // Guild Castles ==================

@@ -156,6 +156,7 @@ ra_fild04	mapflag	nomemo
 ra_fild05	mapflag	nomemo
 ra_fild06	mapflag	nomemo
 ra_fild10	mapflag	nomemo
+ve_fild01	mapflag	nomemo
 ve_fild02	mapflag	nomemo
 ve_fild03	mapflag	nomemo
 ve_fild04	mapflag	nomemo
@@ -191,6 +192,7 @@ que_bingo	mapflag	nomemo
 que_sign01	mapflag	nomemo
 que_hugel	mapflag	nomemo
 que_rachel	mapflag	nomemo
+que_san04	mapflag	nomemo
 que_thor	mapflag	nomemo
 poring_c01	mapflag	nomemo
 poring_c02	mapflag	nomemo

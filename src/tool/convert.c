@@ -273,10 +273,11 @@ int mmo_char_convert(char *fname1,char *fname2)
     return 0;
   }
   if(ofp==NULL) {
-  	printf("file open error %s\n",fname2);
+	printf("file open error %s\n",fname2);
     return 0;
   }
-  while(fgets(line,65535,ifp)){
+  while(fgets(line, sizeof(line), ifp))
+  {
     memset(&char_dat,0,sizeof(struct mmo_charstatus));
     ret=mmo_char_fromstr(line,&char_dat);
     if(ret){
