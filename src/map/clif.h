@@ -6,15 +6,26 @@
 
 #include "map.h"
 
+// server->client protocol version
+// v7 - 2005-04-11aSakexe+ - 0x229, 0x22a, 0x22b, 0x22c
+#ifndef PACKETVER
+	#define PACKETVER	7
+#endif
+
 // packet DB
 #define MAX_PACKET_DB		0x300
-#define MAX_PACKET_VER		21
+#define MAX_PACKET_VER		22
 
-struct packet_db {
+struct packet_db_t {
 	short len;
 	void (*func)(int, struct map_session_data *);
 	short pos[20];
 };
+
+// packet_db[SERVER] is reserved for server use
+#define SERVER 0
+#define packet_len(x) packet_db[SERVER][x].len
+extern struct packet_db_t packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB + 1];
 
 // local define
 enum send_target {
@@ -44,11 +55,6 @@ enum send_target {
 	CHAT_MAINCHAT,		// everyone on main chat
 	SELF,
 };
-
-// packet_db[SERVER] is reserved for server use
-#define SERVER 0
-#define packet_len(x) packet_db[SERVER][x].len
-extern struct packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB + 1];
 
 int clif_setip(const char* ip);
 void clif_setbindip(const char* ip);
@@ -134,8 +140,8 @@ void clif_wedding_effect(struct block_list *bl);
 void clif_divorced(struct map_session_data* sd, const char* name);
 //void clif_callpartner(struct map_session_data *sd);
 void clif_adopt_process(struct map_session_data *sd);
-void clif_soundeffect(struct map_session_data *sd,struct block_list *bl,const char *name,int type);
-int clif_soundeffectall(struct block_list *bl, const char *name, int type, int coverage);
+void clif_soundeffect(struct map_session_data* sd, struct block_list* bl, const char* name, int type);
+int clif_soundeffectall(struct block_list* bl, const char *name, int type, enum send_target coverage);
 void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, int target_id, unsigned int tick);
 void clif_parse_LoadEndAck(int fd,struct map_session_data *sd);
 

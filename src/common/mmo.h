@@ -8,11 +8,6 @@
 #include "cbasetypes.h"
 #include "utils.h" // _WIN32
 
-// server protocol version
-#ifndef PACKETVER
-	#define PACKETVER			8
-#endif
-
 #define FIFOSIZE_SERVERLINK	256*1024
 
 //Remove/Comment this line to disable sc_data saving. [Skotlex]
@@ -95,8 +90,6 @@
 
 //Room for initial 100k characters
 #define DEFAULT_MAX_CHAR_ID 250000
-
-#define CHAR_CONF_NAME  "conf/char_athena.conf"
 
 //Base Homun skill.
 #define HM_SKILLBASE 8000

@@ -973,7 +973,7 @@ int mob_unlocktarget(struct mob_data *md,int tick)
 	default:
 		mob_stop_attack(md);
 		if (battle_config.mob_ai&0x8)
-			mob_stop_walking(md,1); //Inmediately stop chasing.
+			mob_stop_walking(md,1); //Immediately stop chasing.
 		md->state.skillstate = MSS_IDLE;
 		md->next_walktime=tick+rand()%3000+3000;
 		break;
@@ -1759,9 +1759,11 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		if (!battle_config.exp_calc_type && md->tdmg)
 			//jAthena's exp formula based on total damage.
 			per = (double)md->dmglog[i].dmg/(double)md->tdmg;
-		else
+		else {
 			//eAthena's exp formula based on max hp.
 			per = (double)md->dmglog[i].dmg/(double)status->max_hp;
+			if (per > 2) per = 2; // prevents unlimited exp gain
+		}
 
 		if (count>1 && battle_config.exp_bonus_attacker) {
 			//Exp bonus per additional attacker.
@@ -2020,7 +2022,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				exp += exp*(battle_config.exp_bonus_attacker*(count-1))/100.; //[Gengar]
 		}
 
-		mexp = (exp > UINT_MAX)?UINT_MAX:(exp<1?1:(unsigned int)exp);
+		mexp = (unsigned int)cap_value(exp, 1, UINT_MAX);
 
 		clif_mvp_effect(mvp_sd);
 		clif_mvp_exp(mvp_sd,mexp);

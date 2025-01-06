@@ -3707,7 +3707,6 @@ BUILDIN_FUNC(charcommand); // [MouseJstr]
 BUILDIN_FUNC(movenpc); // [MouseJstr]
 BUILDIN_FUNC(message); // [MouseJstr]
 BUILDIN_FUNC(npctalk); // [Valaris]
-BUILDIN_FUNC(hasitems); // [Valaris]
 BUILDIN_FUNC(getlook);	//Lorky [Lupus]
 BUILDIN_FUNC(getsavepoint);	//Lorky [Lupus]
 BUILDIN_FUNC(npcspeed); // [Valaris]
@@ -4033,7 +4032,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(movenpc,"sii"), // [MouseJstr]
 	BUILDIN_DEF(message,"s*"), // [MouseJstr]
 	BUILDIN_DEF(npctalk,"*"), // [Valaris]
-	BUILDIN_DEF(hasitems,"*"), // [Valaris]
 	BUILDIN_DEF(mobcount,"ss"),
 	BUILDIN_DEF(getlook,"i"),
 	BUILDIN_DEF(getsavepoint,"i"),
@@ -10341,73 +10339,74 @@ BUILDIN_FUNC(misceffect)
  *------------------------------------------*/
 BUILDIN_FUNC(soundeffect)
 {
+	TBL_PC* sd = script_rid2sd(st);
+	const char* name = script_getstr(st,2);
+	int type = script_getnum(st,3);
 
-	// Redundn
-	TBL_PC *sd=script_rid2sd(st);
-	const char *name;
-	int type=0;
-
-
-	name=script_getstr(st,2);
-	type=script_getnum(st,3);
-	if(sd){
+	if(sd)
+	{
 		if(!st->rid)
 			clif_soundeffect(sd,map_id2bl(st->oid),name,type);
-		else{
+		else
 			clif_soundeffect(sd,&sd->bl,name,type);
-		}
 	}
 	return 0;
 }
 
 int soundeffect_sub(struct block_list* bl,va_list ap)
 {
-	char *name;
-	int type;
-
-	nullpo_retr(0, bl);
-	nullpo_retr(0, ap);
-
-	name = va_arg(ap,char *);
-	type = va_arg(ap,int);
+	char* name = va_arg(ap,char*);
+	int type = va_arg(ap,int);
 
 	clif_soundeffect((TBL_PC *)bl, bl, name, type);
 
     return 0;
 }
 
+/*==========================================
+ * Play a sound effect (.wav) on multiple clients
+ * soundeffectall "<filepath>",<type>{,"<map name>"}{,<x0>,<y0>,<x1>,<y1>};
+ *------------------------------------------*/
 BUILDIN_FUNC(soundeffectall)
 {
-	// [Lance] - Improved.
-	const char *name, *map = NULL;
-	struct block_list *bl;
-	int type, coverage, x0, y0, x1, y1;
+	struct block_list* bl;
+	const char* name;
+	int type;
 
-	name=script_getstr(st,2);
-	type=script_getnum(st,3);
-	coverage=script_getnum(st,4);
+	bl = (st->rid) ? &(script_rid2sd(st)->bl) : map_id2bl(st->oid);
+	if (!bl)
+		return 0;
 
-	if(!st->rid)
-		bl = map_id2bl(st->oid);
-	else
-		bl = &(script_rid2sd(st)->bl);
+	name = script_getstr(st,2);
+	type = script_getnum(st,3);
 
-	if(bl){
-		if(coverage < 23){
-			clif_soundeffectall(bl,name,type,coverage);
-		}else {
-			if(script_hasdata(st,9)){
-				map= script_getstr(st,5);
-				x0 = script_getnum(st,6);
-				y0 = script_getnum(st,7);
-				x1 = script_getnum(st,8);
-				y1 = script_getnum(st,9);
-				map_foreachinarea(soundeffect_sub,map_mapname2mapid(map),x0,y0,x1,y1,BL_PC,name,type);
-			} else {
-				ShowError("buildin_soundeffectall: insufficient arguments for specific area broadcast.\n");
-			}
-		}
+	//FIXME: enumerating map squares (map_foreach) is slower than enumerating the list of online players (map_foreachpc?)
+
+	if(!script_hasdata(st,4))
+	{	// area around
+		clif_soundeffectall(bl, name, type, AREA);
 	}
+	else
+	if(!script_hasdata(st,5))
+	{	// entire map
+		const char* map = script_getstr(st,4);
+		map_foreachinmap(soundeffect_sub, map_mapname2mapid(map), BL_PC, name, type);
+	}
+	else
+	if(script_hasdata(st,9))
+	{	// specified part of map
+		const char* map = script_getstr(st,5);
+		int x0 = script_getnum(st,6);
+		int y0 = script_getnum(st,7);
+		int x1 = script_getnum(st,8);
+		int y1 = script_getnum(st,9);
+		map_foreachinarea(soundeffect_sub, map_mapname2mapid(map), x0, y0, x1, y1, BL_PC, name, type);
+	}
+	else
+	{
+		ShowError("buildin_soundeffectall: insufficient arguments for specific area broadcast.\n");
+	}
+
 	return 0;
 }
 /*==========================================
@@ -10968,29 +10967,6 @@ BUILDIN_FUNC(npctalk)
 	return 0;
 }
 
-/*==========================================
- * hasitems (checks to see if player has any
- * items on them, if so will return a 1)
- * [Valaris]
- *------------------------------------------*/
-BUILDIN_FUNC(hasitems)
-{
-	int i;
-	TBL_PC *sd;
-
-	sd=script_rid2sd(st);
-
-	for(i=0; i<MAX_INVENTORY; i++) {
-		if(sd->status.inventory[i].amount && sd->status.inventory[i].nameid!=2364 && sd->status.inventory[i].nameid!=2365) {
-			script_pushint(st,1);
-			return 0;
-		}
-	}
-
-	script_pushint(st,0);
-
-	return 0;
-}
 // change npc walkspeed [Valaris]
 BUILDIN_FUNC(npcspeed)
 {
