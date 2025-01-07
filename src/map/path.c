@@ -1,10 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "../common/cbasetypes.h"
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
@@ -15,6 +11,11 @@
 #ifdef MEMWATCH
 #include "memwatch.h"
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 //#define PATH_STANDALONETEST
 
@@ -380,7 +381,7 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 	xs = md->xs-1; // PZ
 	ys = md->ys-1;
 	while(1){
-		int e=0,f=0,dist,cost,dc[4];
+		int e=0,f=0,dist,cost,dc[4]={0,0,0,0};
 
 		if(heap[0]==0)
 			return -1;

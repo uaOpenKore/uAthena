@@ -19,7 +19,7 @@
 // 08 MaxLv
 // 09 Number of hits (when positive, damage is increased by hits,
 //    negative values just show number of hits without increasing total damage)
-// 10 castcancelled (it is cancelled at 1. Are not cancelled with 0)
+// 10 Cast interrupted when hit?
 // 11 defense-reduction rate during cast.
 // 12 inf2 (skill information 2):
 //    0x0001- quest skill
@@ -209,16 +209,16 @@
 168,0,0,4,7,0x1,0,1,1,no,0,0x2,0,magic,0	//NPC_CHANGEDARKNESS#Shadow Attribute Change#
 169,0,0,4,8,0x1,0,1,1,no,0,0x2,0,magic,0	//NPC_CHANGETELEKINESIS#Sense Attribute Change#
 170,-9,6,1,-1,0x20,0,10,1,no,0,0x2,0,weapon,0	//NPC_CRITICALSLASH#Defense disregard attack#
-171,-9,8,1,-1,0,0,10,2:3:4:5:6:7:8:9:10:11,no,0,0x2,0,weapon,0	//NPC_COMBOATTACK#Multi-stage Attack#
+171,-9,8,1,-1,0,0,10,-2:-3:-4:-5:-6:-7:-8:-9:-10:-11,no,0,0x2,0,weapon,0	//NPC_COMBOATTACK#Multi-stage Attack#
 172,-9,6,1,-1,0x40,0,10,1,no,0,0x2,0,weapon,0	//NPC_GUIDEDATTACK#On-target Impact Attack#
 173,5,6,4,3,0xD2,5,10,1,no,0,0x2,0,misc,3	//NPC_SELFDESTRUCTION#Suicide bombing#
 174,-9,6,1,-1,0x2,3,1,1,no,0,0x2,0,weapon,0	//NPC_SPLASHATTACK#Splash attack#
 175,0,0,4,0,0x41,0,10,1,no,0,0x2,0,misc,0	//NPC_SUICIDE#Suicide#
 176,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_POISON#Poison Attack#
 177,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_BLINDATTACK#Darkness Attack#
-178,-9,6,1,-1,0,0:0:0:0:0:-1,5,1,no,0,0x2,0,weapon,0	//NPC_SILENCEATTACK#Silence Attack#
+178,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_SILENCEATTACK#Silence Attack#
 179,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_STUNATTACK#Stun Attack#
-180,-9,6,1,-1,0,0:0:0:0:0:-1,5,1,no,0,0x2,0,weapon,0	//NPC_PETRIFYATTACK#Petrify Attack#
+180,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_PETRIFYATTACK#Petrify Attack#
 181,-9,6,1,7,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_CURSEATTACK#Cursing Attack #
 182,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_SLEEPATTACK#Sleep attack#
 183,-9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0	//NPC_RANDOMATTACK#Random Attack #
@@ -376,7 +376,7 @@
 335,9,6,4,0,0x1,0,1,1,yes,0,0x4,0,none,0	//WE_FEMALE#I Look up to You#
 336,9,6,4,0,0x1,3,1,1,yes,0,0x4,1,none,0	//WE_CALLPARTNER#I miss You#
 337,9,6,1,-1,0,0,1,1,no,0,0x2,0,weapon,0	//ITM_TOMAHAWK#Throw Tomahawk#
-338,-1,8,1,7,0,0,0,-2,no,0,0x2,0,weapon,0	//NPC_DARKCROSS#Cross of Darkness#
+338,-1,8,1,7,0,0,10,-2,no,0,0x2,0,weapon,0	//NPC_DARKCROSS#Cross of Darkness#
 339,5,6,4,7,0x48,0,10,1,no,33,0x102,0,magic,0		//NPC_GRANDDARKNESS#Grand cross of Darkness#
 340,9,8,1,7,0,0,10,1:1:2:2:3:3:4:4:5:5,yes,0,0x2,0,magic,0	//NPC_DARKSTRIKE#Soul Strike of Darkness#
 341,9,8,1,7,0,0,10,3:4:5:6:7:8:9:10:11:12,yes,0,0x2,0,magic,2:3:3:4:4:5:5:6:6:7	//NPC_DARKTHUNDER#Darkness Jupiter#
@@ -389,9 +389,9 @@
 348,9,0,1,9,0x1,0,5,1,no,0,0x2,0,magic,0	//NPC_CHANGEUNDEAD
 349,0,6,4,0,0x1,0,10,0,no,0,0x2,0,weapon,0	//NPC_POWERUP
 350,0,6,4,0,0x1,0,10,0,no,0,0x2,0,none,0	//NPC_AGIUP
-351,0,0,0,0,0x1,0,0,0,no,0,0x2,0,none,0	//NPC_SIEGEMODE
+351,0,0,0,0,0x1,0,1,0,no,0,0x2,0,none,0	//NPC_SIEGEMODE
 352,2,0,4,0,0x1,0,1,0,no,0,0x2,0,none,0	//NPC_CALLSLAVE
-353,0,0,0,0,0x1,0,0,0,no,0,0x2,0,none,0	//NPC_INVISIBLE
+353,0,0,0,0,0x1,0,1,0,no,0,0x2,0,none,0	//NPC_INVISIBLE
 354,2,6,4,0,0x1,0,20,0,no,0,0x2,0,misc,0	//NPC_RUN
 355,0,6,4,0,0x1,0,5,1,no,0,0,0,weapon,0	//LK_AURABLADE#Aura Blade#
 356,0,6,4,0,0x1,0,10,1,no,0,0,0,weapon,0	//LK_PARRYING#Parrying#
@@ -420,7 +420,7 @@
 379,9,6,1,-1,0x8,0,10,1,yes,0,0,0,weapon,0	//ASC_BREAKER#Soul Destroyer#
 380,0,6,4,0,0x1,0,10,1,no,0,0,0,weapon,0	//SN_SIGHT#Falcon Eyes#
 381,5,8,1,0,0x40,0,5,1,yes,0,0,0,misc,0	//SN_FALCONASSAULT#Falcon Assault#
-382,4,8,1,-1,0,2,5,1,yes,0,0,0,weapon,0	//SN_SHARPSHOOTING#Focused Arrow Strike#
+382,4,8,1,-1,0,3,5,1,yes,0,0,0,weapon,0	//SN_SHARPSHOOTING#Focused Arrow Strike#
 383,0,6,4,0,0x3,-1,10,1,yes,0,0,0,weapon,0	//SN_WINDWALK#Wind Walker#
 384,0,0,4,0,0x1,0,10,1,yes,0,0,0,weapon,0	//WS_MELTDOWN#Shattering Strike#
 //385,0,0,4,0,0x1,0,1,1,yes,0,0,0,none,0	//WS_CREATECOIN#Create Coins#
@@ -580,9 +580,36 @@
 539,0,6,4,1,0x2,3,5,1,yes,0,0,0,magic,0	//NJ_HYOUSYOURAKU#NJ_HYOUSYOURAKU#
 540,9,8,1,4,0,0,10,1:2:2:3:3:4:4:5:5:6,yes,0,0,0,magic,0	//NJ_HUUJIN#NJ_HUUJIN#
 541,9,6,4,4,0x2,2:2:3:3:4,5,1,yes,0,0,0,magic,0	//NJ_RAIGEKISAI#NJ_RAIGEKISAI#
-542,5:6:7:8:9,8,1,4,0,1,5,1,yes,0,0,0,magic,0	//NJ_KAMAITACHI#NJ_KAMAITACHI#
+542,5:6:7:8:9,8,1,4,0,3,5,1,yes,0,0,0,magic,0	//NJ_KAMAITACHI#NJ_KAMAITACHI#
 543,0,6,4,0,0x1,0,5,1,yes,0,0,0,none,0	//NJ_NEN#NJ_NEN#
 544,-5,6,1,0,0x40,0,10,1,no,0,0,0,weapon,0	//NJ_ISSEN#NJ_ISSEN#
+
+653,0,8,4,0,0x6,5:7:9:11:13:5:7:9:11:13,10,3,no,0,0x2,0,magic,0	//NPC_EARTHQUAKE
+654,9,6,1,3,0,5,10,1,no,0,0x2,14,weapon,0	//NPC_FIREBREATH
+655,9,6,1,1,0,5,10,1,no,0,0x2,14,weapon,0	//NPC_ICEBREATH
+656,9,6,1,4,0,5,10,1,no,0,0x2,14,weapon,0	//NPC_THUNDERBREATH
+657,9,6,1,5,0,5,10,1,no,0,0x2,14,weapon,0	//NPC_ACIDBREATH
+658,9,6,1,7,0,5,10,1,no,0,0x2,14,weapon,0	//NPC_DARKNESSBREATH
+659,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_DRAGONFEAR
+660,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_BLEEDING
+661,0,6,4,0,0x2,7,5,1,no,0,0x2,0,weapon,7	//NPC_PULSESTRIKE
+662,0,6,4,0,0x2,14,10,1,no,0,0x2,0,weapon,0	//NPC_HELLJUDGEMENT
+663,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_WIDESILENCE
+664,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_WIDEFREEZE
+665,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_WIDEBLEEDING
+666,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_WIDESTONE
+667,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_WIDECONFUSE
+668,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_WIDESLEEP
+669,0,6,4,3,0x3,5,1,1,no,0,0x2,0,magic,0	//NPC_WIDESIGHT
+670,9,6,2,7,0x21,0,10,1,no,0,0x2,0,magic,0	//NPC_EVILLAND
+671,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0	//NPC_MAGICMIRROR
+672,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_SLOWCAST
+673,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0	//NPC_CRITICALWOUND
+674,-9,6,1,-1,0x1,0,1,1,no,0,0x2,0,none,0	//NPC_EXPULSION
+675,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0	//NPC_STONESKIN
+676,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0	//NPC_ANTIMAGIC
+677,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_WIDECURSE
+678,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0	//NPC_WIDESTUN
 
 1001,9,6,1,-1,0,0,1,1,no,0,0x1,0,weapon,0	//KN_CHARGEATK#Charge Attack#
 1002,0,6,4,0,0x1,0,1,0,no,0,0x1,0,weapon,2	//CR_SHRINK#Shrink#

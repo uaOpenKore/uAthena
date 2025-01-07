@@ -1,16 +1,14 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "../common/cbasetypes.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
+#include "../common/mapindex.h"
 #include "../common/showmsg.h"
 #include "../common/ers.h"
+#include "../common/strlib.h"
 
 #include "map.h"
 #include "guild.h"
@@ -24,6 +22,11 @@
 #include "clif.h"
 #include "skill.h"
 #include "log.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 static DB guild_db;
 static DB castle_db;
@@ -183,9 +186,9 @@ static int guild_read_castledb(void)
 
 		gc=(struct guild_castle *)aCalloc(1,sizeof(struct guild_castle));
 		gc->castle_id=atoi(str[0]);
-		memcpy(gc->map_name,str[1],MAP_NAME_LENGTH);
-		memcpy(gc->castle_name,str[2],NAME_LENGTH);
-		memcpy(gc->castle_event,str[3],NAME_LENGTH);
+		mapindex_getmapname(str[1],gc->map_name);
+		safestrncpy(gc->castle_name,str[2],NAME_LENGTH);
+		safestrncpy(gc->castle_event,str[3],NAME_LENGTH);
 
 		idb_put(castle_db,gc->castle_id,gc);
 
@@ -249,12 +252,13 @@ struct guild_castle *guild_castle_search(int gcid)
 }
 
 // mapnameAWggc
-struct guild_castle *guild_mapname2gc(const char *mapname)
+struct guild_castle* guild_mapname2gc(const char* mapname)
 {
 	int i;
-	struct guild_castle *gc=NULL;
-	for(i=0;i<MAX_GUILDCASTLE;i++){
-		gc=guild_castle_search(i);
+	for(i = 0; i < MAX_GUILDCASTLE; i++)
+	{
+		struct guild_castle* gc;
+		gc = guild_castle_search(i);
 		if(!gc) continue;
 		if(strcmp(gc->map_name,mapname)==0) return gc;
 	}

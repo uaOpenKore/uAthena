@@ -1,11 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
 #include "../common/cbasetypes.h"
 #include "../common/socket.h"
 #include "../common/timer.h"
@@ -26,6 +21,11 @@
 #include "battle.h"
 #include "charcommand.h"
 #include "atcommand.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 char charcommand_symbol = '#';
 
@@ -596,7 +596,7 @@ int charcommand_option(const int fd, struct map_session_data* sd, const char* co
  *------------------------------------------*/
 int charcommand_save(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
-	char map_name[MAP_NAME_LENGTH];
+	char map_name[MAP_NAME_LENGTH_EXT];
 	char character[NAME_LENGTH];
 	struct map_session_data* pl_sd;
 	int x = 0, y = 0;
@@ -610,7 +610,7 @@ int charcommand_save(const int fd, struct map_session_data* sd, const char* comm
 		return -1;
 	}
 
-	if (strstr(map_name, ".gat") == NULL && strstr(map_name, ".afm") == NULL && strlen(map_name) < MAP_NAME_LENGTH-4) // 16 - 4 (.gat)
+	if (strstr(map_name, ".gat") == NULL && strlen(map_name) < MAP_NAME_LENGTH_EXT-4) // 16 - 4 (.gat)
 		strcat(map_name, ".gat");
 
 	if ((pl_sd = map_nick2sd(character)) != NULL) {
@@ -1099,7 +1099,7 @@ int charcommand_item(const int fd, struct map_session_data* sd, const char* comm
  *------------------------------------------*/
 int charcommand_warp(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
-	char map_name[MAP_NAME_LENGTH];
+	char map_name[MAP_NAME_LENGTH_EXT];
 	char character[NAME_LENGTH];
 	int x = 0, y = 0;
 	struct map_session_data *pl_sd;
@@ -1115,7 +1115,7 @@ int charcommand_warp(const int fd, struct map_session_data* sd, const char* comm
 		return -1;
 	}
 
-	if (strstr(map_name, ".gat") == NULL && strstr(map_name, ".afm") == NULL && strlen(map_name) < MAP_NAME_LENGTH-4) // 16 - 4 (.gat)
+	if (strstr(map_name, ".gat") == NULL && strlen(map_name) < MAP_NAME_LENGTH_EXT-4) // 16 - 4 (.gat)
 		strcat(map_name, ".gat");
 
 	if ((pl_sd = map_nick2sd(character)) == NULL) {
@@ -1253,7 +1253,7 @@ int charcommand_baselevel(const int fd, struct map_session_data* sd, const char*
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message || sscanf(message, "%d %23[^\n]", &level, player) < 2 || level == 0) {
-		clif_displaymessage(fd, "Please, enter a level adjustement and a player name (usage: #baselvl <#> <nickname>).");
+		clif_displaymessage(fd, "Please, enter a level adjustment and a player name (usage: #baselvl <#> <nickname>).");
 		return -1;
 	}
 
@@ -1329,7 +1329,7 @@ int charcommand_joblevel(const int fd, struct map_session_data* sd, const char* 
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message || sscanf(message, "%d %23[^\n]", &level, player) < 2 || level == 0) {
-		clif_displaymessage(fd, "Please, enter a level adjustement and a player name (usage: #joblvl <#> <nickname>).");
+		clif_displaymessage(fd, "Please, enter a level adjustment and a player name (usage: #joblvl <#> <nickname>).");
 		return -1;
 	}
 

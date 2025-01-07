@@ -1,10 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "../common/showmsg.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
@@ -28,6 +24,12 @@
 #include "party.h"
 #include "intif.h"
 #include "chrif.h"
+#include "script.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 const int dirx[8]={0,-1,-1,-1,0,1,1,1};
 const int diry[8]={1,1,0,-1,-1,-1,0,1};
@@ -85,7 +87,7 @@ int unit_walktoxy_sub(struct block_list *bl)
 		((TBL_PC *)bl)->head_dir = 0;
 		clif_walkok((TBL_PC*)bl);
 	}
-	clif_move(bl);
+	clif_move(ud);
 
 	if(ud->walkpath.path_pos>=ud->walkpath.path_len)
 		i = -1;
@@ -204,7 +206,7 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 				return 0;
 			}
 			//Resend walk packet for proper Self Destruction display.
-			clif_move(bl);
+			clif_move(ud);
 		}
 	}
 
@@ -426,7 +428,7 @@ int unit_run(struct block_list *bl)
 		//If you can't run forward, you must be next to a wall, so bounce back. [Skotlex]
 		clif_status_change(bl, SI_BUMP, 1);
 		status_change_end(bl,SC_RUN,-1);
-		skill_blown(bl,bl,skill_get_blewcount(TK_RUN,sc->data[SC_RUN].val1)|0x10000);
+		skill_blown(bl,bl,skill_get_blewcount(TK_RUN,sc->data[SC_RUN].val1),unit_getdir(bl),0);
 		clif_fixpos(bl); //Why is a clif_slide (skill_blown) AND a fixpos needed? Ask Aegis.
 		clif_status_change(bl, SI_BUMP, 0);
 		return 0;
@@ -442,7 +444,7 @@ int unit_run(struct block_list *bl)
 		// copy-paste from above
 		clif_status_change(bl, SI_BUMP, 1);
 		status_change_end(bl,SC_RUN,-1);
-		skill_blown(bl,bl,skill_get_blewcount(TK_RUN,sc->data[SC_RUN].val1)|0x10000);
+		skill_blown(bl,bl,skill_get_blewcount(TK_RUN,sc->data[SC_RUN].val1),unit_getdir(bl),0);
 		clif_fixpos(bl);
 		clif_status_change(bl, SI_BUMP, 0);
 		return 0;
@@ -702,7 +704,7 @@ int unit_can_move(struct block_list *bl)
 		return 0;
 
 	if (ud->skilltimer != -1 && (!sd || !pc_checkskill(sd, SA_FREECAST) || skill_get_inf2(ud->skillid)&INF2_GUILD_SKILL))
-		return 0;
+		return 0; // prevent moving while casting
 
 	if (DIFF_TICK(ud->canmove_tick, gettick()) > 0)
 		return 0;
@@ -1357,21 +1359,17 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 	ud->attacktimer=-1;
 	target=map_id2bl(ud->target);
 
-	if(src->prev == NULL || target==NULL || target->prev == NULL)
+	if(src == NULL || src->prev == NULL || target==NULL || target->prev == NULL)
 		return 0;
 
-	if(ud->skilltimer != -1 && (!sd || pc_checkskill(sd,SA_FREECAST) <= 0))
-		return 0;
-	
 	if(src->m != target->m || status_isdead(src) || status_isdead(target) || !status_check_skilluse(src, target, 0, 0))
-		return 0;
+		return 0; // can't attack under these conditions
 
-	sstatus = status_get_status_data(src);
+	if(ud->skilltimer != -1 && !(sd && pc_checkskill(sd,SA_FREECAST) > 0))
+		return 0; // can't attack while casting
 
-	if(!battle_config.sdelay_attack_enable &&
-		DIFF_TICK(ud->canact_tick,tick) > 0 && 
-		(!sd || pc_checkskill(sd,SA_FREECAST) <= 0)
-	) {
+	if(!battle_config.sdelay_attack_enable && DIFF_TICK(ud->canact_tick,tick) > 0 && !(sd && pc_checkskill(sd,SA_FREECAST) > 0))
+	{	// attacking when under cast delay has restrictions:
 		if (tid == -1) { //requested attack.
 			if(sd) clif_skill_fail(sd,1,4,0);
 			return 0;
@@ -1385,8 +1383,9 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 		return 1;
 	}
 
+	sstatus = status_get_status_data(src);
 	range = sstatus->rhw.range;
-	
+
 	if(!sd || sd->status.weapon != W_BOW) range++; //Dunno why everyone but bows gets this extra range...
 	if(unit_is_walking(target)) range++; //Extra range when chasing
 
@@ -1411,9 +1410,9 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 	//Non-players use the sync packet on the walk timer. [Skotlex]
 	if (tid == -1 && sd) clif_fixpos(src);
 
-	if(DIFF_TICK(ud->attackabletime,tick) <= 0) {
-		if (battle_config.attack_direction_change &&
-			(src->type&battle_config.attack_direction_change)) {
+	if(DIFF_TICK(ud->attackabletime,tick) <= 0)
+	{
+		if (battle_config.attack_direction_change && (src->type&battle_config.attack_direction_change)) {
 			ud->dir = map_calc_dir(src, target->x,target->y );
 		}
 		if(ud->walktimer != -1)
@@ -1424,8 +1423,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 			if (sstatus->mode&MD_ASSIST && DIFF_TICK(md->last_linktime, tick) < MIN_MOBLINKTIME)
 			{	// Link monsters nearby [Skotlex]
 				md->last_linktime = tick;
-				map_foreachinrange(mob_linksearch, src, md->db->range2,
-					BL_MOB, md->class_, target, tick);
+				map_foreachinrange(mob_linksearch, src, md->db->range2, BL_MOB, md->class_, target, tick);
 			}
 		}
 		if(src->type == BL_PET && pet_attackskill((TBL_PET*)src, target->id))
@@ -1687,7 +1685,7 @@ int unit_remove_map(struct block_list *bl, int clrtype)
 		if(sd->guild_alliance>0)
 			guild_reply_reqalliance(sd,sd->guild_alliance_account,0);
 		if(sd->menuskill_id)
-			sd->menuskill_id = sd->menuskill_lv = 0;
+			sd->menuskill_id = sd->menuskill_val = 0;
 
 		pc_delinvincibletimer(sd);
 
@@ -1798,8 +1796,7 @@ int unit_free(struct block_list *bl, int clrtype)
 		}
 		if (sd->followtimer != -1)
 			pc_stop_following(sd);
-		// Force exiting from duel and rejecting
-	// all duel invitations when player quit [LuzZza]
+		// Force exiting from duel and rejecting all duel invitations when player quit [LuzZza]
 		if(sd->duel_group > 0)
 			duel_leave(sd->duel_group, sd);
 

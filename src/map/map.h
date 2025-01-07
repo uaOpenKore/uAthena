@@ -35,7 +35,6 @@
 #define MAX_NPC_PER_MAP 512
 #define BLOCK_SIZE 8
 #define AREA_SIZE battle_config.area_size
-#define LIFETIME_FLOORITEM 60
 #define DAMAGELOG_SIZE 30
 #define LOOTITEM_SIZE 10
 //Quick defines to know which are the min-max common ailments. [Skotlex]
@@ -57,7 +56,7 @@
 #define MAX_LEVEL 99
 #define MAX_WALKPATH 32
 #define MAX_DROP_PER_MAP 48
-#define MAX_IGNORE_LIST 80
+#define MAX_IGNORE_LIST 20 // official is 14
 #define MAX_VENDING 12
 #define MOBID_EMPERIUM 1288
 
@@ -169,7 +168,10 @@ enum {
 //String length you can write in the 'talking box'
 #define CHATBOX_SIZE 70
 //Talk max size: <name> : <message of 70> [Skotlex]
-#define CHAT_SIZE	(NAME_LENGTH + 3 + CHATBOX_SIZE)
+#define CHAT_SIZE (NAME_LENGTH + 3 + CHATBOX_SIZE)
+//Chatroom-related string sizes
+#define CHATROOM_TITLE_SIZE (36 + 1)
+#define CHATROOM_PASS_SIZE (8 + 1)
 
 #define DEFAULT_AUTOSAVE_INTERVAL 5*60*1000
 
@@ -188,7 +190,7 @@ enum bl_type {
 	BL_PC = 0x001,
 	BL_MOB = 0x002,
 	BL_PET = 0x004,
-	BL_HOM = 0x008,	//[blackhole89]
+	BL_HOM = 0x008,
 	BL_ITEM = 0x010,
 	BL_SKILL = 0x020,
 	BL_NPC = 0x040,
@@ -334,6 +336,7 @@ struct unit_data {
 		unsigned attack_continue : 1 ;
 		unsigned walk_easy : 1 ;
 		unsigned running : 1;
+		unsigned speed_changed : 1;
 	} state;
 };
 
@@ -622,7 +625,7 @@ struct map_session_data {
 	short skillid_dance,skilllv_dance;
 	char blockskill[MAX_SKILL];	// [celest]
 	int cloneskill_id;
-	int menuskill_id, menuskill_lv;
+	int menuskill_id, menuskill_val;
 
 	int invincible_timer;
 	unsigned int canlog_tick;
@@ -664,9 +667,9 @@ struct map_session_data {
 		short id, rate, arrow_rate;
 		unsigned char flag;
 	} addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
-	struct { //skillatk raises bonus dmg% of skills, skillblown increases bonus blewcount for some skills.
+	struct { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		short id, val;
-	} skillatk[MAX_PC_BONUS], skillblown[MAX_PC_BONUS];
+	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS];
 	struct {
 		short class_, rate;
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS],
@@ -838,7 +841,7 @@ struct npc_data {
 	int eventtimer[MAX_EVENTTIMER];
 	short arenaflag;
 
-	void *chatdb;
+	void* chatdb; // pointer to a npc_parse struct (see npc_chat.c)
 	struct npc_data *master_nd;
 
 	union {
@@ -972,7 +975,6 @@ struct pet_data {
 	struct pet_db *petDB;
 	int pet_hungry_timer;
 	int target_id;
-	short n;
 	struct {
 		unsigned skillbonus : 1;
 	} state;
@@ -1031,23 +1033,21 @@ enum {
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// If this is NULL the map is not on this map-server
+	unsigned char *gat; // If this is NULL, the map is not on this map-server
 	unsigned char *cell; //Contains temporary cell data that is set/unset on tiles.
 #ifdef CELL_NOSTACK
 	unsigned char *cell_bl; //Holds amount of bls in any given cell.
 #endif
-	char *alias; // [MouseJstr]
 	struct block_list **block;
 	struct block_list **block_mob;
 	int *block_count,*block_mob_count;
 	int m;
 	short xs,ys;
 	short bxs,bys;
-	int water_height;
+	int water_height; // water level value, needed because of mapcache saving
 	int npc_num;
 	int users;
 	struct map_flag {
-		unsigned alias : 1;
 		unsigned nomemo : 1;
 		unsigned noteleport : 1;
 		unsigned noreturn : 1;
@@ -1103,16 +1103,18 @@ struct map_data {
 
 	struct spawn_data *moblist[MAX_MOB_LIST_PER_MAP]; // [Wizputer]
 	int mob_delete_timer;	// [Skotlex]
-	int zone;	// [Komurka]
+	int zone;	// zone number (for item/skill restrictions)
 	int jexp;	// map experience multiplicator
 	int bexp;	// map experience multiplicator
 	int nocommand; //Blocks @/# commands for non-gms. [Skotlex]
 };
 
+/// Stores information about a remote map (for multi-mapserver setups).
+/// Beginning of data structure matches 'map_data', to allow typecasting.
 struct map_data_other_server {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat;	// NULLf
+	unsigned char *gat; // If this is NULL, the map is not on this map-server
 	uint32 ip;
 	uint16 port;
 };
@@ -1124,6 +1126,19 @@ struct flooritem_data {
 	int first_get_id,second_get_id,third_get_id;
 	unsigned int first_get_tick,second_get_tick,third_get_tick;
 	struct item item_data;
+};
+
+struct chat_data {
+	struct block_list bl;            // data for this map object
+	char title[CHATROOM_TITLE_SIZE]; // room title
+	char pass[CHATROOM_PASS_SIZE];   // password
+	bool pub;                        // private/public flag
+	unsigned char users;             // current users
+	unsigned char limit;             // join limit
+	unsigned char trigger;           // number of users needed to trigger event
+	struct map_session_data* usersd[20];
+	struct block_list* owner;
+	char npc_event[50];
 };
 
 enum _sp {
@@ -1147,7 +1162,7 @@ enum _sp {
 	SP_ADDEFF, SP_RESEFF,	// 1012-1013
 	SP_BASE_ATK,SP_ASPD_RATE,SP_HP_RECOV_RATE,SP_SP_RECOV_RATE,SP_SPEED_RATE, // 1014-1018
 	SP_CRITICAL_DEF,SP_NEAR_ATK_DEF,SP_LONG_ATK_DEF, // 1019-1021
-	SP_DOUBLE_RATE, SP_DOUBLE_ADD_RATE, SP_FREE2, SP_MATK_RATE, // 1022-1025
+	SP_DOUBLE_RATE, SP_DOUBLE_ADD_RATE, SP_SKILL_HEAL, SP_MATK_RATE, // 1022-1025
 	SP_IGNORE_DEF_ELE,SP_IGNORE_DEF_RACE, // 1026-1027
 	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_FREE3, // 1028-1030
 	SP_MAGIC_ATK_DEF,SP_MISC_ATK_DEF, // 1031-1032
@@ -1179,7 +1194,6 @@ enum _sp {
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
 	//Before adding another, note that these are free:
-	//1024 (SP_FREE2, previous matk)
 	//1030 (SP_FREE3, previous AspdAddRate)
 	//2022 (SP_FREE, previous bDefIgnoreMob)
 };
@@ -1244,21 +1258,6 @@ enum {
 	CELL_CLRICEWALL,
 };
 
-struct chat_data {
-	struct block_list bl;
-
-	char pass[8+1];   /* password */
-	char title[60+1]; /* room title */
-	unsigned char limit;     /* join limit */
-	unsigned char trigger;
-	unsigned char users;     /* current users */
-	unsigned char pub;       /* room attribute */
-	struct map_session_data *usersd[20];
-	struct block_list *owner_;
-	struct block_list **owner;
-	char npc_event[50];
-};
-
 extern struct map_data map[];
 extern int map_num;
 extern int autosave_interval;
@@ -1275,7 +1274,7 @@ int map_getcellp(struct map_data*,int,int,cell_t);
 void map_setcell(int,int,int,int);
 extern int map_read_flag; // 0: grfE1: E2: E?)
 enum {
-	READ_FROM_GAT, READ_FROM_AFM,
+	READ_FROM_GAT,
 	READ_FROM_BITMAP, CREATE_BITMAP,
 	READ_FROM_BITMAP_COMPRESSED, CREATE_BITMAP_COMPRESSED
 };
@@ -1357,11 +1356,6 @@ int map_check_dir(int s_dir,int t_dir);
 int map_calc_dir( struct block_list *src,int x,int y);
 int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
 
-// Water functions...
-// 
-int map_setwaterheight(int m, char *mapname, int height);
-int map_waterheight(char *mapname);
-
 // path.c
 int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int flag,cell_t flag2);
 #define path_search(wpd,m,x0,y0,x1,y1,flag)  path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKNOPASS)
@@ -1386,7 +1380,7 @@ unsigned int distance(int dx, int dy);
 int cleanup_sub(struct block_list *bl, va_list ap);
 
 void map_helpscreen(int flag); // [Valaris]
-int map_delmap(char *mapname);
+int map_delmap(char* mapname);
 
 int map_addmobtolist(unsigned short m, struct spawn_data *spawn);	// [Wizputer]
 void map_spawnmobs(int); // [Wizputer]

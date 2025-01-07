@@ -20,41 +20,40 @@
 	#include <sys/stat.h>
 #endif
 
-#ifdef UTIL_DUMP
-void dump(const unsigned char* buffer, int num)
+// generate a hex dump of the first 'length' bytes of 'buffer'
+void dump(FILE* fp, const unsigned char* buffer, int length)
 {
-	int icnt, jcnt;
+	int i, j;
 
-	printf("         Hex                                                  ASCII\n");
-	printf("         -----------------------------------------------      ----------------");
+	fprintf(fp, "         Hex                                                  ASCII\n");
+	fprintf(fp, "         -----------------------------------------------      ----------------");
 
-	for (icnt = 0; icnt < num; icnt += 16)
+	for (i = 0; i < length; i += 16)
 	{
-		printf("\n%p ", &buffer[icnt]);
-		for (jcnt = icnt; jcnt < icnt + 16; ++jcnt)
+		fprintf(fp, "\n%p ", &buffer[i]);
+		for (j = i; j < i + 16; ++j)
 		{
-			if (jcnt < num)
-				printf("%02hX ", buffer[jcnt]);
+			if (j < length)
+				fprintf(fp, "%02hX ", buffer[j]);
 			else
-				printf("   ");
+				fprintf(fp, "   ");
 		}
 
-		printf("  |  ");
+		fprintf(fp, "  |  ");
 
-		for (jcnt = icnt; jcnt < icnt + 16; ++jcnt)
+		for (j = i; j < i + 16; ++j)
 		{
-			if (jcnt < num) {
-				if (buffer[jcnt] > 31 && buffer[jcnt] < 127)
-					printf("%c", buffer[jcnt]);
+			if (j < length) {
+				if (buffer[j] > 31 && buffer[j] < 127)
+					fprintf(fp, "%c", buffer[j]);
 				else
-					printf(".");
+					fprintf(fp, ".");
 			} else
-				printf(" ");
+				fprintf(fp, " ");
 		}
 	}
-	printf("\n");
+	fprintf(fp, "\n");
 }
-#endif
 
 // Allocate a StringBuf  [MouseJstr]
 struct StringBuf * StringBuf_Malloc()
@@ -294,30 +293,35 @@ void findfile(const char *p, const char *pat, void (func)(const char*))
 }
 #endif
 
-unsigned char GetByte(unsigned long val, size_t num)
+uint8 GetByte(uint32 val, size_t num)
 {
-	switch(num) {
-	case 0:  return (unsigned char)((val & 0x000000FF)      );
-	case 1:	 return (unsigned char)((val & 0x0000FF00)>>0x08);
-	case 2:	 return (unsigned char)((val & 0x00FF0000)>>0x10);
-	case 3:	 return (unsigned char)((val & 0xFF000000)>>0x18);
+	switch( num )
+	{
+	case 0:  return (uint8)((val & 0x000000FF)        );
+	case 1:	 return (uint8)((val & 0x0000FF00) >> 0x08);
+	case 2:	 return (uint8)((val & 0x00FF0000) >> 0x10);
+	case 3:	 return (uint8)((val & 0xFF000000) >> 0x18);
 	default: return 0;	//better throw something here
 	}
 }
-unsigned short GetWord(unsigned long val, size_t num)
+uint16 GetWord(uint32 val, size_t num)
 {
-	switch(num) {
-	case 0:  return (unsigned short)((val & 0x0000FFFF)      );
-	case 1:  return (unsigned short)((val & 0xFFFF0000)>>0x10);
+	switch( num )
+	{
+	case 0:  return (uint16)((val & 0x0000FFFF)        );
+	case 1:  return (uint16)((val & 0xFFFF0000) >> 0x10);
 	default: return 0;	//better throw something here
 	}
 }
-unsigned short MakeWord(unsigned char byte0, unsigned char byte1)
+uint16 MakeWord(uint8 byte0, uint8 byte1)
 {
-	return byte0 | (byte1<<0x08);
+	return
+		((uint16)(byte0        ))|
+		((uint16)(byte1 << 0x08));
 }
-unsigned long MakeDWord(unsigned short word0, unsigned short word1)
+uint32 MakeDWord(uint16 word0, uint16 word1)
 {
-	return 	  ((unsigned long)word0)
-			| ((unsigned long)word1<<0x10);
+	return
+		((uint32)(word0        ))|
+		((uint32)(word1 << 0x10));
 }

@@ -1,46 +1,44 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/cbasetypes.h"
+#include "../common/core.h" // get_svn_revision()
+#include "../common/malloc.h"
+#include "../common/nullpo.h"
+#include "../common/showmsg.h"
+#include "../common/socket.h" // RFIFO*()
+#include "../common/timer.h"
+
+#include "atcommand.h" // get_atcommand_level()
+#include "battle.h" // battle_config
+#include "chrif.h"
+#include "clif.h"
+#include "date.h" // is_day_of_*()
+#include "intif.h"
+#include "itemdb.h"
+#include "log.h"
+#include "map.h"
+#include "mercenary.h" // merc_is_hom_active()
+#include "mob.h" // MAX_MOB_RACE_DB
+#include "npc.h" // fake_nd
+#include "pet.h" // pet_unlocktarget()
+#include "party.h" // party_search()
+#include "guild.h" // guild_search(), guild_request_info()
+#include "script.h" // script_config
+#include "skill.h"
+#include "status.h" // struct status_data
+#include "vending.h" // vending_closevending()
+#include "pc.h"
+
+#ifndef TXT_ONLY // mail system [Valaris]
+#include "mail.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#include "../common/cbasetypes.h"
-#include "../common/socket.h" // [Valaris]
-#include "../common/timer.h"
-#include "../common/nullpo.h"
-#include "../common/showmsg.h"
-#include "../common/malloc.h"
-#include "../common/core.h"
-
-#include "map.h"
-#include "chrif.h"
-#include "clif.h"
-#include "intif.h"
-#include "pc.h"
-#include "status.h"
-#include "npc.h"
-#include "mob.h"
-#include "pet.h"
-#include "mercenary.h"	//orn
-#include "itemdb.h"
-#include "script.h"
-#include "battle.h"
-#include "skill.h"
-#include "party.h"
-#include "guild.h"
-#include "chat.h"
-#include "trade.h"
-#include "storage.h"
-#include "vending.h"
-#include "atcommand.h"
-#include "log.h"
-#include "date.h"
-
-#ifndef TXT_ONLY // mail system [Valaris]
-#include "mail.h"
-#endif
 
 #define PVP_CALCRANK_INTERVAL 1000	// PVPvZu
 static unsigned int exp_table[MAX_PC_CLASS][2][MAX_LEVEL];
@@ -2211,10 +2209,10 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	case SP_SKILL_ATK:
 		if(sd->state.lr_flag == 2)
 			break;
-		for (i = 0; i < MAX_PC_BONUS && sd->skillatk[i].id != 0 && sd->skillatk[i].id != type2; i++);
-		if (i == MAX_PC_BONUS)
+		for (i = 0; i < ARRAYLENGTH(sd->skillatk) && sd->skillatk[i].id != 0 && sd->skillatk[i].id != type2; i++);
+		if (i == ARRAYLENGTH(sd->skillatk))
 		{	//Better mention this so the array length can be updated. [Skotlex]
-			ShowDebug("run_script: bonus2 bSkillAtk reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", MAX_PC_BONUS, type2, val);
+			ShowDebug("run_script: bonus2 bSkillAtk reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->skillatk), type2, val);
 			break;
 		}
 		if (sd->skillatk[i].id == type2)
@@ -2222,6 +2220,22 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		else {
 			sd->skillatk[i].id = type2;
 			sd->skillatk[i].val = val;
+		}
+		break;
+	case SP_SKILL_HEAL:
+		if(sd->state.lr_flag == 2)
+			break;
+		for (i = 0; i < ARRAYLENGTH(sd->skillheal) && sd->skillheal[i].id != 0 && sd->skillheal[i].id != type2; i++);
+		if (i == ARRAYLENGTH(sd->skillheal))
+		{	//Better mention this so the array length can be updated. [Skotlex]
+			ShowDebug("run_script: bonus2 bSkillHeal reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->skillheal), type2, val);
+			break;
+		}
+		if (sd->skillheal[i].id == type2)
+			sd->skillheal[i].val += val;
+		else {
+			sd->skillheal[i].id = type2;
+			sd->skillheal[i].val = val;
 		}
 		break;
 	case SP_ADD_SKILL_BLOW:
@@ -2494,11 +2508,17 @@ int pc_skill(TBL_PC* sd, int id, int level, int flag)
 {
 	nullpo_retr(0, sd);
 
-	if( level > MAX_SKILL_LEVEL ){
+	if( id <= 0 || id >= MAX_SKILL || skill_db[id].name == NULL) {
 		if( battle_config.error_log )
-			ShowError("pc_skill: Skill level %d too high. Max lv supported is MAX_SKILL_LEVEL (%d)\n", level, MAX_SKILL_LEVEL);
+			ShowError("pc_skill: Skill with id %d does not exist in the skill database\n", id);
 		return 0;
 	}
+	if( level > MAX_SKILL_LEVEL ) {
+		if( battle_config.error_log )
+			ShowError("pc_skill: Skill level %d too high. Max lv supported is %d\n", level, MAX_SKILL_LEVEL);
+		return 0;
+	}
+
 	switch( flag ){
 	case 0: //Set skill data overwriting whatever was there before.
 		sd->status.skill[id].id   = id;
@@ -3756,146 +3776,80 @@ int pc_jobid2mapid(unsigned short b_class)
 int pc_mapid2jobid(unsigned short class_, int sex)
 {
 	switch(class_) {
-		case MAPID_NOVICE:
-			return JOB_NOVICE;
-		case MAPID_SWORDMAN:
-			return JOB_SWORDMAN;
-		case MAPID_MAGE:
-			return JOB_MAGE;
-		case MAPID_ARCHER:
-			return JOB_ARCHER;
-		case MAPID_ACOLYTE:
-			return JOB_ACOLYTE;
-		case MAPID_MERCHANT:
-			return JOB_MERCHANT;
-		case MAPID_THIEF:
-			return JOB_THIEF;
-		case MAPID_TAEKWON:
-			return JOB_TAEKWON;
-		case MAPID_WEDDING:
-			return JOB_WEDDING;
-		case MAPID_GUNSLINGER:
-			return JOB_GUNSLINGER;
-		case MAPID_NINJA:
-			return JOB_NINJA;
-		case MAPID_XMAS: // [Valaris]
-			return JOB_XMAS;
+		case MAPID_NOVICE:          return JOB_NOVICE;
+		case MAPID_SWORDMAN:        return JOB_SWORDMAN;
+		case MAPID_MAGE:            return JOB_MAGE;
+		case MAPID_ARCHER:          return JOB_ARCHER;
+		case MAPID_ACOLYTE:         return JOB_ACOLYTE;
+		case MAPID_MERCHANT:        return JOB_MERCHANT;
+		case MAPID_THIEF:           return JOB_THIEF;
+		case MAPID_TAEKWON:         return JOB_TAEKWON;
+		case MAPID_WEDDING:         return JOB_WEDDING;
+		case MAPID_GUNSLINGER:      return JOB_GUNSLINGER;
+		case MAPID_NINJA:           return JOB_NINJA;
+		case MAPID_XMAS:            return JOB_XMAS;
 	//2_1 classes
-		case MAPID_SUPER_NOVICE:
-			return JOB_SUPER_NOVICE;
-		case MAPID_KNIGHT:
-			return JOB_KNIGHT;
-		case MAPID_WIZARD:
-			return JOB_WIZARD;
-		case MAPID_HUNTER:
-			return JOB_HUNTER;
-		case MAPID_PRIEST:
-			return JOB_PRIEST;
-		case MAPID_BLACKSMITH:
-			return JOB_BLACKSMITH;
-		case MAPID_ASSASSIN:
-			return JOB_ASSASSIN;
-		case MAPID_STAR_GLADIATOR:
-			return JOB_STAR_GLADIATOR;
+		case MAPID_SUPER_NOVICE:    return JOB_SUPER_NOVICE;
+		case MAPID_KNIGHT:          return JOB_KNIGHT;
+		case MAPID_WIZARD:          return JOB_WIZARD;
+		case MAPID_HUNTER:          return JOB_HUNTER;
+		case MAPID_PRIEST:          return JOB_PRIEST;
+		case MAPID_BLACKSMITH:      return JOB_BLACKSMITH;
+		case MAPID_ASSASSIN:        return JOB_ASSASSIN;
+		case MAPID_STAR_GLADIATOR:  return JOB_STAR_GLADIATOR;
 	//2_2 classes
-		case MAPID_CRUSADER:
-			return JOB_CRUSADER;
-		case MAPID_SAGE:
-			return JOB_SAGE;
-		case MAPID_BARDDANCER:
-			return sex?JOB_BARD:JOB_DANCER;
-		case MAPID_MONK:
-			return JOB_MONK;
-		case MAPID_ALCHEMIST:
-			return JOB_ALCHEMIST;
-		case MAPID_ROGUE:
-			return JOB_ROGUE;
-		case MAPID_SOUL_LINKER:
-			return JOB_SOUL_LINKER;
+		case MAPID_CRUSADER:        return JOB_CRUSADER;
+		case MAPID_SAGE:            return JOB_SAGE;
+		case MAPID_BARDDANCER:      return sex?JOB_BARD:JOB_DANCER;
+		case MAPID_MONK:            return JOB_MONK;
+		case MAPID_ALCHEMIST:       return JOB_ALCHEMIST;
+		case MAPID_ROGUE:           return JOB_ROGUE;
+		case MAPID_SOUL_LINKER:     return JOB_SOUL_LINKER;
 	//1-1: advanced
-		case MAPID_NOVICE_HIGH:
-			return JOB_NOVICE_HIGH;
-		case MAPID_SWORDMAN_HIGH:
-			return JOB_SWORDMAN_HIGH;
-		case MAPID_MAGE_HIGH:
-			return JOB_MAGE_HIGH;
-		case MAPID_ARCHER_HIGH:
-			return JOB_ARCHER_HIGH;
-		case MAPID_ACOLYTE_HIGH:
-			return JOB_ACOLYTE_HIGH;
-		case MAPID_MERCHANT_HIGH:
-			return JOB_MERCHANT_HIGH;
-		case MAPID_THIEF_HIGH:
-			return JOB_THIEF_HIGH;
+		case MAPID_NOVICE_HIGH:     return JOB_NOVICE_HIGH;
+		case MAPID_SWORDMAN_HIGH:   return JOB_SWORDMAN_HIGH;
+		case MAPID_MAGE_HIGH:       return JOB_MAGE_HIGH;
+		case MAPID_ARCHER_HIGH:     return JOB_ARCHER_HIGH;
+		case MAPID_ACOLYTE_HIGH:    return JOB_ACOLYTE_HIGH;
+		case MAPID_MERCHANT_HIGH:   return JOB_MERCHANT_HIGH;
+		case MAPID_THIEF_HIGH:      return JOB_THIEF_HIGH;
 	//2_1 advanced
-		case MAPID_LORD_KNIGHT:
-			return JOB_LORD_KNIGHT;
-		case MAPID_HIGH_WIZARD:
-			return JOB_HIGH_WIZARD;
-		case MAPID_SNIPER:
-			return JOB_SNIPER;
-		case MAPID_HIGH_PRIEST:
-			return JOB_HIGH_PRIEST;
-		case MAPID_WHITESMITH:
-			return JOB_WHITESMITH;
-		case MAPID_ASSASSIN_CROSS:
-			return JOB_ASSASSIN_CROSS;
+		case MAPID_LORD_KNIGHT:     return JOB_LORD_KNIGHT;
+		case MAPID_HIGH_WIZARD:     return JOB_HIGH_WIZARD;
+		case MAPID_SNIPER:          return JOB_SNIPER;
+		case MAPID_HIGH_PRIEST:     return JOB_HIGH_PRIEST;
+		case MAPID_WHITESMITH:      return JOB_WHITESMITH;
+		case MAPID_ASSASSIN_CROSS:  return JOB_ASSASSIN_CROSS;
 	//2_2 advanced
-		case MAPID_PALADIN:
-			return JOB_PALADIN;
-		case MAPID_PROFESSOR:
-			return JOB_PROFESSOR;
-		case MAPID_CLOWNGYPSY:
-			return sex?JOB_CLOWN:JOB_GYPSY;
-		case MAPID_CHAMPION:
-			return JOB_CHAMPION;
-		case MAPID_CREATOR:
-			return JOB_CREATOR;
-		case MAPID_STALKER:
-			return JOB_STALKER;
+		case MAPID_PALADIN:         return JOB_PALADIN;
+		case MAPID_PROFESSOR:       return JOB_PROFESSOR;
+		case MAPID_CLOWNGYPSY:      return sex?JOB_CLOWN:JOB_GYPSY;
+		case MAPID_CHAMPION:        return JOB_CHAMPION;
+		case MAPID_CREATOR:         return JOB_CREATOR;
+		case MAPID_STALKER:         return JOB_STALKER;
 	//1-1 baby
-		case MAPID_BABY:
-			return JOB_BABY;
-		case MAPID_BABY_SWORDMAN:
-			return JOB_BABY_SWORDMAN;
-		case MAPID_BABY_MAGE:
-			return JOB_BABY_MAGE;
-		case MAPID_BABY_ARCHER:
-			return JOB_BABY_ARCHER;
-		case MAPID_BABY_ACOLYTE:
-			return JOB_BABY_ACOLYTE;
-		case MAPID_BABY_MERCHANT:
-			return JOB_BABY_MERCHANT;
-		case MAPID_BABY_THIEF:
-			return JOB_BABY_THIEF;
+		case MAPID_BABY:            return JOB_BABY;
+		case MAPID_BABY_SWORDMAN:   return JOB_BABY_SWORDMAN;
+		case MAPID_BABY_MAGE:       return JOB_BABY_MAGE;
+		case MAPID_BABY_ARCHER:     return JOB_BABY_ARCHER;
+		case MAPID_BABY_ACOLYTE:    return JOB_BABY_ACOLYTE;
+		case MAPID_BABY_MERCHANT:   return JOB_BABY_MERCHANT;
+		case MAPID_BABY_THIEF:      return JOB_BABY_THIEF;
 	//2_1 baby
-		case MAPID_SUPER_BABY:
-			return JOB_SUPER_BABY;
-		case MAPID_BABY_KNIGHT:
-			return JOB_BABY_KNIGHT;
-		case MAPID_BABY_WIZARD:
-			return JOB_BABY_WIZARD;
-		case MAPID_BABY_HUNTER:
-			return JOB_BABY_HUNTER;
-		case MAPID_BABY_PRIEST:
-			return JOB_BABY_PRIEST;
-		case MAPID_BABY_BLACKSMITH:
-			return JOB_BABY_BLACKSMITH;
-		case MAPID_BABY_ASSASSIN:
-			return JOB_BABY_ASSASSIN;
+		case MAPID_SUPER_BABY:      return JOB_SUPER_BABY;
+		case MAPID_BABY_KNIGHT:     return JOB_BABY_KNIGHT;
+		case MAPID_BABY_WIZARD:     return JOB_BABY_WIZARD;
+		case MAPID_BABY_HUNTER:     return JOB_BABY_HUNTER;
+		case MAPID_BABY_PRIEST:     return JOB_BABY_PRIEST;
+		case MAPID_BABY_BLACKSMITH: return JOB_BABY_BLACKSMITH;
+		case MAPID_BABY_ASSASSIN:   return JOB_BABY_ASSASSIN;
 	//2_2 baby
-		case MAPID_BABY_CRUSADER:
-			return JOB_BABY_CRUSADER;
-		case MAPID_BABY_SAGE:
-			return JOB_BABY_SAGE;
-		case MAPID_BABY_BARDDANCER:
-			return sex?JOB_BABY_BARD:JOB_BABY_DANCER;
-		case MAPID_BABY_MONK:
-			return JOB_BABY_MONK;
-		case MAPID_BABY_ALCHEMIST:
-			return JOB_BABY_ALCHEMIST;
-		case MAPID_BABY_ROGUE:
-			return JOB_BABY_ROGUE;
+		case MAPID_BABY_CRUSADER:   return JOB_BABY_CRUSADER;
+		case MAPID_BABY_SAGE:       return JOB_BABY_SAGE;
+		case MAPID_BABY_BARDDANCER: return sex?JOB_BABY_BARD:JOB_BABY_DANCER;
+		case MAPID_BABY_MONK:       return JOB_BABY_MONK;
+		case MAPID_BABY_ALCHEMIST:  return JOB_BABY_ALCHEMIST;
+		case MAPID_BABY_ROGUE:      return JOB_BABY_ROGUE;
 		default:
 			return -1;
 	}
@@ -4223,19 +4177,10 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 		bonus += 15; // pk_mode additional exp if monster >20 levels [Valaris]	
 
 	if (!bonus)
-	  	return;
-	
-	temp = *base_exp*bonus/100;
-	if (*base_exp > UINT_MAX - temp)
-		*base_exp = UINT_MAX;
-	else
-		*base_exp += temp;
+		return;
 
-	temp = *job_exp*bonus/100;
-	if (*job_exp > UINT_MAX - temp)
-		*job_exp = UINT_MAX;
-	else
-		*job_exp += temp;
+	*base_exp += (unsigned int) cap_value((double)*base_exp * bonus/100., 1, UINT_MAX);
+	*job_exp += (unsigned int) cap_value((double)*job_exp * bonus/100., 1, UINT_MAX);
 
 	return;
 }
@@ -4864,6 +4809,28 @@ int pc_resethate(struct map_session_data* sd)
 	return 0;
 }
 
+int pc_skillatk_bonus(struct map_session_data *sd, int skill_num)
+{
+	int i;
+	for (i = 0; i < ARRAYLENGTH(sd->skillatk) && sd->skillatk[i].id; i++)
+	{
+		if (sd->skillatk[i].id == skill_num)
+			return sd->skillatk[i].val;
+	}
+	return 0;
+}
+
+int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
+{
+	int i;
+	for (i = 0; i < ARRAYLENGTH(sd->skillheal) && sd->skillheal[i].id; i++)
+	{
+		if (sd->skillheal[i].id == skill_num)
+			return sd->skillheal[i].val;
+	}
+	return 0;
+}
+
 static int pc_respawn(int tid,unsigned int tick,int id,int data)
 {
 	struct map_session_data *sd = map_id2sd(id);
@@ -4929,7 +4896,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			pet->intimate -= sd->pd->petDB->die;
 			if(pet->intimate < 0)
 				pet->intimate = 0;
-			clif_send_petdata(sd,1,pet->intimate);
+			clif_send_petdata(sd,sd->pd,1,pet->intimate);
 		}
 		if(sd->pd->target_id) // Unlock all targets...
 			pet_unlocktarget(sd->pd);
@@ -4951,7 +4918,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	if (sd->skillitem)
 		sd->skillitem = sd->skillitemlv = 0;
 	if (sd->menuskill_id)
-		sd->menuskill_id = sd->menuskill_lv = 0;
+		sd->menuskill_id = sd->menuskill_val = 0;
 	//Reset ticks.
 	sd->hp_loss_tick = sd->sp_loss_tick = 0;
 
@@ -5252,100 +5219,42 @@ void pc_revive(struct map_session_data *sd,unsigned int hp, unsigned int sp)
 /*==========================================
  * scriptpPCXe?^X?o
  *------------------------------------------*/
-int pc_readparam(struct map_session_data *sd,int type)
+int pc_readparam(struct map_session_data* sd,int type)
 {
-	int val=0;
+	int val = 0;
 
 	nullpo_retr(0, sd);
 
-	switch(type){
-	case SP_SKILLPOINT:
-		val= sd->status.skill_point;
-		break;
-	case SP_STATUSPOINT:
-		val= sd->status.status_point;
-		break;
-	case SP_ZENY:
-		val= sd->status.zeny;
-		break;
-	case SP_BASELEVEL:
-		val= sd->status.base_level;
-		break;
-	case SP_JOBLEVEL:
-		val= sd->status.job_level;
-		break;
-	case SP_CLASS:
-		val= sd->status.class_;
-		break;
-	case SP_BASEJOB: //Base job, extracting upper type.
-		val= pc_mapid2jobid(sd->class_&MAPID_UPPERMASK, sd->status.sex);
-		break;
-	case SP_UPPER:
-		val= sd->class_&JOBL_UPPER?1:(sd->class_&JOBL_BABY?2:0);
-		break;
-	case SP_BASECLASS: //Extract base class tree. [Skotlex]
-		val= pc_mapid2jobid(sd->class_&MAPID_BASEMASK, sd->status.sex);
-		break;
-	case SP_SEX:
-		val= sd->status.sex;
-		break;
-	case SP_WEIGHT:
-		val= sd->weight;
-		break;
-	case SP_MAXWEIGHT:
-		val= sd->max_weight;
-		break;
-	case SP_BASEEXP:
-		val= sd->status.base_exp;
-		break;
-	case SP_JOBEXP:
-		val= sd->status.job_exp;
-		break;
-	case SP_NEXTBASEEXP:
-		val= pc_nextbaseexp(sd);
-		break;
-	case SP_NEXTJOBEXP:
-		val= pc_nextjobexp(sd);
-		break;
-	case SP_HP:
-		val= sd->battle_status.hp;
-		break;
-	case SP_MAXHP:
-		val= sd->battle_status.max_hp;
-		break;
-	case SP_SP:
-		val= sd->battle_status.sp;
-		break;
-	case SP_MAXSP:
-		val= sd->battle_status.max_sp;
-		break;
-	case SP_STR:
-		val= sd->status.str;
-		break;
-	case SP_AGI:
-		val= sd->status.agi;
-		break;
-	case SP_VIT:
-		val= sd->status.vit;
-		break;
-	case SP_INT:
-		val= sd->status.int_;
-		break;
-	case SP_DEX:
-		val= sd->status.dex;
-		break;
-	case SP_LUK:
-		val= sd->status.luk;
-		break;
-	case SP_KARMA:	// celest
-		val = sd->status.karma;
-		break;
-	case SP_MANNER:
-		val = sd->status.manner;
-		break;
-	case SP_FAME:
-		val= sd->status.fame;
-		break;
+	switch(type) {
+	case SP_SKILLPOINT:  val = sd->status.skill_point; break;
+	case SP_STATUSPOINT: val = sd->status.status_point; break;
+	case SP_ZENY:        val = sd->status.zeny; break;
+	case SP_BASELEVEL:   val = sd->status.base_level; break;
+	case SP_JOBLEVEL:    val = sd->status.job_level; break;
+	case SP_CLASS:       val = sd->status.class_; break;
+	case SP_BASEJOB:     val = pc_mapid2jobid(sd->class_&MAPID_UPPERMASK, sd->status.sex); break; //Base job, extracting upper type.
+	case SP_UPPER:       val = sd->class_&JOBL_UPPER?1:(sd->class_&JOBL_BABY?2:0); break;
+	case SP_BASECLASS:   val = pc_mapid2jobid(sd->class_&MAPID_BASEMASK, sd->status.sex); break; //Extract base class tree. [Skotlex]
+	case SP_SEX:         val = sd->status.sex; break;
+	case SP_WEIGHT:      val = sd->weight; break;
+	case SP_MAXWEIGHT:   val = sd->max_weight; break;
+	case SP_BASEEXP:     val = sd->status.base_exp; break;
+	case SP_JOBEXP:      val = sd->status.job_exp; break;
+	case SP_NEXTBASEEXP: val = pc_nextbaseexp(sd); break;
+	case SP_NEXTJOBEXP:  val = pc_nextjobexp(sd); break;
+	case SP_HP:          val = sd->battle_status.hp; break;
+	case SP_MAXHP:       val = sd->battle_status.max_hp; break;
+	case SP_SP:          val = sd->battle_status.sp; break;
+	case SP_MAXSP:       val = sd->battle_status.max_sp; break;
+	case SP_STR:         val = sd->status.str; break;
+	case SP_AGI:         val = sd->status.agi; break;
+	case SP_VIT:         val = sd->status.vit; break;
+	case SP_INT:         val = sd->status.int_; break;
+	case SP_DEX:         val = sd->status.dex; break;
+	case SP_LUK:         val = sd->status.luk; break;
+	case SP_KARMA:       val = sd->status.karma; break;
+	case SP_MANNER:      val = sd->status.manner; break;
+	case SP_FAME:        val = sd->status.fame; break;
 	}
 
 	return val;
@@ -5529,6 +5438,13 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 		if(bonus != 100)
 			sp = sp * bonus / 100;
 	}
+
+	if (sd->sc.count && sd->sc.data[SC_CRITICALWOUND].timer!=-1)
+	{
+		hp -= hp * sd->sc.data[SC_CRITICALWOUND].val2 / 100;
+		sp -= sp * sd->sc.data[SC_CRITICALWOUND].val2 / 100;
+	}
+
 	return status_heal(&sd->bl, hp, sp, 1);
 }
 
@@ -7021,7 +6937,6 @@ int pc_read_gm_account(int fd)
 	for (i = 4; i < RFIFOW(fd,2); i += 5) {
 		gm_account[GM_num].account_id = RFIFOL(fd,i);
 		gm_account[GM_num].level = (int)RFIFOB(fd,i+4);
-		//printf("GM account: %d -> level %d\n", gm_account[GM_num].account_id, gm_account[GM_num].level);
 		GM_num++;
 	}
 	return GM_num;

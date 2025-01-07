@@ -4,18 +4,18 @@
 #ifndef _MOB_H_
 #define _MOB_H_
 
-#include "unit.h"
-#include "map.h"
+#include "../common/mmo.h" // struct item
+#include "unit.h" // unit_stop_walking(), unit_stop_attack()
+#include "map.h" // struct status_data, struct view_data, struct mob_skill
 
 #define MAX_RANDOMMONSTER 4
 #define MAX_MOB_RACE_DB 6
-	/* Change this to increase the table size in your mob_db to accomodate
-		a larger mob database. Be sure to note that IDs 4001 to 4048 are reserved for advanced/baby/expanded classes.
-	*/
+
+// Change this to increase the table size in your mob_db to accomodate a larger mob database.
+// Be sure to note that IDs 4001 to 4048 are reserved for advanced/baby/expanded classes.
 #define MAX_MOB_DB 10000
 
-//The number of drops all mobs have and the max drop-slot that the steal skill
-//will attempt to steal from.
+//The number of drops all mobs have and the max drop-slot that the steal skill will attempt to steal from.
 #define MAX_MOB_DROP 10
 #define MAX_STEAL_DROP 7
 
@@ -116,21 +116,15 @@ enum {
 };
 
 
-/*==========================================
- * The structure object for item drop with delay
- * Since it is only two being able to pass [ int ] a timer function
- * Data is put in and passed to this structure object.
- *------------------------------------------
- */
+// The data structures for storing delayed item drops
 struct item_drop {
 	struct item item_data;
-	struct item_drop *next;
+	struct item_drop* next;
 };
-
 struct item_drop_list {
-	int m,x,y;
-	struct map_session_data *first_sd,*second_sd,*third_sd;
-	struct item_drop *item;
+	int m, x, y;                       // coordinates
+	struct map_session_data *first_sd, *second_sd, *third_sd; // sd's of players with higher pickup priority
+	struct item_drop* item;            // linked list of drops
 };
 
 struct mob_db* mob_db(int class_);
@@ -157,6 +151,7 @@ struct mob_data* mob_spawn_dataset(struct spawn_data *data);
 int mob_spawn(struct mob_data *md);
 int mob_setdelayspawn(struct mob_data *md);
 int mob_parse_dataset(struct spawn_data *data);
+void mob_log_damage(struct mob_data *md, struct block_list *src, int damage);
 void mob_damage(struct mob_data *md, struct block_list *src, int damage);
 int mob_dead(struct mob_data *md, struct block_list *src, int type);
 void mob_revive(struct mob_data *md, unsigned int hp);

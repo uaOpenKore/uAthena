@@ -1,10 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "../common/db.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
@@ -27,6 +23,11 @@
 #include "skill.h"
 #include "unit.h"
 #include "atcommand.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 #define MIN_PETTHINKTIME 100
 
@@ -258,9 +259,9 @@ static int pet_hungry(int tid,unsigned int tick,int id,int data)
 			pd->status.speed = pd->db->status.speed;
 		}
 		status_calc_pet(pd, 0);
-		clif_send_petdata(sd,1,pd->pet.intimate);
+		clif_send_petdata(sd,pd,1,pd->pet.intimate);
 	}
-	clif_send_petdata(sd,2,pd->pet.hungry);
+	clif_send_petdata(sd,pd,2,pd->pet.hungry);
 
 	if(battle_config.pet_hungry_delay_rate != 100)
 		interval = (pd->petDB->hungry_delay*battle_config.pet_hungry_delay_rate)/100;
@@ -461,9 +462,9 @@ int pet_birth_process(struct map_session_data *sd, struct s_pet *pet)
 	if(sd->bl.prev != NULL) {
 		map_addblock(&sd->pd->bl);
 		clif_spawn(&sd->pd->bl);
-		clif_send_petdata(sd,0,0);
-		clif_send_petdata(sd,5,battle_config.pet_hair_style);
-		clif_pet_equip(sd->pd);
+		clif_send_petdata(sd,sd->pd, 0,0);
+		clif_send_petdata(sd,sd->pd, 5,battle_config.pet_hair_style);
+		clif_pet_equip_area(sd->pd);
 		clif_send_petstatus(sd);
 	}
 	Assert((sd->status.pet_id == 0 || sd->pd == 0) || sd->pd->msd == sd);
@@ -503,9 +504,9 @@ int pet_recv_petdata(int account_id,struct s_pet *p,int flag)
 		if(sd->pd && sd->bl.prev != NULL) {
 			map_addblock(&sd->pd->bl);
 			clif_spawn(&sd->pd->bl);
-			clif_send_petdata(sd,0,0);
-			clif_send_petdata(sd,5,battle_config.pet_hair_style);
-			clif_pet_equip(sd->pd);
+			clif_send_petdata(sd,sd->pd,0,0);
+			clif_send_petdata(sd,sd->pd,5,battle_config.pet_hair_style);
+			clif_pet_equip_area(sd->pd);
 			clif_send_petstatus(sd);
 		}
 	}
@@ -539,47 +540,26 @@ int pet_catch_process1(struct map_session_data *sd,int target_class)
 	return 0;
 }
 
-int pet_catch_process2(struct map_session_data *sd,int target_id)
+int pet_catch_process2(struct map_session_data* sd, int target_id)
 {
-	struct mob_data *md;
-	int i=0,pet_catch_rate=0;
+	struct mob_data* md;
+	int i = 0, pet_catch_rate = 0;
 
 	nullpo_retr(1, sd);
 
-	md=(struct mob_data*)map_id2bl(target_id);
-	if(!md || md->bl.type != BL_MOB || md->bl.prev == NULL){
-		//Abort capture.
+	md = (struct mob_data*)map_id2bl(target_id);
+	if(!md || md->bl.type != BL_MOB || md->bl.prev == NULL)
+	{	// Invalid inputs/state, abort capture.
+		clif_pet_roulette(sd,0);
 		sd->catch_target_class = -1;
 		sd->itemid = sd->itemindex = -1;
 		return 1;
 	}
 
-	if (sd->menuskill_id != SA_TAMINGMONSTER)
-	{	//Exploit?
-		clif_pet_roulette(sd,0);
-		sd->catch_target_class = -1;
-		return 1;
-	}
-	
-	if (sd->menuskill_lv > 0)
-	{	//Consume the pet lure [Skotlex]
-		i=pc_search_inventory(sd,sd->menuskill_lv);
-		if (i < 0)
-		{	//they tried an exploit?
-			clif_pet_roulette(sd,0);
-			sd->catch_target_class = -1;
-			return 1;
-		}
-		//Delete the item
-		if (sd->itemid == sd->menuskill_lv)
-			sd->itemid = sd->itemindex = -1;
-		sd->menuskill_id = sd->menuskill_lv = 0;
-		pc_delitem(sd,i,1,0);
-	}
+	//FIXME: delete taming item here, if this was an item-invoked capture and the item was flagged as delay-consume [ultramage]
 
 	i = search_petDB_index(md->class_,PET_CLASS);
-	//catch_target_class == 0 is used for universal lures. [Skotlex]
-	//for now universal lures do not include bosses.
+	//catch_target_class == 0 is used for universal lures (except bosses for now). [Skotlex]
 	if (sd->catch_target_class == 0 && !(md->status.mode&MD_BOSS))
 		sd->catch_target_class = md->class_;
 	if(i < 0 || sd->catch_target_class != md->class_) {
@@ -594,19 +574,18 @@ int pet_catch_process2(struct map_session_data *sd,int target_id)
 	if(battle_config.pet_catch_rate != 100)
 		pet_catch_rate = (pet_catch_rate*battle_config.pet_catch_rate)/100;
 
-	if(rand()%10000 < pet_catch_rate) {
+	if(rand()%10000 < pet_catch_rate)
+	{
 		unit_remove_map(&md->bl,0);
 		status_kill(&md->bl);
 		clif_pet_roulette(sd,1);
-//		if(battle_config.etc_log)
-//			printf("roulette success %d\n",target_id);
 		intif_create_pet(sd->status.account_id,sd->status.char_id,pet_db[i].class_,mob_db(pet_db[i].class_)->lv,
 			pet_db[i].EggID,0,pet_db[i].intimate,100,0,1,pet_db[i].jname);
 	}
 	else
 	{
-		sd->catch_target_class = -1;
 		clif_pet_roulette(sd,0);
+		sd->catch_target_class = -1;
 	}
 
 	return 0;
@@ -712,7 +691,7 @@ int pet_change_name_ack(struct map_session_data *sd, char* name, int flag)
 	memcpy(pd->pet.name, name, NAME_LENGTH);
 	clif_charnameack (0,&pd->bl);
 	pd->pet.rename_flag = 1;
-	clif_pet_equip(pd);
+	clif_pet_equip_area(pd);
 	clif_send_petstatus(sd);
 	return 1;
 }
@@ -736,7 +715,7 @@ int pet_equipitem(struct map_session_data *sd,int index)
 	pc_delitem(sd,index,1,0);
 	pd->pet.equip = nameid;
 	status_set_viewdata(&pd->bl, pd->pet.class_); //Updates view_data.
-	clif_pet_equip(pd);
+	clif_pet_equip_area(pd);
 	if (battle_config.pet_equip_required)
 	{ 	//Skotlex: start support timers if need
 		unsigned int tick = gettick();
@@ -765,7 +744,7 @@ static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd)
 	nameid = pd->pet.equip;
 	pd->pet.equip = 0;
 	status_set_viewdata(&pd->bl, pd->pet.class_);
-	clif_pet_equip(pd);
+	clif_pet_equip_area(pd);
 	memset(&tmp_item,0,sizeof(tmp_item));
 	tmp_item.nameid = nameid;
 	tmp_item.identify = 1;
@@ -835,8 +814,8 @@ static int pet_food(struct map_session_data *sd, struct pet_data *pd)
 	if(pd->pet.hungry > 100)
 		pd->pet.hungry = 100;
 
-	clif_send_petdata(sd,2,pd->pet.hungry);
-	clif_send_petdata(sd,1,pd->pet.intimate);
+	clif_send_petdata(sd,pd,2,pd->pet.hungry);
+	clif_send_petdata(sd,pd,1,pd->pet.intimate);
 	clif_pet_food(sd,pd->petDB->FoodID,1);
 
 	return 0;

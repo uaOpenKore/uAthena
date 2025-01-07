@@ -4,7 +4,10 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
-#include "map.h"
+//#include "map.h"
+struct map_session_data;
+struct mob_data;
+struct item;
 
 #ifndef TXT_ONLY
 
@@ -34,7 +37,7 @@ enum log_what {
 	LOG_TRADES              = 0x002,
 	LOG_VENDING             = 0x004,
 	LOG_PLAYER_ITEMS        = 0x008, // dropped/picked
-	LOG_MONTER_ITEMS        = 0x010, // dropped/looted
+	LOG_MONSTER_ITEMS       = 0x010, // dropped/looted
 	LOG_NPC_TRANSACTIONS    = 0x020, // npc shops?
 	LOG_SCRIPT_TRANSACTIONS = 0x040,
 	LOG_STOLEN_ITEMS        = 0x080, // stolen from mobs

@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= L0ne_W0lf
 //===== Current Version: =====================================
-//= 1.7
+//= 1.9
 //===== Compatible With: =====================================
 //= eAthena SVN
 //===== Description: =========================================
@@ -43,6 +43,11 @@
 //= 1.6 Fixed a couple bugs with the Pope's Office Guards... [L0ne_W0lf]
 //= 1.7 Fixed Maheo, he will revert to his frozen state when clicked. [L0ne_W0lf]
 //=	Replaced  instances of "+name+", with "+strcharinfo(0)".
+//= 1.8 Various fixes: Hamion will now delete items used for Wind Hammer. [L0ne_W0lf]
+//=	Fixed EXP reward in Ice Necklace quest, fixed a typo in an NPC header.
+//=	Another minor fix to Hamion. "< 1" -> "< 2". Added a missing close to
+//=	the ontouch "key". Thanks to Gepard for pointing them out.
+//= 1.9 Fixed a misorder with variable checkings. [SinSloth]
 //============================================================
 
 // Lost Child Quest (Prerequisite to High Priest quest)
@@ -2545,7 +2550,7 @@ rachel,266,35,3	script	Grandma#rachel	918,{
 	close;
 }
 
-lhz_in02,213,207,0	script	#ratrace1	111,4,4.{
+lhz_in02,213,207,0	script	#ratrace1	111,4,4,{
 OnTouch:
 	if (rach_vice == 5) {
 		set rach_vice,6;
@@ -2724,9 +2729,9 @@ ra_in01,255,25,0	script	Book#ra_in	111,{
 //line below (npc header), and comment the line
 //under it, and then uncomment the cutin lines.
 
-//rachel,157,183,3	script	Sincere Follower Urstia	916,{
-rachel,157,183,3	script	Sincere Follower Urstia	917,{
-	//cutin "ra_usti1",2;
+//rachel,157,183,3	script	Sincere Follower Urstia	917,{
+rachel,157,183,3	script	Sincere Follower Urstia	916,{
+	cutin "ra_usti1",2;
 	if (ice_necklace_q < 1) {
 		mes "[Urstialla]";
 		mes "Oh, are you an adventurer";
@@ -2896,7 +2901,7 @@ rachel,157,183,3	script	Sincere Follower Urstia	917,{
 		mes "token of my appreication for";
 		mes " what you have done for me.";
 		delitem 7573,1; //Sparkling Necklace
-		set BaseExp,BaseExp+70000;
+		set BaseExp,BaseExp+700000;
 		set ice_necklace_q,6;
 		next;
 		mes "["+strcharinfo(0)+"]";
@@ -2922,7 +2927,7 @@ rachel,157,183,3	script	Sincere Follower Urstia	917,{
 
 L_End:
 	close2;
-	//cutin "",255;
+	cutin "",255;
 	end;
 
 }
@@ -3262,7 +3267,7 @@ OnTimer10800000:
 }
 
 rachel,265,98,3	script	Hamion#aru	930,{
-	if (ice_necklace_q < 1) {
+	if (ice_necklace_q < 2) {
 		mes "[Hamion]";
 		mes "Hm? Did you need";
 		mes "something? If it's not too";
@@ -3387,7 +3392,10 @@ rachel,265,98,3	script	Hamion#aru	930,{
 		mes "This hammer will only work";
 		mes "once, so make sure that you";
 		mes "smash that ice properly!";
-		getitem 7569,1; //Wind Hammer
+		delitem 996,5; //Rough_Wind
+		delitem 1354,1; //Empty_Scroll
+		delitem 7433,1; //Hammer
+		getitem 7569,1; //Hammer_of_Wind
 		set ice_necklace_q,4;
 		close;
 	}
@@ -5458,7 +5466,25 @@ L_End:
 
 ra_temin,170,46,3	script	Panno#rachel	920,{
 	cutin "ra_fano03",2;
-	if (ra_tem_q < 2) {
+	if (ra_tem_q >= 12 || MISC_QUEST & 8192) {
+		cutin "ra_fano03",2;
+		mes "[Priestess Panno]";
+		mes "Good day.";
+		mes "Have you come to";
+		mes "redeem Lottery Tickets?";
+		next;
+		if (select("Yes:No") == 1) goto L_Lottery;
+		if (ra_tem_q == 12) {
+			cutin "ra_fano01",2;
+			mes "[Priestess Panno]";
+			mes "I already told you";
+			mes "everything I know.";
+			mes "Remember to keep";
+			mes "quiet about what I said.";
+			goto L_End;
+		}
+	}
+	else if (ra_tem_q < 2) {
 		mes "[Priestess Panno]";
 		mes "Greetings.";
 		mes "May Freya fill";
@@ -5533,7 +5559,6 @@ ra_temin,170,46,3	script	Panno#rachel	920,{
 			goto L_End;
 		}
 	}
-
 	else if (ra_tem_q == 10) {
 		mes "[Priestess Panno]";
 		mes "Good day.";
@@ -5653,11 +5678,8 @@ ra_temin,170,46,3	script	Panno#rachel	920,{
 			mes ".........";
 			set ra_tem_q,11;
 			goto L_End;
-
 		}
-
 	}
-
 	else if (ra_tem_q == 11) {
 		mes "["+strcharinfo(0)+"]";
 		mes "I remember now...!";
@@ -5792,25 +5814,6 @@ ra_temin,170,46,3	script	Panno#rachel	920,{
 		set ra_tem_q,12;
 		goto L_End;
 	}
-
-	else if (ra_tem_q >= 12 || MISC_QUEST & 8192) {
-		cutin "ra_fano03",2;
-		mes "[Priestess Panno]";
-		mes "Good day.";
-		mes "Have you come to";
-		mes "redeem Lottery Tickets?";
-		next;
-		if (select("Yes:No") == 1) goto L_Lottery;
-		if (ra_tem_q == 12) {
-			cutin "ra_fano01",2;
-			mes "[Priestess Panno]";
-			mes "I already told you";
-			mes "everything I know.";
-			mes "Remember to keep";
-			mes "quiet about what I said.";
-			goto L_End;
-		}
-	}
 	cutin "ra_fano02",2;
 	mes "[Priestess Panno]";
 	mes "This is a holy place";
@@ -5893,7 +5896,7 @@ L_End:
 	end;
 }
 
-ra_temin,134,128,3	script	Pope's Office Guard#rac::raofficeguard	927,{
+ra_temin,134,128,3	script	Pope's Office Guard#rac::raofficeguard	926,{
 	if (MISC_QUEST & 8192) {
 		mes "[Pope's Office Guard]";
 		mes "I'm sorry, but the pope";
@@ -5954,7 +5957,7 @@ ra_temin,134,128,3	script	Pope's Office Guard#rac::raofficeguard	927,{
 
 }
 
-ra_temin,134,134,3	duplicate(raofficeguard)	Pope's Office Guard#2ra	927
+ra_temin,134,134,3	duplicate(raofficeguard)	Pope's Office Guard#2ra	926
 
 ra_temin,134,131,0	script	gyoin1#rachel	45,1,1,{
 OnTouch:
@@ -5984,14 +5987,14 @@ ra_temsky,95,99,6	script	Priest#1rachel	935,{
 	close;
 }
 
-ra_temsky,93,97,6	script	Male Follower#1rachel::ramale	927,{
+ra_temsky,93,97,6	script	Male Follower#1rachel::ramale	926,{
 	mes "[Male Follower]";
 	mes "May Freya be with you.";
 	close;
 }
 
-ra_temsky,90,95,6	duplicate(ramale)	Male Follower#2rachel	927
-ra_temsky,98,59,6	duplicate(ramale)	Male Follower#3rachel	927
+ra_temsky,90,95,6	duplicate(ramale)	Male Follower#2rachel	926
+ra_temsky,98,59,6	duplicate(ramale)	Male Follower#3rachel	926
 
 ra_temsky,104,99,4	script	Priestess#1rachel	920,{
 	mes "[Priestess]";
@@ -5999,14 +6002,14 @@ ra_temsky,104,99,4	script	Priestess#1rachel	920,{
 	close;
 }
 
-ra_temsky,106,97,4	script	Female Follower#1rachel::rafemale	917,{
+ra_temsky,106,97,4	script	Female Follower#1rachel::rafemale	916,{
 	mes "[Female Follower]";
 	mes "May Freya be with you.";
 	close;
 }
 
-ra_temsky,108,95,4	duplicate(rafemale)	Female Follower#2rachel	917
-ra_temsky,101,59,4	duplicate(rafemale)	Female Follower#3rachel	917
+ra_temsky,108,95,4	duplicate(rafemale)	Female Follower#2rachel	916
+ra_temsky,101,59,4	duplicate(rafemale)	Female Follower#3rachel	916
 
 ra_temsky,99,99,5	script	Pope#rachel	936,{
 	if (ra_tem_q == 16) {
@@ -6356,8 +6359,8 @@ OnTouch:
 			mes "the small shining object,";
 			mes "no matter how important it";
 			mes "may be to you in the future.^000000";
+			close;
 		}
-
 		mes "^3355FFUpon picking up the";
 		mes "object, you are able to";
 		mes "identify it as a small key.";
@@ -6539,8 +6542,8 @@ OnTouch:
 	end;
 }
 
-//rachel,142,167,5	script	Seeking Follower#rachel	916,6,6,{
-rachel,142,167,5	script	Seeking Follower#rachel	917,6,6,{
+//rachel,142,167,5	script	Seeking Follower#rachel	917,6,6,{
+rachel,142,167,5	script	Seeking Follower#rachel	916,6,6,{
 	if ((lost_boy == 13) && (ra_tem_q == 20)) {
 		mes "[Arunafeltz Follower]";
 		mes "Excuse me, but";
