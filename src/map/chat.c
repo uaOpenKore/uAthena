@@ -208,9 +208,9 @@ int chat_changechatowner(struct map_session_data* sd,const char* nextownername)
 	clif_changechatowner(cd,cd->usersd[nextowner]);
 
 	// change the owner's position (placing him to 0)
-	tmpsd = cd->usersd[nextowner];
+	tmp_sd = cd->usersd[nextowner];
 	cd->usersd[nextowner] = cd->usersd[0];
-	cd->usersd[0] = tmpsd;
+	cd->usersd[0] = tmp_sd;
  
 	// set the new chatroom position
 	map_delblock( &cd->bl );
