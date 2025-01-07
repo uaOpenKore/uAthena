@@ -19,7 +19,7 @@ struct npc_data;
 struct chat_data;
 struct flooritem_data;
 struct skill_unit;
-struct vending;
+struct s_vending;
 struct party;
 struct party_data;
 struct guild;
@@ -35,7 +35,7 @@ struct guild;
 #define MAX_PACKET_DB		0x300
 #define MAX_PACKET_VER		22
 
-struct packet_db_t {
+struct s_packet_db {
 	short len;
 	void (*func)(int, struct map_session_data *);
 	short pos[20];
@@ -44,7 +44,7 @@ struct packet_db_t {
 // packet_db[SERVER] is reserved for server use
 #define SERVER 0
 #define packet_len(cmd) packet_db[SERVER][cmd].len
-extern struct packet_db_t packet_db[MAX_PACKET_VER+1][MAX_PACKET_DB+1];
+extern struct s_packet_db packet_db[MAX_PACKET_VER+1][MAX_PACKET_DB+1];
 
 // local define
 enum send_target {
@@ -89,7 +89,6 @@ int clif_authok(struct map_session_data *);
 int clif_authfail_fd(int,int);
 void clif_updatemaxid(int, int);
 int clif_charselectok(int);
-void check_fake_id(int fd, struct map_session_data *sd, int target_id);
 int clif_dropflooritem(struct flooritem_data *);
 int clif_clearflooritem(struct flooritem_data *,int);
 
@@ -166,13 +165,13 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd);
 void clif_hotkeys_send(struct map_session_data *sd);
 
 // trade
-int clif_traderequest(struct map_session_data* sd, const char* name);
-int clif_tradestart(struct map_session_data *sd,int type);
-int clif_tradeadditem(struct map_session_data *sd,struct map_session_data *tsd,int index,int amount);
-int clif_tradeitemok(struct map_session_data *sd,int index,int fail);
-int clif_tradedeal_lock(struct map_session_data *sd,int fail);
-int clif_tradecancelled(struct map_session_data *sd);
-int clif_tradecompleted(struct map_session_data *sd,int fail);
+void clif_traderequest(struct map_session_data* sd, const char* name);
+void clif_tradestart(struct map_session_data* sd, int type);
+void clif_tradeadditem(struct map_session_data* sd, struct map_session_data* tsd, int index, int amount);
+void clif_tradeitemok(struct map_session_data* sd, int index, int fail);
+void clif_tradedeal_lock(struct map_session_data* sd, int fail);
+void clif_tradecancelled(struct map_session_data* sd);
+void clif_tradecompleted(struct map_session_data* sd, int fail);
 
 // storage
 #include "storage.h"
@@ -196,20 +195,13 @@ int clif_skillinfo(struct map_session_data *sd,int skillid,int type,int range);
 int clif_skillinfoblock(struct map_session_data *sd);
 int clif_skillup(struct map_session_data *sd,int skill_num);
 
-int clif_skillcasting(struct block_list* bl,
-	int src_id,int dst_id,int dst_x,int dst_y,int skill_num,int pl, int casttime);
+int clif_skillcasting(struct block_list* bl,int src_id,int dst_id,int dst_x,int dst_y,int skill_num,int pl,int casttime);
 int clif_skillcastcancel(struct block_list* bl);
 int clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype);
-int clif_skill_damage(struct block_list *src,struct block_list *dst,
-	unsigned int tick,int sdelay,int ddelay,int damage,int div,
-	int skill_id,int skill_lv,int type);
-int clif_skill_damage2(struct block_list *src,struct block_list *dst,
-	unsigned int tick,int sdelay,int ddelay,int damage,int div,
-	int skill_id,int skill_lv,int type);
-int clif_skill_nodamage(struct block_list *src,struct block_list *dst,
-	int skill_id,int heal,int fail);
-int clif_skill_poseffect(struct block_list *src,int skill_id,
-	int val,int x,int y,int tick);
+int clif_skill_damage(struct block_list *src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
+//int clif_skill_damage2(struct block_list *src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
+int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal,int fail);
+int clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int y,int tick);
 int clif_skill_estimation(struct map_session_data *sd,struct block_list *dst);
 void clif_skill_warppoint(struct map_session_data* sd, int skill_num, int skill_lv, int map1, int map2, int map3, int map4);
 int clif_skill_memo(struct map_session_data *sd,int flag);
@@ -218,8 +210,8 @@ int clif_skill_produce_mix_list(struct map_session_data *sd, int trigger);
 
 int clif_produceeffect(struct map_session_data *sd,int flag,int nameid);
 
-int clif_skill_setunit(struct skill_unit *unit);
-int clif_skill_delunit(struct skill_unit *unit);
+void clif_skill_setunit(struct skill_unit *unit);
+void clif_skill_delunit(struct skill_unit *unit);
 
 int clif_01ac(struct block_list *bl);
 
@@ -229,7 +221,7 @@ int clif_marionette(struct block_list *src, struct block_list *target);
 int clif_spiritball(struct map_session_data *sd);
 int clif_combo_delay(struct block_list *src,int wait);
 int clif_bladestop(struct block_list *src,struct block_list *dst,int bool_);
-void clif_changemapcell(int fd, short m, short x, short y, int type);
+void clif_changemapcell(int fd, struct block_list* pos, int type, enum send_target target);
 
 int clif_status_load(struct block_list *bl,int type, int flag);
 int clif_status_change(struct block_list *bl,int type,int flag);
@@ -266,13 +258,13 @@ int clif_mvp_exp(struct map_session_data *sd,unsigned long exp);
 void clif_changed_dir(struct block_list *bl, int area);
 
 // vending
-int clif_openvendingreq(struct map_session_data *sd,int num);
-int clif_showvendingboard(struct block_list* bl, const char* message, int fd);
-int clif_closevendingboard(struct block_list* bl,int fd);
-int clif_vendinglist(struct map_session_data *sd,int id,struct vending *vending);
-int clif_buyvending(struct map_session_data *sd,int index,int amount,int fail);
-int clif_openvending(struct map_session_data *sd,int id,struct vending *vending);
-int clif_vendingreport(struct map_session_data *sd,int index,int amount);
+void clif_openvendingreq(struct map_session_data* sd, int num);
+void clif_showvendingboard(struct block_list* bl, const char* message, int fd);
+void clif_closevendingboard(struct block_list* bl,int fd);
+void clif_vendinglist(struct map_session_data* sd,int id, struct s_vending* vending);
+void clif_buyvending(struct map_session_data* sd, int index, int amount, int fail);
+void clif_openvending(struct map_session_data* sd, int id, struct s_vending* vending);
+void clif_vendingreport(struct map_session_data* sd, int index, int amount);
 
 int clif_movetoattack(struct map_session_data *sd,struct block_list *bl);
 

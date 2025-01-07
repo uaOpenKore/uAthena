@@ -1,21 +1,22 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
 #include "../common/mmo.h"
 #include "../common/malloc.h"
 #include "../common/socket.h"
 #include "../common/db.h"
 #include "../common/lock.h"
 #include "../common/showmsg.h"
+#include "../common/utils.h"
 #include "char.h"
 #include "inter.h"
 #include "int_storage.h"
 #include "int_pet.h"
 #include "int_guild.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 // t@CftHg
 // inter_config_read()
@@ -210,7 +211,7 @@ int inter_storage_init()
 		s = (struct storage*)aCalloc(sizeof(struct storage), 1);
 		if(s==NULL){
 			ShowFatalError("int_storage: out of memory!\n");
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 //		memset(s,0,sizeof(struct storage)); aCalloc does this...
 		s->account_id=tmp_int;
@@ -239,7 +240,7 @@ int inter_storage_init()
 		gs = (struct guild_storage*)aCalloc(sizeof(struct guild_storage), 1);
 		if(gs==NULL){
 			ShowFatalError("int_storage: out of memory!\n");
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 //		memset(gs,0,sizeof(struct guild_storage)); aCalloc...
 		gs->guild_id=tmp_int;

@@ -7,6 +7,7 @@
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
+#include "../common/utils.h"
 
 #include "party.h"
 #include "atcommand.h"	//msg_txt()
@@ -120,7 +121,7 @@ int party_created(int account_id,int char_id,int fail,int party_id,char *name)
 	sd->status.party_id=party_id;
 	if(idb_get(party_db,party_id)!=NULL){
 		ShowFatalError("party: id already exists!\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	p=(struct party_data *)aCalloc(1,sizeof(struct party_data));
 	p->party.party_id=party_id;
@@ -591,7 +592,7 @@ int party_send_logout(struct map_session_data *sd)
 	return 1;
 }
 
-int party_send_message(struct map_session_data *sd,char *mes,int len)
+int party_send_message(struct map_session_data *sd,const char *mes,int len)
 {
 	if(sd->status.party_id==0)
 		return 0;
@@ -599,13 +600,13 @@ int party_send_message(struct map_session_data *sd,char *mes,int len)
 	party_recv_message(sd->status.party_id,sd->status.account_id,mes,len);
 
 	// Chat logging type 'P' / Party Chat
-	if( log_config.chat&4 && !(agit_flag && log_config.chat&32) )
+	if( log_config.chat&1 || (log_config.chat&8 && !(agit_flag && log_config.chat&64)) )
 		log_chat("P", sd->status.party_id, sd->status.char_id, sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y, NULL, mes);
 
 	return 0;
 }
 
-int party_recv_message(int party_id,int account_id,char *mes,int len)
+int party_recv_message(int party_id,int account_id,const char *mes,int len)
 {
 	struct party_data *p;
 	if( (p=party_search(party_id))==NULL)
@@ -763,7 +764,7 @@ int party_exp_share(struct party_data* p, struct block_list* src, unsigned int b
 }
 
 //Does party loot. first holds the id of the player who has time priority to take the item.
-int party_share_loot(struct party_data* p, TBL_PC* sd, struct item* item_data, int first)
+int party_share_loot(struct party_data* p, struct map_session_data* sd, struct item* item_data, int first)
 {
 	TBL_PC* target = NULL;
 	int i;

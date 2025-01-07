@@ -23,7 +23,7 @@ struct block_list;
 
 // _[WvZ
 
-struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int flag);
+struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int count);
 
 int battle_calc_return_damage(struct block_list *bl, int damage, int flag);
 
@@ -200,6 +200,7 @@ extern struct Battle_Config
 	int wedding_modifydisplay;
 	int wedding_ignorepalette;	//[Skotlex]
 	int xmas_ignorepalette;	// [Valaris]
+	int summer_ignorepalette; // [Zephyrus]
 	int natural_healhp_interval;
 	int natural_healsp_interval;
 	int natural_heal_skill_interval;
@@ -353,7 +354,7 @@ extern struct Battle_Config
 	int exp_bonus_attacker;
 	int exp_bonus_max_attacker;
 	int min_skill_delay_limit;
-	int default_skill_delay;
+	int default_walk_delay;
 	int no_skill_delay;
 	int attack_walk_delay;
 	int require_glory_guild;

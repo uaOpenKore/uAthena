@@ -94,7 +94,8 @@ enum {
 	MAPID_WEDDING,
 	MAPID_GUNSLINGER,
 	MAPID_NINJA,
-	MAPID_XMAS, // [Valaris]
+	MAPID_XMAS,
+	MAPID_SUMMER,
 //2_1 classes
 	MAPID_SUPER_NOVICE = JOBL_2_1|0x0,
 	MAPID_KNIGHT,
@@ -162,16 +163,15 @@ enum {
 	MAPID_BABY_SOUL_LINKER,
 };
 
-//Max size when inputting a string with those 'npc input boxes'
-//(also used for Graffiti, Talkie Box, Vending, and Chatrooms)
-#define MESSAGE_SIZE 80
+//Max size for inputs to Graffiti, Talkie Box and Vending text prompts
+#define MESSAGE_SIZE (79 + 1)
 //String length you can write in the 'talking box'
-#define CHATBOX_SIZE 70
-//Talk max size: <name> : <message of 70> [Skotlex]
-#define CHAT_SIZE (NAME_LENGTH + 3 + CHATBOX_SIZE)
+#define CHATBOX_SIZE (70 + 1)
 //Chatroom-related string sizes
 #define CHATROOM_TITLE_SIZE (36 + 1)
 #define CHATROOM_PASS_SIZE (8 + 1)
+//Max allowed chat text length
+#define CHAT_SIZE_MAX 150
 
 #define DEFAULT_AUTOSAVE_INTERVAL 5*60*1000
 
@@ -396,7 +396,7 @@ struct status_change {
 	unsigned int option;// effect state
 };
 
-struct vending {
+struct s_vending {
 	short index;
 	unsigned short amount;
 	unsigned int value;
@@ -591,8 +591,8 @@ struct map_session_data {
 	int packet_ver;  // 5: old, 6: 7july04, 7: 13july04, 8: 26july04, 9: 9aug04/16aug04/17aug04, 10: 6sept04, 11: 21sept04, 12: 18oct04, 13: 25oct04 ... 18
 	struct mmo_charstatus status;
 	struct registry save_reg;
-	
-	struct item_data *inventory_data[MAX_INVENTORY];
+
+	struct item_data* inventory_data[MAX_INVENTORY]; // direct pointers to itemdb entries (faster than doing item_id lookups)
 	short equip_index[11];
 	unsigned int weight,max_weight;
 	int cart_weight,cart_num;
@@ -606,7 +606,7 @@ struct map_session_data {
 	int npc_menu;
 	int npc_amount;
 	struct script_state *st;
-	char npc_str[256];
+	char npc_str[CHATBOX_SIZE]; // for passing npc input box text to script engine
 	int npc_timer_id; //For player attached npc timers. [Skotlex]
 	unsigned int chatID;
 	time_t idletime;
@@ -690,6 +690,12 @@ struct map_session_data {
 		int rate;
 	} itemhealrate[MAX_PC_BONUS];
 	// zeroed structures end here
+	// manually zeroed structures start here.
+	struct s_autoscript {
+		unsigned short rate, flag;
+		struct script_code *script;
+	} autoscript[5], autoscript2[5]; //Auto script on attack, when attacked
+	// manually zeroed structures end here.
 	// zeroed vars start here.
 	int arrow_atk,arrow_ele,arrow_cri,arrow_hit;
 	int nsshealhp,nsshealsp;
@@ -767,7 +773,7 @@ struct map_session_data {
 	int vender_id;
 	int vend_num;
 	char message[MESSAGE_SIZE];
-	struct vending vending[MAX_VENDING];
+	struct s_vending vending[MAX_VENDING];
 
 	struct pet_data *pd;
 	struct homun_data *hd;	// [blackhole89]
@@ -792,7 +798,7 @@ struct map_session_data {
 	char fakename[NAME_LENGTH]; // fake names [Valaris]
 
 #ifndef TXT_ONLY
-	int mail_counter;	// mail counter for mail system [Valaris]
+	int mail_counter;	// mail counter for mail system (antiflood protection)
 #endif
 
 	int duel_group; // duel vars [LuzZza]
@@ -832,10 +838,6 @@ struct npc_data {
 	char exname[NAME_LENGTH];
 	int chat_id;
 	unsigned int next_walktime;
-
-	char eventqueue[MAX_EVENTQUEUE][50];
-	int eventtimer[MAX_EVENTTIMER];
-	short arenaflag;
 
 	void* chatdb; // pointer to a npc_parse struct (see npc_chat.c)
 	struct npc_data *master_nd;
@@ -914,6 +916,7 @@ struct mob_data {
 		unsigned steal_coin_flag : 1;
 		unsigned soul_change_flag : 1; // Celest
 		unsigned alchemist: 1;
+		unsigned spotted: 1;
 		unsigned char attacked_count; //For rude attacked.
 		int provoke_flag; // Celest
 	} state;
@@ -1028,9 +1031,9 @@ enum {
 
 struct map_data {
 	char name[MAP_NAME_LENGTH];
-	unsigned short index; //Index is the map index used by the mapindex* functions.
-	unsigned char *gat; // If this is NULL, the map is not on this map-server
-	unsigned char *cell; //Contains temporary cell data that is set/unset on tiles.
+	unsigned short index; // The map index used by the mapindex* functions.
+	unsigned char *gat;   // Holds the type of each map cell (NULL if the map is not on this map-server).
+	unsigned char *cell;  // Contains temporary cell data that is set/unset on tiles.
 #ifdef CELL_NOSTACK
 	unsigned char *cell_bl; //Holds amount of bls in any given cell.
 #endif
@@ -1038,8 +1041,8 @@ struct map_data {
 	struct block_list **block_mob;
 	int *block_count,*block_mob_count;
 	int m;
-	short xs,ys;
-	short bxs,bys;
+	short xs,ys; // map dimensions (in cells)
+	short bxs,bys; // map dimensions (in blocks)
 	int water_height; // water level value, needed because of mapcache saving
 	int npc_num;
 	int users;
@@ -1215,6 +1218,7 @@ enum _look {
 #define CELL_SAFETYWALL	0x8
 #define CELL_LANDPROTECTOR	0x10
 #define CELL_BASILICA	0x20
+#define CELL_NOVENDING	0x40
 #define CELL_ICEWALL	0x80
 /*
  * map_getcell()gptO
@@ -1237,6 +1241,7 @@ typedef enum {
 	CELL_CHKLANDPROTECTOR,
 	CELL_CHKICEWALL,
 	CELL_CHKSTACK,
+	CELL_CHKNOVENDING,
 } cell_t;
 // map_setcell()gptO
 enum {
@@ -1253,6 +1258,8 @@ enum {
 	CELL_CLRSAFETYWALL,
 	CELL_SETICEWALL,
 	CELL_CLRICEWALL,
+	CELL_SETNOVENDING,
+	CELL_CLRNOVENDING,
 };
 
 extern struct map_data map[];
@@ -1328,9 +1335,10 @@ int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,str
 // LidL A
 void map_addchariddb(int charid,char *name);
 void map_delchariddb(int charid);
+void map_addnickdb(struct map_session_data *);
 int map_reqchariddb(struct map_session_data * sd,int charid);
-char * map_charid2nick(int);
-struct map_session_data * map_charid2sd(int);
+const char* map_charid2nick(int charid);
+struct map_session_data* map_charid2sd(int charid);
 
 struct map_session_data * map_id2sd(int);
 struct block_list * map_id2bl(int);
@@ -1345,7 +1353,6 @@ void map_deliddb(struct block_list *bl);
 struct map_session_data** map_getallusers(int *users);
 void map_foreachpc(int (*func)(DBKey,void*,va_list),...);
 int map_foreachiddb(int (*)(DBKey,void*,va_list),...);
-void map_addnickdb(struct map_session_data *);
 struct map_session_data * map_nick2sd(const char*);
 
 //
@@ -1358,7 +1365,7 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 #define path_search(wpd,m,x0,y0,x1,y1,flag)  path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKNOPASS)
 #define path_search2(wpd,m,x0,y0,x1,y1,flag) path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKWALL)
 
-int path_search_long_real(struct shootpath_data *spd,int m,int x0,int y0,int x1,int y1,cell_t flag);
+bool path_search_long_real(struct shootpath_data *spd,int m,int x0,int y0,int x1,int y1,cell_t flag);
 #define path_search_long(spd,m,x0,y0,x1,y1) path_search_long_real(spd,m,x0,y0,x1,y1,CELL_CHKWALL)
 
 int path_blownpos(int m,int x0,int y0,int dx,int dy,int count);
@@ -1396,37 +1403,6 @@ extern char *GRF_PATH_FILENAME;
 
 extern char *map_server_dns;
 
-#ifndef TXT_ONLY
-
-#ifdef WIN32
-#include <winsock2.h>
-#endif
-#include <mysql.h>
-
-extern char tmp_sql[65535];
-
-extern int db_use_sqldbs;
-extern MYSQL mmysql_handle;
-extern MYSQL_RES*	sql_res ;
-extern MYSQL_ROW	sql_row ;
-
-extern MYSQL logmysql_handle;
-extern MYSQL_RES*	logsql_res ;
-extern MYSQL_ROW	logsql_row ;
-
-extern int mail_server_enable;
-extern MYSQL mail_handle;
-extern MYSQL_RES* 	mail_res ;
-extern MYSQL_ROW	mail_row ;
-
-extern char item_db_db[32];
-extern char item_db2_db[32];
-extern char mob_db_db[32];
-extern char mob_db2_db[32];
-extern char char_db[32];
-extern char mail_db[32];
-
-#endif /* not TXT_ONLY */
 //Useful typedefs from jA [Skotlex]
 typedef struct map_session_data TBL_PC;
 typedef struct npc_data         TBL_NPC;
@@ -1443,5 +1419,25 @@ typedef struct homun_data       TBL_HOM;
 
 extern int lowest_gm_level;
 extern char main_chat_nick[16];
+
+#ifndef TXT_ONLY
+
+#include "../common/sql.h"
+
+extern int db_use_sqldbs;
+extern int mail_server_enable;
+
+extern Sql* mmysql_handle;
+extern Sql* logmysql_handle;
+extern Sql* mail_handle;
+
+extern char item_db_db[32];
+extern char item_db2_db[32];
+extern char mob_db_db[32];
+extern char mob_db2_db[32];
+extern char char_db[32];
+extern char mail_db[32];
+
+#endif /* not TXT_ONLY */
 
 #endif /* _MAP_H_ */

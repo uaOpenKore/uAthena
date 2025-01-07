@@ -8,6 +8,7 @@
 #include "../common/showmsg.h"
 #include "../common/ers.h"
 #include "../common/strlib.h"
+#include "../common/utils.h"
 
 #include "map.h"
 #include "pc.h"
@@ -295,7 +296,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 			struct skill_unit_group *group = (struct skill_unit_group *)sc->data[SC_SAFETYWALL].val3;
 			if (group) {
 				if (--group->val2<=0)
-					skill_delunitgroup(NULL,group,0);
+					skill_delunitgroup(NULL,group);
 				return 0;
 			}
 			status_change_end(bl,SC_SAFETYWALL,-1);
@@ -1545,7 +1546,11 @@ static struct Damage battle_calc_weapon_attack(
 					skillratio += 100*(skill_lv-1);
 					break;
 				case KN_CHARGEATK:
-					skillratio += 100*((wflag-1)/3); //+100% every 3 cells.of distance
+					{
+					int k = (wflag-1)/3; //+100% every 3 cells of distance
+					if( k > 2 ) k = 2; // ...but hard-limited to 300%.
+					skillratio += 100 * k;
+					}
 					break;
 				case HT_PHANTASMIC:
 					skillratio += 50;
@@ -2151,6 +2156,7 @@ struct Damage battle_calc_magic_attack(
 	switch(skill_num)
 	{
 		case MG_FIREWALL:
+		case NJ_KAENSIN:
 			ad.dmotion = 0; //No flinch animation.
 			if(mflag) //mflag has a value when it was checked against an undead in skill.c [Skotlex]
 				ad.blewcount = 0; //No knockback
@@ -2427,8 +2433,7 @@ struct Damage battle_calc_magic_attack(
 /*==========================================
  * _??[WvZ
  *------------------------------------------*/
-struct Damage  battle_calc_misc_attack(
-	struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
+struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
 {
 	int skill;
 	short i, nk;
@@ -2653,13 +2658,13 @@ struct Damage  battle_calc_misc_attack(
 /*==========================================
  * _??[WvZ??p
  *------------------------------------------*/
-struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int flag)
+struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int count)
 {
 	struct Damage d;
 	switch(attack_type) {
-	case BF_WEAPON: d = battle_calc_weapon_attack(bl,target,skill_num,skill_lv,flag); break;
-	case BF_MAGIC:  d = battle_calc_magic_attack(bl,target,skill_num,skill_lv,flag);  break;
-	case BF_MISC:   d = battle_calc_misc_attack(bl,target,skill_num,skill_lv,flag);   break;
+	case BF_WEAPON: d = battle_calc_weapon_attack(bl,target,skill_num,skill_lv,count); break;
+	case BF_MAGIC:  d = battle_calc_magic_attack(bl,target,skill_num,skill_lv,count);  break;
+	case BF_MISC:   d = battle_calc_misc_attack(bl,target,skill_num,skill_lv,count);   break;
 	default:
 		if (battle_config.error_log)
 			ShowError("battle_calc_attack: unknown attack type! %d\n",attack_type);
@@ -3437,6 +3442,7 @@ static const struct _battle_data {
 	{ "wedding_modifydisplay",              &battle_config.wedding_modifydisplay,           0,      0,      1,              },
 	{ "wedding_ignorepalette",              &battle_config.wedding_ignorepalette,           0,      0,      1,              },
 	{ "xmas_ignorepalette",                 &battle_config.xmas_ignorepalette,              0,      0,      1,              },
+	{ "summer_ignorepalette",               &battle_config.summer_ignorepalette,            0,      0,      1,              },
 	{ "natural_healhp_interval",            &battle_config.natural_healhp_interval,         6000,   NATURAL_HEAL_INTERVAL, INT_MAX, },
 	{ "natural_healsp_interval",            &battle_config.natural_healsp_interval,         8000,   NATURAL_HEAL_INTERVAL, INT_MAX, },
 	{ "natural_heal_skill_interval",        &battle_config.natural_heal_skill_interval,     10000,  NATURAL_HEAL_INTERVAL, INT_MAX, },
@@ -3598,7 +3604,7 @@ static const struct _battle_data {
 	{ "exp_bonus_attacker",                 &battle_config.exp_bonus_attacker,              25,     0,      INT_MAX,        },
 	{ "exp_bonus_max_attacker",             &battle_config.exp_bonus_max_attacker,          12,     2,      INT_MAX,        },
 	{ "min_skill_delay_limit",              &battle_config.min_skill_delay_limit,           100,    10,     INT_MAX,        },
-	{ "default_skill_delay",                &battle_config.default_skill_delay,             300,    0,      INT_MAX,        },
+	{ "default_walk_delay",                 &battle_config.default_walk_delay,              300,    0,      INT_MAX,        },
 	{ "no_skill_delay",                     &battle_config.no_skill_delay,                  BL_MOB, BL_NUL, BL_ALL,         },
 	{ "attack_walk_delay",                  &battle_config.attack_walk_delay,               0,      0,      INT_MAX,        },
 	{ "require_glory_guild",                &battle_config.require_glory_guild,             0,      0,      1,              },

@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================= 
+//===== eAthena Script =======================================
 //= Munak and Bongun accessory / Taming items Quest
 //===== By: ==================================================
 //= eAthena Team
@@ -67,7 +67,7 @@ L_NoItem:
 ExEnd:
 	mes "[Sherri]";
 	mes "*sighs*";
-	close;    
+	close;
 }
 
 izlude_in.gat,115,76,5	script	Evan	47,{

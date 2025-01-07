@@ -1,10 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/malloc.h"
@@ -15,6 +11,10 @@
 #include "char.h"
 #include "inter.h"
 #include "int_party.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 char party_txt[1024] = "save/party.txt";
 #ifndef TXT_SQL_CONVERT
@@ -194,7 +194,7 @@ int inter_party_init() {
 		p = (struct party_data*)aCalloc(sizeof(struct party_data), 1);
 		if (p == NULL){
 			ShowFatalError("int_party: out of memory!\n");
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 		memset(p, 0, sizeof(struct party_data));
 		if (inter_party_fromstr(line, &p->party) == 0 && p->party.party_id > 0) {

@@ -13,7 +13,8 @@
 
 // Change this to increase the table size in your mob_db to accomodate a larger mob database.
 // Be sure to note that IDs 4001 to 4048 are reserved for advanced/baby/expanded classes.
-#define MAX_MOB_DB 10000
+// Notice that the last 1000 entries are used for player clones, so always set this to desired value +1000
+#define MAX_MOB_DB 3000
 
 //The number of drops all mobs have and the max drop-slot that the steal skill will attempt to steal from.
 #define MAX_MOB_DROP 10
@@ -28,8 +29,8 @@
 #define MOB_SLAVEDISTANCE 2
 
 // These define the range of available IDs for clones. [Valaris]
-#define MOB_CLONE_START 9001
-#define MOB_CLONE_END 10000
+#define MOB_CLONE_START (MAX_MOB_DB-999)
+#define MOB_CLONE_END MAX_MOB_DB
 
 struct mob_skill {
 	short state;
@@ -150,7 +151,7 @@ int mob_spawn_guardian(const char* mapname, short x, short y, const char* mobnam
 int mob_guardian_guildchange(struct block_list *bl,va_list ap); //Change Guardian's ownership. [Skotlex]
 
 int mob_randomwalk(struct mob_data *md,unsigned int tick);
-
+int mob_warpchase(struct mob_data *md, struct block_list *target);
 int mob_target(struct mob_data *md,struct block_list *bl,int dist);
 int mob_unlocktarget(struct mob_data *md,int tick);
 struct mob_data* mob_spawn_dataset(struct spawn_data *data);

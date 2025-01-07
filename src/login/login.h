@@ -30,9 +30,9 @@ struct mmo_char_server {
 	char name[20];
 	uint32 ip;
 	uint16 port;
-	uint16 users;
-	uint16 maintenance;
-	uint16 new_;
+	uint16 users;		// user count on this server
+	uint16 maintenance;	// in maintenance mode?
+	uint16 new_;		// allows creating new chars?
 };
 
 #endif /* _LOGIN_H_ */

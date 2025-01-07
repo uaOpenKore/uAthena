@@ -9,7 +9,6 @@ extern int potion_hp, potion_per_hp, potion_sp, potion_per_sp;
 extern int potion_target;
 
 extern struct Script_Config {
-	unsigned verbose_mode : 1;
 	unsigned warn_func_mismatch_paramnum : 1;
 	int check_cmdcount;
 	int check_gotocount;
@@ -63,7 +62,8 @@ struct script_state {
 };
 
 enum script_parse_options {
-	SCRIPT_USE_LABEL_DB = 0x1
+	SCRIPT_USE_LABEL_DB = 0x1,// records labels in scriptlabel_db
+	SCRIPT_IGNORE_EXTERNAL_BRACKETS = 0x2// ignores the check for {} brackets around the script
 };
 
 struct script_code* parse_script(const char* src,const char* file,int line,int options);

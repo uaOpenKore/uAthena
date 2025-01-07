@@ -1,10 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
 #include "../common/db.h"
 #include "../common/mmo.h"
 #include "../common/socket.h"
@@ -12,7 +8,6 @@
 #include "../common/malloc.h"
 #include "../common/lock.h"
 #include "../common/showmsg.h"
-
 #include "char.h"
 #include "inter.h"
 #include "int_party.h"
@@ -21,6 +16,10 @@
 #include "int_storage.h"
 #include "int_pet.h"
 #include "int_homun.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define WISDATA_TTL (60*1000)	// Existence time of Wisp/page data (60 seconds)
                              	// that is the waiting time of answers of all map-servers
@@ -119,7 +118,7 @@ int inter_accreg_init(void) {
 		reg = (struct accreg*)aCalloc(sizeof(struct accreg), 1);
 		if (reg == NULL) {
 			ShowFatalError("inter: accreg: out of memory!\n");
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 		if (inter_accreg_fromstr(line, reg) == 0 && reg->account_id > 0) {
 			idb_put(accreg_db, reg->account_id, reg);
@@ -678,9 +677,9 @@ int inter_parse_frommap(int fd) {
 	len = 0;
 
 	// interI
-	if (cmd < 0x3000 || cmd >= 0x3000 + (sizeof(inter_recv_packet_length) / sizeof(inter_recv_packet_length[0])))
+	if (cmd < 0x3000 || cmd >= 0x3000 + ARRAYLENGTH(inter_recv_packet_length))
 		return 0;
-	
+
 	if (inter_recv_packet_length[cmd-0x3000] == 0) //This is necessary, because otherwise we return 2 and the char server will just hang waiting for packets! [Skotlex]
 		return 0;
 

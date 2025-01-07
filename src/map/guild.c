@@ -9,6 +9,7 @@
 #include "../common/showmsg.h"
 #include "../common/ers.h"
 #include "../common/strlib.h"
+#include "../common/utils.h"
 
 #include "map.h"
 #include "guild.h"
@@ -994,7 +995,7 @@ int guild_recv_memberinfoshort(int guild_id,int account_id,int char_id,int onlin
 	return 0;
 }
 // MhbM
-int guild_send_message(struct map_session_data *sd,char *mes,int len)
+int guild_send_message(struct map_session_data *sd,const char *mes,int len)
 {
 	nullpo_retr(0, sd);
 
@@ -1004,13 +1005,13 @@ int guild_send_message(struct map_session_data *sd,char *mes,int len)
 	guild_recv_message(sd->status.guild_id,sd->status.account_id,mes,len);
 
 	// Chat logging type 'G' / Guild Chat
-	if( log_config.chat&8 && !(agit_flag && log_config.chat&32) )
+	if( log_config.chat&1 || (log_config.chat&16 && !(agit_flag && log_config.chat&64)) )
 		log_chat("G", sd->status.guild_id, sd->status.char_id, sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y, NULL, mes);
 
 	return 0;
 }
 // MhbM
-int guild_recv_message(int guild_id,int account_id,char *mes,int len)
+int guild_recv_message(int guild_id,int account_id,const char *mes,int len)
 {
 	struct guild *g;
 	if( (g=guild_search(guild_id))==NULL)
@@ -1922,12 +1923,11 @@ int guild_save_sub(int tid,unsigned int tick,int id,int data)
 
 int guild_agit_break(struct mob_data *md)
 {	// Run One NPC_Event[OnAgitBreak]
-	char *evname;
+	char* evname;
 
 	if(!agit_flag) return 0;	// Agit already End
-	evname=(char *)aMallocA((strlen(md->npc_event) + 1)*sizeof(char));
 
-	strcpy(evname,md->npc_event);
+	evname = aStrdup(md->npc_event);
 // Now By User to Run [OnAgitBreak] NPC Event...
 // It's a little impossible to null point with player disconnect in this!
 // But Script will be stop, so nothing...

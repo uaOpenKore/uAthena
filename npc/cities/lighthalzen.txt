@@ -1,12 +1,12 @@
-//===== eAthena Script =======================================
+//===== eAthena Script ======================================= 
 //= Lighthalzen City
-//===== By: ==================================================
+//===== By: ================================================== 
 //=  erKURITA, Au{R}oN (Translated by Alan), $ephiroth
-//===== Current Version: =====================================
+//===== Current Version: ===================================== 
 //= 1.3
-//===== Compatible With: =====================================
+//===== Compatible With: ===================================== 
 //= eAthena 1.0
-//===== Description: =========================================
+//===== Description: ========================================= 
 //= Lighthalzen NPCs (Temporal names for now) [erKURITA]
 //===== Additional Comments: ==================================
 //= 0.1 Placed temporal names, why there weren't on the SVN before? [erKURITA]
@@ -2079,7 +2079,7 @@ lhz_in02,147,222,4	script	Officer Guo::off_guo	85,{
 lhz_in02,142,221,8	duplicate(off_guo)	Suspect::susp_guo	870
 
 
-// Auction -----------------------------------------------------------------------
+// Auction ----------------------------------------------------------------------- 
 
 lighthalzen,205,169,4	script	Auction Guide	833,{
 
@@ -2124,7 +2124,7 @@ auction_02,56,46,2	duplicate(as1)	Auction Supervisor::asd2	874
 auction_02,43,17,0	warp	auc_light01	1,1,lighthalzen,209,169
 
 
-// New -----------------------------------------------------------------------
+// New ----------------------------------------------------------------------- 
 
 lhz_in01,14,28,3	script	Banquet Staff	109,{
 
@@ -2762,7 +2762,7 @@ close;
 
 lighthalzen,192,63,4	script	Sergei	92,{
 
-mes "[Sergei]";
+mes "[Sergei]"; 
 mes "You know, there's an";
 mes "interesting story about";
 mes "the axe that's hanging";
@@ -2819,7 +2819,7 @@ mes "about the poor and needy?";
 close;
 }
 
-// ---------------------------------------------------------------------------
+// --------------------------------------------------------------------------- 
 
 lighthalzen,77,203,3	script	Victor Perfecto	869,{
 
@@ -2848,4 +2848,4 @@ mes "equated to zeny, you know?";
 close;
 }
 
-// ---------------------------------------------------------------------------
+// --------------------------------------------------------------------------- 

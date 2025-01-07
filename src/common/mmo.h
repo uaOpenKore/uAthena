@@ -4,19 +4,19 @@
 #ifndef	_MMO_H_
 #define	_MMO_H_
 
-#include <time.h>
 #include "cbasetypes.h"
-#include "utils.h" // _WIN32
+#include <time.h>
 
 #define FIFOSIZE_SERVERLINK	256*1024
 
 //Remove/Comment this line to disable sc_data saving. [Skotlex]
 #define ENABLE_SC_SAVING
-
 //Remove/Comment this line to disable server-side hot-key saving support [Skotlex]
 //Note that newer clients no longer save hotkeys in the registry!
+#define HOTKEY_SAVING
+
 //The number is the max number of hotkeys to save (27 = 9 skills x 3 bars)
-#define HOTKEY_SAVING 27
+#define MAX_HOTKEYS 27
 
 #define MAX_MAP_PER_SERVER 1024
 #define MAX_INVENTORY 100
@@ -74,12 +74,12 @@
 
 //For character names, title names, guilds, maps, etc.
 //Includes null-terminator as it is the length of the array.
-#define NAME_LENGTH 24
+#define NAME_LENGTH (23 + 1)
 //For item names, which tend to have much longer names.
 #define ITEM_NAME_LENGTH 50
 //For Map Names, which the client considers to be 16 in length including the .gat extension
-#define MAP_NAME_LENGTH 12
-#define MAP_NAME_LENGTH_EXT 16
+#define MAP_NAME_LENGTH (11 + 1)
+#define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
 
 #define MAX_FRIENDS 40
 #define MAX_MEMOPOINTS 10
@@ -179,7 +179,7 @@ struct s_homunculus {	//[orn]
 	int luk ;
 };
 
-struct friend {
+struct s_friend {
 	int account_id;
 	int char_id;
 	char name[NAME_LENGTH];
@@ -220,7 +220,7 @@ struct mmo_charstatus {
 	char name[NAME_LENGTH];
 	unsigned int base_level,job_level;
 	short str,agi,vit,int_,dex,luk;
-	unsigned char char_num,sex;
+	unsigned char slot,sex;
 
 	uint32 mapip;
 	uint16 mapport;
@@ -229,9 +229,9 @@ struct mmo_charstatus {
 	struct item inventory[MAX_INVENTORY],cart[MAX_CART];
 	struct skill skill[MAX_SKILL];
 
-	struct friend friends[MAX_FRIENDS]; //New friend system [Skotlex]
+	struct s_friend friends[MAX_FRIENDS]; //New friend system [Skotlex]
 #ifdef HOTKEY_SAVING
-	struct hotkey hotkeys[HOTKEY_SAVING];
+	struct hotkey hotkeys[MAX_HOTKEYS];
 #endif
 };
 
@@ -367,6 +367,8 @@ struct guild_castle {
 		int id;
 	} guardian[MAX_GUARDIANS]; //New simplified structure. [Skotlex]
 };
+
+// for Brandish Spear calculations
 struct square {
 	int val1[5];
 	int val2[5];
@@ -444,6 +446,7 @@ enum {
 	JOB_GUNSLINGER,
 	JOB_NINJA,
 	JOB_XMAS,
+	JOB_SUMMER,
 
 	JOB_NOVICE_HIGH = 4001,
 	JOB_SWORDMAN_HIGH,
@@ -497,5 +500,10 @@ enum {
 	JOB_STAR_GLADIATOR2,
 	JOB_SOUL_LINKER,
 };
+
+// sanity checks...
+#if MAX_ZENY > INT_MAX
+#error MAX_ZENY is too big
+#endif
 
 #endif /* _MMO_H_ */

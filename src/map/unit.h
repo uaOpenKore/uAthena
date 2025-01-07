@@ -12,7 +12,7 @@ struct unit_data;
 
 // sJn
 //     lA0 (  ), 1 ( s )
-int unit_walktoxy( struct block_list *bl, int x, int y, int easy);
+int unit_walktoxy( struct block_list *bl, short x, short y, int easy);
 int unit_walktobl( struct block_list *bl, struct block_list *target, int range, int easy);
 int unit_run(struct block_list *bl);
 
@@ -26,12 +26,12 @@ int unit_can_move(struct block_list *bl);
 int unit_is_walking(struct block_list *bl);
 int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int type);
 
-int unit_escape(struct block_list *bl, struct block_list *target, int dist);
+int unit_escape(struct block_list *bl, struct block_list *target, short dist);
 // u()
-int unit_movepos(struct block_list *bl,int dst_x,int dst_y, int easy, int checkpath);
-int unit_warp(struct block_list *bl, int map, short x, short y, int type);
+int unit_movepos(struct block_list *bl, short dst_x, short dst_y, int easy, bool checkpath);
+int unit_warp(struct block_list *bl, short map, short x, short y, int type);
 int unit_setdir(struct block_list *bl,unsigned char dir);
-int unit_getdir(struct block_list *bl);
+uint8 unit_getdir(struct block_list *bl);
 
 // s
 int unit_can_reach_pos(struct block_list *bl,int x,int y,int easy);
@@ -44,11 +44,11 @@ int unit_cancel_combo(struct block_list *bl);
 
 // XLgp
 int unit_skilluse_id(struct block_list *src, int target_id, int skill_num, int skill_lv);
-int unit_skilluse_pos(struct block_list *src, int skill_x, int skill_y, int skill_num, int skill_lv);
+int unit_skilluse_pos(struct block_list *src, short skill_x, short skill_y, int skill_num, int skill_lv);
 
 // XLgp( LXgALZst )
 int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int skill_lv, int casttime, int castcancel);
-int unit_skilluse_pos2( struct block_list *src, int skill_x, int skill_y, int skill_num, int skill_lv, int casttime, int castcancel);
+int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, int skill_num, int skill_lv, int casttime, int castcancel);
 
 // rLZ
 int unit_skillcastcancel(struct block_list *bl,int type);
@@ -69,7 +69,7 @@ int unit_changeviewsize(struct block_list *bl,short size);
 int do_init_unit(void);
 int do_final_unit(void);
 
-extern const int dirx[8];
-extern const int diry[8];
+extern const short dirx[8];
+extern const short diry[8];
 
 #endif /* _UNIT_H_ */

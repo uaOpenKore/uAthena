@@ -3215,7 +3215,7 @@ int prompt(void)
 			} else {
 				ShowMessage("Bye.\n");
 			}
-			exit(0);
+			exit(EXIT_SUCCESS);
 // unknown command
 		} else {
 			if (defaultlanguage == 'F') {
@@ -3248,7 +3248,7 @@ int parse_fromlogin(int fd)
 			ladmin_log("Impossible to have a connection with the login-server [%s:%d] !\n", loginserverip, loginserverport);
 		}
 		do_close(fd);
-		exit (0);
+		exit(EXIT_FAILURE);
 	}
 
 //	ShowMessage("parse_fromlogin : %d %d %d\n", fd, RFIFOREST(fd), RFIFOW(fd,0));
@@ -4199,7 +4199,7 @@ int Connect_login_server(void)
 	if (login_fd == -1)
 	{	//Might not be the most elegant way to handle this, but I've never used ladmin so I dunno what else you could do. [Skotlex]
 		ShowMessage("Error: Failed to connect to Login Server\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	if (passenc == 0) {
 		WFIFOHEAD(login_fd,28);
@@ -4384,8 +4384,7 @@ int do_init(int argc, char **argv)
 	// so we have to do this ourselves
 	while (runflag) {
 		next = do_timer(gettick_nocache());
-		do_sendrecv(next);
-		do_parsepacket();
+		do_sockets(next);
 	}
 
 	return 0;

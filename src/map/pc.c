@@ -8,6 +8,7 @@
 #include "../common/showmsg.h"
 #include "../common/socket.h" // RFIFO*()
 #include "../common/timer.h"
+#include "../common/utils.h"
 
 #include "atcommand.h" // get_atcommand_level()
 #include "battle.h" // battle_config
@@ -66,37 +67,36 @@ char motd_text[MOTD_LINE_SIZE][256]; // Message of the day buffer [Valaris]
 static const char feel_var[3][NAME_LENGTH] = {"PC_FEEL_SUN","PC_FEEL_MOON","PC_FEEL_STAR"};
 static const char hate_var[3][NAME_LENGTH] = {"PC_HATE_MOB_SUN","PC_HATE_MOB_MOON","PC_HATE_MOB_STAR"};
 
-int pc_isGM(struct map_session_data *sd)
+int pc_isGM(struct map_session_data* sd)
 {
 	int i;
-
 	nullpo_retr(0, sd);
 
-	if(sd->bl.type!=BL_PC )
+	if( sd->bl.type != BL_PC )
 		return 0;
 
-	for(i = 0; i < GM_num; i++)
-		if (gm_account[i].account_id == sd->status.account_id)
-			return gm_account[i].level;
-	return 0;
-
+	ARR_FIND( 0, GM_num, i, gm_account[i].account_id == sd->status.account_id );
+	return ( i < GM_num ) ? gm_account[i].level : 0;
 }
 
 int pc_set_gm_level(int account_id, int level)
 {
     int i;
-    for (i = 0; i < GM_num; i++) {
-        if (account_id == gm_account[i].account_id) {
-            gm_account[i].level = level;
-            return 0;
-        }
-    }
 
-    GM_num++;
-    gm_account = (struct gm_account *) aRealloc(gm_account, sizeof(struct gm_account) * GM_num);
-    gm_account[GM_num - 1].account_id = account_id;
-    gm_account[GM_num - 1].level = level;
-    return 0;
+	ARR_FIND( 0, GM_num, i, account_id == gm_account[i].account_id );
+	if( i < GM_num )
+	{
+		gm_account[i].level = level;
+	}
+	else
+	{
+	    gm_account = (struct gm_account *) aRealloc(gm_account, (GM_num + 1) * sizeof(struct gm_account));
+	    gm_account[GM_num].account_id = account_id;
+	    gm_account[GM_num].level = level;
+	    GM_num++;
+	}
+
+	return 0;
 }
 
 static int pc_invincible_timer(int tid,unsigned int tick,int id,int data)
@@ -652,8 +652,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	pc_checkitem(sd);
 
 	status_change_init(&sd->bl);
-	if ((battle_config.atc_gmonly == 0 || pc_isGM(sd)) &&
-	    (pc_isGM(sd) >= get_atcommand_level(AtCommand_Hide)))
+	if ((battle_config.atc_gmonly == 0 || pc_isGM(sd)) && (pc_isGM(sd) >= get_atcommand_level(AtCommand_Hide)))
 		sd->status.option &= (OPTION_MASK | OPTION_INVISIBLE);
 	else
 		sd->status.option &= OPTION_MASK;
@@ -743,7 +742,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 
 #ifndef TXT_ONLY
 	if(mail_server_enable)
-		mail_check(sd,1); // check mail at login [Valaris]
+		mail_check(sd,0); // check mail at login [Valaris]
 #endif
 
 	// message of the limited time of the account
@@ -1215,6 +1214,36 @@ int pc_disguise(struct map_session_data *sd, int class_)
 	}
 
 	return 1;
+}
+
+int pc_autoscript_add(struct s_autoscript *scripts, int max, short rate, short flag, struct script_code *script)
+{
+	int i;
+	ARR_FIND(0, max, i, scripts[i].script == NULL);
+	if (i == max) {
+		if (battle_config.error_log)
+			ShowWarning("pc_autoscript_bonus: Reached max (%d) number of autoscripts per character!\n", max);
+		return 0;
+	}
+	scripts[i].script = script;
+	scripts[i].rate = rate;
+	//Auto-update flag value.
+	if (!(flag&BF_RANGEMASK)) flag|=BF_SHORT|BF_LONG; //No range defined? Use both.
+	if (!(flag&BF_WEAPONMASK)) flag|=BF_WEAPON; //No attack type defined? Use weapon.
+	if (!(flag&BF_SKILLMASK)) {
+		if (flag&(BF_MAGIC|BF_MISC)) flag|=BF_SKILL; //These two would never trigger without BF_SKILL
+		if (flag&BF_WEAPON) flag|=BF_NORMAL;
+	}
+	scripts[i].flag = flag;
+	return 1;
+}
+
+void pc_autoscript_clear(struct s_autoscript *scripts, int max)
+{
+	int i;
+	for (i = 0; i < max && scripts[i].script; i++)
+		script_free_code(scripts[i].script);
+	memset(scripts, 0, i*sizeof(struct s_autoscript));
 }
 
 static int pc_bonus_autospell_del(struct s_autospell *spell, int max, short id, short lv, short rate, short card_id)
@@ -2709,16 +2738,16 @@ int pc_payzeny(struct map_session_data *sd,int zeny)
 {
 	nullpo_retr(0, sd);
 
-	if(sd->state.finalsave)
+	if( sd->state.finalsave )
 		return 1;
 
-	if (zeny < 0)
+	if( zeny < 0 )
 		return pc_getzeny(sd, -zeny);
 
-	if (sd->status.zeny < zeny)
+	if( sd->status.zeny < zeny )
 		return 1; //Not enough.
 
-	sd->status.zeny-=zeny;
+	sd->status.zeny -= zeny;
 	clif_updatestatus(sd,SP_ZENY);
 
 	return 0;
@@ -2731,23 +2760,25 @@ int pc_getzeny(struct map_session_data *sd,int zeny)
 {
 	nullpo_retr(0, sd);
 
-	if(sd->state.finalsave)
+	if( sd->state.finalsave )
 		return 1;
 
-	if(zeny < 0)
+	if( zeny < 0 )
 		return pc_payzeny(sd, -zeny);
 
-	if (sd->status.zeny > MAX_ZENY -zeny)
-		return 1; //Overflow
+	if( zeny > MAX_ZENY - sd->status.zeny )
+		zeny = MAX_ZENY - sd->status.zeny;
 
-	sd->status.zeny+=zeny;
+	sd->status.zeny += zeny;
 	clif_updatestatus(sd,SP_ZENY);
 
-	if(zeny > 0 && sd->state.showzeny){
+	if( zeny > 0 && sd->state.showzeny )
+	{
 		char output[255];
 		sprintf(output, "Gained %dz.", zeny);
 		clif_disp_onlyself(sd,output,strlen(output));
 	}
+
 	return 0;
 }
 
@@ -2757,16 +2788,10 @@ int pc_getzeny(struct map_session_data *sd,int zeny)
 int pc_search_inventory(struct map_session_data *sd,int item_id)
 {
 	int i;
-
 	nullpo_retr(-1, sd);
 
-	for(i=0;i<MAX_INVENTORY;i++) {
-		if(sd->status.inventory[i].nameid == item_id &&
-		 (sd->status.inventory[i].amount > 0 || item_id == 0))
-			return i;
-	}
-
-	return -1;
+	ARR_FIND( 0, MAX_INVENTORY, i, sd->status.inventory[i].nameid == item_id && (sd->status.inventory[i].amount > 0 || item_id == 0) );
+	return ( i < MAX_INVENTORY ) ? i : -1;
 }
 
 /*==========================================
@@ -3218,17 +3243,19 @@ int pc_putitemtocart(struct map_session_data *sd,int idx,int amount) {
 /*==========================================
  * J?g?ACe?mF(?)
  *------------------------------------------*/
-int pc_cartitem_amount(struct map_session_data *sd,int idx,int amount)
+int pc_cartitem_amount(struct map_session_data* sd, int idx, int amount)
 {
-	struct item *item_data;
+	struct item* item_data;
 
 	nullpo_retr(-1, sd);
-	nullpo_retr(-1, item_data=&sd->status.cart[idx]);
 
-	if( item_data->nameid==0 || !item_data->amount)
+	item_data = &sd->status.cart[idx];
+	if( item_data->nameid == 0 || item_data->amount == 0 )
 		return -1;
-	return item_data->amount-amount;
+
+	return item_data->amount - amount;
 }
+
 /*==========================================
  * J?gACe
  *------------------------------------------*/
@@ -3654,8 +3681,8 @@ int pc_checkallowskill(struct map_session_data *sd)
 
 	if(!sd->sc.count)
 		return 0;
-	
-	for (i = 0; i < sizeof(scw_list)/sizeof(scw_list[0]); i++)
+
+	for (i = 0; i < ARRAYLENGTH(scw_list); i++)
 	{	// Skills requiring specific weapon types
 		if(sd->sc.data[scw_list[i]].timer!=-1 &&
 			!pc_check_weapontype(sd,skill_get_weapontype(StatusSkillChangeTable[scw_list[i]])))
@@ -3667,7 +3694,7 @@ int pc_checkallowskill(struct map_session_data *sd)
 		status_change_end(&sd->bl,SC_SPURT,-1);
 
 	if(sd->status.shield <= 0) { // Skills requiring a shield
-		for (i = 0; i < sizeof(scs_list)/sizeof(scs_list[0]); i++)
+		for (i = 0; i < ARRAYLENGTH(scs_list); i++)
 			if(sd->sc.data[scs_list[i]].timer!=-1)
 				status_change_end(&sd->bl,scs_list[i],-1);
 	}
@@ -3779,6 +3806,9 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_XMAS:
 			class_ = MAPID_XMAS;
 			break;
+		case JOB_SUMMER:
+			class_ = MAPID_SUMMER;
+			break;
 		default:
 			return -1;
 	}
@@ -3801,6 +3831,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_GUNSLINGER:      return JOB_GUNSLINGER;
 		case MAPID_NINJA:           return JOB_NINJA;
 		case MAPID_XMAS:            return JOB_XMAS;
+		case MAPID_SUMMER:          return JOB_SUMMER;
 	//2_1 classes
 		case MAPID_SUPER_NOVICE:    return JOB_SUPER_NOVICE;
 		case MAPID_KNIGHT:          return JOB_KNIGHT;
@@ -3911,7 +3942,10 @@ char* job_name(int class_)
 
 	case JOB_XMAS:
 		return msg_txt(570 - JOB_WEDDING+class_);
-		
+
+	case JOB_SUMMER:
+		return msg_txt(621);
+
 	case JOB_NOVICE_HIGH:
 	case JOB_SWORDMAN_HIGH:
 	case JOB_MAGE_HIGH:
@@ -4187,7 +4221,10 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 
 	if (battle_config.pk_mode && 
 		(int)(status_get_lv(src) - sd->status.base_level) >= 20)
-		bonus += 15; // pk_mode additional exp if monster >20 levels [Valaris]	
+		bonus += 15; // pk_mode additional exp if monster >20 levels [Valaris]
+
+	if (sd->sc.data[SC_EXPBOOST].timer != -1)
+		bonus += sd->sc.data[SC_EXPBOOST].val1;
 
 	if (!bonus)
 		return;
@@ -5058,7 +5095,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	if(battle_config.death_penalty_type && sd->state.snovice_dead_flag != 1
 		&& (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE	// only novices will receive no penalty
 		&& !map[sd->bl.m].flag.noexppenalty && !map_flag_gvg(sd->bl.m)
-		&& sd->sc.data[SC_BABY].timer == -1)
+		&& sd->sc.data[SC_BABY].timer == -1 && sd->sc.data[SC_LIFEINSURANCE].timer == -1)
 	{
 		unsigned int base_penalty =0;
 		if (battle_config.death_penalty_base > 0) {
@@ -5758,6 +5795,11 @@ int pc_setoption(struct map_session_data *sd,int type)
 	else if (!(type&OPTION_XMAS) && p_type&OPTION_XMAS)
 		new_look = -1;
 
+	if (type&OPTION_SUMMER && !(p_type&OPTION_SUMMER))
+		new_look = JOB_SUMMER;
+	else if (!(type&OPTION_SUMMER) && p_type&OPTION_SUMMER)
+		new_look = -1;
+
 	if (new_look < 0) { //Restore normal look.
 		status_set_viewdata(&sd->bl, sd->status.class_);
 		new_look = sd->vd.class_;
@@ -5924,7 +5966,7 @@ int pc_setregstr(struct map_session_data *sd,int reg,char *str)
 	sd->regstr = (struct script_regstr *) aRealloc(sd->regstr, sizeof(sd->regstr[0]) * sd->regstr_num);
 	if(sd->regstr==NULL){
 		ShowFatalError("out of memory : pc_setreg\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	memset(sd->regstr + (sd->regstr_num - 1), 0, sizeof(struct script_regstr));
 	sd->regstr[i].index = reg;
@@ -6180,13 +6222,14 @@ static int pc_eventtimer(int tid,unsigned int tick,int id,int data)
 	if(sd==NULL)
 		return 0;
 
-	for(i=0;i < MAX_EVENTTIMER && sd->eventtimer[i]!=tid; i++);
-
-	if(i < MAX_EVENTTIMER){
+	ARR_FIND( 0, MAX_EVENTTIMER, i, sd->eventtimer[i] == tid );
+	if( i < MAX_EVENTTIMER )
+	{
+		sd->eventtimer[i] = -1;
 		sd->eventcount--;
-		sd->eventtimer[i]=-1;
 		npc_event(sd,p,0);
-	} else if(battle_config.error_log)
+	}
+	else if( battle_config.error_log )
 		ShowError("pc_eventtimer: no such event timer\n");
 
 	if (p) aFree(p);
@@ -6199,18 +6242,15 @@ static int pc_eventtimer(int tid,unsigned int tick,int id,int data)
 int pc_addeventtimer(struct map_session_data *sd,int tick,const char *name)
 {
 	int i;
-	char *evname;
-
+	char* evname;
 	nullpo_retr(0, sd);
 
-	for(i=0;i<MAX_EVENTTIMER && sd->eventtimer[i]!=-1;i++);
-
-	if(i==MAX_EVENTTIMER)
+	ARR_FIND( 0, MAX_EVENTTIMER, i, sd->eventtimer[i] == -1 );
+	if( i == MAX_EVENTTIMER )
 		return 0;
 
 	evname = aStrdup(name);
-	sd->eventtimer[i]=add_timer(gettick()+tick,
-		pc_eventtimer,sd->bl.id,(int)evname);
+	sd->eventtimer[i] = add_timer(gettick()+tick, pc_eventtimer,sd->bl.id,(int)evname);
 	sd->eventcount++;
 
 	return 1;
@@ -7348,7 +7388,7 @@ int pc_readdb(void)
 	fclose(fp);
 	for (i = 0; i < MAX_PC_CLASS; i++) {
 		if (!pcdb_checkid(i)) continue;
-		if (i == JOB_WEDDING || i == JOB_XMAS)
+		if (i == JOB_WEDDING || i == JOB_XMAS || i == JOB_SUMMER)
 			continue; //Classes that do not need exp tables.
 		if (!max_level[i][0])
 			ShowWarning("Class %s (%d) does not has a base exp table.\n", job_name(i), i);

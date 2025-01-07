@@ -11,6 +11,7 @@
 #include "../common/version.h"
 #include "../common/nullpo.h"
 #include "../common/strlib.h"
+#include "../common/utils.h"
 
 #include "map.h"
 #include "chrif.h"
@@ -31,27 +32,23 @@
 #include "script.h"
 #include "guild.h"
 #include "pet.h"
-#include "mercenary.h"	//[orn]
+#include "mercenary.h"
 #include "atcommand.h"
 #include "charcommand.h"
-
 #include "log.h"
-
+#ifndef TXT_ONLY
+#include "mail.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
-
 #ifndef _WIN32
 #include <unistd.h>
 #endif
 
 #ifndef TXT_ONLY
-
-#include "mail.h"
-
-char tmp_sql[65535]="";
 char default_codepage[32] = "";
 
 int map_server_port = 3306;
@@ -59,9 +56,7 @@ char map_server_ip[32] = "127.0.0.1";
 char map_server_id[32] = "ragnarok";
 char map_server_pw[32] = "ragnarok";
 char map_server_db[32] = "ragnarok";
-MYSQL mmysql_handle;
-MYSQL_RES* sql_res;
-MYSQL_ROW sql_row;
+Sql* mmysql_handle;
 
 int db_use_sqldbs = 0;
 char item_db_db[32] = "item_db";
@@ -77,9 +72,7 @@ int log_db_port = 3306;
 char log_db_id[32] = "ragnarok";
 char log_db_pw[32] = "ragnarok";
 char log_db[32] = "log";
-MYSQL logmysql_handle;
-MYSQL_RES* logsql_res;
-MYSQL_ROW logsql_row;
+Sql* logmysql_handle;
 
 // mail system
 int mail_server_enable = 0;
@@ -89,9 +82,7 @@ char mail_server_id[32] = "ragnarok";
 char mail_server_pw[32] = "ragnarok";
 char mail_server_db[32] = "ragnarok";
 char mail_db[32] = "mail";
-MYSQL mail_handle;
-MYSQL_RES* mail_res;
-MYSQL_ROW mail_row;
+Sql* mail_handle;
 
 #endif /* not TXT_ONLY */
 
@@ -112,10 +103,10 @@ char *MSG_CONF_NAME;
 char *GRF_PATH_FILENAME;
 
 //  static?J?
-static struct dbt * id_db=NULL;
-static struct dbt * pc_db=NULL;
+static struct dbt * id_db=NULL;// id -> struct block_list
+static struct dbt * pc_db=NULL;// id -> struct map_session_data
 static struct dbt * map_db=NULL;
-static struct dbt * charid_db=NULL;
+static struct dbt * charid_db=NULL;// charid -> struct map_session_data
 
 static int map_users=0;
 static struct block_list *objects[MAX_FLOORITEM];
@@ -309,8 +300,7 @@ static struct block_list bl_head;
  *------------------------------------------*/
 void map_addblcell(struct block_list *bl)
 {
-	if(bl->m<0 || bl->x<0 || bl->x>=map[bl->m].xs
-		|| bl->y<0 || bl->y>=map[bl->m].ys || !(bl->type&BL_CHAR))
+	if( bl->m<0 || bl->x<0 || bl->x>=map[bl->m].xs || bl->y<0 || bl->y>=map[bl->m].ys || !(bl->type&BL_CHAR) )
 		return;
 	map[bl->m].cell_bl[bl->x+bl->y*map[bl->m].xs]++;
 	return;
@@ -318,8 +308,7 @@ void map_addblcell(struct block_list *bl)
 
 void map_delblcell(struct block_list *bl)
 {
-	if(bl->m <0 || bl->x<0 || bl->x>=map[bl->m].xs
-		|| bl->y<0 || bl->y>=map[bl->m].ys || !(bl->type&BL_CHAR))
+	if( bl->m <0 || bl->x<0 || bl->x>=map[bl->m].xs || bl->y<0 || bl->y>=map[bl->m].ys || !(bl->type&BL_CHAR) )
 		return;
 	map[bl->m].cell_bl[bl->x+bl->y*map[bl->m].xs]--;
 }
@@ -539,6 +528,7 @@ int map_count_oncell(int m, int x, int y, int type)
 
 	if (x < 0 || y < 0 || (x >= map[m].xs) || (y >= map[m].ys))
 		return 0;
+
 	bx = x/BLOCK_SIZE;
 	by = y/BLOCK_SIZE;
 
@@ -602,17 +592,13 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list), struct block_lis
 	int blockcount=bl_list_count,i,c;
 	int x0,x1,y0,y1;
 	va_start(ap,type);
+
 	m = center->m;
-	x0 = center->x-range;
-	x1 = center->x+range;
-	y0 = center->y-range;
-	y1 = center->y+range;
-	
-	if (x0 < 0) x0 = 0;
-	if (y0 < 0) y0 = 0;
-	if (x1 >= map[m].xs) x1 = map[m].xs-1;
-	if (y1 >= map[m].ys) y1 = map[m].ys-1;
-	
+	x0 = max(center->x-range, 0);
+	y0 = max(center->y-range, 0);
+	x1 = min(center->x+range, map[m].xs-1);
+	y1 = min(center->y+range, map[m].ys-1);
+
 	if (type&~BL_MOB)
 		for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++) {
 			for(bx=x0/BLOCK_SIZE;bx<=x1/BLOCK_SIZE;bx++){
@@ -679,16 +665,12 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 	if (m < 0)
 		return 0;
 	va_start(ap,type);
-	x0 = center->x-range;
-	x1 = center->x+range;
-	y0 = center->y-range;
-	y1 = center->y+range;
-	
-	if (x0 < 0) x0 = 0;
-	if (y0 < 0) y0 = 0;
-	if (x1 >= map[m].xs) x1 = map[m].xs-1;
-	if (y1 >= map[m].ys) y1 = map[m].ys-1;
-	
+
+	x0 = max(center->x-range, 0);
+	y0 = max(center->y-range, 0);
+	x1 = min(center->x+range, map[m].xs-1);
+	y1 = min(center->y+range, map[m].ys-1);
+
 	if (type&~BL_MOB)
 		for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++) {
 			for(bx=x0/BLOCK_SIZE;bx<=x1/BLOCK_SIZE;bx++){
@@ -836,6 +818,7 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_
 	if (!dx && !dy) return 0; //No movement.
 	va_start(ap,type);
 	m = center->m;
+
 	x0 = center->x-range;
 	x1 = center->x+range;
 	y0 = center->y-range;
@@ -1762,7 +1745,7 @@ struct map_session_data * map_id2sd(int id)
 /*==========================================
  * char_id?OT
  *------------------------------------------*/
-char * map_charid2nick(int id)
+const char * map_charid2nick(int id)
 {
 	struct charid2nick *p = (struct charid2nick*)idb_get(charid_db,id);
 
@@ -2140,25 +2123,25 @@ int map_calc_dir(struct block_list* src, int x, int y)
 	}
 	else if( dx >= 0 && dy >=0 )
 	{	// upper-right
-		if( dx*2-1 < dy )     dir = 0;	// up
+		if( dx*2 <= dy )      dir = 0;	// up
 		else if( dx > dy*2 )  dir = 6;	// right
 		else                  dir = 7;	// up-right
 	}
 	else if( dx >= 0 && dy <= 0 )
 	{	// lower-right
-		if( dx*2-1 < -dy )    dir = 4;	// down
+		if( dx*2 <= -dy )     dir = 4;	// down
 		else if( dx > -dy*2 ) dir = 6;	// right
 		else                  dir = 5;	// down-right
 	}
 	else if( dx <= 0 && dy <= 0 )
 	{	// lower-left
-		if( dx*2+1 > dy )     dir = 4;	// down
+		if( dx*2 >= dy )      dir = 4;	// down
 		else if( dx < dy*2 )  dir = 2;	// left
 		else                  dir = 3;	// down-left
 	}
 	else
 	{	// upper-left
-		if( -dx*2-1 < dy )    dir = 0;	// up
+		if( -dx*2 <= dy )     dir = 0;	// up
 		else if( -dx > dy*2 ) dir = 2;	// left
 		else                  dir = 1;	// up-left
 
@@ -2273,6 +2256,8 @@ int map_getcellp(struct map_data* m,int x,int y,cell_t cellchk)
 			return (type2&CELL_REGEN);
 		case CELL_CHKICEWALL:
 			return (type2&CELL_ICEWALL);
+		case CELL_CHKNOVENDING:
+			return (type2&CELL_NOVENDING);
 		default:
 			return 0;
 	}
@@ -2289,45 +2274,21 @@ void map_setcell(int m,int x,int y,int cell)
 	j=x+y*map[m].xs;
 
 	switch (cell) {
-		case CELL_SETNPC:
-			map[m].cell[j] |= CELL_NPC;
-			break;
-		case CELL_CLRNPC:
-			map[m].cell[j] &= ~CELL_NPC;
-			break;
-		case CELL_SETICEWALL:
-			map[m].cell[j] |= CELL_ICEWALL;
-			break;
-		case CELL_CLRICEWALL:
-			map[m].cell[j] &= ~CELL_ICEWALL;
-			break;
-		case CELL_SETBASILICA:
-			map[m].cell[j] |= CELL_BASILICA;
-			break;
-		case CELL_CLRBASILICA:
-			map[m].cell[j] &= ~CELL_BASILICA;
-			break;
-		case CELL_SETPNEUMA:
-			map[m].cell[j] |= CELL_PNEUMA;
-			break;
-		case CELL_CLRPNEUMA:
-			map[m].cell[j] &= ~CELL_PNEUMA;
-			break;
-		case CELL_SETSAFETYWALL:
-			map[m].cell[j] |= CELL_SAFETYWALL;
-			break;
-		case CELL_CLRSAFETYWALL:
-			map[m].cell[j] &= ~CELL_SAFETYWALL;
-			break;
-		case CELL_SETLANDPROTECTOR:
-			map[m].cell[j] |= CELL_LANDPROTECTOR;
-			break;
-		case CELL_CLRLANDPROTECTOR:
-			map[m].cell[j] &= ~CELL_LANDPROTECTOR;
-			break;
-		case CELL_SETREGEN:
-			map[m].cell[j] |= CELL_REGEN;
-			break;
+		case CELL_SETNPC:           map[m].cell[j] |= CELL_NPC;            break;
+		case CELL_CLRNPC:           map[m].cell[j] &= ~CELL_NPC;           break;
+		case CELL_SETICEWALL:       map[m].cell[j] |= CELL_ICEWALL;        break;
+		case CELL_CLRICEWALL:       map[m].cell[j] &= ~CELL_ICEWALL;       break;
+		case CELL_SETBASILICA:      map[m].cell[j] |= CELL_BASILICA;       break;
+		case CELL_CLRBASILICA:      map[m].cell[j] &= ~CELL_BASILICA;      break;
+		case CELL_SETPNEUMA:        map[m].cell[j] |= CELL_PNEUMA;         break;
+		case CELL_CLRPNEUMA:        map[m].cell[j] &= ~CELL_PNEUMA;        break;
+		case CELL_SETSAFETYWALL:    map[m].cell[j] |= CELL_SAFETYWALL;     break;
+		case CELL_CLRSAFETYWALL:    map[m].cell[j] &= ~CELL_SAFETYWALL;    break;
+		case CELL_SETLANDPROTECTOR: map[m].cell[j] |= CELL_LANDPROTECTOR;  break;
+		case CELL_CLRLANDPROTECTOR: map[m].cell[j] &= ~CELL_LANDPROTECTOR; break;
+		case CELL_SETREGEN:         map[m].cell[j] |= CELL_REGEN;          break;
+		case CELL_SETNOVENDING:     map[m].cell[j] |= CELL_NOVENDING;      break;
+		case CELL_CLRNOVENDING:     map[m].cell[j] &= ~CELL_NOVENDING;     break;
 		default:
 			map[m].gat[j] = cell;
 			break;
@@ -2357,7 +2318,7 @@ int map_setipport(unsigned short mapindex, uint32 ip, uint16 port)
 	if(ip == clif_getip() && port == clif_getport()) {
 		//That's odd, we received info that we are the ones with this map, but... we don't have it.
 		ShowFatalError("map_setipport : received info that this map-server SHOULD have map '%s', but it is not loaded.\n",mapindex_id2name(mapindex));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	mdos->ip   = ip;
 	mdos->port = port;
@@ -2669,7 +2630,7 @@ int map_addmap(char* mapname)
 
 static void map_delmapid(int id)
 {
-	ShowNotice("Removing map [ %s ] from maplist\n",map[id].name);
+	ShowNotice("Removing map [ %s ] from maplist\n"CL_CLL,map[id].name);
 	memmove(map+id, map+id+1, sizeof(map[0])*(map_num-id-1));
 	map_num--;
 }
@@ -2744,7 +2705,7 @@ int map_readgat (struct map_data* m)
 
 	xs = m->xs = *(int*)(gat+6);
 	ys = m->ys = *(int*)(gat+10);
-	m->gat = (unsigned char *)aMallocA((m->xs * m->ys)*sizeof(unsigned char));
+	m->gat = (unsigned char *)aMallocA((xs * ys)*sizeof(unsigned char));
 
 	m->water_height = wh = map_waterheight(m->name);
 	for (y = 0; y < ys; y++) {
@@ -2833,32 +2794,10 @@ int map_readallmaps (void)
 	for (i = 0; i < map_num; i++)
 	{
 		int success = 0;
-		static int lasti = -1;
-		static int last_time = -1;
-		int j = i*20/map_num;
+		int j;
 
 		// show progress
-		if (j != lasti || last_time != time(0))
-		{
-			char progress[21] = "                    ";
-			char c = '-';
-			int k;
-
-			lasti = j;
-			printf("\r");
-			ShowStatus("Progress: [");
-			for (k=0; k < j; k++) progress[k] = '#';
-			printf(progress);
-			last_time = (int)time(0);
-			switch(last_time % 4) {
-				case 0: c='\\'; break;
-				case 1: c='|'; break;
-				case 2: c='/'; break;
-				case 3: c='-'; break;
-			}
-			printf("] Working: [%c]",c);
-			fflush(stdout);
-		}
+		ShowStatus("Loading maps [%i/%i]: %s"CL_CLL"\r", i, map_num, map[i].name);
 
 		// pre-init some data
 		map[i].m = i;
@@ -2944,8 +2883,7 @@ int map_readallmaps (void)
 	}
 
 	// finished map loading
-	printf("\r");
-	ShowInfo("Successfully loaded '"CL_WHITE"%d"CL_RESET"' maps.%30s\n",map_num,"");
+	ShowInfo("Successfully loaded '"CL_WHITE"%d"CL_RESET"' maps."CL_CLL"\n",map_num);
 
 	if (maps_removed)
 		ShowNotice("Maps removed: '"CL_WHITE"%d"CL_RESET"'\n",maps_removed);
@@ -3230,43 +3168,30 @@ int inter_config_read(char *cfgName)
  *---------------------------------------*/
 int map_sql_init(void)
 {
-	mysql_init(&mmysql_handle);
+	// main db connection
+	mmysql_handle = Sql_Malloc();
 
-	//DB connection start
 	ShowInfo("Connecting to the Map DB Server....\n");
-	if(!mysql_real_connect(&mmysql_handle, map_server_ip, map_server_id, map_server_pw,
-		map_server_db ,map_server_port, (char *)NULL, 0)) {
-			//pointer check
-			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-			exit(1);
-	}
-	else {
-		ShowStatus("connect success! (Map Server Connection)\n");
-	}
+	if( SQL_ERROR == Sql_Connect(mmysql_handle, map_server_id, map_server_pw, map_server_ip, map_server_port, map_server_db) )
+		exit(EXIT_FAILURE);
+	ShowStatus("connect success! (Map Server Connection)\n");
 
-	if(mail_server_enable) { // mail system [Valaris]
-		mysql_init(&mail_handle);
-	        ShowInfo("Connecting to the Mail DB Server....\n");
-		if(!mysql_real_connect(&mail_handle, mail_server_ip, mail_server_id, mail_server_pw,
-			mail_server_db ,mail_server_port, (char *)NULL, 0)) {
-				ShowSQL("DB error - %s\n",mysql_error(&mail_handle));
-				exit(1);
-		}
-		if( strlen(default_codepage) > 0 ) {
-			sprintf( tmp_sql, "SET NAMES %s", default_codepage );
-			if (mysql_query(&mail_handle, tmp_sql)) {
-				ShowSQL("DB error - %s\n",mysql_error(&mail_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-		}
-	}
+	if( strlen(default_codepage) > 0 )
+		if ( SQL_ERROR == Sql_SetEncoding(mmysql_handle, default_codepage) )
+			Sql_ShowDebug(mmysql_handle);
 
-	if( strlen(default_codepage) > 0 ) {
-		sprintf( tmp_sql, "SET NAMES %s", default_codepage );
-		if (mysql_query(&mmysql_handle, tmp_sql)) {
-			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-		}
+	if(mail_server_enable)
+	{
+		// mail system
+		mail_handle = Sql_Malloc();
+
+		ShowInfo("Connecting to the Mail DB Server....\n");
+		if( SQL_ERROR == Sql_Connect(mail_handle, mail_server_id, mail_server_pw, mail_server_ip, mail_server_port, mail_server_db) )
+			exit(EXIT_FAILURE);
+
+		if( strlen(default_codepage) > 0 )
+			if ( SQL_ERROR == Sql_SetEncoding(mail_handle, default_codepage) )
+				Sql_ShowDebug(mail_handle);
 	}
 
 	return 0;
@@ -3274,13 +3199,22 @@ int map_sql_init(void)
 
 int map_sql_close(void)
 {
-	mysql_close(&mmysql_handle);
 	ShowStatus("Close Map DB Connection....\n");
+	Sql_Free(mmysql_handle);
+	mmysql_handle = NULL;
 
 	if (log_config.sql_logs)
 	{
-		mysql_close(&logmysql_handle);
 		ShowStatus("Close Log DB Connection....\n");
+		Sql_Free(logmysql_handle);
+		logmysql_handle = NULL;
+	}
+
+	if(mail_server_enable)
+	{
+		ShowStatus("Close Mail DB Connection....\n");
+		Sql_Free(mail_handle);
+		mail_handle = NULL;
 	}
 
 	return 0;
@@ -3288,25 +3222,18 @@ int map_sql_close(void)
 
 int log_sql_init(void)
 {
-    mysql_init(&logmysql_handle);
+	// log db connection
+	logmysql_handle = Sql_Malloc();
 
-	//DB connection start
 	ShowInfo(""CL_WHITE"[SQL]"CL_RESET": Connecting to the Log Database "CL_WHITE"%s"CL_RESET" At "CL_WHITE"%s"CL_RESET"...\n",log_db,log_db_ip);
-	if(!mysql_real_connect(&logmysql_handle, log_db_ip, log_db_id, log_db_pw,
-		log_db ,log_db_port, (char *)NULL, 0)) {
-			//pointer check
-			ShowSQL("DB error - %s\n",mysql_error(&logmysql_handle));
-			exit(1);
-	}
-  
+	if ( SQL_ERROR == Sql_Connect(logmysql_handle, log_db_id, log_db_pw, log_db_ip, log_db_port, log_db) )
+		exit(EXIT_FAILURE);
 	ShowStatus(""CL_WHITE"[SQL]"CL_RESET": Successfully '"CL_GREEN"connected"CL_RESET"' to Database '"CL_WHITE"%s"CL_RESET"'.\n", log_db);
-	if( strlen(default_codepage) > 0 ) {
-		sprintf( tmp_sql, "SET NAMES %s", default_codepage );
-		if (mysql_query(&logmysql_handle, tmp_sql)) {
-			ShowSQL("DB error - %s\n",mysql_error(&logmysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-		}
-	}
+
+	if( strlen(default_codepage) > 0 )
+		if ( SQL_ERROR == Sql_SetEncoding(logmysql_handle, default_codepage) )
+			Sql_ShowDebug(logmysql_handle);
+
 	return 0;
 }
 
@@ -3316,31 +3243,25 @@ int log_sql_init(void)
 int map_sql_ping(int tid, unsigned int tick, int id, int data)
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
-	mysql_ping(&mmysql_handle);
+	Sql_Ping(mmysql_handle);
 	if (log_config.sql_logs)
-		mysql_ping(&logmysql_handle);
+		Sql_Ping(logmysql_handle);
 	if(mail_server_enable)
-		mysql_ping(&mail_handle);
+		Sql_Ping(mail_handle);
 	return 0;
 }
 
 int sql_ping_init(void)
 {
-	int connection_timeout, connection_ping_interval;
+	uint32 connection_timeout, connection_ping_interval;
 
-	// set a default value first
+	// set a default value
 	connection_timeout = 28800; // 8 hours
 
 	// ask the mysql server for the timeout value
-	if (!mysql_query(&mmysql_handle, "SHOW VARIABLES LIKE 'wait_timeout'")
-	&& (sql_res = mysql_store_result(&mmysql_handle)) != NULL) {
-		sql_row = mysql_fetch_row(sql_res);
-		if (sql_row)
-			connection_timeout = atoi(sql_row[1]);
-		if (connection_timeout < 60)
-			connection_timeout = 60;
-		mysql_free_result(sql_res);
-	}
+	Sql_GetTimeout(mmysql_handle, &connection_timeout);
+	if (connection_timeout < 60)
+		connection_timeout = 60;
 
 	// establish keepalive
 	connection_ping_interval = connection_timeout - 30; // 30-second reserve
@@ -3387,7 +3308,7 @@ int cleanup_sub(struct block_list *bl, va_list ap)
 			map_clearflooritem(bl->id);
 			break;
 		case BL_SKILL:
-			skill_delunit((struct skill_unit *) bl, 1);
+			skill_delunit((struct skill_unit *) bl);
 			break;
 	}
 
@@ -3486,6 +3407,42 @@ void do_final(void)
 	ShowStatus("Successfully terminated.\n");
 }
 
+static int map_abort_sub(DBKey key,void * data,va_list ap)
+{
+	struct map_session_data *sd = (TBL_PC*)data;
+
+	if (!sd->state.auth || sd->state.waitingdisconnect || sd->state.finalsave)
+		return 0;
+
+	chrif_save(sd,1);
+	return 1;
+}
+
+
+//------------------------------
+// Function called when the server
+// has received a crash signal.
+//------------------------------
+void do_abort(void)
+{
+	static int run = 0;
+	//Save all characters and then flush the inter-connection.
+	if (run) {
+		ShowFatalError("Server has crashed while trying to save characters. Character data can't be saved!\n");
+		return;
+	}
+	run = 1;
+	if (!chrif_isconnected())
+	{
+		if (pc_db->size(pc_db))
+			ShowFatalError("Server has crashed without a connection to the char-server, %u characters can't be saved!\n", pc_db->size(pc_db));
+		return;
+	}
+	ShowError("Server received crash signal! Attempting to save all online characters!\n");
+	map_foreachpc(map_abort_sub);
+	chrif_flush_fifo();
+}
+
 /*======================================================
  * Map-Server Version Screen [MC Cameri]
  *------------------------------------------------------*/
@@ -3509,7 +3466,7 @@ void map_helpscreen(int flag)
 	puts("				(SQL Only)");
 	puts("  --version, --v, -v, /v	Displays the server's version");
 	puts("\n");
-	if (flag) exit(1);
+	if (flag) exit(EXIT_FAILURE);
 }
 
 /*======================================================
@@ -3525,7 +3482,7 @@ void map_versionscreen(int flag)
 	puts(CL_GREEN "IRC Channel:" CL_RESET "\tirc://irc.deltaanime.net/#athena");
 	puts("\nOpen " CL_WHITE "readme.html" CL_RESET " for more information.");
 	if (ATHENA_RELEASE_FLAG) ShowNotice("This version is not for release.\n");
-	if (flag) exit(1);
+	if (flag) exit(EXIT_FAILURE);
 }
 
 /*======================================================

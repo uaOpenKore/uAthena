@@ -1,10 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/malloc.h"
@@ -16,6 +12,10 @@
 #include "inter.h"
 #include "int_storage.h"
 #include "int_guild.h"
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 char guild_txt[1024] = "save/guild.txt";
 char castle_txt[1024] = "save/castle.txt";
@@ -391,7 +391,7 @@ int inter_guild_init() {
 		g = (struct guild *) aCalloc(sizeof(struct guild), 1);
 		if(g == NULL){
 			ShowFatalError("int_guild: out of memory!\n");
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 //		memset(g, 0, sizeof(struct guild)); not needed...
 		if (inter_guild_fromstr(line, g) == 0 && g->guild_id > 0) {
@@ -420,7 +420,7 @@ int inter_guild_init() {
 		gc = (struct guild_castle *) aCalloc(sizeof(struct guild_castle), 1);
 		if(gc == NULL){
 			ShowFatalError("int_guild: out of memory!\n");
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 //		memset(gc, 0, sizeof(struct guild_castle)); No need...
 		if (inter_guildcastle_fromstr(line, gc) == 0) {
@@ -439,7 +439,7 @@ int inter_guild_init() {
 			gc = (struct guild_castle *) aCalloc(sizeof(struct guild_castle), 1);
 			if (gc == NULL) {
 				ShowFatalError("int_guild: out of memory!\n");
-				exit(0);
+				exit(EXIT_FAILURE);
 			}
 			gc->castle_id = i;
 			idb_put(castle_db, gc->castle_id, gc);
@@ -979,7 +979,7 @@ int mapif_parse_CreateGuild(int fd, int account_id, char *name, struct guild_mem
 	if (g == NULL) {
 		ShowFatalError("int_guild: CreateGuild: out of memory !\n");
 		mapif_guild_created(fd, account_id, NULL);
-		exit(0);
+		exit(EXIT_FAILURE);
 	}
 //	memset(g, 0, sizeof(struct guild)); Meh...
 	g->guild_id = guild_newid++;

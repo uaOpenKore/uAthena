@@ -58,7 +58,7 @@
 #define SD_ANIMATION	0x2000
 
 // XLf?^x?X
-struct skill_db {
+struct s_skill_db {
 	char *name;
 	char *desc;
 	int range[MAX_SKILL_LEVEL],hit,inf,pl[MAX_SKILL_LEVEL],nk,splash[MAX_SKILL_LEVEL],max;
@@ -80,9 +80,9 @@ struct skill_db {
 	int unit_target;
 	int unit_flag;
 };
-extern struct skill_db skill_db[MAX_SKILL_DB];
+extern struct s_skill_db skill_db[MAX_SKILL_DB];
 
-struct skill_name_db { 
+struct skill_name_db {
 	int id;	// skill id
 	char *name;	// search strings
 	char *desc;	// description that shows up for search's
@@ -91,7 +91,7 @@ struct skill_name_db {
 #define MAX_SKILL_UNIT_LAYOUT	50
 #define MAX_SQUARE_LAYOUT		5	// 11*11jbgzu
 #define MAX_SKILL_UNIT_COUNT ((MAX_SQUARE_LAYOUT*2+1)*(MAX_SQUARE_LAYOUT*2+1))
-struct skill_unit_layout {
+struct s_skill_unit_layout {
 	int count;
 	int dx[MAX_SKILL_UNIT_COUNT];
 	int dy[MAX_SKILL_UNIT_COUNT];
@@ -112,27 +112,27 @@ enum {
 };
 
 // ACef?^x?X
-struct skill_produce_db {
+struct s_skill_produce_db {
 	int nameid, trigger;
 	int req_skill,req_skill_lv,itemlv;
 	int mat_id[MAX_PRODUCE_RESOURCE],mat_amount[MAX_PRODUCE_RESOURCE];
 };
-extern struct skill_produce_db skill_produce_db[MAX_SKILL_PRODUCE_DB];
+extern struct s_skill_produce_db skill_produce_db[MAX_SKILL_PRODUCE_DB];
 
 // f?^x?X
-struct skill_arrow_db {
+struct s_skill_arrow_db {
 	int nameid, trigger;
 	int cre_id[5],cre_amount[5];
 };
-extern struct skill_arrow_db skill_arrow_db[MAX_SKILL_ARROW_DB];
+extern struct s_skill_arrow_db skill_arrow_db[MAX_SKILL_ARROW_DB];
 
 // AuJ_uf?^x?X
-struct skill_abra_db {
+struct s_skill_abra_db {
 	int nameid;
 	int req_lv;
 	int per;
 };
-extern struct skill_abra_db skill_abra_db[MAX_SKILL_ABRA_DB];
+extern struct s_skill_abra_db skill_abra_db[MAX_SKILL_ABRA_DB];
 
 extern int enchant_eff[5];
 extern int deluge_eff[5];
@@ -204,10 +204,9 @@ int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int
 // jbgXL
 struct skill_unit_group *skill_unitsetting( struct block_list *src, int skillid,int skilllv,int x,int y,int flag);
 struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int x, int y, int val1, int val2);
-int skill_delunit(struct skill_unit *unit, int flag);
-struct skill_unit_group *skill_initunitgroup(struct block_list *src,
-	int count,int skillid,int skilllv,int unit_id, int limit, int interval);
-int skill_delunitgroup(struct block_list *src, struct skill_unit_group *group, int flag);
+int skill_delunit(struct skill_unit *unit);
+struct skill_unit_group *skill_initunitgroup(struct block_list *src, int count,int skillid,int skilllv,int unit_id, int limit, int interval);
+int skill_delunitgroup(struct block_list *src, struct skill_unit_group *group);
 int skill_clear_unitgroup(struct block_list *src);
 int skill_clear_group(struct block_list *bl, int flag);
 
@@ -268,8 +267,7 @@ int skill_blockpc_start (struct map_session_data*,int,int);	// [celest]
 int skill_blockmerc_start (struct homun_data*,int,int);	//[orn]
 
 // XLU??
-int skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,
-	 struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
+int skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
 
 void skill_reload(void);
 
@@ -290,7 +288,7 @@ enum {
 	ST_WATER,
 };
 
-enum _skill {
+enum s_skill {
 	NV_BASIC = 1,
 
 	SM_SWORD,

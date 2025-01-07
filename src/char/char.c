@@ -11,17 +11,19 @@
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
 #include "../common/timer.h"
+#include "../common/lock.h"
+#include "../common/malloc.h"
+#include "../common/mapindex.h"
+#include "../common/showmsg.h"
+#include "../common/utils.h"
 #include "../common/version.h"
-
 #include "inter.h"
 #include "int_guild.h"
 #include "int_homun.h"
 #include "int_pet.h"
 #include "int_party.h"
 #include "int_storage.h"
-#ifdef ENABLE_SC_SAVING
 #include "int_status.h"
-#endif
 #include "char.h"
 
 #include <sys/types.h>
@@ -76,12 +78,12 @@ char bind_ip_str[128];
 uint32 bind_ip = INADDR_ANY;
 uint16 char_port = 6121;
 int char_maintenance = 0;
-int char_new = 1;
+bool char_new = true;
 int char_new_display = 0;
 
 int email_creation = 0; // disabled by default
 
-int name_ignoring_case = 0; // Allow or not identical name for characters but with a different case by [Yor]
+bool name_ignoring_case = false; // Allow or not identical name for characters but with a different case by [Yor]
 int char_name_option = 0; // Option to know which letters/symbols are authorised in the name of a character (0: all, 1: only those in char_name_letters, 2: all EXCEPT those in char_name_letters) by [Yor]
 char unknown_char_name[1024] = "Unknown"; // Name to use when the requested name cannot be determined
 #define TRIM_CHARS "\032\t\x0A\x0D " //The following characters are trimmed regardless because they cause confusion and problems on the servers. [Skotlex]
@@ -94,15 +96,15 @@ int log_inter = 1;	// loggin inter or not [devil]
 static int online_check = 1; //If one, it won't let players connect when their account is already registered online and will send the relevant map server a kick user request. [Skotlex]
 
 // Advanced subnet check [LuzZza]
-struct _subnet {
-	uint32 subnet;
+struct s_subnet {
 	uint32 mask;
 	uint32 char_ip;
 	uint32 map_ip;
 } subnet[16];
 int subnet_count = 0;
 
-struct char_session_data{
+struct char_session_data {
+	int fd;
 	int account_id, login_id1, login_id2, sex;
 	int found_char[MAX_CHARS];
 	char email[40]; // e-mail (default: a@a.com) by [Yor]
@@ -451,17 +453,18 @@ int mmo_friends_list_data_str(char *str, struct mmo_charstatus *p)
  --------------------------------------------------*/
 int mmo_hotkeys_tostr(char *str, struct mmo_charstatus *p)
 {
+#ifdef HOTKEY_SAVING
 	int i;
 	char *str_p = str;
 	str_p += sprintf(str_p, "%d", p->char_id);
-#ifdef HOTKEY_SAVING
-	for (i=0;i<HOTKEY_SAVING;i++)
+	for (i=0;i<MAX_HOTKEYS;i++)
 		str_p += sprintf(str_p, ",%d,%d,%d", p->hotkeys[i].type, p->hotkeys[i].id, p->hotkeys[i].lv);
-#endif
 	str_p += '\0';
+#endif
 
 	return 0;
 }
+
 //-------------------------------------------------
 // Function to create the character line (for save)
 //-------------------------------------------------
@@ -477,7 +480,7 @@ int mmo_char_tostr(char *str, struct mmo_charstatus *p, struct global_reg *reg, 
 		"\t%d,%d,%d\t%d,%d,%d,%d,%d" //Up to head bottom
 		"\t%d,%d,%d\t%d,%d,%d" //last point + save point
 		",%d,%d,%d,%d,%d\t",	//Family info
-		p->char_id, p->account_id, p->char_num, p->name, //
+		p->char_id, p->account_id, p->slot, p->name, //
 		p->class_, p->base_level, p->job_level,
 		p->base_exp, p->job_exp, p->zeny,
 		p->hp, p->max_hp, p->sp, p->max_sp,
@@ -674,7 +677,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	memcpy(p->name, tmp_str[0], NAME_LENGTH); //Overflow protection [Skotlex]
 	p->char_id = tmp_int[0];
 	p->account_id = tmp_int[1];
-	p->char_num = tmp_int[2];
+	p->slot = tmp_int[2];
 	p->class_ = tmp_int[3];
 	p->base_level = tmp_int[4];
 	p->job_level = tmp_int[5];
@@ -934,7 +937,7 @@ int parse_hotkey_txt(struct mmo_charstatus *p)
 		//Read hotkeys
 		len = strlen(line);
 		next = pos;
-		for (count = 0; next < len && count < HOTKEY_SAVING; count++)
+		for (count = 0; next < len && count < MAX_HOTKEYS; count++)
 		{
 			if (sscanf(line+next, ",%d,%d,%d%n",&type,&id,&lv, &pos) < 3)
 				//Invalid entry?
@@ -1000,7 +1003,7 @@ int mmo_char_init(void)
 			if (!char_dat) {
 				ShowFatalError("Out of memory: mmo_char_init (realloc of char_dat).\n");
 				char_log("Out of memory: mmo_char_init (realloc of char_dat).\n");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 		}
 
@@ -1083,7 +1086,7 @@ void mmo_char_sync(void)
 			if ((char_dat[i].status.account_id < char_dat[id[j]].status.account_id) ||
 			    // if same account id, we sort by slot.
 			    (char_dat[i].status.account_id == char_dat[id[j]].status.account_id &&
-			     char_dat[i].status.char_num < char_dat[id[j]].status.char_num)) {
+			     char_dat[i].status.slot < char_dat[id[j]].status.slot)) {
 				for(k = i; k > j; k--)
 					id[k] = id[k-1];
 				id[j] = i; // id[i]
@@ -1146,121 +1149,96 @@ int mmo_char_sync_timer(int tid, unsigned int tick, int id, int data)
 //-----------------------------------
 // Function to create a new character
 //-----------------------------------
-int make_new_char(int fd, unsigned char *dat)
+int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
 {
-	int i;
-	struct char_session_data *sd;
 	char name[NAME_LENGTH];
-	
-	sd = (struct char_session_data*)session[fd]->session_data;
+	int i;
 
-	// remove control characters from the name
-	strncpy(name, dat, NAME_LENGTH);
-	name[NAME_LENGTH-1] = '\0'; //Trunc name to max possible value (23)
+	safestrncpy(name, name_, NAME_LENGTH);
+	normalize_name(name,TRIM_CHARS);
+	if( remove_control_chars(name) ) {
+		char_log("Make new char error (control char received in the name): (connection #%d, account: %d).\n", sd->fd, sd->account_id);
+		return -2;
+	}
 
-	normalize_name(name,TRIM_CHARS);//Normalize character name. [Skotlex]
+	// check length of character name
+	if( name[0] == '\0' ) {
+		char_log("Make new char error (character name too small): (connection #%d, account: %d, name: '%s').\n", sd->fd, sd->account_id, name);
+		return -2;
+	}
 
-	//check name != main chat nick [LuzZza]
-	if(strcmpi(name, main_chat_nick) == 0) {
-		char_log("Create char failed (%d): this nick (%s) reserved for mainchat messages.\n",
-			sd->account_id, name);
+	// check name != main chat nick [LuzZza]
+	if( strcmpi(name, main_chat_nick) == 0 ) {
+		char_log("Create char failed (%d): this nick (%s) reserved for mainchat messages.\n", sd->account_id, name);
 		return -1;
 	}
 
-	if (remove_control_chars(name)) {
-		char_log("Make new char error (control char received in the name): (connection #%d, account: %d).\n",
-		         fd, sd->account_id);
-		return -1;
-	}
-
-	// check lenght of character name
-	if (strlen(name) < 4) {
-		char_log("Make new char error (character name too small): (connection #%d, account: %d, name: '%s').\n",
-		         fd, sd->account_id, dat);
+	if (strcmpi(wisp_server_name, name) == 0) {
+		char_log("Make new char error (name used is wisp name for server): (connection #%d, account: %d) slot %d, name: %s, stats: %d/%d/%d/%d/%d/%d, hair: %d, hair color: %d.\n",
+		         sd->fd, sd->account_id, slot, name, str, agi, vit, int_, dex, luk, hair_style, hair_color);
 		return -1;
 	}
 
 	// Check Authorised letters/symbols in the name of the character
-	if (char_name_option == 1) { // only letters/symbols in char_name_letters are authorised
-		for (i = 0;  i < NAME_LENGTH && name[i]; i++)
-			if (strchr(char_name_letters, name[i]) == NULL) {
-				char_log("Make new char error (invalid letter in the name): (connection #%d, account: %d), name: %s, invalid letter: %c.\n",
-				         fd, sd->account_id, name, name[i]);
-				return -1;
-			}
-	} else if (char_name_option == 2) { // letters/symbols in char_name_letters are forbidden
-		for (i = 0;  i < NAME_LENGTH && name[i]; i++)
-			if (strchr(char_name_letters, name[i]) != NULL) {
-				char_log("Make new char error (invalid letter in the name): (connection #%d, account: %d), name: %s, invalid letter: %c.\n",
-				         fd, sd->account_id, dat, dat[i]);
-				return -1;
-			}
+	if( char_name_option == 1 ) { // only letters/symbols in char_name_letters are authorised
+		for( i = 0; i < NAME_LENGTH && name[i]; i++ )
+			if (strchr(char_name_letters, name[i]) == NULL)
+				return -2;
+	} else
+	if( char_name_option == 2 ) { // letters/symbols in char_name_letters are forbidden
+		for( i = 0; i < NAME_LENGTH && name[i]; i++ )
+			if( strchr(char_name_letters, name[i]) != NULL )
+				return -2;
 	} // else, all letters/symbols are authorised (except control char removed before)
 
-	if (dat[24] + dat[25] + dat[26] + dat[27] + dat[28] + dat[29] != 5*6 || // stats
-	    dat[30] >= MAX_CHARS || // slots (dat[30] can not be negativ)
-	    dat[33] <= 0 || dat[33] >= 24 || // hair style
-	    dat[31] >= 9) { // hair color (dat[31] can not be negativ)
-		char_log("Make new char error (invalid values): (connection #%d, account: %d) slot %d, name: %s, stats: %d+%d+%d+%d+%d+%d=%d, hair: %d, hair color: %d\n",
-		         fd, sd->account_id, dat[30], dat, dat[24], dat[25], dat[26], dat[27], dat[28], dat[29], dat[24] + dat[25] + dat[26] + dat[27] + dat[28] + dat[29], dat[33], dat[31]);
-		return -1;
-	}
-
-	// check individual stat value
-	for(i = 24; i <= 29; i++) {
-		if (dat[i] < 1 || dat[i] > 9) {
-			char_log("Make new char error (invalid stat value: not between 1 to 9): (connection #%d, account: %d) slot %d, name: %s, stats: %d+%d+%d+%d+%d+%d=%d, hair: %d, hair color: %d\n",
-			         fd, sd->account_id, dat[30], dat, dat[24], dat[25], dat[26], dat[27], dat[28], dat[29], dat[24] + dat[25] + dat[26] + dat[27] + dat[28] + dat[29], dat[33], dat[31]);
+	//FIXME: the code way below actually depends on the value of 'i' that's used here! [ultramage]
+	for( i = 0; i < char_num; i++ ) {
+		// check if name doesn't already exist
+		if( (name_ignoring_case && strncmp(char_dat[i].status.name, name, NAME_LENGTH) == 0) ||
+			(!name_ignoring_case && strncmpi(char_dat[i].status.name, name, NAME_LENGTH) == 0) ) {
+			char_log("Make new char error (name already exists): (connection #%d, account: %d) slot %d, name: %s (actual name of other char: %d), stats: %d/%d/%d/%d/%d/%d, hair: %d, hair color: %d.\n",
+			         sd->fd, sd->account_id, slot, name, char_dat[i].status.name, str, agi, vit, int_, dex, luk, hair_style, hair_color);
 			return -1;
 		}
-	} // now we know that every stat has proper value but we have to check if str/int agi/luk vit/dex pairs are correct
-
-	if( ((dat[24]+dat[27]) > 10) || ((dat[25]+dat[29]) > 10) || ((dat[26]+dat[28]) > 10) ) {
-		if (log_char) {
-			char_log("Make new char error (invalid stat value): (connection #%d, account: %d) slot %d, name: %s, stats: %d+%d+%d+%d+%d+%d=%d, hair: %d, hair color: %d\n",
-			         fd, sd->account_id, dat[30], dat, dat[24], dat[25], dat[26], dat[27], dat[28], dat[29], dat[24] + dat[25] + dat[26] + dat[27] + dat[28] + dat[29], dat[33], dat[31]);
-			return -1;
-		}
-	} // now when we have passed all stat checks
-
-	for(i = 0; i < char_num; i++) {
-		if ((name_ignoring_case != 0 && strncmp(char_dat[i].status.name, name, NAME_LENGTH) == 0) ||
-			(name_ignoring_case == 0 && strncmpi(char_dat[i].status.name, name, NAME_LENGTH) == 0)) {
-			char_log("Make new char error (name already exists): (connection #%d, account: %d) slot %d, name: %s (actual name of other char: %d), stats: %d+%d+%d+%d+%d+%d=%d, hair: %d, hair color: %d.\n",
-			         fd, sd->account_id, dat[30], dat, char_dat[i].status.name, dat[24], dat[25], dat[26], dat[27], dat[28], dat[29], dat[24] + dat[25] + dat[26] + dat[27] + dat[28] + dat[29], dat[33], dat[31]);
-			return -1;
-		}
-		if (char_dat[i].status.account_id == sd->account_id && char_dat[i].status.char_num == dat[30]) {
-			char_log("Make new char error (slot already used): (connection #%d, account: %d) slot %d, name: %s (actual name of other char: %d), stats: %d+%d+%d+%d+%d+%d=%d, hair: %d, hair color: %d.\n",
-			         fd, sd->account_id, dat[30], dat, char_dat[i].status.name, dat[24], dat[25], dat[26], dat[27], dat[28], dat[29], dat[24] + dat[25] + dat[26] + dat[27] + dat[28] + dat[29], dat[33], dat[31]);
+		// check if this account's slot is not already occupied
+		if (char_dat[i].status.account_id == sd->account_id && char_dat[i].status.slot == slot) {
+			char_log("Make new char error (slot already used): (connection #%d, account: %d) slot %d, name: %s (actual name of other char: %d), stats: %d/%d/%d/%d/%d/%d, hair: %d, hair color: %d.\n",
+			         sd->fd, sd->account_id, slot, name, char_dat[i].status.name, str, agi, vit, int_, dex, luk, hair_style, hair_color);
 			return -1;
 		}
 	}
 
-	if (strcmp(wisp_server_name, name) == 0) {
-		char_log("Make new char error (name used is wisp name for server): (connection #%d, account: %d) slot %d, name: %s (actual name of other char: %d), stats: %d+%d+%d+%d+%d+%d=%d, hair: %d, hair color: %d.\n",
-		         fd, sd->account_id, dat[30], name, char_dat[i].status.name, dat[24], dat[25], dat[26], dat[27], dat[28], dat[29], dat[24] + dat[25] + dat[26] + dat[27] + dat[28] + dat[29], dat[33], dat[31]);
-		return -1;
+	//check other inputs
+	if((slot >= MAX_CHARS) // slots
+	|| (hair_style >= 24) // hair style
+	|| (hair_color >= 9) // hair color
+	|| (str + agi + vit + int_ + dex + luk != 6*5 ) // stats
+	|| (str < 1 || str > 9 || agi < 1 || agi > 9 || vit < 1 || vit > 9 || int_ < 1 || int_ > 9 || dex < 1 || dex > 9 || luk < 1 || luk > 9) // individual stat values
+	|| (str + int_ != 10 || agi + luk != 10 || vit + dex != 10) ) // pairs
+	{
+		char_log("Make new char error (invalid values): (connection #%d, account: %d) slot %d, name: %s, stats: %d/%d/%d/%d/%d/%d, hair: %d, hair color: %d\n",
+		     sd->fd, sd->account_id, slot, name, str, agi, vit, int_, dex, luk, hair_style, hair_color);
+		return -2;
 	}
 
 	if (char_num >= char_max) {
 		char_max += 256;
-		char_dat = (struct character_data*)aRealloc(char_dat, sizeof(struct character_data) * char_max);
+		RECREATE(char_dat, struct character_data, char_max);
 		if (!char_dat) {
 			ShowFatalError("Out of memory: make_new_char (realloc of char_dat).\n");
 			char_log("Out of memory: make_new_char (realloc of char_dat).\n");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 	}
 
-	char_log("Creation of New Character: (connection #%d, account: %d) slot %d, character Name: %s, stats: %d+%d+%d+%d+%d+%d=%d, hair: %d, hair color: %d.\n",
-	         fd, sd->account_id, dat[30], name, dat[24], dat[25], dat[26], dat[27], dat[28], dat[29], dat[24] + dat[25] + dat[26] + dat[27] + dat[28] + dat[29], dat[33], dat[31]);
+	char_log("Creation of New Character: (connection #%d, account: %d) slot %d, character Name: %s, stats: %d/%d/%d/%d/%d/%d, hair: %d, hair color: %d.\n",
+	         sd->fd, sd->account_id, slot, name, str, agi, vit, int_, dex, luk, hair_style, hair_color);
 
 	memset(&char_dat[i], 0, sizeof(struct character_data));
 
 	char_dat[i].status.char_id = char_id_count++;
 	char_dat[i].status.account_id = sd->account_id;
-	char_dat[i].status.char_num = dat[30];
+	char_dat[i].status.slot = slot;
 	strcpy(char_dat[i].status.name,name);
 	char_dat[i].status.class_ = 0;
 	char_dat[i].status.base_level = 1;
@@ -1268,12 +1246,12 @@ int make_new_char(int fd, unsigned char *dat)
 	char_dat[i].status.base_exp = 0;
 	char_dat[i].status.job_exp = 0;
 	char_dat[i].status.zeny = start_zeny;
-	char_dat[i].status.str = dat[24];
-	char_dat[i].status.agi = dat[25];
-	char_dat[i].status.vit = dat[26];
-	char_dat[i].status.int_ = dat[27];
-	char_dat[i].status.dex = dat[28];
-	char_dat[i].status.luk = dat[29];
+	char_dat[i].status.str = str;
+	char_dat[i].status.agi = agi;
+	char_dat[i].status.vit = vit;
+	char_dat[i].status.int_ = int_;
+	char_dat[i].status.dex = dex;
+	char_dat[i].status.luk = luk;
 	char_dat[i].status.max_hp = 40 * (100 + char_dat[i].status.vit) / 100;
 	char_dat[i].status.max_sp = 11 * (100 + char_dat[i].status.int_) / 100;
 	char_dat[i].status.hp = char_dat[i].status.max_hp;
@@ -1285,8 +1263,8 @@ int make_new_char(int fd, unsigned char *dat)
 	char_dat[i].status.manner = 0;
 	char_dat[i].status.party_id = 0;
 	char_dat[i].status.guild_id = 0;
-	char_dat[i].status.hair = dat[33];
-	char_dat[i].status.hair_color = dat[31];
+	char_dat[i].status.hair = hair_style;
+	char_dat[i].status.hair_color = hair_color;
 	char_dat[i].status.clothes_color = 0;
 	char_dat[i].status.inventory[0].nameid = start_weapon; // Knife
 	char_dat[i].status.inventory[0].amount = 1;
@@ -1754,7 +1732,7 @@ int mmo_char_tobuf(uint8* buf, struct mmo_charstatus* p)
 	WBUFB(buf,101) = min(p->int_, UCHAR_MAX);
 	WBUFB(buf,102) = min(p->dex, UCHAR_MAX);
 	WBUFB(buf,103) = min(p->luk, UCHAR_MAX);
-	WBUFW(buf,104) = p->char_num;
+	WBUFW(buf,104) = p->slot;
 	if (char_rename) {
 		WBUFW(buf,106) = 1;// Rename bit (0=rename,1=no rename)
 		return 108;
@@ -2015,7 +1993,7 @@ int parse_fromlogin(int fd)
 				ShowError("The server communication passwords (default s1/p1) are probably invalid.\n");
 				ShowInfo("Also, please make sure your accounts file (default: accounts.txt) has those values present.\n");
 				ShowInfo("The communication passwords can be changed in map_athena.conf and char_athena.conf\n");
-				//exit(1); //fixed for server shutdown.
+				//exit(EXIT_FAILURE); //fixed for server shutdown.
 			} else {
 				ShowStatus("Connected to login-server (connection #%d).\n", fd);
 
@@ -3329,20 +3307,14 @@ static int char_mapif_init(int fd)
 int lan_subnetcheck(uint32 ip)
 {
 	int i;
-
-	for(i = 0; i < subnet_count; i++) {
-
-		if((subnet[i].subnet & subnet[i].mask) == (ip & subnet[i].mask)) {
-
-			ShowInfo("Subnet check [%u.%u.%u.%u]: Matches "CL_CYAN"%u.%u.%u.%u/%u.%u.%u.%u"CL_RESET"\n",
-				CONVIP(ip), CONVIP(subnet[i].subnet), CONVIP(subnet[i].mask));
-
-			return subnet[i].map_ip;
-		}
+	ARR_FIND( 0, subnet_count, i, (subnet[i].char_ip & subnet[i].mask) == (ip & subnet[i].mask) );
+	if ( i < subnet_count ) {
+		ShowInfo("Subnet check [%u.%u.%u.%u]: Matches "CL_CYAN"%u.%u.%u.%u/%u.%u.%u.%u"CL_RESET"\n", CONVIP(ip), CONVIP(subnet[i].char_ip & subnet[i].mask), CONVIP(subnet[i].mask));
+		return subnet[i].char_ip;
+	} else {
+		ShowInfo("Subnet check [%u.%u.%u.%u]: "CL_CYAN"WAN"CL_RESET"\n", CONVIP(ip));
+		return 0;
 	}
-
-	ShowInfo("Subnet check [%u.%u.%u.%u]: "CL_CYAN"WAN"CL_RESET"\n", CONVIP(ip));
-	return 0;
 }
 
 int parse_char(int fd)
@@ -3373,16 +3345,17 @@ int parse_char(int fd)
 		return 0;
 	}
 
-	while(RFIFOREST(fd) >= 2)
+	while( RFIFOREST(fd) >= 2 )
 	{
 		//For use in packets that depend on an sd being present [Skotlex]
 		#define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL) { RFIFOSKIP(fd,rest); return 0; } }
 
 		cmd = RFIFOW(fd,0);
-		switch(cmd)
+		switch( cmd )
 		{
 
-		case 0x65: // request to connect
+		// request to connect
+		case 0x65:
 			ShowInfo("request connect - account_id:%d/login_id1:%d/login_id2:%d\n", RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10));
 			if (RFIFOREST(fd) < 17)
 				return 0;
@@ -3392,6 +3365,7 @@ int parse_char(int fd)
 			if (sd) {
 				//Received again auth packet for already authentified account?? Discard it.
 				//TODO: Perhaps log this as a hack attempt?
+				//TODO: and perhaps send back a reply?
 				RFIFOSKIP(fd,17);
 				break;
 			}
@@ -3402,26 +3376,28 @@ int parse_char(int fd)
 
 			CREATE(session[fd]->session_data, struct char_session_data, 1);
 			sd = (struct char_session_data*)session[fd]->session_data;
+			sd->fd = fd;
 			strncpy(sd->email, "no mail", 40); // put here a mail without '@' to refuse deletion if we don't receive the e-mail
-			sd->connect_until_time = 0; // unknow or illimited (not displaying on map-server)
+			sd->connect_until_time = 0; // unknown or unlimited (not displaying on map-server)
 			sd->account_id = RFIFOL(fd,2);
 			sd->login_id1 = RFIFOL(fd,6);
 			sd->login_id2 = RFIFOL(fd,10);
 			sd->sex = RFIFOB(fd,16);
+
 			// send back account_id
 			WFIFOHEAD(fd,4);
 			WFIFOL(fd,0) = RFIFOL(fd,2);
 			WFIFOSET(fd,4);
+
 			// search authentification
-			for(i = 0; i < AUTH_FIFO_SIZE && !(
+			ARR_FIND( 0, AUTH_FIFO_SIZE, i,
 				auth_fifo[i].account_id == sd->account_id &&
 				auth_fifo[i].login_id1 == sd->login_id1 &&
 				auth_fifo[i].login_id2 == sd->login_id2 &&
 				auth_fifo[i].ip == session[fd]->client_addr &&
-				auth_fifo[i].delflag == 2)
-				; i++);
+				auth_fifo[i].delflag == 2 );
 
-			if (i < AUTH_FIFO_SIZE) {
+			if( i < AUTH_FIFO_SIZE ) {
 				auth_fifo[i].delflag = 1;
 				char_auth_ok(fd, sd);
 			} else { // authentication not found
@@ -3441,15 +3417,16 @@ int parse_char(int fd)
 					WFIFOSET(fd,3);
 				}
 			}
+		}
 
 			RFIFOSKIP(fd,17);
-		}
 		break;
 
-		case 0x66: // char select
+		// char select
+		case 0x66:
 			FIFOSD_CHECK(3);
 		{
-			int char_num = RFIFOB(fd,2);
+			int slot = RFIFOB(fd,2);
 			struct mmo_charstatus *cd;
 
 			RFIFOSKIP(fd,3);
@@ -3463,15 +3440,13 @@ int parse_char(int fd)
 				break;
 			}
 			// otherwise, load the character
-			for (ch = 0; ch < MAX_CHARS; ch++)
-				if (sd->found_char[ch] >= 0 && char_dat[sd->found_char[ch]].status.char_num == char_num)
-					break;
+			ARR_FIND( 0, MAX_CHARS, ch, sd->found_char[ch] >= 0 && char_dat[sd->found_char[ch]].status.slot == slot );
 			if (ch == MAX_CHARS)
 			{	//Not found?? May be forged packet.
 				break;
 			}
 			cd = &char_dat[sd->found_char[ch]].status;
-			char_log("Character Selected, Account ID: %d, Character Slot: %d, Character Name: %s.\n", sd->account_id, char_num, cd->name);
+			char_log("Character Selected, Account ID: %d, Character Slot: %d, Character Name: %s.\n", sd->account_id, slot, cd->name);
 
 			cd->sex = sd->sex;
 
@@ -3482,9 +3457,7 @@ int parse_char(int fd)
 			if (i < 0) {
 				unsigned short j;
 				//First check that there's actually a map server online.
-				for(j = 0; j < MAX_MAP_SERVERS; j++)
-					if (server_fd[j] >= 0 && server[j].map[0])
-						break;
+				ARR_FIND( 0, MAX_MAP_SERVERS, j, server_fd[j] >= 0 && server[j].map[0] );
 				if (j == MAX_MAP_SERVERS) {
 					ShowInfo("Connection Closed. No map servers available.\n");
 					WFIFOHEAD(fd,3);
@@ -3562,6 +3535,7 @@ int parse_char(int fd)
 				WFIFOSET(fd,3);
 				break;
 			}
+
 			//Send auth to server.
 			WFIFOHEAD(map_fd, 20 + sizeof(struct mmo_charstatus));
 			WFIFOW(map_fd,0) = 0x2afd;
@@ -3578,13 +3552,15 @@ int parse_char(int fd)
 		}
 		break;
 
-		case 0x67:	// make new
+		// create new char
+		// S 0067 <name>.24B <str>.B <agi>.B <vit>.B <int>.B <dex>.B <luk>.B <slot>.B <hair color>.W <hair style>.W
+		case 0x67:
 			FIFOSD_CHECK(37);
 
-			if(char_new == 0) //turn character creation on/off [Kevin]
+			if( !char_new ) //turn character creation on/off [Kevin]
 				i = -2;
 			else
-				i = make_new_char(fd, RFIFOP(fd,2));
+				i = make_new_char(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35));
 
 			//'Charname already exists' (-1), 'Char creation denied' (-2) and 'You are underaged' (-3)
 			if (i < 0)
@@ -3597,30 +3573,29 @@ int parse_char(int fd)
 				case -3: WFIFOB(fd,2) = 0x01; break;
 				}
 				WFIFOSET(fd,3);
-				RFIFOSKIP(fd,37);
-				break;
 			}
-
-			{	//Send to player.
+			else
+			{
 				int len;
+				// send to player
 				WFIFOHEAD(fd,110);
 				WFIFOW(fd,0) = 0x6d;
 				len = 2 + mmo_char_tobuf(WFIFOP(fd,2), &char_dat[i].status);
 				WFIFOSET(fd,len);
-			}
 
-			for(ch = 0; ch < MAX_CHARS; ch++) {
-				if (sd->found_char[ch] == -1) {
-					sd->found_char[ch] = i;
-					break;
-				}
+				// add new entry to the chars list
+				ARR_FIND( 0, MAX_CHARS, ch, sd->found_char[ch] == -1 );
+				if( ch < MAX_CHARS )
+						sd->found_char[ch] = i; // position of the new char in the char_dat[] array
 			}
 
 			RFIFOSKIP(fd,37);
 		break;
 
-		case 0x68:	// delete char
-		case 0x1fb:	// 2004-04-19aSakexe+ langtype 12 char deletion packet
+		// delete char
+		case 0x68:
+		// 2004-04-19aSakexe+ langtype 12 char deletion packet
+		case 0x1fb:
 			if (cmd == 0x68) FIFOSD_CHECK(46);
 			if (cmd == 0x1fb) FIFOSD_CHECK(56);
 		{
@@ -3645,24 +3620,24 @@ int parse_char(int fd)
 					break;
 				}
 				// we change the packet to set it like selection.
-				for (i = 0; i < MAX_CHARS; i++)
-					if (sd->found_char[i] != -1 && char_dat[sd->found_char[i]].status.char_id == cid) {
-						// we save new e-mail
-						memcpy(sd->email, email, 40);
-						// we send new e-mail to login-server ('online' login-server is checked before)
-						WFIFOHEAD(login_fd,46);
-						WFIFOW(login_fd,0) = 0x2715;
-						WFIFOL(login_fd,2) = sd->account_id;
-						memcpy(WFIFOP(login_fd, 6), email, 40);
-						WFIFOSET(login_fd,46);
-						// change value to put new packet (char selection)
-						RFIFOSKIP(fd,-3); //FIXME: Will this work? Messing with the received buffer is ugly anyway...
-						RFIFOW(fd,0) = 0x66;
-						RFIFOB(fd,2) = char_dat[sd->found_char[i]].status.char_num;
-						// not send packet, it's modify of actual packet
-						break;
-					}
-				if (i == MAX_CHARS) {
+				ARR_FIND( 0, MAX_CHARS, i, sd->found_char[i] != -1 && char_dat[sd->found_char[i]].status.char_id == cid );
+				if( i < MAX_CHARS )
+				{
+					// we save new e-mail
+					memcpy(sd->email, email, 40);
+					// we send new e-mail to login-server ('online' login-server is checked before)
+					WFIFOHEAD(login_fd,46);
+					WFIFOW(login_fd,0) = 0x2715;
+					WFIFOL(login_fd,2) = sd->account_id;
+					memcpy(WFIFOP(login_fd, 6), email, 40);
+					WFIFOSET(login_fd,46);
+
+					// change value to put new packet (char selection)
+					RFIFOSKIP(fd,-3); //FIXME: Will this work? Messing with the received buffer is ugly anyway...
+					RFIFOW(fd,0) = 0x66;
+					RFIFOB(fd,2) = char_dat[sd->found_char[i]].status.slot;
+					// not send packet, it's modify of actual packet
+				} else {
 					WFIFOHEAD(fd,3);
 					WFIFOW(fd,0) = 0x70;
 					WFIFOB(fd,2) = 0; // 00 = Incorrect Email address
@@ -3681,11 +3656,10 @@ int parse_char(int fd)
 				break;
 			}
 
-			for (i = 0; i < MAX_CHARS; i++) {
-				if (sd->found_char[i] == -1) continue;
-				if (char_dat[sd->found_char[i]].status.char_id == cid) break;
-			}
-			if (i == MAX_CHARS) { // Such a character does not exist in the account
+			// check if this char exists
+			ARR_FIND( 0, MAX_CHARS, i, sd->found_char[i] != -1 && char_dat[sd->found_char[i]].status.char_id == cid );
+			if( i == MAX_CHARS )
+			{ // Such a character does not exist in the account
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x70;
 				WFIFOB(fd,2) = 0;
@@ -3715,29 +3689,38 @@ int parse_char(int fd)
 				}
 			}
 			char_num--;
+
+			// remove char from list and compact it
 			for(ch = i; ch < MAX_CHARS-1; ch++)
 				sd->found_char[ch] = sd->found_char[ch+1];
 			sd->found_char[MAX_CHARS-1] = -1;
+
+			/* Char successfully deleted.*/
 			WFIFOHEAD(fd,2);
 			WFIFOW(fd,0) = 0x6f;
 			WFIFOSET(fd,2);
 		}
 		break;
 
-		case 0x187:	// R 0187 <account ID>.l - client keep-alive packet (every 12 seconds)
+		// client keep-alive packet (every 12 seconds)
+		// R 0187 <account ID>.l
+		case 0x187:
 			if (RFIFOREST(fd) < 6)
 				return 0;
 			RFIFOSKIP(fd,6);
 		break;
 
-		case 0x28d: // R 028d <account ID>.l <char ID>.l <new name>.24B - char rename request
+		// char rename request
+		// R 028d <account ID>.l <char ID>.l <new name>.24B
+		case 0x28d:
 			if (RFIFOREST(fd) < 34)
 				return 0;
 			//not implemented
 			RFIFOSKIP(fd,34);
 		break;
 
-		case 0x2af8: // login as map-server
+		// login as map-server
+		case 0x2af8:
 			if (RFIFOREST(fd) < 60)
 				return 0;
 		{
@@ -3760,12 +3743,13 @@ int parse_char(int fd)
 				WFIFOB(fd,2) = 0;
 				WFIFOSET(fd,3);
 
-				session[fd]->func_parse = parse_frommap;
 				server_fd[i] = fd;
 				server[i].ip = ntohl(RFIFOL(fd,54));
 				server[i].port = ntohs(RFIFOW(fd,58));
 				server[i].users = 0;
 				memset(server[i].map, 0, sizeof(server[i].map));
+				session[fd]->func_parse = parse_frommap;
+				session[fd]->client_addr = 0;
 				realloc_fifo(fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
 				char_mapif_init(fd);
 				// send gm acccounts level to map-servers
@@ -3783,8 +3767,8 @@ int parse_char(int fd)
 		}
 		break;
 
-		case 0x7530: // Athena info get
-		{
+		// Athena info get
+		case 0x7530:
 			WFIFOHEAD(fd,10);
 			WFIFOW(fd,0) = 0x7531;
 			WFIFOB(fd,2) = ATHENA_MAJOR_VERSION;
@@ -3795,15 +3779,17 @@ int parse_char(int fd)
 			WFIFOB(fd,7) = ATHENA_SERVER_INTER | ATHENA_SERVER_CHAR;
 			WFIFOW(fd,8) = ATHENA_MOD_VERSION;
 			WFIFOSET(fd,10);
-			RFIFOSKIP(fd,2);
-			return 0;
-		}
 
-		case 0x7532: // disconnect request from login server
+			RFIFOSKIP(fd,2);
+		break;
+
+		// disconnect request from login server
+		case 0x7532:
 			set_eof(fd);
 			return 0;
 
-		default: // unknown packet received
+		// unknown packet received
+		default:
 			ShowError("parse_char: Received unknown packet "CL_WHITE"0x%x"CL_RESET" from ip '"CL_WHITE"%s"CL_RESET"'! Disconnecting!\n", RFIFOW(fd,0), ip2str(ipl, NULL));
 			set_eof(fd);
 			return 0;
@@ -3919,15 +3905,14 @@ int send_users_tologin(int tid, unsigned int tick, int id, int data)
 	return 0;
 }
 
+/// load this char's account id into the 'online accounts' packet
 static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
 {
 	struct online_char_data* character = (struct online_char_data*)data;
-	int *i = va_arg(ap, int*);
-	int count = va_arg(ap, int);
-	if ((*i) >= count)
-		return 0; //This is an error that shouldn't happen....
-	if(character->server > -1) {
-		WFIFOHEAD(login_fd,8+count*4);
+	int* i = va_arg(ap, int*);
+
+	if(character->server > -1)
+	{
 		WFIFOL(login_fd,8+(*i)*4) = character->account_id;
 		(*i)++;
 		return 1;
@@ -3937,15 +3922,17 @@ static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
 
 int send_accounts_tologin(int tid, unsigned int tick, int id, int data)
 {
-	int users = count_users(), i=0;
-
-	if (login_fd > 0 && session[login_fd]) {
+	if (login_fd > 0 && session[login_fd])
+	{
 		// send account list to login server
+		int users = online_char_db->size(online_char_db);
+		int i = 0;
+
 		WFIFOHEAD(login_fd,8+users*4);
 		WFIFOW(login_fd,0) = 0x272d;
-		WFIFOL(login_fd,4) = users;
-		online_char_db->foreach(online_char_db, send_accounts_tologin_sub, &i);
+		online_char_db->foreach(online_char_db, send_accounts_tologin_sub, &i, users);
 		WFIFOW(login_fd,2) = 8+ i*4;
+		WFIFOL(login_fd,4) = i;
 		WFIFOSET(login_fd,WFIFOW(login_fd,2));
 	}
 	return 0;
@@ -3964,6 +3951,7 @@ int check_connect_login_server(int tid, unsigned int tick, int id, int data)
 		return 0;
 	}
 	session[login_fd]->func_parse = parse_fromlogin;
+	session[login_fd]->client_addr = 0;
 	realloc_fifo(login_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
 
 	WFIFOHEAD(login_fd,86);
@@ -4031,13 +4019,14 @@ int char_lan_config_read(const char *lancfgName)
 		remove_control_chars(w3);
 		remove_control_chars(w4);
 
-		if(strcmpi(w1, "subnet") == 0) {
-
+		if( strcmpi(w1, "subnet") == 0 )
+		{
 			subnet[subnet_count].mask = str2ip(w2);
 			subnet[subnet_count].char_ip = str2ip(w3);
 			subnet[subnet_count].map_ip = str2ip(w4);
-			subnet[subnet_count].subnet = subnet[subnet_count].char_ip&subnet[subnet_count].mask;
-			if (subnet[subnet_count].subnet != (subnet[subnet_count].map_ip&subnet[subnet_count].mask)) {
+
+			if( (subnet[subnet_count].char_ip & subnet[subnet_count].mask) != (subnet[subnet_count].map_ip & subnet[subnet_count].mask) )
+			{
 				ShowError("%s: Configuration Error: The char server (%s) and map server (%s) belong to different subnetworks!\n", lancfgName, w3, w4);
 				continue;
 			}
@@ -4123,7 +4112,7 @@ int char_config_read(const char *cfgName)
 		} else if (strcmpi(w1, "char_maintenance") == 0) {
 			char_maintenance = atoi(w2);
 		} else if (strcmpi(w1, "char_new") == 0) {
-			char_new = atoi(w2);
+			char_new = (bool)atoi(w2);
 		} else if (strcmpi(w1, "char_new_display") == 0) {
 			char_new_display = atoi(w2);
 		} else if (strcmpi(w1, "email_creation") == 0) {
@@ -4186,7 +4175,7 @@ int char_config_read(const char *cfgName)
 		} else if (strcmpi(w1, "char_log_filename") == 0) {
 			strcpy(char_log_filename, w2);
 		} else if (strcmpi(w1, "name_ignoring_case") == 0) {
-			name_ignoring_case = config_switch(w2);
+			name_ignoring_case = (bool)config_switch(w2);
 		} else if (strcmpi(w1, "char_name_option") == 0) {
 			char_name_option = atoi(w2);
 		} else if (strcmpi(w1, "char_name_letters") == 0) {
@@ -4279,6 +4268,14 @@ void do_final(void)
 	mapindex_final();
 
 	char_log("----End of char-server (normal end with closing of all files).\n");
+}
+
+//------------------------------
+// Function called when the server
+// has received a crash signal.
+//------------------------------
+void do_abort(void)
+{
 }
 
 void set_server_type(void)
