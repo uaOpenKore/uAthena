@@ -425,9 +425,9 @@ struct weapon_data {
 		unsigned type:1;
 	} hp_drain[RC_MAX], sp_drain[RC_MAX];
 
-	short add_damage_classid[MAX_PC_BONUS];
-	int add_damage_classrate[MAX_PC_BONUS];
-	int add_damage_class_count;
+	struct {
+		short class_, rate;
+	}	add_dmg[MAX_PC_BONUS];
 };
 
 struct view_data {
@@ -656,25 +656,32 @@ struct map_session_data {
 	int magic_addsize[3];
 	int critaddrace[RC_MAX];
 	int expaddrace[RC_MAX];
+	int ignore_mdef[RC_MAX];
 	int itemgrouphealrate[MAX_ITEMGROUP];
 	short sp_gain_race[RC_MAX];
 	// zeroed arrays end here.
 	// zeroed structures start here
 	struct s_autospell{
 		short id, lv, rate, card_id, flag;
-	} autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS];
+	} autospell[15], autospell2[15];
 	struct s_addeffect{
 		short id, rate, arrow_rate;
 		unsigned char flag;
 	} addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
 	struct { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
-		short id, val;
-	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS];
+		unsigned short id;
+		short val;
+	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS];
+	struct {
+		short value;
+		int rate;
+		int tick;
+	} hp_loss, sp_loss, hp_regen, sp_regen;
 	struct {
 		short class_, rate;
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS],
-		add_dmg[MAX_PC_BONUS], add_mdmg[MAX_PC_BONUS];
-	struct s_add_drop { 
+		add_mdmg[MAX_PC_BONUS];
+	struct s_add_drop {
 		short id, group;
 		int race, rate;
 	} add_drop[MAX_PC_BONUS];
@@ -701,26 +708,18 @@ struct map_session_data {
 	int random_attack_increase_add,random_attack_increase_per; // [Valaris]
 	int break_weapon_rate,break_armor_rate;
 	int crit_atk_rate;
-	int hp_loss_rate;
-	int sp_loss_rate;
 	int classchange; // [Valaris]
 	int speed_add_rate, aspd_add;
 	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
 
 	short splash_range, splash_add_range;
 	short add_steal_rate;
-	short hp_loss_value;
-	short sp_loss_value;
-	short hp_loss_type;
 	short sp_gain_value, hp_gain_value;
 	short sp_vanish_rate;
-	short sp_vanish_per;	
-	short add_drop_count;
+	short sp_vanish_per;
 	unsigned short unbreakable;	// chance to prevent ANY equipment breaking [celest]
 	unsigned short unbreakable_equip; //100% break resistance on certain equipment
 	unsigned short unstripable_equip;
-	short add_def_count,add_mdef_count;
-	short add_dmg_count,add_mdmg_count;
 
 	// zeroed vars end here.
 
@@ -729,9 +728,6 @@ struct map_session_data {
 	int speed_rate,hprecov_rate,sprecov_rate;
 	int matk_rate;
 	int critical_rate,hit_rate,flee_rate,flee2_rate,def_rate,def2_rate,mdef_rate,mdef2_rate;
-
-	int hp_loss_tick;
-	int sp_loss_tick;
 
 	int itemid;
 	short itemindex;	//Used item's index in sd->inventory [Skotlex]
@@ -1133,9 +1129,9 @@ struct chat_data {
 	char title[CHATROOM_TITLE_SIZE]; // room title
 	char pass[CHATROOM_PASS_SIZE];   // password
 	bool pub;                        // private/public flag
-	unsigned char users;             // current users
-	unsigned char limit;             // join limit
-	unsigned char trigger;           // number of users needed to trigger event
+	uint8 users;                     // current user count
+	uint8 limit;                     // join limit
+	uint8 trigger;                   // number of users needed to trigger event
 	struct map_session_data* usersd[20];
 	struct block_list* owner;
 	char npc_event[50];
@@ -1164,7 +1160,7 @@ enum _sp {
 	SP_CRITICAL_DEF,SP_NEAR_ATK_DEF,SP_LONG_ATK_DEF, // 1019-1021
 	SP_DOUBLE_RATE, SP_DOUBLE_ADD_RATE, SP_SKILL_HEAL, SP_MATK_RATE, // 1022-1025
 	SP_IGNORE_DEF_ELE,SP_IGNORE_DEF_RACE, // 1026-1027
-	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_FREE3, // 1028-1030
+	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_SP_REGEN_RATE, // 1028-1030
 	SP_MAGIC_ATK_DEF,SP_MISC_ATK_DEF, // 1031-1032
 	SP_IGNORE_MDEF_ELE,SP_IGNORE_MDEF_RACE, // 1033-1034
 	SP_MAGIC_ADDELE,SP_MAGIC_ADDRACE,SP_MAGIC_ADDSIZE, // 1035-1037
@@ -1180,22 +1176,23 @@ enum _sp {
 	SP_HP_DRAIN_VALUE,SP_SP_DRAIN_VALUE, // 1079-1080
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
 	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
-	
+	SP_IGNORE_MDEF_RATE, //1086
+
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_NO_MISC_DAMAGE,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010
 	SP_UNBREAKABLE_SHIELD, SP_LONG_ATK_RATE, // 2011-2012
 
 	SP_CRIT_ATK_RATE, SP_CRITICAL_ADDRACE, SP_NO_REGEN, SP_ADDEFF_WHENHIT, SP_AUTOSPELL_WHENHIT, // 2013-2017
-	SP_SKILL_ATK, SP_UNSTRIPABLE, SP_ADD_DAMAGE_BY_CLASS, // 2018-2020
-	SP_SP_GAIN_VALUE, SP_FREE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
+	SP_SKILL_ATK, SP_UNSTRIPABLE, SP_FREE, // 2018-2020
+	SP_SP_GAIN_VALUE, SP_HP_REGEN_RATE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
 	SP_SUBSIZE, SP_HP_DRAIN_VALUE_RACE, SP_ADD_ITEM_HEAL_RATE, SP_SP_DRAIN_VALUE_RACE, SP_EXP_ADDRACE,	// 2026-2030
-	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_ADDEFF_WHENHIT_SHORT,	// 2031-2033
+	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_FREE2,	// 2031-2033
 	SP_UNSTRIPABLE_WEAPON,SP_UNSTRIPABLE_ARMOR,SP_UNSTRIPABLE_HELM,SP_UNSTRIPABLE_SHIELD,  // 2034-2037
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
-	//Before adding another, note that these are free:
-	//1030 (SP_FREE3, previous AspdAddRate)
-	//2022 (SP_FREE, previous bDefIgnoreMob)
+	//Before adding new bonuses, reuse the currently free slots:
+	//2020 (SP_FREE) (previously SP_ADD_DAMAGE_BY_CLASS)
+	//2033 (SP_FREE2) (previously SP_ADDEFF_WHENHIT_SHORT)
 };
 
 enum _look {
@@ -1304,7 +1301,7 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list), struct bloc
 int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int type, ...);
 int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int dx, int dy, int type, ...);
 int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int y, int type, ...);
-int map_foreachinpath(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int range, int type, ...);
+int map_foreachinpath(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int range, int length, int type, ...);
 int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type, ...);
 int map_countnearpc(int,int,int);
 //blockA

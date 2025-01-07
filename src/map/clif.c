@@ -638,7 +638,7 @@ int clif_clearflooritem(struct flooritem_data *fitem, int fd)
 		clif_send(buf, packet_len(0xa1), &fitem->bl, AREA);
 	} else {
 		WFIFOHEAD(fd,packet_len(0xa1));
-		memcpy(WFIFOP(fd,0), buf, 6);
+		memcpy(WFIFOP(fd,0), buf, packet_len(0xa1));
 		WFIFOSET(fd,packet_len(0xa1));
 	}
 
@@ -1182,20 +1182,6 @@ static void clif_spiritball_single(int fd, struct map_session_data *sd)
 	WFIFOSET(fd, packet_len(0x1e1));
 }
 
-/*==========================================
- *
- *------------------------------------------*/
-static void clif_set0192(int fd, int m, int x, int y, int type)
-{
-	WFIFOHEAD(fd,packet_len(0x192));
-	WFIFOW(fd,0) = 0x192;
-	WFIFOW(fd,2) = x;
-	WFIFOW(fd,4) = y;
-	WFIFOW(fd,6) = type;
-	mapindex_getmapname_ext(map[m].name, (char*)WFIFOP(fd,8));
-	WFIFOSET(fd,packet_len(0x192));
-}
-
 // new and improved weather display [Valaris]
 static void clif_weather_sub(int fd, int id, int type)
 {
@@ -1318,7 +1304,6 @@ int clif_spawn(struct block_list *bl)
 		WBUFW(buf,18)=vd->head_bottom; //Pet armor (ignored by client)
 		WBUFW(buf,20)=vd->class_;
 		//22W: Shield
-		WBUFW(buf,24)=vd->head_bottom;	//Pet armor
 		//24W: Head top
 		//26W: Head mid
 		//28W: Hair color
@@ -3155,43 +3140,50 @@ int clif_useitemack(struct map_session_data *sd,int index,int amount,int ok)
 }
 
 /*==========================================
- *
+ * Inform client whether chatroom creation was successful or not
+ * R 00d6 <fail>.B
  *------------------------------------------*/
-int clif_createchat(struct map_session_data *sd,int fail)
+void clif_createchat(struct map_session_data* sd, int fail)
 {
 	int fd;
 
-	nullpo_retr(0, sd);
+	nullpo_retv(sd);
 
-	fd=sd->fd;
+	fd = sd->fd;
 	WFIFOHEAD(fd,packet_len(0xd6));
-	WFIFOW(fd,0)=0xd6;
-	WFIFOB(fd,2)=fail;
+	WFIFOW(fd,0) = 0xd6;
+	WFIFOB(fd,2) = fail;
 	WFIFOSET(fd,packet_len(0xd6));
-
-	return 0;
 }
 
 /*==========================================
- *
+ * Display a chat above the owner
+ * R 00d7 <len>.w <owner ID>.l <chat ID>.l <limit>.w <users>.w <type>.B <title>.?B
  *------------------------------------------*/
 int clif_dispchat(struct chat_data* cd, int fd)
 {
-	unsigned char buf[128];	// title(60oCg)+17
+	unsigned char buf[128];
+	uint8 type;
 
-	if(cd==NULL || cd->owner==NULL)
+	if( cd == NULL || cd->owner == NULL )
 		return 1;
 
-	WBUFW(buf,0)=0xd7;
-	WBUFW(buf,2)=strlen((const char*)cd->title)+17;
-	WBUFL(buf,4)=cd->owner->id;
-	WBUFL(buf,8)=cd->bl.id;
-	WBUFW(buf,12)=cd->limit;
-	WBUFW(buf,14)=cd->users;
-	WBUFB(buf,16)=cd->pub;
-	strcpy((char*)WBUFP(buf,17),(const char*)cd->title);
-	if(fd){
-		WFIFOHEAD(fd, WBUFW(buf,2));
+	// type - 0: private, 1: public, 2: npc, 3: non-clickable
+	type = (cd->owner->type == BL_PC ) ? (cd->pub) ? 1 : 0
+	     : (cd->owner->type == BL_NPC) ? (cd->limit) ? 2 : 3
+	     : 1;
+
+	WBUFW(buf, 0) = 0xd7;
+	WBUFW(buf, 2) = 17 + strlen(cd->title);
+	WBUFL(buf, 4) = cd->owner->id;
+	WBUFL(buf, 8) = cd->bl.id;
+	WBUFW(buf,12) = cd->limit;
+	WBUFW(buf,14) = cd->users;
+	WBUFB(buf,16) = type;
+	strncpy((char*)WBUFP(buf,17), cd->title, strlen(cd->title)); // not zero-terminated
+
+	if( fd ) {
+		WFIFOHEAD(fd,WBUFW(buf,2));
 		memcpy(WFIFOP(fd,0),buf,WBUFW(buf,2));
 		WFIFOSET(fd,WBUFW(buf,2));
 	} else {
@@ -3202,24 +3194,25 @@ int clif_dispchat(struct chat_data* cd, int fd)
 }
 
 /*==========================================
- * chatX
- * OlpR[h(d7->df)
+ * Chatroom properties adjustment
+ * R 00df <len>.w <owner ID>.l <chat ID>.l <limit>.w <users>.w <pub>.B <title>.?B
  *------------------------------------------*/
-int clif_changechatstatus(struct chat_data *cd)
+int clif_changechatstatus(struct chat_data* cd)
 {
-	unsigned char buf[128];	// title(60oCg)+17
+	unsigned char buf[128];
 
-	if(cd==NULL || cd->usersd[0]==NULL)
+	if( cd == NULL || cd->usersd[0] == NULL )
 		return 1;
 
-	WBUFW(buf,0)=0xdf;
-	WBUFW(buf,2)=strlen((char*)cd->title)+17;
-	WBUFL(buf,4)=cd->usersd[0]->bl.id;
-	WBUFL(buf,8)=cd->bl.id;
-	WBUFW(buf,12)=cd->limit;
-	WBUFW(buf,14)=cd->users;
-	WBUFB(buf,16)=cd->pub;
-	strcpy((char*)WBUFP(buf,17),(const char*)cd->title);
+	WBUFW(buf, 0) = 0xdf;
+	WBUFW(buf, 2) = 17 + strlen(cd->title);
+	WBUFL(buf, 4) = cd->usersd[0]->bl.id;
+	WBUFL(buf, 8) = cd->bl.id;
+	WBUFW(buf,12) = cd->limit;
+	WBUFW(buf,14) = cd->users;
+	WBUFB(buf,16) = cd->pub;
+	strncpy((char*)WBUFP(buf,17), cd->title, strlen(cd->title)); // not zero-terminated
+
 	clif_send(buf,WBUFW(buf,2),&cd->usersd[0]->bl,CHAT);
 
 	return 0;
@@ -3234,9 +3227,9 @@ int clif_clearchat(struct chat_data *cd,int fd)
 
 	nullpo_retr(0, cd);
 
-	WBUFW(buf,0)=0xd8;
-	WBUFL(buf,2)=cd->bl.id;
-	if(fd){
+	WBUFW(buf,0) = 0xd8;
+	WBUFL(buf,2) = cd->bl.id;
+	if( fd ) {
 		WFIFOHEAD(fd,packet_len(0xd8));
 		memcpy(WFIFOP(fd,0),buf,packet_len(0xd8));
 		WFIFOSET(fd,packet_len(0xd8));
@@ -3256,11 +3249,11 @@ int clif_joinchatfail(struct map_session_data *sd,int fail)
 
 	nullpo_retr(0, sd);
 
-	fd=sd->fd;
+	fd = sd->fd;
 
 	WFIFOHEAD(fd,packet_len(0xda));
-	WFIFOW(fd,0)=0xda;
-	WFIFOB(fd,2)=fail;
+	WFIFOW(fd,0) = 0xda;
+	WFIFOB(fd,2) = fail;
 	WFIFOSET(fd,packet_len(0xda));
 
 	return 0;
@@ -3312,45 +3305,48 @@ int clif_addchat(struct chat_data* cd,struct map_session_data *sd)
 }
 
 /*==========================================
- *
+ * Announce the new owner
+ * R 00e1 <index>.l <nick>.24B
  *------------------------------------------*/
-int clif_changechatowner(struct chat_data* cd, struct map_session_data* sd)
+void clif_changechatowner(struct chat_data* cd, struct map_session_data* sd)
 {
 	unsigned char buf[64];
 
-	nullpo_retr(0, sd);
-	nullpo_retr(0, cd);
+	nullpo_retv(sd);
+	nullpo_retv(cd);
+
+	//FIXME: this announces a swap between positions 0 and 1 (probably not what we want) [ultramage]
+	//FIXME: aegis sends obviously incorrect packets; need to figure out what to send to display it correctly :X
+	//TODO: is it just owner swap, or can it do general-purpose reordering?
 
 	WBUFW(buf, 0) = 0xe1;
 	WBUFL(buf, 2) = 1;
 	memcpy(WBUFP(buf,6),cd->usersd[0]->status.name,NAME_LENGTH);
+
 	WBUFW(buf,30) = 0xe1;
 	WBUFL(buf,32) = 0;
 	memcpy(WBUFP(buf,36),sd->status.name,NAME_LENGTH);
 
 	clif_send(buf,packet_len(0xe1)*2,&sd->bl,CHAT);
-
-	return 0;
 }
 
 /*==========================================
- *
+ * Notify about user leaving the chatroom
+ * R 00dd <index>.w <nick>.24B <flag>.B
  *------------------------------------------*/
-int clif_leavechat(struct chat_data* cd,struct map_session_data *sd)
+void clif_leavechat(struct chat_data* cd, struct map_session_data* sd, bool flag)
 {
 	unsigned char buf[32];
 
-	nullpo_retr(0, sd);
-	nullpo_retr(0, cd);
+	nullpo_retv(sd);
+	nullpo_retv(cd);
 
 	WBUFW(buf, 0) = 0xdd;
 	WBUFW(buf, 2) = cd->users-1;
 	memcpy(WBUFP(buf,4),sd->status.name,NAME_LENGTH);
-	WBUFB(buf,28) = 0;
+	WBUFB(buf,28) = flag; // 0: left, 1: was kicked
 
 	clif_send(buf,packet_len(0xdd),&sd->bl,CHAT);
-
-	return 0;
 }
 
 /*==========================================
@@ -3896,6 +3892,33 @@ void clif_standing(struct block_list* bl)
 /*==========================================
  *
  *------------------------------------------*/
+void clif_changemapcell(int fd, short m, short x, short y, int type)
+{
+	unsigned char buf[32];
+
+	WBUFW(buf,0) = 0x192;
+	WBUFW(buf,2) = x;
+	WBUFW(buf,4) = y;
+	WBUFW(buf,6) = type;
+	mapindex_getmapname_ext(map[m].name,(char*)WBUFP(buf,8));
+
+	if (fd == 0) {
+		struct block_list bl;
+		bl.type = BL_NUL;
+		bl.m = m;
+		bl.x = x;
+		bl.y = y;
+		clif_send(buf,packet_len(0x192),&bl,AREA);
+	} else {
+		WFIFOHEAD(fd,packet_len(0x192));
+		memcpy(WFIFOP(fd,0), buf, packet_len(0x192));
+		WFIFOSET(fd,packet_len(0x192));
+	}
+}
+
+/*==========================================
+ *
+ *------------------------------------------*/
 void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fitem)
 {
 	int view,fd;
@@ -3936,7 +3959,7 @@ int clif_getareachar_skillunit(struct map_session_data *sd,struct skill_unit *un
 		WFIFOL(fd, 2)=unit->bl.id;
 		WFIFOL(fd, 6)=unit->group->src_id;
 		WFIFOW(fd,10)=unit->bl.x;
-		WFIFOW(fd,12)=unit->bl.y; // might be typo? [Lance]
+		WFIFOW(fd,12)=unit->bl.y;
 		WFIFOB(fd,14)=unit->group->unit_id;
 		WFIFOB(fd,15)=1;
 		WFIFOB(fd,16)=1;
@@ -3961,7 +3984,7 @@ int clif_getareachar_skillunit(struct map_session_data *sd,struct skill_unit *un
 	WFIFOSET(fd,packet_len(0x11f));
 
 	if(unit->group->skill_id == WZ_ICEWALL)
-		clif_set0192(fd,unit->bl.m,unit->bl.x,unit->bl.y,5);
+		clif_changemapcell(fd,unit->bl.m,unit->bl.x,unit->bl.y,5);
 	return 0;
 /* Previous implementation guess of packet 0x1c9, who can understand what all those fields are for? [Skotlex]
 	WFIFOHEAD(fd,packet_len(0x1c9));
@@ -4022,7 +4045,7 @@ int clif_clearchar_skillunit(struct skill_unit *unit,int fd)
 	WFIFOL(fd, 2)=unit->bl.id;
 	WFIFOSET(fd,packet_len(0x120));
 	if(unit->group && unit->group->skill_id == WZ_ICEWALL)
-		clif_set0192(fd,unit->bl.m,unit->bl.x,unit->bl.y,unit->val2);
+		clif_changemapcell(fd,unit->bl.m,unit->bl.x,unit->bl.y,unit->val2);
 
 	return 0;
 }
@@ -6337,26 +6360,6 @@ int clif_bladestop(struct block_list *src,struct block_list *dst,
 	clif_send(buf,packet_len(0x1d1),src,AREA);
 
 	return 0;
-}
-
-/*==========================================
- *
- *------------------------------------------*/
-void clif_changemapcell(short m, short x, short y, int cell_type, int type)
-{
-	struct block_list bl;
-	unsigned char buf[32];
-
-	bl.type = BL_NUL;
-	bl.m = m;
-	bl.x = x;
-	bl.y = y;
-	WBUFW(buf,0) = 0x192;
-	WBUFW(buf,2) = x;
-	WBUFW(buf,4) = y;
-	WBUFW(buf,6) = cell_type;
-	mapindex_getmapname_ext(map[m].name,(char*)WBUFP(buf,8));
-	clif_send(buf,packet_len(0x192),&bl,(!type)?AREA:ALL_SAMEMAP);
 }
 
 /*==========================================
@@ -9187,13 +9190,14 @@ void clif_parse_NpcSellListSend(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- *
+ * Chatroom creation request
+ * S 00d5 <len>.w <limit>.w <pub>.B <passwd>.8B <title>.?B
  *------------------------------------------*/
 void clif_parse_CreateChatRoom(int fd, struct map_session_data* sd)
 {
 	int len = RFIFOW(fd,2)-15;
 	int limit = RFIFOW(fd,4);
-	bool public = (bool)RFIFOB(fd,6);
+	bool pub = (RFIFOB(fd,6) != 0);
 	const char* password = (char*)RFIFOP(fd,7); //not zero-terminated
 	const char* title = (char*)RFIFOP(fd,15); // not zero-terminated
 	char s_title[CHATROOM_TITLE_SIZE];
@@ -9209,26 +9213,31 @@ void clif_parse_CreateChatRoom(int fd, struct map_session_data* sd)
 	safestrncpy(s_title, title, min(len+1,CHATROOM_TITLE_SIZE));
 	safestrncpy(s_password, password, CHATROOM_PASS_SIZE);
 
-	chat_createpcchat(sd, s_title, s_password, limit, public);
+	chat_createpcchat(sd, s_title, s_password, limit, pub);
 }
 
 /*==========================================
- *
+ * Chatroom join request
+ * S 00d9 <chat ID>.l <passwd>.8B
  *------------------------------------------*/
-void clif_parse_ChatAddMember(int fd,struct map_session_data *sd)
+void clif_parse_ChatAddMember(int fd, struct map_session_data* sd)
 {
-	chat_joinchat(sd,RFIFOL(fd,2),(char*)RFIFOP(fd,6));
+	int chatid = RFIFOL(fd,2);
+	const char* password = (char*)RFIFOP(fd,6); // not zero-terminated
+
+	chat_joinchat(sd,chatid,password);
 }
 
 /*==========================================
+ * Chatroom properties adjustment request
  * S 00de <len>.w <limit>.w <pub>.B <passwd>.8B <title>.?B
  *------------------------------------------*/
 void clif_parse_ChatRoomStatusChange(int fd, struct map_session_data* sd)
 {
 	int len = RFIFOW(fd,2)-15;
 	int limit = RFIFOW(fd,4);
-	bool public = (bool)RFIFOB(fd,6);
-	const char* password = (char*)RFIFOP(fd,7); //not zero-terminated
+	bool pub = (RFIFOB(fd,6) != 0);
+	const char* password = (char*)RFIFOP(fd,7); // not zero-terminated
 	const char* title = (char*)RFIFOP(fd,15); // not zero-terminated
 
 	char s_title[CHATROOM_TITLE_SIZE];
@@ -9236,14 +9245,15 @@ void clif_parse_ChatRoomStatusChange(int fd, struct map_session_data* sd)
 	safestrncpy(s_title, title, min(len+1,CHATROOM_TITLE_SIZE));
 	safestrncpy(s_password, password, CHATROOM_PASS_SIZE);
 
-	chat_changechatstatus(sd, s_title, s_password, limit, public);
+	chat_changechatstatus(sd, s_title, s_password, limit, pub);
 }
 
 /*==========================================
- *
+ * S 00e0 ?.l <nick>.24B
  *------------------------------------------*/
-void clif_parse_ChangeChatOwner(int fd,struct map_session_data *sd)
+void clif_parse_ChangeChatOwner(int fd, struct map_session_data* sd)
 {
+	//TODO: the first argument seems to be the destination position (always 0) [ultramage]
 	chat_changechatowner(sd,(char*)RFIFOP(fd,6));
 }
 
@@ -9256,11 +9266,12 @@ void clif_parse_KickFromChat(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
- *
+ * Request to leave the current chatroom
+ * S 00e3
  *------------------------------------------*/
-void clif_parse_ChatLeave(int fd,struct map_session_data *sd)
+void clif_parse_ChatLeave(int fd, struct map_session_data* sd)
 {
-	chat_leavechat(sd);
+	chat_leavechat(sd,0);
 }
 
 //Handles notifying asker and rejecter of what has just ocurred.
@@ -10047,6 +10058,28 @@ void clif_parse_PartyInvite(int fd, struct map_session_data *sd)
 	party_invite(sd, t_sd);
 }
 
+void clif_parse_PartyInvite2(int fd, struct map_session_data *sd)
+{
+	struct map_session_data *t_sd;
+	char *name = RFIFOP(fd,2);
+	name[NAME_LENGTH]='\0';
+
+	if(map[sd->bl.m].flag.partylock)
+	{	//Guild locked.
+		clif_displaymessage(fd, msg_txt(227));
+		return;
+	}
+
+	t_sd = map_nick2sd(name);
+
+	// @noask [LuzZza]
+	if(t_sd && t_sd->state.noask) {
+		clif_noask_sub(sd, t_sd, 1);
+		return;
+	}
+
+	party_invite(sd, t_sd);
+}
 /*==========================================
  * p[eBU
  *------------------------------------------*/
@@ -10054,6 +10087,16 @@ void clif_parse_ReplyPartyInvite(int fd,struct map_session_data *sd)
 {
 	if(battle_config.basic_skill_check == 0 || pc_checkskill(sd,NV_BASIC) >= 5){
 		party_reply_invite(sd,RFIFOL(fd,2),RFIFOL(fd,6));
+	} else {
+		party_reply_invite(sd,RFIFOL(fd,2),-1);
+		clif_skill_fail(sd,1,0,4);
+	}
+}
+
+void clif_parse_ReplyPartyInvite2(int fd,struct map_session_data *sd)
+{
+	if(battle_config.basic_skill_check == 0 || pc_checkskill(sd,NV_BASIC) >= 5){
+		party_reply_invite(sd,RFIFOL(fd,2),RFIFOB(fd,6));
 	} else {
 		party_reply_invite(sd,RFIFOL(fd,2),-1);
 		clif_skill_fail(sd,1,0,4);
@@ -11744,7 +11787,9 @@ static int packetdb_readdb(void)
 		{clif_parse_CreateParty,"createparty"},
 		{clif_parse_CreateParty2,"createparty2"},
 		{clif_parse_PartyInvite,"partyinvite"},
+		{clif_parse_PartyInvite2,"partyinvite2"},
 		{clif_parse_ReplyPartyInvite,"replypartyinvite"},
+		{clif_parse_ReplyPartyInvite2,"replypartyinvite2"},
 		{clif_parse_LeaveParty,"leaveparty"},
 		{clif_parse_RemovePartyMember,"removepartymember"},
 		{clif_parse_PartyChangeOption,"partychangeoption"},

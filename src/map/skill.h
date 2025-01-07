@@ -66,7 +66,7 @@ struct skill_db {
 	int cast[MAX_SKILL_LEVEL],walkdelay[MAX_SKILL_LEVEL],delay[MAX_SKILL_LEVEL];
 	int upkeep_time[MAX_SKILL_LEVEL],upkeep_time2[MAX_SKILL_LEVEL];
 	int castcancel,cast_def_rate;
-	int inf2,maxcount,skill_type;
+	int inf2,maxcount[MAX_SKILL_LEVEL],skill_type;
 	int blewcount[MAX_SKILL_LEVEL];
 	int hp[MAX_SKILL_LEVEL],sp[MAX_SKILL_LEVEL],mhp[MAX_SKILL_LEVEL],hp_rate[MAX_SKILL_LEVEL],sp_rate[MAX_SKILL_LEVEL],zeny[MAX_SKILL_LEVEL];
 	int weapon,ammo,ammo_qty[MAX_SKILL_LEVEL],state,spiritball[MAX_SKILL_LEVEL];
@@ -98,17 +98,17 @@ struct skill_unit_layout {
 };
 
 enum {
-	UF_DEFNOTENEMY		= 0x0001,	// defnotenemy BCT_NOENEMY
-	UF_NOREITERATION	= 0x0002,	// du~ 
-	UF_NOFOOTSET		= 0x0004,	// u~
-	UF_NOOVERLAP		= 0x0008,	// jbgd
-	UF_NOPC		= 0x0010,	//May not target players
-	UF_NOMOB		= 0x0020,	//May not target mobs
-	UF_SKILL		= 0x0080,	//May target skills
-	UF_DANCE			= 0x0100,	//Dance
-	UF_ENSEMBLE			= 0x0200,	//Duet
-	UF_SONG		= 0x0400,	//Song
-	UF_DUALMODE	= 0x0800,	//Spells should trigger both ontimer and onplace/onout/onleft effects.
+	UF_DEFNOTENEMY   = 0x0001,	// defnotenemy BCT_NOENEMY
+	UF_NOREITERATION = 0x0002,	// du~
+	UF_NOFOOTSET     = 0x0004,	// u~
+	UF_NOOVERLAP     = 0x0008,	// jbgd
+	UF_NOPC          = 0x0010,	//May not target players
+	UF_NOMOB         = 0x0020,	//May not target mobs
+	UF_SKILL         = 0x0080,	//May target skills
+	UF_DANCE         = 0x0100,	//Dance
+	UF_ENSEMBLE      = 0x0200,	//Duet
+	UF_SONG          = 0x0400,	//Song
+	UF_DUALMODE      = 0x0800,	//Spells should trigger both ontimer and onplace/onout/onleft effects.
 };
 
 // ACef?^x?X
@@ -179,7 +179,7 @@ int	skill_get_nocast( int id );
 int	skill_get_unit_id(int id,int flag);
 int	skill_get_inf2( int id );
 int	skill_get_castcancel( int id );
-int	skill_get_maxcount( int id );
+int	skill_get_maxcount( int id ,int lv );
 int	skill_get_blewcount( int id ,int lv );
 int	skill_get_unit_flag( int id );
 int	skill_get_unit_target( int id );
@@ -274,8 +274,20 @@ int skill_attack( int attack_type, struct block_list* src, struct block_list *ds
 void skill_reload(void);
 
 enum {
-	ST_NONE,ST_HIDING,ST_CLOAKING,ST_HIDDEN,ST_RIDING,ST_FALCON,ST_CART,ST_SHIELD,ST_SIGHT,ST_EXPLOSIONSPIRITS,ST_CARTBOOST,
-	ST_RECOV_WEIGHT_RATE,ST_MOVE_ENABLE,ST_WATER,
+	ST_NONE,
+	ST_HIDING,
+	ST_CLOAKING,
+	ST_HIDDEN,
+	ST_RIDING,
+	ST_FALCON,
+	ST_CART,
+	ST_SHIELD,
+	ST_SIGHT,
+	ST_EXPLOSIONSPIRITS,
+	ST_CARTBOOST,
+	ST_RECOV_WEIGHT_RATE,
+	ST_MOVE_ENABLE,
+	ST_WATER,
 };
 
 enum _skill {
@@ -933,7 +945,9 @@ enum {
 	UNT_ATTACK_SKILLS, //These show no effect on the client, therefore can be used for attack skills.
 	UNT_FIREPILLAR_WAITING,
 	UNT_FIREPILLAR_ACTIVE,
-	//0x89, 0x8a, 0x8b
+	//0x89
+	//0x8a
+	//0x8b
 	UNT_USED_TRAPS = 0x8c,
 	UNT_ICEWALL,
 	UNT_QUAGMIRE,

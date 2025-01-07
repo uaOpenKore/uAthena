@@ -997,7 +997,7 @@ int mob_unlocktarget(struct mob_data *md,int tick)
 /*==========================================
  * Random walk
  *------------------------------------------*/
-int mob_randomwalk(struct mob_data *md,int tick)
+int mob_randomwalk(struct mob_data *md,unsigned int tick)
 {
 	const int retrycount=20;
 	int i,x,y,c,d;
@@ -1856,7 +1856,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if(base_exp && md->dmglog[i].flag) //tmpsd[i] is null if it has no homunc.
 				merc_hom_gainexp(tmpsd[i]->hd, base_exp);
 			if(base_exp || job_exp)
-				pc_gainexp(tmpsd[i], &md->bl, base_exp,job_exp);
+				pc_gainexp(tmpsd[i], &md->bl, base_exp, job_exp);
 			if(zeny) // zeny from mobs [Valaris]
 				pc_getzeny(tmpsd[i], zeny);
 		}
@@ -1942,10 +1942,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		if(sd) {
 			// process script-granted extra drop bonuses
 			int itemid = 0;
-			for (i = 0; i < sd->add_drop_count; i++)
+			for (i = 0; i < ARRAYLENGTH(sd->add_drop) && (sd->add_drop[i].id || sd->add_drop[i].group); i++)
 			{
-				if (sd->add_drop[i].id < 0)
-					continue;
 				if (sd->add_drop[i].race & (1<<status->race) ||
 					sd->add_drop[i].race & 1<<(status->mode&MD_BOSS?RC_BOSS:RC_NONBOSS))
 				{
@@ -1968,9 +1966,13 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				}
 			}
 
-			// process script-granted zeny bonus (get_zeny_num per level +/-10%) [Skotlex]
+			// process script-granted zeny bonus (get_zeny_num) [Skotlex]
 			if(sd->get_zeny_num && rand()%100 < sd->get_zeny_rate)
-				pc_getzeny(sd,md->level*sd->get_zeny_num*(90+rand()%21)/100);
+			{
+				i = sd->get_zeny_num > 0?sd->get_zeny_num:-md->level*sd->get_zeny_num;
+				if (!i) i = 1;
+				pc_getzeny(sd, 1+rand()%i);
+			}
 		}
 
 		// process items looted by the mob
@@ -2258,7 +2260,7 @@ int mob_class_change (struct mob_data *md, int class_)
 	status_calc_mob(md, 3);
 	md->ud.state.speed_changed = 1; //Speed change update.
 
-	if (battle_config.monster_class_change_full_recover) {
+	if (battle_config.monster_class_change_recover) {
 		memset(md->dmglog, 0, sizeof(md->dmglog));
 		md->tdmg = 0;
 	} else {
@@ -2378,8 +2380,8 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 		k = rand()%count;
 		amount+=k; //Increase final value by same amount to preserve total number to summon.
 	}
-	
-	if (!battle_config.monster_class_change_full_recover &&
+
+	if (!battle_config.monster_class_change_recover &&
 		(skill_id == NPC_TRANSFORMATION || skill_id == NPC_METAMORPHOSIS))
 		hp_rate = 100*md2->status.hp/md2->status.max_hp;
 
@@ -3881,6 +3883,14 @@ void mob_reload(void)
 		}
 	mob_readskilldb();
 	mob_readdb_race();
+}
+
+void mob_clear_spawninfo()
+{	//Clears spawn related information for a script reload.
+	int i;
+	for (i = 0; i < MAX_MOB_DB; i++)
+		if (mob_db_data[i])
+			memset(&mob_db_data[i]->spawn,0,sizeof(mob_db_data[i]->spawn));
 }
 
 /*==========================================

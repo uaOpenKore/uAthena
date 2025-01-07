@@ -1,3 +1,7 @@
+UPDATE `char` SET `last_map` = substring_index(`last_map`, '.', 1);
+UPDATE `char` SET `save_map` = substring_index(`save_map`, '.', 1);
+UPDATE `memo` SET `map` = substring_index(`map`, '.', 1);
+
 ALTER TABLE `login` CHANGE `email` `email` VARCHAR( 39 ) NOT NULL;
 ALTER TABLE `login` CHANGE `sex` `sex` ENUM( 'M', 'F', 'S' ) NOT NULL DEFAULT 'M';
 

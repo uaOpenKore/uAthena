@@ -714,7 +714,7 @@ int merc_hom_recv_data(int account_id, struct s_homunculus *sh, int flag)
 		merc_hom_alloc(sd, sh);
 
 	hd = sd->hd;
-	if(hd->homunculus.hp && !hd->homunculus.vaporize && hd->bl.prev == NULL && sd->bl.prev != NULL)
+	if(hd && hd->homunculus.hp && !hd->homunculus.vaporize && hd->bl.prev == NULL && sd->bl.prev != NULL)
 	{
 		map_addblock(&hd->bl);
 		clif_spawn(&hd->bl);
@@ -832,6 +832,56 @@ void merc_reset_stats(struct homun_data *hd)
 	hd->exp_next = hexptbl[0];
 	memset(&hd->homunculus.hskill, 0, sizeof hd->homunculus.hskill);
 	hd->homunculus.skillpts = 0;
+}
+
+int merc_hom_shuffle(struct homun_data *hd)
+{
+	struct map_session_data *sd = hd->master;
+	int lv, i, skillpts;
+	unsigned int exp;
+	struct skill b_skill[MAX_HOMUNSKILL];
+
+	if (!merc_is_hom_active(hd))
+		return 0;
+
+	lv = hd->homunculus.level;
+	exp = hd->homunculus.exp;
+	memcpy(&b_skill, &hd->homunculus.hskill, sizeof(b_skill));
+	skillpts = hd->homunculus.skillpts;
+	//Reset values to level 1.
+	merc_reset_stats(hd);
+	//Level it back up
+	for (i = 1; i < lv && hd->exp_next; i++){
+		hd->homunculus.exp += hd->exp_next;
+		merc_hom_levelup(hd);
+	}
+
+	clif_displaymessage(sd->fd, "[Homunculus Stats Altered]");
+
+	if(!hd->homunculusDB->evo_class || hd->homunculus.class_ == hd->homunculusDB->evo_class) {
+		// Homunculus Evolucionado
+		struct s_homunculus *hom = &hd->homunculus;
+		struct h_stats *max = &hd->homunculusDB->emax, *min = &hd->homunculusDB->emin;
+		hom->max_hp += rand(min->HP, max->HP);
+		hom->max_sp += rand(min->SP, max->SP);
+		hom->str += 10*rand(min->str, max->str);
+		hom->agi += 10*rand(min->agi, max->agi);
+		hom->vit += 10*rand(min->vit, max->vit);
+		hom->int_+= 10*rand(min->int_,max->int_);
+		hom->dex += 10*rand(min->dex, max->dex);
+		hom->luk += 10*rand(min->luk, max->luk);
+		clif_displaymessage(sd->fd, "[Adding Bonus Stats for Evolved Homunculus]");
+	}
+
+	hd->homunculus.exp = exp;
+	memcpy(&hd->homunculus.hskill, &b_skill, sizeof(b_skill));
+	hd->homunculus.skillpts = skillpts;
+	clif_homskillinfoblock(sd);
+	status_calc_homunculus(hd,0);
+	status_percent_heal(&hd->bl, 100, 100);
+	clif_misceffect2(&hd->bl,568);
+
+	return 1;
 }
 
 int read_homunculusdb(void)

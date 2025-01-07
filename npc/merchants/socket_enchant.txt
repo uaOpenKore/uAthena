@@ -54,7 +54,7 @@ payon,140,151,5		script	Seiyablem	84,{
 						case 3: callfunc "Func_Socket",1,1901,1902,40,66,200,1010,10; break;
 					}
 				break;
-
+				
 				case 2:
 					mes "[Seiyablem]";
 					mes "B Class?";
@@ -74,7 +74,7 @@ payon,140,151,5		script	Seiyablem	84,{
 						case 9: callfunc "Func_Socket",2,1713,1715,40,61,300,984,2,999,5; break;
 					}
 				break;
-
+				
 				case 3:
 					mes "[Seiyablem]";
 					mes "Ooh, A Class.";
@@ -94,7 +94,7 @@ payon,140,151,5		script	Seiyablem	84,{
 						case 9: callfunc "Func_Socket",2,1163,1172,40,61,700,984,5,999,10; break;
 					}
 				break;
-
+				
 				case 4:
 					mes "[Seiyablem]";
 					mes "Whoa, whoa, whoa...";
@@ -116,7 +116,7 @@ payon,140,151,5		script	Seiyablem	84,{
 				break;
 			}
 		break;
-
+		
 		case 2:
 			mes "[Seiyablem]";
 			mes "Armor, you said?";
@@ -142,7 +142,7 @@ payon,140,151,5		script	Seiyablem	84,{
 						case 4: callfunc "Func_Socket",1,2216,2217,40,66,200,999,3; break;
 					}
 				break;
-
+				
 				case 2:
 					mes "[Seiyablem]";
 					mes "You have chosen average B Class.";
@@ -163,7 +163,7 @@ payon,140,151,5		script	Seiyablem	84,{
 						case 11: callfunc "Func_Socket",1,5046,5168,40,61,250,999,5; break;
 					}
 				break;
-
+				
 				case 3:
 					mes "[Seiyablem]";
 					mes "Ooh, A Class.";
@@ -192,7 +192,7 @@ payon,140,151,5		script	Seiyablem	84,{
 						case 18: callfunc "Func_Socket",1,2264,5167,40,61,400,985,1; break;
 					}
 				break;
-
+				
 				case 4:
 					mes "[Seiyablem]";
 					mes "Um... S Class?";
@@ -216,7 +216,7 @@ payon,140,151,5		script	Seiyablem	84,{
 				break;
 			}
 		break;
-
+		
 		case 3:
 			mes "[Seiyablem]";
 			mes "Well, I haven't really refined the art of Slot Addition.";
@@ -234,13 +234,13 @@ payon,140,151,5		script	Seiyablem	84,{
 			next;
 			mes "[Seiyablem]";
 			mes "Heres an example: if you have a +7 Manteau and a normal Manteau in your inventory, then I will randomly pick on of them for my Slot Addition attempt.";
-			mes "Just remember to be carefull.";
+			mes "Just remember to be careful.";
 			next;
 			mes "[Seiyablem]";
 			mes "Again, ^FF0000only carry one of the equipment to wich you want me to add a Slot^000000.";
 			mes "All other equipment with the same name should be placed in your Kafra Storage, got it?";
 			close;
-
+			
 		case 4:
 			mes "[Seiyablem]";
 			mes "Take it easy, adventurer.";
@@ -249,7 +249,7 @@ payon,140,151,5		script	Seiyablem	84,{
 			close;
 	}
 }
-
+				
 function	script	Func_Socket	{
 
 	mes "[Seiyablem]";
@@ -302,7 +302,7 @@ function	script	Func_Socket	{
 
 	switch(getarg(0))
 	{
-		case 1:
+		case 1:		
 			if((Zeny < getarg(5)*1000) || (countitem(getarg(6)) < getarg(7)) || (!countitem(getarg(1))))
 			{
 				mes "[Seiyablem]";
@@ -311,7 +311,7 @@ function	script	Func_Socket	{
 				close;
 			}
 			break;
-
+	
 		case 2:
 			if((Zeny < getarg(5)*1000) || (countitem(getarg(6)) < getarg(7)) || (countitem(getarg(8)) < getarg(9)) || (!countitem(getarg(1))))
 			{
@@ -322,7 +322,7 @@ function	script	Func_Socket	{
 			}
 			break;
 	}
-
+	
 	mes "[Seiyablem]";
 	mes "Alright then, let the work begin!";
 	mes "You'd better pray for a successful result.";

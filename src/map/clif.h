@@ -138,14 +138,14 @@ int clif_changeoption(struct block_list*);	// area
 int clif_changeoption2(struct block_list*);	// area
 int clif_useitemack(struct map_session_data*,int,int,int);	// self
 void clif_GlobalMessage(struct block_list* bl, const char* message);
-int clif_createchat(struct map_session_data*,int);	// self
+void clif_createchat(struct map_session_data* sd, int fail);	// self
 int clif_dispchat(struct chat_data*,int);	// area or fd
 int clif_joinchatfail(struct map_session_data*,int);	// self
 int clif_joinchatok(struct map_session_data*,struct chat_data*);	// self
 int clif_addchat(struct chat_data*,struct map_session_data*);	// chat
-int clif_changechatowner(struct chat_data*,struct map_session_data*);	// chat
+void clif_changechatowner(struct chat_data* cd, struct map_session_data* sd);	// chat
 int clif_clearchat(struct chat_data*,int);	// area or fd
-int clif_leavechat(struct chat_data*,struct map_session_data*);	// chat
+void clif_leavechat(struct chat_data* cd, struct map_session_data* sd, bool flag);	// chat
 int clif_changechatstatus(struct chat_data*);	// chat
 int clif_refresh(struct map_session_data*);	// self
 
@@ -229,7 +229,7 @@ int clif_marionette(struct block_list *src, struct block_list *target);
 int clif_spiritball(struct map_session_data *sd);
 int clif_combo_delay(struct block_list *src,int wait);
 int clif_bladestop(struct block_list *src,struct block_list *dst,int bool_);
-void clif_changemapcell(short m, short x, short y, int cell_type, int type);
+void clif_changemapcell(int fd, short m, short x, short y, int type);
 
 int clif_status_load(struct block_list *bl,int type, int flag);
 int clif_status_change(struct block_list *bl,int type,int flag);

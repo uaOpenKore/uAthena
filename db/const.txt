@@ -305,7 +305,7 @@ bIgnoreDefEle	1026
 bIgnoreDefRace	1027
 bAtkRate	1028
 bSpeedAddRate	1029
-
+bSPRegenRate	1030
 bMagicAtkDef	1031
 bMiscAtkDef	1032
 bIgnoreMdefEle	1033
@@ -361,6 +361,7 @@ bWeaponAtkRate	1082
 bDelayrate	1083
 bHPDrainRateRace	1084
 bSPDrainRateRace	1085
+bIgnoreMdefRate	1086
 
 bRestartFullRecover	2000
 bNoCastCancel	2001
@@ -370,7 +371,6 @@ bNoWeaponDamage	2004
 bNoGemStone	2005
 bNoCastCancel2	2006
 bNoMiscDamage	2007
-
 bUnbreakableWeapon	2008
 bUnbreakableArmor	2009
 bUnbreakableHelm	2010
@@ -383,9 +383,9 @@ bAddEffWhenHit	2016
 bAutoSpellWhenHit	2017
 bSkillAtk	2018
 bUnstripable	2019
-bAddDamageByClass	2020
-bSPGainValue	2021
 
+bSPGainValue	2021
+bHPRegenRate	2022
 bHPLossRate	2023
 bAddRace2	2024
 bHPGainValue	2025
@@ -396,7 +396,7 @@ bSPDrainValueRace	2029
 bExpAddRace	2030
 bSPGainRace	2031
 bSubRace2	2032
-bAddEffWhenHitShort	2033
+
 bUnstripableWeapon	2034
 bUnstripableArmor	2035
 bUnstripableHelm	2036
@@ -406,6 +406,17 @@ bAddMonsterDropItemGroup	2039
 bSPLossRate	2040
 bAddSkillBlow	2041
 bSPVanishRate	2042
+
+EQI_HEAD_TOP	1
+EQI_ARMOR	2
+EQI_HAND_L	3
+EQI_HAND_R	4
+EQI_GARMENT	5
+EQI_SHOES	6
+EQI_ACC_L	7
+EQI_ACC_R	8
+EQI_HEAD_MID	9
+EQI_HEAD_LOW	10
 
 Eff_Stone	0
 Eff_Freeze	1
@@ -451,6 +462,11 @@ BF_SHORT	0x0010
 BF_LONG	0x0040
 BF_SKILL	0x0100
 BF_NORMAL	0x0200
+
+ATF_SELF	0x01
+ATF_TARGET	0x02
+ATF_SHORT	0x04
+ATF_LONG	0x08
 
 IG_BlueBox	1
 IG_VioletBox	2

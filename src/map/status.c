@@ -163,7 +163,7 @@ void initChangeTables(void)
 	set_sc(PR_ASPERSIO, SC_ASPERSIO, SI_ASPERSIO, SCB_ATK_ELE);
 	set_sc(PR_BENEDICTIO, SC_BENEDICTIO, SI_BENEDICTIO, SCB_DEF_ELE);
 	set_sc(PR_SLOWPOISON, SC_SLOWPOISON, SI_SLOWPOISON, SCB_REGEN);
-	set_sc(PR_KYRIE, SC_KYRIE,	SI_KYRIE, SCB_NONE);
+	set_sc(PR_KYRIE, SC_KYRIE, SI_KYRIE, SCB_NONE);
 	set_sc(PR_MAGNIFICAT, SC_MAGNIFICAT, SI_MAGNIFICAT, SCB_REGEN);
 	set_sc(PR_GLORIA, SC_GLORIA, SI_GLORIA, SCB_LUK);
 	add_sc(PR_LEXDIVINA, SC_SILENCE);
@@ -240,7 +240,7 @@ void initChangeTables(void)
 	set_sc(CR_PROVIDENCE, SC_PROVIDENCE, SI_PROVIDENCE, SCB_PC);
 	set_sc(CR_DEFENDER, SC_DEFENDER, SI_DEFENDER, SCB_SPEED|SCB_ASPD);
 	set_sc(CR_SPEARQUICKEN, SC_SPEARQUICKEN, SI_SPEARQUICKEN, SCB_ASPD);
-	set_sc(MO_STEELBODY, SC_STEELBODY, SI_BLANK, SCB_DEF|SCB_MDEF|SCB_ASPD|SCB_SPEED);
+	set_sc(MO_STEELBODY, SC_STEELBODY, SI_STEELBODY, SCB_DEF|SCB_MDEF|SCB_ASPD|SCB_SPEED);
 	add_sc(MO_BLADESTOP, SC_BLADESTOP_WAIT);
 	add_sc(MO_BLADESTOP, SC_BLADESTOP);
 	set_sc(MO_EXPLOSIONSPIRITS, SC_EXPLOSIONSPIRITS, SI_EXPLOSIONSPIRITS, SCB_CRI|SCB_REGEN);
@@ -288,7 +288,6 @@ void initChangeTables(void)
 	set_sc(LK_CONCENTRATION, SC_CONCENTRATION, SI_CONCENTRATION, SCB_BATK|SCB_WATK|SCB_HIT|SCB_DEF|SCB_DEF2|SCB_DSPD);
 	set_sc(LK_TENSIONRELAX, SC_TENSIONRELAX, SI_TENSIONRELAX, SCB_REGEN);
 	set_sc(LK_BERSERK, SC_BERSERK, SI_BERSERK, SCB_DEF|SCB_DEF2|SCB_MDEF|SCB_MDEF2|SCB_FLEE|SCB_SPEED|SCB_ASPD|SCB_MAXHP|SCB_REGEN);
-//	set_sc(LK_FURY, SC_FURY, SI_FURY, SCB_NONE); //Unused skill
 	set_sc(HP_ASSUMPTIO, SC_ASSUMPTIO, SI_ASSUMPTIO, SCB_NONE);
 	add_sc(HP_BASILICA, SC_BASILICA);
 	set_sc(HW_MAGICPOWER, SC_MAGICPOWER, SI_MAGICPOWER, SCB_MATK);
@@ -384,7 +383,7 @@ void initChangeTables(void)
 	add_sc(NPC_MAGICMIRROR, SC_MAGICMIRROR);
 	set_sc(NPC_SLOWCAST, SC_SLOWCAST, SI_SLOWCAST, SCB_NONE);
 	set_sc(NPC_CRITICALWOUND, SC_CRITICALWOUND, SI_CRITICALWOUND, SCB_NONE);
-	set_sc(NPC_STONESKIN, SC_ARMORCHANGE, SI_BLANK, SCB_DEF|SCB_MDEF|SCB_DEF2|SCB_MDEF2);
+	set_sc(NPC_STONESKIN, SC_ARMORCHANGE, SI_BLANK, SCB_DEF|SCB_MDEF);
 	add_sc(NPC_ANTIMAGIC, SC_ARMORCHANGE);
 	add_sc(NPC_WIDECURSE, SC_CURSE);
 	add_sc(NPC_WIDESTUN, SC_STUN);
@@ -972,7 +971,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 	}
 
 	//Should fail when used on top of Land Protector [Skotlex]
-	if (src && skill_num == AL_TELEPORT && map_getcell(src->m, src->x, src->y, CELL_CHKLANDPROTECTOR))
+	if (src && skill_num == AL_TELEPORT && map_getcell(src->m, src->x, src->y, CELL_CHKLANDPROTECTOR)
+		&& !(status->mode&MD_BOSS))
 		return 0;
 
 	if (src) sc = status_get_sc(src);
@@ -1529,14 +1529,7 @@ static void status_calc_sigma(void)
 static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct status_data* status)
 {
 	unsigned int val;
-
 	val = 35 + sd->status.base_level*hp_coefficient2[sd->status.class_]/100 + hp_sigma_val[sd->status.class_][sd->status.base_level];
-	val += val * status->vit/100; // +1% per each point of VIT
-
-	if (sd->class_&JOBL_UPPER)
-		val += val * 25/100; //Trans classes get a 25% hp bonus
-	else if (sd->class_&JOBL_BABY)
-		val -= val * 30/100; //Baby classes get a 30% hp penalty
 
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA || (sd->class_&MAPID_UPPERMASK) == MAPID_GUNSLINGER)
 		val += 100; //Since their HP can't be approximated well enough without this.
@@ -1545,6 +1538,12 @@ static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct sta
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
 		val += 2000; //Supernovice lvl99 hp bonus.
 
+	val += val * status->vit/100; // +1% per each point of VIT
+
+	if (sd->class_&JOBL_UPPER)
+		val += val * 25/100; //Trans classes get a 25% hp bonus
+	else if (sd->class_&JOBL_BABY)
+		val -= val * 30/100; //Baby classes get a 30% hp penalty
 	return val;
 }
 
@@ -1657,6 +1656,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->magic_addsize)
 		+ sizeof(sd->critaddrace)
 		+ sizeof(sd->expaddrace)
+		+ sizeof(sd->ignore_mdef)
 		+ sizeof(sd->itemgrouphealrate)
 		+ sizeof(sd->sp_gain_race)
 		);
@@ -1696,10 +1696,14 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->addeff2)
 		+ sizeof(sd->skillatk)
 		+ sizeof(sd->skillheal)
+		+ sizeof(sd->hp_loss)
+		+ sizeof(sd->sp_loss)
+		+ sizeof(sd->hp_regen)
+		+ sizeof(sd->sp_regen)
 		+ sizeof(sd->skillblown)
+		+ sizeof(sd->skillcast)
 		+ sizeof(sd->add_def)
 		+ sizeof(sd->add_mdef)
-		+ sizeof(sd->add_dmg)
 		+ sizeof(sd->add_mdmg)
 		+ sizeof(sd->add_drop)
 		+ sizeof(sd->itemhealrate)
@@ -1734,8 +1738,6 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->break_weapon_rate)
 		+ sizeof(sd->break_armor_rate)
 		+ sizeof(sd->crit_atk_rate)
-		+ sizeof(sd->hp_loss_rate)
-		+ sizeof(sd->sp_loss_rate)
 		+ sizeof(sd->classchange)
 		+ sizeof(sd->speed_add_rate)
 		+ sizeof(sd->aspd_add)
@@ -1745,21 +1747,13 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->splash_range)
 		+ sizeof(sd->splash_add_range)
 		+ sizeof(sd->add_steal_rate)
-		+ sizeof(sd->hp_loss_value)
-		+ sizeof(sd->sp_loss_value)
-		+ sizeof(sd->hp_loss_type)
 		+ sizeof(sd->hp_gain_value)
 		+ sizeof(sd->sp_gain_value)
 		+ sizeof(sd->sp_vanish_rate)
 		+ sizeof(sd->sp_vanish_per)
-		+ sizeof(sd->add_drop_count)
 		+ sizeof(sd->unbreakable)
 		+ sizeof(sd->unbreakable_equip)
 		+ sizeof(sd->unstripable_equip)
-		+ sizeof(sd->add_def_count)
-		+ sizeof(sd->add_mdef_count)
-		+ sizeof(sd->add_dmg_count)
-		+ sizeof(sd->add_mdmg_count)
 		);
 
 	// Parse equipment.
@@ -3556,7 +3550,7 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 	if(sc->data[SC_STEELBODY].timer!=-1)
 		return 90;
 	if(sc->data[SC_ARMORCHANGE].timer!=-1)
-		def += def * sc->data[SC_ARMORCHANGE].val2/100;
+		def += sc->data[SC_ARMORCHANGE].val2;
 	if(sc->data[SC_DRUMBATTLE].timer!=-1)
 		def += sc->data[SC_DRUMBATTLE].val3;
 	if(sc->data[SC_DEFENCE].timer != -1)	//[orn]
@@ -3592,8 +3586,6 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 		return 0;
 	if(sc->data[SC_ETERNALCHAOS].timer!=-1)
 		return 0;
-	if(sc->data[SC_ARMORCHANGE].timer!=-1)
-		def2 += def2 * sc->data[SC_ARMORCHANGE].val2/100;
 	if(sc->data[SC_SUN_COMFORT].timer!=-1)
 		def2 += sc->data[SC_SUN_COMFORT].val2;
 	if(sc->data[SC_ANGELUS].timer!=-1)
@@ -3633,7 +3625,7 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 	if(sc->data[SC_SKA].timer != -1) // [marquis007]
 		return 90;
 	if(sc->data[SC_ARMORCHANGE].timer!=-1)
-		mdef += mdef * sc->data[SC_ARMORCHANGE].val3/100;
+		mdef += sc->data[SC_ARMORCHANGE].val3;
 	if(sc->data[SC_STONE].timer!=-1 && sc->opt1 == OPT1_STONE)
 		mdef += 25*mdef/100;
 	if(sc->data[SC_FREEZE].timer!=-1)
@@ -3651,8 +3643,6 @@ static signed short status_calc_mdef2(struct block_list *bl, struct status_chang
 
 	if(sc->data[SC_BERSERK].timer!=-1)
 		return 0;
-	if(sc->data[SC_ARMORCHANGE].timer!=-1)
-		mdef2 += mdef2 * sc->data[SC_ARMORCHANGE].val3/100;
 	if(sc->data[SC_MINDBREAKER].timer!=-1)
 		mdef2 -= mdef2 * sc->data[SC_MINDBREAKER].val3/100;
 
@@ -4466,6 +4456,11 @@ int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int f
 			tick /= 5;
 		sc_def = status->agi;
 		break;
+	case SC_MAGICMIRROR:
+	case SC_ARMORCHANGE:
+		if (sd) //Duration greatly reduced for players.
+			tick /= 15;
+		//No defense against it (buff).
 	default:
 		//Effect that cannot be reduced? Likely a buff.
 		if (!(rand()%10000 < rate))
@@ -4601,27 +4596,13 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 	switch (type) {
 	case SC_FREEZE:
 	case SC_STONE:
-		//Undead are inmune to Freeze/Stone
+		//Undead are immune to Freeze/Stone
 		if (undead_flag && !(flag&1))
 			return 0;
 	case SC_SLEEP:
 	case SC_STUN:
 		if (sc->opt1)
 			return 0; //Cannot override other opt1 status changes. [Skotlex]
-	break;
-	case SC_CURSE:
-		//Dark Elementals are inmune to curse.
-		if (status->def_ele == ELE_DARK && !(flag&1))
-			return 0;
-	break;
-	case SC_CHANGEUNDEAD: //Undead/Dark are inmune to it.
-		if ((status->def_ele == ELE_DARK || undead_flag) && !(flag&1))
-			return 0;
-	break;
-	case SC_COMA:
-		//Dark elementals and Demons are inmune to coma.
-		if((status->def_ele == ELE_DARK || status->race == RC_DEMON) && !(flag&1))
-			return 0;
 	break;
 	case SC_SIGNUMCRUCIS:
 		//Only affects demons and undead.
@@ -4725,6 +4706,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 			}
 			if (!opt_flag) return 0;
 		}
+		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
 		break;
 	case SC_STRIPSHIELD:
 		if (sd) {
@@ -4737,6 +4719,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				return 0;
 			pc_unequipitem(sd,i,3);
 		}
+		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
 		break;
 	case SC_STRIPARMOR:
 		if (sd) {
@@ -4748,6 +4731,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				return 0;
 			pc_unequipitem(sd,i,3);
 		}
+		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
 		break;
 	case SC_STRIPHELM:
 		if (sd) {
@@ -4759,6 +4743,7 @@ int status_change_start(struct block_list *bl,int type,int rate,int val1,int val
 				return 0;
 			pc_unequipitem(sd,i,3);
 		}
+		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
 		break;
 	}
 
@@ -7138,8 +7123,12 @@ static int status_natural_heal(DBKey key,void * data,va_list ap)
 	))
 		flag=0;
 
-	if (sd && (sd->hp_loss_value > 0 || sd->sp_loss_value > 0))
-		pc_bleeding(sd, natural_heal_diff_tick);
+	if (sd) {
+		if (sd->hp_loss.value || sd->sp_loss.value)
+			pc_bleeding(sd, natural_heal_diff_tick);
+		if (sd->hp_regen.value || sd->sp_regen.value)
+			pc_regen(sd, natural_heal_diff_tick);
+	}
 
 	if(flag&(RGN_SHP|RGN_SSP) && regen->ssregen &&
 		(vd = status_get_viewdata(bl)) && vd->dead_sit == 2)

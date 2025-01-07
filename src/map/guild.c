@@ -550,14 +550,16 @@ int guild_recv_info(struct guild *sg)
 
 		// [h[U[`FbNs
 		guild_check_member(sg);
-		//If the guild master is online the first time the guild_info is received, that means he was the first to join,
-		//and as such, his guild skills should be blocked to avoid login/logout abuse [Skotlex]
 		if ((sd = map_nick2sd(sg->master)) != NULL)
 		{
-			guild_block_skill(sd, 300000);
+			//If the guild master is online the first time the guild_info is received, that means he was the first to join,
+			//and as such, his guild skills should be blocked to avoid login/logout abuse [Skotlex]
+			//(optionally)
+			//guild_block_skill(sd, 300000);
+
 			//Also set the guild master flag.
 			sd->state.gmaster_flag = g;
-			clif_charnameupdate(sd); // [LuzZza]			
+			clif_charnameupdate(sd); // [LuzZza]
 		}
 	}else
 		before=*g;
@@ -648,6 +650,12 @@ int guild_invite(struct map_session_data *sd,struct map_session_data *tsd)
 			return 0;
 		}
 	}
+
+	if (!tsd->fd) { //You can't invite someone who has already disconnected.
+		clif_guild_inviteack(sd,1);
+		return 0;
+	}
+
 	if(tsd->status.guild_id>0 ||
 		tsd->guild_invite>0 ||
 		(agit_flag && map[tsd->bl.m].flag.gvg_castle))

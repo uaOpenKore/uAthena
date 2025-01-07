@@ -207,6 +207,7 @@ static struct {
 		int index;
 		int count;
 		int flag;
+		struct linkdb_node *case_label;
 	} curly[256];		// EJbR
 	int curly_count;	// EJbR
 	int index;			// XNvggp
@@ -1166,6 +1167,7 @@ const char* parse_curly_close(const char* p)
 		sprintf(label,"__SW%x_FIN",syntax.curly[pos].index);
 		l=add_str(label);
 		set_label(l,script_pos, p);
+		linkdb_final(&syntax.curly[pos].case_label);	// free the list of case label
 		syntax.curly_count--;
 		return p+1;
 	} else {
@@ -1231,7 +1233,8 @@ const char* parse_syntax(const char* p)
 				return p+1;
 			} else {
 				char label[256];
-				int  l,len;
+				int  l,v;
+				char *np;
 				if(syntax.curly[pos].count != 1) {
 					// FALLTHRU pWv
 					sprintf(label,"goto __SW%x_%xJ;",syntax.curly[pos].index,syntax.curly[pos].count);
@@ -1249,20 +1252,30 @@ const char* parse_syntax(const char* p)
 				if(p == p2) {
 					disp_error_message("parse_syntax: expect space ' '",p);
 				}
-				p2 = p;
-				if((*p == '-' || *p == '+') && ISDIGIT(p[1]))	// pre-skip because '-' can not skip_word
-					p++;
-				p = skip_word(p);
-				len = p-p2; // length of word at p2
+				// check whether case label is integer or not
+				v = strtol(p,&np,0);
+				if(np == p) { //Check for constants
+					p2 = skip_word(p);
+					v = p2-p; // length of word at p2
+					memcpy(label,p,v);
+					label[v]='\0';
+					v = search_str(label);
+					if (v < 0 || str_data[v].type != C_INT)
+						disp_error_message("parse_syntax: 'case' label not integer",p);
+					v = str_data[v].val;
+					p = skip_word(p);
+				} else { //Numeric value
+					if((*p == '-' || *p == '+') && ISDIGIT(p[1]))	// pre-skip because '-' can not skip_word
+						p++;
+					p = skip_word(p);
+					if(np != p)
+						disp_error_message("parse_syntax: 'case' label not integer",np);
+				}
 				p = skip_space(p);
 				if(*p != ':')
 					disp_error_message("parse_syntax: expect ':'",p);
-
-				memcpy(label,"if(",3);
-				memcpy(label+3,p2,len);
-				sprintf(label+3+len," != $@__SW%x_VAL) goto __SW%x_%x;",
-					syntax.curly[pos].index,syntax.curly[pos].index,syntax.curly[pos].count+1);
-
+				sprintf(label,"if(%d != $@__SW%x_VAL) goto __SW%x_%x;",
+					v,syntax.curly[pos].index,syntax.curly[pos].index,syntax.curly[pos].count+1);
 				syntax.curly[syntax.curly_count++].type = TYPE_NULL;
 				// Qparse _
 				p2 = parse_line(label);
@@ -1274,6 +1287,11 @@ const char* parse_syntax(const char* p)
 					l=add_str(label);
 					set_label(l,script_pos,p);
 				}
+				// check duplication of case label [Rayce]
+				if(linkdb_search(&syntax.curly[pos].case_label, (void*)v) != NULL)
+					disp_error_message("parse_syntax: dup 'case'",p);
+				linkdb_insert(&syntax.curly[pos].case_label, (void*)v, (void*)1);
+
 				sprintf(label,"set $@__SW%x_VAL,0;",syntax.curly[pos].index);
 				syntax.curly[syntax.curly_count++].type = TYPE_NULL;
 
@@ -1912,6 +1930,8 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 
 	if( setjmp( error_jump ) != 0 ) {
 		//Restore program state when script has problems. [from jA]
+		int i;
+		const int size = sizeof(syntax.curly)/sizeof(syntax.curly[0]);
 		if( error_report )
 			script_error(src,file,line,error_msg,error_pos);
 		aFree( error_msg );
@@ -1921,6 +1941,8 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 		script_buf  = NULL;
 		for(i=LABEL_START;i<str_num;i++)
 			if(str_data[i].type == C_NOP) str_data[i].type = C_NAME;
+		for(i=0; i<size; i++)
+			linkdb_final(&syntax.curly[i].case_label);
 		return NULL;
 	}
 
@@ -3952,6 +3974,7 @@ BUILDIN_FUNC(awake);
 BUILDIN_FUNC(getvariableofnpc);
 BUILDIN_FUNC(warpportal);
 BUILDIN_FUNC(homunculus_evolution) ;	//[orn]
+BUILDIN_FUNC(homunculus_shuffle); // [Zephyrus]
 BUILDIN_FUNC(eaclass);
 BUILDIN_FUNC(roclass);
 BUILDIN_FUNC(setitemscript);
@@ -4285,6 +4308,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getvariableofnpc,"rs"),
 	BUILDIN_DEF(warpportal,"iisii"),
 	BUILDIN_DEF2(homunculus_evolution,"homevolution",""),	//[orn]
+	BUILDIN_DEF2(homunculus_shuffle,"homshuffle",""),	//[Zephyrus]
 	BUILDIN_DEF(eaclass,"*"),	//[Skotlex]
 	BUILDIN_DEF(roclass,"i*"),	//[Skotlex]
 	BUILDIN_DEF(checkvending,"*"),
@@ -6676,7 +6700,7 @@ unsigned int equip[10]={EQP_HEAD_TOP,EQP_ARMOR,EQP_HAND_L,EQP_HAND_R,EQP_GARMENT
  *------------------------------------------*/
 BUILDIN_FUNC(getequipid)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 	struct item_data* item;
 
@@ -6687,7 +6711,8 @@ BUILDIN_FUNC(getequipid)
 		return 0;
 	}
 	num=script_getnum(st,2);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0){
 		item=sd->inventory_data[i];
 		if(item)
@@ -6705,7 +6730,7 @@ BUILDIN_FUNC(getequipid)
  *------------------------------------------*/
 BUILDIN_FUNC(getequipname)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 	struct item_data* item;
 	char *buf;
@@ -6715,7 +6740,8 @@ BUILDIN_FUNC(getequipname)
 	buf=(char *)aMallocA(64*sizeof(char));
 	sd=script_rid2sd(st);
 	num=script_getnum(st,2);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0){
 		item=sd->inventory_data[i];
 		if(item)
@@ -6790,22 +6816,19 @@ BUILDIN_FUNC(repair)
  *------------------------------------------*/
 BUILDIN_FUNC(getequipisequiped)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
 
-	if ((num - 1)  >= (sizeof(equip) / sizeof(equip[0])))
-		i = -1;
-	else 
+	if (num > 0 && num <= ARRAYLENGTH(equip))
 		i=pc_checkequip(sd,equip[num-1]);
 
-        if(i >= 0)
-          script_pushint(st,1);
-        else
-          script_pushint(st,0);
-
+	if(i >= 0)
+		script_pushint(st,1);
+	else
+		 script_pushint(st,0);
 	return 0;
 }
 
@@ -6814,12 +6837,13 @@ BUILDIN_FUNC(getequipisequiped)
  *------------------------------------------*/
 BUILDIN_FUNC(getequipisenableref)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0 && sd->inventory_data[i] && !sd->inventory_data[i]->flag.no_refine)
 	{
 		script_pushint(st,1);
@@ -6835,12 +6859,13 @@ BUILDIN_FUNC(getequipisenableref)
  *------------------------------------------*/
 BUILDIN_FUNC(getequipisidentify)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0)
 		script_pushint(st,sd->status.inventory[i].identify);
 	else
@@ -6854,12 +6879,13 @@ BUILDIN_FUNC(getequipisidentify)
  *------------------------------------------*/
 BUILDIN_FUNC(getequiprefinerycnt)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0)
 		script_pushint(st,sd->status.inventory[i].refine);
 	else
@@ -6873,12 +6899,13 @@ BUILDIN_FUNC(getequiprefinerycnt)
  *------------------------------------------*/
 BUILDIN_FUNC(getequipweaponlv)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0 && sd->inventory_data[i])
 		script_pushint(st,sd->inventory_data[i]->wlv);
 	else
@@ -6892,12 +6919,13 @@ BUILDIN_FUNC(getequipweaponlv)
  *------------------------------------------*/
 BUILDIN_FUNC(getequippercentrefinery)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0 && sd->status.inventory[i].nameid && sd->status.inventory[i].refine < MAX_REFINE)
 		script_pushint(st,percentrefinery[itemdb_wlv(sd->status.inventory[i].nameid)][(int)sd->status.inventory[i].refine]);
 	else
@@ -6911,12 +6939,13 @@ BUILDIN_FUNC(getequippercentrefinery)
  *------------------------------------------*/
 BUILDIN_FUNC(successrefitem)
 {
-	int i,num,ep;
+	int i=-1,num,ep;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0) {
 		ep=sd->status.inventory[i].equip;
 
@@ -6963,12 +6992,13 @@ BUILDIN_FUNC(successrefitem)
  *------------------------------------------*/
 BUILDIN_FUNC(failedrefitem)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0) {
 		//Logs items, got from (N)PC scripts [Lupus]
 		if(log_config.enable_logs&0x40)
@@ -8463,7 +8493,7 @@ BUILDIN_FUNC(sc_start)
 	}
 
 	if( potion_flag == 1 && potion_target )
-	{//##TODO how does this work [FlavioJS]
+	{	//skill.c set the flags before running the script, this must be a potion-pitched effect.
 		bl = map_id2bl(potion_target);
 		tick /= 2;// Thrown potions only last half.
 		val4 = 1;// Mark that this was a thrown sc_effect
@@ -8501,7 +8531,7 @@ BUILDIN_FUNC(sc_start2)
 	}
 
 	if( potion_flag == 1 && potion_target )
-	{//##TODO how does this work [FlavioJS]
+	{	//skill.c set the flags before running the script, this must be a potion-pitched effect.
 		bl = map_id2bl(potion_target);
 		tick /= 2;// Thrown potions only last half.
 		val4 = 1;// Mark that this was a thrown sc_effect
@@ -8543,7 +8573,7 @@ BUILDIN_FUNC(sc_start4)
 	}
 
 	if( potion_flag == 1 && potion_target )
-	{//##TODO how does this work [FlavioJS]
+	{	//skill.c set the flags before running the script, this must be a potion-pitched effect.
 		bl = map_id2bl(potion_target);
 		tick /= 2;// Thrown potions only last half.
 	}
@@ -8637,8 +8667,24 @@ BUILDIN_FUNC(homunculus_evolution)
 {
 	TBL_PC *sd;
 	sd=script_rid2sd(st);
-	if(merc_is_hom_active(sd->hd) && sd->hd->homunculus.intimacy > 91000)
-		merc_hom_evolution(sd->hd);
+	if(merc_is_hom_active(sd->hd))
+	{
+		if (sd->hd->homunculus.intimacy > 91000)
+			merc_hom_evolution(sd->hd);
+		else
+			clif_emotion(&sd->hd->bl, 4) ;	//swt
+	}
+	return 0;
+}
+
+// [Zephyrus]
+BUILDIN_FUNC(homunculus_shuffle)
+{
+	TBL_PC *sd;
+	sd=script_rid2sd(st);
+	if(merc_is_hom_active(sd->hd))
+		merc_hom_shuffle(sd->hd);
+
 	return 0;
 }
 
@@ -9636,13 +9682,20 @@ BUILDIN_FUNC(requestguildinfo)
  * ---------------------------------------------------------------------*/
 BUILDIN_FUNC(getequipcardcnt)
 {
-	int i,num;
+	int i=-1,num;
 	TBL_PC *sd;
 	int c=MAX_SLOTS;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
+
+	if (i < 0) {
+		script_pushint(st,0);
+		return 0;
+	}
+
 	if(itemdb_isspecial(sd->status.inventory[i].card[0]))
 	{
 		script_pushint(st,0);
@@ -9664,14 +9717,21 @@ BUILDIN_FUNC(getequipcardcnt)
  * ----------------------------------------------------------------*/
 BUILDIN_FUNC(successremovecards)
 {
-	int i,j,num,cardflag=0,flag;
+	int i=-1,j,num,cardflag=0,flag;
 	TBL_PC *sd;
 	struct item item_tmp;
 	int c=MAX_SLOTS;
 
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
+
+	if (i < 0) {
+		script_pushint(st,0);
+		return 0;
+	}
+
 	if(itemdb_isspecial(sd->status.inventory[i].card[0]))
 		return 0;
 
@@ -9731,7 +9791,7 @@ BUILDIN_FUNC(successremovecards)
  * ----------------------------------------------------------------*/
 BUILDIN_FUNC(failedremovecards)
 {
-	int i,j,num,cardflag=0,flag,typefail;
+	int i=-1,j,num,cardflag=0,flag,typefail;
 	TBL_PC *sd;
 	struct item item_tmp;
 	int c=MAX_SLOTS;
@@ -9739,7 +9799,14 @@ BUILDIN_FUNC(failedremovecards)
 	num=script_getnum(st,2);
 	typefail=script_getnum(st,3);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
+
+	if (i < 0) {
+		script_pushint(st,0);
+		return 0;
+	}
+
 	if(itemdb_isspecial(sd->status.inventory[i].card[0]))
 		return 0;
 
@@ -10290,13 +10357,14 @@ BUILDIN_FUNC(setiteminfo)
  *------------------------------------------*/
 BUILDIN_FUNC(getequipcardid)
 {
-	int i,num,slot;
+	int i=-1,num,slot;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
 	slot=script_getnum(st,3);
 	sd=script_rid2sd(st);
-	i=pc_checkequip(sd,equip[num-1]);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0 && slot>=0 && slot<4)
 		script_pushint(st,sd->status.inventory[i].card[slot]);
 	else
@@ -10957,27 +11025,68 @@ BUILDIN_FUNC(recovery)
 BUILDIN_FUNC(getpetinfo)
 {
 	TBL_PC *sd=script_rid2sd(st);
-	struct pet_data *pd;
+	TBL_PET *pd;
 	int type=script_getnum(st,2);
 
-	if(sd && sd->status.pet_id && sd->pd){
-		pd = sd->pd;
-		switch(type){
-			case 0: script_pushint(st,sd->status.pet_id); break;
-			case 1: script_pushint(st,pd->pet.class_); break;
-			case 2: script_pushstr(st,aStrdup(pd->pet.name)); break;
-			case 3: script_pushint(st,pd->pet.intimate); break;
-			case 4: script_pushint(st,pd->pet.hungry); break;
-			case 5: script_pushint(st,pd->pet.rename_flag); break;
-			default:
-				script_pushint(st,0);
-				break;
-		}
-	}else{
-		script_pushint(st,0);
+	if(!sd || !sd->pd) {
+		if (type == 2)
+			script_pushconststr(st,"null");
+		else
+			script_pushint(st,0);
+		return 0;
+	}
+	pd = sd->pd;
+	switch(type){
+		case 0: script_pushint(st,pd->pet.pet_id); break;
+		case 1: script_pushint(st,pd->pet.class_); break;
+		case 2: script_pushstr(st,aStrdup(pd->pet.name)); break;
+		case 3: script_pushint(st,pd->pet.intimate); break;
+		case 4: script_pushint(st,pd->pet.hungry); break;
+		case 5: script_pushint(st,pd->pet.rename_flag); break;
+		default:
+			script_pushint(st,0);
+			break;
 	}
 	return 0;
 }
+
+/*==========================================
+ * Get your homunculus info: gethominfo(n)
+ * n -> 0:hom_id 1:class 2:name
+ * 3:friendly 4:hungry, 5: rename flag.
+ * 6: level
+ *------------------------------------------*/
+BUILDIN_FUNC(gethominfo)
+{
+	TBL_PC *sd=script_rid2sd(st);
+	TBL_HOM *hd;
+	int type=script_getnum(st,2);
+
+	hd = sd?sd->hd:NULL;
+	if(!merc_is_hom_active(hd))
+	{
+		if (type == 2)
+			script_pushconststr(st,"null");
+		else
+			script_pushint(st,0);
+		return 0;
+	}
+
+	switch(type){
+		case 0: script_pushint(st,hd->homunculus.hom_id); break;
+		case 1: script_pushint(st,hd->homunculus.class_); break;
+		case 2: script_pushstr(st,aStrdup(hd->homunculus.name)); break;
+		case 3: script_pushint(st,hd->homunculus.intimacy); break;
+		case 4: script_pushint(st,hd->homunculus.hunger); break;
+		case 5: script_pushint(st,hd->homunculus.rename_flag); break;
+		case 6: script_pushint(st,hd->homunculus.level); break;
+		default:
+			script_pushint(st,0);
+			break;
+	}
+	return 0;
+}
+
 /*==========================================
  * Shows wether your inventory(and equips) contain
    selected card or not.
@@ -11739,10 +11848,11 @@ BUILDIN_FUNC(unequip)
 
 	num = script_getnum(st,2) - 1;
 	sd=script_rid2sd(st);
-	if(sd!=NULL && num<10)
+	if(sd!=NULL && num > 0 && num <= ARRAYLENGTH(equip))
 	{
-		i=pc_checkequip(sd,equip[num]);
-		pc_unequipitem(sd,i,2);
+		i=pc_checkequip(sd,equip[num-1]);
+		if (i >= 0)
+			pc_unequipitem(sd,i,2);
 		return 0;
 	}
 	return 0;

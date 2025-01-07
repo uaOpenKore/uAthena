@@ -127,10 +127,10 @@ static int inter_status_save_sub(DBKey key, void *data, va_list ap) {
 	sc_data = (struct scdata *)data;
 	if (sc_data->count < 1)
 		return 0;
-	
+
 	fp = va_arg(ap, FILE *);
 	inter_status_tostr(line, sc_data);
-	fprintf(fp, "%s" RETCODE, line);
+	fprintf(fp, "%s\n", line);
 	return 0;
 }
 

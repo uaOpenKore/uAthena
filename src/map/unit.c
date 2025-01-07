@@ -156,6 +156,9 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 	map_moveblock(bl, x, y, tick);
 	ud->walk_count++; //walked cell counter, to be used for walk-triggered skills. [Skotlex]
 
+	if (bl->x != x || bl->y != y || ud->walktimer != -1)
+		return 0; //map_moveblock has altered the object beyond what we expected (moved/warped it)
+
 	ud->walktimer = 1;
 	map_foreachinmovearea(clif_insight, bl, AREA_SIZE,
 		-dx, -dy, sd?BL_ALL:BL_PC, bl);
@@ -183,12 +186,6 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 				map_foreachinrange(skill_guildaura_sub, bl,2, BL_PC,
 					bl->id, sd->status.guild_id, strvit, agidex);
 		}
-		if (
-			(sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
-			!(ud->walk_count%WALK_SKILL_INTERVAL) &&
-			rand()%10000 < battle_config.sg_miracle_skill_ratio
-		)	//SG_MIRACLE [Komurka]
-			sc_start(&sd->bl,SC_MIRACLE,100,1,battle_config.sg_miracle_skill_duration);
 	} else if (md) {
 		if(battle_config.mob_warp&1 && map_getcell(bl->m,x,y,CELL_CHKNPC) &&
 			npc_touch_areanpc2(bl)) // Enable mobs to step on warps. [Skotlex]
@@ -1666,7 +1663,7 @@ int unit_remove_map(struct block_list *bl, int clrtype)
 
 		//Leave/reject all invitations.
 		if(sd->chatID)
-			chat_leavechat(sd);
+			chat_leavechat(sd,0);
 		if(sd->trade_partner)
 			trade_tradecancel(sd);
 		if(sd->vender_id)

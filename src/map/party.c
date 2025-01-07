@@ -9,6 +9,7 @@
 #include "../common/showmsg.h"
 
 #include "party.h"
+#include "atcommand.h"	//msg_txt()
 #include "pc.h"
 #include "map.h"
 #include "battle.h"
@@ -257,17 +258,35 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 {
 	struct party_data *p=party_search(sd->status.party_id);
 	int i,flag=0;
-	
-	nullpo_retr(0, sd);
 
-	if(tsd==NULL || p==NULL)
+	nullpo_retr(0, sd);
+	if (p==NULL)
 		return 0;
+
+	if(tsd==NULL) {	//TODO: Find the correct reply packet.
+		clif_displaymessage(sd->fd, msg_txt(3));
+		return 0;
+	}
+	//Only leader can invite.
+	ARR_FIND(0, MAX_PARTY, i, p->data[i].sd == sd);
+	if (i == MAX_PARTY || !p->party.member[i].leader)
+	{	//TODO: Find the correct reply packet.
+		clif_displaymessage(sd->fd, msg_txt(282));
+		return 0;
+	}
+
 	if(!battle_config.invite_request_check) {
 		if (tsd->guild_invite>0 || tsd->trade_partner) {
 			clif_party_inviteack(sd,tsd->status.name,0);
 			return 0;
 		}
 	}
+
+	if (!tsd->fd) { //You can't invite someone who has already disconnected.
+		clif_party_inviteack(sd,tsd->status.name,1);
+		return 0;
+	}
+
 	if( tsd->status.party_id>0 || tsd->party_invite>0 ){
 		clif_party_inviteack(sd,tsd->status.name,0);
 		return 0;
@@ -744,7 +763,7 @@ int party_exp_share(struct party_data* p, struct block_list* src, unsigned int b
 }
 
 //Does party loot. first holds the id of the player who has time priority to take the item.
-int party_share_loot(struct party_data* p, struct map_session_data* sd, struct item* item_data, int first)
+int party_share_loot(struct party_data* p, TBL_PC* sd, struct item* item_data, int first)
 {
 	TBL_PC* target = NULL;
 	int i;
