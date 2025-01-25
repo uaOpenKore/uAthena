@@ -61,8 +61,8 @@
 
 // XLf?^x?X
 struct s_skill_db {
-	char *name;
-	char *desc;
+	char name[NAME_LENGTH];
+	char desc[40];
 	int range[MAX_SKILL_LEVEL],hit,inf,element[MAX_SKILL_LEVEL],nk,splash[MAX_SKILL_LEVEL],max;
 	int num[MAX_SKILL_LEVEL];
 	int cast[MAX_SKILL_LEVEL],walkdelay[MAX_SKILL_LEVEL],delay[MAX_SKILL_LEVEL];
@@ -130,7 +130,7 @@ extern struct s_skill_arrow_db skill_arrow_db[MAX_SKILL_ARROW_DB];
 
 // AuJ_uf?^x?X
 struct s_skill_abra_db {
-	int nameid;
+	int skillid;
 	int req_lv;
 	int per;
 };
@@ -246,7 +246,7 @@ int skill_autospell(struct map_session_data *md,int skillid);
 
 int skill_calc_heal(struct block_list *src, struct block_list *target, int skill_lv);
 
-int skill_check_cloaking(struct block_list *bl, struct status_change *sc);
+bool skill_check_cloaking(struct block_list *bl, struct status_change_entry *sce);
 
 // Xe?^X
 int skill_enchant_elemental_end(struct block_list *bl, int type);
@@ -893,6 +893,8 @@ enum s_skill {
 	NPC_WIDESTUN,
 	NPC_VAMPIRE_GIFT,
 	NPC_WIDESOULDRAIN,
+
+	ALL_INCCARRY = 681,
 
 	KN_CHARGEATK = 1001,
 	CR_SHRINK,

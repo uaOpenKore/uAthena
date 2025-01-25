@@ -29,11 +29,11 @@
 #include <string.h>
 
 
-static DB guild_db;
-static DB castle_db;
-static DB guild_expcache_db;
-static DB guild_infoevent_db;
-static DB guild_castleinfoevent_db;
+static DBMap* guild_db; // int guild_id -> struct guild*
+static DBMap* castle_db; // int castle_id -> struct guild_castle*
+static DBMap* guild_expcache_db; // int char_id -> struct guild_expcache*
+static DBMap* guild_infoevent_db; // int guild_id -> struct eventlist*
+static DBMap* guild_castleinfoevent_db; // int castle_id_index -> struct eventlist*
 
 struct eventlist {
 	char name[50];
@@ -202,15 +202,15 @@ static int guild_read_castledb(void)
 	return 0;
 }
 
-// 
+//
 void do_init_guild(void)
 {
-	guild_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
-	castle_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
-	guild_expcache_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
-	guild_infoevent_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
+	guild_db=idb_alloc(DB_OPT_RELEASE_DATA);
+	castle_db=idb_alloc(DB_OPT_RELEASE_DATA);
+	guild_expcache_db=idb_alloc(DB_OPT_BASE);
+	guild_infoevent_db=idb_alloc(DB_OPT_BASE);
 	expcache_ers = ers_new(sizeof(struct guild_expcache));
-	guild_castleinfoevent_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
+	guild_castleinfoevent_db=idb_alloc(DB_OPT_BASE);
 
 	guild_read_castledb();
 
@@ -513,8 +513,7 @@ int guild_check_member(struct guild *g)
 				sd->status.guild_id=0;
 				sd->state.guild_sent=0;
 				sd->guild_emblem_id=0;
-				if(battle_config.error_log)
-					ShowWarning("guild: check_member %d[%s] is not member\n",sd->status.account_id,sd->status.name);
+				ShowWarning("guild: check_member %d[%s] is not member\n",sd->status.account_id,sd->status.name);
 			}
 		}
 	}
@@ -570,11 +569,10 @@ int guild_recv_info(struct guild *sg)
 
 	if(g->max_member > MAX_GUILD)
 	{
-		if (battle_config.error_log)
-			ShowError("guild_recv_info: Received guild with %d members, but MAX_GUILD is only %d. Extra guild-members have been lost!\n", g->max_member, MAX_GUILD);
+		ShowError("guild_recv_info: Received guild with %d members, but MAX_GUILD is only %d. Extra guild-members have been lost!\n", g->max_member, MAX_GUILD);
 		g->max_member = MAX_GUILD;
 	}
-	
+
 	for(i=bm=m=0;i<g->max_member;i++){	// sdlmF
 		if(g->member[i].account_id>0){
 			struct map_session_data *sd = map_id2sd(g->member[i].account_id);
@@ -750,9 +748,8 @@ int guild_member_added(int guild_id,int account_id,int char_id,int flag)
 	if(sd==NULL || sd->guild_invite==0){
 		// Lo^Evo
 		if (flag == 0) {
-			if(battle_config.error_log)
-				ShowError("guild: member added error %d is not online\n",account_id);
- 			intif_guild_leave(guild_id,account_id,char_id,0,"**o^s**");
+			ShowError("guild: member added error %d is not online\n",account_id);
+			intif_guild_leave(guild_id,account_id,char_id,0,"**o^s**");
 		}
 		return 0;
 	}
@@ -961,11 +958,10 @@ int guild_recv_memberinfoshort(int guild_id,int account_id,int char_id,int onlin
 			sd->guild_emblem_id=0;
 			sd->state.guild_sent=0;
 		}
-		if(battle_config.error_log)
-			ShowWarning("guild: not found member %d,%d on %d[%s]\n",	account_id,char_id,guild_id,g->name);
+		ShowWarning("guild: not found member %d,%d on %d[%s]\n",	account_id,char_id,guild_id,g->name);
 		return 0;
 	}
-	
+
 	g->average_lv=alv/c;
 	g->connect_member=om;
 

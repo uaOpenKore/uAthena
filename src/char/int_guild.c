@@ -8,6 +8,7 @@
 #include "../common/db.h"
 #include "../common/lock.h"
 #include "../common/showmsg.h"
+#include "../common/strlib.h"
 #include "char.h"
 #include "inter.h"
 #include "int_storage.h"
@@ -21,8 +22,8 @@ char guild_txt[1024] = "save/guild.txt";
 char castle_txt[1024] = "save/castle.txt";
 
 #ifndef TXT_SQL_CONVERT
-static struct dbt *guild_db;
-static struct dbt *castle_db;
+static DBMap* guild_db; // int guild_id -> struct guild*
+static DBMap* castle_db; // int castle_id -> struct guild_castle*
 
 static int guild_newid = 10000;
 
@@ -232,7 +233,7 @@ int inter_guild_fromstr(char *str, struct guild *g) {
 		for(j = 0; j < 4 && str != NULL; j++)	// uXLbv
 			str = strchr(str + 1, '\t');
 	}
-//	printf("GuildExplusionInfo OK\n");
+//	printf("GuildExpulsionInfo OK\n");
 	// MhXL
 	for(i = 0; i < MAX_GUILDSKILL; i++) {
 		if (sscanf(str+1,"%d,%d ", &tmp_int[0], &tmp_int[1]) < 2)
@@ -375,8 +376,8 @@ int inter_guild_init() {
 
 	inter_guild_readdb();
 
-	guild_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
-	castle_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	guild_db = idb_alloc(DB_OPT_RELEASE_DATA);
+	castle_db = idb_alloc(DB_OPT_RELEASE_DATA);
 
 	if ((fp = fopen(guild_txt,"r")) == NULL)
 		return 1;
@@ -422,7 +423,6 @@ int inter_guild_init() {
 			ShowFatalError("int_guild: out of memory!\n");
 			exit(EXIT_FAILURE);
 		}
-//		memset(gc, 0, sizeof(struct guild_castle)); No need...
 		if (inter_guildcastle_fromstr(line, gc) == 0) {
 			idb_put(castle_db, gc->castle_id, gc);
 		} else {
@@ -431,6 +431,8 @@ int inter_guild_init() {
 		}
 		c++;
 	}
+
+	fclose(fp);
 
 	if (!c) {
 		ShowStatus(" %s - making Default Data...\n", castle_txt);
@@ -447,8 +449,6 @@ int inter_guild_init() {
 		ShowStatus(" %s - making done\n",castle_txt);
 		return 0;
 	}
-
-	fclose(fp);
 
 	return 0;
 }

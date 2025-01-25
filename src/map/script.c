@@ -150,7 +150,7 @@ static int script_pos,script_size;
 static char *str_buf;
 static int str_pos,str_size;
 static struct str_data_struct {
-	int type;
+	enum c_op type;
 	int str;
 	int backpatch;
 	int label;
@@ -167,17 +167,17 @@ int str_hash[SCRIPT_HASH_SIZE];
 //#define SCRIPT_HASH_ELF
 //#define SCRIPT_HASH_PJW
 
-static struct dbt *mapreg_db=NULL;
-static struct dbt *mapregstr_db=NULL;
+static DBMap* mapreg_db=NULL; // int var_id -> int value
+static DBMap* mapregstr_db=NULL; // int var_id -> char* value
 static int mapreg_dirty=-1;
 char mapreg_txt[256]="save/mapreg.txt";
 #define MAPREG_AUTOSAVE_INTERVAL	(300*1000)
 
-static struct dbt *scriptlabel_db=NULL;
-static struct dbt *userfunc_db=NULL;
+static DBMap* scriptlabel_db=NULL; // const char* label_name -> int script_pos
+static DBMap* userfunc_db=NULL; // const char* func_name -> struct script_code*
 static int parse_options=0;
-struct dbt* script_get_label_db(){ return scriptlabel_db; }
-struct dbt* script_get_userfunc_db(){ return userfunc_db; }
+DBMap* script_get_label_db(){ return scriptlabel_db; }
+DBMap* script_get_userfunc_db(){ return userfunc_db; }
 
 struct Script_Config script_config;
 
@@ -198,19 +198,21 @@ enum curly_type {
 	TYPE_USERFUNC,
 	TYPE_ARGLIST // function argument list
 };
+
 #define ARGLIST_UNDEFINED 0
 #define ARGLIST_NO_PAREN  1
 #define ARGLIST_PAREN     2
 static struct {
 	struct {
-		int type;
+		enum curly_type type;
 		int index;
 		int count;
 		int flag;
 		struct linkdb_node *case_label;
 	} curly[256];		// EJbR
-	int curly_count;	// EJbR
-	int index;			// XNvggp
+	int curly_count;
+	int index;
+
 } syntax;
 const char* parse_curly_close(const char *p);
 const char* parse_syntax_close(const char *p);
@@ -218,7 +220,7 @@ const char* parse_syntax_close_sub(const char *p,int *flag);
 const char* parse_syntax(const char *p);
 static int parse_syntax_for_flag = 0;
 
-extern int current_equip_item_index; //for New CARS Scripts. It contains Inventory Index of the EQUIP_SCRIPT caller item. [Lupus]
+extern int current_equip_item_index; //for New CARDS Scripts. It contains Inventory Index of the EQUIP_SCRIPT caller item. [Lupus]
 int potion_flag=0; //For use on Alchemist improved potions/Potion Pitcher. [Skotlex]
 int potion_hp=0, potion_per_hp=0, potion_sp=0, potion_per_sp=0;
 int potion_target=0;
@@ -253,46 +255,6 @@ int run_func(struct script_state *st);
 
 int mapreg_setreg(int num,int val);
 int mapreg_setregstr(int num,const char *str);
-
-enum c_op {
-	C_NOP, // end of script/no value (nil)
-	C_POS,
-	C_INT, // number
-	C_PARAM, // parameter variable (see pc_readparam/pc_setparam)
-	C_FUNC, // buildin function call
-	C_STR, // string (free'd automatically)
-	C_CONSTSTR, // string (not free'd)
-	C_ARG, // start of argument list
-	C_NAME,
-	C_EOL, // end of line (extra stack values are cleared)
-	C_RETINFO,
-	C_USERFUNC, // internal script function
-	C_USERFUNC_POS, // internal script function label
-
-	// operators
-	C_OP3, // a ? b : c
-	C_LOR, // a || b
-	C_LAND, // a && b
-	C_LE, // a <= b
-	C_LT, // a < b
-	C_GE, // a >= b
-	C_GT, // a > b
-	C_EQ, // a == b
-	C_NE, // a != b
-	C_XOR, // a ^ b
-	C_OR, // a | b
-	C_AND, // a & b
-	C_ADD, // a + b
-	C_SUB, // a - b
-	C_MUL, // a * b
-	C_DIV, // a / b
-	C_MOD, // a % b
-	C_NEG, // - a
-	C_LNOT, // ! a
-	C_NOT, // ~ a
-	C_R_SHIFT, // a >> b
-	C_L_SHIFT // a << b
-};
 
 enum {
 	MF_NOMEMO,	//0
@@ -1081,8 +1043,8 @@ const char* parse_line(const char* p)
 	p=skip_space(p);
 	if(*p==';') {
 		// if(); for(); while();
-		p = parse_syntax_close(p);
-		return p+1;
+		p = parse_syntax_close(p + 1);
+		return p;
 	}
 	if(*p==')' && parse_syntax_for_flag)
 		return p+1;
@@ -1212,10 +1174,8 @@ const char* parse_syntax(const char* p)
 				syntax.curly_count--;
 			}
 			p = skip_space(p2);
-			if(*p != ';') {
+			if(*p != ';')
 				disp_error_message("parse_syntax: need ';'",p);
-			}
-			p++;
 			// if, for , while
 			p = parse_syntax_close(p + 1);
 			return p;
@@ -1326,7 +1286,6 @@ const char* parse_syntax(const char* p)
 			p = skip_space(p2);
 			if(*p != ';')
 				disp_error_message("parse_syntax: need ';'",p);
-			p++;
 			// if, for , while
 			p = parse_syntax_close(p + 1);
 			return p;
@@ -1470,16 +1429,19 @@ const char* parse_syntax(const char* p)
 			p = skip_word(func_name);
 			if( p == func_name )
 				disp_error_message("parse_syntax:function: function name is missing or invalid", p);
-			if( *skip_space(p) == ';' )
+			p2 = skip_space(p);
+			if( *p2 == ';' )
 			{// function <name> ;
 				// function declaration - just register the name
 				int l;
 				l = add_word(func_name);
 				if( str_data[l].type == C_NOP )//## ??? [FlavioJS]
 					str_data[l].type = C_USERFUNC;
-				return skip_space(p) + 1;
-			}
-			else
+
+				// if, for , while
+				p = parse_syntax_close(p2 + 1);
+				return p;			}
+			else if(*p2 == '{')
 			{// function <name> <line/block of code>
 				char label[256];
 				int l;
@@ -1505,6 +1467,10 @@ const char* parse_syntax(const char* p)
 				if( parse_options&SCRIPT_USE_LABEL_DB )
 					strdb_put(scriptlabel_db, GETSTRING(str_data[l].str), (void*)script_pos);
 				return skip_space(p);
+			}
+			else
+			{
+				disp_error_message("expect ';' or '{' at function syntax",p);
 			}
 		}
 		break;
@@ -1761,7 +1727,7 @@ const char* parse_syntax_close_sub(const char* p,int* flag)
 		l=add_str(label);
 		set_label(l,script_pos,p);
 		syntax.curly_count--;
-		return p + 1;
+		return p;
 	} else {
 		*flag = 0;
 		return p;
@@ -2112,8 +2078,11 @@ TBL_PC *script_rid2sd(struct script_state *st)
 	return sd;
 }
 
-/// Retrieves the value of a script data
-int get_val(struct script_state* st, struct script_data* data)
+/// Dereferences a variable/constant, replacing it with a copy of the value.
+///
+/// @param st Script state
+/// @param data Variable/constant
+void get_val(struct script_state* st, struct script_data* data)
 {
 	char* name;
 	char prefix;
@@ -2121,7 +2090,7 @@ int get_val(struct script_state* st, struct script_data* data)
 	TBL_PC* sd = NULL;
 
 	if( !data_isreference(data) )
-		return 0;// not a variable
+		return;// not a variable/constant
 
 	name = reference_getname(data);
 	prefix = name[0];
@@ -2135,24 +2104,22 @@ int get_val(struct script_state* st, struct script_data* data)
 		{// needs player attached
 			if( postfix == '$' )
 			{// string variable
-				ShowError("script:get_val: cannot access player variable '%s', defaulting to \"\"\n", name);
+				ShowWarning("script:get_val: cannot access player variable '%s', defaulting to \"\"\n", name);
 				data->type = C_CONSTSTR;
 				data->u.str = "";
 			}
 			else
 			{// integer variable
-				ShowError("script:get_val: cannot access player variable '%s', defaulting to 0\n", name);
+				ShowWarning("script:get_val: cannot access player variable '%s', defaulting to 0\n", name);
 				data->type = C_INT;
 				data->u.num = 0;
 			}
-			return 0;
+			return;
 		}
 	}
 
 	if( postfix == '$' )
 	{// string variable
-
-		data->type = C_CONSTSTR;
 
 		switch( prefix )
 		{
@@ -2182,8 +2149,16 @@ int get_val(struct script_state* st, struct script_data* data)
 			break;
 		}
 
-		if( data->u.str == NULL )
+		if( data->u.str == NULL || data->u.str[0] == '\0' )
+		{// empty string
+			data->type = C_CONSTSTR;
 			data->u.str = "";
+		}
+		else
+		{// duplicate string
+			data->type = C_STR;
+			data->u.str = aStrdup(data->u.str);
+		}
 
 	}
 	else
@@ -2230,7 +2205,7 @@ int get_val(struct script_state* st, struct script_data* data)
 
 	}
 
-	return 0;
+	return;
 }
 
 /// Retrieves the value of a reference identified by uid (variable, constant, param)
@@ -2574,10 +2549,9 @@ int get_com(unsigned char *script,int *pos)
  *------------------------------------------*/
 void unget_com(int c)
 {
-	if(unget_com_data!=-1){
-		if(battle_config.error_log)
-			ShowError("unget_com can back only 1 data\n");
-	}
+	if(unget_com_data!=-1)
+		ShowError("unget_com can back only 1 data\n");
+
 	unget_com_data=c;
 }
 
@@ -2855,8 +2829,7 @@ int run_func(struct script_state *st)
 	end_sp=st->stack->sp;
 	for(i=end_sp-1;i>=0 && st->stack->stack_data[i].type!=C_ARG;i--);
 	if(i<=0){ //Crash fix when missing "push_val" causes current pointer to become -1. from Rayce (jA)
-		if(battle_config.error_log)
-			ShowError("function not found\n");
+		ShowError("function not found\n");
 //		st->stack->sp=0;
 		st->state=END;
 		script_reportsrc(st);
@@ -2915,8 +2888,7 @@ int run_func(struct script_state *st)
 		if (str_data[func].func(st)) //Report error
 			script_reportsrc(st);
 	} else {
-		if(battle_config.error_log)
-			ShowError("run_func : %s? (%d(%d))\n",str_buf+str_data[func].str,func,str_data[func].type);
+		ShowError("run_func : %s? (%d(%d))\n",str_buf+str_data[func].str,func,str_data[func].type);
 		script_pushint(st,0);
 		script_reportsrc(st);
 	}
@@ -3097,7 +3069,7 @@ void run_script_main(struct script_state *st)
 				{	//sp > defsp is valid in cases when you invoke functions and don't use the returned value. [Skotlex]
 					//Since sp is supposed to be defsp in these cases, we could assume the extra stack elements are unneeded.
 					pop_stack(stack, stack->defsp, stack->sp); //Clear out the unused stack-section.
-				} else if( battle_config.error_log )
+				} else
 					ShowError("script:run_script_main: unexpected stack position stack.sp(%d) != default(%d)\n", stack->sp, stack->defsp);
 				stack->sp = stack->defsp;
 			}
@@ -3165,8 +3137,7 @@ void run_script_main(struct script_state *st)
 			break;
 
 		default:
-			if(battle_config.error_log)
-				ShowError("unknown command : %d @ %d\n",c,st->pos);
+			ShowError("unknown command : %d @ %d\n",c,st->pos);
 			st->state=END;
 			break;
 		}
@@ -3622,10 +3593,10 @@ int do_final_script()
  *------------------------------------------*/
 int do_init_script()
 {
-	mapreg_db= db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
-	mapregstr_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
-	userfunc_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_RELEASE_BOTH,50);
-	scriptlabel_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY|DB_OPT_ALLOW_NULL_DATA,50);
+	mapreg_db= idb_alloc(DB_OPT_BASE);
+	mapregstr_db=idb_alloc(DB_OPT_RELEASE_DATA);
+	userfunc_db=strdb_alloc(DB_OPT_DUP_KEY,0);
+	scriptlabel_db=strdb_alloc(DB_OPT_DUP_KEY|DB_OPT_ALLOW_NULL_DATA,50);
 
 	script_load_mapreg();
 
@@ -4238,23 +4209,29 @@ BUILDIN_FUNC(rand)
  *------------------------------------------*/
 BUILDIN_FUNC(warp)
 {
+	int ret;
 	int x,y;
-	const char *str;
-	TBL_PC *sd=script_rid2sd(st);
+	const char* str;
+	TBL_PC* sd = script_rid2sd(st);
 
 	nullpo_retr(0, sd);
 
-	str=script_getstr(st,2);
-	x=script_getnum(st,3);
-	y=script_getnum(st,4);
+	str = script_getstr(st,2);
+	x = script_getnum(st,3);
+	y = script_getnum(st,4);
+
 	if(strcmp(str,"Random")==0)
-		pc_randomwarp(sd,3);
-	else if(strcmp(str,"SavePoint")==0){
-		pc_setpos(sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,3);
-	}else if(strcmp(str,"Save")==0){
-		pc_setpos(sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,3);
-	}else
-		pc_setpos(sd,mapindex_name2id(str),x,y,0);
+		ret = pc_randomwarp(sd,3);
+	else if(strcmp(str,"SavePoint")==0 || strcmp(str,"Save")==0)
+		ret = pc_setpos(sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,3);
+	else
+		ret = pc_setpos(sd,mapindex_name2id(str),x,y,0);
+
+	if( ret ) {
+		ShowError("buildin_warp: moving player '%s' to \"%s\",%d,%d failed.\n", sd->status.name, str, x, y);
+		script_reportsrc(st);
+	}
+
 	return 0;
 }
 /*==========================================
@@ -5163,7 +5140,8 @@ BUILDIN_FUNC(countitem)
 		nameid = conv_num(st,data);
 
 	if (nameid < 500) {
-		if(battle_config.error_log) ShowError("wrong item ID : countitem(%i)\n", nameid);
+		ShowError("wrong item ID : countitem(%i)\n", nameid);
+		script_reportsrc(st);
 		script_pushint(st,0);
 		return 1;
 	}
@@ -5214,7 +5192,7 @@ BUILDIN_FUNC(countitem2)
 	c4 = (short)script_getnum(st,9);
 
 	if (nameid < 500) {
-		if(battle_config.error_log) ShowError("wrong item ID : countitem2(%i)\n", nameid);
+		ShowError("wrong item ID : countitem2(%i)\n", nameid);
 		script_pushint(st,0);
 		return 1;
 	}
@@ -6054,6 +6032,51 @@ BUILDIN_FUNC(strcharinfo)
 
 	return 0;
 }
+
+/*==========================================
+ * oNPC
+ *------------------------------------------*/
+BUILDIN_FUNC(strnpcinfo)
+{
+	TBL_NPC* nd;
+	int num;
+	char *buf,*name=NULL;
+
+	nd = map_id2nd(st->oid);
+	if (!nd) {
+		script_pushconststr(st, "");
+		return 0;
+	}
+
+	num = script_getnum(st,2);
+	switch(num){
+		case 0: // display name
+			name = aStrdup(nd->name);
+			break;
+		case 1: // visible part of display name name
+			if((buf = strchr(nd->name,'#')) != NULL)
+			{
+				name = aStrdup(nd->name);
+				name[buf - nd->name] = 0;
+			}
+			break;
+		case 2: // # fragment
+			if((buf = strchr(nd->name,'#')) != NULL)
+				name = aStrdup(buf+1);
+			break;
+		case 3: // unique name
+			name = aStrdup(nd->exname);
+			break;
+	}
+
+	if(name)
+		script_pushstr(st, name);
+	else
+		script_pushconststr(st, "");
+
+	return 0;
+}
+
 
 unsigned int equip[10]={EQP_HEAD_TOP,EQP_ARMOR,EQP_HAND_L,EQP_HAND_R,EQP_GARMENT,EQP_SHOES,EQP_ACC_L,EQP_ACC_R,EQP_HEAD_MID,EQP_HEAD_LOW};
 
@@ -7523,8 +7546,7 @@ BUILDIN_FUNC(getnpctimer)
 	if (!nd || nd->bl.type != BL_NPC)
 	{
 		script_pushint(st,0);
-		if (battle_config.error_log)
-			ShowError("getnpctimer: Invalid NPC\n");
+		ShowError("getnpctimer: Invalid NPC\n");
 		return 1;
 	}
 
@@ -7534,8 +7556,7 @@ BUILDIN_FUNC(getnpctimer)
 		if (nd->u.scr.rid) {
 			sd = map_id2sd(nd->u.scr.rid);
 			if (!sd) {
-				if(battle_config.error_log)
-					ShowError("buildin_getnpctimer: Attached player not found!\n");
+				ShowError("buildin_getnpctimer: Attached player not found!\n");
 				break;
 			}
 			val = (sd->npc_timer_id != -1);
@@ -8037,19 +8058,18 @@ BUILDIN_FUNC(sc_end)
 		bl = map_id2bl(potion_target);
 	}
 
-	if( bl )
-	{
-		if( type == SC_ENDURE )
-		{	//Required to terminate properly infinite endure.
-			struct status_change *sc = status_get_sc(bl);
-			if (sc) sc->data[type].val4 = 0;
-		}
-		if( type >= 0 )
-			status_change_end(bl, type, INVALID_TIMER);
-		else
-			status_change_clear(bl, 2);// remove all effects
-	}
+	if( !bl ) return 0;
 
+	if( type >= 0 && type < SC_MAX )
+	{
+		struct status_change *sc = status_get_sc(bl);
+		struct status_change_entry *sce = sc?sc->data[type]:NULL;
+		if (!sce) return 0;
+		//This should help status_change_end force disabling the SC in case it has no limit.
+		sce->val1 = sce->val2 = sce->val3 = sce->val4 = 0;
+		status_change_end(bl, type, INVALID_TIMER);
+	} else
+		status_change_clear(bl, 2);// remove all effects
 	return 0;
 }
 
@@ -10716,7 +10736,7 @@ BUILDIN_FUNC(getsavepoint)
 /*==========================================
   * Get position for  char/npc/pet/mob objects. Added by Lorky
   *
-  *     int getMapXY(MapName$,MaxX,MapY,type,[CharName$]);
+  *     int getMapXY(MapName$,MapX,MapY,type,[CharName$]);
   *             where type:
   *                     MapName$ - String variable for output map name
   *                     MapX     - Integer variable for output coord X
@@ -11219,11 +11239,11 @@ BUILDIN_FUNC(unequip)
 	size_t num;
 	TBL_PC *sd;
 
-	num = script_getnum(st,2) - 1;
-	sd=script_rid2sd(st);
-	if(sd!=NULL && num > 0 && num <= ARRAYLENGTH(equip))
+	num = script_getnum(st,2);
+	sd = script_rid2sd(st);
+	if( sd != NULL && num >= 1 && num <= ARRAYLENGTH(equip) )
 	{
-		i=pc_checkequip(sd,equip[num-1]);
+		i = pc_checkequip(sd,equip[num-1]);
 		if (i >= 0)
 			pc_unequipitem(sd,i,2);
 		return 0;
@@ -11242,8 +11262,7 @@ BUILDIN_FUNC(equip)
 	nameid=script_getnum(st,2);
 	if((item_data = itemdb_exists(nameid)) == NULL)
 	{
-		if(battle_config.error_log)
-			ShowError("wrong item ID : equipitem(%i)\n",nameid);
+		ShowError("wrong item ID : equipitem(%i)\n",nameid);
 		return 1;
 	}
 	for(i=0;i<MAX_INVENTORY && sd->status.inventory[i].nameid!=nameid;i++);
@@ -11303,20 +11322,56 @@ BUILDIN_FUNC(charisalpha)
 	return 0;
 }
 
-// [Lance]
-BUILDIN_FUNC(fakenpcname)
+/// Changes the display name and/or display class of the npc.
+/// Returns 0 is successful, 1 if the npc does not exist.
+///
+/// setnpcdisplay("<npc name>", "<new display name>", <new class id>) -> <int>
+/// setnpcdisplay("<npc name>", "<new display name>") -> <int>
+/// setnpcdisplay("<npc name>", <new class id>) -> <int>
+BUILDIN_FUNC(setnpcdisplay)
 {
-	const char *name;
-	const char *newname;
-	int look;
+	const char* name;
+	const char* newname = NULL;
+	int class_ = -1;
+	struct script_data* data;
+	struct npc_data* nd;
+
 	name = script_getstr(st,2);
-	newname = script_getstr(st,3);
-	look = script_getnum(st,4);
-	if(look > 32767 || look < -32768) {
-		ShowError("buildin_fakenpcname: Invalid look value %d\n",look);
-		return 1; // Safety measure to prevent runtime errors
+	data = script_getdata(st,3);
+	get_val(st, data);
+	if( script_hasdata(st,4) )
+	{
+		newname = conv_str(st,data);
+		class_ = script_getnum(st,4);
 	}
-	npc_changename(name,newname,(short)look);
+	else if( data_isstring(data) )
+	{
+		newname = conv_str(st,data);
+	}
+	else if( data_isint(data) )
+	{
+		class_ = conv_num(st,data);
+	}
+	else
+	{
+		ShowError("script:setnpcdisplay: expected a string or number\n");
+		script_reportdata(data);
+		return 1;
+	}
+
+	nd = npc_name2id(name);
+	if( nd == NULL )
+	{// not found
+		script_pushint(st,1);
+		return 0;
+	}
+
+	// update npc
+	if( newname )
+		npc_setdisplayname(nd, newname);
+	if( class_ != -1 )
+		npc_setclass(nd, class_);
+	script_pushint(st,0);
 	return 0;
 }
 
@@ -11461,7 +11516,7 @@ BUILDIN_FUNC(query_sql)
 
 	// Execute the query
 	query = script_getstr(st,2);
-	if( SQL_ERROR == Sql_Query(mmysql_handle, query) )
+	if( SQL_ERROR == Sql_QueryStr(mmysql_handle, query) )
 	{
 		Sql_ShowDebug(mmysql_handle);
 		script_pushint(st, 0);
@@ -11479,7 +11534,7 @@ BUILDIN_FUNC(query_sql)
 	num_cols = Sql_NumColumns(mmysql_handle);
 	if( num_vars < num_cols )
 	{
-		ShowWarning("script:query_sql: Too many columns, discarting last %u columns.\n", (unsigned int)(num_cols-num_vars));
+		ShowWarning("script:query_sql: Too many columns, discarding last %u columns.\n", (unsigned int)(num_cols-num_vars));
 		script_reportsrc(st);
 	}
 	else if( num_vars > num_cols )
@@ -11546,7 +11601,6 @@ BUILDIN_FUNC(getd)
 {
 	char varname[100];
 	const char *buffer;
-	//struct script_data dat;
 	int elem;
 
 	buffer = script_getstr(st, 2);
@@ -11555,8 +11609,7 @@ BUILDIN_FUNC(getd)
 		elem = 0;
 
 	// Push the 'pointer' so it's more flexible [Lance]
-	push_val(st->stack,C_NAME,
-				(elem<<24) | add_str(varname));
+	push_val(st->stack, C_NAME, (elem<<24) | add_str(varname));
 
 	return 0;
 }
@@ -11605,8 +11658,8 @@ BUILDIN_FUNC(callshop)
 	if( script_hasdata(st,3) )
 		flag = script_getnum(st,3);
 	nd = npc_name2id(shopname);
-	if (!nd || nd->bl.type!=BL_NPC || nd->bl.subtype!=SHOP) {
-		ShowError("buildin_callshop: Shop [%s] not found (or NPC is not shop type)", shopname);
+	if (!nd || nd->bl.type!=BL_NPC || nd->subtype!=SHOP) {
+		ShowError("buildin_callshop: Shop [%s] not found (or NPC is not shop type)\n", shopname);
 		script_pushint(st,0);
 		return 1;
 	}
@@ -11627,86 +11680,59 @@ BUILDIN_FUNC(callshop)
 	return 0;
 }
 
-#ifndef MAX_SHOPITEM
-	#define MAX_SHOPITEM 100
-#endif
 BUILDIN_FUNC(npcshopitem)
 {
-	struct npc_data *nd= NULL;
-	int n = 0;
-	int i = 3;
+	const char* npcname = script_getstr(st, 2);
+	struct npc_data* nd = npc_name2id(npcname);
+	int n, i;
 	int amount;
 
-	const char* npcname = script_getstr(st, 2);
-	nd = npc_name2id(npcname);
-
-	if(!nd || nd->bl.subtype!=SHOP)
+	if( !nd || nd->subtype != SHOP )
 	{	//Not found.
 		script_pushint(st,0);
 		return 0;
 	}
 
-	// st->end - 2 = nameid + value # ... / 2 = number of items ... + 1 to end it
-	amount = ((st->end-2)/2)+1;
+	// get the count of new entries
+	amount = (script_lastdata(st)-2)/2;
 
-	//Reinsert as realloc could change the pointer address.
-	map_deliddb(&nd->bl);
-	nd = (struct npc_data *)aRealloc(nd,sizeof(struct npc_data) +
-		sizeof(nd->u.shop_item[0]) * amount);
-	map_addiddb(&nd->bl);
-
-	// Reset sell list.
-	memset(nd->u.shop_item, 0, sizeof(nd->u.shop_item[0]) * amount);
-
-	n = 0;
-
-	while (script_hasdata(st,i)) {
-		nd->u.shop_item[n].nameid = script_getnum(st,i);
-		i++;
-		nd->u.shop_item[n].value = script_getnum(st,i);
-		i++;
-		n++;
+	// generate new shop item list
+	RECREATE(nd->u.shop.shop_item, struct npc_item_list, amount);
+	for( n = 0, i = 3; n < amount; n++, i+=2 )
+	{
+		nd->u.shop.shop_item[n].nameid = script_getnum(st,i);
+		nd->u.shop.shop_item[n].value = script_getnum(st,i+1);
 	}
+	nd->u.shop.count = n;
+
+	script_pushint(st,1);
 	return 0;
 }
 
 BUILDIN_FUNC(npcshopadditem)
 {
-	struct npc_data *nd=NULL;
-	int n = 0;
-	int i = 3;
+	const char* npcname = script_getstr(st,2);
+	struct npc_data* nd = npc_name2id(npcname);
+	int n, i;
 	int amount;
 
-	const char* npcname = script_getstr(st, 2);
-	nd = npc_name2id(npcname);
-
-	if (!nd || nd->bl.subtype!=SHOP)
+	if( !nd || nd->subtype != SHOP )
 	{	//Not found.
 		script_pushint(st,0);
 		return 0;
 	}
-	amount = ((st->end-2)/2)+1;
-	while (nd->u.shop_item[n].nameid && n < MAX_SHOPITEM)
-		n++;
 
+	// get the count of new entries
+	amount = (script_lastdata(st)-2)/2;
 
-	//Reinsert as realloc could change the pointer address.
-	map_deliddb(&nd->bl);
-	nd = (struct npc_data *)aRealloc(nd,sizeof(struct npc_data) +
-		sizeof(nd->u.shop_item[0]) * (amount+n));
-	map_addiddb(&nd->bl);
-
-	while(script_hasdata(st,i)){
-		nd->u.shop_item[n].nameid = script_getnum(st,i);
-		i++;
-		nd->u.shop_item[n].value = script_getnum(st,i);
-		i++;
-		n++;
+	// append new items to existing shop item list
+	RECREATE(nd->u.shop.shop_item, struct npc_item_list, nd->u.shop.count+amount);
+	for( n = nd->u.shop.count, i = 3; n < nd->u.shop.count+amount; n++, i+=2 )
+	{
+		nd->u.shop.shop_item[n].nameid = script_getnum(st,i);
+		nd->u.shop.shop_item[n].value = script_getnum(st,i+1);
 	}
-
-	// Marks the last of our stuff..
-	nd->u.shop_item[n].value = 0;
-	nd->u.shop_item[n].nameid = 0;
+	nd->u.shop.count = n;
 
 	script_pushint(st,1);
 	return 0;
@@ -11714,61 +11740,50 @@ BUILDIN_FUNC(npcshopadditem)
 
 BUILDIN_FUNC(npcshopdelitem)
 {
-	struct npc_data *nd=NULL;
-	int n=0;
-	int i=3;
-	int size = 0;
+	const char* npcname = script_getstr(st,2);
+	struct npc_data* nd = npc_name2id(npcname);
+	int n, i;
+	int amount;
+	int size;
 
-	const char* npcname = script_getstr(st, 2);
-	nd = npc_name2id(npcname);
-
-	if (!nd || nd->bl.subtype!=SHOP)
+	if( !nd || nd->subtype != SHOP )
 	{	//Not found.
 		script_pushint(st,0);
 		return 0;
 	}
 
-	while (nd->u.shop_item[size].nameid)
-		size++;
+	amount = script_lastdata(st)-2;
+	size = nd->u.shop.count;
 
-	while (script_hasdata(st,i)) {
-		for(n=0;nd->u.shop_item[n].nameid && n < MAX_SHOPITEM;n++) {
-			if (nd->u.shop_item[n].nameid == script_getnum(st,i)) {
-				// We're moving 1 extra empty block. Junk data is eliminated later.
-				memmove(&nd->u.shop_item[n], &nd->u.shop_item[n+1], sizeof(nd->u.shop_item[0])*(size-n));
-			}
+	// remove specified items from the shop item list
+	for( i = 3; i < 3 + amount; i++ )
+	{
+		ARR_FIND( 0, size, n, nd->u.shop.shop_item[n].nameid == script_getnum(st,i) );
+		if( n < size )
+		{
+			memmove(&nd->u.shop.shop_item[n], &nd->u.shop.shop_item[n+1], sizeof(nd->u.shop.shop_item[0])*(size-n));
+			size--;
 		}
-		i++;
 	}
 
-	size = 0;
-
-	while (nd->u.shop_item[size].nameid)
-		size++;
-
-	//Reinsert as realloc could change the pointer address.
-	map_deliddb(&nd->bl);
-	nd = (struct npc_data *)aRealloc(nd,sizeof(struct npc_data) +
-		sizeof(nd->u.shop_item[0]) * (size+1));
-	map_addiddb(&nd->bl);
+	RECREATE(nd->u.shop.shop_item, struct npc_item_list, size);
+	nd->u.shop.count = size;
 
 	script_pushint(st,1);
 	return 0;
 }
 
-//Sets a script to attach to an npc.
+//Sets a script to attach to a shop npc.
 BUILDIN_FUNC(npcshopattach)
 {
-	struct npc_data *nd=NULL;
-	const char* npcname = script_getstr(st, 2);
+	const char* npcname = script_getstr(st,2);
+	struct npc_data* nd = npc_name2id(npcname);
 	int flag = 1;
 
 	if( script_hasdata(st,3) )
 		flag = script_getnum(st,3);
 
-	nd = npc_name2id(npcname);
-
-	if (!nd || nd->bl.subtype!=SHOP)
+	if( !nd || nd->subtype != SHOP )
 	{	//Not found.
 		script_pushint(st,0);
 		return 0;
@@ -11778,6 +11793,7 @@ BUILDIN_FUNC(npcshopattach)
 		nd->master_nd = ((struct npc_data *)map_id2bl(st->oid));
 	else
 		nd->master_nd = NULL;
+
 	script_pushint(st,1);
 	return 0;
 }
@@ -12440,7 +12456,7 @@ BUILDIN_FUNC(getvariableofnpc)
 	}
 
 	nd = npc_name2id(script_getstr(st,3));
-	if( nd == NULL || nd->bl.subtype != SCRIPT || nd->u.scr.script == NULL )
+	if( nd == NULL || nd->subtype != SCRIPT || nd->u.scr.script == NULL )
 	{// NPC not found or has no script
 		ShowError("script:getvariableofnpc: can't find npc %s\n", script_getstr(st,3));
 		script_pushnil(st);
@@ -12561,6 +12577,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getguildmaster,"i"),
 	BUILDIN_DEF(getguildmasterid,"i"),
 	BUILDIN_DEF(strcharinfo,"i"),
+	BUILDIN_DEF(strnpcinfo,"i"),
 	BUILDIN_DEF(getequipid,"i"),
 	BUILDIN_DEF(getequipname,"i"),
 	BUILDIN_DEF(getbrokenid,"i"), // [Valaris]
@@ -12765,7 +12782,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unequip,"i"), // unequip command [Spectre]
 	BUILDIN_DEF(getstrlen,"s"), //strlen [Valaris]
 	BUILDIN_DEF(charisalpha,"si"), //isalpha [Valaris]
-	BUILDIN_DEF(fakenpcname,"ssi"), // [Lance]
+	BUILDIN_DEF(setnpcdisplay,"sv?"),
 	BUILDIN_DEF(compare,"ss"), // Lordalfa - To bring strstr to scripting Engine.
 	BUILDIN_DEF(getiteminfo,"ii"), //[Lupus] returns Items Buy / sell Price, etc info
 	BUILDIN_DEF(setiteminfo,"iii"), //[Lupus] set Items Buy / sell Price, etc info

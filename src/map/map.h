@@ -189,7 +189,7 @@ enum bl_type {
 #define BL_CHAR (BL_PC|BL_MOB|BL_HOM)
 #define BL_ALL 0xfff
 
-enum bl_subtype { WARP, SHOP, SCRIPT, MONS };
+enum npc_subtype { WARP, SHOP, SCRIPT };
 
 enum {
 	RC_FORMLESS=0,
@@ -233,7 +233,6 @@ struct block_list {
 	int id;
 	short m,x,y;
 	enum bl_type type;
-	enum bl_subtype subtype;
 };
 
 struct walkpath_data {
@@ -357,7 +356,7 @@ struct status_data {
 		size, race;
 	signed char
 		def, mdef;
-	struct weapon_atk rhw, *lhw; //Right Hand/Left Hand Weapon. Only players have a lhw (hence it's a pointer)
+	struct weapon_atk rhw, lhw; //Right Hand/Left Hand Weapon.
 };
 
 struct script_reg {
@@ -375,12 +374,17 @@ struct status_change_entry {
 };
 
 struct status_change {
-	struct status_change_entry data[SC_MAX];
-	short count;
+	unsigned int option;// effect state
+	unsigned int opt3;// skill state
 	unsigned short opt1;// body state
 	unsigned short opt2;// health state
-	unsigned int opt3;
-	unsigned int option;// effect state
+	unsigned char count;
+	//TODO: See if it is possible to implement the following SC's without requiring extra parameters while the SC is inactive.
+	unsigned char jb_flag; //Joint Beat type flag
+	unsigned short mp_matk_min, mp_matk_max; //Previous matk min/max for ground spells (Amplify magic power)
+	int sg_id; //ID of the previous Storm gust that hit you
+	unsigned char sg_counter; //Storm gust counter (previous hits from storm gust)
+	struct status_change_entry *data[SC_MAX];
 };
 
 struct s_vending {
@@ -505,7 +509,6 @@ struct map_session_data {
 	struct unit_data ud;
 	struct view_data vd;
 	struct status_data base_status, battle_status;
-	struct weapon_atk base_lhw, battle_lhw; //Left-hand weapon atk data.
 	struct status_change sc;
 	struct regen_data regen;
 	struct regen_data_sub sregen, ssregen;
@@ -818,6 +821,7 @@ struct npc_data {
 	struct unit_data  ud; //Because they need to be able to move....
 	struct view_data *vd;
 	struct status_change sc; //They can't have status changes, but.. they want the visual opt values.
+	struct npc_data *master_nd;
 	short n;
 	short class_;
 	short speed;
@@ -827,12 +831,11 @@ struct npc_data {
 	unsigned int next_walktime;
 
 	void* chatdb; // pointer to a npc_parse struct (see npc_chat.c)
-	struct npc_data *master_nd;
-
+	enum npc_subtype subtype;
 	union {
 		struct {
 			struct script_code *script;
-			short xs,ys;
+			short xs,ys; // OnTouch area radius
 			int guild_id;
 			int timer,timerid,timeramount,rid;
 			unsigned int timertick;
@@ -841,14 +844,16 @@ struct npc_data {
 			struct npc_label_list *label_list;
 			int src_id;
 		} scr;
-		struct npc_item_list shop_item[1];// dynamic array, allocated with extra entries (last one has nameid 0)
 		struct {
-			short xs,ys;
-			short x,y;
-			unsigned short mapindex;
+			struct npc_item_list* shop_item;
+			int count;
+		} shop;
+		struct {
+			short xs,ys; // OnTouch area radius
+			short x,y; // destination coords
+			unsigned short mapindex; // destination map
 		} warp;
 	} u;
-	//Do NOT place anything afterwards... shop data NPC will override any variables from here and on! [Skotlex]
 };
 
 //For quick linking to a guardian's info. [Skotlex]
@@ -920,8 +925,7 @@ struct mob_data {
 	unsigned int tdmg; //Stores total damage given to the mob, for exp calculations. [Skotlex]
 	int level;
 	int target_id,attacked_id;
-	unsigned int next_walktime;
-	unsigned int last_deadtime,last_spawntime,last_thinktime,last_linktime;
+	unsigned int next_walktime,last_thinktime,last_linktime;
 	short move_fail_count;
 	short lootitem_count;
 	short min_chase;
@@ -1320,6 +1324,7 @@ const char* map_charid2nick(int charid);
 struct map_session_data* map_charid2sd(int charid);
 
 struct map_session_data * map_id2sd(int);
+struct npc_data * map_id2nd(int);
 struct block_list * map_id2bl(int);
 
 #define map_id2index(id) map[(id)].index

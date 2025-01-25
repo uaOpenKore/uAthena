@@ -205,7 +205,9 @@ int pc_checkbaselevelup(struct map_session_data *sd);
 int pc_checkjoblevelup(struct map_session_data *sd);
 int pc_gainexp(struct map_session_data*,struct block_list*,unsigned int,unsigned int);
 unsigned int pc_nextbaseexp(struct map_session_data *);
+unsigned int pc_thisbaseexp(struct map_session_data *);
 unsigned int pc_nextjobexp(struct map_session_data *);
+unsigned int pc_thisjobexp(struct map_session_data *);
 int pc_need_status_point(struct map_session_data *,int);
 int pc_statusup(struct map_session_data*,int);
 int pc_statusup2(struct map_session_data*,int,int);
@@ -301,6 +303,16 @@ struct skill_tree_entry {
 	} need[5];
 }; // Celest
 extern struct skill_tree_entry skill_tree[CLASS_COUNT][MAX_SKILL_TREE];
+
+struct sg_data {
+	short anger_id;
+	short bless_id;
+	short comfort_id;
+	char feel_var[NAME_LENGTH];
+	char hate_var[NAME_LENGTH];
+	int (*day_func)(void);
+};
+extern const struct sg_data sg_info[3];
 
 int pc_read_gm_account(int fd);
 void pc_setinvincibletimer(struct map_session_data* sd, int val);

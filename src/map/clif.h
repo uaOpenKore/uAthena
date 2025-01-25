@@ -26,7 +26,16 @@ struct guild;
 #include <stdarg.h>
 
 // server->client protocol version
+// v0 - pre-?
+// v1 - ?                  - 0x196
+// v2 - ?                  - 0x78, 0x79
+// v3 - ?                  - 0x1c8, 0x1c9, 0x1de
+// v4 - ?                  - 0x1d7, 0x1d8, 0x1d9, 0x1da
+// v5 - 2003-12-18aSakexe+ - 0x1ee, 0x1ef, 0x1f0
+// v6 - 2004-03-02aSakexe+ - 0x1f4, 0x1f5
 // v7 - 2005-04-11aSakexe+ - 0x229, 0x22a, 0x22b, 0x22c
+// v8 - 2007-05-21aSakexe+ - 0x283
+// v9 - 2007-11-06aSakexe+ - 0x78, 0x7c, 0x22c
 #ifndef PACKETVER
 	#define PACKETVER	7
 #endif
@@ -166,7 +175,7 @@ void clif_hotkeys_send(struct map_session_data *sd);
 
 // trade
 void clif_traderequest(struct map_session_data* sd, const char* name);
-void clif_tradestart(struct map_session_data* sd, int type);
+void clif_tradestart(struct map_session_data* sd, uint8 type);
 void clif_tradeadditem(struct map_session_data* sd, struct map_session_data* tsd, int index, int amount);
 void clif_tradeitemok(struct map_session_data* sd, int index, int fail);
 void clif_tradedeal_lock(struct map_session_data* sd, int fail);
@@ -204,8 +213,8 @@ int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_
 int clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int y,int tick);
 int clif_skill_estimation(struct map_session_data *sd,struct block_list *dst);
 void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short skill_lv, unsigned short map1, unsigned short map2, unsigned short map3, unsigned short map4);
-int clif_skill_memo(struct map_session_data *sd,int flag);
-int clif_skill_teleportmessage(struct map_session_data *sd,int flag);
+void clif_skill_memomessage(struct map_session_data* sd, int type);
+void clif_skill_teleportmessage(struct map_session_data* sd, int type);
 int clif_skill_produce_mix_list(struct map_session_data *sd, int trigger);
 
 int clif_produceeffect(struct map_session_data* sd,int flag,int nameid);
@@ -322,7 +331,7 @@ void clif_MainChatMessage(const char* message); //luzza
 int clif_announce(struct block_list *bl, const char* mes, int len, unsigned long color, int flag);
 int clif_heal(int fd,int type,int val);
 int clif_resurrection(struct block_list *bl,int type);
-int clif_set0199(int fd,int type);
+void clif_set0199(struct map_session_data* sd, int mode);
 int clif_pvpset(struct map_session_data *sd, int pvprank, int pvpnum,int type);
 int clif_send0199(int map,int type);
 void clif_refine(int fd, int fail, int index, int val);

@@ -76,7 +76,6 @@ int merc_hom_dead(struct homun_data *hd, struct block_list *src)
 	if (!sd) //unit remove map will invoke unit free
 		return 3;
 
-	clif_hominfo(sd,hd,0); // Send dead flag
 	clif_emotion(&sd->bl, 28) ; //sob
 	//Remove from map (if it has no intimacy, it is auto-removed from memory)
 	return 3;
@@ -492,8 +491,7 @@ static int merc_hom_hungry(int tid,unsigned int tick,int id,int data)
 		return 1;
 
 	if(hd->hungry_timer != tid){
-		if(battle_config.error_log)
-			ShowError("merc_hom_hungry_timer %d != %d\n",hd->hungry_timer,tid);
+		ShowError("merc_hom_hungry_timer %d != %d\n",hd->hungry_timer,tid);
 		return 0;
 	}
 
@@ -609,7 +607,6 @@ int merc_hom_alloc(struct map_session_data *sd, struct s_homunculus *hom)
 		return 1;
 	}
 	sd->hd = hd = aCalloc(1,sizeof(struct homun_data));
-	hd->bl.subtype = MONS;
 	hd->bl.type = BL_HOM;
 	hd->bl.id = npc_get_new_npc_id();
 
@@ -718,11 +715,10 @@ int merc_hom_recv_data(int account_id, struct s_homunculus *sh, int flag)
 	{
 		map_addblock(&hd->bl);
 		clif_spawn(&hd->bl);
+		clif_send_homdata(sd,SP_ACK,0);
 		clif_hominfo(sd,hd,1);
 		clif_hominfo(sd,hd,0); // send this x2. dunno why, but kRO does that [blackhole89]
 		clif_homskillinfoblock(sd);
-		clif_hominfo(sd,hd,0);
-		clif_send_homdata(sd,SP_ACK,0);
 		merc_hom_init_timers(hd);
 	}
 	return 1;

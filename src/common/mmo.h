@@ -272,7 +272,7 @@ struct party_member {
 	unsigned short map;
 	unsigned short lv;
 	unsigned leader : 1,
-				online : 1;
+	         online : 1;
 };
 
 struct party {
@@ -399,7 +399,7 @@ enum {
 	GD_SKILLBASE=10000,
 	GD_APPROVAL=10000,
 	GD_KAFRACONTRACT=10001,
-	GD_GUARDIANRESEARCH=10002,
+	GD_GUARDRESEARCH=10002,
 	GD_GUARDUP=10003,
 	GD_EXTENSION=10004,
 	GD_GLORYGUILD=10005,

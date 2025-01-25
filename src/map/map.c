@@ -103,11 +103,11 @@ char *MSG_CONF_NAME;
 char *GRF_PATH_FILENAME;
 
 //  static?J?
-static struct dbt * id_db=NULL;// id -> struct block_list
-static struct dbt * pc_db=NULL;// id -> struct map_session_data
-static struct dbt * map_db=NULL;
-static struct dbt * nick_db=NULL;// charid -> struct charid2nick (requested names of offline characters)
-static struct dbt * charid_db=NULL;// charid -> struct map_session_data
+static DBMap* id_db=NULL; // int id -> struct block_list*
+static DBMap* pc_db=NULL; // int id -> struct map_session_data*
+static DBMap* map_db=NULL; // unsigned int mapindex -> struct map_data*
+static DBMap* nick_db=NULL; // int char_id -> struct charid2nick* (requested names of offline characters)
+static DBMap* charid_db=NULL; // int char_id -> struct map_session_data*
 
 static int map_users=0;
 static struct block_list *objects[MAX_FLOORITEM];
@@ -155,16 +155,11 @@ int console = 0;
 int enable_spy = 0; //To enable/disable @spy commands, which consume too much cpu time when sending packets. [Skotlex]
 
 /*==========================================
- * SmapI?v??
- * (charI)
+ * server player count (of all mapservers)
  *------------------------------------------*/
-void map_setusers(int fd)
+void map_setusers(int users)
 {
-	map_users = RFIFOL(fd,2);
-	// send some answer
-	WFIFOHEAD(fd, 2);
-	WFIFOW(fd,0) = 0x2718;
-	WFIFOSET(fd,2);
+	map_users = users;
 }
 
 /*==========================================
@@ -233,9 +228,7 @@ int map_freeblock (struct block_list *bl)
 		aFree(bl);
 		bl = NULL;
 		if (block_free_count >= block_free_max)
-			if (battle_config.error_log)
-				ShowWarning("map_freeblock: too many free block! %d %d\n",
-					block_free_count, block_free_lock);
+			ShowWarning("map_freeblock: too many free block! %d %d\n", block_free_count, block_free_lock);
 	} else
 		block_free[block_free_count++] = bl;
 
@@ -265,8 +258,7 @@ int map_freeblock_unlock (void)
 		}
 		block_free_count = 0;
 	} else if (block_free_lock < 0) {
-		if (battle_config.error_log)
-			ShowError("map_freeblock_unlock: lock count < 0 !\n");
+		ShowError("map_freeblock_unlock: lock count < 0 !\n");
 		block_free_lock = 0;
 	}
 
@@ -332,8 +324,7 @@ int map_addblock_sub (struct block_list *bl, int flag)
 	nullpo_retr(0, bl);
 
 	if (bl->prev != NULL) {
-		if(battle_config.error_log)
-			ShowError("map_addblock error : bl->prev != NULL\n");
+		ShowError("map_addblock: bl->prev != NULL\n");
 		return 0;
 	}
 
@@ -393,8 +384,7 @@ int map_delblock_sub (struct block_list *bl, int flag)
 	if (bl->prev == NULL) {
 		if (bl->next != NULL) {
 			// prevNULLnextNULLL
-			if(battle_config.error_log)
-				ShowError("map_delblock error : bl->next!=NULL\n");
+			ShowError("map_delblock error : bl->next!=NULL\n");
 		}
 		return 0;
 	}
@@ -453,17 +443,17 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 		skill_unit_move(bl,tick,2);
 		sc = status_get_sc(bl);
 		if (sc && sc->count) {
-			if (sc->data[SC_CLOSECONFINE].timer != -1)
+			if (sc->data[SC_CLOSECONFINE])
 				status_change_end(bl, SC_CLOSECONFINE, -1);
-			if (sc->data[SC_CLOSECONFINE2].timer != -1)
+			if (sc->data[SC_CLOSECONFINE2])
 				status_change_end(bl, SC_CLOSECONFINE2, -1);
-//			if (sc->data[SC_BLADESTOP].timer != -1) //Won't stop when you are knocked away, go figure...
+//			if (sc->data[SC_BLADESTOP]) //Won't stop when you are knocked away, go figure...
 //				status_change_end(bl, SC_BLADESTOP, -1);
-			if (sc->data[SC_BASILICA].timer != -1)
+			if (sc->data[SC_BASILICA])
 				status_change_end(bl, SC_BASILICA, -1);
-			if (sc->data[SC_TATAMIGAESHI].timer != -1)
+			if (sc->data[SC_TATAMIGAESHI])
 				status_change_end(bl, SC_TATAMIGAESHI, -1);
-			if (sc->data[SC_MAGICROD].timer != -1)
+			if (sc->data[SC_MAGICROD])
 				status_change_end(bl, SC_MAGICROD, -1);
 		}
 	}
@@ -481,12 +471,12 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 		skill_unit_move(bl,tick,3);
 		if (sc) {
 			if (sc->count) {
-				if (sc->data[SC_CLOAKING].timer != -1)
-					skill_check_cloaking(bl, sc);
-				if (sc->data[SC_DANCING].timer != -1)
-					skill_unit_move_unit_group((struct skill_unit_group *)sc->data[SC_DANCING].val2, bl->m, x1-x0, y1-y0);
-				if (sc->data[SC_WARM].timer != -1)
-					skill_unit_move_unit_group((struct skill_unit_group *)sc->data[SC_WARM].val4, bl->m, x1-x0, y1-y0);
+				if (sc->data[SC_CLOAKING])
+					skill_check_cloaking(bl, sc->data[SC_CLOAKING]);
+				if (sc->data[SC_DANCING])
+					skill_unit_move_unit_group((struct skill_unit_group *)sc->data[SC_DANCING]->val2, bl->m, x1-x0, y1-y0);
+				if (sc->data[SC_WARM])
+					skill_unit_move_unit_group((struct skill_unit_group *)sc->data[SC_WARM]->val4, bl->m, x1-x0, y1-y0);
 			}
 		}
 	}
@@ -637,10 +627,8 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list), struct block_lis
 			}
 		}
 
-	if(bl_list_count>=BL_LIST_MAX) {
-		if(battle_config.error_log)
-			ShowWarning("map_foreachinrange: block count too many!\n");
-	}
+	if(bl_list_count>=BL_LIST_MAX)
+		ShowWarning("map_foreachinrange: block count too many!\n");
 
 	map_freeblock_lock();	// ~
 
@@ -711,10 +699,8 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 			}
 		}
 
-	if(bl_list_count>=BL_LIST_MAX) {
-		if(battle_config.error_log)
+	if(bl_list_count>=BL_LIST_MAX)
 			ShowWarning("map_foreachinrange: block count too many!\n");
-	}
 
 	map_freeblock_lock();	// ~
 
@@ -785,10 +771,8 @@ int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, in
 			}
 		}
 
-	if(bl_list_count>=BL_LIST_MAX) {
-		if(battle_config.error_log)
-			ShowWarning("map_foreachinarea: block count too many!\n");
-	}
+	if(bl_list_count>=BL_LIST_MAX)
+		ShowWarning("map_foreachinarea: block count too many!\n");
 
 	map_freeblock_lock();	// ~
 
@@ -928,10 +912,8 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_
 
 	}
 
-	if(bl_list_count>=BL_LIST_MAX) {
-		if(battle_config.error_log)
-			ShowWarning("map_foreachinmovearea: block count too many!\n");
-	}
+	if(bl_list_count>=BL_LIST_MAX)
+		ShowWarning("map_foreachinmovearea: block count too many!\n");
 
 	map_freeblock_lock();	// ~
 
@@ -987,10 +969,8 @@ int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int
 		}
 	}
 
-	if(bl_list_count>=BL_LIST_MAX) {
-		if(battle_config.error_log)
-			ShowWarning("map_foreachincell: block count too many!\n");
-	}
+	if(bl_list_count>=BL_LIST_MAX)
+		ShowWarning("map_foreachincell: block count too many!\n");
 
 	map_freeblock_lock();	// ~
 
@@ -1183,10 +1163,8 @@ int map_foreachinpath(int (*func)(struct block_list*,va_list),int m,int x0,int y
 			}
 		}
 
-	if(bl_list_count>=BL_LIST_MAX) {
-		if(battle_config.error_log)
-			ShowWarning("map_foreachinpath: block count too many!\n");
-	}
+	if(bl_list_count>=BL_LIST_MAX)
+		ShowWarning("map_foreachinpath: block count too many!\n");
 
 	map_freeblock_lock();
 
@@ -1240,10 +1218,8 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type,..
 		}
 	}
 
-	if(bl_list_count>=BL_LIST_MAX) {
-		if(battle_config.error_log)
-			ShowWarning("map_foreachinmap: block count too many!\n");
-	}
+	if(bl_list_count>=BL_LIST_MAX)
+		ShowWarning("map_foreachinmap: block count too many!\n");
 
 	map_freeblock_lock();	// ~
 
@@ -1275,8 +1251,7 @@ int map_addobject(struct block_list *bl)
 		first_free_object_id=2;
 	for(i=first_free_object_id;i<MAX_FLOORITEM && objects[i];i++);
 	if(i>=MAX_FLOORITEM){
-		if(battle_config.error_log)
-			ShowWarning("no free object id\n");
+		ShowWarning("no free object id\n");
 		return 0;
 	}
 	first_free_object_id=i;
@@ -1346,8 +1321,7 @@ void map_foreachobject(int (*func)(struct block_list*,va_list),int type,...)
 			if(!(objects[i]->type==type)) // Fixed [Lance]
 				continue;
 			if(bl_list_count>=BL_LIST_MAX) {
-				if(battle_config.error_log)
-					ShowWarning("map_foreachobject: too many blocks !\n");
+				ShowWarning("map_foreachobject: too many blocks !\n");
 				break;
 			}
 			bl_list[bl_list_count++]=objects[i];
@@ -1380,8 +1354,7 @@ int map_clearflooritem_timer(int tid,unsigned int tick,int id,int data)
 
 	fitem = (struct flooritem_data *)objects[id];
 	if(fitem==NULL || fitem->bl.type!=BL_ITEM || (!data && fitem->cleartimer != tid)){
-		if(battle_config.error_log)
-			ShowError("map_clearflooritem_timer : error\n");
+		ShowError("map_clearflooritem_timer : error\n");
 		return 1;
 	}
 	if(data)
@@ -1777,6 +1750,12 @@ struct map_session_data * map_id2sd(int id)
 	return (struct map_session_data*)idb_get(pc_db,id);
 }
 
+struct npc_data * map_id2nd(int id)
+{// just a id2bl lookup because there's no npc_db
+	if (id <= 0) return NULL;
+	return (struct npc_data*)map_id2bl(id);
+}
+
 /// Returns the nick of the target charid or NULL if unknown (requests the nick to the char server).
 const char* map_charid2nick(int charid)
 {
@@ -1936,8 +1915,7 @@ int map_addnpc(int m,struct npc_data *nd)
 		if(map[m].npc[i]==NULL)
 			break;
 	if(i==MAX_NPC_PER_MAP){
-		if(battle_config.error_log)
-			ShowWarning("too many NPCs in one map %s\n",map[m].name);
+		ShowWarning("too many NPCs in one map %s\n",map[m].name);
 		return -1;
 	}
 	if(i==map[m].npc_num){
@@ -1963,7 +1941,7 @@ void map_removenpc(void)
 				clif_clearunit_area(&map[m].npc[i]->bl,2);
 				map_delblock(&map[m].npc[i]->bl);
 				idb_remove(id_db,map[m].npc[i]->bl.id);
-				if(map[m].npc[i]->bl.subtype==SCRIPT) {
+				if(map[m].npc[i]->subtype==SCRIPT) {
 					aFree(map[m].npc[i]->u.scr.script);
 					aFree(map[m].npc[i]->u.scr.label_list);
 				}
@@ -2044,14 +2022,12 @@ int map_removemobs_timer(int tid, unsigned int tick, int id, int data)
 	int k;
 	if (id < 0 || id >= MAX_MAP_PER_SERVER)
 	{	//Incorrect map id!
-		if (battle_config.error_log)
-			ShowError("map_removemobs_timer error: timer %d points to invalid map %d\n",tid, id);
+		ShowError("map_removemobs_timer error: timer %d points to invalid map %d\n",tid, id);
 		return 0;
 	}
 	if (map[id].mob_delete_timer != tid)
 	{	//Incorrect timer call!
-		if (battle_config.error_log)
-			ShowError("map_removemobs_timer mismatch: %d != %d (map %s)\n",map[id].mob_delete_timer, tid, map[id].name);
+		ShowError("map_removemobs_timer mismatch: %d != %d (map %s)\n",map[id].mob_delete_timer, tid, map[id].name);
 		return 0;
 	}
 	map[id].mob_delete_timer = -1;
@@ -3415,6 +3391,7 @@ void do_final(void)
 	do_final_mob();
 	do_final_msg();
 	do_final_skill();
+	do_final_status();
 	do_final_unit();
 
 	map_getallusers(NULL); //Clear the memory allocated for this array.
@@ -3619,11 +3596,11 @@ int do_init(int argc, char *argv[])
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
 
-	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
-	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
-	map_db = db_alloc(__FILE__,__LINE__,DB_UINT,DB_OPT_BASE,sizeof(int));
-	nick_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
-	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
+	id_db = idb_alloc(DB_OPT_BASE);
+	pc_db = idb_alloc(DB_OPT_BASE);	//Added for reliable map_id2sd() use. [Skotlex]
+	map_db = uidb_alloc(DB_OPT_BASE);
+	nick_db = idb_alloc(DB_OPT_BASE);
+	charid_db = idb_alloc(DB_OPT_BASE);
 #ifndef TXT_ONLY
 	map_sql_init();
 #endif /* not TXT_ONLY */

@@ -20,8 +20,8 @@ extern unsigned long StatusChangeFlagTable[];
 // Status changes listing. These code are for use by the server.
 enum sc_type {
 	//First we enumerate common status ailments which are often used around.
-	SC_COMMON_MIN = 0, // begin
 	SC_STONE = 0,
+	SC_COMMON_MIN = 0, // begin
 	SC_FREEZE,
 	SC_STUN,
 	SC_SLEEP,
@@ -272,10 +272,10 @@ enum sc_type {
 	SC_MAGICMIRROR,
 	SC_SLOWCAST,
 	SC_SUMMER,
-	SC_EXPBOOST, // Field Guide
-	SC_ITEMBOOST, // Bubble Gum
-	SC_BOSSMAPINFO, // Convex Mirror
-	SC_LIFEINSURANCE, // Life Insurance
+	SC_EXPBOOST,
+	SC_ITEMBOOST,
+	SC_BOSSMAPINFO,
+	SC_LIFEINSURANCE, //260
 	SC_INCCRI,
 	SC_INCDEF,
 	SC_INCBASEATK,
@@ -594,11 +594,9 @@ int status_set_sp(struct block_list *bl, unsigned int sp, int flag);
 int status_heal(struct block_list *bl,int hp,int sp, int flag);
 int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per_sp);
 
-//Define for copying a status_data structure from b to a, without overwriting current Hp and Sp, nor messing the lhw pointer.
-#define status_cpy(a, b) { \
-	memcpy(&((a)->max_hp), &((b)->max_hp), sizeof(struct status_data)-(sizeof((a)->hp)+sizeof((a)->sp)+sizeof((a)->lhw))); \
-	if ((a)->lhw && (b)->lhw) { memcpy((a)->lhw, (b)->lhw, sizeof(struct weapon_atk)); } \
-}
+//Define for copying a status_data structure from b to a, without overwriting current Hp and Sp
+#define status_cpy(a, b) \
+	memcpy(&((a)->max_hp), &((b)->max_hp), sizeof(struct status_data)-(sizeof((a)->hp)+sizeof((a)->sp)))
 
 struct regen_data *status_get_regen_data(struct block_list *bl);
 struct status_data *status_get_status_data(struct block_list *bl);
@@ -619,7 +617,7 @@ int status_get_lv(struct block_list *bl);
 #define status_get_luk(bl) status_get_status_data(bl)->luk
 #define status_get_hit(bl) status_get_status_data(bl)->hit
 #define status_get_flee(bl) status_get_status_data(bl)->flee
-unsigned char status_get_def(struct block_list *bl);
+signed char status_get_def(struct block_list *bl);
 #define status_get_mdef(bl) status_get_status_data(bl)->mdef
 #define status_get_flee2(bl) status_get_status_data(bl)->flee2
 #define status_get_def2(bl) status_get_status_data(bl)->def2
@@ -630,8 +628,8 @@ unsigned char status_get_def(struct block_list *bl);
 #define status_get_watk2(bl) status_get_status_data(bl)->rhw.atk2
 #define status_get_matk_max(bl) status_get_status_data(bl)->matk_max
 #define status_get_matk_min(bl) status_get_status_data(bl)->matk_min
-unsigned short status_get_lwatk(struct block_list *bl);
-unsigned short status_get_lwatk2(struct block_list *bl);
+#define status_get_lwatk(bl) status_get_status_data(bl)->lhw.atk
+#define status_get_lwatk2(bl) status_get_status_data(bl)->lhw.atk2
 unsigned short status_get_speed(struct block_list *bl);
 #define status_get_adelay(bl) status_get_status_data(bl)->adelay
 #define status_get_amotion(bl) status_get_status_data(bl)->amotion
@@ -641,7 +639,7 @@ unsigned short status_get_speed(struct block_list *bl);
 unsigned char status_calc_attack_element(struct block_list *bl, struct status_change *sc, int element);
 #define status_get_attack_sc_element(bl, sc) status_calc_attack_element(bl, sc, 0)
 #define status_get_attack_element(bl) status_get_status_data(bl)->rhw.ele
-unsigned char status_get_attack_lelement(struct block_list *bl);
+#define status_get_attack_lelement(bl) status_get_status_data(bl)->lhw.ele
 #define status_get_race(bl) status_get_status_data(bl)->race
 #define status_get_size(bl) status_get_status_data(bl)->size
 #define status_get_mode(bl) status_get_status_data(bl)->mode
@@ -689,5 +687,6 @@ int status_check_visibility(struct block_list *src, struct block_list *target); 
 
 int status_readdb(void);
 int do_init_status(void);
+void do_final_status(void);
 
 #endif /* _STATUS_H_ */

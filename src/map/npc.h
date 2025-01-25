@@ -60,7 +60,8 @@ int npc_globalmessage(const char* name,const char* mes);
 void npc_setcells(struct npc_data* nd);
 void npc_movenpc(struct npc_data* nd, int x, int y);
 int npc_enable(const char* name, int flag);
-int npc_changename(const char* name, const char* newname, short look); // [Lance]
+void npc_setdisplayname(struct npc_data* nd, const char* newname);
+void npc_setclass(struct npc_data* nd, short class_);
 struct npc_data* npc_name2id(const char* name);
 
 int npc_get_new_npc_id(void);
@@ -89,6 +90,6 @@ int npc_reload(void);
 void npc_read_event_script(void);
 int npc_script_event(struct map_session_data* sd, int type);
 
-struct npc_data *fake_nd;
+extern struct npc_data* fake_nd;
 
 #endif /* _NPC_H_ */

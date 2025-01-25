@@ -16,7 +16,7 @@
 #include <string.h>
 
 
-static struct dbt* item_db;
+static DBMap* item_db;
 
 static struct item_group itemgroup_db[MAX_ITEMGROUP];
 
@@ -87,15 +87,13 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 int itemdb_searchrandomid(int group)
 {
 	if(group<1 || group>=MAX_ITEMGROUP) {
-		if (battle_config.error_log)
-			ShowError("itemdb_searchrandomid: Invalid group id %d\n", group);
+		ShowError("itemdb_searchrandomid: Invalid group id %d\n", group);
 		return UNKNOWN_ITEM_ID;
 	}
 	if (itemgroup_db[group].qty)
 		return itemgroup_db[group].nameid[rand()%itemgroup_db[group].qty];
-	
-	if (battle_config.error_log)
-		ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group);
+
+	ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group);
 	return UNKNOWN_ITEM_ID;
 }
 
@@ -235,8 +233,7 @@ struct item_data* itemdb_load(int nameid)
 
 static void* return_dummy_data(DBKey key, va_list args)
 {
-	if (battle_config.error_log)
-		ShowWarning("itemdb_search: Item ID %d does not exists in the item_db. Using dummy data.\n", key.i);
+	ShowWarning("itemdb_search: Item ID %d does not exists in the item_db. Using dummy data.\n", key.i);
 	dummy_item.nameid = key.i;
 	return &dummy_item;
 }
@@ -945,7 +942,7 @@ void do_final_itemdb(void)
 
 int do_init_itemdb(void)
 {
-	item_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int)); 
+	item_db = idb_alloc(DB_OPT_BASE);
 	create_dummy_data(); //Dummy data item.
 	itemdb_read();
 
