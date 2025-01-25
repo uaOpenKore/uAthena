@@ -188,15 +188,15 @@ struct online_char_data {
 	int char_id;
 	int fd;
 	int waiting_disconnect;
-	short server;
+	short server; // -2: unknown server, -1: not connected, 0+: id of server
 };
 
 struct dbt *online_char_db; //Holds all online characters.
 
-static void * create_online_char_data(DBKey key, va_list args)
+static void* create_online_char_data(DBKey key, va_list args)
 {
 	struct online_char_data* character;
-	character = aCalloc(1, sizeof(struct online_char_data));
+	CREATE(character, struct online_char_data, 1);
 	character->account_id = key.i;
 	character->char_id = -1;
 	character->server = -1;
@@ -460,8 +460,8 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 	char esc_name[NAME_LENGTH*2+1];
 
 	Sql_EscapeStringLen(sql_handle, esc_name, p->name, strnlen(p->name, NAME_LENGTH));
-	if( SQL_ERROR == Sql_Query(sql_handle, "REPLACE INTO `%s` (`account_id`, `char_num`, `name`)  VALUES ('%d', '%d', '%s')",
-		char_db, p->account_id, p->slot, esc_name) )
+	if( SQL_ERROR == Sql_Query(sql_handle, "REPLACE INTO `%s` (`char_id`, `account_id`, `char_num`, `name`)  VALUES ('%d', '%d', '%d', '%s')",
+		char_db, p->char_id, p->account_id, p->slot, esc_name) )
 	{
 		Sql_ShowDebug(sql_handle);
 	}
@@ -761,7 +761,7 @@ int memitemdata_to_sql(const struct item items[], int max, int id, int tableswit
 						tablename, items[i].amount, items[i].equip, items[i].identify, items[i].refine, items[i].attribute);
 					for( j = 0; j < MAX_SLOTS; ++j )
 						StringBuf_Printf(&buf, ", `card%d`=%d", j, items[i].card[j]);
-					StringBuf_Printf(&buf, ", `amount`='%d' WHERE `id`='%d' LIMIT 1", items[i].amount, item.id);
+					StringBuf_Printf(&buf, " WHERE `id`='%d' LIMIT 1", item.id);
 
 					if( SQL_ERROR == Sql_QueryStr(sql_handle, StringBuf_Value(&buf)) )
 						Sql_ShowDebug(sql_handle);
@@ -814,7 +814,83 @@ int memitemdata_to_sql(const struct item items[], int max, int id, int tableswit
 	return 0;
 }
 
+int mmo_char_tobuf(uint8* buf, struct mmo_charstatus* p);
+
 #ifndef TXT_SQL_CONVERT
+//=====================================================================================================
+// Loads the basic character rooster for the given account. Returns total buffer used.
+int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
+{
+	SqlStmt* stmt;
+	struct mmo_charstatus p;
+	int j = 0, i;
+
+	stmt = SqlStmt_Malloc(sql_handle);
+	if( stmt == NULL )
+	{
+		SqlStmt_ShowDebug(stmt);
+		return 0;
+	}
+	memset(&p, 0, sizeof(p));
+
+	// read char data
+	if( SQL_ERROR == SqlStmt_Prepare(stmt, "SELECT "
+		"`char_id`,`char_num`,`name`,`class`,`base_level`,`job_level`,`base_exp`,`job_exp`,`zeny`,"
+		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
+		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
+		"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`"
+		" FROM `%s` WHERE `account_id`='%d' AND `char_num` < '%d'", char_db, sd->account_id, MAX_CHARS)
+	||	SQL_ERROR == SqlStmt_Execute(stmt)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 0,  SQLDT_INT,    &p.char_id, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 1,  SQLDT_UCHAR,  &p.slot, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 2,  SQLDT_STRING, &p.name, sizeof(p.name), NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 3,  SQLDT_SHORT,  &p.class_, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 4,  SQLDT_UINT,   &p.base_level, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 5,  SQLDT_UINT,   &p.job_level, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 6,  SQLDT_UINT,   &p.base_exp, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 7,  SQLDT_UINT,   &p.job_exp, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 8,  SQLDT_INT,    &p.zeny, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 9,  SQLDT_SHORT,  &p.str, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 10, SQLDT_SHORT,  &p.agi, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 11, SQLDT_SHORT,  &p.vit, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 12, SQLDT_SHORT,  &p.int_, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 13, SQLDT_SHORT,  &p.dex, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 14, SQLDT_SHORT,  &p.luk, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 15, SQLDT_INT,    &p.max_hp, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 16, SQLDT_INT,    &p.hp, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 17, SQLDT_INT,    &p.max_sp, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 18, SQLDT_INT,    &p.sp, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 19, SQLDT_USHORT, &p.status_point, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 20, SQLDT_USHORT, &p.skill_point, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 21, SQLDT_UINT,   &p.option, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 22, SQLDT_UCHAR,  &p.karma, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 23, SQLDT_SHORT,  &p.manner, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 24, SQLDT_SHORT,  &p.hair, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 25, SQLDT_SHORT,  &p.hair_color, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 26, SQLDT_SHORT,  &p.clothes_color, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 27, SQLDT_SHORT,  &p.weapon, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 28, SQLDT_SHORT,  &p.shield, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 29, SQLDT_SHORT,  &p.head_top, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 30, SQLDT_SHORT,  &p.head_mid, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 31, SQLDT_SHORT,  &p.head_bottom, 0, NULL, NULL)
+	)
+	{
+		SqlStmt_ShowDebug(stmt);
+		SqlStmt_Free(stmt);
+		return 0;
+	}
+	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++ )
+	{
+		sd->found_char[i] = p.char_id;
+		j += mmo_char_tobuf(WBUFP(buf, j), &p);
+	}
+	for( ; i < MAX_CHARS; i++ )
+		sd->found_char[i] = -1;
+
+	SqlStmt_Free(stmt);
+	return j;
+}
+
 //=====================================================================================================
 int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything)
 {
@@ -1087,53 +1163,31 @@ int mmo_char_sql_init(void)
 	return 0;
 }
 
-//==========================================================================================================
-
+//-----------------------------------
+// Function to create a new character
+//-----------------------------------
 int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
 {
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1];
 	unsigned int i;
 	int char_id;
-	bool valid;
 
 	safestrncpy(name, name_, NAME_LENGTH);
 	normalize_name(name,TRIM_CHARS);
 	Sql_EscapeStringLen(sql_handle, esc_name, name, strnlen(name, NAME_LENGTH));
 
-	ShowInfo("New character request (%d)\n", sd->account_id);
-
-	// check the number of already existing chars in this account
-	if( char_per_account != 0 ) {
-		if( SQL_ERROR == Sql_Query(sql_handle, "SELECT 1 FROM `%s` WHERE `account_id` = '%d'", char_db, sd->account_id) )
-			Sql_ShowDebug(sql_handle);
-		if( Sql_NumRows(sql_handle) >= char_per_account ) {
-			ShowInfo("Create char failed (%d): charlimit exceeded.\n", sd->account_id);
-			Sql_FreeResult(sql_handle);
-			return -2;
-		}
-	}
-
-	// check char slot.
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT 1 FROM `%s` WHERE `account_id` = '%d' AND `char_num` = '%d'", char_db, sd->account_id, slot) )
-		Sql_ShowDebug(sql_handle);
-	if( Sql_NumRows(sql_handle) > 0 )
-	{
-		ShowWarning("Create char failed (%d, slot: %d), slot already in use\n", sd->account_id, slot);
-		return -2;
-	}
-
 	// check length of character name
-	if( name[0] == '\0' ) {
-		ShowInfo("Create char failed (empty character name): (connection #%d, account: %d).\n", sd->fd, sd->account_id);
-		return -2;
-	}
+	if( name[0] == '\0' )
+		return -2; // empty character name
 
-	// check name != main chat nick [LuzZza]
-	if( strcmpi(name, main_chat_nick) == 0 ) {
-		ShowInfo("Create char failed (%d): this nick (%s) reserved for mainchat messages.\n", sd->account_id, name);
-		return -2;
-	}
+	// check content of character name
+	if( remove_control_chars(name) )
+		return -2; // control chars in name
+
+	// check for reserved names
+	if( strcmpi(name, main_chat_nick) == 0 || strcmpi(name, wisp_server_name) == 0 )
+		return -1; // nick reserved for internal server messages
 
 	// Check Authorised letters/symbols in the name of the character
 	if( char_name_option == 1 ) { // only letters/symbols in char_name_letters are authorised
@@ -1152,10 +1206,8 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 		Sql_ShowDebug(sql_handle);
 		return -2;
 	}
-	if( Sql_NumRows(sql_handle) > 0 ) {
-		ShowInfo("Create char failed: charname already in use\n");
-		return -1;
-	}
+	if( Sql_NumRows(sql_handle) > 0 )
+		return -1; //  name already exists
 
 	//check other inputs
 	if((slot >= MAX_CHARS) // slots
@@ -1164,24 +1216,31 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 	|| (str + agi + vit + int_ + dex + luk != 6*5 ) // stats
 	|| (str < 1 || str > 9 || agi < 1 || agi > 9 || vit < 1 || vit > 9 || int_ < 1 || int_ > 9 || dex < 1 || dex > 9 || luk < 1 || luk > 9) // individual stat values
 	|| (str + int_ != 10 || agi + luk != 10 || vit + dex != 10) ) // pairs
-		valid = false;
-	else
-		valid = true;
+		return -2; // invalid input
 
-	// log result
+	// check the number of already existing chars in this account
+	if( char_per_account != 0 ) {
+		if( SQL_ERROR == Sql_Query(sql_handle, "SELECT 1 FROM `%s` WHERE `account_id` = '%d'", char_db, sd->account_id) )
+			Sql_ShowDebug(sql_handle);
+		if( Sql_NumRows(sql_handle) >= char_per_account )
+			return -2; // character account limit exceeded
+	}
+
+	// check char slot
+	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT 1 FROM `%s` WHERE `account_id` = '%d' AND `char_num` = '%d'", char_db, sd->account_id, slot) )
+		Sql_ShowDebug(sql_handle);
+	if( Sql_NumRows(sql_handle) > 0 )
+		return -2; // slot already in use
+
+	// validation success, log result
 	if (log_char) {
 		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`time`, `char_msg`,`account_id`,`char_num`,`name`,`str`,`agi`,`vit`,`int`,`dex`,`luk`,`hair`,`hair_color`)"
 			"VALUES (NOW(), '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
-			charlog_db,(valid?"make new char":"make new char error"), sd->account_id, slot, esc_name, str, agi, vit, int_, dex, luk, hair_style, hair_color) )
+			charlog_db, "make new char", sd->account_id, slot, esc_name, str, agi, vit, int_, dex, luk, hair_style, hair_color) )
 			Sql_ShowDebug(sql_handle);
 	}
 
-	if( !valid ) {
-		ShowWarning("Create char failed (%d): stats error (bot cheat?!)\n", sd->account_id);
-		return -2;
-	}
-
-	//Insert the char to the 'chardb' ^^
+	//Insert the new char entry to the database
 	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `zeny`, `str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
 		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`) VALUES ("
 		"'%d', '%d', '%s', '%d',  '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d')",
@@ -1192,10 +1251,9 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 		Sql_ShowDebug(sql_handle);
 		return -2; //No, stop the procedure!
 	}
-	//Now we need the charid from sql!
+	//Retrieve the newly auto-generated char id
 	char_id = (int)Sql_LastInsertId(sql_handle);
 	//Give the char the default items
-	//`inventory` (`id`,`char_id`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`, `card0`, `card1`, `card2`, `card3`)
 	if (start_weapon > 0) { //add Start Weapon (Knife?)
 		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `equip`, `identify`) VALUES ('%d', '%d', '%d', '%d', '%d')", inventory_db, char_id, start_weapon, 1, 0x02, 1) )
 			Sql_ShowDebug(sql_handle);
@@ -1421,39 +1479,86 @@ int mmo_char_tobuf(uint8* buf, struct mmo_charstatus* p)
 
 int mmo_char_send006b(int fd, struct char_session_data* sd)
 {
-	int i, j, found_num = 0;
-	char* data;
+	int j;
 
 	set_char_online(-1, 99, sd->account_id);
-
-	// load the char_ids of all chars on this account
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `char_id` FROM `%s` WHERE `account_id` = '%d' AND `char_num` < '%d'", char_db, sd->account_id, MAX_CHARS) )
-		Sql_ShowDebug(sql_handle);
-	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == Sql_NextRow(sql_handle); ++i )
-	{
-		Sql_GetData(sql_handle, 0, &data, NULL); sd->found_char[i] = atoi(data); // char_id
-	}
-	found_num = i;
-	for( ; i < MAX_CHARS; ++i )
-		sd->found_char[i] = -1;
 
 	if (save_log)
 		ShowInfo("Loading Char Data ("CL_BOLD"%d"CL_RESET")\n",sd->account_id);
 
-
 	j = 24; // offset
-	WFIFOHEAD(fd,j + found_num*108); // or 106(!)
+	WFIFOHEAD(fd,j + MAX_CHARS*108); // or 106(!)
 	WFIFOW(fd,0) = 0x6b;
 	memset(WFIFOP(fd,4), 0, 20); // unknown bytes
-	for(i = 0; i < found_num; i++)
-	{
-		struct mmo_charstatus char_dat;
-		mmo_char_fromsql(sd->found_char[i], &char_dat, false);
-		j += mmo_char_tobuf(WFIFOP(fd,j), &char_dat);
-	}
+	j+=mmo_chars_fromsql(sd, WFIFOP(fd,j));
 	WFIFOW(fd,2) = j; // packet len
 	WFIFOSET(fd,j);
 
+	return 0;
+}
+
+int char_married(int pl1, int pl2)
+{
+	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `partner_id` FROM `%s` WHERE `char_id` = '%d'", char_db, pl1) )
+		Sql_ShowDebug(sql_handle);
+	else if( SQL_SUCCESS == Sql_NextRow(sql_handle) )
+	{
+		char* data;
+
+		Sql_GetData(sql_handle, 0, &data, NULL);
+		if( pl2 == atoi(data) )
+		{
+			Sql_FreeResult(sql_handle);
+			return 1;
+		}
+	}
+	Sql_FreeResult(sql_handle);
+	return 0;
+}
+
+int char_child(int parent_id, int child_id)
+{
+	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `child` FROM `%s` WHERE `char_id` = '%d'", char_db, parent_id) )
+		Sql_ShowDebug(sql_handle);
+	else if( SQL_SUCCESS == Sql_NextRow(sql_handle) )
+	{
+		char* data;
+
+		Sql_GetData(sql_handle, 0, &data, NULL);
+		if( child_id == atoi(data) )
+		{
+			Sql_FreeResult(sql_handle);
+			return 1;
+		}
+	}
+	Sql_FreeResult(sql_handle);
+	return 0;
+}
+
+int char_family(int pl1, int pl2, int pl3)
+{
+	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `char_id`,`partner_id`,`child` FROM `%s` WHERE `char_id` IN ('%d','%d','%d')", char_db, pl1, pl2, pl3) )
+		Sql_ShowDebug(sql_handle);
+	else while( SQL_SUCCESS == Sql_NextRow(sql_handle) )
+	{
+		int charid;
+		int partnerid;
+		int childid;
+		char* data;
+
+		Sql_GetData(sql_handle, 0, &data, NULL); charid = atoi(data);
+		Sql_GetData(sql_handle, 1, &data, NULL); partnerid = atoi(data);
+		Sql_GetData(sql_handle, 2, &data, NULL); childid = atoi(data);
+
+		if( (pl1 == charid    && ((pl2 == partnerid && pl3 == childid  ) || (pl2 == childid   && pl3 == partnerid))) ||
+			(pl1 == partnerid && ((pl2 == charid    && pl3 == childid  ) || (pl2 == childid   && pl3 == charid   ))) ||
+			(pl1 == childid   && ((pl2 == charid    && pl3 == partnerid) || (pl2 == partnerid && pl3 == charid   ))) )
+		{
+			Sql_FreeResult(sql_handle);
+			return childid;
+		}
+	}
+	Sql_FreeResult(sql_handle);
 	return 0;
 }
 
@@ -1508,9 +1613,10 @@ int parse_fromlogin(int fd)
 {
 	int i;
 	struct char_session_data *sd;
+
 	// only login-server can have an access to here.
 	// so, if it isn't the login-server, we disconnect the session.
-	if(fd != login_fd)
+	if( fd != login_fd )
 		set_eof(fd);
 	if(session[fd]->eof) {
 		if (fd == login_fd) {
@@ -1570,7 +1676,7 @@ int parse_fromlogin(int fd)
 					WFIFOB(i,2) = 0x42;
 					WFIFOSET(i,3);
 				} else { // success
-					memcpy(sd->email, RFIFOP(fd, 7), 40);
+					memcpy(sd->email, RFIFOP(fd,7), 40);
 					sd->connect_until_time = (time_t)RFIFOL(fd,47);
 					char_auth_ok(i, sd);
 				}
@@ -2082,10 +2188,11 @@ int parse_frommap(int fd)
 			if (max_account_id != DEFAULT_MAX_ACCOUNT_ID || max_char_id != DEFAULT_MAX_CHAR_ID)
 				mapif_send_maxid(max_account_id, max_char_id); //Send the current max ids to the server to keep in sync [Skotlex]
 
+			// send name for wisp to player
 			WFIFOHEAD(fd, 3 + NAME_LENGTH);
 			WFIFOW(fd,0) = 0x2afb;
 			WFIFOB(fd,2) = 0;
-			memcpy(WFIFOP(fd,3), wisp_server_name, NAME_LENGTH); // name for wisp to player
+			memcpy(WFIFOP(fd,3), wisp_server_name, NAME_LENGTH);
 			WFIFOSET(fd,3+NAME_LENGTH);
 
 			char_send_fame_list(fd); //Send fame list.
@@ -2469,8 +2576,6 @@ int parse_frommap(int fd)
 		}
 		break;
 
-//		case 0x2b0f: Not used anymore, available for future use
-
 		case 0x2b10: // Update and send fame ranking list
 			if (RFIFOREST(fd) < 11)
 				return 0;
@@ -2557,7 +2662,7 @@ int parse_frommap(int fd)
 		break;
 
 		case 0x2b19: // Character set online [Wizputer]
-			if (RFIFOREST(fd) < 6)
+			if (RFIFOREST(fd) < 10)
 				return 0;
 			set_char_online(id, RFIFOL(fd,2),RFIFOL(fd,6));
 			RFIFOSKIP(fd,10);
@@ -2605,6 +2710,13 @@ int parse_frommap(int fd)
 #endif
 			RFIFOSKIP(fd, RFIFOW(fd, 2));
 		}
+		break;
+
+		case 0x2b23: // map-server alive packet
+			WFIFOHEAD(fd,2);
+			WFIFOW(fd,0) = 0x2b24;
+			WFIFOSET(fd,2);
+			RFIFOSKIP(fd,2);
 		break;
 
 		case 0x2736: // ip address update
@@ -2714,10 +2826,10 @@ int parse_char(int fd)
 
 		// request to connect
 		case 0x65:
-			ShowInfo("request connect - account_id:%d/login_id1:%d/login_id2:%d\n", RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10));
 			if (RFIFOREST(fd) < 17)
 				return 0;
 		{
+			ShowInfo("request connect - account_id:%d/login_id1:%d/login_id2:%d\n", RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10));
 			if (sd) {
 				//Received again auth packet for already authentified account?? Discard it.
 				//TODO: Perhaps log this as a hack attempt?
@@ -3097,7 +3209,7 @@ int parse_char(int fd)
 
 			RFIFOSKIP(fd,60);
 		}
-		break;
+		return 0; // avoid processing of followup packets here
 
 		// Athena info get
 		case 0x7530:
@@ -3204,13 +3316,13 @@ int mapif_send(int fd, unsigned char *buf, unsigned int len)
 	int i;
 
 	if (fd >= 0) {
-		for(i = 0; i < MAX_MAP_SERVERS; i++) {
-			if (fd == server_fd[i]) {
-				WFIFOHEAD(fd,len);
-				memcpy(WFIFOP(fd,0), buf, len);
-				WFIFOSET(fd,len);
-				return 1;
-			}
+		ARR_FIND( 0, MAX_MAP_SERVERS, i, fd == server_fd[i] );
+		if( i < MAX_MAP_SERVERS )
+		{
+			WFIFOHEAD(fd,len);
+			memcpy(WFIFOP(fd,0), buf, len);
+			WFIFOSET(fd,len);
+			return 1;
 		}
 	}
 	return 0;
@@ -3221,17 +3333,19 @@ int send_users_tologin(int tid, unsigned int tick, int id, int data)
 	int users = count_users();
 	unsigned char buf[16];
 
-	if (login_fd > 0 && session[login_fd]) {
+	if( login_fd > 0 && session[login_fd] )
+	{
 		// send number of user to login server
 		WFIFOHEAD(login_fd,6);
 		WFIFOW(login_fd,0) = 0x2714;
 		WFIFOL(login_fd,2) = users;
 		WFIFOSET(login_fd,6);
 	}
+
 	// send number of players to all map-servers
 	WBUFW(buf,0) = 0x2b00;
 	WBUFL(buf,2) = users;
-	mapif_sendall(buf, 6);
+	mapif_sendall(buf,6);
 
 	return 0;
 }
@@ -3316,6 +3430,25 @@ static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, int dat
 	return 0;
 }
 
+static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
+{
+	struct online_char_data *character= (struct online_char_data*)data;
+	if (character->fd != -1)
+		return 0; //Still connected
+	if (character->server == -2) //Unknown server.. set them offline
+		set_char_offline(character->char_id, character->account_id);
+	if (character->server < 0)
+		//Free data from players that have not been online for a while.
+		db_remove(online_char_db, key);
+	return 0;
+}
+
+static int online_data_cleanup(int tid, unsigned int tick, int id, int data)
+{
+	online_char_db->foreach(online_char_db, online_data_cleanup_sub);
+	return 0;
+}
+
 //----------------------------------
 // Reading Lan Support configuration
 // Rewrote: Anvanced subnet check [LuzZza]
@@ -3361,12 +3494,12 @@ int char_lan_config_read(const char *lancfgName)
 				ShowError("%s: Configuration Error: The char server (%s) and map server (%s) belong to different subnetworks!\n", lancfgName, w3, w4);
 				continue;
 			}
-				
+
 			subnet_count++;
 		}
-
-		ShowStatus("Read information about %d subnetworks.\n", subnet_count);
 	}
+
+	ShowStatus("Read information about %d subnetworks.\n", subnet_count);
 
 	fclose(fp);
 	return 0;
@@ -3674,23 +3807,6 @@ void set_server_type(void)
 	SERVER_TYPE = ATHENA_SERVER_CHAR;
 }
 
-static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
-{
-	struct online_char_data *character= (struct online_char_data*)data;
-	if (character->server == -2) //Unknown server.. set them offline
-		set_char_offline(character->char_id, character->account_id);
-	if (character->server < 0)
-		//Free data from players that have not been online for a while.
-		db_remove(online_char_db, key);
-	return 0;
-}
-
-static int online_data_cleanup(int tid, unsigned int tick, int id, int data)
-{
-	online_char_db->foreach(online_char_db, online_data_cleanup_sub);
-	return 0;
-}
-
 int do_init(int argc, char **argv)
 {
 	int i;
@@ -3722,6 +3838,9 @@ int do_init(int argc, char **argv)
 	ShowInfo("Initializing char server.\n");
 	online_char_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	mmo_char_sql_init();
+	char_read_fame_list(); //Read fame lists.
+	if(char_gm_read)
+		read_gm_account();
 	ShowInfo("char server initialized.\n");
 
 	set_defaultparse(parse_char);
@@ -3745,24 +3864,19 @@ int do_init(int argc, char **argv)
 		}
 	}
 
+	// establish char-login connection if not present
 	add_timer_func_list(check_connect_login_server, "check_connect_login_server");
+	add_timer_interval(gettick() + 1000, check_connect_login_server, 0, 0, 10 * 1000);
+
 	add_timer_func_list(send_users_tologin, "send_users_tologin");
+	add_timer_interval(gettick() + 1000, send_users_tologin, 0, 0, 5 * 1000);
 	add_timer_func_list(send_accounts_tologin, "send_accounts_tologin");
+	add_timer_interval(gettick() + 3600*1000, send_accounts_tologin, 0, 0, 3600 * 1000); //Sync online accounts every hour.
+
 	add_timer_func_list(chardb_waiting_disconnect, "chardb_waiting_disconnect");
 
 	add_timer_func_list(online_data_cleanup, "online_data_cleanup");
 	add_timer_interval(gettick() + 600*1000, online_data_cleanup, 0, 0, 600 * 1000);
-
-	// send ALIVE PING to login server.
-	add_timer_interval(gettick() + 10, check_connect_login_server, 0, 0, 10 * 1000);
-	// send USER COUNT PING to login server.
-	add_timer_interval(gettick() + 10, send_users_tologin, 0, 0, 5 * 1000);
-	add_timer_interval(gettick() + 3600*1000, send_accounts_tologin, 0, 0, 3600 * 1000); //Sync online accounts every hour.
-
-	char_read_fame_list(); //Read fame lists.
-
-	if(char_gm_read)
-		read_gm_account();
 
 	if( console )
 	{
@@ -3791,71 +3905,6 @@ int do_init(int argc, char **argv)
 	char_fd = make_listen_bind(bind_ip, char_port);
 	ShowStatus("The char-server is "CL_GREEN"ready"CL_RESET" (Server is listening on the port %d).\n\n", char_port);
 
-	return 0;
-}
-
-int char_child(int parent_id, int child_id)
-{
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `child` FROM `%s` WHERE `char_id` = '%d'", char_db, parent_id) )
-		Sql_ShowDebug(sql_handle);
-	else if( SQL_SUCCESS == Sql_NextRow(sql_handle) )
-	{
-		char* data;
-
-		Sql_GetData(sql_handle, 0, &data, NULL);
-		if( child_id == atoi(data) )
-		{
-			Sql_FreeResult(sql_handle);
-			return 1;
-		}
-	}
-	Sql_FreeResult(sql_handle);
-	return 0;
-}
-
-int char_married(int pl1, int pl2)
-{
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `partner_id` FROM `%s` WHERE `char_id` = '%d'", char_db, pl1) )
-		Sql_ShowDebug(sql_handle);
-	else if( SQL_SUCCESS == Sql_NextRow(sql_handle) )
-	{
-		char* data;
-
-		Sql_GetData(sql_handle, 0, &data, NULL);
-		if( pl2 == atoi(data) )
-		{
-			Sql_FreeResult(sql_handle);
-			return 1;
-		}
-	}
-	Sql_FreeResult(sql_handle);
-	return 0;
-}
-
-int char_family(int pl1, int pl2, int pl3)
-{
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `char_id`,`partner_id`,`child` FROM `%s` WHERE `char_id` IN ('%d','%d','%d')", char_db, pl1, pl2, pl3) )
-		Sql_ShowDebug(sql_handle);
-	else while( SQL_SUCCESS == Sql_NextRow(sql_handle) )
-	{
-		int charid;
-		int partnerid;
-		int childid;
-		char* data;
-
-		Sql_GetData(sql_handle, 0, &data, NULL); charid = atoi(data);
-		Sql_GetData(sql_handle, 1, &data, NULL); partnerid = atoi(data);
-		Sql_GetData(sql_handle, 2, &data, NULL); childid = atoi(data);
-
-		if( (pl1 == charid    && ((pl2 == partnerid && pl3 == childid  ) || (pl2 == childid   && pl3 == partnerid))) ||
-			(pl1 == partnerid && ((pl2 == charid    && pl3 == childid  ) || (pl2 == childid   && pl3 == charid   ))) ||
-			(pl1 == childid   && ((pl2 == charid    && pl3 == partnerid) || (pl2 == partnerid && pl3 == charid   ))) )
-		{
-			Sql_FreeResult(sql_handle);
-			return childid;
-		}
-	}
-	Sql_FreeResult(sql_handle);
 	return 0;
 }
 

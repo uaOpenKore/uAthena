@@ -599,7 +599,7 @@ int unit_warp(struct block_list *bl,short m,short x,short y,int type)
 	}
 
 	if (bl->type == BL_PC) //Use pc_setpos
-		return pc_setpos((TBL_PC*)bl, map[m].index, x, y, type);
+		return pc_setpos((TBL_PC*)bl, map_id2index(m), x, y, type);
 
 	if (!unit_remove_map(bl, type))
 		return 3;
@@ -661,7 +661,7 @@ int unit_stop_walking(struct block_list *bl,int type)
 	return 1;
 }
 
-int unit_skilluse_id(struct block_list *src, int target_id, int skill_num, int skill_lv)
+int unit_skilluse_id(struct block_list *src, int target_id, short skill_num, short skill_lv)
 {
 	if(skill_num < 0) return 0;
 
@@ -775,7 +775,7 @@ int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int 
 	return 1;
 }
 
-int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int skill_lv, int casttime, int castcancel)
+int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, short skill_lv, int casttime, int castcancel)
 {
 	struct unit_data *ud;
 	struct status_data *tstatus;
@@ -987,7 +987,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 
 	if( casttime>0 || temp){
 
-		clif_skillcasting(src, src->id, target_id, 0,0, skill_num, skill_get_pl(skill_num, skill_lv), casttime);
+		clif_skillcasting(src, src->id, target_id, 0,0, skill_num, skill_get_ele(skill_num, skill_lv), casttime);
 
 		if (sd && target->type == BL_MOB)
 		{
@@ -1048,7 +1048,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 	return 1;
 }
 
-int unit_skilluse_pos(struct block_list *src, short skill_x, short skill_y, int skill_num, int skill_lv)
+int unit_skilluse_pos(struct block_list *src, short skill_x, short skill_y, short skill_num, short skill_lv)
 {
 	if(skill_num < 0)
 		return 0;
@@ -1059,7 +1059,7 @@ int unit_skilluse_pos(struct block_list *src, short skill_x, short skill_y, int 
 	);
 }
 
-int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, int skill_num, int skill_lv, int casttime, int castcancel)
+int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, short skill_num, short skill_lv, int casttime, int castcancel)
 {
 	struct map_session_data *sd = NULL;
 	struct unit_data        *ud = NULL;
@@ -1123,7 +1123,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, in
 
 	if( casttime>0 ) {
 		unit_stop_walking( src, 1);
-		clif_skillcasting(src, src->id, 0, skill_x, skill_y, skill_num, skill_get_pl(skill_num, skill_lv), casttime);
+		clif_skillcasting(src, src->id, 0, skill_x, skill_y, skill_num, skill_get_ele(skill_num, skill_lv), casttime);
 	} else
 		ud->state.skillcastcancel=0;
 

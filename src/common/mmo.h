@@ -25,6 +25,7 @@
 //Number of slots carded equipment can have. Never set to less than 4 as they are also used to keep the data of forged items/equipment. [Skotlex]
 //Note: The client seems unable to receive data for more than 4 slots due to all related packets having a fixed size.
 #define MAX_SLOTS 4
+//Max amount of a single stacked item
 #define MAX_AMOUNT 30000
 #define MAX_ZENY 1000000000
 #define MAX_FAME 1000000000
@@ -64,9 +65,6 @@
 #define MIN_STAR 0
 #define MAX_STAR 3
 
-#define MIN_PORTAL_MEMO 0
-#define MAX_PORTAL_MEMO 2
-
 #define MAX_STATUS_TYPE 5
 
 #define WEDDING_RING_M 2634
@@ -82,7 +80,7 @@
 #define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
 
 #define MAX_FRIENDS 40
-#define MAX_MEMOPOINTS 10
+#define MAX_MEMOPOINTS 3
 
 //Size of the fame list arrays.
 #define MAX_FAME_LIST 10
@@ -98,7 +96,7 @@
 #define DEFAULT_MAX_CHAR_ID 250000
 
 //Base Homun skill.
-#define HM_SKILLBASE 8000
+#define HM_SKILLBASE 8001
 #define MAX_HOMUNSKILL 16
 #define MAX_HOMUNCULUS_CLASS	16	//[orn]
 #define HM_CLASS_BASE 6001
@@ -108,14 +106,14 @@ struct item {
 	int id;
 	short nameid;
 	short amount;
-	unsigned short equip;
+	unsigned short equip; // location(s) where item is equipped (using enum equip_pos for bitmasking)
 	char identify;
 	char refine;
 	char attribute;
 	short card[MAX_SLOTS];
 };
 
-struct point{
+struct point {
 	unsigned short map;
 	short x,y;
 };
@@ -126,7 +124,7 @@ struct skill {
 
 struct global_reg {
 	char str[32];
-	char value[256]; // [zBuffer]
+	char value[256];
 };
 
 //Holds array of global registries, used by the char server and converter.
@@ -214,7 +212,8 @@ struct mmo_charstatus {
 	int party_id,guild_id,pet_id,hom_id;
 	int fame;
 
-	short weapon,shield;
+	short weapon; // enum weapon_type
+	short shield; // view-id
 	short head_top,head_mid,head_bottom;
 
 	char name[NAME_LENGTH];
@@ -260,8 +259,6 @@ struct guild_storage {
 	struct item storage_[MAX_GUILD_STORAGE];
 };
 
-struct map_session_data;
-
 struct gm_account {
 	int account_id;
 	int level;
@@ -287,6 +284,7 @@ struct party {
 	struct party_member member[MAX_PARTY];
 };
 
+struct map_session_data;
 struct guild_member {
 	int account_id, char_id;
 	short hair,hair_color,gender,class_,lv;
@@ -447,6 +445,7 @@ enum {
 	JOB_NINJA,
 	JOB_XMAS,
 	JOB_SUMMER,
+	JOB_MAX_BASIC,
 
 	JOB_NOVICE_HIGH = 4001,
 	JOB_SWORDMAN_HIGH,
@@ -499,6 +498,7 @@ enum {
 	JOB_STAR_GLADIATOR,
 	JOB_STAR_GLADIATOR2,
 	JOB_SOUL_LINKER,
+	JOB_MAX,
 };
 
 // sanity checks...

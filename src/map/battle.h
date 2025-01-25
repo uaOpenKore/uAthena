@@ -4,6 +4,13 @@
 #ifndef _BATTLE_H_
 #define _BATTLE_H_
 
+// state of a single attack attempt; used in flee/def penalty calculations when mobbed
+enum damage_lv {
+	ATK_LUCKY=1, // attack was lucky-dodged
+	ATK_FLEE,    // attack was dodged
+	ATK_DEF      // attack connected
+};
+
 // _[W
 struct Damage {
 	int damage,damage2;
@@ -11,7 +18,7 @@ struct Damage {
 	int amotion,dmotion;
 	int blewcount;
 	int flag;
-	int dmg_lv;	//ATK_LUCKY,ATK_FLEE,ATK_DEF
+	enum damage_lv dmg_lv;	//ATK_LUCKY,ATK_FLEE,ATK_DEF
 };
 
 // \ipc.cAbattle_attr_fixgpj
@@ -48,11 +55,10 @@ enum {	// IvZtO
 	BF_SKILLMASK= 0x0f00,
 };
 
-int battle_delay_damage (unsigned int tick, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, int dmg_lv, int ddelay);
+int battle_delay_damage (unsigned int tick, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, enum damage_lv dmg_lv, int ddelay);
 
 // U
-int battle_weapon_attack( struct block_list *bl,struct block_list *target,
-	 unsigned int tick,int flag);
+enum damage_lv battle_weapon_attack( struct block_list *bl,struct block_list *target,unsigned int tick,int flag);
 
 // ep[^
 struct block_list* battle_get_master(struct block_list *src);
@@ -167,6 +173,7 @@ extern struct Battle_Config
 	int guild_emperium_check;
 	int guild_exp_limit;
 	int guild_max_castles;
+	int guild_skill_relog_delay;
 	int emergency_call;
 	int guild_aura;
 	int pc_invincible_time;
@@ -390,7 +397,6 @@ extern struct Battle_Config
 	int rare_drop_announce; // chance <= to show rare drops global announces
 
 	int retaliate_to_master;	//Whether when a mob is attacked by another mob, it will retaliate versus the mob or the mob's master. [Skotlex]
-	int firewall_hits_on_undead; //Number of hits firewall does at a time on undead. [Skotlex]
 
 	int title_lvl1; // Players titles [Lupus]
 	int title_lvl2; // Players titles [Lupus]
@@ -434,6 +440,7 @@ extern struct Battle_Config
 	int hom_rename;
 	int homunculus_show_growth ;	//[orn]
 	int homunculus_friendly_rate;
+	int quest_exp_rate;
 } battle_config;
 
 void do_init_battle(void);

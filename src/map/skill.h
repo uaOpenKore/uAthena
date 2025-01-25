@@ -4,9 +4,10 @@
 #ifndef _SKILL_H_
 #define _SKILL_H_
 
+#include "../common/mmo.h" // MAX_SKILL
 #include "map.h" // MAX_SKILL_LEVEL, ...
 
-#define MAX_SKILL_DB			1100
+#define MAX_SKILL_DB			MAX_SKILL
 #define MAX_SKILL_PRODUCE_DB	150
 #define MAX_PRODUCE_RESOURCE	12
 #define MAX_SKILL_ARROW_DB		150
@@ -53,15 +54,16 @@
 //Walk intervals at which chase-skills are attempted to be triggered.
 #define WALK_SKILL_INTERVAL 5
 
-// To be passed to skill_attack, whether the skill damage should disable level or animation. [Skotlex]
-#define SD_LEVEL 0x1000
-#define SD_ANIMATION	0x2000
+// Flags passed to skill_attack
+#define SD_LEVEL     0x1000 // will send -1 instead of skill level (affects display of some skills)
+#define SD_ANIMATION 0x2000 // will use '5' instead of the skill's 'type' (this makes skills show an animation)
+#define SD_PREAMBLE  0x4000 // will transmit a 'magic' damage packet (-30000 dmg) for the first target to be hit
 
 // XLf?^x?X
 struct s_skill_db {
 	char *name;
 	char *desc;
-	int range[MAX_SKILL_LEVEL],hit,inf,pl[MAX_SKILL_LEVEL],nk,splash[MAX_SKILL_LEVEL],max;
+	int range[MAX_SKILL_LEVEL],hit,inf,element[MAX_SKILL_LEVEL],nk,splash[MAX_SKILL_LEVEL],max;
 	int num[MAX_SKILL_LEVEL];
 	int cast[MAX_SKILL_LEVEL],walkdelay[MAX_SKILL_LEVEL],delay[MAX_SKILL_LEVEL];
 	int upkeep_time[MAX_SKILL_LEVEL],upkeep_time2[MAX_SKILL_LEVEL];
@@ -85,7 +87,7 @@ extern struct s_skill_db skill_db[MAX_SKILL_DB];
 struct skill_name_db {
 	int id;	// skill id
 	char *name;	// search strings
-	char *desc;	// description that shows up for search's
+	char *desc;	// description that shows up for searches
 };
 
 #define MAX_SKILL_UNIT_LAYOUT	50
@@ -153,7 +155,7 @@ int skill_get_casttype(int id); //[Skotlex]
 int	skill_get_type( int id );
 int	skill_get_hit( int id );
 int	skill_get_inf( int id );
-int	skill_get_pl( int id , int lv );
+int	skill_get_ele( int id , int lv );
 int	skill_get_nk( int id );
 int	skill_get_max( int id );
 int	skill_get_range( int id , int lv );
@@ -190,7 +192,7 @@ const char*	skill_get_desc( int id ); 	// [Skotlex]
 int skill_isammotype(struct map_session_data *sd, int skill);
 int skill_castend_id( int tid, unsigned int tick, int id,int data );
 int skill_castend_pos( int tid, unsigned int tick, int id,int data );
-int skill_castend_map( struct map_session_data *sd,int skill_num, const char *map);
+int skill_castend_map( struct map_session_data *sd,short skill_num, const char *map);
 
 int skill_cleartimerskill(struct block_list *src);
 int skill_addtimerskill(struct block_list *src,unsigned int tick,int target,int x,int y,int skill_id,int skill_lv,int type,int flag);
@@ -202,10 +204,10 @@ int skill_blown(struct block_list* src, struct block_list* target, int count, in
 int skill_break_equip(struct block_list *bl, unsigned short where, int rate, int flag);
 int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int lv, int time);
 // jbgXL
-struct skill_unit_group *skill_unitsetting( struct block_list *src, int skillid,int skilllv,int x,int y,int flag);
+struct skill_unit_group *skill_unitsetting(struct block_list* src, short skillid, short skilllv, short x, short y, int flag);
 struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int x, int y, int val1, int val2);
 int skill_delunit(struct skill_unit *unit);
-struct skill_unit_group *skill_initunitgroup(struct block_list *src, int count,int skillid,int skilllv,int unit_id, int limit, int interval);
+struct skill_unit_group *skill_initunitgroup(struct block_list* src, int count, short skillid, short skilllv, int unit_id, int limit, int interval);
 int skill_delunitgroup(struct block_list *src, struct skill_unit_group *group);
 int skill_clear_unitgroup(struct block_list *src);
 int skill_clear_group(struct block_list *bl, int flag);
@@ -216,8 +218,8 @@ int skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,
 int skill_castfix( struct block_list *bl, int skill_id, int skill_lv);
 int skill_castfix_sc( struct block_list *bl, int time);
 int skill_delayfix( struct block_list *bl, int skill_id, int skill_lv);
-int skill_check_condition( struct map_session_data *sd,int skill, int lv, int type);
-int skill_check_pc_partner(struct map_session_data *sd, int skill_id, int* skill_lv, int range, int cast_flag);
+int skill_check_condition( struct map_session_data *sd, short skill, short lv, int type);
+int skill_check_pc_partner(struct map_session_data *sd, short skill_id, short* skill_lv, int range, int cast_flag);
 // -- moonsoul	(added skill_check_unit_cell)
 int skill_check_unit_cell(int skillid,int m,int x,int y,int unit_id);
 int skill_unit_out_all( struct block_list *bl,unsigned int tick,int range);
@@ -254,8 +256,7 @@ int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap);	//[orn]
 
 // ACe
 int skill_can_produce_mix( struct map_session_data *sd, int nameid, int trigger, int qty);
-int skill_produce_mix( struct map_session_data *sd,
-	int skill_id, int nameid, int slot1, int slot2, int slot3, int qty );
+int skill_produce_mix( struct map_session_data *sd, int skill_id, int nameid, int slot1, int slot2, int slot3, int qty );
 
 int skill_arrow_create( struct map_session_data *sd,int nameid);
 
@@ -267,7 +268,7 @@ int skill_blockpc_start (struct map_session_data*,int,int);	// [celest]
 int skill_blockmerc_start (struct homun_data*,int,int);	//[orn]
 
 // XLU??
-int skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
+int skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
 
 void skill_reload(void);
 

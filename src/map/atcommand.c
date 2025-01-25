@@ -785,22 +785,11 @@ AtCommandType is_atcommand(const int fd, struct map_session_data* sd, const char
 	if (!message || !*message)
 		return AtCommand_None;
 
-	// temporary compatibility layer for previous implementation
-	if( *message != atcommand_symbol )
-	{
-		str += strlen(sd->status.name);
-		while (*str && (ISSPACE(*str) || (s_flag == 0 && *str == ':'))) {
-			if (*str == ':')
-				s_flag = 1;
-			str++;
-		}
-	}
+	if(str[0] == '|' && strlen(str) >= 4 && str[3] == atcommand_symbol)
+		str += 3; // skip 10/11-langtype's codepage indicator, if detected
 
 	if (!*str)
 		return AtCommand_None;
-
-	if(str[0] == '|' && strlen(str) >= 4 && str[3] == atcommand_symbol)
-		str += 3; // skip 10/11-langtype's codepage indicator, if detected
 
 	return is_atcommand_sub(fd,sd,str,pc_isGM(sd));
 }
@@ -2842,12 +2831,13 @@ static int atcommand_stopattack(struct block_list *bl,va_list ap)
 /*==========================================
  *
  *------------------------------------------*/
-static int atcommand_pvpoff_sub(struct block_list *bl,va_list ap) {
+static int atcommand_pvpoff_sub(struct block_list *bl,va_list ap)
+{
 	TBL_PC* sd = (TBL_PC*)bl;
 	clif_pvpset(sd, 0, 0, 2);
-	if (sd->pvp_timer != UINT_MAX) {
+	if (sd->pvp_timer != -1) {
 		delete_timer(sd->pvp_timer, pc_calc_pvprank_timer);
-		sd->pvp_timer = UINT_MAX;
+		sd->pvp_timer = -1;
 	}
 	return 0;
 }
@@ -7153,7 +7143,7 @@ void getring (struct map_session_data* sd)
 
 	if((flag = pc_additem(sd,&item_tmp,1))) {
 		clif_additem(sd,0,0,flag);
-		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,NULL,NULL,NULL,0);
+		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
 	}
 }
 

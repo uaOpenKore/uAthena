@@ -144,7 +144,7 @@ struct delay_damage {
 	unsigned short distance;
 	unsigned short skill_lv;
 	unsigned short skill_id;
-	unsigned short dmg_lv;
+	enum damage_lv dmg_lv;
 	unsigned short attack_type;
 };
 
@@ -168,7 +168,7 @@ int battle_delay_damage_sub (int tid, unsigned int tick, int id, int data)
 	return 0;
 }
 
-int battle_delay_damage (unsigned int tick, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, int dmg_lv, int ddelay)
+int battle_delay_damage (unsigned int tick, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, enum damage_lv dmg_lv, int ddelay)
 {
 	struct delay_damage *dat;
 	nullpo_retr(0, src);
@@ -833,13 +833,12 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 /*==========================================
  * battle_calc_weapon_attack (by Skotlex)
  *------------------------------------------*/
-static struct Damage battle_calc_weapon_attack(
-	struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int wflag)
+static struct Damage battle_calc_weapon_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int wflag)
 {
-	unsigned short skillratio = 100;	//Skill dmg modifiers.
+	unsigned int skillratio = 100;	//Skill dmg modifiers.
 	short skill=0;
 	short s_ele, s_ele_, t_class;
-	short i, nk;
+	int i, nk;
 
 	struct map_session_data *sd, *tsd;
 	struct Damage wd;
@@ -966,7 +965,7 @@ static struct Damage battle_calc_weapon_attack(
 	}
 
 	t_class = status_get_class(target);
-	s_ele = s_ele_ = skill_get_pl(skill_num, skill_lv);
+	s_ele = s_ele_ = skill_get_ele(skill_num, skill_lv);
 	if (!skill_num || s_ele == -1) { //Take weapon's element
 		s_ele = sstatus->rhw.ele;
 		s_ele_ = sstatus->lhw?sstatus->lhw->ele:0;
@@ -1245,7 +1244,7 @@ static struct Damage battle_calc_weapon_attack(
 					if(wflag>0)
 						wd.damage/= wflag;
 					else if(battle_config.error_log)
-						ShowError("0 enemies targeted by %s, divide per 0 avoided!\n", skill_get_name(skill_num));
+						ShowError("0 enemies targeted by %d:%s, divide per 0 avoided!\n", skill_num, skill_get_name(skill_num));
 				}
 
 				//Add any bonuses that modify the base baseatk+watk (pre-skills)
@@ -1464,9 +1463,9 @@ static struct Damage battle_calc_weapon_attack(
 					skillratio += 100+100*skill_lv;
 					break;
 				case AS_SPLASHER:
-					i = 400+50*skill_lv;
-					if (wflag>1) i /= 4; // FIXME: Should be 25% of damage inflicted to target, not 25% of skillratio bonus
-					skillratio += i;
+					skillratio += 400+50*skill_lv;
+					if(sd)
+						skillratio += 30 * pc_checkskill(sd,AS_POISONREACT);
 					break;
 				case ASC_BREAKER:
 					skillratio += 100*skill_lv-100;
@@ -1702,9 +1701,9 @@ static struct Damage battle_calc_weapon_attack(
 			{	//[VIT*0.5] + rnd([VIT*0.3], max([VIT*0.3],[VIT^2/150]-1))
 				vit_def = def2*(def2-15)/150;
 				vit_def = def2/2 + (vit_def>0?rand()%vit_def:0);
-				
+
 				if((battle_check_undead(sstatus->race,sstatus->def_ele) || sstatus->race==RC_DEMON) &&
-					(skill=pc_checkskill(tsd,AL_DP)) >0)
+					src->type == BL_MOB && (skill=pc_checkskill(tsd,AL_DP)) > 0)
 					vit_def += skill*(int)(3 +(tsd->status.base_level+1)*0.04);   // submitted by orn
 			} else { //Mob-Pet vit-eq
 				//VIT + rnd(0,[VIT/20]^2-1)
@@ -1838,8 +1837,8 @@ static struct Damage battle_calc_weapon_attack(
 		//Card Fix, sd side
 		if ((wd.damage || wd.damage2) && !(nk&NK_NO_CARDFIX_ATK))
 		{
-			short cardfix = 1000, cardfix_ = 1000;
-			short t_race2 = status_get_race2(target);
+			int cardfix = 1000, cardfix_ = 1000;
+			int t_race2 = status_get_race2(target);
 			if(sd->state.arrow_atk)
 			{
 				cardfix=cardfix*(100+sd->right_weapon.addrace[tstatus->race]+sd->arrow_addrace[tstatus->race])/100;
@@ -2097,12 +2096,11 @@ static struct Damage battle_calc_weapon_attack(
 /*==========================================
  * battle_calc_magic_attack [DracoRPG]
  *------------------------------------------*/
-struct Damage battle_calc_magic_attack(
-	struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
-	{
-	short i, nk;
+struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
+{
+	int i, nk;
 	short s_ele;
-	unsigned short skillratio = 100;	//Skill dmg modifiers.
+	unsigned int skillratio = 100;	//Skill dmg modifiers.
 
 	struct map_session_data *sd, *tsd;
 	struct Damage ad;
@@ -2136,7 +2134,7 @@ struct Damage battle_calc_magic_attack(
 	BL_CAST(BL_PC, target, tsd);
 
 	//Initialize variables that will be used afterwards
-	s_ele = skill_get_pl(skill_num, skill_lv);
+	s_ele = skill_get_ele(skill_num, skill_lv);
 
 	if (s_ele == -1) // pl=-1 : the skill takes the weapon's element
 		s_ele = sstatus->rhw.ele;
@@ -2158,7 +2156,7 @@ struct Damage battle_calc_magic_attack(
 		case MG_FIREWALL:
 		case NJ_KAENSIN:
 			ad.dmotion = 0; //No flinch animation.
-			if(mflag) //mflag has a value when it was checked against an undead in skill.c [Skotlex]
+			if ( tstatus->def_ele == ELE_FIRE || battle_check_undead(tstatus->race, tstatus->def_ele) )
 				ad.blewcount = 0; //No knockback
 			break;
 		case PR_SANCTUARY:
@@ -2223,7 +2221,7 @@ struct Damage battle_calc_magic_attack(
 					if(mflag>0)
 						ad.damage/= mflag;
 					else if(battle_config.error_log)
-						ShowError("0 enemies targeted by %s, divide per 0 avoided!\n", skill_get_name(skill_num));
+						ShowError("0 enemies targeted by %d:%s, divide per 0 avoided!\n", skill_num, skill_get_name(skill_num));
 				}
 
 				switch(skill_num){
@@ -2392,7 +2390,7 @@ struct Damage battle_calc_magic_attack(
 		{	//Target cards.
 			short s_race2=status_get_race2(src);
 			short s_class= status_get_class(src);
-			short cardfix=1000;
+			int cardfix=1000;
 
 			if (!(nk&NK_NO_ELEFIX))
 				cardfix=cardfix*(100-tsd->subele[s_ele])/100;
@@ -2469,7 +2467,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.blewcount += battle_blewcount_bonus(sd, skill_num);
 	}
 
-	s_ele = skill_get_pl(skill_num, skill_lv);
+	s_ele = skill_get_ele(skill_num, skill_lv);
 	if (s_ele < 0) //Attack that takes weapon's element for misc attacks? Make it neutral [Skotlex]
 		s_ele = ELE_NEUTRAL;
 
@@ -2495,14 +2493,15 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		if(mflag > 1) //Autocasted Blitz.
 			nk|=NK_SPLASHSPLIT;
 
-		if (skill_num == HT_BLITZBEAT)
-			break;
-		//Div fix of Blitzbeat
-		skill = skill_get_num(HT_BLITZBEAT, 5);
-		damage_div_fix(md.damage, skill); 
+		if (skill_num == SN_FALCONASSAULT)
+		{
+			//Div fix of Blitzbeat
+			skill = skill_get_num(HT_BLITZBEAT, 5);
+			damage_div_fix(md.damage, skill);
 
-		//Falcon Assault Modifier
-		md.damage=md.damage*(150+70*skill_lv)/100;
+			//Falcon Assault Modifier
+			md.damage=md.damage*(150+70*skill_lv)/100;
+		}
 		break;
 	case TF_THROWSTONE:
 		md.damage=50;
@@ -2565,7 +2564,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		if(mflag>0)
 			md.damage/= mflag;
 		else if(battle_config.error_log)
-			ShowError("0 enemies targeted by %s, divide per 0 avoided!\n", skill_get_name(skill_num));
+			ShowError("0 enemies targeted by %d:%s, divide per 0 avoided!\n", skill_num, skill_get_name(skill_num));
 	}
 
 	damage_div_fix(md.damage, md.div_);
@@ -2597,11 +2596,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 			}
 
 			hitrate+= sstatus->hit - flee;
-
-			if (hitrate > battle_config.max_hitrate)
-				hitrate = battle_config.max_hitrate;
-			else if (hitrate < battle_config.min_hitrate)
-				hitrate = battle_config.min_hitrate;
+			hitrate = cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate);
 
 			if(rand()%100 < hitrate)
 				i = 1;
@@ -2729,18 +2724,14 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, 
 			type = race;
 		else
 			type = boss?RC_BOSS:RC_NONBOSS;
-		
+
 		hp = wd->hp_drain[type].value;
 		if (wd->hp_drain[type].rate)
-			hp += battle_calc_drain(*damage,
-				wd->hp_drain[type].rate,
-		  		wd->hp_drain[type].per);
+			hp += battle_calc_drain(*damage, wd->hp_drain[type].rate, wd->hp_drain[type].per);
 
 		sp = wd->sp_drain[type].value;
 		if (wd->sp_drain[type].rate)
-			sp += battle_calc_drain(*damage,
-				wd->sp_drain[type].rate,
-			  	wd->sp_drain[type].per);
+			sp += battle_calc_drain(*damage, wd->sp_drain[type].rate, wd->sp_drain[type].per);
 
 		if (hp) {
 			if (wd->hp_drain[type].type)
@@ -2767,7 +2758,7 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, 
 /*==========================================
  * ??U??
  *------------------------------------------*/
-int battle_weapon_attack(struct block_list* src, struct block_list* target, unsigned int tick, int flag)
+enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* target, unsigned int tick, int flag)
 {
 	struct map_session_data *sd = NULL, *tsd = NULL;
 	struct status_data *sstatus, *tstatus;
@@ -3303,6 +3294,9 @@ int battle_check_range(struct block_list *src,struct block_list *bl,int range)
 	if(src->m != bl->m)	// }bv
 		return 0;
 
+	if(src->type == BL_HOM && battle_config.hom_setting&0x2)
+		range = battle_config.area_size + 1; //WTF, way to go Aegis and your awesome bugs.
+
 	if (!check_distance_bl(src, bl, range))
 		return 0;
 
@@ -3374,6 +3368,7 @@ static const struct _battle_data {
 	{ "chase_range_rate",                   &battle_config.chase_range_rate,                100,    0,      INT_MAX,        },
 	{ "gtb_sc_immunity",                    &battle_config.gtb_sc_immunity,                 50,     0,      INT_MAX,        },
 	{ "guild_max_castles",                  &battle_config.guild_max_castles,               0,      0,      INT_MAX,        },
+	{ "guild_skill_relog_delay",            &battle_config.guild_skill_relog_delay,         0,      0,      1,              },
 	{ "emergency_call",                     &battle_config.emergency_call,                  11,     0,      31,             },
 	{ "atcommand_gm_only",                  &battle_config.atc_gmonly,                      0,      0,      1,              },
 	{ "atcommand_spawn_quantity_limit",     &battle_config.atc_spawn_quantity_limit,        100,    0,      INT_MAX,        },
@@ -3631,7 +3626,6 @@ static const struct _battle_data {
 	{ "mob_max_skilllvl",                   &battle_config.mob_max_skilllvl,                MAX_SKILL_LEVEL, 1, MAX_SKILL_LEVEL, },
 	{ "retaliate_to_master",                &battle_config.retaliate_to_master,             1,      0,      1,              },
 	{ "rare_drop_announce",                 &battle_config.rare_drop_announce,              0,      0,      10000,          },
-	{ "firewall_hits_on_undead",            &battle_config.firewall_hits_on_undead,         1,      1,      255,            },
 	{ "title_lvl1",                         &battle_config.title_lvl1,                      1,      0,      100,            },
 	{ "title_lvl2",                         &battle_config.title_lvl2,                      10,     0,      100,            },
 	{ "title_lvl3",                         &battle_config.title_lvl3,                      20,     0,      100,            },
@@ -3672,6 +3666,7 @@ static const struct _battle_data {
 	{ "mob_remove_delay",                   &battle_config.mob_remove_delay,                60000,  15000,  INT_MAX,        },
 	{ "sg_miracle_skill_duration",          &battle_config.sg_miracle_skill_duration,       3600000, 0,     INT_MAX,        },
 	{ "hvan_explosion_intimate",            &battle_config.hvan_explosion_intimate,         45000,  0,      100000,         },
+	{ "quest_exp_rate",                     &battle_config.quest_exp_rate,                  100,    0,      INT_MAX,        },
 };
 
 

@@ -28,21 +28,11 @@
 //  but is not the official behaviour.
 //#define CIRCULAR_AREA
 
-#define MAX_PC_CLASS 4050
-#define PC_CLASS_BASE 0
-#define PC_CLASS_BASE2 (PC_CLASS_BASE + 4001)
-#define PC_CLASS_BASE3 (PC_CLASS_BASE2 + 22)
 #define MAX_NPC_PER_MAP 512
 #define BLOCK_SIZE 8
 #define AREA_SIZE battle_config.area_size
 #define DAMAGELOG_SIZE 30
 #define LOOTITEM_SIZE 10
-//Quick defines to know which are the min-max common ailments. [Skotlex]
-//Because of the way the headers are included.. these must be replaced for actual values.
-//Remember to update as needed! Min is SC_STONE and max is SC_DPOISON currently.
-#define SC_COMMON_MIN 0
-#define SC_COMMON_MAX 10
-
 #define MAX_SKILL_LEVEL 100
 #define MAX_SKILLUNITGROUP 25
 #define MAX_SKILLUNITGROUPTICKSET 25
@@ -62,8 +52,6 @@
 
 #define MAX_PC_BONUS 10
 #define MAX_DUEL 1024
-
-#define map_id2index(id) map[(id)].index
 
 //The following system marks a different job ID system used by the map server,
 //which makes a lot more sense than the normal one. [Skotlex]
@@ -244,8 +232,8 @@ struct block_list {
 	struct block_list *next,*prev;
 	int id;
 	short m,x,y;
-	unsigned char type;
-	unsigned char subtype;
+	enum bl_type type;
+	enum bl_subtype subtype;
 };
 
 struct walkpath_data {
@@ -265,7 +253,7 @@ struct skill_timerskill {
 	int map;
 	short x,y;
 	short skill_id,skill_lv;
-	int type;
+	int type; // a BF_ type (NOTE: some places use this as general-purpose storage...)
 	int flag;
 };
 
@@ -290,7 +278,7 @@ struct skill_unit_group {
 	unsigned int tick;
 	int limit,interval;
 
-	int skill_id,skill_lv;
+	short skill_id,skill_lv;
 	int val1,val2,val3;
 	char *valstr;
 	int unit_id;
@@ -300,7 +288,6 @@ struct skill_unit_group {
 	struct {
 		unsigned ammo_consume : 1;
 		unsigned magic_power : 1;
-		unsigned into_abyss : 1;
 		unsigned song_dance : 2; //0x1 Song/Dance, 0x2 Ensemble
 	} state;
 };
@@ -328,7 +315,7 @@ struct unit_data {
 	unsigned int attackabletime;
 	unsigned int canact_tick;
 	unsigned int canmove_tick;
-	unsigned char dir;
+	uint8 dir;
 	unsigned char walk_count;
 	struct {
 		unsigned change_walk_target : 1 ;
@@ -398,7 +385,7 @@ struct status_change {
 
 struct s_vending {
 	short index;
-	unsigned short amount;
+	short amount;
 	unsigned int value;
 };
 
@@ -757,7 +744,7 @@ struct map_session_data {
 	int trade_partner;
 	struct {
 		struct {
-			int index, amount;
+			short index, amount;
 		} item[10];
 		int zeny, weight;
 	} deal;
@@ -784,7 +771,7 @@ struct map_session_data {
 	}feel_map[3];// 0 - Sun; 1 - Moon; 2 - Stars
 	short hate_mob[3];
 
-	unsigned int pvp_timer;
+	int pvp_timer;
 	short pvp_point;
 	unsigned short pvp_rank, pvp_lastusers;
 	unsigned short pvp_won, pvp_lost;
@@ -834,8 +821,8 @@ struct npc_data {
 	short n;
 	short class_;
 	short speed;
-	char name[NAME_LENGTH];
-	char exname[NAME_LENGTH];
+	char name[NAME_LENGTH+1];// display name
+	char exname[NAME_LENGTH+1];// unique npc name
 	int chat_id;
 	unsigned int next_walktime;
 
@@ -854,7 +841,7 @@ struct npc_data {
 			struct npc_label_list *label_list;
 			int src_id;
 		} scr;
-		struct npc_item_list shop_item[1];
+		struct npc_item_list shop_item[1];// dynamic array, allocated with extra entries (last one has nameid 0)
 		struct {
 			short xs,ys;
 			short x,y;
@@ -971,7 +958,7 @@ struct pet_data {
 	struct s_pet pet;
 	struct status_data status;
 	struct mob_db *db;
-	struct pet_db *petDB;
+	struct s_pet_db *petDB;
 	int pet_hungry_timer;
 	int target_id;
 	struct {
@@ -1020,13 +1007,6 @@ struct pet_data {
 	} *loot; //[Valaris] / Rewritten by [Skotlex]
 
 	struct map_session_data *msd;
-};
-
-// state of a single attack attempt; used in flee/def penalty calculations when mobbed
-enum {
-	ATK_LUCKY=1, // attack was lucky-dodged
-	ATK_FLEE,    // attack was dodged
-	ATK_DEF      // attack connected
 };
 
 struct map_data {
@@ -1122,7 +1102,7 @@ struct flooritem_data {
 	struct block_list bl;
 	unsigned char subx,suby;
 	int cleartimer;
-	int first_get_id,second_get_id,third_get_id;
+	int first_get_charid,second_get_charid,third_get_charid;
 	unsigned int first_get_tick,second_get_tick,third_get_tick;
 	struct item item_data;
 };
@@ -1330,18 +1310,19 @@ int map_addnpc(int,struct npc_data *);
 int map_clearflooritem_timer(int,unsigned int,int,int);
 int map_removemobs_timer(int,unsigned int,int,int);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
-int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,struct map_session_data *,struct map_session_data *,int);
+int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int first_charid,int second_charid,int third_charid,int flags);
 
 // LidL A
-void map_addchariddb(int charid,char *name);
-void map_delchariddb(int charid);
-void map_addnickdb(struct map_session_data *);
-int map_reqchariddb(struct map_session_data * sd,int charid);
+void map_addnickdb(int charid, const char* nick);
+void map_delnickdb(int charid, const char* nick);
+void map_reqnickdb(struct map_session_data* sd,int charid);
 const char* map_charid2nick(int charid);
 struct map_session_data* map_charid2sd(int charid);
 
 struct map_session_data * map_id2sd(int);
 struct block_list * map_id2bl(int);
+
+#define map_id2index(id) map[(id)].index
 int map_mapindex2mapid(unsigned short mapindex);
 int map_mapname2mapid(const char* name);
 int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port);
@@ -1357,7 +1338,7 @@ struct map_session_data * map_nick2sd(const char*);
 
 //
 int map_check_dir(int s_dir,int t_dir);
-int map_calc_dir( struct block_list *src,int x,int y);
+unsigned char map_calc_dir( struct block_list *src,int x,int y);
 int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
 
 // path.c

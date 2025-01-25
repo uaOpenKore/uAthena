@@ -53,7 +53,7 @@ struct mob_db {
 	char sprite[NAME_LENGTH],name[NAME_LENGTH],jname[NAME_LENGTH];
 	unsigned int base_exp,job_exp;
 	unsigned int mexp,mexpper;
-	int range2,range3;
+	short range2,range3;
 	short race2;	// celest
 	unsigned short lv;
 	struct { int nameid,p; } dropitem[MAX_MOB_DROP];
@@ -130,7 +130,7 @@ struct item_drop {
 };
 struct item_drop_list {
 	int m, x, y;                       // coordinates
-	struct map_session_data *first_sd, *second_sd, *third_sd; // sd's of players with higher pickup priority
+	int first_charid, second_charid, third_charid; // charid's of players with higher pickup priority
 	struct item_drop* item;            // linked list of drops
 };
 
@@ -153,7 +153,7 @@ int mob_guardian_guildchange(struct block_list *bl,va_list ap); //Change Guardia
 int mob_randomwalk(struct mob_data *md,unsigned int tick);
 int mob_warpchase(struct mob_data *md, struct block_list *target);
 int mob_target(struct mob_data *md,struct block_list *bl,int dist);
-int mob_unlocktarget(struct mob_data *md,int tick);
+int mob_unlocktarget(struct mob_data *md, unsigned int tick);
 struct mob_data* mob_spawn_dataset(struct spawn_data *data);
 int mob_spawn(struct mob_data *md);
 int mob_setdelayspawn(struct mob_data *md);
@@ -164,8 +164,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type);
 void mob_revive(struct mob_data *md, unsigned int hp);
 void mob_heal(struct mob_data *md,unsigned int heal);
 
-#define mob_stop_walking(md, type) { if (md->ud.walktimer != -1) unit_stop_walking(&md->bl, type); }
-#define mob_stop_attack(md) { if (md->ud.attacktimer != -1) unit_stop_attack(&md->bl); }
+#define mob_stop_walking(md, type) unit_stop_walking(&(md)->bl, type)
+#define mob_stop_attack(md) { if((md)->ud.attacktimer != -1) unit_stop_attack(&(md)->bl); }
 
 void mob_clear_spawninfo();
 int do_init_mob(void);

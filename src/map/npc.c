@@ -338,19 +338,16 @@ int npc_event_do_clock(int tid, unsigned int tick, int id, int data)
 	memcpy(&ev_tm_b,t,sizeof(ev_tm_b));
 	return c;
 }
+
 /*==========================================
  * OnInitCxgs(&vCxgJn)
  *------------------------------------------*/
-int npc_event_do_oninit(void)
+void npc_event_do_oninit(void)
 {
-//	int c = npc_event_doall("OnInit");
-	ShowStatus("Event '"CL_WHITE"OnInit"CL_RESET"' executed with '"
-	CL_WHITE"%d"CL_RESET"' NPCs.\n",npc_event_doall("OnInit"));
+	int count = npc_event_doall("OnInit");
+	ShowStatus("Event '"CL_WHITE"OnInit"CL_RESET"' executed with '"CL_WHITE"%d"CL_RESET"' NPCs."CL_CLL"\n", count);
 
-	add_timer_interval(gettick()+100,
-		npc_event_do_clock,0,0,1000);
-
-	return 0;
+	add_timer_interval(gettick()+100,npc_event_do_clock,0,0,1000);
 }
 
 /*==========================================
@@ -533,7 +530,7 @@ int npc_timerevent_stop(struct npc_data* nd)
 		return 0;
 	td = get_timer(*tid);
 	if (td && td->data)
-		ers_free(timer_event_ers, (struct event_timer_data*)td->data);
+		ers_free(timer_event_ers, (void*)td->data);
 	delete_timer(*tid,npc_timerevent);
 	*tid = -1;
 	//Set the timer tick to the time that has passed since the beginning of the timers and now.
@@ -1317,7 +1314,7 @@ int npc_unload(struct npc_data* nd)
 			struct TimerData *td = NULL;
 			td = get_timer(nd->u.scr.timerid);
 			if (td && td->data)
-				ers_free(timer_event_ers, (struct event_timer_data*)td->data);
+				ers_free(timer_event_ers, (void*)td->data);
 			delete_timer(nd->u.scr.timerid, npc_timerevent);
 		}
 		if (nd->u.scr.timer_event)

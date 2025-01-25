@@ -33,7 +33,7 @@
 
 #define MIN_PETTHINKTIME 100
 
-struct pet_db pet_db[MAX_PET_DB];
+struct s_pet_db pet_db[MAX_PET_DB];
 
 static struct eri *item_drop_ers; //For loot drops delay structures.
 static struct eri *item_drop_list_ers;
@@ -215,10 +215,10 @@ int pet_sc_check(struct map_session_data *sd, int type)
 	pd = sd->pd;
 
 	if( pd == NULL
-	|| (battle_config.pet_equip_required && pd->pet.equip == 0)
-	|| pd->recovery == NULL
-	|| pd->recovery->timer != -1
-	|| pd->recovery->type != type )
+	||  (battle_config.pet_equip_required && pd->pet.equip == 0)
+	||  pd->recovery == NULL
+	||  pd->recovery->timer != -1
+	||  pd->recovery->type != type )
 		return 1;
 
 	pd->recovery->timer = add_timer(gettick()+pd->recovery->delay*1000,pet_recovery_timer,sd->bl.id,0);
@@ -340,7 +340,7 @@ static int pet_return_egg(struct map_session_data *sd, struct pet_data *pd)
 	tmp_item.card[3] = pd->pet.rename_flag;
 	if((flag = pc_additem(sd,&tmp_item,1))) {
 		clif_additem(sd,0,0,flag);
-		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,NULL,NULL,NULL,0);
+		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
 	}
 	pd->pet.incuvate = 1;
 	//No need, pet is saved on unit_free below.
@@ -609,7 +609,7 @@ int pet_get_egg(int account_id,int pet_id,int flag)
 	tmp_item.card[3] = 0; //New pets are not named.
 	if((ret = pc_additem(sd,&tmp_item,1))) {
 		clif_additem(sd,0,0,ret);
-		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,NULL,NULL,NULL,0);
+		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
 	}
 
 	return 1;
@@ -738,7 +738,7 @@ static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd)
 	tmp_item.identify = 1;
 	if((flag = pc_additem(sd,&tmp_item,1))) {
 		clif_additem(sd,0,0,flag);
-		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,NULL,NULL,NULL,0);
+		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
 	}
 	if (battle_config.pet_equip_required)
 	{ 	//Skotlex: halt support timers if needed
@@ -984,14 +984,14 @@ static int pet_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 	struct pet_data* pd;
 	struct flooritem_data *fitem = (struct flooritem_data *)bl;
 	struct block_list **target;
-	int sd_id =0;
+	int sd_charid =0;
 
 	pd=va_arg(ap,struct pet_data *);
 	target=va_arg(ap,struct block_list**);
 
-	sd_id = fitem->first_get_id;
+	sd_charid = fitem->first_get_charid;
 
-	if(sd_id && sd_id != pd->msd->bl.id)
+	if(sd_charid && sd_charid != pd->msd->status.char_id)
 		return 0;
 
 	if(unit_can_reach_bl(&pd->bl,bl, pd->db->range2, 1, NULL, NULL) &&
@@ -1015,7 +1015,7 @@ static int pet_delay_item_drop(int tid,unsigned int tick,int id,int data)
 	while (ditem) {
 		map_addflooritem(&ditem->item_data,ditem->item_data.amount,
 			list->m,list->x,list->y,
-			list->first_sd,list->second_sd,list->third_sd,0);
+			list->first_charid,list->second_charid,list->third_charid,0);
 		ditem_prev = ditem;
 		ditem = ditem->next;
 		ers_free(item_drop_ers, ditem_prev);
@@ -1036,9 +1036,9 @@ int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd)
 	dlist->m = pd->bl.m;
 	dlist->x = pd->bl.x;
 	dlist->y = pd->bl.y;
-	dlist->first_sd = NULL;
-	dlist->second_sd = NULL;
-	dlist->third_sd = NULL;
+	dlist->first_charid = 0;
+	dlist->second_charid = 0;
+	dlist->third_charid = 0;
 	dlist->item = NULL;
 
 	for(i=0;i<pd->loot->count;i++) {
@@ -1362,7 +1362,7 @@ int do_init_pet(void)
 int do_final_pet(void)
 {
 	int i;
-	for( i = 0;i < MAX_PET_DB; i++ ) {
+	for( i = 0; i < MAX_PET_DB; i++ ) {
 		if(pet_db[i].script) {
 			script_free_code(pet_db[i].script);
 			pet_db[i].script = NULL;

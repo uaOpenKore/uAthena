@@ -17,9 +17,10 @@ struct status_change;
 
 extern unsigned long StatusChangeFlagTable[];
 
-// Status changes listing. These code are for use by the server. 
-enum {
+// Status changes listing. These code are for use by the server.
+enum sc_type {
 	//First we enumerate common status ailments which are often used around.
+	SC_COMMON_MIN = 0, // begin
 	SC_STONE = 0,
 	SC_FREEZE,
 	SC_STUN,
@@ -31,7 +32,8 @@ enum {
 	SC_BLIND,
 	SC_BLEEDING,
 	SC_DPOISON, //10
-	
+	SC_COMMON_MAX = 10, // end
+
 	//Next up, we continue on 20, to leave enough room for additional "common" ailments in the future.
 	SC_PROVOKE = 20,
 	SC_ENDURE,
@@ -284,7 +286,7 @@ int SkillStatusChangeTable(int skill);
 extern int StatusSkillChangeTable[SC_MAX];
 
 //Numerates the Number for the status changes (client-dependent), imported from jA
-enum {
+enum si_type {
 	SI_BLANK		= -1,
 	SI_PROVOKE		= 0,
 	SI_ENDURE		= 1,
@@ -579,7 +581,7 @@ int status_damage(struct block_list *src,struct block_list *target,int hp,int sp
 //Define for standard HP/SP damage triggers.
 #define status_zap(bl, hp, sp) status_damage(NULL, bl, hp, sp, 0, 1)
 //Define for standard HP/SP skill-related cost triggers (mobs require no HP/SP to use skills)
-#define status_charge(bl, hp, sp) (!((bl)->type&BL_CONSUME) || status_damage(NULL, bl, hp, sp, 0, 3))
+int status_charge(struct block_list* bl, int hp, int sp);
 int status_percent_change(struct block_list *src,struct block_list *target,signed char hp_rate, signed char sp_rate, int flag);
 //Easier handling of status_percent_change
 #define status_percent_heal(bl, hp_rate, sp_rate) status_percent_change(NULL, bl, -(hp_rate), -(sp_rate), 1)
@@ -593,8 +595,10 @@ int status_heal(struct block_list *bl,int hp,int sp, int flag);
 int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per_sp);
 
 //Define for copying a status_data structure from b to a, without overwriting current Hp and Sp, nor messing the lhw pointer.
-#define status_cpy(a, b) { memcpy(&((a)->max_hp), &((b)->max_hp), sizeof(struct status_data)-(sizeof((a)->hp)+sizeof((a)->sp)+sizeof((a)->lhw))); \
-	if ((a)->lhw && (b)->lhw) { memcpy((a)->lhw, (b)->lhw, sizeof(struct weapon_atk)); }}
+#define status_cpy(a, b) { \
+	memcpy(&((a)->max_hp), &((b)->max_hp), sizeof(struct status_data)-(sizeof((a)->hp)+sizeof((a)->sp)+sizeof((a)->lhw))); \
+	if ((a)->lhw && (b)->lhw) { memcpy((a)->lhw, (b)->lhw, sizeof(struct weapon_atk)); } \
+}
 
 struct regen_data *status_get_regen_data(struct block_list *bl);
 struct status_data *status_get_status_data(struct block_list *bl);
@@ -655,19 +659,19 @@ struct status_change *status_get_sc(struct block_list *bl);
 int status_isdead(struct block_list *bl);
 int status_isimmune(struct block_list *bl);
 
-int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int flag);
+int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int tick, int flag);
 //Short version, receives rate in 1->100 range, and does not uses a flag setting.
 #define sc_start(bl, type, rate, val1, tick) status_change_start(bl,type,100*(rate),val1,0,0,0,tick,0)
 #define sc_start2(bl, type, rate, val1, val2, tick) status_change_start(bl,type,100*(rate),val1,val2,0,0,tick,0)
 #define sc_start4(bl, type, rate, val1, val2, val3, val4, tick) status_change_start(bl,type,100*(rate),val1,val2,val3,val4,tick,0)
 
-int status_change_start(struct block_list *bl,int type,int rate,int val1,int val2,int val3,int val4,int tick,int flag);
-int status_change_end( struct block_list* bl , int type,int tid );
+int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,int flag);
+int status_change_end(struct block_list* bl, enum sc_type type, int tid);
 int kaahi_heal_timer(int tid, unsigned int tick, int id, int data);
 int status_change_timer(int tid, unsigned int tick, int id, int data);
-int status_change_timer_sub(struct block_list *bl, va_list ap );
-int status_change_clear(struct block_list *bl,int type);
-int status_change_clear_buffs(struct block_list *bl, int type);
+int status_change_timer_sub(struct block_list* bl, va_list ap);
+int status_change_clear(struct block_list* bl, int type);
+int status_change_clear_buffs(struct block_list* bl, int type);
 
 void status_calc_bl(struct block_list *bl, unsigned long flag);
 int status_calc_pet(struct pet_data* pd, int first); // [Skotlex]
