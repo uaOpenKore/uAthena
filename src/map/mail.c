@@ -102,7 +102,7 @@ int mail_check(struct map_session_data* sd, int type)
 	}
 
 	Sql_FreeResult(mail_handle);
-
+	
 	if( new_ > 0 && (type == 0 || type == 1) )
 	{
 		sprintf(message, msg_txt(514), new_);
@@ -133,7 +133,7 @@ int mail_read(struct map_session_data* sd, int index)
 
 	nullpo_retr(0, sd);
 
-	// retrieve the 'index'-th message
+	// retrieve the 'index'-th message 
 	if( SQL_ERROR == Sql_Query(mail_handle, "SELECT `message_id`,`from_char_name`,`message`,`read_flag`,`priority`,`check_flag` from `%s` WHERE `to_account_id` = %d ORDER by `message_id` LIMIT %d, 1", mail_db, sd->status.account_id, index-1) )
 	{
 		Sql_ShowDebug(mail_handle);

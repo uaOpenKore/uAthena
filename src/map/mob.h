@@ -48,7 +48,7 @@ struct spawn_info {
 	unsigned short mapindex;
 	unsigned short qty;
 };
-
+ 
 struct mob_db {
 	char sprite[NAME_LENGTH],name[NAME_LENGTH],jname[NAME_LENGTH];
 	unsigned int base_exp,job_exp;

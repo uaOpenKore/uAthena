@@ -65,9 +65,9 @@ void trade_traderequest(struct map_session_data *sd, struct map_session_data *ta
 		clif_displaymessage(sd->fd, msg_txt(246));
 		clif_tradestart(sd, 2); // GM is not allowed to trade
 		return;
-	}
-
-	//Fixed. Only real GMs can request trade from far away! [Lupus]
+	} 
+	
+	//Fixed. Only real GMs can request trade from far away! [Lupus] 
 	if (level < lowest_gm_level && (sd->bl.m != target_sd->bl.m ||
 		!check_distance_bl(&sd->bl, &target_sd->bl, TRADE_DISTANCE)
 	)) {
@@ -98,7 +98,7 @@ void trade_tradeack(struct map_session_data *sd, int type)
 
 	if (sd->state.trading || !sd->trade_partner)
 		return; //Already trading or no partner set.
-
+	
 	if ((tsd = map_id2sd(sd->trade_partner)) == NULL) {
 		sd->trade_partner=0;
 		clif_tradestart(sd, 1); // character does not exist
@@ -168,7 +168,7 @@ int impossible_trade_check(struct map_session_data *sd)
 	int i, index;
 
 	nullpo_retr(1, sd);
-
+	
 	if(sd->deal.zeny > sd->status.zeny)
 	{
 		pc_setglobalreg(sd,"ZENY_HACKER",1);
@@ -232,7 +232,7 @@ int trade_check(struct map_session_data *sd, struct map_session_data *tsd)
 	short amount;
 
 	if(sd->state.finalsave || tsd->state.finalsave)
-		return 0; //Item transferring fails
+		return 0; //Item transferring fails 
 
 	// check zenys value against hackers (Zeny was already checked on time of adding, but you never know when you lost some zeny since then.
 	if(sd->deal.zeny > sd->status.zeny || (tsd->status.zeny > MAX_ZENY - sd->deal.zeny))
@@ -488,7 +488,7 @@ void trade_tradecancel(struct map_session_data *sd)
 }
 
 /*==========================================
- * (trade)
+ * Žæˆø‹–‘ø(trade‰Ÿ‚µ)
  *------------------------------------------*/
 void trade_tradecommit(struct map_session_data *sd)
 {
@@ -525,7 +525,7 @@ void trade_tradecommit(struct map_session_data *sd)
 		trade_tradecancel(sd);
 		return;
 	}
-
+	
 	// trade is accepted and correct.
 	for( trade_i = 0; trade_i < 10; trade_i++ )
 	{
@@ -595,13 +595,13 @@ void trade_tradecommit(struct map_session_data *sd)
 	tsd->state.deal_locked = 0;
 	tsd->trade_partner = 0;
 	tsd->state.trading = 0;
-
+	
 	clif_tradecompleted(sd, 0);
 	clif_tradecompleted(tsd, 0);
 
 	// save both player to avoid crash: they always have no advantage/disadvantage between the 2 players
 	if (save_settings&1)
-	{
+  	{
 		chrif_save(sd,0); 
 		chrif_save(tsd,0);
 	}

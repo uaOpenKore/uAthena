@@ -116,11 +116,11 @@ int chat_joinchat(struct map_session_data* sd, int chatid, const char* pass)
 
 	pc_setchatid(sd,cd->bl.id);
 
-	clif_joinchatok(sd,cd);	// VQlSXg
-	clif_addchat(cd,sd);	// ll
-	clif_dispchat(cd,0);	// ll
+	clif_joinchatok(sd,cd);	// 新たに参加した人には全員のリスト
+	clif_addchat(cd,sd);	// 既に中に居た人には追加した人の報告
+	clif_dispchat(cd,0);	// 周囲の人には人数変化報告
 
-	chat_triggerevent(cd); // Cxg
+	chat_triggerevent(cd); // イベント
 	
 	return 0;
 }
@@ -191,7 +191,7 @@ int chat_leavechat(struct map_session_data* sd, bool kicked)
 /*==========================================
  * change a chatroom's owner
  *------------------------------------------*/
-int chat_changechatowner(struct map_session_data* sd,const char* nextownername)
+int chat_changechatowner(struct map_session_data* sd, const char* nextownername)
 {
 	struct chat_data* cd;
 	struct map_session_data* tmpsd;
@@ -200,7 +200,7 @@ int chat_changechatowner(struct map_session_data* sd,const char* nextownername)
 	nullpo_retr(1, sd);
 
 	cd = (struct chat_data*)map_id2bl(sd->chatID);
-	if( cd == NULL || (struct block_list*)sd != cd->owner)
+	if( cd == NULL || (struct block_list*) sd != cd->owner )
 		return 1;
 
 	ARR_FIND( 1, cd->users, i, strncmp(cd->usersd[i]->status.name, nextownername, NAME_LENGTH) == 0 );
@@ -218,7 +218,7 @@ int chat_changechatowner(struct map_session_data* sd,const char* nextownername)
 	tmpsd = cd->usersd[i];
 	cd->usersd[i] = cd->usersd[0];
 	cd->usersd[0] = tmpsd;
- 
+
 	// set the new chatroom position
 	map_delblock( &cd->bl );
 	cd->bl.x = cd->owner->x;
@@ -236,7 +236,7 @@ int chat_changechatowner(struct map_session_data* sd,const char* nextownername)
  *------------------------------------------*/
 int chat_changechatstatus(struct map_session_data* sd, const char* title, const char* pass, int limit, bool pub)
 {
-	struct chat_data *cd;
+	struct chat_data* cd;
 
 	nullpo_retr(1, sd);
 
@@ -266,7 +266,7 @@ int chat_kickchat(struct map_session_data* sd, const char* kickusername)
 	nullpo_retr(1, sd);
 
 	cd = (struct chat_data *)map_id2bl(sd->chatID);
-
+	
 	if( !cd )
 		return -1;
 
@@ -304,17 +304,17 @@ int chat_deletenpcchat(struct npc_data* nd)
 
 	nullpo_retr(0, nd);
 	nullpo_retr(0, cd = (struct chat_data*)map_id2bl(nd->chat_id));
-
+	
 	chat_npckickall(cd);
 	clif_clearchat(cd, 0);
-	map_delobject(cd->bl.id);	// free
+	map_delobject(cd->bl.id);	// freeまでしてくれる
 	nd->chat_id = 0;
-
+	
 	return 0;
 }
 
 /*==========================================
- * KlCxg`s
+ * 規定人数以上でイベントが定義されてるなら実行
  *------------------------------------------*/
 int chat_triggerevent(struct chat_data *cd)
 {

@@ -11,7 +11,7 @@ enum damage_lv {
 	ATK_DEF      // attack connected
 };
 
-// _[W
+// ダメージ
 struct Damage {
 	int damage,damage2;
 	int type,div_;
@@ -21,14 +21,14 @@ struct Damage {
 	enum damage_lv dmg_lv;	//ATK_LUCKY,ATK_FLEE,ATK_DEF
 };
 
-// \ipc.cAbattle_attr_fixgpj
+// 属性表（読み込みはpc.c、battle_attr_fixで使用）
 extern int attr_fix_table[4][10][10];
 
 struct map_session_data;
 struct mob_data;
 struct block_list;
 
-// _[WvZ
+// ダメージ計算
 
 struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int count);
 
@@ -38,11 +38,11 @@ void battle_drain(struct map_session_data *sd, struct block_list *tbl, int rdama
 
 int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv);
 
-// _[WIvZ
+// ダメージ最終計算
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
 int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
 
-enum {	// IvZtO
+enum {	// 最終計算のフラグ
 	BF_WEAPON	= 0x0001,
 	BF_MAGIC	= 0x0002,
 	BF_MISC		= 0x0004,
@@ -57,10 +57,10 @@ enum {	// IvZtO
 
 int battle_delay_damage (unsigned int tick, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, enum damage_lv dmg_lv, int ddelay);
 
-// U
+// 通常攻撃処理まとめ
 enum damage_lv battle_weapon_attack( struct block_list *bl,struct block_list *target,unsigned int tick,int flag);
 
-// ep[^
+// 各種パラメータを得る
 struct block_list* battle_get_master(struct block_list *src);
 struct block_list* battle_gettargeted(struct block_list *target);
 struct block_list* battle_getenemy(struct block_list *target, int type, int range);
@@ -89,7 +89,7 @@ int battle_check_target(struct block_list *src, struct block_list *target,int fl
 int battle_check_range(struct block_list *src,struct block_list *bl,int range);
 
 void battle_consume_ammo(struct map_session_data* sd, int skill, int lv);
-//
+// 設定
 
 extern struct Battle_Config
 {
@@ -109,9 +109,9 @@ extern struct Battle_Config
 	int use_weapon_skill_range; //[Skotlex]
 	int pc_damage_delay_rate;
 	int defnotenemy;
-	int vs_traps_bctall;
+	int vs_traps_bctall;	
 	int traps_setting;
-	int summon_flora; //[Skotlex]
+	int summon_flora; //[Skotlex]	
 	int clear_unit_ondeath; //[Skotlex]
 	int clear_unit_onwarp; //[Skotlex]
 	int random_monster_checklv;
@@ -276,7 +276,7 @@ extern struct Battle_Config
 	int item_rate_mvp, item_rate_common, item_rate_common_boss, item_rate_card, item_rate_card_boss,
 		item_rate_equip, item_rate_equip_boss, item_rate_heal, item_rate_heal_boss, item_rate_use,
 		item_rate_use_boss, item_rate_treasure, item_rate_adddrop;
-
+	
 	int logarithmic_drops;
 	int item_drop_common_min,item_drop_common_max;	// Added by TyrNemesis^
 	int item_drop_card_min,item_drop_card_max;
@@ -301,7 +301,7 @@ extern struct Battle_Config
 	int pk_level_range;
 
 	int manner_system; // end additions [Valaris]
-	int show_mob_info;
+	int show_mob_info; 
 
 	int agi_penalty_count_lv;
 	int vit_penalty_count_lv;
@@ -333,7 +333,7 @@ extern struct Battle_Config
 	int hack_info_GM_level; // added by [Yor]
 	int any_warp_GM_min_level; // added by [Yor]
 	int packet_ver_flag; // added by [Yor]
-
+	
 	int min_hair_style; // added by [MouseJstr]
 	int max_hair_style; // added by [MouseJstr]
 	int min_hair_color; // added by [MouseJstr]
@@ -346,7 +346,7 @@ extern struct Battle_Config
 	int area_size; // added by [MouseJstr]
 
 	int max_def, over_def_bonus; //added by [Skotlex]
-
+	
 	int zeny_from_mobs; // [Valaris]
 	int mobs_level_up; // [Valaris]
 	int mobs_level_up_exp_rate; // [Valaris]
@@ -405,14 +405,14 @@ extern struct Battle_Config
 	int title_lvl6; // Players titles [Lupus]
 	int title_lvl7; // Players titles [Lupus]
 	int title_lvl8; // Players titles [Lupus]
-
+	
 	int duel_allow_pvp; // [LuzZza]
 	int duel_allow_gvg; // [LuzZza]
 	int duel_allow_teleport; // [LuzZza]
 	int duel_autoleave_when_die; // [LuzZza]
 	int duel_time_interval; // [LuzZza]
 	int duel_only_on_same_map; // [Toms]
-
+	
 	int skip_teleport_lv1_menu; // possibility to disable (skip) Teleport Lv1 menu, that have only two lines `Random` and `Cancel` [LuzZza]
 
 	int allow_skill_without_day; // [Komurka]

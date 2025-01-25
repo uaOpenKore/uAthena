@@ -105,11 +105,11 @@ void vending_purchasereq(struct map_session_data* sd, int id, const uint8* data,
 			clif_buyvending(sd, idx, amount, 2); // you can not buy, because overweight
 			return;
 		}
-
+		
 		//Check to see if cart/vend info is in sync.
 		if( vending[j].amount > vsd->status.cart[idx].amount )
 			vending[j].amount = vsd->status.cart[idx].amount;
-
+		
 		// if they try to add packets (example: get twice or more 2 apples if marchand has only 3 apples).
 		// here, we check cumulative amounts
 		if( vending[j].amount < amount )
@@ -118,7 +118,7 @@ void vending_purchasereq(struct map_session_data* sd, int id, const uint8* data,
 			clif_buyvending(sd, idx, vsd->vending[j].amount, 4); // not enough quantity
 			return;
 		}
-
+		
 		vending[j].amount -= amount;
 
 		switch( pc_checkadditem(sd, vsd->status.cart[idx].nameid, amount) ) {
@@ -175,7 +175,7 @@ void vending_purchasereq(struct map_session_data* sd, int id, const uint8* data,
 	{
 		if( vsd->vending[i].amount == 0 )
 			continue;
-
+		
 		if( cursor != i ) // speedup
 		{
 			vsd->vending[cursor].index = vsd->vending[i].index;

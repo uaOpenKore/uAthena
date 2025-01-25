@@ -168,7 +168,7 @@ int chrif_save(struct map_session_data *sd, int flag)
 		pc_makesavestatus(sd);
 
 	if(!chrif_isconnected())
-	{
+  	{
 		if (flag) sd->state.finalsave = 1; //Will save character on reconnect.
 		return -1;
 	}
@@ -331,7 +331,7 @@ int chrif_changemapserverack(int account_id, int login_id1, int login_id2, int c
 
 	clif_changemapserver(sd, map_index, x, y, ntohl(ip), ntohs(port));
 
-	//Player has been saved already, remove him from memory. [Skotlex]
+	//Player has been saved already, remove him from memory. [Skotlex]	
 	map_quit(sd);
 	map_quit_ack(sd);
 	return 0;
@@ -378,7 +378,7 @@ int chrif_sendmapack(int fd)
 
 	//If there are players online, send them to the char-server. [Skotlex]
 	send_users_tochar();
-
+	
 	//Re-save any storages that were modified in the disconnection time. [Skotlex]
 	do_reconnect_map();
 	do_reconnect_storage();
@@ -451,7 +451,7 @@ void chrif_authok(int fd)
 		if (sd->state.auth && sd->status.char_id == status->char_id)
 			return;
 	}
-
+	
 	if ((auth_data =idb_get(auth_db, RFIFOL(fd, 4))) != NULL)
 	{	//Is the character already awaiting authorization?
 		if (auth_data->sd)
@@ -533,7 +533,7 @@ int chrif_charselectreq(struct map_session_data* sd, uint32 s_ip)
 }
 
 /*==========================================
- * L
+ * キャラ名問い合わせ
  *------------------------------------------*/
 int chrif_searchcharid(int char_id)
 {
@@ -550,7 +550,7 @@ int chrif_searchcharid(int char_id)
 }
 
 /*==========================================
- * GMv
+ * GMに変化要求
  *------------------------------------------*/
 int chrif_changegm(int id, const char *pass, int len)
 {
@@ -647,7 +647,7 @@ static void chrif_char_ask_name_answer(int acc, const char* player_name, uint16 
 	struct map_session_data* sd;
 	const char* action;
 	char output[256];
-
+	
 	sd = map_id2sd(acc);
 	if( acc < 0 || sd == NULL ) {
 		ShowError("chrif_char_ask_name_answer failed - player not online.\n");
@@ -662,7 +662,7 @@ static void chrif_char_ask_name_answer(int acc, const char* player_name, uint16 
 	case 5 : action = "change the sex of"; break;
 	default: action = "???"; break;
 	}
-
+	
 	switch( answer ) {
 	case 0 : sprintf(output, "Login-server has been asked to %s the player '%.*s'.", action, NAME_LENGTH, player_name); break;
 	case 1 : sprintf(output, "The player '%.*s' doesn't exist.", NAME_LENGTH, player_name); break;
@@ -670,7 +670,7 @@ static void chrif_char_ask_name_answer(int acc, const char* player_name, uint16 
 	case 3 : sprintf(output, "Login-server is offline. Impossible to %s the player '%.*s'.", action, NAME_LENGTH, player_name); break;
 	default: output[0] = '\0'; break;
 	}
-
+	
 	clif_displaymessage(sd->fd, output);
 }
 
@@ -700,7 +700,7 @@ int chrif_changedgm(int fd)
 }
 
 /*==========================================
- * I (modified by Yor)
+ * 性別変化終了 (modified by Yor)
  *------------------------------------------*/
 int chrif_changedsex(int fd)
 {
@@ -713,13 +713,13 @@ int chrif_changedsex(int fd)
 		ShowNotice("chrif_changedsex %d.\n", acc);
 	sd = map_id2sd(acc);
 	if (sd) { //Normally there should not be a char logged on right now!
-		if (sd->status.sex == sex)
+		if (sd->status.sex == sex) 
 			return 0; //Do nothing? Likely safe.
 		sd->status.sex = !sd->status.sex;
 
 		// reset skill of some job
 		if ((sd->class_&MAPID_UPPERMASK) == MAPID_BARDDANCER) {
-			// remove specifical skills of Bard classes
+			// remove specifical skills of Bard classes 
 			for(i = 315; i <= 322; i++) {
 				if (sd->status.skill[i].id > 0 && !sd->status.skill[i].flag) {
 					if (sd->status.skill_point > USHRT_MAX - sd->status.skill[i].lv)
@@ -730,7 +730,7 @@ int chrif_changedsex(int fd)
 					sd->status.skill[i].lv = 0;
 				}
 			}
-			// remove specifical skills of Dancer classes
+			// remove specifical skills of Dancer classes 
 			for(i = 323; i <= 330; i++) {
 				if (sd->status.skill[i].id > 0 && !sd->status.skill[i].flag) {
 					if (sd->status.skill_point > USHRT_MAX - sd->status.skill[i].lv)
@@ -759,7 +759,7 @@ int chrif_changedsex(int fd)
 }
 
 /*==========================================
- * v
+ * 離婚情報同期要求
  *------------------------------------------*/
 int chrif_divorce(int char_id, int partner_id)
 {
@@ -769,10 +769,10 @@ int chrif_divorce(int char_id, int partner_id)
 	if (!char_id || !partner_id || (sd = map_charid2sd(partner_id)) == NULL || sd->status.partner_id != char_id)
 		return 0;
 
-	//(L)
+	//離婚(相方は既にキャラが消えている筈なので)
 	sd->status.partner_id = 0;
 
-	//wD
+	//相方の結婚指輪を剥奪
 	for(i = 0; i < MAX_INVENTORY; i++)
 		if (sd->status.inventory[i].nameid == WEDDING_RING_M || sd->status.inventory[i].nameid == WEDDING_RING_F)
 			pc_delitem(sd, i, 1, 0);
@@ -826,7 +826,7 @@ int chrif_accountban(int fd)
 
 	sd->login_id1++; // change identify, because if player come back in char within the 5 seconds, he can change its characters
 	if (RFIFOB(fd,6) == 0) // 0: change of statut, 1: ban
-	{
+	{ 
 		switch (RFIFOL(fd,7)) { // status or final date of a banishment
 		case 1: clif_displaymessage(sd->fd, "Your account has 'Unregistered'."); break;
 		case 2: clif_displaymessage(sd->fd, "Your account has an 'Incorrect Password'..."); break;
@@ -842,7 +842,7 @@ int chrif_accountban(int fd)
 		}
 	}
 	else if (RFIFOB(fd,6) == 1) // 0: change of statut, 1: ban
-	{
+	{ 
 		time_t timestamp;
 		char tmpstr[2048];
 		timestamp = (time_t)RFIFOL(fd,7); // status or final date of a banishment
@@ -1014,7 +1014,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 
 	if (sd->state.finalsave) //Character was already saved?
 		return -1;
-
+	
 	chrif_check(-1);
 	tick = gettick();
 	
@@ -1054,7 +1054,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 
 //Retrieve and load sc_data for a player. [Skotlex]
 int chrif_load_scdata(int fd)
-{
+{	
 #ifdef ENABLE_SC_SAVING
 	struct map_session_data *sd;
 	struct status_change_data *data;
@@ -1257,10 +1257,10 @@ int chrif_parse(int fd)
 		cmd = RFIFOW(fd,0);
 		if (cmd < 0x2af8 || cmd >= 0x2af8 + ARRAYLENGTH(packet_len_table) || packet_len_table[cmd-0x2af8] == 0)
 		{
-			int r = intif_parse(fd); // intifn
+			int r = intif_parse(fd); // intifに渡す
 
-			if (r == 1) continue;	// intif
-			if (r == 2) return 0;	// intifAf[^
+			if (r == 1) continue;	// intifで処理した
+			if (r == 2) return 0;	// intifで処理したが、データが足りない
 
 			set_eof(fd);
 			ShowWarning("chrif_parse: session #%d, intif_parse failed -> disconnected.\n", fd);
@@ -1331,9 +1331,9 @@ int send_usercount_tochar(int tid, unsigned int tick, int id, int data)
 	int count;
 
 	chrif_check(-1);
-
+	
 	map_getallusers(&count);
-
+	
 	WFIFOHEAD(char_fd,4);
 	WFIFOW(char_fd,0) = 0x2afe;
 	WFIFOW(char_fd,2) = count;
@@ -1342,8 +1342,8 @@ int send_usercount_tochar(int tid, unsigned int tick, int id, int data)
 }
 
 /*==========================================
- * timer
- * mapIqNCAglcharI
+ * timer関数
+ * 今このmap鯖に繋がっているクライアント人数をchar鯖へ送る
  *------------------------------------------*/
 int send_users_tochar(void)
 {
@@ -1368,8 +1368,8 @@ int send_users_tochar(void)
 }
 
 /*==========================================
- * timer
- * charImFAx
+ * timer関数
+ * char鯖との接続を確認し、もし切れていたら再度接続する
  *------------------------------------------*/
 int check_connect_char_server(int tid, unsigned int tick, int id, int data)
 {
@@ -1420,7 +1420,7 @@ int auth_db_final(DBKey k,void *d,va_list ap)
 }
 
 /*==========================================
- * I
+ * 終了
  *------------------------------------------*/
 int do_final_chrif(void)
 {

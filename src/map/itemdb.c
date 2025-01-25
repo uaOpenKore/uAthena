@@ -23,7 +23,7 @@ static struct item_group itemgroup_db[MAX_ITEMGROUP];
 struct item_data dummy_item; //This is the default dummy item used for non-existant items. [Skotlex]
 
 /*==========================================
- * Op
+ * 名前で検索用
  *------------------------------------------*/
 // name = item alias, so we should find items aliases first. if not found then look for "jname" (full name)
 static int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
@@ -48,7 +48,7 @@ static int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
 }
 
 /*==========================================
- * O
+ * 名前で検索
  *------------------------------------------*/
 struct item_data* itemdb_searchname(const char *str)
 {
@@ -82,7 +82,7 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 
 
 /*==========================================
- * nACe
+ * 箱系アイテム検索
  *------------------------------------------*/
 int itemdb_searchrandomid(int group)
 {
@@ -92,7 +92,7 @@ int itemdb_searchrandomid(int group)
 	}
 	if (itemgroup_db[group].qty)
 		return itemgroup_db[group].nameid[rand()%itemgroup_db[group].qty];
-
+	
 	ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group);
 	return UNKNOWN_ITEM_ID;
 }
@@ -118,7 +118,7 @@ int itemdb_group_bonus(struct map_session_data* sd, int itemid)
 }
 
 /*==========================================
- * DBmF
+ * DBの存在確認
  *------------------------------------------*/
 struct item_data* itemdb_exists(int nameid)
 {
@@ -132,7 +132,7 @@ struct item_data* itemdb_exists(int nameid)
 }
 
 /*==========================================
- * Converts the jobid from the format in itemdb
+ * Converts the jobid from the format in itemdb 
  * to the format used by the map server. [Skotlex]
  *------------------------------------------*/
 static void itemdb_jobid2mapid(unsigned int *bclass, unsigned int jobmask)
@@ -266,7 +266,7 @@ int itemdb_isequip(int nameid)
  * Alternate version of itemdb_isequip
  *------------------------------------------*/
 int itemdb_isequip2(struct item_data *data)
-{
+{ 
 	nullpo_retr(0, data);
 	switch(data->type) {
 		case IT_WEAPON:
@@ -387,7 +387,7 @@ int itemdb_isidentified(int nameid)
 }
 
 /*==========================================
- * ACegp\tOI[o[Ch
+ * アイテム使用可能フラグのオーバーライド
  *------------------------------------------*/
 static int itemdb_read_itemavail (void)
 {
@@ -507,7 +507,7 @@ static void itemdb_read_itemgroup(void)
 }
 
 /*==========================================
- * t@Co
+ * 装備制限ファイル読み出し
  *------------------------------------------*/
 static int itemdb_read_noequip(void)
 {
@@ -629,19 +629,19 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	*/
 	int nameid;
 	struct item_data* id;
-
+	
 	nameid = atoi(str[0]);
 	if( nameid <= 0 )
 	{
 		ShowWarning("itemdb_parse_dbrow: Invalid id %d in line %d of \"%s\", skipping.\n", nameid, line, source);
 		return false;
 	}
-
+	
 	//ID,Name,Jname,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Job Upper,Gender,Loc,wLV,eLV,refineable,View
 	id = itemdb_load(nameid);
 	safestrncpy(id->name, str[1], sizeof(id->name));
 	safestrncpy(id->jname, str[2], sizeof(id->jname));
-
+	
 	id->type = atoi(str[3]);
 	if (id->type == IT_DELAYCONSUME)
 	{	//Items that are consumed only after target confirmation
@@ -655,35 +655,35 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	if (id->value_buy < id->value_sell * 2) id->value_buy = id->value_sell * 2; // prevent exploit
 	if (id->value_buy == 0 && id->value_sell > 0) id->value_buy = id->value_sell * 2;
 	if (id->value_sell == 0 && id->value_buy > 0) id->value_sell = id->value_buy / 2;
-
+	
 	id->weight = atoi(str[6]);
 	id->atk = atoi(str[7]);
 	id->def = atoi(str[8]);
 	id->range = atoi(str[9]);
 	id->slot = atoi(str[10]);
-
+	
 	if (id->slot > MAX_SLOTS)
 	{
 		ShowWarning("itemdb_parse_dbrow: Item %d (%s) specifies %d slots, but the server only supports up to %d\n", nameid, id->jname, id->slot, MAX_SLOTS);
 		id->slot = MAX_SLOTS;
 	}
-
+	
 	itemdb_jobid2mapid(id->class_base, (unsigned int)strtoul(str[11],NULL,0));
 	id->class_upper = atoi(str[12]);
 	id->sex	= atoi(str[13]);
 	id->equip = atoi(str[14]);
-
+	
 	if (!id->equip && itemdb_isequip2(id))
 	{
 		ShowWarning("Item %d (%s) is an equipment with no equip-field! Making it an etc item.\n", nameid, id->jname);
 		id->type = IT_ETC;
 	}
-
+	
 	id->wlv = atoi(str[15]);
 	id->elv = atoi(str[16]);
 	id->flag.no_refine = atoi(str[17]) ? 0 : 1; //FIXME: verify this
 	id->look = atoi(str[18]);
-
+	
 	id->flag.available = 1;
 	id->flag.value_notdc = 0;
 	id->flag.value_notoc = 0;
@@ -717,7 +717,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 }
 
 /*==========================================
- * ACef[^x[X
+ * アイテムデータベースの読み込み
  *------------------------------------------*/
 static int itemdb_readdb(void)
 {
@@ -835,7 +835,7 @@ static int itemdb_read_sqldb(void)
 {
 	const char* item_db_name[] = { item_db_db, item_db2_db };
 	int fi;
-
+	
 	for( fi = 0; fi < ARRAYLENGTH(item_db_name); ++fi )
 	{
 		uint32 lines = 0, count = 0;

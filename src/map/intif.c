@@ -41,11 +41,11 @@ static const int packet_len_table[]={
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
 };
 
-extern int char_fd;		// inter serverfdchar_fdg
-#define inter_fd char_fd	// GCAX
+extern int char_fd;		// inter serverのfdはchar_fdを使う
+#define inter_fd char_fd	// エイリアス
 
 //-----------------------------------------------------------------
-// inter serverM
+// inter serverへの送信
 
 int CheckForCharServer(void)
 {
@@ -131,7 +131,7 @@ int intif_rename(struct map_session_data *sd, int type, char *name)
 	return 0;
 }
 
-// GMbZ[WM
+// GMメッセージを送信
 int intif_GMmessage(const char* mes,int len,int flag)
 {
 	int lp = (flag&0x10) ? 8 : 4;
@@ -324,7 +324,7 @@ int intif_request_registry(struct map_session_data *sd, int flag)
 	return 0;
 }
 
-// qf[^v
+// 倉庫データ要求
 int intif_request_storage(int account_id)
 {
 	if (CheckForCharServer())
@@ -335,7 +335,7 @@ int intif_request_storage(int account_id)
 	WFIFOSET(inter_fd,6);
 	return 0;
 }
-// qf[^M
+// 倉庫データ送信
 int intif_send_storage(struct storage *stor)
 {
 	if (CheckForCharServer())
@@ -375,7 +375,7 @@ int intif_send_guild_storage(int account_id,struct guild_storage *gstor)
 	return 0;
 }
 
-// p[eBv
+// パーティ作成要求
 int intif_create_party(struct party_member *member,char *name,int item,int item2)
 {
 	if (CheckForCharServer())
@@ -392,7 +392,7 @@ int intif_create_party(struct party_member *member,char *name,int item,int item2
 	WFIFOSET(inter_fd,WFIFOW(inter_fd, 2));
 	return 0;
 }
-// p[eBv
+// パーティ情報要求
 int intif_request_partyinfo(int party_id)
 {
 	if (CheckForCharServer())
@@ -405,7 +405,7 @@ int intif_request_partyinfo(int party_id)
 //		printf("intif: request party info\n");
 	return 0;
 }
-// p[eBv
+// パーティ追加要求
 int intif_party_addmember(int party_id,struct party_member *member)
 {
 	if (CheckForCharServer())
@@ -418,7 +418,7 @@ int intif_party_addmember(int party_id,struct party_member *member)
 	WFIFOSET(inter_fd,WFIFOW(inter_fd, 2));
 	return 1;
 }
-// p[eBX
+// パーティ設定変更
 int intif_party_changeoption(int party_id,int account_id,int exp,int item)
 {
 	if (CheckForCharServer())
@@ -432,7 +432,7 @@ int intif_party_changeoption(int party_id,int account_id,int exp,int item)
 	WFIFOSET(inter_fd,14);
 	return 0;
 }
-// p[eBEv
+// パーティ脱退要求
 int intif_party_leave(int party_id,int account_id, int char_id)
 {
 	if (CheckForCharServer())
@@ -445,7 +445,7 @@ int intif_party_leave(int party_id,int account_id, int char_id)
 	WFIFOSET(inter_fd,14);
 	return 0;
 }
-// p[eBv
+// パーティ移動要求
 int intif_party_changemap(struct map_session_data *sd,int online)
 {
 	if (CheckForCharServer())
@@ -464,7 +464,7 @@ int intif_party_changemap(struct map_session_data *sd,int online)
 	WFIFOSET(inter_fd,19);
 	return 1;
 }
-// p[eB[Uv
+// パーティー解散要求
 int intif_break_party(int party_id)
 {
 	if (CheckForCharServer())
@@ -475,7 +475,7 @@ int intif_break_party(int party_id)
 	WFIFOSET(inter_fd,6);
 	return 0;
 }
-// p[eBbM
+// パーティ会話送信
 int intif_party_message(int party_id,int account_id,const char *mes,int len)
 {
 	if (CheckForCharServer())
@@ -493,7 +493,7 @@ int intif_party_message(int party_id,int account_id,const char *mes,int len)
 	WFIFOSET(inter_fd,len+12);
 	return 0;
 }
-// p[eB`FbNv
+// パーティ競合チェック要求
 int intif_party_checkconflict(int party_id,int account_id,int char_id)
 {
 	if (CheckForCharServer())
@@ -521,7 +521,7 @@ int intif_party_leaderchange(int party_id,int account_id,int char_id)
 }
 
 
-// Mhv
+// ギルド作成要求
 int intif_guild_create(const char *name,const struct guild_member *master)
 {
 	if (CheckForCharServer())
@@ -537,7 +537,7 @@ int intif_guild_create(const char *name,const struct guild_member *master)
 	WFIFOSET(inter_fd,WFIFOW(inter_fd,2));
 	return 0;
 }
-// Mhv
+// ギルド情報要求
 int intif_guild_request_info(int guild_id)
 {
 	if (CheckForCharServer())
@@ -548,7 +548,7 @@ int intif_guild_request_info(int guild_id)
 	WFIFOSET(inter_fd,6);
 	return 0;
 }
-// Mhov
+// ギルドメンバ追加要求
 int intif_guild_addmember(int guild_id,struct guild_member *m)
 {
 	if (CheckForCharServer())
@@ -575,7 +575,7 @@ int intif_guild_change_gm(int guild_id, const char* name, int len)
 	return 0;
 }
 
-// MhoE/v
+// ギルドメンバ脱退/追放要求
 int intif_guild_leave(int guild_id,int account_id,int char_id,int flag,const char *mes)
 {
 	if (CheckForCharServer())
@@ -590,7 +590,7 @@ int intif_guild_leave(int guild_id,int account_id,int char_id,int flag,const cha
 	WFIFOSET(inter_fd,55);
 	return 0;
 }
-// MhoIC/LvXVv
+// ギルドメンバのオンライン状況/Lv更新要求
 int intif_guild_memberinfoshort(int guild_id,
 	int account_id,int char_id,int online,int lv,int class_)
 {
@@ -607,7 +607,7 @@ int intif_guild_memberinfoshort(int guild_id,
 	WFIFOSET(inter_fd,19);
 	return 0;
 }
-// MhUm
+// ギルド解散通知
 int intif_guild_break(int guild_id)
 {
 	if (CheckForCharServer())
@@ -618,7 +618,7 @@ int intif_guild_break(int guild_id)
 	WFIFOSET(inter_fd,6);
 	return 0;
 }
-// MhbM
+// ギルド会話送信
 int intif_guild_message(int guild_id,int account_id,const char *mes,int len)
 {
 	if (CheckForCharServer())
@@ -637,7 +637,7 @@ int intif_guild_message(int guild_id,int account_id,const char *mes,int len)
 
 	return 0;
 }
-// Mh`FbNv
+// ギルド競合チェック要求
 int intif_guild_checkconflict(int guild_id,int account_id,int char_id)
 {
 	if (CheckForCharServer())
@@ -650,7 +650,7 @@ int intif_guild_checkconflict(int guild_id,int account_id,int char_id)
 	WFIFOSET(inter_fd,14);
 	return 0;
 }
-// Mh{Xv
+// ギルド基本情報変更要求
 int intif_guild_change_basicinfo(int guild_id,int type,const void *data,int len)
 {
 	if (CheckForCharServer())
@@ -664,7 +664,7 @@ int intif_guild_change_basicinfo(int guild_id,int type,const void *data,int len)
 	WFIFOSET(inter_fd,len+10);
 	return 0;
 }
-// MhoXv
+// ギルドメンバ情報変更要求
 int intif_guild_change_memberinfo(int guild_id,int account_id,int char_id,
 	int type,const void *data,int len)
 {
@@ -681,7 +681,7 @@ int intif_guild_change_memberinfo(int guild_id,int account_id,int char_id,
 	WFIFOSET(inter_fd,len+18);
 	return 0;
 }
-// MhEXv
+// ギルド役職変更要求
 int intif_guild_position(int guild_id,int idx,struct guild_position *p)
 {
 	if (CheckForCharServer())
@@ -695,7 +695,7 @@ int intif_guild_position(int guild_id,int idx,struct guild_position *p)
 	WFIFOSET(inter_fd,WFIFOW(inter_fd,2));
 	return 0;
 }
-// MhXLAbvv
+// ギルドスキルアップ要求
 int intif_guild_skillup(int guild_id, int skill_num, int account_id)
 {
 	if( CheckForCharServer() )
@@ -708,7 +708,7 @@ int intif_guild_skillup(int guild_id, int skill_num, int account_id)
 	WFIFOSET(inter_fd, 14);
 	return 0;
 }
-// Mh/Gv
+// ギルド同盟/敵対要求
 int intif_guild_alliance(int guild_id1,int guild_id2,int account_id1,int account_id2,int flag)
 {
 	if (CheckForCharServer())
@@ -723,7 +723,7 @@ int intif_guild_alliance(int guild_id1,int guild_id2,int account_id1,int account
 	WFIFOSET(inter_fd,19);
 	return 0;
 }
-// MhmXv
+// ギルド告知変更要求
 int intif_guild_notice(int guild_id,const char *mes1,const char *mes2)
 {
 	if (CheckForCharServer())
@@ -736,7 +736,7 @@ int intif_guild_notice(int guild_id,const char *mes1,const char *mes2)
 	WFIFOSET(inter_fd,186);
 	return 0;
 }
-// MhGuXv
+// ギルドエンブレム変更要求
 int intif_guild_emblem(int guild_id,int len,const char *data)
 {
 	if (CheckForCharServer())
@@ -752,7 +752,7 @@ int intif_guild_emblem(int guild_id,int len,const char *data)
 	WFIFOSET(inter_fd,len+12);
 	return 0;
 }
-//MhMh
+//現在のギルド城占領ギルドを調べる
 int intif_guild_castle_dataload(int castle_id,int index)
 {
 	if (CheckForCharServer())
@@ -765,7 +765,7 @@ int intif_guild_castle_dataload(int castle_id,int index)
 	return 0;
 }
 
-//MhMhXv
+//ギルド城占領ギルド変更要求
 int intif_guild_castle_datasave(int castle_id,int index, int value)
 {
 	if (CheckForCharServer())
@@ -840,7 +840,7 @@ int intif_homunculus_requestdelete(int homun_id)
 
 // Wisp/Page reception // rewritten by [Yor]
 int intif_parse_WisMessage(int fd)
-{
+{ 
 	struct map_session_data* sd;
 	char *wisp_source;
 	char name[NAME_LENGTH];
@@ -864,7 +864,7 @@ int intif_parse_WisMessage(int fd)
 		sd->ignore[i].name[0] != '\0' &&
 		strcmp(sd->ignore[i].name, wisp_source) != 0
 		; i++);
-
+	
 	if (i < MAX_IGNORE_LIST && sd->ignore[i].name[0] != '\0')
 	{	//Ignored
 		intif_wis_replay(id, 2);
@@ -872,7 +872,7 @@ int intif_parse_WisMessage(int fd)
 	}
 	//Success to send whisper.
 	clif_wis_message(sd->fd, wisp_source, (char*)RFIFOP(fd,56),RFIFOW(fd,2)-56);
-	intif_wis_replay(id,0);   // M
+	intif_wis_replay(id,0);   // 送信成功
 	return 0;
 }
 
@@ -927,7 +927,7 @@ int mapif_parse_WisToGM(int fd)
 	return 0;
 }
 
-// AJEgm
+// アカウント変数通知
 int intif_parse_Registers(int fd)
 {
 	int j,p,len,max, flag;
@@ -978,7 +978,7 @@ int intif_parse_Registers(int fd)
 	return 1;
 }
 
-// qf[^M
+// 倉庫データ受信
 int intif_parse_LoadStorage(int fd)
 {
 	struct storage *stor;
@@ -1019,7 +1019,7 @@ int intif_parse_LoadStorage(int fd)
 	return 0;
 }
 
-// qf[^M
+// 倉庫データ送信成功
 int intif_parse_SaveStorage(int fd)
 {
 	if(battle_config.save_log)
@@ -1033,7 +1033,7 @@ int intif_parse_LoadGuildStorage(int fd)
 	struct guild_storage *gstor;
 	struct map_session_data *sd;
 	int guild_id;
-
+	
 	guild_id = RFIFOL(fd,8);
 	if(guild_id <= 0)
 		return 1;
@@ -1078,7 +1078,7 @@ int intif_parse_SaveGuildStorage(int fd)
 	return 0;
 }
 
-// p[eB
+// パーティ作成可否
 int intif_parse_PartyCreated(int fd)
 {
 	if(battle_config.etc_log)
@@ -1086,7 +1086,7 @@ int intif_parse_PartyCreated(int fd)
 	party_created(RFIFOL(fd,2), RFIFOL(fd,6),RFIFOB(fd,10),RFIFOL(fd,11), (char *)RFIFOP(fd,15));
 	return 0;
 }
-// p[eB
+// パーティ情報
 int intif_parse_PartyInfo(int fd)
 {
 	if( RFIFOW(fd,2)==8){
@@ -1101,7 +1101,7 @@ int intif_parse_PartyInfo(int fd)
 	party_recv_info((struct party *)RFIFOP(fd,4));
 	return 0;
 }
-// p[eBm
+// パーティ追加通知
 int intif_parse_PartyMemberAdded(int fd)
 {
 	if(battle_config.etc_log)
@@ -1109,13 +1109,13 @@ int intif_parse_PartyMemberAdded(int fd)
 	party_member_added(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10), RFIFOB(fd, 14));
 	return 0;
 }
-// p[eBXm
+// パーティ設定変更通知
 int intif_parse_PartyOptionChanged(int fd)
 {
 	party_optionchanged(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOW(fd,10),RFIFOW(fd,12),RFIFOB(fd,14));
 	return 0;
 }
-// p[eBEm
+// パーティ脱退通知
 int intif_parse_PartyMemberLeaved(int fd)
 {
 	if(battle_config.etc_log)
@@ -1123,32 +1123,32 @@ int intif_parse_PartyMemberLeaved(int fd)
 	party_member_leaved(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10));
 	return 0;
 }
-// p[eBUm
+// パーティ解散通知
 int intif_parse_PartyBroken(int fd)
 {
 	party_broken(RFIFOL(fd,2));
 	return 0;
 }
-// p[eBm
+// パーティ移動通知
 int intif_parse_PartyMove(int fd)
 {
 	party_recv_movemap(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),RFIFOW(fd,14),RFIFOB(fd,16),RFIFOW(fd,17));
 	return 0;
 }
-// p[eBbZ[W
+// パーティメッセージ
 int intif_parse_PartyMessage(int fd)
 {
 	party_recv_message(RFIFOL(fd,4),RFIFOL(fd,8),(char *) RFIFOP(fd,12),RFIFOW(fd,2)-12);
 	return 0;
 }
 
-// Mh
+// ギルド作成可否
 int intif_parse_GuildCreated(int fd)
 {
 	guild_created(RFIFOL(fd,2),RFIFOL(fd,6));
 	return 0;
 }
-// Mh
+// ギルド情報
 int intif_parse_GuildInfo(int fd)
 {
 	if(RFIFOW(fd,2) == 8) {
@@ -1162,7 +1162,7 @@ int intif_parse_GuildInfo(int fd)
 	guild_recv_info((struct guild *)RFIFOP(fd,4));
 	return 0;
 }
-// Mhom
+// ギルドメンバ追加通知
 int intif_parse_GuildMemberAdded(int fd)
 {
 	if(battle_config.etc_log)
@@ -1170,20 +1170,20 @@ int intif_parse_GuildMemberAdded(int fd)
 	guild_member_added(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),RFIFOB(fd,14));
 	return 0;
 }
-// MhoE/m
+// ギルドメンバ脱退/追放通知
 int intif_parse_GuildMemberLeaved(int fd)
 {
 	guild_member_leaved(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),RFIFOB(fd,14),(char *)RFIFOP(fd,55),(char *)RFIFOP(fd,15));
 	return 0;
 }
 
-// MhoIC/LvXm
+// ギルドメンバオンライン状態/Lv変更通知
 int intif_parse_GuildMemberInfoShort(int fd)
 {
 	guild_recv_memberinfoshort(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),RFIFOB(fd,14),RFIFOW(fd,15),RFIFOW(fd,17));
 	return 0;
 }
-// MhUm
+// ギルド解散通知
 int intif_parse_GuildBroken(int fd)
 {
 	guild_broken(RFIFOL(fd,2),RFIFOB(fd,6));
@@ -1247,7 +1247,7 @@ int intif_parse_GuildMemberInfoChanged(int fd)
 	return 0;
 }
 
-// MhEXm
+// ギルド役職変更通知
 int intif_parse_GuildPosition(int fd)
 {
 	if( RFIFOW(fd,2)!=sizeof(struct guild_position)+12 )
@@ -1255,48 +1255,48 @@ int intif_parse_GuildPosition(int fd)
 	guild_position_changed(RFIFOL(fd,4),RFIFOL(fd,8),(struct guild_position *)RFIFOP(fd,12));
 	return 0;
 }
-// MhXLUm
+// ギルドスキル割り振り通知
 int intif_parse_GuildSkillUp(int fd)
 {
 	guild_skillupack(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10));
 	return 0;
 }
-// Mh/Gm
+// ギルド同盟/敵対通知
 int intif_parse_GuildAlliance(int fd)
 {
 	guild_allianceack(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),RFIFOL(fd,14),RFIFOB(fd,18),(char *) RFIFOP(fd,19),(char *) RFIFOP(fd,43));
 	return 0;
 }
-// MhmXm
+// ギルド告知変更通知
 int intif_parse_GuildNotice(int fd)
 {
 	guild_notice_changed(RFIFOL(fd,2),(char *) RFIFOP(fd,6),(char *) RFIFOP(fd,66));
 	return 0;
 }
-// MhGuXm
+// ギルドエンブレム変更通知
 int intif_parse_GuildEmblem(int fd)
 {
 	guild_emblem_changed(RFIFOW(fd,2)-12,RFIFOL(fd,4),RFIFOL(fd,8), (char *)RFIFOP(fd,12));
 	return 0;
 }
-// MhbM
+// ギルド会話受信
 int intif_parse_GuildMessage(int fd)
 {
 	guild_recv_message(RFIFOL(fd,4),RFIFOL(fd,8),(char *) RFIFOP(fd,12),RFIFOW(fd,2)-12);
 	return 0;
 }
-// Mhf[^vM
+// ギルド城データ要求返信
 int intif_parse_GuildCastleDataLoad(int fd)
 {
 	return guild_castledataloadack(RFIFOW(fd,2),RFIFOB(fd,4),RFIFOL(fd,5));
 }
-// Mhf[^Xm
+// ギルド城データ変更通知
 int intif_parse_GuildCastleDataSave(int fd)
 {
 	return guild_castledatasaveack(RFIFOW(fd,2),RFIFOB(fd,4),RFIFOL(fd,5));
 }
 
-// Mhf[^M()
+// ギルド城データ一括受信(初期化時)
 int intif_parse_GuildCastleAllDataLoad(int fd)
 {
 	return guild_castlealldataload(RFIFOW(fd,2),(struct guild_castle *)RFIFOP(fd,4));
@@ -1414,19 +1414,19 @@ int intif_parse_DeleteHomunculusOk(int fd)
 }
 
 //-----------------------------------------------------------------
-// inter serverM
-// G[0(false)
-// pPbg1,pPbg2
+// inter serverからの通信
+// エラーがあれば0(false)を返すこと
+// パケットが処理できれば1,パケット長が足りなければ2を返すこと
 int intif_parse(int fd)
 {
 	int packet_len, cmd;
 	cmd = RFIFOW(fd,0);
-	// pPbgIDmF
+	// パケットのID確認
 	if(cmd<0x3800 || cmd>=0x3800+(sizeof(packet_len_table)/sizeof(packet_len_table[0])) ||
 	   packet_len_table[cmd-0x3800]==0){
 	   	return 0;
 	}
-	// pPbgmF
+	// パケットの長さ確認
 	packet_len = packet_len_table[cmd-0x3800];
 	if(packet_len==-1){
 		if(RFIFOREST(fd)<4)
@@ -1438,7 +1438,7 @@ int intif_parse(int fd)
 	if((int)RFIFOREST(fd)<packet_len){
 		return 2;
 	}
-	// 
+	// 処理分岐
 	switch(cmd){
 	case 0x3800:
 		if (RFIFOL(fd,4) == 0xFF000000) //Normal announce.
@@ -1495,7 +1495,7 @@ int intif_parse(int fd)
 		ShowError("intif_parse : unknown packet %d %x\n",fd,RFIFOW(fd,0));
 		return 0;
 	}
-	// pPbg
+	// パケット読み飛ばし
 	RFIFOSKIP(fd,packet_len);
 	return 1;
 }

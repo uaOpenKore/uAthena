@@ -17,7 +17,7 @@ struct status_change;
 
 extern unsigned long StatusChangeFlagTable[];
 
-// Status changes listing. These code are for use by the server.
+// Status changes listing. These code are for use by the server. 
 enum sc_type {
 	//First we enumerate common status ailments which are often used around.
 	SC_STONE = 0,
@@ -33,7 +33,7 @@ enum sc_type {
 	SC_BLEEDING,
 	SC_DPOISON, //10
 	SC_COMMON_MAX = 10, // end
-
+	
 	//Next up, we continue on 20, to leave enough room for additional "common" ailments in the future.
 	SC_PROVOKE = 20,
 	SC_ENDURE,
@@ -274,7 +274,7 @@ enum sc_type {
 	SC_SUMMER,
 	SC_EXPBOOST,
 	SC_ITEMBOOST,
-	SC_BOSSMAPINFO,
+	SC_BOSSMAPINFO, 
 	SC_LIFEINSURANCE, //260
 	SC_INCCRI,
 	SC_INCDEF,
@@ -397,12 +397,12 @@ enum si_type {
 	SI_SMA			= 159,
 	SI_NIGHT		= 160,
 	SI_ONEHAND		= 161,
-	SI_WARM			= 165,
-//	166 | The three show the exact same display: ultra red character (165, 166, 167)
+	SI_WARM			= 165,	
+//	166 | The three show the exact same display: ultra red character (165, 166, 167)	
 //	167 |	
 	SI_SUN_COMFORT		= 169,
-	SI_MOON_COMFORT		= 170,
-	SI_STAR_COMFORT		= 171,
+	SI_MOON_COMFORT		= 170,	
+	SI_STAR_COMFORT		= 171,	
 	SI_PRESERVE		= 181,
 	SI_INCSTR		= 182,
 	SI_INTRAVISION		= 184,
@@ -500,7 +500,7 @@ enum {
 //0x020 - nothing
 //0x040 - nothing
 #define OPT2_DPOISON 0x080
-//0x100
+//0x100 
 
 #define OPTION_SIGHT 0x00000001
 #define OPTION_HIDE 0x00000002

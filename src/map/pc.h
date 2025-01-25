@@ -29,7 +29,7 @@ enum weapon_type {
 	W_2HMACE,	//9, unused?
 	W_STAFF,	//10
 	W_BOW,	//11
-	W_KNUCKLE,	//12
+	W_KNUCKLE,	//12	
 	W_MUSICAL,	//13
 	W_WHIP,	//14
 	W_BOOK,	//15
@@ -62,7 +62,7 @@ enum {
 
 //Equip position constants
 enum equip_pos {
-	EQP_HEAD_LOW = 0x0001,
+	EQP_HEAD_LOW = 0x0001, 
 	EQP_HEAD_MID = 0x0200, //512
 	EQP_HEAD_TOP = 0x0100, //256
 	EQP_HAND_R   = 0x0002,

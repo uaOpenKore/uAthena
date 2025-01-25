@@ -59,7 +59,7 @@
 #define SD_ANIMATION 0x2000 // will use '5' instead of the skill's 'type' (this makes skills show an animation)
 #define SD_PREAMBLE  0x4000 // will transmit a 'magic' damage packet (-30000 dmg) for the first target to be hit
 
-// XLf?^x?X
+// スキルデ?タベ?ス
 struct s_skill_db {
 	char name[NAME_LENGTH];
 	char desc[40];
@@ -84,14 +84,14 @@ struct s_skill_db {
 };
 extern struct s_skill_db skill_db[MAX_SKILL_DB];
 
-struct skill_name_db {
+struct skill_name_db { 
 	int id;	// skill id
 	char *name;	// search strings
 	char *desc;	// description that shows up for searches
 };
 
 #define MAX_SKILL_UNIT_LAYOUT	50
-#define MAX_SQUARE_LAYOUT		5	// 11*11jbgzu
+#define MAX_SQUARE_LAYOUT		5	// 11*11のユニット配置が最大
 #define MAX_SKILL_UNIT_COUNT ((MAX_SQUARE_LAYOUT*2+1)*(MAX_SQUARE_LAYOUT*2+1))
 struct s_skill_unit_layout {
 	int count;
@@ -100,10 +100,10 @@ struct s_skill_unit_layout {
 };
 
 enum {
-	UF_DEFNOTENEMY   = 0x0001,	// defnotenemy BCT_NOENEMY
-	UF_NOREITERATION = 0x0002,	// du~
-	UF_NOFOOTSET     = 0x0004,	// u~
-	UF_NOOVERLAP     = 0x0008,	// jbgd
+	UF_DEFNOTENEMY   = 0x0001,	// defnotenemy 設定でBCT_NOENEMYに切り替え
+	UF_NOREITERATION = 0x0002,	// 重複置き禁止 
+	UF_NOFOOTSET     = 0x0004,	// 足元置き禁止
+	UF_NOOVERLAP     = 0x0008,	// ユニット効果が重複しない
 	UF_NOPC          = 0x0010,	//May not target players
 	UF_NOMOB         = 0x0020,	//May not target mobs
 	UF_SKILL         = 0x0080,	//May target skills
@@ -113,7 +113,7 @@ enum {
 	UF_DUALMODE      = 0x0800,	//Spells should trigger both ontimer and onplace/onout/onleft effects.
 };
 
-// ACef?^x?X
+// アイテム作成デ?タベ?ス
 struct s_skill_produce_db {
 	int nameid, trigger;
 	int req_skill,req_skill_lv,itemlv;
@@ -121,14 +121,14 @@ struct s_skill_produce_db {
 };
 extern struct s_skill_produce_db skill_produce_db[MAX_SKILL_PRODUCE_DB];
 
-// f?^x?X
+// 矢作成デ?タベ?ス
 struct s_skill_arrow_db {
 	int nameid, trigger;
 	int cre_id[5],cre_amount[5];
 };
 extern struct s_skill_arrow_db skill_arrow_db[MAX_SKILL_ARROW_DB];
 
-// AuJ_uf?^x?X
+// アブラカダブラデ?タベ?ス
 struct s_skill_abra_db {
 	int skillid;
 	int req_lv;
@@ -150,7 +150,7 @@ int do_final_skill(void);
 //Returns the cast type of the skill: ground cast, castend damage, castend no damage
 enum { CAST_GROUND, CAST_DAMAGE, CAST_NODAMAGE };
 int skill_get_casttype(int id); //[Skotlex]
-// XLf?^x?XANZT
+// スキルデ?タベ?スへのアクセサ
 //
 int	skill_get_type( int id );
 int	skill_get_hit( int id );
@@ -197,13 +197,13 @@ int skill_castend_map( struct map_session_data *sd,short skill_num, const char *
 int skill_cleartimerskill(struct block_list *src);
 int skill_addtimerskill(struct block_list *src,unsigned int tick,int target,int x,int y,int skill_id,int skill_lv,int type,int flag);
 
-// ?
+// 追加?果
 int skill_additional_effect( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int attack_type,unsigned int tick);
 int skill_counter_additional_effect( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int attack_type,unsigned int tick);
 int skill_blown(struct block_list* src, struct block_list* target, int count, int direction, int flag);
 int skill_break_equip(struct block_list *bl, unsigned short where, int rate, int flag);
 int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int lv, int time);
-// jbgXL
+// ユニットスキル
 struct skill_unit_group *skill_unitsetting(struct block_list* src, short skillid, short skilllv, short x, short y, int flag);
 struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int x, int y, int val1, int val2);
 int skill_delunit(struct skill_unit *unit);
@@ -233,7 +233,7 @@ void skill_stop_dancing(struct block_list *src);
 // Guild skills [celest]
 int skill_guildaura_sub (struct block_list *bl,va_list ap);
 
-// rLZ
+// 詠唱キャンセル
 int skill_castcancel(struct block_list *bl,int type);
 
 int skill_sit (struct map_session_data *sd, int type);
@@ -248,26 +248,26 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 
 bool skill_check_cloaking(struct block_list *bl, struct status_change_entry *sce);
 
-// Xe?^X
+// ステ?タス異常
 int skill_enchant_elemental_end(struct block_list *bl, int type);
 int skillnotok(int skillid, struct map_session_data *sd);
 int skillnotok_hom (int skillid, struct homun_data *hd) ;	//[orn]
 int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap);	//[orn]
 
-// ACe
+// アイテム作成
 int skill_can_produce_mix( struct map_session_data *sd, int nameid, int trigger, int qty);
 int skill_produce_mix( struct map_session_data *sd, int skill_id, int nameid, int slot1, int slot2, int slot3, int qty );
 
 int skill_arrow_create( struct map_session_data *sd,int nameid);
 
-// mobXL
+// mobスキルのため
 int skill_castend_nodamage_id( struct block_list *src, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
 int skill_castend_damage_id( struct block_list* src, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
 int skill_castend_pos2( struct block_list *src, int x,int y,int skillid,int skilllv,unsigned int tick,int flag);
 int skill_blockpc_start (struct map_session_data*,int,int);	// [celest]
 int skill_blockmerc_start (struct homun_data*,int,int);	//[orn]
 
-// XLU??
+// スキル攻?一括?理
 int skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
 
 void skill_reload(void);

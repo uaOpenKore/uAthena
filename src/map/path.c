@@ -49,7 +49,7 @@ static void push_heap_path(int *heap,struct tmp_path *tp,int index)
 
 /*==========================================
  * heap update (helper function)
- * cost
+ * costが減ったので根の方へ移動
  *------------------------------------------*/
 static void update_heap_path(int *heap,struct tmp_path *tp,int index)
 {
@@ -177,7 +177,7 @@ static int can_move(struct map_data *m,int x0,int y0,int x1,int y1,int flag)
 {
 	if( x1 < 0 || y1 < 0 || x1 >= m->xs || y1 >= m->ys)
 		return 0; // out-of-bounds coordinates
-	if( flag&0x20000 ) //Flag to ignore everything, for use with Taekwon's Jump skill currently. [Skotlex]
+	if( flag&0x20000 ) //Flag to ignore everything, for use with Taekwon's Jump skill currently. [Skotlex] 
 		return 1;
 #ifndef CELL_NOSTACK
 	//In no-stack mode, do not check current cell.
@@ -194,8 +194,8 @@ static int can_move(struct map_data *m,int x0,int y0,int x1,int y1,int flag)
 }
 
 /*==========================================
- * (x0,y0)(dx,dy)countZ
- * W
+ * (x0,y0)から(dx,dy)方向へcountセル分
+ * 吹き飛ばしたあとの座標を所得
  *------------------------------------------*/
 int path_blownpos(int m,int x0,int y0,int dx,int dy,int count)
 {
@@ -214,7 +214,7 @@ int path_blownpos(int m,int x0,int y0,int dx,int dy,int count)
 		dx=(dx>0)?1:((dx<0)?-1:0);
 		dy=(dy>0)?1:((dy<0)?-1:0);
 	}
-
+	
 	while( (count--)>0 && (dx || dy) )
 	{
 		if( !can_move(md,x0,y0,x0+dx,y0+dy,0) ){
@@ -356,7 +356,7 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 		wpd->path_half = 0;
 		return 0;
 	}
-
+	
 	if( flag&1 )
 		return -1;
 
@@ -371,7 +371,7 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 	tp[i].flag=0;
 	heap[0]=0;
 	push_heap_path(heap,tp,calc_index(x0,y0));
-	xs = md->xs-1; // PZ
+	xs = md->xs-1; // あらかじめ１減算しておく
 	ys = md->ys-1;
 	while(1){
 		int e=0,f=0,dist,cost,dc[4]={0,0,0,0};
@@ -385,10 +385,10 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 		cost = tp[rp].cost;
 		if(x==x1 && y==y1) break;
 
-		// dc[0] : y++ RXg
-		// dc[1] : x-- RXg
-		// dc[2] : y-- RXg
-		// dc[3] : x++ RXg
+		// dc[0] : y++ の時のコスト増分
+		// dc[1] : x-- の時のコスト増分
+		// dc[2] : y-- の時のコスト増分
+		// dc[3] : x++ の時のコスト増分
 
 		if(y < ys && !map_getcellp(md,x  ,y+1,flag2)) {
 			f |= 1; dc[0] = (y >= y1 ? 20 : 0);

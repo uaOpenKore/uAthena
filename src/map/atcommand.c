@@ -5086,9 +5086,9 @@ int atcommand_jailfor(const int fd, struct map_session_data* sd, const char* com
 	}
 
 	//Added by Coltaro
-	if(pl_sd->sc.data[SC_JAILED] &&
+	if(pl_sd->sc.data[SC_JAILED] && 
 		pl_sd->sc.data[SC_JAILED]->val1 != INT_MAX)
-	{	//Update the player's jail time
+  	{	//Update the player's jail time
 		jailtime += pl_sd->sc.data[SC_JAILED]->val1;
 		if (jailtime <= 0) {
 			jailtime = 0;
@@ -5130,7 +5130,7 @@ int atcommand_jailtime(const int fd, struct map_session_data* sd, const char* co
 	int year, month, day, hour, minute;
 
 	nullpo_retr(-1, sd);
-
+	
 	if (!sd->sc.data[SC_JAILED]) {
 		clif_displaymessage(fd, "You are not in jail."); // You are not in jail.
 		return -1;
@@ -7572,7 +7572,7 @@ int atcommand_adopt(const int fd, struct map_session_data* sd, const char* comma
 	struct map_session_data *pl_sd3 = NULL;
 	char player1[NAME_LENGTH], player2[NAME_LENGTH], player3[NAME_LENGTH];
 	char output[256];
-
+	
         nullpo_retr(-1, sd);
 
 		if (!message || !*message || sscanf(message, "%23[^,],%23[^,],%23[^\r\n]", player1, player2, player3) < 3) {
@@ -7594,7 +7594,7 @@ int atcommand_adopt(const int fd, struct map_session_data* sd, const char* comma
                 clif_displaymessage(fd, output);
                 return -1;
 	}
-
+ 
        if((pl_sd3=map_nick2sd((char *) player3)) == NULL) {
                 sprintf(output, "Cannot find player %s online", player3);
                 clif_displaymessage(fd, output);
@@ -7616,7 +7616,7 @@ int atcommand_version(const int fd, struct map_session_data* sd, const char* com
 	if ((revision = get_svn_revision()) != 0) {
 		sprintf(atcmd_output,"eAthena Version SVN r%s",revision);
 		clif_displaymessage(fd,atcmd_output);
-	} else
+	} else 
 		clif_displaymessage(fd,"Cannot determine SVN revision");
 
 	return 0;
@@ -8557,10 +8557,10 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 	
 	if( !message || !*message )
 		return false; // shouldn't happen
-
+	
 	if( sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCOMMAND )
 		return true; // so that it won't display as normal message
-
+	
 	if( battle_config.atc_gmonly != 0 && gmlvl == 0 )
 		return false;
 	

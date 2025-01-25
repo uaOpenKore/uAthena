@@ -170,10 +170,10 @@ enum {
 //Specifies if the map is tagged as GvG/WoE (regardless of agit_flag status)
 #define map_flag_gvg2(m) (map[m].flag.gvg || map[m].flag.gvg_castle)
 
-//This stackable implementation does not means a BL can be more than one type at a time, but it's
+//This stackable implementation does not means a BL can be more than one type at a time, but it's 
 //meant to make it easier to check for multiple types at a time on invocations such as
 // map_foreach* calls [Skotlex]
-enum bl_type {
+enum bl_type { 
 	BL_NUL = 0x000,
 	BL_PC = 0x001,
 	BL_MOB = 0x002,
@@ -445,7 +445,7 @@ struct regen_data_sub {
 	struct {
 		unsigned int hp,sp;
 	} tick;
-
+	
 	//Regen rates (where every 1 means +100% regen)
 	struct {
 		unsigned char hp,sp;
@@ -462,13 +462,13 @@ struct regen_data {
 	struct {
 		unsigned int hp,sp,shp,ssp;
 	} tick;
-
+	
 	//Regen rates (where every 1 means +100% regen)
 	struct {
 		unsigned char
 		hp,sp,shp,ssp;
 	} rate;
-
+	
 	struct {
 		unsigned walk:1; //Can you regen even when walking?
 		unsigned gc:1;	//Tags when you should have double regen due to GVG castle
@@ -581,7 +581,7 @@ struct map_session_data {
 	int packet_ver;  // 5: old, 6: 7july04, 7: 13july04, 8: 26july04, 9: 9aug04/16aug04/17aug04, 10: 6sept04, 11: 21sept04, 12: 18oct04, 13: 25oct04 ... 18
 	struct mmo_charstatus status;
 	struct registry save_reg;
-
+	
 	struct item_data* inventory_data[MAX_INVENTORY]; // direct pointers to itemdb entries (faster than doing item_id lookups)
 	short equip_index[11];
 	unsigned int weight,max_weight;
@@ -671,7 +671,7 @@ struct map_session_data {
 		short class_, rate;
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS],
 		add_mdmg[MAX_PC_BONUS];
-	struct s_add_drop {
+	struct s_add_drop { 
 		short id, group;
 		int race, rate;
 	} add_drop[MAX_PC_BONUS];
@@ -707,12 +707,12 @@ struct map_session_data {
 	int classchange; // [Valaris]
 	int speed_add_rate, aspd_add;
 	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
-
+	
 	short splash_range, splash_add_range;
 	short add_steal_rate;
 	short sp_gain_value, hp_gain_value;
 	short sp_vanish_rate;
-	short sp_vanish_per;
+	short sp_vanish_per;	
 	unsigned short unbreakable;	// chance to prevent ANY equipment breaking [celest]
 	unsigned short unbreakable_equip; //100% break resistance on certain equipment
 	unsigned short unstripable_equip;
@@ -745,7 +745,7 @@ struct map_session_data {
 	struct script_regstr *regstr;
 
 	int trade_partner;
-	struct {
+	struct { 
 		struct {
 			short index, amount;
 		} item[10];
@@ -912,7 +912,7 @@ struct mob_data {
 		unsigned char attacked_count; //For rude attacked.
 		int provoke_flag; // Celest
 	} state;
-	struct guardian_data* guardian_data;
+	struct guardian_data* guardian_data; 
 	struct {
 		int id;
 		unsigned int dmg;
@@ -946,7 +946,7 @@ struct homun_data {
 	struct status_data base_status, battle_status;
 	struct status_change sc;
 	struct regen_data regen;
-	struct homunculus_db *homunculusDB;	//[orn]
+	struct s_homunculus_db *homunculusDB;	//[orn]
 	struct s_homunculus homunculus ;	//[orn]
 
 	struct map_session_data *master; //pointer back to its master
@@ -1113,7 +1113,7 @@ struct flooritem_data {
 
 struct chat_data {
 	struct block_list bl;            // data for this map object
-	char title[CHATROOM_TITLE_SIZE]; // room title
+	char title[CHATROOM_TITLE_SIZE]; // room title 
 	char pass[CHATROOM_PASS_SIZE];   // password
 	bool pub;                        // private/public flag
 	uint8 users;                     // current user count
@@ -1164,7 +1164,7 @@ enum _sp {
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
 	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
 	SP_IGNORE_MDEF_RATE, //1086
-
+	
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_NO_MISC_DAMAGE,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010
 	SP_UNBREAKABLE_SHIELD, SP_LONG_ATK_RATE, // 2011-2012
@@ -1205,34 +1205,34 @@ enum _look {
 #define CELL_NOVENDING	0x40
 #define CELL_ICEWALL	0x80
 /*
- * map_getcell()gptO
+ * map_getcell()で使用されるフラグ
  */
 typedef enum {
-	CELL_CHKWALL=0,		// (Z^Cv1)
-	CELL_CHKWATER,		// (Z^Cv3)
-	CELL_CHKGROUND,		// nQ(Z^Cv5)
-	CELL_CHKPASS,		// \(Z^Cv1,5O)
+	CELL_CHKWALL=0,		// 壁(セルタイプ1)
+	CELL_CHKWATER,		// 水場(セルタイプ3)
+	CELL_CHKGROUND,		// 地面障害物(セルタイプ5)
+	CELL_CHKPASS,		// 通過可能(セルタイプ1,5以外)
 	CELL_CHKREACH,		// Same as PASS, but ignores the cell-stacking mod.
-	CELL_CHKNOPASS,		// s(Z^Cv1,5)
+	CELL_CHKNOPASS,		// 通過不可(セルタイプ1,5)
 	CELL_CHKNOREACH,	// Same as NOPASS, but ignores the cell-stacking mod.
-	CELL_GETTYPE,		// Z^Cv
+	CELL_GETTYPE,		// セルタイプを返す
 	CELL_GETCELLTYPE,
-	CELL_CHKNPC=0x10,	// ^b`^CvNPC(Z^Cv0x80tO)
+	CELL_CHKNPC=0x10,	// タッチタイプのNPC(セルタイプ0x80フラグ)
 	CELL_CHKREGEN,		// cells that improve regeneration
 	CELL_CHKPNEUMA,
 	CELL_CHKSAFETYWALL,
-	CELL_CHKBASILICA,	// oWJ(Z^Cv0x40tO)
+	CELL_CHKBASILICA,	// バジリカ(セルタイプ0x40フラグ)
 	CELL_CHKLANDPROTECTOR,
 	CELL_CHKICEWALL,
 	CELL_CHKSTACK,
 	CELL_CHKNOVENDING,
 } cell_t;
-// map_setcell()gptO
+// map_setcell()で使用されるフラグ
 enum {
-	CELL_SETNPC=0x10,	// ^b`^CvNPCZbg
+	CELL_SETNPC=0x10,	// タッチタイプのNPCをセット
 	CELL_CLRNPC,
-	CELL_SETBASILICA,	// oWJZbg
-	CELL_CLRBASILICA,	// oWJNA
+	CELL_SETBASILICA,	// バジリカをセット
+	CELL_CLRBASILICA,	// バジリカをクリア
 	CELL_SETREGEN,		// set regen cell
 	CELL_SETLANDPROTECTOR, //Set/Clear Magnetic Earth
 	CELL_CLRLANDPROTECTOR,
@@ -1256,11 +1256,11 @@ extern int night_flag; // 0=day, 1=night [Yor]
 extern int enable_spy; //Determines if @spy commands are active.
 extern char db_path[256];
 
-// gat?
+// gat?ﾖｧ
 int map_getcell(int,int,int,cell_t);
 int map_getcellp(struct map_data*,int,int,cell_t);
 void map_setcell(int,int,int,int);
-extern int map_read_flag; // 0: grfE1: E2: E?)
+extern int map_read_flag; // 0: grfｫﾕｫ｡ｫ､ｫ・1: ｫｭｫ罩ﾃｫｷｫ・2: ｫｭｫ罩ﾃｫｷｫ・?)
 enum {
 	READ_FROM_GAT,
 	READ_FROM_BITMAP, CREATE_BITMAP,
@@ -1274,14 +1274,14 @@ extern char charhelp_txt[];
 
 extern char wisp_server_name[];
 
-// IS
+// 鯖全体情報
 void map_setusers(int);
 int map_getusers(void);
-// blockA
+// block削除関連
 int map_freeblock(struct block_list *bl);
 int map_freeblock_lock(void);
 int map_freeblock_unlock(void);
-// blockA
+// block関連
 int map_addblock_sub(struct block_list *, int);
 int map_delblock_sub(struct block_list *, int);
 #define map_addblock(bl) map_addblock_sub(bl,1)
@@ -1295,10 +1295,10 @@ int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int
 int map_foreachinpath(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int range, int length, int type, ...);
 int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type, ...);
 int map_countnearpc(int,int,int);
-//blockA
+//block関連に追加
 int map_count_oncell(int m,int x,int y,int type);
 struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *);
-// IobjectA
+// 一時的object関連
 int map_addobject(struct block_list *);
 int map_delobject(int);
 int map_delobjectnofree(int id);
@@ -1310,13 +1310,13 @@ void map_quit_ack(struct map_session_data *);
 // npc
 int map_addnpc(int,struct npc_data *);
 
-// ACeA
+// 床アイテム関連
 int map_clearflooritem_timer(int,unsigned int,int,int);
 int map_removemobs_timer(int,unsigned int,int,int);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
 int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int first_charid,int second_charid,int third_charid,int flags);
 
-// LidL A
+// キャラid＝＞キャラ名 変換関連
 void map_addnickdb(int charid, const char* nick);
 void map_delnickdb(int charid, const char* nick);
 void map_reqnickdb(struct map_session_data* sd,int charid);
@@ -1341,12 +1341,12 @@ void map_foreachpc(int (*func)(DBKey,void*,va_list),...);
 int map_foreachiddb(int (*)(DBKey,void*,va_list),...);
 struct map_session_data * map_nick2sd(const char*);
 
-//
+// その他
 int map_check_dir(int s_dir,int t_dir);
 unsigned char map_calc_dir( struct block_list *src,int x,int y);
 int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
 
-// path.c
+// path.cより
 int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int flag,cell_t flag2);
 #define path_search(wpd,m,x0,y0,x1,y1,flag)  path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKNOPASS)
 #define path_search2(wpd,m,x0,y0,x1,y1,flag) path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKWALL)

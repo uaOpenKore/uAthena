@@ -138,37 +138,38 @@ needs_mysql:
 #####################################################################
 # TODO
 
-install:	conf/%.conf conf/%.txt
-	$(shell read -p "WARNING: This target does not work properly yet. Press Ctrl+C to cancel or Enter to continue.")
-	$(shell mkdir -p /opt/eathena/bin/)
-	$(shell mkdir -p /opt/eathena/etc/eathena/)
-	$(shell mkdir -p /opt/eathena/var/log/eathena/)
-	$(shell mv save /opt/eathena/etc/eathena/save)
-	$(shell mv db /opt/eathena/etc/eathena/db)
-	$(shell mv conf /opt/eathena/etc/eathena/conf)
-	$(shell mv npc /opt/eathena/etc/eathena/npc)
-	$(shell mv log/* /opt/eathena/var/log/eathena/)
-	$(shell cp *-server* /opt/eathena/bin/)
-	$(shell cp ladmin /opt/eathena/bin/)
-	$(shell ln -s /opt/eathena/etc/eathena/save/ /opt/eathena/bin/)
-	$(shell ln -s /opt/eathena/etc/eathena/db/ /opt/eathena/bin/)
-	$(shell ln -s /opt/eathena/etc/eathena/conf/ /opt/eathena/bin/)
-	$(shell ln -s /opt/eathena/etc/eathena/npc/ /opt/eathena/bin/)
-	$(shell ln -s /opt/eathena/var/log/eathena/ /opt/eathena/bin/log)
-
-bin-clean:
-	$(shell rm /opt/eathena/bin/login-server*)
-	$(shell rm /opt/eathena/bin/char-server*)
-	$(shell rm /opt/eathena/bin/map-server*)
-	$(shell rm /opt/eathena/bin/ladmin)
+install:
+		$(shell mkdir -p /opt/uathena/bin/log/)
+		$(shell mkdir -p /opt/uathena/backup/)
+		$(shell cp -r save  /opt/uathena/)
+		$(shell cp -r db    /opt/uathena/)
+		$(shell cp -r conf  /opt/uathena/)
+		$(shell cp -r npc   /opt/uathena/)
+		$(shell cp *-server* /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/save/    /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/db/      /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/conf/    /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/npc/     /opt/uathena/bin/)
+		$(shell ln -s /opt/uathena/bin/log/ /opt/uathena/)
+		$(shell cp scripts/uA* /etc/systemd/system/)
+		$(shell systemctl daemon-reload)
+		$(shell cp scripts/ua-*.sh /opt/uathena/bin/)
 
 uninstall:
-	$(shell read -p "WARNING: This target does not work properly yet. Press Ctrl+C to cancel or Enter to continue.")
-	bin-clean
-	$(shell rm /opt/eathena/bin/save)
-	$(shell rm /opt/eathena/bin/db)
-	$(shell rm /opt/eathena/bin/conf)
-	$(shell rm /opt/eathena/bin/npc)
-	$(shell rm /opt/eathena/bin/log)
-	$(shell rm -rf /opt/eathena/etc/eathena)
-	$(shell rm -rf /opt/eathena/var/log/eathena)
+		$(shell rm -fr /opt/uathena/bin)
+		$(shell rm -fr /opt/uathena/db)
+		$(shell rm -fr /opt/uathena/conf)
+		$(shell rm -fr /opt/uathena/npc)
+		$(shell rm -fr /opt/uathena/bin)
+		$(shell rm -fr /opt/uathena/save)
+		$(shell rm -f  /opt/uathena/log)
+		$(shell rm -f /etc/systemd/system/uA*)
+		$(shell systemctl daemon-reload)
+
+erase:
+		$(shell rm -rf /opt/uathena/)
+
+update:
+		$(shell cp -f *-server* /opt/uathena/bin/)
+		$(shell cp -rf db    /opt/uathena/)
+		$(shell cp -rf npc   /opt/uathena/)

@@ -163,6 +163,8 @@ AC_PROG_CC
 AC_PROG_CPP
 AC_LANG([C])
 
+CFLAGS="-Os -g3 -rdynamic -fomit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -ffast-math -fcommon -march=native -mtune=native -Wall -Wno-sign-compare -Wno-switch -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno-unused -Wno-parentheses -fstack-protector -DPCRE_SUPPORT -I../common -I/usr/include -I/usr/include/mysql -DMAPREGSQL"
+LIBS="-L/usr/lib64 -L/usr/lib -L/usr/lib32 -L/usr/libx32 -lpcre -L/usr/lib64/mysql -L/usr/lib/mysql  -lmysqlclient -ldl -lz -lm"
 
 CFLAGS="$CFLAGS -pipe -ffast-math -Wall -Wno-sign-compare"
 CPPFLAGS="$CPPFLAGS -I../common"

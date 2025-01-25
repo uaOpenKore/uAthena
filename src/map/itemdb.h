@@ -31,7 +31,7 @@ enum item_types {
 	IT_UNKNOWN2,//9
 	IT_AMMO,    //10
 	IT_DELAYCONSUME,//11
-	IT_MAX
+	IT_MAX 
 };
 
 //The only item group required by the code to be known. See const.txt for the full list.

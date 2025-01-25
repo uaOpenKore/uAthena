@@ -87,7 +87,7 @@ struct script_stack {
 	int sp_max;// capacity of the stack
 	int defsp;
 	struct script_data *stack_data;// stack
-	struct linkdb_node **var_function;	//
+	struct linkdb_node **var_function;	// ŠÖ”ˆË‘¶•Ï”
 };
 
 struct script_state {
@@ -119,7 +119,7 @@ void run_script_main(struct script_state *st);
 
 void script_stop_sleeptimers(int id);
 struct linkdb_node* script_erase_sleepdb(struct linkdb_node *n);
-void script_free_stack(struct script_stack*);
+void script_free_stack(struct script_stack*); 
 void script_free_code(struct script_code* code);
 void script_free_vars(struct linkdb_node **node);
 
