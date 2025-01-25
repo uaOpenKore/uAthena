@@ -21,11 +21,13 @@
 
 2. cd uAthena - go to the directory with the source code
 
-7.6. ./configure - this command prepares the source code for compilation.
+2.1. autoconf - well be created configure
 
-7.7. make - this command compiles the code.
+2.2. ./configure - well be created Makefile
 
-2.3. make install - this command will install uAthena to the directory /opt/uathena/
+2.3. make - this command compiles the code.
+
+2.4. make install - this command will install uAthena to the directory /opt/uathena/
 
 
 
