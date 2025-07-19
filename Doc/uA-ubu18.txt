@@ -24,3 +24,11 @@ apt -y upgrade
 ln -s /lib/i386-linux-gnu/libpcre.so.3 /lib/libpcre.so
 
 reboot
+
+#Mint 22.1 / ubuntu 24.*
+
+apt -y install libaio*
+apt -y install libaio*:i386
+apt -y install libtinfo*:i386
+apt -y install libmysqlclient-dev:i386
+apt -y install mysql-server
