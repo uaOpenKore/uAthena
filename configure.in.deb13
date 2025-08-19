@@ -167,7 +167,7 @@ AC_COMPILE_IFELSE(
 )
 if test "$pointers_fit_in_ints" = "no" ; then
 	CFLAGS="$CFLAGS -m32"
-	LDFLAGS="$LDFLAGS -m3`  # Добавлено: -m32 для x32 сборки
+	LDFLAGS="$LDFLAGS -m32"  # Добавлено: -m32 для x32 сборки
 	AC_COMPILE_IFELSE(
 		[AC_LANG_PROGRAM([[static int test_array[((long int)sizeof(int)) == ((long int)sizeof(void *)) ? 1 : -1];]])],
 		[pointers_fit_in_ints="yes (with -m32)"],
