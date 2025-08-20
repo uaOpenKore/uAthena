@@ -59,7 +59,4 @@ apt update
 apt install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev mysql-community-server mysql-community-client mysql-common pcre2-utils:i386 libmariadb-dev:i386 libmariadb-dev-compat:i386
 apt install libpcre3*:i386
 
-### Debian 13
-mysql only based
-apt -y install libpcre2-dev:i386
-ls -s /lib/i386-linux-gnu/libpcre2-32.so /lib/libpcre.so
+### x64
