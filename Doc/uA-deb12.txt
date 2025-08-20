@@ -1,4 +1,5 @@
 1.
+https://gemmei.ftp.acc.umu.se/cdimage/archive/12.6.0/amd64/iso-cd/debian-12.6.0-amd64-netinst.iso
 
 vi /etc/apt/sources.list
 deb http://deb.debian.org/debian/ bookworm main non-free-firmware contrib
@@ -7,19 +8,12 @@ deb http://deb.debian.org/debian/ bookworm-updates main non-free-firmware
 deb http://deb.debian.org/debian bookworm-backports main contrib non-free non-free-firmware
 deb https://ftp.debian.org/debian/ bookworm-proposed-updates contrib main non-free non-free-firmware
 
-apt -y install mc netselect-apt
-netselect-apt
 apt update
 apt -y upgrade
-apt -y install cockpit* qemu-kvm curl podman-compose git libncurses5-dev gcc make autoconf exuberant-ctags bc libssl-dev docker*  selinux-basics selinux-policy-default auditd ufw
-
-vi /etc/selinux/config
-SELINUX=disabled
+apt -y install git libncurses5-dev gcc make autoconf exuberant-ctags bc libssl-dev mc
 
 vi /etc/sudoers
 pix     ALL=(ALL:ALL) ALL
-
-systemctl enable cockpit.socket podman
 
 reboot
 
@@ -51,12 +45,16 @@ make clean
 git reset --hard HEAD
 
 4.
-echo "deb [allow-insecure=yes] http://repo.mysql.com/apt/debian/ buster mysql-5.7 mysql-apt-config mysql-tools-preview mysql-tools" >> /etc/apt/sources.list
-
+~ Install libs for making uAthena
 dpkg --add-architecture i386
 apt update
 
-apt install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev mysql-community-server mysql-community-client mysql-common pcre2-utils:i386 libmariadb-dev:i386 libmariadb-dev-compat:i386
-apt install libpcre3*:i386
+apt -y install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev libmariadb-dev:i386 libmariadb-dev-compat:i386 libpcre3:i386 libpcre3-dev:i386
 
-### x64
+5.
+~  Instal SQL server if it needed in VM guest
+
+apt -y install mariadb-server
+systemctl start mariadb
+systemctl enable mariadb
+~Grant access for root to connect server from any hosts
