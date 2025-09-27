@@ -11,6 +11,7 @@ deb https://ftp.debian.org/debian/ bookworm-proposed-updates contrib main non-fr
 apt update
 apt -y upgrade
 apt -y install git libncurses5-dev gcc make autoconf exuberant-ctags bc libssl-dev mc
+apt install -t bookworm-backports linux-image-amd64 linux-headers-amd64
 
 vi /etc/sudoers
 pix     ALL=(ALL:ALL) ALL
