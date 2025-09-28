@@ -54,11 +54,16 @@ MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDLIBS="$(LDLIBS)"
 endif
 
 .PHONY: txt sql common login login_sql char char_sql map map_sql ladmin converters \
-	addons plugins tools clean depend
+        addons plugins tools clean depend sanitize
 
 all: txt sql
 
 txt : Makefile.cache common login char map
+
+sanitize: clean
+	$(MAKE) UA_ENABLE_SANITIZE=1 txt
+	$(MAKE) UA_ENABLE_SANITIZE=1 SQLFLAG=1 sql
+	rm -f Makefile.cache
 
 ifdef SQLFLAG
 sql: Makefile.cache common login_sql char_sql map_sql

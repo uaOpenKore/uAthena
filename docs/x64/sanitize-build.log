@@ -1,0 +1,1146 @@
+sed -e 's/$>/$^/' src/login_sql/Makefile > src/login_sql/GNUmakefile
+sed -e 's/$>/$^/' src/char/Makefile > src/char/GNUmakefile
+sed -e 's/$>/$^/' src/char_sql/Makefile > src/char_sql/GNUmakefile
+sed -e 's/$>/$^/' src/map/Makefile > src/map/GNUmakefile
+sed -e 's/$>/$^/' src/ladmin/Makefile > src/ladmin/GNUmakefile
+sed -e 's/$>/$^/' src/plugins/Makefile > src/plugins/GNUmakefile
+sed -e 's/$>/$^/' src/txt-converter/Makefile > src/txt-converter/GNUmakefile
+rm -f Makefile.cache
+make -C src/common clean
+make[1]: Entering directory '/workspace/uAthena/src/common'
+rm -rf *.o obj GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/common'
+make -C src/login clean
+make[1]: Entering directory '/workspace/uAthena/src/login'
+rm -f *.o ../../login-server GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/login'
+make -C src/login_sql clean
+make[1]: Entering directory '/workspace/uAthena/src/login_sql'
+rm -f *.o ../../login-server_sql GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/login_sql'
+make -C src/char clean
+make[1]: Entering directory '/workspace/uAthena/src/char'
+rm -f *.o ../../char-server GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/char'
+make -C src/char_sql clean
+make[1]: Entering directory '/workspace/uAthena/src/char_sql'
+rm -f *.o ../../char-server_sql GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/char_sql'
+make -C src/map clean
+make[1]: Entering directory '/workspace/uAthena/src/map'
+rm -rf *.o ../../map-server ../../map-server_sql sqlobj txtobj GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/map'
+make -C src/ladmin clean
+make[1]: Entering directory '/workspace/uAthena/src/ladmin'
+rm -f *.o ../../ladmin GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/ladmin'
+make -C src/plugins clean
+make[1]: Entering directory '/workspace/uAthena/src/plugins'
+rm -rf sample.so sig.so pid.so gui.so upnp.so console.so GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/plugins'
+make -C src/txt-converter clean
+make[1]: Entering directory '/workspace/uAthena/src/txt-converter'
+rm -f *.o ../../tools/login-converter ../../tools/char-converter GNUmakefile
+make[1]: Leaving directory '/workspace/uAthena/src/txt-converter'
+make UA_ENABLE_SANITIZE=1 txt
+make[1]: Entering directory '/workspace/uAthena'
+printf "CC=\"gcc\" CFLAGS=\"-m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL\" LDFLAGS=\"-m64 -rdynamic -fsanitize=address,undefined\" LDLIBS=\"-L/usr/lib64 -L/usr/lib -L/usr/lib64/mysql -L/usr/lib/mysql -lpcre -lmysqlclient -ldl -lz -lm\"" > Makefile.cache
+sed -e 's/$>/$^/' src/common/Makefile > src/common/GNUmakefile
+make -C src/common CC="gcc" CFLAGS="-m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL" LDFLAGS="-m64 -rdynamic -fsanitize=address,undefined" LDLIBS="-L/usr/lib64 -L/usr/lib -L/usr/lib64/mysql -L/usr/lib/mysql -lpcre -lmysqlclient -ldl -lz -lm"
+make[2]: Entering directory '/workspace/uAthena/src/common'
+mkdir obj
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/core.o core.c
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/socket.o socket.c
+socket.c: In function ‘recv_to_fifo’:
+socket.c:172:15: warning: conversion from ‘ssize_t’ {aka ‘long int’} to ‘int’ may change value [-Wconversion]
+  172 |         len = recv(fd, (char *) session[fd]->rdata + session[fd]->rdata_size, RFIFOSPACE(fd), 0);
+      |               ^~~~
+socket.c:191:33: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  191 |         session[fd]->rdata_size += len;
+      |                                 ^~
+socket.c: In function ‘send_from_fifo’:
+socket.c:206:15: warning: conversion from ‘ssize_t’ {aka ‘long int’} to ‘int’ may change value [-Wconversion]
+  206 |         len = send(fd, (const char *) session[fd]->wdata, session[fd]->wdata_size, 0);
+      |               ^~~~
+socket.c:224:103: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  224 |                         memmove(session[fd]->wdata, session[fd]->wdata + len, session[fd]->wdata_size - len);
+      |                                                                                                       ^
+socket.c:226:41: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  226 |                 session[fd]->wdata_size -= len;
+      |                                         ^~
+socket.c: In function ‘RFIFOSKIP’:
+socket.c:469:43: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  469 |         if ( s->rdata_size < s->rdata_pos + len ) {
+      |                                           ^
+In file included from socket.c:10:
+socket.h:38:24: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+   38 | #define RFIFOREST(fd)  (session[fd]->eof ? 0 : session[fd]->rdata_size - session[fd]->rdata_pos)
+      |                        ^
+socket.c:474:23: note: in expansion of macro ‘RFIFOREST’
+  474 |                 len = RFIFOREST(fd);
+      |                       ^~~~~~~~~
+socket.c:476:37: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  476 |         s->rdata_pos = s->rdata_pos + len;
+      |                                     ^
+socket.c: In function ‘WFIFOSET’:
+socket.c:489:25: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  489 |         if(s->wdata_size+len > s->max_wdata)
+      |                         ^
+socket.c:499:23: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  499 |         s->wdata_size += len;
+      |                       ^~
+In file included from socket.c:7:
+socket.c: In function ‘socket_config_read’:
+../common/malloc.h:155:93: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  155 | #define RECREATE(result, type, number) (result) = (type *) aRealloc ((result), sizeof(type) * (number))
+      |                                                                                             ^
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+socket.c:921:25: note: in expansion of macro ‘RECREATE’
+  921 |                         RECREATE(access_allow, AccessControl, access_allownum+1);
+      |                         ^~~~~~~~
+../common/malloc.h:155:93: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  155 | #define RECREATE(result, type, number) (result) = (type *) aRealloc ((result), sizeof(type) * (number))
+      |                                                                                             ^
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+socket.c:927:25: note: in expansion of macro ‘RECREATE’
+  927 |                         RECREATE(access_deny, AccessControl, access_denynum+1);
+      |                         ^~~~~~~~
+socket.c: In function ‘socket_getips’:
+socket.c:1063:37: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 1063 |                                 pos += sizeof(struct ifreq);
+      |                                     ^~
+socket.c: In function ‘ntows’:
+socket.c:1158:41: warning: conversion from ‘int’ to ‘uint16’ {aka ‘short unsigned int’} may change value [-Wconversion]
+ 1158 |         return ((netshort & 0xFF) << 8) | ((netshort & 0xFF00) >> 8);
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+socket.c: In function ‘ip2str’:
+socket.c:1145:53: warning: ‘__builtin_strncpy’ specified bound 16 equals destination size [-Wstringop-truncation]
+ 1145 |         return (ip_str == NULL) ? inet_ntoa(addr) : strncpy(ip_str, inet_ntoa(addr), 16);
+      |                                                     ^
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/timer.o timer.c
+timer.c: In function ‘add_timer_func_list’:
+timer.c:84:107: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+   84 |                                 ShowWarning("add_timer_func_list: duplicating function %08x(%s) as %s.\n",(int)tfl->func,tfl->name,name);
+      |                                                                                                           ^
+timer.c:86:114: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+   86 |                                 ShowWarning("add_timer_func_list: function %08X has the same name as %08X(%s)\n",(int)func,(int)tfl->func,tfl->name);
+      |                                                                                                                  ^
+timer.c:86:124: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+   86 |                                 ShowWarning("add_timer_func_list: function %08X has the same name as %08X(%s)\n",(int)func,(int)tfl->func,tfl->name);
+      |                                                                                                                            ^
+timer.c: In function ‘gettick_nocache’:
+timer.c:126:32: warning: conversion from ‘long int’ to ‘unsigned int’ may change value [-Wconversion]
+  126 |         return gettick_cache = tval.tv_sec * 1000 + tval.tv_usec / 1000;
+      |                                ^~~~
+In file included from timer.c:7:
+timer.c: In function ‘push_timer_heap’:
+../common/malloc.h:155:93: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  155 | #define RECREATE(result, type, number) (result) = (type *) aRealloc ((result), sizeof(type) * (number))
+      |                                                                                             ^
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+timer.c:155:25: note: in expansion of macro ‘RECREATE’
+  155 |                         RECREATE(timer_heap, int, timer_heap_max);
+      |                         ^~~~~~~~
+timer.c:188:93: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  188 |                                 memmove(&timer_heap[pos + 1], &timer_heap[pos], sizeof(int) * (timer_heap_num - pos));
+      |                                                                                             ^
+timer.c: In function ‘acquire_timer’:
+../common/malloc.h:56:50: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+   56 | #       define aCalloc(m,n)             aCalloc_((m),(n),ALC_MARK)
+      |                                                  ^~~
+../common/malloc.h:151:58: note: in expansion of macro ‘aCalloc’
+  151 | #define CREATE(result, type, number) (result) = (type *) aCalloc ((number), sizeof(type))
+      |                                                          ^~~~~~~
+timer.c:220:25: note: in expansion of macro ‘CREATE’
+  220 |                         CREATE(timer_data, struct TimerData, timer_data_max);
+      |                         ^~~~~~
+../common/malloc.h:155:93: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  155 | #define RECREATE(result, type, number) (result) = (type *) aRealloc ((result), sizeof(type) * (number))
+      |                                                                                             ^
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+timer.c:224:25: note: in expansion of macro ‘RECREATE’
+  224 |                         RECREATE(timer_data, struct TimerData, timer_data_max);
+      |                         ^~~~~~~~
+timer.c: In function ‘add_timer_interval’:
+timer.c:256:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+  256 |                          (int)func, search_timer_func_list(func), interval);
+      |                          ^
+timer.c: In function ‘delete_timer’:
+timer.c:275:85: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+  275 |                 ShowError("delete_timer error : no such timer %d (%08x(%s))\n", id, (int)func, search_timer_func_list(func));
+      |                                                                                     ^
+timer.c:280:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+  280 |                          (int)timer_data[id].func, search_timer_func_list(timer_data[id].func),
+      |                          ^
+timer.c:281:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+  281 |                          (int)func, search_timer_func_list(func));
+      |                          ^
+timer.c: In function ‘settick_timer’:
+timer.c:307:24: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  307 |                 return tick;
+      |                        ^~~~
+timer.c:318:88: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+  318 |                         ShowError("settick_timer: no such timer %d (%08x(%s))\n", tid, (int)timer_data[tid].func, search_timer_func_list(timer_data[tid].func));
+      |                                                                                        ^
+timer.c:332:100: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  332 |                                 memmove(&timer_heap[old_pos], &timer_heap[old_pos+1], (pos-old_pos)*sizeof(int));
+      |                                                                                                    ^
+timer.c:342:92: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  342 |                                 memmove(&timer_heap[pos+1], &timer_heap[pos], (old_pos-pos)*sizeof(int));
+      |                                                                                            ^
+timer.c:347:16: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  347 |         return tick;
+      |                ^~~~
+timer.c: In function ‘fix_timer_heap’:
+../common/malloc.h:56:54: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+   56 | #       define aCalloc(m,n)             aCalloc_((m),(n),ALC_MARK)
+      |                                                      ^~~
+timer.c:370:28: note: in expansion of macro ‘aCalloc’
+  370 |                 tmp_heap = aCalloc(sizeof(int), i);
+      |                            ^~~~~~~
+timer.c:371:47: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  371 |                 memcpy(tmp_heap, timer_heap, i*sizeof(int));
+      |                                               ^
+timer.c:372:71: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  372 |                 memmove(timer_heap, &timer_heap[i], (timer_heap_num-i)*sizeof(int));
+      |                                                                       ^
+timer.c:373:67: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  373 |                 memmove(&timer_heap[timer_heap_num-i], tmp_heap, i*sizeof(int));
+      |                                                                   ^
+timer.c: In function ‘do_timer’:
+../common/malloc.h:155:93: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  155 | #define RECREATE(result, type, number) (result) = (type *) aRealloc ((result), sizeof(type) * (number))
+      |                                                                                             ^
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+timer.c:413:41: note: in expansion of macro ‘RECREATE’
+  413 |                                         RECREATE(free_timer_list,int,free_timer_list_max);
+      |                                         ^~~~~~~~
+timer.c:420:67: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  420 |                                         timer_data[i].tick = tick + timer_data[i].interval;
+      |                                                                   ^
+timer.c:422:60: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  422 |                                         timer_data[i].tick += timer_data[i].interval;
+      |                                                            ^~
+timer.c:434:22: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  434 |         if (UINT_MAX - nextmin < tick) //Tick will loop, rearrange the heap on the next iteration.
+      |                      ^
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/db.o db.c
+db.c: In function ‘db_uint_hash’:
+db.c:946:19: warning: conversion from ‘uint64_t’ {aka ‘long unsigned int’} to ‘unsigned int’ may change value [-Wconversion]
+  946 |         return key.ui;
+      |                ~~~^~~
+db.c: In function ‘db_fix_options’:
+db.c:1926:39: warning: unsigned conversion from ‘int’ to ‘unsigned int’ changes value from ‘-4’ to ‘4294967292’ [-Wsign-conversion]
+ 1926 |                         return options&~(DB_OPT_DUP_KEY|DB_OPT_RELEASE_KEY);
+      |                                       ^
+db.c:1929:25: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1929 |                         ShowError("db_fix_options: Unknown database type %u with options %x\n", type, options);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+db.c:1930:17: note: here
+ 1930 |                 case DB_STRING:
+      |                 ^~~~
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/plugins.o plugins.c
+plugins.c: In function ‘export_symbol’:
+plugins.c:129:20: warning: comparison of unsigned expression in ‘< 0’ is always false [-Wtype-limits]
+  129 |         if( offset < 0 )
+      |                    ^
+plugins.c: In function ‘plugin_open’:
+plugins.c:262:25: warning: conversion from ‘int’ to ‘char’ may change value [-Wconversion]
+  262 |         plugin->state = init_flag;      // fully loaded
+      |                         ^~~~~~~~~
+plugins.c: In function ‘plugins_config_read.isra’:
+plugins.c:322:52: warning: ‘%s’ directive writing up to 1023 bytes into a region of size 120 [-Wformat-overflow=]
+  322 |                         sprintf(filename, "plugins/%s%s", w2, DLL_EXT);
+      |                                                    ^~     ~~
+In file included from /usr/include/stdio.h:980,
+                 from ../common/utils.h:7,
+                 from ../common/mmo.h:9,
+                 from plugins.c:5:
+In function ‘sprintf’,
+    inlined from ‘plugins_config_read.isra’ at plugins.c:322:4:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 12 and 1035 bytes into a destination of size 128
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/lock.o lock.c
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/nullpo.o nullpo.c
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/malloc.o malloc.c
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/showmsg.o showmsg.c
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/strlib.o strlib.c
+strlib.c: In function ‘e_mail_check’:
+strlib.c:261:19: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+  261 |         int len = strlen(email);
+      |                   ^~~~~~
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/utils.o utils.c
+utils.c: In function ‘StringBuf_Vprintf’:
+utils.c:79:24: warning: conversion from ‘long int’ to ‘int’ may change value [-Wconversion]
+   79 |                 size = sbuf->max_ - (sbuf->ptr_ - sbuf->buf_);
+      |                        ^~~~
+utils.c:80:44: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+   80 |                 n = vsnprintf (sbuf->ptr_, size, fmt, ap);
+      |                                            ^~~~
+utils.c: In function ‘StringBuf_Append’:
+utils.c:110:26: warning: conversion from ‘long int’ to ‘int’ may change value [-Wconversion]
+  110 |         int buf1_avail = buf1->max_ - (buf1->ptr_ - buf1->buf_);
+      |                          ^~~~
+utils.c:115:28: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  115 |                 buf1->max_ += size2;
+      |                            ^~
+utils.c:120:40: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  120 |         memcpy(buf1->ptr_, buf2->buf_, size2);
+      |                                        ^~~~~
+utils.c: In function ‘StringBuf_AppendStr’:
+utils.c:128:25: warning: conversion from ‘long int’ to ‘int’ may change value [-Wconversion]
+  128 |         int available = sbuf->max_ - (sbuf->ptr_ - sbuf->buf_);
+      |                         ^~~~
+utils.c:134:28: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  134 |                 sbuf->max_ += max(size, 1024);
+      |                            ^~
+utils.c:139:33: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  139 |         memcpy(sbuf->ptr_, str, size);
+      |                                 ^~~~
+utils.c: In function ‘findfile’:
+utils.c:279:21: warning: the comparison will always evaluate as ‘true’ for the address of ‘d_name’ will never be NULL [-Waddress]
+  279 |                 if (entry->d_name && strstr(entry->d_name, pattern)) {
+      |                     ^~~~~
+In file included from /usr/include/dirent.h:61,
+                 from utils.c:19:
+/usr/include/x86_64-linux-gnu/bits/dirent.h:33:10: note: ‘d_name’ declared here
+   33 |     char d_name[256];           /* We must not include limits.h! */
+      |          ^~~~~~
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/grfio.o grfio.c
+grfio.c: In function ‘getlong’:
+grfio.c:151:52: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  151 |         return (p[0] | p[1] << 0x08 | p[2] << 0x10 | p[3] << 0x18);
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+grfio.c: In function ‘NibbleSwap’:
+grfio.c:160:24: warning: conversion from ‘int’ to ‘unsigned char’ may change value [-Wconversion]
+  160 |                 *Src = (*Src>>4) | (*Src<<4);
+      |                        ^
+grfio.c: In function ‘decode_des_etc’:
+grfio.c:219:45: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  219 |                 if(lop<20 || (type==0 && lop%cycle==0)) { // des
+      |                                             ^
+grfio.c: In function ‘filehash’:
+grfio.c:344:48: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  344 |                 hash = (hash<<1) + (hash>>7)*9 + TOLOWER(*fname);
+      |                                                ^
+In file included from grfio.c:18:
+grfio.c: In function ‘filelist_add’:
+grfio.c:384:95: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  384 |                 filelist = (FILELIST *)aRealloc(filelist, (filelist_maxentry + FILELIST_ADDS) * sizeof(FILELIST));
+      |                                                                                               ^
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+grfio.c: In function ‘filelist_adjust’:
+grfio.c:421:75: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  421 |                 filelist = (FILELIST *)aRealloc(filelist, filelist_entrys * sizeof(FILELIST));
+      |                                                                           ^
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+grfio.c: In function ‘grfio_entryread’:
+grfio.c:677:23: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  677 |         grf_version = getlong(grf_header+0x2a) >> 8;
+      |                       ^~~~~~~
+grfio.c:707:26: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  707 |                 entrys = getlong(grf_header+0x26) - getlong(grf_header+0x22) - 7;
+      |                          ^~~~~~~
+grfio.c:716:35: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  716 |                         ofs2 = ofs+getlong(grf_filelist+ofs)+4;
+      |                                   ^
+grfio.c:716:32: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  716 |                         ofs2 = ofs+getlong(grf_filelist+ofs)+4;
+      |                                ^~~
+grfio.c:731:50: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  731 |                                         srclen = getlong(grf_filelist+ofs2) - getlong(grf_filelist+ofs2+8) - 715;
+      |                                                  ^~~~~~~
+grfio.c:741:57: warning: conversion to ‘uint64_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  741 |                                 aentry.srclen         = srclen;
+      |                                                         ^~~~~~
+grfio.c:746:57: warning: conversion to ‘char’ from ‘unsigned char’ may change the sign of the result [-Wsign-conversion]
+  746 |                                 aentry.type           = type;
+      |                                                         ^~~~
+grfio.c:752:57: warning: conversion from ‘int’ to ‘char’ may change value [-Wconversion]
+  752 |                                 aentry.gentry         = gentry+1;               // With no first time LocalFileCheck
+      |                                                         ^~~~~~
+grfio.c:807:26: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  807 |                 entrys = getlong(grf_header+0x26) - 7;
+      |                          ^~~~~~~
+grfio.c:823:42: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  823 |                                 srclen = getlong(grf_filelist+ofs2);
+      |                                          ^~~~~~~
+grfio.c:832:57: warning: conversion to ‘uint64_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  832 |                                 aentry.srclen         = srclen;
+      |                                                         ^~~~~~
+grfio.c:837:57: warning: conversion from ‘int’ to ‘char’ may change value [-Wconversion]
+  837 |                                 aentry.type           = type;
+      |                                                         ^~~~
+grfio.c:843:57: warning: conversion from ‘int’ to ‘char’ may change value [-Wconversion]
+  843 |                                 aentry.gentry         = gentry+1;               // With no first time LocalFileCheck
+      |                                                         ^~~~~~
+grfio.c: In function ‘grfio_add’:
+grfio.c:946:79: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  946 |                 gentry_table = (char**)aRealloc(gentry_table, gentry_maxentry * sizeof(char*));
+      |                                                                               ^
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+grfio.c: In function ‘grfio_reads’:
+grfio.c:477:34: warning: ‘%s’ directive writing up to 1023 bytes into a region of size 256 [-Wformat-overflow=]
+  477 |                 sprintf(lfname, "%s%s", data_dir, fname);
+      |                                  ^~     ~~~~~~~~
+In file included from /usr/include/stdio.h:980,
+                 from grfio.c:8:
+In function ‘sprintf’,
+    inlined from ‘grfio_reads’ at grfio.c:477:17:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output 1 or more bytes (assuming 1024) into a destination of size 256
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+grfio.c: In function ‘grfio_init’:
+grfio.c:916:53: warning: ‘%s’ directive writing up to 255 bytes into a region of size 251 [-Wformat-overflow=]
+  916 |                                 sprintf(src, "data\\%s", w1);
+      |                                                     ^~   ~~
+In function ‘sprintf’,
+    inlined from ‘grfio_resourcecheck’ at grfio.c:916:5,
+    inlined from ‘grfio_init’ at grfio.c:1014:2:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 6 and 261 bytes into a destination of size 256
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+grfio.c: In function ‘grfio_init’:
+grfio.c:917:53: warning: ‘%s’ directive writing up to 255 bytes into a region of size 251 [-Wformat-overflow=]
+  917 |                                 sprintf(dst, "data\\%s", w2);
+      |                                                     ^~   ~~
+In function ‘sprintf’,
+    inlined from ‘grfio_resourcecheck’ at grfio.c:917:5,
+    inlined from ‘grfio_init’ at grfio.c:1014:2:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 6 and 261 bytes into a destination of size 256
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+grfio.c: In function ‘grfio_init’:
+grfio.c:922:41: warning: ‘__builtin_strncpy’ output may be truncated copying 107 bytes from a string of length 255 [-Wstringop-truncation]
+  922 |                                         strncpy(fentry.fn, src, sizeof(fentry.fn) - 1);
+      |                                         ^
+grfio.c:887:53: warning: ‘%s’ directive writing up to 255 bytes into a region of size 251 [-Wformat-overflow=]
+  887 |                                 sprintf(src, "data\\%s", w1);
+      |                                                     ^~   ~~
+In function ‘sprintf’,
+    inlined from ‘grfio_resourcecheck’ at grfio.c:887:5,
+    inlined from ‘grfio_init’ at grfio.c:1014:2:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 6 and 261 bytes into a destination of size 256
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+grfio.c: In function ‘grfio_init’:
+grfio.c:888:53: warning: ‘%s’ directive writing up to 255 bytes into a region of size 251 [-Wformat-overflow=]
+  888 |                                 sprintf(dst, "data\\%s", w2);
+      |                                                     ^~   ~~
+In function ‘sprintf’,
+    inlined from ‘grfio_resourcecheck’ at grfio.c:888:5,
+    inlined from ‘grfio_init’ at grfio.c:1014:2:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 6 and 261 bytes into a destination of size 256
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+grfio.c: In function ‘grfio_init’:
+grfio.c:894:41: warning: ‘__builtin_strncpy’ output may be truncated copying 107 bytes from a string of length 255 [-Wstringop-truncation]
+  894 |                                         strncpy(fentry.fn, src, sizeof(fentry.fn) - 1);
+      |                                         ^
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -DMINICORE -o obj/minicore.o core.c
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -DMINICORE -o obj/minisocket.o socket.c
+socket.c: In function ‘recv_to_fifo’:
+socket.c:172:15: warning: conversion from ‘ssize_t’ {aka ‘long int’} to ‘int’ may change value [-Wconversion]
+  172 |         len = recv(fd, (char *) session[fd]->rdata + session[fd]->rdata_size, RFIFOSPACE(fd), 0);
+      |               ^~~~
+socket.c:191:33: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  191 |         session[fd]->rdata_size += len;
+      |                                 ^~
+socket.c: In function ‘send_from_fifo’:
+socket.c:206:15: warning: conversion from ‘ssize_t’ {aka ‘long int’} to ‘int’ may change value [-Wconversion]
+  206 |         len = send(fd, (const char *) session[fd]->wdata, session[fd]->wdata_size, 0);
+      |               ^~~~
+socket.c:224:103: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  224 |                         memmove(session[fd]->wdata, session[fd]->wdata + len, session[fd]->wdata_size - len);
+      |                                                                                                       ^
+socket.c:226:41: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  226 |                 session[fd]->wdata_size -= len;
+      |                                         ^~
+socket.c: In function ‘RFIFOSKIP’:
+socket.c:469:43: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  469 |         if ( s->rdata_size < s->rdata_pos + len ) {
+      |                                           ^
+In file included from socket.c:10:
+socket.h:38:24: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+   38 | #define RFIFOREST(fd)  (session[fd]->eof ? 0 : session[fd]->rdata_size - session[fd]->rdata_pos)
+      |                        ^
+socket.c:474:23: note: in expansion of macro ‘RFIFOREST’
+  474 |                 len = RFIFOREST(fd);
+      |                       ^~~~~~~~~
+socket.c:476:37: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  476 |         s->rdata_pos = s->rdata_pos + len;
+      |                                     ^
+socket.c: In function ‘WFIFOSET’:
+socket.c:489:25: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  489 |         if(s->wdata_size+len > s->max_wdata)
+      |                         ^
+socket.c:499:23: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  499 |         s->wdata_size += len;
+      |                       ^~
+socket.c: In function ‘socket_getips’:
+socket.c:1063:37: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 1063 |                                 pos += sizeof(struct ifreq);
+      |                                     ^~
+socket.c: In function ‘ntows’:
+socket.c:1158:41: warning: conversion from ‘int’ to ‘uint16’ {aka ‘short unsigned int’} may change value [-Wconversion]
+ 1158 |         return ((netshort & 0xFF) << 8) | ((netshort & 0xFF00) >> 8);
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+socket.c: In function ‘ip2str’:
+socket.c:1145:53: warning: ‘__builtin_strncpy’ specified bound 16 equals destination size [-Wstringop-truncation]
+ 1145 |         return (ip_str == NULL) ? inet_ntoa(addr) : strncpy(ip_str, inet_ntoa(addr), 16);
+      |                                                     ^
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -DMINICORE -o obj/minimalloc.o malloc.c
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/mapindex.o mapindex.c
+mapindex.c: In function ‘mapindex_addmap’:
+mapindex.c:100:29: warning: conversion from ‘int’ to ‘short unsigned int’ may change value [-Wconversion]
+  100 |                 max_index = index+1;
+      |                             ^~~~~
+mapindex.c: In function ‘mapindex_name2id’:
+mapindex.c:116:32: warning: conversion from ‘int’ to ‘short unsigned int’ may change value [-Wconversion]
+  116 |                         return i;
+      |                                ^
+mapindex.c: In function ‘mapindex_init’:
+mapindex.c:163:39: warning: this statement may fall through [-Wimplicit-fallthrough=]
+  163 |                                 index = last_index+1;
+      |                                 ~~~~~~^~~~~~~~~~~~~~
+mapindex.c:164:25: note: here
+  164 |                         case 2: //Map with ID given
+      |                         ^~~~
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/ers.o ers.c
+ers.c: In function ‘ers_obj_entry_size’:
+ers.c:256:19: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+  256 |         return obj->size;
+      |                ~~~^~~~~~
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -o obj/md5calc.o md5calc.c
+md5calc.c: In function ‘MD5_String2binary’:
+md5calc.c:176:22: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘unsigned int’ may change value [-Wconversion]
+  176 |    string_byte_len = strlen(string);    //The byte chief of a character sequence is acquired.
+      |                      ^~~~~~
+md5calc.c:180:11: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  180 |    for (i=string_byte_len; 64<=i; i-=64,pstring+=64)
+      |           ^~~~~~~~~~~~~~~
+make[2]: Leaving directory '/workspace/uAthena/src/common'
+sed -e 's/$>/$^/' src/login/Makefile > src/login/GNUmakefile
+make -C src/login CC="gcc" CFLAGS="-m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL" LDFLAGS="-m64 -rdynamic -fsanitize=address,undefined" LDLIBS="-L/usr/lib64 -L/usr/lib -L/usr/lib64/mysql -L/usr/lib/mysql -lpcre -lmysqlclient -ldl -lz -lm" txt
+make[2]: Entering directory '/workspace/uAthena/src/login'
+gcc -m64 -fPIC -O2 -g3 -Wall -Wextra -Wconversion -pipe -ffast-math -fcommon -fstack-protector -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -Wno-unused -Wno-parentheses -fno-omit-frame-pointer -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT -I../common -I/usr/include -I/usr/include/mysql -fsanitize=address,undefined -DMAPREGSQL   -c -DTXT_ONLY -o login.o login.c
+login.c: In function ‘create_online_user’:
+login.c:201:25: warning: conversion from ‘int64_t’ {aka ‘long int’} to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+  201 |         p->account_id = key.i;
+      |                         ^~~
+login.c: In function ‘addGM’:
+login.c:301:52: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+  301 |                 gm_account_db[GM_num].account_id = account_id;
+      |                                                    ^~~~~~~~~~
+login.c: In function ‘read_gm_account’:
+login.c:366:55: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  366 |                                                 addGM(current_id,level);
+      |                                                       ^~~~~~~~~~
+login.c:368:39: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  368 |                                 addGM(account_id,level);
+      |                                       ^~~~~~~~~~
+login.c: In function ‘check_ipmask’:
+login.c:402:30: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  402 |                         mask |= (1 << i);
+      |                              ^~
+login.c: In function ‘search_account_index’:
+login.c:514:40: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  514 |                                 return i;
+      |                                        ^
+login.c:516:33: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  516 |                         index = i;
+      |                                 ^
+login.c: In function ‘mmo_auth_init’:
+login.c:592:27: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  592 |                 if (((i = sscanf(line, "%u\t%[^\t]\t%[^\t]\t%[^\t]\t%c\t%d\t%u\t"
+      |                           ^~~~~~
+login.c:596:27: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  596 |                     ((i = sscanf(line, "%u\t%[^\t]\t%[^\t]\t%[^\t]\t%c\t%d\t%u\t"
+      |                           ^~~~~~
+login.c:711:63: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+  711 |                         auth_dat[auth_num].account_reg2_num = j;
+      |                                                               ^
+login.c:713:34: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+  713 |                         if (isGM(account_id) > 0)
+      |                                  ^~~~~~~~~~
+login.c:723:33: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  723 |                 } else if ((i = sscanf(line, "%u\t%[^\t]\t%[^\t]\t%[^\t]\t%c\t%d\t%u\t%n",
+      |                                 ^~~~~~
+login.c:816:63: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+  816 |                         auth_dat[auth_num].account_reg2_num = j;
+      |                                                               ^
+login.c:818:34: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+  818 |                         if (isGM(account_id) > 0)
+      |                                  ^~~~~~~~~~
+login.c: In function ‘mmo_auth_sync’:
+login.c:888:25: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  888 |                 id[i] = i;
+      |                         ^
+login.c:894:41: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  894 |                                 id[j] = i; // id[i]
+      |                                         ^
+login.c:920:21: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  920 |                 k = id[i]; // use of sorted index
+      |                     ^~
+login.c:932:33: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+  932 |         auth_before_save_file = auth_num / AUTH_SAVE_FILE_DIVIDER; // Re-initialise counter. We have save.
+      |                                 ^~~~~~~~
+login.c: In function ‘charif_sendallwos’:
+login.c:975:37: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  975 |                         WFIFOSET(fd,len);
+      |                                     ^~~
+login.c: In function ‘send_GM_accounts’:
+login.c:997:42: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  997 |                         WBUFL(buf,len) = gm_account_db[i].account_id;
+      |                                          ^~~~~~~~~~~~~
+login.c: In function ‘mmo_auth_new’:
+login.c:1082:17: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 1082 |         int i = auth_num;
+      |                 ^~~~~~~~
+login.c:1091:21: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 1091 |         while (isGM(account_id_count) > 0)
+      |                     ^~~~~~~~~~~~~~~~
+login.c:1128:34: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 1128 |         return (account_id_count - 1);
+      |                ~~~~~~~~~~~~~~~~~~^~~~
+login.c: In function ‘mmo_auth’:
+login.c:1173:15: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+ 1173 |         len = strlen(account->userid) - 2;
+      |               ^~~~~~
+login.c:1206:21: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 1206 |                 i = search_account_index(account->userid);
+      |                     ^~~~~~~~~~~~~~~~~~~~
+login.c:1258:58: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 1258 |                                 return auth_dat[i].state - 1;
+      |                                        ~~~~~~~~~~~~~~~~~~^~~
+In file included from login.c:7:
+login.c:1265:87: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 1265 |                         struct online_login_data* data = idb_get(online_db,auth_dat[i].account_id);
+      |                                                                            ~~~~~~~~~~~^~~~~~~~~~~
+../common/db.h:500:46: note: in definition of macro ‘idb_get’
+  500 | #define idb_get(db,k)   (db)->get((db),i2key(k))
+      |                                              ^
+login.c:1274:132: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 1274 |                                         data->waiting_disconnect = add_timer(gettick()+30000, waiting_disconnect_timer, auth_dat[i].account_id, 0);
+      |                                                                                                                         ~~~~~~~~~~~^~~~~~~~~~~
+login.c:1315:51: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 1315 |                                 new_reg_tick=tick +time_allowed*1000;
+      |                                                   ^
+login.c:1332:24: warning: conversion to ‘char’ from ‘uint8’ {aka ‘unsigned char’} may change the sign of the result [-Wsign-conversion]
+ 1332 |         account->sex = auth_dat[i].sex;
+      |                        ^~~~~~~~
+login.c: In function ‘parse_fromchar’:
+login.c:1444:57: warning: conversion from ‘long unsigned int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 1444 |                                         WFIFOL(fd,47) = (unsigned long)connect_until_time;
+      |                                                         ^
+In file included from login.c:6:
+../common/socket.h:33:24: warning: conversion from ‘uint32’ {aka ‘unsigned int’} to ‘uint16’ {aka ‘short unsigned int’} may change value [-Wconversion]
+   33 | #define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
+      |                        ^
+login.c:1470:44: note: in expansion of macro ‘RFIFOL’
+ 1470 |                         server[id].users = RFIFOL(fd,2);
+      |                                            ^~~~~~
+login.c:1518:57: warning: conversion from ‘long unsigned int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 1518 |                                         WFIFOL(fd,46) = (unsigned long)auth_dat[i].connect_until_time;
+      |                                                         ^
+../common/socket.h:33:24: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+   33 | #define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
+      |                        ^
+login.c:1536:35: note: in expansion of macro ‘RFIFOL’
+ 1536 |                         int acc = RFIFOL(fd,4);
+      |                                   ^~~~~~
+login.c:1539:40: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 1539 |                         WBUFL(buf,2) = acc;
+      |                                        ^~~
+login.c:1554:72: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 1554 |                                                         WBUFL(buf,6) = level_new_gm;
+      |                                                                        ^~~~~~~~~~~~
+../common/socket.h:33:25: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+   33 | #define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
+      |                        ~^~~~~~~~~~~~~~~~~~~~~~~~~
+login.c:1848:45: note: in expansion of macro ‘RFIFOL’
+ 1848 |                         add_online_user(id, RFIFOL(fd,2));
+      |                                             ^~~~~~
+../common/socket.h:33:25: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+   33 | #define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
+      |                        ~^~~~~~~~~~~~~~~~~~~~~~~~~
+login.c:1855:44: note: in expansion of macro ‘RFIFOL’
+ 1855 |                         remove_online_user(RFIFOL(fd,2));
+      |                                            ^~~~~~
+../common/socket.h:33:24: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+   33 | #define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
+      |                        ^
+login.c:1869:47: note: in expansion of macro ‘RFIFOL’
+ 1869 |                                         aid = RFIFOL(fd,6+i*4);
+      |                                               ^~~~~~
+../common/socket.h:29:24: warning: conversion to ‘char’ from ‘uint8’ {aka ‘unsigned char’} may change the sign of the result [-Wsign-conversion]
+   29 | #define RFIFOB(fd,pos) (*(uint8*)RFIFOP(fd,pos))
+      |                        ^
+login.c:1946:66: note: in expansion of macro ‘RFIFOB’
+ 1946 |                                                 tmpstr[i % 16] = RFIFOB(fd,i);
+      |                                                                  ^~~~~~
+login.c:1957:49: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 1957 |                                         for(j = i; j % 16 != 0; j++) {
+      |                                                 ^
+../common/socket.h:38:46: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+   38 | #define RFIFOREST(fd)  (session[fd]->eof ? 0 : session[fd]->rdata_size - session[fd]->rdata_pos)
+      |                        ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+login.c:1975:22: note: in expansion of macro ‘RFIFOREST’
+ 1975 |         RFIFOSKIP(fd,RFIFOREST(fd));
+      |                      ^~~~~~~~~
+login.c: In function ‘parse_admin’:
+../common/socket.h:33:24: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+   33 | #define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
+      |                        ^
+login.c:2035:38: note: in expansion of macro ‘RFIFOL’
+ 2035 |                                 st = RFIFOL(fd,2);
+      |                                      ^~~~~~
+../common/socket.h:33:24: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+   33 | #define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
+      |                        ^
+login.c:2036:38: note: in expansion of macro ‘RFIFOL’
+ 2036 |                                 ed = RFIFOL(fd,6);
+      |                                      ^~~~~~
+login.c:2047:49: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+ 2047 |                                         id[i] = i;
+      |                                                 ^
+login.c:2053:65: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+ 2053 |                                                         id[j] = i; // id[i]
+      |                                                                 ^
+login.c:2061:58: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 2061 |                                         int account_id = auth_dat[id[i]].account_id; // use sorted index
+      |                                                          ^~~~~~~~
+login.c:2063:53: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2063 |                                                 j = id[i];
+      |                                                     ^~
+login.c:2064:66: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2064 |                                                 WFIFOL(fd,len) = account_id;
+      |                                                                  ^~~~~~~~~~
+login.c:2068:69: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2068 |                                                 WFIFOL(fd,len+30) = auth_dat[j].logincount;
+      |                                                                     ^~~~~~~~
+../common/socket.h:29:24: warning: conversion to ‘char’ from ‘uint8’ {aka ‘unsigned char’} may change the sign of the result [-Wsign-conversion]
+   29 | #define RFIFOB(fd,pos) (*(uint8*)RFIFOP(fd,pos))
+      |                        ^
+login.c:2093:42: note: in expansion of macro ‘RFIFOB’
+ 2093 |                                 ma.sex = RFIFOB(fd,50);
+      |                                          ^~~~~~
+login.c:2125:64: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2125 |                                                 WFIFOL(fd,2) = new_id;
+      |                                                                ^~~~~~
+login.c:2142:29: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2142 |                         i = search_account_index(account_name);
+      |                             ^~~~~~~~~~~~~~~~~~~~
+login.c:2178:29: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2178 |                         i = search_account_index(account_name);
+      |                             ^~~~~~~~~~~~~~~~~~~~
+login.c:2215:37: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2215 |                                 i = search_account_index(account_name);
+      |                                     ^~~~~~~~~~~~~~~~~~~~
+login.c:2271:40: warning: conversion from ‘int’ to ‘uint16’ {aka ‘short unsigned int’} may change value [-Wconversion]
+ 2271 |                         WFIFOW(fd,2) = 4 + 32 * server_num;
+      |                                        ^
+login.c:2285:29: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2285 |                         i = search_account_index(account_name);
+      |                             ^~~~~~~~~~~~~~~~~~~~
+../common/socket.h:29:24: warning: conversion to ‘char’ from ‘uint8’ {aka ‘unsigned char’} may change the sign of the result [-Wsign-conversion]
+   29 | #define RFIFOB(fd,pos) (*(uint8*)RFIFOP(fd,pos))
+      |                        ^
+login.c:2320:39: note: in expansion of macro ‘RFIFOB’
+ 2320 |                                 sex = RFIFOB(fd,26);
+      |                                       ^~~~~~
+login.c:2329:45: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2329 |                                         i = search_account_index(account_name);
+      |                                             ^~~~~~~~~~~~~~~~~~~~
+../common/socket.h:29:24: warning: conversion to ‘char’ from ‘uint8’ {aka ‘unsigned char’} may change the sign of the result [-Wsign-conversion]
+   29 | #define RFIFOB(fd,pos) (*(uint8*)RFIFOP(fd,pos))
+      |                        ^
+login.c:2372:48: note: in expansion of macro ‘RFIFOB’
+ 2372 |                                 new_gm_level = RFIFOB(fd,26);
+      |                                                ^~~~~~
+login.c:2377:45: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2377 |                                         i = search_account_index(account_name);
+      |                                             ^~~~~~~~~~~~~~~~~~~~
+login.c:2379:59: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 2379 |                                                 int acc = auth_dat[i].account_id;
+      |                                                           ^~~~~~~~
+login.c:2424:88: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2424 |                                                                         WFIFOL(fd,2) = acc;
+      |                                                                                        ^~~
+login.c:2469:45: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2469 |                                         i = search_account_index(account_name);
+      |                                             ^~~~~~~~~~~~~~~~~~~~
+login.c:2495:29: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2495 |                         i = search_account_index(account_name);
+      |                             ^~~~~~~~~~~~~~~~~~~~
+login.c:2499:64: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2499 |                                 memset(auth_dat[i].memo, '\0', size_of_memo);
+      |                                                                ^~~~~~~~~~~~
+login.c:2501:72: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2501 |                                         strncpy(auth_dat[i].memo, "-", size_of_memo);
+      |                                                                        ^~~~~~~~~~~~
+login.c:2503:94: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2503 |                                         memcpy(auth_dat[i].memo, RFIFOP(fd,28), size_of_memo - 1);
+      |                                                                                 ~~~~~~~~~~~~~^~~
+login.c:2530:29: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2530 |                         i = search_account_index(account_name);
+      |                             ^~~~~~~~~~~~~~~~~~~~
+login.c:2581:37: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2581 |                                 i = search_account_index(account_name);
+      |                                     ^~~~~~~~~~~~~~~~~~~~
+login.c:2615:37: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2615 |                                 i = search_account_index(account_name);
+      |                                     ^~~~~~~~~~~~~~~~~~~~
+login.c:2659:37: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2659 |                                 i = search_account_index(account_name);
+      |                                     ^~~~~~~~~~~~~~~~~~~~
+login.c:2701:57: warning: conversion from ‘long unsigned int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 2701 |                                         WFIFOL(fd,30) = (unsigned long)auth_dat[i].ban_until_time;
+      |                                                         ^
+login.c:2750:40: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 2750 |                         RFIFOSKIP(fd,8 + RFIFOL(fd,4));
+login.c:2766:37: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2766 |                                 i = search_account_index(account_name);
+      |                                     ^~~~~~~~~~~~~~~~~~~~
+login.c:2793:73: warning: conversion from ‘long unsigned int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 2793 |                                                         WFIFOL(fd,30) = (unsigned long)auth_dat[i].connect_until_time;
+      |                                                                         ^
+login.c:2820:29: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2820 |                         i = search_account_index(account_name);
+      |                             ^~~~~~~~~~~~~~~~~~~~
+login.c:2823:79: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 2823 |                                 WFIFOB(fd,6) = (unsigned char)isGM(auth_dat[i].account_id);
+      |                                                                    ~~~~~~~~~~~^~~~~~~~~~~
+login.c:2826:49: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2826 |                                 WFIFOL(fd,32) = auth_dat[i].logincount;
+      |                                                 ^~~~~~~~
+login.c:2832:50: warning: conversion from ‘long unsigned int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 2832 |                                 WFIFOL(fd,140) = (unsigned long)auth_dat[i].connect_until_time;
+      |                                                  ^
+login.c:2833:50: warning: conversion from ‘long unsigned int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 2833 |                                 WFIFOL(fd,144) = (unsigned long)auth_dat[i].ban_until_time;
+      |                                                  ^
+login.c:2840:48: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+ 2840 |                                 WFIFOSET(fd,150+strlen(auth_dat[i].memo));
+      |                                             ~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+login.c:2861:87: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 2861 |                                         WFIFOB(fd,6) = (unsigned char)isGM(auth_dat[i].account_id);
+      |                                                                            ~~~~~~~~~~~^~~~~~~~~~~
+login.c:2864:57: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 2864 |                                         WFIFOL(fd,32) = auth_dat[i].logincount;
+      |                                                         ^~~~~~~~
+login.c:2870:58: warning: conversion from ‘long unsigned int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 2870 |                                         WFIFOL(fd,140) = (unsigned long)auth_dat[i].connect_until_time;
+      |                                                          ^
+login.c:2871:58: warning: conversion from ‘long unsigned int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 2871 |                                         WFIFOL(fd,144) = (unsigned long)auth_dat[i].ban_until_time;
+      |                                                          ^
+login.c:2876:56: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+ 2876 |                                         WFIFOSET(fd,150+strlen(auth_dat[i].memo));
+      |                                                     ~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+../common/socket.h:29:24: warning: conversion to ‘char’ from ‘uint8’ {aka ‘unsigned char’} may change the sign of the result [-Wsign-conversion]
+   29 | #define RFIFOB(fd,pos) (*(uint8*)RFIFOP(fd,pos))
+      |                        ^
+login.c:2917:74: note: in expansion of macro ‘RFIFOB’
+ 2917 |                                                         tmpstr[i % 16] = RFIFOB(fd,i);
+      |                                                                          ^~~~~~
+../common/socket.h:38:46: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+   38 | #define RFIFOREST(fd)  (session[fd]->eof ? 0 : session[fd]->rdata_size - session[fd]->rdata_pos)
+      |                        ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+login.c:2945:22: note: in expansion of macro ‘RFIFOREST’
+ 2945 |         RFIFOSKIP(fd,RFIFOREST(fd));
+      |                      ^~~~~~~~~
+login.c: In function ‘lan_subnetcheck’:
+login.c:2958:41: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 2958 |                         return subnet[i].char_ip;
+      |                                ~~~~~~~~~^~~~~~~~
+login.c: In function ‘parse_login’:
+../common/socket.h:38:24: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+   38 | #define RFIFOREST(fd)  (session[fd]->eof ? 0 : session[fd]->rdata_size - session[fd]->rdata_pos)
+      |                        ^
+login.c:3022:42: note: in expansion of macro ‘RFIFOREST’
+ 3022 |                         int packet_len = RFIFOREST(fd); // assume no other packet was sent
+      |                                          ^~~~~~~~~
+../common/socket.h:33:24: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+   33 | #define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
+      |                        ^
+login.c:3049:43: note: in expansion of macro ‘RFIFOL’
+ 3049 |                         account.version = RFIFOL(fd,2);
+      |                                           ^~~~~~
+login.c:3065:60: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 3065 |                                 int gm_level = isGM(account.account_id);
+      |                                                     ~~~~~~~^~~~~~~~~~~
+login.c:3079:81: warning: conversion to ‘uint32’ {aka ‘unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 3079 |                                                         uint32 subnet_char_ip = lan_subnetcheck(ipl);
+      |                                                                                 ^~~~~~~~~~~~~~~
+login.c:3096:64: warning: conversion from ‘int’ to ‘uint16’ {aka ‘short unsigned int’} may change value [-Wconversion]
+ 3096 |                                                 WFIFOW(fd,2) = 47+32*server_num;
+      |                                                                ^~
+login.c:3097:64: warning: conversion from ‘long int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 3097 |                                                 WFIFOL(fd,4) = account.login_id1;
+      |                                                                ^~~~~~~
+login.c:3099:65: warning: conversion from ‘long int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 3099 |                                                 WFIFOL(fd,12) = account.login_id2;
+      |                                                                 ^~~~~~~
+login.c:3102:65: warning: conversion to ‘uint8’ {aka ‘unsigned char’} from ‘char’ may change the sign of the result [-Wsign-conversion]
+ 3102 |                                                 WFIFOB(fd,46) = account.sex;
+      |                                                                 ^~~~~~~
+login.c:3107:86: warning: conversion from ‘long int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 3107 |                                                 auth_fifo[auth_fifo_pos].login_id1 = account.login_id1;
+      |                                                                                      ^~~~~~~
+login.c:3108:86: warning: conversion from ‘long int’ to ‘uint32’ {aka ‘unsigned int’} may change value [-Wconversion]
+ 3108 |                                                 auth_fifo[auth_fifo_pos].login_id2 = account.login_id2;
+      |                                                                                      ^~~~~~~
+login.c:3109:80: warning: conversion to ‘uint8’ {aka ‘unsigned char’} from ‘char’ may change the sign of the result [-Wsign-conversion]
+ 3109 |                                                 auth_fifo[auth_fifo_pos].sex = account.sex;
+      |                                                                                ^~~~~~~
+login.c:3130:45: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 3130 |                                         i = search_account_index(account.userid);
+      |                                             ^~~~~~~~~~~~~~~~~~~~
+../common/socket.h:29:24: warning: conversion to ‘char’ from ‘uint8’ {aka ‘unsigned char’} may change the sign of the result [-Wsign-conversion]
+   29 | #define RFIFOB(fd,pos) (*(uint8*)RFIFOP(fd,pos))
+      |                        ^
+login.c:3330:74: note: in expansion of macro ‘RFIFOB’
+ 3330 |                                                         tmpstr[i % 16] = RFIFOB(fd,i);
+      |                                                                          ^~~~~~
+login.c:3341:57: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+ 3341 |                                                 for(j = i; j % 16 != 0; j++) {
+      |                                                         ^
+../common/socket.h:38:46: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+   38 | #define RFIFOREST(fd)  (session[fd]->eof ? 0 : session[fd]->rdata_size - session[fd]->rdata_pos)
+      |                        ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+login.c:3358:22: note: in expansion of macro ‘RFIFOREST’
+ 3358 |         RFIFOSKIP(fd,RFIFOREST(fd));
+      |                      ^~~~~~~~~
+login.c: In function ‘online_data_cleanup_sub’:
+login.c:3398:45: warning: conversion to ‘int’ from ‘uint32’ {aka ‘unsigned int’} may change the sign of the result [-Wsign-conversion]
+ 3398 |                 remove_online_user(character->account_id);
+      |                                    ~~~~~~~~~^~~~~~~~~~~~
+In file included from login.c:10:
+login.c: In function ‘login_config_read’:
+login.c:3521:135: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 3521 |                                                 access_ladmin_allow = (char*)aRealloc(access_ladmin_allow, (access_ladmin_allownum+1) * ACO_STRSIZE);
+      |                                                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+login.c:3599:114: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 3599 |                                                 access_allow = (char*)aRealloc(access_allow, (access_allownum+1) * ACO_STRSIZE);
+      |                                                                                              ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+login.c:3623:111: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 3623 |                                                 access_deny = (char*)aRealloc(access_deny, (access_denynum+1) * ACO_STRSIZE);
+      |                                                                                            ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+../common/malloc.h:58:45: note: in definition of macro ‘aRealloc’
+   58 | #       define aRealloc(p,n)    aRealloc_(p,n,ALC_MARK)
+      |                                             ^
+login.c: In function ‘do_init’:
+login.c:3992:38: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 3992 |         add_timer_interval(gettick() + j * 1000, check_GM_file, 0, 0, j * 1000); // every x sec we check if gm file has been changed
+      |                                      ^
+login.c:4000:46: warning: conversion to ‘unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+ 4000 |                 add_timer_interval(gettick() + ip_sync_interval, sync_ip_addresses, 0, 0, ip_sync_interval);
+      |                                              ^
+login.c: In function ‘mmo_auth_init’:
+login.c:855:41: warning: ‘ of which is ’ directive writing 13 bytes into a region of size between 1 and 2048 [-Wformat-overflow=]
+  855 |                         sprintf(str, "%s of which is %d GM accounts and", line, GM_count);
+      |                                         ^~~~~~~~~~~~~
+login.c:855:38: note: using the range [-2147483648, 2147483647] for directive argument
+  855 |                         sprintf(str, "%s of which is %d GM accounts and", line, GM_count);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/stdio.h:980,
+                 from ../common/lock.h:7,
+                 from login.c:9:
+In function ‘sprintf’,
+    inlined from ‘mmo_auth_init’ at login.c:855:4:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 31 and 2088 bytes into a destination of size 2048
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+login.c: In function ‘mmo_auth_init’:
+login.c:852:41: warning: ‘ of which is 1 GM account and’ directive writing 29 bytes into a region of size between 1 and 2048 [-Wformat-overflow=]
+  852 |                         sprintf(str, "%s of which is 1 GM account and", line);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function ‘sprintf’,
+    inlined from ‘mmo_auth_init’ at login.c:852:4:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 30 and 2077 bytes into a destination of size 2048
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+login.c: In function ‘mmo_auth_init’:
+login.c:849:41: warning: ‘ of which is no GM account and’ directive writing 30 bytes into a region of size between 1 and 2048 [-Wformat-overflow=]
+  849 |                         sprintf(str, "%s of which is no GM account and", line);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function ‘sprintf’,
+    inlined from ‘mmo_auth_init’ at login.c:849:4:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 31 and 2078 bytes into a destination of size 2048
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+login.c: In function ‘mmo_auth_init’:
+login.c:865:43: warning: ‘%d’ directive writing between 1 and 11 bytes into a region of size between 0 and 2047 [-Wformat-overflow=]
+  865 |                         sprintf(line, "%s %d server accounts ('S').", str, server_count);
+      |                                           ^~
+login.c:865:39: note: using the range [-2147483648, 2147483647] for directive argument
+  865 |                         sprintf(line, "%s %d server accounts ('S').", str, server_count);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function ‘sprintf’,
+    inlined from ‘mmo_auth_init’ at login.c:865:4:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 26 and 2083 bytes into a destination of size 2048
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+login.c: In function ‘mmo_auth_init’:
+login.c:862:42: warning: ‘ 1 server account ('S').’ directive writing 24 bytes into a region of size between 1 and 2048 [-Wformat-overflow=]
+  862 |                         sprintf(line, "%s 1 server account ('S').", str);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~~
+In function ‘sprintf’,
+    inlined from ‘mmo_auth_init’ at login.c:862:4:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 25 and 2072 bytes into a destination of size 2048
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+login.c: In function ‘mmo_auth_init’:
+login.c:859:42: warning: ‘ no server account ('S').’ directive writing 25 bytes into a region of size between 1 and 2048 [-Wformat-overflow=]
+  859 |                         sprintf(line, "%s no server account ('S').", str);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~~~
+In function ‘sprintf’,
+    inlined from ‘mmo_auth_init’ at login.c:859:4:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: note: ‘__builtin___sprintf_chk’ output between 26 and 2073 bytes into a destination of size 2048
+   30 |   return __builtin___sprintf_chk (__s, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   31 |                                   __glibc_objsize (__s), __fmt,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   32 |                                   __va_arg_pack ());
+      |                                   ~~~~~~~~~~~~~~~~~
+login.c: In function ‘mmo_auth_init’:
+login.c:764:25: warning: ‘__builtin_strncpy’ output may be truncated copying 24 bytes from a string of length 2047 [-Wstringop-truncation]
+  764 |                         strncpy(auth_dat[auth_num].userid, userid, 24);
+      |                         ^
+login.c:768:25: warning: ‘__builtin_strncpy’ output may be truncated copying 24 bytes from a string of length 2047 [-Wstringop-truncation]
+  768 |                         strncpy(auth_dat[auth_num].pass, pass, 24);
+      |                         ^
+login.c:772:25: warning: ‘__builtin_strncpy’ output may be truncated copying 24 bytes from a string of length 2047 [-Wstringop-truncation]
+  772 |                         strncpy(auth_dat[auth_num].lastlogin, lastlogin, 24);
+      |                         ^
+login.c:813:33: warning: ‘__builtin_strncpy’ output may be truncated copying 32 bytes from a string of length 2047 [-Wstringop-truncation]
+  813 |                                 strncpy(auth_dat[auth_num].account_reg2[j].str, str, 32);
+      |                                 ^
+login.c:814:33: warning: ‘__builtin_strncpy’ output may be truncated copying 256 bytes from a string of length 2047 [-Wstringop-truncation]
+  814 |                                 strncpy(auth_dat[auth_num].account_reg2[j].value,v,256);
+      |                                 ^
+login.c:642:25: warning: ‘__builtin_strncpy’ output may be truncated copying 24 bytes from a string of length 2047 [-Wstringop-truncation]
+  642 |                         strncpy(auth_dat[auth_num].userid, userid, 24);
+      |                         ^
+login.c:646:25: warning: ‘__builtin_strncpy’ output may be truncated copying 32 bytes from a string of length 2047 [-Wstringop-truncation]
+  646 |                         strncpy(auth_dat[auth_num].pass, pass, 32);
+      |                         ^
+login.c:650:25: warning: ‘__builtin_strncpy’ output may be truncated copying 24 bytes from a string of length 2047 [-Wstringop-truncation]
+  650 |                         strncpy(auth_dat[auth_num].lastlogin, lastlogin, 24);
+      |                         ^
+login.c:669:33: warning: ‘__builtin_strncpy’ output may be truncated copying 40 bytes from a string of length 2047 [-Wstringop-truncation]
+  669 |                                 strncpy(auth_dat[auth_num].email, email, 40);
+      |                                 ^
+login.c:677:33: warning: ‘__builtin_strncpy’ output may be truncated copying 20 bytes from a string of length 2047 [-Wstringop-truncation]
+  677 |                                 strncpy(auth_dat[auth_num].error_message, error_message, 20);
+      |                                 ^
+login.c:689:25: warning: ‘__builtin_strncpy’ output may be truncated copying 16 bytes from a string of length 2047 [-Wstringop-truncation]
+  689 |                         strncpy(auth_dat[auth_num].last_ip, last_ip, 16);
+      |                         ^
+login.c:693:25: warning: ‘__builtin_strncpy’ output may be truncated copying 255 bytes from a string of length 2047 [-Wstringop-truncation]
+  693 |                         strncpy(auth_dat[auth_num].memo, memo, 255);
+      |                         ^
+login.c:708:33: warning: ‘__builtin_strncpy’ output may be truncated copying 32 bytes from a string of length 2047 [-Wstringop-truncation]
+  708 |                                 strncpy(auth_dat[auth_num].account_reg2[j].str, str, 32);
+      |                                 ^
+login.c:709:33: warning: ‘__builtin_strncpy’ output may be truncated copying 256 bytes from a string of length 2047 [-Wstringop-truncation]
+  709 |                                 strncpy(auth_dat[auth_num].account_reg2[j].value,v,256);
+      |                                 ^
+login.c: In function ‘login_config_read’:
+login.c:3642:25: warning: ‘__builtin_strncpy’ output may be truncated copying 32 bytes from a string of length 1023 [-Wstringop-truncation]
+ 3642 |                         strncpy(date_format, w2, sizeof(date_format));
+      |                         ^
+login.c:3626:41: warning: ‘__builtin_strncpy’ output may be truncated copying 128 bytes from a string of length 1023 [-Wstringop-truncation]
+ 3626 |                                         strncpy(access_deny + (access_denynum++) * ACO_STRSIZE, w2, ACO_STRSIZE);
+      |                                         ^
+login.c:3602:41: warning: ‘__builtin_strncpy’ output may be truncated copying 128 bytes from a string of length 1023 [-Wstringop-truncation]
+ 3602 |                                         strncpy(access_allow + (access_allownum++) * ACO_STRSIZE, w2, ACO_STRSIZE);
+      |                                         ^
+login.c:3530:25: warning: ‘__builtin_strncpy’ output may be truncated copying 64 bytes from a string of length 1023 [-Wstringop-truncation]
+ 3530 |                         strncpy(gm_pass, w2, sizeof(gm_pass));
+      |                         ^
+login.c:3524:41: warning: ‘__builtin_strncpy’ output may be truncated copying 128 bytes from a string of length 1023 [-Wstringop-truncation]
+ 3524 |                                         strncpy(access_ladmin_allow + (access_ladmin_allownum++) * ACO_STRSIZE, w2, ACO_STRSIZE);
+      |                                         ^
+login.c:3502:25: warning: ‘__builtin_strncpy’ output may be truncated copying 24 bytes from a string of length 1023 [-Wstringop-truncation]
+ 3502 |                         strncpy(admin_pass, w2, sizeof(admin_pass));
+      |                         ^
+login.c:3491:25: warning: ‘__builtin_strncpy’ output may be truncated copying 20 bytes from a string of length 1023 [-Wstringop-truncation]
+ 3491 |                         strncpy(timestamp_format, w2, 20);
+      |                         ^
+gcc -m64 -rdynamic -fsanitize=address,undefined -o ../../login-server login.o ../common/obj/core.o ../common/obj/socket.o ../common/obj/timer.o ../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o ../common/obj/malloc.o ../common/obj/showmsg.o ../common/obj/utils.o ../common/obj/strlib.o ../common/obj/grfio.o ../common/obj/mapindex.o ../common/obj/ers.o ../common/obj/md5calc.o -L/usr/lib64 -L/usr/lib -L/usr/lib64/mysql -L/usr/lib/mysql -lpcre -lmysqlclient -ldl -lz -lm
+/usr/bin/ld: cannot find -lpcre: No such file or directory
+collect2: error: ld returned 1 exit status
+make[2]: *** [GNUmakefile:18: login-server] Error 1
+make[2]: Leaving directory '/workspace/uAthena/src/login'
+make[1]: *** [Makefile:79: login] Error 2
+make[1]: Leaving directory '/workspace/uAthena'
+make: *** [Makefile:64: sanitize] Error 2

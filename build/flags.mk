@@ -14,9 +14,10 @@ UA_DEBUG_FLAGS   := -g3
 UA_WARN_FLAGS    := -Wall -Wextra -Wconversion
 
 # Miscellaneous compile-time toggles and defines shared by all targets
-UA_MISC_FLAGS    := -pipe -fomit-frame-pointer -ffast-math -fcommon -fstack-protector
-UA_MISC_FLAGS    += -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign \
-                    -Wno-switch -Wno-unused -Wno-parentheses
+UA_MISC_BASE_FLAGS := -pipe -fomit-frame-pointer -ffast-math -fcommon -fstack-protector
+UA_MISC_BASE_FLAGS += -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign \
+                      -Wno-switch -Wno-unused -Wno-parentheses
+UA_MISC_FLAGS      := $(UA_MISC_BASE_FLAGS)
 UA_DEFINE_FLAGS  := -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT
 
 # Include directories
@@ -32,9 +33,24 @@ ifeq ($(UA_ENABLE_NATIVE),1)
 UA_OPT_FLAGS += -march=native -mtune=native
 endif
 
+# Address/UndefinedBehavior sanitizer profile
+UA_ENABLE_SANITIZE ?= 0
+UA_SANITIZE_MODES  := address,undefined
+UA_SANITIZE_CFLAGS :=
+UA_SANITIZE_LDFLAGS :=
+
+ifeq ($(UA_ENABLE_SANITIZE),1)
+# Drop the release-oriented frame-pointer omission when sanitizers are active
+UA_MISC_FLAGS := $(filter-out -fomit-frame-pointer,$(UA_MISC_FLAGS))
+UA_MISC_FLAGS += -fno-omit-frame-pointer
+
+UA_SANITIZE_CFLAGS  += -fsanitize=$(UA_SANITIZE_MODES)
+UA_SANITIZE_LDFLAGS += -fsanitize=$(UA_SANITIZE_MODES)
+endif
+
 # Aggregate flag helpers
 UA_CFLAGS := $(UA_ARCH_FLAGS) $(UA_PIC_FLAGS) $(UA_OPT_FLAGS) $(UA_DEBUG_FLAGS) \
              $(UA_WARN_FLAGS) $(UA_MISC_FLAGS) $(UA_DEFINE_FLAGS) \
-             $(UA_INCLUDE_FLAGS)
-UA_LDFLAGS := $(UA_LINK_FLAGS)
+             $(UA_INCLUDE_FLAGS) $(UA_SANITIZE_CFLAGS)
+UA_LDFLAGS := $(UA_LINK_FLAGS) $(UA_SANITIZE_LDFLAGS)
 UA_LDLIBS  := $(UA_LIBDIR_FLAGS) $(UA_LIB_FLAGS)

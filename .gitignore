@@ -51,3 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 tests/map_cache_serialization_test
+
+# CMake build directories
+cmake-build-*
