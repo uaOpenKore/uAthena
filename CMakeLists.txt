@@ -68,16 +68,46 @@ if(UA_ENABLE_SANITIZE)
     target_link_options(map_cache_serialization_test PRIVATE ${UA_SANITIZE_FLAGS})
 endif()
 
+add_executable(grfio_large_file_test
+    tests/grfio_large_file_test.c
+    src/common/grfio.c
+    tests/support/grfio_test_stubs.c
+)
+
+target_include_directories(grfio_large_file_test
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/support
+)
+
+target_compile_definitions(grfio_large_file_test
+    PRIVATE UA_TESTING)
+
+target_compile_options(grfio_large_file_test
+    PRIVATE ${UA_COMMON_COMPILE_FLAGS}
+)
+
+target_link_libraries(grfio_large_file_test PRIVATE z)
+
+if(UA_ENABLE_SANITIZE)
+    target_compile_options(grfio_large_file_test PRIVATE ${UA_SANITIZE_FLAGS})
+    target_link_options(grfio_large_file_test PRIVATE ${UA_SANITIZE_FLAGS})
+endif()
+
 add_custom_target(run_tests
     COMMAND map_cache_serialization_test
-    DEPENDS map_cache_serialization_test
-    COMMENT "Run map cache serialization regression tests"
+    COMMAND grfio_large_file_test
+    DEPENDS map_cache_serialization_test grfio_large_file_test
+    COMMENT "Run regression tests"
 )
 
 if(UA_ENABLE_SANITIZE)
     add_custom_target(sanitize
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target map_cache_serialization_test
         COMMAND ${CMAKE_COMMAND} -E env ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=print_stacktrace=1 ./map_cache_serialization_test
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target grfio_large_file_test
+        COMMAND ${CMAKE_COMMAND} -E env ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=print_stacktrace=1 ./grfio_large_file_test
         DEPENDS map_cache_serialization_test
         COMMENT "Build and run the map cache tests with sanitizers"
     )

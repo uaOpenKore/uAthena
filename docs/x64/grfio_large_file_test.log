@@ -1,0 +1,3 @@
+[test] reading local sparse file at >4GB offset
+[test] reading GRF entry at >4GB offset
+[result] large file and offset tests passed

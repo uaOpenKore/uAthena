@@ -955,10 +955,11 @@ static int grfio_add(char* fname)
 // removes all entries
 void grfio_final(void)
 {
-	if (filelist != NULL)
-		aFree(filelist);
+        if (filelist != NULL)
+                aFree(filelist);
 
-	filelist_entrys = filelist_maxentry = 0;
+        filelist = NULL;
+        filelist_entrys = filelist_maxentry = 0;
 
 	if (gentry_table != NULL) {
 		int i;
@@ -977,9 +978,9 @@ void grfio_final(void)
  *------------------------------------------*/
 void grfio_init(char* fname)
 {
-	FILE* data_conf;
-	char line[1024], w1[1024], w2[1024];
-	int grf_num = 0;
+        FILE* data_conf;
+        char line[1024], w1[1024], w2[1024];
+        int grf_num = 0;
 
 	hashinit();	// hash table initialization
 
@@ -1013,5 +1014,117 @@ void grfio_init(char* fname)
 	// Resource check
 	grfio_resourcecheck();
 
-	return;
+        return;
 }
+
+#ifdef UA_TESTING
+
+void grfio_test_reset(void)
+{
+        grfio_final();
+        hashinit();
+}
+
+void grfio_test_set_data_dir(const char* path)
+{
+        if (path == NULL) {
+                data_dir[0] = '\0';
+                return;
+        }
+
+        strncpy(data_dir, path, sizeof(data_dir) - 1);
+        data_dir[sizeof(data_dir) - 1] = '\0';
+}
+
+static int grfio_test_gentry_append(const char* grfname)
+{
+        const int kGentryAdds = 4;
+
+        if (grfname == NULL)
+                return -1;
+
+        if (gentry_entrys >= gentry_maxentry) {
+                size_t new_max = (size_t)gentry_maxentry + (size_t)kGentryAdds;
+                char** resized = (char**)aRealloc(gentry_table, new_max * sizeof(char*));
+                if (resized == NULL)
+                        return -1;
+
+                memset(resized + gentry_maxentry, 0, (size_t)kGentryAdds * sizeof(char*));
+                gentry_table = resized;
+                gentry_maxentry = (int)new_max;
+        }
+
+        gentry_table[gentry_entrys] = aStrdup(grfname);
+        if (gentry_table[gentry_entrys] == NULL)
+                return -1;
+
+        gentry_entrys++;
+        return gentry_entrys;
+}
+
+static FILELIST* grfio_test_inject_entry(FILELIST* entry)
+{
+        if (entry == NULL)
+                return NULL;
+
+        if (filelist == NULL)
+                hashinit();
+
+        entry->next = FILELIST_INVALID_INDEX;
+        return filelist_modify(entry);
+}
+
+int grfio_test_register_local(const char* fname, uint64_t declen)
+{
+        FILELIST entry;
+
+        if (fname == NULL)
+                return -1;
+
+        memset(&entry, 0, sizeof(entry));
+        entry.declen = declen;
+        entry.srclen = declen;
+        entry.srclen_aligned = declen;
+        entry.srcpos = 0;
+        entry.type = 0;
+        entry.cycle = 0;
+        entry.fnd = NULL;
+        entry.gentry = 0;
+        strncpy(entry.fn, fname, sizeof(entry.fn) - 1);
+        entry.fn[sizeof(entry.fn) - 1] = '\0';
+
+        return (grfio_test_inject_entry(&entry) != NULL) ? 0 : -1;
+}
+
+int grfio_test_register_grf(const char* grfname, const char* fname, uint64_t srcpos,
+                uint64_t srclen, uint64_t srclen_aligned, uint64_t declen, int type)
+{
+        FILELIST entry;
+        int gentry_id;
+
+        if (grfname == NULL || fname == NULL)
+                return -1;
+
+        gentry_id = grfio_test_gentry_append(grfname);
+        if (gentry_id <= 0)
+                return -1;
+
+        memset(&entry, 0, sizeof(entry));
+        entry.declen = declen;
+        entry.srclen = srclen;
+        entry.srclen_aligned = srclen_aligned;
+        entry.srcpos = srcpos;
+        entry.type = type;
+        entry.cycle = 0;
+        entry.fnd = NULL;
+        entry.gentry = gentry_id;
+        strncpy(entry.fn, fname, sizeof(entry.fn) - 1);
+        entry.fn[sizeof(entry.fn) - 1] = '\0';
+
+        if (grfio_test_inject_entry(&entry) == NULL)
+                return -1;
+
+        return 0;
+}
+
+#endif
