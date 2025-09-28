@@ -48,6 +48,23 @@ that only native 64-bit RPMs are selected.
 * Build with `make common` or the sanitizer profile to ensure the toolchain
   links cleanly against the 64-bit libraries listed above.
 
+## Containerized Builds
+
+To produce a reproducible environment without mutating the host, build the
+provided Docker image:
+
+```bash
+make docker-build [DOCKER_IMAGE=uathena:x64-port]
+```
+
+The Dockerfile uses Ubuntu 22.04 as the base image, installs the required 64-bit
+development packages, and runs `make txt` during the image build to verify the
+toolchain and dependencies.【F:Dockerfile†L1-L30】 The resulting image opens an
+interactive shell by default so you can run additional build targets or tests
+inside the container.【F:Dockerfile†L32-L34】 The `make docker-build` target wraps
+`docker build` so developers can tag images without memorizing the command-line
+invocation.【F:Makefile†L60-L70】
+
 ## Release Optimization Profile
 
 The default make and CMake recipes now centralize their optimization knobs via

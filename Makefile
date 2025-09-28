@@ -58,7 +58,16 @@ MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDLIBS="$(LDLIBS)"
 endif
 
 .PHONY: txt sql common login login_sql char char_sql map map_sql ladmin converters \
-        addons plugins tools clean depend sanitize
+        addons plugins tools clean depend sanitize docker-build
+
+DOCKER_IMAGE ?= uathena:x64-port
+
+docker-build:
+	@command -v docker >/dev/null 2>&1 || { \
+		echo 'docker is not installed or not in PATH' >&2; exit 127; \
+	}
+	$(info Building Docker image $(DOCKER_IMAGE))
+	docker build --tag $(DOCKER_IMAGE) .
 
 all: txt sql
 
