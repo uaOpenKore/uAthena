@@ -18,6 +18,7 @@
 #include <unistd.h>
 #endif
 
+void** plugin_call_table;
 //////////////////////////////////////////////
 
 typedef struct _Plugin_Event {

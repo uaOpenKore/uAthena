@@ -50,7 +50,7 @@ enum weapon_type {
 	W_DOUBLE_SA, // sword + axe
 };
 
-enum {
+enum ammo_type_enum {
 	A_ARROW = 1,
 	A_DAGGER,    //2
 	A_BULLET,   //3
@@ -58,7 +58,8 @@ enum {
 	A_GRENADE,  //5
 	A_SHURIKEN, //6
 	A_KUNAI     //7
-} ammo_type;
+};
+extern enum ammo_type_enum ammo_type;
 
 //Equip position constants
 enum equip_pos {
@@ -83,7 +84,7 @@ enum equip_pos {
 
 //Equip indexes constants. (eg: sd->equip_index[EQI_AMMO] returns the index
 //where the arrows are equipped)
-enum {
+enum equip_index_enum {
 	EQI_ACC_L = 0,
 	EQI_ACC_R,
 	EQI_SHOES,
@@ -96,7 +97,7 @@ enum {
 	EQI_HAND_R,
 	EQI_AMMO,
 	EQI_MAX
-} equip_index_enum;
+} ;
 
 #define pc_setdead(sd)        ( (sd)->state.dead_sit = (sd)->vd.dead_sit = 1 )
 #define pc_setsit(sd)         ( (sd)->state.dead_sit = (sd)->vd.dead_sit = 2 )
