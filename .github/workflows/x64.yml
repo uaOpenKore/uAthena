@@ -1,0 +1,133 @@
+name: x64 Continuous Integration
+
+on:
+  push:
+    branches:
+      - feature/x64-port
+  pull_request:
+    branches:
+      - feature/x64-port
+
+env:
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+  CCACHE_MAXSIZE: 2G
+
+jobs:
+  ubuntu-lts:
+    name: Ubuntu 22.04 (Release & Sanitizers)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            clang \
+            clang-tidy \
+            cmake \
+            ninja-build \
+            ccache \
+            zlib1g-dev \
+            libpcre3-dev
+
+      - name: Prepare ccache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ runner.os }}-ccache-${{ hashFiles('CMakeLists.txt', 'build/flags.mk', 'Makefile', 'src/**', 'include/**') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
+      - name: Ensure ccache directory
+        run: mkdir -p "$CCACHE_DIR"
+
+      - name: Configure release build
+        run: cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
+      - name: Build & test (release)
+        run: |
+          set -o pipefail
+          cmake --build build/release --target run_tests | tee build/release/test.log
+
+      - name: Configure sanitizer build
+        run: cmake -S . -B build/sanitize -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUA_ENABLE_SANITIZE=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
+      - name: Build & test (sanitizers)
+        run: |
+          set -o pipefail
+          cmake --build build/sanitize --target sanitize | tee build/sanitize/sanitize.log
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ubuntu-logs
+          path: |
+            build/release/test.log
+            build/sanitize/sanitize.log
+          if-no-files-found: ignore
+
+  fedora:
+    name: Fedora (Release & Sanitizers)
+    runs-on: ubuntu-latest
+    container: fedora:39
+    steps:
+      - name: Install dependencies
+        run: |
+          dnf -y update
+          dnf -y install \
+            git \
+            make \
+            gcc \
+            gcc-c++ \
+            clang \
+            clang-tools-extra \
+            cmake \
+            ninja-build \
+            ccache \
+            zlib-devel \
+            pcre-devel
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Prepare ccache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: fedora-ccache-${{ hashFiles('CMakeLists.txt', 'build/flags.mk', 'Makefile', 'src/**', 'include/**') }}
+          restore-keys: |
+            fedora-ccache-
+
+      - name: Ensure ccache directory
+        run: mkdir -p "$CCACHE_DIR"
+
+      - name: Configure release build
+        run: cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
+      - name: Build & test (release)
+        run: |
+          set -o pipefail
+          cmake --build build/release --target run_tests | tee build/release/test.log
+
+      - name: Configure sanitizer build
+        run: cmake -S . -B build/sanitize -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUA_ENABLE_SANITIZE=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
+      - name: Build & test (sanitizers)
+        run: |
+          set -o pipefail
+          cmake --build build/sanitize --target sanitize | tee build/sanitize/sanitize.log
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: fedora-logs
+          path: |
+            build/release/test.log
+            build/sanitize/sanitize.log
+          if-no-files-found: ignore
