@@ -2,6 +2,7 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
+#include <inttypes.h>
 #include "../common/core.h"
 #include "../common/timer.h"
 #include "../common/grfio.h"
@@ -2613,6 +2614,9 @@ int map_cache_read(struct map_data* m)
 
                 if (fread(m->gat, 1, size, map_cache.fp) == size)
                         return 1;
+
+                ShowError("map_cache_read: failed to load %" PRIu64 " bytes for '%s' at offset %" PRIu64 "\n",
+                                (uint64_t)size, map_cache.map[i].fn, map_cache.map[i].pos);
         } else if (map_cache.map[i].compressed == 1) {
                 uint64_t compressed_len = map_cache.map[i].compressed_len;
                 unsigned long dest_len;
@@ -2636,8 +2640,8 @@ int map_cache_read(struct map_data* m)
                         goto read_compressed_fail;
 
                 if (fread(buf, 1, packed_size, map_cache.fp) != packed_size) {
-                        ShowError("fread error
-");
+                        ShowError("map_cache_read: failed to load %" PRIu64 " bytes for '%s' at offset %" PRIu64 "\n",
+                                        (uint64_t)packed_size, map_cache.map[i].fn, map_cache.map[i].pos);
                         goto read_compressed_fail;
                 }
 
@@ -2685,6 +2689,7 @@ static int map_cache_write(struct map_data* m)
         int i;
         uint64_t len_new = 0, len_old = 0;
         char *write_buf = NULL;
+        uint64_t write_offset = 0;
         uint64_t raw_len = map_cache_uncompressed_size(m->xs, m->ys);
 
         if (!map_cache.fp || raw_len == 0)
@@ -2716,11 +2721,13 @@ static int map_cache_write(struct map_data* m)
                 }
 
                 if (len_new <= len_old) {
+                        write_offset = map_cache.map[i].pos;
                         if (map_cache_seek(map_cache.fp, map_cache.map[i].pos, SEEK_SET) != 0)
                                 goto write_fail;
                         if (fwrite(write_buf, 1, (size_t)len_new, map_cache.fp) != len_new)
                                 goto write_fail;
                 } else {
+                        write_offset = map_cache.head.filesize;
                         if (map_cache_seek(map_cache.fp, map_cache.head.filesize, SEEK_SET) != 0)
                                 goto write_fail;
                         if (fwrite(write_buf, 1, (size_t)len_new, map_cache.fp) != len_new)
@@ -2758,6 +2765,7 @@ static int map_cache_write(struct map_data* m)
                 }
 
                 mapindex_getmapname_ext(m->name, map_cache.map[i].fn);
+                write_offset = map_cache.head.filesize;
                 if (map_cache_seek(map_cache.fp, map_cache.head.filesize, SEEK_SET) != 0)
                         goto write_fail;
                 if (fwrite(write_buf, 1, (size_t)len_new, map_cache.fp) != len_new)
@@ -2775,6 +2783,11 @@ static int map_cache_write(struct map_data* m)
         }
 
 write_fail:
+        if (len_new != 0 && i >= 0) {
+                const char *map_name = map_cache.map[i].fn[0] != '\0' ? map_cache.map[i].fn : m->name;
+                ShowError("map_cache_write: failed to write %" PRIu64 " bytes for '%s' at offset %" PRIu64 " (compressed=%d)\n",
+                                len_new, map_name, write_offset, map_cache.map[i].compressed);
+        }
         if (map_read_flag == READ_FROM_BITMAP_COMPRESSED && write_buf)
                 aFree(write_buf);
         return 0;
