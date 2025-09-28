@@ -36,12 +36,15 @@
 #include "charcommand.h"
 
 #include "log.h"
+#include "map_cache_serialization.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+#include <errno.h>
+#include <limits.h>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -2392,27 +2395,40 @@ int map_eraseipport(unsigned short mapindex, uint32 ip, uint16 port)
  *==========================================*/
 #define MAX_MAP_CACHE 768
 
-struct map_cache_head {
-	int sizeof_header;
-	int sizeof_map;
-	int nmaps;
-	int filesize;
-};
+static int map_cache_seek(FILE *fp, uint64_t offset, int whence)
+{
+#if defined(_WIN32)
+        return _fseeki64(fp, (long long)offset, whence);
+#elif defined(HAVE_FSEEKO) || defined(__USE_LARGEFILE64)
+        return fseeko(fp, (off_t)offset, whence);
+#else
+        if (offset > LONG_MAX) {
+                errno = EOVERFLOW;
+                return -1;
+        }
+        return fseek(fp, (long)offset, whence);
+#endif
+}
 
-struct map_cache_entry {
-	char fn[32];		// file name
-	int xs,ys;			// width and height
-	int water_height;	// water level
-	int pos;			// offset in file
-	int compressed;     // compression mode (0:none 1:zlib)
-	int compressed_len; // compressed size (or 0)
-}; // 56 byte
+static uint64_t map_cache_uncompressed_size(uint32 xs, uint32 ys)
+{
+        return (uint64_t)xs * (uint64_t)ys;
+}
 
-struct {
-	struct map_cache_head head;
-	struct map_cache_entry *map;
-	FILE *fp;
-	int dirty;
+static uint64_t map_cache_entry_payload(const struct map_cache_entry *entry)
+{
+        if (!entry)
+                return 0;
+        if (entry->compressed)
+                return entry->compressed_len;
+        return map_cache_uncompressed_size(entry->xs, entry->ys);
+}
+
+static struct {
+        struct map_cache_head head;
+        struct map_cache_entry *map;
+        FILE *fp;
+        int dirty;
 } map_cache;
 
 static int map_cache_open(char *fn);
@@ -2422,213 +2438,346 @@ static int map_cache_write(struct map_data *m);
 
 static int map_cache_open(char *fn)
 {
-	if (map_cache.fp)
-		map_cache_close();
-	map_cache.fp = fopen(fn, "r+b");
-	if (map_cache.fp) {
-		fread(&map_cache.head,1,sizeof(struct map_cache_head),map_cache.fp);
-		fseek(map_cache.fp,0,SEEK_END);
-		if(
-			map_cache.head.sizeof_header == sizeof(struct map_cache_head) &&
-			map_cache.head.sizeof_map    == sizeof(struct map_cache_entry) &&
-			map_cache.head.filesize      == ftell(map_cache.fp)
-		) {
-			// mapcache loading successful
-			map_cache.map = (struct map_cache_entry *) aMalloc(sizeof(struct map_cache_entry) * map_cache.head.nmaps);
-			fseek(map_cache.fp,sizeof(struct map_cache_head),SEEK_SET);
-			fread(map_cache.map,sizeof(struct map_cache_entry),map_cache.head.nmaps,map_cache.fp);
-			return 1;
-		}
-		fclose(map_cache.fp);
-	}
-	// loading failed, create new cache
-	map_cache.fp = fopen(fn,"wb");
-	if(map_cache.fp) {
-		memset(&map_cache.head,0,sizeof(struct map_cache_head));
-		map_cache.map   = (struct map_cache_entry *) aCalloc(sizeof(struct map_cache_entry),MAX_MAP_CACHE);
-		map_cache.head.nmaps         = MAX_MAP_CACHE;
-		map_cache.head.sizeof_header = sizeof(struct map_cache_head);
-		map_cache.head.sizeof_map    = sizeof(struct map_cache_entry);
+        enum map_cache_format format = MAP_CACHE_FORMAT_UNKNOWN;
+        struct map_cache_head disk_head;
 
-		map_cache.head.filesize  = sizeof(struct map_cache_head);
-		map_cache.head.filesize += sizeof(struct map_cache_entry) * map_cache.head.nmaps;
+        if (map_cache.fp)
+                map_cache_close();
 
-		map_cache.dirty = 1;
-		return 1;
-	}
-	return 0;
+        map_cache.fp = fopen(fn, "r+b");
+        if (map_cache.fp) {
+                if (map_cache_read_header(map_cache.fp, &disk_head, &format)) {
+                        struct map_cache_entry *entries;
+                        size_t count = disk_head.entry_count;
+
+                        if (!count || count > MAX_MAP_CACHE) {
+                                fclose(map_cache.fp);
+                                map_cache.fp = NULL;
+                                goto create_new;
+                        }
+
+                        entries = (struct map_cache_entry *)aCalloc(count, sizeof(*entries));
+                        if (!entries) {
+                                fclose(map_cache.fp);
+                                map_cache.fp = NULL;
+                                return 0;
+                        }
+
+                        if (!map_cache_read_entries(map_cache.fp, &disk_head, format, entries, count)) {
+                                aFree(entries);
+                                fclose(map_cache.fp);
+                                map_cache.fp = NULL;
+                                goto create_new;
+                        }
+
+                        if (format == MAP_CACHE_FORMAT_V1) {
+                                fclose(map_cache.fp);
+                                map_cache.fp = NULL;
+                                if (!map_cache_upgrade_v1_to_v2(fn, &disk_head, entries)) {
+                                        aFree(entries);
+                                        return 0;
+                                }
+                                aFree(entries);
+
+                                map_cache.fp = fopen(fn, "r+b");
+                                if (!map_cache.fp)
+                                        return 0;
+
+                                if (!map_cache_read_header(map_cache.fp, &disk_head, &format) || format != MAP_CACHE_FORMAT_V2) {
+                                        fclose(map_cache.fp);
+                                        map_cache.fp = NULL;
+                                        return 0;
+                                }
+
+                                count = disk_head.entry_count;
+                                if (!count || count > MAX_MAP_CACHE) {
+                                        fclose(map_cache.fp);
+                                        map_cache.fp = NULL;
+                                        goto create_new;
+                                }
+
+                                entries = (struct map_cache_entry *)aCalloc(count, sizeof(*entries));
+                                if (!entries) {
+                                        fclose(map_cache.fp);
+                                        map_cache.fp = NULL;
+                                        return 0;
+                                }
+
+                                if (!map_cache_read_entries(map_cache.fp, &disk_head, format, entries, count)) {
+                                        aFree(entries);
+                                        fclose(map_cache.fp);
+                                        map_cache.fp = NULL;
+                                        goto create_new;
+                                }
+                        }
+
+                        map_cache.head = disk_head;
+                        map_cache.map = entries;
+                        map_cache.dirty = 0;
+                        return 1;
+                }
+                fclose(map_cache.fp);
+                map_cache.fp = NULL;
+        }
+
+create_new:
+        map_cache.fp = fopen(fn, "wb+");
+        if (!map_cache.fp)
+                return 0;
+
+        map_cache.head.version = MAP_CACHE_FORMAT_VERSION;
+        map_cache.head.header_size = MAP_CACHE_HEADER_SIZE_V2;
+        map_cache.head.entry_size = MAP_CACHE_ENTRY_SIZE_V2;
+        map_cache.head.entry_count = MAX_MAP_CACHE;
+        map_cache.head.filesize = map_cache_directory_size(&map_cache.head);
+        map_cache.map = (struct map_cache_entry *)aCalloc(map_cache.head.entry_count, sizeof(*map_cache.map));
+        if (!map_cache.map) {
+                fclose(map_cache.fp);
+                map_cache.fp = NULL;
+                return 0;
+        }
+
+        if (!map_cache_write_v2(map_cache.fp, &map_cache.head, map_cache.map)) {
+                aFree(map_cache.map);
+                map_cache.map = NULL;
+                fclose(map_cache.fp);
+                map_cache.fp = NULL;
+                return 0;
+        }
+
+        map_cache.dirty = 0;
+        return 1;
 }
 
 static void map_cache_close(void)
 {
-	if(!map_cache.fp) { return; }
-	if(map_cache.dirty) {
-		fseek(map_cache.fp,0,SEEK_SET);
-		fwrite(&map_cache.head,1,sizeof(struct map_cache_head),map_cache.fp);
-		fwrite(map_cache.map,map_cache.head.nmaps,sizeof(struct map_cache_entry),map_cache.fp);
-	}
-	fclose(map_cache.fp);
-	aFree(map_cache.map);
-	map_cache.fp = NULL;
-	return;
+        if (!map_cache.fp)
+                return;
+
+        if (map_cache.dirty) {
+                map_cache.head.version = MAP_CACHE_FORMAT_VERSION;
+                map_cache.head.header_size = MAP_CACHE_HEADER_SIZE_V2;
+                map_cache.head.entry_size = MAP_CACHE_ENTRY_SIZE_V2;
+                map_cache_write_v2(map_cache.fp, &map_cache.head, map_cache.map);
+        }
+
+        fclose(map_cache.fp);
+        map_cache.fp = NULL;
+        if (map_cache.map) {
+                aFree(map_cache.map);
+                map_cache.map = NULL;
+        }
 }
 
 /// finds the mapcache entry for the specified map name
 static int map_cache_find(const char* mapname)
 {
-	int i;
-	for(i = 0; i < map_cache.head.nmaps; i++)
-		if(strcmp(mapname,map_cache.map[i].fn) == 0)
-			return i;
-	return -1;
+        size_t i;
+
+        for (i = 0; i < map_cache.head.entry_count; ++i)
+                if (strcmp(mapname, map_cache.map[i].fn) == 0)
+                        return (int)i;
+
+        return -1;
 }
 
 /// reads one map entry from the mapcache
 int map_cache_read(struct map_data* m)
 {
-	int i;
-	char map_name[MAP_NAME_LENGTH_EXT];
+        int i;
+        char map_name[MAP_NAME_LENGTH_EXT];
+        unsigned char *buf = NULL;
 
-	if(!map_cache.fp)
-		return 0;
+        if (!map_cache.fp)
+                return 0;
 
-	// since the mapcache entries are loaded in one big raw binary read, the in-memory data still has .gat in map names
-	mapindex_getmapname_ext(m->name, map_name);
-	i = map_cache_find(map_name);
-	if (i == -1)
-		return 0;
+        mapindex_getmapname_ext(m->name, map_name);
+        i = map_cache_find(map_name);
+        if (i == -1)
+                return 0;
 
-	if(map_cache.map[i].compressed == 0) {
-		// uncompressed data reading
-		int size = map_cache.map[i].xs * map_cache.map[i].ys;
-		m->xs = map_cache.map[i].xs;
-		m->ys = map_cache.map[i].ys;
-		m->water_height = map_cache.map[i].water_height;
-		m->gat = (unsigned char *)aCalloc(m->xs * m->ys,sizeof(unsigned char));
-		fseek(map_cache.fp,map_cache.map[i].pos,SEEK_SET);
-		if(fread(m->gat,1,size,map_cache.fp) == size) {
-			return 1;
-		} else {
-			m->xs = 0; m->ys = 0; aFree(m->gat); m->gat = NULL;
-			return 0;
-		}
-	} else
-	if(map_cache.map[i].compressed == 1) {
-		// zlib-compressed data reading
-		unsigned char *buf;
-		unsigned long dest_len;
-		int size_compress = map_cache.map[i].compressed_len;
-		m->xs = map_cache.map[i].xs;
-		m->ys = map_cache.map[i].ys;
-		m->water_height = map_cache.map[i].water_height;
-		m->gat = (unsigned char *)aMalloc(m->xs * m->ys * sizeof(unsigned char));
-		buf = (unsigned char*)aMalloc(size_compress);
-		fseek(map_cache.fp,map_cache.map[i].pos,SEEK_SET);
-		if(fread(buf,1,size_compress,map_cache.fp) != size_compress) {
-			ShowError("fread error\n");
-			aFree(m->gat); m->xs = 0; m->ys = 0; m->gat = NULL;
-			aFree(buf);
-			return 0;
-		}
-		dest_len = m->xs * m->ys;
-		decode_zip(m->gat,&dest_len,buf,size_compress);
-		aFree(buf);
-		if(dest_len == map_cache.map[i].xs * map_cache.map[i].ys) {
-			return 1;
-		} else {
-			m->xs = 0; m->ys = 0; aFree(m->gat); m->gat = NULL;
-			return 0;
-		}
-	}
-	return 0;
+        m->xs = map_cache.map[i].xs;
+        m->ys = map_cache.map[i].ys;
+        m->water_height = map_cache.map[i].water_height;
+
+        if (map_cache.map[i].compressed == 0) {
+                uint64_t expected = map_cache_uncompressed_size(map_cache.map[i].xs, map_cache.map[i].ys);
+
+                if (expected == 0 || expected > SIZE_MAX)
+                        return 0;
+
+                size_t size = (size_t)expected;
+                m->gat = (unsigned char *)aCalloc(size, sizeof(unsigned char));
+                if (map_cache_seek(map_cache.fp, map_cache.map[i].pos, SEEK_SET) != 0)
+                        goto read_fail;
+
+                if (fread(m->gat, 1, size, map_cache.fp) == size)
+                        return 1;
+        } else if (map_cache.map[i].compressed == 1) {
+                uint64_t compressed_len = map_cache.map[i].compressed_len;
+                unsigned long dest_len;
+                size_t packed_size;
+                size_t raw_size;
+
+                if (compressed_len == 0 || compressed_len > SIZE_MAX)
+                        return 0;
+
+                packed_size = (size_t)compressed_len;
+                raw_size = (size_t)map_cache_uncompressed_size(map_cache.map[i].xs, map_cache.map[i].ys);
+                if (raw_size == 0 || raw_size > SIZE_MAX)
+                        return 0;
+                if (raw_size > ULONG_MAX)
+                        return 0;
+
+                m->gat = (unsigned char *)aMalloc(raw_size * sizeof(unsigned char));
+                buf = (unsigned char *)aMalloc(packed_size);
+
+                if (map_cache_seek(map_cache.fp, map_cache.map[i].pos, SEEK_SET) != 0)
+                        goto read_compressed_fail;
+
+                if (fread(buf, 1, packed_size, map_cache.fp) != packed_size) {
+                        ShowError("fread error
+");
+                        goto read_compressed_fail;
+                }
+
+                dest_len = (unsigned long)raw_size;
+                decode_zip(m->gat, &dest_len, buf, packed_size);
+                aFree(buf);
+                buf = NULL;
+
+                if (dest_len == raw_size)
+                        return 1;
+
+                aFree(m->gat);
+                m->gat = NULL;
+                m->xs = 0;
+                m->ys = 0;
+                return 0;
+        }
+
+read_fail:
+        if (m->gat) {
+                aFree(m->gat);
+                m->gat = NULL;
+        }
+        m->xs = 0;
+        m->ys = 0;
+        return 0;
+
+read_compressed_fail:
+        if (m->gat) {
+                aFree(m->gat);
+                m->gat = NULL;
+        }
+        if (buf) {
+                aFree(buf);
+                buf = NULL;
+        }
+        m->xs = 0;
+        m->ys = 0;
+        return 0;
 }
 
 /// writes one map entry into the mapcache
 static int map_cache_write(struct map_data* m)
 {
-	int i;
-	unsigned long len_new, len_old;
-	char *write_buf;
+        int i;
+        uint64_t len_new = 0, len_old = 0;
+        char *write_buf = NULL;
+        uint64_t raw_len = map_cache_uncompressed_size(m->xs, m->ys);
 
-	if(!map_cache.fp)
-		return 0;
+        if (!map_cache.fp || raw_len == 0)
+                return 0;
 
-	i = map_cache_find(m->name);
-	if (i != -1)
-	{	// entry already exists, overwrite it
-		if(map_cache.map[i].compressed == 0) {
-			len_old = map_cache.map[i].xs * map_cache.map[i].ys;
-		} else if(map_cache.map[i].compressed == 1) {
-			len_old = map_cache.map[i].compressed_len;
-		} else {
-			// unsupported format
-			len_old = 0;
-		}
-		if(map_read_flag == READ_FROM_BITMAP_COMPRESSED) {
-			// saving in compressed format
-			write_buf = (char *) aMalloc(m->xs * m->ys + 12);
-			len_new = m->xs * m->ys + 12;
-			encode_zip((unsigned char *)write_buf, &len_new, m->gat, m->xs * m->ys);
-			map_cache.map[i].compressed     = 1;
-			map_cache.map[i].compressed_len = len_new;
-		} else {
-			len_new = m->xs * m->ys;
-			write_buf = (char *) m->gat;
-			map_cache.map[i].compressed     = 0;
-			map_cache.map[i].compressed_len = 0;
-		}
-		if(len_new <= len_old) {
-			// there's enough space to write the new entry over the old one
-			fseek(map_cache.fp,map_cache.map[i].pos,SEEK_SET);
-			fwrite(write_buf,1,len_new,map_cache.fp);
-		} else {
-			// need more space, append new entry to the end of file
-			fseek(map_cache.fp,map_cache.head.filesize,SEEK_SET);
-			fwrite(write_buf,1,len_new,map_cache.fp);
-			map_cache.map[i].pos = map_cache.head.filesize;
-			map_cache.head.filesize += len_new;
-		}
-		map_cache.map[i].xs  = m->xs;
-		map_cache.map[i].ys  = m->ys;
-		map_cache.map[i].water_height = m->water_height;
-		map_cache.dirty = 1;
-		if(map_read_flag == READ_FROM_BITMAP_COMPRESSED) {
-			aFree(write_buf);
-		}
-		return 1;
-	}
+        if (raw_len > SIZE_MAX)
+                return 0;
 
-	// entry not present in cache, fund an empty spot and add it
-	i = map_cache_find(""); // empty name -> empty entry
-	if (i != -1)
-	{	// append new entry to the end of file
-		if(map_read_flag == READ_FROM_BITMAP_COMPRESSED) {
-			write_buf = (char *) aMalloc(m->xs * m->ys + 12);
-			len_new = m->xs * m->ys + 12;
-			encode_zip((unsigned char *)write_buf, &len_new, m->gat, m->xs * m->ys);
-			map_cache.map[i].compressed     = 1;
-			map_cache.map[i].compressed_len = len_new;
-		} else {
-			len_new = m->xs * m->ys;
-			write_buf = (char *) m->gat;
-			map_cache.map[i].compressed     = 0;
-			map_cache.map[i].compressed_len = 0;
-		}
-		mapindex_getmapname_ext(m->name, map_cache.map[i].fn); // for backwards compatibility
-		fseek(map_cache.fp,map_cache.head.filesize,SEEK_SET);
-		fwrite(write_buf,1,len_new,map_cache.fp);
-		map_cache.map[i].pos = map_cache.head.filesize;
-		map_cache.map[i].xs  = m->xs;
-		map_cache.map[i].ys  = m->ys;
-		map_cache.map[i].water_height = m->water_height;
-		map_cache.head.filesize += len_new;
-		map_cache.dirty = 1;
-		if(map_read_flag == READ_FROM_BITMAP_COMPRESSED)
-			aFree(write_buf);
-		return 1;
-	}
+        i = map_cache_find(m->name);
+        if (i != -1) {
+                len_old = map_cache_entry_payload(&map_cache.map[i]);
 
-	return 0;
+                if (map_read_flag == READ_FROM_BITMAP_COMPRESSED) {
+                        if (raw_len > ULONG_MAX - 12u)
+                                return 0;
+                        unsigned long encoded_len = (unsigned long)(raw_len + 12u);
+                        unsigned long tmp_len = encoded_len;
+
+                        write_buf = (char *)aMalloc((size_t)encoded_len);
+                        encode_zip((unsigned char *)write_buf, &tmp_len, m->gat, (unsigned long)raw_len);
+                        len_new = tmp_len;
+                        map_cache.map[i].compressed = 1;
+                        map_cache.map[i].compressed_len = len_new;
+                } else {
+                        len_new = raw_len;
+                        write_buf = (char *)m->gat;
+                        map_cache.map[i].compressed = 0;
+                        map_cache.map[i].compressed_len = 0;
+                }
+
+                if (len_new <= len_old) {
+                        if (map_cache_seek(map_cache.fp, map_cache.map[i].pos, SEEK_SET) != 0)
+                                goto write_fail;
+                        if (fwrite(write_buf, 1, (size_t)len_new, map_cache.fp) != len_new)
+                                goto write_fail;
+                } else {
+                        if (map_cache_seek(map_cache.fp, map_cache.head.filesize, SEEK_SET) != 0)
+                                goto write_fail;
+                        if (fwrite(write_buf, 1, (size_t)len_new, map_cache.fp) != len_new)
+                                goto write_fail;
+                        map_cache.map[i].pos = map_cache.head.filesize;
+                        map_cache.head.filesize += len_new;
+                }
+
+                map_cache.map[i].xs = m->xs;
+                map_cache.map[i].ys = m->ys;
+                map_cache.map[i].water_height = m->water_height;
+                map_cache.dirty = 1;
+                if (map_read_flag == READ_FROM_BITMAP_COMPRESSED)
+                        aFree(write_buf);
+                return 1;
+        }
+
+        i = map_cache_find("");
+        if (i != -1) {
+                if (map_read_flag == READ_FROM_BITMAP_COMPRESSED) {
+                        if (raw_len > ULONG_MAX - 12u)
+                                return 0;
+                        unsigned long encoded_len = (unsigned long)(raw_len + 12u);
+                        unsigned long tmp_len = encoded_len;
+                        write_buf = (char *)aMalloc((size_t)encoded_len);
+                        encode_zip((unsigned char *)write_buf, &tmp_len, m->gat, (unsigned long)raw_len);
+                        len_new = tmp_len;
+                        map_cache.map[i].compressed = 1;
+                        map_cache.map[i].compressed_len = len_new;
+                } else {
+                        len_new = raw_len;
+                        write_buf = (char *)m->gat;
+                        map_cache.map[i].compressed = 0;
+                        map_cache.map[i].compressed_len = 0;
+                }
+
+                mapindex_getmapname_ext(m->name, map_cache.map[i].fn);
+                if (map_cache_seek(map_cache.fp, map_cache.head.filesize, SEEK_SET) != 0)
+                        goto write_fail;
+                if (fwrite(write_buf, 1, (size_t)len_new, map_cache.fp) != len_new)
+                        goto write_fail;
+
+                map_cache.map[i].pos = map_cache.head.filesize;
+                map_cache.map[i].xs = m->xs;
+                map_cache.map[i].ys = m->ys;
+                map_cache.map[i].water_height = m->water_height;
+                map_cache.head.filesize += len_new;
+                map_cache.dirty = 1;
+                if (map_read_flag == READ_FROM_BITMAP_COMPRESSED)
+                        aFree(write_buf);
+                return 1;
+        }
+
+write_fail:
+        if (map_read_flag == READ_FROM_BITMAP_COMPRESSED && write_buf)
+                aFree(write_buf);
+        return 0;
 }
 
 /*==========================================
