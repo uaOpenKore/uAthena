@@ -28,7 +28,7 @@ extern struct Script_Config {
 
 struct script_data {
 	int type;
-	union script_data_val {
+	struct script_data_val {
 		int num;
 		char *str;
 	} u;

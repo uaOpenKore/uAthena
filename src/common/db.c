@@ -29,7 +29,7 @@
  *
  *  <B>How to add new database types:</B>
  *  1. Add the identifier of the new database type to the enum DBType
- *  2. If not already there, add the data type of the key to the union DBKey
+ *  2. If not already there, add the data type of the key to DBKey
  *  3. If the key can be considered NULL, update the function db_is_key_null
  *  4. If the key can be duplicated, update the functions db_dup_key and
  *     db_dup_key_free
@@ -2125,14 +2125,10 @@ DB db_alloc(const char *file, int line, DBType type, DBOptions options, unsigned
 	return &db->vtable;
 }
 
-#ifdef DB_MANUAL_CAST_TO_UNION
 /**
- * Manual cast from 'int' to the union DBKey.
- * Created for compilers that don't support casting to unions.
- * @param key Key to be casted
- * @return The key as a DBKey union
- * @public
- * @see #DB_MANUAL_CAST_TO_UNION
+ * Helper to construct a DBKey from an integer identifier.
+ * @param key Key to be converted
+ * @return The populated DBKey structure
  */
 DBKey db_i2key(int key)
 {
@@ -2142,16 +2138,15 @@ DBKey db_i2key(int key)
 	COUNT(db_i2key);
 #endif /* DB_ENABLE_STATS */
 	ret.i = key;
+	ret.ui = (uint64_t)(uint32_t)key;
+	ret.str = NULL;
 	return ret;
 }
 
 /**
- * Manual cast from 'unsigned int' to the union DBKey.
- * Created for compilers that don't support casting to unions.
- * @param key Key to be casted
- * @return The key as a DBKey union
- * @public
- * @see #DB_MANUAL_CAST_TO_UNION
+ * Helper to construct a DBKey from an unsigned integer identifier.
+ * @param key Key to be converted
+ * @return The populated DBKey structure
  */
 DBKey db_ui2key(unsigned int key)
 {
@@ -2160,17 +2155,16 @@ DBKey db_ui2key(unsigned int key)
 #ifdef DB_ENABLE_STATS
 	COUNT(db_ui2key);
 #endif /* DB_ENABLE_STATS */
+	ret.i = (int64_t)(int32_t)key;
 	ret.ui = key;
+	ret.str = NULL;
 	return ret;
 }
 
 /**
- * Manual cast from 'const char *' to the union DBKey.
- * Created for compilers that don't support casting to unions.
- * @param key Key to be casted
- * @return The key as a DBKey union
- * @public
- * @see #DB_MANUAL_CAST_TO_UNION
+ * Helper to construct a DBKey from a string identifier.
+ * @param key Key to be converted
+ * @return The populated DBKey structure
  */
 DBKey db_str2key(const char *key)
 {
@@ -2179,10 +2173,11 @@ DBKey db_str2key(const char *key)
 #ifdef DB_ENABLE_STATS
 	COUNT(db_str2key);
 #endif /* DB_ENABLE_STATS */
+	ret.i = 0;
+	ret.ui = 0;
 	ret.str = key;
 	return ret;
 }
-#endif /* DB_MANUAL_CAST_TO_UNION */
 
 /**
  * Initializes the database system.

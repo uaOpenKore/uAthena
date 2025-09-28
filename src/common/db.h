@@ -41,15 +41,16 @@
 #define _DB_H_
 
 #include <stdarg.h>
+#include <stdint.h>
 
 /*****************************************************************************\
- *  (1) Section with public typedefs, enums, unions, structures and defines. *
- *  DB_MANUAL_CAST_TO_UNION - Define when the compiler doesn't allow casting *
- *           to unions.                                                      *
+ *  (1) Section with public typedefs, enums, structures and defines.       *
+ *  DB_MANUAL_CAST_TO_UNION - Define when the compiler lacks compound        *
+ *           literal support for DBKey helpers.                              *
  *  DBRelease    - Enumeration of release options.                           *
  *  DBType       - Enumeration of database types.                            *
  *  DBOptions    - Bitfield enumeration of database options.                 *
- *  DBKey        - Union of used key types.                                  *
+ *  DBKey        - Structure of used key types.                              *
  *  DBApply      - Format of functions applyed to the databases.             *
  *  DBMatcher    - Format of matchers used in DB::getall.                    *
  *  DBComparator - Format of the comparators used by the databases.          *
@@ -59,8 +60,8 @@
 \*****************************************************************************/
 
 /**
- * Define this to enable the functions that cast to unions.
- * Required when the compiler doesn't support casting to unions.
+ * Define this to enable the helper constructors for database keys.
+ * Required when the compiler doesn't support compound literals.
  * NOTE: It is recommened that the conditional tests to determine if this 
  * should be defined be located in a makefile or a header file specific for 
  * of compatibility and portability issues.
@@ -141,7 +142,7 @@ typedef enum db_opt {
 } DBOptions;
 
 /**
- * Union of key types used by the database.
+ * Structure of key types used by the database.
  * @param i Type of key for DB_INT databases
  * @param ui Type of key for DB_UINT databases
  * @param str Type of key for DB_STRING and DB_ISTRING databases
@@ -151,10 +152,10 @@ typedef enum db_opt {
  * @see DB#put
  * @see DB#remove
  */
-typedef union dbkey {
-	int i;
-	unsigned int ui;
-	const char *str;
+typedef struct dbkey {
+        int64_t i;
+        uint64_t ui;
+        const char *str;
 } DBKey;
 
 /**
@@ -491,15 +492,9 @@ struct dbt {
 };
 
 //For easy access to the common functions.
-#ifdef DB_MANUAL_CAST_TO_UNION
-#	define i2key   db_i2key
-#	define ui2key  db_ui2key
-#	define str2key db_str2key
-#else /* not DB_MANUAL_CAST_TO_UNION */
-#	define i2key(k)   ((DBKey)(int)(k))
-#	define ui2key(k)  ((DBKey)(unsigned int)(k))
-#	define str2key(k) ((DBKey)(const char *)(k))
-#endif /* not DB_MANUAL_CAST_TO_UNION */
+#define i2key   db_i2key
+#define ui2key  db_ui2key
+#define str2key db_str2key
 
 #define db_get(db,k)    (db)->get((db),(k))
 #define idb_get(db,k)   (db)->get((db),i2key(k))
@@ -532,9 +527,9 @@ struct dbt {
  *           with the fixed options.                                         *
  *  db_custom_release  - Get the releaser that behaves as specified.         *
  *  db_alloc           - Allocate a new database.                            *
- *  db_i2key           - Manual cast from 'int' to 'DBKey'.                  *
- *  db_ui2key          - Manual cast from 'unsigned int' to 'DBKey'.         *
- *  db_str2key         - Manual cast from 'unsigned char *' to 'DBKey'.      *
+ *  db_i2key           - Helper to wrap an int into a DBKey.               *
+ *  db_ui2key          - Helper to wrap an unsigned int into a DBKey.       *
+ *  db_str2key         - Helper to wrap a string into a DBKey.              *
  *  db_init            - Initialise the database system.                     *
  *  db_final           - Finalise the database system.                       *
 \*****************************************************************************/
@@ -630,37 +625,26 @@ DBReleaser db_custom_release(DBRelease which);
  */
 DB db_alloc(const char *file, int line, DBType type, DBOptions options, unsigned short maxlen);
 
-#ifdef DB_MANUAL_CAST_TO_UNION
 /**
- * Manual cast from 'int' to the union DBKey.
- * Created for compilers that don't support casting to unions.
- * @param key Key to be casted
- * @return The key as a DBKey union
- * @public
- * @see #DB_MANUAL_CAST_TO_UNION
+ * Helper to construct a DBKey from an integer identifier.
+ * @param key Key to be converted
+ * @return The populated DBKey structure
  */
 DBKey db_i2key(int key);
 
 /**
- * Manual cast from 'unsigned int' to the union DBKey.
- * Created for compilers that don't support casting to unions.
- * @param key Key to be casted
- * @return The key as a DBKey union
- * @public
- * @see #DB_MANUAL_CAST_TO_UNION
+ * Helper to construct a DBKey from an unsigned integer identifier.
+ * @param key Key to be converted
+ * @return The populated DBKey structure
  */
 DBKey db_ui2key(unsigned int key);
 
 /**
- * Manual cast from 'unsigned char *' to the union DBKey.
- * Created for compilers that don't support casting to unions.
- * @param key Key to be casted
- * @return The key as a DBKey union
- * @public
- * @see #DB_MANUAL_CAST_TO_UNION
+ * Helper to construct a DBKey from a string identifier.
+ * @param key Key to be converted
+ * @return The populated DBKey structure
  */
 DBKey db_str2key(const char *key);
-#endif /* DB_MANUAL_CAST_TO_UNION */
 
 /**
  * Initialize the database system.
