@@ -3,71 +3,30 @@ ifeq ($(findstring Makefile.cache,$(CACHED)), Makefile.cache)
 MKDEF = $(shell cat Makefile.cache)
 else
 
-CC = gcc -pipe
-# CC = g++ --pipe
+include build/flags.mk
+
+CC = $(UA_CC)
+# CC = g++
 
 MAKE = make
 # MAKE = gmake
 
-OPT = -Os
-# OPT = -O2
-# OPT = -O3
-# OPT += -g
-OPT += -g3
-
-# OPT += -march=generic -mtune=generic
- OPT += -rdynamic
- OPT += -fomit-frame-pointer
- OPT += -DCHRIF_OLDINFO
-# OPT += -DGCOLLECT
-# OPT += -DMEMWATCH
-# OPT += -DDMALLOC -DDMALLOC_FUNC_CHECK
- OPT += -DBCHECK
-
-# LIBS += -lgc
-# LIBS += -ldmalloc
-
-OPT += -ffast-math
-OPT += -fcommon
-OPT += -march=native -mtune=native
-
-OPT += -Wall
-OPT += -Wno-sign-compare
-OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno-unused -Wno-parentheses -fstack-protector
-
-OPT += -DPCRE_SUPPORT
-
-OPT += -I../common
-OPT += -I/usr/include
-OPT += -I/usr/include/mysql
-
-LIBS += -L/usr/lib64
-LIBS += -L/usr/lib -L/usr/lib32 -L/usr/libx32
-LIBS += -lpcre
-
-LIBS += -L/usr/lib64/mysql
-LIBS += -L/usr/lib/mysql 
-LIBS += -lmysqlclient
-
-LIBS += -ldl
-GOPT += -m32
+CFLAGS = $(UA_CFLAGS)
+LDFLAGS = $(UA_LDFLAGS)
+LDLIBS = $(UA_LDLIBS)
 
 
 # Server Packet Protocol version (also defined in src/common/mmo.h)
-# OPT += -DPACKETVER=8
-#OPT += -DPACKETVER=7
+# CFLAGS += -DPACKETVER=8
+# CFLAGS += -DPACKETVER=7
 
 # Makes map-wide script variables be saved to SQL instead of TXT files.
- OPT += -DMAPREGSQL
-
-PLATFORM = $(shell uname)
-
-CFLAGS = $(OPT) $(OS_TYPE)
+CFLAGS += -DMAPREGSQL
 
 ifdef SQLFLAG
   ifdef IS_MINGW
     CFLAGS += -I../mysql
-    LIBS += -lmysql
+    LDLIBS += -lmysql
   else
     MYSQLFLAG_CONFIG = $(shell which mysql_config)
     ifeq ($(findstring /,$(MYSQLFLAG_CONFIG)), /)
@@ -78,19 +37,19 @@ ifdef SQLFLAG
         MYSQLFLAG_CONFIG_ARGUMENT = --cflags
       endif
       CFLAGS += $(shell $(MYSQLFLAG_CONFIG) $(MYSQLFLAG_CONFIG_ARGUMENT))
-      LIBS += $(shell $(MYSQLFLAG_CONFIG) --libs)
+      LDLIBS += $(shell $(MYSQLFLAG_CONFIG) --libs)
     endif
   endif
 endif
 
-ifneq ($(findstring "[[:space:]]-lz[[:space:]]",$(LIBS)), -lz)
-   LIBS += -lz
+ifneq ($(filter -lz,$(LDLIBS)),-lz)
+   LDLIBS += -lz
 endif
-ifneq ($(findstring "[[:space:]]-lm[[:space:]]",$(LIBS)), -lm)
-   LIBS += -lm
+ifneq ($(filter -lm,$(LDLIBS)),-lm)
+   LDLIBS += -lm
 endif
 
-MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS) $(GOPT)" LIB_S="$(LIBS) $(GOPT)"
+MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" LDLIBS="$(LDLIBS)"
 
 endif
 

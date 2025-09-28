@@ -8,7 +8,7 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 	../common/utils.h ../common/md5calc.h
 
 ladmin: ladmin.o $(COMMON_OBJ)
-	$(CC) -o ../../$@ ladmin.o $(COMMON_OBJ) $(LIB_S)
+	$(CC) $(LDFLAGS) -o ../../$@ ladmin.o $(COMMON_OBJ) $(LDLIBS)
 
 clean:
 	rm -f *.o ../../ladmin GNUmakefile

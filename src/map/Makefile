@@ -27,10 +27,10 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	$(COMMON_OBJ)
 
 map-server: $(OBJECTS:obj/%=txtobj/%)
-	$(CC) -o ../../$@ $> $(LIBS) $(LIB_S)
+	$(CC) $(LDFLAGS) -o ../../$@ $> $(LIBS) $(LDLIBS)
 
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
-	$(CC) -o ../../$@ $> $(LIB_S)
+	$(CC) $(LDFLAGS) -o ../../$@ $> $(LDLIBS)
 
 txtobj/%.o: %.c
 	$(COMPILE.c) -DTXT_ONLY $(OUTPUT_OPTION) $<

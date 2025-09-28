@@ -7,10 +7,10 @@ char-converter: char-converter.o ../common/obj/minicore.o \
 	../char/int_party.o ../char/int_guild.o \
 	../char_sql/char.o ../char_sql/int_pet.o ../char_sql/int_storage.o \
 	../char_sql/inter.o ../char_sql/int_party.o ../char_sql/int_guild.o
-	$(CC) -o ../../tools/$@ $^ $(LIB_S)
+	$(CC) $(LDFLAGS) -o ../../tools/$@ $^ $(LDLIBS)
 
 login-converter: login-converter.o ../common/obj/minicore.o ../common/obj/db.o ../common/obj/malloc.o ../common/obj/showmsg.o ../common/obj/ers.o ../common/obj/utils.o
-	$(CC) -o ../../tools/$@ $^ $(LIB_S)
+	$(CC) $(LDFLAGS) -o ../../tools/$@ $^ $(LDLIBS)
 
 clean:
 	rm -f *.o ../../tools/login-converter ../../tools/char-converter GNUmakefile

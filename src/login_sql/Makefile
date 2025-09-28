@@ -12,7 +12,7 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 	../common/md5calc.h
 
 login-server_sql: login.o $(COMMON_OBJ)
-	$(CC) -o ../../$@ $^ $(LIB_S)
+	$(CC) $(LDFLAGS) -o ../../$@ $^ $(LDLIBS)
 
 clean:
 	rm -f *.o ../../login-server_sql GNUmakefile
