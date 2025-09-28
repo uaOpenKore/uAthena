@@ -52,6 +52,44 @@ typedef char map_cache_entry_v1_size_check[(sizeof(struct map_cache_disk_entry_v
 typedef char map_cache_header_v2_size_check[(sizeof(struct map_cache_disk_header_v2) == 32u) ? 1 : -1];
 typedef char map_cache_entry_v2_size_check[(sizeof(struct map_cache_disk_entry_v2) == 64u) ? 1 : -1];
 
+static bool map_cache_read_bytes(FILE *fp, void *buffer, size_t length) {
+    if (length == 0) {
+        return true;
+    }
+    return fread(buffer, 1, length, fp) == length;
+}
+
+static bool map_cache_write_bytes(FILE *fp, const void *buffer, size_t length) {
+    if (length == 0) {
+        return true;
+    }
+    return fwrite(buffer, 1, length, fp) == length;
+}
+
+static bool map_cache_read_u32(FILE *fp, uint32_t *value) {
+    return map_cache_read_bytes(fp, value, sizeof(*value));
+}
+
+static bool map_cache_read_u64(FILE *fp, uint64_t *value) {
+    return map_cache_read_bytes(fp, value, sizeof(*value));
+}
+
+static bool map_cache_read_i32(FILE *fp, int32_t *value) {
+    return map_cache_read_bytes(fp, value, sizeof(*value));
+}
+
+static bool map_cache_write_u32(FILE *fp, uint32_t value) {
+    return map_cache_write_bytes(fp, &value, sizeof(value));
+}
+
+static bool map_cache_write_u64(FILE *fp, uint64_t value) {
+    return map_cache_write_bytes(fp, &value, sizeof(value));
+}
+
+static bool map_cache_write_i32(FILE *fp, int32_t value) {
+    return map_cache_write_bytes(fp, &value, sizeof(value));
+}
+
 static int map_cache_seek64(FILE *fp, uint64_t offset, int whence) {
 #if defined(_WIN32)
     return _fseeki64(fp, (long long)offset, whence);
@@ -100,47 +138,58 @@ bool map_cache_read_header(FILE *fp, struct map_cache_head *head, enum map_cache
     }
 
     if (first_word == MAP_CACHE_MAGIC) {
-        struct map_cache_disk_header_v2 disk;
-        disk.magic = first_word;
-        if (fread(&disk.version, sizeof(disk) - sizeof(disk.magic), 1, fp) != 1) {
+        uint32_t disk_version = 0;
+        uint32_t disk_header_size = 0;
+        uint32_t disk_entry_size = 0;
+        uint32_t disk_entry_count = 0;
+        uint32_t disk_reserved = 0;
+        uint64_t disk_filesize = 0;
+
+        if (!map_cache_read_u32(fp, &disk_version) || !map_cache_read_u32(fp, &disk_header_size) ||
+            !map_cache_read_u32(fp, &disk_entry_size) || !map_cache_read_u32(fp, &disk_entry_count) ||
+            !map_cache_read_u32(fp, &disk_reserved) || !map_cache_read_u64(fp, &disk_filesize)) {
             return false;
         }
 
-        if (disk.version != MAP_CACHE_FORMAT_VERSION) {
+        (void)disk_reserved;
+
+        if (disk_version != MAP_CACHE_FORMAT_VERSION) {
             return false;
         }
 
-        if (disk.header_size != sizeof(struct map_cache_disk_header_v2) ||
-            disk.entry_size != sizeof(struct map_cache_disk_entry_v2)) {
+        if (disk_header_size != sizeof(struct map_cache_disk_header_v2) ||
+            disk_entry_size != sizeof(struct map_cache_disk_entry_v2)) {
             return false;
         }
 
-        head->version = disk.version;
-        head->header_size = disk.header_size;
-        head->entry_size = disk.entry_size;
-        head->entry_count = disk.entry_count;
-        head->filesize = disk.filesize;
+        head->version = disk_version;
+        head->header_size = disk_header_size;
+        head->entry_size = disk_entry_size;
+        head->entry_count = disk_entry_count;
+        head->filesize = disk_filesize;
         *format = MAP_CACHE_FORMAT_V2;
         return true;
     }
 
-    struct map_cache_disk_header_v1 legacy;
-    memset(&legacy, 0, sizeof(legacy));
-    legacy.sizeof_header = first_word;
-    if (fread(&legacy.sizeof_map, sizeof(legacy) - sizeof(legacy.sizeof_header), 1, fp) != 1) {
+    uint32_t legacy_sizeof_map = 0;
+    uint32_t legacy_nmaps = 0;
+    uint32_t legacy_filesize = 0;
+
+    if (!map_cache_read_u32(fp, &legacy_sizeof_map) || !map_cache_read_u32(fp, &legacy_nmaps) ||
+        !map_cache_read_u32(fp, &legacy_filesize)) {
         return false;
     }
 
-    if (legacy.sizeof_header != sizeof(struct map_cache_disk_header_v1) ||
-        legacy.sizeof_map != sizeof(struct map_cache_disk_entry_v1)) {
+    if (first_word != sizeof(struct map_cache_disk_header_v1) ||
+        legacy_sizeof_map != sizeof(struct map_cache_disk_entry_v1)) {
         return false;
     }
 
     head->version = MAP_CACHE_FORMAT_V1;
-    head->header_size = legacy.sizeof_header;
-    head->entry_size = legacy.sizeof_map;
-    head->entry_count = legacy.nmaps;
-    head->filesize = legacy.filesize;
+    head->header_size = first_word;
+    head->entry_size = legacy_sizeof_map;
+    head->entry_count = legacy_nmaps;
+    head->filesize = legacy_filesize;
     *format = MAP_CACHE_FORMAT_V1;
     return true;
 }
@@ -161,17 +210,28 @@ bool map_cache_read_entries(FILE *fp, const struct map_cache_head *head, enum ma
     size_t i;
     if (format == MAP_CACHE_FORMAT_V2) {
         for (i = 0; i < head->entry_count; ++i) {
-            struct map_cache_disk_entry_v2 disk_entry;
-            if (fread(&disk_entry, sizeof(disk_entry), 1, fp) != 1) {
+            char fn[sizeof(entries[i].fn)];
+            uint32_t xs = 0;
+            uint32_t ys = 0;
+            int32_t water_height = 0;
+            uint32_t compressed = 0;
+            uint64_t pos = 0;
+            uint64_t compressed_len = 0;
+
+            if (!map_cache_read_bytes(fp, fn, sizeof(fn)) || !map_cache_read_u32(fp, &xs) ||
+                !map_cache_read_u32(fp, &ys) || !map_cache_read_i32(fp, &water_height) ||
+                !map_cache_read_u32(fp, &compressed) || !map_cache_read_u64(fp, &pos) ||
+                !map_cache_read_u64(fp, &compressed_len)) {
                 return false;
             }
-            memcpy(entries[i].fn, disk_entry.fn, sizeof(entries[i].fn));
-            entries[i].xs = disk_entry.xs;
-            entries[i].ys = disk_entry.ys;
-            entries[i].water_height = disk_entry.water_height;
-            entries[i].compressed = disk_entry.compressed;
-            entries[i].pos = disk_entry.pos;
-            entries[i].compressed_len = disk_entry.compressed_len;
+
+            memcpy(entries[i].fn, fn, sizeof(entries[i].fn));
+            entries[i].xs = xs;
+            entries[i].ys = ys;
+            entries[i].water_height = water_height;
+            entries[i].compressed = compressed;
+            entries[i].pos = pos;
+            entries[i].compressed_len = compressed_len;
         }
         return true;
     }
@@ -181,17 +241,28 @@ bool map_cache_read_entries(FILE *fp, const struct map_cache_head *head, enum ma
     }
 
     for (i = 0; i < head->entry_count; ++i) {
-        struct map_cache_disk_entry_v1 disk_entry;
-        if (fread(&disk_entry, sizeof(disk_entry), 1, fp) != 1) {
+        char fn[sizeof(entries[i].fn)];
+        uint32_t xs = 0;
+        uint32_t ys = 0;
+        int32_t water_height = 0;
+        uint32_t pos = 0;
+        uint32_t compressed = 0;
+        uint32_t compressed_len = 0;
+
+        if (!map_cache_read_bytes(fp, fn, sizeof(fn)) || !map_cache_read_u32(fp, &xs) ||
+            !map_cache_read_u32(fp, &ys) || !map_cache_read_i32(fp, &water_height) ||
+            !map_cache_read_u32(fp, &pos) || !map_cache_read_u32(fp, &compressed) ||
+            !map_cache_read_u32(fp, &compressed_len)) {
             return false;
         }
-        memcpy(entries[i].fn, disk_entry.fn, sizeof(entries[i].fn));
-        entries[i].xs = disk_entry.xs;
-        entries[i].ys = disk_entry.ys;
-        entries[i].water_height = disk_entry.water_height;
-        entries[i].compressed = disk_entry.compressed;
-        entries[i].pos = disk_entry.pos;
-        entries[i].compressed_len = disk_entry.compressed ? disk_entry.compressed_len : 0;
+
+        memcpy(entries[i].fn, fn, sizeof(entries[i].fn));
+        entries[i].xs = xs;
+        entries[i].ys = ys;
+        entries[i].water_height = water_height;
+        entries[i].compressed = compressed;
+        entries[i].pos = pos;
+        entries[i].compressed_len = compressed ? compressed_len : 0;
     }
     return true;
 }
@@ -219,7 +290,10 @@ bool map_cache_write_v2(FILE *fp, const struct map_cache_head *head, const struc
     disk_header.entry_count = local.entry_count;
     disk_header.filesize = local.filesize;
 
-    if (fwrite(&disk_header, sizeof(disk_header), 1, fp) != 1) {
+    if (!map_cache_write_u32(fp, disk_header.magic) || !map_cache_write_u32(fp, disk_header.version) ||
+        !map_cache_write_u32(fp, disk_header.header_size) || !map_cache_write_u32(fp, disk_header.entry_size) ||
+        !map_cache_write_u32(fp, disk_header.entry_count) || !map_cache_write_u32(fp, disk_header.reserved) ||
+        !map_cache_write_u64(fp, disk_header.filesize)) {
         return false;
     }
 
@@ -229,16 +303,13 @@ bool map_cache_write_v2(FILE *fp, const struct map_cache_head *head, const struc
 
     size_t i;
     for (i = 0; i < local.entry_count; ++i) {
-        struct map_cache_disk_entry_v2 disk_entry;
-        memset(&disk_entry, 0, sizeof(disk_entry));
-        memcpy(disk_entry.fn, entries[i].fn, sizeof(disk_entry.fn));
-        disk_entry.xs = entries[i].xs;
-        disk_entry.ys = entries[i].ys;
-        disk_entry.water_height = entries[i].water_height;
-        disk_entry.compressed = entries[i].compressed;
-        disk_entry.pos = entries[i].pos;
-        disk_entry.compressed_len = entries[i].compressed_len;
-        if (fwrite(&disk_entry, sizeof(disk_entry), 1, fp) != 1) {
+        char fn[sizeof(entries[i].fn)] = {0};
+        memcpy(fn, entries[i].fn, sizeof(fn));
+
+        if (!map_cache_write_bytes(fp, fn, sizeof(fn)) || !map_cache_write_u32(fp, entries[i].xs) ||
+            !map_cache_write_u32(fp, entries[i].ys) || !map_cache_write_i32(fp, entries[i].water_height) ||
+            !map_cache_write_u32(fp, entries[i].compressed) || !map_cache_write_u64(fp, entries[i].pos) ||
+            !map_cache_write_u64(fp, entries[i].compressed_len)) {
             return false;
         }
     }
