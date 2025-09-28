@@ -1,6 +1,8 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,13 +19,15 @@
 //----------------------------
 //	file entry table struct
 //----------------------------
+#define FILELIST_INVALID_INDEX UINT64_MAX
+
 typedef struct _FILELIST {
-	int		srclen;				// compressed size
-	int		srclen_aligned;
-	int		declen;				// original size
-	int		srcpos;				// position of entry in grf
-	int		next;				// index of next filelist entry with same hash (-1: end of entry chain)
-	int		cycle;
+	uint64_t	srclen;				// compressed size
+	uint64_t	srclen_aligned;
+	uint64_t	declen;				// original size
+	uint64_t	srcpos;				// position of entry in grf
+	uint64_t	next;				// index of next filelist entry with same hash (FILELIST_INVALID_INDEX: end of entry chain)
+	int32_t	cycle;
 	char	type;
 	char	fn[128-4*5];		// file name
 	char*	fnd;				// if the file was cloned, contains name of original file
@@ -55,7 +59,7 @@ char data_dir[1024] = "";
 //----------------------------
 //	file list hash table
 //----------------------------
-int filelist_hash[256];
+uint64_t filelist_hash[256];
 
 //----------------------------
 //	grf decode data table
@@ -291,9 +295,9 @@ unsigned long grfio_crc32 (const unsigned char* buf, unsigned int len)
 // initializes the table that holds the first elements of all hash chains
 static void hashinit(void)
 {
-	int i;
+	size_t i;
 	for (i = 0; i < 256; i++)
-		filelist_hash[i] = -1;
+		filelist_hash[i] = FILELIST_INVALID_INDEX;
 }
 
 // hashes a filename string into a number from {0..255}
@@ -310,17 +314,19 @@ static int filehash(char* fname)
 // finds a FILELIST entry with the specified file name
 static FILELIST* filelist_find(char* fname)
 {
-	int hash, index;
+	uint64_t index;
 
 	if (!filelist)
 		return NULL;
 
-	hash = filelist_hash[filehash(fname)];
-	for (index = hash; index != -1; index = filelist[index].next)
-		if(!strcmpi(filelist[index].fn, fname))
+	index = filelist_hash[filehash(fname)];
+	while (index != FILELIST_INVALID_INDEX) {
+		if (!strcmpi(filelist[index].fn, fname))
 			break;
+		index = filelist[index].next;
+	}
 
-	return (index >= 0) ? &filelist[index] : NULL;
+	return (index != FILELIST_INVALID_INDEX) ? &filelist[index] : NULL;
 }
 
 // returns the original file name
@@ -348,7 +354,7 @@ static FILELIST* filelist_add(FILELIST* entry)
 
 	hash = filehash(entry->fn);
 	filelist[filelist_entrys].next = filelist_hash[hash];
-	filelist_hash[hash] = filelist_entrys;
+	filelist_hash[hash] = (uint64_t)filelist_entrys;
 
 	filelist_entrys++;
 
@@ -360,7 +366,7 @@ static FILELIST* filelist_modify(FILELIST* entry)
 {
 	FILELIST* fentry = filelist_find(entry->fn);
 	if (fentry != NULL) {
-		int tmp = fentry->next;
+		uint64_t tmp = fentry->next;
 		memcpy(fentry, entry, sizeof(FILELIST));
 		fentry->next = tmp;
 	} else {
@@ -439,60 +445,59 @@ void* grfio_reads(char* fname, int* size)
 		in = fopen(lfname, "rb");
 		if (in != NULL) {
 			if (entry != NULL && entry->gentry == 0) {
-				lentry.declen = entry->declen;
-			} else {
-				fseek(in,0,SEEK_END);
-				lentry.declen = ftell(in);
-			}
-			fseek(in,0,SEEK_SET);
-			buf2 = (unsigned char *)aMallocA(lentry.declen + 1024);
-			fread(buf2, 1, lentry.declen, in);
-			fclose(in);
-			strncpy(lentry.fn, fname, sizeof(lentry.fn) - 1);
-			lentry.fnd = NULL;
-			lentry.gentry = 0;	// 0:LocalFile
-			entry = filelist_modify(&lentry);
+			lentry.declen = entry->declen;
+		} else {
+			fseek(in,0,SEEK_END);
+			lentry.declen = (uint64_t)ftell(in);
+		}
+		fseek(in,0,SEEK_SET);
+		buf2 = (unsigned char *)aMallocA((size_t)lentry.declen + 1024);
+		fread(buf2, 1, (size_t)lentry.declen, in);
+		fclose(in);
+		strncpy(lentry.fn, fname, sizeof(lentry.fn) - 1);
+		lentry.fnd = NULL;
+		lentry.gentry = 0;	// 0:LocalFile
+		entry = filelist_modify(&lentry);
 		} else {
 			if (entry != NULL && entry->gentry < 0) {
-				entry->gentry = -entry->gentry;	// local file checked
-			} else {
-				ShowError("%s not found (grfio_reads - local file %s)\n", fname, lfname);
-				return NULL;
-			}
+			entry->gentry = -entry->gentry;	// local file checked
+		} else {
+			ShowError("%s not found (grfio_reads - local file %s)\n", fname, lfname);
+			return NULL;
 		}
 	}
 	if (entry != NULL && entry->gentry > 0) {	// Archive[GRF] File Read
 		char* grfname = gentry_table[entry->gentry - 1];
 		in = fopen(grfname, "rb");
 		if(in != NULL) {
-			unsigned char *buf = (unsigned char *)aMallocA(entry->srclen_aligned + 1024);
-			fseek(in, entry->srcpos, 0);
-			fread(buf, 1, entry->srclen_aligned, in);
+			unsigned char *buf = (unsigned char *)aMallocA((size_t)entry->srclen_aligned + 1024);
+			fseek(in, (long)entry->srcpos, SEEK_SET);
+			fread(buf, 1, (size_t)entry->srclen_aligned, in);
 			fclose(in);
-			buf2 = (unsigned char *)aMallocA(entry->declen + 1024);
+			buf2 = (unsigned char *)aMallocA((size_t)entry->declen + 1024);
 			if (entry->type == 1 || entry->type == 3 || entry->type == 5) {
-				uLongf len;
+				unsigned long len;
 				if (entry->cycle >= 0)
-					decode_des_etc(buf, entry->srclen_aligned, entry->cycle == 0, entry->cycle);
-				len = entry->declen;
-				decode_zip(buf2, &len, buf, entry->srclen);
-				if (len != (uLong)entry->declen) {
-					ShowError("decode_zip size mismatch err: %d != %d\n", (int)len, entry->declen);
+					decode_des_etc(buf, (size_t)entry->srclen_aligned, entry->cycle == 0, entry->cycle);
+				len = (unsigned long)entry->declen;
+				decode_zip(buf2, &len, buf, (unsigned long)entry->srclen);
+				if (len != (unsigned long)entry->declen) {
+					ShowError("decode_zip size mismatch err: %" PRIu64 " != %" PRIu64 "\n", (uint64_t)len, entry->declen);
 					aFree(buf);
 					aFree(buf2);
 					return NULL;
 				}
-			} else {
-				memcpy(buf2, buf, entry->declen);
-			}
-			aFree(buf);
+				} else {
+					memcpy(buf2, buf, (size_t)entry->declen);
+				}
+				aFree(buf);
 		} else {
 			ShowError("%s not found (grfio_reads - GRF file %s)\n", fname, grfname);
 			return NULL;
 		}
 	}
 	if (size != NULL && entry != NULL)
-		*size = entry->declen;
+		*size = (int)entry->declen;
 
 	return buf2;
 }
