@@ -65,6 +65,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <limits.h>
+
+#include "../../include/x64_types.h"
 // ILP64 isn't supported, so always 32 bits?
 #ifndef UINT_MAX
 #define UINT_MAX 0xffffffff
