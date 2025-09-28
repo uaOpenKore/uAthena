@@ -48,3 +48,37 @@ that only native 64-bit RPMs are selected.
 * Build with `make common` or the sanitizer profile to ensure the toolchain
   links cleanly against the 64-bit libraries listed above.
 
+## Eliminating Legacy 32-bit Dependencies
+
+Recent makefile changes remove every `-m32` and `/usr/lib32` reference from the
+default build. Library paths are now discovered dynamically:
+
+* PCRE headers and linker flags are pulled from `pkg-config libpcre` when
+  available, with an automatic fallback to the system `-lpcre` symbol. This lets
+  the build follow whichever 64-bit package your distribution ships without
+  hard-coding `/usr/lib32` lookups.
+* When SQL support is enabled (`SQLFLAG=1`), the build prefers `mysql_config`
+  but falls back to `mariadb_config` automatically so that MariaDB Connector/C
+  installations satisfy the dependency without installing legacy MySQL 5.x i686
+  RPMs.
+
+For older distributions that still lack 64-bit development RPMs/DEBs, install a
+modern MariaDB Connector/C release and rebuild PCRE from source in 64-bit mode:
+
+```bash
+# Example for RHEL/CentOS 7+ hosts
+curl -LO https://downloads.mariadb.org/interstitial/connector-c-3.3.8/mariadb-connector-c-3.3.8-linux-system.tar.gz
+sudo tar -C /usr/local -xzvf mariadb-connector-c-3.3.8-linux-system.tar.gz
+sudo ln -s /usr/local/mariadb-connector-c-3.3.8-linux-system/bin/mariadb_config /usr/local/bin/mariadb_config
+
+curl -LO https://downloads.sourceforge.net/pcre/pcre-8.45.tar.gz
+tar -xzvf pcre-8.45.tar.gz
+cd pcre-8.45
+./configure --enable-utf --enable-unicode-properties
+make -j$(nproc)
+sudo make install
+```
+
+Both projects install to `/usr/local` by default, avoiding any multilib
+conflicts while satisfying the 64-bit linker checks performed by the makefiles.
+

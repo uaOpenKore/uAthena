@@ -28,13 +28,17 @@ ifdef SQLFLAG
     CFLAGS += -I../mysql
     LDLIBS += -lmysql
   else
-    MYSQLFLAG_CONFIG = $(shell which mysql_config)
-    ifeq ($(findstring /,$(MYSQLFLAG_CONFIG)), /)
-      MYSQLFLAG_VERSION = $(shell $(MYSQLFLAG_CONFIG) --version | sed s:\\..*::)
-      ifeq ($(findstring 5,$(MYSQLFLAG_VERSION)), 5)
-        MYSQLFLAG_CONFIG_ARGUMENT = --include
-      else
-        MYSQLFLAG_CONFIG_ARGUMENT = --cflags
+    MYSQLFLAG_CONFIG := $(firstword \
+        $(shell command -v mysql_config 2>/dev/null) \
+        $(shell command -v mariadb_config 2>/dev/null))
+    ifneq ($(strip $(MYSQLFLAG_CONFIG)),)
+      MYSQLFLAG_CONFIG_NAME := $(notdir $(MYSQLFLAG_CONFIG))
+      MYSQLFLAG_CONFIG_ARGUMENT = --cflags
+      ifeq ($(MYSQLFLAG_CONFIG_NAME),mysql_config)
+        MYSQLFLAG_VERSION = $(shell $(MYSQLFLAG_CONFIG) --version | sed s:\\..*::)
+        ifeq ($(findstring 5,$(MYSQLFLAG_VERSION)), 5)
+          MYSQLFLAG_CONFIG_ARGUMENT = --include
+        endif
       endif
       CFLAGS += $(shell $(MYSQLFLAG_CONFIG) $(MYSQLFLAG_CONFIG_ARGUMENT))
       LDLIBS += $(shell $(MYSQLFLAG_CONFIG) --libs)
