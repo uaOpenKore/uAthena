@@ -4,9 +4,11 @@
 #ifndef	_GRFIO_H_
 #define	_GRFIO_H_
 
+#include <stddef.h>
+
 void grfio_init(char*);			// GRFIO Initialize
 void grfio_final(void);			// GRFIO Finalize
-void* grfio_reads(char*,int*);	// GRFIO data file read & size get
+void* grfio_reads(char*, size_t*);	// GRFIO data file read & size get
 char *grfio_find_file(char *fname);
 
 #define grfio_read(fn) grfio_reads(fn, NULL)

@@ -1,7 +1,9 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include <errno.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +16,40 @@
 #include "../common/cbasetypes.h"
 #include "../common/showmsg.h"
 #include "../common/malloc.h"
+
+#if defined(_WIN32)
+#include <io.h>
+#endif
+
+static int grfio_seek(FILE* stream, int64_t offset, int whence)
+{
+#if defined(_WIN32)
+        return _fseeki64(stream, offset, whence);
+#elif defined(HAVE_FSEEKO) || defined(__USE_LARGEFILE64) || defined(_LARGEFILE_SOURCE) || defined(_FILE_OFFSET_BITS) || defined(__unix__) || defined(__APPLE__)
+        return fseeko(stream, (off_t)offset, whence);
+#else
+        if (offset < LONG_MIN || offset > LONG_MAX) {
+                errno = EOVERFLOW;
+                return -1;
+        }
+        return fseek(stream, (long)offset, whence);
+#endif
+}
+
+static int64_t grfio_tell(FILE* stream)
+{
+#if defined(_WIN32)
+        return _ftelli64(stream);
+#elif defined(HAVE_FSEEKO) || defined(__USE_LARGEFILE64) || defined(_LARGEFILE_SOURCE) || defined(_FILE_OFFSET_BITS) || defined(__unix__) || defined(__APPLE__)
+        off_t pos = ftello(stream);
+        return (pos < 0) ? -1 : (int64_t)pos;
+#else
+        long pos = ftell(stream);
+        if (pos < 0)
+                return -1;
+        return (int64_t)pos;
+#endif
+}
 
 
 //----------------------------
@@ -425,82 +461,149 @@ int grfio_size(char* fname)
 */
 
 // reads a file into a newly allocated buffer (from grf or data directory)
-void* grfio_reads(char* fname, int* size)
+void* grfio_reads(char* fname, size_t* size)
 {
-	FILE* in;
-	FILELIST* entry;
-	unsigned char* buf2 = NULL;
+        FILE* in;
+        FILELIST* entry;
+        unsigned char* buf2 = NULL;
 
-	entry = filelist_find(fname);
+        entry = filelist_find(fname);
 
-	if (entry == NULL || entry->gentry <= 0) {	// LocalFileCheck
-		char lfname[256], *p;
-		FILELIST lentry;
+        if (entry == NULL || entry->gentry <= 0) {      // LocalFileCheck
+                char lfname[256], *p;
+                FILELIST lentry;
+                int64_t local_size = 0;
 
-		sprintf(lfname, "%s%s", data_dir, fname);
+                sprintf(lfname, "%s%s", data_dir, fname);
 
-		for (p = &lfname[0]; *p != 0; p++)
-			if (*p == '\\') *p = '/';
+                for (p = &lfname[0]; *p != 0; p++)
+                        if (*p == '\\') *p = '/';
 
-		in = fopen(lfname, "rb");
-		if (in != NULL) {
-			if (entry != NULL && entry->gentry == 0) {
-			lentry.declen = entry->declen;
-		} else {
-			fseek(in,0,SEEK_END);
-			lentry.declen = (uint64_t)ftell(in);
-		}
-		fseek(in,0,SEEK_SET);
-		buf2 = (unsigned char *)aMallocA((size_t)lentry.declen + 1024);
-		fread(buf2, 1, (size_t)lentry.declen, in);
-		fclose(in);
-		strncpy(lentry.fn, fname, sizeof(lentry.fn) - 1);
-		lentry.fnd = NULL;
-		lentry.gentry = 0;	// 0:LocalFile
-		entry = filelist_modify(&lentry);
-		} else {
-			if (entry != NULL && entry->gentry < 0) {
-			entry->gentry = -entry->gentry;	// local file checked
-		} else {
-			ShowError("%s not found (grfio_reads - local file %s)\n", fname, lfname);
-			return NULL;
-		}
-	}
-	if (entry != NULL && entry->gentry > 0) {	// Archive[GRF] File Read
-		char* grfname = gentry_table[entry->gentry - 1];
-		in = fopen(grfname, "rb");
-		if(in != NULL) {
-			unsigned char *buf = (unsigned char *)aMallocA((size_t)entry->srclen_aligned + 1024);
-			fseek(in, (long)entry->srcpos, SEEK_SET);
-			fread(buf, 1, (size_t)entry->srclen_aligned, in);
-			fclose(in);
-			buf2 = (unsigned char *)aMallocA((size_t)entry->declen + 1024);
-			if (entry->type == 1 || entry->type == 3 || entry->type == 5) {
-				unsigned long len;
-				if (entry->cycle >= 0)
-					decode_des_etc(buf, (size_t)entry->srclen_aligned, entry->cycle == 0, entry->cycle);
-				len = (unsigned long)entry->declen;
-				decode_zip(buf2, &len, buf, (unsigned long)entry->srclen);
-				if (len != (unsigned long)entry->declen) {
-					ShowError("decode_zip size mismatch err: %" PRIu64 " != %" PRIu64 "\n", (uint64_t)len, entry->declen);
-					aFree(buf);
-					aFree(buf2);
-					return NULL;
-				}
-				} else {
-					memcpy(buf2, buf, (size_t)entry->declen);
-				}
-				aFree(buf);
-		} else {
-			ShowError("%s not found (grfio_reads - GRF file %s)\n", fname, grfname);
-			return NULL;
-		}
-	}
-	if (size != NULL && entry != NULL)
-		*size = (int)entry->declen;
+                in = fopen(lfname, "rb");
+                if (in != NULL) {
+                        if (entry != NULL && entry->gentry == 0) {
+                                lentry.declen = entry->declen;
+                        } else {
+                                if (grfio_seek(in, 0, SEEK_END) != 0 || (local_size = grfio_tell(in)) < 0 ||
+                                                grfio_seek(in, 0, SEEK_SET) != 0) {
+                                        fclose(in);
+                                        ShowError("Failed to determine size of %s (grfio_reads - local file %s)\n", fname, lfname);
+                                        return NULL;
+                                }
+                                lentry.declen = (uint64_t)local_size;
+                        }
 
-	return buf2;
+                        if (lentry.declen > SIZE_MAX - 1024) {
+                                fclose(in);
+                                ShowError("%s is too large to load (grfio_reads - local file %s)\n", fname, lfname);
+                                return NULL;
+                        }
+
+                        size_t local_size_t = (size_t)lentry.declen;
+                        buf2 = (unsigned char *)aMallocA(local_size_t + 1024);
+                        if (fread(buf2, 1, local_size_t, in) != local_size_t) {
+                                fclose(in);
+                                ShowError("Short read on %s (grfio_reads - local file %s)\n", fname, lfname);
+                                aFree(buf2);
+                                return NULL;
+                        }
+                        fclose(in);
+
+                        strncpy(lentry.fn, fname, sizeof(lentry.fn) - 1);
+                        lentry.fnd = NULL;
+                        lentry.gentry = 0;      // 0:LocalFile
+                        entry = filelist_modify(&lentry);
+                } else {
+                        if (entry != NULL && entry->gentry < 0) {
+                                entry->gentry = -entry->gentry; // local file checked
+                        } else {
+                                ShowError("%s not found (grfio_reads - local file %s)\n", fname, lfname);
+                                return NULL;
+                        }
+                }
+        }
+
+        if (entry != NULL && entry->gentry > 0) {       // Archive[GRF] File Read
+                char* grfname = gentry_table[entry->gentry - 1];
+                in = fopen(grfname, "rb");
+                if (in != NULL) {
+                        size_t srclen_aligned;
+                        size_t declen;
+                        unsigned char *buf;
+
+                        if (entry->srclen_aligned > SIZE_MAX - 1024 || entry->declen > SIZE_MAX - 1024) {
+                                fclose(in);
+                                ShowError("%s entry is too large to load (grfio_reads - GRF file %s)\n", fname, grfname);
+                                return NULL;
+                        }
+
+                        srclen_aligned = (size_t)entry->srclen_aligned;
+                        declen = (size_t)entry->declen;
+
+                        buf = (unsigned char *)aMallocA(srclen_aligned + 1024);
+                        if (entry->srcpos > (uint64_t)INT64_MAX ||
+                                        grfio_seek(in, (int64_t)entry->srcpos, SEEK_SET) != 0) {
+                                fclose(in);
+                                ShowError("Failed to seek %s (grfio_reads - GRF file %s)\n", fname, grfname);
+                                aFree(buf);
+                                return NULL;
+                        }
+
+                        if (fread(buf, 1, srclen_aligned, in) != srclen_aligned) {
+                                fclose(in);
+                                ShowError("Short read on %s (grfio_reads - GRF file %s)\n", fname, grfname);
+                                aFree(buf);
+                                return NULL;
+                        }
+                        fclose(in);
+
+                        buf2 = (unsigned char *)aMallocA(declen + 1024);
+                        if (entry->type == 1 || entry->type == 3 || entry->type == 5) {
+                                uLongf len;
+                                unsigned long srclen32;
+
+                                if (entry->cycle >= 0)
+                                        decode_des_etc(buf, srclen_aligned, entry->cycle == 0, entry->cycle);
+
+                                if (entry->declen > ULONG_MAX) {
+                                        ShowError("decode_zip expected <= %lu bytes but got %" PRIu64 "\n", (unsigned long)ULONG_MAX, entry->declen);
+                                        aFree(buf);
+                                        aFree(buf2);
+                                        return NULL;
+                                }
+                                len = (uLongf)declen;
+
+                                if (entry->srclen > ULONG_MAX) {
+                                        ShowError("decode_zip source too large: %" PRIu64 " > %lu\n", entry->srclen, (unsigned long)ULONG_MAX);
+                                        aFree(buf);
+                                        aFree(buf2);
+                                        return NULL;
+                                }
+                                srclen32 = (unsigned long)entry->srclen;
+
+                                decode_zip(buf2, &len, buf, srclen32);
+                                if (len != (uLongf)declen) {
+                                        ShowError("decode_zip size mismatch err: %" PRIu64 " != %" PRIu64 "\n", (uint64_t)len, entry->declen);
+                                        aFree(buf);
+                                        aFree(buf2);
+                                        return NULL;
+                                }
+                        } else {
+                                memcpy(buf2, buf, declen);
+                        }
+                        aFree(buf);
+                } else {
+                        ShowError("%s not found (grfio_reads - GRF file %s)\n", fname, grfname);
+                        return NULL;
+                }
+        }
+
+        if (size != NULL && entry != NULL)
+                *size = (size_t)entry->declen;
+
+        return buf2;
 }
+
 
 /*==========================================
  *	Resource filename decode
@@ -521,9 +624,9 @@ static char* decode_filename(unsigned char* buf, int len)
 // gentry - index of the grf file name in the gentry_table
 static int grfio_entryread(char* grfname, int gentry)
 {
-	FILE* fp;
-	long grf_size,list_size;
-	unsigned char grf_header[0x2e];
+        FILE* fp;
+        uint64_t grf_size, list_size;
+        unsigned char grf_header[0x2e];
 	int lop,entry,entrys,ofs,grf_version;
 	char *fname;
 	unsigned char *grf_filelist;
@@ -535,12 +638,36 @@ static int grfio_entryread(char* grfname, int gentry)
 	} else
 		ShowInfo("GRF data file found: '%s'\n",grfname);
 
-	fseek(fp,0,SEEK_END);
-	grf_size = ftell(fp);
-	fseek(fp,0,SEEK_SET);
-	fread(grf_header,1,0x2e,fp);
+	if (grfio_seek(fp, 0, SEEK_END) != 0) {
+		fclose(fp);
+		ShowError("GRF %s seek error\n", grfname);
+		return 2;
+	}
+
+	{
+		int64_t pos = grfio_tell(fp);
+		if (pos < 0) {
+			fclose(fp);
+			ShowError("GRF %s tell error\n", grfname);
+			return 2;
+		}
+		grf_size = (uint64_t)pos;
+	}
+
+	if (grfio_seek(fp, 0, SEEK_SET) != 0) {
+		fclose(fp);
+		ShowError("GRF %s seek error\n", grfname);
+		return 2;
+	}
+
+	if (fread(grf_header,1,0x2e,fp) != 0x2e) {
+		fclose(fp);
+		ShowError("GRF %s header read error\n", grfname);
+		return 2;
+	}
+
 	if (strcmp((const char *) grf_header,"Master of Magic") ||
-		fseek(fp,getlong(grf_header+0x1e),SEEK_CUR))
+			grfio_seek(fp, (int64_t)getlong(grf_header+0x1e),SEEK_CUR) != 0)
 	{
 		fclose(fp);
 		ShowError("GRF %s read error\n", grfname);
@@ -550,9 +677,31 @@ static int grfio_entryread(char* grfname, int gentry)
 	grf_version = getlong(grf_header+0x2a) >> 8;
 
 	if (grf_version == 0x01) {	//****** Grf version 01xx ******
-		list_size = grf_size - ftell(fp);
-		grf_filelist = (unsigned char *) aMallocA(list_size);
-		fread(grf_filelist,1,list_size,fp);
+		int64_t current = grfio_tell(fp);
+		if (current < 0) {
+			fclose(fp);
+			ShowError("GRF %s tell error\n", grfname);
+			return 2;
+		}
+		if ((uint64_t)current > grf_size) {
+			fclose(fp);
+			ShowError("GRF %s read error\n", grfname);
+			return 2;
+		}
+		list_size = grf_size - (uint64_t)current;
+		if (list_size > SIZE_MAX) {
+			fclose(fp);
+			ShowError("GRF %s file list too large\n", grfname);
+			return 2;
+		}
+		size_t list_size_z = (size_t)list_size;
+		grf_filelist = (unsigned char *) aMallocA(list_size_z);
+		if (fread(grf_filelist,1,list_size_z,fp) != list_size_z) {
+			fclose(fp);
+			ShowError("GRF %s truncated file list\n", grfname);
+			aFree(grf_filelist);
+			return 2;
+		}
 		fclose(fp);
 
 		entrys = getlong(grf_header+0x26) - getlong(grf_header+0x22) - 7;
@@ -613,19 +762,43 @@ static int grfio_entryread(char* grfname, int gentry)
 		unsigned char *rBuf;
 		uLongf rSize, eSize;
 
-		fread(eheader,1,8,fp);
+		if (fread(eheader,1,8,fp) != 8) {
+			fclose(fp);
+			ShowError("Illegal data format: GRF header read error\n");
+			return 4;
+		}
 		rSize = getlong(eheader);	// Read Size
 		eSize = getlong(eheader+4);	// Extend Size
 
-		if ((long)rSize > grf_size-ftell(fp)) {
+		{
+			int64_t current = grfio_tell(fp);
+			if (current < 0) {
+				fclose(fp);
+				ShowError("GRF %s tell error\n", grfname);
+				return 4;
+			}
+			if ((uint64_t)rSize > grf_size - (uint64_t)current) {
+				fclose(fp);
+				ShowError("Illegal data format: GRF compress entry size\n");
+				return 4;
+			}
+		}
+
+		if (rSize > SIZE_MAX || eSize > SIZE_MAX) {
 			fclose(fp);
-			ShowError("Illegal data format: GRF compress entry size\n");
+			ShowError("GRF %s entry is too large\n", grfname);
 			return 4;
 		}
 
-		rBuf = (unsigned char *)aMallocA(rSize);	// Get a Read Size
-		grf_filelist = (unsigned char *)aMallocA(eSize);	// Get a Extend Size
-		fread(rBuf,1,rSize,fp);
+		rBuf = (unsigned char *)aMallocA((size_t)rSize);	// Get a Read Size
+		grf_filelist = (unsigned char *)aMallocA((size_t)eSize);	// Get a Extend Size
+		if (fread(rBuf,1,(size_t)rSize,fp) != (size_t)rSize) {
+			fclose(fp);
+			ShowError("Illegal data format: GRF compress entry truncated\n");
+			aFree(rBuf);
+			aFree(grf_filelist);
+			return 4;
+		}
 		fclose(fp);
 		decode_zip(grf_filelist, &eSize, rBuf, rSize);	// Decode function
 		list_size = eSize;
@@ -694,7 +867,7 @@ static void grfio_resourcecheck(void)
 	char w1[256], w2[256], src[256], dst[256], restable[256], line[256];
 	char *ptr, *buf;
 	FILELIST* entry;
-	int size;
+	size_t size;
 	FILE* fp;
 	int i = 0;
 
