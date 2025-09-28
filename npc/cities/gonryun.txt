@@ -1,16 +1,16 @@
-//===== eAthena Script =======================================
+//===== eAthena Script ======================================= 
 //= Gonryun Town
-//===== By: ==================================================
+//===== By: ================================================== 
 //= x[tsk], KarLaeda
-//===== Current Version: =====================================
+//===== Current Version: ===================================== 
 //= 1.4
-//===== Compatible With: =====================================
+//===== Compatible With: ===================================== 
 //= eAthena 1.0
-//===== Description: =========================================
+//===== Description: ========================================= 
 //
-//===== Additional Comments: =================================
+//===== Additional Comments: ================================= 
 // May be missing npc's and dialogue.
-//= 1.1 Fixed Typos [Nexon]
+//= 1.1 Fixed Typo’s [Nexon]
 //= 1.2 Removed Duplicates [Silent]
 //= 1.3 Max NPC Name is 23 [Toms]
 //= 1.3a Removed temp NPC plugs due Broken Sword quest [Lupus]
@@ -40,7 +40,7 @@ alberta,245,69,4	script	Public Relations#01	776,{
 		mes "The return trip is free, however. Are you prepared to go?";
 		next;
 		menu "Let's Go!",-, "Actually... I changed my mind, sorry.",M_End;
-
+		
 			if (Zeny < 10000){
 				mes "[Waba]";
 				mes "I am sorry if it seems like a lot, but the ^0000ff10,000 zeny^000000 we request is necessary in order to make the trip.";
@@ -50,7 +50,7 @@ alberta,245,69,4	script	Public Relations#01	776,{
 			warp "gon_fild01",258,82;
 			end;
 	M_End:
-		mes "[Waba]";
+		mes "[Waba]";	
 		mes "Please see me again if you want to visit! I am pleased just to meet an honored guest from the Continent.";
 		close;
 
@@ -227,7 +227,7 @@ gonryun,237,226,3	script	YunKyoHam#gn	776,{
 		mes "a cheap knife,";
 		mes "but really valuable to me";
 		mes "and my family.";
-		next;
+		next; 
 		mes "[YunKyoHam]";
 		mes "Would you hand that";
 		mes "knife to me?";
@@ -395,13 +395,13 @@ gon_in,73,82,5	script	SungChul Ki#gn	778,{
 	close;
 
 //	no idea what should happen after you started the quest...
-//	if ((v[cha] == 1) & (v[-] > 0))
+//	if ((v[cha] == 1) & (v[°Ç°-È¯] > 0))
 //		mes "[SungChul Ki]"
-//		mes "..._? > __- _"
-//		mes "? _..."
-//		mes " _ __."
-//		mes "R .  "
-//		mes "__!"
+//		mes "...À_? ¹ìÀ> Àâ_Æ_- _ª¿Â"
+//		mes "¹°°ÇÀÌ¶ó°í? ÈåÀ_..."
+//		mes "¿ØÁö ¸ð¸_°Ô ÁÁ_Æº¸ÀÌ_Â°É."
+//		mes "ÀÌ¸R Áàº¸°Ô. ÇÑ¹ø Â÷¸¦"
+//		mes "¸¸÷é_îº¸°Ú_×!"
 //		next;
 //		mes "................................"
 //		next;
@@ -415,17 +415,17 @@ gon_in,73,82,5	script	SungChul Ki#gn	778,{
 //
 }
 
-//============== R================
-//npc "gon_in" "_ _" 4_M_TWMIDMAN 101 21 3 5 5
+//==============ÃàÁ¦ °ü¸RÀÎ================
+//npc "gon_in" "È_ÀÌ _º" 4_M_TWMIDMAN 101 21 3 5 5
 //OnClick:
-//	mes "[_ _]"
-//	mes "... +."
-//	mes "____   "
-//	mes " __ _"
-//	mes "  "
-//	mes "___..."
+//	mes "[È_ÀÌ _º]"
+//	mes "ÈÞ¿ì... °ÆÁ¤ÀÌ+º."
+//	mes "____ ÀÌ¹ø¿¡÷÷ ÃàÁ¦¸¦ ¹úÀÏ"
+//	mes "Å¸ÀÌ¹ÖÀÌ ¿Ô_Â÷_ _îÂî÷È"
+//	mes "ÀÏÀÎÁö ÀüÇô ÃàÁ¦ÁØºñ°¡"
+//	mes "÷ÇÁö_Ê_Ò_î..."
 //	next;
-//	mes "[_ _]"
+//	mes "[È_ÀÌ _º]"
 
 gon_in,173,27,3	script	Kuha Woo#gn	774,{
 	mes "[Kuha Woo]";

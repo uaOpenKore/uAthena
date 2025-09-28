@@ -1,15 +1,17 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-
-#include "int_status.h"
+#include "../common/mmo.h"
 #include "../common/db.h"
 #include "../common/lock.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
+#include "int_status.h"
 
-static struct dbt * scdata_db = NULL;	//Contains all the status change data in-memory. [Skotlex]
+#include <stdio.h>
+
+// Contains all the status change data in-memory. [Skotlex]
+static DBMap* scdata_db = NULL; // int char_id -> struct scdata*
 char scdata_txt[1024]="save/scdata.txt"; //By [Skotlex]
 
 #ifdef ENABLE_SC_SAVING
@@ -127,10 +129,10 @@ static int inter_status_save_sub(DBKey key, void *data, va_list ap) {
 	sc_data = (struct scdata *)data;
 	if (sc_data->count < 1)
 		return 0;
-	
+
 	fp = va_arg(ap, FILE *);
 	inter_status_tostr(line, sc_data);
-	fprintf(fp, "%s" RETCODE, line);
+	fprintf(fp, "%s\n", line);
 	return 0;
 }
 
@@ -155,7 +157,7 @@ void inter_status_save()
  *------------------------------------------*/
 void status_init()
 {
-	scdata_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
+	scdata_db = idb_alloc(DB_OPT_BASE);
 	status_load_scdata(scdata_txt);
 }
 

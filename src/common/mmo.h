@@ -4,19 +4,19 @@
 #ifndef	_MMO_H_
 #define	_MMO_H_
 
-#include <time.h>
 #include "cbasetypes.h"
-#include "utils.h" // _WIN32
+#include <time.h>
 
 #define FIFOSIZE_SERVERLINK	256*1024
 
 //Remove/Comment this line to disable sc_data saving. [Skotlex]
 #define ENABLE_SC_SAVING
-
 //Remove/Comment this line to disable server-side hot-key saving support [Skotlex]
 //Note that newer clients no longer save hotkeys in the registry!
+#define HOTKEY_SAVING
+
 //The number is the max number of hotkeys to save (27 = 9 skills x 3 bars)
-//#define HOTKEY_SAVING 27
+#define MAX_HOTKEYS 27
 
 #define MAX_MAP_PER_SERVER 1024
 #define MAX_INVENTORY 100
@@ -25,6 +25,7 @@
 //Number of slots carded equipment can have. Never set to less than 4 as they are also used to keep the data of forged items/equipment. [Skotlex]
 //Note: The client seems unable to receive data for more than 4 slots due to all related packets having a fixed size.
 #define MAX_SLOTS 4
+//Max amount of a single stacked item
 #define MAX_AMOUNT 30000
 #define MAX_ZENY 1000000000
 #define MAX_FAME 1000000000
@@ -64,9 +65,6 @@
 #define MIN_STAR 0
 #define MAX_STAR 3
 
-#define MIN_PORTAL_MEMO 0
-#define MAX_PORTAL_MEMO 2
-
 #define MAX_STATUS_TYPE 5
 
 #define WEDDING_RING_M 2634
@@ -74,15 +72,15 @@
 
 //For character names, title names, guilds, maps, etc.
 //Includes null-terminator as it is the length of the array.
-#define NAME_LENGTH 24
+#define NAME_LENGTH (23 + 1)
 //For item names, which tend to have much longer names.
 #define ITEM_NAME_LENGTH 50
 //For Map Names, which the client considers to be 16 in length including the .gat extension
-#define MAP_NAME_LENGTH 12
-#define MAP_NAME_LENGTH_EXT 16
+#define MAP_NAME_LENGTH (11 + 1)
+#define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
 
 #define MAX_FRIENDS 40
-#define MAX_MEMOPOINTS 10
+#define MAX_MEMOPOINTS 3
 
 //Size of the fame list arrays.
 #define MAX_FAME_LIST 10
@@ -98,7 +96,7 @@
 #define DEFAULT_MAX_CHAR_ID 250000
 
 //Base Homun skill.
-#define HM_SKILLBASE 8000
+#define HM_SKILLBASE 8001
 #define MAX_HOMUNSKILL 16
 #define MAX_HOMUNCULUS_CLASS	16	//[orn]
 #define HM_CLASS_BASE 6001
@@ -108,14 +106,14 @@ struct item {
 	int id;
 	short nameid;
 	short amount;
-	unsigned short equip;
+	unsigned short equip; // location(s) where item is equipped (using enum equip_pos for bitmasking)
 	char identify;
 	char refine;
 	char attribute;
 	short card[MAX_SLOTS];
 };
 
-struct point{
+struct point {
 	unsigned short map;
 	short x,y;
 };
@@ -126,7 +124,7 @@ struct skill {
 
 struct global_reg {
 	char str[32];
-	char value[256]; // [zBuffer]
+	char value[256];
 };
 
 //Holds array of global registries, used by the char server and converter.
@@ -179,7 +177,7 @@ struct s_homunculus {	//[orn]
 	int luk ;
 };
 
-struct friend {
+struct s_friend {
 	int account_id;
 	int char_id;
 	char name[NAME_LENGTH];
@@ -214,13 +212,14 @@ struct mmo_charstatus {
 	int party_id,guild_id,pet_id,hom_id;
 	int fame;
 
-	short weapon,shield;
+	short weapon; // enum weapon_type
+	short shield; // view-id
 	short head_top,head_mid,head_bottom;
 
 	char name[NAME_LENGTH];
 	unsigned int base_level,job_level;
 	short str,agi,vit,int_,dex,luk;
-	unsigned char char_num,sex;
+	unsigned char slot,sex;
 
 	uint32 mapip;
 	uint16 mapport;
@@ -229,9 +228,9 @@ struct mmo_charstatus {
 	struct item inventory[MAX_INVENTORY],cart[MAX_CART];
 	struct skill skill[MAX_SKILL];
 
-	struct friend friends[MAX_FRIENDS]; //New friend system [Skotlex]
+	struct s_friend friends[MAX_FRIENDS]; //New friend system [Skotlex]
 #ifdef HOTKEY_SAVING
-	struct hotkey hotkeys[HOTKEY_SAVING];
+	struct hotkey hotkeys[MAX_HOTKEYS];
 #endif
 };
 
@@ -260,8 +259,6 @@ struct guild_storage {
 	struct item storage_[MAX_GUILD_STORAGE];
 };
 
-struct map_session_data;
-
 struct gm_account {
 	int account_id;
 	int level;
@@ -275,7 +272,7 @@ struct party_member {
 	unsigned short map;
 	unsigned short lv;
 	unsigned leader : 1,
-				online : 1;
+	         online : 1;
 };
 
 struct party {
@@ -287,6 +284,7 @@ struct party {
 	struct party_member member[MAX_PARTY];
 };
 
+struct map_session_data;
 struct guild_member {
 	int account_id, char_id;
 	short hair,hair_color,gender,class_,lv;
@@ -367,6 +365,8 @@ struct guild_castle {
 		int id;
 	} guardian[MAX_GUARDIANS]; //New simplified structure. [Skotlex]
 };
+
+// for Brandish Spear calculations
 struct square {
 	int val1[5];
 	int val2[5];
@@ -399,7 +399,7 @@ enum {
 	GD_SKILLBASE=10000,
 	GD_APPROVAL=10000,
 	GD_KAFRACONTRACT=10001,
-	GD_GUARDIANRESEARCH=10002,
+	GD_GUARDRESEARCH=10002,
 	GD_GUARDUP=10003,
 	GD_EXTENSION=10004,
 	GD_GLORYGUILD=10005,
@@ -444,6 +444,8 @@ enum {
 	JOB_GUNSLINGER,
 	JOB_NINJA,
 	JOB_XMAS,
+	JOB_SUMMER,
+	JOB_MAX_BASIC,
 
 	JOB_NOVICE_HIGH = 4001,
 	JOB_SWORDMAN_HIGH,
@@ -496,6 +498,12 @@ enum {
 	JOB_STAR_GLADIATOR,
 	JOB_STAR_GLADIATOR2,
 	JOB_SOUL_LINKER,
+	JOB_MAX,
 };
+
+// sanity checks...
+#if MAX_ZENY > INT_MAX
+#error MAX_ZENY is too big
+#endif
 
 #endif /* _MMO_H_ */

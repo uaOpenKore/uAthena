@@ -9,12 +9,6 @@ struct map_session_data;
 struct mob_data;
 struct item;
 
-#ifndef TXT_ONLY
-
-extern char db_server_logdb[32];
-
-#endif //NOT TXT_ONLY
-
 //New logs
 int log_pick_pc(struct map_session_data *sd, const char *type, int nameid, int amount, struct item *itm);
 int log_pick_mob(struct mob_data *md, const char *type, int nameid, int amount, struct item *itm);
@@ -29,8 +23,6 @@ int log_branch(struct map_session_data *sd);
 int log_mvpdrop(struct map_session_data *sd, int monster_id, int *log_mvp);
 
 int log_config_read(char *cfgName);
-
-int should_log_item(int filter, int nameid, int amount); //log filter check
 
 enum log_what {
 	LOG_ALL                 = 0xFFF,
@@ -49,7 +41,7 @@ enum log_what {
 extern struct Log_Config {
 	enum log_what enable_logs;
 	int filter;
-	int sql_logs;
+	bool sql_logs;
 	int rare_items_log,refine_items_log,price_items_log,amount_items_log; //for filter
 	int branch, drop, mvpdrop, zeny, gm, npc, chat;
 	char log_branch[64], log_pick[64], log_zeny[64], log_mvpdrop[64], log_gm[64], log_npc[64], log_chat[64];

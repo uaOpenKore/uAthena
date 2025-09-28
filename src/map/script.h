@@ -9,7 +9,6 @@ extern int potion_hp, potion_per_hp, potion_sp, potion_per_sp;
 extern int potion_target;
 
 extern struct Script_Config {
-	unsigned verbose_mode : 1;
 	unsigned warn_func_mismatch_paramnum : 1;
 	int check_cmdcount;
 	int check_gotocount;
@@ -26,8 +25,48 @@ extern struct Script_Config {
 	char joblvup_event_name[NAME_LENGTH];
 } script_config;
 
+enum c_op {
+	C_NOP, // end of script/no value (nil)
+	C_POS,
+	C_INT, // number
+	C_PARAM, // parameter variable (see pc_readparam/pc_setparam)
+	C_FUNC, // buildin function call
+	C_STR, // string (free'd automatically)
+	C_CONSTSTR, // string (not free'd)
+	C_ARG, // start of argument list
+	C_NAME,
+	C_EOL, // end of line (extra stack values are cleared)
+	C_RETINFO,
+	C_USERFUNC, // internal script function
+	C_USERFUNC_POS, // internal script function label
+
+	// operators
+	C_OP3, // a ? b : c
+	C_LOR, // a || b
+	C_LAND, // a && b
+	C_LE, // a <= b
+	C_LT, // a < b
+	C_GE, // a >= b
+	C_GT, // a > b
+	C_EQ, // a == b
+	C_NE, // a != b
+	C_XOR, // a ^ b
+	C_OR, // a | b
+	C_AND, // a & b
+	C_ADD, // a + b
+	C_SUB, // a - b
+	C_MUL, // a * b
+	C_DIV, // a / b
+	C_MOD, // a % b
+	C_NEG, // - a
+	C_LNOT, // ! a
+	C_NOT, // ~ a
+	C_R_SHIFT, // a >> b
+	C_L_SHIFT // a << b
+};
+
 struct script_data {
-	int type;
+	enum c_op type;
 	union script_data_val {
 		int num;
 		char *str;
@@ -48,7 +87,7 @@ struct script_stack {
 	int sp_max;// capacity of the stack
 	int defsp;
 	struct script_data *stack_data;// stack
-	struct linkdb_node **var_function;	//
+	struct linkdb_node **var_function;	// ŠÖ”ˆË‘¶•Ï”
 };
 
 struct script_state {
@@ -63,7 +102,8 @@ struct script_state {
 };
 
 enum script_parse_options {
-	SCRIPT_USE_LABEL_DB = 0x1
+	SCRIPT_USE_LABEL_DB = 0x1,// records labels in scriptlabel_db
+	SCRIPT_IGNORE_EXTERNAL_BRACKETS = 0x2// ignores the check for {} brackets around the script
 };
 
 struct script_code* parse_script(const char* src,const char* file,int line,int options);
@@ -79,12 +119,12 @@ void run_script_main(struct script_state *st);
 
 void script_stop_sleeptimers(int id);
 struct linkdb_node* script_erase_sleepdb(struct linkdb_node *n);
-void script_free_stack(struct script_stack*);
+void script_free_stack(struct script_stack*); 
 void script_free_code(struct script_code* code);
 void script_free_vars(struct linkdb_node **node);
 
-struct dbt* script_get_label_db(void);
-struct dbt* script_get_userfunc_db(void);
+struct DBMap* script_get_label_db(void);
+struct DBMap* script_get_userfunc_db(void);
 
 int script_config_read(char *cfgName);
 int do_init_script(void);

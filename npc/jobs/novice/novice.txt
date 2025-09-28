@@ -429,7 +429,7 @@ new_zone02.gat,99,105,4	script	Interfaces Instructor	751,{
 		next;
 		switch( select("Thanks!","Lectures are boring.","Cancel") ) {
 		case 1:	mes "[Chris]";
-			mes "If you take this course You will learn usefull skill information, so pay attention.";
+			mes "If you take this course You will learn useful skill information, so pay attention.";
 			mes "Well, find the skill instructor.";
 			mes "I will send you to him for free of charge.";
 			close2;
@@ -569,13 +569,13 @@ new_zone02.gat,83,111,4	script	Skill Instructor	753,{
 			mes "There is a mumber Clock 'Lv Up Button' at the right side beside basic skill.";
 			next;
 			mes "[Shecil]";
-			mes "Did you increase your skill?";	
+			mes "Did you increase your skill?";
 			mes "If you have any questions, ask Pitch Judas";
 			mes "hmmm...";
-			mes "I am thinking of a usefull skill.";	
+			mes "I am thinking of a useful skill.";
 			next;
 			mes "[Shecil]";
-			mes "Right, right!";	
+			mes "Right, right!";
 			mes "I will teach you First Aid Skill.";
 			mes "In Emergencies, you can use this skill.";
 			skill 142,1,0;
@@ -592,13 +592,13 @@ new_zone02.gat,83,111,4	script	Skill Instructor	753,{
 			set JobExp,JobExp+151;
 			next;
 			mes "[Shecil]";
-			mes "How was it?";	
+			mes "How was it?";
 			mes "When you use your skill, SP decreases.";
 			mes "If you use First Aid skill, it will recover some HP.";
-			mes "It will be usefull for New Novices.";
+			mes "It will be useful for New Novices.";
 			next;
 			mes "[Shecil]";
-			mes "Thanks for your attention!";	
+			mes "Thanks for your attention!";
 			mes "Oh, I am feeling so good.";
 			mes "I will give you a Plus-Exp!";
 			mes "Since I am a cool guy!";
@@ -1226,9 +1226,9 @@ L_loop:
 		mes "If you want to check your weight limit,";
 		mes "you can check thr weight at the bottom left of the basic window.";
 		mes "It will show your current weight / your maximum weight limit.";
-		mes "?•?If your weight becomes over 50% of the maximum,";
+		mes "??If your weight becomes over 50% of the maximum,";
 		mes "your HP and SP will not restore naturally.";
-		mes "So be carefull.";
+		mes "So be careful.";
 		next;
 		mes "[Edwin]";
 		mes "The numerical value next to the weight limit shows the current amount of money you have.";
@@ -1295,7 +1295,7 @@ L_loop:
 		mes "Skill and item targeting also work with the snap option.";
 		next;
 		mes "[Edwin]";
-		mes "It could be usefull or annoying if you're not used to it";
+		mes "It could be useful or annoying if you're not used to it";
 		mes "Well... once you get used to it,";
 		mes "you will be able to adjust your own snap options.";
 		next;

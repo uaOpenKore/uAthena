@@ -41,10 +41,7 @@ enum {
 struct view_data* npc_get_viewdata(int class_);
 int npc_chat_sub(struct block_list* bl, va_list ap);
 int npc_event_dequeue(struct map_session_data* sd);
-int npc_event_timer(int tid,unsigned int tick, int id, int data);
 int npc_event(struct map_session_data* sd, const char* eventname, int mob_kill);
-int npc_timer_event(const char* eventname); // Added by RoVeRT
-int npc_command(struct map_session_data* sd, const char* npcname, const char* command);
 int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y);
 int npc_touch_areanpc2(struct block_list* bl); // [Skotlex]
 int npc_check_areanpc(int flag, int m, int x, int y, int range);
@@ -63,7 +60,8 @@ int npc_globalmessage(const char* name,const char* mes);
 void npc_setcells(struct npc_data* nd);
 void npc_movenpc(struct npc_data* nd, int x, int y);
 int npc_enable(const char* name, int flag);
-int npc_changename(const char* name, const char* newname, short look); // [Lance]
+void npc_setdisplayname(struct npc_data* nd, const char* newname);
+void npc_setclass(struct npc_data* nd, short class_);
 struct npc_data* npc_name2id(const char* name);
 
 int npc_get_new_npc_id(void);
@@ -73,7 +71,7 @@ void npc_delsrcfile(const char* name);
 void npc_parsesrcfile(const char* name);
 int do_final_npc(void);
 int do_init_npc(void);
-int npc_event_do_oninit(void);
+void npc_event_do_oninit(void);
 int npc_do_ontimer(int npc_id, int option);
 
 int npc_event_doall(const char* name);
@@ -92,6 +90,6 @@ int npc_reload(void);
 void npc_read_event_script(void);
 int npc_script_event(struct map_session_data* sd, int type);
 
-struct npc_data *fake_nd;
+extern struct npc_data* fake_nd;
 
 #endif /* _NPC_H_ */

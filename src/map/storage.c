@@ -24,11 +24,11 @@
 #include <string.h>
 
 
-static struct dbt *storage_db;
-static struct dbt *guild_storage_db;
+static DBMap* storage_db; // int account_id -> struct storage*
+static DBMap* guild_storage_db; // int guild_id -> struct guild_storage*
 
 /*==========================================
- * qACe\[g
+ * 倉庫内アイテムソート
  *------------------------------------------*/
 int storage_comp_item(const void *_i1, const void *_i2)
 {
@@ -43,7 +43,7 @@ int storage_comp_item(const void *_i1, const void *_i2)
 		return -1;
 	return i1->nameid - i2->nameid;
 }
-
+ 
 void storage_sortitem (struct storage *stor)
 {
 	nullpo_retv(stor);
@@ -57,12 +57,12 @@ void storage_gsortitem (struct guild_storage* gstor)
 }
 
 /*==========================================
- *
+ * 初期化とか
  *------------------------------------------*/
-int do_init_storage(void) // map.c::do_init()
+int do_init_storage(void) // map.c::do_init()から呼ばれる
 {
-	storage_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
-	guild_storage_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	storage_db=idb_alloc(DB_OPT_RELEASE_DATA);
+	guild_storage_db=idb_alloc(DB_OPT_RELEASE_DATA);
 	return 1;
 }
 void do_final_storage(void) // by [MC Cameri]
@@ -188,7 +188,7 @@ static int storage_additem(struct map_session_data *sd,struct storage *stor,stru
 
 	if(item_data->nameid <= 0 || amount <= 0)
 		return 1;
-
+	
 	data = itemdb_search(item_data->nameid);
 
 	if (!itemdb_canstore(item_data, pc_isGM(sd)))

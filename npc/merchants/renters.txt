@@ -1,14 +1,14 @@
 //===== eAthena Script ======================================= 
 //= Renters
-//===== By: ==================================================
+//===== By: ================================================== 
 //= kobra_k88, mod by Lupus
-//===== Current Version: =====================================
+//===== Current Version: ===================================== 
 //= 1.7
-//===== Compatible With: =====================================
+//===== Compatible With: ===================================== 
 //= eAthena SVN
-//===== Description: =========================================
+//===== Description: ========================================= 
 //= Knight and Crusader Peco Peco Breeders, Falcon Breeder scripts
-//===== Additional Comments: =================================
+//===== Additional Comments: ================================= 
 //= Fully working
 //= Added another Falcon Master into the Hunters Guild [Lupus]
 //= 1.2: replaced checkoption(x) with checkriding,checkfalcon [Lupus]
@@ -19,7 +19,7 @@
 //= 1.5a: Small fix (Falcon Taming -> Falcon Mastery) [Komurka]
 //= 1.6: Moved the Falcon Master to Hugel [Poki#3]
 //= 1.7 Updated to Aegis 10.3 standards. [L0ne_W0lf]
-//============================================================
+//============================================================ 
 
 // PecoPeco Breeder (for Knights)-------------------------------------------
 prontera,55,350,5	script	Peco Peco Breeder	105,{
@@ -85,7 +85,7 @@ prontera,232,318,3	script	Peco Peco Breeder	105,{
 	mes "[PecoPeco Breeder]";
 	if (BaseJob == Job_Crusader) {
 		if (Class == Job_Crusader && Upper == 0 || Upper == 1) mes "Welcome, Crusader.";
-		else
+		else 
 mes "Welcome, Paladin.";
 		mes "We have a special";
 		mes "Peco Peco prepared";

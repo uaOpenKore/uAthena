@@ -18,9 +18,10 @@ struct status_change;
 extern unsigned long StatusChangeFlagTable[];
 
 // Status changes listing. These code are for use by the server. 
-enum {
+enum sc_type {
 	//First we enumerate common status ailments which are often used around.
 	SC_STONE = 0,
+	SC_COMMON_MIN = 0, // begin
 	SC_FREEZE,
 	SC_STUN,
 	SC_SLEEP,
@@ -31,6 +32,7 @@ enum {
 	SC_BLIND,
 	SC_BLEEDING,
 	SC_DPOISON, //10
+	SC_COMMON_MAX = 10, // end
 	
 	//Next up, we continue on 20, to leave enough room for additional "common" ailments in the future.
 	SC_PROVOKE = 20,
@@ -260,8 +262,8 @@ enum {
 	SC_FLEET,
 	SC_SPEED,
 	SC_DEFENCE,
-	SC_INCAGIRATE,
-	SC_INCDEXRATE,
+	SC_INCASPDRATE,
+	SC_INCFLEE2,
 	SC_JAILED,
 	SC_ENCHANTARMS,	//250
 	SC_MAGICALATTACK,
@@ -269,13 +271,22 @@ enum {
 	SC_CRITICALWOUND,
 	SC_MAGICMIRROR,
 	SC_SLOWCAST,
+	SC_SUMMER,
+	SC_EXPBOOST,
+	SC_ITEMBOOST,
+	SC_BOSSMAPINFO, 
+	SC_LIFEINSURANCE, //260
+	SC_INCCRI,
+	SC_INCDEF,
+	SC_INCBASEATK,
+	SC_FASTCAST,
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };
 int SkillStatusChangeTable(int skill);
 extern int StatusSkillChangeTable[SC_MAX];
 
 //Numerates the Number for the status changes (client-dependent), imported from jA
-enum {
+enum si_type {
 	SI_BLANK		= -1,
 	SI_PROVOKE		= 0,
 	SI_ENDURE		= 1,
@@ -335,7 +346,7 @@ enum {
 	SI_AUTOSPELL		= 65,
 	SI_SPEARQUICKEN		= 68,
 	SI_EXPLOSIONSPIRITS	= 86,
-	SI_FURY			= 87,
+	SI_STEELBODY		= 87,
 	SI_FIREWEAPON		= 90,
 	SI_WATERWEAPON		= 91,
 	SI_WINDWEAPON		= 92,
@@ -386,12 +397,12 @@ enum {
 	SI_SMA			= 159,
 	SI_NIGHT		= 160,
 	SI_ONEHAND		= 161,
-	SI_WARM			= 165,
-//	166 | The three show the exact same display: ultra red character (165, 166, 167)
+	SI_WARM			= 165,	
+//	166 | The three show the exact same display: ultra red character (165, 166, 167)	
 //	167 |	
 	SI_SUN_COMFORT		= 169,
-	SI_MOON_COMFORT		= 170,
-	SI_STAR_COMFORT		= 171,
+	SI_MOON_COMFORT		= 170,	
+	SI_STAR_COMFORT		= 171,	
 	SI_PRESERVE		= 181,
 	SI_INCSTR		= 182,
 	SI_INTRAVISION		= 184,
@@ -489,7 +500,7 @@ enum {
 //0x020 - nothing
 //0x040 - nothing
 #define OPT2_DPOISON 0x080
-//0x100
+//0x100 
 
 #define OPTION_SIGHT 0x00000001
 #define OPTION_HIDE 0x00000002
@@ -509,6 +520,7 @@ enum {
 //Note that clientside Flying and Xmas are 0x8000 for clients prior to 2007.
 #define OPTION_FLYING 0x0008000
 #define OPTION_XMAS 0x00010000
+#define OPTION_SUMMER 0x00040000
 
 #define OPTION_CART (OPTION_CART1|OPTION_CART2|OPTION_CART3|OPTION_CART4|OPTION_CART5)
 
@@ -569,13 +581,12 @@ int status_damage(struct block_list *src,struct block_list *target,int hp,int sp
 //Define for standard HP/SP damage triggers.
 #define status_zap(bl, hp, sp) status_damage(NULL, bl, hp, sp, 0, 1)
 //Define for standard HP/SP skill-related cost triggers (mobs require no HP/SP to use skills)
-#define status_charge(bl, hp, sp) (!((bl)->type&BL_CONSUME) || status_damage(NULL, bl, hp, sp, 0, 3))
+int status_charge(struct block_list* bl, int hp, int sp);
 int status_percent_change(struct block_list *src,struct block_list *target,signed char hp_rate, signed char sp_rate, int flag);
 //Easier handling of status_percent_change
 #define status_percent_heal(bl, hp_rate, sp_rate) status_percent_change(NULL, bl, -(hp_rate), -(sp_rate), 1)
 #define status_percent_damage(src, target, hp_rate, sp_rate) status_percent_change(src, target, hp_rate, sp_rate, 0)
 //Instant kill with no drops/exp/etc
-//
 #define status_kill(bl) status_percent_damage(NULL, bl, 100, 0)
 //Used to set the hp/sp of an object to an absolute value (can't kill)
 int status_set_hp(struct block_list *bl, unsigned int hp, int flag);
@@ -583,9 +594,9 @@ int status_set_sp(struct block_list *bl, unsigned int sp, int flag);
 int status_heal(struct block_list *bl,int hp,int sp, int flag);
 int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per_sp);
 
-//Define for copying a status_data structure from b to a, without overwriting current Hp and Sp, nor messing the lhw pointer.
-#define status_cpy(a, b) { memcpy(&((a)->max_hp), &((b)->max_hp), sizeof(struct status_data)-(sizeof((a)->hp)+sizeof((a)->sp)+sizeof((a)->lhw))); \
-	if ((a)->lhw && (b)->lhw) { memcpy((a)->lhw, (b)->lhw, sizeof(struct weapon_atk)); }}
+//Define for copying a status_data structure from b to a, without overwriting current Hp and Sp
+#define status_cpy(a, b) \
+	memcpy(&((a)->max_hp), &((b)->max_hp), sizeof(struct status_data)-(sizeof((a)->hp)+sizeof((a)->sp)))
 
 struct regen_data *status_get_regen_data(struct block_list *bl);
 struct status_data *status_get_status_data(struct block_list *bl);
@@ -606,7 +617,7 @@ int status_get_lv(struct block_list *bl);
 #define status_get_luk(bl) status_get_status_data(bl)->luk
 #define status_get_hit(bl) status_get_status_data(bl)->hit
 #define status_get_flee(bl) status_get_status_data(bl)->flee
-unsigned char status_get_def(struct block_list *bl);
+signed char status_get_def(struct block_list *bl);
 #define status_get_mdef(bl) status_get_status_data(bl)->mdef
 #define status_get_flee2(bl) status_get_status_data(bl)->flee2
 #define status_get_def2(bl) status_get_status_data(bl)->def2
@@ -617,8 +628,8 @@ unsigned char status_get_def(struct block_list *bl);
 #define status_get_watk2(bl) status_get_status_data(bl)->rhw.atk2
 #define status_get_matk_max(bl) status_get_status_data(bl)->matk_max
 #define status_get_matk_min(bl) status_get_status_data(bl)->matk_min
-unsigned short status_get_lwatk(struct block_list *bl);
-unsigned short status_get_lwatk2(struct block_list *bl);
+#define status_get_lwatk(bl) status_get_status_data(bl)->lhw.atk
+#define status_get_lwatk2(bl) status_get_status_data(bl)->lhw.atk2
 unsigned short status_get_speed(struct block_list *bl);
 #define status_get_adelay(bl) status_get_status_data(bl)->adelay
 #define status_get_amotion(bl) status_get_status_data(bl)->amotion
@@ -628,7 +639,7 @@ unsigned short status_get_speed(struct block_list *bl);
 unsigned char status_calc_attack_element(struct block_list *bl, struct status_change *sc, int element);
 #define status_get_attack_sc_element(bl, sc) status_calc_attack_element(bl, sc, 0)
 #define status_get_attack_element(bl) status_get_status_data(bl)->rhw.ele
-unsigned char status_get_attack_lelement(struct block_list *bl);
+#define status_get_attack_lelement(bl) status_get_status_data(bl)->lhw.ele
 #define status_get_race(bl) status_get_status_data(bl)->race
 #define status_get_size(bl) status_get_status_data(bl)->size
 #define status_get_mode(bl) status_get_status_data(bl)->mode
@@ -646,19 +657,19 @@ struct status_change *status_get_sc(struct block_list *bl);
 int status_isdead(struct block_list *bl);
 int status_isimmune(struct block_list *bl);
 
-int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int flag);
+int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int tick, int flag);
 //Short version, receives rate in 1->100 range, and does not uses a flag setting.
 #define sc_start(bl, type, rate, val1, tick) status_change_start(bl,type,100*(rate),val1,0,0,0,tick,0)
 #define sc_start2(bl, type, rate, val1, val2, tick) status_change_start(bl,type,100*(rate),val1,val2,0,0,tick,0)
 #define sc_start4(bl, type, rate, val1, val2, val3, val4, tick) status_change_start(bl,type,100*(rate),val1,val2,val3,val4,tick,0)
 
-int status_change_start(struct block_list *bl,int type,int rate,int val1,int val2,int val3,int val4,int tick,int flag);
-int status_change_end( struct block_list* bl , int type,int tid );
+int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,int flag);
+int status_change_end(struct block_list* bl, enum sc_type type, int tid);
 int kaahi_heal_timer(int tid, unsigned int tick, int id, int data);
 int status_change_timer(int tid, unsigned int tick, int id, int data);
-int status_change_timer_sub(struct block_list *bl, va_list ap );
-int status_change_clear(struct block_list *bl,int type);
-int status_change_clear_buffs(struct block_list *bl, int type);
+int status_change_timer_sub(struct block_list* bl, va_list ap);
+int status_change_clear(struct block_list* bl, int type);
+int status_change_clear_buffs(struct block_list* bl, int type);
 
 void status_calc_bl(struct block_list *bl, unsigned long flag);
 int status_calc_pet(struct pet_data* pd, int first); // [Skotlex]
@@ -676,5 +687,6 @@ int status_check_visibility(struct block_list *src, struct block_list *target); 
 
 int status_readdb(void);
 int do_init_status(void);
+void do_final_status(void);
 
 #endif /* _STATUS_H_ */

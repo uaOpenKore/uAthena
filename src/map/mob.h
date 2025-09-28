@@ -13,7 +13,8 @@
 
 // Change this to increase the table size in your mob_db to accomodate a larger mob database.
 // Be sure to note that IDs 4001 to 4048 are reserved for advanced/baby/expanded classes.
-#define MAX_MOB_DB 10000
+// Notice that the last 1000 entries are used for player clones, so always set this to desired value +1000
+#define MAX_MOB_DB 3000
 
 //The number of drops all mobs have and the max drop-slot that the steal skill will attempt to steal from.
 #define MAX_MOB_DROP 10
@@ -28,8 +29,8 @@
 #define MOB_SLAVEDISTANCE 2
 
 // These define the range of available IDs for clones. [Valaris]
-#define MOB_CLONE_START 9001
-#define MOB_CLONE_END 10000
+#define MOB_CLONE_START (MAX_MOB_DB-999)
+#define MOB_CLONE_END MAX_MOB_DB
 
 struct mob_skill {
 	short state;
@@ -43,11 +44,16 @@ struct mob_skill {
 	short emotion;
 };
 
+struct spawn_info {
+	unsigned short mapindex;
+	unsigned short qty;
+};
+ 
 struct mob_db {
 	char sprite[NAME_LENGTH],name[NAME_LENGTH],jname[NAME_LENGTH];
 	unsigned int base_exp,job_exp;
 	unsigned int mexp,mexpper;
-	int range2,range3;
+	short range2,range3;
 	short race2;	// celest
 	unsigned short lv;
 	struct { int nameid,p; } dropitem[MAX_MOB_DROP];
@@ -58,6 +64,7 @@ struct mob_db {
 	int summonper[MAX_RANDOMMONSTER];
 	int maxskill;
 	struct mob_skill skill[MAX_MOBSKILL];
+	struct spawn_info spawn[10];
 };
 
 enum {
@@ -123,7 +130,7 @@ struct item_drop {
 };
 struct item_drop_list {
 	int m, x, y;                       // coordinates
-	struct map_session_data *first_sd, *second_sd, *third_sd; // sd's of players with higher pickup priority
+	int first_charid, second_charid, third_charid; // charid's of players with higher pickup priority
 	struct item_drop* item;            // linked list of drops
 };
 
@@ -143,10 +150,10 @@ int mob_once_spawn_area(struct map_session_data *sd,const char *mapname,
 int mob_spawn_guardian(const char* mapname, short x, short y, const char* mobname, int class_, const char* event, int guardian);	// Spawning Guardians [Valaris]
 int mob_guardian_guildchange(struct block_list *bl,va_list ap); //Change Guardian's ownership. [Skotlex]
 
-int mob_randomwalk(struct mob_data *md,int tick);
-
+int mob_randomwalk(struct mob_data *md,unsigned int tick);
+int mob_warpchase(struct mob_data *md, struct block_list *target);
 int mob_target(struct mob_data *md,struct block_list *bl,int dist);
-int mob_unlocktarget(struct mob_data *md,int tick);
+int mob_unlocktarget(struct mob_data *md, unsigned int tick);
 struct mob_data* mob_spawn_dataset(struct spawn_data *data);
 int mob_spawn(struct mob_data *md);
 int mob_setdelayspawn(struct mob_data *md);
@@ -157,9 +164,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type);
 void mob_revive(struct mob_data *md, unsigned int hp);
 void mob_heal(struct mob_data *md,unsigned int heal);
 
-#define mob_stop_walking(md, type) { if (md->ud.walktimer != -1) unit_stop_walking(&md->bl, type); }
-#define mob_stop_attack(md) { if (md->ud.attacktimer != -1) unit_stop_attack(&md->bl); }
+#define mob_stop_walking(md, type) unit_stop_walking(&(md)->bl, type)
+#define mob_stop_attack(md) { if((md)->ud.attacktimer != -1) unit_stop_attack(&(md)->bl); }
 
+void mob_clear_spawninfo();
 int do_init_mob(void);
 int do_final_mob(void);
 

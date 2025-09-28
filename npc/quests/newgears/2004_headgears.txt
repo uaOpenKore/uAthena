@@ -1,12 +1,12 @@
-//===== eAthena Script =======================================
+//===== eAthena Script ======================================= 
 //= 2004 Headgear Quests
-//===== By: ==================================================
+//===== By: ================================================== 
 //= Dj-Yhn
-//===== Current Version: =====================================
+//===== Current Version: ===================================== 
 //= 1.2
-//===== Compatible With: =====================================
+//===== Compatible With: ===================================== 
 //= eAthena
-//===== Description: =========================================
+//===== Description: ========================================= 
 //= 2004 New Headgears. Official Quests
 //===== Additional Comments: =================================
 //= names with asterisk(*) are iRO names...
@@ -882,12 +882,12 @@ yuno,241,52,3	script	Old Blacksmith	813,{
 			mes "Oh yes,";
 			mes "I need to tell you the details about the materials.";
 			mes "Angel Wing Ears requires ^4d4dffAngel Wings^000000 and";
-			mes "^4d4dffElven Ears^000000 &#1038;Aand the cost for other materials is";
+			mes "^4d4dffElven Ears^000000 and the cost for other materials is";
 			mes "approximatedly ^4d4dff20000 zeny^000000";
 			next;
 			mes "[Habir Moah]";
 			mes "Devil Wing Ears requires ^4d4dffEvil Wing^000000 and";
-			mes "^4d4dffElven Ears^000000 &#1038;Awhile the cost for other materials is";
+			mes "^4d4dffElven Ears^000000 while the cost for other materials is";
 			mes "approximately ^4d4dff20000 zeny";
 			next;
 			mes "[Habir Moah]";
@@ -2029,7 +2029,7 @@ end; }
 //Morocc /= Drooping Kitty, Huge Leaf, Lazy Smokie and Blue Fish =/
 morocc,273,79,4	script	Traveler	99,{
 	function creation_lines {
-		mes "[Human]";
+	 	mes "[Human]";
 		mes "Ah....So do you have all of it?";
 		mes "Haha";
 		mes "What an opportunity for me to show my skill.";
@@ -2333,7 +2333,7 @@ pay_dun03,48,84,4	script	Nine Tail#2	1180,{
 			close2;
 			disablenpc "Nine Tail#2";
 			donpcevent "Nine Tail#1::OnReset";
-			end;
+			end;		
 		case 2:
 			close2;
 			disablenpc "Nine Tail#2";

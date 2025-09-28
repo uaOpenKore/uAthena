@@ -1,21 +1,22 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
 #include "../common/mmo.h"
 #include "../common/malloc.h"
 #include "../common/socket.h"
 #include "../common/db.h"
 #include "../common/lock.h"
 #include "../common/showmsg.h"
+#include "../common/utils.h"
 #include "char.h"
 #include "inter.h"
 #include "int_storage.h"
 #include "int_pet.h"
 #include "int_guild.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 // t@CftHg
 // inter_config_read()
@@ -23,8 +24,8 @@ char storage_txt[1024]="save/storage.txt";
 char guild_storage_txt[1024]="save/g_storage.txt";
 
 #ifndef TXT_SQL_CONVERT
-static struct dbt *storage_db;
-static struct dbt *guild_storage_db;
+static DBMap* storage_db; // int account_id -> struct storage*
+static DBMap* guild_storage_db; // int guild_id -> struct guild_storage*
 
 // qf[^
 int storage_tostr(char *str,struct storage *p)
@@ -197,7 +198,7 @@ int inter_storage_init()
 	struct guild_storage *gs;
 	FILE *fp;
 
-	storage_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	storage_db = idb_alloc(DB_OPT_RELEASE_DATA);
 
 	fp=fopen(storage_txt,"r");
 	if(fp==NULL){
@@ -210,7 +211,7 @@ int inter_storage_init()
 		s = (struct storage*)aCalloc(sizeof(struct storage), 1);
 		if(s==NULL){
 			ShowFatalError("int_storage: out of memory!\n");
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 //		memset(s,0,sizeof(struct storage)); aCalloc does this...
 		s->account_id=tmp_int;
@@ -226,7 +227,7 @@ int inter_storage_init()
 	fclose(fp);
 
 	c = 0;
-	guild_storage_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	guild_storage_db = idb_alloc(DB_OPT_RELEASE_DATA);
 
 	fp=fopen(guild_storage_txt,"r");
 	if(fp==NULL){
@@ -239,7 +240,7 @@ int inter_storage_init()
 		gs = (struct guild_storage*)aCalloc(sizeof(struct guild_storage), 1);
 		if(gs==NULL){
 			ShowFatalError("int_storage: out of memory!\n");
-			exit(0);
+			exit(EXIT_FAILURE);
 		}
 //		memset(gs,0,sizeof(struct guild_storage)); aCalloc...
 		gs->guild_id=tmp_int;
@@ -270,7 +271,7 @@ int inter_storage_save_sub(DBKey key,void *data,va_list ap)
 	storage_tostr(line,(struct storage *)data);
 	fp=va_arg(ap,FILE *);
 	if(*line)
-		fprintf(fp,"%s" RETCODE,line);
+		fprintf(fp,"%s\n",line);
 	return 0;
 }
 //---------------------------------------------------------
@@ -297,7 +298,7 @@ int inter_guild_storage_save_sub(DBKey key,void *data,va_list ap)
 		guild_storage_tostr(line,(struct guild_storage *)data);
 		fp=va_arg(ap,FILE *);
 		if(*line)
-			fprintf(fp,"%s" RETCODE,line);
+			fprintf(fp,"%s\n",line);
 	}
 	return 0;
 }

@@ -17,7 +17,7 @@ struct _indexes {
 	char name[MAP_NAME_LENGTH]; //Stores map name
 } indexes[MAX_MAPINDEX];
 
-static unsigned short max_index = 0;
+int max_index = 0;
 
 char mapindex_cfgfile[80] = "db/map_index.txt";
 
@@ -52,7 +52,7 @@ const char* mapindex_getmapname_ext(const char* string, char* output)
 	static char buf[MAP_NAME_LENGTH_EXT];
 	char* dest = (output != NULL) ? output : buf;
 
-	size_t len = strnlen(string, MAP_NAME_LENGTH);
+	size_t len = safestrnlen(string, MAP_NAME_LENGTH);
 	if (len == MAP_NAME_LENGTH) {
 		ShowWarning("(mapindex_normalize_name) Map name '%*s' is too long!", 2*MAP_NAME_LENGTH, string);
 		len--;
@@ -150,7 +150,7 @@ void mapindex_init(void)
 	fp=fopen(mapindex_cfgfile,"r");
 	if(fp==NULL){
 		ShowFatalError("Unable to read mapindex config file %s!\n", mapindex_cfgfile);
-		exit(1); //Server can't really run without this file.
+		exit(EXIT_FAILURE); //Server can't really run without this file.
 	}
 	while(fgets(line, sizeof(line), fp))
 	{
