@@ -4,12 +4,17 @@ project(uAthena C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+set(UA_RELEASE_OPT_LEVEL "2" CACHE STRING "Optimization level for release builds")
+set_property(CACHE UA_RELEASE_OPT_LEVEL PROPERTY STRINGS 1 2 3)
+option(UA_ENABLE_LTO "Enable link-time optimization" OFF)
 option(UA_ENABLE_SANITIZE "Enable address and undefined behaviour sanitizers" OFF)
+
+set(UA_OPT_FLAG -O${UA_RELEASE_OPT_LEVEL})
 
 set(UA_COMMON_COMPILE_FLAGS
     -m64
     -fPIC
-    -O2
+    ${UA_OPT_FLAG}
     -g3
     -Wall
     -Wextra
@@ -26,6 +31,14 @@ set(UA_COMMON_COMPILE_FLAGS
     -Wno-unused
     -Wno-parentheses
 )
+
+set(UA_COMMON_LINK_FLAGS)
+
+if(UA_ENABLE_LTO)
+    list(APPEND UA_COMMON_COMPILE_FLAGS -flto)
+    list(APPEND UA_COMMON_LINK_FLAGS -flto)
+endif()
+
 set(UA_SANITIZE_FLAGS)
 
 if(UA_ENABLE_SANITIZE)
@@ -47,6 +60,9 @@ target_include_directories(map_cache_serialization
 target_compile_options(map_cache_serialization
     PRIVATE ${UA_COMMON_COMPILE_FLAGS}
 )
+target_link_options(map_cache_serialization
+    PRIVATE ${UA_COMMON_LINK_FLAGS}
+)
 
 if(UA_ENABLE_SANITIZE)
     target_compile_options(map_cache_serialization PRIVATE ${UA_SANITIZE_FLAGS})
@@ -61,6 +77,9 @@ target_link_libraries(map_cache_serialization_test PRIVATE map_cache_serializati
 
 target_compile_options(map_cache_serialization_test
     PRIVATE ${UA_COMMON_COMPILE_FLAGS}
+)
+target_link_options(map_cache_serialization_test
+    PRIVATE ${UA_COMMON_LINK_FLAGS}
 )
 
 if(UA_ENABLE_SANITIZE)
@@ -86,6 +105,9 @@ target_compile_definitions(grfio_large_file_test
 
 target_compile_options(grfio_large_file_test
     PRIVATE ${UA_COMMON_COMPILE_FLAGS}
+)
+target_link_options(grfio_large_file_test
+    PRIVATE ${UA_COMMON_LINK_FLAGS}
 )
 
 target_link_libraries(grfio_large_file_test PRIVATE z)

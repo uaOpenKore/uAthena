@@ -7,7 +7,10 @@ UA_ENABLE_NATIVE ?= 0
 # Architecture and optimization
 UA_ARCH_FLAGS    := -m64
 UA_PIC_FLAGS     := -fPIC
-UA_OPT_FLAGS     := -O2
+
+# Allow the optimization level to be tuned per build while defaulting to -O2.
+UA_OPT_LEVEL     ?= 2
+UA_OPT_FLAGS     := -O$(UA_OPT_LEVEL)
 UA_DEBUG_FLAGS   := -g3
 
 # Warning policy
@@ -38,6 +41,14 @@ UA_INCLUDE_FLAGS := -I../common $(UA_PCRE_CFLAGS)
 UA_LINK_FLAGS    := -m64 -rdynamic
 UA_LIBDIR_FLAGS  :=
 UA_LIB_FLAGS     := $(UA_PCRE_LIBS) -ldl -lz -lm
+
+# Enable link-time optimization when explicitly requested.
+UA_ENABLE_LTO    ?= 0
+
+ifeq ($(UA_ENABLE_LTO),1)
+UA_OPT_FLAGS  += -flto
+UA_LINK_FLAGS += -flto
+endif
 
 # Allow opting-in to native tuning locally while keeping release builds portable
 ifeq ($(UA_ENABLE_NATIVE),1)

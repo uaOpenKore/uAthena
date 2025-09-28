@@ -48,6 +48,14 @@ that only native 64-bit RPMs are selected.
 * Build with `make common` or the sanitizer profile to ensure the toolchain
   links cleanly against the 64-bit libraries listed above.
 
+## Release Optimization Profile
+
+The default make and CMake recipes now centralize their optimization knobs via
+`UA_OPT_LEVEL`/`UA_RELEASE_OPT_LEVEL` and `UA_ENABLE_LTO`.  Profiling on the map
+cache and GRF regression tests showed that sticking with `-O2` keeps runtimes
+predictable, while `-flto` can be enabled selectively for CPU-bound binaries
+that benefit from the extra inlining headroom.【F:docs/x64/release_profile.md†L1-L36】
+
 ## Eliminating Legacy 32-bit Dependencies
 
 Recent makefile changes remove every `-m32` and `/usr/lib32` reference from the
