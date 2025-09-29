@@ -21,7 +21,7 @@ UA_MISC_BASE_FLAGS := -pipe -fomit-frame-pointer -ffast-math -fcommon -fstack-pr
 UA_MISC_BASE_FLAGS += -Wno-sign-compare -Wno-unused-parameter -Wno-pointer-sign \
                       -Wno-switch -Wno-unused -Wno-parentheses
 UA_MISC_FLAGS      := $(UA_MISC_BASE_FLAGS)
-UA_DEFINE_FLAGS  := -DCHRIF_OLDINFO -DBCHECK -DPCRE_SUPPORT -DHAVE_SETRLIMIT
+UA_DEFINE_FLAGS  := -DCHRIF_OLDINFO -DBCHECK -DHAVE_SETRLIMIT
 
 # Dependency discovery
 UA_PCRE_CFLAGS := $(shell pkg-config --cflags libpcre 2>/dev/null \
@@ -31,7 +31,7 @@ UA_PCRE_LIBS   := $(shell pkg-config --libs libpcre 2>/dev/null \
 
 # Ensure we still link PCRE even if pkg-config metadata is missing
 ifeq ($(strip $(UA_PCRE_LIBS)),)
-UA_PCRE_LIBS := -lpcre
+UA_PCRE_LIBS :=
 endif
 
 # Include directories

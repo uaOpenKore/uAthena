@@ -85,12 +85,15 @@ struct view_data* npc_get_viewdata(int class_)
  *------------------------------------------*/
 int npc_enable_sub(struct block_list *bl, va_list ap)
 {
-	struct map_session_data *sd;
-	struct npc_data *nd;
+        struct map_session_data *sd;
+        struct npc_data *nd;
+        va_list ap_copy;
 
-	nullpo_retr(0, bl);
-	nullpo_retr(0, ap);
-	nullpo_retr(0, nd=va_arg(ap,struct npc_data *));
+        nullpo_retr(0, bl);
+        va_copy(ap_copy, ap);
+        nd = va_arg(ap_copy,struct npc_data *);
+        va_end(ap_copy);
+        nullpo_retr(0, nd);
 	if(bl->type == BL_PC && (sd=(struct map_session_data *)bl))
 	{
 		char name[50]; // need 24 + 9 for the "::OnTouch"
@@ -281,8 +284,13 @@ int npc_timer(int tid,unsigned int tick,int id,int data)	// Added by RoVeRT
  *------------------------------------------*/
 int npc_event_export(char* lname, void* data, va_list ap)
 {
-	int pos = (int)data;
-	struct npc_data* nd = va_arg(ap, struct npc_data *);
+        int pos = (int)data;
+        struct npc_data* nd;
+        va_list ap_copy;
+
+        va_copy(ap_copy, ap);
+        nd = va_arg(ap_copy, struct npc_data *);
+        va_end(ap_copy);
 
 	if ((lname[0]=='O' || lname[0]=='o')&&(lname[1]=='N' || lname[1]=='n')) {
 		struct event_data *ev;
@@ -314,16 +322,19 @@ int npc_event_sub(struct map_session_data* sd, struct event_data* ev, const char
  *------------------------------------------*/
 int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 {
-	const char* p = key.str;
-	struct event_data* ev;
-	int* c;
-	int rid;
-	char* name;
+        const char* p = key.str;
+        struct event_data* ev;
+        int* c;
+        int rid;
+        char* name;
+        va_list ap_copy;
 
-	ev = (struct event_data *)data;
-	c = va_arg(ap, int *);
-	name = va_arg(ap,char *);
-	rid = va_arg(ap, int);
+        ev = (struct event_data *)data;
+        va_copy(ap_copy, ap);
+        c = va_arg(ap_copy, int *);
+        name = va_arg(ap_copy,char *);
+        rid = va_arg(ap_copy, int);
+        va_end(ap_copy);
 
 	if( (p=strchr(p, ':')) && p && strcmpi(name, p)==0 ) {
 		if(rid)
@@ -356,16 +367,19 @@ int npc_event_doall_id(const char* name, int rid)
 
 int npc_event_do_sub(DBKey key, void* data, va_list ap)
 {
-	const char* p = key.str;
-	struct event_data* ev;
-	int* c;
-	const char* name;
+        const char* p = key.str;
+        struct event_data* ev;
+        int* c;
+        const char* name;
+        va_list ap_copy;
 
-	nullpo_retr(0, ev = (struct event_data *)data);
-	nullpo_retr(0, ap);
-	nullpo_retr(0, c = va_arg(ap, int *));
+        nullpo_retr(0, ev = (struct event_data *)data);
+        va_copy(ap_copy, ap);
+        c = va_arg(ap_copy, int *);
 
-	name = va_arg(ap, const char *);
+        name = va_arg(ap_copy, const char *);
+        va_end(ap_copy);
+        nullpo_retr(0, c);
 
 	if (p && strcmpi(name, p)==0) {
 		run_script(ev->nd->u.scr.script,ev->pos,0,ev->nd->bl.id);
@@ -503,12 +517,19 @@ int npc_do_ontimer_sub(DBKey key, void* data, va_list ap)
 {
 	const char *p = key.str;
 	struct event_data *ev = (struct event_data *)data;
-	int *c = va_arg(ap,int *);
-//	struct map_session_data *sd=va_arg(ap,struct map_session_data *);
-	int option = va_arg(ap,int);
+	int *c;
+//	struct map_session_data *sd;
+	int option;
 	int tick = 0;
 	char temp[10];
 	char event[50];
+	va_list ap_copy;
+
+	va_copy(ap_copy, ap);
+	c = va_arg(ap_copy,int *);
+//	sd = va_arg(ap_copy,struct map_session_data *);
+	option = va_arg(ap_copy,int);
+	va_end(ap_copy);
 
 	if(ev->nd->bl.id == (int)*c && (p = strchr(p,':')) && strnicmp("::OnTimer",p,8) == 0){
 		sscanf(&p[9], "%s", temp);
@@ -536,8 +557,13 @@ int npc_do_ontimer(int npc_id, int option)
  *------------------------------------------*/
 int npc_timerevent_import(char* lname, void* data, va_list ap)
 {
-	int pos=(int)data;
-	struct npc_data *nd=va_arg(ap,struct npc_data *);
+        int pos=(int)data;
+        struct npc_data *nd;
+        va_list ap_copy;
+
+        va_copy(ap_copy, ap);
+        nd=va_arg(ap_copy,struct npc_data *);
+        va_end(ap_copy);
 	int t=0,i=0;
 
 	if(sscanf(lname,"OnTimer%d%n",&t,&i)==1 && lname[i]==':') {
@@ -892,10 +918,16 @@ int npc_event(struct map_session_data* sd, const char* eventname, int mob_kill)
 
 int npc_command_sub(DBKey key,void *data,va_list ap)
 {
-	const char* p = (const char*)key.str;
-	struct event_data *ev=(struct event_data *)data;
-	const char* npcname = va_arg(ap, const char*);
-	const char* command = va_arg(ap, const char*);
+        const char* p = (const char*)key.str;
+        struct event_data *ev=(struct event_data *)data;
+        const char* npcname;
+        const char* command;
+        va_list ap_copy;
+
+        va_copy(ap_copy, ap);
+        npcname = va_arg(ap_copy, const char*);
+        command = va_arg(ap_copy, const char*);
+        va_end(ap_copy);
 	char temp[100];
 
 	if(strcmp(ev->nd->name,npcname)==0 && (p=strchr(p,':')) && strnicmp("::OnCommand",p,10)==0 ){
@@ -1467,8 +1499,13 @@ int npc_remove_map(struct npc_data* nd)
 
 static int npc_unload_ev(DBKey key, void* data, va_list ap)
 {
-	struct event_data* ev = (struct event_data *)data;
-	char* npcname = va_arg(ap, char *);
+        struct event_data* ev = (struct event_data *)data;
+        char* npcname;
+        va_list ap_copy;
+
+        va_copy(ap_copy, ap);
+        npcname = va_arg(ap_copy, char *);
+        va_end(ap_copy);
 
 	if(strcmp(ev->nd->exname,npcname)==0){
 		db_remove(ev_db, key);
@@ -1479,13 +1516,16 @@ static int npc_unload_ev(DBKey key, void* data, va_list ap)
 
 static int npc_unload_dup_sub(DBKey key, void* data, va_list ap)
 {
-	struct npc_data *nd = (struct npc_data *)data;
-	int src_id;
+        struct npc_data *nd = (struct npc_data *)data;
+        int src_id;
+        va_list ap_copy;
 
-	if(nd->bl.type!=BL_NPC || nd->bl.subtype != SCRIPT)
-		return 0;
+        if(nd->bl.type!=BL_NPC || nd->bl.subtype != SCRIPT)
+                return 0;
 
-	src_id=va_arg(ap,int);
+        va_copy(ap_copy, ap);
+        src_id=va_arg(ap_copy,int);
+        va_end(ap_copy);
 	if (nd->u.scr.src_id == src_id)
 		npc_unload(nd);
 	return 0;
@@ -1779,16 +1819,19 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
  *------------------------------------------*/
 int npc_convertlabel_db(DBKey key, void* data, va_list ap)
 {
-	const char *lname = (const char*)key.str;
-	int pos = (int)data;
-	struct npc_data *nd;
-	struct npc_label_list *lst;
-	int num;
-	const char *p;
-	int len;
+        const char *lname = (const char*)key.str;
+        int pos = (int)data;
+        struct npc_data *nd;
+        va_list ap_copy;
+        struct npc_label_list *lst;
+        int num;
+        const char *p;
+        int len;
 
-	nullpo_retr(0, ap);
-	nullpo_retr(0, nd = va_arg(ap,struct npc_data *));
+        va_copy(ap_copy, ap);
+        nd = va_arg(ap_copy, struct npc_data *);
+        va_end(ap_copy);
+        nullpo_retr(0, nd);
 
 	lst = nd->u.scr.label_list;
 	num = nd->u.scr.label_list_num;
@@ -2171,8 +2214,13 @@ void npc_setcells(struct npc_data* nd)
 
 int npc_unsetcells_sub(struct block_list* bl, va_list ap)
 {
-	struct npc_data *nd = (struct npc_data*)bl;
-	int id =  va_arg(ap,int);
+        struct npc_data *nd = (struct npc_data*)bl;
+        int id;
+        va_list ap_copy;
+
+        va_copy(ap_copy, ap);
+        id =  va_arg(ap_copy,int);
+        va_end(ap_copy);
 	if (nd->bl.id == id) return 0;
 	npc_setcells(nd);
 	return 1;
@@ -2829,15 +2877,23 @@ int npc_script_event(struct map_session_data* sd, int type)
 
 static int npc_read_event_script_sub(DBKey key, void* data, va_list ap)
 {
-	const char* p = key.str;
-	char* name = va_arg(ap, char *);
-	struct event_data** event_buf = va_arg(ap, struct event_data**);
-	const char** event_name = va_arg(ap,const char **);
-	unsigned char *count = va_arg(ap, unsigned char *);
+        const char* p = key.str;
+        char* name;
+        struct event_data** event_buf;
+        const char** event_name;
+        unsigned char *count;
+        va_list ap_copy;
 
-	if (*count >= UCHAR_MAX) return 0;
+        va_copy(ap_copy, ap);
+        name = va_arg(ap_copy, char *);
+        event_buf = va_arg(ap_copy, struct event_data**);
+        event_name = va_arg(ap_copy, const char **);
+        count = va_arg(ap_copy, unsigned char *);
+        va_end(ap_copy);
 
-	if((p=strchr(p,':')) && p && strcmpi(name,p)==0 )
+        if (*count >= UCHAR_MAX) return 0;
+
+        if((p=strchr(p,':')) && p && strcmpi(name,p)==0 )
 	{
 		event_buf[*count] = (struct event_data *)data;
 		event_name[*count] = key.str;

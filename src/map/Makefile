@@ -20,11 +20,12 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/db.h 
 	../common/mapindex.h
 
 OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
-	obj/npc_chat.o obj/chat.o obj/path.o obj/itemdb.o obj/mob.o obj/script.o \
-	obj/storage.o obj/skill.o obj/atcommand.o obj/charcommand.o obj/battle.o \
-	obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/guild.o obj/pet.o \
-	obj/log.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o \
-	$(COMMON_OBJ)
+        obj/npc_chat.o obj/chat.o obj/path.o obj/itemdb.o obj/mob.o obj/script.o \
+        obj/storage.o obj/skill.o obj/atcommand.o obj/charcommand.o obj/battle.o \
+        obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/guild.o obj/pet.o \
+        obj/log.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o \
+        obj/map_cache_serialization.o \
+        $(COMMON_OBJ)
 
 map-server: $(OBJECTS:obj/%=txtobj/%)
 	$(CC) $(LDFLAGS) -o ../../$@ $> $(LIBS) $(LDLIBS)
