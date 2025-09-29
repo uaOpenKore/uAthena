@@ -1576,8 +1576,20 @@ static int db_obj_vforeach(DB self, DBApply func, va_list args)
 		node = db->ht[i];
 		while (node) {
 			parent = node->parent;
-			if (!(node->deleted))
-				sum += func(node->key, node->data, args);
+                        if (!(node->deleted)) {
+#if defined(va_copy) || defined(__va_copy)
+                                va_list args_copy;
+#       ifdef va_copy
+                                va_copy(args_copy, args);
+#       else
+                                __va_copy(args_copy, args);
+#       endif
+                                sum += func(node->key, node->data, args_copy);
+                                va_end(args_copy);
+#else
+                                sum += func(node->key, node->data, args);
+#endif
+                        }
 			if (node->left) {
 				node = node->left;
 				continue;
