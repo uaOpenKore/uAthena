@@ -1,1 +1,1 @@
-1. my test
+insert into item_db VALUES ( 678, "Poison_Bottle", "Poison Bottle", 0, 5000, NULL, 100, NULL, NULL, NULL, NULL, 0xFFFFFFFF, 7, 2, NULL, NULL, NULL, NULL, NULL, ' if(Class == Job_Assassin_Cross) {sc_start SC_DPoison,60000,0; sc_start SC_ASPDPOTION2,60000,0; ', ' else percentheal -100,-100; ', NULL );,{}
