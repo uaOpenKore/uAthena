@@ -1,0 +1,3 @@
+678,Poison_Bottle,Poison Bottle,0,5000,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ if(Class == Job_Assassin_Cross) { sc_start SC_DPoison,60000,0
+--------------
+ERROR 1064 (42000) at line 164: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '678,Poison_Bottle,Poison Bottle,0,5000,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ if(Clas...' at line 1
