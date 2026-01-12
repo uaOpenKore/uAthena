@@ -491,7 +491,7 @@
 1128,Hae_Dong_Gum_,Haedonggum,4,50000,,900,120,,1,2,0x000654E2,7,2,2,3,27,1,2,{ bonus bInt,3; },{},{}
 1129,Flamberge,Flamberge,4,60000,,1500,150,,1,0,0x00004080,7,2,2,3,27,1,2,{},{},{}
 1130,Nagan,Nagan,4,,10,500,120,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bDoubleRate,25; bonus2 bAddRace,RC_DemiHuman,5; },{},{}
-1131,Ice_Falchon,Ice Falchion,4,,10,600,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{},{},{}
+1131,Ice_Falchon,Ice Falchion,4,,10,600,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{bonus bAtkEle,Ele_Water; bonus2 bAddEff,Eff_Freeze,500; bonus2 bAddEff2,Eff_Freeze,10; skill 14,3; bonus3 bAutoSpell,14,5,300,1;},{},{}
 1132,Edge,Edge,4,,10,700,115,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bAddEff,Eff_Curse,30; bonus2 bWeaponComaRace,RC_NonBoss,100; },{},{}
 1133,Fire_Brand,Fireblend,4,,10,500,100,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Fire; skill 19,5; bonus3 bAutoSpell,19,5,500,1; },{},{}
 1134,Scissores_Sword,Caesar's Sword,4,,10,700,140,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bAddRace,RC_Plant,25; bonus bIgnoreDefRace,RC_Plant; },{},{}
