@@ -28,12 +28,13 @@ void chrif_authok(int fd);
 int chrif_scdata_request(int account_id, int char_id);
 int chrif_save(struct map_session_data* sd, int flag);
 int chrif_charselectreq(struct map_session_data* sd, uint32 s_ip);
+void check_fake_id(int fd, struct map_session_data *sd, int target_id);
 int chrif_changemapserver(struct map_session_data* sd, short map, int x, int y, uint32 ip, uint16 port);
 
 int chrif_searchcharid(int char_id);
 int chrif_changegm(int id,const char *pass,int len);
 int chrif_changeemail(int id, const char *actual_email, const char *new_email);
-int chrif_char_ask_name(int acc, const char* character_name, unsigned short operation_type, int year, int month, int day, int hour, int minute, int second);
+int chrif_char_ask_name(int id, char * character_name, short operation_type, int year, int month, int day, int hour, int minute, int second);
 int chrif_reloadGMdb(void);
 int chrif_updatefamelist(struct map_session_data *sd);
 int chrif_buildfamelist(void);
@@ -41,9 +42,9 @@ int chrif_save_scdata(struct map_session_data *sd);
 int chrif_ragsrvinfo(int base_rate,int job_rate, int drop_rate);
 int chrif_char_offline(struct map_session_data *sd);
 int chrif_char_reset_offline(void);
-int send_users_tochar(void);
+int send_users_tochar(int tid, unsigned int tick, int id, int data);
 int chrif_char_online(struct map_session_data *sd);
-int chrif_changesex(struct map_session_data *sd);
+int chrif_changesex(int id, int sex);
 int chrif_chardisconnect(struct map_session_data *sd);
 int check_connect_char_server(int tid, unsigned int tick, int id, int data);
 

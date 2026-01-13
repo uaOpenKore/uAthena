@@ -273,7 +273,7 @@ int ladmin_log(char *fmt, ...)
 	logfp = fopen(ladmin_log_filename, "a");
 	if (logfp) {
 		if (fmt[0] == '\0') // jump a line if no message
-			fprintf(logfp, "\n");
+			fprintf(logfp, RETCODE);
 		else {
 			gettimeofday(&tv, NULL);
 			strftime(tmpstr, 24, date_format, localtime((const time_t*)&(tv.tv_sec)));
@@ -325,10 +325,10 @@ int verify_accountname(char* account_name)
 		if (account_name[i] < 32) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Caractre interdit trouv dans le nom du compte (%d%s caractre).\n", i+1, makeordinal(i+1));
-				ladmin_log("Caractre interdit trouv dans le nom du compte (%d%s caractre).\n", i+1, makeordinal(i+1));
+				ladmin_log("Caractre interdit trouv dans le nom du compte (%d%s caractre)." RETCODE, i+1, makeordinal(i+1));
 			} else {
 				ShowMessage("Illegal character found in the account name (%d%s character).\n", i+1, makeordinal(i+1));
-				ladmin_log("Illegal character found in the account name (%d%s character).\n", i+1, makeordinal(i+1));
+				ladmin_log("Illegal character found in the account name (%d%s character)." RETCODE, i+1, makeordinal(i+1));
 			}
 			return 0;
 		}
@@ -337,10 +337,10 @@ int verify_accountname(char* account_name)
 	if (strlen(account_name) < 4) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Nom du compte trop court. Entrez un nom de compte de 4-23 caractres.\n");
-			ladmin_log("Nom du compte trop court. Entrez un nom de compte de 4-23 caractres.\n");
+			ladmin_log("Nom du compte trop court. Entrez un nom de compte de 4-23 caractres." RETCODE);
 		} else {
 			ShowMessage("Account name is too short. Please input an account name of 4-23 bytes.\n");
-			ladmin_log("Account name is too short. Please input an account name of 4-23 bytes.\n");
+			ladmin_log("Account name is too short. Please input an account name of 4-23 bytes." RETCODE);
 		}
 		return 0;
 	}
@@ -348,10 +348,10 @@ int verify_accountname(char* account_name)
 	if (strlen(account_name) > 23) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Nom du compte trop long. Entrez un nom de compte de 4-23 caractres.\n");
-			ladmin_log("Nom du compte trop long. Entrez un nom de compte de 4-23 caractres.\n");
+			ladmin_log("Nom du compte trop long. Entrez un nom de compte de 4-23 caractres." RETCODE);
 		} else {
 			ShowMessage("Account name is too long. Please input an account name of 4-23 bytes.\n");
-			ladmin_log("Account name is too long. Please input an account name of 4-23 bytes.\n");
+			ladmin_log("Account name is too long. Please input an account name of 4-23 bytes." RETCODE);
 		}
 		return 0;
 	}
@@ -369,9 +369,9 @@ int typepasswd(char * password)
 	int i;
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Aucun mot de passe n'a t donn. Demande d'un mot de passe.\n");
+		ladmin_log("Aucun mot de passe n'a t donn. Demande d'un mot de passe." RETCODE);
 	} else {
-		ladmin_log("No password was given. Request to obtain a password.\n");
+		ladmin_log("No password was given. Request to obtain a password." RETCODE);
 	}
 
 	memset(password1, '\0', sizeof(password1));
@@ -398,19 +398,19 @@ int typepasswd(char * password)
 	if (strcmp(password1, password2) != 0) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Erreur de vrification du mot de passe: Saisissez le mme mot de passe svp.\n");
-			ladmin_log("Erreur de vrification du mot de passe: Saisissez le mme mot de passe svp.\n");
-			ladmin_log("  Premier mot de passe: %s, second mot de passe: %s.\n", password1, password2);
+			ladmin_log("Erreur de vrification du mot de passe: Saisissez le mme mot de passe svp." RETCODE);
+			ladmin_log("  Premier mot de passe: %s, second mot de passe: %s." RETCODE, password1, password2);
 		} else {
 			ShowMessage("Password verification failed. Please input same password.\n");
-			ladmin_log("Password verification failed. Please input same password.\n");
-			ladmin_log("  First password: %s, second password: %s.\n", password1, password2);
+			ladmin_log("Password verification failed. Please input same password." RETCODE);
+			ladmin_log("  First password: %s, second password: %s." RETCODE, password1, password2);
 		}
 		return 0;
 	}
 	if (defaultlanguage == 'F') {
-		ladmin_log("Mot de passe saisi: %s.\n", password1);
+		ladmin_log("Mot de passe saisi: %s." RETCODE, password1);
 	} else {
-		ladmin_log("Typed password: %s.\n", password1);
+		ladmin_log("Typed password: %s." RETCODE, password1);
 	}
 	strcpy(password, password1);
 	return 1;
@@ -427,10 +427,10 @@ int verify_password(char * password)
 		if (password[i] < 32) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Caractre interdit trouv dans le mot de passe (%d%s caractre).\n", i+1, makeordinal(i+1));
-				ladmin_log("Caractre interdit trouv dans le nom du compte (%d%s caractre).\n", i+1, makeordinal(i+1));
+				ladmin_log("Caractre interdit trouv dans le nom du compte (%d%s caractre)." RETCODE, i+1, makeordinal(i+1));
 			} else {
 				ShowMessage("Illegal character found in the password (%d%s character).\n", i+1, makeordinal(i+1));
-				ladmin_log("Illegal character found in the password (%d%s character).\n", i+1, makeordinal(i+1));
+				ladmin_log("Illegal character found in the password (%d%s character)." RETCODE, i+1, makeordinal(i+1));
 			}
 			return 0;
 		}
@@ -439,10 +439,10 @@ int verify_password(char * password)
 	if (strlen(password) < 4) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Nom du compte trop court. Entrez un nom de compte de 4-23 caractres.\n");
-			ladmin_log("Nom du compte trop court. Entrez un nom de compte de 4-23 caractres.\n");
+			ladmin_log("Nom du compte trop court. Entrez un nom de compte de 4-23 caractres." RETCODE);
 		} else {
 			ShowMessage("Account name is too short. Please input an account name of 4-23 bytes.\n");
-			ladmin_log("Account name is too short. Please input an account name of 4-23 bytes.\n");
+			ladmin_log("Account name is too short. Please input an account name of 4-23 bytes." RETCODE);
 		}
 		return 0;
 	}
@@ -450,10 +450,10 @@ int verify_password(char * password)
 	if (strlen(password) > 23) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Mot de passe trop long. Entrez un mot de passe de 4-23 caractres.\n");
-			ladmin_log("Mot de passe trop long. Entrez un mot de passe de 4-23 caractres.\n");
+			ladmin_log("Mot de passe trop long. Entrez un mot de passe de 4-23 caractres." RETCODE);
 		} else {
 			ShowMessage("Password is too long. Please input a password of 4-23 bytes.\n");
-			ladmin_log("Password is too long. Please input a password of 4-23 bytes.\n");
+			ladmin_log("Password is too long. Please input a password of 4-23 bytes." RETCODE);
 		}
 		return 0;
 	}
@@ -592,9 +592,9 @@ void display_help(char* param, int language)
 	check_command(command); // give complete name to the command
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Affichage des commandes ou d'une commande.\n");
+		ladmin_log("Affichage des commandes ou d'une commande." RETCODE);
 	} else {
-		ladmin_log("Displaying of the commands or a command.\n");
+		ladmin_log("Displaying of the commands or a command." RETCODE);
 	}
 
 	if (language == 1) {
@@ -1112,11 +1112,11 @@ int addaccount(char* param, int emailflag)
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez un nom de compte, un sexe et un mot de passe svp.\n");
 				ShowMessage("<exemple> add nomtest Male motdepassetest\n");
-				ladmin_log("Nombre incorrect de paramtres pour crer un compte (commande 'add').\n");
+				ladmin_log("Nombre incorrect de paramtres pour crer un compte (commande 'add')." RETCODE);
 			} else {
 				ShowMessage("Please input an account name, a sex and a password.\n");
 				ShowMessage("<example> add testname Male testpass\n");
-				ladmin_log("Incomplete parameters to create an account ('add' command).\n");
+				ladmin_log("Incomplete parameters to create an account ('add' command)." RETCODE);
 			}
 			return 136;
 		}
@@ -1128,11 +1128,11 @@ int addaccount(char* param, int emailflag)
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez un nom de compte, un sexe et un mot de passe svp.\n");
 				ShowMessage("<exemple> create nomtest Male mo@mail.com motdepassetest\n");
-				ladmin_log("Nombre incorrect de paramtres pour crer un compte (commande 'create').\n");
+				ladmin_log("Nombre incorrect de paramtres pour crer un compte (commande 'create')." RETCODE);
 			} else {
 				ShowMessage("Please input an account name, a sex and a password.\n");
 				ShowMessage("<example> create testname Male my@mail.com testpass\n");
-				ladmin_log("Incomplete parameters to create an account ('create' command).\n");
+				ladmin_log("Incomplete parameters to create an account ('create' command)." RETCODE);
 			}
 			return 136;
 		}
@@ -1145,10 +1145,10 @@ int addaccount(char* param, int emailflag)
 	if (strchr("MF", sex[0]) == NULL) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Sexe incorrect [%s]. Entrez M ou F svp.\n", sex);
-			ladmin_log("Sexe incorrect [%s]. Entrez M ou F svp.\n", sex);
+			ladmin_log("Sexe incorrect [%s]. Entrez M ou F svp." RETCODE, sex);
 		} else {
 			ShowMessage("Illegal gender [%s]. Please input M or F.\n", sex);
-			ladmin_log("Illegal gender [%s]. Please input M or F.\n", sex);
+			ladmin_log("Illegal gender [%s]. Please input M or F." RETCODE, sex);
 		}
 		return 103;
 	}
@@ -1156,30 +1156,30 @@ int addaccount(char* param, int emailflag)
 	if (strlen(email) < 3) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Email trop courte [%s]. Entrez une e-mail valide svp.\n", email);
-			ladmin_log("Email trop courte [%s]. Entrez une e-mail valide svp.\n", email);
+			ladmin_log("Email trop courte [%s]. Entrez une e-mail valide svp." RETCODE, email);
 		} else {
 			ShowMessage("Email is too short [%s]. Please input a valid e-mail.\n", email);
-			ladmin_log("Email is too short [%s]. Please input a valid e-mail.\n", email);
+			ladmin_log("Email is too short [%s]. Please input a valid e-mail." RETCODE, email);
 		}
 		return 109;
 	}
 	if (strlen(email) > 39) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Email trop longue [%s]. Entrez une e-mail de 39 caractres maximum svp.\n", email);
-			ladmin_log("Email trop longue [%s]. Entrez une e-mail de 39 caractres maximum svp.\n", email);
+			ladmin_log("Email trop longue [%s]. Entrez une e-mail de 39 caractres maximum svp." RETCODE, email);
 		} else {
 			ShowMessage("Email is too long [%s]. Please input an e-mail with 39 bytes at the most.\n", email);
-			ladmin_log("Email is too long [%s]. Please input an e-mail with 39 bytes at the most.\n", email);
+			ladmin_log("Email is too long [%s]. Please input an e-mail with 39 bytes at the most." RETCODE, email);
 		}
 		return 109;
 	}
 	if (e_mail_check(email) == 0) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Email incorrecte [%s]. Entrez une e-mail valide svp.\n", email);
-			ladmin_log("Email incorrecte [%s]. Entrez une e-mail valide svp.\n", email);
+			ladmin_log("Email incorrecte [%s]. Entrez une e-mail valide svp." RETCODE, email);
 		} else {
 			ShowMessage("Invalid email [%s]. Please input a valid e-mail.\n", email);
-			ladmin_log("Invalid email [%s]. Please input a valid e-mail.\n", email);
+			ladmin_log("Invalid email [%s]. Please input a valid e-mail." RETCODE, email);
 		}
 		return 109;
 	}
@@ -1192,9 +1192,9 @@ int addaccount(char* param, int emailflag)
 		return 104;
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour crer un compte.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour crer un compte." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to create an account.\n");
+		ladmin_log("Request to login-server to create an account." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7930;
@@ -1231,13 +1231,13 @@ int banaddaccount(char* param)
 			ShowMessage("  <exemple> banadd nomtest +1m-2mn1s-6y\n");
 			ShowMessage("            Cette exemple ajoute 1 mois et 1 seconde, et soustrait 2 minutes\n");
 			ShowMessage("            et 6 ans dans le mme temps.\n");
-			ladmin_log("Nombre incorrect de paramtres pour modifier la fin de ban d'un compte (commande 'banadd').\n");
+			ladmin_log("Nombre incorrect de paramtres pour modifier la fin de ban d'un compte (commande 'banadd')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name and a modifier.\n");
 			ShowMessage("  <example>: banadd testname +1m-2mn1s-6y\n");
 			ShowMessage("             this example adds 1 month and 1 second, and substracts 2 minutes\n");
 			ShowMessage("             and 6 years at the same time.\n");
-			ladmin_log("Incomplete parameters to modify the ban date/time of an account ('banadd' command).\n");
+			ladmin_log("Incomplete parameters to modify the ban date/time of an account ('banadd' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1313,7 +1313,7 @@ int banaddaccount(char* param)
 			ShowMessage("  <exemple> banadd nomtest +1m-2mn1s-6y\n");
 			ShowMessage("            Cette exemple ajoute 1 mois et 1 seconde, et soustrait 2 minutes\n");
 			ShowMessage("            et 6 ans dans le mme temps.\n");
-			ladmin_log("Aucun ajustement n'est pas un ajustement (commande 'banadd').\n");
+			ladmin_log("Aucun ajustement n'est pas un ajustement (commande 'banadd')." RETCODE);
 		} else {
 			ShowMessage("Please give an adjustment with this command:\n");
 			ShowMessage("  Adjustment value (-1, 1, +1, etc...)\n");
@@ -1327,75 +1327,75 @@ int banaddaccount(char* param)
 			ShowMessage("  <example> banadd testname +1m-2mn1s-6y\n");
 			ShowMessage("            this example adds 1 month and 1 second, and substracts 2 minutes\n");
 			ShowMessage("            and 6 years at the same time.\n");
-			ladmin_log("No adjustment isn't an adjustment ('banadd' command).\n");
+			ladmin_log("No adjustment isn't an adjustment ('banadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (year > 127 || year < -127) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement d'annes correct (de -127  127), svp.\n");
-			ladmin_log("Ajustement de l'anne hors norme (commande 'banadd').\n");
+			ladmin_log("Ajustement de l'anne hors norme (commande 'banadd')." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the years (from -127 to 127).\n");
-			ladmin_log("Abnormal adjustment for the year ('banadd' command).\n");
+			ladmin_log("Abnormal adjustment for the year ('banadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (month > 255 || month < -255) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement de mois correct (de -255  255), svp.\n");
-			ladmin_log("Ajustement du mois hors norme (commande 'banadd').\n");
+			ladmin_log("Ajustement du mois hors norme (commande 'banadd')." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the months (from -255 to 255).\n");
-			ladmin_log("Abnormal adjustment for the month ('banadd' command).\n");
+			ladmin_log("Abnormal adjustment for the month ('banadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (day > 32767 || day < -32767) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement de jours correct (de -32767  32767), svp.\n");
-			ladmin_log("Ajustement des jours hors norme (commande 'banadd').\n");
+			ladmin_log("Ajustement des jours hors norme (commande 'banadd')." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the days (from -32767 to 32767).\n");
-			ladmin_log("Abnormal adjustment for the days ('banadd' command).\n");
+			ladmin_log("Abnormal adjustment for the days ('banadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (hour > 32767 || hour < -32767) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement d'heures correct (de -32767  32767), svp.\n");
-			ladmin_log("Ajustement des heures hors norme (commande 'banadd').\n");
+			ladmin_log("Ajustement des heures hors norme (commande 'banadd')." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the hours (from -32767 to 32767).\n");
-			ladmin_log("Abnormal adjustment for the hours ('banadd' command).\n");
+			ladmin_log("Abnormal adjustment for the hours ('banadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (minute > 32767 || minute < -32767) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement de minutes correct (de -32767  32767), svp.\n");
-			ladmin_log("Ajustement des minutes hors norme (commande 'banadd').\n");
+			ladmin_log("Ajustement des minutes hors norme (commande 'banadd')." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the minutes (from -32767 to 32767).\n");
-			ladmin_log("Abnormal adjustment for the minutes ('banadd' command).\n");
+			ladmin_log("Abnormal adjustment for the minutes ('banadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (second > 32767 || second < -32767) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement de secondes correct (de -32767  32767), svp.\n");
-			ladmin_log("Ajustement des secondes hors norme (commande 'banadd').\n");
+			ladmin_log("Ajustement des secondes hors norme (commande 'banadd')." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the seconds (from -32767 to 32767).\n");
-			ladmin_log("Abnormal adjustment for the seconds ('banadd' command).\n");
+			ladmin_log("Abnormal adjustment for the seconds ('banadd' command)." RETCODE);
 		}
 		return 137;
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour modifier la date d'un bannissement.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour modifier la date d'un bannissement." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to modify a ban date/time.\n");
+		ladmin_log("Request to login-server to modify a ban date/time." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x794c;
@@ -1439,11 +1439,11 @@ int bansetaccountsub(char* name, char* date, char* time)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez une date et une heure svp (format: aaaa/mm/jj hh:mm:ss).\n");
 			ShowMessage("Vous pouvez aussi mettre 0  la place si vous utilisez la commande 'banset'.\n");
-			ladmin_log("Format incorrect pour la date/heure (commande'banset' ou 'ban').\n");
+			ladmin_log("Format incorrect pour la date/heure (commande'banset' ou 'ban')." RETCODE);
 		} else {
 			ShowMessage("Please input a date and a time (format: yyyy/mm/dd hh:mm:ss).\n");
 			ShowMessage("You can imput 0 instead of if you use 'banset' command.\n");
-			ladmin_log("Invalid format for the date/time ('banset' or 'ban' command).\n");
+			ladmin_log("Invalid format for the date/time ('banset' or 'ban' command)." RETCODE);
 		}
 		return 102;
 	}
@@ -1460,10 +1460,10 @@ int bansetaccountsub(char* name, char* date, char* time)
 		if (month < 1 || month > 12) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez un mois correct svp (entre 1 et 12).\n");
-				ladmin_log("Mois incorrect pour la date (command 'banset' ou 'ban').\n");
+				ladmin_log("Mois incorrect pour la date (command 'banset' ou 'ban')." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the month (from 1 to 12).\n");
-				ladmin_log("Invalid month for the date ('banset' or 'ban' command).\n");
+				ladmin_log("Invalid month for the date ('banset' or 'ban' command)." RETCODE);
 			}
 			return 102;
 		}
@@ -1471,10 +1471,10 @@ int bansetaccountsub(char* name, char* date, char* time)
 		if (day < 1 || day > 31) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez un jour correct svp (entre 1 et 31).\n");
-				ladmin_log("Jour incorrect pour la date (command 'banset' ou 'ban').\n");
+				ladmin_log("Jour incorrect pour la date (command 'banset' ou 'ban')." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the day (from 1 to 31).\n");
-				ladmin_log("Invalid day for the date ('banset' or 'ban' command).\n");
+				ladmin_log("Invalid day for the date ('banset' or 'ban' command)." RETCODE);
 			}
 			return 102;
 		}
@@ -1482,40 +1482,40 @@ int bansetaccountsub(char* name, char* date, char* time)
 		    (month == 1 && day > 29)) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez un jour correct en fonction du mois (%d) svp.\n", month);
-				ladmin_log("Jour incorrect pour ce mois correspondant (command 'banset' ou 'ban').\n");
+				ladmin_log("Jour incorrect pour ce mois correspondant (command 'banset' ou 'ban')." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for a day of this month (%d).\n", month);
-				ladmin_log("Invalid day for this month ('banset' or 'ban' command).\n");
+				ladmin_log("Invalid day for this month ('banset' or 'ban' command)." RETCODE);
 			}
 			return 102;
 		}
 		if (hour < 0 || hour > 23) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez une heure correcte svp (entre 0 et 23).\n");
-				ladmin_log("Heure incorrecte pour l'heure (command 'banset' ou 'ban').\n");
+				ladmin_log("Heure incorrecte pour l'heure (command 'banset' ou 'ban')." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the hour (from 0 to 23).\n");
-				ladmin_log("Invalid hour for the time ('banset' or 'ban' command).\n");
+				ladmin_log("Invalid hour for the time ('banset' or 'ban' command)." RETCODE);
 			}
 			return 102;
 		}
 		if (minute < 0 || minute > 59) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez des minutes correctes svp (entre 0 et 59).\n");
-				ladmin_log("Minute incorrecte pour l'heure (command 'banset' ou 'ban').\n");
+				ladmin_log("Minute incorrecte pour l'heure (command 'banset' ou 'ban')." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the minutes (from 0 to 59).\n");
-				ladmin_log("Invalid minute for the time ('banset' or 'ban' command).\n");
+				ladmin_log("Invalid minute for the time ('banset' or 'ban' command)." RETCODE);
 			}
 			return 102;
 		}
 		if (second < 0 || second > 59) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez des secondes correctes svp (entre 0 et 59).\n");
-				ladmin_log("Seconde incorrecte pour l'heure (command 'banset' ou 'ban').\n");
+				ladmin_log("Seconde incorrecte pour l'heure (command 'banset' ou 'ban')." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the seconds (from 0 to 59).\n");
-				ladmin_log("Invalid second for the time ('banset' or 'ban' command).\n");
+				ladmin_log("Invalid second for the time ('banset' or 'ban' command)." RETCODE);
 			}
 			return 102;
 		}
@@ -1532,21 +1532,21 @@ int bansetaccountsub(char* name, char* date, char* time)
 				ShowMessage("Date incorrecte.\n");
 				ShowMessage("Entrez une date et une heure svp (format: aaaa/mm/jj hh:mm:ss).\n");
 				ShowMessage("Vous pouvez aussi mettre 0  la place si vous utilisez la commande 'banset'.\n");
-				ladmin_log("Date incorrecte. (command 'banset' ou 'ban').\n");
+				ladmin_log("Date incorrecte. (command 'banset' ou 'ban')." RETCODE);
 			} else {
 				ShowMessage("Invalid date.\n");
 				ShowMessage("Please input a date and a time (format: yyyy/mm/dd hh:mm:ss).\n");
 				ShowMessage("You can imput 0 instead of if you use 'banset' command.\n");
-				ladmin_log("Invalid date. ('banset' or 'ban' command).\n");
+				ladmin_log("Invalid date. ('banset' or 'ban' command)." RETCODE);
 			}
 			return 102;
 		}
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour fixer un ban.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour fixer un ban." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to set a ban.\n");
+		ladmin_log("Request to login-server to set a ban." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x794a;
@@ -1579,7 +1579,7 @@ int banaccount(char* param)
 			ShowMessage("           ban/banish aaaa/mm/jj hh:mm:ss <nom du compte>\n");
 			ShowMessage("           unban/unbanish <nom du compte>\n");
 			ShowMessage("           Heure par dfaut [hh:mm:ss]: 23:59:59.\n");
-			ladmin_log("Nombre incorrect de paramtres pour fixer un ban (commande 'banset' ou 'ban').\n");
+			ladmin_log("Nombre incorrect de paramtres pour fixer un ban (commande 'banset' ou 'ban')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name, a date and a hour.\n");
 			ShowMessage("<example>: banset <account_name> yyyy/mm/dd [hh:mm:ss]\n");
@@ -1587,7 +1587,7 @@ int banaccount(char* param)
 			ShowMessage("           ban/banish yyyy/mm/dd hh:mm:ss <account name>\n");
 			ShowMessage("           unban/unbanish <account name>\n");
 			ShowMessage("           Default time [hh:mm:ss]: 23:59:59.\n");
-			ladmin_log("Incomplete parameters to set a ban ('banset' or 'ban' command).\n");
+			ladmin_log("Incomplete parameters to set a ban ('banset' or 'ban' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1616,7 +1616,7 @@ int bansetaccount(char* param)
 			ShowMessage("           ban/banish aaaa/mm/jj hh:mm:ss <nom du compte>\n");
 			ShowMessage("           unban/unbanish <nom du compte>\n");
 			ShowMessage("           Heure par dfaut [hh:mm:ss]: 23:59:59.\n");
-			ladmin_log("Nombre incorrect de paramtres pour fixer un ban (commande 'banset' ou 'ban').\n");
+			ladmin_log("Nombre incorrect de paramtres pour fixer un ban (commande 'banset' ou 'ban')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name, a date and a hour.\n");
 			ShowMessage("<example>: banset <account_name> yyyy/mm/dd [hh:mm:ss]\n");
@@ -1624,7 +1624,7 @@ int bansetaccount(char* param)
 			ShowMessage("           ban/banish yyyy/mm/dd hh:mm:ss <account name>\n");
 			ShowMessage("           unban/unbanish <account name>\n");
 			ShowMessage("           Default time [hh:mm:ss]: 23:59:59.\n");
-			ladmin_log("Incomplete parameters to set a ban ('banset' or 'ban' command).\n");
+			ladmin_log("Incomplete parameters to set a ban ('banset' or 'ban' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1656,7 +1656,7 @@ int unbanaccount(char* param)
 			ShowMessage("           ban/banish aaaa/mm/jj hh:mm:ss <nom du compte>\n");
 			ShowMessage("           unban/unbanish <nom du compte>\n");
 			ShowMessage("           Heure par dfaut [hh:mm:ss]: 23:59:59.\n");
-			ladmin_log("Nombre incorrect de paramtres pour fixer un ban (commande 'unban').\n");
+			ladmin_log("Nombre incorrect de paramtres pour fixer un ban (commande 'unban')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name.\n");
 			ShowMessage("<example>: banset <account_name> yyyy/mm/dd [hh:mm:ss]\n");
@@ -1664,7 +1664,7 @@ int unbanaccount(char* param)
 			ShowMessage("           ban/banish yyyy/mm/dd hh:mm:ss <account name>\n");
 			ShowMessage("           unban/unbanish <account name>\n");
 			ShowMessage("           Default time [hh:mm:ss]: 23:59:59.\n");
-			ladmin_log("Incomplete parameters to set a ban ('unban' command).\n");
+			ladmin_log("Incomplete parameters to set a ban ('unban' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1690,11 +1690,11 @@ int checkaccount(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte svp.\n");
 			ShowMessage("<exemple> check testname motdepasse\n");
-			ladmin_log("Nombre incorrect de paramtres pour tester le mot d'un passe d'un compte (commande 'check').\n");
+			ladmin_log("Nombre incorrect de paramtres pour tester le mot d'un passe d'un compte (commande 'check')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name.\n");
 			ShowMessage("<example> check testname password\n");
-			ladmin_log("Incomplete parameters to check the password of an account ('check' command).\n");
+			ladmin_log("Incomplete parameters to check the password of an account ('check' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1711,9 +1711,9 @@ int checkaccount(char* param)
 		return 131;
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour test un mot de passe.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour test un mot de passe." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to check a password.\n");
+		ladmin_log("Request to login-server to check a password." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x793a;
@@ -1746,11 +1746,11 @@ int delaccount(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte svp.\n");
 			ShowMessage("<exemple> del nomtestasupprimer\n");
-			ladmin_log("Aucun nom donn pour supprimer un compte (commande 'delete').\n");
+			ladmin_log("Aucun nom donn pour supprimer un compte (commande 'delete')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name.\n");
 			ShowMessage("<example> del testnametodelete\n");
-			ladmin_log("No name given to delete an account ('delete' command).\n");
+			ladmin_log("No name given to delete an account ('delete' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1775,18 +1775,18 @@ int delaccount(char* param)
 	if (confirm[0] == 'n') {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Suppression annule.\n");
-			ladmin_log("Suppression annule par l'utilisateur (commande 'delete').\n");
+			ladmin_log("Suppression annule par l'utilisateur (commande 'delete')." RETCODE);
 		} else {
 			ShowMessage("Deletion canceled.\n");
-			ladmin_log("Deletion canceled by user ('delete' command).\n");
+			ladmin_log("Deletion canceled by user ('delete' command)." RETCODE);
 		}
 		return 121;
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour dtruire un compte.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour dtruire un compte." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to delete an acount.\n");
+		ladmin_log("Request to login-server to delete an acount." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7932;
@@ -1814,11 +1814,11 @@ int changeemail(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte et une email svp.\n");
 			ShowMessage("<exemple> email testname nouveauemail\n");
-			ladmin_log("Nombre incorrect de paramtres pour changer l'email d'un compte (commande 'email').\n");
+			ladmin_log("Nombre incorrect de paramtres pour changer l'email d'un compte (commande 'email')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name and an email.\n");
 			ShowMessage("<example> email testname newemail\n");
-			ladmin_log("Incomplete parameters to change the email of an account ('email' command).\n");
+			ladmin_log("Incomplete parameters to change the email of an account ('email' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1830,38 +1830,38 @@ int changeemail(char* param)
 	if (strlen(email) < 3) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Email trop courte [%s]. Entrez une e-mail valide svp.\n", email);
-			ladmin_log("Email trop courte [%s]. Entrez une e-mail valide svp.\n", email);
+			ladmin_log("Email trop courte [%s]. Entrez une e-mail valide svp." RETCODE, email);
 		} else {
 			ShowMessage("Email is too short [%s]. Please input a valid e-mail.\n", email);
-			ladmin_log("Email is too short [%s]. Please input a valid e-mail.\n", email);
+			ladmin_log("Email is too short [%s]. Please input a valid e-mail." RETCODE, email);
 		}
 		return 109;
 	}
 	if (strlen(email) > 39) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Email trop longue [%s]. Entrez une e-mail de 39 caractres maximum svp.\n", email);
-			ladmin_log("Email trop longue [%s]. Entrez une e-mail de 39 caractres maximum svp.\n", email);
+			ladmin_log("Email trop longue [%s]. Entrez une e-mail de 39 caractres maximum svp." RETCODE, email);
 		} else {
 			ShowMessage("Email is too long [%s]. Please input an e-mail with 39 bytes at the most.\n", email);
-			ladmin_log("Email is too long [%s]. Please input an e-mail with 39 bytes at the most.\n", email);
+			ladmin_log("Email is too long [%s]. Please input an e-mail with 39 bytes at the most." RETCODE, email);
 		}
 		return 109;
 	}
 	if (e_mail_check(email) == 0) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Email incorrecte [%s]. Entrez une e-mail valide svp.\n", email);
-			ladmin_log("Email incorrecte [%s]. Entrez une e-mail valide svp.\n", email);
+			ladmin_log("Email incorrecte [%s]. Entrez une e-mail valide svp." RETCODE, email);
 		} else {
 			ShowMessage("Invalid email [%s]. Please input a valid e-mail.\n", email);
-			ladmin_log("Invalid email [%s]. Please input a valid e-mail.\n", email);
+			ladmin_log("Invalid email [%s]. Please input a valid e-mail." RETCODE, email);
 		}
 		return 109;
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour changer une email.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour changer une email." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to change an email.\n");
+		ladmin_log("Request to login-server to change an email." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7940;
@@ -1880,9 +1880,9 @@ int getlogincount(void)
 {
 	WFIFOHEAD(login_fd,2);
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir le nombre de joueurs en jeu.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir le nombre de joueurs en jeu." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to obtain the # of online players.\n");
+		ladmin_log("Request to login-server to obtain the # of online players." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7938;
@@ -1910,11 +1910,11 @@ int changegmlevel(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte et un niveau de GM svp.\n");
 			ShowMessage("<exemple> gm nomtest 80\n");
-			ladmin_log("Nombre incorrect de paramtres pour changer le Niveau de GM d'un compte (commande 'gm').\n");
+			ladmin_log("Nombre incorrect de paramtres pour changer le Niveau de GM d'un compte (commande 'gm')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name and a GM level.\n");
 			ShowMessage("<example> gm testname 80\n");
-			ladmin_log("Incomplete parameters to change the GM level of an account ('gm' command).\n");
+			ladmin_log("Incomplete parameters to change the GM level of an account ('gm' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1926,18 +1926,18 @@ int changegmlevel(char* param)
 	if (GM_level < 0 || GM_level > 99) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Niveau de GM incorrect [%d]. Entrez une valeur de 0  99 svp.\n", GM_level);
-			ladmin_log("Niveau de GM incorrect [%d]. La valeur peut tre de 0  99.\n", GM_level);
+			ladmin_log("Niveau de GM incorrect [%d]. La valeur peut tre de 0  99." RETCODE, GM_level);
 		} else {
 			ShowMessage("Illegal GM level [%d]. Please input a value from 0 to 99.\n", GM_level);
-			ladmin_log("Illegal GM level [%d]. The value can be from 0 to 99.\n", GM_level);
+			ladmin_log("Illegal GM level [%d]. The value can be from 0 to 99." RETCODE, GM_level);
 		}
 		return 103;
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour changer un niveau de GM.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour changer un niveau de GM." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to change a GM level.\n");
+		ladmin_log("Request to login-server to change a GM level." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x793e;
@@ -1967,11 +1967,11 @@ int idaccount(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte svp.\n");
 			ShowMessage("<exemple> id nomtest\n");
-			ladmin_log("Aucun nom donn pour rechecher l'id d'un compte (commande 'id').\n");
+			ladmin_log("Aucun nom donn pour rechecher l'id d'un compte (commande 'id')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name.\n");
 			ShowMessage("<example> id testname\n");
-			ladmin_log("No name given to search an account id ('id' command).\n");
+			ladmin_log("No name given to search an account id ('id' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -1981,9 +1981,9 @@ int idaccount(char* param)
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour connatre l'id d'un compte.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour connatre l'id d'un compte." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to know an account id.\n");
+		ladmin_log("Request to login-server to know an account id." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7944;
@@ -2003,18 +2003,18 @@ int infoaccount(int account_id)
 	if (account_id < 0) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un id ayant une valeur positive svp.\n");
-			ladmin_log("Une valeur ngative a t donn pour trouver le compte.\n");
+			ladmin_log("Une valeur ngative a t donn pour trouver le compte." RETCODE);
 		} else {
 			ShowMessage("Please input a positive value for the id.\n");
-			ladmin_log("Negative value was given to found the account.\n");
+			ladmin_log("Negative value was given to found the account." RETCODE);
 		}
 		return 136;
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir le information d'un compte (par l'id).\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir le information d'un compte (par l'id)." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to obtain information about an account (by its id).\n");
+		ladmin_log("Request to login-server to obtain information about an account (by its id)." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7954;
@@ -2040,7 +2040,7 @@ int sendbroadcast(short type, char* message)
 			} else {
 				ShowMessage("<exemple> kamib un message\n");
 			}
-			ladmin_log("Le message est vide (commande 'kami(b)').\n");
+			ladmin_log("Le message est vide (commande 'kami(b)')." RETCODE);
 		} else {
 			ShowMessage("Please input a message.\n");
 			if (type == 0) {
@@ -2048,7 +2048,7 @@ int sendbroadcast(short type, char* message)
 			} else {
 				ShowMessage("<example> kamib a message\n");
 			}
-			ladmin_log("The message is void ('kami(b)' command).\n");
+			ladmin_log("The message is void ('kami(b)' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2073,12 +2073,12 @@ int changelanguage(char* language)
 			ShowMessage("Entrez une langue svp.\n");
 			ShowMessage("<exemple> language english\n");
 			ShowMessage("          language franais\n");
-			ladmin_log("La langue est vide (commande 'language').\n");
+			ladmin_log("La langue est vide (commande 'language')." RETCODE);
 		} else {
 			ShowMessage("Please input a language.\n");
 			ShowMessage("<example> language english\n");
 			ShowMessage("          language franais\n");
-			ladmin_log("The language is void ('language' command).\n");
+			ladmin_log("The language is void ('language' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2088,18 +2088,18 @@ int changelanguage(char* language)
 		defaultlanguage = language[0];
 		if (defaultlanguage == 'F') {
 			ShowMessage("Changement de la langue d'affichage en Franais.\n");
-			ladmin_log("Changement de la langue d'affichage en Franais.\n");
+			ladmin_log("Changement de la langue d'affichage en Franais." RETCODE);
 		} else {
 			ShowMessage("Displaying language changed to English.\n");
-			ladmin_log("Displaying language changed to English.\n");
+			ladmin_log("Displaying language changed to English." RETCODE);
 		}
 	} else {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Langue non paramtre (langues possibles: 'Franais' ou 'English').\n");
-			ladmin_log("Langue non paramtre (Franais ou English ncessaire).\n");
+			ladmin_log("Langue non paramtre (Franais ou English ncessaire)." RETCODE);
 		} else {
 			ShowMessage("Undefined language (possible languages: Franais or English).\n");
-			ladmin_log("Undefined language (must be Franais or English).\n");
+			ladmin_log("Undefined language (must be Franais or English)." RETCODE);
 		}
 	}
 
@@ -2149,9 +2149,9 @@ int listaccount(char* param, int type)
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir la liste des comptes de %d  %d.\n", list_first, list_last);
+		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir la liste des comptes de %d  %d." RETCODE, list_first, list_last);
 	} else {
-		ladmin_log("Request to login-server to obtain the list of accounts from %d to %d.\n", list_first, list_last);
+		ladmin_log("Request to login-server to obtain the list of accounts from %d to %d." RETCODE, list_first, list_last);
 	}
 
 	WFIFOW(login_fd,0) = 0x7920;
@@ -2189,11 +2189,11 @@ int changememo(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte et un mmo svp.\n");
 			ShowMessage("<exemple> memo nomtest nouveau memo\n");
-			ladmin_log("Nombre incorrect de paramtres pour changer le mmo d'un compte (commande 'email').\n");
+			ladmin_log("Nombre incorrect de paramtres pour changer le mmo d'un compte (commande 'email')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name and a memo.\n");
 			ShowMessage("<example> memo testname new memo\n");
-			ladmin_log("Incomplete parameters to change the memo of an account ('email' command).\n");
+			ladmin_log("Incomplete parameters to change the memo of an account ('email' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2206,19 +2206,19 @@ int changememo(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Mmo trop long (%lu caractres).\n", (unsigned long)strlen(memo));
 			ShowMessage("Entrez un mmo de 254 caractres maximum svp.\n");
-			ladmin_log("Mmo trop long (%d caractres). Entrez un mmo de 254 caractres maximum svp.\n", strlen(memo));
+			ladmin_log("Mmo trop long (%d caractres). Entrez un mmo de 254 caractres maximum svp." RETCODE, strlen(memo));
 		} else {
 			ShowMessage("Memo is too long (%lu characters).\n", (unsigned long)strlen(memo));
 			ShowMessage("Please input a memo of 254 bytes at the maximum.\n");
-			ladmin_log("Email is too long (%d characters). Please input a memo of 254 bytes at the maximum.\n", strlen(memo));
+			ladmin_log("Email is too long (%d characters). Please input a memo of 254 bytes at the maximum." RETCODE, strlen(memo));
 		}
 		return 102;
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour changer un mmo.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour changer un mmo." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to change a memo.\n");
+		ladmin_log("Request to login-server to change a memo." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7942;
@@ -2241,18 +2241,18 @@ int nameaccount(int id)
 	if (id < 0) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un id ayant une valeur positive svp.\n");
-			ladmin_log("Id ngatif donn pour rechecher le nom d'un compte (commande 'name').\n");
+			ladmin_log("Id ngatif donn pour rechecher le nom d'un compte (commande 'name')." RETCODE);
 		} else {
 			ShowMessage("Please input a positive value for the id.\n");
-			ladmin_log("Negativ id given to search an account name ('name' command).\n");
+			ladmin_log("Negativ id given to search an account name ('name' command)." RETCODE);
 		}
 		return 136;
 	}
 
 	if (defaultlanguage == 'F')
-		ladmin_log("Envoi d'un requte au serveur de logins pour connatre le nom d'un compte.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour connatre le nom d'un compte." RETCODE);
 	else
-		ladmin_log("Request to login-server to know an account name.\n");
+		ladmin_log("Request to login-server to know an account name." RETCODE);
 
 	WFIFOW(login_fd,0) = 0x7946;
 	WFIFOL(login_fd,2) = id;
@@ -2280,11 +2280,11 @@ int changepasswd(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte svp.\n");
 			ShowMessage("<exemple> passwd nomtest nouveaumotdepasse\n");
-			ladmin_log("Nombre incorrect de paramtres pour changer le mot d'un passe d'un compte (commande 'password').\n");
+			ladmin_log("Nombre incorrect de paramtres pour changer le mot d'un passe d'un compte (commande 'password')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name.\n");
 			ShowMessage("<example> passwd testname newpassword\n");
-			ladmin_log("Incomplete parameters to change the password of an account ('password' command).\n");
+			ladmin_log("Incomplete parameters to change the password of an account ('password' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2301,9 +2301,9 @@ int changepasswd(char* param)
 		return 131;
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour changer un mot de passe.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour changer un mot de passe." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to change a password.\n");
+		ladmin_log("Request to login-server to change a password." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7934;
@@ -2327,11 +2327,11 @@ int reloadGM(void)
 	bytes_to_read = 0;
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Demande de recharger le fichier de configuration des GM envoye.\n");
+		ladmin_log("Demande de recharger le fichier de configuration des GM envoye." RETCODE);
 		ShowMessage("Demande de recharger le fichier de configuration des GM envoye.\n");
 		ShowMessage("Vrifiez les comptes GM actuels (aprs rechargement):\n");
 	} else {
-		ladmin_log("Request to reload the GM configuration file sended.\n");
+		ladmin_log("Request to reload the GM configuration file sended." RETCODE);
 		ShowMessage("Request to reload the GM configuration file sended.\n");
 		ShowMessage("Check the actual GM accounts (after reloading):\n");
 	}
@@ -2357,11 +2357,11 @@ int changesex(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte et un sexe svp.\n");
 			ShowMessage("<exemple> sex nomtest Male\n");
-			ladmin_log("Nombre incorrect de paramtres pour changer le sexe d'un compte (commande 'sex').\n");
+			ladmin_log("Nombre incorrect de paramtres pour changer le sexe d'un compte (commande 'sex')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name and a sex.\n");
 			ShowMessage("<example> sex testname Male\n");
-			ladmin_log("Incomplete parameters to change the sex of an account ('sex' command).\n");
+			ladmin_log("Incomplete parameters to change the sex of an account ('sex' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2374,18 +2374,18 @@ int changesex(char* param)
 	if (strchr("MF", sex[0]) == NULL) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Sexe incorrect [%s]. Entrez M ou F svp.\n", sex);
-			ladmin_log("Sexe incorrect [%s]. Entrez M ou F svp.\n", sex);
+			ladmin_log("Sexe incorrect [%s]. Entrez M ou F svp." RETCODE, sex);
 		} else {
 			ShowMessage("Illegal gender [%s]. Please input M or F.\n", sex);
-			ladmin_log("Illegal gender [%s]. Please input M or F.\n", sex);
+			ladmin_log("Illegal gender [%s]. Please input M or F." RETCODE, sex);
 		}
 		return 103;
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour changer un sexe.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour changer un sexe." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to change a sex.\n");
+		ladmin_log("Request to login-server to change a sex." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x793c;
@@ -2427,13 +2427,13 @@ int changestatesub(char* name, int state, char* error_message7)
 			ShowMessage("           state nomtest 7 fin de votre ban\n");
 			ShowMessage("           block <nom compte>\n");
 			ShowMessage("           unblock <nom compte>\n");
-			ladmin_log("Valeur incorrecte pour le statut d'un compte (commande 'state', 'block' ou 'unblock').\n");
+			ladmin_log("Valeur incorrecte pour le statut d'un compte (commande 'state', 'block' ou 'unblock')." RETCODE);
 		} else {
 			ShowMessage("<examples> state testname 5\n");
 			ShowMessage("           state testname 7 end of your ban\n");
 			ShowMessage("           block <account name>\n");
 			ShowMessage("           unblock <account name>\n");
-			ladmin_log("Invalid value for the state of an account ('state', 'block' or 'unblock' command).\n");
+			ladmin_log("Invalid value for the state of an account ('state', 'block' or 'unblock' command)." RETCODE);
 		}
 		return 151;
 	}
@@ -2448,29 +2448,29 @@ int changestatesub(char* name, int state, char* error_message7)
 		if (strlen(error_message) < 1) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Message d'erreur trop court. Entrez un message de 1-19 caractres.\n");
-				ladmin_log("Message d'erreur trop court. Entrez un message de 1-19 caractres.\n");
+				ladmin_log("Message d'erreur trop court. Entrez un message de 1-19 caractres." RETCODE);
 			} else {
 				ShowMessage("Error message is too short. Please input a message of 1-19 bytes.\n");
-				ladmin_log("Error message is too short. Please input a message of 1-19 bytes.\n");
+				ladmin_log("Error message is too short. Please input a message of 1-19 bytes." RETCODE);
 			}
 			return 102;
 		}
 		if (strlen(error_message) > 19) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Message d'erreur trop long. Entrez un message de 1-19 caractres.\n");
-				ladmin_log("Message d'erreur trop long. Entrez un message de 1-19 caractres.\n");
+				ladmin_log("Message d'erreur trop long. Entrez un message de 1-19 caractres." RETCODE);
 			} else {
 				ShowMessage("Error message is too long. Please input a message of 1-19 bytes.\n");
-				ladmin_log("Error message is too long. Please input a message of 1-19 bytes.\n");
+				ladmin_log("Error message is too long. Please input a message of 1-19 bytes." RETCODE);
 			}
 			return 102;
 		}
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour changer un statut.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour changer un statut." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to change a state.\n");
+		ladmin_log("Request to login-server to change a state." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7936;
@@ -2503,14 +2503,14 @@ int changestate(char* param)
 			ShowMessage("           state nomtest 7 fin de votre ban\n");
 			ShowMessage("           block <nom compte>\n");
 			ShowMessage("           unblock <nom compte>\n");
-			ladmin_log("Nombre incorrect de paramtres pour changer le statut d'un compte (commande 'state').\n");
+			ladmin_log("Nombre incorrect de paramtres pour changer le statut d'un compte (commande 'state')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name and a state.\n");
 			ShowMessage("<examples> state testname 5\n");
 			ShowMessage("           state testname 7 end of your ban\n");
 			ShowMessage("           block <account name>\n");
 			ShowMessage("           unblock <account name>\n");
-			ladmin_log("Incomplete parameters to change the state of an account ('state' command).\n");
+			ladmin_log("Incomplete parameters to change the state of an account ('state' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2538,14 +2538,14 @@ int unblockaccount(char* param)
 			ShowMessage("           state nomtest 7 fin de votre ban\n");
 			ShowMessage("           block <nom compte>\n");
 			ShowMessage("           unblock <nom compte>\n");
-			ladmin_log("Nombre incorrect de paramtres pour changer le statut d'un compte (commande 'unblock').\n");
+			ladmin_log("Nombre incorrect de paramtres pour changer le statut d'un compte (commande 'unblock')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name.\n");
 			ShowMessage("<examples> state testname 5\n");
 			ShowMessage("           state testname 7 end of your ban\n");
 			ShowMessage("           block <account name>\n");
 			ShowMessage("           unblock <account name>\n");
-			ladmin_log("Incomplete parameters to change the state of an account ('unblock' command).\n");
+			ladmin_log("Incomplete parameters to change the state of an account ('unblock' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2573,14 +2573,14 @@ int blockaccount(char* param)
 			ShowMessage("           state nomtest 7 fin de votre ban\n");
 			ShowMessage("           block <nom compte>\n");
 			ShowMessage("           unblock <nom compte>\n");
-			ladmin_log("Nombre incorrect de paramtres pour changer le statut d'un compte (commande 'block').\n");
+			ladmin_log("Nombre incorrect de paramtres pour changer le statut d'un compte (commande 'block')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name.\n");
 			ShowMessage("<examples> state testname 5\n");
 			ShowMessage("           state testname 7 end of your ban\n");
 			ShowMessage("           block <account name>\n");
 			ShowMessage("           unblock <account name>\n");
-			ladmin_log("Incomplete parameters to change the state of an account ('block' command).\n");
+			ladmin_log("Incomplete parameters to change the state of an account ('block' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2611,13 +2611,13 @@ int timeaddaccount(char* param)
 			ShowMessage("  <exemple> timeadd nomtest +1m-2mn1s-6y\n");
 			ShowMessage("            Cette exemple ajoute 1 mois et 1 seconde, et soustrait 2 minutes\n");
 			ShowMessage("            et 6 ans dans le mme temps.\n");
-			ladmin_log("Nombre incorrect de paramtres pour modifier une date limite d'utilisation (commande 'timeadd').\n");
+			ladmin_log("Nombre incorrect de paramtres pour modifier une date limite d'utilisation (commande 'timeadd')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name and a modifier.\n");
 			ShowMessage("  <example>: timeadd testname +1m-2mn1s-6y\n");
 			ShowMessage("             this example adds 1 month and 1 second, and substracts 2 minutes\n");
 			ShowMessage("             and 6 years at the same time.\n");
-			ladmin_log("Incomplete parameters to modify a limit time ('timeadd' command).\n");
+			ladmin_log("Incomplete parameters to modify a limit time ('timeadd' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2693,7 +2693,7 @@ int timeaddaccount(char* param)
 			ShowMessage("  <exemple> timeadd nomtest +1m-2mn1s-6y\n");
 			ShowMessage("            Cette exemple ajoute 1 mois et 1 seconde, et soustrait 2 minutes\n");
 			ShowMessage("            et 6 ans dans le mme temps.\n");
-			ladmin_log("Aucun ajustement n'est pas un ajustement (commande 'timeadd').\n");
+			ladmin_log("Aucun ajustement n'est pas un ajustement (commande 'timeadd')." RETCODE);
 		} else {
 			ShowMessage("Please give an adjustment with this command:\n");
 			ShowMessage("  Adjustment value (-1, 1, +1, etc...)\n");
@@ -2707,75 +2707,75 @@ int timeaddaccount(char* param)
 			ShowMessage("  <example> timeadd testname +1m-2mn1s-6y\n");
 			ShowMessage("            this example adds 1 month and 1 second, and substracts 2 minutes\n");
 			ShowMessage("            and 6 years at the same time.\n");
-			ladmin_log("No adjustment isn't an adjustment ('timeadd' command).\n");
+			ladmin_log("No adjustment isn't an adjustment ('timeadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (year > 127 || year < -127) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement d'annes correct (de -127  127), svp.\n");
-			ladmin_log("Ajustement de l'anne hors norme ('timeadd' command).\n");
+			ladmin_log("Ajustement de l'anne hors norme ('timeadd' command)." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the years (from -127 to 127).\n");
-			ladmin_log("Abnormal adjustment for the year ('timeadd' command).\n");
+			ladmin_log("Abnormal adjustment for the year ('timeadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (month > 255 || month < -255) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement de mois correct (de -255  255), svp.\n");
-			ladmin_log("Ajustement du mois hors norme ('timeadd' command).\n");
+			ladmin_log("Ajustement du mois hors norme ('timeadd' command)." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the months (from -255 to 255).\n");
-			ladmin_log("Abnormal adjustment for the month ('timeadd' command).\n");
+			ladmin_log("Abnormal adjustment for the month ('timeadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (day > 32767 || day < -32767) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement de jours correct (de -32767  32767), svp.\n");
-			ladmin_log("Ajustement des jours hors norme ('timeadd' command).\n");
+			ladmin_log("Ajustement des jours hors norme ('timeadd' command)." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the days (from -32767 to 32767).\n");
-			ladmin_log("Abnormal adjustment for the days ('timeadd' command).\n");
+			ladmin_log("Abnormal adjustment for the days ('timeadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (hour > 32767 || hour < -32767) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement d'heures correct (de -32767  32767), svp.\n");
-			ladmin_log("Ajustement des heures hors norme ('timeadd' command).\n");
+			ladmin_log("Ajustement des heures hors norme ('timeadd' command)." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the hours (from -32767 to 32767).\n");
-			ladmin_log("Abnormal adjustment for the hours ('timeadd' command).\n");
+			ladmin_log("Abnormal adjustment for the hours ('timeadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (minute > 32767 || minute < -32767) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement de minutes correct (de -32767  32767), svp.\n");
-			ladmin_log("Ajustement des minutes hors norme ('timeadd' command).\n");
+			ladmin_log("Ajustement des minutes hors norme ('timeadd' command)." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the minutes (from -32767 to 32767).\n");
-			ladmin_log("Abnormal adjustment for the minutes ('timeadd' command).\n");
+			ladmin_log("Abnormal adjustment for the minutes ('timeadd' command)." RETCODE);
 		}
 		return 137;
 	}
 	if (second > 32767 || second < -32767) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un ajustement de secondes correct (de -32767  32767), svp.\n");
-			ladmin_log("Ajustement des secondes hors norme ('timeadd' command).\n");
+			ladmin_log("Ajustement des secondes hors norme ('timeadd' command)." RETCODE);
 		} else {
 			ShowMessage("Please give a correct adjustment for the seconds (from -32767 to 32767).\n");
-			ladmin_log("Abnormal adjustment for the seconds ('timeadd' command).\n");
+			ladmin_log("Abnormal adjustment for the seconds ('timeadd' command)." RETCODE);
 		}
 		return 137;
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour modifier une date limite d'utilisation.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour modifier une date limite d'utilisation." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to modify a time limit.\n");
+		ladmin_log("Request to login-server to modify a time limit." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7950;
@@ -2818,13 +2818,13 @@ int timesetaccount(char* param)
 			ShowMessage("<exemple>: timeset <nom_du_compte> aaaa/mm/jj [hh:mm:ss]\n");
 			ShowMessage("           timeset <nom_du_compte> 0    (0 = illimit)\n");
 			ShowMessage("           Heure par dfaut [hh:mm:ss]: 23:59:59.\n");
-			ladmin_log("Nombre incorrect de paramtres pour fixer une date limite d'utilisation (commande 'timeset').\n");
+			ladmin_log("Nombre incorrect de paramtres pour fixer une date limite d'utilisation (commande 'timeset')." RETCODE);
 		} else {
 			ShowMessage("Please input an account name, a date and a hour.\n");
 			ShowMessage("<example>: timeset <account_name> yyyy/mm/dd [hh:mm:ss]\n");
 			ShowMessage("           timeset <account_name> 0   (0 = unlimited)\n");
 			ShowMessage("           Default time [hh:mm:ss]: 23:59:59.\n");
-			ladmin_log("Incomplete parameters to set a limit time ('timeset' command).\n");
+			ladmin_log("Incomplete parameters to set a limit time ('timeset' command)." RETCODE);
 		}
 		return 136;
 	}
@@ -2843,10 +2843,10 @@ int timesetaccount(char* param)
 	     sscanf(time, "%d:%d:%d", &hour, &minute, &second) < 3)) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez 0 ou une date et une heure svp (format: 0 ou aaaa/mm/jj hh:mm:ss).\n");
-			ladmin_log("Format incorrect pour la date/heure ('timeset' command).\n");
+			ladmin_log("Format incorrect pour la date/heure ('timeset' command)." RETCODE);
 		} else {
 			ShowMessage("Please input 0 or a date and a time (format: 0 or yyyy/mm/dd hh:mm:ss).\n");
-			ladmin_log("Invalid format for the date/time ('timeset' command).\n");
+			ladmin_log("Invalid format for the date/time ('timeset' command)." RETCODE);
 		}
 		return 102;
 	}
@@ -2863,10 +2863,10 @@ int timesetaccount(char* param)
 		if (month < 1 || month > 12) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez un mois correct svp (entre 1 et 12).\n");
-				ladmin_log("Mois incorrect pour la date ('timeset' command).\n");
+				ladmin_log("Mois incorrect pour la date ('timeset' command)." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the month (from 1 to 12).\n");
-				ladmin_log("Invalid month for the date ('timeset' command).\n");
+				ladmin_log("Invalid month for the date ('timeset' command)." RETCODE);
 			}
 			return 102;
 		}
@@ -2874,10 +2874,10 @@ int timesetaccount(char* param)
 		if (day < 1 || day > 31) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez un jour correct svp (entre 1 et 31).\n");
-				ladmin_log("Jour incorrect pour la date ('timeset' command).\n");
+				ladmin_log("Jour incorrect pour la date ('timeset' command)." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the day (from 1 to 31).\n");
-				ladmin_log("Invalid day for the date ('timeset' command).\n");
+				ladmin_log("Invalid day for the date ('timeset' command)." RETCODE);
 			}
 			return 102;
 		}
@@ -2885,40 +2885,40 @@ int timesetaccount(char* param)
 		    (month == 1 && day > 29)) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez un jour correct en fonction du mois (%d) svp.\n", month);
-				ladmin_log("Jour incorrect pour ce mois correspondant ('timeset' command).\n");
+				ladmin_log("Jour incorrect pour ce mois correspondant ('timeset' command)." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for a day of this month (%d).\n", month);
-				ladmin_log("Invalid day for this month ('timeset' command).\n");
+				ladmin_log("Invalid day for this month ('timeset' command)." RETCODE);
 			}
 			return 102;
 		}
 		if (hour < 0 || hour > 23) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez une heure correcte svp (entre 0 et 23).\n");
-				ladmin_log("Heure incorrecte pour l'heure ('timeset' command).\n");
+				ladmin_log("Heure incorrecte pour l'heure ('timeset' command)." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the hour (from 0 to 23).\n");
-				ladmin_log("Invalid hour for the time ('timeset' command).\n");
+				ladmin_log("Invalid hour for the time ('timeset' command)." RETCODE);
 			}
 			return 102;
 		}
 		if (minute < 0 || minute > 59) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez des minutes correctes svp (entre 0 et 59).\n");
-				ladmin_log("Minute incorrecte pour l'heure ('timeset' command).\n");
+				ladmin_log("Minute incorrecte pour l'heure ('timeset' command)." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the minutes (from 0 to 59).\n");
-				ladmin_log("Invalid minute for the time ('timeset' command).\n");
+				ladmin_log("Invalid minute for the time ('timeset' command)." RETCODE);
 			}
 			return 102;
 		}
 		if (second < 0 || second > 59) {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Entrez des secondes correctes svp (entre 0 et 59).\n");
-				ladmin_log("Seconde incorrecte pour l'heure ('timeset' command).\n");
+				ladmin_log("Seconde incorrecte pour l'heure ('timeset' command)." RETCODE);
 			} else {
 				ShowMessage("Please give a correct value for the seconds (from 0 to 59).\n");
-				ladmin_log("Invalid second for the time ('timeset' command).\n");
+				ladmin_log("Invalid second for the time ('timeset' command)." RETCODE);
 			}
 			return 102;
 		}
@@ -2934,20 +2934,20 @@ int timesetaccount(char* param)
 			if (defaultlanguage == 'F') {
 				ShowMessage("Date incorrecte.\n");
 				ShowMessage("Ajoutez 0 ou une date et une heure svp (format: 0 ou aaaa/mm/jj hh:mm:ss).\n");
-				ladmin_log("Date incorrecte. ('timeset' command).\n");
+				ladmin_log("Date incorrecte. ('timeset' command)." RETCODE);
 			} else {
 				ShowMessage("Invalid date.\n");
 				ShowMessage("Please add 0 or a date and a time (format: 0 or yyyy/mm/dd hh:mm:ss).\n");
-				ladmin_log("Invalid date. ('timeset' command).\n");
+				ladmin_log("Invalid date. ('timeset' command)." RETCODE);
 			}
 			return 102;
 		}
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour fixer une date limite d'utilisation.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour fixer une date limite d'utilisation." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to set a time limit.\n");
+		ladmin_log("Request to login-server to set a time limit." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7948;
@@ -2977,11 +2977,11 @@ int whoaccount(char* param)
 		if (defaultlanguage == 'F') {
 			ShowMessage("Entrez un nom de compte svp.\n");
 			ShowMessage("<exemple> who nomtest\n");
-			ladmin_log("Aucun nom n'a t donn pour trouver le compte.\n");
+			ladmin_log("Aucun nom n'a t donn pour trouver le compte." RETCODE);
 		} else {
 			ShowMessage("Please input an account name.\n");
 			ShowMessage("<example> who testname\n");
-			ladmin_log("No name was given to found the account.\n");
+			ladmin_log("No name was given to found the account." RETCODE);
 		}
 		return 136;
 	}
@@ -2990,9 +2990,9 @@ int whoaccount(char* param)
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir le information d'un compte (par le nom).\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir le information d'un compte (par le nom)." RETCODE);
 	} else {
-		ladmin_log("Request to login-server to obtain information about an account (by its name).\n");
+		ladmin_log("Request to login-server to obtain information about an account (by its name)." RETCODE);
 	}
 
 	WFIFOW(login_fd,0) = 0x7952;
@@ -3010,9 +3010,9 @@ int checkloginversion(void)
 {
 	WFIFOHEAD(login_fd,2);
 	if (defaultlanguage == 'F')
-		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir sa version.\n");
+		ladmin_log("Envoi d'un requte au serveur de logins pour obtenir sa version." RETCODE);
 	else
-		ladmin_log("Request to login-server to obtain its version.\n");
+		ladmin_log("Request to login-server to obtain its version." RETCODE);
 
 	WFIFOW(login_fd,0) = 0x7530;
 	WFIFOSET(login_fd,2);
@@ -3121,15 +3121,15 @@ int prompt(void)
 
 		if (strlen(parameters) == 0) {
 			if (defaultlanguage == 'F') {
-				ladmin_log("Commande: '%s' (sans paramtre)\n", command, parameters);
+				ladmin_log("Commande: '%s' (sans paramtre)" RETCODE, command, parameters);
 			} else {
-				ladmin_log("Command: '%s' (without parameters)\n", command, parameters);
+				ladmin_log("Command: '%s' (without parameters)" RETCODE, command, parameters);
 			}
 		} else {
 			if (defaultlanguage == 'F') {
-				ladmin_log("Commande: '%s', paramtres: '%s'\n", command, parameters);
+				ladmin_log("Commande: '%s', paramtres: '%s'" RETCODE, command, parameters);
 			} else {
-				ladmin_log("Command: '%s', parameters: '%s'\n", command, parameters);
+				ladmin_log("Command: '%s', parameters: '%s'" RETCODE, command, parameters);
 			}
 		}
 
@@ -3215,15 +3215,15 @@ int prompt(void)
 			} else {
 				ShowMessage("Bye.\n");
 			}
-			exit(EXIT_SUCCESS);
+			exit(0);
 // unknown command
 		} else {
 			if (defaultlanguage == 'F') {
 				ShowMessage("Commande inconnue [%s].\n", buf);
-				ladmin_log("Commande inconnue [%s].\n", buf);
+				ladmin_log("Commande inconnue [%s]." RETCODE, buf);
 			} else {
 				ShowMessage("Unknown command [%s].\n", buf);
-				ladmin_log("Unknown command [%s].\n", buf);
+				ladmin_log("Unknown command [%s]." RETCODE, buf);
 			}
 		}
 	}
@@ -3242,13 +3242,13 @@ int parse_fromlogin(int fd)
 	if (session[fd]->eof) {
 		if (defaultlanguage == 'F') {
 			ShowMessage("Impossible de se connecter au serveur de login [%s:%d] !\n", loginserverip, loginserverport);
-			ladmin_log("Impossible de se connecter au serveur de login [%s:%d] !\n", loginserverip, loginserverport);
+			ladmin_log("Impossible de se connecter au serveur de login [%s:%d] !" RETCODE, loginserverip, loginserverport);
 		} else {
 			ShowMessage("Impossible to have a connection with the login-server [%s:%d] !\n", loginserverip, loginserverport);
-			ladmin_log("Impossible to have a connection with the login-server [%s:%d] !\n", loginserverip, loginserverport);
+			ladmin_log("Impossible to have a connection with the login-server [%s:%d] !" RETCODE, loginserverip, loginserverport);
 		}
 		do_close(fd);
-		exit(EXIT_FAILURE);
+		exit (0);
 	}
 
 //	ShowMessage("parse_fromlogin : %d %d %d\n", fd, RFIFOREST(fd), RFIFOW(fd,0));
@@ -3265,13 +3265,13 @@ int parse_fromlogin(int fd)
 					ShowMessage(" - mot de passe incorrect,\n");
 					ShowMessage(" - systme d'administration non activ, ou\n");
 					ShowMessage(" - IP non autorise.\n");
-					ladmin_log("Erreur de login: mot de passe incorrect, systme d'administration non activ, ou IP non autorise.\n");
+					ladmin_log("Erreur de login: mot de passe incorrect, systme d'administration non activ, ou IP non autorise." RETCODE);
 				} else {
 					ShowMessage("Error at login:\n");
 					ShowMessage(" - incorrect password,\n");
 					ShowMessage(" - administration system not activated, or\n");
 					ShowMessage(" - unauthorised IP.\n");
-					ladmin_log("Error at login: incorrect password, administration system not activated, or unauthorised IP.\n");
+					ladmin_log("Error at login: incorrect password, administration system not activated, or unauthorised IP." RETCODE);
 				}
 				set_eof(fd);
 				//bytes_to_read = 1; // not stop at prompt
@@ -3279,14 +3279,14 @@ int parse_fromlogin(int fd)
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Connexion tablie.\n");
-					ladmin_log("Connexion tablie.\n");
+					ladmin_log("Connexion tablie." RETCODE);
 					ShowMessage("Lecture de la version du serveur de login...\n");
-					ladmin_log("Lecture de la version du serveur de login...\n");
+					ladmin_log("Lecture de la version du serveur de login..." RETCODE);
 				} else {
 					ShowMessage("Established connection.\n");
-					ladmin_log("Established connection.\n");
+					ladmin_log("Established connection." RETCODE);
 					ShowMessage("Reading of the version of the login-server...\n");
-					ladmin_log("Reading of the version of the login-server...\n");
+					ladmin_log("Reading of the version of the login-server..." RETCODE);
 				}
 				//bytes_to_read = 1; // unchanged
 				checkloginversion();
@@ -3314,14 +3314,14 @@ int parse_fromlogin(int fd)
 			WFIFOSET(login_fd,20);
 			if (defaultlanguage == 'F') {
 				ShowMessage("Rception de la clef MD5.\n");
-				ladmin_log("Rception de la clef MD5.\n");
+				ladmin_log("Rception de la clef MD5." RETCODE);
 				ShowMessage("Envoi du mot de passe crypt...\n");
-				ladmin_log("Envoi du mot de passe crypt...\n");
+				ladmin_log("Envoi du mot de passe crypt..." RETCODE);
 			} else {
 				ShowMessage("Receiving of the MD5 key.\n");
-				ladmin_log("Receiving of the MD5 key.\n");
+				ladmin_log("Receiving of the MD5 key." RETCODE);
 				ShowMessage("Sending of the encrypted password...\n");
-				ladmin_log("Sending of the encrypted password...\n");
+				ladmin_log("Sending of the encrypted password..." RETCODE);
 			}
 		  }
 			bytes_to_read = 1;
@@ -3352,7 +3352,7 @@ int parse_fromlogin(int fd)
 				return 0;
 			if (RFIFOW(fd,2) < 5) {
 				if (defaultlanguage == 'F') {
-					ladmin_log("  Rception d'une liste des comptes vide.\n");
+					ladmin_log("  Rception d'une liste des comptes vide." RETCODE);
 					if (list_count == 0)
 						ShowMessage("Aucun compte trouv.\n");
 					else if (list_count == 1)
@@ -3360,7 +3360,7 @@ int parse_fromlogin(int fd)
 					else
 						ShowMessage("%d comptes trouvs.\n", list_count);
 				} else {
-					ladmin_log("  Receiving of a void accounts list.\n");
+					ladmin_log("  Receiving of a void accounts list." RETCODE);
 					if (list_count == 0)
 						ShowMessage("No account found.\n");
 					else if (list_count == 1)
@@ -3373,9 +3373,9 @@ int parse_fromlogin(int fd)
 				int i;
 				WFIFOHEAD(login_fd,10);
 				if (defaultlanguage == 'F')
-					ladmin_log("  Rception d'une liste des comptes.\n");
+					ladmin_log("  Rception d'une liste des comptes." RETCODE);
 				else
-					ladmin_log("  Receiving of a accounts list.\n");
+					ladmin_log("  Receiving of a accounts list." RETCODE);
 				for(i = 4; i < RFIFOW(fd,2); i += 38) {
 					int j;
 					char userid[24];
@@ -3458,9 +3458,9 @@ int parse_fromlogin(int fd)
 				}
 				// asking of the following acounts
 				if (defaultlanguage == 'F')
-					ladmin_log("Envoi d'un requte au serveur de logins pour obtenir la liste des comptes de %d  %d (complment).\n", list_first, list_last);
+					ladmin_log("Envoi d'un requte au serveur de logins pour obtenir la liste des comptes de %d  %d (complment)." RETCODE, list_first, list_last);
 				else
-					ladmin_log("Request to login-server to obtain the list of accounts from %d to %d (complement).\n", list_first, list_last);
+					ladmin_log("Request to login-server to obtain the list of accounts from %d to %d (complement)." RETCODE, list_first, list_last);
 				WFIFOW(login_fd,0) = 0x7920;
 				WFIFOL(login_fd,2) = list_first;
 				WFIFOL(login_fd,6) = list_last;
@@ -3477,18 +3477,18 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec  la cration du compte [%s]. Un compte identique existe dj.\n", RFIFOP(fd,6));
-					ladmin_log("Echec  la cration du compte [%s]. Un compte identique existe dj.\n", RFIFOP(fd,6));
+					ladmin_log("Echec  la cration du compte [%s]. Un compte identique existe dj." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] creation failed. Same account already exists.\n", RFIFOP(fd,6));
-					ladmin_log("Account [%s] creation failed. Same account already exists.\n", RFIFOP(fd,6));
+					ladmin_log("Account [%s] creation failed. Same account already exists." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Compte [%s] cr avec succs [id: %d].\n", RFIFOP(fd,6), id);
-					ladmin_log("Compte [%s] cr avec succs [id: %d].\n", RFIFOP(fd,6), id);
+					ladmin_log("Compte [%s] cr avec succs [id: %d]." RETCODE, RFIFOP(fd,6), id);
 				} else {
 					ShowMessage("Account [%s] is successfully created [id: %d].\n", RFIFOP(fd,6), id);
-					ladmin_log("Account [%s] is successfully created [id: %d].\n", RFIFOP(fd,6), id);
+					ladmin_log("Account [%s] is successfully created [id: %d]." RETCODE, RFIFOP(fd,6), id);
 				}
 			}
 			bytes_to_read = 0;
@@ -3501,18 +3501,18 @@ int parse_fromlogin(int fd)
 			if (RFIFOL(fd,2) == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec de la suppression du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec de la suppression du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec de la suppression du compte [%s]. Le compte n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] deletion failed. Account doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account [%s] deletion failed. Account doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account [%s] deletion failed. Account doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Compte [%s][id: %d] SUPPRIME avec succs.\n", RFIFOP(fd,6), (int)RFIFOL(fd,2));
-					ladmin_log("Compte [%s][id: %d] SUPPRIME avec succs.\n", RFIFOP(fd,6), RFIFOL(fd,2));
+					ladmin_log("Compte [%s][id: %d] SUPPRIME avec succs." RETCODE, RFIFOP(fd,6), RFIFOL(fd,2));
 				} else {
 					ShowMessage("Account [%s][id: %d] is successfully DELETED.\n", RFIFOP(fd,6), (int)RFIFOL(fd,2));
-					ladmin_log("Account [%s][id: %d] is successfully DELETED.\n", RFIFOP(fd,6), RFIFOL(fd,2));
+					ladmin_log("Account [%s][id: %d] is successfully DELETED." RETCODE, RFIFOP(fd,6), RFIFOL(fd,2));
 				}
 			}
 			bytes_to_read = 0;
@@ -3526,19 +3526,19 @@ int parse_fromlogin(int fd)
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec de la modification du mot de passe du compte [%s].\n", RFIFOP(fd,6));
 					ShowMessage("Le compte [%s] n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec de la modification du mot de passe du compte. Le compte [%s] n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec de la modification du mot de passe du compte. Le compte [%s] n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] password changing failed.\n", RFIFOP(fd,6));
 					ShowMessage("Account [%s] doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account password changing failed. The compte [%s] doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account password changing failed. The compte [%s] doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Modification du mot de passe du compte [%s][id: %d] russie.\n", RFIFOP(fd,6), (int)RFIFOL(fd,2));
-					ladmin_log("Modification du mot de passe du compte [%s][id: %d] russie.\n", RFIFOP(fd,6), (int)RFIFOL(fd,2));
+					ladmin_log("Modification du mot de passe du compte [%s][id: %d] russie." RETCODE, RFIFOP(fd,6), (int)RFIFOL(fd,2));
 				} else {
 					ShowMessage("Account [%s][id: %d] password successfully changed.\n", RFIFOP(fd,6), (int)RFIFOL(fd,2));
-					ladmin_log("Account [%s][id: %d] password successfully changed.\n", RFIFOP(fd,6), (int)RFIFOL(fd,2));
+					ladmin_log("Account [%s][id: %d] password successfully changed." RETCODE, RFIFOP(fd,6), (int)RFIFOL(fd,2));
 				}
 			}
 			bytes_to_read = 0;
@@ -3551,10 +3551,10 @@ int parse_fromlogin(int fd)
 			if (RFIFOL(fd,2) == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec du changement du statut du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec du changement du statut du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec du changement du statut du compte [%s]. Le compte n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] state changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account [%s] state changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account [%s] state changing failed. Account doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				char tmpstr[256];
@@ -3603,7 +3603,7 @@ int parse_fromlogin(int fd)
 				}
 				strcat(tmpstr, "]");
 				ShowMessage("%s\n", tmpstr);
-				ladmin_log("%s\n", tmpstr);
+				ladmin_log("%s%s", tmpstr, RETCODE);
 			}
 			bytes_to_read = 0;
 			RFIFOSKIP(fd,34);
@@ -3617,9 +3617,9 @@ int parse_fromlogin(int fd)
 			int i;
 			char name[20];
 			if (defaultlanguage == 'F') {
-				ladmin_log("  Rception du nombre de joueurs en ligne.\n");
+				ladmin_log("  Rception du nombre de joueurs en ligne." RETCODE);
 			} else {
-				ladmin_log("  Receiving of the number of online players.\n");
+				ladmin_log("  Receiving of the number of online players." RETCODE);
 			}
 			// Read information of the servers
 			if (RFIFOW(fd,2) < 5) {
@@ -3653,18 +3653,18 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Le compte [%s] n'existe pas ou le mot de passe est incorrect.\n", RFIFOP(fd,6));
-					ladmin_log("Le compte [%s] n'existe pas ou le mot de passe est incorrect.\n", RFIFOP(fd,6));
+					ladmin_log("Le compte [%s] n'existe pas ou le mot de passe est incorrect." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("The account [%s] doesn't exist or the password is incorrect.\n", RFIFOP(fd,6));
-					ladmin_log("The account [%s] doesn't exist or the password is incorrect.\n", RFIFOP(fd,6));
+					ladmin_log("The account [%s] doesn't exist or the password is incorrect." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Le mot de passe donn correspond bien au compte [%s][id: %d].\n", RFIFOP(fd,6), id);
-					ladmin_log("Le mot de passe donn correspond bien au compte [%s][id: %d].\n", RFIFOP(fd,6), id);
+					ladmin_log("Le mot de passe donn correspond bien au compte [%s][id: %d]." RETCODE, RFIFOP(fd,6), id);
 				} else {
 					ShowMessage("The proposed password is correct for the account [%s][id: %d].\n", RFIFOP(fd,6), id);
-					ladmin_log("The proposed password is correct for the account [%s][id: %d].\n", RFIFOP(fd,6), id);
+					ladmin_log("The proposed password is correct for the account [%s][id: %d]." RETCODE, RFIFOP(fd,6), id);
 				}
 			}
 			bytes_to_read = 0;
@@ -3679,19 +3679,19 @@ int parse_fromlogin(int fd)
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec de la modification du sexe du compte [%s].\n", RFIFOP(fd,6));
 					ShowMessage("Le compte [%s] n'existe pas ou le sexe est dj celui demand.\n", RFIFOP(fd,6));
-					ladmin_log("Echec de la modification du sexe du compte. Le compte [%s] n'existe pas ou le sexe est dj celui demand.\n", RFIFOP(fd,6));
+					ladmin_log("Echec de la modification du sexe du compte. Le compte [%s] n'existe pas ou le sexe est dj celui demand." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] sex changing failed.\n", RFIFOP(fd,6));
 					ShowMessage("Account [%s] doesn't exist or the sex is already the good sex.\n", RFIFOP(fd,6));
-					ladmin_log("Account sex changing failed. The compte [%s] doesn't exist or the sex is already the good sex.\n", RFIFOP(fd,6));
+					ladmin_log("Account sex changing failed. The compte [%s] doesn't exist or the sex is already the good sex." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Sexe du compte [%s][id: %d] chang avec succs.\n", RFIFOP(fd,6), id);
-					ladmin_log("Sexe du compte [%s][id: %d] chang avec succs.\n", RFIFOP(fd,6), id);
+					ladmin_log("Sexe du compte [%s][id: %d] chang avec succs." RETCODE, RFIFOP(fd,6), id);
 				} else {
 					ShowMessage("Account [%s][id: %d] sex successfully changed.\n", RFIFOP(fd,6), id);
-					ladmin_log("Account [%s][id: %d] sex successfully changed.\n", RFIFOP(fd,6), id);
+					ladmin_log("Account [%s][id: %d] sex successfully changed." RETCODE, RFIFOP(fd,6), id);
 				}
 			}
 			bytes_to_read = 0;
@@ -3707,20 +3707,20 @@ int parse_fromlogin(int fd)
 					ShowMessage("Echec de la modification du niveau de GM du compte [%s].\n", RFIFOP(fd,6));
 					ShowMessage("Le compte [%s] n'existe pas, le niveau de GM est dj celui demand\n", RFIFOP(fd,6));
 					ShowMessage("ou il est impossible de modifier le fichier des comptes GM.\n");
-					ladmin_log("Echec de la modification du niveau de GM du compte. Le compte [%s] n'existe pas, le niveau de GM est dj celui demand ou il est impossible de modifier le fichier des comptes GM.\n", RFIFOP(fd,6));
+					ladmin_log("Echec de la modification du niveau de GM du compte. Le compte [%s] n'existe pas, le niveau de GM est dj celui demand ou il est impossible de modifier le fichier des comptes GM." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] GM level changing failed.\n", RFIFOP(fd,6));
 					ShowMessage("Account [%s] doesn't exist, the GM level is already the good GM level\n", RFIFOP(fd,6));
 					ShowMessage("or it's impossible to modify the GM accounts file.\n");
-					ladmin_log("Account GM level changing failed. The compte [%s] doesn't exist, the GM level is already the good sex or it's impossible to modify the GM accounts file.\n", RFIFOP(fd,6));
+					ladmin_log("Account GM level changing failed. The compte [%s] doesn't exist, the GM level is already the good sex or it's impossible to modify the GM accounts file." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Niveau de GM du compte [%s][id: %d] chang avec succs.\n", RFIFOP(fd,6), id);
-					ladmin_log("Niveau de GM du compte [%s][id: %d] chang avec succs.\n", RFIFOP(fd,6), id);
+					ladmin_log("Niveau de GM du compte [%s][id: %d] chang avec succs." RETCODE, RFIFOP(fd,6), id);
 				} else {
 					ShowMessage("Account [%s][id: %d] GM level successfully changed.\n", RFIFOP(fd,6), id);
-					ladmin_log("Account [%s][id: %d] GM level successfully changed.\n", RFIFOP(fd,6), id);
+					ladmin_log("Account [%s][id: %d] GM level successfully changed." RETCODE, RFIFOP(fd,6), id);
 				}
 			}
 			bytes_to_read = 0;
@@ -3735,19 +3735,19 @@ int parse_fromlogin(int fd)
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec de la modification de l'e-mail du compte [%s].\n", RFIFOP(fd,6));
 					ShowMessage("Le compte [%s] n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec de la modification de l'e-mail du compte. Le compte [%s] n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec de la modification de l'e-mail du compte. Le compte [%s] n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] e-mail changing failed.\n", RFIFOP(fd,6));
 					ShowMessage("Account [%s] doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account e-mail changing failed. The compte [%s] doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account e-mail changing failed. The compte [%s] doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Modification de l'e-mail du compte [%s][id: %d] russie.\n", RFIFOP(fd,6), id);
-					ladmin_log("Modification de l'e-mail du compte [%s][id: %d] russie.\n", RFIFOP(fd,6), id);
+					ladmin_log("Modification de l'e-mail du compte [%s][id: %d] russie." RETCODE, RFIFOP(fd,6), id);
 				} else {
 					ShowMessage("Account [%s][id: %d] e-mail successfully changed.\n", RFIFOP(fd,6), id);
-					ladmin_log("Account [%s][id: %d] e-mail successfully changed.\n", RFIFOP(fd,6), id);
+					ladmin_log("Account [%s][id: %d] e-mail successfully changed." RETCODE, RFIFOP(fd,6), id);
 				}
 			}
 			bytes_to_read = 0;
@@ -3761,18 +3761,18 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec du changement du mmo du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec du changement du mmo du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec du changement du mmo du compte [%s]. Le compte n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] memo changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account [%s] memo changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account [%s] memo changing failed. Account doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Mmo du compte [%s][id: %d] chang avec succs.\n", RFIFOP(fd,6), id);
-					ladmin_log("Mmo du compte [%s][id: %d] chang avec succs.\n", RFIFOP(fd,6), id);
+					ladmin_log("Mmo du compte [%s][id: %d] chang avec succs." RETCODE, RFIFOP(fd,6), id);
 				} else {
 					ShowMessage("Account [%s][id: %d] memo successfully changed.\n", RFIFOP(fd,6), id);
-					ladmin_log("Account [%s][id: %d] memo successfully changed.\n", RFIFOP(fd,6), id);
+					ladmin_log("Account [%s][id: %d] memo successfully changed." RETCODE, RFIFOP(fd,6), id);
 				}
 			}
 			bytes_to_read = 0;
@@ -3786,18 +3786,18 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Impossible de trouver l'id du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Impossible de trouver l'id du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Impossible de trouver l'id du compte [%s]. Le compte n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Unable to find the account [%s] id. Account doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Unable to find the account [%s] id. Account doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Unable to find the account [%s] id. Account doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Le compte [%s] a pour id: %d.\n", RFIFOP(fd,6), id);
-					ladmin_log("Le compte [%s] a pour id: %d.\n", RFIFOP(fd,6), id);
+					ladmin_log("Le compte [%s] a pour id: %d." RETCODE, RFIFOP(fd,6), id);
 				} else {
 					ShowMessage("The account [%s] have the id: %d.\n", RFIFOP(fd,6), id);
-					ladmin_log("The account [%s] have the id: %d.\n", RFIFOP(fd,6), id);
+					ladmin_log("The account [%s] have the id: %d." RETCODE, RFIFOP(fd,6), id);
 				}
 			}
 			bytes_to_read = 0;
@@ -3811,18 +3811,18 @@ int parse_fromlogin(int fd)
 			if (strcmp((const char*)RFIFOP(fd,6), "") == 0) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Impossible de trouver le nom du compte [%d]. Le compte n'existe pas.\n", id);
-					ladmin_log("Impossible de trouver le nom du compte [%d]. Le compte n'existe pas.\n", id);
+					ladmin_log("Impossible de trouver le nom du compte [%d]. Le compte n'existe pas." RETCODE, id);
 				} else {
 					ShowMessage("Unable to find the account [%d] name. Account doesn't exist.\n", id);
-					ladmin_log("Unable to find the account [%d] name. Account doesn't exist.\n", id);
+					ladmin_log("Unable to find the account [%d] name. Account doesn't exist." RETCODE, id);
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Le compte [id: %d] a pour nom: %s.\n", id, RFIFOP(fd,6));
-					ladmin_log("Le compte [id: %d] a pour nom: %s.\n", id, RFIFOP(fd,6));
+					ladmin_log("Le compte [id: %d] a pour nom: %s." RETCODE, id, RFIFOP(fd,6));
 				} else {
 					ShowMessage("The account [id: %d] have the name: %s.\n", id, RFIFOP(fd,6));
-					ladmin_log("The account [id: %d] have the name: %s.\n", id, RFIFOP(fd,6));
+					ladmin_log("The account [id: %d] have the name: %s." RETCODE, id, RFIFOP(fd,6));
 				}
 			}
 			bytes_to_read = 0;
@@ -3836,30 +3836,30 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec du changement de la validit du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec du changement de la validit du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec du changement de la validit du compte [%s]. Le compte n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] validity limit changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account [%s] validity limit changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account [%s] validity limit changing failed. Account doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				time_t timestamp = RFIFOL(fd,30);
 				if (timestamp == 0) {
 					if (defaultlanguage == 'F') {
 						ShowMessage("Limite de validit du compte [%s][id: %d] change avec succs en [illimit].\n", RFIFOP(fd,6), id);
-						ladmin_log("Limite de validit du compte [%s][id: %d] change avec succs en [illimit].\n", RFIFOP(fd,6), id);
+						ladmin_log("Limite de validit du compte [%s][id: %d] change avec succs en [illimit]." RETCODE, RFIFOP(fd,6), id);
 					} else {
 						ShowMessage("Validity Limit of the account [%s][id: %d] successfully changed to [unlimited].\n", RFIFOP(fd,6), id);
-						ladmin_log("Validity Limit of the account [%s][id: %d] successfully changed to [unlimited].\n", RFIFOP(fd,6), id);
+						ladmin_log("Validity Limit of the account [%s][id: %d] successfully changed to [unlimited]." RETCODE, RFIFOP(fd,6), id);
 					}
 				} else {
 					char tmpstr[128];
 					strftime(tmpstr, 24, date_format, localtime(&timestamp));
 					if (defaultlanguage == 'F') {
 						ShowMessage("Limite de validit du compte [%s][id: %d] change avec succs pour tre jusqu'au %s.\n", RFIFOP(fd,6), id, tmpstr);
-						ladmin_log("Limite de validit du compte [%s][id: %d] change avec succs pour tre jusqu'au %s.\n", RFIFOP(fd,6), id, tmpstr);
+						ladmin_log("Limite de validit du compte [%s][id: %d] change avec succs pour tre jusqu'au %s." RETCODE, RFIFOP(fd,6), id, tmpstr);
 					} else {
 						ShowMessage("Validity Limit of the account [%s][id: %d] successfully changed to be until %s.\n", RFIFOP(fd,6), id, tmpstr);
-						ladmin_log("Validity Limit of the account [%s][id: %d] successfully changed to be until %s.\n", RFIFOP(fd,6), id, tmpstr);
+						ladmin_log("Validity Limit of the account [%s][id: %d] successfully changed to be until %s." RETCODE, RFIFOP(fd,6), id, tmpstr);
 					}
 				}
 			}
@@ -3874,30 +3874,30 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec du changement de la date finale de banissement du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec du changement de la date finale de banissement du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec du changement de la date finale de banissement du compte [%s]. Le compte n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] final date of banishment changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account [%s] final date of banishment changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account [%s] final date of banishment changing failed. Account doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				time_t timestamp = RFIFOL(fd,30);
 				if (timestamp == 0) {
 					if (defaultlanguage == 'F') {
 						ShowMessage("Date finale de banissement du compte [%s][id: %d] change avec succs en [d-bannie].\n", RFIFOP(fd,6), id);
-						ladmin_log("Date finale de banissement du compte [%s][id: %d] change avec succs en [d-bannie].\n", RFIFOP(fd,6), id);
+						ladmin_log("Date finale de banissement du compte [%s][id: %d] change avec succs en [d-bannie]." RETCODE, RFIFOP(fd,6), id);
 					} else {
 						ShowMessage("Final date of banishment of the account [%s][id: %d] successfully changed to [unbanished].\n", RFIFOP(fd,6), id);
-						ladmin_log("Final date of banishment of the account [%s][id: %d] successfully changed to [unbanished].\n", RFIFOP(fd,6), id);
+						ladmin_log("Final date of banishment of the account [%s][id: %d] successfully changed to [unbanished]." RETCODE, RFIFOP(fd,6), id);
 					}
 				} else {
 					char tmpstr[128];
 					strftime(tmpstr, 24, date_format, localtime(&timestamp));
 					if (defaultlanguage == 'F') {
 						ShowMessage("Date finale de banissement du compte [%s][id: %d] change avec succs pour tre jusqu'au %s.\n", RFIFOP(fd,6), id, tmpstr);
-						ladmin_log("Date finale de banissement du compte [%s][id: %d] change avec succs pour tre jusqu'au %s.\n", RFIFOP(fd,6), id, tmpstr);
+						ladmin_log("Date finale de banissement du compte [%s][id: %d] change avec succs pour tre jusqu'au %s." RETCODE, RFIFOP(fd,6), id, tmpstr);
 					} else {
 						ShowMessage("Final date of banishment of the account [%s][id: %d] successfully changed to be until %s.\n", RFIFOP(fd,6), id, tmpstr);
-						ladmin_log("Final date of banishment of the account [%s][id: %d] successfully changed to be until %s.\n", RFIFOP(fd,6), id, tmpstr);
+						ladmin_log("Final date of banishment of the account [%s][id: %d] successfully changed to be until %s." RETCODE, RFIFOP(fd,6), id, tmpstr);
 					}
 				}
 			}
@@ -3912,30 +3912,30 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec du changement de la date finale de banissement du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec du changement de la date finale de banissement du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec du changement de la date finale de banissement du compte [%s]. Le compte n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] final date of banishment changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account [%s] final date of banishment changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account [%s] final date of banishment changing failed. Account doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				time_t timestamp = RFIFOL(fd,30);
 				if (timestamp == 0) {
 					if (defaultlanguage == 'F') {
 						ShowMessage("Date finale de banissement du compte [%s][id: %d] change avec succs en [d-bannie].\n", RFIFOP(fd,6), id);
-						ladmin_log("Date finale de banissement du compte [%s][id: %d] change avec succs en [d-bannie].\n", RFIFOP(fd,6), id);
+						ladmin_log("Date finale de banissement du compte [%s][id: %d] change avec succs en [d-bannie]." RETCODE, RFIFOP(fd,6), id);
 					} else {
 						ShowMessage("Final date of banishment of the account [%s][id: %d] successfully changed to [unbanished].\n", RFIFOP(fd,6), id);
-						ladmin_log("Final date of banishment of the account [%s][id: %d] successfully changed to [unbanished].\n", RFIFOP(fd,6), id);
+						ladmin_log("Final date of banishment of the account [%s][id: %d] successfully changed to [unbanished]." RETCODE, RFIFOP(fd,6), id);
 					}
 				} else {
 					char tmpstr[128];
 					strftime(tmpstr, 24, date_format, localtime(&timestamp));
 					if (defaultlanguage == 'F') {
 						ShowMessage("Date finale de banissement du compte [%s][id: %d] change avec succs pour tre jusqu'au %s.\n", RFIFOP(fd,6), id, tmpstr);
-						ladmin_log("Date finale de banissement du compte [%s][id: %d] change avec succs pour tre jusqu'au %s.\n", RFIFOP(fd,6), id, tmpstr);
+						ladmin_log("Date finale de banissement du compte [%s][id: %d] change avec succs pour tre jusqu'au %s." RETCODE, RFIFOP(fd,6), id, tmpstr);
 					} else {
 						ShowMessage("Final date of banishment of the account [%s][id: %d] successfully changed to be until %s.\n", RFIFOP(fd,6), id, tmpstr);
-						ladmin_log("Final date of banishment of the account [%s][id: %d] successfully changed to be until %s.\n", RFIFOP(fd,6), id, tmpstr);
+						ladmin_log("Final date of banishment of the account [%s][id: %d] successfully changed to be until %s." RETCODE, RFIFOP(fd,6), id, tmpstr);
 					}
 				}
 			}
@@ -3949,18 +3949,18 @@ int parse_fromlogin(int fd)
 			if (RFIFOW(fd,2) == (unsigned short)-1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec de l'envoi du message. Aucun server de char en ligne.\n");
-					ladmin_log("Echec de l'envoi du message. Aucun server de char en ligne.\n");
+					ladmin_log("Echec de l'envoi du message. Aucun server de char en ligne." RETCODE);
 				} else {
 					ShowMessage("Message sending failed. No online char-server.\n");
-					ladmin_log("Message sending failed. No online char-server.\n");
+					ladmin_log("Message sending failed. No online char-server." RETCODE);
 				}
 			} else {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Message transmis au server de logins avec succs.\n");
-					ladmin_log("Message transmis au server de logins avec succs.\n");
+					ladmin_log("Message transmis au server de logins avec succs." RETCODE);
 				} else {
 					ShowMessage("Message successfully sended to login-server.\n");
-					ladmin_log("Message successfully sended to login-server.\n");
+					ladmin_log("Message successfully sended to login-server." RETCODE);
 				}
 			}
 			bytes_to_read = 0;
@@ -3974,10 +3974,10 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Echec du changement de la validit du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
-					ladmin_log("Echec du changement de la validit du compte [%s]. Le compte n'existe pas.\n", RFIFOP(fd,6));
+					ladmin_log("Echec du changement de la validit du compte [%s]. Le compte n'existe pas." RETCODE, RFIFOP(fd,6));
 				} else {
 					ShowMessage("Account [%s] validity limit changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
-					ladmin_log("Account [%s] validity limit changing failed. Account doesn't exist.\n", RFIFOP(fd,6));
+					ladmin_log("Account [%s] validity limit changing failed. Account doesn't exist." RETCODE, RFIFOP(fd,6));
 				}
 			} else {
 				time_t timestamp = RFIFOL(fd,30);
@@ -3986,22 +3986,22 @@ int parse_fromlogin(int fd)
 						ShowMessage("Limite de validit du compte [%s][id: %d] inchange.\n", RFIFOP(fd,6), id);
 						ShowMessage("Le compte a une validit illimite ou\n");
 						ShowMessage("la modification est impossible avec les ajustements demands.\n");
-						ladmin_log("Limite de validit du compte [%s][id: %d] inchange. Le compte a une validit illimite ou la modification est impossible avec les ajustements demands.\n", RFIFOP(fd,6), id);
+						ladmin_log("Limite de validit du compte [%s][id: %d] inchange. Le compte a une validit illimite ou la modification est impossible avec les ajustements demands." RETCODE, RFIFOP(fd,6), id);
 					} else {
 						ShowMessage("Validity limit of the account [%s][id: %d] unchanged.\n", RFIFOP(fd,6), id);
 						ShowMessage("The account have an unlimited validity limit or\n");
 						ShowMessage("the changing is impossible with the proposed adjustments.\n");
-						ladmin_log("Validity limit of the account [%s][id: %d] unchanged. The account have an unlimited validity limit or the changing is impossible with the proposed adjustments.\n", RFIFOP(fd,6), id);
+						ladmin_log("Validity limit of the account [%s][id: %d] unchanged. The account have an unlimited validity limit or the changing is impossible with the proposed adjustments." RETCODE, RFIFOP(fd,6), id);
 					}
 				} else {
 					char tmpstr[128];
 					strftime(tmpstr, 24, date_format, localtime(&timestamp));
 					if (defaultlanguage == 'F') {
 						ShowMessage("Limite de validit du compte [%s][id: %d] change avec succs pour tre jusqu'au %s.\n", RFIFOP(fd,6), id, tmpstr);
-						ladmin_log("Limite de validit du compte [%s][id: %d] change avec succs pour tre jusqu'au %s.\n", RFIFOP(fd,6), id, tmpstr);
+						ladmin_log("Limite de validit du compte [%s][id: %d] change avec succs pour tre jusqu'au %s." RETCODE, RFIFOP(fd,6), id, tmpstr);
 					} else {
 						ShowMessage("Validity limit of the account [%s][id: %d] successfully changed to be until %s.\n", RFIFOP(fd,6), id, tmpstr);
-						ladmin_log("Validity limit of the account [%s][id: %d] successfully changed to be until %s.\n", RFIFOP(fd,6), id, tmpstr);
+						ladmin_log("Validity limit of the account [%s][id: %d] successfully changed to be until %s." RETCODE, RFIFOP(fd,6), id, tmpstr);
 					}
 				}
 			}
@@ -4034,25 +4034,25 @@ int parse_fromlogin(int fd)
 			if (id == -1) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Impossible de trouver le compte [%s]. Le compte n'existe pas.\n", parameters);
-					ladmin_log("Impossible de trouver le compte [%s]. Le compte n'existe pas.\n", parameters);
+					ladmin_log("Impossible de trouver le compte [%s]. Le compte n'existe pas." RETCODE, parameters);
 				} else {
 					ShowMessage("Unabled to find the account [%s]. Account doesn't exist.\n", parameters);
-					ladmin_log("Unabled to find the account [%s]. Account doesn't exist.\n", parameters);
+					ladmin_log("Unabled to find the account [%s]. Account doesn't exist." RETCODE, parameters);
 				}
 			} else if (strlen(userid) == 0) {
 				if (defaultlanguage == 'F') {
 					ShowMessage("Impossible de trouver le compte [id: %s]. Le compte n'existe pas.\n", parameters);
-					ladmin_log("Impossible de trouver le compte [id: %s]. Le compte n'existe pas.\n", parameters);
+					ladmin_log("Impossible de trouver le compte [id: %s]. Le compte n'existe pas." RETCODE, parameters);
 				} else {
 					ShowMessage("Unabled to find the account [id: %s]. Account doesn't exist.\n", parameters);
-					ladmin_log("Unabled to find the account [id: %s]. Account doesn't exist.\n", parameters);
+					ladmin_log("Unabled to find the account [id: %s]. Account doesn't exist." RETCODE, parameters);
 				}
 			} else {
 				if (defaultlanguage == 'F') {
-					ladmin_log("Rception d'information concernant un compte.\n");
+					ladmin_log("Rception d'information concernant un compte." RETCODE);
 					ShowMessage("Le compte a les caractristiques suivantes:\n");
 				} else {
-					ladmin_log("Receiving information about an account.\n");
+					ladmin_log("Receiving information about an account." RETCODE);
 					ShowMessage("The account is set with:\n");
 				}
 				if (RFIFOB(fd,6) == 0) {
@@ -4087,37 +4087,37 @@ int parse_fromlogin(int fd)
 					if (defaultlanguage == 'F')
 						ShowMessage(" Statut: 0 [Compte Ok]\n");
 					else
-						ShowMessage(" State: 0 [Account OK]\n");
+						ShowMessage(" Statut: 0 [Account OK]\n");
 					break;
 				case 1:
 					ShowMessage(" Statut: 1 [Unregistered ID]\n");
 					break;
 				case 2:
-					ShowMessage(" State: 2 [Incorrect Password]\n");
+					ShowMessage(" Statut: 2 [Incorrect Password]\n");
 					break;
 				case 3:
 					ShowMessage(" Statut: 3 [This ID is expired]\n");
 					break;
 				case 4:
-					ShowMessage(" State: 4 [Rejected from Server]\n");
+					ShowMessage(" Statut: 4 [Rejected from Server]\n");
 					break;
 				case 5:
 					ShowMessage(" Statut: 5 [You have been blocked by the GM Team]\n");
 					break;
 				case 6:
-					ShowMessage(" State: 6 [Your Game's EXE file is not the latest version]\n");
+					ShowMessage(" Statut: 6 [Your Game's EXE file is not the latest version]\n");
 					break;
 				case 7:
 					ShowMessage(" Statut: 7 [You are Prohibited to log in until %s]\n", error_message);
 					break;
 				case 8:
-					ShowMessage(" State: 8 [Server is jammed due to over populated]\n");
+					ShowMessage(" Statut: 8 [Server is jammed due to over populated]\n");
 					break;
 				case 9:
 					ShowMessage(" Statut: 9 [No MSG]\n");
 					break;
 				default: // 100
-					ShowMessage(" State: %d [This ID is totally erased]\n", (int)RFIFOL(fd,36));
+					ShowMessage(" Statut: %d [This ID is totally erased]\n", (int)RFIFOL(fd,36));
 					break;
 				}
 				if (defaultlanguage == 'F') {
@@ -4170,7 +4170,7 @@ int parse_fromlogin(int fd)
 
 		default:
 			ShowMessage("Remote administration has been disconnected (unknown packet).\n");
-			ladmin_log("'End of connection, unknown packet.\n");
+			ladmin_log("'End of connection, unknown packet." RETCODE);
 			set_eof(fd);
 			return 0;
 		}
@@ -4189,17 +4189,17 @@ int Connect_login_server(void)
 {
 	if (defaultlanguage == 'F') {
 		ShowMessage("Essai de connection au server de logins...\n");
-		ladmin_log("Essai de connection au server de logins...\n");
+		ladmin_log("Essai de connection au server de logins..." RETCODE);
 	} else {
 		ShowMessage("Attempt to connect to login-server...\n");
-		ladmin_log("Attempt to connect to login-server...\n");
+		ladmin_log("Attempt to connect to login-server..." RETCODE);
 	}
 
 	login_fd = make_connection(login_ip, loginserverport);
 	if (login_fd == -1)
 	{	//Might not be the most elegant way to handle this, but I've never used ladmin so I dunno what else you could do. [Skotlex]
 		ShowMessage("Error: Failed to connect to Login Server\n");
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	if (passenc == 0) {
 		WFIFOHEAD(login_fd,28);
@@ -4210,10 +4210,10 @@ int Connect_login_server(void)
 		bytes_to_read = 1;
 		if (defaultlanguage == 'F') {
 			ShowMessage("Envoi du mot de passe...\n");
-			ladmin_log("Envoi du mot de passe...\n");
+			ladmin_log("Envoi du mot de passe..." RETCODE);
 		} else {
 			ShowMessage("Sending of the password...\n");
-			ladmin_log("Sending of the password...\n");
+			ladmin_log("Sending of the password..." RETCODE);
 		}
 	} else {
 		WFIFOHEAD(login_fd,2);
@@ -4222,25 +4222,13 @@ int Connect_login_server(void)
 		bytes_to_read = 1;
 		if (defaultlanguage == 'F') {
 			ShowMessage("Demande de la clef MD5...\n");
-			ladmin_log("Demande de la clef MD5...\n");
+			ladmin_log("Demande de la clef MD5..." RETCODE);
 		} else {
 			ShowMessage("Request about the MD5 key...\n");
-			ladmin_log("Request about the MD5 key...\n");
+			ladmin_log("Request about the MD5 key..." RETCODE);
 		}
 	}
 
-	return 0;
-}
-
-// sends a ping packet to login server (will receive pong 0x2718)
-int ping_login_server(int tid, unsigned int tick, int id, int data)
-{
-	if (login_fd > 0 && session[login_fd] != NULL)
-	{
-		WFIFOHEAD(login_fd,2);
-		WFIFOW(login_fd,0) = 0x2719;
-		WFIFOSET(login_fd,2);
-	}
 	return 0;
 }
 
@@ -4341,10 +4329,10 @@ void do_final(void)
 
 		if (defaultlanguage == 'F') {
 			ShowMessage("\033[0m----Fin de Ladmin (fin normale avec fermeture de tous les fichiers).\n");
-			ladmin_log("----Fin de Ladmin (fin normale avec fermeture de tous les fichiers).\n");
+			ladmin_log("----Fin de Ladmin (fin normale avec fermeture de tous les fichiers)." RETCODE);
 		} else {
 			ShowMessage("\033[0m----End of Ladmin (normal end with closing of all files).\n");
-			ladmin_log("----End of Ladmin (normal end with closing of all files).\n");
+			ladmin_log("----End of Ladmin (normal end with closing of all files)." RETCODE);
 		}
 
 		already_exit_function = 1;
@@ -4365,9 +4353,9 @@ int do_init(int argc, char **argv)
 
 	ladmin_log("");
 	if (defaultlanguage == 'F') {
-		ladmin_log("Fichier de configuration lu.\n");
+		ladmin_log("Fichier de configuration lu." RETCODE);
 	} else {
-		ladmin_log("Configuration file readed.\n");
+		ladmin_log("Configuration file readed." RETCODE);
 	}
 
 	srand(time(NULL));
@@ -4383,24 +4371,21 @@ int do_init(int argc, char **argv)
 	}
 
 	if (defaultlanguage == 'F') {
-		ladmin_log("Ladmin est prt.\n");
+		ladmin_log("Ladmin est prt." RETCODE);
 		ShowMessage("Ladmin est \033[1;32mprt\033[0m.\n\n");
 	} else {
-		ladmin_log("Ladmin is ready.\n");
+		ladmin_log("Ladmin is ready." RETCODE);
 		ShowMessage("Ladmin is \033[1;32mready\033[0m.\n\n");
 	}
 
 	Connect_login_server();
 
-	// keep the char-login connection alive
-	add_timer_func_list(ping_login_server, "ping_login_server");
-	add_timer_interval(gettick() + 1000, ping_login_server, 0, 0, ((int)stall_time-2) * 1000);
-
 	// minimalist core doesn't have sockets parsing,
 	// so we have to do this ourselves
 	while (runflag) {
 		next = do_timer(gettick_nocache());
-		do_sockets(next);
+		do_sendrecv(next);
+		do_parsepacket();
 	}
 
 	return 0;

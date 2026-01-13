@@ -7,16 +7,14 @@
 #include "../common/mmo.h" // JOB_*, MAX_FAME_LIST, struct fame_list, struct mmo_charstatus
 #include "../common/timer.h" // INVALID_TIMER
 #include "battle.h" // battle_config
-#include "map.h" // JOB_*, struct map_session_data
+#include "map.h" // MAX_PC_CLASS, struct map_session_data
 #include "status.h" // OPTION_*
 #include "unit.h" // unit_stop_attack(), unit_stop_walking()
 
-//Update this max as necessary. 54 is the value needed for Super Baby currently
-#define MAX_SKILL_TREE 54
-//Total number of classes (for data storage)
-#define CLASS_COUNT (JOB_MAX - JOB_NOVICE_HIGH + JOB_MAX_BASIC)
+//Update this max as necessary. 53 is the value needed for Super Baby currently
+#define MAX_SKILL_TREE 53
 
-enum weapon_type {
+enum {
 	W_FIST,	//Bare hands
 	W_DAGGER,	//1
 	W_1HSWORD,	//2
@@ -26,7 +24,7 @@ enum weapon_type {
 	W_1HAXE,	//6
 	W_2HAXE,	//7
 	W_MACE,	//8
-	W_2HMACE,	//9, unused?
+	W_UNKNOWN,	//View 9 seems unused anywhere
 	W_STAFF,	//10
 	W_BOW,	//11
 	W_KNUCKLE,	//12	
@@ -40,15 +38,8 @@ enum weapon_type {
 	W_GATLING,	//20
 	W_GRENADE,	//21
 	W_HUUMA,	//22
-	MAX_WEAPON_TYPE,
-	// dual-wield constants
-	W_DOUBLE_DD, // 2 daggers
-	W_DOUBLE_SS, // 2 swords
-	W_DOUBLE_AA, // 2 axes
-	W_DOUBLE_DS, // dagger + sword
-	W_DOUBLE_DA, // dagger + axe
-	W_DOUBLE_SA, // sword + axe
-};
+	MAX_WEAPON_TYPE
+} weapon_type;
 
 enum {
 	A_ARROW = 1,
@@ -59,9 +50,8 @@ enum {
 	A_SHURIKEN, //6
 	A_KUNAI     //7
 } ammo_type;
-
 //Equip position constants
-enum equip_pos {
+enum {
 	EQP_HEAD_LOW = 0x0001, 
 	EQP_HEAD_MID = 0x0200, //512
 	EQP_HEAD_TOP = 0x0100, //256
@@ -73,7 +63,7 @@ enum equip_pos {
 	EQP_ACC_L    = 0x0008,
 	EQP_ACC_R    = 0x0080, //128
 	EQP_AMMO     = 0x8000, //32768
-};
+} equip_pos_enum;
 
 #define EQP_WEAPON EQP_HAND_R
 #define EQP_SHIELD EQP_HAND_L
@@ -98,36 +88,33 @@ enum {
 	EQI_MAX
 } equip_index_enum;
 
-#define pc_setdead(sd)        ( (sd)->state.dead_sit = (sd)->vd.dead_sit = 1 )
-#define pc_setsit(sd)         ( (sd)->state.dead_sit = (sd)->vd.dead_sit = 2 )
-#define pc_isdead(sd)         ( (sd)->state.dead_sit == 1 )
-#define pc_issit(sd)          ( (sd)->vd.dead_sit == 2 )
-#define pc_isidle(sd)         ( (sd)->chatID || (sd)->vender_id || DIFF_TICK(last_tick, (sd)->idletime) >= battle_config.idle_no_share )
-#define pc_istrading(sd)      ( (sd)->npc_id || (sd)->vender_id || (sd)->state.trading )
-#define pc_cant_act(sd)       ( (sd)->npc_id || (sd)->vender_id || (sd)->chatID || (sd)->sc.opt1 || (sd)->state.trading || (sd)->state.storage_flag )
-#define pc_setdir(sd,b,h)     ( (sd)->ud.dir = (b) ,(sd)->head_dir = (h) )
-#define pc_setchatid(sd,n)    ( (sd)->chatID = n )
-#define pc_ishiding(sd)       ( (sd)->sc.option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) )
-#define pc_iscloaking(sd)     ( !((sd)->sc.option&OPTION_CHASEWALK) && ((sd)->sc.option&OPTION_CLOAK) )
-#define pc_ischasewalk(sd)    ( (sd)->sc.option&OPTION_CHASEWALK )
-#define pc_iscarton(sd)       ( (sd)->sc.option&OPTION_CART )
-#define pc_isfalcon(sd)       ( (sd)->sc.option&OPTION_FALCON )
-#define pc_isriding(sd)       ( (sd)->sc.option&OPTION_RIDING )
-#define pc_isinvisible(sd)    ( (sd)->sc.option&OPTION_INVISIBLE )
+#define pc_setdead(sd) ((sd)->state.dead_sit = (sd)->vd.dead_sit = 1)
+#define pc_setsit(sd) ((sd)->state.dead_sit = (sd)->vd.dead_sit = 2)
+#define pc_isdead(sd) ((sd)->state.dead_sit == 1)
+#define pc_issit(sd) ((sd)->vd.dead_sit == 2)
+#define pc_isidle(sd) ((sd)->chatID || (sd)->vender_id || DIFF_TICK(last_tick, (sd)->idletime) >= battle_config.idle_no_share)
+#define pc_setdir(sd,b,h) ((sd)->ud.dir = (b) ,(sd)->head_dir = (h) )
+#define pc_setchatid(sd,n) ((sd)->chatID = n)
+#define pc_ishiding(sd) ((sd)->sc.option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK))
+#define pc_iscloaking(sd) (!((sd)->sc.option&OPTION_CHASEWALK) && ((sd)->sc.option&OPTION_CLOAK))
+#define pc_ischasewalk(sd) ((sd)->sc.option&OPTION_CHASEWALK)
+#define pc_iscarton(sd) ((sd)->sc.option&OPTION_CART)
+#define pc_isfalcon(sd) ((sd)->sc.option&OPTION_FALCON)
+#define pc_isriding(sd) ((sd)->sc.option&OPTION_RIDING)
+#define pc_isinvisible(sd) ((sd)->sc.option&OPTION_INVISIBLE)
 #define pc_is50overweight(sd) ( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
 #define pc_is90overweight(sd) ( (sd)->weight*10 >= (sd)->max_weight*9 )
-#define pc_maxparameter(sd)   ( (sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter : battle_config.max_parameter )
+#define pc_maxparameter(sd) ((sd->class_&JOBL_BABY) ? battle_config.max_baby_parameter : battle_config.max_parameter)
 
-#define pc_stop_walking(sd, type) unit_stop_walking(&(sd)->bl, type)
-#define pc_stop_attack(sd) { if((sd)->ud.attacktimer != -1) { unit_stop_attack(&(sd)->bl); (sd)->ud.target = 0; } }
+#define pc_stop_attack(sd) { if (sd->ud.attacktimer!=-1) { unit_stop_attack(&sd->bl); sd->ud.target = 0; } }
+#define pc_stop_walking(sd, type) { if (sd->ud.walktimer!=-1) unit_stop_walking(&sd->bl, type); }
 
 //Weapon check considering dual wielding.
 #define pc_check_weapontype(sd, type) ((type)&((sd)->status.weapon < MAX_WEAPON_TYPE? \
 	1<<(sd)->status.weapon:(1<<(sd)->weapontype1)|(1<<(sd)->weapontype2)))
 //Checks if the given class value corresponds to a player class. [Skotlex]
-#define pcdb_checkid(class_) (class_ < JOB_MAX_BASIC || (class_ >= JOB_NOVICE_HIGH && class_ < JOB_MAX))
+#define pcdb_checkid(class_) (class_ <= JOB_XMAS || (class_ >= JOB_NOVICE_HIGH && class_ <= JOB_SOUL_LINKER))
 
-int pc_class2idx(int class_);
 int pc_isGM(struct map_session_data *sd);
 int pc_getrefinebonus(int lv,int type);
 int pc_can_give_items(int level); //[Lupus]
@@ -153,10 +140,10 @@ int pc_clean_skilltree(struct map_session_data *sd);
 #define pc_checkoverhp(sd) (sd->battle_status.hp == sd->battle_status.max_hp)
 #define pc_checkoversp(sd) (sd->battle_status.sp == sd->battle_status.max_sp)
 
-int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y, uint8 clrtype);
+int pc_setpos(struct map_session_data*,unsigned short,int,int,int);
 int pc_setsavepoint(struct map_session_data*,short,int,int);
 int pc_randomwarp(struct map_session_data *sd,int type);
-int pc_memo(struct map_session_data* sd, int pos);
+int pc_memo(struct map_session_data *sd,int i);
 int pc_remove_map(struct map_session_data *sd,int clrtype);
 
 int pc_checkadditem(struct map_session_data*,int,int);
@@ -177,9 +164,6 @@ int pc_takeitem(struct map_session_data*,struct flooritem_data*);
 int pc_dropitem(struct map_session_data*,int,int);
 
 int pc_updateweightstatus(struct map_session_data *sd);
-
-int pc_autoscript_add(struct s_autoscript *scripts, int max, short rate, short flag, struct script_code *script);
-void pc_autoscript_clear(struct s_autoscript *scripts, int max);
 
 int pc_bonus(struct map_session_data*,int,int);
 int pc_bonus2(struct map_session_data *sd,int,int,int);
@@ -205,9 +189,7 @@ int pc_checkbaselevelup(struct map_session_data *sd);
 int pc_checkjoblevelup(struct map_session_data *sd);
 int pc_gainexp(struct map_session_data*,struct block_list*,unsigned int,unsigned int);
 unsigned int pc_nextbaseexp(struct map_session_data *);
-unsigned int pc_thisbaseexp(struct map_session_data *);
 unsigned int pc_nextjobexp(struct map_session_data *);
-unsigned int pc_thisjobexp(struct map_session_data *);
 int pc_need_status_point(struct map_session_data *,int);
 int pc_statusup(struct map_session_data*,int);
 int pc_statusup2(struct map_session_data*,int,int);
@@ -282,7 +264,6 @@ struct map_session_data *pc_get_mother(struct map_session_data *sd);
 struct map_session_data *pc_get_child(struct map_session_data *sd);
 
 void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick);
-void pc_regen (struct map_session_data *sd, unsigned int diff_tick);
 
 int pc_set_gm_level(int account_id, int level);
 void pc_setstand(struct map_session_data *sd);
@@ -302,21 +283,12 @@ struct skill_tree_entry {
 		unsigned char lv;
 	} need[5];
 }; // Celest
-extern struct skill_tree_entry skill_tree[CLASS_COUNT][MAX_SKILL_TREE];
-
-struct sg_data {
-	short anger_id;
-	short bless_id;
-	short comfort_id;
-	char feel_var[NAME_LENGTH];
-	char hate_var[NAME_LENGTH];
-	int (*day_func)(void);
-};
-extern const struct sg_data sg_info[3];
+extern struct skill_tree_entry skill_tree[MAX_PC_CLASS][MAX_SKILL_TREE];
 
 int pc_read_gm_account(int fd);
-void pc_setinvincibletimer(struct map_session_data* sd, int val);
-void pc_delinvincibletimer(struct map_session_data* sd);
+int pc_setinvincibletimer(struct map_session_data *sd,int);
+void pc_delinvincibletimer_sub(struct map_session_data *sd);
+#define pc_delinvincibletimer(sd) if ((sd)->invincible_timer != INVALID_TIMER) pc_delinvincibletimer_sub(sd)
 
 int pc_addspiritball(struct map_session_data *sd,int,int);
 int pc_delspiritball(struct map_session_data *sd,int,int);

@@ -4,18 +4,11 @@
 #ifndef _ITEMDB_H_
 #define _ITEMDB_H_
 
-#include "../common/mmo.h" // ITEM_NAME_LENGTH
+#include "mmo.h" // ITEM_NAME_LENGTH
 
 #define MAX_RANDITEM	10000
 
 #define MAX_SEARCH	5  //Designed for search functions, species max number of matches to display.
-
-#define ITEMID_YELLOW_GEMSTONE 715
-#define ITEMID_RED_GEMSTONE 716
-#define ITEMID_BLUE_GEMSTONE 717
-#define itemid_isgemstone(id) ( (id) >= ITEMID_YELLOW_GEMSTONE && (id) <= ITEMID_BLUE_GEMSTONE )
-
-#define ITEMID_TRAP 1065
 
 
 enum item_types {
@@ -31,7 +24,7 @@ enum item_types {
 	IT_UNKNOWN2,//9
 	IT_AMMO,    //10
 	IT_DELAYCONSUME,//11
-	IT_MAX 
+	IT_MAX
 };
 
 //The only item group required by the code to be known. See const.txt for the full list.

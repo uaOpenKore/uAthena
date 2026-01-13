@@ -4,7 +4,7 @@
 #ifndef _MERCENARY_H_
 #define _MERCENARY_H_
 
-struct s_homunculus_db {
+struct homunculus_db {
 	int base_class, evo_class;
 	char name[NAME_LENGTH];
 	struct h_stats {
@@ -16,7 +16,7 @@ struct s_homunculus_db {
 	long hungryDelay ;
 	unsigned char element, race, base_size, evo_size;
 };
-extern struct s_homunculus_db homuncumlus_db[MAX_HOMUNCULUS_CLASS];
+extern struct homunculus_db homuncumlus_db[MAX_HOMUNCULUS_CLASS];
 enum { HOMUNCULUS_CLASS, HOMUNCULUS_FOOD };
 enum {
 	SP_ACK 	= 0x00,
@@ -44,7 +44,6 @@ int merc_hom_vaporize(struct map_session_data *sd, int flag);
 int merc_resurrect_homunculus(struct map_session_data *sd, unsigned char per, short x, short y);
 void merc_hom_revive(struct homun_data *hd, unsigned int hp, unsigned int sp);
 void merc_reset_stats(struct homun_data *hd);
-int merc_hom_shuffle(struct homun_data *hd); // [Zephyrus]
 void merc_save(struct homun_data *hd);
 int merc_call_homunculus(struct map_session_data *sd);
 int merc_create_homunculus_request(struct map_session_data *sd, int class_);
@@ -54,7 +53,7 @@ int merc_hom_food(struct map_session_data *sd, struct homun_data *hd);
 int merc_hom_hungry_timer_delete(struct homun_data *hd);
 int merc_hom_change_name(struct map_session_data *sd,char *name);
 int merc_hom_change_name_ack(struct map_session_data *sd, char* name, int flag);
-#define merc_stop_walking(hd, type) unit_stop_walking(&(hd)->bl, type)
+#define merc_stop_walking(hd, type) { if((hd)->ud.walktimer != -1) unit_stop_walking(&(hd)->bl, type); }
 #define merc_stop_attack(hd) { if((hd)->ud.attacktimer != -1) unit_stop_attack(&(hd)->bl); hd->ud.target = 0; }
 int merc_hom_increase_intimacy(struct homun_data * hd, unsigned int value);
 int merc_hom_decrease_intimacy(struct homun_data * hd, unsigned int value);

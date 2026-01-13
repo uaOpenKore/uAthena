@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define RETCODE	"\r\n"
+
 #define MAX_INVENTORY 100
 #define MAX_CART 100
 #define MAX_SKILL 350
@@ -49,7 +51,7 @@ struct mmo_charstatus {
 
 	char name[24];
 	unsigned char base_level,job_level;
-	unsigned char str,agi,vit,int_,dex,luk,slot,sex;
+	unsigned char str,agi,vit,int_,dex,luk,char_num,sex;
 
 	struct point last_point,save_point,memo_point[3];
 	struct item inventory[MAX_INVENTORY],cart[MAX_CART];
@@ -64,7 +66,7 @@ int mmo_char_tostr(char *str,struct mmo_charstatus *p)
   sprintf(str,"%d\t%d,%d\t%s\t%d,%d,%d\t%d,%d,%d\t%d,%d,%d,%d\t%d,%d,%d,%d,%d,%d\t%d,%d"
 	  "\t%d,%d,%d\t%d,%d,%d\t%d,%d,%d\t%d,%d,%d,%d,%d"
 	  "\t%s,%d,%d\t%s,%d,%d",
-	  p->char_id,p->account_id,p->slot,p->name, //
+	  p->char_id,p->account_id,p->char_num,p->name, //
 	  p->class,p->base_level,p->job_level,
 	  p->base_exp,p->job_exp,p->zeny,
 	  p->hp,p->max_hp,p->sp,p->max_sp,
@@ -133,7 +135,7 @@ int mmo_char_fromstr(char *str,struct mmo_charstatus *p)
 	 );
   p->char_id=tmp_int[0];
   p->account_id=tmp_int[1];
-  p->slot=tmp_int[2];
+  p->char_num=tmp_int[2];
   p->class=tmp_int[3];
   p->base_level=tmp_int[4];
   p->job_level=tmp_int[5];
@@ -280,7 +282,7 @@ int mmo_char_convert(char *fname1,char *fname2)
     ret=mmo_char_fromstr(line,&char_dat);
     if(ret){
 	    mmo_char_tostr(line,&char_dat);
-	  fprintf(ofp,"%s\n",line);
+	  fprintf(ofp,"%s" RETCODE,line);
     }
   }
   fclose(ifp);
@@ -292,7 +294,7 @@ int main(int argc,char *argv[])
 {
 	if(argc < 3) {
 		printf("Usage: convert <input filename> <output filename>\n");
-		exit(EXIT_SUCCESS);
+		exit(0);
 	}
 	mmo_char_convert(argv[1],argv[2]);
 

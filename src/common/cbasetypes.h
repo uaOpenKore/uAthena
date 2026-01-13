@@ -52,18 +52,6 @@
 #define DEBUG
 #endif
 
-// debug function name
-#ifndef __NETBSD__
-#if __STDC_VERSION__ < 199901L
-#	if __GNUC__ >= 2
-#		define __func__ __FUNCTION__
-#	else
-#		define __func__ ""
-#	endif
-#endif
-#endif
-
-
 // disable attributed stuff on non-GNU
 #if !defined(__GNUC__) && !defined(MINGW)
 #  define  __attribute__(x)
@@ -269,6 +257,21 @@ typedef char bool;
 #else
 #define PATHSEP '/'
 #endif
+
+//////////////////////////////////////////////////////////////////////////
+// EOL separator
+
+#if defined(WIN32) || defined(CYGWIN)
+#define RETCODE	"\r\n"	// CR/LF : Windows systems
+/*FIXME: Mac OSX also uses \n, only pre-OSX uses \r
+#elif defined(__APPLE__)
+#define RETCODE "\r"	// CR : Macintosh systems
+*/
+#else
+#define RETCODE "\n"	// LF : Unix systems
+#endif
+
+#define RET RETCODE
 
 //////////////////////////////////////////////////////////////////////////
 // Assert

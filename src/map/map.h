@@ -28,11 +28,21 @@
 //  but is not the official behaviour.
 //#define CIRCULAR_AREA
 
+#define MAX_PC_CLASS 4050
+#define PC_CLASS_BASE 0
+#define PC_CLASS_BASE2 (PC_CLASS_BASE + 4001)
+#define PC_CLASS_BASE3 (PC_CLASS_BASE2 + 22)
 #define MAX_NPC_PER_MAP 512
 #define BLOCK_SIZE 8
 #define AREA_SIZE battle_config.area_size
 #define DAMAGELOG_SIZE 30
 #define LOOTITEM_SIZE 10
+//Quick defines to know which are the min-max common ailments. [Skotlex]
+//Because of the way the headers are included.. these must be replaced for actual values.
+//Remember to update as needed! Min is SC_STONE and max is SC_DPOISON currently.
+#define SC_COMMON_MIN 0
+#define SC_COMMON_MAX 10
+
 #define MAX_SKILL_LEVEL 100
 #define MAX_SKILLUNITGROUP 25
 #define MAX_SKILLUNITGROUPTICKSET 25
@@ -52,6 +62,8 @@
 
 #define MAX_PC_BONUS 10
 #define MAX_DUEL 1024
+
+#define map_id2index(id) map[(id)].index
 
 //The following system marks a different job ID system used by the map server,
 //which makes a lot more sense than the normal one. [Skotlex]
@@ -82,8 +94,7 @@ enum {
 	MAPID_WEDDING,
 	MAPID_GUNSLINGER,
 	MAPID_NINJA,
-	MAPID_XMAS,
-	MAPID_SUMMER,
+	MAPID_XMAS, // [Valaris]
 //2_1 classes
 	MAPID_SUPER_NOVICE = JOBL_2_1|0x0,
 	MAPID_KNIGHT,
@@ -151,15 +162,16 @@ enum {
 	MAPID_BABY_SOUL_LINKER,
 };
 
-//Max size for inputs to Graffiti, Talkie Box and Vending text prompts
-#define MESSAGE_SIZE (79 + 1)
+//Max size when inputting a string with those 'npc input boxes'
+//(also used for Graffiti, Talkie Box, Vending, and Chatrooms)
+#define MESSAGE_SIZE 80
 //String length you can write in the 'talking box'
-#define CHATBOX_SIZE (70 + 1)
+#define CHATBOX_SIZE 70
+//Talk max size: <name> : <message of 70> [Skotlex]
+#define CHAT_SIZE (NAME_LENGTH + 3 + CHATBOX_SIZE)
 //Chatroom-related string sizes
 #define CHATROOM_TITLE_SIZE (36 + 1)
 #define CHATROOM_PASS_SIZE (8 + 1)
-//Max allowed chat text length
-#define CHAT_SIZE_MAX 150
 
 #define DEFAULT_AUTOSAVE_INTERVAL 5*60*1000
 
@@ -170,10 +182,10 @@ enum {
 //Specifies if the map is tagged as GvG/WoE (regardless of agit_flag status)
 #define map_flag_gvg2(m) (map[m].flag.gvg || map[m].flag.gvg_castle)
 
-//This stackable implementation does not means a BL can be more than one type at a time, but it's 
+//This stackable implementation does not means a BL can be more than one type at a time, but it's
 //meant to make it easier to check for multiple types at a time on invocations such as
 // map_foreach* calls [Skotlex]
-enum bl_type { 
+enum bl_type {
 	BL_NUL = 0x000,
 	BL_PC = 0x001,
 	BL_MOB = 0x002,
@@ -189,7 +201,7 @@ enum bl_type {
 #define BL_CHAR (BL_PC|BL_MOB|BL_HOM)
 #define BL_ALL 0xfff
 
-enum npc_subtype { WARP, SHOP, SCRIPT };
+enum bl_subtype { WARP, SHOP, SCRIPT, MONS };
 
 enum {
 	RC_FORMLESS=0,
@@ -232,7 +244,8 @@ struct block_list {
 	struct block_list *next,*prev;
 	int id;
 	short m,x,y;
-	enum bl_type type;
+	unsigned char type;
+	unsigned char subtype;
 };
 
 struct walkpath_data {
@@ -252,7 +265,7 @@ struct skill_timerskill {
 	int map;
 	short x,y;
 	short skill_id,skill_lv;
-	int type; // a BF_ type (NOTE: some places use this as general-purpose storage...)
+	int type;
 	int flag;
 };
 
@@ -277,7 +290,7 @@ struct skill_unit_group {
 	unsigned int tick;
 	int limit,interval;
 
-	short skill_id,skill_lv;
+	int skill_id,skill_lv;
 	int val1,val2,val3;
 	char *valstr;
 	int unit_id;
@@ -287,6 +300,7 @@ struct skill_unit_group {
 	struct {
 		unsigned ammo_consume : 1;
 		unsigned magic_power : 1;
+		unsigned into_abyss : 1;
 		unsigned song_dance : 2; //0x1 Song/Dance, 0x2 Ensemble
 	} state;
 };
@@ -314,7 +328,7 @@ struct unit_data {
 	unsigned int attackabletime;
 	unsigned int canact_tick;
 	unsigned int canmove_tick;
-	uint8 dir;
+	unsigned char dir;
 	unsigned char walk_count;
 	struct {
 		unsigned change_walk_target : 1 ;
@@ -356,7 +370,7 @@ struct status_data {
 		size, race;
 	signed char
 		def, mdef;
-	struct weapon_atk rhw, lhw; //Right Hand/Left Hand Weapon.
+	struct weapon_atk rhw, *lhw; //Right Hand/Left Hand Weapon. Only players have a lhw (hence it's a pointer)
 };
 
 struct script_reg {
@@ -374,22 +388,17 @@ struct status_change_entry {
 };
 
 struct status_change {
-	unsigned int option;// effect state
-	unsigned int opt3;// skill state
+	struct status_change_entry data[SC_MAX];
+	short count;
 	unsigned short opt1;// body state
 	unsigned short opt2;// health state
-	unsigned char count;
-	//TODO: See if it is possible to implement the following SC's without requiring extra parameters while the SC is inactive.
-	unsigned char jb_flag; //Joint Beat type flag
-	unsigned short mp_matk_min, mp_matk_max; //Previous matk min/max for ground spells (Amplify magic power)
-	int sg_id; //ID of the previous Storm gust that hit you
-	unsigned char sg_counter; //Storm gust counter (previous hits from storm gust)
-	struct status_change_entry *data[SC_MAX];
+	unsigned int opt3;
+	unsigned int option;// effect state
 };
 
-struct s_vending {
+struct vending {
 	short index;
-	short amount;
+	unsigned short amount;
 	unsigned int value;
 };
 
@@ -416,9 +425,9 @@ struct weapon_data {
 		unsigned type:1;
 	} hp_drain[RC_MAX], sp_drain[RC_MAX];
 
-	struct {
-		short class_, rate;
-	}	add_dmg[MAX_PC_BONUS];
+	short add_damage_classid[MAX_PC_BONUS];
+	int add_damage_classrate[MAX_PC_BONUS];
+	int add_damage_class_count;
 };
 
 struct view_data {
@@ -445,7 +454,7 @@ struct regen_data_sub {
 	struct {
 		unsigned int hp,sp;
 	} tick;
-	
+
 	//Regen rates (where every 1 means +100% regen)
 	struct {
 		unsigned char hp,sp;
@@ -462,13 +471,13 @@ struct regen_data {
 	struct {
 		unsigned int hp,sp,shp,ssp;
 	} tick;
-	
+
 	//Regen rates (where every 1 means +100% regen)
 	struct {
 		unsigned char
 		hp,sp,shp,ssp;
 	} rate;
-	
+
 	struct {
 		unsigned walk:1; //Can you regen even when walking?
 		unsigned gc:1;	//Tags when you should have double regen due to GVG castle
@@ -509,6 +518,7 @@ struct map_session_data {
 	struct unit_data ud;
 	struct view_data vd;
 	struct status_data base_status, battle_status;
+	struct weapon_atk base_lhw, battle_lhw; //Left-hand weapon atk data.
 	struct status_change sc;
 	struct regen_data regen;
 	struct regen_data_sub sregen, ssregen;
@@ -582,7 +592,7 @@ struct map_session_data {
 	struct mmo_charstatus status;
 	struct registry save_reg;
 	
-	struct item_data* inventory_data[MAX_INVENTORY]; // direct pointers to itemdb entries (faster than doing item_id lookups)
+	struct item_data *inventory_data[MAX_INVENTORY];
 	short equip_index[11];
 	unsigned int weight,max_weight;
 	int cart_weight,cart_num;
@@ -596,7 +606,7 @@ struct map_session_data {
 	int npc_menu;
 	int npc_amount;
 	struct script_state *st;
-	char npc_str[CHATBOX_SIZE]; // for passing npc input box text to script engine
+	char npc_str[256];
 	int npc_timer_id; //For player attached npc timers. [Skotlex]
 	unsigned int chatID;
 	time_t idletime;
@@ -646,31 +656,24 @@ struct map_session_data {
 	int magic_addsize[3];
 	int critaddrace[RC_MAX];
 	int expaddrace[RC_MAX];
-	int ignore_mdef[RC_MAX];
 	int itemgrouphealrate[MAX_ITEMGROUP];
 	short sp_gain_race[RC_MAX];
 	// zeroed arrays end here.
 	// zeroed structures start here
 	struct s_autospell{
 		short id, lv, rate, card_id, flag;
-	} autospell[15], autospell2[15];
+	} autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS];
 	struct s_addeffect{
 		short id, rate, arrow_rate;
 		unsigned char flag;
 	} addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
 	struct { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
-		unsigned short id;
-		short val;
-	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS];
-	struct {
-		short value;
-		int rate;
-		int tick;
-	} hp_loss, sp_loss, hp_regen, sp_regen;
+		short id, val;
+	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS];
 	struct {
 		short class_, rate;
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS],
-		add_mdmg[MAX_PC_BONUS];
+		add_dmg[MAX_PC_BONUS], add_mdmg[MAX_PC_BONUS];
 	struct s_add_drop { 
 		short id, group;
 		int race, rate;
@@ -680,12 +683,6 @@ struct map_session_data {
 		int rate;
 	} itemhealrate[MAX_PC_BONUS];
 	// zeroed structures end here
-	// manually zeroed structures start here.
-	struct s_autoscript {
-		unsigned short rate, flag;
-		struct script_code *script;
-	} autoscript[5], autoscript2[5]; //Auto script on attack, when attacked
-	// manually zeroed structures end here.
 	// zeroed vars start here.
 	int arrow_atk,arrow_ele,arrow_cri,arrow_hit;
 	int nsshealhp,nsshealsp;
@@ -704,18 +701,26 @@ struct map_session_data {
 	int random_attack_increase_add,random_attack_increase_per; // [Valaris]
 	int break_weapon_rate,break_armor_rate;
 	int crit_atk_rate;
+	int hp_loss_rate;
+	int sp_loss_rate;
 	int classchange; // [Valaris]
 	int speed_add_rate, aspd_add;
 	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
-	
+
 	short splash_range, splash_add_range;
 	short add_steal_rate;
+	short hp_loss_value;
+	short sp_loss_value;
+	short hp_loss_type;
 	short sp_gain_value, hp_gain_value;
 	short sp_vanish_rate;
 	short sp_vanish_per;	
+	short add_drop_count;
 	unsigned short unbreakable;	// chance to prevent ANY equipment breaking [celest]
 	unsigned short unbreakable_equip; //100% break resistance on certain equipment
 	unsigned short unstripable_equip;
+	short add_def_count,add_mdef_count;
+	short add_dmg_count,add_mdmg_count;
 
 	// zeroed vars end here.
 
@@ -724,6 +729,9 @@ struct map_session_data {
 	int speed_rate,hprecov_rate,sprecov_rate;
 	int matk_rate;
 	int critical_rate,hit_rate,flee_rate,flee2_rate,def_rate,def2_rate,mdef_rate,mdef2_rate;
+
+	int hp_loss_tick;
+	int sp_loss_tick;
 
 	int itemid;
 	short itemindex;	//Used item's index in sd->inventory [Skotlex]
@@ -745,9 +753,9 @@ struct map_session_data {
 	struct script_regstr *regstr;
 
 	int trade_partner;
-	struct { 
+	struct {
 		struct {
-			short index, amount;
+			int index, amount;
 		} item[10];
 		int zeny, weight;
 	} deal;
@@ -763,7 +771,7 @@ struct map_session_data {
 	int vender_id;
 	int vend_num;
 	char message[MESSAGE_SIZE];
-	struct s_vending vending[MAX_VENDING];
+	struct vending vending[MAX_VENDING];
 
 	struct pet_data *pd;
 	struct homun_data *hd;	// [blackhole89]
@@ -774,7 +782,7 @@ struct map_session_data {
 	}feel_map[3];// 0 - Sun; 1 - Moon; 2 - Stars
 	short hate_mob[3];
 
-	int pvp_timer;
+	unsigned int pvp_timer;
 	short pvp_point;
 	unsigned short pvp_rank, pvp_lastusers;
 	unsigned short pvp_won, pvp_lost;
@@ -788,7 +796,7 @@ struct map_session_data {
 	char fakename[NAME_LENGTH]; // fake names [Valaris]
 
 #ifndef TXT_ONLY
-	int mail_counter;	// mail counter for mail system (antiflood protection)
+	int mail_counter;	// mail counter for mail system [Valaris]
 #endif
 
 	int duel_group; // duel vars [LuzZza]
@@ -821,21 +829,25 @@ struct npc_data {
 	struct unit_data  ud; //Because they need to be able to move....
 	struct view_data *vd;
 	struct status_change sc; //They can't have status changes, but.. they want the visual opt values.
-	struct npc_data *master_nd;
 	short n;
 	short class_;
 	short speed;
-	char name[NAME_LENGTH+1];// display name
-	char exname[NAME_LENGTH+1];// unique npc name
+	char name[NAME_LENGTH];
+	char exname[NAME_LENGTH];
 	int chat_id;
 	unsigned int next_walktime;
 
+	char eventqueue[MAX_EVENTQUEUE][50];
+	int eventtimer[MAX_EVENTTIMER];
+	short arenaflag;
+
 	void* chatdb; // pointer to a npc_parse struct (see npc_chat.c)
-	enum npc_subtype subtype;
+	struct npc_data *master_nd;
+
 	union {
 		struct {
 			struct script_code *script;
-			short xs,ys; // OnTouch area radius
+			short xs,ys;
 			int guild_id;
 			int timer,timerid,timeramount,rid;
 			unsigned int timertick;
@@ -844,16 +856,14 @@ struct npc_data {
 			struct npc_label_list *label_list;
 			int src_id;
 		} scr;
+		struct npc_item_list shop_item[1];
 		struct {
-			struct npc_item_list* shop_item;
-			int count;
-		} shop;
-		struct {
-			short xs,ys; // OnTouch area radius
-			short x,y; // destination coords
-			unsigned short mapindex; // destination map
+			short xs,ys;
+			short x,y;
+			unsigned short mapindex;
 		} warp;
 	} u;
+	//Do NOT place anything afterwards... shop data NPC will override any variables from here and on! [Skotlex]
 };
 
 //For quick linking to a guardian's info. [Skotlex]
@@ -908,11 +918,10 @@ struct mob_data {
 		unsigned steal_coin_flag : 1;
 		unsigned soul_change_flag : 1; // Celest
 		unsigned alchemist: 1;
-		unsigned spotted: 1;
 		unsigned char attacked_count; //For rude attacked.
 		int provoke_flag; // Celest
 	} state;
-	struct guardian_data* guardian_data; 
+	struct guardian_data* guardian_data;
 	struct {
 		int id;
 		unsigned int dmg;
@@ -925,7 +934,8 @@ struct mob_data {
 	unsigned int tdmg; //Stores total damage given to the mob, for exp calculations. [Skotlex]
 	int level;
 	int target_id,attacked_id;
-	unsigned int next_walktime,last_thinktime,last_linktime;
+	unsigned int next_walktime;
+	unsigned int last_deadtime,last_spawntime,last_thinktime,last_linktime;
 	short move_fail_count;
 	short lootitem_count;
 	short min_chase;
@@ -946,7 +956,7 @@ struct homun_data {
 	struct status_data base_status, battle_status;
 	struct status_change sc;
 	struct regen_data regen;
-	struct s_homunculus_db *homunculusDB;	//[orn]
+	struct homunculus_db *homunculusDB;	//[orn]
 	struct s_homunculus homunculus ;	//[orn]
 
 	struct map_session_data *master; //pointer back to its master
@@ -962,7 +972,7 @@ struct pet_data {
 	struct s_pet pet;
 	struct status_data status;
 	struct mob_db *db;
-	struct s_pet_db *petDB;
+	struct pet_db *petDB;
 	int pet_hungry_timer;
 	int target_id;
 	struct {
@@ -1013,11 +1023,18 @@ struct pet_data {
 	struct map_session_data *msd;
 };
 
+// state of a single attack attempt; used in flee/def penalty calculations when mobbed
+enum {
+	ATK_LUCKY=1, // attack was lucky-dodged
+	ATK_FLEE,    // attack was dodged
+	ATK_DEF      // attack connected
+};
+
 struct map_data {
 	char name[MAP_NAME_LENGTH];
-	unsigned short index; // The map index used by the mapindex* functions.
-	unsigned char *gat;   // Holds the type of each map cell (NULL if the map is not on this map-server).
-	unsigned char *cell;  // Contains temporary cell data that is set/unset on tiles.
+	unsigned short index; //Index is the map index used by the mapindex* functions.
+	unsigned char *gat; // If this is NULL, the map is not on this map-server
+	unsigned char *cell; //Contains temporary cell data that is set/unset on tiles.
 #ifdef CELL_NOSTACK
 	unsigned char *cell_bl; //Holds amount of bls in any given cell.
 #endif
@@ -1025,8 +1042,8 @@ struct map_data {
 	struct block_list **block_mob;
 	int *block_count,*block_mob_count;
 	int m;
-	short xs,ys; // map dimensions (in cells)
-	short bxs,bys; // map dimensions (in blocks)
+	short xs,ys;
+	short bxs,bys;
 	int water_height; // water level value, needed because of mapcache saving
 	int npc_num;
 	int users;
@@ -1106,19 +1123,19 @@ struct flooritem_data {
 	struct block_list bl;
 	unsigned char subx,suby;
 	int cleartimer;
-	int first_get_charid,second_get_charid,third_get_charid;
+	int first_get_id,second_get_id,third_get_id;
 	unsigned int first_get_tick,second_get_tick,third_get_tick;
 	struct item item_data;
 };
 
 struct chat_data {
 	struct block_list bl;            // data for this map object
-	char title[CHATROOM_TITLE_SIZE]; // room title 
+	char title[CHATROOM_TITLE_SIZE]; // room title
 	char pass[CHATROOM_PASS_SIZE];   // password
 	bool pub;                        // private/public flag
-	uint8 users;                     // current user count
-	uint8 limit;                     // join limit
-	uint8 trigger;                   // number of users needed to trigger event
+	unsigned char users;             // current users
+	unsigned char limit;             // join limit
+	unsigned char trigger;           // number of users needed to trigger event
 	struct map_session_data* usersd[20];
 	struct block_list* owner;
 	char npc_event[50];
@@ -1147,7 +1164,7 @@ enum _sp {
 	SP_CRITICAL_DEF,SP_NEAR_ATK_DEF,SP_LONG_ATK_DEF, // 1019-1021
 	SP_DOUBLE_RATE, SP_DOUBLE_ADD_RATE, SP_SKILL_HEAL, SP_MATK_RATE, // 1022-1025
 	SP_IGNORE_DEF_ELE,SP_IGNORE_DEF_RACE, // 1026-1027
-	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_SP_REGEN_RATE, // 1028-1030
+	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_FREE3, // 1028-1030
 	SP_MAGIC_ATK_DEF,SP_MISC_ATK_DEF, // 1031-1032
 	SP_IGNORE_MDEF_ELE,SP_IGNORE_MDEF_RACE, // 1033-1034
 	SP_MAGIC_ADDELE,SP_MAGIC_ADDRACE,SP_MAGIC_ADDSIZE, // 1035-1037
@@ -1163,23 +1180,22 @@ enum _sp {
 	SP_HP_DRAIN_VALUE,SP_SP_DRAIN_VALUE, // 1079-1080
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
 	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
-	SP_IGNORE_MDEF_RATE, //1086
 	
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_NO_MISC_DAMAGE,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010
 	SP_UNBREAKABLE_SHIELD, SP_LONG_ATK_RATE, // 2011-2012
 
 	SP_CRIT_ATK_RATE, SP_CRITICAL_ADDRACE, SP_NO_REGEN, SP_ADDEFF_WHENHIT, SP_AUTOSPELL_WHENHIT, // 2013-2017
-	SP_SKILL_ATK, SP_UNSTRIPABLE, SP_FREE, // 2018-2020
-	SP_SP_GAIN_VALUE, SP_HP_REGEN_RATE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
+	SP_SKILL_ATK, SP_UNSTRIPABLE, SP_ADD_DAMAGE_BY_CLASS, // 2018-2020
+	SP_SP_GAIN_VALUE, SP_FREE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
 	SP_SUBSIZE, SP_HP_DRAIN_VALUE_RACE, SP_ADD_ITEM_HEAL_RATE, SP_SP_DRAIN_VALUE_RACE, SP_EXP_ADDRACE,	// 2026-2030
-	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_FREE2,	// 2031-2033
+	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_ADDEFF_WHENHIT_SHORT,	// 2031-2033
 	SP_UNSTRIPABLE_WEAPON,SP_UNSTRIPABLE_ARMOR,SP_UNSTRIPABLE_HELM,SP_UNSTRIPABLE_SHIELD,  // 2034-2037
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
-	//Before adding new bonuses, reuse the currently free slots:
-	//2020 (SP_FREE) (previously SP_ADD_DAMAGE_BY_CLASS)
-	//2033 (SP_FREE2) (previously SP_ADDEFF_WHENHIT_SHORT)
+	//Before adding another, note that these are free:
+	//1030 (SP_FREE3, previous AspdAddRate)
+	//2022 (SP_FREE, previous bDefIgnoreMob)
 };
 
 enum _look {
@@ -1202,37 +1218,35 @@ enum _look {
 #define CELL_SAFETYWALL	0x8
 #define CELL_LANDPROTECTOR	0x10
 #define CELL_BASILICA	0x20
-#define CELL_NOVENDING	0x40
 #define CELL_ICEWALL	0x80
 /*
- * map_getcell()で使用されるフラグ
+ * map_getcell()gptO
  */
 typedef enum {
-	CELL_CHKWALL=0,		// 壁(セルタイプ1)
-	CELL_CHKWATER,		// 水場(セルタイプ3)
-	CELL_CHKGROUND,		// 地面障害物(セルタイプ5)
-	CELL_CHKPASS,		// 通過可能(セルタイプ1,5以外)
+	CELL_CHKWALL=0,		// (Z^Cv1)
+	CELL_CHKWATER,		// (Z^Cv3)
+	CELL_CHKGROUND,		// nQ(Z^Cv5)
+	CELL_CHKPASS,		// \(Z^Cv1,5O)
 	CELL_CHKREACH,		// Same as PASS, but ignores the cell-stacking mod.
-	CELL_CHKNOPASS,		// 通過不可(セルタイプ1,5)
+	CELL_CHKNOPASS,		// s(Z^Cv1,5)
 	CELL_CHKNOREACH,	// Same as NOPASS, but ignores the cell-stacking mod.
-	CELL_GETTYPE,		// セルタイプを返す
+	CELL_GETTYPE,		// Z^Cv
 	CELL_GETCELLTYPE,
-	CELL_CHKNPC=0x10,	// タッチタイプのNPC(セルタイプ0x80フラグ)
+	CELL_CHKNPC=0x10,	// ^b`^CvNPC(Z^Cv0x80tO)
 	CELL_CHKREGEN,		// cells that improve regeneration
 	CELL_CHKPNEUMA,
 	CELL_CHKSAFETYWALL,
-	CELL_CHKBASILICA,	// バジリカ(セルタイプ0x40フラグ)
+	CELL_CHKBASILICA,	// oWJ(Z^Cv0x40tO)
 	CELL_CHKLANDPROTECTOR,
 	CELL_CHKICEWALL,
 	CELL_CHKSTACK,
-	CELL_CHKNOVENDING,
 } cell_t;
-// map_setcell()で使用されるフラグ
+// map_setcell()gptO
 enum {
-	CELL_SETNPC=0x10,	// タッチタイプのNPCをセット
+	CELL_SETNPC=0x10,	// ^b`^CvNPCZbg
 	CELL_CLRNPC,
-	CELL_SETBASILICA,	// バジリカをセット
-	CELL_CLRBASILICA,	// バジリカをクリア
+	CELL_SETBASILICA,	// oWJZbg
+	CELL_CLRBASILICA,	// oWJNA
 	CELL_SETREGEN,		// set regen cell
 	CELL_SETLANDPROTECTOR, //Set/Clear Magnetic Earth
 	CELL_CLRLANDPROTECTOR,
@@ -1242,8 +1256,6 @@ enum {
 	CELL_CLRSAFETYWALL,
 	CELL_SETICEWALL,
 	CELL_CLRICEWALL,
-	CELL_SETNOVENDING,
-	CELL_CLRNOVENDING,
 };
 
 extern struct map_data map[];
@@ -1256,11 +1268,11 @@ extern int night_flag; // 0=day, 1=night [Yor]
 extern int enable_spy; //Determines if @spy commands are active.
 extern char db_path[256];
 
-// gat?ﾖｧ
+// gat?
 int map_getcell(int,int,int,cell_t);
 int map_getcellp(struct map_data*,int,int,cell_t);
 void map_setcell(int,int,int,int);
-extern int map_read_flag; // 0: grfｫﾕｫ｡ｫ､ｫ・1: ｫｭｫ罩ﾃｫｷｫ・2: ｫｭｫ罩ﾃｫｷｫ・?)
+extern int map_read_flag; // 0: grfE1: E2: E?)
 enum {
 	READ_FROM_GAT,
 	READ_FROM_BITMAP, CREATE_BITMAP,
@@ -1274,14 +1286,14 @@ extern char charhelp_txt[];
 
 extern char wisp_server_name[];
 
-// 鯖全体情報
+// IS
 void map_setusers(int);
 int map_getusers(void);
-// block削除関連
+// blockA
 int map_freeblock(struct block_list *bl);
 int map_freeblock_lock(void);
 int map_freeblock_unlock(void);
-// block関連
+// blockA
 int map_addblock_sub(struct block_list *, int);
 int map_delblock_sub(struct block_list *, int);
 #define map_addblock(bl) map_addblock_sub(bl,1)
@@ -1292,13 +1304,13 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list), struct bloc
 int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int type, ...);
 int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int dx, int dy, int type, ...);
 int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int y, int type, ...);
-int map_foreachinpath(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int range, int length, int type, ...);
+int map_foreachinpath(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int range, int type, ...);
 int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type, ...);
 int map_countnearpc(int,int,int);
-//block関連に追加
+//blockA
 int map_count_oncell(int m,int x,int y,int type);
 struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *);
-// 一時的object関連
+// IobjectA
 int map_addobject(struct block_list *);
 int map_delobject(int);
 int map_delobjectnofree(int id);
@@ -1310,24 +1322,21 @@ void map_quit_ack(struct map_session_data *);
 // npc
 int map_addnpc(int,struct npc_data *);
 
-// 床アイテム関連
+// ACeA
 int map_clearflooritem_timer(int,unsigned int,int,int);
 int map_removemobs_timer(int,unsigned int,int,int);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
-int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int first_charid,int second_charid,int third_charid,int flags);
+int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,struct map_session_data *,struct map_session_data *,int);
 
-// キャラid＝＞キャラ名 変換関連
-void map_addnickdb(int charid, const char* nick);
-void map_delnickdb(int charid, const char* nick);
-void map_reqnickdb(struct map_session_data* sd,int charid);
-const char* map_charid2nick(int charid);
-struct map_session_data* map_charid2sd(int charid);
+// LidL A
+void map_addchariddb(int charid,char *name);
+void map_delchariddb(int charid);
+int map_reqchariddb(struct map_session_data * sd,int charid);
+char * map_charid2nick(int);
+struct map_session_data * map_charid2sd(int);
 
 struct map_session_data * map_id2sd(int);
-struct npc_data * map_id2nd(int);
 struct block_list * map_id2bl(int);
-
-#define map_id2index(id) map[(id)].index
 int map_mapindex2mapid(unsigned short mapindex);
 int map_mapname2mapid(const char* name);
 int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port);
@@ -1339,19 +1348,20 @@ void map_deliddb(struct block_list *bl);
 struct map_session_data** map_getallusers(int *users);
 void map_foreachpc(int (*func)(DBKey,void*,va_list),...);
 int map_foreachiddb(int (*)(DBKey,void*,va_list),...);
+void map_addnickdb(struct map_session_data *);
 struct map_session_data * map_nick2sd(const char*);
 
-// その他
+//
 int map_check_dir(int s_dir,int t_dir);
-unsigned char map_calc_dir( struct block_list *src,int x,int y);
+int map_calc_dir( struct block_list *src,int x,int y);
 int map_random_dir(struct block_list *bl, short *x, short *y); // [Skotlex]
 
-// path.cより
+// path.c
 int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int flag,cell_t flag2);
 #define path_search(wpd,m,x0,y0,x1,y1,flag)  path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKNOPASS)
 #define path_search2(wpd,m,x0,y0,x1,y1,flag) path_search_real(wpd,m,x0,y0,x1,y1,flag,CELL_CHKWALL)
 
-bool path_search_long_real(struct shootpath_data *spd,int m,int x0,int y0,int x1,int y1,cell_t flag);
+int path_search_long_real(struct shootpath_data *spd,int m,int x0,int y0,int x1,int y1,cell_t flag);
 #define path_search_long(spd,m,x0,y0,x1,y1) path_search_long_real(spd,m,x0,y0,x1,y1,CELL_CHKWALL)
 
 int path_blownpos(int m,int x0,int y0,int dx,int dy,int count);
@@ -1389,6 +1399,37 @@ extern char *GRF_PATH_FILENAME;
 
 extern char *map_server_dns;
 
+#ifndef TXT_ONLY
+
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+#include <mysql.h>
+
+extern char tmp_sql[65535];
+
+extern int db_use_sqldbs;
+extern MYSQL mmysql_handle;
+extern MYSQL_RES*	sql_res ;
+extern MYSQL_ROW	sql_row ;
+
+extern MYSQL logmysql_handle;
+extern MYSQL_RES*	logsql_res ;
+extern MYSQL_ROW	logsql_row ;
+
+extern int mail_server_enable;
+extern MYSQL mail_handle;
+extern MYSQL_RES* 	mail_res ;
+extern MYSQL_ROW	mail_row ;
+
+extern char item_db_db[32];
+extern char item_db2_db[32];
+extern char mob_db_db[32];
+extern char mob_db2_db[32];
+extern char char_db[32];
+extern char mail_db[32];
+
+#endif /* not TXT_ONLY */
 //Useful typedefs from jA [Skotlex]
 typedef struct map_session_data TBL_PC;
 typedef struct npc_data         TBL_NPC;
@@ -1405,25 +1446,5 @@ typedef struct homun_data       TBL_HOM;
 
 extern int lowest_gm_level;
 extern char main_chat_nick[16];
-
-#ifndef TXT_ONLY
-
-#include "../common/sql.h"
-
-extern int db_use_sqldbs;
-extern int mail_server_enable;
-
-extern Sql* mmysql_handle;
-extern Sql* logmysql_handle;
-extern Sql* mail_handle;
-
-extern char item_db_db[32];
-extern char item_db2_db[32];
-extern char mob_db_db[32];
-extern char mob_db2_db[32];
-extern char char_db[32];
-extern char mail_db[32];
-
-#endif /* not TXT_ONLY */
 
 #endif /* _MAP_H_ */

@@ -41,7 +41,6 @@
 	#define s_errno WSAGetLastError()
 	#define S_ENOTSOCK WSAENOTSOCK
 	#define S_EWOULDBLOCK WSAEWOULDBLOCK
-	#define S_EINTR WSAEINTR
 	#define S_ECONNABORTED WSAECONNABORTED
 
 	#define SHUT_RD   SD_RECEIVE
@@ -56,7 +55,6 @@
 	#define s_errno errno
 	#define S_ENOTSOCK EBADF
 	#define S_EWOULDBLOCK EAGAIN
-	#define S_EINTR EINTR
 	#define S_ECONNABORTED ECONNABORTED
 #endif
 
@@ -68,11 +66,13 @@ time_t stall_time = 60;
 uint32 addr_[16];   // ip addresses of local host (host byte order)
 int naddr_ = 0;   // # of ip addresses
 
-// initial recv buffer size (this will also be the max. size)
+#define MODE_NODELAY 1 // disables|enables packet buffering
+
+// values derived from freya
+// a player that send more than 2k is probably a hacker without be parsed
 // biggest known packet: S 0153 <len>.w <emblem data>.?B -> 24x24 256 color .bmp (0153 + len.w + 1618/1654/1756 bytes)
-#define RFIFO_SIZE (2*1024)
-// initial send buffer size (will be resized as needed)
-#define WFIFO_SIZE (16*1024)
+size_t rfifo_size = (16*1024);
+size_t wfifo_size = (16*1024);
 
 struct socket_data* session[FD_SETSIZE];
 
@@ -82,7 +82,7 @@ int send_shortlist_count = 0;// how many fd's are in the shortlist
 fd_set send_shortlist_fd_set;// to know if specific fd's are already in the shortlist
 #endif
 
-static int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse);
+int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse);
 
 #ifndef MINICORE
 	int ip_rules = 1;
@@ -110,6 +110,10 @@ void set_defaultparse(ParseFunc defaultparse)
  *--------------------------------------*/
 void set_nonblocking(int fd, unsigned long yes)
 {
+	// TCP_NODELAY BOOL Disables the Nagle algorithm for send coalescing.
+	if(MODE_NODELAY)
+		setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&yes, sizeof yes);
+
 	// FIONBIO Use with a nonzero argp parameter to enable the nonblocking mode of socket s.
 	// The argp parameter is zero if nonblocking is to be disabled.
 	if (ioctlsocket(fd, FIONBIO, &yes) != 0)
@@ -128,10 +132,9 @@ void setsocketopts(int fd)
 	setsockopt(fd,SOL_SOCKET,SO_REUSEPORT,(char *)&yes,sizeof(yes));
 #endif
 #endif
-
-	// Set the socket into no-delay mode; otherwise packets get delayed for up to 200ms, likely creating server-side lag.
-	// The RO protocol is mainly single-packet request/response, plus the FIFO model already does packet grouping anyway.
 	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&yes, sizeof(yes));
+//	setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *) &wfifo_size , sizeof(rfifo_size ));
+//	setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *) &rfifo_size , sizeof(rfifo_size ));
 
 	// force the socket into no-wait, graceful-close mode (should be the default, but better make sure)
 	//(http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winsock/winsock/closesocket_2.asp)
@@ -166,19 +169,21 @@ int recv_to_fifo(int fd)
 	if( !session_isActive(fd) )
 		return -1;
 
-	len = recv(fd, (char *) session[fd]->rdata + session[fd]->rdata_size, (int)RFIFOSPACE(fd), 0);
+	len = recv(fd, (char *) session[fd]->rdata + session[fd]->rdata_size, RFIFOSPACE(fd), 0);
 
-	if( len == SOCKET_ERROR )
-	{//An exception has occured
-		if( s_errno != S_EWOULDBLOCK ) {
-			//ShowDebug("recv_to_fifo: code %d, closing connection #%d\n", s_errno, fd);
+	if (len == SOCKET_ERROR) {
+		if (s_errno == S_ECONNABORTED) {
+			ShowWarning("recv_to_fifo: Software caused connection abort on session #%d\n", fd);
+			FD_CLR(fd, &readfds); //Remove the socket so the select() won't hang on it.
+		}
+		if (s_errno != S_EWOULDBLOCK) {
+			//ShowDebug("recv_to_fifo: error %d, ending connection #%d\n", s_errno, fd);
 			set_eof(fd);
 		}
 		return 0;
 	}
 
-	if( len == 0 )
-	{//Normal connection end.
+	if (len == 0) { //Normal connection end.
 		set_eof(fd);
 		return 0;
 	}
@@ -195,14 +200,17 @@ int send_from_fifo(int fd)
 	if( !session_isValid(fd) )
 		return -1;
 
-	if( session[fd]->wdata_size == 0 )
-		return 0; // nothing to send
+	if (session[fd]->wdata_size == 0)
+		return 0;
 
-	len = send(fd, (const char *) session[fd]->wdata, (int)session[fd]->wdata_size, 0);
+	len = send(fd, (const char *) session[fd]->wdata, session[fd]->wdata_size, 0);
 
-	if( len == SOCKET_ERROR )
-	{//An exception has occured
-		if( s_errno != S_EWOULDBLOCK ) {
+	if (len == SOCKET_ERROR) {
+		if (s_errno == S_ECONNABORTED) {
+			ShowWarning("send_from_fifo: Software caused connection abort on session #%d\n", fd);
+			FD_CLR(fd, &readfds); //Remove the socket so the select() won't hang on it.
+		}
+		if (s_errno != S_EWOULDBLOCK) {
 			//ShowDebug("send_from_fifo: error %d, ending connection #%d\n", s_errno, fd);
 			session[fd]->wdata_size = 0; //Clear the send queue as we can't send anymore. [Skotlex]
 			set_eof(fd);
@@ -210,11 +218,9 @@ int send_from_fifo(int fd)
 		return 0;
 	}
 
-	// some data could not be transferred?
-	if( len > 0 )
-	{
-		// shift unsent data to the beginning of the queue
-		if( (size_t)len < session[fd]->wdata_size )
+	//{ int i; ShowMessage("send %d : ",fd);  for(i=0;i<len;i++){ ShowMessage("%02x ",session[fd]->wdata[i]); } ShowMessage("\n");}
+	if(len > 0) {
+		if((size_t)len < session[fd]->wdata_size)
 			memmove(session[fd]->wdata, session[fd]->wdata + len, session[fd]->wdata_size - len);
 
 		session[fd]->wdata_size -= len;
@@ -275,6 +281,7 @@ int connect_client(int listen_fd)
 
 	create_session(fd, recv_to_fifo, send_from_fifo, default_func_parse);
 	session[fd]->client_addr = ntohl(client_address.sin_addr.s_addr);
+	session[fd]->rdata_tick = last_tick;
 
 	return fd;
 }
@@ -289,7 +296,7 @@ int make_listen_bind(uint32 ip, uint16 port)
 
 	if (fd == INVALID_SOCKET) {
 		ShowError("socket() creation failed (code %d)!\n", s_errno);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	if ( fd >= FD_SETSIZE ) { //Not enough capacity for this socket
@@ -308,25 +315,23 @@ int make_listen_bind(uint32 ip, uint16 port)
 	result = bind(fd, (struct sockaddr*)&server_address, sizeof(server_address));
 	if( result == SOCKET_ERROR ) {
 		ShowError("bind failed (socket %d, code %d)!\n", fd, s_errno);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	result = listen( fd, 5 );
 	if( result == SOCKET_ERROR ) {
 		ShowError("listen failed (socket %d, code %d)!\n", fd, s_errno);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	if ( fd < 0 || fd > FD_SETSIZE )
 	{ //Crazy error that can happen in Windows? (info from Freya)
 		ShowFatalError("listen() returned invalid fd %d!\n",fd);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	if(fd_max <= fd) fd_max = fd + 1;
 	FD_SET(fd, &readfds);
 
 	create_session(fd, connect_client, null_send, null_parse);
-	session[fd]->rdata_tick = 0; // disable timeouts on this socket
-	session[fd]->client_addr = 0;
 
 	return fd;
 }
@@ -371,26 +376,25 @@ int make_connection(uint32 ip, uint16 port)
 	FD_SET(fd,&readfds);
 
 	create_session(fd, recv_to_fifo, send_from_fifo, default_func_parse);
-	session[fd]->client_addr = 0;
+	session[fd]->rdata_tick = last_tick;
 
 	return fd;
 }
 
-static int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse)
+int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse)
 {
 	CREATE(session[fd], struct socket_data, 1);
-	CREATE(session[fd]->rdata, unsigned char, RFIFO_SIZE);
-	CREATE(session[fd]->wdata, unsigned char, WFIFO_SIZE);
-	session[fd]->max_rdata  = RFIFO_SIZE;
-	session[fd]->max_wdata  = WFIFO_SIZE;
+	CREATE(session[fd]->rdata, unsigned char, rfifo_size);
+	CREATE(session[fd]->wdata, unsigned char, wfifo_size);
+	session[fd]->max_rdata  = rfifo_size;
+	session[fd]->max_wdata  = wfifo_size;
 	session[fd]->func_recv  = func_recv;
 	session[fd]->func_send  = func_send;
 	session[fd]->func_parse = func_parse;
-	session[fd]->rdata_tick = last_tick;
 	return 0;
 }
 
-static int delete_session(int fd)
+int delete_session(int fd)
 {
 	if (fd <= 0 || fd >= FD_SETSIZE)
 		return -1;
@@ -430,37 +434,22 @@ int realloc_writefifo(int fd, size_t addition)
 		return 0;
 
 	if( session[fd]->wdata_size + addition  > session[fd]->max_wdata )
-	{	// grow rule; grow in multiples of WFIFO_SIZE
-		newsize = WFIFO_SIZE;
+	{	// grow rule; grow in multiples of wfifo_size
+		newsize = wfifo_size;
 		while( session[fd]->wdata_size + addition > newsize ) newsize += newsize;
 	}
-	else
-	if( session[fd]->max_wdata >= FIFOSIZE_SERVERLINK)
-	{
+	else if( session[fd]->max_wdata >= FIFOSIZE_SERVERLINK) {
 		//Inter-server adjust. [Skotlex]
 		if ((session[fd]->wdata_size+addition)*4 < session[fd]->max_wdata)
 			newsize = session[fd]->max_wdata / 2;
 		else
 			return 0; //No change
-	}
-	else
-	if( session[fd]->max_wdata > WFIFO_SIZE && (session[fd]->wdata_size+addition)*4 < session[fd]->max_wdata )
+	} else if( session[fd]->max_wdata > wfifo_size && (session[fd]->wdata_size+addition)*4 < session[fd]->max_wdata )
 	{	// shrink rule, shrink by 2 when only a quater of the fifo is used, don't shrink below 4*addition
 		newsize = session[fd]->max_wdata / 2;
 	}
 	else // no change
 		return 0;
-
-	// crash prevention for bugs that cause the send queue to fill up in an infinite loop
-	if( newsize > 5*1024*1024 ) // 5 MB is way beyond reasonable
-	{
-		ShowError("realloc_writefifo: session #%d's send buffer was overloaded! Disconnecting...\n", fd);
-		// drop all data (but the space will still be available)
-		session[fd]->wdata_size = 0;
-		// request disconnect
-		set_eof(fd);
-		return 0;
-	}
 
 	RECREATE(session[fd]->wdata, unsigned char, newsize);
 	session[fd]->max_wdata  = newsize;
@@ -468,8 +457,7 @@ int realloc_writefifo(int fd, size_t addition)
 	return 0;
 }
 
-/// advance the RFIFO cursor (marking 'len' bytes as processed)
-int RFIFOSKIP(int fd, size_t len)
+int RFIFOSKIP(int fd, int len)
 {
     struct socket_data *s;
 
@@ -479,16 +467,17 @@ int RFIFOSKIP(int fd, size_t len)
 	s = session[fd];
 
 	if ( s->rdata_size < s->rdata_pos + len ) {
-		ShowError("RFIFOSKIP: skipped past end of read buffer! Adjusting from %d to %d (session #%d)\n", len, RFIFOREST(fd), fd);
+		//fprintf(stderr,"too many skip\n");
+		//exit(1);
+		//better than a COMPLETE program abort // TEST! :)
+		ShowError("too many skip (%d) now skipped: %d (FD: %d)\n", len, RFIFOREST(fd), fd);
 		len = RFIFOREST(fd);
 	}
-
 	s->rdata_pos = s->rdata_pos + len;
 	return 0;
 }
 
-/// advance the WFIFO cursor (marking 'len' bytes for sending)
-int WFIFOSET(int fd, size_t len)
+int WFIFOSET(int fd, int len)
 {
 	size_t newreserve;
 	struct socket_data* s = session[fd];
@@ -500,18 +489,20 @@ int WFIFOSET(int fd, size_t len)
 	if(s->wdata_size+len > s->max_wdata)
 	{	// actually there was a buffer overflow already
 		uint32 ip = s->client_addr;
-		ShowFatalError("WFIFOSET: Write Buffer Overflow. Connection %d (%d.%d.%d.%d) has written %d bytes on a %d/%d bytes buffer.\n", fd, CONVIP(ip), len, s->wdata_size, s->max_wdata);
+		ShowFatalError("socket: Buffer Overflow. Connection %d (%d.%d.%d.%d) has written %d bytes on a %d/%d bytes buffer.\n",
+			fd, CONVIP(ip), len, s->wdata_size, s->max_wdata);
 		ShowDebug("Likely command that caused it: 0x%x\n", (*(unsigned short*)(s->wdata + s->wdata_size)));
 		// no other chance, make a better fifo model
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	s->wdata_size += len;
-	// always keep a WFIFO_SIZE reserve in the buffer
+	// always keep a wfifo_size reserve in the buffer
 	// For inter-server connections, let the reserve be 1/4th of the link size.
-	newreserve = s->wdata_size + (s->max_wdata >= FIFOSIZE_SERVERLINK ? FIFOSIZE_SERVERLINK / 4 : WFIFO_SIZE);
+	newreserve = s->wdata_size + (s->max_wdata >= FIFOSIZE_SERVERLINK ? FIFOSIZE_SERVERLINK / 4 : wfifo_size);
 
-	// readjust the buffer to the newly chosen size
+	// readfifo does not need to be realloced at all
+	// Even the inter-server buffer may need reallocating! [Skotlex]
 	realloc_writefifo(fd, newreserve);
 
 #ifdef SEND_SHORTLIST
@@ -521,16 +512,17 @@ int WFIFOSET(int fd, size_t len)
 	return 0;
 }
 
-int do_sockets(int next)
+int do_sendrecv(int next)
 {
 	fd_set rfd;
+	struct sockaddr_in	addr_check;
 	struct timeval timeout;
-	int ret,i;
+	int ret,i,size;
 
 	last_tick = time(0);
 
-	// PRESEND Timers are executed before do_sendrecv and can send packets and/or set sessions to eof.
-	// Send remaining data and process client-side disconnects here.
+	// PRESEND Timers are executed before do_sendrecv and can send packets
+	// and/or set sessions to eof. Send remaining data and handle eof sessions.
 #ifdef SEND_SHORTLIST
 	send_shortlist_do_sends();
 #else
@@ -548,17 +540,45 @@ int do_sockets(int next)
 	timeout.tv_sec  = next/1000;
 	timeout.tv_usec = next%1000*1000;
 
-	memcpy(&rfd, &readfds, sizeof(rfd));
-	ret = select(fd_max, &rfd, NULL, NULL, &timeout);
-
-	if( ret == SOCKET_ERROR )
+	for(memcpy(&rfd, &readfds, sizeof(rfd));
+		(ret = select(fd_max, &rfd, NULL, NULL, &timeout))<0;
+		memcpy(&rfd, &readfds, sizeof(rfd)))
 	{
-		if( s_errno != S_EINTR )
+		if(s_errno != S_ENOTSOCK)
+			return 0;
+
+		//Well then the error is due to a bad socket. Lets find and remove it
+		//and try again
+		for(i = 1; i < fd_max; i++)
 		{
-			ShowFatalError("do_sockets: select() failed, error code %d!\n", s_errno);
-			exit(EXIT_FAILURE);
+			if(!session[i])
+			{
+				if (FD_ISSET(i, &readfds)) {
+					ShowError("Deleting non-cleared session %d\n", i);
+					FD_CLR(i, &readfds);
+				}
+				continue;
+			}
+
+			//check the validity of the socket. Does what the last thing did
+			//just alot faster [Meruru]
+			size = sizeof(struct sockaddr);
+			if(getsockname(i,(struct sockaddr*)&addr_check,&size)<0)
+				if(s_errno == S_ENOTSOCK)
+				{
+					ShowError("Deleting invalid session %d\n", i);
+					//So the code can react accordingly
+					set_eof(i);
+					session[i]->func_parse(i);
+					delete_session(i); //free the bad session
+					continue;
+				}
+
+			if (!FD_ISSET(i, &readfds))
+				FD_SET(i,&readfds);
+			ret = i;
 		}
-		return 0; // interrupted by a signal, just loop and try again
+		fd_max = ret;
 	}
 
 #ifdef WIN32
@@ -597,7 +617,12 @@ int do_sockets(int next)
 	}
 #endif
 
-	// parse input data on each socket
+	return 0;
+}
+
+int do_parsepacket(void)
+{
+	int i;
 	for(i = 1; i < fd_max; i++)
 	{
 		if(!session[i])
@@ -613,14 +638,13 @@ int do_sockets(int next)
 		if(!session[i])
 			continue;
 
-		// after parse, check client's RFIFO size to know if there is an invalid packet (too big and not parsed)
-		if (session[i]->rdata_size == RFIFO_SIZE && session[i]->max_rdata == RFIFO_SIZE) {
+		/* after parse, check client's RFIFO size to know if there is an invalid packet (too big and not parsed) */
+		if (session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size) {
 			set_eof(i);
 			continue;
 		}
 		RFIFOFLUSH(i);
 	}
-
 	return 0;
 }
 
@@ -1095,12 +1119,12 @@ void socket_init(void)
 }
 
 
-bool session_isValid(int fd)
+int session_isValid(int fd)
 {
-	return ( fd > 0 && fd < FD_SETSIZE && session[fd] != NULL );
+	return ( (fd > 0) && (fd < FD_SETSIZE) && (session[fd] != NULL) );
 }
 
-bool session_isActive(int fd)
+int session_isActive(int fd)
 {
 	return ( session_isValid(fd) && !session[fd]->eof );
 }

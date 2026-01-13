@@ -566,7 +566,7 @@ static int grfio_entryread(char* grfname, int gentry)
 				if (strlen(fname) > sizeof(aentry.fn) - 1) {
 					ShowFatalError("GRF file name %s is too long\n", fname);
 					aFree(grf_filelist);
-					exit(EXIT_FAILURE);
+					exit(1);
 				}
 				srclen = 0;
 				if ((period_ptr = strrchr(fname, '.')) != NULL) {
@@ -637,7 +637,7 @@ static int grfio_entryread(char* grfname, int gentry)
 			if (strlen(fname) > sizeof(aentry.fn)-1) {
 				ShowFatalError("GRF file name %s is too long\n", fname);
 				aFree(grf_filelist);
-				exit(EXIT_FAILURE);
+				exit(1);
 			}
 			ofs2 = ofs + (int)strlen(fname)+1;
 			type = grf_filelist[ofs2+12];
@@ -777,26 +777,20 @@ static int grfio_add(char* fname)
 // removes all entries
 void grfio_final(void)
 {
-	if (filelist != NULL) {
-		int i;
-		for (i = 0; i < filelist_entrys; i++)
-			if (filelist[i].fnd != NULL)
-				aFree(filelist[i].fnd);
-
+	if (filelist != NULL)
 		aFree(filelist);
-		filelist = NULL;
-	}
+
 	filelist_entrys = filelist_maxentry = 0;
 
 	if (gentry_table != NULL) {
 		int i;
-		for (i = 0; i < gentry_entrys; i++)
+		for (i = 0; i < gentry_entrys; i++) {
 			if (gentry_table[i] != NULL)
 				aFree(gentry_table[i]);
-
+		}
 		aFree(gentry_table);
-		gentry_table = NULL;
 	}
+	gentry_table = NULL;
 	gentry_entrys = gentry_maxentry = 0;
 }
 

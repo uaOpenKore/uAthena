@@ -1,6 +1,10 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "../common/db.h"
 #include "../common/mmo.h"
 #include "../common/socket.h"
@@ -8,6 +12,7 @@
 #include "../common/malloc.h"
 #include "../common/lock.h"
 #include "../common/showmsg.h"
+
 #include "char.h"
 #include "inter.h"
 #include "int_party.h"
@@ -16,10 +21,6 @@
 #include "int_storage.h"
 #include "int_pet.h"
 #include "int_homun.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 #define WISDATA_TTL (60*1000)	// Existence time of Wisp/page data (60 seconds)
                              	// that is the waiting time of answers of all map-servers
@@ -30,7 +31,7 @@ char accreg_txt[1024] = "save/accreg.txt";
 char inter_log_filename[1024] = "log/inter.log";
 char main_chat_nick[16] = "Main";
 
-static DBMap* accreg_db = NULL; // int account_id -> struct accreg*
+static struct dbt *accreg_db = NULL;
 
 unsigned int party_share_level = 10;
 
@@ -53,12 +54,12 @@ int inter_recv_packet_length[]={
 	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 0, 0,  0, 0,  0, 0, //0x3010-0x301f
 	-1, 6,-1,14, 14,19, 6,-1, 14,14, 0, 0,  0, 0,  0, 0, //0x3020-0x302f
 	-1, 6,-1,-1, 55,19, 6,-1, 14,-1,-1,-1, 14,19,186,-1, //0x3030-0x303f
-	 5, 9, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3040-0x304f
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3050-0x305f
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3060-0x306f
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3070-0x307f
+	 5, 9, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
+	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
+	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
+	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
 	48,14,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3080-0x308f
-	-1,10,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3090-0x309f  Homunculus packets [albator]
+	-1,10,-1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x3090 - 0x309f  Homunculus packets [albator]
 };
 
 struct WisData {
@@ -66,7 +67,7 @@ struct WisData {
 	unsigned long tick;
 	unsigned char src[24], dst[24], msg[1024];
 };
-static DBMap* wis_db = NULL; // int wis_id -> struct WisData*
+static struct dbt * wis_db = NULL;
 static int wis_dellist[WISDELLIST_MAX], wis_delnum;
 
 
@@ -109,7 +110,7 @@ int inter_accreg_init(void) {
 	int c = 0;
 	struct accreg *reg;
 
-	accreg_db = idb_alloc(DB_OPT_RELEASE_DATA);
+	accreg_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 
 	if( (fp = fopen(accreg_txt, "r")) == NULL)
 		return 1;
@@ -118,7 +119,7 @@ int inter_accreg_init(void) {
 		reg = (struct accreg*)aCalloc(sizeof(struct accreg), 1);
 		if (reg == NULL) {
 			ShowFatalError("inter: accreg: out of memory!\n");
-			exit(EXIT_FAILURE);
+			exit(0);
 		}
 		if (inter_accreg_fromstr(line, reg) == 0 && reg->account_id > 0) {
 			idb_put(accreg_db, reg->account_id, reg);
@@ -143,7 +144,7 @@ int inter_accreg_save_sub(DBKey key, void *data, va_list ap) {
 	if (reg->reg_num > 0) {
 		inter_accreg_tostr(line,reg);
 		fp = va_arg(ap, FILE *);
-		fprintf(fp, "%s\n", line);
+		fprintf(fp, "%s" RETCODE, line);
 	}
 
 	return 0;
@@ -259,7 +260,7 @@ int inter_init_txt(const char *file) {
 	inter_config_read(file);
 
 #ifndef TXT_SQL_CONVERT
-	wis_db = idb_alloc(DB_OPT_RELEASE_DATA);
+	wis_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 
 	inter_party_init();
 	inter_guild_init();
@@ -677,9 +678,9 @@ int inter_parse_frommap(int fd) {
 	len = 0;
 
 	// interI
-	if (cmd < 0x3000 || cmd >= 0x3000 + ARRAYLENGTH(inter_recv_packet_length))
+	if (cmd < 0x3000 || cmd >= 0x3000 + (sizeof(inter_recv_packet_length) / sizeof(inter_recv_packet_length[0])))
 		return 0;
-
+	
 	if (inter_recv_packet_length[cmd-0x3000] == 0) //This is necessary, because otherwise we return 2 and the char server will just hang waiting for packets! [Skotlex]
 		return 0;
 

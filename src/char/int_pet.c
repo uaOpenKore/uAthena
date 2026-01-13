@@ -1,6 +1,10 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "../common/mmo.h"
 #include "../common/malloc.h"
 #include "../common/socket.h"
@@ -11,14 +15,10 @@
 #include "inter.h"
 #include "int_pet.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 char pet_txt[1024]="save/pet.txt";
 
 #ifndef TXT_SQL_CONVERT
-static DBMap* pet_db; // int pet_id -> struct s_pet*
+static struct dbt *pet_db;
 static int pet_newid = 100;
 
 int inter_pet_tostr(char *str,struct s_pet *p)
@@ -88,7 +88,7 @@ int inter_pet_init()
 	FILE *fp;
 	int c=0;
 
-	pet_db= idb_alloc(DB_OPT_RELEASE_DATA);
+	pet_db= db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 
 	if( (fp=fopen(pet_txt,"r"))==NULL )
 		return 1;
@@ -97,7 +97,7 @@ int inter_pet_init()
 		p = (struct s_pet*)aCalloc(sizeof(struct s_pet), 1);
 		if(p==NULL){
 			ShowFatalError("int_pet: out of memory!\n");
-			exit(EXIT_FAILURE);
+			exit(0);
 		}
 		memset(p,0,sizeof(struct s_pet));
 		if(inter_pet_fromstr(line,p)==0 && p->pet_id>0){
@@ -127,7 +127,7 @@ int inter_pet_save_sub(DBKey key,void *data,va_list ap)
 	FILE *fp;
 	inter_pet_tostr(line,(struct s_pet *)data);
 	fp=va_arg(ap,FILE *);
-	fprintf(fp,"%s\n",line);
+	fprintf(fp,"%s" RETCODE,line);
 	return 0;
 }
 

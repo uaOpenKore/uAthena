@@ -1,18 +1,15 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../common/malloc.h"
 #include "../common/core.h"
 #include "../common/showmsg.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-// no logging for minicore
-#if defined(MINICORE) && defined(LOG_MEMMGR)
-#undef LOG_MEMMGR
+#ifdef MINICORE
+	#undef LOG_MEMMGR
 #endif
 
 void* aMalloc_(size_t size, const char *file, int line, const char *func)
@@ -21,7 +18,7 @@ void* aMalloc_(size_t size, const char *file, int line, const char *func)
 	// ShowMessage("%s:%d: in func %s: aMalloc %d\n",file,line,func,size);
 	if (ret == NULL){
 		ShowFatalError("%s:%d: in func %s: aMalloc error out of memory!\n",file,line,func);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	return ret;
@@ -32,7 +29,7 @@ void* aMallocA_(size_t size, const char *file, int line, const char *func)
 	// ShowMessage("%s:%d: in func %s: aMallocA %d\n",file,line,func,size);
 	if (ret == NULL){
 		ShowFatalError("%s:%d: in func %s: aMallocA error out of memory!\n",file,line,func);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	return ret;
@@ -43,7 +40,7 @@ void* aCalloc_(size_t num, size_t size, const char *file, int line, const char *
 	// ShowMessage("%s:%d: in func %s: aCalloc %d %d\n",file,line,func,num,size);
 	if (ret == NULL){
 		ShowFatalError("%s:%d: in func %s: aCalloc error out of memory!\n", file, line, func);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	return ret;
 }
@@ -53,7 +50,7 @@ void* aCallocA_(size_t num, size_t size, const char *file, int line, const char 
 	// ShowMessage("%s:%d: in func %s: aCallocA %d %d\n",file,line,func,num,size);
 	if (ret == NULL){
 		ShowFatalError("%s:%d: in func %s: aCallocA error out of memory!\n",file,line,func);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	return ret;
 }
@@ -63,7 +60,7 @@ void* aRealloc_(void *p, size_t size, const char *file, int line, const char *fu
 	// ShowMessage("%s:%d: in func %s: aRealloc %p %d\n",file,line,func,p,size);
 	if (ret == NULL){
 		ShowFatalError("%s:%d: in func %s: aRealloc error out of memory!\n",file,line,func);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	return ret;
 }
@@ -73,7 +70,7 @@ char* aStrdup_(const char *p, const char *file, int line, const char *func)
 	// ShowMessage("%s:%d: in func %s: aStrdup %p\n",file,line,func,p);
 	if (ret == NULL){
 		ShowFatalError("%s:%d: in func %s: aStrdup error out of memory!\n", file, line, func);
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	return ret;
 }
@@ -230,7 +227,7 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func )
 			return (char *)p + sizeof(struct unit_head_large) - sizeof(int);
 		} else {
 			ShowFatalError("Memory manager::memmgr_alloc failed (allocating %d+%d bytes at %s:%d).\n", sizeof(struct unit_head_large), size, file, line);
-			exit(EXIT_FAILURE);
+			exit(1);
 		}
 	}
 
@@ -291,7 +288,7 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func )
 	// B
 	ShowFatalError("Memory manager::memmgr_malloc() serious error (allocating %d+%d bytes at %s:%d)\n", sizeof(struct unit_head_large), size, file, line);
 	memmgr_info();
-	exit(EXIT_FAILURE);
+	exit(1);
 	//return NULL;
 };
 
@@ -488,14 +485,14 @@ static struct block* block_malloc(void)
 		char *pb = (char *)CALLOC(sizeof(struct block),BLOCK_ALLOC+1,file,line,func);
 		if(pb == NULL) {
 			ShowFatalError("Memory manager::block_alloc failed.\n");
-			exit(EXIT_FAILURE);
+			exit(1);
 		}
 
 		// store original block address in chunk
 		chunk = (struct chunk *)MALLOC(sizeof(struct chunk),file,line,func);
 		if (chunk == NULL) {
 			ShowFatalError("Memory manager::block_alloc failed.\n");
-			exit(EXIT_FAILURE);
+			exit(1);
 		}
 		chunk->block = pb;
 		chunk->next = (chunk_first) ? chunk_first : NULL;

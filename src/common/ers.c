@@ -40,10 +40,9 @@
 \*****************************************************************************/
 #include <stdlib.h>
 
-#include "../common/cbasetypes.h"
+#include "ers.h"
 #include "../common/malloc.h" // CREATE, RECREATE, aMalloc, aFree
 #include "../common/showmsg.h" // ShowMessage, ShowError, ShowFatalError, CL_BOLD, CL_NORMAL
-#include "ers.h"
 
 #ifndef DISABLE_ERS
 /*****************************************************************************\

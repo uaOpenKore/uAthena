@@ -1,6 +1,10 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "../common/mmo.h"
 #include "../common/malloc.h"
 #include "../common/socket.h"
@@ -11,13 +15,9 @@
 #include "inter.h"
 #include "int_homun.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 char homun_txt[1024]="save/homun.txt";
 
-static DBMap* homun_db; // int hom_id -> struct s_homunculus*
+static struct dbt *homun_db;
 static int homun_newid = 100;
 
 int inter_homun_tostr(char *str,struct s_homunculus *p)
@@ -97,13 +97,13 @@ int inter_homun_fromstr(char *str,struct s_homunculus *p)
 		if (sscanf(str+next, "%d,%d,%n", &tmp_int[0], &tmp_int[1], &len) != 2)
 			return 2;
 
-		if (tmp_int[0] >= HM_SKILLBASE && tmp_int[0] < HM_SKILLBASE+MAX_HOMUNSKILL)
+		if (tmp_int[0] > HM_SKILLBASE && tmp_int[0] <= HM_SKILLBASE+MAX_HOMUNSKILL)
 		{
-			i = tmp_int[0] - HM_SKILLBASE;
+			i = tmp_int[0] - HM_SKILLBASE -1;
 			p->hskill[i].id = tmp_int[0];
 			p->hskill[i].lv = tmp_int[1];
 		} else
-			ShowError("Read Homun: Unsupported Skill ID %d for homunculus (Homun ID=%d)\n", tmp_int[0], p->hom_id);
+			ShowError("Read Homun: Unsupported Skill ID %d for homunculus (Homun ID=%d\n", tmp_int[0], p->hom_id);
 		next += len;
 		if (str[next] == ' ')
 			next++;
@@ -118,7 +118,7 @@ int inter_homun_init()
 	FILE *fp;
 	int c=0;
 
-	homun_db= idb_alloc(DB_OPT_RELEASE_DATA);
+	homun_db= db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 
 	if( (fp=fopen(homun_txt,"r"))==NULL )
 		return 1;
@@ -127,7 +127,7 @@ int inter_homun_init()
 		p = (struct s_homunculus*)aCalloc(sizeof(struct s_homunculus), 1);
 		if(p==NULL){
 			ShowFatalError("int_homun: out of memory!\n");
-			exit(EXIT_FAILURE);
+			exit(0);
 		}
 		if(inter_homun_fromstr(line,p)==0 && p->hom_id>0){
 			if( p->hom_id >= homun_newid)
@@ -156,7 +156,7 @@ int inter_homun_save_sub(DBKey key,void *data,va_list ap)
 	FILE *fp;
 	inter_homun_tostr(line,(struct s_homunculus *)data);
 	fp=va_arg(ap,FILE *);
-	fprintf(fp,"%s\n",line);
+	fprintf(fp,"%s" RETCODE,line);
 	return 0;
 }
 

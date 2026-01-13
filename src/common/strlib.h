@@ -7,7 +7,6 @@
 #ifndef _CBASETYPES_H_
 #include "../common/cbasetypes.h"
 #endif
-#include <stdarg.h>
 
 char* jstrescape (char* pt);
 char* jstrescapecpy (char* pt, const char* spt);
@@ -33,38 +32,5 @@ int config_switch(const char* str);
 
 /// always nul-terminates the string
 char* safestrncpy(char* dst, const char* src, size_t n);
-
-/// doesn't crash on null pointer
-size_t safestrnlen(const char* string, size_t maxlen);
-
-/// Works like snprintf, but always nul-terminates the buffer.
-/// Returns the size of the string (without nul-terminator)
-/// or -1 if the buffer is too small.
-int safesnprintf(char* buf, size_t sz, const char* fmt, ...);
-
-/// Returns the line of the target position in the string.
-/// Lines start at 1.
-int strline(const char* str, size_t pos);
-
-/// StringBuf - dynamic string
-struct StringBuf
-{
-	char *buf_;
-	char *ptr_;
-	unsigned int max_;
-};
-typedef struct StringBuf StringBuf;
-
-StringBuf* StringBuf_Malloc(void);
-void StringBuf_Init(StringBuf* self);
-int StringBuf_Printf(StringBuf* self, const char* fmt, ...);
-int StringBuf_Vprintf(StringBuf* self, const char* fmt, va_list args);
-int StringBuf_Append(StringBuf* self, const StringBuf *sbuf);
-int StringBuf_AppendStr(StringBuf* self, const char* str);
-int StringBuf_Length(StringBuf* self);
-char* StringBuf_Value(StringBuf* self);
-void StringBuf_Clear(StringBuf* self);
-void StringBuf_Destroy(StringBuf* self);
-void StringBuf_Free(StringBuf* self);
 
 #endif /* _STRLIB_H_ */

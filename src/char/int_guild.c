@@ -1,6 +1,10 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/malloc.h"
@@ -8,22 +12,17 @@
 #include "../common/db.h"
 #include "../common/lock.h"
 #include "../common/showmsg.h"
-#include "../common/strlib.h"
 #include "char.h"
 #include "inter.h"
 #include "int_storage.h"
 #include "int_guild.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 char guild_txt[1024] = "save/guild.txt";
 char castle_txt[1024] = "save/castle.txt";
 
 #ifndef TXT_SQL_CONVERT
-static DBMap* guild_db; // int guild_id -> struct guild*
-static DBMap* castle_db; // int castle_id -> struct guild_castle*
+static struct dbt *guild_db;
+static struct dbt *castle_db;
 
 static int guild_newid = 10000;
 
@@ -233,7 +232,7 @@ int inter_guild_fromstr(char *str, struct guild *g) {
 		for(j = 0; j < 4 && str != NULL; j++)	// uXLbv
 			str = strchr(str + 1, '\t');
 	}
-//	printf("GuildExpulsionInfo OK\n");
+//	printf("GuildExplusionInfo OK\n");
 	// MhXL
 	for(i = 0; i < MAX_GUILDSKILL; i++) {
 		if (sscanf(str+1,"%d,%d ", &tmp_int[0], &tmp_int[1]) < 2)
@@ -376,8 +375,8 @@ int inter_guild_init() {
 
 	inter_guild_readdb();
 
-	guild_db = idb_alloc(DB_OPT_RELEASE_DATA);
-	castle_db = idb_alloc(DB_OPT_RELEASE_DATA);
+	guild_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	castle_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 
 	if ((fp = fopen(guild_txt,"r")) == NULL)
 		return 1;
@@ -392,7 +391,7 @@ int inter_guild_init() {
 		g = (struct guild *) aCalloc(sizeof(struct guild), 1);
 		if(g == NULL){
 			ShowFatalError("int_guild: out of memory!\n");
-			exit(EXIT_FAILURE);
+			exit(0);
 		}
 //		memset(g, 0, sizeof(struct guild)); not needed...
 		if (inter_guild_fromstr(line, g) == 0 && g->guild_id > 0) {
@@ -421,8 +420,9 @@ int inter_guild_init() {
 		gc = (struct guild_castle *) aCalloc(sizeof(struct guild_castle), 1);
 		if(gc == NULL){
 			ShowFatalError("int_guild: out of memory!\n");
-			exit(EXIT_FAILURE);
+			exit(0);
 		}
+//		memset(gc, 0, sizeof(struct guild_castle)); No need...
 		if (inter_guildcastle_fromstr(line, gc) == 0) {
 			idb_put(castle_db, gc->castle_id, gc);
 		} else {
@@ -432,8 +432,6 @@ int inter_guild_init() {
 		c++;
 	}
 
-	fclose(fp);
-
 	if (!c) {
 		ShowStatus(" %s - making Default Data...\n", castle_txt);
 		//ftHgf[^
@@ -441,7 +439,7 @@ int inter_guild_init() {
 			gc = (struct guild_castle *) aCalloc(sizeof(struct guild_castle), 1);
 			if (gc == NULL) {
 				ShowFatalError("int_guild: out of memory!\n");
-				exit(EXIT_FAILURE);
+				exit(0);
 			}
 			gc->castle_id = i;
 			idb_put(castle_db, gc->castle_id, gc);
@@ -449,6 +447,8 @@ int inter_guild_init() {
 		ShowStatus(" %s - making done\n",castle_txt);
 		return 0;
 	}
+
+	fclose(fp);
 
 	return 0;
 }
@@ -470,7 +470,7 @@ int inter_guild_save_sub(DBKey key,void *data,va_list ap) {
 
 	inter_guild_tostr(line,(struct guild *)data);
 	fp=va_arg(ap,FILE *);
-	fprintf(fp,"%s\n",line);
+	fprintf(fp,"%s" RETCODE,line);
 
 	return 0;
 }
@@ -482,7 +482,7 @@ int inter_castle_save_sub(DBKey key, void *data, va_list ap) {
 
 	inter_guildcastle_tostr(line, (struct guild_castle *)data);
 	fp = va_arg(ap, FILE *);
-	fprintf(fp, "%s\n", line);
+	fprintf(fp, "%s" RETCODE, line);
 
 	return 0;
 }
@@ -979,7 +979,7 @@ int mapif_parse_CreateGuild(int fd, int account_id, char *name, struct guild_mem
 	if (g == NULL) {
 		ShowFatalError("int_guild: CreateGuild: out of memory !\n");
 		mapif_guild_created(fd, account_id, NULL);
-		exit(EXIT_FAILURE);
+		exit(0);
 	}
 //	memset(g, 0, sizeof(struct guild)); Meh...
 	g->guild_id = guild_newid++;
@@ -1005,7 +1005,7 @@ int mapif_parse_CreateGuild(int fd, int account_id, char *name, struct guild_mem
 	mapif_guild_info(fd, g);
 
 	if(log_inter)
-		inter_log("guild %s (id=%d) created by master %s (id=%d)\n",
+		inter_log("guild %s (id=%d) created by master %s (id=%d)" RETCODE,
 			name, g->guild_id, master->name, master->account_id);
 
 	return 0;
@@ -1155,7 +1155,7 @@ int mapif_parse_BreakGuild(int fd, int guild_id) {
 	mapif_guild_broken(guild_id, 0);
 
 	if(log_inter)
-		inter_log("guild %s (id=%d) broken\n", g->name, guild_id);
+		inter_log("guild %s (id=%d) broken" RETCODE, g->name, guild_id);
 
 	idb_remove(guild_db, guild_id);
 	return 0;
@@ -1448,7 +1448,7 @@ int mapif_parse_GuildCastleDataSave(int fd, int castle_id, int index, int value)
 			int gid = (value) ? value : gc->guild_id;
 			struct guild *g = idb_get(guild_db, gid);
 			if(log_inter)
-				inter_log("guild %s (id=%d) %s castle id=%d\n",
+				inter_log("guild %s (id=%d) %s castle id=%d" RETCODE,
 					(g) ? g->name : "??", gid, (value) ? "occupy" : "abandon", castle_id);
 		}
 		gc->guild_id = value;
@@ -1516,7 +1516,9 @@ int mapif_parse_GuildMasterChange(int fd, int guild_id, const char* name, int le
 
 	g->member[pos].position = g->member[0].position;
 	g->member[0].position = 0; //Position 0: guild Master.
-	safestrncpy(g->master, name, NAME_LENGTH);
+	strncpy(g->master, name, len);
+	if (len < NAME_LENGTH)
+		g->master[len] = '\0';
 
 	ShowInfo("int_guild: Guildmaster Changed to %s (Guild %d - %s)\n",name, guild_id, g->name);
 	return mapif_guild_master_changed(g, g->member[0].account_id, g->member[0].char_id);

@@ -7,7 +7,6 @@
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
-#include "../common/strlib.h"
 
 #include "map.h"
 #include "battle.h"
@@ -25,64 +24,62 @@
 #include <sys/types.h>
 #include <time.h>
 
-DBMap* auth_db; // int id -> struct auth_node*
+struct dbt *auth_db;
 
 static const int packet_len_table[0x3d] = { // U - used, F - free
 	60, 3,-1,27,10,-1, 6,-1,	// 2af8-2aff: U->2af8, U->2af9, U->2afa, U->2afb, U->2afc, U->2afd, U->2afe, U->2aff
 	 6,-1,18, 7,-1,35,30,10,	// 2b00-2b07: U->2b00, U->2b01, U->2b02, U->2b03, U->2b04, U->2b05, U->2b06, U->2b07
 	 6,30,-1,10,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, U->2b0a, U->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
-	11, 9,10, 6,11,-1,266,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, U->2b13, U->2b14, U->2b15, U->2b16, U->2b17
-	 2,10, 2,-1,-1,-1, 2, 7,	// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
-	-1,10, 8, 2, 2,-1,-1,-1,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, U->2b24, F->2b25, F->2b26, F->2b27
+	11,-1,10, 6,11,-1, 0,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, U->2b13, U->2b14, U->2b15, U->2b16, U->2b17
+	-1,-1,-1,-1,-1,-1, 2, 7,	// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
+	-1,10, 8,-1,-1,-1,-1,-1,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, F->2b24, F->2b25, F->2b26, F->2b27
 };
 
 //Used Packets:
 //2af8: Outgoing, chrif_connect -> 'connect to charserver / auth @ charserver'
-//2af9: Incoming, chrif_connectack -> 'answer of the 2af8 login(ok / fail)'
+//2af9: Incomming, chrif_connectack -> 'answer of the 2af8 login(ok / fail)'
 //2afa: Outgoing, chrif_sendmap -> 'sending our maps'
-//2afb: Incoming, chrif_sendmapack -> 'Maps received successfully / or not ..'
+//2afb: Incomming, chrif_sendmapack -> 'Maps received successfully / or not ..'
 //2afc: Outgoing, chrif_scdata_request -> request sc_data for pc_authok'ed char. <- new command reuses previous one.
-//2afd: Incoming, chrif_authok -> 'character selected, add to auth db'
+//2afd: Incomming, chrif_authok -> 'character selected, add to auth db'
 //2afe: Outgoing, send_usercount_tochar -> 'sends player count of this map server to charserver'
 //2aff: Outgoing, send_users_tochar -> 'sends all actual connected character ids to charserver'
-//2b00: Incoming, map_setusers -> 'set the actual usercount? PACKET.2B COUNT.L.. ?' (not sure)
+//2b00: Incomming, map_setusers -> 'set the actual usercount? PACKET.2B COUNT.L.. ?' (not sure)
 //2b01: Outgoing, chrif_save -> 'charsave of char XY account XY (complete struct)'
 //2b02: Outgoing, chrif_charselectreq -> 'player returns from ingame to charserver to select another char.., this packets includes sessid etc' ? (not 100% sure)
-//2b03: Incoming, clif_charselectok -> '' (i think its the packet after enterworld?) (not sure)
-//2b04: Incoming, chrif_recvmap -> 'getting maps from charserver of other mapserver's'
+//2b03: Incomming, clif_charselectok -> '' (i think its the packet after enterworld?) (not sure)
+//2b04: Incomming, chrif_recvmap -> 'getting maps from charserver of other mapserver's'
 //2b05: Outgoing, chrif_changemapserver -> 'Tell the charserver the mapchange / quest for ok...'
-//2b06: Incoming, chrif_changemapserverack -> 'awnser of 2b05, ok/fail, data: dunno^^'
+//2b06: Incomming, chrif_changemapserverack -> 'awnser of 2b05, ok/fail, data: dunno^^'
 //2b07: Incoming, clif_updatemaxid -> Received when updating the max account/char known
 //2b08: Outgoing, chrif_searchcharid -> '...'
-//2b09: Incoming, map_addchariddb -> 'Adds a name to the nick db'
+//2b09: Incomming, map_addchariddb -> 'Adds a name to the nick db'
 //2b0a: Outgoing, chrif_changegm -> 'level change of acc/char XY'
-//2b0b: Incoming, chrif_changedgm -> 'answer of 2b0a..'
+//2b0b: Incomming, chrif_changedgm -> 'answer of 2b0a..'
 //2b0c: Outgoing, chrif_changeemail -> 'change mail address ...'
-//2b0d: Incoming, chrif_changedsex -> 'Change sex of acc XY'
+//2b0d: Incomming, chrif_changedsex -> 'Change sex of acc XY'
 //2b0e: Outgoing, chrif_char_ask_name -> 'Do some operations (change sex, ban / unban etc)'
-//2b0f: Incoming, chrif_char_ask_name_answer -> 'answer of the 2b0e'
+//2b0f: Incomming, chrif_char_ask_name_answer -> 'answer of the 2b0e'
 //2b10: Outgoing, chrif_updatefamelist -> 'Update the fame ranking lists and send them'
-//2b11: FREE
-//2b12: Incoming, chrif_divorce -> 'divorce a wedding of charid X and partner id X'
-//2b13: Incoming, chrif_accountdeletion -> 'Delete acc XX, if the player is on, kick ....'
-//2b14: Incoming, chrif_accountban -> 'not sure: kick the player with message XY'
-//2b15: Incoming, chrif_recvgmaccounts -> 'receive gm accs from charserver (seems to be incomplete !)'
+//2b11: Outgoing, chrif_changesex -> 'change sex of acc X'
+//2b12: Incomming, chrif_divorce -> 'divorce a wedding of charid X and partner id X'
+//2b13: Incomming, chrif_accountdeletion -> 'Delete acc XX, if the player is on, kick ....'
+//2b14: Incomming, chrif_accountban -> 'not sure: kick the player with message XY'
+//2b15: Incomming, chrif_recvgmaccounts -> 'receive gm accs from charserver (seems to be incomplete !)'
 //2b16: Outgoing, chrif_ragsrvinfo -> 'sends motd / rates ....'
 //2b17: Outgoing, chrif_char_offline -> 'tell the charserver that the char is now offline'
 //2b18: Outgoing, chrif_char_reset_offline -> 'set all players OFF!'
 //2b19: Outgoing, chrif_char_online -> 'tell the charserver that the char .. is online'
 //2b1a: Outgoing, chrif_buildfamelist -> 'Build the fame ranking lists and send them'
-//2b1b: Incoming, chrif_recvfamelist -> 'Receive fame ranking lists'
+//2b1b: Incomming, chrif_recvfamelist -> 'Receive fame ranking lists'
 //2b1c: Outgoing, chrif_save_scdata -> 'Send sc_data of player for saving.'
-//2b1d: Incoming, chrif_load_scdata -> 'received sc_data of player for loading.'
+//2b1d: Incomming, chrif_load_scdata -> 'received sc_data of player for loading.'
 //2b1e: Incoming, chrif_update_ip -> 'Reqest forwarded from char-server for interserver IP sync.' [Lance]
-//2b1f: Incoming, chrif_disconnectplayer -> 'disconnects a player (aid X) with the message XY ... 0x81 ..' [Sirius]
-//2b20: Incoming, chrif_removemap -> 'remove maps of a server (sample: its going offline)' [Sirius]
-//2b21: Incoming, chrif_save_ack. Returned after a character has been "final saved" on the char-server. [Skotlex]
-//2b22: Incoming, chrif_updatefamelist_ack. Updated one position in the fame list.
-//2b23: Outgoing, chrif_keepalive. charserver ping.
-//2b24: Incoming, chrif_keepalive_ack. charserver ping reply.
-//2b25-2b27: FREE
+//2b1f: Incomming, chrif_disconnectplayer -> 'disconnects a player (aid X) with the message XY ... 0x81 ..' [Sirius]
+//2b20: Incomming, chrif_removemap -> 'remove maps of a server (sample: its going offline)' [Sirius]
+//2b21: Incomming, chrif_save_ack. Returned after a character has been "final saved" on the char-server. [Skotlex]
+//2b22: Incomming, chrif_updatefamelist_ack. Updated one position in the fame list.
+//2b24-2b27: FREE
 
 int chrif_connected = 0;
 int char_fd = 0; //Using 0 instead of -1 is safer against crashes. [Skotlex]
@@ -168,7 +165,7 @@ int chrif_save(struct map_session_data *sd, int flag)
 		pc_makesavestatus(sd);
 
 	if(!chrif_isconnected())
-  	{
+	{
 		if (flag) sd->state.finalsave = 1; //Will save character on reconnect.
 		return -1;
 	}
@@ -324,14 +321,15 @@ int chrif_changemapserverack(int account_id, int login_id1, int login_id2, int c
 		return -1;
 
 	if (login_id1 == 1) {
-		ShowError("map server change failed.\n");
+		if (battle_config.error_log)
+			ShowError("map server change failed.\n");
 		clif_authfail_fd(sd->fd, 0);
 		return 0;
 	}
 
 	clif_changemapserver(sd, map_index, x, y, ntohl(ip), ntohs(port));
 
-	//Player has been saved already, remove him from memory. [Skotlex]	
+	//Player has been saved already, remove him from memory. [Skotlex]
 	map_quit(sd);
 	map_quit_ack(sd);
 	return 0;
@@ -344,7 +342,7 @@ int chrif_connectack(int fd)
 {
 	if (RFIFOB(fd,2)) {
 		ShowFatalError("Connection to char-server failed %d.\n", RFIFOB(fd,2));
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	ShowStatus("Successfully logged on to Char Server (Connection: '"CL_WHITE"%d"CL_RESET"').\n",fd);
 	chrif_state = 1;
@@ -369,7 +367,7 @@ int chrif_sendmapack(int fd)
 {
 	if (RFIFOB(fd,2)) {
 		ShowFatalError("chrif : send map list to char server failed %d\n", RFIFOB(fd,2));
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	memcpy(wisp_server_name, RFIFOP(fd,3), NAME_LENGTH);
@@ -377,7 +375,7 @@ int chrif_sendmapack(int fd)
 	chrif_state = 2;
 
 	//If there are players online, send them to the char-server. [Skotlex]
-	send_users_tochar();
+	send_users_tochar(-1, gettick(), 0, 0);
 	
 	//Re-save any storages that were modified in the disconnection time. [Skotlex]
 	do_reconnect_map();
@@ -431,7 +429,7 @@ void chrif_authreq(struct map_session_data *sd)
 		auth_data->account_id = sd->bl.id;
 		auth_data->login_id1 = sd->login_id1;
 		auth_data->node_created = gettick();
-		idb_put(auth_db, sd->bl.id, auth_data);
+		uidb_put(auth_db, sd->bl.id, auth_data);
 	}
 	return;
 }
@@ -451,8 +449,8 @@ void chrif_authok(int fd)
 		if (sd->state.auth && sd->status.char_id == status->char_id)
 			return;
 	}
-	
-	if ((auth_data =idb_get(auth_db, RFIFOL(fd, 4))) != NULL)
+
+	if ((auth_data =uidb_get(auth_db, RFIFOL(fd, 4))) != NULL)
 	{	//Is the character already awaiting authorization?
 		if (auth_data->sd)
 		{
@@ -473,12 +471,12 @@ void chrif_authok(int fd)
 		//Delete the data of this node...
 		if (auth_data->char_dat)
 			aFree (auth_data->char_dat);
-		idb_remove(auth_db, RFIFOL(fd, 4));
+		uidb_remove(auth_db, RFIFOL(fd, 4));
 		return;
 	}
 	// Awaiting for client to connect.
 	auth_data = (struct auth_node *)aCalloc(1,sizeof(struct auth_node));
-	auth_data->char_dat = (struct mmo_charstatus *) aMalloc(sizeof(struct mmo_charstatus));
+	auth_data->char_dat = (struct mmo_charstatus *) aCalloc(1,sizeof(struct mmo_charstatus));
 
 	auth_data->account_id=RFIFOL(fd, 4);
 	auth_data->login_id1=RFIFOL(fd, 8);
@@ -486,7 +484,7 @@ void chrif_authok(int fd)
 	auth_data->login_id2=RFIFOL(fd, 16);
 	memcpy(auth_data->char_dat,RFIFOP(fd, 20),sizeof(struct mmo_charstatus));
 	auth_data->node_created=gettick();
-	idb_put(auth_db, RFIFOL(fd, 4), auth_data);
+	uidb_put(auth_db, RFIFOL(fd, 4), auth_data);
 }
 
 int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
@@ -533,7 +531,7 @@ int chrif_charselectreq(struct map_session_data* sd, uint32 s_ip)
 }
 
 /*==========================================
- * キャラ名問い合わせ
+ * L
  *------------------------------------------*/
 int chrif_searchcharid(int char_id)
 {
@@ -550,7 +548,7 @@ int chrif_searchcharid(int char_id)
 }
 
 /*==========================================
- * GMに変化要求
+ * GMv
  *------------------------------------------*/
 int chrif_changegm(int id, const char *pass, int len)
 {
@@ -590,50 +588,57 @@ int chrif_changeemail(int id, const char *actual_email, const char *new_email)
 }
 
 /*==========================================
- * S 2b0e <accid>.l <name>.24B <type>.w { <year>.w <month>.w <day>.w <hour>.w <minute>.w <second>.w }
- * Send an account modification request to the login server (via char server).
+ * Send message to char-server with a character name to do some operations (by Yor)
+ * Used to ask Char-server about a character name to have the account number to modify account file in login-server.
  * type of operation:
- *   1: block, 2: ban, 3: unblock, 4: unban, 5: changesex (use next function for 5)
+ *   1: block
+ *   2: ban
+ *   3: unblock
+ *   4: unban
+ *   5: changesex
  *------------------------------------------*/
-int chrif_char_ask_name(int acc, const char* character_name, unsigned short operation_type, int year, int month, int day, int hour, int minute, int second)
+int chrif_char_ask_name(int id, char * character_name, short operation_type, int year, int month, int day, int hour, int minute, int second)
 {
 	chrif_check(-1);
 
-	WFIFOHEAD(char_fd,44);
-	WFIFOW(char_fd,0) = 0x2b0e;
-	WFIFOL(char_fd,2) = acc;
-	safestrncpy((char*)WFIFOP(char_fd,6), character_name, NAME_LENGTH);
-	WFIFOW(char_fd,30) = operation_type;
+	WFIFOHEAD(char_fd, 44);
+	WFIFOW(char_fd, 0) = 0x2b0e;
+	WFIFOL(char_fd, 2) = id; // account_id of who ask (for answer) -1 if nobody
+	memcpy(WFIFOP(char_fd,6), character_name, NAME_LENGTH);
+	WFIFOW(char_fd, 30) = operation_type; // type of operation
 	if (operation_type == 2) {
-		WFIFOW(char_fd,32) = year;
-		WFIFOW(char_fd,34) = month;
-		WFIFOW(char_fd,36) = day;
-		WFIFOW(char_fd,38) = hour;
-		WFIFOW(char_fd,40) = minute;
-		WFIFOW(char_fd,42) = second;
+		WFIFOW(char_fd, 32) = year;
+		WFIFOW(char_fd, 34) = month;
+		WFIFOW(char_fd, 36) = day;
+		WFIFOW(char_fd, 38) = hour;
+		WFIFOW(char_fd, 40) = minute;
+		WFIFOW(char_fd, 42) = second;
 	}
+//	ShowInfo("chrif : sent 0x2b0e\n");
 	WFIFOSET(char_fd,44);
+
 	return 0;
 }
 
-int chrif_changesex(struct map_session_data *sd)
+/*==========================================
+ * v
+ *------------------------------------------*/
+int chrif_changesex(int id, int sex)
 {
 	chrif_check(-1);
-	WFIFOHEAD(char_fd,44);
-	WFIFOW(char_fd,0) = 0x2b0e;
-	WFIFOL(char_fd,2) = sd->status.account_id;
-	safestrncpy((char*)WFIFOP(char_fd,6), sd->status.name, NAME_LENGTH);
-	WFIFOW(char_fd,30) = 5;
-	WFIFOSET(char_fd,44);
 
-	clif_displaymessage(sd->fd, "Need disconnection to perform change-sex request...");
-	map_quit(sd);
+	WFIFOHEAD(char_fd,9);
+	WFIFOW(char_fd,0) = 0x2b11;
+	WFIFOW(char_fd,2) = 9;
+	WFIFOL(char_fd,4) = id;
+	WFIFOB(char_fd,8) = sex;
+	WFIFOSET(char_fd,9);
 	return 0;
 }
 
 /*==========================================
  * R 2b0f <accid>.l <name>.24B <type>.w <answer>.w
- * Processing a reply to chrif_char_ask_name() (request to modify an account).
+ * Reply to chrif_char_ask_name() (request to do some character operation)
  * type of operation:
  *   1: block, 2: ban, 3: unblock, 4: unban, 5: changesex
  * type of answer:
@@ -642,36 +647,46 @@ int chrif_changesex(struct map_session_data *sd)
  *   2: gm level too low
  *   3: login-server offline
  *------------------------------------------*/
-static void chrif_char_ask_name_answer(int acc, const char* player_name, uint16 type, uint16 answer)
+int chrif_char_ask_name_answer(int fd)
 {
 	struct map_session_data* sd;
-	const char* action;
+	char* action;
 	char output[256];
-	
+	int acc = RFIFOL(fd,2); // account_id of who has asked (-1 if nobody)
+	char* player_name = (char*)RFIFOP(fd,6);
+	uint16 type;
+	uint16 answer;
+
+	type = RFIFOW(fd,30);
+	answer = RFIFOW(fd,32);
+
 	sd = map_id2sd(acc);
-	if( acc < 0 || sd == NULL ) {
+	if (acc < 0 || sd == NULL) {
 		ShowError("chrif_char_ask_name_answer failed - player not online.\n");
-		return;
+		return 0;
 	}
 
-	switch( type ) {
-	case 1 : action = "block"; break;
-	case 2 : action = "ban"; break;
-	case 3 : action = "unblock"; break;
-	case 4 : action = "unban"; break;
-	case 5 : action = "change the sex of"; break;
+	switch(type)
+	{
+	case 1: action = "block"; break;
+	case 2: action = "ban"; break;
+	case 3: action = "unblock"; break;
+	case 4: action = "unban"; break;
+	case 5: action = "change the sex of"; break;
 	default: action = "???"; break;
 	}
-	
-	switch( answer ) {
-	case 0 : sprintf(output, "Login-server has been asked to %s the player '%.*s'.", action, NAME_LENGTH, player_name); break;
-	case 1 : sprintf(output, "The player '%.*s' doesn't exist.", NAME_LENGTH, player_name); break;
-	case 2 : sprintf(output, "Your GM level don't authorise you to %s the player '%.*s'.", action, NAME_LENGTH, player_name); break;
-	case 3 : sprintf(output, "Login-server is offline. Impossible to %s the player '%.*s'.", action, NAME_LENGTH, player_name); break;
+
+	switch(answer)
+	{
+	case 0: sprintf(output, "Login-server has been asked to %s the player '%20s'.", action, player_name); break;
+	case 1: sprintf(output, "The player '%20s' doesn't exist.", player_name); break;
+	case 2: sprintf(output, "Your GM level don't authorise you to %s the player '%20s'.", action, player_name); break;
+	case 3: sprintf(output, "Login-server is offline. Impossible to %s the player '%20s'.", action, player_name); break;
 	default: output[0] = '\0'; break;
 	}
-	
+
 	clif_displaymessage(sd->fd, output);
+	return 0;
 }
 
 /*==========================================
@@ -700,7 +715,7 @@ int chrif_changedgm(int fd)
 }
 
 /*==========================================
- * 性別変化終了 (modified by Yor)
+ * I (modified by Yor)
  *------------------------------------------*/
 int chrif_changedsex(int fd)
 {
@@ -712,54 +727,65 @@ int chrif_changedsex(int fd)
 	if (battle_config.etc_log)
 		ShowNotice("chrif_changedsex %d.\n", acc);
 	sd = map_id2sd(acc);
-	if (sd) { //Normally there should not be a char logged on right now!
-		if (sd->status.sex == sex) 
-			return 0; //Do nothing? Likely safe.
-		sd->status.sex = !sd->status.sex;
+	if (acc > 0) {
+		if (sd != NULL && sd->status.sex != sex) {
+			sd->status.sex = !sd->status.sex;
 
-		// reset skill of some job
-		if ((sd->class_&MAPID_UPPERMASK) == MAPID_BARDDANCER) {
-			// remove specifical skills of Bard classes 
-			for(i = 315; i <= 322; i++) {
-				if (sd->status.skill[i].id > 0 && !sd->status.skill[i].flag) {
-					if (sd->status.skill_point > USHRT_MAX - sd->status.skill[i].lv)
-						sd->status.skill_point = USHRT_MAX;
-					else
-						sd->status.skill_point += sd->status.skill[i].lv;
-					sd->status.skill[i].id = 0;
-					sd->status.skill[i].lv = 0;
-				}
+			// to avoid any problem with equipment and invalid sex, equipment is unequiped.
+			for (i = 0; i < EQI_MAX; i++) {
+				if (sd->equip_index[i] >= 0)
+					pc_unequipitem((struct map_session_data*)sd, sd->equip_index[i], 2);
 			}
-			// remove specifical skills of Dancer classes 
-			for(i = 323; i <= 330; i++) {
-				if (sd->status.skill[i].id > 0 && !sd->status.skill[i].flag) {
-					if (sd->status.skill_point > USHRT_MAX - sd->status.skill[i].lv)
-						sd->status.skill_point = USHRT_MAX;
-					else
-						sd->status.skill_point += sd->status.skill[i].lv;
-					sd->status.skill[i].id = 0;
-					sd->status.skill[i].lv = 0;
+			// reset skill of some job
+			if ((sd->class_&MAPID_UPPERMASK) == MAPID_BARDDANCER) {
+				// remove specifical skills of Bard classes 
+				for(i = 315; i <= 322; i++) {
+					if (sd->status.skill[i].id > 0 && !sd->status.skill[i].flag) {
+						if (sd->status.skill_point > USHRT_MAX - sd->status.skill[i].lv)
+							sd->status.skill_point = USHRT_MAX;
+						else
+							sd->status.skill_point += sd->status.skill[i].lv;
+						sd->status.skill[i].id = 0;
+						sd->status.skill[i].lv = 0;
+					}
 				}
+				// remove specifical skills of Dancer classes 
+				for(i = 323; i <= 330; i++) {
+					if (sd->status.skill[i].id > 0 && !sd->status.skill[i].flag) {
+						if (sd->status.skill_point > USHRT_MAX - sd->status.skill[i].lv)
+							sd->status.skill_point = USHRT_MAX;
+						else
+							sd->status.skill_point += sd->status.skill[i].lv;
+						sd->status.skill[i].id = 0;
+						sd->status.skill[i].lv = 0;
+					}
+				}
+				clif_updatestatus(sd, SP_SKILLPOINT);
+				// change job if necessary
+				if (sd->status.sex) //Changed from Dancer
+					sd->status.class_ -= 1;
+				else	//Changed from Bard
+					sd->status.class_ += 1;
+				//sd->class_ needs not be updated as both Dancer/Bard are the same.
 			}
-			clif_updatestatus(sd, SP_SKILLPOINT);
-			// change job if necessary
-			if (sd->status.sex) //Changed from Dancer
-				sd->status.class_ -= 1;
-			else	//Changed from Bard
-				sd->status.class_ += 1;
-			//sd->class_ needs not be updated as both Dancer/Bard are the same.
+			// save character
+			//chrif_save(sd,1); Character will be saved on session closed -> map_quit
+			sd->login_id1++; // change identify, because if player come back in char within the 5 seconds, he can change its characters
+			                 // do same modify in login-server for the account, but no in char-server (it ask again login_id1 to login, and don't remember it)
+			clif_displaymessage(sd->fd, "Your sex has been changed (need disconnection by the server)...");
+			clif_setwaitclose(sd->fd); // forced to disconnect for the change
 		}
-		// save character
-		sd->login_id1++; // change identify, because if player come back in char within the 5 seconds, he can change its characters
-							  // do same modify in login-server for the account, but no in char-server (it ask again login_id1 to login, and don't remember it)
-		clif_displaymessage(sd->fd, "Your sex has been changed (need disconnection by the server)...");
-		clif_setwaitclose(sd->fd); // forced to disconnect for the change
+	} else {
+		if (sd != NULL) {
+			ShowError("chrif_changedsex failed.\n");
+		}
 	}
+
 	return 0;
 }
 
 /*==========================================
- * 離婚情報同期要求
+ * v
  *------------------------------------------*/
 int chrif_divorce(int char_id, int partner_id)
 {
@@ -769,10 +795,10 @@ int chrif_divorce(int char_id, int partner_id)
 	if (!char_id || !partner_id || (sd = map_charid2sd(partner_id)) == NULL || sd->status.partner_id != char_id)
 		return 0;
 
-	//離婚(相方は既にキャラが消えている筈なので)
+	//(L)
 	sd->status.partner_id = 0;
 
-	//相方の結婚指輪を剥奪
+	//wD
 	for(i = 0; i < MAX_INVENTORY; i++)
 		if (sd->status.inventory[i].nameid == WEDDING_RING_M || sd->status.inventory[i].nameid == WEDDING_RING_F)
 			pc_delitem(sd, i, 1, 0);
@@ -826,7 +852,7 @@ int chrif_accountban(int fd)
 
 	sd->login_id1++; // change identify, because if player come back in char within the 5 seconds, he can change its characters
 	if (RFIFOB(fd,6) == 0) // 0: change of statut, 1: ban
-	{ 
+	{
 		switch (RFIFOL(fd,7)) { // status or final date of a banishment
 		case 1: clif_displaymessage(sd->fd, "Your account has 'Unregistered'."); break;
 		case 2: clif_displaymessage(sd->fd, "Your account has an 'Incorrect Password'..."); break;
@@ -842,7 +868,7 @@ int chrif_accountban(int fd)
 		}
 	}
 	else if (RFIFOB(fd,6) == 1) // 0: change of statut, 1: ban
-	{ 
+	{
 		time_t timestamp;
 		char tmpstr[2048];
 		timestamp = (time_t)RFIFOL(fd,7); // status or final date of a banishment
@@ -983,8 +1009,6 @@ int chrif_recvfamelist(int fd)
 	return 0;
 }
 
-/// fame ranking update confirmation
-/// R 2b22 <table>.B <index>.B <value>.L
 int chrif_updatefamelist_ack(int fd)
 {
 	struct fame_list* list;
@@ -1009,12 +1033,11 @@ int chrif_save_scdata(struct map_session_data *sd)
 	int i, count=0;
 	unsigned int tick;
 	struct status_change_data data;
-	struct status_change *sc = &sd->sc;
-	const struct TimerData *timer;
+	struct TimerData *timer;
 
 	if (sd->state.finalsave) //Character was already saved?
 		return -1;
-	
+
 	chrif_check(-1);
 	tick = gettick();
 	
@@ -1024,21 +1047,17 @@ int chrif_save_scdata(struct map_session_data *sd)
 	WFIFOL(char_fd,8) = sd->status.char_id;
 	for (i = 0; i < SC_MAX; i++)
 	{
-		if (!sc->data[i])
+		if (sd->sc.data[i].timer == -1)
 			continue;
-		if (sc->data[i]->timer != -1)
-		{
-			timer = get_timer(sc->data[i]->timer);
-			if (timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick,tick) < 0)
-				continue;
-			data.tick = DIFF_TICK(timer->tick,tick); //Duration that is left before ending.
-		} else
-			data.tick = -1; //Infinite duration
+		timer = get_timer(sd->sc.data[i].timer);
+		if (timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick,tick) < 0)
+			continue;
+		data.tick = DIFF_TICK(timer->tick,tick); //Duration that is left before ending.
 		data.type = i;
-		data.val1 = sc->data[i]->val1;
-		data.val2 = sc->data[i]->val2;
-		data.val3 = sc->data[i]->val3;
-		data.val4 = sc->data[i]->val4;
+		data.val1 = sd->sc.data[i].val1;
+		data.val2 = sd->sc.data[i].val2;
+		data.val3 = sd->sc.data[i].val3;
+		data.val4 = sd->sc.data[i].val4;
 		memcpy(WFIFOP(char_fd,14 +count*sizeof(struct status_change_data)),
 			&data, sizeof(struct status_change_data));
 		count++;
@@ -1054,7 +1073,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 
 //Retrieve and load sc_data for a player. [Skotlex]
 int chrif_load_scdata(int fd)
-{	
+{
 #ifdef ENABLE_SC_SAVING
 	struct map_session_data *sd;
 	struct status_change_data *data;
@@ -1078,6 +1097,11 @@ int chrif_load_scdata(int fd)
 	for (i = 0; i < count; i++)
 	{
 		data = (struct status_change_data*)RFIFOP(fd,14 + i*sizeof(struct status_change_data));
+		if (data->tick < 1)
+		{	//Protection against invalid tick values. [Skotlex]
+			ShowWarning("chrif_load_scdata: Received invalid duration (%d ms) for status change %d (character %s)\n", data->tick, data->type, sd->status.name);
+			continue;
+		}
 		status_change_start(&sd->bl, data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 15);
 	}
 #endif
@@ -1086,7 +1110,6 @@ int chrif_load_scdata(int fd)
 
 /*==========================================
  * Send rates and motd to char server [Wizputer]
- * S 2b16 <base rate>.w <job rate>.w <drop rate>.w <motd len>.w <motd>.256B
  *------------------------------------------*/
  int chrif_ragsrvinfo(int base_rate, int job_rate, int drop_rate)
 {
@@ -1101,7 +1124,6 @@ int chrif_load_scdata(int fd)
 	WFIFOW(char_fd,2) = base_rate;
 	WFIFOW(char_fd,4) = job_rate;
 	WFIFOW(char_fd,6) = drop_rate;
-	WFIFOW(char_fd,8) = sizeof(buf) + 10;
 
 	if ((fp = fopen(motd_txt, "r")) != NULL) {
 		if (fgets(buf, sizeof(buf), fp) != NULL)
@@ -1112,11 +1134,13 @@ int chrif_load_scdata(int fd)
 					break;
 				}
 			}
+			WFIFOW(char_fd,8) = sizeof(buf) + 10;
 			memcpy(WFIFOP(char_fd,10), buf, sizeof(buf));
 		}
 		fclose(fp);
 	} else {
 		memset(buf, 0, sizeof(buf)); //No data found, send empty packets?
+		WFIFOW(char_fd,8) = sizeof(buf) + 10;
 		memcpy(WFIFOP(char_fd,10), buf, sizeof(buf));
 	}
 	WFIFOSET(char_fd,WFIFOW(char_fd,8));
@@ -1216,18 +1240,6 @@ void chrif_update_ip(int fd)
 	WFIFOSET(fd,6);
 }
 
-// pings the charserver
-void chrif_keepalive(int fd)
-{
-	WFIFOHEAD(fd,2);
-	WFIFOW(fd,0) = 0x2b23;
-	WFIFOSET(fd,2);
-}
-
-void chrif_keepalive_ack(int fd)
-{
-}
-
 /*==========================================
  *
  *------------------------------------------*/
@@ -1257,10 +1269,10 @@ int chrif_parse(int fd)
 		cmd = RFIFOW(fd,0);
 		if (cmd < 0x2af8 || cmd >= 0x2af8 + ARRAYLENGTH(packet_len_table) || packet_len_table[cmd-0x2af8] == 0)
 		{
-			int r = intif_parse(fd); // intifに渡す
+			int r = intif_parse(fd); // intifn
 
-			if (r == 1) continue;	// intifで処理した
-			if (r == 2) return 0;	// intifで処理したが、データが足りない
+			if (r == 1) continue;	// intif
+			if (r == 2) return 0;	// intifAf[^
 
 			set_eof(fd);
 			ShowWarning("chrif_parse: session #%d, intif_parse failed -> disconnected.\n", fd);
@@ -1285,15 +1297,15 @@ int chrif_parse(int fd)
 		case 0x2af9: chrif_connectack(fd); break;
 		case 0x2afb: chrif_sendmapack(fd); break;
 		case 0x2afd: chrif_authok(fd); break;
-		case 0x2b00: map_setusers(RFIFOL(fd,2)); chrif_keepalive(fd); break;
+		case 0x2b00: map_setusers(fd); break;
 		case 0x2b03: clif_charselectok(RFIFOL(fd,2)); break;
 		case 0x2b04: chrif_recvmap(fd); break;
 		case 0x2b06: chrif_changemapserverack(RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10), RFIFOL(fd,14), RFIFOW(fd,18), RFIFOW(fd,20), RFIFOW(fd,22), RFIFOL(fd,24), RFIFOW(fd,28)); break;
 		case 0x2b07: clif_updatemaxid(RFIFOL(fd,2), RFIFOL(fd,6)); break;
-		case 0x2b09: map_addnickdb(RFIFOL(fd,2), (char*)RFIFOP(fd,6)); break;
+		case 0x2b09: map_addchariddb(RFIFOL(fd,2), (char*)RFIFOP(fd,6)); break;
 		case 0x2b0b: chrif_changedgm(fd); break;
 		case 0x2b0d: chrif_changedsex(fd); break;
-		case 0x2b0f: chrif_char_ask_name_answer(RFIFOL(fd,2), (char*)RFIFOP(fd,6), RFIFOW(fd,30), RFIFOW(fd,32)); break;
+		case 0x2b0f: chrif_char_ask_name_answer(fd); break;
 		case 0x2b12: chrif_divorce(RFIFOL(fd,2), RFIFOL(fd,6)); break;
 		case 0x2b13: chrif_accountdeletion(fd); break;
 		case 0x2b14: chrif_accountban(fd); break;
@@ -1305,9 +1317,9 @@ int chrif_parse(int fd)
 		case 0x2b20: chrif_removemap(fd); break;
 		case 0x2b21: chrif_save_ack(fd); break;
 		case 0x2b22: chrif_updatefamelist_ack(fd); break;
-		case 0x2b24: chrif_keepalive_ack(fd); break;
 		default:
-			ShowError("chrif_parse : unknown packet (session #%d): 0x%x. Disconnecting.\n", fd, cmd);
+			if (battle_config.error_log)
+				ShowError("chrif_parse : unknown packet (session #%d): 0x%x. Disconnecting.\n", fd, cmd);
 			set_eof(fd);
 			return 0;
 		}
@@ -1318,22 +1330,19 @@ int chrif_parse(int fd)
 	return 0;
 }
 
-int ping_char_server(int tid, unsigned int tick, int id, int data)
-{
-	chrif_check(-1);
-	chrif_keepalive(char_fd);
-	return 0;
-}
-
-// unused
 int send_usercount_tochar(int tid, unsigned int tick, int id, int data)
 {
 	int count;
+	static int last_count = 0;
 
 	chrif_check(-1);
 	
 	map_getallusers(&count);
 	
+	if (count == last_count) //No need to waste packets.
+		return 0;
+	last_count = count;
+
 	WFIFOHEAD(char_fd,4);
 	WFIFOW(char_fd,0) = 0x2afe;
 	WFIFOW(char_fd,2) = count;
@@ -1342,10 +1351,10 @@ int send_usercount_tochar(int tid, unsigned int tick, int id, int data)
 }
 
 /*==========================================
- * timer関数
- * 今このmap鯖に繋がっているクライアント人数をchar鯖へ送る
+ * timer
+ * mapIqNCAglcharI
  *------------------------------------------*/
-int send_users_tochar(void)
+int send_users_tochar(int tid, unsigned int tick, int id, int data)
 {
 	int count, users=0, i;
 	struct map_session_data **all_sd;
@@ -1368,8 +1377,8 @@ int send_users_tochar(void)
 }
 
 /*==========================================
- * timer関数
- * char鯖との接続を確認し、もし切れていたら再度接続する
+ * timer
+ * charImFAx
  *------------------------------------------*/
 int check_connect_char_server(int tid, unsigned int tick, int id, int data)
 {
@@ -1391,7 +1400,6 @@ int check_connect_char_server(int tid, unsigned int tick, int id, int data)
 		}
 
 		session[char_fd]->func_parse = chrif_parse;
-		session[char_fd]->client_addr = 0;
 		realloc_fifo(char_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
 
 		chrif_connect(char_fd);
@@ -1420,7 +1428,7 @@ int auth_db_final(DBKey k,void *d,va_list ap)
 }
 
 /*==========================================
- * 終了
+ * I
  *------------------------------------------*/
 int do_final_chrif(void)
 {
@@ -1435,20 +1443,22 @@ int do_final_chrif(void)
  *------------------------------------------*/
 int do_init_chrif(void)
 {
-	auth_db = idb_alloc(DB_OPT_RELEASE_DATA);
-
 	add_timer_func_list(check_connect_char_server, "check_connect_char_server");
-	add_timer_func_list(ping_char_server, "ping_char_server");
+	add_timer_func_list(send_usercount_tochar, "send_usercount_tochar");
+	add_timer_func_list(send_users_tochar, "send_users_tochar");
 	add_timer_func_list(auth_db_cleanup, "auth_db_cleanup");
 
-	// establish map-char connection if not present
 	add_timer_interval(gettick() + 1000, check_connect_char_server, 0, 0, 10 * 1000);
-
-	// keep the map-char connection alive
-	add_timer_interval(gettick() + 1000, ping_char_server, 0, 0, ((int)stall_time-2) * 1000);
-
-	// wipe stale data for timed-out client connection requests
+#ifdef TXT_ONLY
+	//Txt needs this more frequently because it is used for the online.html file.
+	add_timer_interval(gettick() + 1000, send_users_tochar, 0, 0, UPDATE_INTERVAL);
+#else
+	add_timer_interval(gettick() + 1000, send_users_tochar, 0, 0, CHECK_INTERVAL);
+	add_timer_interval(gettick() + 1000, send_usercount_tochar, 0, 0, UPDATE_INTERVAL);
+#endif
 	add_timer_interval(gettick() + 1000, auth_db_cleanup, 0, 0, 30 * 1000);
+
+	auth_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 
 	return 0;
 }
