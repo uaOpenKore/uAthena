@@ -466,9 +466,9 @@ insert into item_db VALUES ( 1127, "Saber_", "Saber", 4, 49000, NULL, 1000, 115,
 insert into item_db VALUES ( 1128, "Hae_Dong_Gum_", "Haedonggum", 4, 50000, NULL, 900, 120, NULL, 1, 2, 0x000654E2, 7, 2, 2, 3, 27, 1, 2, ' bonus bInt,3; ', NULL, NULL );
 insert into item_db VALUES ( 1129, "Flamberge", "Flamberge", 4, 60000, NULL, 1500, 150, NULL, 1, 0, 0x00004080, 7, 2, 2, 3, 27, 1, 2, NULL, NULL, NULL );
 insert into item_db VALUES ( 1130, "Nagan", "Nagan", 4, NULL, 10, 500, 120, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, ' bonus bDoubleRate,25; bonus2 bAddRace,RC_DemiHuman,5; ', NULL, NULL );
-insert into item_db VALUES ( 1131, "Ice_Falchon", "Ice Falchion", 4, NULL, 10, 600, 100, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, ' bonus bAtkEle,Ele_Water; bonus2 bAddEff,Eff_Freeze,500; bonus2 bAddEff2,Eff_Freeze,10; skill 14,3; bonus3 bAutoSpell,14,3,500,1; ', NULL, NULL );
+insert into item_db VALUES ( 1131, "Ice_Falchon", "Ice Falchion", 4, NULL, 10, 600, 150, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, NULL, NULL, NULL );
 insert into item_db VALUES ( 1132, "Edge", "Edge", 4, NULL, 10, 700, 115, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, ' bonus2 bAddEff,Eff_Curse,30; bonus2 bWeaponComaRace,RC_NonBoss,100; ', NULL, NULL );
-insert into item_db VALUES ( 1133, "Fire_Brand", "Fireblend", 4, NULL, 10, 500, 100, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, ' bonus bAtkEle,Ele_Fire; skill 19,3; bonus3 bAutoSpell,19,3,100; ', NULL, NULL );
+insert into item_db VALUES ( 1133, "Fire_Brand", "Fireblend", 4, NULL, 10, 500, 100, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, ' bonus bAtkEle,Ele_Fire; skill 19,5; bonus3 bAutoSpell,19,5,500,1; ', NULL, NULL );
 insert into item_db VALUES ( 1134, "Scissores_Sword", "Caesar's Sword", 4, NULL, 10, 700, 140, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, ' bonus2 bAddRace,RC_Plant,25; bonus bIgnoreDefRace,RC_Plant; ', NULL, NULL );
 insert into item_db VALUES ( 1135, "Cutlas", "Cutlus", 4, NULL, 10, 900, 150, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, ' skill 5,5; bonus bStr,2; bonus bDef,1; ', NULL, NULL );
 insert into item_db VALUES ( 1136, "Solar_Sword", "Solar Sword", 4, NULL, 10, 1200, 85, NULL, 1, 0, 0x000654E2, 7, 2, 2, 4, 40, 1, 2, ' bonus bAtkEle,Ele_Fire; bonus2 bHPDrainRate,1000,1; bonus2 bSPLossRate,15,10000; ', NULL, NULL );

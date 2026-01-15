@@ -491,14 +491,14 @@
 1128,Hae_Dong_Gum_,Haedonggum,4,50000,,900,120,,1,2,0x000654E2,7,2,2,3,27,1,2,{ bonus bInt,3; },{},{}
 1129,Flamberge,Flamberge,4,60000,,1500,150,,1,0,0x00004080,7,2,2,3,27,1,2,{},{},{}
 1130,Nagan,Nagan,4,,10,500,120,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bDoubleRate,25; bonus2 bAddRace,RC_DemiHuman,5; },{},{}
-1131,Ice_Falchon,Ice Falchion,4,,10,600,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{bonus bAtkEle,Ele_Water; bonus2 bAddEff,Eff_Freeze,500; bonus2 bAddEff2,Eff_Freeze,10; skill 14,3; bonus3 bAutoSpell,14,5,300,1;},{},{}
+1131,Ice_Falchon,Ice Falchion,4,,10,600,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{bonus bAtkEle,Ele_Water; bonus2 bAddEff,Eff_Freeze,250; bonus2 bAddEff2,Eff_Freeze,10; skill 14,3; bonus3 bAutoSpell,14,3,300; bonus5 bAutoSpell,14,5,250,BF_MAGIC,1; },{},{}
 1132,Edge,Edge,4,,10,700,115,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bAddEff,Eff_Curse,30; bonus2 bWeaponComaRace,RC_NonBoss,100; },{},{}
-1133,Fire_Brand,Fireblend,4,,10,500,100,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Fire; skill 19,5; bonus3 bAutoSpell,19,5,500,1; },{},{}
+1133,Fire_Brand,Fireblend,4,,10,500,100,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Fire; skill 19,3; bonus3 bAutoSpell,19,3,250; bonus5 bAutoSpell,19,5,250,BF_MAGIC,1; },{},{}
 1134,Scissores_Sword,Caesar's Sword,4,,10,700,140,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bAddRace,RC_Plant,25; bonus bIgnoreDefRace,RC_Plant; },{},{}
 1135,Cutlas,Cutlus,4,,10,900,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{ skill 5,5; bonus bStr,2; bonus bDef,1; },{},{}
 1136,Solar_Sword,Solar Sword,4,,10,1200,85,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Fire; bonus2 bHPDrainRate,1000,1; bonus2 bSPLossRate,15,10000; },{},{}
 1137,Excalibur,Excalibur,4,,10,1200,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bInt,5; bonus bLuk,10; bonus bDex,-1; bonus bAtkEle,Ele_Holy; },{},{}
-1138,Mysteltainn_,Mysteltainn,4,,10,1000,170,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Dark; bonus2 bAddEle,Ele_Ghost,15; bonus3 bAutoSpell,16,3,100; bonus2 bAddEff,Eff_Stone,10; bonus bDex,3; },{},{}
+1138,Mysteltainn_,Mysteltainn,4,,10,1000,170,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Dark; bonus2 bAddEle,Ele_Ghost,15; bonus3 bAutoSpell,16,3,100; bonus2 bAddEff,Eff_Stone,100; bonus bDex,3; },{},{}
 1139,Tale_Fing_,Tirfing,4,,10,1000,200,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Dark; bonus2 bHPLossRate,35,10000; },{},{}
 1140,Byeorrun_Gum,Byeollungum,4,,10,900,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bSubRace,RC_NonBoss,-10; bonus2 bAddRace,RC_Boss,50; bonus bAllStats,2; },{},{}
 1141,Immaterial_Sword,Immaterial Sword,4,,10,900,140,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Ghost; bonus2 bSPVanishRate,30,30; bonus bSPDrainValue,-1; bonus bUnbreakableWeapon,0; },{},{}
@@ -524,16 +524,16 @@
 1161,Balmung,Balmung,4,,10,1000,250,,1,0,0xFFFFFFFF,7,2,34,4,48,1,1,{ bonus bAtkEle,Ele_Holy; bonus bInt,20; bonus bLuk,20; bonus bUnbreakableWeapon,0; },{},{}
 1162,Broad_Sword_,Broad Sword,4,65000,,2000,140,,1,2,0x00004082,7,2,34,3,33,1,3,{ bonus bDef,5; bonus bUnbreakableWeapon,0; },{},{}
 1163,Claymore,Claymore,4,74000,,2500,180,,1,0,0x00004080,7,2,34,3,33,1,3,{},{},{}
-1164,Muramasa,Muramasa,4,,10,1000,155,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bCritical,30; bonus bAspdRate,8; bonus2 bAddEff2,Eff_Curse,100; },{},{}
-1165,Masamune,Masamune,4,,10,1000,200,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bFlee,30; bonus bStr,-5; bonus bAspd,2; bonus bDefRate,-67; bonus bDef2Rate,-67; },{},{}
+1164,Muramasa,Muramasa,4,,10,1000,155,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bCritical,30; bonus bAspdRate,8; bonus2 bAddEff2,Eff_Curse,10; },{},{}
+1165,Masamune,Masamune,4,,10,1000,200,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bFlee,30; bonus bStr,-5; bonus bAspd,2; },{},{}
 1166,Dragon_Slayer,Dragon Slayer,4,,10,1300,150,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bIgnoreDefRace,RC_Dragon; bonus2 bAddRace,RC_Dragon,15; },{},{}
-1167,Schweizersabel,Schweizersabel,4,,10,1600,160,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bAtkEle,Ele_Wind; bonus bDef,1; bonus3 bAutoSpell,20,3,100; },{},{}
+1167,Schweizersabel,Schweizersabel,4,,10,1600,160,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bAtkEle,Ele_Wind; bonus bDef,1; bonus3 bAutoSpell,20,3,250; },{},{}
 1168,Zweihander,Zweihander,4,,10,2200,200,,1,0,0x00004082,7,2,34,4,48,1,3,{},{},{}
 1169,Executioner_,Executioner,4,,10,2200,155,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bIgnoreDefRace,RC_DemiHuman; bonus2 bAddRace,RC_DemiHuman,20; bonus2 bSubRace,RC_DemiHuman,-10; bonus bAtkEle,Ele_Dark; },{},{}
 1170,Katzbalger,Katzbalger,4,,10,2000,175,,1,0,0x00004082,7,2,34,4,48,1,3,{ bonus bVit,5; bonus bDef,10; },{},{}
 1171,Zweihander_,Zweihander,4,,10,2200,200,,1,2,0x00004082,7,2,34,4,48,1,3,{},{},{}
 1172,Claymore_,Claymore,4,74000,,2500,180,,1,2,0x00004080,7,2,34,3,33,1,3,{},{},{}
-1173,Muramasa_C,Refined Muramasa,4,,,0,204,,1,0,0x00004082,7,2,34,4,1,0,3,{ bonus bCritical,30; bonus bAspdRate,8; bonus2 bAddEff2,Eff_Curse,100; },{},{}
+1173,Muramasa_C,Refined Muramasa,4,,,0,204,,1,0,0x00004082,7,2,34,4,1,0,3,{ bonus bCritical,30; bonus bAspdRate,8; bonus2 bAddEff2,Eff_Curse,10; },{},{}
 1174,Executioner_C,Refined Executioner,4,,,0,190,,1,0,0x00004082,7,2,34,4,1,0,3,{ bonus bIgnoreDefRace,RC_DemiHuman; bonus2 bAddRace,RC_DemiHuman,20; bonus2 bSubRace,RC_DemiHuman,-10; bonus bAtkEle,Ele_Dark; },{},{}
 1175,Blade_of_Atros,Blade_of_Atros,4,,10,2000,200,,1,1,0x00004082,7,2,34,4,55,1,3,{ bonus bCritical,10; if(readparam(bStr)>80) bonus bBreakArmorRate,100; },{},{}
 1176,Muscle_Cutter,Muscle_Cutter,4,,10,2200,160,,1,2,0x00004082,2,2,34,4,55,1,3,{ bonus2 bAddEff,Eff_Bleeding,100; bonus4 bAutoSpell,30,1,20,1; },{},{}
@@ -729,7 +729,7 @@
 1525,Long_Mace,Long Mace,4,,10,800,135,,3,0,0x00008110,7,2,2,4,40,1,8,{ bonus bLongAtkDef,10; },{},{}
 1526,Slash,Slash,4,,10,1000,145,,1,0,0x00008110,7,2,2,4,40,1,8,{ bonus2 bAddRace,RC_Undead,15; bonus2 bWeaponComaRace,RC_Undead,100; bonus2 bExpAddRace,RC_Undead,5; },{},{}
 1527,Quadrille,Quadrille,4,,10,900,165,,1,0,0x00008110,7,2,2,4,40,1,8,{ bonus2 bAddRace,RC_Undead,10; bonus2 bAddRace,RC_DemiHuman,10; bonus2 bAddEle,Ele_Earth,10; },{},{}
-1528,Grand_Cross,Grand Cross,4,,10,1500,140,,1,0,0x00008110,7,2,2,4,40,1,8,{ bonus bAtkEle,Ele_Holy; bonus3 bAutoSpell,77,3,100; bonus2 bSPDrainValueRace,RC_Undead,1; bonus2 bSPGainRace,RC_Undead,3; },{},{}
+1528,Grand_Cross,Grand Cross,4,,10,1500,140,,1,0,0x00008110,7,2,2,4,40,1,8,{ bonus bAtkEle,Ele_Holy; bonus3 bAutoSpell,77,3,300; bonus2 bSPDrainValueRace,RC_Undead,1; bonus2 bSPGainRace,RC_Undead,3; },{},{}
 1529,Iron_Driver,Iron Driver,4,,10,3000,155,,2,0,0x00008100,7,2,2,3,78,1,8,{},{},{}
 1530,Mjolnir,Mjolnir,4,,10,6000,250,,1,0,0x000444A2,7,2,2,4,95,0,8,{ bonus bAtkEle,Ele_Wind; bonus bDex,40; bonus bStr,15; bonus bAspdRate,10; bonus bUnbreakableWeapon,0; },{},{}
 1531,Spanner,Wrench,4,,10,2500,115,,1,0,0x00008110,7,2,2,3,55,1,8,{ bonus2 bAddEff,Eff_Blind,100; bonus2 bAddEff,Eff_Stun,100; bonus2 bAddEff,Eff_Poison,100; bonus2 bAddEff,Eff_Freeze,100; },{},{}
@@ -1596,7 +1596,7 @@
 4302,Tao_Gunka_Card,Tao Gunka Card,6,,10,10,,,,,,,,16,,,,,{ bonus bMaxHPrate,100; bonus bDef,-50; bonus bMdef,-50; },{},{}
 4303,Whisper_Boss_Card,Giant Whisper Card,6,,10,10,,,,,,,,4,,,,,{ bonus bFlee,10; if(readparam(bStr)>=80) bonus bBaseAtk,20; if(readparam(bVit)>=80) bonus bMaxHPrate,3; if(readparam(bLuk)>=80) bonus bCritical,3; },{},{}
 4304,Tamruan_Card,Tamruan Card,6,,10,10,,,,,,,,32,,,,,{ bonus bDef,2; bonus2 bSkillAtk,250,10; bonus2 bSkillAtk,251,10; },{},{}
-4305,Turtle_General_Card,Turtle General Card,6,,10,10,,,,,,,,2,,,,,{ bonus2 bAddRace,RC_NonBoss,20; bonus2 bAddRace,RC_Boss,20; bonus2 bAddRace2,5,20; bonus3 bAutoSpell,7,10,30; },{},{}
+4305,Turtle_General_Card,Turtle General Card,6,,10,10,,,,,,,,2,,,,,{ bonus2 bAddRace,RC_NonBoss,20; bonus2 bAddRace,RC_Boss,20; bonus2 bAddRace2,5,30; bonus3 bAutoSpell,7,10,50; },{},{}
 4306,Toad_Card,Toad Card,6,,10,10,,,,,,,,4,,,,,{ bonus bFlee2,1; if(isequipped(4014)) bonus bFlee,18; },{},{}
 4307,Kind_Of_Beetle_Card,Beetle King Card,6,,10,10,,,,,,,,2,,,,,{ bonus2 bSPGainRace,RC_Fish,5; },{},{ heal 0,-5; }
 4308,Tri_Joint_Card,Tri Joint Card,6,,10,10,,,,,,,,2,,,,,{ bonus2 bSPGainRace,RC_Formless,5; },{},{ heal 0,-5; }
