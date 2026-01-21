@@ -1,0 +1,95 @@
+//===== eAthena Script =======================================
+//= Clock Tower Monster Spawn Script
+//===== By: ==================================================
+//= Athena (1.0)
+//===== Current Version: =====================================
+//= 1.01
+//===== Compatible With: =====================================
+//= Any Athena Version
+//===== Additional Comments: =================================
+//=
+//==================================================
+// c_tower1 - Clock Tower F1
+//==================================================
+c_tower1.gat,0,0,0,0	monster	Punk	1199,100,0,0,0
+c_tower1.gat,0,0,0,0	monster	Rideword	1195,30,0,0,0
+c_tower1.gat,0,0,0,0	monster	Clock Tower Manager	1270,1,0,0,0
+c_tower1.gat,0,0,0,0	monster	Bathory	1102,1,0,0,0
+
+//==================================================
+// c_tower2 - Clock Tower F2
+//==================================================
+c_tower2.gat,0,0,0,0	monster	Punk	1199,45,0,0,0
+c_tower2.gat,0,0,0,0	monster	Clock	1269,40,0,0,0
+c_tower2.gat,0,0,0,0	monster	Rideword	1195,7,0,0,0
+c_tower2.gat,128,100,10,10	monster	Rideword	1195,1,60000,30000,0
+c_tower2.gat,149,199,10,10	monster	Rideword	1195,1,120000,60000,0
+c_tower2.gat,149,199,10,10	monster	Rideword	1195,1,300000,120000,0
+c_tower2.gat,273,286,20,20	monster	Rideword	1195,1,120000,60000,0
+c_tower2.gat,273,286,20,20	monster	Rideword	1195,1,300000,120000,0
+c_tower2.gat,0,0,0,0	monster	Mimic	1191,3,0,0,0
+c_tower2.gat,0,0,0,0	monster	Clock Tower Manager	1270,1,0,0,0
+c_tower2.gat,0,0,0,0	monster	Elder	1377,2,3600000,1800000,0
+
+//==================================================
+// c_tower3 - Clock Tower F3
+//==================================================
+c_tower3.gat,0,0,0,0	monster	Alarm	1193,80,0,0,0
+c_tower3.gat,0,0,0,0	monster	Rideword	1195,15,0,0,0
+c_tower3.gat,0,0,0,0	monster	Mimic	1191,10,0,0,0
+c_tower3.gat,0,0,0,0	monster	Clock Tower Manager	1270,1,0,0,0
+
+//==================================================
+// c_tower4 - Clock Tower F4
+//==================================================
+c_tower4.gat,108,198,100,10	monster	Alarm	1193,7,0,0,0
+c_tower4.gat,108,178,100,10	monster	Alarm	1193,7,0,0,0
+c_tower4.gat,108,158,100,10	monster	Alarm	1193,7,0,0,0
+c_tower4.gat,108,138,100,10	monster	Alarm	1193,7,0,0,0
+c_tower4.gat,108,118,100,10	monster	Alarm	1193,7,0,0,0
+c_tower4.gat,108,98,100,10	monster	Clock	1269,7,0,0,0
+c_tower4.gat,108,78,100,10	monster	Clock	1269,7,0,0,0
+c_tower4.gat,108,58,100,10	monster	Clock	1269,7,0,0,0
+c_tower4.gat,108,38,100,10	monster	Clock	1269,7,0,0,0
+c_tower4.gat,108,18,100,10	monster	Clock	1269,7,0,0,0
+c_tower4.gat,108,198,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,178,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,158,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,138,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,118,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,98,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,78,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,58,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,38,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,108,18,100,10	monster	Owl Duke	1320,3,0,0,0
+c_tower4.gat,0,0,0,0	monster	Whisper	1179,5,0,0,0
+c_tower4.gat,0,0,0,0	monster	Clock Tower Manager	1270,3,0,0,0
+c_tower4.gat,98,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,97,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,96,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,95,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,94,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,93,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,92,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,91,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,87,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,86,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,80,179,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,80,180,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,80,181,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,80,182,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,80,183,0,0	monster	Rideword	1195,1,240000,120000,1
+c_tower4.gat,128,194,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,38,193,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,37,159,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,31,139,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,104,14,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,104,27,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,105,24,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,205,105,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,201,109,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,148,85,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,189,51,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,170,34,0,0	monster	Mimic	1191,1,300000,150000,1
+c_tower4.gat,0,0,0,0	monster	Elder	1377,2,3600000,1800000,1
+c_tower4.gat,42,41,0,0	monster	Executioner	1205,1,7200000,3600000,1

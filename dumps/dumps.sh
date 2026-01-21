@@ -13,7 +13,7 @@ rPASSWORD=""
 
 function make_dumps {
   rm -f ./schema/* ./tables/*
-  mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD $DB --no-data --single-transaction >./schema/schema.sql
+  mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB --no-data --single-transaction >./schema/schema.sql
      if [ "$?" != "0" ]
       then
        echo "Problem connecting to database"
@@ -22,7 +22,7 @@ function make_dumps {
   TABLES=`mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e 'show tables'`
   for x in $TABLES
    do
-    mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD $DB $x --extended-insert=FALSE --skip-dump-date --single-transaction >./tables/${x}.sql
+    mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB $x --extended-insert=FALSE --skip-dump-date --single-transaction >./tables/${x}.sql
    done
  }
 
@@ -30,7 +30,7 @@ function install_first {
 
   for x in ./tables/*.sql;
    do
-    resu=$(cat $x | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB)
+    resu=$(cat $x | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB)
          if [ -n "$resu" ]
       then
        echo "Problem connecting to database"
@@ -41,22 +41,22 @@ function install_first {
  }
 
 function create_db {
-  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e 'drop database test'
-  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "create database ragnarok"
+  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e 'drop database test'
+  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "create database ragnarok"
      if [ $? -ne 0 ]
       then
        echo "Problem connecting to database"
        exit 1
       fi
-  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "create user 'ragnarok'@'%' identified by 'ragnarok'"
-  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "create user 'ragnarok'@'localhost' identified by 'ragnarok'"
-  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "grant all on ragnarok.* to 'ragnarok'@'%'"
-  mysql -h$HOST -P$PORT -u$rUSER $rPASSWORD -sN -e "FLUSH PRIVILEGES"
+  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "create user 'ragnarok'@'%' identified by 'ragnarok'"
+  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "create user 'ragnarok'@'localhost' identified by 'ragnarok'"
+  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "grant all on ragnarok.* to 'ragnarok'@'%'"
+  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "FLUSH PRIVILEGES"
  }
 
 function update_db {
-   mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB -sN -e "drop table migrations"
-  cat ./migrations/1-migrations.sql | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB
+   mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e "drop table migrations"
+  cat ./migrations/1-migrations.sql | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB
   for x in ./migrations/*.sql;
    do
     y=$(mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e "select file from migrations where file = \"$x\" ")
@@ -74,7 +74,7 @@ function update_db {
  }
 
 function make_backup {
-  mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD $DB --single-transaction|gzip>./backup/${DB}.sql.gz
+  mysqldump -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB --single-transaction|gzip>./backup/${DB}.sql.gz
      if [ $? -ne 0 ] 
       then
        echo "Problem connecting to database"
@@ -83,7 +83,7 @@ function make_backup {
  }
 
 function create_test {
-  mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e 'insert into login (userid,user_pass) values ("Test","Test")'
+  mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e 'insert into login (userid,user_pass,level,lastlogin) values ("Test","Test",99,"2026-01-01 00:00:01")'
      if [ "$?" != "0" ]
       then
        echo "Problem connecting to database"
@@ -162,7 +162,7 @@ if [ "$1" == "old" ]
   for x in ./old/*.sql;
    do
     echo "work $x"
-    cat $x | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD $DB
+    cat $x | mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB
    done
  fi
 
