@@ -1,9 +1,9 @@
-/* Guild Warehouse Service Test-Script
-prontera.gat,165,188,4	script	Guild Warehouse	112,{
+/* Guild Warehouse Service Test-Script 
+prontera,165,188,4	script	Guild Warehouse	112,{
 	cutin "kafra_06",2;
 
 	mes "[Guild Warehouse Coupler]";
-	mes "This is the guild warehouse coupler service.";
+	mes "This is the guild warehouse coupler service."; 
 	mes "You will not receive zeny for this is a test.";
 	next;
 	menu "Access Guild Warehouse", GS_OPEN, "Exit", GS_EXIT3;
@@ -35,16 +35,16 @@ GS_EXIT4:
 }
 */
 
-// JvMhqT[rX	eXgXNvg
-prontera.gat,165,188,4	script	MhqJv	112,{
+// カプラギルド倉庫サービス	テストスクリプト
+prontera,165,188,4	script	ギルド倉庫カプラ	112,{
 	cutin "kafra_06",2;
 
-	mes"[MhqJv]";
-	mes "JvMhqT[rXB";
-	mes "xp";
-	mes "eXgpB";
+	mes"[ギルド倉庫カプラ]";
+	mes "カプラギルド倉庫サービスです。";
+	mes "毎度ご利用ありがとうございます♪";
+	mes "テスト用なので金は貰いません。";
 	next;
-	menu "Mhqp",GS_OPEN,"",GS_EXIT3;
+	menu "ギルド倉庫を利用する",GS_OPEN,"やっぱやめる",GS_EXIT3;
 
 GS_OPEN:
 	set @flag,guildopenstorage(0);
@@ -53,16 +53,16 @@ GS_OPEN:
 	goto GS_EXIT4;
 
 GS_EXIT1:
-	mes "Mho[qgpB";
-	mes "pB";
+	mes "ギルドメンバーが倉庫を使用中です。";
+	mes "しばらく待ってから利用してください。";
 	goto GS_EXIT4;
 
 GS_EXIT2:
-	mes "MhpB";
+	mes "ギルドに所属してない方は利用することができません。";
 	goto GS_EXIT4;
 
 GS_EXIT3:
-	mes "p";
+	mes "またのご利用をお待ちしています♪";
 
 GS_EXIT4:
 	cutin "kafra_06",255;

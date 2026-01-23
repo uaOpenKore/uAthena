@@ -1,36 +1,36 @@
 //===== eAthena Script ======================================= 
 //= Clothes Dyer
-//===== By: ==================================================
+//===== By: ================================================== 
 //= Usnul
-//===== Current Version: =====================================
+//===== Current Version: ===================================== 
 //= 2.4
-//===== Compatible With: =====================================
+//===== Compatible With: ===================================== 
 //= eAthena 1.0+
-//===== Description: =========================================
+//===== Description: ========================================= 
 //= Clothes dyer with standard palletes
 //===== Additional Comments: ================================= 
 //= Fully working
 //= 2.1 Shortened some labels to make this script loading,
 //= Added Black+White Colors desc [Lupus]
 //= 2.1a - added adv classes + abby class support [Lupus]
-//= 2.2 - Spell checked. [Nexon]
+//= 2.2 – Spell checked. [Nexon]
 //= 2.3 - Fixed dis $hit! [Poki#3]
 //= 2.4 - Disabled cloth dyeing since it's not implemented
 //	  on official servers and cause your client to crash
 //	  [Playtester]
 //============================================================
 //Note: To enable it, replace L_Busy with L_Dye
-//============================================================
+//============================================================ 
 
 
 // Dyer Ginedin Rephere ---------------------------------------------------
 prt_in,284,168,2	script	Dyer Ginedin Rephere	55,{
 	mes "[Dyer Ginedin Rephere]";
-	mes "11... 12... Mmm... good. I think I'll be able to finish before tonights party. Oh! I didn't notice that you were here. Anyway how may I assist you?";
+	mes "11... 12... Mmm... good. I think I'll be able to finish before tonight’s party. Oh! I didn't notice that you were here. Anyway how may I assist you?";
 M_Menu:
 	next;
 	menu "-Talk",L_Talk,"-Dye Clothing",L_Busy,"-Price list",L_PriceList,"-Cancel",L_End;
-
+	
 L_Talk:
 	mes "[Dyer Ginedin Rephere]";
 	mes "Life may have gotten a little better.... but when I look at all of the orders I've received... Whew!";
@@ -360,7 +360,7 @@ sL_Zeny:
 	close;
 
 sL_NoDye:
-	mes "For me to dye your clothes, I'll need the appropriate Dyestuff. Please check my price list for the information.";
+	mes "For me to dye your clothes, I'll need the appropriate Dyestuffs. Please check my price list for the information.";
 	next;
 
 L_Busy:
@@ -371,14 +371,14 @@ L_PriceList:
 	mes "[Dyer Ginedin Rephere]";
 	mes "Here is the list of colors you can choose from and their prices:";
 	mes " ";
-	mes " - ^FF4422Red^000000: 10000 zeny, 1 Scarlet Dyestuff";
-	mes " - ^D5A500Yellow^000000: 10000 zeny, 1 Lemon Dyestuff";
-	mes " - ^AA00AAViolet^000000: 10000 zeny, 1 Violet Dyestuff";
-	mes " - ^FF8800Orange^000000: 10000 zeny, 1 Orange Dyestuff";
-	mes " - ^4422FFBlue^000000: 10000 zeny, 1 CobaltBlue Dyestuff";
-	mes " - ^009500Green^000000: 10000 zeny, 1 DarkGreen Dyestuff";
-	mes " - Black: 10000 zeny, 1 Black Dyestuff";
-	mes " - White: 10000 zeny, 1 White Dyestuff";
+	mes " - ^FF4422Red^000000: 10000 zeny, 1 Scarlet Dyestuffs";
+	mes " - ^D5A500Yellow^000000: 10000 zeny, 1 Lemon Dyestuffs";
+	mes " - ^AA00AAViolet^000000: 10000 zeny, 1 Violet Dyestuffs";
+	mes " - ^FF8800Orange^000000: 10000 zeny, 1 Orange Dyestuffs";
+	mes " - ^4422FFBlue^000000: 10000 zeny, 1 CobaltBlue Dyestuffs";
+	mes " - ^009500Green^000000: 10000 zeny, 1 DarkGreen Dyestuffs";
+	mes " - Black: 10000 zeny, 1 Black Dyestuffs";
+	mes " - White: 10000 zeny, 1 White Dyestuffs";
 	goto M_Menu;
 
 L_End:

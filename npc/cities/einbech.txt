@@ -1,12 +1,12 @@
 //===== eAthena Script ======================================= 
 //= Einbech Town
-//===== By: ==================================================
+//===== By: ================================================== 
 //= Muad_dib
-//===== Current Version: =====================================
+//===== Current Version: ===================================== 
 //= 1.4
-//===== Compatible With: =====================================
+//===== Compatible With: ===================================== 
 //= eAthena Revision 3000+
-//===== Description: =========================================
+//===== Description: ========================================= 
 //=
 //===== Additional Comments: ================================= 
 //= 0.1  Started writing Einbech npc's. [Muad_Dib]
@@ -284,9 +284,9 @@ L_THAT:
 	mes "share with you?";
 	goto L_MENU;
 }
-
+	
 einbech,48,107,4	duplicate(Shena)	Luda	850
-
+	
 einbech,93,139,6	script	Raust	847,{
 	mes "[Raust]";
 	mes "I don't get it!";
@@ -318,7 +318,7 @@ einbech,93,139,6	script	Raust	847,{
 	mes "*Grumble*";
 	close;
 }
-
+	
 einbech,97,167,6	script	Cavitar	847,{
 	mes "[Cavitar]";
 	mes "Recently, we had some";
@@ -352,9 +352,9 @@ einbech,97,167,6	script	Cavitar	847,{
 	mes "spmewhere. The poor bastard...";
 	close;
 }
-
+	
 einbech,105,218,6	script	Gushenmu	848,{
-	mes "[Gushenmu]";
+	mes "[Gushenmu]"; 
 	mes "I've lived here a long time";
 	mes "and, believe it or not, things";
 	mes "weren't as though in the past";
@@ -385,7 +385,7 @@ einbech,105,218,6	script	Gushenmu	848,{
 	mes "This is really Einbech's worst time...";
 	close;
 }
-
+	
 einbech,39,215,6	script	Train Station Staff	852,{
 	mes "[Staff]";
 	mes "Welcome to";
@@ -734,7 +734,7 @@ L_OKAY:
 	mes "the place and the government";
 	mes "has classified them as monsters.";
 	mes "Kill with extreme prejudice!";
-	next;
+ 	next;
 	mes "[Franz]";
 	mes "According to adventurers";
 	mes "who have caught these bears,";
@@ -1039,7 +1039,7 @@ ein_in01,279,92,2	script	Tavern Lady	854,{
 	close;
 }
 
-einbech,197,139,4	script	Young Man#05	855,{
+einbech,197,139,4	script	Young Man#05	855,{	
 	mes "[Heinz]";
 	mes "Wow...";
 	mes "And adventurer from";
@@ -1080,7 +1080,7 @@ einbech,197,139,4	script	Young Man#05	855,{
 }
 
 
-ein_in01,192,90,2	script	Supineque	849,{
+ein_in01,192,90,2	script	Supineque	849,{	
 	mes "[Supineque]";
 	mes "Ugh...";
 	mes "I'm starving!";
@@ -1100,7 +1100,7 @@ ein_in01,192,90,2	script	Supineque	849,{
 	close;
 }
 
-ein_in01,208,86,3	script	Decii	855,{
+ein_in01,208,86,3	script	Decii	855,{	
 	mes "[Decii]";
 	mes "This is so";
 	mes "frustating!";
@@ -1116,7 +1116,7 @@ ein_in01,208,86,3	script	Decii	855,{
 	close;
 }
 
-einbech,216,118,4	script	Catzllanpu	854,{
+einbech,216,118,4	script	Catzllanpu	854,{	
 	mes "[Catzllanpu]";
 	mes "*Sigh...* ";
 	mes "Simple pleasures.";

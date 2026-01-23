@@ -209,4 +209,6 @@ ZoDIaC ( ZoDIaC )
 ### 5.2.1. UaRO Team
 
 Serhii Pechenin (moeng/Sergio/pixel/fbsd61)  
-kwebmn  
+Vitaly Yuzvishen (kwebmn)
+Plague-UA
+

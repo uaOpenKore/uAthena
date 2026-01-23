@@ -1,4 +1,4 @@
-//===== eAthena script =======================================
+//===== eAthena Script =======================================
 //= Umbala Town script
 //===== By: ==================================================
 //= jAthena (1.0) Fusion Dev Team (1.1) Muad Dib (1.2) Darkchild (1.3)
@@ -355,7 +355,7 @@ LumWord:
 }
 
 //==================================================================
-//Trade Meat for Clover, ???, and Soft Fur
+//Trade Meat for Clover, ???, and Soft Fur 
 umbala,59,243,5	script	Utan Child#4	787,{
 if(event_umbala < 3) goto LumWord;
 	mes "[Kotan]";
