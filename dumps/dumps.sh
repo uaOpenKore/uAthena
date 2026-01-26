@@ -41,17 +41,17 @@ function install_first {
  }
 
 function create_db {
-  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e 'drop database test'
-  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "create database ragnarok"
+  mysql -sN -e 'drop database test'
+  mysql -sN -e "create database ragnarok"
      if [ $? -ne 0 ]
       then
        echo "Problem connecting to database"
        exit 1
       fi
-  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "create user 'ragnarok'@'%' identified by 'ragnarok'"
-  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "create user 'ragnarok'@'localhost' identified by 'ragnarok'"
-  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "grant all on ragnarok.* to 'ragnarok'@'%'"
-  mysql -h$HOST -P$PORT -u$rUSER -p$rPASSWORD -sN -e "FLUSH PRIVILEGES"
+  mysql -sN -e "create user 'ragnarok'@'%' identified by 'ragnarok'"
+  mysql -sN -e "create user 'ragnarok'@'localhost' identified by 'ragnarok'"
+  mysql -sN -e "grant all on ragnarok.* to 'ragnarok'@'%'"
+  mysql -sN -e "FLUSH PRIVILEGES"
  }
 
 function update_db {
