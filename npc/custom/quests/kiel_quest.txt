@@ -12,7 +12,7 @@
 //=
 //============================================================
 
-prontera.gat,157,168,2	script	Kiel Capry	68,{
+prontera.gat,147,177,7	script	Kiel Capry	832,{
 	mes "[Kiel Capry]";
 	mes callfunc("F_Hi");
 	mes "Help us! Everybody's evacuated! There's been an accident in my father's University...";

@@ -1931,7 +1931,7 @@
 5104,Dark_Blindfold,Dark Blinder,5,20,,100,,0,,0,0xFFFFFFFE,7,2,512,,0,0,187,{ bonus2 bResEff,Eff_Blind,10000; bonus2 bResEff,Eff_Stun,200; },{},{}
 5105,Hat_Of_Cake_,2nd Anniversary Hat,5,20,,1000,,1,,0,0xFFFFFFFF,7,2,256,,24,1,109,{ bonus bDex,1; bonus bMaxSP,80; },{},{}
 5106,Cone_Hat_INA,2nd Anniversary Hat,5,20,,300,,3,,0,0xFFFFFFFF,7,2,256,,0,1,144,{ bonus bLuk,1; },{},{}
-5107,Well_Baked_Toast,Crunch Toast,5,20,,50,,0,,0,0xFFFFFFFF,7,2,1,,0,0,188,{},{},{}
+5107,Well_Baked_Toast,Crunch Toast,5,20,,50,,0,,0,0xFFFFFFFF,7,2,1,,0,0,188,{ bonus bMaxHP,100; bonus2 bAddMonsterDropItem,617,100;},{},{}
 5108,Detective_Hat,Renown Detective's Cap,5,20,,350,,3,,1,0xFFFFFFFF,7,2,256,,0,1,189,{},{},{}
 5109,Red_Bonnet,Red Bonnet,5,20,,400,,2,,0,0xFFFFFFFF,7,2,256,,0,1,190,{},{},{}
 5110,Baby_Pacifier,Baby Pacifier,5,20,,50,,0,,0,0xFFFFFFFF,7,2,1,,0,0,191,{},{},{}

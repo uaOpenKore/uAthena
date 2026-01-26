@@ -5,7 +5,7 @@ aldebaran.gat,111,98,6	script	Fuckin Cat	876,{
 		close;
 }
 
-
+prt_monk.gat,274,130,3	shop Hand-of-God 858, 7079:1000000, 7076:1000000, 7087:1000000, 7083:10000000, 7080:1000000, 7081:1000000, 7082:1000000, 7084:1000000, 7085:1000000, 7073:1000000, 7077:1000000, 7090:1000000, 7092:1000000, 7088:1000000, 7074:1000000, 7075:1000000, 7078:1000000, 7091:1000000, 7089:1000000
 
 aldebaran.gat,112,97,2	script	Thernopol Drunk Boy Shop	849,{
 	mes "[Thernopol Drunk Boy]";
@@ -71,3 +71,4 @@ aldebaran.gat,112,97,2	script	Thernopol Drunk Boy Shop	849,{
 		mes "Fuuuuu ccc c kkkk....";
 		close;
 }
+

@@ -18,7 +18,7 @@
 //= 1.5a fixed Baby -> Super Baby change. Switched to JobName() [Lupus]
 //============================================================
 //prontera.gat,153,193,6	script	Job Master	123,{
-izlude.gat,220,135,6	script	boy	123,{
+valkyrie,48,86,4	script	Fate Seller	811,{
 	mes "^ff0000[Job Master]^000000";
 	if(Upper == 1 && Class >= Job_Lord_Knight) goto L_noReq;
 	if(SkillPoint != 0){
@@ -268,3 +268,28 @@ OnInit:
 	set $@JC_SupNovM, 45; //Base Level to change into Super Novice (Default : 45)
 	end;
 }
+
+
+
+prontera,128,189,7	script	Guide of Fate		935,{
+     mes "[ Guide of Fate ]";
+     mes "I will lead you to your destiny.";
+     next;
+     if (select("I'm ready, lead me!:No, I'll walk.") == 2) {
+     mes "[ Guide of Fate ]";
+     mes "Have a nice trip!";
+     close;
+     }
+     warp "valkyrie",49,12;
+     end;
+  }
+
+valkyrie,48,8,0		warp	val0	1,1,prontera,133,193
+
+
+
+
+
+
+
+

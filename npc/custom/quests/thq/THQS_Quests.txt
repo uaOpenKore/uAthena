@@ -399,7 +399,7 @@ N_QuestStart:
 	close;
 }
 //4-3;
-prontera.gat,176,204,6	script	Dassy	95,{
+prontera.gat,163,204,6	script	Dassy	95,{
 	if (four_qset == 3 && countitem(711) > 19) goto N_QuestComp;
 	if (four_qset == 3) goto N_QuestStart;
 	mes "[Dassy]";
