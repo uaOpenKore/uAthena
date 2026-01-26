@@ -66,8 +66,8 @@ lhz_cube	mapflag	indoors
 hu_in01	mapflag	indoors
 auction_01	mapflag	indoors
 auction_02	mapflag	indoors
-ra_in01	mapflag	indoors
-ra_temin	mapflag	indoors
+/ra_in01	mapflag	indoors
+/ra_temin	mapflag	indoors
 que_rachel	mapflag	indoors
 yuno_pre	mapflag	indoors
 lhz_que01	mapflag	indoors

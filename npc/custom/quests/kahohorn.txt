@@ -63,7 +63,7 @@ geffen.gat,115,107,5	script	Lord Kaho's Servant	61,{
 		delitem 968,1;
 		delitem 7005,1;
 		delitem 714,3;
-		set Zeny,Zeny-5000000;
+		set Zeny,Zeny -5000000;
 		mes "Wow!  You are brave indeed!";
 		getitem 5013,1;
 		mes ". . . . .";

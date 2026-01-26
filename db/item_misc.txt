@@ -208,32 +208,22 @@
 25,5090,10	//Goblin Leader Mask
 25,5121,1	//Zherlthsh Mask
 //accessory
-26,2601,10	//Ring
-26,2602,10	//Earring
-26,2603,10	//Necklace
-26,2604,10	//Glove
-26,2605,10	//Brooch
-26,2607,10	//Clip
-26,2608,10	//Rosary
-26,2609,10	//Skull Ring
-26,2610,10	//Gold Ring
-26,2611,10	//Silver Ring
-26,2612,10	//Flower Ring
-26,2613,10	//Diamond Ring
-26,2615,1	//Safety Ring
-26,2616,1	//Critical Ring
-26,2617,10	//Celebrant's Mitten
-26,2618,10	//Matyr's Leash
-26,2619,10	//Bow Thimble
-26,2621,1	//Ring
-26,2622,1	//Earring
-26,2623,10	//Necklace
-26,2624,1	//Glove
-26,2625,1	//Brooch
-26,2626,1	//Rosary
-26,2627,10	//Belt
-26,2628,10	//Novice Armlet
-26,2658,10	//Nile Rose
+26,2656,10
+26,2658,10
+26,2659,10
+26,2660,10
+26,2661,10
+26,2662,10
+26,2615,10
+26,2616,10
+26,2617,10
+26,2621,10
+26,2622,10
+26,2623,10
+26,2624,10
+26,2625,10
+26,2626,10
+26,2671,10
 // jewels
 27,718,1	//Garnet
 27,719,1	//Amethyst

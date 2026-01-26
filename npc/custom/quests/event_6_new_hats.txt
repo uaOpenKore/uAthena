@@ -223,7 +223,7 @@ L3:
 	close;
 }
 
-prt_in.gat,45,113,5	script	Pac	705,{
+prt_in.gat,45,113,5	script	Pac	65,{
 	mes "[Pac]";
 	mes "I am 3rd oldest and wisest of the 4 brothers that makes all the newer hats. You will need to bring me the correct items for each hat so I can make them.";
 	next;
