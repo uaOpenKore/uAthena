@@ -1,0 +1,68 @@
+
+prontera,136,178,6	script	Card Exchanger	853,{
+
+    set @cards_needed, 20;
+    set @reward_id, 616; // Old Card Album
+
+    mes "[Card Exchanger]";
+    mes "Hello. I am a card collector.";
+    mes "If you give me ^FF0000"+@cards_needed+"^000000 of any cards,";
+    mes "I will give you one ^0000FFOld Card Album^000000.";
+    next;
+
+    menu "I have 20 cards to trade.",L_CheckCards, "No, thanks.",L_Close;
+
+L_CheckCards:
+    // У старих версіях uAthena немає автоматичного підрахунку типів.
+    // Тому ми використовуємо перевірку через спеціальний цикл по інвентарю.
+    // Але найнадійніший спосіб для старих збірок - це перевірка через вагу або спец. змінні.
+    
+    // Початок перевірки
+    set @inventory_cards, 0;
+    set @i, 4001; // Початковий ID карт у базі RO
+
+    // Цикл перевірки наявності будь-яких карт від ID 4001 до 4600 (основні карти)
+    // Це "тяжкий" спосіб, але він працює на старих ядрах.
+    while(@i < 4600) {
+        if (countitem(@i) > 0) {
+            set @inventory_cards, @inventory_cards + countitem(@i);
+        }
+        set @i, @i + 1;
+        if (@inventory_cards >= @cards_needed) goto L_StartTrade;
+    }
+
+    mes "[Card Exchanger]";
+    mes "You don't have enough cards.";
+    mes "I found only ^FF0000"+@inventory_cards+"^000000 cards.";
+    mes "Please come back when you have at least "+@cards_needed+".";
+    close;
+
+L_StartTrade:
+    mes "[Card Exchanger]";
+    mes "Excellent! I will take 20 of your cards now.";
+    next;
+
+    // Процес видалення
+    set @removed, 0;
+    set @i, 4001;
+    while(@removed < @cards_needed) {
+        if (countitem(@i) > 0) {
+            delitem @i, 1;
+            set @removed, @removed + 1;
+        } else {
+            set @i, @i + 1;
+        }
+        if (@i > 5000) break; // Запобіжник
+    }
+
+    getitem @reward_id, 1;
+    mes "[Card Exchanger]";
+    mes "Here is your album. Use it wisely!";
+    specialeffect2 154;
+    close;
+
+L_Close:
+    mes "[Card Exchanger]";
+    mes "Fine. Many people want my albums anyway.";
+    close;
+}
