@@ -1,14 +1,6 @@
 //===== eAthena Script =======================================
 //= UaRO Kafras
 
-// Glast ----------------------------------------------------------------
-glast_01.gat,202,82,4	script	Kafra	115,{
-	callfunc "F_Kafra",0,0,0;
-
-	M_Save:
-		savepoint "glast_01.gat",200,75;
-		callfunc "F_KafEnd",0,1;
-}
 
 // Umbala Kafra ------------------------------------------------------------
 umbala.gat,128,133,4	script	Kafra	115,{
@@ -19,18 +11,42 @@ umbala.gat,128,133,4	script	Kafra	115,{
 		callfunc "F_KafEnd",0,1;
 }
 
-// Niflheim ----------------------------------------------------------------
-niflheim.gat,202,175,3	script	Kafra	791,{
-	callfunc "F_Kafra",0,0,0;
-	M_Save:
-		savepoint "niflheim.gat",192,182;
-		callfunc "F_KafEnd",0,1;
-}
-
 hugel.gat,111,156,2	script	Kafra	117,{
 	callfunc "F_Kafra",0,0,0;
 
 	M_Save:
 		savepoint "hugel.gat",98,153;
 		callfunc "F_KafEnd",0,1;
+}
+
+// Glastheim ----------------------------------------------------------------
+glast_01.gat,202,82,4	script	Kafra:Prt	65,{
+    mes "[Kafra]";
+    mes "Welcome to Kafra Service!";
+    mes "Would you like to go back to the world of the living?";
+    mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
+    next;
+
+    switch(select("Teleport to Prontera:Open Storage:Cancel")) {
+        case 1:
+            if (Zeny < 2000) {
+                mes "[Kafra]";
+                mes "I'm sorry, but you don't have enough Zeny.";
+                close;
+            }
+            set Zeny, Zeny - 2000;
+            specialeffect2 EF_PORTAL1;
+            warp "prontera",116,72;
+            end;
+
+        case 2:
+            close2;
+            openstorage;
+            end;
+
+        case 3:
+            mes "[Kafra]";
+            mes "Have a safe journey!";
+            close;
+    }
 }
