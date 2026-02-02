@@ -149,10 +149,34 @@ umbala,128,133,4	script	Kafra::kaf_umbala	115,{
 }
 
 // Niflheim ----------------------------------------------------------------
-niflheim,202,180,3	script	Kafra::kaf_niflheim	791,{
-	callfunc "F_Kafra",1,2,1;
-//this SAVE isn't used. Niflheim Kafra doesn't SAVE
-	M_Save:
-		savepoint "niflheim",192,182;
-		callfunc "F_KafEnd",1,1;
+niflheim,201,184,4	script	Kafra::Prontera	791,{
+    mes "[Kafra]";
+    mes "Welcome to Kafra Service!";
+    mes "Would you like to go back to the world of the living?";
+    mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
+    next;
+
+    switch(select("Teleport to Prontera:Open Storage:Cancel")) {
+        case 1:
+            if (Zeny < 2000) {
+                mes "[Kafra]";
+                mes "I'm sorry, but you don't have enough Zeny.";
+                close;
+            }
+            set Zeny, Zeny - 2000;
+            specialeffect2 EF_PORTAL1;
+            warp "prontera",116,72;
+            end;
+
+        case 2:
+            close2;
+            openstorage;
+            end;
+
+        case 3:
+            mes "[Kafra]";
+            mes "Have a safe journey!";
+            close;
+    }
 }
+
