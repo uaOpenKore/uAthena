@@ -1,0 +1,30 @@
+glast_01.gat,202,82,4	script	Kafra Employee	115, {
+    mes "[Kafra]";
+    mes "Welcome to Kafra Service!";
+    mes "Would you like to go back to the world of the living?";
+    mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
+    next;
+
+    switch(select("Teleport to Prontera:Open Storage:Cancel")) {
+        case 1:
+            if (Zeny < 2000) {
+                mes "[Kafra]";
+                mes "I'm sorry, but you don't have enough Zeny.";
+                close;
+            }
+            set Zeny, Zeny - 2000;
+            specialeffect2 EF_PORTAL1;
+            warp "prontera",116,72;
+            end;
+
+        case 2:
+            close2;
+            openstorage;
+            end;
+
+        case 3:
+            mes "[Kafra]";
+            mes "Have a safe journey!";
+            close;
+    }
+}

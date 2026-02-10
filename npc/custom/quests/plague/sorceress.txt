@@ -1,0 +1,113 @@
+
+prontera.gat,139,173,6	script		Sorceress	719, {
+
+    if (#gl_lang == 1) {
+    mes "[Чарівниця]";
+    mes "Привіт";
+    mes "Обери мову якою з тобою будуть спілкуватися в світі.";
+}
+
+    else if (#gl_lang == 0) {
+    mes "[Sorceress]";
+    mes "Hello";
+    mes "Choose the language in which they will communicate with you in the wolrd";
+}
+next;
+
+switch(select("English:Українська:Close")) {
+
+case 1: 
+    set #gl_lang, 0; 
+    mes "[Sorceress]";
+    mes "The English language is Set";
+    mes "GoogBye";
+close;
+
+case 2:
+    set #gl_lang, 1;
+    mes "[Чарівниця]";
+    mes "Встановлено Українську мову";
+    mes "Слава Україні";
+close;
+
+case 3:
+    if (#gl_lang == 0) {
+    mes "[Sorceress]";
+    mes "Your langeage is English";
+    mes "GoodBye";
+}
+    else if (#gl_lang == 1) {
+    mes "[Чарівниця]";
+    mes "Ваша мова Українська";
+    mes "Слава Україні!";
+}
+    else {
+    mes "You have not yet chosen the language of communication.";
+}
+
+close;
+
+end;
+}
+}
+
+//Start Location ---------------------------
+
+new_zone01.gat,63,114,6	script		Sorceress	719, {
+
+    if (#gl_lang == 1) {
+    mes "[Чарівниця]";
+    mes "Привіт";
+    mes "Обери мову якою з тобою будуть спілкуватися в світі.";
+}
+
+    else if (#gl_lang == 0) {
+    mes "[Sorceress]";
+    mes "Hello";
+    mes "Choose the language in which they will communicate with you in the wolrd";
+}
+next;
+
+switch(select("English:Українська:Close")) {
+
+case 1: 
+    set #gl_lang, 0; 
+    mes "[Sorceress]";
+    mes "The English language is Set";
+    mes "GoogBye";
+close;
+
+case 2:
+    set #gl_lang, 1;
+    mes "[Чарівниця]";
+    mes "Встановлено Українську мову";
+    mes "Слава Україні";
+close;
+
+case 3:
+    if (#gl_lang == 0) {
+    mes "[Sorceress]";
+    mes "Your langeage is English";
+    mes "GoodBye";
+}
+    else if (#gl_lang == 1) {
+    mes "[Чарівниця]";
+    mes "Ваша мова Українська";
+    mes "Слава Україні!";
+}
+    else {
+    mes "You have not yet chosen the language of communication.";
+}
+
+close;
+
+end;
+
+
+}
+}
+
+
+
+
+
