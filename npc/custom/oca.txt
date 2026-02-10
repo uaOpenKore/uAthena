@@ -4,25 +4,35 @@ prontera,136,178,6	script	Card Exchanger	853,{
     set @cards_needed, 20;
     set @reward_id, 616; // Old Card Album
 
+    if (#gl_lang == 1) {
+    mes "[Обмінник карт]";
+    mes "Привіт, я можу поміняти твої карти на карт альбом.";
+    mes "З тебе ^FF0000"+@cards_needed+"^000000 любих карт,";
+    mes "В замін я дам тобі новесенький ^0000FFOld Card Album^000000.";
+}
+
+
+    else if (#gl_lang == 0) {
     mes "[Card Exchanger]";
     mes "Hello. I am a card collector.";
     mes "If you give me ^FF0000"+@cards_needed+"^000000 of any cards,";
     mes "I will give you one ^0000FFOld Card Album^000000.";
+}
     next;
 
+    if (#gl_lang == 0) {
     menu "I have 20 cards to trade.",L_CheckCards, "No, thanks.",L_Close;
+}
+
+    else if (#gl_lang == 1) {
+    menu "Я якраз маю 20 непотрібних карт.",L_CheckCards, "Ні, дякую.",L_Close;
+}
 
 L_CheckCards:
-    // РЈ СЃС‚Р°СЂРёС… РІРµСЂСЃС–СЏС… uAthena РЅРµРјР°С” Р°РІС‚РѕРјР°С‚РёС‡РЅРѕРіРѕ РїС–РґСЂР°С…СѓРЅРєСѓ С‚РёРїС–РІ.
-    // РўРѕРјСѓ РјРё РІРёРєРѕСЂРёСЃС‚РѕРІСѓС”РјРѕ РїРµСЂРµРІС–СЂРєСѓ С‡РµСЂРµР· СЃРїРµС†С–Р°Р»СЊРЅРёР№ С†РёРєР» РїРѕ С–РЅРІРµРЅС‚Р°СЂСЋ.
-    // РђР»Рµ РЅР°Р№РЅР°РґС–Р№РЅС–С€РёР№ СЃРїРѕСЃС–Р± РґР»СЏ СЃС‚Р°СЂРёС… Р·Р±С–СЂРѕРє - С†Рµ РїРµСЂРµРІС–СЂРєР° С‡РµСЂРµР· РІР°РіСѓ Р°Р±Рѕ СЃРїРµС†. Р·РјС–РЅРЅС–.
-    
-    // РџРѕС‡Р°С‚РѕРє РїРµСЂРµРІС–СЂРєРё
-    set @inventory_cards, 0;
-    set @i, 4001; // РџРѕС‡Р°С‚РєРѕРІРёР№ ID РєР°СЂС‚ Сѓ Р±Р°Р·С– RO
 
-    // Р¦РёРєР» РїРµСЂРµРІС–СЂРєРё РЅР°СЏРІРЅРѕСЃС‚С– Р±СѓРґСЊ-СЏРєРёС… РєР°СЂС‚ РІС–Рґ ID 4001 РґРѕ 4600 (РѕСЃРЅРѕРІРЅС– РєР°СЂС‚Рё)
-    // Р¦Рµ "С‚СЏР¶РєРёР№" СЃРїРѕСЃС–Р±, Р°Р»Рµ РІС–РЅ РїСЂР°С†СЋС” РЅР° СЃС‚Р°СЂРёС… СЏРґСЂР°С….
+    set @inventory_cards, 0;
+    set @i, 4001;
+
     while(@i < 4600) {
         if (countitem(@i) > 0) {
             set @inventory_cards, @inventory_cards + countitem(@i);
@@ -31,18 +41,33 @@ L_CheckCards:
         if (@inventory_cards >= @cards_needed) goto L_StartTrade;
     }
 
+    if (#gl_lang == 0) {
     mes "[Card Exchanger]";
     mes "You don't have enough cards.";
     mes "I found only ^FF0000"+@inventory_cards+"^000000 cards.";
     mes "Please come back when you have at least "+@cards_needed+".";
+}
+
+    if (#gl_lang == 1) {
+    mes "[Обмінник карт]";
+    mes "В тебе невистачає карт.";
+    mes "У тебе всього ^FF0000"+@inventory_cards+"^000000 шт.";
+    mes "Приходь коли назбираєш "+@cards_needed+".";
+}
     close;
 
 L_StartTrade:
+    if (#gl_lang == 0) {
     mes "[Card Exchanger]";
     mes "Excellent! I will take 20 of your cards now.";
+}
+
+    else if (#gl_lang == 1) {
+    mes "[Обмінник карт]";
+    mes "Чудово ось твій новенький Карт Альбом.";
+}
     next;
 
-    // РџСЂРѕС†РµСЃ РІРёРґР°Р»РµРЅРЅСЏ
     set @removed, 0;
     set @i, 4001;
     while(@removed < @cards_needed) {
@@ -52,17 +77,33 @@ L_StartTrade:
         } else {
             set @i, @i + 1;
         }
-        if (@i > 5000) break; // Р—Р°РїРѕР±С–Р¶РЅРёРє
+        if (@i > 5000) break; 
     }
 
     getitem @reward_id, 1;
+    if (#gl_lang == 0) {
     mes "[Card Exchanger]";
     mes "Here is your album. Use it wisely!";
+}
+
+    else if (#gl_lang == 1) {
+    mes "[Обмінник карт]";
+    mes "Удачі тобі друже.";
+}
     specialeffect2 154;
     close;
 
 L_Close:
+    if (#gl_lang == 0) {
     mes "[Card Exchanger]";
     mes "Fine. Many people want my albums anyway.";
+}
+    else if (#gl_lang == 1) {
+    mes "[Обмінник карт]";
+    mes "Ееее чудово. ";
+    mes "Багато хто шукає мої альбоми.";
+    mes "Йди поки цілий";
+}
+
     close;
 }

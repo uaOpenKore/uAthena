@@ -50,3 +50,4 @@ glast_01.gat,202,82,4	script	Kafra:Prt	65,{
             close;
     }
 }
+

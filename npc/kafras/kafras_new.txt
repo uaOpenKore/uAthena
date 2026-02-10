@@ -33,30 +33,85 @@
 
 // Amatsu ------------------------------------------------------------------
 amatsu,102,149,4	script	Kafra::kaf_amatsu	116,{
-	cutin "kafra_02",2;
-	callfunc "F_Kafra",3,3,1;
+
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
+
+M_Save:
+savepoint "amatsu",116,94;
+callfunc "F_KafEnd",0,1;
+
+}
+
+
+// Nameless ------------------------------------------------------------------
+nameless_n,158,190,0	script	Kafra::kaf_nameless	861,{
+
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
+
+M_Save:
+savepoint "nameless_n",166,185;
+callfunc "F_KafEnd",0,1;
+
+}
+
+
+
+
+// Thanatos ------------------------------------------------------------------
+tha_scene01,131,224,4	script	Ganka Dark::kaf_thanatos	745,{
+
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
+
+M_Save:
+savepoint "tha_scene01",131,220;
+callfunc "F_KafEnd",0,1;
+
+}
+
+
+
+// ThorDungeon ------------------------------------------------------------------
+ve_fild03,174,239,4	script	Kafra#ve03	116,{
+
+	cutin "kafra_03",2;
+	callfunc "F_KafSetPay";
+	callfunc "F_Kafra",0,1,1;
 
 	M_Save:
-		savepoint "amatsu",116,94;
-		callfunc "F_KafEnd",0,1;
+	savepoint "ve_fild03",168,234;
+	callfunc "F_KafEnd",0,1;
 }
+
+
+
+
 
 // Ayothaya ----------------------------------------------------------------
 ayothaya,212,169,5	script	Kafra::kaf_ayothaya	116,{
-	cutin "kafra_02",2;
-	callfunc "F_Kafra",4,3,1;
 
-	M_Save:
-		savepoint "ayothaya",149,69;
-		callfunc "F_KafEnd",0,1;
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
+
+M_Save:
+savepoint "ayothaya",149,69;
+callfunc "F_KafEnd",0,1;
+
 }
 
 // Einbech -----------------------------------------------------------------
 
 einbech,181,132,4	script	Kafra::kaf_einbech	860,{
-	cutin "kafra_08",2;
-	callfunc "F_Kafra",0,4,1;
 
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
 	M_Save:
 		savepoint "einbech",182,124;
 		callfunc "F_KafEnd",0,1;
@@ -64,9 +119,9 @@ einbech,181,132,4	script	Kafra::kaf_einbech	860,{
 
 // Einbroch (North-East) ---------------------------------------------------
 einbroch,242,205,5	script	Kafra::kaf_einbroch	115,{
-	cutin "kafra_03",2;
-	callfunc "F_Kafra",0,4,1;
-
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
 	M_Save:
 		savepoint "einbroch",238,198;
 		callfunc "F_KafEnd",0,1;
@@ -74,78 +129,138 @@ einbroch,242,205,5	script	Kafra::kaf_einbroch	115,{
 
 // Einbroch (East) ---------------------------------------------------------
 einbroch,59,203,5	script	Kafra::kaf_einbroch2	117,{
-	cutin "kafra_01",2;
-	callfunc "F_Kafra",0,4,1;
-
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
 	M_Save:
 		savepoint "einbroch",240,197;
 		callfunc "F_KafEnd",0,1;
 }
 
 // Gonryun -----------------------------------------------------------------
-gonryun,159,122,4	script	Kafra::kaf_gonryun	116,{
-	cutin "kafra_02",2;
-	callfunc "F_Kafra",0,3,1;
+gonryun,159,124,4	script	Kafra::kaf_gonryun	116,{
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
+        M_Save:
+        savepoint "gonryun",160,120;
+        callfunc "F_KafEnd",0,1;
 
-	M_Save:
-		savepoint "gonryun",160,62;
-		callfunc "F_KafEnd",0,1;
 }
+
+// RAchel -------------------------------------------------
+
+rachel,132,117,4	script	Kafra::kaf_rachel	860,{
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Geffen", "Prontera", "Morroc", "Payon";
+    setarray @wrpP[0], 1200, 1200, 1200, 1800;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
+set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
+set @wrpC$[3], @wrpD$[3]+" -> "+@wrpP[3];
+set @wrpC$[4], "Cancel";
+callfunc "F_Kafra",0,0,1;
+
+M_Save:
+savepoint "rachel",130,109;
+callfunc "F_KafEnd",0,1;
+
+}
+
+//Ice Dun ------------------------------
+ra_fild01,240,328,4	script	Kafra::kaf_ice_dun	116,{
+cutin "kafra_03",2;
+callfunc "F_KafSetPay";
+callfunc "F_Kafra",0,1,1;
+        M_Save:
+        savepoint "ra_fild01",234,321;
+        callfunc "F_KafEnd",0,1;
+
+}
+
+
+
+
 
 // Lighthalzen--------------------------------------------------------------
 
 //Outside the hotel
 lighthalzen,164,100,4	script	Kafra::kaf_lighthalzen	860,{
-	cutin "kafra_08",2;
-	callfunc "F_Kafra",0,4,1;
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Geffen", "Prontera", "Morroc", "Payon";
+    setarray @wrpP[0], 1200, 1200, 1200, 1800;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
+set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
+set @wrpC$[3], @wrpD$[3]+" -> "+@wrpP[3];
+set @wrpC$[4], "Cancel";
+callfunc "F_Kafra",0,0,1;
 
-	M_Save:
-		savepoint "lighthalzen",158,94;
-		callfunc "F_KafEnd",0,1;
+M_Save:
+savepoint "lighthalzen",158,94;
+callfunc "F_KafEnd",0,1;
+
 }
 
 // Entrance
 lighthalzen,191,320,4	script	Kafra::kaf_lighthalzen2	861,{
-	cutin "kafra_09",2;
-	callfunc "F_Kafra",0,4,1;
 
-	M_Save:
-		savepoint "lighthalzen",194,313;
-		callfunc "F_KafEnd",0,1;
-}
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Geffen", "Prontera", "Morroc", "Payon";
+    setarray @wrpP[0], 1200, 1200, 1200, 1800;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
+set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
+set @wrpC$[3], @wrpD$[3]+" -> "+@wrpP[3];
+set @wrpC$[4], "Cancel";
+callfunc "F_Kafra",0,0,1;
 
-//Inside the hotel
-lhz_in02,237,284,4	script	Kafra::kaf_lhz_in02	861,{
-	cutin "kafra_09",2;
-	callfunc "F_Kafra",0,4,1;
+M_Save:
+savepoint "lighthalzen",191,311;
+callfunc "F_KafEnd",0,1;
 
-	M_Save:
-		savepoint "lhz_in02",278,215;
-		callfunc "F_KafEnd",0,1;
 }
 
 // Louyang -----------------------------------------------------------------
 louyang,210,104,5	script	Kafra::kaf_louyang	117,{
-	cutin "kafra_01",2;
-	callfunc "F_Kafra",4,3,1;
 
-	M_Save:
-		savepoint "louyang",217,92;
-		callfunc "F_KafEnd",0,1;
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Alberta";
+    setarray @wrpP[0], 2000;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+//set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
+//set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
+//set @wrpC$[3], @wrpD$[3]+" -> "+@wrpP[3];
+set @wrpC$[1], "Cancel";
+callfunc "F_Kafra",0,0,1;
+
+M_Save:
+savepoint "louyang",217,97;
+callfunc "F_KafEnd",0,1;
+
 }
 
 // Umbala Kafra ------------------------------------------------------------
-umbala,128,133,4	script	Kafra::kaf_umbala	115,{
-	cutin "kafra_03",2;
-	cleararray @wrpC$[0],"",getarraysize(@wrpC$);
-	setarray @wrpD$[0], "Comodo";
-	setarray @wrpP[0], 1800;
-	set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
-	set @wrpC$[1], "Cancel";
-	callfunc "F_Kafra",0,0,1;
-	M_Save:
-		savepoint "umbala",126,131;
-		callfunc "F_KafEnd",0,1;
+
+umbala,152,163,3	script	Kafra::kaf_umbala	117,{
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Geffen", "Comodo", "Morroc";
+    setarray @wrpP[0], 1200, 1200, 1200;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
+set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
+set @wrpC$[3], "Cancel";
+callfunc "F_Kafra",0,0,1;
+
+M_Save:
+savepoint "umbala",144,153;
+callfunc "F_KafEnd",0,1;
+
 }
 
 // Niflheim ----------------------------------------------------------------
