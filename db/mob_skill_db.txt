@@ -1257,7 +1257,7 @@
 1272,Dark Lord@NPC_AGIUP,attack,350,5,10000,0,30000,yes,self,myhpltmaxrate,30,,,,,,6
 1272,Dark Lord@MG_FIREWALL,chase,18,10,2000,500,5000,no,target,always,0,,,,,,
 1272,Dark Lord@NPC_CALLSLAVE,attack,352,1,10000,0,30000,yes,self,always,0,,,,,,
-1272,Dark Lord@NPC_CALLSLAVE,idle,352,1,10000,0,30000,yes,self,always,0,,,,,,
+//1272,Dark Lord@NPC_CALLSLAVE,idle,352,1,10000,0,30000,yes,self,always,0,,,,,,
 1272,Dark Lord@NPC_HELLJUDGEMENT,chase,662,5,10000,800,10000,no,self,always,0,,,,,,36
 1272,Dark Lord@NPC_HELLJUDGEMENT,attack,662,5,10000,800,10000,no,self,always,0,,,,,,36
 1272,Dark Lord@NPC_DARKBLESSING,attack,203,1,500,800,5000,no,target,always,0,,,,,,9
@@ -1767,9 +1767,9 @@
 1389,Dracula@NPC_CALLSLAVE,attack,352,1,10000,0,30000,yes,self,always,0,,,,,,
 1389,Dracula@NPC_CALLSLAVE,idle,352,1,10000,0,30000,yes,self,always,0,,,,,,
 1389,Dracula@NPC_CHANGEUNDEAD,attack,348,1,2000,0,5000,no,target,always,0,,,,,,9
-1389,Dracula@NPC_INVISIBLE,attack,353,1,2000,200,5000,yes,self,always,0,,,,,,
-1389,Dracula@NPC_INVISIBLE,idle,353,1,2000,200,5000,yes,self,always,0,,,,,,
-1389,Dracula@NPC_INVISIBLE,chase,353,1,2000,200,5000,yes,self,always,0,,,,,,
+//1389,Dracula@NPC_INVISIBLE,attack,353,1,2000,200,5000,yes,self,always,0,,,,,,
+//1389,Dracula@NPC_INVISIBLE,idle,353,1,2000,200,5000,yes,self,always,0,,,,,,
+//1389,Dracula@NPC_INVISIBLE,chase,353,1,2000,200,5000,yes,self,always,0,,,,,,
 1389,Dracula@NPC_SILENCEATTACK,attack,178,5,2000,0,5000,no,target,always,0,,,,,,
 1389,Dracula@NPC_SILENCEATTACK,chase,178,5,2000,0,5000,no,target,always,0,,,,,,
 1389,Dracula@NPC_SUMMONSLAVE,attack,196,16,10000,700,5000,no,self,slavele,5,1419,,,,,

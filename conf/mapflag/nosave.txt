@@ -16,7 +16,7 @@ in_moc_16	mapflag	nosave	SavePoint
 job_hunte	mapflag	nosave	SavePoint
 //in_hunter	mapflag	nosave	SavePoint
 // 2-2
-alde_alche	mapflag	nosave	SavePoint
+//alde_alche	mapflag	nosave	SavePoint
 job_cru	mapflag	nosave	SavePoint
 job_duncer	mapflag	nosave	SavePoint
 job_monk	mapflag	nosave	SavePoint
