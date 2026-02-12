@@ -47,10 +47,14 @@ callfunc "F_KafEnd",0,1;
 
 // Nameless ------------------------------------------------------------------
 nameless_n,158,190,0	script	Kafra::kaf_nameless	861,{
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Prontera";
+    setarray @wrpP[0], 5000;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+set @wrpC$[1], "Cancel";
+callfunc "F_Kafra",0,0,1;
 
-cutin "kafra_03",2;
-callfunc "F_KafSetPay";
-callfunc "F_Kafra",0,1,1;
 
 M_Save:
 savepoint "nameless_n",166,185;
@@ -62,11 +66,15 @@ callfunc "F_KafEnd",0,1;
 
 
 // Thanatos ------------------------------------------------------------------
-tha_scene01,131,224,4	script	Ganka Dark::kaf_thanatos	745,{
+tha_scene01,131,224,4	script	Jeanne d'Arc::kaf_thanatos	745,{
 
-cutin "kafra_03",2;
-callfunc "F_KafSetPay";
-callfunc "F_Kafra",0,1,1;
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Prontera";
+    setarray @wrpP[0], 10000;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+set @wrpC$[1], "Cancel";
+callfunc "F_Kafra",0,0,1;
 
 M_Save:
 savepoint "tha_scene01",131,220;
@@ -79,9 +87,14 @@ callfunc "F_KafEnd",0,1;
 // ThorDungeon ------------------------------------------------------------------
 ve_fild03,174,239,4	script	Kafra#ve03	116,{
 
-	cutin "kafra_03",2;
-	callfunc "F_KafSetPay";
-	callfunc "F_Kafra",0,1,1;
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Prontera";
+    setarray @wrpP[0], 5000;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+set @wrpC$[1], "Cancel";
+callfunc "F_Kafra",0,0,1;
+
 
 	M_Save:
 	savepoint "ve_fild03",168,234;
@@ -153,13 +166,12 @@ callfunc "F_Kafra",0,1,1;
 rachel,132,117,4	script	Kafra::kaf_rachel	860,{
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
-    setarray @wrpD$[0], "Geffen", "Prontera", "Morroc", "Payon";
+    setarray @wrpD$[0], "Prontera", "Morroc", "Payon";
     setarray @wrpP[0], 1200, 1200, 1200, 1800;
 set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
 set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
 set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
-set @wrpC$[3], @wrpD$[3]+" -> "+@wrpP[3];
-set @wrpC$[4], "Cancel";
+set @wrpC$[3], "Cancel";
 callfunc "F_Kafra",0,0,1;
 
 M_Save:
@@ -170,9 +182,14 @@ callfunc "F_KafEnd",0,1;
 
 //Ice Dun ------------------------------
 ra_fild01,240,328,4	script	Kafra::kaf_ice_dun	116,{
-cutin "kafra_03",2;
-callfunc "F_KafSetPay";
-callfunc "F_Kafra",0,1,1;
+    cutin "kafra_01",2;
+    cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+    setarray @wrpD$[0], "Prontera";
+    setarray @wrpP[0], 1200, 1200, 1200, 1800;
+set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
+set @wrpC$[1], "Cancel";
+callfunc "F_Kafra",0,0,1;
+
         M_Save:
         savepoint "ra_fild01",234,321;
         callfunc "F_KafEnd",0,1;
@@ -189,13 +206,12 @@ callfunc "F_Kafra",0,1,1;
 lighthalzen,164,100,4	script	Kafra::kaf_lighthalzen	860,{
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
-    setarray @wrpD$[0], "Geffen", "Prontera", "Morroc", "Payon";
+    setarray @wrpD$[0], "Prontera", "Geffen", "Payon";
     setarray @wrpP[0], 1200, 1200, 1200, 1800;
 set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
 set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
 set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
-set @wrpC$[3], @wrpD$[3]+" -> "+@wrpP[3];
-set @wrpC$[4], "Cancel";
+set @wrpC$[3], "Cancel";
 callfunc "F_Kafra",0,0,1;
 
 M_Save:
@@ -209,13 +225,12 @@ lighthalzen,191,320,4	script	Kafra::kaf_lighthalzen2	861,{
 
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
-    setarray @wrpD$[0], "Geffen", "Prontera", "Morroc", "Payon";
+    setarray @wrpD$[0], "Prontera", "Geffen", "Payon";
     setarray @wrpP[0], 1200, 1200, 1200, 1800;
 set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
 set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
 set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
-set @wrpC$[3], @wrpD$[3]+" -> "+@wrpP[3];
-set @wrpC$[4], "Cancel";
+set @wrpC$[3], "Cancel";
 callfunc "F_Kafra",0,0,1;
 
 M_Save:
@@ -232,9 +247,6 @@ louyang,210,104,5	script	Kafra::kaf_louyang	117,{
     setarray @wrpD$[0], "Alberta";
     setarray @wrpP[0], 2000;
 set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
-//set @wrpC$[1], @wrpD$[1]+" -> "+@wrpP[1];
-//set @wrpC$[2], @wrpD$[2]+" -> "+@wrpP[2];
-//set @wrpC$[3], @wrpD$[3]+" -> "+@wrpP[3];
 set @wrpC$[1], "Cancel";
 callfunc "F_Kafra",0,0,1;
 
