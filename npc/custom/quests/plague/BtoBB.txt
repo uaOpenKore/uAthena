@@ -1,0 +1,172 @@
+//This quest is custom. Don't use it.
+
+aldebaran.gat,111,98,6	script	Fuckin Cat	876,{
+	mes "[Dont Push me alcoholic !!!]";
+		close;
+}
+
+prt_monk.gat,274,130,3	shop Hand-of-God 858, 7079:1000000, 7076:1000000, 7087:1000000, 7083:10000000, 7080:1000000, 7081:1000000, 7082:1000000, 7084:1000000, 7085:1000000, 7073:1000000, 7077:1000000, 7090:1000000, 7092:1000000, 7088:1000000, 7074:1000000, 7075:1000000, 7078:1000000, 7091:1000000, 7089:1000000
+
+aldebaran.gat,112,97,2	script	Thernopol Drunk Boy Shop	849,{
+if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
+	mes "Оххх чувак, Я відчуваю себе лайном";
+	mes "Може маєш щось для мене?";
+	mes "Я вчора навалився...";
+	mes "А сьогодні мені дуже хижо :(";
+}
+else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
+	mes "Ohhh Maaan, I feel like shit";
+	mes "Do you have anything drink?";
+	mes "I got drunk yesterday...";
+	mes "I feel very sick today :(";
+}
+	next;
+if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
+	mes "Мляяяя... , Я обісцявся...";
+	mes " .......";
+	mes " ..........";
+	mes " .............";
+}
+else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
+	mes "Ohhhh... damn, I peed my pants..";
+	mes " .......";
+	mes " ..........";
+	mes " .............";
+}
+	next;
+if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
+	mes "Може маєш 100 гривень,";
+	mes "Бо мені невистачає на чвертку горілки.";
+}
+else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
+	mes "Maybe you have 100 UAH,";
+	mes "because I dan't have enough for a quater of vodka?";
+}
+	next;
+if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
+	mes "Якщо ти даш мені грошей і принесеш мому котику іграшку та трохи корму, я зроблю для тебе дещо цікаве...";
+}
+else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
+	mes "If you give me money for a drink, and bring my cat some food and a toy. I'll do something interesting for you";
+}
+	next;
+if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
+	mes "Річ у тім, що коли я дуже сильно навалений, я можу одним подихом перетворити 100 Бранчів на один Блуді Бранч";
+}
+else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
+	mes "The thing is, when I`m realy drunk, I can turn 100 Death Branches into one Bloody Branch  with one breath";
+}
+	next;
+if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
+	mes "Якщо вони справді потрібні тобі, принеси мені:";
+	mes "100 Death Brunch";
+	mes "І не забудь:";
+	mes "Sumptuous Feats";
+	mes "1 Black Cat Doll";
+	mes "100 гривень (zeny)";
+}
+else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
+	mes "If you realy need them, bring me:";
+	mes "100 Death Brunch";
+	mes "And don't forget:";
+	mes "Sumptuous Feats";
+	mes "1 Black Cat Doll";
+	mes "100 UAH (zeny)";
+}
+	next; 
+if (#gl_lang == 1) {
+	mes " Оо...о друже, і один алкоголь";
+	menu "Так звісно, я все принесу",-,"Йди до чорта алкаш!",LUnfathomable;
+}
+else if (#gl_lang == 0) {
+	mes " Oh bro, and one alcohol";
+	menu "Of course I Will help you!",-,"Go back to where you drank!",LUnfathomable;
+}
+	next;
+if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
+		if(countitem(604) < 100 || countitem(12082) < 1 || countitem(7206) < 1 || countitem(970) < 1 || Zeny < 100) goto LNotEnough;
+		delitem 604,100;
+		delitem 12082,1;
+		delitem 7206,1;
+		delitem 970,1;
+		set Zeny,Zeny-100;
+}
+else if (#gl_lang == 0) {
+		mes "[Drunk Boy]";
+		if(countitem(604) < 100 || countitem(12082) < 1 || countitem(7206) < 1 || countitem(970) < 1 || Zeny < 100) goto LNotEnough;
+		delitem 604,100;
+		delitem 12082,1;
+		delitem 7206,1;
+		delitem 970,1;
+		set Zeny,Zeny-100;
+}
+if (#gl_lang == 1) {
+		mes "Оооо..... Так!";
+		mes " Дай Боже тобі здоров'ячка...";
+}
+else if (#gl_lang == 0) {
+		mes "Ohhh.... Yes!";
+		mes " May God grant you good health...";
+}
+		next;
+if (#gl_lang == 1) {
+	mes "Зараз, зачекай, мені потрібно налаштувати дихання.";
+		getitem 12103,1;
+		mes ". . . . .";
+		mes "Друже все готово!";
+}
+else if (#gl_lang == 0) {
+	mes "Now, wait, I need to adjust my breathing.";
+		getitem 12103,1;
+		mes ". . . . .";
+		mes "All ready Bro!";
+}
+
+
+
+		close;
+	next;
+		LNotEnough:
+if (#gl_lang == 1) {
+			mes ". . . . .";
+			mes ". . .Ні друже ми так не домовлялися...";
+			mes "Де речі про які я просив тебе";
+}
+else if (#gl_lang == 0) {
+			mes ". . . . .";
+			mes ". . .No, my friend, we didnt't get alone like that...";
+			mes "Where are the things I asked for?!";
+}
+
+
+
+			close;
+
+	LUnfathomable:
+		next;
+if (#gl_lang == 0) {
+		mes ". . . . .";
+		mes "Mee e e ... ..ee . .. ...";
+		mes "Fuuuuu ccc c kkkk....";
+}
+else if (#gl_lang == 1) {
+		mes ". . . . .";
+		mes "Мee e e ... ..ee . .. ...";
+		mes "Бл..лл.л.л..я....";
+}
+		close;
+}
+
