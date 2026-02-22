@@ -87,13 +87,16 @@ else if (#gl_lang == 0) {
 }
 	next; 
 if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
 	mes " Оо...о друже, і один алкоголь";
-	menu "Так звісно, я все принесу",-,"Йди до чорта алкаш!",LUnfathomable;
+	menu "В мене є все що тобі потрібно...",-,"Йди до чорта алкаш!",LUnfathomable;
 }
 else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
 	mes " Oh bro, and one alcohol";
-	menu "Of course I Will help you!",-,"Go back to where you drank!",LUnfathomable;
+	menu "I have everything you need!",-,"Go back to where you drank!",LUnfathomable;
 }
+
 	next;
 if (#gl_lang == 1) {
 	mes "[Бухий тернопільський пацик]";
@@ -105,7 +108,7 @@ if (#gl_lang == 1) {
 		set Zeny,Zeny-100;
 }
 else if (#gl_lang == 0) {
-		mes "[Drunk Boy]";
+	mes "[Thernopol Drunk Boy]";
 		if(countitem(604) < 100 || countitem(12082) < 1 || countitem(7206) < 1 || countitem(970) < 1 || Zeny < 100) goto LNotEnough;
 		delitem 604,100;
 		delitem 12082,1;
@@ -114,21 +117,25 @@ else if (#gl_lang == 0) {
 		set Zeny,Zeny-100;
 }
 if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
 		mes "Оооо..... Так!";
 		mes " Дай Боже тобі здоров'ячка...";
 }
 else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
 		mes "Ohhh.... Yes!";
 		mes " May God grant you good health...";
 }
 		next;
 if (#gl_lang == 1) {
+	mes "[Бухий тернопільський пацик]";
 	mes "Зараз, зачекай, мені потрібно налаштувати дихання.";
 		getitem 12103,1;
 		mes ". . . . .";
 		mes "Друже все готово!";
 }
 else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
 	mes "Now, wait, I need to adjust my breathing.";
 		getitem 12103,1;
 		mes ". . . . .";
@@ -143,9 +150,10 @@ else if (#gl_lang == 0) {
 if (#gl_lang == 1) {
 			mes ". . . . .";
 			mes ". . .Ні друже ми так не домовлялися...";
-			mes "Де речі про які я просив тебе";
+			mes "Де речі про які я просив тебе !?";
 }
 else if (#gl_lang == 0) {
+	mes "[Thernopol Drunk Boy]";
 			mes ". . . . .";
 			mes ". . .No, my friend, we didnt't get alone like that...";
 			mes "Where are the things I asked for?!";
@@ -158,11 +166,14 @@ else if (#gl_lang == 0) {
 	LUnfathomable:
 		next;
 if (#gl_lang == 0) {
+	mes "[Бухий тернопільський пацик]";
 		mes ". . . . .";
 		mes "Mee e e ... ..ee . .. ...";
 		mes "Fuuuuu ccc c kkkk....";
+
 }
 else if (#gl_lang == 1) {
+	mes "[Thernopol Drunk Boy]";
 		mes ". . . . .";
 		mes "Мee e e ... ..ee . .. ...";
 		mes "Бл..лл.л.л..я....";

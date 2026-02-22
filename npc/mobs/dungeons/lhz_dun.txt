@@ -1,27 +1,3 @@
-//===== eAthena Script =======================================
-//= Lighthalzen Dungeon(Biolabs) Monster Spawn Script
-//===== By: ==================================================
-// The Prometheus Project, eAthena dev team
-//===== Current Version: =====================================
-//= 1.6
-//===== Compatible With: =====================================
-//= Any Athena
-//===== Additional Comments: =================================
-//= 08/24/05 : Added 1st version. [Muad_Dib]
-//= 1.1: Some corrections to level 1, 2 as pointed out by
-//=      MasterofMuppets. [Skotlex]
-//= 1.3: Some fixes based on kRO's "RO Map" [Poki#3]
-//=	 I also made the place more Moby ^^
-//= 1.4: Adjusted spawns according to own info from iRO [MasterOfMuppets]
-//= 1.5: More accurate spawn numbers and iRO names thanks to Tharis [Playtester]
-//= 1.6: Official X.3 spawns [Playtester]
-//============================================================
-
-
-//========================================================================================
-// lhz_dun01 - Bio-life Labs 1F
-//========================================================================================
-
 lhz_dun01,0,0,0,0	monster	Metaling	1613,50,0,0,0
 lhz_dun01,0,0,0,0	monster	Anopheles	1627,70,0,0,0
 lhz_dun01,0,0,0,0	monster	Remover	1682,100,0,0,0
@@ -56,11 +32,6 @@ lhz_dun01,192,61,18,30	monster	Errende Ebecee	1655,1,900000,800000,1
 lhz_dun01,192,61,18,30	monster	Kavach Icarus	1656,1,900000,800000,1
 lhz_dun01,192,61,18,30	monster	Laurell Weinder	1657,1,900000,800000,1
 lhz_dun01,0,0,0,0	monster	Gemini-S58	1681,1,7200000,5400000,0
-
-//========================================================================================
-// lhz_dun02 - Bio-life Labs 2F
-//========================================================================================
-
 lhz_dun02,0,0,0,0	monster	Egnigem Cenia	1652,26,0,0,0
 lhz_dun02,0,0,0,0	monster	Wickebine Tres	1653,26,0,0,0
 lhz_dun02,0,0,0,0	monster	Armeyer Dinze	1654,26,0,0,0
@@ -89,133 +60,114 @@ lhz_dun02,0,0,0,0	monster	Remover	1682,20,300000,150000,1
 lhz_dun02,0,0,0,0	monster	Eremes Guile	1635,1,180000,120000,0
 lhz_dun02,0,0,0,0	monster	Gemini-S58	1681,10,5400000,180000,0
 lhz_dun02,0,0,0,0	monster	Egnigem Cenia	1658,1,7200000,5400000,1
-
-//========================================================================================
-// lhz_dun03 - Bio-life Labs 3F
-//========================================================================================
-
-lhz_dun03,140,235,116,30	monster	Seyren Windsor	1634,4,180000,120000,0
-lhz_dun03,140,235,116,30	monster	Eremes Guile	1635,4,180000,120000,0
+lhz_dun03,140,235,116,30	monster	Seyren Windsor	1634,2,180000,120000,0
+lhz_dun03,140,235,116,30	monster	Eremes Guile	1635,2,180000,120000,0
 lhz_dun03,140,235,116,30	monster	Howard Alt-Eisen	1636,4,180000,120000,0
 lhz_dun03,140,235,116,30	monster	Margaretha Sorin	1637,4,180000,120000,0
-lhz_dun03,140,235,116,30	monster	Cecil Damon	1638,4,180000,120000,0
-lhz_dun03,140,235,116,30	monster	Kathryne Keyron	1639,4,180000,120000,0
-
+lhz_dun03,140,235,116,30	monster	Cecil Damon	1638,2,180000,120000,0
+lhz_dun03,140,235,116,30	monster	Kathryne Keyron	1639,2,180000,120000,0
 lhz_dun03,40,214,16,16	monster	Seyren Windsor	1634,1,120000,60000,0
 lhz_dun03,40,214,16,16	monster	Eremes Guile	1635,1,120000,60000,0
 lhz_dun03,40,214,16,16	monster	Howard Alt-Eisen	1636,1,120000,60000,0
 lhz_dun03,40,214,16,16	monster	Margaretha Sorin	1637,1,120000,60000,0
 lhz_dun03,40,214,16,16	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,40,214,16,16	monster	Kathryne Keyron	1639,1,120000,60000,0
-
 lhz_dun03,240,213,16,17	monster	Seyren Windsor	1634,1,120000,60000,0
 lhz_dun03,240,213,16,17	monster	Eremes Guile	1635,1,120000,60000,0
 lhz_dun03,240,213,16,17	monster	Howard Alt-Eisen	1636,1,120000,60000,0
 lhz_dun03,240,213,16,17	monster	Margaretha Sorin	1637,1,120000,60000,0
 lhz_dun03,240,213,16,17	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,240,213,16,17	monster	Kathryne Keyron	1639,1,120000,60000,0
-
-lhz_dun03,140,65,108,38	monster	Seyren Windsor	1634,7,120000,160000,0
-lhz_dun03,140,65,108,38	monster	Eremes Guile	1635,7,120000,160000,0
-lhz_dun03,140,65,108,38	monster	Howard Alt-Eisen	1636,7,120000,160000,0
-lhz_dun03,140,65,108,38	monster	Margaretha Sorin	1637,7,120000,160000,0
-lhz_dun03,140,65,108,38	monster	Cecil Damon	1638,7,120000,60000,0
-lhz_dun03,140,65,108,38	monster	Kathryne Keyron	1639,7,120000,60000,0
-
+lhz_dun03,140,65,108,38	monster	Seyren Windsor	1634,3,120000,160000,0
+lhz_dun03,140,65,108,38	monster	Eremes Guile	1635,3,120000,160000,0
+lhz_dun03,140,65,108,38	monster	Howard Alt-Eisen	1636,3,120000,160000,0
+lhz_dun03,140,65,108,38	monster	Margaretha Sorin	1637,3,120000,160000,0
+lhz_dun03,140,65,108,38	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,140,65,108,38	monster	Kathryne Keyron	1639,3,120000,60000,0
 lhz_dun03,140,31,8,15	monster	Seyren Windsor	1634,1,600000,540000,0
 lhz_dun03,140,31,8,15	monster	Eremes Guile	1635,1,540000,480000,0
 lhz_dun03,140,31,8,15	monster	Howard Alt-Eisen	1636,1,600000,540000,0
 lhz_dun03,140,31,8,15	monster	Margaretha Sorin	1637,1,540000,480000,0
 lhz_dun03,140,31,8,15	monster	Cecil Damon	1638,1,600000,540000,0
 lhz_dun03,140,31,8,15	monster	Kathryne Keyron	1639,1,540000,480000,0
-
 lhz_dun03,40,66,16,16	monster	Seyren Windsor	1634,1,120000,60000,0
 lhz_dun03,40,66,16,16	monster	Eremes Guile	1635,1,120000,60000,0
 lhz_dun03,40,66,16,16	monster	Howard Alt-Eisen	1636,1,120000,60000,0
 lhz_dun03,40,66,16,16	monster	Margaretha Sorin	1637,1,120000,60000,0
 lhz_dun03,40,66,16,16	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,40,66,16,16	monster	Kathryne Keyron	1639,1,120000,60000,0
-
 lhz_dun03,240,66,16,16	monster	Seyren Windsor	1634,1,120000,60000,0
 lhz_dun03,240,66,16,16	monster	Eremes Guile	1635,1,120000,60000,0
 lhz_dun03,240,66,16,16	monster	Howard Alt-Eisen	1636,1,120000,60000,0
 lhz_dun03,240,66,16,16	monster	Margaretha Sorin	1637,1,120000,60000,0
 lhz_dun03,240,66,16,16	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,240,66,16,16	monster	Kathryne Keyron	1639,1,120000,60000,0
-
-lhz_dun03,54,131,35,39	monster	Seyren Windsor	1634,5,180000,120000,0
-lhz_dun03,54,131,35,39	monster	Eremes Guile	1635,5,180000,120000,0
-lhz_dun03,54,131,35,39	monster	Howard Alt-Eisen	1636,5,180000,120000,0
-lhz_dun03,54,131,35,39	monster	Margaretha Sorin	1637,5,180000,120000,0
-lhz_dun03,54,131,35,39	monster	Cecil Damon	1638,5,120000,60000,0
-lhz_dun03,54,131,35,39	monster	Kathryne Keyron	1639,5,120000,60000,0
-
-lhz_dun03,228,137,35,39	monster	Seyren Windsor	1634,5,180000,120000,0
-lhz_dun03,228,137,35,39	monster	Eremes Guile	1635,5,180000,120000,0
-lhz_dun03,228,137,35,39	monster	Howard Alt-Eisen	1636,5,180000,120000,0
-lhz_dun03,228,137,35,39	monster	Margaretha Sorin	1637,5,180000,120000,0
-lhz_dun03,228,137,35,39	monster	Cecil Damon	1638,5,120000,60000,0
-lhz_dun03,228,137,35,39	monster	Kathryne Keyron	1639,5,120000,60000,0
-
-lhz_dun03,138,138,36,34	monster	Seyren Windsor	1634,3,120000,60000,0
-lhz_dun03,138,138,36,34	monster	Eremes Guile	1635,3,120000,60000,0
-lhz_dun03,138,138,36,34	monster	Howard Alt-Eisen	1636,3,120000,60000,0
-lhz_dun03,138,138,36,34	monster	Margaretha Sorin	1637,3,180000,120000,0
-lhz_dun03,138,138,36,34	monster	Cecil Damon	1638,4,0,0,0
-lhz_dun03,138,138,36,34	monster	Kathryne Keyron	1639,4,0,0,0
-
-lhz_dun03,140,192,66,21	monster	Seyren Windsor	1634,7,120000,60000,0
-lhz_dun03,140,192,66,21	monster	Eremes Guile	1635,7,180000,120000,0
-lhz_dun03,140,192,66,21	monster	Howard Alt-Eisen	1636,7,120000,60000,0
-lhz_dun03,140,192,66,21	monster	Margaretha Sorin	1637,7,180000,120000,0
-lhz_dun03,140,192,66,21	monster	Cecil Damon	1638,7,120000,60000,0
-lhz_dun03,140,192,66,21	monster	Kathryne Keyron	1639,7,120000,60000,0
-
+lhz_dun03,54,131,35,39	monster	Seyren Windsor	1634,2,180000,120000,0
+lhz_dun03,54,131,35,39	monster	Eremes Guile	1635,2,180000,120000,0
+lhz_dun03,54,131,35,39	monster	Howard Alt-Eisen	1636,2,180000,120000,0
+lhz_dun03,54,131,35,39	monster	Margaretha Sorin	1637,2,180000,120000,0
+lhz_dun03,54,131,35,39	monster	Cecil Damon	1638,2,120000,60000,0
+lhz_dun03,54,131,35,39	monster	Kathryne Keyron	1639,2,120000,60000,0
+lhz_dun03,228,137,35,39	monster	Seyren Windsor	1634,2,180000,120000,0
+lhz_dun03,228,137,35,39	monster	Eremes Guile	1635,2,180000,120000,0
+lhz_dun03,228,137,35,39	monster	Howard Alt-Eisen	1636,2,180000,120000,0
+lhz_dun03,228,137,35,39	monster	Margaretha Sorin	1637,2,180000,120000,0
+lhz_dun03,228,137,35,39	monster	Cecil Damon	1638,2,120000,60000,0
+lhz_dun03,228,137,35,39	monster	Kathryne Keyron	1639,2,120000,60000,0
+lhz_dun03,138,138,36,34	monster	Seyren Windsor	1634,1,120000,60000,0
+lhz_dun03,138,138,36,34	monster	Eremes Guile	1635,1,120000,60000,0
+lhz_dun03,138,138,36,34	monster	Howard Alt-Eisen	1636,1,120000,60000,0
+lhz_dun03,138,138,36,34	monster	Margaretha Sorin	1637,1,180000,120000,0
+lhz_dun03,138,138,36,34	monster	Cecil Damon	1638,2,0,0,0
+lhz_dun03,138,138,36,34	monster	Kathryne Keyron	1639,2,0,0,0
+lhz_dun03,140,192,66,21	monster	Seyren Windsor	1634,3,120000,60000,0
+lhz_dun03,140,192,66,21	monster	Eremes Guile	1635,3,180000,120000,0
+lhz_dun03,140,192,66,21	monster	Howard Alt-Eisen	1636,3,120000,60000,0
+lhz_dun03,140,192,66,21	monster	Margaretha Sorin	1637,3,180000,120000,0
+lhz_dun03,140,192,66,21	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,140,192,66,21	monster	Kathryne Keyron	1639,3,120000,60000,0
 lhz_dun03,89,164,4,8	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,89,164,4,8	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,89,164,4,8	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,107,167,4,5	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,107,167,4,5	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,107,167,4,5	monster	Cecil Damon	1638,,120000,60000,0
 lhz_dun03,171,167,4,5	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,171,167,4,5	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,171,167,4,5	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,189,164,4,8	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,189,164,4,8	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,189,164,4,8	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,89,113,4,9	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,89,113,4,9	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,89,113,4,9	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,107,109,4,5	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,107,109,4,5	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,107,109,4,5	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,171,109,4,5	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,171,109,4,5	monster	Cecil Damon	1638,3,120000,60000,0
+lhz_dun03,171,109,4,5	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,189,113,4,9	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,189,113,4,9	monster	Cecil Damon	1638,3,120000,60000,0
-
-lhz_dun03,96,164,13,8	monster	Seyren Windsor	1634,2,300000,120000,0
-lhz_dun03,96,164,13,8	monster	Eremes Guile	1635,2,300000,120000,0
-lhz_dun03,96,164,13,8	monster	Margaretha Sorin	1637,2,300000,120000,0
-lhz_dun03,96,164,13,8	monster	Cecil Damon	1638,5,0,0,0
-lhz_dun03,96,164,13,8	monster	Kathryne Keyron	1639,3,0,0,0
-lhz_dun03,180,164,13,8	monster	Seyren Windsor	1634,2,300000,120000,0
-lhz_dun03,180,164,13,8	monster	Howard Alt-Eisen	1636,2,300000,120000,0
-lhz_dun03,180,164,13,8	monster	Margaretha Sorin	1637,2,300000,120000,0
-lhz_dun03,180,164,13,8	monster	Cecil Damon	1638,5,0,0,0
-lhz_dun03,180,164,13,8	monster	Kathryne Keyron	1639,3,0,0,0
-lhz_dun03,98,113,13,9	monster	Seyren Windsor	1634,2,300000,120000,0
-lhz_dun03,98,113,13,9	monster	Eremes Guile	1635,2,300000,120000,0
-lhz_dun03,98,113,13,9	monster	Howard Alt-Eisen	1636,2,300000,120000,0
-lhz_dun03,98,113,13,9	monster	Cecil Damon	1638,5,0,0,0
-lhz_dun03,98,113,13,9	monster	Kathryne Keyron	1639,3,0,0,0
-lhz_dun03,180,113,13,9	monster	Eremes Guile	1635,2,300000,120000,0
+lhz_dun03,189,113,4,9	monster	Cecil Damon	1638,1,120000,60000,0
+lhz_dun03,96,164,13,8	monster	Seyren Windsor	1634,1,300000,120000,0
+lhz_dun03,96,164,13,8	monster	Eremes Guile	1635,1,300000,120000,0
+lhz_dun03,96,164,13,8	monster	Margaretha Sorin	1637,1,300000,120000,0
+lhz_dun03,96,164,13,8	monster	Cecil Damon	1638,2,0,0,0
+lhz_dun03,96,164,13,8	monster	Kathryne Keyron	1639,1,0,0,0
+lhz_dun03,180,164,13,8	monster	Seyren Windsor	1634,1,300000,120000,0
+lhz_dun03,180,164,13,8	monster	Howard Alt-Eisen	1636,1,300000,120000,0
+lhz_dun03,180,164,13,8	monster	Margaretha Sorin	1637,1,300000,120000,0
+lhz_dun03,180,164,13,8	monster	Cecil Damon	1638,2,0,0,0
+lhz_dun03,180,164,13,8	monster	Kathryne Keyron	1639,1,0,0,0
+lhz_dun03,98,113,13,9	monster	Seyren Windsor	1634,1,300000,120000,0
+lhz_dun03,98,113,13,9	monster	Eremes Guile	1635,1,300000,120000,0
+lhz_dun03,98,113,13,9	monster	Howard Alt-Eisen	1636,1,300000,120000,0
+lhz_dun03,98,113,13,9	monster	Cecil Damon	1638,2,0,0,0
+lhz_dun03,98,113,13,9	monster	Kathryne Keyron	1639,1,0,0,0
+lhz_dun03,180,113,13,9	monster	Eremes Guile	1635,1,300000,120000,0
 lhz_dun03,180,113,13,9	monster	Howard Alt-Eisen	1636,2,300000,120000,0
 lhz_dun03,180,113,13,9	monster	Margaretha Sorin	1637,2,300000,120000,0
-lhz_dun03,180,113,13,9	monster	Cecil Damon	1638,5,0,0,0
-lhz_dun03,180,113,13,9	monster	Kathryne Keyron	1639,3,0,0,0
-
+lhz_dun03,180,113,13,9	monster	Cecil Damon	1638,2,0,0,0
+lhz_dun03,180,113,13,9	monster	Kathryne Keyron	1639,2,0,0,0
 lhz_dun03,114,138,12,16	monster	Lord Knight Seyren	1640,1,2700000,2400000,1
 lhz_dun03,163,138,12,16	monster	Whitesmith Howard	1642,1,3000000,2700000,1
 lhz_dun03,139,158,20,11	monster	Assassin Cross Eremes	1641,1,2580000,2340000,1
 lhz_dun03,139,117,20,11	monster	Sniper Cecil	1644,1,2700000,2500000,1
 lhz_dun03,138,138,36,34	monster	High Priest Margaretha	1643,1,3300000,3000000,1
 lhz_dun03,138,138,36,34	monster	High Wizard Kathryne	1645,1,2580000,2460000,1
-
 lhz_dun03,1,1,0	script	Lhzdun03monster	-1,{
 OnInit:
 	while(1)
@@ -237,5 +189,4 @@ OnInit:
 	OnTimer7200000:
 		stopnpctimer;
 	}
-
 }

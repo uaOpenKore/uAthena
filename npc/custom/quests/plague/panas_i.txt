@@ -1,0 +1,96 @@
+
+orcsdun01,74,28,2	script		Ivan	858, {
+
+    // Якщо гравець ще не отримав завдання від Степана
+    if (quest_panas < 2) {
+        if (#gl_lang == 1) mes "Стара покинута могила...";
+        else mes "An old abandoned grave...";
+        close;
+    }
+
+    // Оновлюємо статус на 3 (могилу знайдено)
+    if (quest_panas == 2) {
+        set quest_panas, 3;
+    }
+
+    if (#gl_lang == 1) {
+        mes "[Іван]";
+        mes "Тут поховано славетного воїна Івана,";
+        mes "сина Панаса, який загинув у бою з Лордом Орків.";
+    } else {
+        mes "[Ivan]";
+        mes "Here lies the glorious warrior Ivan,";
+        mes "son of Panas, who died in battle with the Orc Lord.";
+    }
+    close;
+}
+
+
+
+gef_fild13,204,253,3	script	Soldier Stepan	953,{
+
+    // ПЕРЕВІРКА ПІСЛЯ ВІДВІДУВАННЯ МОГИЛИ (Статус 3)
+    if (quest_panas >= 3) {
+        mes "[Soldier Stepan]";
+        if (#gl_lang == 1) {
+            mes "Дякую що ти розшукав могилу Івана, Розповідай про нього як про героя, яким він і був.";
+            next;
+            mes "Колись Іван розповідав мені про своїх братів, які пішли шукати кращого життя до сонячного міста Рахель.";
+            mes "Розпитай про них у місцевих. Хтось точно має їх знати...";
+        } else {
+            mes "Thank you for finding Ivan's grave. Tell everyone about him as the hero he was.";
+            next;
+            mes "Ivan once told me about his brothers who went to seek a better life in the sunny city of Rachel.";
+            mes "Ask the locals about them. Someone must know them...";
+        }
+        
+        // Оновлюємо на 4 (шлях до Рахеля відкритий)
+        if (quest_panas == 3) set quest_panas, 4;
+        close;
+    }
+
+    // ЯКЩО ГРАВЕЦЬ УЖЕ ШУКАЄ МОГИЛУ (Статус 2)
+    if (quest_panas == 2) {
+        mes "[Soldier Stepan]";
+        if (#gl_lang == 1) mes "Ти вже знайшов місце спочинку Івана? Шукай у **Orc Dungeon**.";
+        else mes "Have you found Ivan's resting place yet? Look in **Orc Dungeon**.";
+        close;
+    }
+
+    // ПОЧАТОК ДІАЛОГУ (Статус 1)
+    if (#gl_lang == 1) {
+        mes "[Солдат Степан]";
+        if (quest_panas == 0) { mes "Тут небезпечно, йди звідси."; close; }
+        mes "Ти щось шукаєш? Чи когось?";
+    } else {
+        mes "[Soldier Stepan]";
+        if (quest_panas == 0) { mes "It's dangerous here, get out."; close; }
+        mes "Are you looking for something? Or someone?";
+    }
+    next;
+
+    if (#gl_lang == 1) menu "Я шукаю сина Панаса, Івана.", L_AskIvan, "Ні, просто проходжу повз.", L_Close;
+    else menu "I am looking for Panas's son, Ivan.", L_AskIvan, "No, just passing by.", L_Close;
+
+L_AskIvan:
+    if (#gl_lang == 1) {
+        mes "[Солдат Степан]";
+        mes "Ох... Іван. Це був мій найкращий побратим.";
+        mes "Ми поховали його з почестями в глибині підземелля.";
+        next;
+        mes "Його могила у **Orc Dungeon**. Шукай у південній частині.";
+    } else {
+        mes "[Soldier Stepan]";
+        mes "Oh... Ivan. He was my best brother-in-arms.";
+        mes "We buried him with honors deep in the dungeon.";
+        next;
+        mes "His grave is in **Orc Dungeon**. Look in the South part.";
+    }
+    set quest_panas, 2; // Статус: гравець відправлений до могили
+    close;
+
+L_Close:
+    if (#gl_lang == 1) mes "[Солдат Степан] Стережись!";
+    else mes "[Soldier Stepan] Watch out!";
+    close;
+}

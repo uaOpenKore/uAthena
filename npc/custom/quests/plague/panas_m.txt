@@ -1,0 +1,40 @@
+ra_temin,170,148,4	script	Danilo	920,{
+	mes "[Danilo]";
+	if (quest_panas < 5) { 
+		if (#gl_lang == 1) {
+			mes "Вітаю. Я дуже зайнятий справами Храму.";
+		} else {
+			mes "Greetings. I am very busy with the Temple affairs.";
+		}
+		close;
+	}
+
+	if (#gl_lang == 1) {
+		mes "Ох, ці новини про Івана... Серце крається. Дякую, що розповів.";
+		next;
+		mes "[Данило]";
+		mes "Ти питаєш про Миколу? Він не захотів лишатися тут. Він сказав, що його доля — допомагати іншим знайти свій шлях.";
+		next;
+		mes "[Данило]";
+		mes "Він повернувся до **Пронтери**. Тепер він відомий як **Провідник Долі**.";
+		mes "Саме він відкриває героям шлях до їхнього справжнього покликання.";
+		next;
+		mes "[Данило]";
+		mes "Прошу тебе, розкажи батькові про нас, хай знає як склалась доля його дітей.";
+	} else {
+		mes "Oh, this news about Ivan... It breaks my heart. Thank you for telling me.";
+		next;
+		mes "[Danilo]";
+		mes "Are you asking about Mykola? He didn't want to stay here. He said his destiny is to help others find their path.";
+		next;
+		mes "[Danilo]";
+		mes "He returned to **Prontera**. Now he is known as the **Pathfinder of Fate**.";
+		mes "It is he who opens the way to the true calling for heroes.";
+		next;
+		mes "[Danilo]";
+		mes "Please, tell our father about us, let him know what became of his children.";
+	}
+
+	set quest_panas, 6; // Тепер статус дозволяє завершити квест у Панаса
+	close;
+}

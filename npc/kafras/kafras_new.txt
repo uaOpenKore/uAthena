@@ -283,8 +283,13 @@ niflheim,201,184,4	script	Kafra::Prontera	791,{
     mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
     next;
 
-    switch(select("Teleport to Prontera:Open Storage:Cancel")) {
-        case 1:
+    switch(select("Save:Teleport to Prontera:Open Storage:Cancel")) {
+
+	case 1:
+	savepoint "niflheim",193,185;
+	callfunc "F_KafEnd",0,1;
+
+        case 2:
             if (Zeny < 2000) {
                 mes "[Kafra]";
                 mes "I'm sorry, but you don't have enough Zeny.";
@@ -295,12 +300,12 @@ niflheim,201,184,4	script	Kafra::Prontera	791,{
             warp "prontera",116,72;
             end;
 
-        case 2:
+        case 3:
             close2;
             openstorage;
             end;
 
-        case 3:
+        case 4:
             mes "[Kafra]";
             mes "Have a safe journey!";
             close;

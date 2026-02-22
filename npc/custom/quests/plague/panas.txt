@@ -1,0 +1,113 @@
+prt_in,226,47,4	script	Grandpa Panas	933,{
+
+	// ПЕРЕВІРКА ПІСЛЯ ЗАВЕРШЕННЯ КВЕСТУ
+	if (quest_panas == 7) {
+		mes "[Grandpa Panas]";
+		if (#gl_lang == 1) {
+			mes "Дякую, ти зробив для мене все, що міг.";
+			mes "Нехай боги бережуть тебе на дорогах світу Рагнарок!";
+		} else {
+			mes "Thank you, you have done everything you could for me.";
+			mes "May the gods protect you on the roads of Ragnarok world!";
+		}
+		close;
+	}
+
+	// ФІНАЛЬНИЙ ЕТАП (Статус 5)
+	if (quest_panas == 6) {
+		mes "[Grandpa Panas]";
+		if (#gl_lang == 1) {
+			mes "Ох, синку! Я бачу по твоїх очах — ти пройшов довгий шлях.";
+			next;
+			menu "Розповісти Діду Панасу про синів", L_FinalReport;
+		} else {
+			mes "Oh, son! I see in your eyes — you've come a long way.";
+			next;
+			menu "Tell Grandpa Panas about his sons", L_FinalReport;
+		}
+
+		L_FinalReport:
+		mes "[Grandpa Panas]";
+		if (#gl_lang == 1) {
+			mes "То значить Іван загинув героєм... А Данило та Микола знайшли своє покликання?";
+			mes "Моє серце нарешті спокійне. Тепер я можу дожити віку, знаючи долю моїх дітей.";
+			next;
+			mes "Ти зробив для мене більше, ніж будь-хто. Мій брат — торговець, я замовлю за тебе слівце.";
+		} else {
+			mes "So Ivan died a hero... And Danylo and Mykola found their calling?";
+			mes "My heart is finally at peace. Now I can live out my days knowing their fate.";
+			next;
+			mes "You've done more for me than anyone. My brother is a trader, I'll put in a word for you.";
+		}
+		set quest_panas, 7;
+		set #market, 1;
+		close;
+	}
+
+	// В ПРОЦЕСІ ПОШУКУ
+	if (quest_panas >= 1 && quest_panas < 6) {
+		mes "[Grandpa Panas]";
+		if (#gl_lang == 1) {
+			mes "О, це ти! Чи взнав ти щось про моїх дітей?";
+			next;
+			menu "Послухати історію ще раз", L_History, "Я ще шукаю ваших дітей", L_StillSearching, "Піти геть", L_GoAway;
+		} else {
+			mes "Oh, it's you! Have you learned anything about my children?";
+			next;
+			menu "Listen to the story again", L_History, "I'm still looking for your children", L_StillSearching, "Leave", L_GoAway;
+		}
+	}
+
+	// ПЕРШИЙ ДІАЛОГ
+	mes "[Grandpa Panas]";
+	if (#gl_lang == 1) mes "Оххх як же важко бути старим.";
+	else mes "Ohh, how hard it is to be old.";
+	next;
+
+	if (#gl_lang == 1) menu "Діду, чим я можу тобі допомогти?", L_History, "Пройти повз.", L_Close;
+	else menu "Grandpa, how can I help you?", L_History, "Walk past.", L_Close;
+
+L_History:
+	mes "[Grandpa Panas]";
+	if (#gl_lang == 1) {
+		mes "Не знаю синку, все заплутано....";
+		mes "Колись у мене було 3 сина. Старший (Іван) зник біля замків Геффена.";
+		mes "Середній (Данило) та молодший (Микола) поїхали до Рахеля.";
+		next;
+		mes "^0000FF" + strcharinfo(0) + "^000000";
+		mes "Дуже шкода старий, що в тебе так склалось життя";
+		next;
+		menu "Я допоможу тобі.", L_Accept, "Вибач старий, немає часу.", L_Close;
+	} else {
+		mes "I don't know son, it's all tangled....";
+		mes "Once I had 3 sons. The eldest (Ivan) disappeared near Geffen castles.";
+		mes "The middle (Danylo) and youngest (Mykola) went to Rachel.";
+		next;
+		mes "^0000FF" + strcharinfo(0) + "^000000";
+		mes "I'm so sorry old man that your life turned out this way";
+		next;
+		menu "I will help you.", L_Accept, "Sorry, I don't have time.", L_Close;
+	}
+
+L_Accept:
+	set quest_panas, 1;
+	mes "[Grandpa Panas]";
+	if (#gl_lang == 1) mes "Дякую тобі! Буду чекати на будь-яку звістку.";
+	else mes "Thank you! I will be waiting for any news.";
+	close;
+
+L_StillSearching:
+	mes "[Grandpa Panas]";
+	if (#gl_lang == 1) mes "Дякую синку, що допомагаєш мені.";
+	else mes "Thank you son for helping me.";
+	close;
+
+L_GoAway:
+	mes "[Grandpa Panas]";
+	if (#gl_lang == 1) mes "Нікому не цікаві проблеми старих людей.";
+	else mes "No one cares about the problems of old people.";
+	close;
+
+L_Close:
+	close;
+}

@@ -1,25 +1,18 @@
-//==================================================
-// c_tower1 - Clock Tower F1
-//==================================================
-c_tower1.gat,250,345,110,35	monster	Punk	1199,17,0,0,0
-c_tower1.gat,250,60,140,50	monster	Punk	1199,17,0,0,0
-c_tower1.gat,60,197,40,177	monster	Punk	1199,36,0,0,0
-
-//==================================================
-// c_tower2 - Clock Tower F2
-//==================================================
-c_tower2.gat,100,233,0,0	monster	Clock	1269,1,355000,150000,1
-c_tower2.gat,100,233,0,0	monster	Clock	1269,1,420000,150000,1
-c_tower2.gat,100,242,0,0	monster	Clock	1269,1,395000,150000,1
-c_tower2.gat,101,242,0,0	monster	Clock	1269,1,325000,150000,1
-c_tower2.gat,102,233,0,0	monster	Clock	1269,1,450000,150000,1
-c_tower2.gat,103,234,0,0	monster	Clock	1269,1,445000,150000,1
-c_tower2.gat,103,240,0,0	monster	Clock	1269,1,430000,150000,1
-c_tower2.gat,185,110,0,0	monster	Clock	1269,1,320000,180000,1
-c_tower2.gat,185,154,0,0	monster	Clock	1269,1,340000,180000,1
-c_tower2.gat,187,194,0,0	monster	Clock	1269,1,360000,180000,1
-c_tower2.gat,95,237,0,0	monster	Clock	1269,1,475000,150000,1
-c_tower2.gat,95,238,0,0	monster	Clock	1269,1,480000,150000,1
-c_tower2.gat,95,241,0,0	monster	Clock	1269,1,385000,150000,1
-c_tower2.gat,96,242,0,0	monster	Clock	1269,1,490000,150000,1
-c_tower2.gat,99,242,0,0	monster	Clock	1269,1,400000,150000,1
+c_tower1,250,345,110,35	monster	Punk	1199,17,0,0,0
+c_tower1,250,60,140,50	monster	Punk	1199,17,0,0,0
+c_tower1,60,197,40,177	monster	Punk	1199,36,0,0,0
+c_tower2,100,233,0,0	monster	Clock	1269,1,355000,150000,1
+c_tower2,100,233,0,0	monster	Clock	1269,1,420000,150000,1
+c_tower2,100,242,0,0	monster	Clock	1269,1,395000,150000,1
+c_tower2,101,242,0,0	monster	Clock	1269,1,325000,150000,1
+c_tower2,102,233,0,0	monster	Clock	1269,1,450000,150000,1
+c_tower2,103,234,0,0	monster	Clock	1269,1,445000,150000,1
+c_tower2,103,240,0,0	monster	Clock	1269,1,430000,150000,1
+c_tower2,185,110,0,0	monster	Clock	1269,1,320000,180000,1
+c_tower2,185,154,0,0	monster	Clock	1269,1,340000,180000,1
+c_tower2,187,194,0,0	monster	Clock	1269,1,360000,180000,1
+c_tower2,95,237,0,0	monster	Clock	1269,1,475000,150000,1
+c_tower2,95,238,0,0	monster	Clock	1269,1,480000,150000,1
+c_tower2,95,241,0,0	monster	Clock	1269,1,385000,150000,1
+c_tower2,96,242,0,0	monster	Clock	1269,1,490000,150000,1
+c_tower2,99,242,0,0	monster	Clock	1269,1,400000,150000,1
