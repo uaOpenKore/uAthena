@@ -1,0 +1,71 @@
+prt_in,252,20,3	script	Black Market	712, {
+
+	// 1. Перевірка доступу та мови
+	if (#market != 1) {
+		if (#gl_lang == 1) {
+			mes "[Торговець]";
+			mes "Йди геть, я тебе не знаю!";
+		} else {
+			mes "[Merchant]";
+			mes "Go away, I don't know you!";
+		}
+		close;
+	}
+
+	// 2. Привітання
+	if (#gl_lang == 1) {
+		mes "[Торговець]";
+		mes "Так, так... Це той самий юнак, що допоміг старому Панасу!";
+		mes "Ось мої товари за ^CD0000Бронзові монети^000000:";
+	} else {
+		mes "[Merchant]";
+		mes "Yes, yes... The young man who helped old Panas!";
+		mes "Here are my goods for ^CD0000Bronze Coins^000000:";
+	}
+	next;
+
+L_Menu:
+	// 3. Список з 10 товарів (Назва - Ціна)
+	if (#gl_lang == 1) {
+		menu "Blessing Scroll 10 lvl (1 монета)",L_1,"Agility Scroll 10 lvl (1 монета)",L_2,"Elemental Converter Fire (2 монети)",L_3,"Elemental Converter Water (2 монети)",L_4,"Elemental Converter Earth (2 монети)",L_5,"Elemental Converter Wind (2 монети)",L_6,"Giant Fly Wing (2 монети)",L_7,"Halohalo (5 монет)",L_8,"Box of Sunlight (1 монета)",L_9,"Bloody Brunch (25 монет)",L_10,"Вихід",L_Quit;
+	} else {
+		menu "Blessing Scroll 10 lvl (1 coins)",L_1,"Agility Scroll 10 lvl (1 coins)",L_2,"Elemental Converter Fire (2 coins)",L_3,"Elemental Converter Water (2 coins)",L_4,"Elemental Converter Earth (2 coins)",L_5,"Elemental Converter Wind (2 coin)",L_6,"Giant Fly Wing (2 coins)",L_7,"Halohalo (5 coins)",L_8,"Box of Sunlight (1 coins)",L_9,"Bloody Brunch (25 coins)",L_10,"Exit",L_Quit;
+	}
+
+	// 4. Налаштування ID предметів та Цін (ID 673 використовується як валюта)
+L_1:  set @id, 12215; set @pr, 1; goto L_Buy;
+L_2:  set @id, 12216; set @pr, 1; goto L_Buy;
+L_3:  set @id, 12114; set @pr, 2; goto L_Buy;
+L_4:  set @id, 12115; set @pr, 2; goto L_Buy;
+L_5:  set @id, 12116; set @pr, 2; goto L_Buy;
+L_6:  set @id, 12117; set @pr, 2; goto L_Buy;
+L_7:  set @id, 12212; set @pr, 2; goto L_Buy;
+L_8:  set @id, 12247; set @pr, 5; goto L_Buy;
+L_9:  set @id, 12033; set @pr, 1; goto L_Buy;
+L_10: set @id, 12103; set @pr, 25; goto L_Buy;
+
+L_Buy:
+	// 5. Перевірка наявності монет (ID 673)
+	if (countitem(673) < @pr) {
+		if (#gl_lang == 1) {
+			mes "[Торговець]";
+			mes "Тобі бракує монет! Приходь, коли назбираєш.";
+		} else {
+			mes "[Merchant]";
+			mes "You don't have enough coins! Come back when you have them.";
+		}
+		close;
+	}
+
+	// 6. Процес обміну
+	delitem 673, @pr;
+	getitem @id, 1;
+	
+	if (#gl_lang == 1) dispbottom "Ви придбали предмет за " + @pr + " монет.";
+	else dispbottom "You bought an item for " + @pr + " coins.";
+	
+	goto L_Menu;
+
+L_Quit:
+	close;
+}

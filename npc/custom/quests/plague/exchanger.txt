@@ -1,0 +1,59 @@
+
+// Bronze: 673, Silver: 675, Gold: 671
+
+prt_in,232,30,3	script	Exchanger	109,{
+
+    if (#gl_lang == 1) {
+        set .@n$, "Міняйло";
+        set .@m1$, "Я можу обміняти твої монети. Які монети тобі обміняти?";
+        set .@m2$, "100 Бронзи -> 1 Срібло";
+        set .@m3$, "100 Срібла -> 1 Золото";
+        set .@m4$, "1 Золото -> 100 Срібла";
+        set .@m5$, "1 Срібло -> 100 Бронзи";
+        set .@no_item$, "У тебе недостатньо монет!";
+        set .@done$, "Ось, тримай свій обмін.";
+    } else {
+        set .@n$, "Money Changer";
+        set .@m1$, "I can exchange your coins. What do you need?";
+        set .@m2$, "100 Bronze -> 1 Silver";
+        set .@m3$, "100 Silver -> 1 Gold";
+        set .@m4$, "1 Gold -> 100 Silver";
+        set .@m5$, "1 Silver -> 100 Bronze";
+        set .@no_item$, "You don't have enough coins!";
+        set .@done$, "Here is your exchange.";
+    }
+
+    mes "["+.@n$+"]";
+    mes .@m1$;
+    next;
+    
+    set .@menu$, .@m2$+":"+.@m3$+":"+.@m4$+":"+.@m5$;
+    set .@choice, select(.@menu$);
+
+    if (.@choice == 1) {
+        if (countitem(673) < 100) goto L_NoItem;
+        delitem 673, 100;
+        getitem 675, 1;
+    } else if (.@choice == 2) {
+        if (countitem(675) < 100) goto L_NoItem;
+        delitem 675, 100;
+        getitem 671, 1;
+    } else if (.@choice == 3) {
+        if (countitem(671) < 1) goto L_NoItem;
+        delitem 671, 1;
+        getitem 675, 100;
+    } else if (.@choice == 4) {
+        if (countitem(675) < 1) goto L_NoItem;
+        delitem 675, 1;
+        getitem 673, 100;
+    }
+
+    mes "["+.@n$+"]";
+    mes .@done$;
+    close;
+
+L_NoItem:
+    mes "["+.@n$+"]";
+    mes .@no_item$;
+    close;
+}

@@ -1,0 +1,69 @@
+
+rachel,191,57,4	script	Little Taras	809,{
+
+	// Якщо гравець ще не знає про Рахель від солдата Степана
+	if (quest_panas < 4) {
+		mes "[Little Taras]";
+		if (#gl_lang == 1) mes "Привіт! Яка гарна погода сьогодні, правда?";
+		else mes "Hi! The weather is nice today, isn't it?";
+		close;
+	}
+
+	// Якщо гравець вже пройшов цей етап
+	if (quest_panas >= 5) {
+		mes "[Little Taras]";
+		if (#gl_lang == 1) mes "Дякую ще раз за цукерку! Сподіваюсь, ти знайшов того дядька Данила.";
+		else mes "Thanks again for the candy! I hope you found that uncle Danylo.";
+		close;
+	}
+
+	mes "[Little Taras]";
+	if (#gl_lang == 1) {
+		mes "Ой, дядьку... чи тітко... виглядаєте так, ніби когось шукаєте.";
+		next;
+		mes "Я знаю тут кожну собаку і кожного чужоземця! Але я такий голодний... так хочеться чогось солодкого.";
+		mes "Принесеш мені одну ^FF0000Candy^000000? Тоді я розповім, що бачив.";
+	} else {
+		mes "Oh, mister... or miss... you look like you're searching for someone.";
+		next;
+		mes "I know every dog and every foreigner here! But I'm so hungry... I really want something sweet.";
+		mes "Will you bring me one ^FF0000Candy^000000? Then I'll tell you what I saw.";
+	}
+	next;
+
+	if (#gl_lang == 1) {
+		menu "Ось, тримай цукерку.", L_GiveCandy, "У мене немає цукерок.", L_NoCandy;
+	} else {
+		menu "Here, take a candy.", L_GiveCandy, "I don't have any candy.", L_NoCandy;
+	}
+
+L_GiveCandy:
+	if (countitem(529) < 1) goto L_NoCandy; // 529 - ID Candy
+
+	delitem 529, 1;
+	mes "[Little Taras]";
+	if (#gl_lang == 1) {
+		mes "Омм-ном-ном! Дякую! Смакота!";
+		next;
+		mes "Слухай сюди. Ти шукаєш когось з родини Панаса? Я чув, як один чоловік згадував це ім'я.";
+		next;
+		mes "Це дядько **Данило**. Він приїхав здалеку і зміг потрапити на службу до самого палацу.";
+		mes "Кажуть, він тепер помічник Папи Римського! Шукай його в головному Храмі, він зазвичай там займається паперами.";
+	} else {
+		mes "Om-nom-nom! Thank you! Delicious!";
+		next;
+		mes "Listen. Are you looking for someone from Panas's family? I heard a man mention that name.";
+		next;
+		mes "That's uncle **Danylo**. He came from far away and managed to get into service at the palace.";
+		mes "They say he's now an assistant to the Pope! Look for him in the main Temple, he's usually there with the papers.";
+	}
+	
+	set quest_panas, 5; // Оновлюємо статус
+	close;
+
+L_NoCandy:
+	mes "[Little Taras]";
+	if (#gl_lang == 1) mes "Ну, тоді я нічого не пам'ятаю... Повертайся, коли знайдеш цукерку!";
+	else mes "Well, then I don't remember anything... Come back when you find a candy!";
+	close;
+}

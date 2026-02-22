@@ -1,0 +1,99 @@
+geffen_in,161,38,4	script	Researcher#res	749,{
+
+    // --- Налаштування предметів (ID предметів) ---
+    setarray .items, 7003, 1021, 1041, 1043, 7202, 1016, 7164, 1061;
+
+    // Перевірка мови
+    if (#gl_lang == 1) {
+        set .n_name$, "Дослідник";
+        set .m_hi$, "Привіт! Я досліджую цей світ і шукаю інгредієнти.";
+        set .m_wait$, "Я ще не придумав нове завдання. Заходь наступної години!";
+        set .m_penalty$, "Ти відмовився від завдання. Я не чекаю на тебе ще ";
+        set .m_status$, "Ну що, ти приніс мені те, що я просив? А саме: ^FF0000";
+        set .m_qty$, "^000000 (3 шт.)";
+        set .m_give$, "Сьогодні мені потрібно: ^FF0000";
+        set .m_done$, "Чудово! Це саме те, що треба. Ось твоя монета.";
+        set .m_no_items$, "Хм, здається, у тебе немає потрібної кількості. Повертайся до пошуків!";
+        set .btn_give$, "Так, ось тримай";
+        set .btn_cancel$, "Я не можу це знайти (Штраф 3 год.)";
+        set .btn_later$, "Ще шукаю";
+        set .btn_yes$, "Я допоможу";
+        set .btn_no$, "Не зараз";
+    } else {
+        set .n_name$, "Researcher";
+        set .m_hi$, "Hello! I'm researching this world and looking for ingredients.";
+        set .m_wait$, "I haven't thought of a new task. Come back next hour!";
+        set .m_penalty$, "You refused the task. I'm not waiting for you for another ";
+        set .m_status$, "So, did you bring what I asked for? Namely: ^FF0000";
+        set .m_qty$, "^000000 (3 pcs)";
+        set .m_give$, "Today I need: ^FF0000";
+        set .m_done$, "Great! This is exactly what I need. Here is your coin.";
+        set .m_no_items$, "Hmm, it seems you don't have enough. Back to searching!";
+        set .btn_give$, "Yes, here you go";
+        set .btn_cancel$, "I can't find it (3h penalty)";
+        set .btn_later$, "Still searching";
+        set .btn_yes$, "I'll help";
+        set .btn_no$, "Not now";
+    }
+
+    mes "[" + .n_name$ + "]";
+    
+    // 1. Перевірка штрафу
+    if (Researcher_Penalty > gettimetick(2)) {
+        set .left, (Researcher_Penalty - gettimetick(2)) / 3600;
+        mes .m_penalty$ + (.left + 1) + " год.";
+        close;
+    }
+
+    // 2. Логіка активного квесту
+    if (Researcher_QuestID > 0) {
+        mes .m_status$ + getitemname(Researcher_QuestID) + .m_qty$;
+        next;
+        menu .btn_give$, L_CheckItems, .btn_cancel$, L_Refuse, .btn_later$, L_Close;
+    }
+
+    // 3. Перевірка на "нову годину"
+    set .current_hour, gettime(4) * 100 + gettime(3);
+    if (Researcher_LastHour == .current_hour) {
+        mes .m_wait$;
+        close;
+    }
+
+    // 4. Видача нового квесту
+    mes .m_hi$;
+    set .temp_item, .items[rand(getarraysize(.items))];
+    mes .m_give$ + getitemname(.temp_item) + .m_qty$ + "?";
+    
+    next;
+    menu .btn_yes$, L_Accept, .btn_no$, L_Close;
+
+L_Accept:
+    set Researcher_QuestID, .temp_item;
+    close;
+
+L_CheckItems:
+    if (countitem(Researcher_QuestID) >= 3) {
+        delitem Researcher_QuestID, 3;
+        getitem 673, 1; // Bronze Coin
+        set Researcher_LastHour, .current_hour;
+        set Researcher_QuestID, 0;
+        mes "[" + .n_name$ + "]";
+        mes .m_done$;
+        close;
+    } else {
+        mes "[" + .n_name$ + "]";
+        mes .m_no_items$;
+        close;
+    }
+
+L_Refuse:
+    set Researcher_Penalty, gettimetick(2) + (3 * 3600);
+    set Researcher_QuestID, 0;
+    set Researcher_LastHour, 0;
+    mes "[" + .n_name$ + "]";
+    mes "Прикро. Тоді побачимось через 3 години.";
+    close;
+
+L_Close:
+    close;
+}
