@@ -170,16 +170,16 @@
 668,Handsei,Red_Envelope,2,0,,20,,,,,0xFFFFFFFF,7,2,,,,,,{ set Zeny,Zeny+rand(1000,10000); },{},{}
 669,Rice_Cake_Soup,Rice-Cake Soup,0,500,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal -100,-100; },{},{}
 // Coins
-670,Gold_Coin_Moneybag,Bag of Gold Coins,2,100000,,400,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
-671,Gold_Coin,Gold Coin,2,10000,,40,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
-672,Copper_Coin_Moneybag,Bag of Bronze Coins,2,1000,,400,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
-673,Copper_Coin,Bronze Coin,2,100,,40,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
-674,Mithril_Coin,Mithril Coin,2,5000,,40,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
-675,Silver_Coin,Silver Coin,2,5000,,40,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
-676,Silver_Coin_Moneybag,Bag of Silver Coins,2,50000,,400,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
-677,White_Gold_Coin,Platinum Coin,2,2000,,40,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
-678,Poison_Bottle,Poison Bottle,0,5000,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ if(Class == Job_Assassin_Cross) { sc_start SC_DPoison,60000,0; sc_start SC_ASPDPOTION2,60000,0; } else percentheal -100,-100; },{},{}
-679,Gold_Pill,Pilule,0,5000,,300,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 50,50; },{},{}
+670,Gold_Coin_Moneybag,Bag of Gold Coins,2,0,,4,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
+671,Gold_Coin,Gold Coin,2,0,,0,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
+672,Copper_Coin_Moneybag,Bag of Bronze Coins,2,0,,0,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
+673,Copper_Coin,Bronze Coin,2,0,,0,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
+674,Mithril_Coin,Mithril Coin,2,0,,0,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
+675,Silver_Coin,Silver Coin,2,0,,0,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
+676,Silver_Coin_Moneybag,Bag of Silver Coins,2,0,,0,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
+677,White_Gold_Coin,Platinum Coin,2,0,,0,,,,,0xFFFFFFFF,7,3,,,,,,{},{},{}
+678,Poison_Bottle,Poison Bottle,0,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ if(Class == Job_Assassin_Cross) { sc_start SC_DPoison,60000,0; sc_start SC_ASPDPOTION2,60000,0; } else percentheal -100,-100; },{},{}
+679,Gold_Pill,Pilule,0,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 50,50; },{},{}
 680,Magical_Carnation,Magic Carnation,0,,0,1000,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 0,20; },{},{}
 681,Memory_Of_Wedding,Sweet Memory of Marriage,2,50000,,10,,,,,0xFFFFFFFF,7,3,,,,,,{ if (getpartnerid()) sc_start SC_WEDDING,600000,0; },{},{}
 // ATK/MATK Potions
@@ -760,7 +760,7 @@
 1537,Quadrille_C,Refined Quadrille,4,,0,0,193,,1,0,0x00008110,7,2,2,4,1,0,8,{ bonus2 bAddRace,RC_Undead,10; bonus2 bAddRace,RC_DemiHuman,10; bonus2 bAddEle,Ele_Earth,10; },{},{}
 1538,Spike_,Spike,4,,10,700,85,,1,2,0x00008110,7,2,2,4,40,1,8,{ bonus bCritical,40; bonus bDefRate,-67; bonus bDef2Rate,-67; },{},{}
 1539,Golden_Mace_,Golden Mace,4,,10,800,110,,1,2,0x00008110,7,2,2,4,40,1,8,{ bonus2 bAddRace,RC_Undead,10; bonus bUnbreakableWeapon,0; },{},{}
-1540,Grand_Cross_,Grand Cross,4,,10,1500,140,,1,1,0x00008110,7,2,2,4,40,1,8,{ bonus bAtkEle,Ele_Holy; bonus3 bAutoSpell,77,3,100; bonus2 bSPDrainValueRace,RC_Undead,1; bonus2 bSPGainRace,RC_Undead,3; },{},{}
+1540,Grand_Cross_,Grand Cross,4,,10,1500,140,,1,1,0x00008110,7,2,2,4,40,1,8,{ bonus bAtkEle,Ele_Holy; bonus3 bAutoSpell,77,3,300; bonus2 bSkillDelay,77,0; bonus2 bSPDrainValueRace,RC_Undead,1; bonus2 bSPGainRace,RC_Undead,3; },{},{}
 1541,Nemesis,Nemesis,4,,,900,120,,1,3,0x00008110,7,2,2,4,60,1,8,{ bonus3 bAutoSpell,32,1+getrefine(),100; bonusautoscript "{ sc_start SC_INCBASEATK,20000,50; }",10; },{},{}
 // Books
 1550,Book,Book,4,30000,,600,85,,1,3,0x00410100,7,2,2,2,14,1,15,{},{},{}

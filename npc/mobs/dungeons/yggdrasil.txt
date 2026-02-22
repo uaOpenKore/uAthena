@@ -1,19 +1,3 @@
-//===== eAthena Script =======================================
-//= Yggdrasil Tree Monster Spawn Script
-//===== By: ==================================================
-//= Athena (1.0)
-//===== Current Version: =====================================
-//= 1.1
-//===== Compatible With: =====================================
-//= Any Athena Version
-//===== Additional Comments: =================================
-//= 1.0 Splitted from Nifflheim fields [DracoRPG]
-//= 1.1 Official kRO 10.1 spawns [Playtester]
-//============================================================
-
-//==================================================
-// yggdrasil01 - Hvergelmir's Fountain (Trunk of Yggdrasil)
-//==================================================
 yggdrasil01,234,256,10,10	monster	Blue Plant	1079,5,1800000,600000,0
 yggdrasil01,273,234,3,3	monster	Shining Plant	1083,1,1800000,600000,0
 yggdrasil01,143,257,20,10	monster	Shining Plant	1083,5,1200000,600000,0

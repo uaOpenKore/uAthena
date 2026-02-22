@@ -5,8 +5,12 @@ glast_01.gat,202,82,4	script	Kafra Employee	115, {
     mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
     next;
 
-    switch(select("Teleport to Prontera:Open Storage:Cancel")) {
+    switch(select("Save:Teleport to Prontera:Open Storage:Cancel")) {
         case 1:
+	savepoint "glast_01",200,77;
+	callfunc "F_KafEnd",0,1;
+
+        case 2:
             if (Zeny < 2000) {
                 mes "[Kafra]";
                 mes "I'm sorry, but you don't have enough Zeny.";
@@ -17,12 +21,12 @@ glast_01.gat,202,82,4	script	Kafra Employee	115, {
             warp "prontera",116,72;
             end;
 
-        case 2:
+        case 3:
             close2;
             openstorage;
             end;
 
-        case 3:
+        case 4:
             mes "[Kafra]";
             mes "Have a safe journey!";
             close;

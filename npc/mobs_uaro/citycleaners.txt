@@ -1,38 +1,22 @@
-//===== eAthena Script =======================================
-//= Mob Spawn in cities
-//===== By: ==================================================
-//= massdriller
-//===== Current Version: =====================================
-//= 0.1b
-//===== Compatible With: =====================================
-//= Any Athena Version
-//===== Description: =========================================
-//= Spawns monsters to clean up city. Apparently spawning
-//= occured in iRO and kRO. Enable this if you want. 
-//= 0.1a Added a few more towns to spawn Wild rose [MasterOfMuppets]
-//= 0.1b And even more from Poki#3 [Komurka]
-//============================================================
-
-prontera.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-geffen.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-izlude.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-payon.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-alberta.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-morocc.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-comodo.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-yuno.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-aldebaran.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-umbala.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-amatsu.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-gonryun.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-louyang.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-ayothaya.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-einbroch.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-einbech.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-lighthalzen.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
-xmas.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0 
-hugel.gat,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0 
-
-prontera.gat,106,237,0,0	monster	u2o	1107,1,1,3600000,0
-prontera.gat,205,250,0,0	monster	virus	1050,1,1,3600000,0
-prontera.gat,235,56,0,0	monster	openkore	1113,1,1,3600000,0 
+prontera,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+geffen,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+izlude,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+payon,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+alberta,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+morocc,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+comodo,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+yuno,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+aldebaran,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+umbala,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+amatsu,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+gonryun,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+louyang,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+ayothaya,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+einbroch,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+einbech,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+lighthalzen,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0
+xmas,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0 
+hugel,0,0,0,0	monster	Wild Rose	1261,1,1,3600000,0 
+prontera,106,237,0,0	monster	u2o	1107,1,1,3600000,0
+prontera,205,250,0,0	monster	virus	1050,1,1,3600000,0
+prontera,235,56,0,0	monster	openkore	1113,1,1,3600000,0 
