@@ -77,16 +77,16 @@ tha_t06,62,63,55,55	monster	Ancient Mimic	1699,10,0,0,0
 tha_t06,62,63,55,55	monster	Owl Baron	1295,10,300000,120000,0
 tha_t06,62,63,55,55	monster	Owl Duke	1320,10,300000,120000,0
 tha_t06,0,0,0,0	monster	Maero of Thanatos	1706,2,1800000,1200000,0
-tha_t07,70,105,40,75	monster	Death Word	1698,10,300000,120000,0
-tha_t07,70,105,40,75	monster	Ancient Mimic	1699,10,300000,120000,0
-tha_t07,70,105,40,75	monster	Lady Solace	1703,7,300000,120000,0
+tha_t07,70,105,40,75	monster	Death Word		1698,10,300000,120000,0
+tha_t07,70,105,40,75	monster	Ancient Mimic		1699,10,300000,120000,0
+tha_t07,70,105,40,75	monster	Lady Solace		1703,7,300000,120000,0
 tha_t07,70,105,40,75	monster	Mistress of Shelter	1701,7,300000,120000,0
 tha_t07,70,105,40,75	monster	Baroness of Retribution	1702,15,0,0,0
 tha_t07,70,105,40,75	monster	Dame of Sentinel	1700,7,300000,120000,0
 tha_t07,70,105,40,75	monster	Despero of Thanatos	1705,2,1800000,1200000,0
-tha_t08,70,105,40,80	monster	Death Word	1698,10,300000,120000,0
-tha_t08,70,105,40,80	monster	Ancient Mimic	1699,10,300000,120000,0
-tha_t08,70,105,40,80	monster	Lady Solace	1703,5,0,0,0
+tha_t08,70,105,40,80	monster	Death Word		1698,10,300000,120000,0
+tha_t08,70,105,40,80	monster	Ancient Mimic		1699,10,300000,120000,0
+tha_t08,70,105,40,80	monster	Lady Solace		1703,5,0,0,0
 tha_t08,70,105,40,80	monster	Mistress of Shelter	1701,5,0,0,0
 tha_t08,70,105,40,80	monster	Baroness of Retribution	1702,20,300000,120000,0
 tha_t08,70,105,40,80	monster	Dame of Sentinel	1700,5,0,0,0
@@ -112,9 +112,9 @@ tha_t11,50,51,35,35	monster	Baroness of Retribution	1702,5,420000,0,0
 tha_t11,50,51,35,35	monster	Dame of Sentinel	1700,5,420000,0,0
 tha_t11,50,51,35,35	monster	Despero of Thanatos	1705,1,1800000,1200000,0
 tha_t11,50,51,35,35	monster	Despero of Thanatos	1710,3,1800000,1200000,0
-tha_t12,129,51,35,35	monster	Plasma	1693,5,0,0,0
+tha_t12,129,51,35,35	monster	Plasma			1693,5,0,0,0
 tha_t12,129,51,35,35	monster	Dame of Sentinel	1700,13,600000,0,0
-tha_t12,129,51,35,35	monster	Lady Solace	1703,5,420000,0,0
+tha_t12,129,51,35,35	monster	Lady Solace		1703,5,420000,0,0
 tha_t12,129,51,35,35	monster	Mistress of Shelter	1701,5,420000,0,0
 tha_t12,129,51,35,35	monster	Baroness of Retribution	1702,5,420000,0,0
 tha_t12,129,51,35,35	monster	Odium of Thanatos	1709,4,1800000,1200000,0
