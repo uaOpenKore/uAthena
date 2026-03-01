@@ -3483,6 +3483,7 @@
 13205,Poison_Sphere,Poison Sphere,10,80,,5,50,,,,0x01000000,7,2,32768,,1,,5,{ bonus bAtkEle,Ele_Poison; bonus2 bAddEff,Eff_Poison,500; },{},{}
 13206,Blind_Sphere,Blind Sphere,10,80,,5,50,,,,0x01000000,7,2,32768,,1,,5,{ bonus bAtkEle,Ele_Dark; bonus2 bAddEff,Eff_Blind,500; },{},{}
 13207,Freezing_Sphere,Freezing Sphere,10,80,,5,50,,,,0x01000000,7,2,32768,,1,,5,{ bonus bAtkEle,Ele_Water; },{},{}
+
 // Shurikens & Kunais
 13250,Shuriken,Shuriken,10,4,,5,10,,,,0x02000000,7,2,32768,,1,,6,{},{},{}
 13251,Raincloud_Shuriken,Raincloud Shuriken,10,10,,5,30,,,,0x02000000,7,2,32768,,20,,6,{},{},{}

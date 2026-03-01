@@ -27,10 +27,10 @@ abyss_02,0,0,0,0	monster	Novus		1718,5,0,0,0
 abyss_02,0,0,0,0	monster	Dragon Egg	1721,10,1800000,600000,0
 abyss_03,0,0,0,0	monster	Mimic		1191,10,300000,0,0
 abyss_03,0,0,0,0	monster	Ancient Mimic	1699,10,300000,0,0
-abyss_03,0,0,0,0	monster	Acidus		1713,20,600000,0,0
+abyss_03,0,0,0,0	monster	Acidus		1713,10,600000,0,0
 abyss_03,0,0,0,0	monster	Acidus		1716,10,300000,0,0
-abyss_03,0,0,0,0	monster	Ferus		1714,10,300000,0,0
-abyss_03,0,0,0,0	monster	Ferus		1717,10,300000,0,0
+abyss_03,0,0,0,0	monster	Ferus		1714,15,300000,0,0
+abyss_03,0,0,0,0	monster	Ferus		1717,15,300000,0,0
 abyss_03,0,0,0,0	monster	Dragon Egg	1721,10,1800000,600000,0
-abyss_03,0,0,0,0	monster	Hydrolancer	1720,2,3000000,2400000,0
+abyss_03,0,0,0,0	monster	Hydrolancer	1720,3,3000000,2400000,0
 abyss_03,0,0,0,0	monster	Detardeurus	1719,1,10800000,7200000,0
