@@ -1,0 +1,223 @@
+prontera,164,171,4	script	Mail Service	888,{
+
+    // Примусове очищення масивів при кожному запуску (запобігає Memory Leak / Crash)
+    deletearray @m_id, getarraysize(@m_id);
+    deletearray @s_name$, getarraysize(@s_name$);
+    set @s_id, 0; set @s_zeny, 0; set @s_id1, 0; set @s_am1, 0; set @s_id2, 0; set @s_am2, 0; set @s_id3, 0; set @s_am3, 0;
+
+    set .@L, #gl_lang; // 1 - UA, 0 - EN
+
+    mes "[Mail Service]";
+    if (.@L == 1) mes "Привіт, ^0000FF" + strcharinfo(0) + "^000000!";
+    else mes "Hello, ^0000FF" + strcharinfo(0) + "^000000!";
+    next;
+
+    if (.@L == 1) set .@menu$, "Перевірити скриньку:Надіслати пошту:Вихід";
+    else set .@menu$, "Check Inbox:Send Mail:Exit";
+
+    set .@choice, select(.@menu$);
+    if (.@choice == 3) close;
+
+    // --- ОТРИМАННЯ (INBOX) ---
+    if (.@choice == 1) {
+        set .@my_cid, getcharid(0);
+
+        // Отримуємо список листів
+        query_sql "SELECT id, sender_name FROM `custom_mail` WHERE `dest_id` = "+.@my_cid+" LIMIT 10", @m_id, @s_name$;
+
+        if (getarraysize(@m_id) == 0) { 
+            if (.@L == 1) mes "Ваша скринька порожня.";
+            else mes "Your inbox is empty.";
+            close; 
+        }
+
+        set .@m_str$, "";
+        for(set .@i, 0; .@i < getarraysize(@m_id); set .@i, .@i + 1) {
+            set .@m_str$, .@m_str$ + (@s_name$[.@i] == "" ? "Unknown" : @s_name$[.@i]) + ":";
+        }
+
+        set .@idx, select(.@m_str$) - 1;
+        set .@selected_mail_id, @m_id[.@idx];
+
+        // Завантаження деталей вибраного листа
+        query_sql "SELECT zeny, id1, am1, id2, am2, id3, am3, sender_name FROM `custom_mail` WHERE id = "+.@selected_mail_id, 
+                  @s_zeny, @s_id1, @s_am1, @s_id2, @s_am2, @s_id3, @s_am3, @s_sender$;
+
+        if (.@L == 1) mes "[Лист від " + @s_sender$ + "]";
+        else mes "[Mail from " + @s_sender$ + "]";
+
+        if (@s_zeny > 0) mes " > Zeny: " + @s_zeny;
+        if (@s_id1 > 0) mes " > " + getitemname(@s_id1) + " (" + @s_am1 + ")";
+        if (@s_id2 > 0) mes " > " + getitemname(@s_id2) + " (" + @s_am2 + ")";
+        if (@s_id3 > 0) mes " > " + getitemname(@s_id3) + " (" + @s_am3 + ")";
+        next;
+
+        if (select((.@L == 1 ? "Забрати все:Назад" : "Claim all:Back")) == 2) close;
+
+        // Перевірка ваги
+        if ((@s_id1 > 0 && !checkweight(@s_id1, @s_am1)) || 
+            (@s_id2 > 0 && !checkweight(@s_id2, @s_am2)) || 
+            (@s_id3 > 0 && !checkweight(@s_id3, @s_am3))) {
+
+            if (.@L == 1) mes "Ваш інвентар переповнений або ви занадто важкі!";
+            else mes "Your inventory is full or you are too heavy!";
+            close;
+        }
+
+        set Zeny, Zeny + @s_zeny;
+        if (@s_id1 > 0) getitem @s_id1, @s_am1;
+        if (@s_id2 > 0) getitem @s_id2, @s_am2;
+        if (@s_id3 > 0) getitem @s_id3, @s_am3;
+
+        query_sql "DELETE FROM `custom_mail` WHERE id="+.@selected_mail_id;
+
+        if (.@L == 1) mes "Вміст отримано. Лист видалено.";
+        else mes "Items claimed. Mail deleted.";
+        close;
+    }
+
+    // --- ВІДПРАВКА (SEND) ---
+    if (.@choice == 2) {
+        if (.@L == 1) mes "Кому надіслати? (Вкажіть ім'я персонажа)";
+        else mes "Who is the recipient? (Enter character name)";
+        input .@target_name$;
+
+        query_sql "SELECT char_id FROM `char` WHERE name='"+escape_sql(.@target_name$)+"' LIMIT 1", .@target_cid;
+
+        if (.@target_cid == 0) { 
+            if (.@L == 1) mes "Персонажа з ім'ям ^FF0000" + .@target_name$ + "^000000 не знайдено.";
+            else mes "Character ^FF0000" + .@target_name$ + "^000000 not found.";
+            close; 
+        }
+
+        if (.@L == 1) mes "Скільки Zeny відправити?";
+        else mes "How much Zeny to send?";
+        input .@zeny_send;
+        if (.@zeny_send < 0 || Zeny < .@zeny_send) { 
+            if (.@L == 1) mes "Недостатньо грошей або некоректна сума.";
+            else mes "Not enough Zeny or invalid amount.";
+            close; 
+        }
+
+        set .@sid1, 0; set .@sam1, 0; set .@sid2, 0; set .@sam2, 0; set .@sid3, 0; set .@sam3, 0;
+        deletearray .@picked_ids, 3;
+        set .@c, 1;
+
+        while(.@c <= 3) {
+            mes (.@L == 1 ? "Додати предмет №"+.@c+"?" : "Add item #"+.@c+"?");
+            if (select((.@L == 1 ? "Так, обрати:Ні, досить" : "Yes, pick item:No, that's it")) == 2) break;
+
+            getinventorylist;
+            set .@ms$, ""; set .@found, 0;
+            deletearray .@vids, getarraysize(.@vids);
+
+            for(set .@j, 0; .@j < @inventorylist_count; set .@j, .@j + 1) {
+                set .@it_id, @inventorylist_id[.@j];
+
+                set .@already_picked, 0;
+                for(set .@p, 0; .@p < 3; set .@p, .@p + 1) {
+                    if (.@it_id == .@picked_ids[.@p]) { set .@already_picked, 1; break; }
+                }
+
+                if (.@already_picked == 0 && @inventorylist_equip[.@j] == 0 && (getiteminfo(.@it_id, 6) & 1) == 0) {
+                    set .@ms$, .@ms$ + getitemname(.@it_id) + " [" + @inventorylist_amount[.@j] + "]:";
+                    set .@vids[.@found], .@it_id;
+                    set .@found, .@found + 1;
+                }
+            }
+            if (.@found == 0) {
+                if (.@L == 1) mes "Більше немає доступних предметів.";
+                else mes "No more available items.";
+                break;
+            }
+
+            set .@sel_item, select(.@ms$) - 1;
+            set .@curr_it_id, .@vids[.@sel_item];
+
+            if (.@L == 1) mes "Яку кількість " + getitemname(.@curr_it_id) + " відправити? (Макс: " + countitem(.@curr_it_id) + ")";
+            else mes "How many " + getitemname(.@curr_it_id) + " to send? (Max: " + countitem(.@curr_it_id) + ")";
+            input .@it_amt;
+            if (.@it_amt <= 0 || .@it_amt > countitem(.@curr_it_id)) { 
+                if (.@L == 1) mes "Некоректна кількість."; else mes "Invalid amount.";
+                close; 
+            }
+
+            set .@picked_ids[.@c-1], .@curr_it_id;
+            if (.@c == 1) { set .@sid1, .@curr_it_id; set .@sam1, .@it_amt; }
+            if (.@c == 2) { set .@sid2, .@curr_it_id; set .@sam2, .@it_amt; }
+            if (.@c == 3) { set .@sid3, .@curr_it_id; set .@sam3, .@it_amt; }
+            set .@c, .@c + 1;
+        }
+
+        next;
+        if (.@L == 1) mes "Надіслати листа для ^0000FF" + .@target_name$ + "^000000?";
+        else mes "Send mail to ^0000FF" + .@target_name$ + "^000000?";
+
+        if (select((.@L == 1 ? "Так, відправити:Скасувати" : "Yes, send:Cancel")) == 2) close;
+
+        if (Zeny < .@zeny_send || countitem(.@sid1) < .@sam1 || countitem(.@sid2) < .@sam2 || countitem(.@sid3) < .@sam3) {
+            if (.@L == 1) mes "Помилка: Недостатньо ресурсів."; else mes "Error: Not enough resources.";
+            close;
+        }
+
+        set Zeny, Zeny - .@zeny_send;
+        if (.@sid1 > 0) delitem .@sid1, .@sam1;
+        if (.@sid2 > 0) delitem .@sid2, .@sam2;
+        if (.@sid3 > 0) delitem .@sid3, .@sam3;
+
+        query_sql "INSERT INTO `custom_mail` (sender_name, dest_id, zeny, id1, am1, id2, am2, id3, am3) VALUES ('"+escape_sql(strcharinfo(0))+"', "+.@target_cid+", "+.@zeny_send+", "+.@sid1+", "+.@sam1+", "+.@sid2+", "+.@sam2+", "+.@sid3+", "+.@sam3+")";
+
+        if (.@L == 1) mes "Посилка успішно відправлена!";
+        else mes "Mail sent successfully!";
+        close;
+    }
+}
+
+-	script	MailNotify	-1,{
+OnPCLoginEvent:
+	query_sql "SELECT COUNT(*) FROM `custom_mail` WHERE dest_id="+getcharid(0), .@mail_count;
+	if (.@mail_count > 0) {
+		sleep2 3000;
+        set .@L, #gl_lang;
+		soundeffect "quest_alert.wav", 0; 
+        if (.@L == 1) dispbottom "Пошта: У вас є " + .@mail_count + " нових повідомлень!";
+		else dispbottom "Mail: You have " + .@mail_count + " new messages!";
+		emotion 21; 
+	}
+	end;
+}
+
+
+
+prontera,146,88,4	duplicate(Mail Service)		Mail Service#		888
+prontera,218,198,4	duplicate(Mail Service)		Mail Service#		888
+alberta,104,60,4	duplicate(Mail Service)		Mail Service#		888
+alberta,38,241,4	duplicate(Mail Service)		Mail Service#		888
+izlude,136,92,4		duplicate(Mail Service)		Mail Service#		888
+payon,185,104,4		duplicate(Mail Service)		Mail Service#		888
+morocc,165,48,4		duplicate(Mail Service)		Mail Service#		888
+morocc,149,84,4		duplicate(Mail Service)		Mail Service#		888
+comodo,196,148,4	duplicate(Mail Service)		Mail Service#		888
+umbala,133,154,4	duplicate(Mail Service)		Mail Service#		888
+aldebaran,149,103,4	duplicate(Mail Service)		Mail Service#		888
+yuno,169,189,4		duplicate(Mail Service)		Mail Service#		888
+yuno,331,108,4		duplicate(Mail Service)		Mail Service#		888
+mjolnir_02,75,358,4	duplicate(Mail Service)		Mail Service#		888
+niflheim,212,183,4	duplicate(Mail Service)		Mail Service#		888
+rachel,124,120,4	duplicate(Mail Service)		Mail Service#		888
+lighthalzen,152,110,4	duplicate(Mail Service)		Mail Service#		888
+lighthalzen,202,168,4	duplicate(Mail Service)		Mail Service#		888
+lighthalzen,197,318,4	duplicate(Mail Service)		Mail Service#		888
+hugel,139,151,4		duplicate(Mail Service)		Mail Service#		888
+hugel,89,150,4		duplicate(Mail Service)		Mail Service#		888
+einbroch,227,215,4	duplicate(Mail Service)		Mail Service#		888
+einbroch,56,208,4	duplicate(Mail Service)		Mail Service#		888
+einbech,181,127,4	duplicate(Mail Service)		Mail Service#		888
+amatsu,127,149,4	duplicate(Mail Service)		Mail Service#		888
+amatsu,187,123,4	duplicate(Mail Service)		Mail Service#		888
+gonryun,151,112,4	duplicate(Mail Service)		Mail Service#		888
+gon_fild01,257,100,4	duplicate(Mail Service)		Mail Service#		888
+louyang,206,96,4	duplicate(Mail Service)		Mail Service#		888
+ayothaya,189,171,4	duplicate(Mail Service)		Mail Service#		888
+glast_01,195,87,4	duplicate(Mail Service)		Mail Service#		888
+pay_arche,58,127,4	duplicate(Mail Service)		Mail Service#		888
