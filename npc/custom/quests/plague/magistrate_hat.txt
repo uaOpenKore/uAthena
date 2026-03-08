@@ -1,111 +1,196 @@
 // ==========================================
-// Квест: Сім кіл небесного суду (Magistrate Hat)
-// Нагорода: ID 5173
+// Quest: Seven Circles of Celestial Court
+// Reward: Magistrate Hat (5173)
 // ==========================================
 
-louyang,128,150,1	script	Плачуща Вдова	771,{
+louyang,128,150,1	script	Weeping Widow	771,{
+    if (#gl_lang == 1) set $@n$, "Плачуща Вдова"; else set $@n$, "Weeping Widow";
+    
+    mes "[" + $@n$ + "]";
     if (M_Quest == 5) {
-        mes "[Вдова]";
-        mes "Дякую вам, шляхетний воїне. Тепер честь моєї родини відновлено.";
+        if (#gl_lang == 1) mes "Дякую вам, шляхетний воїне. Тепер честь моєї родини відновлено.";
+        else mes "Thank you, noble warrior. My family's honor has been restored.";
         close;
     }
     if (M_Quest > 0) {
-        mes "[Вдова]";
-        mes "Будь ласка, поспішайте, доки пам'ять про мого чоловіка не згасла остаточно.";
+        if (#gl_lang == 1) mes "Будь ласка, поспішайте, доки пам'ять про мого чоловіка не згасла остаточно.";
+        else mes "Please hurry, before the memory of my husband fades away forever.";
         close;
     }
-    mes "[Вдова]";
-    mes "О леле... Мого чоловіка несправедливо звинуватили у крадіжці! Він помер від сорому...";
-    next;
-    mes "[Вдова]";
-    mes "Тільки стародавній ^FF0000Капелюх Магістрата^000000 може відкрити правду, але його давно викрали демони.";
-    next;
-    mes "[Вдова]";
-    mes "Благаю, зверніться до Архіваріуса в палаці, він знає, куди зникла реліквія!";
+    if (#gl_lang == 1) {
+        mes "О леле... Мого чоловіка несправедливо звинуватили у крадіжці! Він помер від сорому...";
+        next;
+        mes "[" + $@n$ + "]";
+        mes "Тільки стародавній ^FF0000Капелюх Магістрата^000000 може відкрити правду, але його давно викрали демони.";
+        next;
+        mes "[" + $@n$ + "]";
+        mes "Благаю, зверніться до Архіваріуса в палаці, він знає, куди зникла реліквія!";
+    } else {
+        mes "Oh dear... My husband was falsely accused of theft! He died of shame...";
+        next;
+        mes "[" + $@n$ + "]";
+        mes "Only the ancient ^FF0000Magistrate Hat^000000 can reveal the truth, but it was stolen by demons long ago.";
+        next;
+        mes "[" + $@n$ + "]";
+        mes "I beg you, speak to the Archivist in the palace, he knows where the relic disappeared!";
+    }
     set M_Quest, 1;
     close;
 }
 
-lou_in01,118,126,5	script	Архіваріус Чжоу	828,{
-    if (M_Quest < 1) { mes "[Чжоу]"; mes "Я дуже зайнятий реєстрацією сувоїв."; close; }
+lou_in01,118,126,5	script	Archivist Zhou	828,{
+    if (#gl_lang == 1) set $@n$, "Архіваріус Чжоу"; else set $@n$, "Archivist Zhou";
+
+    mes "[" + $@n$ + "]";
+    if (M_Quest < 1) { 
+        if (#gl_lang == 1) mes "Я дуже зайнятий реєстрацією сувоїв."; 
+        else mes "I am very busy registering the scrolls.";
+        close; 
+    }
     if (M_Quest == 1) {
-        mes "[Чжоу]";
-        mes "Так, я читав про це. Капелюх не вкрав смертний. Його забрали духи за те, що люди стали брехливими.";
-        next;
-        mes "[Чжоу]";
-        mes "Знайдіть Сліпого Ченця на полях Лоянга. Він відчуває вібрації потойбічного світу.";
+        if (#gl_lang == 1) {
+            mes "Так, я читав про це. Капелюх не вкрав смертний. Його забрали духи за те, що люди стали брехливими.";
+            next;
+            mes "[" + $@n$ + "]";
+            mes "Знайдіть Сліпого Ченця на полях Лоянга. Він відчуває вібрації потойбічного світу.";
+        } else {
+            mes "Yes, I've read about this. The hat wasn't stolen by a mortal. It was taken by spirits because people became deceitful.";
+            next;
+            mes "[" + $@n$ + "]";
+            mes "Find the Blind Monk in the fields of Louyang. He can feel the vibrations of the spirit world.";
+        }
         set M_Quest, 2;
         close;
     }
-    mes "[Чжоу]";
-    mes "Шукайте Ченця, він десь біля води на околицях міста.";
+    if (#gl_lang == 1) mes "Шукайте Ченця, він десь біля води на околицях міста.";
+    else mes "Look for the Monk, he is somewhere near the water on the outskirts of the city.";
     close;
 }
 
-lou_fild01,173,247,4	script	Сліпий Чернець	897,{
-    if (M_Quest < 2) { mes "[Чернець]"; mes "Я чую тільки шепіт вітру..."; close; }
+lou_fild01,173,247,4	script	Blind Monk	897,{
+    if (#gl_lang == 1) set $@n$, "Сліпий Чернець"; else set $@n$, "Blind Monk";
+
+    mes "[" + $@n$ + "]";
+    if (M_Quest < 2) { 
+        if (#gl_lang == 1) mes "Я чую тільки шепіт вітру..."; 
+        else mes "I hear only the whisper of the wind...";
+        close; 
+    }
     if (M_Quest == 2) {
-        mes "[Чернець]";
-        mes "М-м-м... Я відчуваю енергію Капелюха. Вона розірвана на шматки демонами Хегунами.";
-        next;
-        mes "[Чернець]";
-        mes "Щоб зшити їх, потрібна небесна нитка. Вирушайте в ^0000FFГонрюн^000000 до Духа Озера.";
+        if (#gl_lang == 1) {
+            mes "М-м-м... Я відчуваю енергію Капелюха. Вона розірвана на шматки демонами Хегунами.";
+            next;
+            mes "[" + $@n$ + "]";
+            mes "Щоб зшити їх, потрібна небесна нитка. Вирушайте в ^0000FFГонрюн^000000 до Духа Озера.";
+        } else {
+            mes "Mmm... I feel the energy of the Hat. It has been torn to pieces by Hyegun demons.";
+            next;
+            mes "[" + $@n$ + "]";
+            mes "To sew them together, a celestial thread is needed. Go to ^0000FFGonryun^000000 to the Lake Spirit.";
+        }
         set M_Quest, 3;
         close;
     }
-    mes "[Чернець]";
-    mes "Шлях до правди лежить через небесні гори Гонрюна.";
+    if (#gl_lang == 1) mes "Шлях до правди лежить через небесні гори Гонрюна.";
+    else mes "The path to truth lies through the celestial mountains of Gonryun.";
     close;
 }
 
-gon_fild01,221,224,3	script	Дух Озера	802,{
-    if (M_Quest < 3) { mes "[Дух Озера]"; mes "Вода спокійна сьогодні..."; close; }
+gon_fild01,221,224,3	script	Lake Spirit	802,{
+    if (#gl_lang == 1) set $@n$, "Дух Озера"; else set $@n$, "Lake Spirit";
+
+    mes "[" + $@n$ + "]";
+    if (M_Quest < 3) { 
+        if (#gl_lang == 1) mes "Вода спокійна сьогодні..."; 
+        else mes "The water is calm today...";
+        close; 
+    }
     if (M_Quest == 3) {
-        mes "[Дух Озера]";
-        mes "Ти шукаєш небесну нитку для земного правосуддя? Добре.";
-        next;
-        mes "[Дух Озера]";
-        mes "Я дам її тобі, але капелюху потрібна форма. Знайдіть Майстра Теня в підземеллі Лоянга, він вміє кувати дух.";
+        if (#gl_lang == 1) {
+            mes "Ти шукаєш небесну нитку для земного правосуддя? Добре.";
+            next;
+            mes "[" + $@n$ + "]";
+            mes "Я дам її тобі, але капелюху потрібна форма. Знайдіть Майстра Теня в підземеллі Лоянга, він вміє кувати дух.";
+        } else {
+            mes "Are you seeking the celestial thread for earthly justice? Fine.";
+            next;
+            mes "[" + $@n$ + "]";
+            mes "I will give it to you, but the hat needs a form. Find Master Ten in the Louyang dungeon, he knows how to forge the spirit.";
+        }
         set M_Quest, 4;
         close;
     }
-    mes "[Дух Озера]";
-    mes "Віднеси нитку Майстру Теню.";
+    if (#gl_lang == 1) mes "Віднеси нитку Майстру Теню.";
+    else mes "Take the thread to Master Ten.";
     close;
 }
 
-lou_dun03,150,138,5	script	Майстер Тень	768,{
-    if (M_Quest < 4) { mes "[Майстер Тень]"; mes "Іди звідси, тут небезпечно!"; close; }
+lou_dun03,150,138,5	script	Master Ten	768,{
+    if (#gl_lang == 1) set $@n$, "Майстер Тень"; else set $@n$, "Master Ten";
+
+    mes "[" + $@n$ + "]";
+    if (M_Quest < 4) { 
+        if (#gl_lang == 1) mes "Іди звідси, тут небезпечно!"; 
+        else mes "Go away, it's dangerous here!";
+        close; 
+    }
     if (M_Quest == 4) {
-        mes "[Майстер Тень]";
-        mes "Я зшию цей капелюх, але мені потрібні матеріали, що мають силу китайських духів.";
-        next;
-        mes "[Майстер Тень]";
-        mes "Принеси мені:";
-        mes "- ^FF0000500 Fabric^000000 (Тканина з Yao Jun)";
-        mes "- ^FF0000100 Little Evil Horn^000000 (Ріг з Yao Jun)";
-        mes "- ^FF000025 Log^000000 (Дерево з Stone Shooter)";
+        if (#gl_lang == 1) {
+            mes "Я зшию цей капелюх, але мені потрібні матеріали, що мають силу китайських духів.";
+            next;
+            mes "[" + $@n$ + "]";
+            mes "Принеси мені:";
+            mes "- ^FF0000500 Fabric^000000 (Тканина)";
+            mes "- ^FF0000100 Little Evil Horn^000000 (Ріг)";
+            mes "- ^FF000025 Log^000000 (Дерево)";
+        } else {
+            mes "I will sew this hat, but I need materials that carry the power of Chinese spirits.";
+            next;
+            mes "[" + $@n$ + "]";
+            mes "Bring me:";
+            mes "- ^FF0000500 Fabric^000000";
+            mes "- ^FF0000100 Little Evil Horn^000000";
+            mes "- ^FF000025 Log^000000";
+        }
         next;
         if (countitem(1059) >= 500 && countitem(1038) >= 100 && countitem(7201) >= 25) {
-            mes "[Майстер Тень]";
-            mes "Чудово! Ти довів свою відданість справедливості. Зачекай хвилину...";
-            next;
-            delitem 1059, 500; // Fabric
-            delitem 1038, 100; // Little Evil Horn
-            delitem 7201, 25; // Log
-            getitem 5173, 1;  // Magistrate Hat
-            set M_Quest, 5;
-            mes "[Майстер Тень]";
-            mes "Тримай. Це Капелюх Магістрата. Нехай він судить справедливо.";
-            announce "Ви виконали квест і отримали Шапку Магістрата!", bc_self;
+            if (checkweight(5173,1) == 0) {
+                if (#gl_lang == 1) mes "Ти несеш забагато речей. Звільни місце!";
+                else mes "You are carrying too much. Make some room in your inventory!";
+                close;
+            }
+            mes "[" + $@n$ + "]";
+            if (#gl_lang == 1) {
+                mes "Чудово! Ти довів свою відданість справедливості. Зачекай хвилину...";
+                next;
+                delitem 1059, 500;
+                delitem 1038, 100;
+                delitem 7201, 25;
+                getitem 5173, 1;
+                set M_Quest, 5;
+                mes "[" + $@n$ + "]";
+                mes "Тримай. Це Капелюх Магістрата. Нехай він судить справедливо.";
+                announce "Ви виконали квест і отримали Шапку Магістрата!", 16;
+            } else {
+                mes "Excellent! You have proven your devotion to justice. Wait a moment...";
+                next;
+                delitem 1059, 500;
+                delitem 1038, 100;
+                delitem 7201, 25;
+                getitem 5173, 1;
+                set M_Quest, 5;
+                mes "[" + $@n$ + "]";
+                mes "Here. This is the Magistrate Hat. Let it judge fairly.";
+                announce "You have completed the quest and received a Magistrate Hat!", 16;
+            }
             close;
         } else {
-            mes "[Майстер Тень]";
-            mes "У тебе недостатньо матеріалів. Повертайся, коли збереш усе.";
+            if (#gl_lang == 1) mes "У тебе недостатньо матеріалів. Повертайся, коли збереш усе.";
+            else mes "You don't have enough materials. Come back when you have everything.";
             close;
         }
     }
-    mes "[Майстер Тень]";
-    mes "Носи цей капелюх з честю.";
+    if (#gl_lang == 1) mes "Носи цей капелюх з честю.";
+    else mes "Wear this hat with honor.";
     close;
 }
