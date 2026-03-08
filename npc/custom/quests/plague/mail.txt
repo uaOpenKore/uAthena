@@ -1,8 +1,9 @@
 prontera,164,171,4	script	Mail Service	888,{
 
-	// Налаштування
+	// --- Налаштування ---
 	set @MAX_WEIGHT, 20000; 
 	set @ITEMS_PER_PAGE, 10; 
+	set @MAX_MAILS, 100;
 
 	mes "[Mail Service]";
 	if (#gl_lang == 1) {
@@ -35,9 +36,9 @@ L_Send:
 	input @sz;
 	if (@sz > zeny) set @sz, zeny;
 
-	setarray @id,0,0,0; setarray @am,0,0,0; setarray @rf,0,0,0;
-	setarray @c1,0,0,0; setarray @c2,0,0,0; setarray @c3,0,0,0; setarray @c4,0,0,0;
-	setarray @u, -1,-1,-1;
+	setarray @id[0],0,0,0; setarray @am[0],0,0,0; setarray @rf[0],0,0,0;
+	setarray @c1[0],0,0,0; setarray @c2[0],0,0,0; setarray @c3[0],0,0,0; setarray @c4[0],0,0,0;
+	setarray @u[0], -1,-1,-1;
 	set @i, 0; set @total_w, 0;
 
 L_AskNext:
@@ -66,13 +67,15 @@ L_ShowPage:
 	mes (#gl_lang == 1 ? "[Інвентар - Стор. " : "[Inventory - Page ") + (@page + 1) + "]";
 	set @start, @page * @ITEMS_PER_PAGE;
 	set @m$, "";
-	setarray @p_idx, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1;
+	setarray @p_idx[0], -1,-1,-1,-1,-1,-1,-1,-1,-1,-1;
 	
 	set @p_count, 0;
 	for(set @j, @start; @j < @inventorylist_count && @p_count < @ITEMS_PER_PAGE; set @j, @j + 1) {
 		if (@inventorylist_equip[@j] == 0 && @j != @u[0] && @j != @u[1] && @j != @u[2]) {
 			set @n$, getitemname(@inventorylist_id[@j]);
 			if(@inventorylist_refine[@j] > 0) set @n$, @n$ + " +" + @inventorylist_refine[@j];
+			if(@inventorylist_card1[@j] > 0) set @n$, @n$ + " [C]";
+			
 			set @m$, @m$ + @n$ + ":";
 			set @p_idx[@p_count], @j;
 			set @p_count, @p_count + 1;
@@ -81,11 +84,11 @@ L_ShowPage:
 
 	set @next_btn, 0; set @back_btn, 0;
 	if (@start + @ITEMS_PER_PAGE < @inventorylist_count) { 
-		set @m$, @m$ + (#gl_lang == 1 ? "-> Наступна сторінка:" : "-> Next Page:"); 
+		set @m$, @m$ + (#gl_lang == 1 ? "-> Далі:" : "-> Next Page:"); 
 		set @next_btn, 1; 
 	}
 	if (@page > 0) { 
-		set @m$, @m$ + (#gl_lang == 1 ? "<- Попередня сторінка:" : "<- Previous Page:"); 
+		set @m$, @m$ + (#gl_lang == 1 ? "<- Назад:" : "<- Back:"); 
 		set @back_btn, 1; 
 	}
 	set @m$, @m$ + (#gl_lang == 1 ? "== Скасувати ==" : "== Cancel ==");
@@ -99,20 +102,17 @@ L_ShowPage:
 	set @f, @p_idx[@sel];
 	if (@f == -1) goto L_ShowPage;
 
-	// Перевірка Non-Trade
 	if (getiteminfo(@inventorylist_id[@f], 11) & 1) { 
 		next; mes "^FF0000" + (#gl_lang == 1 ? "Неможливо передати!" : "Non-tradeable!") + "^000000"; goto L_ShowPage; 
 	}
 
-	// Обрахунок ваги
 	set @this_id, @inventorylist_id[@f];
-	set @weight_raw, getiteminfo(@this_id, 6);
+	set @weight_raw, getiteminfo(@this_id, 6); 
 	if (@weight_raw <= 0) set @weight_raw, getiteminfo(@this_id, 5);
 	if (@weight_raw <= 0) set @weight_raw, 1;
 
-	// --- ЛОГІКА КІЛЬКОСТІ ---
 	if (@inventorylist_amount[@f] > 1) {
-		mes (#gl_lang == 1 ? "Кількість (макс " : "Amount (max ") + @inventorylist_amount[@f] + ")?";
+		mes (#gl_lang == 1 ? "Кількість?" : "Amount?");
 		input @qty;
 		if (@qty < 1) set @qty, 1;
 		if (@qty > @inventorylist_amount[@f]) set @qty, @inventorylist_amount[@f];
@@ -122,7 +122,7 @@ L_ShowPage:
 
 	set @this_stack_w, @weight_raw * @qty;
 	if (@total_w + @this_stack_w > @MAX_WEIGHT) {
-		next; mes "^FF0000" + (#gl_lang == 1 ? "Заважкий стек!" : "Too heavy!") + "^000000"; goto L_ShowPage;
+		next; mes "^FF0000" + (#gl_lang == 1 ? "Заважко!" : "Too heavy!") + "^000000"; goto L_ShowPage;
 	}
 
 	set @u[@i], @f;
@@ -140,19 +140,10 @@ L_FinalConf:
 	next;
 	set @w_int, @total_w / 10; set @w_dec, @total_w % 10;
 	mes (#gl_lang == 1 ? "[Підтвердження]" : "[Confirmation]");
-	mes (#gl_lang == 1 ? "Отримувач: " : "Recipient: ") + "^FF0000" + @target$ + "^000000";
-	mes (#gl_lang == 1 ? "Сума: " : "Amount: ") + "^0000FF" + @sz + " Zeny^000000";
+	mes (#gl_lang == 1 ? "Кому: " : "To: ") + "^FF0000" + @target$ + "^000000";
 	mes (#gl_lang == 1 ? "Вага: " : "Weight: ") + "^0000FF" + @w_int + "." + @w_dec + "^000000 / 2000.0";
-	
-	for(set @k, 0; @k < 3; set @k, @k + 1) {
-		if(@id[@k]) {
-			set @fn$, getitemname(@id[@k]);
-			if(@rf[@k] > 0) set @fn$, @fn$ + " +" + @rf[@k];
-			mes (#gl_lang == 1 ? "Предмет " : "Item ") + (@k+1) + ": " + @fn$ + " x" + @am[@k];
-		}
-	}
 	next;
-	if (select(#gl_lang == 1 ? "Відправити листа:Скасувати все" : "Send Letter:Cancel all") == 2) close;
+	if (select(#gl_lang == 1 ? "Відправити:Скасувати" : "Send:Cancel") == 2) close;
 
 	query_sql "INSERT INTO custom_mail (sn, dn, z) VALUES ('"+strcharinfo(0)+"','"+@target$+"',"+@sz+")";
 	query_sql "SELECT LAST_INSERT_ID()", @mid;
@@ -168,10 +159,10 @@ L_FinalConf:
 	mes (#gl_lang == 1 ? "Надіслано!" : "Sent!"); close;
 
 L_Read:
-	setarray @mids, 0,0,0,0,0;
+	setarray @mids[0], 0,0,0,0,0;
 	query_sql "SELECT id, sn FROM custom_mail WHERE dn='"+strcharinfo(0)+"' LIMIT 5", @mids, @fs$;
-	if (@mids == 0) { 
-		mes (#gl_lang == 1 ? "Скринька порожня." : "Mailbox is empty."); close; 
+	if (@mids[0] == 0) { 
+		mes (#gl_lang == 1 ? "Порожньо." : "Empty."); close; 
 	}
 	set @m$, "";
 	for(set @k, 0; @k < 5; set @k, @k + 1) {
@@ -187,11 +178,10 @@ L_Read:
 	
 	query_sql "SELECT z, i1, a1, r1, c1_1, c1_2, c1_3, c1_4, i2, a2, r2, c2_1, c2_2, c2_3, c2_4, i3, a3, r3, c3_1, c3_2, c3_3, c3_4 FROM custom_mail WHERE id="+@cid, @rz,@ri1,@ra1,@rr1,@rc11,@rc12,@rc13,@rc14,@ri2,@ra2,@rr2,@rc21,@rc22,@rc23,@rc24,@ri3,@ra3,@rr3,@rc31,@rc32,@rc33,@rc34;
 	
-	mes (#gl_lang == 1 ? "[Лист від " : "[Letter from ") + @fs$[@ix] + "]";
-	mes "Zeny: ^0000FF" + @rz + "^000000";
-	if (@ri1) mes "1. " + getitemname(@ri1) + (@rr1 > 0 ? " +"+@rr1 : "") + " x" + @ra1;
-	if (@ri2) mes "2. " + getitemname(@ri2) + (@rr2 > 0 ? " +"+@rr2 : "") + " x" + @ra2;
-	if (@ri3) mes "3. " + getitemname(@ri3) + (@rr3 > 0 ? " +"+@rr3 : "") + " x" + @ra3;
+	mes (#gl_lang == 1 ? "[Лист]" : "[Mail]");
+	if (@ri1) mes "1. " + getitemname(@ri1) + " x" + @ra1;
+	if (@ri2) mes "2. " + getitemname(@ri2) + " x" + @ra2;
+	if (@ri3) mes "3. " + getitemname(@ri3) + " x" + @ra3;
 	next;
 	if (select(#gl_lang == 1 ? "Забрати:Назад" : "Take:Back") == 2) goto L_Read;
 	
@@ -203,7 +193,6 @@ L_Read:
 	query_sql "DELETE FROM custom_mail WHERE id="+@cid;
 	mes (#gl_lang == 1 ? "Забрано!" : "Received!"); close;
 }
-
 
 
 prontera,146,88,4	duplicate(Mail Service)		Mail Service#		888
