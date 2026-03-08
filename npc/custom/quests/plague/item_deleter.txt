@@ -1,0 +1,80 @@
+prontera,171,225,4	script	Recycler	952,{
+
+    set .@m$,(#gl_lang == 1) ? "Утилізатор" : "Recycler";
+
+    mes "["+.@m$+"]";
+    if (#gl_lang == 1) {
+        mes "Вітаю. Я можу знищити будь-яку річ з твого інвентарю.";
+        mes "Я ^FF0000не бачу^000000 речі, які ти зараз носиш.";
+    } else {
+        mes "Greetings. I can destroy any item from your inventory.";
+        mes "I ^FF0000cannot see^000000 items that you are currently wearing.";
+    }
+    next;
+
+    if (select((#gl_lang==1?"Показати інвентар":"Show inventory")+":"+(#gl_lang==1?"Вихід":"Exit")) == 2) close;
+
+L_ShowMenu:
+    getinventorylist;
+    set .@count_f, 0;
+    set .@menu_str$, "";
+
+    for (set .@i, 0; .@i < @inventorylist_count; set .@i, .@i + 1) {
+        if (@inventorylist_equip[.@i] == 0) {
+            set .@f_ids[.@count_f], @inventorylist_id[.@i];
+            set .@f_amts[.@count_f], @inventorylist_amount[.@i];
+            set .@count_f, .@count_f + 1;
+        }
+    }
+
+    if (.@count_f == 0) {
+        mes "["+.@m$+"]";
+        mes (#gl_lang == 1 ? "Твій інвентар порожній." : "Your inventory is empty.");
+        close;
+    }
+
+    set .@st, .@page * 10;
+    for (set .@i, .@st; .@i < .@st + 10 && .@i < .@count_f; set .@i, .@i + 1) {
+        set .@menu_str$, .@menu_str$ + getitemname(.@f_ids[.@i]) + " [" + .@f_amts[.@i] + "]:";
+    }
+    
+    if (.@count_f > .@st + 10) set .@menu_str$, .@menu_str$ + (#gl_lang == 1 ? "Далі..." : "Next...") + ":";
+    set .@menu_str$, .@menu_str$ + (#gl_lang == 1 ? "Назад/Вихід" : "Back/Exit");
+
+    set .@sel, select(.@menu_str$) - 1;
+
+    // Кнопка "Далі"
+    if (.@sel == 10 || (.@sel == (.@count_f - .@st) && .@count_f > .@st + 10)) {
+        set .@page, .@page + 1;
+        goto L_ShowMenu;
+    }
+    // Кнопка "Назад"
+    if (.@sel == (.@count_f > .@st + 10 ? 11 : (.@count_f - .@st))) {
+        if (.@page > 0) { set .@page, .@page - 1; goto L_ShowMenu; }
+        close;
+    }
+
+    set .@f_idx, .@st + .@sel;
+    set .@t_id, .@f_ids[.@f_idx];
+    set .@t_amt, .@f_amts[.@f_idx];
+
+    mes "["+.@m$+"]";
+    if (#gl_lang == 1) {
+        mes "Видалити ^FF0000" + getitemname(.@t_id) + "^000000?";
+        mes "Кількість: " + .@t_amt;
+    } else {
+        mes "Destroy ^FF0000" + getitemname(.@t_id) + "^000000?";
+        mes "Amount: " + .@t_amt;
+    }
+    next;
+
+    if (select((#gl_lang==1?"Так, видалити":"Yes, delete")+":"+(#gl_lang==1?"Ні!":"No!")) == 2) goto L_ShowMenu;
+
+    delitem .@t_id, .@t_amt;
+
+    mes "["+.@m$+"]";
+    mes (#gl_lang == 1 ? "Знищено." : "Destroyed.");
+    close;
+
+end;
+}
