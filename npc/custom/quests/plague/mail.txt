@@ -1,192 +1,198 @@
 prontera,164,171,4	script	Mail Service	888,{
 
-    // Примусове очищення масивів при кожному запуску (запобігає Memory Leak / Crash)
-    deletearray @m_id, getarraysize(@m_id);
-    deletearray @s_name$, getarraysize(@s_name$);
-    set @s_id, 0; set @s_zeny, 0; set @s_id1, 0; set @s_am1, 0; set @s_id2, 0; set @s_am2, 0; set @s_id3, 0; set @s_am3, 0;
+	// --- Налаштування ---
+	set @MAX_WEIGHT, 20000; 
+	set @ITEMS_PER_PAGE, 10; 
+	set @MAX_MAILS, 100;
 
-    set .@L, #gl_lang; // 1 - UA, 0 - EN
-
-    mes "[Mail Service]";
-    if (.@L == 1) mes "Привіт, ^0000FF" + strcharinfo(0) + "^000000!";
-    else mes "Hello, ^0000FF" + strcharinfo(0) + "^000000!";
-    next;
-
-    if (.@L == 1) set .@menu$, "Перевірити скриньку:Надіслати пошту:Вихід";
-    else set .@menu$, "Check Inbox:Send Mail:Exit";
-
-    set .@choice, select(.@menu$);
-    if (.@choice == 3) close;
-
-    // --- ОТРИМАННЯ (INBOX) ---
-    if (.@choice == 1) {
-        set .@my_cid, getcharid(0);
-
-        // Отримуємо список листів
-        query_sql "SELECT id, sender_name FROM `custom_mail` WHERE `dest_id` = "+.@my_cid+" LIMIT 10", @m_id, @s_name$;
-
-        if (getarraysize(@m_id) == 0) { 
-            if (.@L == 1) mes "Ваша скринька порожня.";
-            else mes "Your inbox is empty.";
-            close; 
-        }
-
-        set .@m_str$, "";
-        for(set .@i, 0; .@i < getarraysize(@m_id); set .@i, .@i + 1) {
-            set .@m_str$, .@m_str$ + (@s_name$[.@i] == "" ? "Unknown" : @s_name$[.@i]) + ":";
-        }
-
-        set .@idx, select(.@m_str$) - 1;
-        set .@selected_mail_id, @m_id[.@idx];
-
-        // Завантаження деталей вибраного листа
-        query_sql "SELECT zeny, id1, am1, id2, am2, id3, am3, sender_name FROM `custom_mail` WHERE id = "+.@selected_mail_id, 
-                  @s_zeny, @s_id1, @s_am1, @s_id2, @s_am2, @s_id3, @s_am3, @s_sender$;
-
-        if (.@L == 1) mes "[Лист від " + @s_sender$ + "]";
-        else mes "[Mail from " + @s_sender$ + "]";
-
-        if (@s_zeny > 0) mes " > Zeny: " + @s_zeny;
-        if (@s_id1 > 0) mes " > " + getitemname(@s_id1) + " (" + @s_am1 + ")";
-        if (@s_id2 > 0) mes " > " + getitemname(@s_id2) + " (" + @s_am2 + ")";
-        if (@s_id3 > 0) mes " > " + getitemname(@s_id3) + " (" + @s_am3 + ")";
-        next;
-
-        if (select((.@L == 1 ? "Забрати все:Назад" : "Claim all:Back")) == 2) close;
-
-        // Перевірка ваги
-        if ((@s_id1 > 0 && !checkweight(@s_id1, @s_am1)) || 
-            (@s_id2 > 0 && !checkweight(@s_id2, @s_am2)) || 
-            (@s_id3 > 0 && !checkweight(@s_id3, @s_am3))) {
-
-            if (.@L == 1) mes "Ваш інвентар переповнений або ви занадто важкі!";
-            else mes "Your inventory is full or you are too heavy!";
-            close;
-        }
-
-        set Zeny, Zeny + @s_zeny;
-        if (@s_id1 > 0) getitem @s_id1, @s_am1;
-        if (@s_id2 > 0) getitem @s_id2, @s_am2;
-        if (@s_id3 > 0) getitem @s_id3, @s_am3;
-
-        query_sql "DELETE FROM `custom_mail` WHERE id="+.@selected_mail_id;
-
-        if (.@L == 1) mes "Вміст отримано. Лист видалено.";
-        else mes "Items claimed. Mail deleted.";
-        close;
-    }
-
-    // --- ВІДПРАВКА (SEND) ---
-    if (.@choice == 2) {
-        if (.@L == 1) mes "Кому надіслати? (Вкажіть ім'я персонажа)";
-        else mes "Who is the recipient? (Enter character name)";
-        input .@target_name$;
-
-        query_sql "SELECT char_id FROM `char` WHERE name='"+escape_sql(.@target_name$)+"' LIMIT 1", .@target_cid;
-
-        if (.@target_cid == 0) { 
-            if (.@L == 1) mes "Персонажа з ім'ям ^FF0000" + .@target_name$ + "^000000 не знайдено.";
-            else mes "Character ^FF0000" + .@target_name$ + "^000000 not found.";
-            close; 
-        }
-
-        if (.@L == 1) mes "Скільки Zeny відправити?";
-        else mes "How much Zeny to send?";
-        input .@zeny_send;
-        if (.@zeny_send < 0 || Zeny < .@zeny_send) { 
-            if (.@L == 1) mes "Недостатньо грошей або некоректна сума.";
-            else mes "Not enough Zeny or invalid amount.";
-            close; 
-        }
-
-        set .@sid1, 0; set .@sam1, 0; set .@sid2, 0; set .@sam2, 0; set .@sid3, 0; set .@sam3, 0;
-        deletearray .@picked_ids, 3;
-        set .@c, 1;
-
-        while(.@c <= 3) {
-            mes (.@L == 1 ? "Додати предмет №"+.@c+"?" : "Add item #"+.@c+"?");
-            if (select((.@L == 1 ? "Так, обрати:Ні, досить" : "Yes, pick item:No, that's it")) == 2) break;
-
-            getinventorylist;
-            set .@ms$, ""; set .@found, 0;
-            deletearray .@vids, getarraysize(.@vids);
-
-            for(set .@j, 0; .@j < @inventorylist_count; set .@j, .@j + 1) {
-                set .@it_id, @inventorylist_id[.@j];
-
-                set .@already_picked, 0;
-                for(set .@p, 0; .@p < 3; set .@p, .@p + 1) {
-                    if (.@it_id == .@picked_ids[.@p]) { set .@already_picked, 1; break; }
-                }
-
-                if (.@already_picked == 0 && @inventorylist_equip[.@j] == 0 && (getiteminfo(.@it_id, 6) & 1) == 0) {
-                    set .@ms$, .@ms$ + getitemname(.@it_id) + " [" + @inventorylist_amount[.@j] + "]:";
-                    set .@vids[.@found], .@it_id;
-                    set .@found, .@found + 1;
-                }
-            }
-            if (.@found == 0) {
-                if (.@L == 1) mes "Більше немає доступних предметів.";
-                else mes "No more available items.";
-                break;
-            }
-
-            set .@sel_item, select(.@ms$) - 1;
-            set .@curr_it_id, .@vids[.@sel_item];
-
-            if (.@L == 1) mes "Яку кількість " + getitemname(.@curr_it_id) + " відправити? (Макс: " + countitem(.@curr_it_id) + ")";
-            else mes "How many " + getitemname(.@curr_it_id) + " to send? (Max: " + countitem(.@curr_it_id) + ")";
-            input .@it_amt;
-            if (.@it_amt <= 0 || .@it_amt > countitem(.@curr_it_id)) { 
-                if (.@L == 1) mes "Некоректна кількість."; else mes "Invalid amount.";
-                close; 
-            }
-
-            set .@picked_ids[.@c-1], .@curr_it_id;
-            if (.@c == 1) { set .@sid1, .@curr_it_id; set .@sam1, .@it_amt; }
-            if (.@c == 2) { set .@sid2, .@curr_it_id; set .@sam2, .@it_amt; }
-            if (.@c == 3) { set .@sid3, .@curr_it_id; set .@sam3, .@it_amt; }
-            set .@c, .@c + 1;
-        }
-
-        next;
-        if (.@L == 1) mes "Надіслати листа для ^0000FF" + .@target_name$ + "^000000?";
-        else mes "Send mail to ^0000FF" + .@target_name$ + "^000000?";
-
-        if (select((.@L == 1 ? "Так, відправити:Скасувати" : "Yes, send:Cancel")) == 2) close;
-
-        if (Zeny < .@zeny_send || countitem(.@sid1) < .@sam1 || countitem(.@sid2) < .@sam2 || countitem(.@sid3) < .@sam3) {
-            if (.@L == 1) mes "Помилка: Недостатньо ресурсів."; else mes "Error: Not enough resources.";
-            close;
-        }
-
-        set Zeny, Zeny - .@zeny_send;
-        if (.@sid1 > 0) delitem .@sid1, .@sam1;
-        if (.@sid2 > 0) delitem .@sid2, .@sam2;
-        if (.@sid3 > 0) delitem .@sid3, .@sam3;
-
-        query_sql "INSERT INTO `custom_mail` (sender_name, dest_id, zeny, id1, am1, id2, am2, id3, am3) VALUES ('"+escape_sql(strcharinfo(0))+"', "+.@target_cid+", "+.@zeny_send+", "+.@sid1+", "+.@sam1+", "+.@sid2+", "+.@sam2+", "+.@sid3+", "+.@sam3+")";
-
-        if (.@L == 1) mes "Посилка успішно відправлена!";
-        else mes "Mail sent successfully!";
-        close;
-    }
-}
-
--	script	MailNotify	-1,{
-OnPCLoginEvent:
-	query_sql "SELECT COUNT(*) FROM `custom_mail` WHERE dest_id="+getcharid(0), .@mail_count;
-	if (.@mail_count > 0) {
-		sleep2 3000;
-        set .@L, #gl_lang;
-		soundeffect "quest_alert.wav", 0; 
-        if (.@L == 1) dispbottom "Пошта: У вас є " + .@mail_count + " нових повідомлень!";
-		else dispbottom "Mail: You have " + .@mail_count + " new messages!";
-		emotion 21; 
+	mes "[Mail Service]";
+	if (#gl_lang == 1) {
+		mes "Вас вітає поштовий сервіс.";
+		set @main_sel, select("Перевірити Пошту:Відправити лист:Вихід");
+	} else {
+		mes "The postal service welcomes you.";
+		set @main_sel, select("Check Mail:Send a Letter:Exit");
 	}
-	end;
-}
+	
+	if (@main_sel == 3) close;
+	if (@main_sel == 1) goto L_Read;
 
+L_Send:
+	next;
+	mes "[Recipient]";
+	if (#gl_lang == 1) mes "Кому відправити?"; else mes "Recipient name?";
+	input @target$;
+	if (@target$ == "" || @target$ == strcharinfo(0)) { 
+		mes (#gl_lang == 1 ? "Помилка імені." : "Invalid name."); close; 
+	}
+	
+	set @exist,0;
+	query_sql "SELECT COUNT(*) FROM `char` WHERE `name`='"+@target$+"'",@exist;
+	if (@exist == 0) { 
+		mes (#gl_lang == 1 ? "Гравця не знайдено!" : "Player not found!"); close; 
+	}
+
+	mes (#gl_lang == 1 ? "Скільки Zeny вкласти?" : "How many Zeny to attach?");
+	input @sz;
+	if (@sz > zeny) set @sz, zeny;
+
+	setarray @id[0],0,0,0; setarray @am[0],0,0,0; setarray @rf[0],0,0,0;
+	setarray @c1[0],0,0,0; setarray @c2[0],0,0,0; setarray @c3[0],0,0,0; setarray @c4[0],0,0,0;
+	setarray @u[0], -1,-1,-1;
+	set @i, 0; set @total_w, 0;
+
+L_AskNext:
+	if (@i >= 3) goto L_FinalConf;
+	next;
+	set @w_int, @total_w / 10; set @w_dec, @total_w % 10;
+	
+	if (#gl_lang == 1) {
+		mes "[Слот " + (@i+1) + "/3]";
+		mes "Поточна вага: ^0000FF" + @w_int + "." + @w_dec + "^000000 / 2000.0";
+		mes "Бажаєте вкласти предмет?";
+		set @choice, select("Так:Ні, досить");
+	} else {
+		mes "[Slot " + (@i+1) + "/3]";
+		mes "Current weight: ^0000FF" + @w_int + "." + @w_dec + "^000000 / 2000.0";
+		mes "Would you like to attach an item?";
+		set @choice, select("Yes:No, that's it");
+	}
+	if (@choice == 2) goto L_FinalConf;
+
+	getinventorylist;
+	set @page, 0;
+
+L_ShowPage:
+	next;
+	mes (#gl_lang == 1 ? "[Інвентар - Стор. " : "[Inventory - Page ") + (@page + 1) + "]";
+	set @start, @page * @ITEMS_PER_PAGE;
+	set @m$, "";
+	setarray @p_idx[0], -1,-1,-1,-1,-1,-1,-1,-1,-1,-1;
+	
+	set @p_count, 0;
+	for(set @j, @start; @j < @inventorylist_count && @p_count < @ITEMS_PER_PAGE; set @j, @j + 1) {
+		if (@inventorylist_equip[@j] == 0 && @j != @u[0] && @j != @u[1] && @j != @u[2]) {
+			set @n$, getitemname(@inventorylist_id[@j]);
+			if(@inventorylist_refine[@j] > 0) set @n$, @n$ + " +" + @inventorylist_refine[@j];
+			if(@inventorylist_card1[@j] > 0) set @n$, @n$ + " [C]";
+			
+			set @m$, @m$ + @n$ + ":";
+			set @p_idx[@p_count], @j;
+			set @p_count, @p_count + 1;
+		}
+	}
+
+	set @next_btn, 0; set @back_btn, 0;
+	if (@start + @ITEMS_PER_PAGE < @inventorylist_count) { 
+		set @m$, @m$ + (#gl_lang == 1 ? "-> Далі:" : "-> Next Page:"); 
+		set @next_btn, 1; 
+	}
+	if (@page > 0) { 
+		set @m$, @m$ + (#gl_lang == 1 ? "<- Назад:" : "<- Back:"); 
+		set @back_btn, 1; 
+	}
+	set @m$, @m$ + (#gl_lang == 1 ? "== Скасувати ==" : "== Cancel ==");
+
+	set @sel, select(@m$) - 1;
+
+	if (@next_btn && @sel == @p_count) { set @page, @page + 1; goto L_ShowPage; }
+	if (@back_btn && @sel == (@p_count + @next_btn)) { set @page, @page - 1; goto L_ShowPage; }
+	if (@sel >= (@p_count + @next_btn + @back_btn)) goto L_AskNext;
+
+	set @f, @p_idx[@sel];
+	if (@f == -1) goto L_ShowPage;
+
+	if (getiteminfo(@inventorylist_id[@f], 11) & 1) { 
+		next; mes "^FF0000" + (#gl_lang == 1 ? "Неможливо передати!" : "Non-tradeable!") + "^000000"; goto L_ShowPage; 
+	}
+
+	set @this_id, @inventorylist_id[@f];
+	set @weight_raw, getiteminfo(@this_id, 6); 
+	if (@weight_raw <= 0) set @weight_raw, getiteminfo(@this_id, 5);
+	if (@weight_raw <= 0) set @weight_raw, 1;
+
+	if (@inventorylist_amount[@f] > 1) {
+		mes (#gl_lang == 1 ? "Кількість?" : "Amount?");
+		input @qty;
+		if (@qty < 1) set @qty, 1;
+		if (@qty > @inventorylist_amount[@f]) set @qty, @inventorylist_amount[@f];
+	} else {
+		set @qty, 1;
+	}
+
+	set @this_stack_w, @weight_raw * @qty;
+	if (@total_w + @this_stack_w > @MAX_WEIGHT) {
+		next; mes "^FF0000" + (#gl_lang == 1 ? "Заважко!" : "Too heavy!") + "^000000"; goto L_ShowPage;
+	}
+
+	set @u[@i], @f;
+	set @id[@i], @this_id;
+	set @am[@i], @qty;
+	set @rf[@i], @inventorylist_refine[@f];
+	set @c1[@i], @inventorylist_card1[@f]; set @c2[@i], @inventorylist_card2[@f];
+	set @c3[@i], @inventorylist_card3[@f]; set @c4[@i], @inventorylist_card4[@f];
+	
+	set @total_w, @total_w + @this_stack_w;
+	set @i, @i + 1;
+	goto L_AskNext;
+
+L_FinalConf:
+	next;
+	set @w_int, @total_w / 10; set @w_dec, @total_w % 10;
+	mes (#gl_lang == 1 ? "[Підтвердження]" : "[Confirmation]");
+	mes (#gl_lang == 1 ? "Кому: " : "To: ") + "^FF0000" + @target$ + "^000000";
+	mes (#gl_lang == 1 ? "Вага: " : "Weight: ") + "^0000FF" + @w_int + "." + @w_dec + "^000000 / 2000.0";
+	next;
+	if (select(#gl_lang == 1 ? "Відправити:Скасувати" : "Send:Cancel") == 2) close;
+
+	query_sql "INSERT INTO custom_mail (sn, dn, z) VALUES ('"+strcharinfo(0)+"','"+@target$+"',"+@sz+")";
+	query_sql "SELECT LAST_INSERT_ID()", @mid;
+	set zeny, zeny - @sz;
+
+	for(set @k, 0; @k < 3; set @k, @k + 1) {
+		if (@id[@k] > 0) {
+			set @n, @k + 1;
+			query_sql "UPDATE custom_mail SET i"+@n+"="+@id[@k]+", a"+@n+"="+@am[@k]+", r"+@n+"="+@rf[@k]+", c"+@n+"_1="+@c1[@k]+", c"+@n+"_2="+@c2[@k]+", c"+@n+"_3="+@c3[@k]+", c"+@n+"_4="+@c4[@k]+" WHERE id="+@mid;
+			delitem2 @id[@k], @am[@k], 1, @rf[@k], 0, @c1[@k], @c2[@k], @c3[@k], @c4[@k];
+		}
+	}
+	mes (#gl_lang == 1 ? "Надіслано!" : "Sent!"); close;
+
+L_Read:
+	setarray @mids[0], 0,0,0,0,0;
+	query_sql "SELECT id, sn FROM custom_mail WHERE dn='"+strcharinfo(0)+"' LIMIT 5", @mids, @fs$;
+	if (@mids[0] == 0) { 
+		mes (#gl_lang == 1 ? "Порожньо." : "Empty."); close; 
+	}
+	set @m$, "";
+	for(set @k, 0; @k < 5; set @k, @k + 1) {
+		if (@mids[@k] == 0) break;
+		set @m$, @m$ + (#gl_lang == 1 ? "Від " : "From ") + @fs$[@k] + ":";
+	}
+	set @ix, select(@m$) - 1;
+	set @cid, @mids[@ix];
+	
+	set @rz,0; set @ri1,0; set @ra1,0; set @rr1,0; set @rc11,0; set @rc12,0; set @rc13,0; set @rc14,0;
+	set @ri2,0; set @ra2,0; set @rr2,0; set @rc21,0; set @rc22,0; set @rc23,0; set @rc24,0;
+	set @ri3,0; set @ra3,0; set @rr3,0; set @rc31,0; set @rc32,0; set @rc33,0; set @rc34,0;
+	
+	query_sql "SELECT z, i1, a1, r1, c1_1, c1_2, c1_3, c1_4, i2, a2, r2, c2_1, c2_2, c2_3, c2_4, i3, a3, r3, c3_1, c3_2, c3_3, c3_4 FROM custom_mail WHERE id="+@cid, @rz,@ri1,@ra1,@rr1,@rc11,@rc12,@rc13,@rc14,@ri2,@ra2,@rr2,@rc21,@rc22,@rc23,@rc24,@ri3,@ra3,@rr3,@rc31,@rc32,@rc33,@rc34;
+	
+	mes (#gl_lang == 1 ? "[Лист]" : "[Mail]");
+	if (@ri1) mes "1. " + getitemname(@ri1) + " x" + @ra1;
+	if (@ri2) mes "2. " + getitemname(@ri2) + " x" + @ra2;
+	if (@ri3) mes "3. " + getitemname(@ri3) + " x" + @ra3;
+	next;
+	if (select(#gl_lang == 1 ? "Забрати:Назад" : "Take:Back") == 2) goto L_Read;
+	
+	set zeny, zeny + @rz;
+	if (@ri1) getitem2 @ri1, @ra1, 1, @rr1, 0, @rc11, @rc12, @rc13, @rc14;
+	if (@ri2) getitem2 @ri2, @ra2, 1, @rr2, 0, @rc21, @rc22, @rc23, @rc24;
+	if (@ri3) getitem2 @ri3, @ra3, 1, @rr3, 0, @rc31, @rc32, @rc33, @rc34;
+	
+	query_sql "DELETE FROM custom_mail WHERE id="+@cid;
+	mes (#gl_lang == 1 ? "Забрано!" : "Received!"); close;
+}
 
 
 prontera,146,88,4	duplicate(Mail Service)		Mail Service#		888

@@ -1,0 +1,180 @@
+// ======================================================
+// Quest "Path of the Free Spirit" (Capoeira)
+// Квест "Шлях Вільного Духу" (Капоейра)
+// Version for uAthena 10.3
+// ======================================================
+
+umbala,67,144,5	script	Master Rodrigo	842,{
+	if (capoeira_quest == 4) {
+		mes "[Master Rodrigo]";
+		if (#gl_lang == 1) mes "Твій танець вільний. Ти справжній майстер.";
+		else mes "Your dance is free. You are a true master.";
+		close;
+	}
+
+	if (killed_wanderer == 1) {
+		mes "[Master Rodrigo]";
+		if (#gl_lang == 1) {
+			mes "Ти подолав свій страх. Тепер ти вільний.";
+			mes "Прийми цю зброю як символ твого звільнення.";
+		} else {
+			mes "You have overcome your fear. Now you are free.";
+			mes "Accept this weapon as a symbol of your liberation.";
+		}
+		getitem 1813,1; // Kaiser Knuckle
+		set capoeira_quest, 4;
+		set killed_wanderer, 0;
+		close;
+	}
+
+	if (capoeira_quest == 2) goto L_CheckKill;
+	if (capoeira_quest == 1) goto L_WaitTraining;
+	
+	mes "[Master Rodrigo]";
+	if (#gl_lang == 1) mes "Чи чув ти про ^FF0000Капоейру^000000? Це танець свободи.";
+	else mes "Have you heard of ^FF0000Capoeira^000000? It is the dance of freedom.";
+	next;
+	
+	if (#gl_lang == 1) {
+		menu "Розкажи мені про це.",L_StartQuest,"Мені це не цікаво.",L_Exit;
+	} else {
+		menu "Tell me about it.",L_StartQuest,"I'm not interested.",L_Exit;
+	}
+
+L_StartQuest:
+	mes "[Master Rodrigo]";
+	if (#gl_lang == 1) mes "Знайди трьох старійшин в Умбалі. Вони розкажуть про наші коріння.";
+	else mes "Find three elders in Umbala. They will tell you about our roots.";
+	set capoeira_quest, 1;
+	set capoeira_story, 0; 
+	set q_amaru, 0; set q_kaua, 0; set q_tiago, 0;
+	close;
+
+L_WaitTraining:
+	if (capoeira_story < 3) {
+		mes "[Master Rodrigo]";
+		if (#gl_lang == 1) mes "Ти ще не розмовляв з усіма старійшинами ("+capoeira_story+"/3).";
+		else mes "You haven't spoken to all the elders yet ("+capoeira_story+"/3).";
+		close;
+	}
+	mes "[Master Rodrigo]";
+	if (#gl_lang == 1) mes "Тепер знайди трьох майстрів у ^0000FFКомодо^000000, вони навчать тебе рухам.";
+	else mes "Now find three masters in ^0000FFComodo^000000, they will teach you the moves.";
+	set capoeira_quest, 2;
+	set capoeira_train, 0;
+	set q_m1, 0; set q_m2, 0; set q_m3, 0;
+	close;
+
+L_CheckKill:
+	if (capoeira_train < 3) {
+		mes "[Master Rodrigo]";
+		if (#gl_lang == 1) mes "Майстри в Комодо ще не закінчили навчання ("+capoeira_train+"/3).";
+		else mes "The masters in Comodo haven't finished training you ("+capoeira_train+"/3).";
+		close;
+	}
+	mes "[Master Rodrigo]";
+	if (#gl_lang == 1) mes "Іди на берег Комодо (79, 344) і подолай духа загарбника — ^FF0000Wander Man^000000!";
+	else mes "Go to the shores of Comodo (79, 344) and defeat the invader spirit — ^FF0000Wander Man^000000!";
+	close;
+
+L_Exit:
+	close;
+}
+
+// --- ELDERS (UMBALA) ---
+umbala,167,232,1	script	Elder Amaru	766,{
+	if (capoeira_quest != 1 || q_amaru == 1) { 
+		if (#gl_lang == 1) mes "Вітаю."; else mes "Greetings."; 
+		close; 
+	}
+	mes "[Amaru]"; 
+	if (#gl_lang == 1) mes "Ми були в кайданах і не мали зброї. Тому нашою зброєю стали наші руки та ноги.";
+	else mes "We were in chains and had no weapons. So our hands and feet became our weapons.";
+	set q_amaru, 1; set capoeira_story, capoeira_story + 1; close;
+}
+
+umbala,167,102,1	script	Elder Kaua	761,{
+	if (capoeira_quest != 1 || q_kaua == 1) { 
+		if (#gl_lang == 1) mes "Вітаю."; else mes "Greetings."; 
+		close; 
+	}
+	mes "[Kaua]"; 
+	if (#gl_lang == 1) mes "Ми сховали бойове мистецтво у танці. Ніхто й не підозрював, чим насправді ми займалися.";
+	else mes "We hid our martial art in dance. No one suspected what we were actually doing.";
+	set q_kaua, 1; set capoeira_story, capoeira_story + 1; close;
+}
+
+umbala,218,187,3	script	Elder Tiago	783,{
+	if (capoeira_quest != 1 || q_tiago == 1) { 
+		if (#gl_lang == 1) mes "Вітаю."; else mes "Greetings."; 
+		close; 
+	}
+	mes "[Tiago]"; 
+	if (#gl_lang == 1) mes "Ми втекли і стали вільними завдяки Капоейрі.";
+	else mes "We escaped and became free thanks to Capoeira.";
+	set q_tiago, 1; set capoeira_story, capoeira_story + 1; close;
+}
+
+// --- MASTERS (COMODO) ---
+comodo,190,162,3	script	Master of Movement	746,{
+	if (capoeira_quest != 2 || q_m1 == 1) { 
+		if (#gl_lang == 1) mes "Рухайся!"; else mes "Move it!"; 
+		close; 
+	}
+	mes "[Master of Movement]"; 
+	if (#gl_lang == 1) mes "Вивчи крок ^FF0000Жинга^000000. Ще крок, крок, крок. Ось так, друже, все вірно!";
+	else mes "Learn the ^FF0000Ginga^000000 step. One more step, step, step. That's it, my friend, you got it!";
+	set q_m1, 1; set capoeira_train, capoeira_train + 1; close;
+}
+
+comodo,160,280,3	script	Master of Music	819,{
+	if (capoeira_quest != 2 || q_m2 == 1) { 
+		if (#gl_lang == 1) mes "Слухай."; else mes "Listen."; 
+		close; 
+	}
+	mes "[Master of Music]"; 
+	if (#gl_lang == 1) {
+		mes "Музика — це твій ритм у бою."; 
+		mes "Паранавей - паранавей - парана....";
+	} else {
+		mes "Music is your rhythm in battle.";
+		mes "Paranaue - paranaue - parana....";
+	}
+	set q_m2, 1; set capoeira_train, capoeira_train + 1; close;
+}
+
+comodo,109,288,4	script	Master of Evasion	843,{
+	if (capoeira_quest != 2 || q_m3 == 1) { 
+		if (#gl_lang == 1) mes "Танцюй."; else mes "Dance."; 
+		close; 
+	}
+	mes "[Master of Evasion]"; 
+	if (#gl_lang == 1) {
+		mes "Уникай ударів ворога."; 
+		mes "І наноси свої удари.";
+	} else {
+		mes "Evade the enemy's strikes.";
+		mes "And land your own blows.";
+	}
+	set q_m3, 1; set capoeira_train, capoeira_train + 1; close;
+}
+
+// --- SPAWN TRIGGER (Wander Man) ---
+comodo,79,344,0	script	CapoeiraTrig	-1,9,9,{
+OnTouch:
+	if (capoeira_quest == 2 && capoeira_train == 3 && killed_wanderer != 1) {
+		set killed_wanderer, 2; 
+		killmonster "comodo","CapoeiraTrig::OnBossKill"; 
+		monster "comodo",79,344,"Wander Man",1208,1,"CapoeiraTrig::OnBossKill";
+		
+		if (#gl_lang == 1) announce "Wander Man: Ти повернувся? Твоя душа буде моєю!",bc_self;
+		else announce "Wander Man: You returned? Your soul will be mine!",bc_self;
+	}
+	end;
+
+OnBossKill:
+	set killed_wanderer, 1;
+	if (#gl_lang == 1) dispbottom "Wander Man подоланий! Поверніться до Родріго за нагородою.";
+	else dispbottom "Wander Man defeated! Return to Rodrigo for your reward.";
+	end;
+}
