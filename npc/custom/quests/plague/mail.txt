@@ -34,7 +34,11 @@ L_Send:
 
 	mes (#gl_lang == 1 ? "Скільки Zeny вкласти?" : "How many Zeny to attach?");
 	input @sz;
-	if (@sz > zeny) set @sz, zeny;
+	if (@sz < 0) set @sz, 0;
+	if (@sz > zeny) {
+		set @sz, zeny;
+		mes "^FF0000" + (#gl_lang == 1 ? "У вас немає стільки Zeny! Вкладено все наявне." : "Not enough Zeny! Attached all you have.") + "^000000";
+	}
 
 	setarray @id[0],0,0,0; setarray @am[0],0,0,0; setarray @rf[0],0,0,0;
 	setarray @c1[0],0,0,0; setarray @c2[0],0,0,0; setarray @c3[0],0,0,0; setarray @c4[0],0,0,0;
@@ -141,9 +145,12 @@ L_FinalConf:
 	set @w_int, @total_w / 10; set @w_dec, @total_w % 10;
 	mes (#gl_lang == 1 ? "[Підтвердження]" : "[Confirmation]");
 	mes (#gl_lang == 1 ? "Кому: " : "To: ") + "^FF0000" + @target$ + "^000000";
-	mes (#gl_lang == 1 ? "Вага: " : "Weight: ") + "^0000FF" + @w_int + "." + @w_dec + "^000000 / 2000.0";
+	mes "Zeny: ^00AA00" + @sz + "^000000"; // Відображення Zeny
+	mes (#gl_lang == 1 ? "Вага предметів: " : "Items Weight: ") + "^0000FF" + @w_int + "." + @w_dec + "^000000 / 2000.0";
 	next;
 	if (select(#gl_lang == 1 ? "Відправити:Скасувати" : "Send:Cancel") == 2) close;
+
+	if (zeny < @sz) { mes (#gl_lang == 1 ? "Не вистачає грошей!" : "Not enough Zeny!"); close; }
 
 	query_sql "INSERT INTO custom_mail (sn, dn, z) VALUES ('"+strcharinfo(0)+"','"+@target$+"',"+@sz+")";
 	query_sql "SELECT LAST_INSERT_ID()", @mid;
@@ -178,12 +185,15 @@ L_Read:
 	
 	query_sql "SELECT z, i1, a1, r1, c1_1, c1_2, c1_3, c1_4, i2, a2, r2, c2_1, c2_2, c2_3, c2_4, i3, a3, r3, c3_1, c3_2, c3_3, c3_4 FROM custom_mail WHERE id="+@cid, @rz,@ri1,@ra1,@rr1,@rc11,@rc12,@rc13,@rc14,@ri2,@ra2,@rr2,@rc21,@rc22,@rc23,@rc24,@ri3,@ra3,@rr3,@rc31,@rc32,@rc33,@rc34;
 	
-	mes (#gl_lang == 1 ? "[Лист]" : "[Mail]");
+	mes (#gl_lang == 1 ? "[Лист від: " : "[Mail from: ") + @fs$[@ix] + "]";
+	mes "Zeny: ^00AA00" + @rz + "^000000"; // Показуємо суму в листі
 	if (@ri1) mes "1. " + getitemname(@ri1) + " x" + @ra1;
 	if (@ri2) mes "2. " + getitemname(@ri2) + " x" + @ra2;
 	if (@ri3) mes "3. " + getitemname(@ri3) + " x" + @ra3;
+	if (!@ri1 && !@ri2 && !@ri3 && !@rz) mes (#gl_lang == 1 ? "Лист порожній." : "Mail is empty.");
+	
 	next;
-	if (select(#gl_lang == 1 ? "Забрати:Назад" : "Take:Back") == 2) goto L_Read;
+	if (select(#gl_lang == 1 ? "Забрати все:Назад" : "Take All:Back") == 2) goto L_Read;
 	
 	set zeny, zeny + @rz;
 	if (@ri1) getitem2 @ri1, @ra1, 1, @rr1, 0, @rc11, @rc12, @rc13, @rc14;
@@ -191,8 +201,9 @@ L_Read:
 	if (@ri3) getitem2 @ri3, @ra3, 1, @rr3, 0, @rc31, @rc32, @rc33, @rc34;
 	
 	query_sql "DELETE FROM custom_mail WHERE id="+@cid;
-	mes (#gl_lang == 1 ? "Забрано!" : "Received!"); close;
+	mes (#gl_lang == 1 ? "Все забрано!" : "Everything received!"); close;
 }
+
 
 
 prontera,146,88,4	duplicate(Mail Service)		Mail Service#		888
