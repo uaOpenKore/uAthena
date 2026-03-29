@@ -853,7 +853,7 @@
 1731,Freezing_Bow,Freezing Bow,4,,10,1400,100,,5,1,0x00020800,7,2,34,3,55,1,11,{ bonus2 bAddEff,Eff_Freeze,500; if(isequipped(1754)) bonus bLongAtkRate,25; },{},{}
 1732,Earthen_Bow,Earthen Bow,4,,10,1400,105,,5,1,0x00020800,7,2,34,3,55,1,11,{ bonus2 bAddEff,Eff_Blind,500; if(isequipped(1756)) bonus bLongAtkRate,25; },{},{}
 1733,Gale_Bow,Gale Bow,4,,10,1400,95,,5,1,0x00020800,7,2,34,3,55,1,11,{ if(readparam(bInt)>40) { bonus3 bAutoSpell,540,5,50; } else bonus3 bAutoSpell,540,5,20; if(isequipped(1755)) bonus bLongAtkRate,25; },{},{}
-1734,Orc_Archer's_Bow,Orc Archer's Bow,4,,10,1600,120,,5,0,0x00020800,7,2,34,4,65,1,11,{ bonus2 bAddMonsterDropItem,1770,200; if(isequipped(1770)) bonus bLongAtkRate,50; },{},{}
+1734,Orc_Archer's_Bow,Orc Archer's Bow,4,,10,1600,120,,5,0,0x00020800,7,2,34,4,65,1,11,{ bonus2 bAddMonsterDropItem,1753,200; if(isequipped(1753)) bonus bLongAtkRate,50; },{},{}
 1735,Sakray_Test_Bow,Sakray Test Bow,4,,10,0,120,,5,0,0x000A0848,7,2,34,1,1,0,11,{ bonus2 bAddRace,RC_Boss,50; bonus2 bAddRace,RC_NonBoss,50; },{},{}
 1736,Double_Bound,Double Bound,4,,,900,70,,5,3,0x00000800,2,2,34,3,70,1,11,{ bonus3 bAutoSpell,46,GetSkillLv(46),100; },{},{}
 1737,Ixion's_Wings,Ixion's Wings,4,,,300,135,,5,1,0x00000800,2,2,34,4,70,1,11,{ bonusautoscript "{ sc_start SC_INCASPDRATE,7000,7; }",10+(getrefine()*2); bonus2 bAddSkillBlow,148,3; },{},{}
@@ -1267,7 +1267,7 @@
 2617,Mitten_Of_Presbyter,Celebrant's Mitten,5,2,,100,,1,,0,0xFFFFFFFE,7,2,136,,35,0,0,{ bonus bInt,1; },{},{}
 2618,Matyr's_Flea_Guard,Matyr's Leash,5,2,,100,,1,,0,0xFFFFFFFE,7,2,136,,35,0,0,{ bonus bAgi,1; },{},{}
 2619,Thimble_Of_Archer,Bow Thimble,5,10000,,100,,0,,0,0x00080808,7,2,136,,65,0,0,{ bonus bLongAtkRate,3; },{},{}
-2620,Ring_Of_Rogue,Rogue's Treasure,5,10000,,100,,0,,0,0x02021040,7,2,136,,70,0,0,{ bonus bAddStealRate,1; },{},{}
+2620,Ring_Of_Rogue,Rogue's Treasure,5,10000,,100,,0,,0,0x02021040,7,2,136,,70,0,0,{ bonus bAddStealRate,1; },{ if(readparam(bStr)>=90){ bonus bHit,10; bonus bFlee,10; } if(readparam(bAgi)>=90){ bonus bAtk,10; bonus bCritical,10; } },{}
 2621,Ring_,Ring,5,30000,,100,,0,,1,0xFFFFFFFE,7,2,136,,90,0,0,{ bonus bStr,1; },{},{}
 2622,Earring_,Earring,5,30000,,100,,0,,1,0xFFFFFFFE,7,2,136,,90,0,0,{ bonus bInt,1; },{},{}
 2623,Necklace_,Necklace,5,30000,,100,,0,,1,0xFFFFFFFE,7,2,136,,90,0,0,{ bonus bVit,1; },{},{}
