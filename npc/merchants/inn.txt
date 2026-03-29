@@ -117,32 +117,65 @@ hu_in01,246,107,3	script	Inn Maid::Receptionist	53,{
 //======================= Inn Function ==============================
 function	script	F_InnMaid	{
 	mes getarg(0);
-	mes "Welcome to";
-	mes getarg(1) + ".";
-	mes "How may I help you?";
-	next;
-	menu "Save",Msave, "Take a Rest -> 5000 zeny",Mrent, "Cancel",Mend;
+	if (#gl_lang == 1) { // UA
+		mes "     Слава Україні";
+		mes "Ласкаво просимо до";
+		mes "мережі готельних комплексів";
+		mes "імені ^FF0000 Степана Бандери^000000.";
+		mes "Мене звати Василина";
+		mes "Чим я можу вам допомогти?";
+		next;
+		menu "Зберегтися",Msave, "Відпочити -> 5000 грн",Mrent, "Відміна",Mend;
+	} else { // EN
+		mes "Welcome to";
+		mes getarg(1) + ".";
+		mes "How may I help you?";
+		next;
+		menu "Save",Msave, "Take a Rest -> 5000 zeny",Mrent, "Cancel",Mend;
+	}
 
 	Msave:
 		mes getarg(0);
-		mes "Your respawn point";
-		mes "has been saved.";
-		mes "Thank you,";
-		mes "please come again.";
+		if (#gl_lang == 1) {
+			mes "Вашу точку респавну";
+			mes "було збережено.";
+			mes "Дякуємо,";
+			mes "заходьте ще.";
+		} else {
+			mes "Your respawn point";
+			mes "has been saved.";
+			mes "Thank you,";
+			mes "please come again.";
+		}
 		savepoint getarg(2),getarg(3),getarg(4);
 		close;
+
 	Mrent:
 		mes getarg(0);
 		if(Zeny < 5000){
-			mes "I'm sorry, but the service charge";
-			mes "is 5,000 zeny. Please make sure";
-			mes "that you have enough money to check";
-			mes "in next time, okay?";
+			if (#gl_lang == 1) {
+				mes "На жаль, вартість послуги";
+				mes "становить 5,000 грн. Будь ласка,";
+				mes "заходьте, коли матимете достатньо";
+				mes "коштів.";
+			} else {
+				mes "I'm sorry, but the service charge";
+				mes "is 5,000 zeny. Please make sure";
+				mes "that you have enough money to check";
+				mes "in next time, okay?";
+			}
 			close;
 		}
-		mes "Thank you.";
-		mes "I hope you";
-		mes "enjoy your rest~";
+		
+		if (#gl_lang == 1) {
+			mes "Дякуємо.";
+			mes "Сподіваюся, вам";
+			mes "сподобається відпочинок~";
+		} else {
+			mes "Thank you.";
+			mes "I hope you";
+			mes "enjoy your rest~";
+		}
 		close2;
 		set Zeny,Zeny - 5000;
 		percentheal 100,100;

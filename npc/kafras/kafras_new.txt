@@ -278,21 +278,29 @@ callfunc "F_KafEnd",0,1;
 // Niflheim ----------------------------------------------------------------
 niflheim,201,184,4	script	Kafra::Prontera	791,{
     mes "[Kafra]";
-    mes "Welcome to Kafra Service!";
-    mes "Would you like to go back to the world of the living?";
-    mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
+    if(#gl_lang == 1) {
+        mes "Ласкаво просимо до сервісу Кафри!";
+        mes "Бажаєте повернутися до світу живих?";
+        mes "Телепортація до Пронтери коштує ^FF00002,000 Zeny^000000.";
+    } else {
+        mes "Welcome to Kafra Service!";
+        mes "Would you like to go back to the world of the living?";
+        mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
+    }
     next;
 
     switch(select("Save:Teleport to Prontera:Open Storage:Cancel")) {
 
-	case 1:
-	savepoint "niflheim",193,185;
-	callfunc "F_KafEnd",0,1;
+        case 1:
+            savepoint "niflheim",193,185;
+            callfunc "F_KafEnd",0,1;
+            end;
 
         case 2:
             if (Zeny < 2000) {
                 mes "[Kafra]";
-                mes "I'm sorry, but you don't have enough Zeny.";
+                if(#gl_lang == 1) mes "Вибачте, але у вас недостатньо Зені.";
+                else mes "I'm sorry, but you don't have enough Zeny.";
                 close;
             }
             set Zeny, Zeny - 2000;
@@ -301,14 +309,21 @@ niflheim,201,184,4	script	Kafra::Prontera	791,{
             end;
 
         case 3:
+            if(#gl_lang == 1) {
+                mes "[Kafra]";
+                mes "Зараз я відкрию ваше особисте сховище.";
+            } else {
+                mes "[Kafra]";
+                mes "Let me open your personal storage for you.";
+            }
             close2;
             openstorage;
             end;
 
         case 4:
             mes "[Kafra]";
-            mes "Have a safe journey!";
+            if(#gl_lang == 1) mes "Безпечної вам подорожі!";
+            else mes "Have a safe journey!";
             close;
     }
 }
-

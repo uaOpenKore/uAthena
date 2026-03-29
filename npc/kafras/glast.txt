@@ -1,19 +1,27 @@
 glast_01.gat,202,82,4	script	Kafra Employee	115, {
     mes "[Kafra]";
-    mes "Welcome to Kafra Service!";
-    mes "Would you like to go back to the world of the living?";
-    mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
+    if(#gl_lang == 1) {
+        mes "Ласкаво просимо до сервісу Кафри!";
+        mes "Бажаєте повернутися до світу живих?";
+        mes "Телепортація до Пронтери коштує ^FF00002,000 Zeny^000000.";
+    } else {
+        mes "Welcome to Kafra Service!";
+        mes "Would you like to go back to the world of the living?";
+        mes "Teleport to Prontera costs ^FF00002,000 Zeny^000000.";
+    }
     next;
 
     switch(select("Save:Teleport to Prontera:Open Storage:Cancel")) {
         case 1:
-	savepoint "glast_01",200,77;
-	callfunc "F_KafEnd",0,1;
+            savepoint "glast_01",200,77;
+            callfunc "F_KafEnd",0,1;
+            end;
 
         case 2:
             if (Zeny < 2000) {
                 mes "[Kafra]";
-                mes "I'm sorry, but you don't have enough Zeny.";
+                if(#gl_lang == 1) mes "Вибачте, але у вас недостатньо Зені.";
+                else mes "I'm sorry, but you don't have enough Zeny.";
                 close;
             }
             set Zeny, Zeny - 2000;
@@ -22,13 +30,21 @@ glast_01.gat,202,82,4	script	Kafra Employee	115, {
             end;
 
         case 3:
+            if(#gl_lang == 1) {
+                mes "[Kafra]";
+                mes "Відкриваю склад. Будь ласка, зачекайте.";
+            } else {
+                mes "[Kafra]";
+                mes "Opening storage. Please wait.";
+            }
             close2;
             openstorage;
             end;
 
         case 4:
             mes "[Kafra]";
-            mes "Have a safe journey!";
+            if(#gl_lang == 1) mes "Безпечної вам подорожі!";
+            else mes "Have a safe journey!";
             close;
     }
 }

@@ -1,92 +1,66 @@
-//===== eAthena Script =======================================
-//= Cool Event Corp. Staff
-//===== By: ==================================================
-//= Gepard
-//===== Current Version: =====================================
-//= 1.2
-//===== Compatible With: =====================================
-//= eAthena
-//===== Description: =========================================
-//= Cool Event Corp. Staff (Save, Storage & Pushcart Service)
-//= in Hugel
-//===== Additional Comments: =================================
-//= 1.0 First version, iRO Sakray X.4 [Gepard]
-//= 1.1 Optimized, fixed a conditional bug [Lupus]
-//= 1.1a Redo back. It wasn't a bug [Lupus]
-//= 1.2 Added Rachel Cool Event Corp. Staff [Playtester]
-//============================================================
 
 hugel,88,168,4	script	Cool Event Corp. Staff#hugel	874,{
 
 	mes "[Cool Event Corp. Staff]";
-	mes "Welcome to Cool Event Corp.";
-	mes "Our staff is always working";
-	mes "to surpass your expactations";
-	mes "for quality service. So how";
-	mes "may I assist you today?";
+	if(#gl_lang == 1) {
+		mes "Ласкаво просимо до Cool Event Corp.";
+		mes "Наш персонал завжди працює над тим, щоб перевершити ваші очікування щодо якості сервісу. Тож чим я можу допомогти вам сьогодні?";
+	} else {
+		mes "Welcome to Cool Event Corp.";
+		mes "Our staff is always working to surpass your expactations for quality service. So how may I assist you today?";
+	}
 	next;
 
 	switch(select("Save:Use Storage:Rent a Pushcart:Cancel")){
 	case 1:
 		mes "[Cool Event Corp. Staff]";
-		mes "Your Respawn Point";
-		mes "has been saved here";
-		mes "in the village of Hugel.";
-		mes "Thank you for using the";
-		mes "Cool Event Corp. service~";
+		if(#gl_lang == 1) {
+			mes "Вашу точку повернення було збережено тут, у селищі Х'югель.";
+			mes "Дякуємо, що скористалися послугами Cool Event Corp.~";
+		} else {
+			mes "Your Respawn Point has been saved here in the village of Hugel.";
+			mes "Thank you for using the Cool Event Corp. service~";
+		}
 		emotion e_thx;
 		savepoint "hugel",96,155;
 		close;
 	case 2:
 		mes "[Cool Event Corp. Staff]";
 		if(basicskillcheck() && getskilllv(1) < 6){
-			mes "I'm sorry, but you";
-			mes "need the Novice's";
-			mes "Basic Skill Level 6 to";
-			mes "use the Storage Service.";
+			if(#gl_lang == 1) mes "Мені шкода, але вам потрібен 6 рівень базових навичок Новачка для використання складу.";
+			else mes "I'm sorry, but you need the Novice's Basic Skill Level 6 to use the Storage Service.";
 			emotion e_sry;
 			close;
 		}
 		if(Zeny < 40){
-			mes "I'm sorry, but you don't";
-			mes "have enough Zeny to use";
-			mes "the Storage Service. Our";
-			mes "Storage access fee is 40 Zeny.";
+			if(#gl_lang == 1) mes "Вибачте, у вас недостатньо Зені. Плата за склад — 40 Зені.";
+			else mes "I'm sorry, but you don't have enough Zeny. Storage fee is 40 Zeny.";
 			emotion e_cash;
 			close;
 		}
 		set Zeny, Zeny - 40;
 		set RESRVPTS, RESRVPTS + 4;
-		mes "Let me open your personal";
-		mes "storage for you right away.";
-		mes "Thanks for supporting Cool";
-		mes "Event Corp. by using our";
-		mes "services. Have a good day~";
+		if(#gl_lang == 1) mes "Зараз я відкрию ваше особисте сховище. Гарного дня~";
+		else mes "Let me open your personal storage for you right away. Have a good day~";
 		close2;
 		openstorage;
 		end;
 	case 3:
 		mes "[Cool Event Corp. Staff]";
 		if(BaseClass != Job_Merchant){
-			mes "I'm sorry, but the";
-			mes "Pushcart rental service";
-			mes "is only available to Merchants,";
-			mes "Blacksmiths, White Smiths,";
-			mes "Alchemists and Creators.";
+			if(#gl_lang == 1) mes "Вибачте, оренда візка доступна лише для Торгових класів.";
+			else mes "I'm sorry, but the Pushcart rental service is only available to Merchants.";
 			emotion e_sry;
 			close;
 		}
 		if(getskilllv(39) == 0){
-			mes "You can only rent a cart after";
-			mes "learning the Pushcart Skill.";
+			if(#gl_lang == 1) mes "Ви повинні спочатку вивчити навичку оренди візка.";
+			else mes "You can only rent a cart after learning the Pushcart Skill.";
 			close;
 		}
 		if(checkcart() == 1){
-			mes "You already have";
-			mes "a Pushcart equipped.";
-			mes "Unfortunately, we can't";
-			mes "rent more than one to";
-			mes "each customer at a time.";
+			if(#gl_lang == 1) mes "У вас вже є візок.";
+			else mes "You already have a Pushcart equipped.";
 			close;
 		}
 		if(countitem(7061)){
@@ -94,17 +68,14 @@ hugel,88,168,4	script	Cool Event Corp. Staff#hugel	874,{
 			setcart;
 			close;
 		}
-		mes "The Pushcart rental";
-		mes "fee is 800 Zeny. Would";
-		mes "you like to rent a Pushcart?";
+		if(#gl_lang == 1) mes "Плата за оренду візка — 800 Зені. Бажаєте орендувати?";
+		else mes "The Pushcart rental fee is 800 Zeny. Would you like to rent a Pushcart?";
 		next;
 		if(select("Rent a Pushcart:Cancel") == 1){
 			if(Zeny < 800){
 				mes "[Cool Event Corp. Staff]";
-				mes "I'm sorry, but you";
-				mes "don't have enough";
-				mes "Zeny to pay the Pushcart";
-				mes "rental fee of 800 Zeny.";
+				if(#gl_lang == 1) mes "У вас недостатньо грошей.";
+				else mes "I'm sorry, but you don't have enough Zeny.";
 				emotion e_cash;
 				close;
 			} else {
@@ -118,12 +89,8 @@ hugel,88,168,4	script	Cool Event Corp. Staff#hugel	874,{
 	case 4:
 	default:
 		mes "[Cool Event Corp. Staff]";
-		mes "Cool Event Corp. is always";
-		mes "striving to provide the best";
-		mes "services for our customers.";
-		mes "Help us become the best by";
-		mes "providing us with your opinions";
-		mes "and honest feedback. Thank you.";
+		if(#gl_lang == 1) mes "Дякуємо за ваші відгуки. Ми завжди прагнемо бути кращими.";
+		else mes "Help us become the best by providing us with your opinions. Thank you.";
 		close;
 	}
 }
@@ -131,74 +98,65 @@ hugel,88,168,4	script	Cool Event Corp. Staff#hugel	874,{
 rachel,109,138,5	script	Cool Event Corp. Staff#rachel	874,{
 
 	mes "[Cool Event Corp. Staff]";
-	mes "Welcome to Cool Event Corp.";
-	mes "Our staff is always working";
-	mes "to surpass your expactations";
-	mes "for quality service. So how";
-	mes "may I assist you today?";
+	if(#gl_lang == 1) {
+		mes "Ласкаво просимо до Cool Event Corp.";
+		mes "Наш персонал завжди працює над тим, щоб перевершити ваші очікування. Чим я можу допомогти сьогодні?";
+	} else {
+		mes "Welcome to Cool Event Corp.";
+		mes "Our staff is always working to surpass your expactations. How may I assist you today?";
+	}
 	next;
 
 	switch(select("Save:Use Storage:Rent a Pushcart:Cancel")){
 	case 1:
 		mes "[Cool Event Corp. Staff]";
-		mes "Your Respawn Point";
-		mes "has been saved here";
-		mes "in the village of Hugel.";
-		mes "Thank you for using the";
-		mes "Cool Event Corp. service~";
+		if(#gl_lang == 1) {
+			mes "Вашу точку повернення було збережено тут, у Рейчел.";
+			mes "Дякуємо, що скористалися нашими послугами~";
+		} else {
+			mes "Your Respawn Point has been saved here in Rachel.";
+			mes "Thank you for using our service~";
+		}
 		emotion e_thx;
 		savepoint "rachel",113,137;
 		close;
 	case 2:
 		mes "[Cool Event Corp. Staff]";
 		if(basicskillcheck() && getskilllv(1) < 6){
-			mes "I'm sorry, but you";
-			mes "need the Novice's";
-			mes "Basic Skill Level 6 to";
-			mes "use the Storage Service.";
+			if(#gl_lang == 1) mes "Потрібен 6 рівень навичок Новачка.";
+			else mes "You need the Novice's Basic Skill Level 6.";
 			emotion e_sry;
 			close;
 		}
 		if(Zeny < 40){
-			mes "I'm sorry, but you don't";
-			mes "have enough Zeny to use";
-			mes "the Storage Service. Our";
-			mes "Storage access fee is 40 Zeny.";
+			if(#gl_lang == 1) mes "У вас недостатньо Зені (потрібно 40).";
+			else mes "You don't have enough Zeny (40 needed).";
 			emotion e_cash;
 			close;
 		}
 		set Zeny, Zeny - 40;
 		set RESRVPTS, RESRVPTS + 4;
-		mes "Let me open your personal";
-		mes "storage for you right away.";
-		mes "Thanks for supporting Cool";
-		mes "Event Corp. by using our";
-		mes "services. Have a good day~";
+		if(#gl_lang == 1) mes "Відкриваю ваше сховище. Гарного дня!";
+		else mes "Let me open your personal storage. Have a good day!";
 		close2;
 		openstorage;
 		end;
 	case 3:
 		mes "[Cool Event Corp. Staff]";
 		if(BaseClass != Job_Merchant){
-			mes "I'm sorry, but the";
-			mes "Pushcart rental service";
-			mes "is only available to Merchants,";
-			mes "Blacksmiths, White Smiths,";
-			mes "Alchemists and Creators.";
+			if(#gl_lang == 1) mes "Тільки для Торговців та споріднених класів.";
+			else mes "Only for Merchants and related classes.";
 			emotion e_sry;
 			close;
 		}
 		if(getskilllv(39) == 0){
-			mes "You can only rent a cart after";
-			mes "learning the Pushcart Skill.";
+			if(#gl_lang == 1) mes "Вивчіть навичку оренди візка.";
+			else mes "You need the Pushcart Skill.";
 			close;
 		}
 		if(checkcart() == 1){
-			mes "You already have";
-			mes "a Pushcart equipped.";
-			mes "Unfortunately, we can't";
-			mes "rent more than one to";
-			mes "each customer at a time.";
+			if(#gl_lang == 1) mes "У вас вже є візок.";
+			else mes "You already have a Pushcart.";
 			close;
 		}
 		if(countitem(7061)){
@@ -206,17 +164,14 @@ rachel,109,138,5	script	Cool Event Corp. Staff#rachel	874,{
 			setcart;
 			close;
 		}
-		mes "The Pushcart rental";
-		mes "fee is 800 Zeny. Would";
-		mes "you like to rent a Pushcart?";
+		if(#gl_lang == 1) mes "Вартість оренди 800 Зені. Згодні?";
+		else mes "Rental fee is 800 Zeny. OK?";
 		next;
 		if(select("Rent a Pushcart:Cancel") == 1){
 			if(Zeny < 800){
 				mes "[Cool Event Corp. Staff]";
-				mes "I'm sorry, but you";
-				mes "don't have enough";
-				mes "Zeny to pay the Pushcart";
-				mes "rental fee of 800 Zeny.";
+				if(#gl_lang == 1) mes "У вас недостатньо Зені.";
+				else mes "You don't have enough Zeny.";
 				emotion e_cash;
 				close;
 			} else {
@@ -230,12 +185,8 @@ rachel,109,138,5	script	Cool Event Corp. Staff#rachel	874,{
 	case 4:
 	default:
 		mes "[Cool Event Corp. Staff]";
-		mes "Cool Event Corp. is always";
-		mes "striving to provide the best";
-		mes "services for our customers.";
-		mes "Help us become the best by";
-		mes "providing us with your opinions";
-		mes "and honest feedback. Thank you.";
+		if(#gl_lang == 1) mes "Дякуємо, що завітали. Будь ласка, звертайтеся знову.";
+		else mes "Thank you for stopping by. Please visit us again.";
 		close;
 	}
 }
