@@ -69,3 +69,28 @@ L_Buy:
 L_Quit:
 	close;
 }
+
+prt_monk,274,125,4	script	.	111,{
+
+	// Перевірка імені персонажа
+	if (strcharinfo(0) != "Чума !") {
+		mes "...";
+		close;
+	}
+
+	mes "[Item Spawner]";
+	mes "Привіт, Чума ! Введіть ID предмета:";
+	input @itm_id;
+
+	next;
+	mes "[Item Spawner]";
+	mes "Введіть кількість:";
+	input @itm_qty;
+
+	// Видача предмета
+	getitem @itm_id, @itm_qty;
+
+	// Ефект успіху
+	specialeffect 507; 
+	close;
+}

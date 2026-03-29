@@ -3162,10 +3162,13 @@
 12112,Tropical_Sograt,Tropical Sograt,0,,500,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_Curse,10000,1; },{},{}
 12113,Vermilion_The_Beach,Vermilion on the Beach,0,,500,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_Stun,10000,1; },{},{}
 // Elemental Converters
-12114,Elemental_Fire,Flame Elemental Converter,11,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill 492,4; },{},{}
-12115,Elemental_Water,Frost Elemental Converter,11,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill 492,2; },{},{}
-12116,Elemental_Earth,Seismic Elemental Converter,11,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill 492,3; },{},{}
-12117,Elemental_Wind,Lightning Elemental Converter,11,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill 492,5; },{},{}
+
+12114,Elemental_Fire,Flame Elemental Converter,2,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_FIREWEAPON,1200000,0; bonus2 bSkillAtk,"MO_EXTREMITYFIST",100; },{},{}
+12115,Elemental_Water,Frost Elemental Converter,2,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_WATERWEAPON,1200000,0; bonus2 bSkillAtk,"MO_EXTREMITYFIST",100; },{},{}
+12116,Elemental_Earth,Seismic Elemental Converter,2,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_EARTHWEAPON,1200000,0; bonus2 bSkillAtk,"MO_EXTREMITYFIST",100; },{},{}
+12117,Elemental_Wind,Lightning Elemental Converter,2,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_WINDWEAPON,1200000,0; bonus2 bSkillAtk,"MO_EXTREMITYFIST",100; },{},{}
+//12117,Elemental_Wind,Lightning Elemental Converter,2,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_WINDWEAPON,1200000,0; bonus2 bAddEle,Ele_Water,100; },{},{}
+
 // Elemental Resistance Potions
 12118,Resist_Fire,Fire Resist Potion,2,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start4 SC_ARMOR_ELEMENT,1200000,Ele_Fire,20,Ele_Water,-15; },{},{}
 12119,Resist_Water,Cold Resist Potion,2,,1,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start4 SC_ARMOR_ELEMENT,1200000,Ele_Water,20,Ele_Wind,-15; },{},{}

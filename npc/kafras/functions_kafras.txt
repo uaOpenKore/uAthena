@@ -54,28 +54,44 @@ function	script	F_Kafra	{
 	switch(getarg(0)){
 		default:
 		case 0:
-			mes "Welcome to Kafra Corp.  We will stay with you wherever you go.";
+			if(#gl_lang == 1) mes "Ласкаво просимо до Корпорації Кафра. Ми будемо з вами, куди б ви не пішли.";
+			else mes "Welcome to Kafra Corp.  We will stay with you wherever you go.";
 			break;
 		//Niflheim
 		case 1:
-			mes "Welcome... Kafra Services.... Will be with you even if you die.....";
+			if(#gl_lang == 1) mes "Ласкаво просимо... Послуги Кафри.... Будуть з вами, навіть якщо ви помрете.....";
+			else mes "Welcome... Kafra Services.... Will be with you even if you die.....";
 			break;
 		//Guilds Castles
 		case 2:
-			mes "Welcome, ^5533FF" + GetGuildName(@GID) + "^000000 members.  We will stay with you wherever you go";
+			if(#gl_lang == 1) mes "Вітаємо, учасники гільдії ^5533FF" + GetGuildName(@GID) + "^000000. Ми будемо з вами, куди б ви не пішли";
+			else mes "Welcome, ^5533FF" + GetGuildName(@GID) + "^000000 members.  We will stay with you wherever you go";
 			break;
 		//Amatsu
 		case 3:
-			mes "So, have you come from a faraway land to study our culture, or are you just sightseeing?";
-			mes "In either case, why not stay awhile?";
-			mes "The air is eternally heavy with the";
-			mes "scent of pleasant wildflowers.";
+			if(#gl_lang == 1) {
+				mes "Отже, ви прийшли з далеких земель, щоб вивчити нашу культуру, чи ви просто оглядаєте визначні пам'ятки?";
+				mes "У будь-якому випадку, чому б не залишитися ненадовго?";
+				mes "Повітря тут вічно напоєне";
+				mes "ароматом приємних польових квітів.";
+			} else {
+				mes "So, have you come from a faraway land to study our culture, or are you just sightseeing?";
+				mes "In either case, why not stay awhile?";
+				mes "The air is eternally heavy with the";
+				mes "scent of pleasant wildflowers.";
+			}
 			break;
 		//Louyang, Ayothaya
 		case 4:
-			mes "With our many Kafra";
-			mes "service locations, you're never";
-			mes "far from home.";
+			if(#gl_lang == 1) {
+				mes "З нашими численними";
+				mes "відділеннями обслуговування Кафра, ви ніколи";
+				mes "не будете далеко від дому.";
+			} else {
+				mes "With our many Kafra";
+				mes "service locations, you're never";
+				mes "far from home.";
+			}
 			break;
 	}
 	next;
@@ -152,13 +168,23 @@ function	script	F_Kafra	{
 		if (@K_Menu0$[@num] == "-Use Teleport Service"){
 			if(getarg(1) == 4){				//Check for Einbroch Tele notice
 				mes "[Kafra]";
-				mes "Because of the ^FF0000Limited Transport Agreement^000000, the Kafra Corporation cannot provide Teleport Services in the Schwarzwald Republic.";
-				next;
-				mes "[Kafra]";
-				mes "We ask that you please";
-				mes "use the Airship Service";
-				mes "instead. Thank you for your";
-				mes "understanding and cooperation.";
+				if(#gl_lang == 1) {
+					mes "Через ^FF0000Угоду про обмеження транспорту^000000, Корпорація Кафра не може надавати послуги телепортації в Республіці Шварцвальд.";
+					next;
+					mes "[Kafra]";
+					mes "Ми просимо вас";
+					mes "скористатися послугою дирижабля";
+					mes "замість цього. Дякуємо за ваше";
+					mes "розуміння та співпрацю.";
+				} else {
+					mes "Because of the ^FF0000Limited Transport Agreement^000000, the Kafra Corporation cannot provide Teleport Services in the Schwarzwald Republic.";
+					next;
+					mes "[Kafra]";
+					mes "We ask that you please";
+					mes "use the Airship Service";
+					mes "instead. Thank you for your";
+					mes "understanding and cooperation.";
+				}
 				next;
 				goto M_Menu;
 			}
@@ -196,8 +222,13 @@ function	script	F_KafStor	{
 	if(getarg(0) == 1){
 		if(guildopenstorage(0) == 1){
 			mes "[Kafra]";
-			mes "I'm sorry but another guild member is using the guild storage";
-			mes "right now.  Please wait until that person is finished.";
+			if(#gl_lang == 1) {
+				mes "Вибачте, але інший член гільдії вже використовує склад гільдії";
+				mes "прямо зараз. Будь ласка, зачекайте, поки він закінчить.";
+			} else {
+				mes "I'm sorry but another guild member is using the guild storage";
+				mes "right now.  Please wait until that person is finished.";
+			}
 			close2;
 			cutin "", 255;
 			end;
@@ -207,7 +238,8 @@ function	script	F_KafStor	{
 	}
 	if(basicskillcheck() && getskilllv(1) < 6){
 		mes "[Kafra]";
-		mes "I am sorry but you have to be at least Novice level 6 if you want to use the storage.";
+		if(#gl_lang == 1) mes "Вибачте, але ви повинні мати принаймні 6-й рівень Новачка, щоб користуватися складом.";
+		else mes "I am sorry but you have to be at least Novice level 6 if you want to use the storage.";
 		return;
 	}
 	//don't charge for common storage in Castle
@@ -218,7 +250,8 @@ function	script	F_KafStor	{
 		} else {
 			if(Zeny<40){
 				mes "[Kafra]";
-				mes "Dear you don't have enough money. The Storage fee is 40 Zeny.";
+				if(#gl_lang == 1) mes "Любий, у вас недостатньо грошей. Плата за склад становить 40 Зені.";
+				else mes "Dear you don't have enough money. The Storage fee is 40 Zeny.";
 				return;
 			}
 			set Zeny, Zeny-40;
@@ -226,8 +259,13 @@ function	script	F_KafStor	{
 		}
 	}
 	mes "[Kafra]";
-	mes "Close this window to open your storage.";
-	mes "We hope to see you again soon.";
+	if(#gl_lang == 1) {
+		mes "Закрийте це вікно, щоб відкрити свій склад.";
+		mes "Сподіваємося скоро побачити вас знову.";
+	} else {
+		mes "Close this window to open your storage.";
+		mes "We hope to see you again soon.";
+	}
 
 	callfunc("F_CheckKafCode");	//check your storage password, if set
 
@@ -241,7 +279,8 @@ function	script	F_KafStor	{
 // Teleport Function ==================================================
 function	script	F_KafTele	{
 	mes "[Kafra]";
-	mes "Please set your destination.";
+	if(#gl_lang == 1) mes "Будь ласка, оберіть місце призначення.";
+	else mes "Please set your destination.";
 	next;
 
 	menu 	@wrpC$[0],M_Wrp0, @wrpC$[1],M_Wrp1, @wrpC$[2],M_Wrp2, @wrpC$[3],M_Wrp3, 
@@ -276,7 +315,8 @@ function	script	F_KafTele	{
 		} else {
 			if (Zeny<@wrpP[@num]){
 				mes "[Kafra]";
-				mes "Dear you don't have enough money. Please check your funds again.";
+				if(#gl_lang == 1) mes "Любий, у вас недостатньо грошей. Будь ласка, перевірте ваші кошти ще раз.";
+				else mes "Dear you don't have enough money. Please check your funds again.";
 				emotion e_cash;
 				close2;
 				cutin "", 255;
@@ -308,17 +348,20 @@ function	script	F_KafTele	{
 function	script	F_KafCart	{
 	if(baseClass != Job_Merchant){
 		mes "[Kafra]";
-		mes "I'm sorry dear.  The Cart service is only provided for the Merchant and Blacksmith Class.";
+		if(#gl_lang == 1) mes "Вибачте, любий. Послуга оренди візка надається лише класам Торговець та Коваль.";
+		else mes "I'm sorry dear.  The Cart service is only provided for the Merchant and Blacksmith Class.";
 		return 1;
 	}
 	if(getskilllv(39)==0){
 		mes "[Kafra]";
-		mes "I'm sorry but you need the skill ^0000FF'Pushcart'^000000 to rent a cart.";
+		if(#gl_lang == 1) mes "Вибачте, але вам потрібна навичка ^0000FF'Pushcart'^000000, щоб орендувати візок.";
+		else mes "I'm sorry but you need the skill ^0000FF'Pushcart'^000000 to rent a cart.";
 		return 1;
 	}
 	if(checkcart() == 1){
 		mes "[Kafra]";
-		mes "Excuse me... but you already have a cart....";
+		if(#gl_lang == 1) mes "Вибачте... але у вас вже є візок....";
+		else mes "Excuse me... but you already have a cart....";
 		emotion e_swt;
 		return 1;
 	}
@@ -330,13 +373,15 @@ function	script	F_KafCart	{
 		goto L_FreeCart;
 	}
 	mes "[Kafra]";
-	mes "The Cart Fee is 800 Zeny.  Do you want to Rent a Cart?";
+	if(#gl_lang == 1) mes "Плата за візок становить 800 Зені. Бажаєте орендувати візок?";
+	else mes "The Cart Fee is 800 Zeny.  Do you want to Rent a Cart?";
 	next;
 	menu "-Rent a Cart.",-, "-Cancel.",M_End;
 
 		if(Zeny<800){
 			mes "[Kafra]";
-			mes "Dear, you don't have enough Money. You need 800 Zeny.";
+			if(#gl_lang == 1) mes "Любий, у вас недостатньо грошей. Вам потрібно 800 Зені.";
+			else mes "Dear, you don't have enough Money. You need 800 Zeny.";
 			emotion e_cash;
 			return 1;
 		}
@@ -345,7 +390,8 @@ function	script	F_KafCart	{
 	L_FreeCart:
 		setcart;
 		mes "[Kafra]";
-		mes "Here is your cart.";
+		if(#gl_lang == 1) mes "Ось ваш візок.";
+		else mes "Here is your cart.";
 		return 1;
 	M_End:
 		return 0;
@@ -370,20 +416,32 @@ function	script	F_KafInfo	{
 
 	sM_ResChk:
 		mes "[Kafra]";
-		mes "Here is your current amount of special reserve points:";
-		mes "^0000ff"+RESRVPTS+"^000000.";
-		next;
-		mes "[Kafra]";
-		mes "Remember to continue using Kafra services such as Storage and Teleport, to earn more special reserve points.";
-		next;
-		mes "[Kafra]";
-		mes "You can trade them in at the Kafra Main Office in Al De Baran for useful items and cool prizes.";
+		if(#gl_lang == 1) {
+			mes "Ось ваша поточна кількість спеціальних балів резерву:";
+			mes "^0000ff"+RESRVPTS+"^000000.";
+			next;
+			mes "[Kafra]";
+			mes "Не забувайте продовжувати користуватися послугами Кафри, такими як Склад та Телепорт, щоб заробити більше балів.";
+			next;
+			mes "[Kafra]";
+			mes "Ви можете обміняти їх у головному офісі Кафри в Аль-Де-Барані на корисні предмети та круті призи.";
+		} else {
+			mes "Here is your current amount of special reserve points:";
+			mes "^0000ff"+RESRVPTS+"^000000.";
+			next;
+			mes "[Kafra]";
+			mes "Remember to continue using Kafra services such as Storage and Teleport, to earn more special reserve points.";
+			next;
+			mes "[Kafra]";
+			mes "You can trade them in at the Kafra Main Office in Al De Baran for useful items and cool prizes.";
+		}
 		next;
 		if(getarg(0) == 1) return;
 		goto sM_Menu;
 	sM_KafLoc:
 		mes "[Kafra]";
-		mes "The flashing signals on your mini-map point to the locations of all of the Kafra Agents in this city.";
+		if(#gl_lang == 1) mes "Миготливі сигнали на вашій міні-карті вказують на розташування всіх агентів Кафри в цьому місті.";
+		else mes "The flashing signals on your mini-map point to the locations of all of the Kafra Agents in this city.";
 		viewpoint 1,@viewpX[0],@viewpY[0],1,0xFF00FF;
 		viewpoint 1,@viewpX[1],@viewpY[1],2,0xFF00FF;
 		viewpoint 1,@viewpX[2],@viewpY[2],3,0xFF00FF;
@@ -409,9 +467,18 @@ function	script	F_KafInfo	{
 //===================================================================
 function	script	F_KafEnd	{
 	mes "[Kafra]";
-	if(getarg(1)==1) mes "Your respawn point has been saved.";		// only shown when a player uses save
-	if(getarg(0)!=1) mes "Thank you for using Kafra Services.  We hope to see you again soon.";
-	if(getarg(0)==1) mes "We, Kafra Corporation.... Will be with you.... whenever.... wherever... therefore.... please don't forget us.....";
+	if(getarg(1)==1) {
+		if(#gl_lang == 1) mes "Ваша точка відродження була збережена.";
+		else mes "Your respawn point has been saved.";		// only shown when a player uses save
+	}
+	if(getarg(0)!=1) {
+		if(#gl_lang == 1) mes "Дякуємо, що скористалися послугами Кафри. Сподіваємося скоро побачити вас знову.";
+		else mes "Thank you for using Kafra Services.  We hope to see you again soon.";
+	}
+	if(getarg(0)==1) {
+		if(#gl_lang == 1) mes "Ми, Корпорація Кафра.... Будемо з вами.... коли завгодно.... де завгодно... тому.... будь ласка, не забувайте про нас.....";
+		else mes "We, Kafra Corporation.... Will be with you.... whenever.... wherever... therefore.... please don't forget us.....";
+	}
 	close2;
 	cutin "", 255;
 	emotion e_thx;
@@ -422,7 +489,8 @@ function	script	F_KafEnd	{
 // Check Storage Password Function ====================
 function	script	F_CheckKafCode	{
 	if(#kafra_code==0) return;
-	mes "Enter your storage password:";
+	if(#gl_lang == 1) mes "Введіть пароль від складу:";
+	else mes "Enter your storage password:";
 	set @code_,0;
 	input @code_;
 	if(@code_ != #kafra_code-getcharid(3)-1337) {
@@ -440,24 +508,32 @@ function	script	F_CheckKafCode	{
 function	script	F_SetKafCode	{
 	mes "[Kafra]";
 	if(#kafra_code) {
-		mes "Your storage is protected with a password. What would you do now?";
+		if(#gl_lang == 1) mes "Ваш склад захищений паролем. Що ви хочете зробити зараз?";
+		else mes "Your storage is protected with a password. What would you do now?";
 		next;
 		menu "Change old password -> 5000z",-,
 		"Remove storage password -> 1000z",M_CLEAR,
 		"Cancel",M_END;
 	} else {
-		mes "Kafra Services proudly presents you a new service:";
-		mes "Additional storage protection with a password.";
+		if(#gl_lang == 1) {
+			mes "Служба Кафри з гордістю представляє вам нову послугу:";
+			mes "Додатковий захист складу за допомогою пароля.";
+		} else {
+			mes "Kafra Services proudly presents you a new service:";
+			mes "Additional storage protection with a password.";
+		}
 		next;
 		menu "Set new password -> 5000z",M_SET,
 		"Cancel",M_END;
 	}
 
 	mes "[Kafra]";
-	mes "At first, please enter your ^0000FFold password^000000.";
+	if(#gl_lang == 1) mes "Спочатку, будь ласка, введіть свій ^0000FFстарий пароль^000000.";
+	else mes "At first, please enter your ^0000FFold password^000000.";
 	set @code,callfunc("F_EntKafCode");
 	if(@code==0 || @code != #kafra_code-getcharid(3)-1337) {
-		mes "Wrong password. You can't set a new password.";
+		if(#gl_lang == 1) mes "Невірний пароль. Ви не можете встановити новий пароль.";
+		else mes "Wrong password. You can't set a new password.";
 		emotion e_hmm;
 		goto M_END;
 	}
@@ -465,10 +541,12 @@ function	script	F_SetKafCode	{
 
 M_SET:
 	mes "[Kafra]";
-	mes "Now enter your ^FF0000new password^000000 to protect your storage from thieves.";
+	if(#gl_lang == 1) mes "Тепер введіть свій ^FF0000новий пароль^000000, щоб захистити склад від крадіїв.";
+	else mes "Now enter your ^FF0000new password^000000 to protect your storage from thieves.";
 	set @code,callfunc("F_EntKafCode");
 	if(@code==0) {
-		mes "The password hasn't been changed.";
+		if(#gl_lang == 1) mes "Пароль не було змінено.";
+		else mes "The password hasn't been changed.";
 		emotion e_hmm;
 		goto M_END;
 	}
@@ -479,17 +557,24 @@ M_SET:
 	set RESRVPTS, RESRVPTS + (5000/50);
 
 	set #kafra_code,@code+getcharid(3)+1337;
-	mes "You've protected your storage with a secret password.";
-	mes "Thank you for using Kafra Services.";
+	if(#gl_lang == 1) {
+		mes "Ви захистили свій склад секретним паролем.";
+		mes "Дякуємо за використання послуг Кафри.";
+	} else {
+		mes "You've protected your storage with a secret password.";
+		mes "Thank you for using Kafra Services.";
+	}
 	emotion e_thx;
 	goto M_END;	
 
 M_CLEAR:
 	mes "[Kafra]";
-	mes "Please, enter your password before its removal.";
+	if(#gl_lang == 1) mes "Будь ласка, введіть ваш пароль перед його видаленням.";
+	else mes "Please, enter your password before its removal.";
 	set @code,callfunc("F_EntKafCode");
 	if(@code==0) {
-		mes "The password hasn't been removed.";
+		if(#gl_lang == 1) mes "Пароль не було видалено.";
+		else mes "The password hasn't been removed.";
 		emotion e_hmm;
 		goto M_END;
 	}
@@ -500,18 +585,29 @@ M_CLEAR:
 	set RESRVPTS, RESRVPTS + (1000/50);
 	if(@code == #kafra_code-getcharid(3)-1337) {
 		set #kafra_code,0;
-		mes "You've successfully cleared your storage password.";
-		mes "Thank you for using Kafra Services.";
+		if(#gl_lang == 1) {
+			mes "Ви успішно видалили пароль від свого складу.";
+			mes "Дякуємо за використання послуг Кафри.";
+		} else {
+			mes "You've successfully cleared your storage password.";
+			mes "Thank you for using Kafra Services.";
+		}
 		emotion e_thx;
 	} else {
-		mes "Wrong password. We won't return your 1000z.";
-		mes "Please, next time enter correct password.";
+		if(#gl_lang == 1) {
+			mes "Невірний пароль. Ми не повернемо ваші 1000z.";
+			mes "Будь ласка, наступного разу вводьте правильний пароль.";
+		} else {
+			mes "Wrong password. We won't return your 1000z.";
+			mes "Please, next time enter correct password.";
+		}
 		emotion e_sry;
 	}
 	goto M_END;	
 
 L_ZENY:
-	mes "You don't have enough zeny.";
+	if(#gl_lang == 1) mes "У вас недостатньо зені.";
+	else mes "You don't have enough zeny.";
 	emotion e_cash;
 M_END:
 	close2;
@@ -521,7 +617,8 @@ M_END:
 
 // Basic Password Validation Function ====================
 function	script	F_EntKafCode	{
-	mes "Enter a number 1000~10000000:";
+	if(#gl_lang == 1) mes "Введіть число від 1000 до 10000000:";
+	else mes "Enter a number 1000~10000000:";
 	set @code_,0;
 	set @kafcode_try,@kafcode_try+1;
 	if(@kafcode_try>10) {
@@ -530,11 +627,13 @@ function	script	F_EntKafCode	{
 	}
 	input @code_;
 	if(@code_<1000) {
-		mes "You shouldn't use such short password.";
+		if(#gl_lang == 1) mes "Ви не повинні використовувати такий короткий пароль.";
+		else mes "You shouldn't use such short password.";
 		return 0;
 	}
 	if(@code_>10000000) {
-		mes "You can't use such big password.";
+		if(#gl_lang == 1) mes "Ви не можете використовувати такий великий пароль.";
+		else mes "You can't use such big password.";
 		return 0;
 	}
 	return @code_;

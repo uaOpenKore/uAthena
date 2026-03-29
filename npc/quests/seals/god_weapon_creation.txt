@@ -15,60 +15,108 @@
 gld_dun01.gat,28,85,0	script	Grunburti	826,{
 
 	mes "[Dwarf Grunburti]";
-	mes "Hmmhah! What brought you here, human!";
-	mes "Living in Midgard and away from my home town is painful enough, let alone facing a whiney human. Leave me alone!";
+	if (#gl_lang == 1) {
+		mes "Хмм-ха! Що привело тебе сюди, людино!";
+		mes "Жити в Мідгарді далеко від мого рідного міста — це вже достатній біль, не кажучи вже про зустрічі з плаксивими людьми. Дай мені спокій!";
+	} else {
+		mes "Hmmhah! What brought you here, human!";
+		mes "Living in Midgard and away from my home town is painful enough, let alone facing a whiney human. Leave me alone!";
+	}
 	next;
-		switch( select( "Ask him about dwarves.", "Ask him what he is doing.", "Request a weapon creation.", "Cancel." ) )
+	
+	if (#gl_lang == 1) { set @menu$, "Запитати про гномів.:Запитати, чим він займається.:Попросити виготовити зброю.:Скасувати."; }
+	else { set @menu$, "Ask him about dwarves.:Ask him what he is doing.:Request a weapon creation.:Cancel."; }
+	
+	switch( select(@menu$) )
 	{
 
 	case 1:
 		mes "[Dwarf Grunburti]";
-		mes "Ah, what an annoying human! What do you want to know about us, huh?";
-		mes "We are the toughest race that have bare to live in the barren land. Feeble-minded midgardians can not imagine how sterile our land is!";
+		if (#gl_lang == 1) {
+			mes "Ах, яка настирлива людина! Що ти хочеш знати про нас, га?";
+			mes "Ми — найвитриваліша раса, що наважилася жити в безплідних землях. Слабкодухі мешканці Мідгарда навіть не уявляють, наскільки сувора наша батьківщина!";
+		} else {
+			mes "Ah, what an annoying human! What do you want to know about us, huh?";
+			mes "We are the toughest race that have bare to live in the barren land. Feeble-minded midgardians can not imagine how sterile our land is!";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "All the knowledge and skills that you are proud of were used to be ours.";
-		mes "Even weapons used by ancient Gods were made by our ancestors. Do you know that?";
+		if (#gl_lang == 1) {
+			mes "Усі знання та вміння, якими ви так пишаєтеся, колись належали нам.";
+			mes "Навіть зброя, якою користувалися стародавні Боги, була зроблена нашими предками. Ти знав про це?";
+		} else {
+			mes "All the knowledge and skills that you are proud of were used to be ours.";
+			mes "Even weapons used by ancient Gods were made by our ancestors. Do you know that?";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "We have the greatest knowlege and skills yet we have taken our fate to live in the barren land of Giants, that's who we are!";
+		if (#gl_lang == 1) {
+			mes "Ми володіємо найбільшими знаннями, але обрали долю жити в пустельних землях Гігантів — ось хто ми такі!";
+		} else {
+			mes "We have the greatest knowlege and skills yet we have taken our fate to live in the barren land of Giants, that's who we are!";
+		}
 		close;
 	break;
 
 	case 2:
 		mes "[Dwarf Grunburti]";
-		mes "Did you just ask what I am doing here?";
-		mes "Muhahahaha....I was waiting for the time to kick your ass!";
+		if (#gl_lang == 1) {
+			mes "Ти щойно запитав, що я тут роблю?";
+			mes "Мухахахаха.... Я чекав слушного моменту, щоб надати тобі копняка!";
+		} else {
+			mes "Did you just ask what I am doing here?";
+			mes "Muhahahaha....I was waiting for the time to kick your ass!";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Heheheheh, don't you worry. In fact, I will only humiliate myself by fighting with such a weakling like you.";
-		mes "Humans are so weak yet are too arrogant and love power struggling each other. You are just helpless...";
+		if (#gl_lang == 1) {
+			mes "Хе-хе-хе, не хвилюйся. Насправді, я лише принижу себе, б'ючись із таким слабаком, як ти.";
+			mes "Люди такі кволі, але водночас занадто пихаті й обожнюють боротися один з одним за владу. Ви просто безпорадні...";
+		} else {
+			mes "Heheheheh, don't you worry. In fact, I will only humiliate myself by fighting with such a weakling like you.";
+			mes "Humans are so weak yet are too arrogant and love power struggling each other. You are just helpless...";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "My home town....I will never be able to go back...from this Midgard.";
-		mes "Because Yggdrasil tree, the only way to my home town have dissappeared during the war in 1000 years ago.";
+		if (#gl_lang == 1) {
+			mes "Моє рідне місто.... Я ніколи не зможу повернутися туди... з цього Мідгарда.";
+			mes "Тому що древо Іґґдрасіль, єдиний шлях до мого дому, зникло під час війни 1000 років тому.";
+		} else {
+			mes "My home town....I will never be able to go back...from this Midgard.";
+			mes "Because Yggdrasil tree, the only way to my home town have dissappeared during the war in 1000 years ago.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "That is why I have been staying in Midgard!";
-		mes "At least I am lucky because I found this cave where the environment is similar as my home town...";
+		if (#gl_lang == 1) {
+			mes "Ось чому я залишаюся в Мідгарді!";
+			mes "Принаймні мені пощастило знайти цю печеру, де умови схожі на мою батьківщину...";
+		} else {
+			mes "That is why I have been staying in Midgard!";
+			mes "At least I am lucky because I found this cave where the environment is similar as my home town...";
+		}
 		close;
 	break;
 
 	case 3:
 		set @god_guild,getcharid(2);
-			if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+			if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 		{
-				if ($God1 > 49 && $God2 > 49 && $God3 > 49 && $God4 > 49 && strcharinfo(0) == getguildmaster(@god_guild))
+				if (God1 > 0 && God2 > 0 && God3 > 0 && God4 > 0)
 			{
 				mes "[Dwarf Grunburti]";
-				mes "Hmm...I need some materials to make a weapon.";
-				mes "Which weapon do you want to have?";
+				if (#gl_lang == 1) {
+					mes "Хмм... Мені потрібні деякі матеріали, щоб виготовити зброю.";
+					mes "Яку саме зброю ти хочеш отримати?";
+				} else {
+					mes "Hmm...I need some materials to make a weapon.";
+					mes "Which weapon do you want to have?";
+				}
 				next;
-					switch( select(	 "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
+				switch( select(	 "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 				{
 					case 1:
 						mes "[Dwarf Grunburti]";
-				        mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF4 Freya's Jewel";
 						mes "4 Silver Ornament";
 						mes "3 Snow Crystal";
@@ -78,51 +126,54 @@ gld_dun01.gat,28,85,0	script	Grunburti	826,{
 						mes "3 Pearl";
 						mes "10 Opal";
 						mes "5 Cursed Ruby";
-						mes "20 Gold and";
+						mes "20 Gold та";
 						mes "1 Necklace^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 2:
 						mes "[Dwarf Grunburti]";
-					        mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF1 Gleipnir";
 						mes "20 Gold";
 						mes "10 Sapphire";
 						mes "10 Oridecon";
-						mes "and 1 Belt^000000...";
+						mes "та 1 Belt^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 3:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF3 Wheel of the Unknown";
 						mes "5 Feather of Angel Wing";
-						mes "3 Sprit of Fish";
+						mes "3 Spirit of Fish";
 						mes "4 Emblem of the Sun God";
 						mes "3 Breath of Spirit";
 						mes "20 Gold";
 						mes "10 Elunium";
-						mes "and 1 Slotted Boots^000000...";
+						mes "та 1 Slotted Boots^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 4:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF2 Thor's Gauntlets";
 						mes "4 Iron Maiden";
 						mes "5 Wrath of Valkyrie";
@@ -130,12 +181,13 @@ gld_dun01.gat,28,85,0	script	Grunburti	826,{
 						mes "5 Billow";
 						mes "20 Oridecon";
 						mes "5 Elunium";
-						mes "40 Gold and";
+						mes "40 Gold та";
 						mes "1 Stunner^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 				}
@@ -143,53 +195,62 @@ gld_dun01.gat,28,85,0	script	Grunburti	826,{
 				else
 			{
 				mes "[Dwarf Grunburti]";
-				mes "We, dwarves have too high pride to share own skills with such a low race like human!";
-				mes "Stop interrupting me and leave immediately! Go play with monsters, your favorite toys!";
+				if (#gl_lang == 1) {
+					mes "Ми, гноми, маємо занадто високу гордість, щоб ділитися своїми навичками з такою нижчою расою, як люди!";
+					mes "Припини мені заважати й негайно йди геть! Йди грайся з монстрами, твоїми улюбленими іграшками!";
+				} else {
+					mes "We, dwarves have too high pride to share own skills with such a low race like human!";
+					mes "Stop interrupting me and leave immediately! Go play with monsters, your favorite toys!";
+				}
 				close;
 			}
 		}
-			if (strcharinfo(0) != getguildmaster(@god_guild))
-		{
-			mes "[Dwarf Grunburti]";
-			mes "I will only present my significant skills to humans of high social standing!";
-			mes "Go bring your ^0000FFguildmaster^000000!";
-			close;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) { mes "Хоча мені дуже принизливо демонструвати свої цінні навички людині..."; }
+		else { mes "Although it is very humiliating to present my valuable skills to a human being..."; }
+		next;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) { mes "оскільки ти з гільдії і всі печатки були зняті, думаю, я можу дати тобі шанс спробувати."; }
+		else { mes "since you are from a guild and all the seals have been released, I think I can give you a chance to look at."; }
+		next;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) {
+			mes "Перш за все, я мушу переконатися, чи приніс ти всі необхідні матеріали для кування божественного предмета!";
+			mes "Терпіти не можу людей, які блукають біля мого дому без жодної мети!";
+		} else {
+			mes "First of all, I shall confirm if you have brought all the necessary materials to forge a godly item or not!";
+			mes "I hate to see humans wandering about my home without any purpose!";
 		}
-		mes "[Dwarf Grunburti]";
-		mes "Although it is very humiliating to present my valuable skills to a human being...";
-		next;
-		mes "[Dwarf Grunburti]";
-		mes "since you are a master of guild and all the seals have been released, I think I can give you a chance to look at.";
-		next;
-		mes "[Dwarf Grunburti]";
-		mes "First of all, I shall confirm if you have brought all the necessary materials to forge a godly item or not!";
-		mes "I hate to see humans wandering about my home without any purpose!";
 		next;
 					if (countitem(7073) > 3 && countitem(7077) > 3 && countitem(7088) > 2 && countitem(7090) > 2 && countitem(7092) > 2 && countitem(726) > 1 && countitem(722) > 2 && countitem(727) > 9 && countitem(724) > 4 && countitem(969) > 19 && countitem(2603) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFBrisingamen^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFBrisingamen^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFBrisingamen^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7058) > 0 && countitem(969) > 19 && countitem(726) > 9 && countitem(984) > 9 && countitem(2627) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFMegingjard^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFMegingjard^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFMegingjard^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7076) > 2 && countitem(7079) > 4 && countitem(7083) > 2 && countitem(7086) > 3 && countitem(7087) > 2 && countitem(969) > 19 && countitem(985) > 9 && countitem(2406) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFSleipnir^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFSleipnir^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFSleipnir^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7074) > 1 && countitem(7075) > 3 && countitem(7078) > 4 && countitem(7089) > 4 && countitem(7091) > 4 && countitem(984) > 19 && countitem(985) > 4 && countitem(969) > 39 && countitem(1522) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFMjolnir^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFMjolnir^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFMjolnir^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
@@ -205,15 +266,21 @@ gld_dun01.gat,28,85,0	script	Grunburti	826,{
 					mes "....";
 					next;
 					mes "[Dwarf Grunburti]";
-					mes "?! You have not brought all the necessary materials!";
-					mes "...did you forget what you need?";
-					mes "Listen carefully this time!";
+					if (#gl_lang == 1) {
+						mes "?! Ти не приніс усі необхідні матеріали!";
+						mes "...ти забув, що тобі потрібно?";
+						mes "Слухай уважно цього разу!";
+					} else {
+						mes "?! You have not brought all the necessary materials!";
+						mes "...did you forget what you need?";
+						mes "Listen carefully this time!";
+					}
 					next;
 						switch( select( "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 					{
 					case 1:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF4 Freya's Jewel";
 						mes "4 Silver Ornament";
 						mes "3 Snow Crystal";
@@ -223,51 +290,66 @@ gld_dun01.gat,28,85,0	script	Grunburti	826,{
 						mes "3 Pearl";
 						mes "10 Opal";
 						mes "5 Cursed Ruby";
-						mes "20 Gold and";
+						mes "20 Gold та";
 						mes "1 Necklace^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 2:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF1 Gleipnir";
 						mes "20 Gold";
 						mes "10 Sapphire";
 						mes "10 Oridecon";
-						mes "and 1 Belt^000000...";
+						mes "та 1 Belt^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 3:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF3 Wheel of the Unknown";
 						mes "5 Feather of Angel Wing";
-						mes "3 Sprit of Fish";
+						mes "3 Spirit of Fish";
 						mes "4 Emblem of the Sun God";
 						mes "3 Breath of Spirit";
 						mes "20 Gold";
 						mes "10 Elunium";
-						mes "and 1 Slotted Boots^000000...";
+						mes "та 1 Slotted Boots^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 4:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF2 Thor's Gauntlets";
 						mes "4 Iron Maiden";
 						mes "5 Wrath of Valkyrie";
@@ -275,22 +357,36 @@ gld_dun01.gat,28,85,0	script	Grunburti	826,{
 						mes "5 Billow";
 						mes "20 Oridecon";
 						mes "5 Elunium";
-						mes "40 Gold and";
+						mes "40 Gold та";
 						mes "1 Stunner^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 					}
 				}
 		mes "[Dwarf Grunburti]";
-		mes "I will do a favor for you this time.";
-		mes "I cannot start to work in here. Come to ^0000FFthe underground laboratory^000000.";
+		if (#gl_lang == 1) {
+			mes "Цього разу я зроблю тобі послугу.";
+			mes "Я не можу почати роботу тут. Приходь до ^0000FFпідземної лабораторії^000000.";
+		} else {
+			mes "I will do a favor for you this time.";
+			mes "I cannot start to work in here. Come to ^0000FFthe underground laboratory^000000.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Now, you must hurry up! ^0000FFOnly one of each godly item^000000 will be given to humans ^FF0000right after all the seals are released^000000!";
+		if (#gl_lang == 1) {
+			mes "Тепер поспішай! ^0000FFТільки один екземпляр кожної божественної речі^000000 буде виданий людям ^FF0000відразу після того, як усі печатки будуть зняті^000000!";
+		} else {
+			mes "Now, you must hurry up! ^0000FFOnly one of each godly item^000000 will be given to humans ^FF0000right after all the seals are released^000000!";
+		}
 		close2;
 		warp "que_god01.gat",214,63;
 		end;
@@ -298,71 +394,123 @@ gld_dun01.gat,28,85,0	script	Grunburti	826,{
 
 	case 4:
 		mes "[Dwarf Grunburti]";
-		mes "Muhahahahahaha!";
-		mes "Go grow up first!";
+		if (#gl_lang == 1) {
+			mes "Мухахахахахаха!";
+			mes "Спочатку підрости!";
+		} else {
+			mes "Muhahahahahaha!";
+			mes "Go grow up first!";
+		}
 		close;
 	break;
-
 	}
 }
 
 gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 
 	mes "[Dwarf Grunburti]";
-	mes "Hmmhah! What brought you here, human!";
-	mes "Living in Midgard and away from my home town is painful enough, let alone facing a whiney human. Leave me alone!";
+	if (#gl_lang == 1) {
+		mes "Хмм-ха! Що привело тебе сюди, людино!";
+		mes "Жити в Мідгарді далеко від мого рідного міста — це вже достатній біль, не кажучи вже про зустрічі з плаксивими людьми. Дай мені спокій!";
+	} else {
+		mes "Hmmhah! What brought you here, human!";
+		mes "Living in Midgard and away from my home town is painful enough, let alone facing a whiney human. Leave me alone!";
+	}
 	next;
-		switch( select( "Ask him about dwarves.", "Ask him what he is doing.", "Request a weapon creation.", "Cancel." ) )
+
+	if (#gl_lang == 1) { set @menu$, "Запитати про гномів.:Запитати, чим він займається.:Попросити виготовити зброю.:Скасувати."; }
+	else { set @menu$, "Ask him about dwarves.:Ask him what he is doing.:Request a weapon creation.:Cancel."; }
+
+	switch( select(@menu$) )
 	{
 
 	case 1:
 		mes "[Dwarf Grunburti]";
-		mes "Ah, what an annoying human! What do you want to know about us, huh?";
-		mes "We are the toughest race that have bare to live in the barren land. Feeble-minded midgardians can not imagine how sterile our land is!";
+		if (#gl_lang == 1) {
+			mes "Ах, яка настирлива людина! Що ти хочеш знати про нас, га?";
+			mes "Ми — найвитриваліша раса, що наважилася жити в безплідних землях. Слабкодухі мешканці Мідгарда навіть не уявляють, наскільки сувора наша батьківщина!";
+		} else {
+			mes "Ah, what an annoying human! What do you want to know about us, huh?";
+			mes "We are the toughest race that have bare to live in the barren land. Feeble-minded midgardians can not imagine how sterile our land is!";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "All the knowledge and skills that you are proud of were used to be ours.";
-		mes "Even weapons used by ancient Gods were made by our ancestors. Do you know that?";
+		if (#gl_lang == 1) {
+			mes "Усі знання та вміння, якими ви так пишаєтеся, колись належали нам.";
+			mes "Навіть зброя, якою користувалися стародавні Боги, була зроблена нашими предками. Ти знав про це?";
+		} else {
+			mes "All the knowledge and skills that you are proud of were used to be ours.";
+			mes "Even weapons used by ancient Gods were made by our ancestors. Do you know that?";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "We have the greatest knowlege and skills yet we have taken our fate to live in the barren land of Giants, that's who we are!";
+		if (#gl_lang == 1) {
+			mes "Ми володіємо найбільшими знаннями, але обрали долю жити в пустельних землях Гігантів — ось хто ми такі!";
+		} else {
+			mes "We have the greatest knowlege and skills yet we have taken our fate to live in the barren land of Giants, that's who we are!";
+		}
 		close;
 	break;
 
 	case 2:
 		mes "[Dwarf Grunburti]";
-		mes "Did you just ask what I am doing here?";
-		mes "Muhahahaha....I was waiting for the time to kick your ass!";
+		if (#gl_lang == 1) {
+			mes "Ти щойно запитав, що я тут роблю?";
+			mes "Мухахахаха.... Я чекав слушного моменту, щоб надати тобі копняка!";
+		} else {
+			mes "Did you just ask what I am doing here?";
+			mes "Muhahahaha....I was waiting for the time to kick your ass!";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Heheheheh, don't you worry. In fact, I will only humiliate myself by fighting with such a weakling like you.";
-		mes "Humans are so weak yet are too arrogant and love power struggling each other. You are just helpless...";
+		if (#gl_lang == 1) {
+			mes "Хе-хе-хе, не хвилюйся. Насправді, я лише принижу себе, б'ючись із таким слабаком, як ти.";
+			mes "Люди такі кволі, але водночас занадто пихаті й обожнюють боротися один з одним за владу. Ви просто безпорадні...";
+		} else {
+			mes "Heheheheh, don't you worry. In fact, I will only humiliate myself by fighting with such a weakling like you.";
+			mes "Humans are so weak yet are too arrogant and love power struggling each other. You are just helpless...";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "My home town....I will never be able to go back...from this Midgard.";
-		mes "Because Yggdrasil tree, the only way to my home town have dissappeared during the war in 1000 years ago.";
+		if (#gl_lang == 1) {
+			mes "Моє рідне місто.... Я ніколи не зможу повернутися туди... з цього Мідгарда.";
+			mes "Тому що древо Іґґдрасіль, єдиний шлях до мого дому, зникло під час війни 1000 років тому.";
+		} else {
+			mes "My home town....I will never be able to go back...from this Midgard.";
+			mes "Because Yggdrasil tree, the only way to my home town have dissappeared during the war in 1000 years ago.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "That is why I have been staying in Midgard!";
-		mes "At least I am lucky because I found this cave where the environment is similar as my home town...";
+		if (#gl_lang == 1) {
+			mes "Ось чому я залишаюся в Мідгарді!";
+			mes "Принаймні мені пощастило знайти цю печеру, де умови схожі на мою батьківщину...";
+		} else {
+			mes "That is why I have been staying in Midgard!";
+			mes "At least I am lucky because I found this cave where the environment is similar as my home town...";
+		}
 		close;
 	break;
 
 	case 3:
 		set @god_guild,getcharid(2);
-			if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+			if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 		{
-				if ($God1 > 49 && $God2 > 49 && $God3 > 49 && $God4 > 49 && strcharinfo(0) == getguildmaster(@god_guild))
+				if (God1 > 0 && God2 > 0 && God3 > 0 && God4 > 0)
 			{
 				mes "[Dwarf Grunburti]";
-				mes "Hmm...I need some materials to make a weapon.";
-				mes "Which weapon do you want to have?";
+				if (#gl_lang == 1) {
+					mes "Хмм... Мені потрібні деякі матеріали, щоб виготовити зброю.";
+					mes "Яку саме зброю ти хочеш отримати?";
+				} else {
+					mes "Hmm...I need some materials to make a weapon.";
+					mes "Which weapon do you want to have?";
+				}
 				next;
-					switch( select(	 "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
+				switch( select(	 "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 				{
 					case 1:
 						mes "[Dwarf Grunburti]";
-				        mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF4 Freya's Jewel";
 						mes "4 Silver Ornament";
 						mes "3 Snow Crystal";
@@ -372,51 +520,54 @@ gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 						mes "3 Pearl";
 						mes "10 Opal";
 						mes "5 Cursed Ruby";
-						mes "20 Gold and";
+						mes "20 Gold та";
 						mes "1 Necklace^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 2:
 						mes "[Dwarf Grunburti]";
-					        mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF1 Gleipnir";
 						mes "20 Gold";
 						mes "10 Sapphire";
 						mes "10 Oridecon";
-						mes "and 1 Belt^000000...";
+						mes "та 1 Belt^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 3:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF3 Wheel of the Unknown";
 						mes "5 Feather of Angel Wing";
-						mes "3 Sprit of Fish";
+						mes "3 Spirit of Fish";
 						mes "4 Emblem of the Sun God";
 						mes "3 Breath of Spirit";
 						mes "20 Gold";
 						mes "10 Elunium";
-						mes "and 1 Slotted Boots^000000...";
+						mes "та 1 Slotted Boots^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 4:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF2 Thor's Gauntlets";
 						mes "4 Iron Maiden";
 						mes "5 Wrath of Valkyrie";
@@ -424,12 +575,13 @@ gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 						mes "5 Billow";
 						mes "20 Oridecon";
 						mes "5 Elunium";
-						mes "40 Gold and";
+						mes "40 Gold та";
 						mes "1 Stunner^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 				}
@@ -437,53 +589,62 @@ gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 				else
 			{
 				mes "[Dwarf Grunburti]";
-				mes "We, dwarves have too high pride to share own skills with such a low race like human!";
-				mes "Stop interrupting me and leave immediately! Go play with monsters, your favorite toys!";
+				if (#gl_lang == 1) {
+					mes "Ми, гноми, маємо занадто високу гордість, щоб ділитися своїми навичками з такою нижчою расою, як люди!";
+					mes "Припини мені заважати й негайно йди геть! Йди грайся з монстрами, твоїми улюбленими іграшками!";
+				} else {
+					mes "We, dwarves have too high pride to share own skills with such a low race like human!";
+					mes "Stop interrupting me and leave immediately! Go play with monsters, your favorite toys!";
+				}
 				close;
 			}
 		}
-			if (strcharinfo(0) != getguildmaster(@god_guild))
-		{
-			mes "[Dwarf Grunburti]";
-			mes "I will only present my significant skills to humans of high social standing!";
-			mes "Go bring your ^0000FFguildmaster^000000!";
-			close;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) { mes "Хоча мені дуже принизливо демонструвати свої цінні навички людині..."; }
+		else { mes "Although it is very humiliating to present my valuable skills to a human being..."; }
+		next;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) { mes "оскільки ти з гільдії і всі печатки були зняті, думаю, я можу дати тобі шанс спробувати."; }
+		else { mes "since you are from a guild and all the seals have been released, I think I can give you a chance to look at."; }
+		next;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) {
+			mes "Перш за все, я мушу переконатися, чи приніс ти всі необхідні матеріали для кування божественного предмета!";
+			mes "Терпіти не можу людей, які блукають біля мого дому без жодної мети!";
+		} else {
+			mes "First of all, I shall confirm if you have brought all the necessary materials to forge a godly item or not!";
+			mes "I hate to see humans wandering about my home without any purpose!";
 		}
-		mes "[Dwarf Grunburti]";
-		mes "Although it is very humiliating to present my valuable skills to a human being...";
-		next;
-		mes "[Dwarf Grunburti]";
-		mes "since you are a master of guild and all the seals have been released, I think I can give you a chance to look at.";
-		next;
-		mes "[Dwarf Grunburti]";
-		mes "First of all, I shall confirm if you have brought all the necessary materials to forge a godly item or not!";
-		mes "I hate to see humans wandering about my home without any purpose!";
 		next;
 					if (countitem(7073) > 3 && countitem(7077) > 3 && countitem(7088) > 2 && countitem(7090) > 2 && countitem(7092) > 2 && countitem(726) > 1 && countitem(722) > 2 && countitem(727) > 9 && countitem(724) > 4 && countitem(969) > 19 && countitem(2603) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFBrisingamen^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFBrisingamen^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFBrisingamen^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7058) > 0 && countitem(969) > 19 && countitem(726) > 9 && countitem(984) > 9 && countitem(2627) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFMegingjard^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFMegingjard^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFMegingjard^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7076) > 2 && countitem(7079) > 4 && countitem(7083) > 2 && countitem(7086) > 3 && countitem(7087) > 2 && countitem(969) > 19 && countitem(985) > 9 && countitem(2406) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFSleipnir^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFSleipnir^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFSleipnir^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7074) > 1 && countitem(7075) > 3 && countitem(7078) > 4 && countitem(7089) > 4 && countitem(7091) > 4 && countitem(984) > 19 && countitem(985) > 4 && countitem(969) > 39 && countitem(1522) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFMjolnir^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFMjolnir^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFMjolnir^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
@@ -499,15 +660,21 @@ gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 					mes "....";
 					next;
 					mes "[Dwarf Grunburti]";
-					mes "?! You have not brought all the necessary materials!";
-					mes "...did you forget what you need?";
-					mes "Listen carefully this time!";
+					if (#gl_lang == 1) {
+						mes "?! Ти не приніс усі необхідні матеріали!";
+						mes "...ти забув, що тобі потрібно?";
+						mes "Слухай уважно цього разу!";
+					} else {
+						mes "?! You have not brought all the necessary materials!";
+						mes "...did you forget what you need?";
+						mes "Listen carefully this time!";
+					}
 					next;
 						switch( select( "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 					{
 					case 1:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF4 Freya's Jewel";
 						mes "4 Silver Ornament";
 						mes "3 Snow Crystal";
@@ -517,51 +684,66 @@ gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 						mes "3 Pearl";
 						mes "10 Opal";
 						mes "5 Cursed Ruby";
-						mes "20 Gold and";
+						mes "20 Gold та";
 						mes "1 Necklace^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 2:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF1 Gleipnir";
 						mes "20 Gold";
 						mes "10 Sapphire";
 						mes "10 Oridecon";
-						mes "and 1 Belt^000000...";
+						mes "та 1 Belt^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 3:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF3 Wheel of the Unknown";
 						mes "5 Feather of Angel Wing";
-						mes "3 Sprit of Fish";
+						mes "3 Spirit of Fish";
 						mes "4 Emblem of the Sun God";
 						mes "3 Breath of Spirit";
 						mes "20 Gold";
 						mes "10 Elunium";
-						mes "and 1 Slotted Boots^000000...";
+						mes "та 1 Slotted Boots^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 4:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF2 Thor's Gauntlets";
 						mes "4 Iron Maiden";
 						mes "5 Wrath of Valkyrie";
@@ -569,22 +751,36 @@ gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 						mes "5 Billow";
 						mes "20 Oridecon";
 						mes "5 Elunium";
-						mes "40 Gold and";
+						mes "40 Gold та";
 						mes "1 Stunner^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 					}
 				}
 		mes "[Dwarf Grunburti]";
-		mes "I will do a favor for you this time.";
-		mes "I cannot start to work in here. Come to ^0000FFthe underground laboratory^000000.";
+		if (#gl_lang == 1) {
+			mes "Цього разу я зроблю тобі послугу.";
+			mes "Я не можу почати роботу тут. Приходь до ^0000FFпідземної лабораторії^000000.";
+		} else {
+			mes "I will do a favor for you this time.";
+			mes "I cannot start to work in here. Come to ^0000FFthe underground laboratory^000000.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Now, you must hurry up! ^0000FFOnly one of each godly item^000000 will be given to humans ^FF0000right after all the seals are released^000000!";
+		if (#gl_lang == 1) {
+			mes "Тепер поспішай! ^0000FFТільки один екземпляр кожної божественної речі^000000 буде виданий людям ^FF0000відразу після того, як усі печатки будуть зняті^000000!";
+		} else {
+			mes "Now, you must hurry up! ^0000FFOnly one of each godly item^000000 will be given to humans ^FF0000right after all the seals are released^000000!";
+		}
 		close2;
 		warp "que_god01.gat",214,63;
 		end;
@@ -592,8 +788,13 @@ gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 
 	case 4:
 		mes "[Dwarf Grunburti]";
-		mes "Muhahahahahaha!";
-		mes "Go grow up first!";
+		if (#gl_lang == 1) {
+			mes "Мухахахахахаха!";
+			mes "Спочатку підрости!";
+		} else {
+			mes "Muhahahahahaha!";
+			mes "Go grow up first!";
+		}
 		close;
 	break;
 
@@ -603,60 +804,108 @@ gld_dun02.gat,85,84,0	script	Grunburti#2	826,{
 gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 
 	mes "[Dwarf Grunburti]";
-	mes "Hmmhah! What brought you here, human!";
-	mes "Living in Midgard and away from my home town is painful enough, let alone facing a whiney human. Leave me alone!";
+	if (#gl_lang == 1) {
+		mes "Хмм-ха! Що привело тебе сюди, людино!";
+		mes "Жити в Мідгарді далеко від мого рідного міста — це вже достатній біль, не кажучи вже про зустрічі з плаксивими людьми. Дай мені спокій!";
+	} else {
+		mes "Hmmhah! What brought you here, human!";
+		mes "Living in Midgard and away from my home town is painful enough, let alone facing a whiney human. Leave me alone!";
+	}
 	next;
-		switch( select( "Ask him about dwarves.", "Ask him what he is doing.", "Request a weapon creation.", "Cancel." ) )
+
+	if (#gl_lang == 1) { set @menu$, "Запитати про гномів.:Запитати, чим він займається.:Попросити виготовити зброю.:Скасувати."; }
+	else { set @menu$, "Ask him about dwarves.:Ask him what he is doing.:Request a weapon creation.:Cancel."; }
+
+	switch( select(@menu$) )
 	{
 
 	case 1:
 		mes "[Dwarf Grunburti]";
-		mes "Ah, what an annoying human! What do you want to know about us, huh?";
-		mes "We are the toughest race that have bare to live in the barren land. Feeble-minded midgardians can not imagine how sterile our land is!";
+		if (#gl_lang == 1) {
+			mes "Ах, яка настирлива людина! Що ти хочеш знати про нас, га?";
+			mes "Ми — найвитриваліша раса, що наважилася жити в безплідних землях. Слабкодухі мешканці Мідгарда навіть не уявляють, наскільки сувора наша батьківщина!";
+		} else {
+			mes "Ah, what an annoying human! What do you want to know about us, huh?";
+			mes "We are the toughest race that have bare to live in the barren land. Feeble-minded midgardians can not imagine how sterile our land is!";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "All the knowledge and skills that you are proud of were used to be ours.";
-		mes "Even weapons used by ancient Gods were made by our ancestors. Do you know that?";
+		if (#gl_lang == 1) {
+			mes "Усі знання та вміння, якими ви так пишаєтеся, колись належали нам.";
+			mes "Навіть зброя, якою користувалися стародавні Боги, була зроблена нашими предками. Ти знав про це?";
+		} else {
+			mes "All the knowledge and skills that you are proud of were used to be ours.";
+			mes "Even weapons used by ancient Gods were made by our ancestors. Do you know that?";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "We have the greatest knowlege and skills yet we have taken our fate to live in the barren land of Giants, that's who we are!";
+		if (#gl_lang == 1) {
+			mes "Ми володіємо найбільшими знаннями, але обрали долю жити в пустельних землях Гігантів — ось хто ми такі!";
+		} else {
+			mes "We have the greatest knowlege and skills yet we have taken our fate to live in the barren land of Giants, that's who we are!";
+		}
 		close;
 	break;
 
 	case 2:
 		mes "[Dwarf Grunburti]";
-		mes "Did you just ask what I am doing here?";
-		mes "Muhahahaha....I was waiting for the time to kick your ass!";
+		if (#gl_lang == 1) {
+			mes "Ти щойно запитав, що я тут роблю?";
+			mes "Мухахахаха.... Я чекав слушного моменту, щоб надати тобі копняка!";
+		} else {
+			mes "Did you just ask what I am doing here?";
+			mes "Muhahahaha....I was waiting for the time to kick your ass!";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Heheheheh, don't you worry. In fact, I will only humiliate myself by fighting with such a weakling like you.";
-		mes "Humans are so weak yet are too arrogant and love power struggling each other. You are just helpless...";
+		if (#gl_lang == 1) {
+			mes "Хе-хе-хе, не хвилюйся. Насправді, я лише принижу себе, б'ючись із таким слабаком, як ти.";
+			mes "Люди такі кволі, але водночас занадто пихаті й обожнюють боротися один з одним за владу. Ви просто безпорадні...";
+		} else {
+			mes "Heheheheh, don't you worry. In fact, I will only humiliate myself by fighting with such a weakling like you.";
+			mes "Humans are so weak yet are too arrogant and love power struggling each other. You are just helpless...";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "My home town....I will never be able to go back...from this Midgard.";
-		mes "Because Yggdrasil tree, the only way to my home town have dissappeared during the war in 1000 years ago.";
+		if (#gl_lang == 1) {
+			mes "Моє рідне місто.... Я ніколи не зможу повернутися туди... з цього Мідгарда.";
+			mes "Тому що древо Іґґдрасіль, єдиний шлях до мого дому, зникло під час війни 1000 років тому.";
+		} else {
+			mes "My home town....I will never be able to go back...from this Midgard.";
+			mes "Because Yggdrasil tree, the only way to my home town have dissappeared during the war in 1000 years ago.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "That is why I have been staying in Midgard!";
-		mes "At least I am lucky because I found this cave where the environment is similar as my home town...";
+		if (#gl_lang == 1) {
+			mes "Ось чому я залишаюся в Мідгарді!";
+			mes "Принаймні мені пощастило знайти цю печеру, де умови схожі на мою батьківщину...";
+		} else {
+			mes "That is why I have been staying in Midgard!";
+			mes "At least I am lucky because I found this cave where the environment is similar as my home town...";
+		}
 		close;
 	break;
 
 	case 3:
 		set @god_guild,getcharid(2);
-			if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+			if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 		{
-				if ($God1 > 49 && $God2 > 49 && $God3 > 49 && $God4 > 49 && strcharinfo(0) == getguildmaster(@god_guild))
+				if (God1 > 0 && God2 > 0 && God3 > 0 && God4 > 0)
 			{
 				mes "[Dwarf Grunburti]";
-				mes "Hmm...I need some materials to make a weapon.";
-				mes "Which weapon do you want to have?";
+				if (#gl_lang == 1) {
+					mes "Хмм... Мені потрібні деякі матеріали, щоб виготовити зброю.";
+					mes "Яку саме зброю ти хочеш отримати?";
+				} else {
+					mes "Hmm...I need some materials to make a weapon.";
+					mes "Which weapon do you want to have?";
+				}
 				next;
-					switch( select(	 "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
+				switch( select(	 "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 				{
 					case 1:
 						mes "[Dwarf Grunburti]";
-				        mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF4 Freya's Jewel";
 						mes "4 Silver Ornament";
 						mes "3 Snow Crystal";
@@ -666,51 +915,54 @@ gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 						mes "3 Pearl";
 						mes "10 Opal";
 						mes "5 Cursed Ruby";
-						mes "20 Gold and";
+						mes "20 Gold та";
 						mes "1 Necklace^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 2:
 						mes "[Dwarf Grunburti]";
-					        mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF1 Gleipnir";
 						mes "20 Gold";
 						mes "10 Sapphire";
 						mes "10 Oridecon";
-						mes "and 1 Belt^000000...";
+						mes "та 1 Belt^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 3:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF3 Wheel of the Unknown";
 						mes "5 Feather of Angel Wing";
-						mes "3 Sprit of Fish";
+						mes "3 Spirit of Fish";
 						mes "4 Emblem of the Sun God";
 						mes "3 Breath of Spirit";
 						mes "20 Gold";
 						mes "10 Elunium";
-						mes "and 1 Slotted Boots^000000...";
+						mes "та 1 Slotted Boots^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 4:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF2 Thor's Gauntlets";
 						mes "4 Iron Maiden";
 						mes "5 Wrath of Valkyrie";
@@ -718,12 +970,13 @@ gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 						mes "5 Billow";
 						mes "20 Oridecon";
 						mes "5 Elunium";
-						mes "40 Gold and";
+						mes "40 Gold та";
 						mes "1 Stunner^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 				}
@@ -731,53 +984,62 @@ gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 				else
 			{
 				mes "[Dwarf Grunburti]";
-				mes "We, dwarves have too high pride to share own skills with such a low race like human!";
-				mes "Stop interrupting me and leave immediately! Go play with monsters, your favorite toys!";
+				if (#gl_lang == 1) {
+					mes "Ми, гноми, маємо занадто високу гордість, щоб ділитися своїми навичками з такою нижчою расою, як люди!";
+					mes "Припини мені заважати й негайно йди геть! Йди грайся з монстрами, твоїми улюбленими іграшками!";
+				} else {
+					mes "We, dwarves have too high pride to share own skills with such a low race like human!";
+					mes "Stop interrupting me and leave immediately! Go play with monsters, your favorite toys!";
+				}
 				close;
 			}
 		}
-			if (strcharinfo(0) != getguildmaster(@god_guild))
-		{
-			mes "[Dwarf Grunburti]";
-			mes "I will only present my significant skills to humans of high social standing!";
-			mes "Go bring your ^0000FFguildmaster^000000!";
-			close;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) { mes "Хоча мені дуже принизливо демонструвати свої цінні навички людині..."; }
+		else { mes "Although it is very humiliating to present my valuable skills to a human being..."; }
+		next;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) { mes "оскільки ти з гільдії і всі печатки були зняті, думаю, я можу дати тобі шанс спробувати."; }
+		else { mes "since you are from a guild and all the seals have been released, I think I can give you a chance to look at."; }
+		next;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) {
+			mes "Перш за все, я мушу переконатися, чи приніс ти всі необхідні матеріали для кування божественного предмета!";
+			mes "Терпіти не можу людей, які блукають біля мого дому без жодної мети!";
+		} else {
+			mes "First of all, I shall confirm if you have brought all the necessary materials to forge a godly item or not!";
+			mes "I hate to see humans wandering about my home without any purpose!";
 		}
-		mes "[Dwarf Grunburti]";
-		mes "Although it is very humiliating to present my valuable skills to a human being...";
-		next;
-		mes "[Dwarf Grunburti]";
-		mes "since you are a master of guild and all the seals have been released, I think I can give you a chance to look at.";
-		next;
-		mes "[Dwarf Grunburti]";
-		mes "First of all, I shall confirm if you have brought all the necessary materials to forge a godly item or not!";
-		mes "I hate to see humans wandering about my home without any purpose!";
 		next;
 					if (countitem(7073) > 3 && countitem(7077) > 3 && countitem(7088) > 2 && countitem(7090) > 2 && countitem(7092) > 2 && countitem(726) > 1 && countitem(722) > 2 && countitem(727) > 9 && countitem(724) > 4 && countitem(969) > 19 && countitem(2603) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFBrisingamen^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFBrisingamen^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFBrisingamen^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7058) > 0 && countitem(969) > 19 && countitem(726) > 9 && countitem(984) > 9 && countitem(2627) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFMegingjard^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFMegingjard^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFMegingjard^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7076) > 2 && countitem(7079) > 4 && countitem(7083) > 2 && countitem(7086) > 3 && countitem(7087) > 2 && countitem(969) > 19 && countitem(985) > 9 && countitem(2406) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFSleipnir^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFSleipnir^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFSleipnir^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7074) > 1 && countitem(7075) > 3 && countitem(7078) > 4 && countitem(7089) > 4 && countitem(7091) > 4 && countitem(984) > 19 && countitem(985) > 4 && countitem(969) > 39 && countitem(1522) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFMjolnir^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFMjolnir^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFMjolnir^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
@@ -793,15 +1055,21 @@ gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 					mes "....";
 					next;
 					mes "[Dwarf Grunburti]";
-					mes "?! You have not brought all the necessary materials!";
-					mes "...did you forget what you need?";
-					mes "Listen carefully this time!";
+					if (#gl_lang == 1) {
+						mes "?! Ти не приніс усі необхідні матеріали!";
+						mes "...ти забув, що тобі потрібно?";
+						mes "Слухай уважно цього разу!";
+					} else {
+						mes "?! You have not brought all the necessary materials!";
+						mes "...did you forget what you need?";
+						mes "Listen carefully this time!";
+					}
 					next;
 						switch( select( "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 					{
 					case 1:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF4 Freya's Jewel";
 						mes "4 Silver Ornament";
 						mes "3 Snow Crystal";
@@ -811,51 +1079,66 @@ gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 						mes "3 Pearl";
 						mes "10 Opal";
 						mes "5 Cursed Ruby";
-						mes "20 Gold and";
+						mes "20 Gold та";
 						mes "1 Necklace^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 2:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF1 Gleipnir";
 						mes "20 Gold";
 						mes "10 Sapphire";
 						mes "10 Oridecon";
-						mes "and 1 Belt^000000...";
+						mes "та 1 Belt^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 3:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF3 Wheel of the Unknown";
 						mes "5 Feather of Angel Wing";
-						mes "3 Sprit of Fish";
+						mes "3 Spirit of Fish";
 						mes "4 Emblem of the Sun God";
 						mes "3 Breath of Spirit";
 						mes "20 Gold";
 						mes "10 Elunium";
-						mes "and 1 Slotted Boots^000000...";
+						mes "та 1 Slotted Boots^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 4:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF2 Thor's Gauntlets";
 						mes "4 Iron Maiden";
 						mes "5 Wrath of Valkyrie";
@@ -863,22 +1146,36 @@ gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 						mes "5 Billow";
 						mes "20 Oridecon";
 						mes "5 Elunium";
-						mes "40 Gold and";
+						mes "40 Gold та";
 						mes "1 Stunner^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 					}
 				}
 		mes "[Dwarf Grunburti]";
-		mes "I will do a favor for you this time.";
-		mes "I cannot start to work in here. Come to ^0000FFthe underground laboratory^000000.";
+		if (#gl_lang == 1) {
+			mes "Цього разу я зроблю тобі послугу.";
+			mes "Я не можу почати роботу тут. Приходь до ^0000FFпідземної лабораторії^000000.";
+		} else {
+			mes "I will do a favor for you this time.";
+			mes "I cannot start to work in here. Come to ^0000FFthe underground laboratory^000000.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Now, you must hurry up! ^0000FFOnly one of each godly item^000000 will be given to humans ^FF0000right after all the seals are released^000000!";
+		if (#gl_lang == 1) {
+			mes "Тепер поспішай! ^0000FFТільки один екземпляр кожної божественної речі^000000 буде виданий людям ^FF0000відразу після того, як усі печатки будуть зняті^000000!";
+		} else {
+			mes "Now, you must hurry up! ^0000FFOnly one of each godly item^000000 will be given to humans ^FF0000right after all the seals are released^000000!";
+		}
 		close2;
 		warp "que_god01.gat",214,63;
 		end;
@@ -886,8 +1183,13 @@ gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 
 	case 4:
 		mes "[Dwarf Grunburti]";
-		mes "Muhahahahahaha!";
-		mes "Go grow up first!";
+		if (#gl_lang == 1) {
+			mes "Мухахахахахаха!";
+			mes "Спочатку підрости!";
+		} else {
+			mes "Muhahahahahaha!";
+			mes "Go grow up first!";
+		}
 		close;
 	break;
 
@@ -897,60 +1199,108 @@ gld_dun03.gat,92,105,0	script	Grunburti#3	826,{
 gld_dun04.gat,268,230,0	script	Grunburti#4	826,{
 
 	mes "[Dwarf Grunburti]";
-	mes "Hmmhah! What brought you here, human!";
-	mes "Living in Midgard and away from my home town is painful enough, let alone facing a whiney human. Leave me alone!";
+	if (#gl_lang == 1) {
+		mes "Хмм-ха! Що привело тебе сюди, людино!";
+		mes "Жити в Мідгарді далеко від мого рідного міста — це вже достатній біль, не кажучи вже про зустрічі з плаксивими людьми. Дай мені спокій!";
+	} else {
+		mes "Hmmhah! What brought you here, human!";
+		mes "Living in Midgard and away from my home town is painful enough, let alone facing a whiney human. Leave me alone!";
+	}
 	next;
-		switch( select( "Ask him about dwarves.", "Ask him what he is doing.", "Request a weapon creation.", "Cancel." ) )
+
+	if (#gl_lang == 1) { set @menu$, "Запитати про гномів.:Запитати, чим він займається.:Попросити виготовити зброю.:Скасувати."; }
+	else { set @menu$, "Ask him about dwarves.:Ask him what he is doing.:Request a weapon creation.:Cancel."; }
+
+	switch( select(@menu$) )
 	{
 
 	case 1:
 		mes "[Dwarf Grunburti]";
-		mes "Ah, what an annoying human! What do you want to know about us, huh?";
-		mes "We are the toughest race that have bare to live in the barren land. Feeble-minded midgardians can not imagine how sterile our land is!";
+		if (#gl_lang == 1) {
+			mes "Ах, яка настирлива людина! Що ти хочеш знати про нас, га?";
+			mes "Ми — найвитриваліша раса, що наважилася жити в безплідних землях. Слабкодухі мешканці Мідгарда навіть не уявляють, наскільки сувора наша батьківщина!";
+		} else {
+			mes "Ah, what an annoying human! What do you want to know about us, huh?";
+			mes "We are the toughest race that have bare to live in the barren land. Feeble-minded midgardians can not imagine how sterile our land is!";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "All the knowledge and skills that you are proud of were used to be ours.";
-		mes "Even weapons used by ancient Gods were made by our ancestors. Do you know that?";
+		if (#gl_lang == 1) {
+			mes "Усі знання та вміння, якими ви так пишаєтеся, колись належали нам.";
+			mes "Навіть зброя, якою користувалися стародавні Боги, була зроблена нашими предками. Ти знав про це?";
+		} else {
+			mes "All the knowledge and skills that you are proud of were used to be ours.";
+			mes "Even weapons used by ancient Gods were made by our ancestors. Do you know that?";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "We have the greatest knowlege and skills yet we have taken our fate to live in the barren land of Giants, that's who we are!";
+		if (#gl_lang == 1) {
+			mes "Ми володіємо найбільшими знаннями, але обрали долю жити в пустельних землях Гігантів — ось хто ми такі!";
+		} else {
+			mes "We have the greatest knowlege and skills yet we have taken our fate to live in the barren land of Giants, that's who we are!";
+		}
 		close;
 	break;
 
 	case 2:
 		mes "[Dwarf Grunburti]";
-		mes "Did you just ask what I am doing here?";
-		mes "Muhahahaha....I was waiting for the time to kick your ass!";
+		if (#gl_lang == 1) {
+			mes "Ти щойно запитав, що я тут роблю?";
+			mes "Мухахахаха.... Я чекав слушного моменту, щоб надати тобі копняка!";
+		} else {
+			mes "Did you just ask what I am doing here?";
+			mes "Muhahahaha....I was waiting for the time to kick your ass!";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Heheheheh, don't you worry. In fact, I will only humiliate myself by fighting with such a weakling like you.";
-		mes "Humans are so weak yet are too arrogant and love power struggling each other. You are just helpless...";
+		if (#gl_lang == 1) {
+			mes "Хе-хе-хе, не хвилюйся. Насправді, я лише принижу себе, б'ючись із таким слабаком, як ти.";
+			mes "Люди такі кволі, але водночас занадто пихаті й обожнюють боротися один з одним за владу. Ви просто безпорадні...";
+		} else {
+			mes "Heheheheh, don't you worry. In fact, I will only humiliate myself by fighting with such a weakling like you.";
+			mes "Humans are so weak yet are too arrogant and love power struggling each other. You are just helpless...";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "My home town....I will never be able to go back...from this Midgard.";
-		mes "Because Yggdrasil tree, the only way to my home town have dissappeared during the war in 1000 years ago.";
+		if (#gl_lang == 1) {
+			mes "Моє рідне місто.... Я ніколи не зможу повернутися туди... з цього Мідгарда.";
+			mes "Тому що древо Іґґдрасіль, єдиний шлях до мого дому, зникло під час війни 1000 років тому.";
+		} else {
+			mes "My home town....I will never be able to go back...from this Midgard.";
+			mes "Because Yggdrasil tree, the only way to my home town have dissappeared during the war in 1000 years ago.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "That is why I have been staying in Midgard!";
-		mes "At least I am lucky because I found this cave where the environment is similar as my home town...";
+		if (#gl_lang == 1) {
+			mes "Ось чому я залишаюся в Мідгарді!";
+			mes "Принаймні мені пощастило знайти цю печеру, де умови схожі на мою батьківщину...";
+		} else {
+			mes "That is why I have been staying in Midgard!";
+			mes "At least I am lucky because I found this cave where the environment is similar as my home town...";
+		}
 		close;
 	break;
 
 	case 3:
 		set @god_guild,getcharid(2);
-			if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+			if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 		{
-				if ($God1 > 49 && $God2 > 49 && $God3 > 49 && $God4 > 49 && strcharinfo(0) == getguildmaster(@god_guild))
+				if (God1 > 0 && God2 > 0 && God3 > 0 && God4 > 0)
 			{
 				mes "[Dwarf Grunburti]";
-				mes "Hmm...I need some materials to make a weapon.";
-				mes "Which weapon do you want to have?";
+				if (#gl_lang == 1) {
+					mes "Хмм... Мені потрібні деякі матеріали, щоб виготовити зброю.";
+					mes "Яку саме зброю ти хочеш отримати?";
+				} else {
+					mes "Hmm...I need some materials to make a weapon.";
+					mes "Which weapon do you want to have?";
+				}
 				next;
-					switch( select(	 "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
+				switch( select(	 "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 				{
 					case 1:
 						mes "[Dwarf Grunburti]";
-				        mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF4 Freya's Jewel";
 						mes "4 Silver Ornament";
 						mes "3 Snow Crystal";
@@ -960,51 +1310,54 @@ gld_dun04.gat,268,230,0	script	Grunburti#4	826,{
 						mes "3 Pearl";
 						mes "10 Opal";
 						mes "5 Cursed Ruby";
-						mes "20 Gold and";
+						mes "20 Gold та";
 						mes "1 Necklace^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 2:
 						mes "[Dwarf Grunburti]";
-					        mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF1 Gleipnir";
 						mes "20 Gold";
 						mes "10 Sapphire";
 						mes "10 Oridecon";
-						mes "and 1 Belt^000000...";
+						mes "та 1 Belt^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 3:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF3 Wheel of the Unknown";
 						mes "5 Feather of Angel Wing";
-						mes "3 Sprit of Fish";
+						mes "3 Spirit of Fish"; // <-- Виправлено Sprit на Spirit
 						mes "4 Emblem of the Sun God";
 						mes "3 Breath of Spirit";
 						mes "20 Gold";
 						mes "10 Elunium";
-						mes "and 1 Slotted Boots^000000...";
+						mes "та 1 Slotted Boots^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 
 					case 4:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF2 Thor's Gauntlets";
 						mes "4 Iron Maiden";
 						mes "5 Wrath of Valkyrie";
@@ -1012,12 +1365,13 @@ gld_dun04.gat,268,230,0	script	Grunburti#4	826,{
 						mes "5 Billow";
 						mes "20 Oridecon";
 						mes "5 Elunium";
-						mes "40 Gold and";
+						mes "40 Gold та";
 						mes "1 Stunner^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
 						mes "...";
-						mes "However, the time has not come yet. So wait until then. Muhahaha!";
+						if (#gl_lang == 1) { mes "Проте час ще не настав. Тож чекай. Мухаха!"; }
+						else { mes "However, the time has not come yet. So wait until then. Muhahaha!"; }
 						close;
 					break;
 				}
@@ -1025,53 +1379,62 @@ gld_dun04.gat,268,230,0	script	Grunburti#4	826,{
 				else
 			{
 				mes "[Dwarf Grunburti]";
-				mes "We, dwarves have too high pride to share own skills with such a low race like human!";
-				mes "Stop interrupting me and leave immediately! Go play with monsters, your favorite toys!";
+				if (#gl_lang == 1) {
+					mes "Ми, гноми, маємо занадто високу гордість, щоб ділитися своїми навичками з такою нижчою расою, як люди!";
+					mes "Припини мені заважати й негайно йди геть! Йди грайся з монстрами, твоїми улюбленими іграшками!";
+				} else {
+					mes "We, dwarves have too high pride to share own skills with such a low race like human!";
+					mes "Stop interrupting me and leave immediately! Go play with monsters, your favorite toys!";
+				}
 				close;
 			}
 		}
-			if (strcharinfo(0) != getguildmaster(@god_guild))
-		{
-			mes "[Dwarf Grunburti]";
-			mes "I will only present my significant skills to humans of high social standing!";
-			mes "Go bring your ^0000FFguildmaster^000000!";
-			close;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) { mes "Хоча мені дуже принизливо демонструвати свої цінні навички людині..."; }
+		else { mes "Although it is very humiliating to present my valuable skills to a human being..."; }
+		next;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) { mes "оскільки ти з гільдії і всі печатки були зняті, думаю, я можу дати тобі шанс спробувати."; }
+		else { mes "since you are from a guild and all the seals have been released, I think I can give you a chance to look at."; }
+		next;
+		mes "[Dwarf Grunburti]";
+		if (#gl_lang == 1) {
+			mes "Перш за все, я мушу переконатися, чи приніс ти всі необхідні матеріали для кування божественного предмета!";
+			mes "Терпіти не можу людей, які блукають біля мого дому без жодної мети!";
+		} else {
+			mes "First of all, I shall confirm if you have brought all the necessary materials to forge a godly item or not!";
+			mes "I hate to see humans wandering about my home without any purpose!";
 		}
-		mes "[Dwarf Grunburti]";
-		mes "Although it is very humiliating to present my valuable skills to a human being...";
-		next;
-		mes "[Dwarf Grunburti]";
-		mes "since you are a master of guild and all the seals have been released, I think I can give you a chance to look at.";
-		next;
-		mes "[Dwarf Grunburti]";
-		mes "First of all, I shall confirm if you have brought all the necessary materials to forge a godly item or not!";
-		mes "I hate to see humans wandering about my home without any purpose!";
 		next;
 					if (countitem(7073) > 3 && countitem(7077) > 3 && countitem(7088) > 2 && countitem(7090) > 2 && countitem(7092) > 2 && countitem(726) > 1 && countitem(722) > 2 && countitem(727) > 9 && countitem(724) > 4 && countitem(969) > 19 && countitem(2603) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFBrisingamen^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFBrisingamen^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFBrisingamen^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7058) > 0 && countitem(969) > 19 && countitem(726) > 9 && countitem(984) > 9 && countitem(2627) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFMegingjard^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFMegingjard^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFMegingjard^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7076) > 2 && countitem(7079) > 4 && countitem(7083) > 2 && countitem(7086) > 3 && countitem(7087) > 2 && countitem(969) > 19 && countitem(985) > 9 && countitem(2406) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFSleipnir^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочети отримати ^0000FFSleipnir^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFSleipnir^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
 					else if (countitem(7074) > 1 && countitem(7075) > 3 && countitem(7078) > 4 && countitem(7089) > 4 && countitem(7091) > 4 && countitem(984) > 19 && countitem(985) > 4 && countitem(969) > 39 && countitem(1522) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Hmm, I guess you want to have ^0000FFMjolnir^000000!";
+					if (#gl_lang == 1) { mes "Хмм, гадаю, ти хочеш отримати ^0000FFMjolnir^000000!"; }
+					else { mes "Hmm, I guess you want to have ^0000FFMjolnir^000000!"; }
 					mes "Okay...then.";
 					next;
 				}
@@ -1087,15 +1450,21 @@ gld_dun04.gat,268,230,0	script	Grunburti#4	826,{
 					mes "....";
 					next;
 					mes "[Dwarf Grunburti]";
-					mes "?! You have not brought all the necessary materials!";
-					mes "...did you forget what you need?";
-					mes "Listen carefully this time!";
+					if (#gl_lang == 1) {
+						mes "?! Ти не приніс усі необхідні матеріали!";
+						mes "...ти забув, що тобі потрібно?";
+						mes "Слухай уважно цього разу!";
+					} else {
+						mes "?! You have not brought all the necessary materials!";
+						mes "...did you forget what you need?";
+						mes "Listen carefully this time!";
+					}
 					next;
 						switch( select( "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 					{
 					case 1:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF4 Freya's Jewel";
 						mes "4 Silver Ornament";
 						mes "3 Snow Crystal";
@@ -1105,51 +1474,66 @@ gld_dun04.gat,268,230,0	script	Grunburti#4	826,{
 						mes "3 Pearl";
 						mes "10 Opal";
 						mes "5 Cursed Ruby";
-						mes "20 Gold and";
+						mes "20 Gold та";
 						mes "1 Necklace^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 2:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF1 Gleipnir";
 						mes "20 Gold";
 						mes "10 Sapphire";
 						mes "10 Oridecon";
-						mes "and 1 Belt^000000...";
+						mes "та 1 Belt^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 3:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF3 Wheel of the Unknown";
 						mes "5 Feather of Angel Wing";
-						mes "3 Sprit of Fish";
+						mes "3 Spirit of Fish"; // <-- Виправлено Sprit на Spirit
 						mes "4 Emblem of the Sun God";
 						mes "3 Breath of Spirit";
 						mes "20 Gold";
 						mes "10 Elunium";
-						mes "and 1 Slotted Boots^000000...";
+						mes "та 1 Slotted Boots^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 
 					case 4:
 						mes "[Dwarf Grunburti]";
-                                                mes "I will need...";
+						if (#gl_lang == 1) { mes "Мені знадобляться..."; } else { mes "I will need..."; }
 						mes "^0000FF2 Thor's Gauntlets";
 						mes "4 Iron Maiden";
 						mes "5 Wrath of Valkyrie";
@@ -1157,22 +1541,36 @@ gld_dun04.gat,268,230,0	script	Grunburti#4	826,{
 						mes "5 Billow";
 						mes "20 Oridecon";
 						mes "5 Elunium";
-						mes "40 Gold and";
+						mes "40 Gold та";
 						mes "1 Stunner^000000...";
 						next;
 						mes "[Dwarf Grunburti]";
-						mes "....however, you seem to be slower than other human...";
-						mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						if (#gl_lang == 1) {
+							mes "....проте ти, здається, повільніший за інших людей...";
+							mes "Я починаю сумніватися, чи зможеш ти отримати божественний предмет цього разу. У будь-якому разі, вперед!";
+						} else {
+							mes "....however, you seem to be slower than other human...";
+							mes "I start to wonder if you can have the godly item this time or not. Anyways, go for it!";
+						}
 						close;
 					break;
 					}
 				}
 		mes "[Dwarf Grunburti]";
-		mes "I will do a favor for you this time.";
-		mes "I cannot start to work in here. Come to ^0000FFthe underground laboratory^000000.";
+		if (#gl_lang == 1) {
+			mes "Цього разу я зроблю тобі послугу.";
+			mes "Я не можу почати роботу тут. Приходь до ^0000FFпідземної лабораторії^000000.";
+		} else {
+			mes "I will do a favor for you this time.";
+			mes "I cannot start to work in here. Come to ^0000FFthe underground laboratory^000000.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Now, you must hurry up! ^0000FFOnly one of each godly item^000000 will be given to humans ^FF0000right after all the seals are released^000000!";
+		if (#gl_lang == 1) {
+			mes "Тепер поспішай! ^0000FFТільки один екземпляр кожної божественної речі^000000 буде виданий людям ^FF0000відразу після того, як усі печатки будуть зняті^000000!";
+		} else {
+			mes "Now, you must hurry up! ^0000FFOnly one of each godly item^000000 will be given to humans ^FF0000right after all the seals are released^000000!";
+		}
 		close2;
 		warp "que_god01.gat",214,63;
 		end;
@@ -1180,8 +1578,13 @@ gld_dun04.gat,268,230,0	script	Grunburti#4	826,{
 
 	case 4:
 		mes "[Dwarf Grunburti]";
-		mes "Muhahahahahaha!";
-		mes "Go grow up first!";
+		if (#gl_lang == 1) {
+			mes "Мухахахахахаха!";
+			mes "Спочатку підрости!";
+		} else {
+			mes "Muhahahahahaha!";
+			mes "Go grow up first!";
+		}
 		close;
 	break;
 
@@ -1205,7 +1608,11 @@ que_god01.gat,215,127,0	script	#god_hopewarp1	111,{
 que_god01.gat,214,128,0	script	#que_godnpc1	111,{
 
 		mes "[Entrance Notice]";
-		mes "Only the quickest human being will possess the power of God.";
+		if (#gl_lang == 1) {
+			mes "Лише найшвидша людина оволодіє силою Бога.";
+		} else {
+			mes "Only the quickest human being will possess the power of God.";
+		}
 		close;
 
 }
@@ -1213,7 +1620,11 @@ que_god01.gat,214,128,0	script	#que_godnpc1	111,{
 que_god01.gat,215,128,0	script	#que_godnpc2"	111,{
 
 		mes "[Entrance Notice]";
-		mes "Only the quickest human being will possess the power of God.";
+		if (#gl_lang == 1) {
+			mes "Лише найшвидша людина оволодіє силою Бога.";
+		} else {
+			mes "Only the quickest human being will possess the power of God.";
+		}
 		close;
 
 }
@@ -1221,36 +1632,49 @@ que_god01.gat,215,128,0	script	#que_godnpc2"	111,{
 que_god01.gat,213,128,0	script	#que_godnpc3	111,{
 
 		mes "[Entrance Notice]";
-		mes "Only the quickest human being will possess the power of God.";
+		if (#gl_lang == 1) {
+			mes "Лише найшвидша людина оволодіє силою Бога.";
+		} else {
+			mes "Only the quickest human being will possess the power of God.";
+		}
 		close;
 
 }
 
 que_god01.gat,154,112,4	script	Grunburti#god	826,{
 
-		if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+		if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 	{
 		mes "[Dwarf Grunburti]";
-		mes "The godly item has been created already.";
-		mes "You must wait until all the seals are released again! Hahahaha!";
+		if (#gl_lang == 1) {
+			mes "Божественний предмет уже був створений.";
+			mes "Ти мусиш чекати, поки всі печатки знову не відкриються! Хахахаха!";
+		} else {
+			mes "The godly item has been created already.";
+			mes "You must wait until all the seals are released again! Hahahaha!";
+		}
 		close;
 	}
 		set @god_guild,getcharid(2);
-		if (strcharinfo(0) != getguildmaster(@god_guild))
-	{
-			mes "[Dwarf Grunburti]";
-			mes "?! How did you come in here?";
-			mes "Get out immediately! I will only speak to humans of high social standing!";
-			close;
-	}
 		mes "[Dwarf Grunburti]";
-		mes "Although it is very humiliating to present my valuable skills to a human being...";
-		mes "I will do a favor for you this time.";
+		if (#gl_lang == 1) {
+			mes "Хоча мені дуже принизливо демонструвати свої цінні навички людині...";
+			mes "Цього разу я зроблю тобі послугу.";
+		} else {
+			mes "Although it is very humiliating to present my valuable skills to a human being...";
+			mes "I will do a favor for you this time.";
+		}
 		next;
 		mes "[Dwarf Grunburti]";
-		mes "Now! Choose an item that you wish to have! You have only ^FF000010 minutes to complete the weapon creation process^000000!";
-		mes "I am busy of course, also ^0000FFall the seals will be sealed up again shortly^000000!";
-		mes "^FF0000Don't be too slow^000000, otherwise ^FF0000I will give the chance to another human^000000 right away!";
+		if (#gl_lang == 1) {
+			mes "Зараз! Обирай предмет, який бажаєш отримати! У тебе є лише ^FF000010 хвилин, щоб завершити процес створення зброї^000000!";
+			mes "Я зайнятий, звісно, до того ж ^0000FFусі печатки незабаром знову будуть запечатані^000000!";
+			mes "^FF0000Не барися^000000, інакше я негайно ^FF0000віддам цей шанс іншій людині^000000!";
+		} else {
+			mes "Now! Choose an item that you wish to have! You have only ^FF000010 minutes to complete the weapon creation process^000000!";
+			mes "I am busy of course, also ^0000FFall the seals will be sealed up again shortly^000000!";
+			mes "^FF0000Don't be too slow^000000, otherwise ^FF0000I will give the chance to another human^000000 right away!";
+		}
 		next;
 			switch( select( "Brisingamen", "Megingjard", "Sleipnir", "Mjolnir" ) )
 		{
@@ -1258,312 +1682,415 @@ que_god01.gat,154,112,4	script	Grunburti#god	826,{
 		case 1:
 			mes "[Dwarf Grunburti]";
 			mes "Brisingamen!";
-			mes "How dare an insignificant man to own such a precious treasure!";
+			if (#gl_lang == 1) { mes "Як сміє нікчемна людина володіти таким дорогоцінним скарбом!"; }
+			else { mes "How dare an insignificant man to own such a precious treasure!"; }
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "I must say, this necklace will possess no meaning unless it is worn by the goddess Freya!";
-			mes "Treasure will select its owner with its will. Let's see if it recognizes you as the owner or not!";
+			if (#gl_lang == 1) {
+				mes "Мушу сказати, це намисто не матиме сенсу, якщо його не носитиме богиня Фрейя!";
+				mes "Скарб сам обирає свого власника. Побачимо, чи визнає він тебе!";
+			} else {
+				mes "I must say, this necklace will possess no meaning unless it is worn by the goddess Freya!";
+				mes "Treasure will select its owner with its will. Let's see if it recognizes you as the owner or not!";
+			}
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "Once again, I need following materials in order to reproduce the godly item.";
-			mes "^0000FF4 Freya's Jewel";
-			mes "4 Silver Ornament";
-			mes "3 Snow Crystal";
-			mes "3 Ripple";
-			mes "3 Drifting Air";
-			mes "2 Sapphire";
-			mes "3 Pearl";
-			mes "10 Opal";
-			mes "5 Cursed Ruby";
-			mes "20 Gold and";
-			mes "1 Necklace^000000...";
+			if (#gl_lang == 1) {
+				mes "Повторюю, мені потрібні наступні матеріали, щоб відтворити божественний предмет:";
+				mes "^0000FF4 Freya's Jewel";
+				mes "4 Silver Ornament";
+				mes "3 Snow Crystal";
+				mes "3 Ripple";
+				mes "3 Drifting Air";
+				mes "2 Sapphire";
+				mes "3 Pearl";
+				mes "10 Opal";
+				mes "5 Cursed Ruby";
+				mes "20 Gold та";
+				mes "1 Necklace^000000...";
+			} else {
+				mes "Once again, I need following materials in order to reproduce the godly item.";
+				mes "^0000FF4 Freya's Jewel";
+				mes "4 Silver Ornament";
+				mes "3 Snow Crystal";
+				mes "3 Ripple";
+				mes "3 Drifting Air";
+				mes "2 Sapphire";
+				mes "3 Pearl";
+				mes "10 Opal";
+				mes "5 Cursed Ruby";
+				mes "20 Gold and";
+				mes "1 Necklace^000000...";
+			}
 			next;
 
-				switch( select( "Make Brisingamen.", "Cancel." ) )
+				if (#gl_lang == 1) { set @menu$, "Виготовити Brisingamen.:Скасувати."; }
+				else { set @menu$, "Make Brisingamen.:Cancel."; }
+				switch( select(@menu$) )
 			{
 
 			case 1:
 					if (countitem(7073) > 3 && countitem(7077) > 3 && countitem(7088) > 2 && countitem(7090) > 2 && countitem(7092) > 2 && countitem(726) > 1 && countitem(722) > 2 && countitem(727) > 9 && countitem(724) > 4 && countitem(969) > 19 && countitem(2603) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Muhahahahaha!";
-					mes "I didn't imagine that I would use my skills for a human being...give me a moment!";
+					if (#gl_lang == 1) {
+						mes "Мухахахахаха!";
+						mes "Я й не уявляв, що використаю свої навички для людини... зачекай хвилинку!";
+					} else {
+						mes "Muhahahahaha!";
+						mes "I didn't imagine that I would use my skills for a human being...give me a moment!";
+					}
 					next;
-						if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+						if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 					{
 						mes "[Dwarf Grunburti]";
-						mes "The godly item has been created already.";
-						mes "You must wait until all the seals are released again! Hahahaha!";
+						if (#gl_lang == 1) { mes "Божественний предмет уже був створений."; }
+						else { mes "The godly item has been created already."; }
 						close;
 					}
-					delitem 7073,4;
-					delitem 7077,4;
-					delitem 7088,3;
-					delitem 7090,3;
-					delitem 7092,3;
-					delitem 726,2;
-					delitem 722,3;
-					delitem 726,10;
-					delitem 724,5;
-					delitem 969,20;
-					delitem 2603,1;
+					delitem 7073,4; delitem 7077,4; delitem 7088,3; delitem 7090,3; delitem 7092,3; delitem 726,2; delitem 722,3; delitem 726,10; delitem 724,5; delitem 969,20; delitem 2603,1;
 					getitem 2630,1;
-					set $God1,0;
-					set $God2,0;
-					set $God3,0;
-					set $God4,0;
-					announce "[Brisingamen] the godly item has been given to [" + strcharinfo(0) + "], the master of the guild [" + getguildname(@god_guild) + "].",bc_all;
+					set God1,0; set God2,0; set God3,0; set God4,0;
+					set god_mjo_0,0; set god_mjo_1,0; set god_mjo_2,0; set god_mjo_3,0; set god_mjo_4,0;
+					set god_brising,0; set brisinmobdead,0; set god_eremes,0;
+					set god_megin_1,0; set god_megin_2,0; set god_megin_3,0; set god_megin_4,0; set god_megin_5,0; set god_megin_6,0;
+					set god_sl_1,0; set god_sl_2,0;
+					
+					if (#gl_lang == 1) { announce "[Brisingamen] — божественний предмет було передано [" + strcharinfo(0) + "], лідеру гільдії [" + getguildname(@god_guild) + "].",bc_all; }
+					else { announce "[Brisingamen] the godly item has been given to [" + strcharinfo(0) + "], the master of the guild [" + getguildname(@god_guild) + "].",bc_all; }
+					
 					mes "[Dwarf Grunburti]";
-					mes "Look at this dazzling necklace, isn't it beautiful!";
-					mes "Ah~ surely there is no existance that can compete this item in this world.";
+					if (#gl_lang == 1) {
+						mes "Поглянь на це сліпуче намисто, хіба воно не прекрасне!";
+						mes "Ах~ напевно, у цьому світі немає нічого, що могло б зрівнятися з ним.";
+					} else {
+						mes "Look at this dazzling necklace, isn't it beautiful!";
+						mes "Ah~ surely there is no existance that can compete this item in this world.";
+					}
 					close;
 				}
 					else
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Bah! You idiotic human being! You have not brought all the necessary materials! Go hurry up, be quick!";
+					if (#gl_lang == 1) { mes "Пфе! Ти, нікчемна людино! Ти не приніс усі необхідні матеріали! Швидше!"; }
+					else { mes "Bah! You idiotic human being! You have not brought all the necessary materials! Go hurry up, be quick!"; }
 					close;
 				}
 			break;
 
 			case 2:
 				mes "[Dwarf Grunburti]";
-				mes "Muhahahaha~ somehow I figured that!";
+				if (#gl_lang == 1) { mes "Мухахаха~ я так і знав!"; }
+				else { mes "Muhahahaha~ somehow I figured that!"; }
 				close;
 			break;
-
 			}
-
 		break;
 
 		case 2:
 			mes "[Dwarf Grunburti]";
 			mes "Me.. Megingjard!";
-			mes "How dare an insignificant man to own such a precious treasure!";
+			if (#gl_lang == 1) { mes "Як сміє нікчемна людина володіти таким дорогоцінним скарбом!"; }
+			else { mes "How dare an insignificant man to own such a precious treasure!"; }
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "This belt used to be worn by the greatest warrior Thor long time ago!";
-			mes "Treasure will select its owner with its will. Let's see if it recognizes you as the owner or not!";
+			if (#gl_lang == 1) {
+				mes "Цей пояс колись дуже давно носив найвеличніший воїн Тор!";
+				mes "Скарб сам обирає власника. Побачимо, чи визнає він тебе!";
+			} else {
+				mes "This belt used to be worn by the greatest warrior Thor long time ago!";
+				mes "Treasure will select its owner with its will. Let's see if it recognizes you as the owner or not!";
+			}
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "Once again, I need following materials in order to reproduce the godly item.";
-                        mes "^0000FF1 Gleipnir";
-			mes "20 Gold";
-			mes "10 Sapphire";
-			mes "10 Oridecon";
-			mes "and 1 Belt^000000...";
+			if (#gl_lang == 1) {
+				mes "Повторюю, мені потрібні наступні матеріали:";
+				mes "^0000FF1 Gleipnir";
+				mes "20 Gold";
+				mes "10 Sapphire";
+				mes "10 Oridecon";
+				mes "та 1 Belt^000000...";
+			} else {
+				mes "Once again, I need following materials in order to reproduce the godly item.";
+				mes "^0000FF1 Gleipnir";
+				mes "20 Gold";
+				mes "10 Sapphire";
+				mes "10 Oridecon";
+				mes "and 1 Belt^000000...";
+			}
 			next;
 
-				switch( select( "Make Megingjard.", "Cancel." ) )
+				if (#gl_lang == 1) { set @menu$, "Виготовити Megingjard.:Скасувати."; }
+				else { set @menu$, "Make Megingjard.:Cancel."; }
+				switch( select(@menu$) )
 			{
 
 			case 1:
 					if (countitem(7058) > 0 && countitem(969) > 19 && countitem(726) > 9 && countitem(984) > 9 && countitem(2627) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Muhahahahaha!";
-					mes "I didn't imagine that I would use my skills for a human being...give me a moment!";
+					if (#gl_lang == 1) { mes "Мухахахахаха! Я й не уявляв... дай мені хвилинку!"; }
+					else { mes "Muhahahahaha! I didn't imagine... give me a moment!"; }
 					next;
-						if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+						if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 					{
 						mes "[Dwarf Grunburti]";
-						mes "The godly item has been created already.";
-						mes "You must wait until all the seals are released again! Hahahaha!";
+						if (#gl_lang == 1) { mes "Божественний предмет уже був створений."; }
+						else { mes "The godly item has been created already."; }
 						close;
 					}
 
-					delitem 7058,1;
-					delitem 969,20;
-					delitem 726,10;
-					delitem 984,10;
-					delitem 2627,1;
+					delitem 7058,1; delitem 969,20; delitem 726,10; delitem 984,10; delitem 2627,1;
 					getitem 2629,1;
-					set $God1,0;
-					set $God2,0;
-					set $God3,0;
-					set $God4,0;
-					announce "[Megingjard] the godly item has been given to [" + strcharinfo(0) + "], the master of the guild [" + getguildname(@god_guild) + "].",bc_all;
+					set God1,0; set God2,0; set God3,0; set God4,0;
+					set god_mjo_0,0; set god_mjo_1,0; set god_mjo_2,0; set god_mjo_3,0; set god_mjo_4,0;
+					set god_brising,0; set brisinmobdead,0; set god_eremes,0;
+					set god_megin_1,0; set god_megin_2,0; set god_megin_3,0; set god_megin_4,0; set god_megin_5,0; set god_megin_6,0;
+					set god_sl_1,0; set god_sl_2,0;
+					
+					if (#gl_lang == 1) { announce "[Megingjard] — божественний предмет було передано [" + strcharinfo(0) + "], лідеру гільдії [" + getguildname(@god_guild) + "].",bc_all; }
+					else { announce "[Megingjard] the godly item has been given to [" + strcharinfo(0) + "], the master of the guild [" + getguildname(@god_guild) + "].",bc_all; }
+					
 					mes "[Dwarf Grunburti]";
-					mes "Here you go!";
-					mes "Ah~ look at this majestic appearance...! I am overwhelmed already...";
+					if (#gl_lang == 1) {
+						mes "Ось, тримай!";
+						mes "Ах~ поглянь на цей величний вигляд...! Я вже вражений...";
+					} else {
+						mes "Here you go!";
+						mes "Ah~ look at this majestic appearance...! I am overwhelmed already...";
+					}
 					close;
 				}
 					else
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Bah! You idiotic human being! You have not brought all the necessary materials! Go hurry up, be quick!";
+					if (#gl_lang == 1) { mes "Пфе! Ти не приніс усі необхідні матеріали! Швидше!"; }
+					else { mes "Bah! You idiotic human being! You have not brought all the necessary materials! Go hurry up, be quick!"; }
 					close;
 				}
 			break;
 
 			case 2:
 				mes "[Dwarf Grunburti]";
-				mes "Muhahahaha~ somehow I figured that!";
+				if (#gl_lang == 1) { mes "Мухахаха~ я так і знав!"; }
+				else { mes "Muhahahaha~ somehow I figured that!"; }
 				close;
 			break;
-
 			}
-
 		break;
 
 		case 3:
 			mes "[Dwarf Grunburti]";
-			mes "....the eight legged stallion, Sleipnir?!";
-			mes "How dare an insignificant man to own such a precious treasure!";
+			if (#gl_lang == 1) { mes "....восьминогий жеребець, Sleipnir?!"; }
+			else { mes "....the eight legged stallion, Sleipnir?!"; }
+			if (#gl_lang == 1) { mes "Як сміє нікчемна людина володіти таким дорогоцінним скарбом!"; }
+			else { mes "How dare an insignificant man to own such a precious treasure!"; }
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "Unfortunately I can only produce an object...not a life.";
-			mes "However, I can craft a pair of shoes that possess the power of Sleipnir.";
+			if (#gl_lang == 1) {
+				mes "На жаль, я можу створити лише об'єкт... а не життя.";
+				mes "Проте, я можу виготовити пару чобіт, що володіють силою Слейпніра.";
+			} else {
+				mes "Unfortunately I can only produce an object...not a life.";
+				mes "However, I can craft a pair of shoes that possess the power of Sleipnir.";
+			}
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "Of course, even the shoes are too valuable to be given out to a human.";
-			mes "Once again, I need following materials in order to reproduce the godly item.";
+			if (#gl_lang == 1) {
+				mes "Звісно, навіть це взуття занадто цінне для людини.";
+				mes "Мені потрібні наступні матеріали:";
+			} else {
+				mes "Of course, even the shoes are too valuable to be given out to a human.";
+				mes "Once again, I need following materials in order to reproduce the godly item.";
+			}
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "^0000FF3 Wheel of the Unknown";
-			mes "5 Feather of Angel Wing";
-			mes "3 Spirit of Fish";
-			mes "4 Emblem of the Sun God";
-			mes "3 Breath of Spirit";
-			mes "20 Gold";
-			mes "10 Elunium";
-			mes "and 1 Slotted Boots^000000...";
+			if (#gl_lang == 1) {
+				mes "^0000FF3 Wheel of the Unknown";
+				mes "5 Feather of Angel Wing";
+				mes "3 Spirit of Fish";
+				mes "4 Emblem of the Sun God";
+				mes "3 Breath of Spirit";
+				mes "20 Gold";
+				mes "10 Elunium";
+				mes "та 1 Slotted Boots^000000...";
+			} else {
+				mes "^0000FF3 Wheel of the Unknown";
+				mes "5 Feather of Angel Wing";
+				mes "3 Spirit of Fish";
+				mes "4 Emblem of the Sun God";
+				mes "3 Breath of Spirit";
+				mes "20 Gold";
+				mes "10 Elunium";
+				mes "and 1 Slotted Boots^000000...";
+			}
 			next;
-				switch( select( "Make Sleipnir.", "Cancel." ) )
+				if (#gl_lang == 1) { set @menu$, "Виготовити Sleipnir.:Скасувати."; }
+				else { set @menu$, "Make Sleipnir.:Cancel."; }
+				switch( select(@menu$) )
 			{
 
 			case 1:
 					if (countitem(7076) > 2 && countitem(7079) > 4 && countitem(7083) > 2 && countitem(7086) > 3 && countitem(7087) > 2 && countitem(969) > 19 && countitem(985) > 9 && countitem(2406) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Muhahahahaha!";
-					mes "I didn't imagine that I would use my skills for a human being...give me a moment!";
+					if (#gl_lang == 1) { mes "Мухахахахаха! Зачекай хвилинку!"; }
+					else { mes "Muhahahahaha! Give me a moment!"; }
 					next;
-						if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+						if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 					{
 						mes "[Dwarf Grunburti]";
-						mes "The godly item has been created already.";
-						mes "You must wait until all the seals are released again! Hahahaha!";
+						if (#gl_lang == 1) { mes "Божественний предмет уже був створений."; }
+						else { mes "The godly item has been created already."; }
 						close;
 					}
-					delitem 7076,3;
-					delitem 7079,5;
-					delitem 7083,3;
-					delitem 7086,4;
-					delitem 7087,3;
-					delitem 969,20;
-					delitem 985,10;
-					delitem 2406,1;
+					delitem 7076,3; delitem 7079,5; delitem 7083,3; delitem 7086,4; delitem 7087,3; delitem 969,20; delitem 985,10; delitem 2406,1;
 					getitem 2410,1;
-					set $God1,0;
-					set $God2,0;
-					set $God3,0;
-					set $God4,0;
-					announce "[Sleipnir] the godly item has been given to [" + strcharinfo(0) + "], the master of the guild [" + getguildname(@god_guild) + "].",bc_all;
+					set God1,0; set God2,0; set God3,0; set God4,0;
+					set god_mjo_0,0; set god_mjo_1,0; set god_mjo_2,0; set god_mjo_3,0; set god_mjo_4,0;
+					set god_brising,0; set brisinmobdead,0; set god_eremes,0;
+					set god_megin_1,0; set god_megin_2,0; set god_megin_3,0; set god_megin_4,0; set god_megin_5,0; set god_megin_6,0;
+					set god_sl_1,0; set god_sl_2,0;
+					
+					if (#gl_lang == 1) { announce "[Sleipnir] — божественний предмет було передано [" + strcharinfo(0) + "], лідеру гільдії [" + getguildname(@god_guild) + "].",bc_all; }
+					else { announce "[Sleipnir] the godly item has been given to [" + strcharinfo(0) + "], the master of the guild [" + getguildname(@god_guild) + "].",bc_all; }
+					
 					mes "[Dwarf Grunburti]";
-					mes "Here you go!";
-					mes "This pair of shoes are so light, you will never feel like wearing anything on your feet with this shoes!";
+					if (#gl_lang == 1) {
+						mes "Ось, тримай!";
+						mes "Ці чоботи такі легкі, що ти навіть не відчуєш їх на своїх ногах!";
+					} else {
+						mes "Here you go!";
+						mes "This pair of shoes are so light, you will never feel like wearing anything on your feet with this shoes!";
+					}
 					close;
 				}
 					else
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Bah! You idiotic human being! You have not brought all the necessary materials! Go hurry up, be quick!";
+					if (#gl_lang == 1) { mes "Пфе! Ти не приніс усі необхідні матеріали! Швидше!"; }
+					else { mes "Bah! You idiotic human being! You have not brought all the necessary materials! Go hurry up, be quick!"; }
 					close;
 				}
 			break;
 
 			case 2:
 				mes "[Dwarf Grunburti]";
-				mes "Muhahahaha~ somehow I figured that!";
+				if (#gl_lang == 1) { mes "Мухахаха~ я так і знав!"; }
+				else { mes "Muhahahaha~ somehow I figured that!"; }
 				close;
 			break;
-
 			}
-
 		break;
 
 		case 4:
 			mes "[Dwarf Grunburti]";
 			mes "Mjo!...Mjo....Mjolnir!";
-			mes "How dare an insignificant man to own such a precious treasure!";
+			if (#gl_lang == 1) { mes "Як сміє нікчемна людина володіти таким дорогоцінним скарбом!"; }
+			else { mes "How dare an insignificant man to own such a precious treasure!"; }
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "I haven't assured if you are qualified to possess this yet.";
-			mes "Are you confident that you would not disgrace Thor, the greatest warrior?";
+			if (#gl_lang == 1) {
+				mes "Я ще не впевнений, чи гідний ти володіти цим.";
+				mes "Ти впевнений, що не зганьбиш Тора, найвеличнішого воїна?";
+			} else {
+				mes "I haven't assured if you are qualified to possess this yet.";
+				mes "Are you confident that you would not disgrace Thor, the greatest warrior?";
+			}
 			next;
 			mes "[Dwarf Grunburti]";
-			mes "....sigh...";
-			mes "Somehow humans are too greedy to listen to my concern.";
-			mes "I will create it for you though. However you will realise how limitted you are to handle this item...";
-			mes "Once again, I need following materials in order to reproduce the godly item.";
+			if (#gl_lang == 1) {
+				mes "....зітхає...";
+				mes "Якось люди надто жадібні, щоб слухати мої поради.";
+				mes "Я створю його для тебе. Проте ти зрозумієш, наскільки ти обмежений для володіння цим предметом...";
+				mes "Отже, мені потрібні:";
+			} else {
+				mes "....sigh...";
+				mes "Somehow humans are too greedy to listen to my concern.";
+				mes "I will create it for you though. However you will realise how limitted you are to handle this item...";
+				mes "Once again, I need following materials in order to reproduce the godly item.";
+			}
 			next;
 			mes "[Dwarf Grunburti]";
-                        mes "^0000FF2 Thor's Gauntlets";
-			mes "4 Iron Maiden";
-			mes "5 Wrath of Valkyrie";
-			mes "5 Omen of Tempest";
-			mes "5 Billow";
-			mes "20 Oridecon";
-			mes "5 Elunium";
-			mes "40 Gold and";
-			mes "1 Stunner^000000...";
+			if (#gl_lang == 1) {
+				mes "^0000FF2 Thor's Gauntlets";
+				mes "4 Iron Maiden";
+				mes "5 Wrath of Valkyrie";
+				mes "5 Omen of Tempest";
+				mes "5 Billow";
+				mes "20 Oridecon";
+				mes "5 Elunium";
+				mes "40 Gold та";
+				mes "1 Stunner^000000...";
+			} else {
+				mes "^0000FF2 Thor's Gauntlets";
+				mes "4 Iron Maiden";
+				mes "5 Wrath of Valkyrie";
+				mes "5 Omen of Tempest";
+				mes "5 Billow";
+				mes "20 Oridecon";
+				mes "5 Elunium";
+				mes "40 Gold and";
+				mes "1 Stunner^000000...";
+			}
 			next;
-				switch( select( "Make Mjolnir.", "Cancel." ) )
+				if (#gl_lang == 1) { set @menu$, "Виготовити Mjolnir.:Скасувати."; }
+				else { set @menu$, "Make Mjolnir.:Cancel."; }
+				switch( select(@menu$) )
 			{
 
 			case 1:
 					if (countitem(7074) > 1 && countitem(7075) > 3 && countitem(7078) > 4 && countitem(7089) > 4 && countitem(7091) > 4 && countitem(984) > 19 && countitem(985) > 4 && countitem(969) > 39 && countitem(1522) > 0)
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Muhahahahaha!";
-					mes "I didn't imagine that I would use my skills for a human being...give me a moment!";
+					if (#gl_lang == 1) { mes "Мухахахахаха! Дай мені хвилинку!"; }
+					else { mes "Muhahahahaha! Give me a moment!"; }
 					next;
-						if ($God1 < 100 || $God2 < 100 || $God3 < 100 || $God4 < 100)
+						if (God1 < 1 || God2 < 1 || God3 < 1 || God4 < 1)
 					{
 						mes "[Dwarf Grunburti]";
-						mes "The godly item has been created already.";
-						mes "You must wait until all the seals are released again! Hahahaha!";
+						if (#gl_lang == 1) { mes "Божественний предмет уже був створений."; }
+						else { mes "The godly item has been created already."; }
 						close;
 					}
-					delitem 7074,2;
-					delitem 7075,4;
-					delitem 7078,5;
-					delitem 7089,5;
-					delitem 7091,5;
-					delitem 984,20;
-					delitem 985,5;
-					delitem 969,40;
-					delitem 1522,1;
+					delitem 7074,2; delitem 7075,4; delitem 7078,5; delitem 7089,5; delitem 7091,5; delitem 984,20; delitem 985,5; delitem 969,40; delitem 1522,1;
 					getitem 1530,1;
-					set $God1,0;
-					set $God2,0;
-					set $God3,0;
-					set $God4,0;
-					announce "[Mjolnir] the godly item has been given to [" + strcharinfo(0) + "], the master of the guild [" + getguildname(@god_guild) + "].",bc_all;
+					set God1,0; set God2,0; set God3,0; set God4,0;
+					set god_mjo_0,0; set god_mjo_1,0; set god_mjo_2,0; set god_mjo_3,0; set god_mjo_4,0;
+					set god_brising,0; set brisinmobdead,0; set god_eremes,0;
+					set god_megin_1,0; set god_megin_2,0; set god_megin_3,0; set god_megin_4,0; set god_megin_5,0; set god_megin_6,0;
+					set god_sl_1,0; set god_sl_2,0;
+					
+					if (#gl_lang == 1) { announce "[Mjolnir] — божественний предмет було передано [" + strcharinfo(0) + "], лідеру гільдії [" + getguildname(@god_guild) + "].",bc_all; }
+					else { announce "[Mjolnir] the godly item has been given to [" + strcharinfo(0) + "], the master of the guild [" + getguildname(@god_guild) + "].",bc_all; }
+					
 					mes "[Dwarf Grunburti]";
-					mes "Here you go!";
-					mes "Although it may appear too small to be such a powerful hammer, there is no weapon that can compete to Mjolnir!";
+					if (#gl_lang == 1) {
+						mes "Ось, тримай!";
+						mes "Хоча він здається занадто малим для такого потужного молота, жодна зброя не зрівняється з Мьольніром!";
+					} else {
+						mes "Here you go!";
+						mes "Although it may appear too small to be such a powerful hammer, there is no weapon that can compete to Mjolnir!";
+					}
 					close;
 				}
 					else
 				{
 					mes "[Dwarf Grunburti]";
-					mes "Bah! You idiotic human being! You have not brought all the necessary materials! Go hurry up, be quick!";
+					if (#gl_lang == 1) { mes "Пфе! Ти не приніс усі необхідні матеріали! Швидше!"; }
+					else { mes "Bah! You idiotic human being! You have not brought all the necessary materials! Go hurry up, be quick!"; }
 					close;
 				}
 			break;
 
 			case 2:
 				mes "[Dwarf Grunburti]";
-				mes "Muhahahaha~ somehow I figured that!";
+				if (#gl_lang == 1) { mes "Мухахаха~ я так і знав!"; }
+				else { mes "Muhahahaha~ somehow I figured that!"; }
 				close;
 			break;
-
 			}
-
 		break;
-
 		}
 
 OnRun:
@@ -1571,11 +2098,13 @@ OnRun:
 	end;
 
 OnTimer10000:
-	mapannounce "que_god01.gat","Remember that you only have 10 minutes for this! Hurry up!",0;
+	if (#gl_lang == 1) { mapannounce "que_god01.gat","Пам'ятай, що у тебе є лише 10 хвилин на це! Поспішай!",0; }
+	else { mapannounce "que_god01.gat","Remember that you only have 10 minutes for this! Hurry up!",0; }
 	end;
 
 OnTimer610000:
-	mapannounce "que_god01.gat","You are too slow! I am going to give the chance to the other! Next!",0;
+	if (#gl_lang == 1) { mapannounce "que_god01.gat","Ти занадто повільний! Я віддам цей шанс іншому! Наступний!",0; }
+	else { mapannounce "que_god01.gat","You are too slow! I am going to give the chance to the other! Next!",0; }
 	end;
 
 OnTimer612000:
@@ -1591,5 +2120,4 @@ OnTimer615000:
 	donpcevent "#god_hopewarp1::OnInit";
 	stopnpctimer;
 	end;
-
 }
