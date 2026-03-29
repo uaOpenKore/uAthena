@@ -1,0 +1,54 @@
+// Місцезнаходження: que_god01 (94, 94)
+rachel,113,101,4	script	Variable Manager	100,{
+
+	mes "[Variable Manager]";
+	mes "Вітаю, " + strcharinfo(0) + ".";
+	mes "Поточні значення твоїх змінних:";
+	mes "---------------------------";
+	mes "ice_necklace_q: ^0000FF" + ice_necklace_q + "^000000";
+	mes "---------------------------";
+	mes "^FF0000Godly Quest Vars:^000000";
+	mes "God1: ^0000FF" + God1 + "^000000 | God2: ^0000FF" + God2 + "^000000";
+	mes "God3: ^0000FF" + God3 + "^000000 | God4: ^0000FF" + God4 + "^000000";
+	mes "---------------------------";
+	mes "^FF0000Sleipnir Quest Vars:^000000";
+	mes "god_sl_1: ^0000FF" + god_sl_1 + "^000000 | god_eremes: ^0000FF" + god_eremes + "^000000";
+	mes "god_megin_1: ^0000FF" + god_megin_1 + "^000000 | god_brising: ^0000FF" + god_brising + "^000000";
+	mes "---------------------------";
+	next;
+
+	menu "Редагувати змінну", L_Edit, "Нічого не змінювати", L_Close;
+
+L_Edit:
+	mes "[Вибір змінної]";
+	// Меню розбито на групи для зручності
+	menu "ice_necklace_q", L_M_Q, "god_sl_1", L_S1, "god_eremes", L_S2, "god_megin_1", L_S3, "god_brising", L_S4, "God1", L_G1, "God2", L_G2, "God3", L_G3, "God4", L_G4, "Інша назва...", L_Custom;
+
+L_M_Q: set .@var_name$, "ice_necklace_q"; goto L_Input_Val;
+L_S1:  set .@var_name$, "god_sl_1"; goto L_Input_Val;
+L_S2:  set .@var_name$, "god_eremes"; goto L_Input_Val;
+L_S3:  set .@var_name$, "god_megin_1"; goto L_Input_Val;
+L_S4:  set .@var_name$, "god_brising"; goto L_Input_Val;
+L_G1:  set .@var_name$, "God1"; goto L_Input_Val;
+L_G2:  set .@var_name$, "God2"; goto L_Input_Val;
+L_G3:  set .@var_name$, "God3"; goto L_Input_Val;
+L_G4:  set .@var_name$, "God4"; goto L_Input_Val;
+
+L_Custom:
+	mes "Введи точну назву змінної:";
+	input .@var_name$;
+	goto L_Input_Val;
+
+L_Input_Val:
+	mes "Введи нове значення для ^FF0000" + .@var_name$ + "^000000:";
+	input .@new_val;
+	
+	// setd встановлює значення для змінної, назва якої вказана у .@var_name$
+	setd .@var_name$, .@new_val;
+	
+	mes "Оновлено! Тепер " + .@var_name$ + " = " + .@new_val;
+	close;
+
+L_Close:
+	close;
+}
