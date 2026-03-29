@@ -587,7 +587,7 @@ L_Access3:
 						mes "Ah, you're "+strcharinfo(0)+", right?";
 						set .@thana_level2,getareausers("tha_t02",226,156,236,166);
 						next;
-						if(.@thana_level2 < 5)
+						if(.@thana_level2 < 0)
 						{
 							mes "[Burled]";
 							mes "First, we need to wait until";
