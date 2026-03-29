@@ -3769,6 +3769,7 @@ OnStopTimer:
 OnMyMobDead:
 	mapannounce "ice_dun03","Odin! Odin I beg you! Please protect this haven from Thor's fiere fire!",bc_map,0xFF6633;
 	mapannounce "ice_dun03","Hisssss.... Hisssss...",bc_map,0x33FFFF;
+	set ice_necklace_q,0;
 	donpcevent "ice_boss#on::OnStartTimer";
 	donpcevent "#ice_sec::OnStart";
 	end;
