@@ -17,9 +17,9 @@
 //= 1.5 Rewrite everything from scratch. [Lance]
 //= 1.5a fixed Baby -> Super Baby change. Switched to JobName() [Lupus]
 //============================================================
-//prontera.gat,153,193,6	script	Job Master	123,{
-valkyrie,48,86,4	script	Fate Seller	811,{
-	mes "^ff0000[Job Master]^000000";
+
+valkyrie,48,86,4	script	Fate Master	811,{
+	mes "^ff0000[Fate Master]^000000";
 	if(Upper == 1 && Class >= Job_Lord_Knight) goto L_noReq;
 	if(SkillPoint != 0){
 		mes "I'm sorry, please use up all your skill points before changing jobs";
@@ -271,18 +271,33 @@ OnInit:
 
 
 
-prontera,128,189,7	script	Guide of Fate		935,{
-     mes "[ Guide of Fate ]";
-     mes "I will lead you to your destiny.";
-     next;
-     if (select("I'm ready, lead me!:No, I'll walk.") == 2) {
-     mes "[ Guide of Fate ]";
-     mes "Have a nice trip!";
-     close;
-     }
-     warp "valkyrie",49,12;
-     end;
-  }
+prontera,128,189,7	script	Guide of Fate	935,{
+    if (#gl_lang == 1) {
+        mes "[ Провідник Долі ]";
+        mes "Я приведу тебе до тієї хто зможе допомогти тобі обрати свій шлях.";
+    } else {
+        mes "[ Guide of Fate ]";
+        mes "I will lead you to your destiny.";
+    }
+    next;
+
+    if (#gl_lang == 1) {
+        if (select("Я готовий, веди мене!:Ні, я піду пішком.") == 2) {
+            mes "[ Провідник Долі ]";
+            mes "Гарної подорожі!";
+            close;
+        }
+    } else {
+        if (select("I'm ready, lead me!:No, I'll walk.") == 2) {
+            mes "[ Guide of Fate ]";
+            mes "Have a nice trip!";
+            close;
+        }
+    }
+
+    warp "valkyrie",49,12;
+    end;
+}
 
 valkyrie,48,8,0		warp	val0	1,1,prontera,133,193
 
