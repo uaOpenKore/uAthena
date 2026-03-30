@@ -125,13 +125,13 @@ function	script	F_InnMaid	{
 		mes "Мене звати Василина";
 		mes "Чим я можу вам допомогти?";
 		next;
-		menu "Зберегтися",Msave, "Відпочити -> 5000 грн",Mrent, "Відміна",Mend;
+		menu "Зберегтися",Msave, "Відпочити -> 1000 грн",Mrent, "Відміна",Mend;
 	} else { // EN
 		mes "Welcome to";
 		mes getarg(1) + ".";
 		mes "How may I help you?";
 		next;
-		menu "Save",Msave, "Take a Rest -> 5000 zeny",Mrent, "Cancel",Mend;
+		menu "Save",Msave, "Take a Rest -> 1000 zeny",Mrent, "Cancel",Mend;
 	}
 
 	Msave:
@@ -152,7 +152,7 @@ function	script	F_InnMaid	{
 
 	Mrent:
 		mes getarg(0);
-		if(Zeny < 5000){
+		if(Zeny < 1000){
 			if (#gl_lang == 1) {
 				mes "На жаль, вартість послуги";
 				mes "становить 5,000 грн. Будь ласка,";
@@ -177,7 +177,7 @@ function	script	F_InnMaid	{
 			mes "enjoy your rest~";
 		}
 		close2;
-		set Zeny,Zeny - 5000;
+		set Zeny,Zeny - 1000;
 		percentheal 100,100;
 		return;
 
