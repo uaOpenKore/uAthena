@@ -1,0 +1,63 @@
+
+
+prt_in,239,102,1	script	Shady Dealer#ua_en	106,{
+
+	if (#gl_lang == 1) {
+		mes "[Підозрілий тип]";
+		mes "Тсс... Гей, ти! Підійди ближче, не привертай уваги.";
+		next;
+		mes "[Підозрілий тип]";
+		mes "Слухай, тут таке діло... Один товстосум у Пронтері забагато роззявляв рота, і ця скриня випадково... е-е... змінила власника.";
+		mes "Коротше, вона мені пече руки. Забирай цей ^FF0000Джавел бокс^000000 лише за ^0000FF1 Срібну монету^000000.";
+		next;
+
+		if (select("Домовилися, давай скриню:Ні, я не купую крадене") == 2) {
+			mes "[Підозрілий тип]";
+			mes "Ну і йди собі! Тільки спробуй бовкнути щось стражникам — я тебе з-під землі дістану.";
+			close;
+		}
+
+		if (countitem(675) < 1) {
+			mes "[Підозрілий тип]";
+			mes "Ти що, жартуєш? У тебе навіть однієї монети немає!";
+			mes "Вали звідси, поки я не покликав своїх друзів з гільдії.";
+			close;
+		}
+	} else {
+		// English Version
+		mes "[Shady Dealer]";
+		mes "Psst... Hey, you! Come closer, don't draw any attention.";
+		next;
+		mes "[Shady Dealer]";
+		mes "Look, here's the deal... Some rich guy in Prontera was talking too much, and this chest accidentally... uh... changed owners.";
+		mes "Anyway, it's too hot for me to keep. Take this ^FF0000Jewel Box^000000 for just ^0000FF1 Silver Coin^000000.";
+		next;
+
+		if (select("Deal, give me the box:No, I don't buy stolen goods") == 2) {
+			mes "[Shady Dealer]";
+			mes "Fine, beat it! But if you say a word to the guards — I'll find you.";
+			close;
+		}
+
+		if (countitem(675) < 1) {
+			mes "[Shady Dealer]";
+			mes "Are you kidding me? You don't even have one coin!";
+			mes "Get lost before I call my guild mates.";
+			close;
+		}
+	}
+
+	// Спільна частина для обох мов (виконання транзакції)
+	delitem 675, 1;
+	getitem 12106, 1;
+	specialeffect2 76;
+
+	if (#gl_lang == 1) {
+		mes "[Підозрілий тип]";
+		mes "Тримай! І пам'ятай — ми ніколи не бачилися. А тепер зникай.";
+	} else {
+		mes "[Shady Dealer]";
+		mes "Here! Remember — we never met. Now disappear.";
+	}
+	close;
+}

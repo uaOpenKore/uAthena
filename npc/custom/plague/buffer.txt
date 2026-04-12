@@ -1,0 +1,49 @@
+prontera,190,181,5	script	Blessing Master#ua_en	862,{
+
+	if (#gl_lang == 1) {
+		mes "[Майстер Благословень]";
+		mes "Я наділю тебе силою!";
+		mes "Просто довірся мені.";
+	} else {
+		mes "[Blessing Master]";
+		mes "I will grant you power!";
+		mes "Just trust me.";
+	}
+	next;
+
+	// Ефекти та накладання бафів (однаково для обох мов)
+	specialeffect2 514;
+	
+	// Blessing
+	skilleffect 34, 10;
+	sc_start SC_BLESSING, 600000, 10;
+	sleep2 1000;
+
+	// Increase AGI
+	skilleffect 29, 10;
+	sc_start SC_INCREASEAGI, 600000, 10;
+	sleep2 1000;
+
+	// Magnificat
+	skilleffect 74, 5;
+	sc_start SC_MAGNIFICAT, 600000, 5;
+	sleep2 1000;
+
+	// Gloria
+	skilleffect 75, 5;
+	sc_start SC_GLORIA, 600000, 5;
+	sleep2 1000;
+
+	// Assumptio
+	skilleffect 361, 5;
+	sc_start SC_ASSUMPTIO, 600000, 5;
+	
+	if (#gl_lang == 1) {
+		mes "[Майстер Благословень]";
+		mes "Готово! Нехай щастить!";
+	} else {
+		mes "[Blessing Master]";
+		mes "Done! Good luck on your journey!";
+	}
+	close;
+}
