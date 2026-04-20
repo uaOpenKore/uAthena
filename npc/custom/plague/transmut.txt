@@ -1,0 +1,143 @@
+yuno_in03,237,103,4	script	Master T	865,{
+
+    if (#gl_lang == 1) {
+        mes "[Майстер Трансмутації]";
+        mes "Вітаю мандрівнику. Я володію стародавніми знаннями, що дозволяють змінювати форму та суть речей.";
+        mes "Я можу запропонувати тобі кілька варіантів ритуалів.";
+    } else {
+        mes "[Transmutation Master]";
+        mes "Greetings, traveler. I possess ancient knowledge that allows me to change the form and essence of things.";
+        mes "I can offer you several ritual options.";
+    }
+    next;
+
+    // Головне меню вибору
+    set .@menu$, (#gl_lang == 1) ? "Змінити Ріжки Кахо на Шлем Валькірії:Обміняти набір крил та вух на капелюх:Нічого не потрібно" : "Change Lord Kaho's Horns to Valkyrie Helm:Exchange a set of wings and ears for a hat:Nothing needed";
+    
+    switch(select(.@menu$)) {
+
+        // --- Гілка 1: Ріжки Кахо (1 000 000 зен) ---
+        case 1:
+            if (#gl_lang == 1) {
+                mes "[Майстер Трансмутації]";
+                mes "Я можу зробити так щоб твої Ріжки Кахо виглядали як Шлем Валькірії.";
+                mes "Це буде коштувати тобі 1 000 000 зен.";
+            } else {
+                mes "[Transmutation Master]";
+                mes "I can make your Lord Kaho's Horns look like a Valkyrie Helm.";
+                mes "This will cost you 1,000,000 zeny.";
+            }
+            next;
+
+            set .@confirm$, (#gl_lang == 1) ? "Змінити вигляд:Піти" : "Change appearance:Leave";
+            if (select(.@confirm$) == 2) goto L_Cancel;
+
+            if (Zeny < 1000000) goto L_NoZeny;
+            if (countitem(5013) < 1) goto L_NoKaho;
+
+            set Zeny, Zeny - 1000000;
+            delitem 5013, 1;
+            getitem 5000, 1;
+            goto L_Success;
+            break;
+
+        // --- Гілка 2: Набір крил та вух на Australian Flag Hat ---
+        case 2:
+            if (#gl_lang == 1) {
+                mes "[Майстер Трансмутації]";
+                mes "О, це дуже складний обмін. Якщо ти даси мені цілий набір рідкісних аксесуарів, я створю для тебе особливий капелюх.";
+                mes "Мені знадобляться:";
+                mes "- Крила Ангела та Крила Демона,";
+                mes "- Вуха Ельфа,";
+                mes "- Вушка Ангела та Вушка Демона.";
+                mes "Також це коштуватиме 1 000 000 зен за роботу.";
+            } else {
+                mes "[Transmutation Master]";
+                mes "Oh, this is a very complex exchange. If you give me a full set of rare accessories, I will create a special hat for you.";
+                mes "I will need:";
+                mes "- Angel Wings and Evil Wings,";
+                mes "- Elven Ears,";
+                mes "- Angel Wing Ears and Evil Wing Ears.";
+                mes "It will also cost 1,000,000 zeny for the work.";
+            }
+            next;
+
+            set .@confirm2$, (#gl_lang == 1) ? "Обміняти набір:Піти" : "Exchange set:Leave";
+            if (select(.@confirm2$) == 2) goto L_Cancel;
+
+            if (Zeny < 1000000) goto L_NoZeny;
+            
+            // Перевірка наявності всіх предметів
+            if (countitem(2254) < 1 || countitem(2255) < 1 || countitem(2286) < 1 || countitem(5068) < 1 || countitem(5074) < 1) {
+                if (#gl_lang == 1) {
+                    mes "[Майстер Трансмутації]";
+                    mes "Здається, у тебе не вистачає одного або кількох предметів з набору.";
+                    mes "Перевір свій інвентар та повертайся.";
+                } else {
+                    mes "[Transmutation Master]";
+                    mes "It seems you are missing one or more items from the set.";
+                    mes "Check your inventory and come back.";
+                }
+                close;
+            }
+
+            set Zeny, Zeny - 1000000;
+            delitem 2254, 1;
+            delitem 2255, 1;
+            delitem 2286, 1;
+            delitem 5068, 1;
+            delitem 5074, 1;
+            
+            getitem 5264, 1; 
+            goto L_Success;
+            break;
+
+        case 3:
+            goto L_Cancel;
+            break;
+    }
+
+// --- Мітки для переходів (Labels) ---
+
+L_Success:
+    specialeffect2 EF_MAGICINT;
+    specialeffect2 EF_ANGEL;
+    if (#gl_lang == 1) {
+        mes "[Майстер Трансмутації]";
+        mes "Ритуал завершено успішно! Носи нову річ з гордістю!";
+    } else {
+        mes "[Transmutation Master]";
+        mes "The ritual has been completed successfully! Wear your new item with pride!";
+    }
+    close;
+
+L_NoKaho:
+    if (#gl_lang == 1) {
+        mes "[Майстер Трансмутації]";
+        mes "Я не можу змінити те, чого у тебе немає. Принеси мені Ріжки Кахо.";
+    } else {
+        mes "[Transmutation Master]";
+        mes "I cannot change what you do not have. Bring me Lord Kaho's Horns.";
+    }
+    close;
+
+L_NoZeny:
+    if (#gl_lang == 1) {
+        mes "[Майстер Трансмутації]";
+        mes "Твого золота недостатньо для проведення такого складного ритуалу.";
+    } else {
+        mes "[Transmutation Master]";
+        mes "You do not have enough gold to perform such a complex ritual.";
+    }
+    close;
+
+L_Cancel:
+    if (#gl_lang == 1) {
+        mes "[Майстер Трансмутації]";
+        mes "Як забажаєш. Мої двері завжди відчинені для тих, хто прагне змін.";
+    } else {
+        mes "[Transmutation Master]";
+        mes "As you wish. My doors are always open for those who seek change.";
+    }
+    close;
+}
