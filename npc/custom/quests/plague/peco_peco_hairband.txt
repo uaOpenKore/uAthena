@@ -1,0 +1,137 @@
+// ======================================================
+// NPC: Майстер Крилатих Пеко (Peco Peco Wings Quest)
+// ID результату: 5286 (з іменем творця)
+// Локація: Альдебаран (177, 102)
+// ======================================================
+
+aldebaran,177,102,3	script	Peco Master#ua_en	832,{
+
+	// 1. ПЕРЕВІРКА СТАНУ: ПІР'Я ЗІБРАНО (10,000 шт)
+	if (peco_feathers_collected >= 10000) {
+		if (#gl_lang == 1) {
+			mes "[Мастер Пеко]";
+			mes "Чудово! З пір'ям ми закінчили, я вже підготував основу.";
+			mes "Тепер принеси мені решту інгредієнтів:";
+			mes "- ^0000FF1 Angelic Halo^000000 ";
+			mes "- ^0000FF1 Gold^000000 ";
+			mes "І не забудь показати ^FF0000Grand Peco Card^000000 для зразка.";
+		} else {
+			mes "[Peco Master]";
+			mes "Excellent! We're done with the feathers, I've already prepared the base.";
+			mes "Now bring me the rest of the ingredients:";
+			mes "- ^0000FF1 Angelic Halo^000000 ";
+			mes "- ^0000FF1 Gold^000000 ";
+			mes "And don't forget to show the ^FF0000Grand Peco Card^000000 as a reference.";
+		}
+		next;
+		set @menu_text$, (#gl_lang == 1 ? "Я маю все, давай зробимо крила!:Нічого, я ще збираю" : "I have everything, let's craft the wings!:Nothing, I'm still collecting");
+		if (select(@menu_text$) == 2) close;
+		goto L_Craft;
+	}
+
+	// 2. ПЕРЕВІРКА СТАНУ: В ПРОЦЕСІ ЗБОРУ (Здано хоча б 1 перо)
+	if (peco_feathers_collected > 0) {
+		if (#gl_lang == 1) {
+			mes "[Мастер Пеко]";
+			mes "О, це знову ти! Ти приніс ще пір'я?";
+			mes "(Вже здано: ^0000FF" + peco_feathers_collected + "^000000 / 10000)";
+		} else {
+			mes "[Peco Master]";
+			mes "Oh, it's you again! Did you bring more feathers?";
+			mes "(Already collected: ^0000FF" + peco_feathers_collected + "^000000 / 10000)";
+		}
+	} else {
+		// Перше знайомство та повна історія
+		if (#gl_lang == 1) {
+			mes "[Мастер Пеко]";
+			mes "Вітаю! Ти бачив, які гарні та величні Пеко Пеко живуть біля Альдебарана?";
+			mes "Їхнє пір'я виблискує на сонці. Якщо ти зможеш назбирати достатньо, я зроблю тобі дещо особливе.";
+			next;
+			mes "[Мастер Пеко]";
+			mes "Я створю для тебе крила, що формою нагадують ангельські, але мають колір величного Пеко!";
+			next;
+			mes "[Мастер Пеко]";
+			mes "Для цього мені потрібно:";
+			mes "- ^0000FF10,000 Peco Peco Feather^000000 ";
+			mes "- ^0000FF1 Angelic Halo^000000 ";
+			mes "- ^0000FF1 Gold^000000 ";
+			mes "Також покажи мені ^FF0000Grand Peco Card^000000. Я її не заберу.";
+		} else {
+			mes "[Peco Master]";
+			mes "Greetings! Have you seen how beautiful and majestic the Peco Pecos near Aldebaran are?";
+			mes "Their feathers shine in the sun. If you can collect enough, I will make something special for you.";
+			next;
+			mes "[Peco Master]";
+			mes "I will craft wings for you, shaped like an angel's but with the color of the majestic Peco!";
+			next;
+			mes "[Peco Master]";
+			mes "For this, I need:";
+			mes "- ^0000FF10,0000 Peco Peco Feather^000000 ";
+			mes "- ^0000FF1 Angelic Halo^000000 ";
+			mes "- ^0000FF1 Gold^000000 ";
+			mes "Also, show me a ^FF0000Grand Peco Card^000000 . I won't take it.";
+		}
+	}
+	next;
+
+	// Меню тільки для здачі пір'я (поки не зібрано 10к)
+	set @menu_text$, (#gl_lang == 1 ? "Здати пір'я:Нічого, я просто зайшов" : "Hand in feathers:Nothing, just passing by");
+	if (select(@menu_text$) == 2) close;
+
+	set @feathers_in_bag, countitem(7101);
+	if (@feathers_in_bag == 0) {
+		if (#gl_lang == 1) { mes "[Мастер Пеко]"; mes "У тебе немає з собою Peco Peco Feather."; }
+		else { mes "[Peco Master]"; mes "You don't have any Peco Peco Feathers with you."; }
+		close;
+	}
+
+	set @needed, 10000 - peco_feathers_collected;
+	set @to_take, (@feathers_in_bag > @needed ? @needed : @feathers_in_bag);
+	
+	delitem 7101, @to_take;
+	set peco_feathers_collected, peco_feathers_collected + @to_take;
+
+	if (#gl_lang == 1) { 
+		mes "[Мастер Пеко]"; 
+		mes "Дякую! Я забрав " + @to_take + " шт. Тепер у мене " + peco_feathers_collected + " з 10,000."; 
+	} else { 
+		mes "[Peco Master]"; 
+		mes "Thank you! I took " + @to_take + " pcs. Now I have " + peco_feathers_collected + " out of 10,000."; 
+	}
+	close;
+
+L_Craft:
+	// Фінальна перевірка інгредієнтів
+	if (countitem(4161) < 1) {
+		if (#gl_lang == 1) { mes "[Мастер Пеко]"; mes "Без картки Гранд Пеко я не зможу відтворити образ. Покажи її мені!"; }
+		else { mes "[Peco Master]"; mes "Without the Grand Peco Card, I can't recreate this look. Show it to me!"; }
+		close;
+	}
+
+	if (countitem(2282) < 1 || countitem(969) < 1) {
+		if (#gl_lang == 1) { mes "[Мастер Пеко]"; mes "Тобі все ще не вистачає Золота або Хало."; }
+		else { mes "[Peco Master]"; mes "You are still missing Gold or the Halo."; }
+		close;
+	}
+
+	// Вилучення (Карта ID 4161 НЕ видаляється)
+	delitem 2282, 1;
+	delitem 969, 1;
+	set peco_feathers_collected, 0; 
+	
+	// Створення предмета з іменем гравця (getitem2)
+	// ID: 5286, Кількість: 1, Ідентифіковано: 1, Заточка: 0, Елемент: 0
+	// 254 в card1 - прапорець авторства, getcharid(0) - запис нікнейму
+	getitem2 5286, 1, 1, 0, 0, 254, 0, getcharid(0) & 0xffff, getcharid(0) >> 16;
+	
+	specialeffect2 514; // Красивий візуальний ефект
+
+	if (#gl_lang == 1) { 
+		mes "[Мастер Пеко]"; 
+		mes "Готово! Ці крила тепер належать тобі. Поглянь, на них навіть викарбуване твоє ім'я!"; 
+	} else { 
+		mes "[Peco Master]"; 
+		mes "Done! These wings now belong to you. Look, even your name is engraved on them!"; 
+	}
+	close;
+}

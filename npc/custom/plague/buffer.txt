@@ -36,7 +36,7 @@ prontera,190,181,5	script	Blessing Master#ua_en	862,{
 
 	// Assumptio
 	skilleffect 361, 5;
-	sc_start SC_ASSUMPTIO, 600000, 5;
+	sc_start SC_ASSUMPTIO, 300000, 5;
 	
 	if (#gl_lang == 1) {
 		mes "[Майстер Благословень]";

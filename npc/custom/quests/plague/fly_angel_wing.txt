@@ -1,0 +1,205 @@
+// ======================================================
+// Квест на Flying Angel Wings (ID: 5269)
+// Розроблено для uAthena 10.3
+// ======================================================
+
+prt_in,156,24,4	script	Old dreamer#ua_en	903,{
+    if (q_flying_wing == 4) goto L_Craft;
+    if (q_flying_wing > 0) {
+        if (#gl_lang == 1) {
+            mes "[Старий Мрійник]";
+            mes "Ти ще не дізнався всю історію. Повертайся, коли розгадаєш таємницю цих крил.";
+        } else {
+            mes "[Old dreamer]";
+            mes "You haven't learned the full story yet. Come back when you've unraveled the mystery of these wings.";
+        }
+        close;
+    }
+
+    if (#gl_lang == 1) {
+        mes "[Старий Мрійник]";
+        mes "Ти коли-небудь бачив крила, що тріпочуть на вітрі, навіть коли немає жодного подиху повітря?";
+        mes "Колись я знав історію про Angelic Wings, що мали душу. Але це було так давно... я майже все забув.";
+        next;
+        mes "[Старий Мрійник]";
+        mes "Знайди Старого Казкаря в Альдебарані. Він знає кожну легенду в цьому королівстві. Можливо, він згадає те, що я втратив у пам'яті.";
+    } else {
+        mes "[Old dreamer]";
+        mes "Have you ever seen wings that flutter in the wind even when there's no breeze?";
+        mes "Long ago I knew a story about Angelic Wings that had a soul. But it was so long ago... I've forgotten almost everything.";
+        next;
+        mes "[Old dreamer]";
+        mes "Find the Old Storyteller in Aldebaran. He knows every legend in this kingdom. Perhaps he remembers what I've lost in my memory.";
+    }
+    set q_flying_wing, 1;
+    close;
+
+L_Craft:
+    if (#gl_lang == 1) {
+        mes "[Старий Мрійник]";
+        mes "Неймовірно! Ти зустрів дух самого великого коваля?";
+        mes "Якщо він довірив тобі секрет, я допоможу тобі створити ці вушка. Але мені потрібні матеріали.";
+        next;
+        mes "[Старий Мрійник]";
+        mes "Принеси мені:";
+        mes "- 3 Angel Wing";
+        mes "- 10 Gold";
+        mes "- 1 Mistress Crown";
+        mes "- 10 Holy Water";
+    } else {
+        mes "[Old dreamer]";
+        mes "Incredible! You met the spirit of the great smith himself?";
+        mes "If he trusted you with the secret, I will help you craft these wings. But I need the materials.";
+        next;
+        mes "[Old dreamer]";
+        mes "Bring me:";
+        mes "- 3 Angel Wing";
+        mes "- 10 Gold";
+        mes "- 1 Mistress Crown";
+        mes "- 10 Holy Water";
+    }
+    next;
+    
+    if (select((#gl_lang == 1 ? "Ось вони, тримай":"Here they are, take them"), (#gl_lang == 1 ? "Я ще збираю":"I'm still collecting")) == 2) close;
+
+    if (countitem(2254) < 3 || countitem(969) < 10 || countitem(2249) < 1 || countitem(523) < 10) {
+        if (#gl_lang == 1) {
+            mes "[Старий Мрійник]";
+            mes "Тут чогось не вистачає. Перевір свій інвентар ще раз.";
+        } else {
+            mes "[Old dreamer]";
+            mes "Something is missing here. Check your inventory again.";
+        }
+        close;
+    }
+
+    delitem 2254, 3;
+    delitem 969, 10;
+    delitem 2249, 1;
+    delitem 523, 10;
+    
+    getitem 5269, 1;
+    specialeffect2 514;
+    set q_flying_wing, 0; 
+
+    if (#gl_lang == 1) {
+        mes "[Старий Мрійник]";
+        mes "Ти тільки поглянь... вони немов живі! Носи ці вушка з гордістю, вони належать справжньому герою.";
+    } else {
+        mes "[Old dreamer]";
+        mes "Look at them... they're like they're alive! Wear these wings with pride; they belong to a true hero.";
+    }
+    close;
+}
+
+
+alde_alche,156,25,3	script	Old Storyteller#ua_en	110,{
+    if (q_flying_wing != 1) {
+        mes "[Казкар]";
+        mes "Вітер сьогодні співає про минуле...";
+        close;
+    }
+
+    if (#gl_lang == 1) {
+        mes "[Старий Казкар]";
+        mes "А, Майстер... Він завжди шукав те, що неможливо втримати. Ти про вушка Ангелінга?";
+        mes "Кажуть, колись перший Ангелінг, побачивши горе немовляти, віддав своє пір'я, щоб зігріти його. Ці крила — втілення чистої доброти.";
+        next;
+        mes "[Старий Казкар]";
+        mes "Але це лише частина правди. Монах у Пайоні розповідав іншу версію... більш героїчну. Тобі варто розпитати його.";
+    } else {
+        mes "[Old Storyteller]";
+        mes "Ah, the Master... He was always looking for the intangible. You mean the Angeling Wings?";
+        mes "They say long ago the first Angeling, seeing an infant's sorrow, gave its feathers to keep it warm. These wings are the embodiment of pure kindness.";
+        next;
+        mes "[Old Storyteller]";
+        mes "But that's only part of the truth. A Monk in Payon told another version... a more heroic one. You should ask him.";
+    }
+    set q_flying_wing, 2;
+    close;
+}
+
+
+payon_in03,191,4,2	script	Monk#ua_en	823,{
+    if (q_flying_wing != 2) {
+        mes "[Монах]";
+        mes "Дихай рівномірно... відчувай потік енергії.";
+        close;
+    }
+
+    if (#gl_lang == 1) {
+        mes "[Монах]";
+        mes "Старий Казкар любить казки про немовлят, але істина набагато величніша.";
+        mes "Це не був просто жаль. Коли Пронтера стояла на межі знищення, тисячі Ангелінгів піднялися в небо. Їхнє світло засліпило ворогів, а пір'я, закручене магічним вихором, створило вушка для захисника міста.";
+        next;
+        mes "[Монах]";
+        mes "Той герой міг літати над полем бою, несучи надію. Як їх зробити? Лише Син Коваля в Геффені знає секрети металу та пір'я.";
+    } else {
+        mes "[Monk]";
+        mes "The Old Storyteller loves nursery tales, but the truth is far more grand.";
+        mes "It wasn't just pity. When Prontera stood on the brink of destruction, thousands of Angelings rose into the sky. Their light blinded the enemies, and feathers, swirled by a magic vortex, created wings for the city's defender.";
+        next;
+        mes "[Monk]";
+        mes "That hero could fly over the battlefield, carrying hope. How to make them? Only the Smith's Son in Geffen knows the secrets of metal and feather.";
+    }
+    set q_flying_wing, 3;
+    close;
+}
+
+
+geffen_in,101,177,5	script	Smith's Son#ua_en	826,{
+    if (q_flying_wing != 3) {
+        mes "[Син Коваля]";
+        mes "Залізо не прощає помилок.";
+        close;
+    }
+
+    if (#gl_lang == 1) {
+        mes "[Син Коваля]";
+        mes "Мій батько дійсно знав цей секрет. Він був легендарним майстром. Але він забрав таємницю з собою в могилу.";
+        mes "Люди кажуть, що бачили його дух у Ніфльхеймі... Він ніяк не може забути свою найкращу роботу. Спробуй знайти його там, якщо не боїшся смерті.";
+    } else {
+        mes "[Smith's Son]";
+        mes "My father indeed knew that secret. He was a legendary master. But he took the secret with him to the grave.";
+        mes "People say they've seen his spirit in Niflheim... He cannot forget his greatest work. Try to find him there, if you don't fear death.";
+    }
+    close;
+}
+
+
+niflheim,163,101,3	script	Smith's Ghost#ua_en	795,{
+    // Використовуємо тимчасову змінну для кліків
+    set @ghost_annoy, @ghost_annoy + 1;
+
+    if (@ghost_annoy < 4) {
+        if (#gl_lang == 1) {
+            mes "[Привид Коваля]";
+            mes "...що тобі треба від мертвого?.. залиш мене...";
+        } else {
+            mes "[Smith's Ghost]";
+            mes "...what do you want from the dead?.. leave me...";
+        }
+        close;
+    }
+
+    if (#gl_lang == 1) {
+        mes "[Привид Коваля]";
+        mes "Який же ти впертий! Навіть смерть не дає мені спокою від таких, як ти.";
+        mes "Добре! Я розкажу. Я зробив ці вушка для героя, чия відвага була вищою за гори. Щоб вони полетіли знову, тобі потрібна основа з рідкісних речей.";
+        next;
+        mes "[Привид Коваля]";
+        mes "Слухай і запам'ятовуй: 3 пари крил ангела, 10 злитків золота, корона королеви бджіл та освячена вода.";
+        mes "Іди до мого старого друга в Пронтеру. Він зрозуміє.";
+    } else {
+        mes "[Smith's Ghost]";
+        mes "How stubborn you are! Even death doesn't grant me peace from the likes of you.";
+        mes "Fine! I'll tell you. I made those wings for a hero whose courage was higher than the mountains. To make them fly again, you need a base of rare things.";
+        next;
+        mes "[Smith's Ghost]";
+        mes "Listen and remember: 3 pairs of Angel Wings, 10 Gold bars, a Mistress Crown, and Holy Water.";
+        mes "Go to my old friend in Prontera. He will understand.";
+    }
+    set q_flying_wing, 4;
+    set @ghost_annoy, 0; // Скидаємо лічильник після успішної розмови
+    close;
+}

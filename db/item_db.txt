@@ -1182,7 +1182,7 @@
 2407,Chrystal_Pumps,Crystal Pumps,5,,10,100,,0,,0,0xFFFFFFFE,7,0,64,,0,1,0,{ bonus bMdef,10; bonus bLuk,5; },{},{}
 2408,Cuffs,Shackles,5,5000,,3000,,3,,0,0xFFFFFFFF,7,2,64,,0,1,0,{ if (isequipped(2655)) { bonus bBaseAtk,50; bonus2 bAddDefClass,1196,20; bonus2 bAddDefClass,1197,20; } },{},{}
 2409,Spiky_Heel,High Heels,5,8500,,600,,2,,0,0xFFFFFFFE,7,2,64,,0,1,0,{ bonus bMdef,5; },{},{}
-2410,Sleipnir,Sleipnir,5,,10,3500,,5,,0,0xFFFFFFFF,7,2,64,,94,0,0,{ bonus bMdef,10; bonus bMaxHPrate,20; bonus bMaxSPrate,20; bonus bSPrecovRate,15; bonus bSpeedRate,25; },{},{}
+2410,Sleipnir,Sleipnir,5,,10,350,,5,,0,0xFFFFFFFF,7,2,64,,94,0,0,{ bonus bMdef,10; bonus bMaxHPrate,20; bonus bMaxSPrate,20; bonus bSPrecovRate,15; bonus bSpeedRate,25; },{},{}
 2411,Grave,Greaves,5,48000,,750,,5,,0,0x00004080,7,2,64,,65,1,0,{},{},{}
 2412,Grave_,Greaves,5,54000,,750,,5,,1,0x00004080,7,2,64,,65,1,0,{},{},{}
 2413,Safty_Boots,Safety Boots,5,34000,,350,,6,,0,0x00004082,7,2,64,,30,0,0,{},{},{}
@@ -1920,7 +1920,7 @@
 5092,Blue_Coif,Coif,5,150000,,300,,5,,0,0x00001100,7,2,768,,65,1,176,{},{},{}
 5093,Blue_Coif_,Coif,5,150000,,300,,5,,1,0x00001100,7,2,768,,65,1,177,{ bonus bMaxSP,100; },{},{}
 5094,Orc_Hero_Helm,Helmet of Orc Hero,5,500000,,900,,5,,0,0xFFFFFFFE,7,2,768,,55,1,178,{ bonus bStr,2; bonus bVit,1; },{},{}
-//5095,Orc_Hero_Helm_,Helmet of Orc Hero,5,800000,,1000,,5,,1,0xFFFFFFFE,7,2,768,,55,1,179,{ bonus bStr,2; bonus bVit,1; },{},{}
+5095,Dark_Wing,Dark Wing,5,1000,,200,,1,,0,0xFFFFFFFF,7,2,4,,0,1,4,{},{},{}
 5096,Assassin_Mask_,Assassin Mask,5,20,,100,,0,,0,0x00001100,7,2,1,,70,0,180,{},{},{}
 5097,Cone_Hat_,4 Years Anniversary Hat,5,0,,400,,0,,0,0xFFFFFFFF,7,2,256,,0,1,144,{},{},{}
 5098,Tiger_Mask,Tiger Mask,5,20,,400,,2,,0,0xFFFFFFFF,7,2,768,,50,0,181,{ bonus bStr,3; bonus bMaxHP,100; },{},{}
@@ -2089,7 +2089,7 @@
 5261,Silver_Tiara_,Silver Tiara,5,0,,500,,2,,0,0xFFFFFFFF,7,2,256,,0,1,218,{ bonus bInt,2; if (BaseClass == Job_mage) bonus bMatkRate,(JobLevel/20); if (Baseclass == Job_Acolyte) bonus bUseSPrate,-(JobLevel/10); if (BaseClass == Job_Archer) bonus bMaxSP,(JobLevel*2); },{},{}
 5262,Gold_Tiara_,Golden Tiara,5,0,,500,,2,,0,0xFFFFFFFF,7,2,256,,0,1,232,{ bonus bStr,2; bonus bUnbreakableHelm,0; if ((readparam(bDex) < 56) && (BaseClass == Job_Swordman || BaseClass == Job_Merchant || BaseClass == Job_Thief)) bonus bDex,JobLevel/7; },{},{}
 5263,Ati_Atihan_Hat,Pagdayaw,5,,10,100,,1,,0,0xFFFFFFFE,7,2,769,,20,1,303,{ bonus2 bSubEle,Ele_Water,1; bonus2 bSubEle,Ele_Earth,1; bonus2 bSubEle,Ele_Fire,1; bonus2 bSubEle,Ele_Wind,1; bonus2 bAddEff,Eff_Curse,3; },{},{}
-5264,Aussie_Flag_Hat,Australian Flag Hat,5,,10,500,,4,,0,0xFFFFFFFF,7,2,256,,0,1,304,{ end; bonus bAllStats,2; },{},{}
+5264,Aussie_Flag_Hat,Australian Flag Hat,5,,10,500,,4,,0,0xFFFFFFFF,7,2,512,,0,1,304,{ end; bonus bAllStats,2; },{},{}
 5265,Apple_Of_Archer_C,Refined Apple of Archer,5,,0,0,,7,,0,0xFFFFFFFE,7,2,256,,1,0,72,{ bonus bDex,4; },{},{}
 5266,Bunny_Band_C,Refined Bunny Band,5,,0,0,,9,,0,0xFFFFFFFF,7,2,256,,0,0,15,{ bonus bMdef,5; bonus2 bSubRace,RC_DemiHuman,10; },{},{}
 5267,Sahkkat_C,Refined Sakkat,5,,0,0,,10,,0,0xFFFFFFFF,7,2,256,,0,0,67,{ bonus bAgi,3; },{},{}
@@ -2145,7 +2145,7 @@
 //5317,Fisherman's_Hat,Fisherman's Hat,5,,10,100,,2,,0,0xFFFFFFFF,7,2,256,,50,1,339,{ bonus3 bAutoSpell,86,3,50; },{},{}
 //5318,Poring_Party_Hat,Poring Party Hat,5,,10,700,,2,,0,0xFFFFFFFF,7,2,256,,0,1,340,{ bonus bAllStats,3; },{},{}
 //5319,Hello_Mother_Hat,Hello Mother Hat,5,,10,200,,2,,0,0xFFFFFFFE,7,2,256,,10,1,341,{ bonus bLuk,3; },{},{}
-//5320,Champion_Wreath,Sacred Palma,5,,10,500,,4,,0,0xFFFFFFFF,7,2,256,,0,1,261,{ bonus bAllStats,2; bonus4 bAutoSpellWhenHit,28,1,50,0; },{},{}
+5320,Champion_Wreath,Sacred Palma,5,,10,500,,4,,0,0xFFFFFFFF,7,2,256,,0,1,261,{ bonus bAllStats,2; bonus4 bAutoSpellWhenHit,28,1,50,0; },{},{}
 //5321,Indonesian_Bandana,Bandana Merah Putih,5,,10,500,,4,,0,0xFFFFFFFF,7,2,256,,0,1,342,{ bonus2 bAddMonsterDropItem,518,100; },{},{}
 //5322,Scarf,Scarf,5,,10,100,,2,,0,0xFFFFFFFF,7,2,256,,24,0,343,{ bonus bFlee,5; bonus bMdef,2; },{},{}
 5323,Sakray_Test_Helm,Sakray Test Helm,5,,10,0,,10,,0,0xFFFFFFFF,7,2,256,,1,0,165,{ bonus bAllStats,2; },{},{}
@@ -2159,7 +2159,7 @@
 5331,Corsair_C,Refined Corsair,5,,10,500,,10,,0,0xFFFFFFFE,7,2,256,,1,0,105,{ bonus bVit,3; bonus bInt,3; },{},{}
 5332,Loki_Mask,Loki Mask,5,,10,200,,0,,0,0xFFFFFFFF,7,2,513,,1,0,346,{ bonus bFlee2,3; },{},{}
 //5333,Antenna_,Antenna,5,,,1500,,2,,0,0xFFFFFFFF,7,2,256,,60,0,347,{ bonus bMdef,3; skill 20,1; },{},{}
-//5334,Flying_Angeling,Flying Angeling,5,,,700,,0,,0,0xFFFFFFFF,7,2,256,,38,1,348,{ bonus bLuk,2; bonus bMdef,2; },{},{}
+5334,Flying_Angeling,Flying Angeling,5,,,700,,0,,0,0xFFFFFFFF,7,2,256,,38,1,348,{ bonus bLuk,2; bonus bMdef,2; },{},{}
 //5335,Squatting_Poring,Squatting Poring,5,,,300,,2,,0,0xFFFFFFFF,7,2,256,,10,1,349,{ bonus bLuk,1; bonus bUnbreakableHelm,0; },{},{}
 //5336,Guild_Recruiting_Hat,Guild Recruiting Hat,5,,,700,,2,,0,0xFFFFFFFF,7,2,256,,10,1,350,{},{},{}
 //5337,Party_Hat__,Party Hat,5,,,700,,2,,0,0xFFFFFFFF,7,2,256,,10,1,351,{},{},{}
