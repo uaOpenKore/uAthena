@@ -1,40 +1,71 @@
 //Reset NPC for Athena by Script&DB Team 
 prontera.gat,150,193,4	script	Reset Girl	124,{
-	mes "[Reset Girl]";
-	mes "I am a Reset Girl.";
-	mes "Reset Stats: 5,000z";
-	mes "Reset Skills: 5,000z";
-	mes "Reset Both: 9,000z";
-	mes "Please select the service you want:";
+	if (#gl_lang == 1) {
+		mes "[Дівчина Скидання]";
+		mes "Я допоможу тобі скинути параметри.";
+		mes "Скинути Навички: 5,000z";
+		mes "Скинути Стати: 5,000z";
+		mes "Скинути Все: 9,000z";
+		mes "Будь ласка, обери послугу:";
+	}
+	if (#gl_lang < 1) {
+		mes "[Reset Girl]";
+		mes "I am a Reset Girl.";
+		mes "Reset Stats: 5,000z";
+		mes "Reset Skills: 5,000z";
+		mes "Reset Both: 9,000z";
+		mes "Please select the service you want:";
+	}
 	next;
-	menu "^FF3355Reset Skills",L0,"Reset Stats",L1,"Reset Both^000000",L2,"Quit",LEnd;
 
-	L0:
-		mes "[Reset Girl]";
-		if (Zeny < 5000) goto NeedZenys;
-		mes "Alright, here we go now.. Remember, changes won't take effect until you log back on!";
-		set Zeny,zeny-5000;
-		ResetSkill;
-		close;
-	L1:
-		mes "[Reset Girl]";
-		if (Zeny < 5000) goto NeedZenys;
-		mes "Alright, here we go now.. Remember, changes won't take effect until you log back on!";
-		set Zeny,zeny-5000;
-		ResetStatus;
-		close;
-	L2:
-		mes "[Reset Girl]";
-		if (Zeny < 9000) goto NeedZenys;
-		mes "Alright, here we go now.. Remember, changes won't take effect until you log back on!";
-		set Zeny,zeny-9000;
-		ResetSkill;
-		ResetStatus;
-		close;
+	if (#gl_lang == 1) menu "^FF3355Скинути Навички",L0,"Скинути Стати",L1,"Скинути Все^000000",L2,"Вийти",LEnd;
+	if (#gl_lang < 1) menu "^FF3355Reset Skills",L0,"Reset Stats",L1,"Reset Both^000000",L2,"Quit",LEnd;
 
-		NeedZenys:
-			mes "Sorry, you don't have enough Zeny.";
-			close;
-	LEnd:
-		close;	
+L0:
+	if (#gl_lang == 1) mes "[Дівчина Скидання]";
+	if (#gl_lang < 1) mes "[Reset Girl]";
+	
+	if (Zeny < 5000) goto NeedZenys;
+	
+	if (#gl_lang == 1) mes "Гаразд, починаємо... Пам'ятай, зміни набудуть чинності лише після того, як ти перезайдеш у гру!";
+	if (#gl_lang < 1) mes "Alright, here we go now.. Remember, changes won't take effect until you log back on!";
+	
+	set Zeny,Zeny-5000;
+	ResetSkill;
+	close;
+
+L1:
+	if (#gl_lang == 1) mes "[Дівчина Скидання]";
+	if (#gl_lang < 1) mes "[Reset Girl]";
+	
+	if (Zeny < 5000) goto NeedZenys;
+	
+	if (#gl_lang == 1) mes "Гаразд, починаємо... Пам'ятай, зміни набудуть чинності лише після того, як ти перезайдеш у гру!";
+	if (#gl_lang < 1) mes "Alright, here we go now.. Remember, changes won't take effect until you log back on!";
+	
+	set Zeny,Zeny-5000;
+	ResetStatus;
+	close;
+
+L2:
+	if (#gl_lang == 1) mes "[Дівчина Скидання]";
+	if (#gl_lang < 1) mes "[Reset Girl]";
+	
+	if (Zeny < 9000) goto NeedZenys;
+	
+	if (#gl_lang == 1) mes "Гаразд, починаємо... Пам'ятай, зміни набудуть чинності лише після того, як ти перезайдеш у гру!";
+	if (#gl_lang < 1) mes "Alright, here we go now.. Remember, changes won't take effect until you log back on!";
+	
+	set Zeny,Zeny-9000;
+	ResetSkill;
+	ResetStatus;
+	close;
+
+NeedZenys:
+	if (#gl_lang == 1) mes "Вибач, у тебе недостатньо Зені.";
+	if (#gl_lang < 1) mes "Sorry, you don't have enough Zeny.";
+	close;
+
+LEnd:
+	close;	
 }

@@ -1,133 +1,222 @@
-//===== eAthena Script ======================================= 
-//= Renters
-//===== By: ================================================== 
-//= kobra_k88, mod by Lupus
-//===== Current Version: ===================================== 
-//= 1.7
-//===== Compatible With: ===================================== 
-//= eAthena SVN
-//===== Description: ========================================= 
-//= Knight and Crusader Peco Peco Breeders, Falcon Breeder scripts
-//===== Additional Comments: ================================= 
-//= Fully working
-//= Added another Falcon Master into the Hunters Guild [Lupus]
-//= 1.2: replaced checkoption(x) with checkriding,checkfalcon [Lupus]
-//= 1.3: Added support Adv Classes + Baby Class [Lupus]
-//= 1.4: Added different prices for normal, advanced and baby classes
-//= but you could set them to the same [Lupus]
-//= 1.5: Fixed spelling mistakes [Nexon]
-//= 1.5a: Small fix (Falcon Taming -> Falcon Mastery) [Komurka]
-//= 1.6: Moved the Falcon Master to Hugel [Poki#3]
-//= 1.7 Updated to Aegis 10.3 standards. [L0ne_W0lf]
-//============================================================ 
-
 // PecoPeco Breeder (for Knights)-------------------------------------------
 prontera,55,350,5	script	Peco Peco Breeder	105,{
 	if(Upper==0) set .@price,2500; //Normal Peco - default price
 	if(Upper==1) set .@price,2500; //Armored Peco
 	if(Upper==2) set .@price,2500; //Baby Peco
 
-	mes "[Peco Peco Breeder]";
+	if (#gl_lang == 1) mes "[Заводчик Пеко Пеко]";
+	if (#gl_lang < 1) mes "[Peco Peco Breeder]";
+
 	if (BaseJob == Job_Knight) {
-		mes "Welcome.";
-		mes "Honorable Knight,";
-		mes "would you like to rent";
-		mes "a Peco Peco? The rental";
-		mes "fee is "+.@price+" zeny.";
+		if (#gl_lang == 1) {
+			mes "Вітаю.";
+			mes "Шановний Лицарю,";
+			mes "бажаєте орендувати";
+			mes "Пеко Пеко? Вартість";
+			mes "оренди складає 2500 зені.";
+		}
+		if (#gl_lang < 1) {
+			mes "Welcome.";
+			mes "Honorable Knight,";
+			mes "would you like to rent";
+			mes "a Peco Peco? The rental";
+			mes "fee is 2500 zeny.";
+		}
 		next;
-		if (select("Rent Peco Peco:Cancel") == 1) {
+		
+		if (#gl_lang == 1) set .@menu, select("Орендувати Пеко Пеко:Скасувати");
+		if (#gl_lang < 1) set .@menu, select("Rent Peco Peco:Cancel");
+
+		if (.@menu == 1) {
 			if (zeny < .@price) {
-				mes "[Peco Peco Breeder]";
-				mes "You do not";
-				mes "have enough zeny.";
-				mes "Are you...";
-				mes "bankrupt?";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Пеко Пеко]";
+					mes "У вас недостатньо";
+					mes "зені. Ви що...";
+					mes "банкрут?";
+				}
+				if (#gl_lang < 1) {
+					mes "[Peco Peco Breeder]";
+					mes "You do not";
+					mes "have enough zeny.";
+					mes "Are you...";
+					mes "bankrupt?";
+				}
 				close;
 			}
 			else if(getskilllv(63) == 0) {
-				mes "[Peco Peco Breeder]";
-				mes "I'm sorry, but you're";
-				mes "not eligible for this";
-				mes "service. Please go learn";
-				mes "the Peco Peco Ride skill first.";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Пеко Пеко]";
+					mes "Вибачте, але ви не";
+					mes "маєте права на цю";
+					mes "послугу. Будь ласка, спочатку";
+					mes "вивчіть навичку їзди на Пеко.";
+				}
+				if (#gl_lang < 1) {
+					mes "[Peco Peco Breeder]";
+					mes "I'm sorry, but you're";
+					mes "not eligible for this";
+					mes "service. Please go learn";
+					mes "the Peco Peco Ride skill first.";
+				}
 				close;
 			}
 			else if(checkriding()) {
-				mes "[Peco Peco Breeder]";
-				mes "You're already";
-				mes "mounted on a";
-				mes "Peco Peco.";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Пеко Пеко]";
+					mes "Ви вже";
+					mes "сидите верхи на";
+					mes "Пеко Пеко.";
+				}
+				if (#gl_lang < 1) {
+					mes "[Peco Peco Breeder]";
+					mes "You're already";
+					mes "mounted on a";
+					mes "Peco Peco.";
+				}
 				close;
 			}
 			set zeny,zeny-.@price;
 			setriding;
 		}
 
-		mes "[Peco Peco Breeder]";
-		mes "I see.";
-		mes "Well then,";
-		mes "have a good day.";
+		if (#gl_lang == 1) {
+			mes "[Заводчик Пеко Пеко]";
+			mes "Я зрозумів.";
+			mes "Ну що ж,";
+			mes "гарного дня.";
+		}
+		if (#gl_lang < 1) {
+			mes "[Peco Peco Breeder]";
+			mes "I see.";
+			mes "Well then,";
+			mes "have a good day.";
+		}
 		close;
 	}
-	mes "I'm sorry, but these";
-	mes "Peco Pecos are only";
-	mes "available for Knights";
-	mes "and Lord Knights.";
+
+	if (#gl_lang == 1) {
+		mes "Вибачте, але ці";
+		mes "Пеко Пеко доступні";
+		mes "лише для Лицарів";
+		mes "та Лорд-Лицарів.";
+	}
+	if (#gl_lang < 1) {
+		mes "I'm sorry, but these";
+		mes "Peco Pecos are only";
+		mes "available for Knights";
+		mes "and Lord Knights.";
+	}
 	close;
 }
 
 // Grand PecoPeco Breeder (for Crusaders)-------------------------------------------
-prontera,232,318,3	script	Peco Peco Breeder	105,{
+prontera,232,318,3	script	Peco Peco Breeder#2	105,{
 	if(Upper==0) set .@price,3500; //Normal Peco - default price
 	if(Upper==1) set .@price,3500; //Armored Peco
 	if(Upper==2) set .@price,3500; //Baby Peco
 
-	mes "[PecoPeco Breeder]";
+	if (#gl_lang == 1) mes "[Заводчик Пеко Пеко]";
+	if (#gl_lang < 1) mes "[PecoPeco Breeder]";
+
 	if (BaseJob == Job_Crusader) {
-		if (Class == Job_Crusader && Upper == 0 || Upper == 1) mes "Welcome, Crusader.";
-		else 
-mes "Welcome, Paladin.";
-		mes "We have a special";
-		mes "Peco Peco prepared";
-		mes "for you. To rent one";
-		mes "will cost "+.@price+" zeny.";
+		if (#gl_lang == 1) {
+			if (Class == Job_Crusader && Upper == 0 || Upper == 1) mes "Вітаю, Хрестоносцю.";
+			else mes "Вітаю, Паладине.";
+			mes "У нас є спеціальний";
+			mes "Пеко Пеко для вас.";
+			mes "Оренда буде коштувати";
+			mes "3500 зені.";
+		}
+		if (#gl_lang < 1) {
+			if (Class == Job_Crusader && Upper == 0 || Upper == 1) mes "Welcome, Crusader.";
+			else mes "Welcome, Paladin.";
+			mes "We have a special";
+			mes "Peco Peco prepared";
+			mes "for you. To rent one";
+			mes "will cost 3500 zeny.";
+		}
 		next;
-		if (select("Rent a PecoPeco:Quit") ==1) {
+
+		if (#gl_lang == 1) set .@menu, select("Орендувати Пеко Пеко:Вийти");
+		if (#gl_lang < 1) set .@menu, select("Rent a PecoPeco:Quit");
+
+		if (.@menu == 1) {
 			if (zeny < .@price) {
-				mes "[Peco Peco Breeder]";
-				mes "You do not";
-				mes "have enough zeny.";
-				mes "If you would like";
-				mes "a Peco Peco please";
-				mes "bring "+.@price+" zeny...";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Пеко Пеко]";
+					mes "У вас недостатньо";
+					mes "зені. Якщо хочете";
+					mes "Пеко Пеко, будь ласка,";
+					mes "принесіть 3500 зені...";
+				}
+				if (#gl_lang < 1) {
+					mes "[Peco Peco Breeder]";
+					mes "You do not";
+					mes "have enough zeny.";
+					mes "If you would like";
+					mes "a Peco Peco please";
+					mes "bring 3500 zeny...";
+				}
 				close;
 			}
-
 			else if(getskilllv(63) == 0) {
-				mes "[Peco Peco Breeder]";
-				mes "You must first learn";
-				mes "to ride a PecoPeco before";
-				mes "I can rent one to you.";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Пеко Пеко]";
+					mes "Ви повинні спочатку";
+					mes "навчитися їздити на Пеко,";
+					mes "перш ніж я дам його в оренду.";
+				}
+				if (#gl_lang < 1) {
+					mes "[Peco Peco Breeder]";
+					mes "You must first learn";
+					mes "to ride a PecoPeco before";
+					mes "I can rent one to you.";
+				}
 				close;
 			}
 			else if(checkriding()) {
-				mes "[Peco Peco Breeder]";
-				mes "You are already";
-				mes "mounted on a Peco Peco.";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Пеко Пеко]";
+					mes "Ви вже";
+					mes "сидите верхи на Пеко Пеко.";
+				}
+				if (#gl_lang < 1) {
+					mes "[Peco Peco Breeder]";
+					mes "You are already";
+					mes "mounted on a Peco Peco.";
+				}
 				close;
 			}
 			set zeny,zeny-.@price;
 			setriding;
 		}
-		mes "[PecoPeco Breeder]";
-		mes "See you around.";
+
+		if (#gl_lang == 1) {
+			mes "[Заводчик Пеко Пеко]";
+			mes "До зустрічі.";
+		}
+		if (#gl_lang < 1) {
+			mes "[PecoPeco Breeder]";
+			mes "See you around.";
+		}
 		close;
 	}
-	mes "What can I do for you?";
-	mes "Please be aware that";
-	mes "this Peco Peco rental";
-	mes "service is strictly for";
-	mes "Crusaders and Paladins.";
+
+	if (#gl_lang == 1) {
+		mes "Чим можу допомогти?";
+		mes "Будь ласка, майте на увазі,";
+		mes "що ця оренда Пеко Пеко";
+		mes "призначена виключно для";
+		mes "Хрестоносців та Паладинів.";
+	}
+	if (#gl_lang < 1) {
+		mes "What can I do for you?";
+		mes "Please be aware that";
+		mes "this Peco Peco rental";
+		mes "service is strictly for";
+		mes "Crusaders and Paladins.";
+	}
 	close;
 }
 
@@ -137,57 +226,123 @@ hu_in01,381,304,5	script	Falcon Breeder	105,{
 	if(Upper==1) set .@price,2500; //Scarf Falcon
 	if(Upper==2) set .@price,2500; //Baby Falcon
 
-	mes "[Falcon Breeder]";
+	if (#gl_lang == 1) mes "[Заводчик Соколів]";
+	if (#gl_lang < 1) mes "[Falcon Breeder]";
+
 	if (BaseJob == Job_Hunter) {
-		mes "Do you need a Falcon?";
-		mes "You can rent your own";
-		mes "trusty bird of prey for a";
-		mes "fee of just "+.@price+" zeny~";
+		if (#gl_lang == 1) {
+			mes "Вам потрібен Сокіл?";
+			mes "Ви можете орендувати свого";
+			mes "власного вірного мисливця";
+			mes "всього за "+.@price+" зені~";
+		}
+		if (#gl_lang < 1) {
+			mes "Do you need a Falcon?";
+			mes "You can rent your own";
+			mes "trusty bird of prey for a";
+			mes "fee of just "+.@price+" zeny~";
+		}
 		next;
-		if (select("Rent Falcon:Cancel") == 1) {
+
+		if (#gl_lang == 1) set .@menu, select("Орендувати Сокола:Скасувати");
+		if (#gl_lang < 1) set .@menu, select("Rent Falcon:Cancel");
+
+		if (.@menu == 1) {
 			if (zeny < .@price) {
-				mes "[Falcon Breeder]";
-				mes "What is this?";
-				mes "You don't have";
-				mes "enough zeny?!";
-				mes "You better start";
-				mes "hunting money";
-				mes "instead of monsters~";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Соколів]";
+					mes "Це що таке?";
+					mes "У тебе немає";
+					mes "достатньо зені?!";
+					mes "Краще почни полювати";
+					mes "на гроші, а не на монстрів~";
+				}
+				if (#gl_lang < 1) {
+					mes "[Falcon Breeder]";
+					mes "What is this?";
+					mes "You don't have";
+					mes "enough zeny?!";
+					mes "You better start";
+					mes "hunting money";
+					mes "instead of monsters~";
+				}
 				close;
 			}
 			else if(getskilllv(127) == 0) {
-				mes "[Falcon Breeder]";
-				mes "Gosh~";
-				mes "Go learn how to";
-				mes "manage a Falcon";
-				mes "first! I can't rent one";
-				mes "to you if you can't";
-				mes "handle it, you know.";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Соколів]";
+					mes "Боже~";
+					mes "Іди спочатку навчися";
+					mes "керувати Соколом!";
+					mes "Я не дам його в оренду,";
+					mes "якщо ти не вмієш з ним поводитися.";
+				}
+				if (#gl_lang < 1) {
+					mes "[Falcon Breeder]";
+					mes "Gosh~";
+					mes "Go learn how to";
+					mes "manage a Falcon";
+					mes "first! I can't rent one";
+					mes "to you if you can't";
+					mes "handle it, you know.";
+				}
 				close;
 			}
 			else if(checkfalcon()) {
-				mes "[Falcon Breeder]";
-				mes "Um...";
-				mes "You already have";
-				mes "a Falcon. It's right";
-				mes "there, can't you see it?";
+				if (#gl_lang == 1) {
+					mes "[Заводчик Соколів]";
+					mes "Ем...";
+					mes "У тебе вже є Сокіл.";
+					mes "Він прямо там, хіба";
+					mes "ти його не бачиш?";
+				}
+				if (#gl_lang < 1) {
+					mes "[Falcon Breeder]";
+					mes "Um...";
+					mes "You already have";
+					mes "a Falcon. It's right";
+					mes "there, can't you see it?";
+				}
 				close;
 			}
 			set zeny,zeny-.@price;
 			setfalcon;
 			close;
 		}
-		mes "[Falcon Breeder]";
-		mes "W-wait, where're";
-		mes "you goin'? These";
-		mes "Falcons are top notch,";
-		mes "I guarantee it! C'mon, yo~";
+
+		if (#gl_lang == 1) {
+			mes "[Заводчик Соколів]";
+			mes "Ч-чекай, куди це";
+			mes "ти йдеш? Ці Соколи";
+			mes "найкращої якості, я";
+			mes "гарантую! Повертайся~";
+		}
+		if (#gl_lang < 1) {
+			mes "[Falcon Breeder]";
+			mes "W-wait, where're";
+			mes "you goin'? These";
+			mes "Falcons are top notch,";
+			mes "I guarantee it! C'mon, yo~";
+		}
 		close;
 	}
-	mes "Young fool!";
-	mes "Falcons can only";
-	mes "be used by Hunters";
-	mes "and Snipers, capish?";
-	mes "...Heh heh, jealous?";
+
+	if (#gl_lang == 1) {
+		mes "Молодий дурню!";
+		mes "Соколи можуть використовувати";
+		mes "лише Мисливці та Снайпери,";
+		mes "розумієш?";
+		mes "...Хе-хе, заздриш?";
+	}
+	if (#gl_lang < 1) {
+		mes "Young fool!";
+		mes "Falcons can only";
+		mes "be used by Hunters";
+		mes "and Snipers, capish?";
+		mes "...Heh heh, jealous?";
+	}
 	close;
 }
+
+
+pay_arche,136,166,5	duplicate(Falcon Breeder)	Falcon Master	727

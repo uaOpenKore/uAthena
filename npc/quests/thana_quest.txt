@@ -2332,21 +2332,21 @@ OnTouch:
 	if (countitem(7437))
 	{
 		mes "^3355FFIt seems like a Fragment";
-		mes "of Sorrow would fit perfectly";
+		mes "of Misery would fit perfectly";
 		mes "if you placed it inside.^000000";
 	}
 	next;
 	input @input$;
 	if(countitem(7437))
 	{
-		if(@input$ == "Fragment of Sorrow")
+		if(@input$ == "Fragment of Misery")
 		{
 			mes "^3355FFYou insert the";
-			mes "Fragment of Sorrow";
+			mes "Fragment of Misery";
 			mes "into the crest, causing";
 			mes "its glow to intensify.^000000";
 			delitem 7437,1;
-			monster "thana_boss",217,167,"Sorrow",1711,1,"#Death::OnDead";
+			monster "thana_boss",217,167,"Misery",1711,1,"#Death::OnDead";
 			disablenpc "Crest#1";
 			close;
 		}
@@ -2500,7 +2500,7 @@ OnTouch:
 		set $@thana_wave,4;
 		monster "thana_boss",140,217,"Despair",1710,1,"#Death::OnWave";
 		monster "thana_boss",140,216,"Hatred",1709,1,"#Death::OnWave";
-		monster "thana_boss",141,217,"Sorrow",1711,1,"#Death::OnWave";
+		monster "thana_boss",141,217,"Misery",1711,1,"#Death::OnWave";
 		monster "thana_boss",141,216,"Agony",1712,1,"#Death::OnWave";
 		disablenpc "Crest#5";
 		close;

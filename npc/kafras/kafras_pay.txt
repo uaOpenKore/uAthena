@@ -48,9 +48,9 @@ payon,175,226,4	script	Kafra::kaf_payon2	116,{
 
 // Archer Village ------------------------------------------------------------
 pay_arche,55,123,0	script	Kafra::kaf_payon3	115,{
-	cutin "kafra_03",2;
+	cutin "kafra_02",2;
 	callfunc "F_KafSetPay";
-	callfunc "F_Kafra",0,5,1;
+	callfunc "F_Kafra",0,0,1;
 
 	M_Save:
 		savepoint "pay_arche",49,144;
