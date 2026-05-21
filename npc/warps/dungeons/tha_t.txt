@@ -58,3 +58,4 @@ tha_t11,92,36,0		warp	WarpThana11b	1,1,thana_step,180,73
 
 // Thanatos Tower Level 12 (tha_t12)
 thana_step,181,15,0	warp	WarpThana12a	1,1,tha_t12,115,16
+tha_t12,129,51,0	warp	Tha_Boss	1,1,thana_boss,135,107

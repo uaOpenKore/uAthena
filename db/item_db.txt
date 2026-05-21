@@ -104,7 +104,7 @@
 599,Light_Orange_Pot,Light Orange Potion,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemheal rand(105,145),0; },{},{}
 // Usable Items
 //===================================================================
-601,Wing_Of_Fly,Fly Wing,2,60,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ warp "Random",0,0; },{},{}
+601,Wing_Of_Fly,Fly Wing,2,60,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ warp "Random",0,0; },{},{}
 602,Wing_Of_Butterfly,Butterfly Wing,2,300,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ warp "SavePoint",0,0; },{},{}
 603,Old_Blue_Box,Old Blue Box,2,10000,,200,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem groupranditem(IG_BlueBox),1; },{},{}
 604,Branch_Of_Dead_Tree,Dead Branch,2,50,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ monster "this",-1,-1,"--ja--",-1,1,""; },{},{}
@@ -1380,6 +1380,8 @@
 2730,Continental_Guard_Seal,Continental Guard Seal,5,,,50,,0,,1,0xFFFFFFFE,2,2,136,,78,0,0,{ bonus bMaxHP,50; bonus bAspdRate,3; },{},{}
 2731,Rune_Charm_Stone,Rune Charm Stone,5,,,50,,0,,1,0xFFFFFFFE,2,2,136,,78,0,0,{ bonus bMaxSP,50; bonus bCastRate,-1; },{},{}
 2732,Death_Medalion,Death Medalion,5,,,50,,0,,1,0xFFFFFFFE,2,2,136,,80,0,0,{ bonus bCritical,5; },{},{}
+
+
 // Cards
 //===================================================================
 4001,Poring_Card,Poring Card,6,,10,10,,,,,,,,16,,,,,{ bonus bLuk,2; bonus bFlee2,1; },{},{}
@@ -3918,3 +3920,7 @@
 14578,Agi_Dish05_,Steamed Bat Wing in Pumpkin,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_AGIFood, 1200000, 5; percentheal 6,2; },{},{}
 14579,Dex_Dish05_,Green Salad,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_DEXFood, 1200000, 5; percentheal 5,5; },{},{}
 14580,Luk_Dish05_,Fried Scorpion Tails,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_LUKFood, 1200000, 5; percentheal 5,2; },{},{}
+
+//Custom Items
+
+15001,Night_Cigar,Night Cigar,5,20,,100,,0,,0,0xFFFFFFFE,7,2,1,,0,0,54,{ bonus bStr,2; bonus bVit,1; if(isnight()) { bonus2 bExpAddRace,RC_Brute,5; bonus2 bExpAddRace,RC_Formless,5; } },{},{}

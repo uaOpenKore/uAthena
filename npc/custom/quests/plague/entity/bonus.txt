@@ -1,0 +1,37 @@
+-	script	NightBonusEngine	-1,{
+
+// Коли гравець заходить у гру
+OnPCLoginEvent:
+// Коли гравець змінює мапу
+OnPCLoadMapEvent:
+    if (isnight()) {
+        // Спробуємо використати команду для динамічного бонусу
+        // 10 - це відсоток
+        atcommand "@option 0 0 10 " + strcharinfo(0); 
+        dispbottom "Нічний бонус активовано: +10% EXP.";
+    }
+    end;
+
+// Глобальний моніторинг для тих, хто вже в грі
+OnInit:
+    set $@IsNightNow, isnight();
+    initnpctimer;
+    end;
+
+OnTimer10000:
+    stopnpctimer;
+    set .@s, isnight();
+    
+    if (.@s != $@IsNightNow) {
+        set $@IsNightNow, .@s;
+        if ($@IsNightNow) {
+            announce "Система: Місяць зійшов, досвід за монстрів збільшено!", 0;
+            // Масове нарахування статусу через консоль
+            atcommand "@skilleffect 154 0"; // Візуальний ефект на всіх (якщо працює)
+        } else {
+            announce "Система: Сонце зійшло, бонуси вимкнено.", 0;
+        }
+    }
+    initnpctimer;
+    end;
+}

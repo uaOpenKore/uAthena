@@ -1,39 +1,30 @@
-//===== eAthena Script =======================================
-//= eAthena Jobchanger AKA Job Master
-//===== By: ==================================================
-//= eAthena Dev Team [Ori:LunatikBunnie] [Cur:Lance]
-//===== Current Version: =====================================
-//= 1.5a
-//===== Compatible With: =====================================
-//= eAthena SVN Trunk 6674
-//===== Description: =========================================
-//= Changes your job without asking too much
-//= For other info, please contact me at Lunatikbunnie@gmail.com 
-//= Editted menu to avoid button mashing.
-//= 1.3 Added TK/SL/SG, thanks to Haplo. Fixed minor bugs [Lupus]
-//=    script leaves grabage variable: 'lastJob'
-//= 1.4 Added NJ/GS, changed all job numbers to Job_* constants.
-//=    All credits go to pxxx [Skotlex]
-//= 1.5 Rewrite everything from scratch. [Lance]
-//= 1.5a fixed Baby -> Super Baby change. Switched to JobName() [Lupus]
-//============================================================
-
 valkyrie,48,86,4	script	Fate Master	811,{
-	mes "^ff0000[Fate Master]^000000";
+	if (#gl_lang == 1) mes "^ff0000[Майстер Долі]^000000";
+	if (#gl_lang < 1) mes "^ff0000[Fate Master]^000000";
+
 	if(Upper == 1 && Class >= Job_Lord_Knight) goto L_noReq;
 	if(SkillPoint != 0){
-		mes "I'm sorry, please use up all your skill points before changing jobs";
-		mes "Please come again soon!";
+		if (#gl_lang == 1) {
+			mes "Вибач, будь ласка, використай усі очки навичок перед зміною професії.";
+			mes "Повертайся швидше!";
+		}
+		if (#gl_lang < 1) {
+			mes "I'm sorry, please use up all your skill points before changing jobs";
+			mes "Please come again soon!";
+		}
 		close;
 	}
 	if(JobLevel < 10) goto L_LvError;
+
 	switch(Class){
 		case Job_Novice_High:
 		case Job_Baby:
 		case Job_Novice:
 			skill 142,1,0;
 			skill 143,1,0;
-			mes "Welcome, please select the job you wish to change into";
+			if (#gl_lang == 1) mes "Вітаю, будь ласка, обери професію, на яку хочеш змінитись:";
+			if (#gl_lang < 1) mes "Welcome, please select the job you wish to change into";
+
 			if(lastJob != 0 && Class == Job_Novice_High){
 				switch(lastJob){
 					case Job_Knight:
@@ -61,10 +52,12 @@ valkyrie,48,86,4	script	Fate Master	811,{
 					case Job_Dancer:
 						set @target_job, Job_Archer_High;
 						break;
-							}
+				}
 			} else {
-				switch(select("Swordsman","Mage","Archer","Acolyte","Merchant","Thief",
-					"Super Novice","Taekwon","Gunslinger","Ninja")){
+				if (#gl_lang == 1) set @menu, select("Мечник","Маг","Лучник","Послушник","Торговець","Злодій","Супер Новіс","Теквондист","Ганслінгер","Ніндзя");
+				if (#gl_lang < 1) set @menu, select("Swordsman","Mage","Archer","Acolyte","Merchant","Thief","Super Novice","Taekwon","Gunslinger","Ninja");
+
+				switch(@menu){
 						case 7:
 							if(Class == Job_Novice_High) goto L_noReq;
 							if($@JC_SupNovM > BaseLevel) goto L_BvError;
@@ -89,8 +82,14 @@ valkyrie,48,86,4	script	Fate Master	811,{
 							break;
 					}
 			}
-			mes "Are you sure you want to change to " + JobName(@target_job) + "?";
-			if(select("No","Yes") == 2){
+
+			if (#gl_lang == 1) mes "Ти впевнений, що хочеш стати " + JobName(@target_job) + "?";
+			if (#gl_lang < 1) mes "Are you sure you want to change to " + JobName(@target_job) + "?";
+
+			if (#gl_lang == 1) set @confirm, select("Ні:Так");
+			if (#gl_lang < 1) set @confirm, select("No:Yes");
+
+			if(@confirm == 2){
 				callfunc "Job_Change", @target_job;
 				if(@target_job == Job_Gunsliger || @target_job == Job_Ninja || @target_job == Job_Taekwon) {
 					callfunc "F_ClearJobVar";
@@ -100,6 +99,7 @@ valkyrie,48,86,4	script	Fate Master	811,{
 			}
 			close;
 			break;
+
 		default:
 			if(JobLevel < $@JC_MinimumJB) goto L_LvError;
 			deletearray @job_opt, getarraysize(@job_opt);
@@ -152,12 +152,20 @@ valkyrie,48,86,4	script	Fate Master	811,{
 							set @job_opt[1], Job_Soul_Linker;
 							break;
 					}
-					mes "Welcome, please select the job you wish to change into";
+					if (#gl_lang == 1) mes "Вітаю, будь ласка, обери професію, на яку хочеш змінитись:";
+					if (#gl_lang < 1) mes "Welcome, please select the job you wish to change into";
+
 					set @target_job, @job_opt[select(JobName(@job_opt[0]), JobName(@job_opt[1]))-1];
 					if(Class > Job_Novice_High && Class < Job_Lord_Knight) set @target_job, @target_job + 4001;
 				}
-				mes "Are you sure you want to change to " + JobName(@target_job) + "?";
-				if(select("No","Yes")==2){
+
+				if (#gl_lang == 1) mes "Ти впевнений, що хочеш стати " + JobName(@target_job) + "?";
+				if (#gl_lang < 1) mes "Are you sure you want to change to " + JobName(@target_job) + "?";
+
+				if (#gl_lang == 1) set @confirm, select("Ні:Так");
+				if (#gl_lang < 1) set @confirm, select("No:Yes");
+
+				if(@confirm == 2){
 					callfunc "Job_Change", @target_job;
 					if(@target_job == Job_Star_Gladiator || @target_job == Job_Soul_Linker) {
 						callfunc "F_ClearJobVar";
@@ -169,8 +177,13 @@ valkyrie,48,86,4	script	Fate Master	811,{
 			}
 			if(checkfalcon() || checkcart() || checkriding()) goto L_remove;
 			if((Class >=Job_Knight) && (Class <=Job_Crusader2)){
-				mes "Do you want to reborn?";
-				if(select("Yes","No")==1){
+				if (#gl_lang == 1) mes "Бажаєш переродитися (Reborn)?";
+				if (#gl_lang < 1) mes "Do you want to reborn?";
+
+				if (#gl_lang == 1) set @reborn, select("Так:Ні");
+				if (#gl_lang < 1) set @reborn, select("Yes:No");
+
+				if(@reborn == 1){
 					if(BaseLevel < 99 || JobLevel < 50) goto L_cantCh;
 					set lastJob, Class;
 					if(Class == Job_Knight2){
@@ -200,94 +213,96 @@ L_GivePlat:
 	if (BaseClass==Job_Merchant) goto L_sMerchant;
 	if (BaseClass==Job_Thief) goto L_sThief;
 	close;
-L_sSuperN:
-	skill 142,1,0;
-	close;
-L_sSword:
-	skill 142,1,0;
-	skill 144,1,0;
-	skill 145,1,0;
-	skill 146,1,0;
-	close;
-L_sMage:
-	skill 142,1,0;
-	skill 157,1,0;
-	close;
-L_sArcher:
-	skill 142,1,0;
-	skill 147,1,0;
-	skill 148,1,0;
-	close;
-L_sAcolyte:
-	skill 142,1,0;
-	skill 156,1,0;
-	close;
-L_sMerchant:
-	skill 142,1,0;
-	skill 153,1,0;
-	skill 154,1,0;
-	skill 155,1,0;
-	close;
-L_sThief:
-	skill 142,1,0;
-	skill 149,1,0;
-	skill 150,1,0;
-	skill 151,1,0;
-	skill 152,1,0;
-	close;
+
+L_sSuperN: skill 142,1,0; close;
+L_sSword: skill 142,1,0; skill 144,1,0; skill 145,1,0; skill 146,1,0; close;
+L_sMage: skill 142,1,0; skill 157,1,0; close;
+L_sArcher: skill 142,1,0; skill 147,1,0; skill 148,1,0; close;
+L_sAcolyte: skill 142,1,0; skill 156,1,0; close;
+L_sMerchant: skill 142,1,0; skill 153,1,0; skill 154,1,0; skill 155,1,0; close;
+L_sThief: skill 142,1,0; skill 149,1,0; skill 150,1,0; skill 151,1,0; skill 152,1,0; close;
 
 L_cantCh:
-	mes "I'm sorry, you do not meet the requirements to change";
-	mes "Please come again soon!";
+	if (#gl_lang == 1) {
+		mes "Вибач, ти не відповідаєш вимогам для зміни професії.";
+		mes "Повертайся швидше!";
+	}
+	if (#gl_lang < 1) {
+		mes "I'm sorry, you do not meet the requirements to change";
+		mes "Please come again soon!";
+	}
 	close;
 
 L_LvError:
-	mes "I'm sorry, you do not seem to have enough Job Levels";
-	mes "Please come again soon!";
+	if (#gl_lang == 1) {
+		mes "Вибач, здається у тебе недостатній Job Level.";
+		mes "Повертайся швидше!";
+	}
+	if (#gl_lang < 1) {
+		mes "I'm sorry, you do not seem to have enough Job Levels";
+		mes "Please come again soon!";
+	}
 	close;
 
 L_BvError:
-	mes "I'm sorry, you do not seem to have enough Base Levels";
-	mes "Please come again soon!";
+	if (#gl_lang == 1) {
+		mes "Вибач, здається у тебе недостатній Base Level.";
+		mes "Повертайся швидше!";
+	}
+	if (#gl_lang < 1) {
+		mes "I'm sorry, you do not seem to have enough Base Levels";
+		mes "Please come again soon!";
+	}
 	close;
 
 L_noReq:
-	mes "I'm sorry, you do not meet the requirements to change";
-	mes "Please come again soon!";
+	if (#gl_lang == 1) {
+		mes "Вибач, ти не відповідаєш вимогам для зміни.";
+		mes "Повертайся швидше!";
+	}
+	if (#gl_lang < 1) {
+		mes "I'm sorry, you do not meet the requirements to change";
+		mes "Please come again soon!";
+	}
 	close;
 
 L_remove:
-	mes "Please remove your cart,falcon or peco";
-	mes "Please come again soon!";
+	if (#gl_lang == 1) {
+		mes "Будь ласка, зніми свій візок, сокола або пеко.";
+		mes "Повертайся швидше!";
+	}
+	if (#gl_lang < 1) {
+		mes "Please remove your cart,falcon or peco";
+		mes "Please come again soon!";
+	}
 	close;
 
 OnInit:
-	// Variable Setup
-	set $@JC_MinimumJB, 40; //Minimum job level for changing between 2nd and advance Class (Default : 40)
-	set $@JC_Plat, 1; //Give Platinum skills on Jobchange (Default : 1-yes)
-	set $@JC_SupNovM, 45; //Base Level to change into Super Novice (Default : 45)
+	set $@JC_MinimumJB, 40;
+	set $@JC_Plat, 1;
+	set $@JC_SupNovM, 45;
 	end;
 }
-
-
 
 prontera,128,189,7	script	Guide of Fate	935,{
     if (#gl_lang == 1) {
         mes "[ Провідник Долі ]";
-        mes "Я приведу тебе до тієї хто зможе допомогти тобі обрати свій шлях.";
-    } else {
+        mes "Я приведу тебе до тієї, хто зможе допомогти тобі обрати свій шлях.";
+    } 
+    if (#gl_lang < 1) {
         mes "[ Guide of Fate ]";
         mes "I will lead you to your destiny.";
     }
     next;
 
     if (#gl_lang == 1) {
-        if (select("Я готовий, веди мене!:Ні, я піду пішком.") == 2) {
+        if (select("Я готовий, веди мене!:Ні, я піду пішки.") == 2) {
             mes "[ Провідник Долі ]";
             mes "Гарної подорожі!";
             close;
         }
-    } else {
+    } 
+    if (#gl_lang < 1) {
         if (select("I'm ready, lead me!:No, I'll walk.") == 2) {
             mes "[ Guide of Fate ]";
             mes "Have a nice trip!";
@@ -300,11 +315,3 @@ prontera,128,189,7	script	Guide of Fate	935,{
 }
 
 valkyrie,48,8,0		warp	val0	1,1,prontera,133,193
-
-
-
-
-
-
-
-

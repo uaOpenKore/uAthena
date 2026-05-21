@@ -1,157 +1,213 @@
 //===== eAthena Script ======================================= 
 //= Bandit Beard Quest
-//===== By: ==================================================
-//= Mega Man Expert & Lupus
-//===== Current Version: =====================================
-//= 1.2
-//===== Compatible With: =====================================
-//= eAthena 0.5.2 +
-//===== Description: =========================================
-//= A harmless quest for a simply item w/o any bonuses "Bandit Beard"
-//===== Additional Comments: ================================= 
-//= Fully working.
-//= 1.0 First release
-//= 1.1 Fixed some exploits, bugs and typos. Optimized 8) [Lupus]
-//= 1.1b fixed some typos
-//= 1.2 fixed donpcevent label [Lupus]
-//============================================================
+//===== Current Version: 1.2 =================================
 
 umbala.gat,126,129,4	script	Bearded Man	120,{
 	if(BEARD_QUEST == 4 ) goto L_MAKE;
 	if(BEARD_QUEST >= 5 ) goto L_DONE;
 	if(BEARD_QUEST >= 1 ) goto L_THREAD;
 
-	mes "[Bearded Man]";
-	mes "Beards! Get your wonderful beards!";
-	mes "Would you like a beard?";
+	if (#gl_lang == 1) {
+		mes "[Бородата людина]";
+		mes "Бороди! Купуйте чудові бороди!";
+		mes "Хочеш собі бороду?";
+	} else {
+		mes "[Bearded Man]";
+		mes "Beards! Get your wonderful beards!";
+		mes "Would you like a beard?";
+	}
 	next;
-	menu "Yes, I'd like some facial hair!",-,"No thanks, thats gross!",M_NO;
+	
+	if (#gl_lang == 1) {
+		menu "Так, я хочу круту бороду!",-,"Ні дякую, це бридко!",M_NO;
+	} else {
+		menu "Yes, I'd like some facial hair!",-,"No thanks, thats gross!",M_NO;
+	}
 
-	mes "[Bearded Man]";
-	mes "HoHo~ So you want some whiskers.";
-	emotion 18;
-	mes "Well I would give you my beards but there not cheap.";
-	mes "Matter of fact I have only one left...";
-	mes "but I'm not selling it.";
-	mes "But don't get mad! I can make you one.";
+	if (#gl_lang == 1) {
+		mes "[Бородата людина]";
+		mes "Хо-хо~ То ти хочеш собі вуса та бороду.";
+		emotion 18;
+		mes "Ну, я б дав тобі свої бороди, але вони не дешеві.";
+		mes "Насправді в мене залишилася лише одна...";
+		mes "але я її не продаю.";
+		mes "Але не злися! Я можу зробити її для тебе.";
+	} else {
+		mes "[Bearded Man]";
+		mes "HoHo~ So you want some whiskers.";
+		emotion 18;
+		mes "Well I would give you my beards but there not cheap.";
+		mes "Matter of fact I have only one left...";
+		mes "but I'm not selling it.";
+		mes "But don't get mad! I can make you one.";
+	}
 	next;
 	set BEARD_QUEST,1;
-L_THREAD:
-	mes "[Bearded Man]";
-	mes "I would need some ^8080FFThread^000000 for the Beard.";
-	mes "Talk to my friend in Izlude for some ^8080FFThread^000000.";
-	next;
 
-	mes "[Bearded Man]";
-	mes "Also I would need you to get me some things for the beard.";
-	mes "They are:";
+L_THREAD:
+	if (#gl_lang == 1) {
+		mes "[Бородата людина]";
+		mes "Мені знадобляться спеціальні ^8080FFНитки^000000 (Thread) для бороди.";
+		mes "Поговори з моїм другом в Ізлюді щодо цих ^8080FFНиток^000000.";
+		next;
+		mes "[Бородата людина]";
+		mes "Також мені потрібно, щоб ти приніс деякі речі для виготовлення.";
+		mes "Ось список:";
+	} else {
+		mes "[Bearded Man]";
+		mes "I would need some ^8080FFThread^000000 for the Beard.";
+		mes "Talk to my friend in Izlude for some ^8080FFThread^000000.";
+		next;
+		mes "[Bearded Man]";
+		mes "Also I would need you to get me some things for the beard.";
+		mes "They are:";
+	}
+
 L_LIST:
 	mes "^8080FFElastic Band^000000";
 	mes "^8080FF5 Animal Skins^000000";
 	mes "^8080FFBlack Dye Stuff^000000";
 	mes "^8080FFGranpa Beard^000000";
-	mes "^8080FF100 sticky Mucus^000000";
+	mes "^8080FF100 Sticky Mucus^000000";
 	mes "^8080FFCounteragent^000000";
-	mes " and one ^8080FF2 Carat Diamond^000000";
+	mes " та один ^8080FF2 Carat Diamond^000000";
 	close;
 
 M_NO:
-	mes "[Bearded Man]";
-	mes "Fine, be that way!";
+	if (#gl_lang == 1) {
+		mes "[Бородата людина]";
+		mes "Ну і нехай, як хочеш!";
+	} else {
+		mes "[Bearded Man]";
+		mes "Fine, be that way!";
+	}
 	emotion 7;
 	close;
 
 L_DONE:
-	mes "[Bearded Man]";
-	mes "Sorry, I can only make one per person.";
-	mes "We don't want too many beards now. Right?";
+	if (#gl_lang == 1) {
+		mes "[Бородата людина]";
+		mes "Вибач, я роблю лише одну бороду в одні руки.";
+		mes "Ми ж не хочемо, щоб бород було занадто багато, правда?";
+	} else {
+		mes "[Bearded Man]";
+		mes "Sorry, I can only make one per person.";
+		mes "We don't want too many beards now. Right?";
+	}
 	emotion 29;
 	close;
 
 L_MAKE:
-	mes "[Bearded Man]";
-	mes "Let's make you your beard!";
+	if (#gl_lang == 1) mes "[Бородата людина]"; else mes "[Bearded Man]";
+	if (#gl_lang == 1) mes "Давай-но зробимо тобі бороду!"; else mes "Let's make you your beard!";
 	next;
 	if(countitem(7200) < 1 || countitem(919) < 1 ||	countitem(983) < 1 || countitem(2241) < 1 ||
 	countitem(938) < 100 || countitem(973) < 1 || countitem(731) < 1) goto L_NOITEMS;
-	delitem 7200, 1;
-	delitem 919, 1;
-	delitem 983, 1;
-	delitem 2241, 1;
-	delitem 938, 100;
-	delitem 973, 1;
-	delitem 731, 1;
-	mes "^8080FF~You see him cutting and sewing the beard together~^000000";
+	
+	delitem 7200, 1; delitem 919, 1; delitem 983, 1; delitem 2241, 1; delitem 938, 100; delitem 973, 1; delitem 731, 1;
+	
+	if (#gl_lang == 1) mes "^8080FF~Ви бачите, як він ріже та зшиває бороду докупи~^000000";
+	else mes "^8080FF~You see him cutting and sewing the beard together~^000000";
 	next;
-	mes "^8080FF~He hands you the finished beard~^000000";
+	if (#gl_lang == 1) mes "^8080FF~Він вручає вам готову бороду~^000000";
+	else mes "^8080FF~He hands you the finished beard~^000000";
 	next;
 	getitem 2237, 1;
 	set BEARD_QUEST, 5;
-	mes "[Bearded Man]";
-	mes "Have a nice day!";
+	if (#gl_lang == 1) mes "[Бородата людина]"; else mes "[Bearded Man]";
+	if (#gl_lang == 1) mes "Гарного дня!"; else mes "Have a nice day!";
 	emotion 29;
 	close;
 
 L_NOITEMS:
-	mes "[Bearded Man]";
-	mes "What the hell! I can't make a beard without the items!";
-	mes "Here is the list again:";
+	if (#gl_lang == 1) {
+		mes "[Бородата людина]";
+		mes "Якого біса! Я не можу зробити бороду без матеріалів!";
+		mes "Ось список знову:";
+	} else {
+		mes "[Bearded Man]";
+		mes "What the hell! I can't make a beard without the items!";
+		mes "Here is the list again:";
+	}
 	emotion 23;
 	goto L_LIST;
-}  
+}
 
 //Master Tailor----------
 izlude_in.gat,123,175,4	script	Master Tailor	50,{
-	mes "[Master Tailor]";
-	mes "Good evening! I am the Master Tailor!";
+	if (#gl_lang == 1) mes "[Майстер Кравець]"; else mes "[Master Tailor]";
+	if (#gl_lang == 1) mes "Доброго вечора! Я Майстер Кравець!"; else mes "Good evening! I am the Master Tailor!";
 	if(BEARD_QUEST != 1 ) close;
 
 	next;
-	mes "[Master Tailor]";
-	mes "What? A Bearded Man sent you...";
-	mes "Well I'm sorry to say that I am out of ^8080FFThread^000000.";
-	mes "But I have the address to where I get the shipments.";
-	mes "It is in Al de Baran Karfa Inc. warehouse area.";
-	mes "The address is: Al de Baran 59, 221";
-	mes "See you later.";
+	if (#gl_lang == 1) {
+		mes "[Майстер Кравець]";
+		mes "Що? Бородата людина прислала тебе...";
+		mes "На жаль, мушу сказати, що в мене закінчилися ^8080FFНитки^000000 (Thread).";
+		mes "Але в мене є адреса, куди приходять поставки.";
+		mes "Це склад Кафра Інк. в Альдебарані.";
+		mes "Адреса: Альдебаран 59, 221";
+		mes "До зустрічі.";
+	} else {
+		mes "[Master Tailor]";
+		mes "What? A Bearded Man sent you...";
+		mes "Well I'm sorry to say that I am out of ^8080FFThread^000000.";
+		mes "But I have the address to where I get the shipments.";
+		mes "It is in Al de Baran Karfa Inc. warehouse area.";
+		mes "The address is: Al de Baran 59, 221";
+		mes "See you later.";
+	}
 	set BEARD_QUEST, 2;
 	close;
 }
+
 // Karfa Thread Clerk---
 aldeba_in.gat,70,179,5	script	Karfa Clerk	113,{
-	mes "[Karfa Clerk]";
+	if (#gl_lang == 1) mes "[Клерк Кафри]"; else mes "[Karfa Clerk]";
 	if(BEARD_QUEST == 3 ) goto L_REPEAT;
-	if(BEARD_QUEST > 3 ) goto L_DONE;
+	if(BEARD_QUEST > 3 ) goto L_DONE_SUB;
 
-	mes "What can I do for you?";
+	if (#gl_lang == 1) mes "Чим можу допомогти?"; else mes "What can I do for you?";
 	next;
 	if(BEARD_QUEST == 2 ) goto L_DELIVERY;
 
-	menu "What's in the boxes?",-,"Nothing.",M_NOPE;
+	if (#gl_lang == 1) menu "Що в коробках?",-,"Нічого.",M_NOPE;
+	else menu "What's in the boxes?",-,"Nothing.",M_NOPE;
 
-	mes "[Karfa Clerk]";
-	mes "They're empty.";
+	if (#gl_lang == 1) mes "[Клерк Кафри]"; else mes "[Karfa Clerk]";
+	if (#gl_lang == 1) mes "Вони порожні."; else mes "They're empty.";
 M_NOPE:
 	close;
 
 L_DELIVERY:
-
-	mes "[Karfa Clerk]";
-	mes "Sorry but we have not received any ^8080FFThread^000000.";
-	mes "Our shipments have been put off until its safe.";
-	mes "You see we get our ^8080FFThread^000000 from Alberta and a monsters keeps attacking our merchants.";
-	next;
-	mes "[Karfa Clerk]";
-	mes "Now this monsters has not been doing this before.";
-	mes "It may have to do with the warmer months.";
-	mes "Please help us out!";
+	if (#gl_lang == 1) {
+		mes "[Клерк Кафри]";
+		mes "Вибачте, але ми не отримували ^8080FFНитки^000000.";
+		mes "Наші поставки відкладено, поки не стане безпечно.";
+		mes "Ми отримуємо ^8080FFНитки^000000 з Альберти, але якісь монстри постійно нападають на наших торговців.";
+		next;
+		mes "[Клерк Кафри]";
+		mes "Раніше ці монстри такого не робили. Можливо, це через теплу пору року.";
+		mes "Будь ласка, допоможіть нам!";
+	} else {
+		mes "[Karfa Clerk]";
+		mes "Sorry but we have not received any ^8080FFThread^000000.";
+		mes "Our shipments have been put off until its safe.";
+		mes "You see we get our ^8080FFThread^000000 from Alberta and a monsters keeps attacking our merchants.";
+		next;
+		mes "[Karfa Clerk]";
+		mes "Now this monsters has not been doing this before.";
+		mes "It may have to do with the warmer months.";
+		mes "Please help us out!";
+	}
 	set BEARD_QUEST,3;
 	next;
-	mes "[Karfa Clerk]";
+	if (#gl_lang == 1) mes "[Клерк Кафри]"; else mes "[Karfa Clerk]";
 L_REPEAT:
-	mes "Oh by the way, that Thread Merchant is somewhere around Alberta 60 and 100...";
-L_DONE:
-	mes "Thank You!";
+	if (#gl_lang == 1) mes "До речі, той торговець нитками десь в Альберті (координати приблизно 60, 100)...";
+	else mes "Oh by the way, that Thread Merchant is somewhere around Alberta 60 and 100...";
+L_DONE_SUB:
+	if (#gl_lang == 1) mes "Дякую!"; else mes "Thank You!";
 	close;
 }
 
@@ -160,50 +216,81 @@ alberta.gat,65,123,6	script	Man	85,{
 	if(BEARD_QUEST == 3 && $@beardMobD) goto L_KILLED;
 	if(BEARD_QUEST > 3) goto L_DONE;
 
-	mes "[Thread Merchant]";
-	mes "ARGGG!! I can never get my stuff to Al de Baran!";
-	mes "I keep getting mobbed by some bugs.";
-	mes "They steal all my supplies and ^8080FFThread^000000.";
+	if (#gl_lang == 1) mes "[Торговець нитками]"; else mes "[Thread Merchant]";
+	if (#gl_lang == 1) {
+		mes "АРГХ!! Я ніяк не можу доставити свій товар в Альдебаран!";
+		mes "На мене постійно нападають жуки.";
+		mes "Вони крадуть усі мої запаси та ^8080FFНитки^000000.";
+	} else {
+		mes "ARGGG!! I can never get my stuff to Al de Baran!";
+		mes "I keep getting mobbed by some bugs.";
+		mes "They steal all my supplies and ^8080FFThread^000000.";
+	}
 	next;
-	mes "[Thread Merchant]";
+	if (#gl_lang == 1) mes "[Торговець нитками]"; else mes "[Thread Merchant]";
 
-	if(BEARD_QUEST != 3) mes "What am I to do?";
-	if(BEARD_QUEST != 3) close;
+	if(BEARD_QUEST != 3) {
+		if (#gl_lang == 1) mes "Що ж мені робити?"; else mes "What am I to do?";
+		close;
+	}
 
-	if($@beardmob > 0) mes "Kill! Kill them already!!!";
-	if($@beardmob > 0) close;
-	mes "Are you here to help me?";
+	if($@beardmob > 0) {
+		if (#gl_lang == 1) mes "Вбий їх! Вбий їх нарешті!!!"; else mes "Kill! Kill them already!!!";
+		close;
+	}
+	
+	if (#gl_lang == 1) mes "Ти тут, щоб допомогти мені?"; else mes "Are you here to help me?";
 	emotion 1;
 	next;
-	menu "Yes",-,"No",M_NO;
+	if (#gl_lang == 1) menu "Так",-,"Ні",M_NO; else menu "Yes",-,"No",M_NO;
 
-	mes "[Thread Merchant]";
-	mes "Oh thank the Gods!";
-	mes "If you can only just kill the bugs I would be able to make my delivery.";
-	next;
-	mes "[Thread Merchant]";
-	mes "Oh NO! Here they come!!";
+	if (#gl_lang == 1) {
+		mes "[Торговець нитками]";
+		mes "О, дякую богам!";
+		mes "Якщо ти зможеш вбити цих жуків, я зможу нарешті зробити доставку.";
+		next;
+		mes "[Торговець нитками]";
+		mes "О НІ! Ось вони йдуть!!";
+	} else {
+		mes "[Thread Merchant]";
+		mes "Oh thank the Gods!";
+		mes "If you can only just kill the bugs I would be able to make my delivery.";
+		next;
+		mes "[Thread Merchant]";
+		mes "Oh NO! Here they come!!";
+	}
 	emotion 19;
 	donpcevent "BRDQ_MOBS::OnStart";
 	close;
 
 L_KILLED:
 	set $@beardMobD,0;
-	mes "[Thread Merchant]";
-	mes "Thank you for killing the Thief Bugs.";
-	mes "As a token of my gratitude here is a box full of ^8080FFThread^000000.";
+	if (#gl_lang == 1) {
+		mes "[Торговець нитками]";
+		mes "Дякую, що вбив цих Thief Bugs.";
+		mes "На знак подяки ось тобі коробка, повна ^8080FFНиток^000000.";
+	} else {
+		mes "[Thread Merchant]";
+		mes "Thank you for killing the Thief Bugs.";
+		mes "As a token of my gratitude here is a box full of ^8080FFThread^000000.";
+	}
 	set BEARD_QUEST,4;
 	close;
 
 L_DONE:
-	mes "[Thread Merchant]";
-	mes "Thank you again!";
+	if (#gl_lang == 1) {
+		mes "[Торговець нитками]";
+		mes "Ще раз дякую!";
+	} else {
+		mes "[Thread Merchant]";
+		mes "Thank you again!";
+	}
 	emotion 15;
 	close;
 
 M_NO:
-	mes "[Thread Merchant]";
-	mes "What to do...";
+	if (#gl_lang == 1) mes "[Торговець нитками]"; else mes "[Thread Merchant]";
+	if (#gl_lang == 1) mes "Що ж робити..."; else mes "What to do...";
 	close;
 }
 
