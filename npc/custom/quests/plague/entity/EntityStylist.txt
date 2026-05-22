@@ -1,0 +1,107 @@
+prontera,146,139,5	script	Entity Stylist	759,{
+	// ГОЛОВНА ПЕРЕВІРКА: Якщо гравець не є повноцінним представником жодної фракції
+	if (vampire != 100 && lycan != 100 && order != 100) {
+		if (#gl_lang == 1) {
+			mes "[Стиліст Сутностей]";
+			mes "Забирайся звідси, нікчемна комахо! Я розмовляю лише з тими, хто пройшов повне хрещення кров'ю або світлом.";
+			mes "Твоя сутність порожня. Йди до біса і не витрачай мій час!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Entity Stylist]";
+			mes "Get out of here, you pathetic insect! I only speak with those who have undergone full baptism by blood or light.";
+			mes "Your essence is empty. Go to hell and stop wasting my time!";
+			close;
+		}
+	}
+
+	// Якщо перевірку пройдено, вмикаємо стандартне ім'я NPC
+	if (#gl_lang == 1) { mes "[Стиліст Сутностей]"; }
+	if (#gl_lang < 1) { mes "[Entity Stylist]"; }
+	
+	// Динамічно визначаємо, який саме артефакт зараз одягнений
+	if (isequipped(15001)) { set @item_id, 15001; }
+	else if (isequipped(15002)) { set @item_id, 15002; }
+	else if (isequipped(15003)) { set @item_id, 15003; }
+	else {
+		if (#gl_lang == 1) {
+			mes "Я відчуваю твою темну або світлу силу, але твій артефакт не одягнений.";
+			mes "Будь ласка, одягни один із трьох предметів, щоб змінити його вигляд:";
+			mes "^00FF00- Familiar Power";
+			mes "- Lycan Fury";
+			mes "- Holy Order Relic^000000";
+		}
+		if (#gl_lang < 1) {
+			mes "I can feel your dark or light power, but your artifact is not equipped.";
+			mes "Please equip one of the three items to change its appearance:";
+			mes "^00FF00- Familiar Power";
+			mes "- Lycan Fury";
+			mes "- Holy Order Relic^000000";
+		}
+		close;
+	}
+
+	if (#gl_lang == 1) {
+		mes "Вітаю тебе. Я можу змінити візуальний вигляд твого ^00FF00" + getitemname(@item_id) + "^000000, щоб ніхто не дізнався, хто ви є насправді.";
+		mes "Що саме ти бажаєш носити в роті?";
+	}
+	if (#gl_lang < 1) {
+		mes "Greetings. I can alter the visual appearance of your ^00FF00" + getitemname(@item_id) + "^000000, so no one will know who you truly are.";
+		mes "What exactly do you wish to wear in your mouth?";
+	}
+	next;
+
+L_Page1:
+	if (#gl_lang == 1) {
+		menu "Повернути стандартний вигляд", L_0, "Flu Mask", L_8, "Bandit Beard", L_21, "Beard", L_24, "Clown Nose", L_49, "Iron Cain", L_53, "Cigarette", L_54, ">>> Наступна сторінка", L_Next;
+	}
+	if (#gl_lang < 1) {
+		menu "Restore default look", L_0, "Flu Mask", L_8, "Bandit Beard", L_21, "Beard", L_24, "Clown Nose", L_49, "Iron Cain", L_53, "Cigarette", L_54, ">>> Next Page", L_Next;
+	}
+
+L_Page2:
+	if (#gl_lang == 1) {
+		menu "<<< Попередня сторінка", L_Prev, "Pipe", L_55, "Romantic Flower", L_56, "Romantic Leaf", L_57, "Oxygen Mask", L_90, "Crunch Toast", L_188, "Baby Pacifier", L_191;
+	}
+	if (#gl_lang < 1) {
+		menu "<<< Previous Page", L_Prev, "Pipe", L_55, "Romantic Flower", L_56, "Romantic Leaf", L_57, "Oxygen Mask", L_90, "Crunch Toast", L_188, "Baby Pacifier", L_191;
+	}
+
+L_Next:
+	next; goto L_Page2;
+
+L_Prev:
+	next; goto L_Page1;
+
+L_0:   set @chosen_look, 0;   goto L_SaveStyle;
+L_8:   set @chosen_look, 8;   goto L_SaveStyle;
+L_21:  set @chosen_look, 21;  goto L_SaveStyle;
+L_24:  set @chosen_look, 24;  goto L_SaveStyle;
+L_49:  set @chosen_look, 49;  goto L_SaveStyle;
+L_53:  set @chosen_look, 53;  goto L_SaveStyle;
+L_54:  set @chosen_look, 54;  goto L_SaveStyle;
+L_55:  set @chosen_look, 55;  goto L_SaveStyle;
+L_56:  set @chosen_look, 56;  goto L_SaveStyle;
+L_57:  set @chosen_look, 57;  goto L_SaveStyle;
+L_90:  set @chosen_look, 90;  goto L_SaveStyle;
+L_188: set @chosen_look, 188; goto L_SaveStyle;
+L_191: set @chosen_look, 191; goto L_SaveStyle;
+
+L_SaveStyle:
+	// Записуємо значення у правильну змінну залежно від предмету
+	if (@item_id == 15001) { set vamp_look, @chosen_look; }
+	if (@item_id == 15002) { set lycan_look, @chosen_look; }
+	if (@item_id == 15003) { set order_look, @chosen_look; }
+
+	if (#gl_lang == 1) {
+		mes "[Стиліст Сутностей]";
+		mes "Новий стиль для ^00FF00" + getitemname(@item_id) + "^000000 успішно записано у твою сутність!";
+		mes "^FF0000Зміни зафіксуються автоматично при перезаході в гру.^000000";
+	}
+	if (#gl_lang < 1) {
+		mes "[Entity Stylist]";
+		mes "New style for ^00FF00" + getitemname(@item_id) + "^000000 has been successfully bound to your essence!";
+		mes "^FF0000Changes will take effect automatically upon relogging.^000000";
+	}
+	close;
+}

@@ -1,0 +1,689 @@
+// 1. Постійні змінні записані за персонажем
+
+//entity — основна квестова змінна, що визначає поточний етап сюжетної лінії або допуску гравця.
+//order — змінна статусу членства в Ордені (наприкінці стає рівною 100).
+//order_story — змінна-прапорець, яка фіксує, чи прослухав гравець історію у NPC Historian Noel.
+//order_hunt — змінна, яка керує етапом полювання та збору луту.
+//count_wolf — лічильник зданих гравцем Вовчих іклів (Wolf Claw).
+//count_skel — лічильник зданих гравцем Кісток скелетів (Skeleton Bone).
+//order_oaths_started — змінна-прапорець, яка активує та контролює етап збору клятв у капеланів.
+//order_oaths — бітова маска (бітова змінна), яка сумує прогрес складених клятв у 5 різних NPC за допомогою побітового АБО (|).
+
+
+//2. Тимчасові змінні 
+//Ці змінні існують лише під час виконання поточного діалогу/скрипта у NPC Recruiter Conrad для розрахунку здачі луту партіями:
+//@has_wolf — кількість іклів, які зараз є в інвентарі гравця.
+//@need_wolf — кількість іклів, яку ще залишилося здати до ліміту в 1500 шт.
+//@amt_wolf — фінальна кількість іклів, яка буде вилучена з інвентаря за поточний крок.
+//@wolf_delivered — прапорець, який сигналізує, що в цій сесії діалогу було здано хоча б кілька іклів (для виведення тексту).
+//@has_skel — кількість кісток в інвентарі гравця.
+//@need_skel — кількість кісток, яку залишилося здати.
+//@amt_skel — фінальна кількість кісток для вилучення.
+//@skel_delivered — прапорець, який сигналізує, що в цій сесії було здано кістки.//
+
+
+prt_gld,162,80,5	script	Knight	734, {	end;	}
+prt_gld,163,79,5	duplicate(Knight)	Knight	734
+prt_gld,164,78,5	duplicate(Knight)	Knight	734
+prt_gld,158,80,3	duplicate(Knight)	Knight	734
+prt_gld,157,79,3	duplicate(Knight)	Knight	734
+prt_gld,156,78,3	duplicate(Knight)	Knight	734
+prt_gld,160,80,4	script	Holly Order	722,{	end;	}
+prt_gld,160,77,4	script	Holy Order Captain	752,{
+
+	// 1. УМОВА: Повноцінний член ордену (Здав квест рекрутеру, entity == 10 і статус order == 100)
+	if (entity == 10 && order == 100) {
+		if (#gl_lang == 1) {
+			mes "[Капітан]";
+			mes "Вітаю, воїне! Дякую вам за вірну службу нашому Святому Ордену. Світло пишається такими, як ви.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Captain]";
+			mes "Greetings, warrior! Thank you for your faithful service to our Holy Order. The Light is proud of people like you.";
+			close;
+		}
+	}
+
+	// 2. УМОВА: В процесі квесту (Нагадування дороги, якщо гравець повернувся, не виконавши завдання)
+	if (entity == 10) {
+		if (#gl_lang == 1) {
+			mes "[Капітан]";
+			mes "А, це знову ти? Ти досі ще не був у нашого головного рекрутера?!";
+			mes "Поспішай, хлопче, поки набір триває і лави Ордену не закрилися. Кожна хвилина на рахунку!";
+			next;
+			mes "[Капітан]";
+			mes "Якщо ти забув: наш головний рекрутер знаходиться у Пронтері, в будинку прямо біля тренувальних манекенів. Живіше!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Captain]";
+			mes "Ah, you again? You still haven't visited our head recruiter?!";
+			mes "Hurry up, kid, while the recruitment lasts. Every minute counts!";
+			next;
+			mes "[Captain]";
+			mes "In case you forgot: our head recruiter is located in Prontera, inside the building right next to the training dummies. Move it!";
+			close;
+		}
+	}
+
+	// 3. УМОВА: Гравець ще не поговорив з Юджином востаннє (entity менше 9)
+	if (entity < 9) {
+		if (#gl_lang == 1) {
+			mes "[Капітан]";
+			mes "Йди геть і не заважай мені! Я зайнятий важливими справами Ордену, а у тебе ще молоко на губах не висохло.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Captain]";
+			mes "Go away and do not disturb me! I am busy with important matters of the Order, and you have no business here yet.";
+			close;
+		}
+	}
+
+	// 4. УМОВА: Гравець поговорив з Юджином, entity стало дорівнювати 9. Початок набору та видача орієнтиру.
+	if (entity == 9) {
+		if (#gl_lang == 1) {
+			mes "[Капітан]";
+			mes "Слухай уважно. Прадавнє зло пробудилося у найтемніших куточках Мідгарда, і темрява знову піднімає голову.";
+			mes "Я збираю відважних рекрутів до нашого Святого Ордену, щоб дати відсіч цій скверні. Нам потрібні вірні мечі та чисті серця.";
+			next;
+			mes "[Капітан]";
+			mes "Ти виглядаєш як той, хто готовий стане на захист світла. Чи готовий ти приєднатися до нас і пройти випробування?";
+			next;
+			
+			if (select("Так, я готовий!:Ні, це занадто небезпечно.") == 2) {
+				mes "[Капітан]";
+				mes "Шкода. Повертайся, якщо в тобі прокинеться справжня мужність.";
+				close;
+			}
+			
+			mes "[Капітан]";
+			mes "Чудовий вибір! Нам знадобляться твої сили. Я направляю тебе до нашого головного рекрутера.";
+			mes "Він проведе первинний відбір та перевірить твої навички. Знайди його і скажи, що ти від мене.";
+			next;
+			mes "[Капітан]";
+			mes "Він чекає на тебе у Пронтері. Шукай великий будинок прямо біля тренувальних манекенів. Не барися!";
+			set entity, 10;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Captain]";
+			mes "Listen carefully. An ancient evil has awakened in the darkest corners of Midgard, and the darkness is rising once again.";
+			mes "I am gathering brave recruits for our Holy Order to fight back against this defilement. We need loyal swords and pure hearts.";
+			next;
+			mes "[Captain]";
+			mes "You look like someone ready to stand in defense of the light. Are you ready to join us and face the trial?";
+			next;
+			
+			if (select("Yes, I am ready!:No, it's too dangerous.") == 2) {
+				mes "[Captain]";
+				mes "A pity. Come back if true courage awakens within you.";
+				close;
+			}
+			
+			mes "[Captain]";
+			mes "Excellent choice! We will need your strength. I am sending you to our head recruiter.";
+			mes "He will conduct the initial selection and test your skills. Find him and tell him I sent you.";
+			next;
+			mes "[Captain]";
+			mes "He is waiting for you in Prontera. Look for the big building right next to the training dummies. Don't waste time!";
+			set entity, 10;
+			close;
+		}
+	}
+}
+
+prontera,235,42,7	script	Holy Order Guard	708,{
+
+	// 1. УМОВА: Повноправний член Ордену (Квест повністю завершено)
+	if (order == 100) {
+		if (#gl_lang == 1) {
+			mes "[Охоронець]";
+			mes "(. Охоронець миттєво випрямляється і прикладенням руки до грудей віддає вам честь .)";
+			next;
+			mes "[Охоронець]";
+			mes "Радий бачити вас у добрій величі, Брате! Світло сьогодні яскраво сяє над нашою твердинею, коли такі воїни повертаються назад.";
+			mes "Проходьте, ваша зброя та відвага — гордість нашого Ордену. Двері завжди відчинені для вас.";
+			next;
+			mes "(. Охоронець з повагою відчиняє перед вами важкі дубові двері .)";
+			close2;
+			warp "prt_in", 124, 31;
+			end;
+		}
+		if (#gl_lang < 1) {
+			mes "[Guard]";
+			mes "(. The guard instantly straightens up and salutes you by placing his hand over his heart .)";
+			next;
+			mes "[Guard]";
+			mes "Glad to see you in good health, Brother! The Light shines brightly over our stronghold today as such warriors return home.";
+			mes "Step inside, your weapon and bravery are the pride of our Order. The gates are always open for you.";
+			next;
+			mes "(. The guard respectfully opens the heavy oak doors for you .)";
+			close2;
+			warp "prt_in", 124, 31;
+			end;
+		}
+	}
+
+	// 2. УМОВА: Гравець має допуск рекрута (entity 10 або вище, але ще не лицар)
+	if (entity >= 10) {
+		if (#gl_lang == 1) {
+			mes "[Охоронець]";
+			mes "Вітаю вас в осередку Святого Ордену! Капітан попереджав, що ви маєте підійти.";
+			mes "Проходьте всередину, головний рекрутер чекає на вас.";
+			next;
+			mes "(. Охоронець відчиняє важкі двері та пропускає вас усередину .)";
+			close2;
+			warp "prt_in", 124, 31;
+			end;
+		}
+		if (#gl_lang < 1) {
+			mes "[Guard]";
+			mes "Greetings, welcome to the stronghold of the Holy Order! The Captain warned us about your arrival.";
+			mes "Step inside, the head recruiter is waiting for you.";
+			next;
+			mes "(. The guard opens the heavy doors and lets you inside .)";
+			close2;
+			warp "prt_in", 124, 31;
+			end;
+		}
+	}
+
+	// 3. УМОВА: Звичайний перехожий (якщо випадково клікнули)
+	if (#gl_lang == 1) {
+		mes "[Охоронець]";
+		mes "Це приватна територія. Прохід далі закритий для звичайних цивільних. Проходьте повз.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Guard]";
+		mes "This is private property. Access beyond this point is restricted for regular civilians. Move along.";
+		close;
+	}
+}
+
+	// 2. УМОВА: Гравець не має допуску (entity менше 10)
+	if (entity < 10) {
+		if (#gl_lang == 1) {
+			mes "[Охоронець]";
+			mes "Стій! Вхід суворо заборонено. Це приватна територія під охороною Святого Ордену.";
+			mes "Йди своєю дорогою, цивільний, поки я не виставив тебе силою.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Guard]";
+			mes "Halt! Entrance is strictly forbidden. This is private property under the protection of the Holy Order.";
+			mes "Be on your way, civilian, before I have to remove you by force.";
+			close;
+		}
+	}
+}
+prontera,240,42,1	duplicate(Holy Order Guard)	Holy Order Guard	708
+
+prt_in,127,16,8		script	Historian Noel	743,{
+	if (entity < 9) {
+		if (#gl_lang == 1) { mes "[Ноел]"; mes "Вітаю. Я займаюся архівами Нового Ордену. Схоже, ти ще не готовий слухати прадавні літописи. Звернись спочатку до Рекрутера."; close; }
+		if (#gl_lang < 1) { mes "[Noel]"; mes "Greetings. I handle the archives of the New Order. It seems you are not ready to hear the ancient chronicles yet. Speak to the Recruiter first."; close; }
+	}
+
+	if (order_story == 1) {
+		if (#gl_lang == 1) { mes "[Історик Ноел]"; mes "Я вже розповів тобі все про Велику Битву, друже. Нехай ці знання допоможуть тобі в полюванні."; close; }
+		if (#gl_lang < 1) { mes "[Historian Noel]"; mes "I have already told you everything about the Great Battle, my friend. May this knowledge guide you in your hunt."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Історик Ноел]";
+		mes "Слухай же уважно, синку. Велика війна палала не на життя, а на смерть. Коли Лорд Дракула та Вождь Люціан уклали свій проклятий союз, Мідгард здригнувся.";
+		mes "Фамільяри Дракули діяли підступно: вони затуманювали розум королів, сіяли зраду в тилу та підсипали отруту в колодязі. Вони були невидимим фронтом, який знекровив людство зсередини.";
+		next;
+		mes "[Історик Ноел]";
+		mes "А тоді прийшли Лікани. Армія Люціана рухалася наче жива лавина з ікол та хутра. Вони не знали жалю, страху чи втоми. Вони розривали на шматки найкращі загони Пронтери.";
+		mes "У вирішальній битві на Полях Гефену Орден був затиснутий у лещата. З лісів наступали вовки, а з повітря та тіней атакували виводки вампірів. Світло згасало.";
+		next;
+		mes "[Історик Ноел]";
+		mes "Тоді Брінгільд здійснила неможливе. Вона зібрала останню сотню лицарів, пробила стіну з монстрів і встромила Меч Світанку в серце темного вівтаря. Вибух чистої святої енергії випалив очі вампірам і змусив ліканів вити від болю.";
+		mes "Ця пожертва дала змогу лицарям відкинути ворога. Але пам'ятай: їхні тіла не знайшли. Вони досі десь там, чекають у глибоких тінях Мідгарда...";
+		next;
+		set order_story, 1;
+		mes "[Історик Ноел]";
+		mes "Тепер ти знаєш усю глибину нашої трагедії. Повертайся до Рекрутера, ти готовий.";
+		close;
+	}
+
+	if (#gl_lang < 1) {
+		mes "[Historian Noel]";
+		mes "Listen carefully, son. The Great War raged as a matter of life and death. When Lord Dracula and Chieftain Lucian made their cursed alliance, Midgard trembled.";
+		mes "Dracula's familiars acted insidiously: they clouded the minds of kings, sowed treason in the rear, and poisoned wells. They were an invisible front that drained humanity from within.";
+		next;
+		mes "[Historian Noel]";
+		mes "And then came the Lycans. Lucian's army moved like a living avalanche of fangs and fur. They knew no mercy, fear, or fatigue. They tore Prontera's best squads to pieces.";
+		mes "In the decisive battle on the Fields of Geffen, the Order was caught in a vice. Werewolves attacked from the forests, while vampire broods struck from the skies and shadows. The Light was fading.";
+		next;
+		mes "[Historian Noel]";
+		mes "Then Brynhild did the impossible. She gathered the last hundred knights, broke through the wall of monsters, and plunged the Sword of Dawn into the heart of the dark altar. An explosion of pure holy energy blinded the vampires and made the lycans howl in agony.";
+		mes "This sacrifice allowed the knights to drive the enemy back. But remember: their bodies were never found. They are still out there, waiting in the deep shadows of Midgard...";
+		next;
+		set order_story, 1;
+		mes "[Historian Noel]";
+		mes "Now you know the full depth of our tragedy. Go back to the Recruiter, you are ready.";
+		close;
+	}
+}
+
+prt_in,116,20,4	script	Recruiter Conrad	46,{
+	// ГОЛОВНА ПЕРЕВІРКА: Якщо гравець вже є членом ордену (order == 100)
+	// Ставимо на самий початок, щоб відсікати пройдені квести миттєво
+	if (order == 100) {
+		if (#gl_lang == 1) { mes "[Рекрутер Конрад]"; mes "Вітаю, брате! Світло пишається тобою. Готуйся до майбутніх битв."; close; }
+		if (#gl_lang < 1) { mes "[Recruiter Conrad]"; mes "Greetings, brother! The Light is proud of you. Prepare for the battles to come."; close; }
+	}
+
+	// Перевірка: гравець ще не пройшов етап Юно
+	if (entity < 9) {
+		if (#gl_lang == 1) { mes "[Конрад]"; mes "Привіт. Наш орден приймає лише тих, хто довів свою відданість та знає, за що бореться. Йди собі."; close; }
+		if (#gl_lang < 1) { mes "[Conrad]"; mes "Hello. Our order only accepts those who have proven their dedication and know what they are fighting for. Go away."; close; }
+	}
+
+	// ЕТАП 1: Підписання документів та відправка до Історика (entity == 9)
+	if (entity == 10) {
+		if (#gl_lang == 1) {
+			mes "[Рекрутер Конрад]";
+			mes "О, це про тебе мені говорив Капітан! Хм-м-м... Гаразд, виглядаєш міцно.";
+			mes "Перш ніж ми почнемо, ти маєш підписати цей офіційний Договір про нерозголошення та вірність Святому Ордену. Став свій підпис ось тут.";
+			next;
+			mes "(. Ви берете перо і підписуєте старовинний документ .)";
+			next;
+			mes "[Рекрутер Конрад]";
+			mes "Чудово. Але однієї відваги замало. Ти повинен чітко розуміти, з чим нам доведеться зіткнутися. Поруч зі мною стоїть наш Історик Ноел.";
+			mes "Іди і вислухай від нього повну, розгорнуту історію нашої війни проти ліканів та фамільярів. Без цього я не дам тобі зброю.";
+			set entity, 11; // Переводимо на етап очікування історії
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Recruiter Conrad]";
+			mes "Oh, you're the one the Captain told me about! Hm-m-m... Alright, you look tough enough.";
+			mes "Before we begin, you must sign this official Agreement of Non-Disclosure and Loyalty to the Holy Order. Put your signature right here.";
+			next;
+			mes "(. You take the quill and sign the ancient document .)";
+			next;
+			mes "[Recruiter Conrad]";
+			mes "Excellent. But bravery alone is not enough. You must clearly understand what we are up against. Next to me stands our Historian Noel.";
+			mes "Go and listen to the full, detailed history of our war against the lycans and familiars from him. Without this, I won't give you weapons.";
+			set entity, 11;
+			close;
+		}
+	}
+
+	// ЕТАП 2: Гравець підписав документ, але ще не вислухав історію
+	if (entity == 11) {
+		if (order_story == 0) {
+			if (#gl_lang == 1) { mes "[Рекрутер Конрад]"; mes "Я ж сказав тобі: спочатку поговори з Ноелом і дізнайся деталі битви проти ліканів та фамільярів!"; close; }
+			if (#gl_lang < 1) { mes "[Recruiter Conrad]"; mes "I told you: speak to Noel first and learn the details of the battle against lycans and familiars!"; close; }
+		}
+	}
+
+	// ЕТАП 3: Історія прослухана. Видача бойового завдання (Принести лут)
+	if (entity == 11) {
+		if (order_story == 1) {
+			if (order_hunt == 0) {
+				if (#gl_lang == 1) {
+					mes "[Рекрутер Конрад]";
+					mes "Бачу, Ноел увів тебе в курс sprawy. Тепер ти розумієш, яка загроза нависла над світом. Настав час перевірити твої клинки в дії.";
+					mes "Щоб довести, що ти здатний винищувати породу перевертнів та некромантські виводки, твій наказ:";
+					mes "Принеси мені **1500 Вовчих іклів (Wolf Claw)** та **1500 Кісток (Skeleton Bone)**.";
+					mes "Ти можеш приносити їх частинами, якщо вони не вміщаються у твій рюкзак.";
+					set order_hunt, 1;
+					set count_wolf, 0; 
+					set count_skel, 0; 
+					close;
+				}
+				if (#gl_lang < 1) {
+					mes "[Recruiter Conrad]";
+					mes "I see Noel has brought you up to speed. Now you understand the threat looming over the world. It is time to test your blades in action.";
+					mes "To prove you are capable of exterminating the werewolf breed and necromantic broods, your order is:";
+					mes "Bring me **1500 Wolf Claws** and **1500 Bones**.";
+					mes "You can bring them in batches if they don't fit into your backpack.";
+					set order_hunt, 1;
+					set count_wolf, 0;
+					set count_skel, 0;
+					close;
+				}
+			}
+		}
+	}
+
+	// ПЕРЕВІРКА ТА ПРИЙОМ ЛУТУ ПАРТІЯМИ
+	if (order_hunt == 1) {
+		if (count_wolf < 1500 || count_skel < 1500) {
+			
+			// Логіка збору Вовчих іклів (ID: 920)
+			if (count_wolf < 1500) {
+				set @has_wolf, countitem(920);
+				if (@has_wolf > 0) {
+					set @need_wolf, 1500 - count_wolf;
+					if (@has_wolf > @need_wolf) { set @amt_wolf, @need_wolf; }
+					else { set @amt_wolf, @has_wolf; }
+					
+					delitem 920, @amt_wolf;
+					set count_wolf, count_wolf + @amt_wolf;
+					set @wolf_delivered, 1;
+				}
+			}
+			
+			// Логіка збору Кісток (ID: 932)
+			if (count_skel < 1500) {
+				set @has_skel, countitem(932);
+				if (@has_skel > 0) {
+					set @need_skel, 1500 - count_skel;
+					if (@has_skel > @need_skel) { set @amt_skel, @need_skel; }
+					else { set @amt_skel, @has_skel; }
+					
+					delitem 932, @amt_skel;
+					set count_skel, count_skel + @amt_skel;
+					set @skel_delivered, 1;
+				}
+			}
+
+			if (@wolf_delivered == 1 || @skel_delivered == 1) {
+				if (#gl_lang == 1) {
+					mes "[Рекрутер Конрад]";
+					mes "Чудово, я забираю цю партію трофеїв до нашого складу. Ось твій поточний прогрес:";
+					next;
+				}
+				if (#gl_lang < 1) {
+					mes "[Recruiter Conrad]";
+					mes "Excellent, I am moving this batch of trophies to our warehouse. Here is your current progress:";
+					next;
+				}
+			}
+
+			if (count_wolf >= 1500 && count_skel >= 1500) {
+				// Прогрес закритий, переходимо далі
+			} else {
+				if (#gl_lang == 1) {
+					mes "[Рекрутер Конрад]";
+					mes "Твій збір ще не завершено! Продовжуй зачищати Мідгард.";
+					mes "Здано Вовчих іклів: [ " + count_wolf + " / 1500 ]";
+					mes "Здано Кісток скелетів: [ " + count_skel + " / 1500 ]";
+					close;
+				}
+				if (#gl_lang < 1) {
+					mes "[Recruiter Conrad]";
+					mes "Your gathering is not finished yet! Continue cleansing Midgard.";
+					mes "Wolf Claws delivered: [ " + count_wolf + " / 1500 ]";
+					mes "Skeleton Bones delivered: [ " + count_skel + " / 1500 ]";
+					close;
+				}
+			}
+		}
+	}
+
+	// ЕТАП 4: Полювання/Збір завершено. Відправка за Клятвами до 5 NPC
+	if (order_hunt == 1) {
+		if (count_wolf >= 1500 && count_skel >= 1500) {
+			if (order_oaths_started == 0) {
+				if (#gl_lang == 1) {
+					mes "[Рекрутер Конрад]";
+					mes "Неймовірно! Ти приніс усі необхідні трофеї. Наші склади заповнені доказами твоїх подвигів, і Орден пишається тобою.";
+					mes "Але залишився фінальний, духовний крок. Ти повинен скріпити свій вступ клятвою нашої віри.";
+					next;
+					mes "[Рекрутер Конрад]";
+					mes "У різних куточках Мідгарда стоять 5 наших таємних капеланів та старійшин. Ти повинен знайти їх усіх і принести кожному Клятву на вірність Ордену.";
+					mes "Шукай їх у містах та поселеннях. Повертайся до мене лише тоді, коли збереш усі 5 підтверджень клятв.";
+					set order_oaths_started, 1;
+					close;
+				}
+				if (#gl_lang < 1) {
+					mes "[Recruiter Conrad]";
+					mes "Incredible! You have brought all the necessary trophies. Our warehouses are filled with proofs of your exploits, and the Order is proud of you.";
+					mes "But one final, spiritual step remains. You must seal your initiation with the oath of our faith.";
+					next;
+					mes "[Recruiter Conrad]";
+					mes "In different corners of Midgard stand 5 of our secret chaplains and elders. You must find them all and swear the Oath of Loyalty to each.";
+					mes "Look for them in cities and settlements. Return to me only when you have gathered all 5 oath confirmations.";
+					set order_oaths_started, 1;
+					close;
+				}
+			}
+		}
+	}
+
+	// ПЕРЕВІРКА КЛЯТВ: Якщо почав збір, але зібрав менше 5 клятв
+	if (order_oaths_started == 1) {
+		if (order_oaths < 31) {
+			if (#gl_lang == 1) {
+				mes "[Рекрутер Конрад]";
+				mes "Ти ще не обійшов усіх 5 старійшин. Твоя душа ще не повністю зв'язана з Орденом. Продовжуй шукати їх у Мідгарді.";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Recruiter Conrad]";
+				mes "You haven't visited all 5 elders yet. Your soul is not yet fully bound to the Order. Continue searching for them in Midgard.";
+				close;
+			}
+		}
+	}
+
+	// ЕТАП 5: ФІНАЛ КВЕСТУ (Усі 5 клятв зібрано, тобто маска = 31)
+	// Додано додатковий запобіжник order_oaths_started == 1
+	if (order_oaths_started == 1) {
+		if (order_oaths == 31) {
+			if (#gl_lang == 1) {
+				mes "[Рекрутер Конрад]";
+				mes "Слухайте всі! Свідоцтво принесено, клятви запечатані в небесах і на землі! Відтепер ти не просто рекрут...";
+				mes "Ти — повноправний Брат нашого Святого Ордену Хранителів Світла! Твоє ім'я вписане золотими літерами в літопис переможців.";
+				next;
+				mes "[Рекрутер Конрад]";
+				mes "Прийми цей знак нашої найвищої довіри та бойової слави. Світло подолає Морок!";
+				
+				set order, 100;        // Змінна статусу ордену СТАЄ 100
+				set order_hunt, 2;     // Закриваємо етап полювання
+				set order_oaths_started, 2; // Змінюємо статус клятв на "2" (завершено), щоб ця умова більше НІКОЛИ не спрацювала
+				getitem 15003, 1;      // Вручаємо предмет 15003
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Recruiter Conrad]";
+				mes "Hear ye all! The testimony is brought, the oaths are sealed in heaven and on earth! From this moment on, you are not just a recruit...";
+				mes "You are a full Brother of our Holy Order of Lightkeepers! Your name is written in golden letters in the chronicle of victors.";
+				next;
+				mes "[Recruiter Conrad]";
+				mes "Accept this token of our highest trust and battle glory. The Light shall overcome the Darkness!";
+				
+				set order, 100;
+				set order_hunt, 2;
+				set order_oaths_started, 2;
+				getitem 15003, 1;
+				close;
+			}
+		}
+	}
+}
+
+
+prt_castle,122,170,4	script	Chaplain Lucius	834,{
+	if (order_oaths_started == 0) {
+		if (#gl_lang == 1) { mes "[Луцій]"; mes "Небо затягують хмари, синку. Молися, щоб Світло не згасло. Йди собі."; close; }
+		if (#gl_lang < 1) { mes "[Lucius]"; mes "The sky is gathering clouds, son. Pray that the Light does not fade. Go away."; close; }
+	}
+
+	if (order_oaths & 1) {
+		if (#gl_lang == 1) { mes "[Капеланин Луцій]"; mes "Ти вже склав присягу Честі біля білих мурів столиці. Твій дух міцний."; close; }
+		if (#gl_lang < 1) { mes "[Chaplain Lucius]"; mes "You have already taken the Oath of Honor by the white walls of the capital. Your spirit is strong."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Капеланин Луцій]";
+		mes "Вітаю тебе, рекруте. Конрад надіслав мені твою справу. Ти пролив чимало крові монстрів, але чи готовий ти зв'язати свою душу з мурами Пронтери?";
+		next;
+		mes "[Капеланин Луцій]";
+		mes "Поклади руку на цей золотий хрест і повторюй за мною:";
+		mes "'Клянуся честю і клинком, що жоден перевертень чи вампір не переступить поріг людського дому, поки моє серце б'ється! Я — щит Пронтери!'";
+		next;
+		set order_oaths, order_oaths | 1;
+		mes "(. Капеланин Луцій благословляє вашу зброю і робить помітку в сувої .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Chaplain Lucius]";
+		mes "Greetings, recruit. Conrad sent me your file. You have spilled much monster blood, but are you ready to bind your soul to the walls of Prontera?";
+		next;
+		mes "[Chaplain Lucius]";
+		mes "Place your hand upon this golden cross and repeat after me:";
+		mes "'I swear by my honor and blade that no werewolf or vampire shall cross the threshold of a human home while my heart beats! I am the shield of Prontera!'";
+		next;
+		set order_oaths, order_oaths | 1;
+		mes "(. Chaplain Lucius blesses your weapon and marks your name in the scroll .)";
+		close;
+	}
+}
+
+gef_tower,104,34,4	script	Magister Alva	833,{
+	if (order_oaths_started == 0) {
+		if (#gl_lang == 1) { mes "[Альва]"; mes "Магічні потоки вежі нестабільні через темряву на сході. Покинь це місце."; close; }
+		if (#gl_lang < 1) { mes "[Alva]"; mes "The magic currents of the tower are unstable due to the darkness in the east. Leave this place."; close; }
+	}
+
+	if (order_oaths & 2) {
+		if (#gl_lang == 1) { mes "[Магістр Альва]"; mes "Присяга Розуму запечатана в магічних колах Вежі. Іди з миром."; close; }
+		if (#gl_lang < 1) { mes "[Magister Alva]"; mes "The Oath of Mind is sealed within the magic circles of the Tower. Go in peace."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Магістр Альва]";
+		mes "Я відчуваю твою ауру... Ти пройшов довгий шлях. Фамільяри вампірів обожнюють гратися з розумом лицарів, перетворюючи їх на рабів. Твоя воля має бути як криця.";
+		next;
+		mes "[Магістр Альва]";
+		mes "Дивись прямо на це палаюче магічне полум'я і промовляй:";
+		mes "'Клянуся тримати свій розум чистим, а волю — незламною! Ніякі чари нічних тварюк не затуманять мій погляд! Моє Світло випалить їхні ілюзії!'";
+		next;
+		set order_oaths, order_oaths | 2;
+		mes "(. Очі Альви на мить спалахують чистим фіолетовим світлом, запечатуючи присягу .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Magister Alva]";
+		mes "I sense your aura... You have come a long way. Vampire familiars love to play with knights' minds, turning them into slaves. Your will must be like steel.";
+		next;
+		mes "[Magister Alva]";
+		mes "Look directly into this burning magical flame and speak:";
+		mes "'I swear to keep my mind pure and my will unbroken! No charms of night creatures shall cloud my sight! My Light shall burn through their illusions!'";
+		next;
+		set order_oaths, order_oaths | 2;
+		mes "(. Alva's eyes flash with pure purple light for a moment, sealing the oath .)";
+		close;
+	}
+}
+
+aldebaran,46,179,4	script	Elders Thorvald	827,{
+	if (order_oaths_started == 0) {
+		if (#gl_lang == 1) { mes "[Торвальд]"; mes "Годинник цокає, відраховуючи останні дні мирного Мідгарда... Що тобі потрібно, мандрівнику?"; close; }
+		if (#gl_lang < 1) { mes "[Elders Thorvald]"; mes "The clock is ticking, counting down the last days of a peaceful Midgard... What do you need, traveler?"; close; }
+	}
+
+	if (order_oaths & 4) {
+		if (#gl_lang == 1) { mes "[Старійшина Торвальд]"; mes "Твоя клятва Часу вже записана. Годинникова Вежа пам'ятає твої слова."; close; }
+		if (#gl_lang < 1) { mes "[Elders Thorvald]"; mes "Your Oath of Time is already recorded. The Clock Tower remembers your words."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Старійшина Торвальд]";
+		mes "А, новий брат Ордену! Час пливе швидко, і темрява наступає нам на п'яти. Тут, поблизу великих північних замків, ми тримаємо оборону проти холодних вітрів, що несуть запах вовчої зграї Люціана.";
+		next;
+		mes "[Старійшина Торвальд]";
+		mes "Повернись обличчям до Великого Годинника і промов клятву:";
+		mes "'Поки шестерні часу крутяться, і поки сонце встає над Альдебараном, я клянуся полювати на ліканів скрізь, де застане мене ніч! Мій час належить Ордену!'";
+		next;
+		set order_oaths, order_oaths | 4;
+		mes "(. Старий Торвальд б'є своїм посохом об землю, підтверджуючи присягу .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Elders Thorvald]";
+		mes "Ah, a new brother of the Order! Time flows fast, and darkness is hot on our heels. Here, near the great northern castles, we hold the defense against cold winds carrying the scent of Lucian's wolf pack.";
+		next;
+		mes "[Elders Thorvald]";
+		mes "Turn your face toward the Great Clock and speak the oath:";
+		mes "'As long as the cogs of time turn, and while the sun rises over Aldebaran, I swear to hunt lycans wherever night finds me! My time belongs to the Order!'";
+		next;
+		set order_oaths, order_oaths | 4;
+		mes "(. Old Thorvald strikes his staff against the ground, confirming the oath .)";
+		close;
+	}
+}
+
+yuno_pre,79,28,4	script	Archivist Gideon	866,{
+	if (order_oaths_started == 0) {
+		if (#gl_lang == 1) { mes "[Гідеон]"; mes "Небесне місто Юно зберігає таємниці тисячоліть. Смертним без мети тут робити нічого."; close; }
+		if (#gl_lang < 1) { mes "[Gideon]"; mes "The sky city of Yuno keeps the secrets of millennia. Mortals without a purpose have nothing to do here."; close; }
+	}
+
+	if (order_oaths & 8) {
+		if (#gl_lang == 1) { mes "[Архіваріус Гідеон]"; mes "Присяга Мудрості зафіксована у небесних хроніках. Лети, синку."; close; }
+		if (#gl_lang < 1) { mes "[Archivist Gideon]"; mes "The Oath of Wisdom is recorded in the celestial chronicles. Fly, son."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Архіваріус Гідеон]";
+		mes "Юджин надіслав мені вісточку через поштового птаха. Ти розкопав хроніки Брінгільд у нашій бібліотеці. Знання — це велика сила, але сила без клятви — це хаос.";
+		next;
+		mes "[Архіваріус Гідеон]";
+		mes "Підніми очі до неба, туди, де ширяє Юно, і промов:";
+		mes "'Клянуся берегти прадавню мудрість Ордену та карати тих, хто порушив баланс світу! Небесне Світло — мій свідок, я випалю коріння зла!'";
+		next;
+		set order_oaths, order_oaths | 8;
+		mes "(. Гідеон ставить магічну печатку світла на твій договір .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Archivist Gideon]";
+		mes "Eugene sent me a message via carrier bird. You dug up Brynhild's chronicles in our library. Knowledge is a great power, but power without an oath is chaos.";
+		next;
+		mes "[Archivist Gideon]";
+		mes "Raise your eyes to the sky, where Yuno floats, and speak:";
+		mes "'I swear to preserve the ancient wisdom of the Order and to punish those who break the balance of the world! Celestial Light is my witness, I shall burn out the roots of evil!'";
+		next;
+		set order_oaths, order_oaths | 8;
+		mes "(. Gideon places a magical seal of light onto your agreement .)";
+		close;
+	}
+}
+
+glast_01,199,91,4	script	Inquisitor Morte	705,{
+	if (order_oaths_started == 0) {
+		if (#gl_lang == 1) { mes "[Морте]"; mes "Тут пахне смертю і гнильцем. Тобі краще повернутися в Пронтеру, жива душа."; close; }
+		if (#gl_lang < 1) { mes "[Morte]"; mes "It smells of death and decay here. You'd better return to Prontera, living soul."; close; }
+	}
+
+	if (order_oaths & 16) {
+		if (#gl_lang == 1) { mes "[Інквізитор Морте]"; mes "Ти склав найважчу клятва серед кісток та попелу Гластхейму. Твоя душа тепер загартована."; close; }
+		if (#gl_lang < 1) { mes "[Inquisitor Morte]"; mes "You have taken the hardest oath among the bones and ashes of Glastheim. Your soul is now hardened."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Інквізитор Морте]";
+		mes "Хе-хе-хе... Ти прийшов у саме серце прокляття, щоб знайти мене? Сміливо. Гластхейм бачив велич і падіння. Саме тут вампірські лорди Дракули збирали свої армії мертвих. Скласти клятву тут — означає зазирнути в очі самій смерті.";
+		next;
+		mes "[Історик Ноел]"; // Використовуємо репліку від Морте, виправляючи контекст
+		mes "[Інквізитор Морте]";
+		mes "Встроми свій меч у цю осквернену землю і промов:";
+		mes "'Навіть у долині смертної тіні, серед кісток і проклятого попелу, я клянуся не знати страху! Моє серце — смолоскип, моя лють — свята вода! Я розірву пітьму на шматки!'";
+		next;
+		set order_oaths, order_oaths | 16;
+		mes "(. Похмурий Морте капає краплю святої води на твій клинок, яка шипить, очищаючи його від скверни .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Inquisitor Morte]";
+		mes "He-he-he... You came to the very heart of the curse to find me? Brave. Glastheim has seen grandeur and fall. It was here that Dracula's vampire lords gathered their undead armies. To take an oath here means to look into the eyes of death itself.";
+		next;
+		mes "[Inquisitor Morte]";
+		mes "Plunge your sword into this desecrated ground and speak:";
+		mes "'Even in the valley of the shadow of death, among bones and accursed ash, I swear to know no fear! My heart is a torch, my fury is holy water! I shall tear the darkness to pieces!'";
+		next;
+		set order_oaths, order_oaths | 16;
+		mes "(. Grim Morte drops a bead of holy water onto your blade, which hisses, cleansing it of defilement .)";
+		close;
+	}
+}

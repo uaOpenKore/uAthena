@@ -1,0 +1,1197 @@
+// familiar — головний прогрес усього сюжету.
+// dracula_met — маркер першої відмови Дракулі.
+// bro_1 — квест Фауста (шуба Coat).
+// bro_2 — квест Дерека (100k Zeny).
+// bro_3 — квест Менхеля (капелюх Sakkat).
+// nif_npc_mask — перевірка обходу всіх нпц Ніфльхейму.
+// nif_annoy_count — лічильник роздратування нпц.
+
+
+
+niflheim,123,122,4	script	Helge	739,{
+	// ЗАХИСТ ВІД ЗРАДИ / ВИБОРУ ІНШОЇ СУТНОСТІ
+	if (lucan == 100 || order == 100) {
+		if (#gl_lang == 1) {
+			mes "[Гельге]";
+			mes "Я відчуваю на твоїй душі тавро іншого вибору. Ти вже присягнув на вірність іншій сутності, і твій шлях визначено.";
+			mes "Тобі немає місця серед нас. Повертайся до тих, кому віддав своє серце, і більше не турбуй спокій цього місця.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Helge]";
+			mes "I feel the mark of another choice upon your soul. You have already sworn allegiance to another essence, and your path is set.";
+			mes "There is no place for you among us. Return to those to whom you gave your heart, and disturb the peace of this place no more.";
+			close;
+		}
+	}
+
+	// ГОЛОВНИЙ ЗАХИСТ СЮЖЕТУ
+	if (familiar < 1) {
+		if (#gl_lang == 1) { mes "[Гельге]"; mes "Твоя душа занадто порожня і прісна, живий. Мені немає про що з тобою говорити. Забирайся."; close; }
+		if (#gl_lang < 1) { mes "[Helge]"; mes "Your soul is too empty and bland, living one. I have nothing to say to you. Get out."; close; }
+	}
+
+	// ЗАГЛУШКА ПІСЛЯ ТОГО, ЯК ГРАВЦЯ ВЖЕ ВІДПРАВИЛИ ДО МАЄТКУ
+	if (familiar >= 2) {
+		if (#gl_lang == 1) { mes "[Гельге]"; mes "Іди вже до маєтку, я все розповів. Мені більше немає чого додати."; close; }
+		if (#gl_lang < 1) { mes "[Helge]"; mes "Go to the mansion already, I've told you everything. I have nothing more to add."; close; }
+	}
+
+	// Фіксуємо, що гравець поговорив з першим NPC
+	set nif_npc_mask, nif_npc_mask | 1;
+
+	// ПЕРЕВІРКА: Чи обійшов гравець усіх 5 NPC? (1|2|4|8|16 = 31)
+	if (nif_npc_mask == 31) {
+		set nif_annoy_count, nif_annoy_count + 1;
+
+		// Спрацьовує на 6-й клік фази роздратування (якраз між 5 і 7)
+		if (nif_annoy_count >= 6) { goto L_FuriousFinal; }
+
+		if (#gl_lang == 1) {
+			mes "[Гельге]";
+			mes "Слухай, живий, тобі що, повилазило? Я ж уже казав тобі — я не знаю ніякого ордену!";
+			mes "І мої знайомі в цьому місті тобі це казали! Перестань ходити колом і діставати нас!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Helge]";
+			mes "Listen, living one, are you deaf? I already told you — I don't know any order!";
+			mes "And my friends in this town told you the same! Stop walking in circles and pestering us!";
+			close;
+		}
+	}
+
+	// БАЗОВА ПЕРША РОЗМОВА
+	if (#gl_lang == 1) {
+		mes "[Гельге]";
+		mes "Фамільяри? Орден? Ти що, з дуба впав, живий? Подивись навколо, це місто мертвих!";
+		mes "Тут кожен второй хоче випити твою кров, а ти шукаєш якісь таємні союзи. Забирайся звідси, поки я не покликав духів, або йди спитай у старого Ейнара біля фонтану, він любить слухати казки.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Helge]";
+		mes "Familiars? An Order? Have you lost your mind, living one? Look around, this is the city of the dead!";
+		mes "Every second soul here wants to drain your blood, and you're looking for secret alliances. Get out before I summon the banshees, or go ask old Einar by the fountain, he likes listening to fairy tales.";
+		close;
+	}
+
+L_FuriousFinal:
+	set familiar, 2;
+	if (#gl_lang == 1) {
+		mes "[Гельге]";
+		mes "Та годі вже! Годі блукати цими вулицями і постійно питати мене та моїх друзів про одне й те саме! Нам усім вже набридло повторювати, що ми нічого не знаємо!";
+		mes "Якщо ти вже такий затятий і так сильно прагнеш знайти свою смерть — слухай сюди.";
+		next;
+		mes "[Гельге]";
+		mes "Там, на горі, височіє похмурий прадавній маєток. Йди туди і поговори з Дворецьким. Але візьми з собою **Прокляту Воду (Cursed Water)**, щоб задобрити його.";
+		mes "Якщо він буде у доброму настрої, можливо, він щось тобі й розкаже. А тепер зникни з моїх очей!";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Helge]";
+		mes "Enough! Enough of you wandering these streets and constantly asking me and my friends the same thing! We are sick of telling you we know nothing!";
+		mes "If you are so persistent and so eager to meet your doom — listen closely.";
+		next;
+		mes "[Helge]";
+		mes "Up there on the hill stands a grim, ancient mansion. Go there and speak to the Butler. But bring some **Cursed Water** with you to appease him.";
+		mes "If he's in a good mood, maybe he'll tell you something. Now vanish from my sight!";
+		close;
+	}
+}
+
+niflheim,178,189,4	script	Einar	792,{
+	// ЗАХИСТ ВІД ЗРАДИ / ВИБОРУ ІНШОЇ СУТНОСТІ
+	if (lucan == 100 || order == 100) {
+		if (#gl_lang == 1) {
+			mes "[Ейнар]";
+			mes "Я відчуваю на тобі слід іншого союзу. Твоя доля пов'язана з іншими покровителями.";
+			mes "Мертвим немає діла до тих, хто зробив свій вибір деінде. Крокуй далі своїм шляхом.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Einar]";
+			mes "I feel the trace of another alliance upon you. Your fate is bound to other patrons.";
+			mes "The dead have no business with those who made their choice elsewhere. Move along your path.";
+			close;
+		}
+	}
+
+	if (familiar < 1) {
+		if (#gl_lang == 1) { mes "[Ейнар]"; mes "Холод смерті огортає це місце... Тобі тут не раді, смертний. Крокуй далі."; close; }
+		if (#gl_lang < 1) { mes "[Einar]"; mes "The chill of death wraps around this place... You are not welcome here, mortal. Move along."; close; }
+	}
+
+	if (familiar >= 2) {
+		if (#gl_lang == 1) { mes "[Ейнар]"; mes "Я все сказав. Не турбуй мертвих своїми візитами, шукай маєток."; close; }
+		if (#gl_lang < 1) { mes "[Einar]"; mes "I've said all I know. Do not disturb the dead, look for the mansion."; close; }
+	}
+
+	// Фіксуємо, що гравець поговорив з другим NPC
+	set nif_npc_mask, nif_npc_mask | 2;
+
+	if (nif_npc_mask == 31) {
+		set nif_annoy_count, nif_annoy_count + 1;
+		if (nif_annoy_count >= 6) { goto L_FuriousFinal; }
+
+		if (#gl_lang == 1) {
+			mes "[Ейнар]";
+			mes "Знову ти? Я ж казав тобі, що нічого не знаю! І інші тобі це казали! Чого ти досі ходиш тут і повторюєш свої дурні питання?";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Einar]";
+			mes "You again? I told you I know nothing! And the others told you the same! Why are you still walking around repeating your stupid questions?";
+			close;
+		}
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Ейнар]";
+		mes "Орден... Хе-хе-хе... Які гучні слова для того, чиє серце ще б'ється. Я не знаю жодних орденів, окрім ордену гробарів.";
+		mes "Що ти взагалі забув у світі мертвих, хлопче? Твоє м'ясо занадто свіже для цього місця. Йди поблукай біля гробівців, або запитай у відьми Грісельди, якщо не боїшся перетворитися на жабу.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Einar]";
+		mes "An Order? Heh-heh-heh... What grand words for someone whose heart still beats. I know of no orders except the order of undertakers.";
+		mes "What are you doing in the world of the dead anyway, kid? Your flesh is too fresh for this place. Go wander near the tombs, or ask the witch Griselda, if you're not afraid of being turned into a toad.";
+		close;
+	}
+
+L_FuriousFinal:
+	set familiar, 2;
+	if (#gl_lang == 1) {
+		mes "[Ейнар]";
+		mes "Годі! Нам усім уже набридло повторювати, що we нічого не знаємо! Ти задовбав мене та моїх друзів своїми розпитуваннями про Фамільярів!";
+		mes "Якщо тобі так кортить зазирнути в очі безодні — піднімайся до великого маєтку на пагорбі.";
+		next;
+		mes "[Ейнар]";
+		mes "Там заправляє старий Дворецький. Візьми з собою **Прокляту Воду (Cursed Water)** як підношення, щоб задобрити його. Якщо пощастить — він заговорить. А тепер іди геть!";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Einar]";
+		mes "Enough! We are all tired of repeating that we know nothing! You have driven me and my friends mad with your questions about Familiars!";
+		mes "If you're so desperate to look into the eyes of the abyss — go up to the grand mansion on the hill.";
+		next;
+		mes "[Einar]";
+		mes "An old Butler runs the place. Take some **Cursed Water** with you as an offering to appease him. If you're lucky, he might speak. Now go away!";
+		close;
+	}
+}
+
+niflheim,310,57,4	script	Griselda	803,{
+	// ЗАХИСТ ВІД ЗРАДИ / ВИБОРУ ІНШОЇ СУТНОСТІ
+	if (lucan == 100 || order == 100) {
+		if (#gl_lang == 1) {
+			mes "[Грісельда]";
+			mes "Мої зілля чутливі до чужих енергій, а твоя душа вже пофарбована у чужі кольори. Ти зробив свій вибір.";
+			mes "Не марнуй мій час і зникни, поки твої кістки не стали інгредієнтом для мого наступного варева.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Griselda]";
+			mes "My potions are sensitive to foreign energies, and your soul is already colored by another. You made your choice.";
+			mes "Do not waste my time and vanish before your bones become an ingredient for my next brew.";
+			close;
+		}
+	}
+
+	if (familiar < 1) {
+		if (#gl_lang == 1) { mes "[Грісельда]"; mes "Зникни, бліда подобо живого створення. Мої зілля не для твоїх очей."; close; }
+		if (#gl_lang < 1) { mes "[Griselda]"; mes "Vanish, pale imitation of a living being. My potions are not for your eyes."; close; }
+	}
+
+	if (familiar >= 2) {
+		if (#gl_lang == 1) { mes "[Грісельда]"; mes "Тобі дали відповідь, смертний. Забирайся до маєтку і більше мене не відволікай."; close; }
+		if (#gl_lang < 1) { mes "[Griselda]"; mes "You've been given an answer, mortal. Leave for the mansion and do not distract me."; close; }
+	}
+
+	// Фіксуємо, що гравець поговорив з третім NPC
+	set nif_npc_mask, nif_npc_mask | 4;
+
+	if (nif_npc_mask == 31) {
+		set nif_annoy_count, nif_annoy_count + 1;
+		if (nif_annoy_count >= 6) { goto L_FuriousFinal; }
+
+		if (#gl_lang == 1) {
+			mes "[Грісельда]";
+			mes "Я клянуся, що перетворю тебе на жабу, якщо ти ще раз запитаєш про цей орден! Тобі вже кожен у цьому місті сказав, і я в тому числі — ми НЕ знаємо!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Griselda]";
+			mes "I swear I'll turn you into a toad if you ask about that order again! Everyone in this town already told you, including me — we DO NOT know!";
+			close;
+		}
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Грісельда]";
+		mes "Якісь приховані вампіри? Тіні, що п'ють кров? Дурниці! Мої зілля складаються з кісток та сліз, а не з дитячих казок про фамільярів.";
+		mes "Живим тут не раді. Ти ходиш тут, наче жива мішень. Забирайся, або спробуй випитати щось у Гюнтера на сусідній вулиці, він за життя теж любив сувати ніс у чужі секрети.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Griselda]";
+		mes "Some hidden vampires? Shadows that drink blood? Nonsense! My potions are made of bones and tears, not children's tales about familiars.";
+		mes "The living are not welcome here. You walk around like a living target. Get lost, or try to pry something out of Gunther on the next street, he loved sticking his nose into other people's secrets during life too.";
+		close;
+	}
+
+L_FuriousFinal:
+	set familiar, 2;
+	if (#gl_lang == 1) {
+		mes "[Грісельда]";
+		mes "Та замовкни ти нарешті! Годі вже ходити тут і розпитувати мене та моїх сусідів про свій клятий орден! Нам набридло казати, що ми нічого не чули!";
+		mes "Якщо ти такий впертий і тобі так сильно припекло — йди до маєтку на вершині скелі.";
+		next;
+		mes "[Грісельда]";
+		mes "Знайди там Дворецького. Але не здумай лізти туди з порожніми кишенями — принеси йому **Прокляту Воду (Cursed Water)**, щоб задобрити його. Якщо він змилується — проллє світло на твої питання. Зникни!";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Griselda]";
+		mes "Shut up already! Stop walking around here and pestering me and my neighbors about your cursed order! We are sick of saying we know nothing!";
+		mes "If you're so stubborn and desperate — go to the mansion on the top of the cliff.";
+		next;
+		mes "[Griselda]";
+		mes "Find the Butler there. But don't you dare go there empty-handed — bring him some **Cursed Water** to appease him. If he shows mercy, he will shed some light on your questions. Vanish!";
+		close;
+	}
+}
+
+niflheim,179,83,4	script	Gunther	739,{
+	// ЗАХИСТ ВІД ЗРАДИ / ВИБОРУ ІНШОЇ СУТНОСТІ
+	if (lucan == 100 || order == 100) {
+		if (#gl_lang == 1) {
+			mes "[Гюнтер]";
+			mes "Я відчуваю запах твоєї присяги іншим силам. Твоя відданість уже продана.";
+			mes "Не дратуй мене своєю присутністю і проходь повз, мені огидні чужаки, які служать іншим панам.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Gunther]";
+			mes "I smell your oath to other forces. Your loyalty has already been sold.";
+			mes "Do not irritate me with your presence and move along, I despise foreigners who serve other masters.";
+			close;
+		}
+	}
+
+	if (familiar < 1) {
+		if (#gl_lang == 1) { mes "[Гюнтер]"; mes "Що вилупився? Проходь мимо, поки я не згадав, як смакує свіже серце."; close; }
+		if (#gl_lang < 1) { mes "[Gunther]"; mes "What are you staring at? Move along before I remember how a fresh heart tastes."; close; }
+	}
+
+	if (familiar >= 2) {
+		if (#gl_lang == 1) { mes "[Гюнтер]"; mes "Я сказав усе, що знав. Провалюй до маєтку і не турбуй мертвих."; close; }
+		if (#gl_lang < 1) { mes "[Gunther]"; mes "I've said all I know. Get out to the mansion and do not disturb the dead."; close; }
+	}
+
+	// Фіксуємо, що гравець поговорив з четвертим NPC
+	set nif_npc_mask, nif_npc_mask | 8;
+
+	if (nif_npc_mask == 31) {
+		set nif_annoy_count, nif_annoy_count + 1;
+		if (nif_annoy_count >= 6) { goto L_FuriousFinal; }
+
+		if (#gl_lang == 1) {
+			mes "[Гюнтер]";
+			mes "Ти знову припхався? Тобі мало того, що інші городяни послали тебе? Я НІЧОГО НЕ ЗНАЮ! Нам усім набридло слухати твою болтовню, згинь!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Gunther]";
+			mes "You back again? Isn't it enough that the other townsfolk turned you away? I KNOW NOTHING! We are all tired of listening to your chatter, beat it!";
+			close;
+		}
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Гюнтер]";
+		mes "Шукаєш тих, хто керує зграями кажанів? Ха! Навіть якщо б я знав, я б не сказав такій нікчемі, як ти.";
+		mes "Ви, смертні, приходите сюди і думаєте, що вам усі щось винні. Провалюй до дупи, чуваче. Йди краще поплачся Крістіану біля таверни, може він пожаліє твогу дурну голову.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Gunther]";
+		mes "Looking for those who command bat swarms? Ha! Even if I knew, I wouldn't tell a pathetic wretch like you.";
+		mes "You mortals come here thinking everyone owes you something. Go to hell, dude. Go cry to Kristian near the tavern, maybe he'll take pity on your foolish head.";
+		close;
+	}
+
+L_FuriousFinal:
+	set familiar, 2;
+	if (#gl_lang == 1) {
+		mes "[Гюнтер]";
+		mes "Годі! Мені та моїм друзям набридло постійно чути твої питання про Фамільярів! Нам остогидло повторювати, що ми нічого не знаємо!";
+		mes "Хочеш знати правду? Тоді бери ноги в руки і чеши в маєток на горі.";
+		next;
+		mes "[Гюнтер]";
+		mes "Там стоїть похмурий Дворецький. Принеси йому **Прокляту Воду (Cursed Water)**, щоб задобрити його стару шкуру. Якщо пощастить — він вислухає тебе. А тепер забирайся!";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Gunther]";
+		mes "Enough! My friends and I are sick of constantly hearing your questions about Familiars! We are tired of repeating that we know nothing!";
+		mes "Want to know the truth? Then get moving and head to the mansion on the hill.";
+		next;
+		mes "[Gunther]";
+		mes "A grim Butler stands there. Try bringing him some **Cursed Water** to appease his old soul. If you're lucky, he might listen to your chatter. Now get lost!";
+		close;
+	}
+}
+
+niflheim,193,205,4	script	Kristian	738,{
+	// ЗАХИСТ ВІД ЗРАДИ / ВИБОРУ ІНШОЇ СУТНОСТІ
+	if (lucan == 100 || order == 100) {
+		if (#gl_lang == 1) {
+			mes "[Крістіан]";
+			mes "Охо-хо... Твоя аура містить відголоски зовсім іншої долі. Ти обрав свій шлях в іншому місці, живий.";
+			mes "Ці вулиці нічого не дадуть тому, хто вже зв'язав себе обітницею. Прощавай.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Kristian]";
+			mes "Oho-ho... Your aura carries echoes of a completely different fate. You chose your path elsewhere, living one.";
+			mes "These streets will yield nothing to someone who has already bound themselves to an oath. Farewell.";
+			close;
+		}
+	}
+
+	if (familiar < 1) {
+		if (#gl_lang == 1) { mes "[Крістіан]"; mes "Тут немає нічого для живих. Повертайся в Пронтеру."; close; }
+		if (#gl_lang < 1) { mes "[Kristian]"; mes "There is nothing for the living here. Go back to Prontera."; close; }
+	}
+
+	if (familiar >= 2) {
+		if (#gl_lang == 1) { mes "[Крістіан]"; mes "Йди собі з миром, живий. Я вже направив тебе до маєтку."; close; }
+		if (#gl_lang < 1) { mes "[Kristian]"; mes "Go in peace, living one. I've already sent you to the mansion."; close; }
+	}
+
+	// Фіксуємо, що гравець поговорив з п'ятим NPC
+	set nif_npc_mask, nif_npc_mask | 16;
+
+	if (nif_npc_mask == 31) {
+		set nif_annoy_count, nif_annoy_count + 1;
+		if (nif_annoy_count >= 6) { goto L_FuriousFinal; }
+
+		if (#gl_lang == 1) {
+			mes "[Крістіан]";
+			mes "Охо-хо... Знову ти прийшов випитувати про те саме? Нам усім уже набридло повторювати, що ми нічого не знаємо. Облиш нас у спокої.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Kristian]";
+			mes "Oho-ho... You came back to ask the same thing? We are all tired of repeating that we know nothing. Leave us in peace.";
+			close;
+		}
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Крістіан]";
+		mes "Охо-хо... Якийсь таємний союз тіней? Хлопче, єдине, що тут збирається — це армії зомбі, коли місяць стає червоним.";
+		mes "Не шукай тут порятунку чи знань. Світ мертвих пожирає цікавих. Іди звідси, або спробуй запитати у Гельге на в'їзді в місто, він ближче до світу живих, може щось чув.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Kristian]";
+		mes "Oho-ho... Some secret alliance of shadows? Kid, the only things gathering here are zombie armies when the moon turns red.";
+		mes "Do not look for salvation or knowledge here. The world of the dead devours the curious. Leave this place, or try asking Helge at the town entrance, he's closer to the living world, maybe he heard something.";
+		close;
+	}
+
+L_FuriousFinal:
+	set familiar, 2;
+	if (#gl_lang == 1) {
+		mes "[Крістіан]";
+		mes "Годі, годі! Припини ходити тут і випитувати мене та інших про тих Фамільярів! Нам усім набридло казати гравцям, що ми нічого не знаємо!";
+		mes "Якщо ти справді такий затятий і так сильно прагнеш дізнатися їхні таємниці — твій шлях лежить у маєток на горі.";
+		next;
+		mes "[Крістіан]";
+		mes "Там у залах стоїть Дворецький. Знайди його і принеси йому **Прокляту Воду (Cursed Water)**, щоб задобрити його. Тоді він, може, відкриє тобі завісу таємниці. Прощавай!";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Kristian]";
+		mes "Enough, enough! Stop walking around here and pestering me and others about those Familiars! We are all sick of telling players we know nothing!";
+		mes "If you are truly so persistent and want to know their secrets so badly — your path leads to the mansion on the hill.";
+		next;
+		mes "[Kristian]";
+		mes "The Butler stands in the halls there. Find him and bring him some **Cursed Water** to appease him. Then maybe he will open the veil of secrecy for you. Farewell!";
+		close;
+	}
+}
+
+nif_in,31,167,4	script	Butler	795,{
+
+	// -------------------------------------------------------------
+	// ЗАХИСТ СЮЖЕТУ: Гравець прийшов без розпитувань у місті (не дорівнює 2, 3, 4, 5, 90)
+	// -------------------------------------------------------------
+	if (familiar < 2) {
+		if (#gl_lang == 1) {
+			mes "[Дворецький]";
+			mes "Охо-хо... Яка цікавинка до мене зайшла.";
+			mes "Чи то погода тебе принесла, смертний, чи то мені вже ввижається під цим прадавнім дахом?";
+			next;
+			mes "[Дворецький]";
+			mes "Ану киш звідсіля, поки твої кістки не стали частиною мого інтер'єру!";
+			close2;
+			atcommand "@die";
+			end;
+		}
+		if (#gl_lang < 1) {
+			mes "[Butler]";
+			mes "Oho-ho... What an interesting thing just walked in.";
+			mes "Did the weather bring you here, mortal, or am I seeing things under this ancient roof?";
+			next;
+			mes "[Butler]";
+			mes "Now shoo, get out of here before your bones become part of my decor!";
+			close2;
+			atcommand "@die";
+			end;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 2: Перша розмова, перевірка гостинця, історія гравця та запит на 5 води
+	// -------------------------------------------------------------
+	if (familiar == 2) {
+		// ПЕРЕВІРКА НА НАЯВНІСТЬ ПЕРШОГО ГОСТИНЦЯ (1 Cursed Water, ID: 12020)
+		if (countitem(12020) < 1) {
+			if (#gl_lang == 1) {
+				mes "[Дворецький]";
+				mes "Як ти смів прийти сюди і без гостинця?!";
+				mes "Ти думав, що можеш просто так переступити поріг мого маєтку з порожніми руками?! За зухвалість ти заплатиш життям!";
+				close2;
+				atcommand "@die";
+				end;
+			}
+			if (#gl_lang < 1) {
+				mes "[Butler]";
+				mes "How dare you come here empty-handed without a gift?!";
+				mes "Did you think you could just cross the threshold of my mansion with nothing?! You shall pay for this insolence with your life!";
+				close2;
+				atcommand "@die";
+				end;
+			}
+		}
+
+		// Якщо вода є — забираємо 1 пляшку як вхідну плату
+		delitem 12020, 1;
+
+		if (#gl_lang == 1) {
+			mes "[Дворецький]";
+			mes "Хммм... От і вітер помінявся, і приніс нам свіженьку жертву. Ласкаво просимо до маєтку, живий.";
+			next;
+			// Гравець відповідає
+			mes "[" + strcharinfo(0) + "]";
+			mes "Я не жертва! Я просто шукаю правду.";
+			mes "Мене привели сюди історії, які я чув у світі живих. На рівні підсвідомості я не повірив, що Фамільяри такі погані, як про них кажуть у казках. Я вирішив знайти їх і дізнатися все сам.";
+			next;
+			mes "[Дворецький]";
+			mes "Охо? Які гучні слова! Не повірив він... Ну припустимо. А що далі?";
+			mes "Що взагалі буде далі відбуватись, коли ти їх знайдеш?";
+			next;
+			// Гравець відповідає
+			mes "[" + strcharinfo(0) + "]";
+			mes "Я ще не знаю... Але я в будь-якому випадку маю знайти їхнього лідера і поговорити з ним особисто.";
+			next;
+			mes "[Дворецький]";
+			mes "Зухвало. Але розмови сушать моє посмертне горло. Тієї води, що ти приніс для задобрення, замало.";
+			mes "Принеси мені ще **5 пляшок Проклятої Води (Cursed Water)**. Тоді, можливо, я щось згадаю і вкажу тобі шлях.";
+			set familiar, 3; // Переводимо на стадію збору води
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Butler]";
+			mes "Hmm... So the wind has changed, bringing us a fresh victim. Welcome to the mansion, living one.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "I am no victim! I am just looking for the truth.";
+			mes "I was brought here by stories I heard. Deep down, I didn't believe the Familiars are as evil as they say. I decided to find them and see for myself.";
+			next;
+			mes "[Butler]";
+			mes "Oho? Bold words! Didn't believe, you say... Well, let's assume so. But what next?";
+			mes "What is going to happen next when you actually find them?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "I don't know yet... But regardless, I must find their leader and speak with him face-to-face.";
+			next;
+			mes "[Butler]";
+			mes "Audacious. But talking dries out my dead throat. That water you brought earlier wasn't enough.";
+			mes "Bring me **5 more bottles of Cursed Water**. Then, perhaps, I will remember something and show you the way.";
+			set familiar, 3;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 3: Гравець приніс (або ще не приніс) 5 пляшок води
+	// -------------------------------------------------------------
+	if (familiar == 3) {
+		if (countitem(12020) < 5) { // Перевірка на Cursed Water (ID: 12020)
+			if (#gl_lang == 1) {
+				mes "[Дворецький]";
+				mes "Моє горло все ще палає сухістю. Де мої **5 пляшок Проклятої Води (Cursed Water)**?";
+				mes "Повертайся, коли принесеш усе. Нагадую, я нікуди не поспішаю, я вже мертвий.";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Butler]";
+				mes "My throat is still burning. Where are my **5 bottles of Cursed Water**?";
+				mes "Come back when you have them all. Reminding you, I'm in no rush, I'm already dead.";
+				close;
+			}
+		}
+
+		// Якщо вода є — забираємо її та видаємо сюжет
+		delitem 12020, 5;
+		set familiar, 4; // Переводимо на стадію отримання координат братів
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 4: Видача квесту на трьох братів
+	// -------------------------------------------------------------
+	if (familiar == 4) {
+		if (#gl_lang == 1) {
+			mes "[Дворецький]";
+			mes "*Глитає воду* ...Ах, чудово. Наче знову відчуваю холод життя. Ну добре, смертний, слухай.";
+			mes "Краєм вуха я чув, що неподалік дійсно збираються сили Фамільярів. Я скажу тобі, де їх шукати, але не просто так.";
+			next;
+			mes "[Дворецький]";
+			mes "Я перебуваю тут, у світі мертвих, з якого для мене немає виходу. Але в мене у світі живих залишилися три брати. Ти маєш допомогти їм з їхніми проханнями.";
+			next;
+			mes "[Дворецький]";
+			mes "Ось де їх знайти:";
+			mes "1. **Дерек** — перебуває у сонячному місті **Комодо (Comodo)**.";
+			mes "2. **Менхель** — шукай його в **Пайоні (Payon)**, прямо в Гільдії Лучників.";
+			mes "3. **Фауст** — він живе в **Мороці (Morroc)**, у тіні поблизу готелю на північному сході.";
+			next;
+			mes "[Дворецький]";
+			mes "Допоможи їм усім трьом, і тоді я відкрию тобі шлях до лідера Фамільярів. Ступай!";
+			set familiar, 5; // Стадія квесту на братів
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Butler]";
+			mes "*Gulps the water* ...Ah, wonderful. It's like I can feel the chill of life again. Well then, mortal, listen closely.";
+			mes "I heard whispers that the forces of the Familiars are gathering nearby. I will tell you where to look, but it comes with a price.";
+			next;
+			mes "[Butler]";
+			mes "I am stuck here, in the world of the dead, from which there is no escape. But I have three brothers left in the living world. You must help them with their requests.";
+			next;
+			mes "[Butler]";
+			mes "Here is where to find them:";
+			mes "1. **Derek** — located in the sunny town of **Comodo**.";
+			mes "2. **Menhel** — look for him in **Payon**, inside the Archer Guild.";
+			mes "3. **Faust** — he lives in **Morroc**, in the shadows near the hotel in the north-east.";
+			next;
+			mes "[Butler]";
+			mes "Help all three of them, and then I will open the way to the leader of the Familiars. Now go!";
+			set familiar, 5;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 5: Перевірка виконання завдань від bro_1, bro_2, bro_3
+	// -------------------------------------------------------------
+	if (familiar == 5) {
+		// Якщо бодай один брат ще не закрив свій квест (значення не дорівнює 1)
+		if (bro_1 != 1 || bro_2 != 1 || bro_3 != 1) {
+			if (#gl_lang == 1) {
+				mes "[Дворецький]";
+				mes "Чому ти досі тут? Твої ноги мають нести тебе по світу живих.";
+				mes "Нагадую: Дерек у Комодо, Менхель у гільдії лучників Пайона, а Фауст біля готелю в Мороці.";
+				mes "Повертайся тільки тоді, коли допоможеш їм усім трьом!";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Butler]";
+				mes "Why are you still here? Your feet should be carrying you through the living world.";
+				mes "Reminding you: Derek in Comodo, Menhel in Payon archer guild, and Faust near the hotel in Morroc.";
+				mes "Come back only when you have helped all three of them!";
+				close;
+			}
+		}
+
+		// Якщо ВСІ ТРИ БРАТИ виконали умови (bro_1==1 && bro_2==1 && bro_3==1)
+		if (#gl_lang == 1) {
+			mes "[Дворецький]";
+			mes "Охо... Ти справді це зробив? Мої брати надіслали мені знак через потойбічні сни. Ти допоміг їм, а отже — я тримаю своє слово.";
+			next;
+			mes "[Дворецький]";
+			mes "Наш лідер, великий володар **Дракула**, чекає на тебе на **другому поверсі** цього маєтку. Я відкриваю для тебе проходи.";
+			next;
+			mes "[Дворецький]";
+			mes "Піднімайся нагору і будь обережним з виразом своїх думок перед ним. Ступай.";
+			set familiar, 90; // Переводимо сюжет на фінальний допуск до Дракули
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Butler]";
+			mes "Oho... You actually did it? My brothers sent me a sign through the echoes of the dead. You helped them, which means I keep my word.";
+			next;
+			mes "[Butler]";
+			mes "Our leader, the great lord **Dracula**, is waiting for you on the **second floor** of this mansion. I am opening the passage for you.";
+			next;
+			mes "[Butler]";
+			mes "Go upstairs, and watch your words when you stand before him. Now, move along.";
+			set familiar, 90;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 90: Гравець уже отримав доступ до Дракули (Заглушка)
+	// -------------------------------------------------------------
+	if (familiar == 90) {
+		if (#gl_lang == 1) {
+			mes "[Дворецький]";
+			mes "Ти вже набрид мені своїми вештаннями! Я ж чітко сказав, куди тобі йти і до кого.";
+			mes "Твій шлях лежить на другий поверх, до володаря Дракули. Не випробуй моє терпіння ще раз, у мене повно пилу на старовинних меблях!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Butler]";
+			mes "You are already annoying me with your endless wandering! I told you exactly where to go and who to see.";
+			mes "Your path leads to the second floor, to Lord Dracula. Do not test my patience again, I have plenty of dust to clean on this ancient furniture!";
+			close;
+		}
+	}
+}
+
+morocc,249,290,4	script	Faust	52,{
+
+	// -------------------------------------------------------------
+	// ЗАХИСТ СЮЖЕТУ: Гравець прийшов без направлення від Дворецького
+	// -------------------------------------------------------------
+	if (familiar != 5) {
+		if (#gl_lang == 1) {
+			mes "[Фауст]";
+			mes "Чого вилупився, шматок м'яса? Сонце мізки розплавило?";
+			mes "Іди-но ти глибоко в дупу і не застуй мені світло. Мені немає про що з тобою балакати!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Faust]";
+			mes "What are you staring at, piece of flesh? Did the sun melt your brains?";
+			mes "Go deep into hell and get out of my light. I have absolutely nothing to say to you!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ЗАГЛУШКА: Квест цього брата вже виконано (bro_1 == 1)
+	// -------------------------------------------------------------
+	if (bro_1 == 1) {
+		if (#gl_lang == 1) {
+			mes "[Фауст]";
+			mes "Дякую ще раз за шубу, чуваче. Бувай здоров і передавай привіт моєму брату в Ніфльхеймі, якщо знову туди завітаєш.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Faust]";
+			mes "Thanks again for the coat, dude. Take care and send my regards to my brother in Niflheim if you visit him again.";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 1: Перша розмова та видача завдання (якщо bro_1 ще не розпочато)
+	// -------------------------------------------------------------
+	if (bro_1 == 0) {
+		if (#gl_lang == 1) {
+			mes "[Фауст]";
+			mes "Хм? Що це за потойбічний сморід від тебе віє? Стривай... Це ж енергія мого брата з міста мертвих!";
+			mes "Я так радий чути, що дух мого старого брата живе далі в тому похмурому світі... Ну, наскільки це можливо для мерця. Як він там?";
+			next;
+			// Гравець відповідає
+			mes "[" + strcharinfo(0) + "]";
+			mes "З ним усе в порядку, якщо можна так сказати. Власне, я тут у справі. Ваш брат допомагає мені з пошуками, але натомість попросив допомогти трьом його братам у світі живих, щоб він міг підказати мені шлях далі.";
+			next;
+			mes "[Фауст]";
+			mes "Охо, старий проноза навіть на тому світі примудряється крутити справи через живих! Ну добре, раз ти від нього, я не буду проти твоєї допомоги.";
+			mes "Мені потрібна одна річ. Принеси мені **Шубу (Coat)**, яку роблять із хутра морських котиків.";
+			next;
+			// Гравець запитує
+			mes "[" + strcharinfo(0) + "]";
+			mes "Шубу? Тут, посеред спекотної пустелі Морок? Навіщо вона вам?";
+			next;
+			mes "[Фауст]";
+			mes "Е-е, хлопче, часи зараз не певні, і всяке може статися. Бачиш, сонце світить зовсім не так, як завше? Похолодання може прийти зненацька, а хто знає, що буде далі в цьому проклятому світі.";
+			mes "Коротше, мені потрібен **Coat**. Принесеш — я віддячу і подам брату знак, що ти свій. До зустрічі!";
+			set bro_1, 2; // Переводимо квест брата на стадію очікування предмету
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Faust]";
+			mes "Hm? What is that otherworldly stench coming from you? Wait... That's the energy of my brother from the city of the dead!";
+			mes "I am so glad to know that the spirit of my old brother lives on in that grim world... Well, as much as possible for a dead man. How is he?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "He's fine, if you can say so. Actually, I am here on business. Your brother is helping me with a search, but in return, he asked me to help his three brothers in the living world so he could guide me further.";
+			next;
+			mes "[Faust]";
+			mes "Oho, the old rogue still manages to run businesses through the living even in the afterlife! Well, since you came from him, I won't mind your help.";
+			mes "I need something. Bring me a **Coat**, the one made from sea otter fur.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "A coat? Here, in the middle of the burning Morroc desert? What do you need it for?";
+			next;
+			mes "[Faust]";
+			mes "Uh, kid, times are uncertain now, and anything can happen. See how the sun shines differently than usual? A sudden cold wave might hit, and who knows what will happen next in this cursed world.";
+			mes "Anyway, I need a **Coat**. Bring it to me, and I'll thank you and send a sign to my brother that you're one of us. See ya!";
+			set bro_1, 2;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 2: Перевірка наявності предмета Coat (ID: 2310)
+	// -------------------------------------------------------------
+	if (bro_1 == 2) {
+		if (countitem(2310) < 1) {
+			if (#gl_lang == 1) {
+				mes "[Фауст]";
+				mes "Я все ще чекаю на свою шубу. Пам'ятай, мені потрібен **Coat** (з хутра морських котиків).";
+				mes "Не барися, поки пустелю не засипало снігом, хе-хе.";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Faust]";
+				mes "I am still waiting for my coat. Remember, I need a **Coat** (made from sea otter fur).";
+				mes "Don't be slow before the desert gets covered in snow, heh-heh.";
+				close;
+			}
+		}
+
+		// Якщо шуба є в інвентарі — забираємо її та завершуємо квест цього брата
+		delitem 2310, 1;
+		set bro_1, 1; // Умова успіху для Дворецького виконана!
+
+		if (#gl_lang == 1) {
+			mes "[Фауст]";
+			mes "*Оглядає шубу* ...О так, чудова якість! Хутро м'якеньке, у ній я точно не замерзну, що б не сталося.";
+			mes "Дякую тобі, добрий мандрівнику! Я зараз же відправлю ментальний знак своєму брату в маєток, що ти виконав моє прохання.";
+			mes "Удачі тобі в твоїх пошуках правди!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Faust]";
+			mes "*Examines the coat* ...Oh yes, wonderful quality! The fur is soft, I definitely won't freeze in this, no matter what happens.";
+			mes "Thank you, kind traveler! I will immediately send a mental sign to my brother in the mansion that you've fulfilled my request.";
+			mes "Good luck with your search for the truth!";
+			close;
+		}
+	}
+}
+
+
+cmd_in02,187,89,4	script	Derek	808,{
+
+	// -------------------------------------------------------------
+	// ЗАХИСТ СЮЖЕТУ: Гравець прийшов без направлення від Дворецького
+	// -------------------------------------------------------------
+	if (familiar != 5) {
+		if (#gl_lang == 1) {
+			mes "[Дерек]";
+			mes "*Ік*... А ти ще що за опудало?! Звідки ти... *ік*... звалився на мою голову?";
+			mes "Іди геть, не заважай мені карти тасувати! Вали звідсіля, поки я не натравив на тебе охорону казино, невдахо!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Derek]";
+			mes "*Hic*... And who the hell are you?! Where did you... *hic*... drop from?";
+			mes "Go away, don't interrupt my card shuffling! Get out of here before I call the casino security on you, loser!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ЗАГЛУШКА: Квест цього брата вже виконано (bro_2 == 1)
+	// -------------------------------------------------------------
+	if (bro_2 == 1) {
+		if (#gl_lang == 1) {
+			mes "[Дерек]";
+			mes "*Ік*... Ооо, мій найкращий друг! Дякую за монети, сьогодні фортуна точно... *ік*... на моєму боці!";
+			mes "Братусі в Ніфльхеймі я вже все передав, лети далі!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Derek]";
+			mes "*Hic*... Ooo, my best friend! Thanks for the coins, today fortune is definitely... *hic*... on my side!";
+			mes "I already sent word to my bro in Niflheim, fly away!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 1: Перша розмова та пропозиція грошей
+	// -------------------------------------------------------------
+	if (bro_2 == 0) {
+		if (#gl_lang == 1) {
+			mes "[Дерек]";
+			mes "Опа-ча... *ік*... Ну й духан від тебе! Стривай, це ж... пахне цвинтарем і моїм занудним братиком-дворецьким! Хе-хе!";
+			mes "Нічого собі! Значить, мій старий живий... ну, тобто мертвий, але при ділі! Радий чути, що він там не згнив остаточно.";
+			next;
+			// Гравець відповідає (Фразу змінено, щоб не видати сюжет)
+			mes "[" + strcharinfo(0) + "]";
+			mes "Так, він живий, якщо це можна так назвати. Власне, він допомагає мені у пошуках відповідей, але попросив спершу завітати до вас. Мені потрібно, щоб ви просто подали йому знак, що я допоміг вам у скруті.";
+			next;
+			mes "[Дерек]";
+			mes "Знак подати? *Ік*... Ну, це можна! Але бачиш, яка халепа... Справи в картах зараз йдуть кепсько, в горлі сухо, а закусити взагалі нема чим.";
+			mes "Зроби добру справу, принеси мені з бару повний мішок елітного алкоголю та купу смачної закуски, бо я зараз тут всохну!";
+			next;
+			// Гравець пропонує альтернативу
+			mes "[" + strcharinfo(0) + "]";
+			mes "Слухайте, а може... я просто дам вам грошей, і ви самі купите все, що душі завгодно?";
+			next;
+			mes "[Дерек]";
+			mes "Що?! ГРОШІ?! *Ік*... Оце ти видав! Оце ти голова! Звісно, давай готівку, я буду просто щасливий! Навіщо мені той холодний алкоголь, коли я можу одразу з головою піти в азартні ігри!";
+			mes "Давай сюди **100,000 Zeny**, і я миттєво шепну брату, що ти світова людина!";
+			set bro_2, 2; // Переводимо квест на стадію очікування грошей
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Derek]";
+			mes "Opa... *hic*... What a smell! Wait, that... smells like a graveyard and my boring butler brother! Heh-heh!";
+			mes "Wow! So my old man is alive... well, dead, but busy! Glad to hear he hasn't completely rotted away.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Yes, he's alive, if you can call it that. Actually, he is helping me find some answers, but he asked me to visit you first. I just need you to send him a sign that I helped you out in a pinch.";
+			next;
+			mes "[Derek]";
+			mes "Send a sign? *Hic*... Well, that's possible! But you see, what a mess... My card games are going badly, my throat is dry, and I have absolutely nothing to eat.";
+			mes "Do a good deed, bring me a whole bag of premium alcohol and a bunch of tasty snacks from the bar, or I'm gonna dry up here!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Listen, how about... I just give you some money, and you buy whatever your heart desires yourself?";
+			next;
+			mes "[Derek]";
+			mes "What?! MONEY?! *Hic*... Now that's a brilliant idea! Of course, give me the cash, I'll be absolutely thrilled! Why bother with cold drinks when I can jump straight into high-stakes gambling!";
+			mes "Give me **100,000 Zeny**, and I'll instantly whisper to my bro that you're a great person!";
+			set bro_2, 2;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 2: Перевірка наявності 100,000 Zeny
+	// -------------------------------------------------------------
+	if (bro_2 == 2) {
+		if (Zeny < 100000) {
+			if (#gl_lang == 1) {
+				mes "[Дерек]";
+				mes "*Ік*... Шурхіт монет — це найкраща музика. Але у тебе в кишенях якось надто тихо.";
+				mes "Де мої **100,000 Zeny**? Повертайся, коли розживешся золотишком, а я поки карти перетасую...";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Derek]";
+				mes "*Hic*... The rustle of coins is the best music. But your pockets are way too quiet.";
+				mes "Where is my **100,000 Zeny**? Come back when you get some gold, and I'll shuffle the cards in the meantime...";
+				close;
+			}
+		}
+
+		// Якщо гроші є — забираємо їх та завершуємо квест
+		set Zeny, Zeny - 100000;
+		set bro_2, 1; // Умова успіху для другого брата виконана!
+
+		if (#gl_lang == 1) {
+			mes "[Дерек]";
+			mes "*Жадібно перераховує зені* ...Оооо так! Новенькі, блискучі! Ну все, мандрівнику, тепер я точно відіграюся! *ік*";
+			mes "Дякую! Я вже відправляю брату-дворецькому свій п'яний, але дуже переконливий ментальний привіт про те, який ти крутий.";
+			mes "Удачі у твоїх справах, бувай! Охороно, ще віскі мені за цей столик!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Derek]";
+			mes "*Greedily counts zeny* ...Oooo yes! Brand new, shiny! Well, traveler, now I'm definitely going to win it all back! *hic*";
+			mes "Thanks! I'm already sending my butler brother a drunk but very convincing mental hello about how cool you are.";
+			mes "Good luck with your business, bye! Security, more whiskey to this table!";
+			close;
+		}
+	}
+}
+
+
+payon_in02,28,31,4	script	Menhel	48,{
+
+	// -------------------------------------------------------------
+	// ЗАХИСТ СЮЖЕТУ: Гравець прийшов без направлення від Дворецького
+	// -------------------------------------------------------------
+	if (familiar != 5) {
+		if (#gl_lang == 1) {
+			mes "[Менхель]";
+			mes "Вітаю вас, шановний мандрівнику. Прошу вибачення, але наразі я дуже зайнятий тренуванням молодих лучників гільдії.";
+			mes "Якщо у вас немає до мене невідкладних офіційних справ, я змушений попросити вас не відволікати мене. Гарного дня.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Menhel]";
+			mes "Greetings, honorable traveler. I apologize, but I am currently very busy training the young archers of the guild.";
+			mes "If you do not have urgent official business with me, I must kindly ask you not to distract me. Have a wonderful day.";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ЗАГЛУШКА: Квест цього брата вже виконано (bro_3 == 1)
+	// -------------------------------------------------------------
+	if (bro_3 == 1) {
+		if (#gl_lang == 1) {
+			mes "[Менхель]";
+			mes "Ще раз дякую вам за чудовий капелюх. Він уже став у пригоді під час моїх роздумів у лісах Пайона.";
+			mes "Я надіслав братові свою щиру подяку через потойбічні духовні канали. Нехай вітер завжди дме у спину вашим стрілам.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Menhel]";
+			mes "Thank you again for the wonderful hat. It has already proven useful during my meditations in the forests of Payon.";
+			mes "I have sent my sincere gratitude to my brother through the spiritual channels. May the wind always blow at the back of your arrows.";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 1: Перша розмова, історія про Саккат та видача завдання
+	// -------------------------------------------------------------
+	if (bro_3 == 0) {
+		if (#gl_lang == 1) {
+			mes "[Менхель]";
+			mes "О, які дивні енергетичні потоки я відчуваю від вашого вбрання... Вони пахнуть сирістю та туманами Ніфльхейму. Ба більше, я відчуваю родинне тепло мого старшого брата, що став дворецьким у потойбіччі.";
+			mes "Невже ви бачили його? Будь ласка, розкажіть, що привело вас до мене і як він там поживає?";
+			next;
+			// Гравець відповідає
+			mes "[" + strcharinfo(0) + "]";
+			mes "Так, я зустрів його в прадавньому маєтку. Він допомагає мені знайти відповіді на важливі для мене питання. Проте, перш ніж відкрити мені шлях далі, він попросив відвідати його трьох братів у світі живих і допомогти їм. Тому я тут і прошу вашої допомоги.";
+			next;
+			mes "[Менхель]";
+			mes "Яка дивовижна доля. Навіть ставши тінню минулого, мій брат турбується про нас і шукає можливості допомогти через живих мандрівників. Що ж, я з радістю підтримаю вас, але мені дійсно потрібна допомога з одним предметом.";
+			mes "Будь ласка, знайдіть і принесіть мені традиційний солом'яний капелюх — **Саккат (Sakkat)**.";
+			next;
+			// Гравець запитує
+			mes "[" + strcharinfo(0) + "]";
+			mes "Саккат? Вибачте за цікавість, але для чого майстру-лучнику цей капелюх?";
+			next;
+			mes "[Менхель]";
+			mes "Бачите... Шлях справжнього стрільця — це не лише влучність, а й абсолютне злиття з природою та тишею. Останнім часом сонце у лісах Пайона стало надто сліпучим, а дощі — непередбачуваними. Широкі поля цього капелюха ідеально захищають очі від бликів, дозволяючи бачити траєкторію вітру.";
+			mes "Окрім того, коли я медитую серед дерев, Саккат повністю приховує моє обличчя та погляд від диких звірів і ворогів, роблячи мене невидимою частиною лісу. Це мистецтво маскування.";
+			mes "Принесіть мені цей капелюх, і я миттєво відправлю братові духовну вістку про вашу доброту.";
+			set bro_3, 2; // Переводимо квест на стадію очікування предмету
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Menhel]";
+			mes "Oh, what strange energy currents I feel from your attire... They carry the scent of the dampness and mists of Niflheim. Moreover, I feel the familiar warmth of my elder brother, who became a butler in the afterlife.";
+			mes "Have you truly seen him? Please, tell me what brought you to me and how he is doing?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Yes, I met him in the ancient mansion. He is helping me find answers to questions that are important to me. However, before showing me the way further, he asked me to visit his three brothers in the living world and help them. That's why I am here, asking for your help.";
+			next;
+			mes "[Menhel]";
+			mes "What an amazing twist of fate. Even after becoming a shadow of the past, my brother cares for us and seeks ways to help through living travelers. Well, I will gladly support you, but I truly need help with one item.";
+			mes "Please, find and bring me a traditional straw hat — a **Sakkat**.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "A Sakkat? Forgive my curiosity, but why does a master archer need this hat?";
+			next;
+			mes "[Menhel]";
+			mes "You see... The path of a true archer is not only about accuracy, but also about absolute union with nature and silence. Lately, the sun in the forests of Payon has become too blinding, and the rains unpredictable. The wide brim of this hat perfectly protects the eyes from glare, allowing one to see the trajectory of the wind.";
+			mes "In addition, when I meditate among the trees, the Sakkat completely hides my face and gaze from wild beasts and enemies, making me an invisible part of the forest. This is the art of camouflage.";
+			mes "Bring me this hat, and I will immediately send a spiritual message to my brother about your kindness.";
+			set bro_3, 2;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 2: Перевірка наявності капелюха Sakkat (ID: 2280)
+	// -------------------------------------------------------------
+	if (bro_3 == 2) {
+		if (countitem(2280) < 1) {
+			if (#gl_lang == 1) {
+				mes "[Менхель]";
+				mes "Я все ще сподіваюся на вашу допомогу, друже. Мені потрібен капелюх **Саккат (Sakkat)** для моїх лісових тренувань.";
+				mes "Повертайтеся, як тільки знайдете його. Нехай благословення Пайона буде з вами.";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Menhel]";
+				mes "I am still hoping for your help, my friend. I need a **Sakkat** hat for my forest training.";
+				mes "Come back as soon as you find it. May the blessing of Payon be with you.";
+				close;
+			}
+		}
+
+		// Якщо Саккат є — забираємо його та завершуємо квест третього брата
+		delitem 2280, 1;
+		set bro_3, 1; // Умова успіху для третього брата виконана!
+
+		if (#gl_lang == 1) {
+			mes "[Менхель]";
+			mes "*Обережно бере капелюх і приміряє* ...Дивовижно. Робота майстра бездоганна, солому сплетено ідеально. Тепер сонце та зливи не завадять моїй стрілі знайти ціль.";
+			mes "Я безмежно вдячний вам за цей дарунок. Я щойно надіслав ментальну подяку моєму братові-дворецькому, висловивши йому шану за те, що він прислав до мене таку надійну людину.";
+			mes "Хай щастить вам у ваших подальших мандрах та пошуках істини!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Menhel]";
+			mes "*Gently takes the hat and tries it on* ...Amazing. The craftsman's work is flawless, the straw is woven perfectly. Now the sun and downpours will not stop my arrow from finding its target.";
+			mes "I am deeply grateful to you for this gift. I have just sent a mental thanks to my brother the butler, expressing my respect to him for sending such a reliable person to me.";
+			mes "Good luck in your future travels and search for the truth!";
+			close;
+		}
+	}
+}
+
+
+nif_in,104,180,4	script	Dracula	1389,{
+
+	// Якщо гравець не має дозволу від Дворецького (або обрав іншу фракцію) — миттєва смерть
+	if (familiar < 90 || lucan == 100 || order == 100) {
+		atcommand "@die";
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 100: Гравець ВЖЕ стал помічником (ФІНАЛЬНА ЗАГЛУШКА)
+	// -------------------------------------------------------------
+	if (familiar == 100) {
+		if (#gl_lang == 1) {
+			mes "[Лорд Дракула]";
+			mes "Вітаю тебе, мій вірний помічнику. Я щиро радо, що ти тепер у наших рядах.";
+			mes "Кожен твій крок відлунюється в моєму серці, і я відчуваю, як істинна правда починає потроху проростати крізь темряву людського невігластва та догми Святого Ордену.";
+			mes "Дякую тобі за твою віддану і чесну службу нашому спільному замислу. Продовжуй свій шлях у світі живих, збирай сили, і пам'ятай — тіні цього прадавнього маєтку завжди прикриють твоє плече у скрутну хвилину.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Lord Dracula]";
+			mes "Greetings, my loyal assistant. I am truly glad that you are now in our ranks.";
+			mes "Every step you take echoes in my heart, and I feel the truth beginning to break through the darkness of human ignorance and the dogmas of the Holy Order.";
+			mes "Thank you for your dedicated and faithful service to our shared cause. Continue your path in the living world, gather your strength, and remember that the shadows of this ancient mansion will always protect your back.";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ПЕРЕВІРКА ПОВТОРНОЇ РОЗМОВИ (якщо гравець раніше вже відмовився)
+	// -------------------------------------------------------------
+	if (familiar == 90 && dracula_met == 1) {
+		if (#gl_lang == 1) {
+			mes "[Лорд Дракула]";
+			mes "Я знову радий бачити тебе, мандрівнику. Твої роздуми та довгі дороги все ж привели тебе назад до моєї цитаделі...";
+			mes "Скажи мені відверто, чи змінив ти свою думку під гнітом несправедливості цього світу? Чи готовий ти тепер стати моїм вірним помічником, прийняти суть Фамільяра та відкрити світові очі на брехню Святого Ордену?";
+			next;
+			menu "Так, я все обдумав і готовий приєднатися до вас.", L_Accept, "Ні, я досі вважаю, що повинен йти власним шляхом.", L_Refuse;
+		}
+		if (#gl_lang < 1) {
+			mes "[Lord Dracula]";
+			mes "I am glad to see you again, traveler. Your reflections and long journeys brought you back to my citadel after all...";
+			mes "Tell me openly, have you changed your mind? Are you ready now to become my loyal assistant, accept the essence of a Familiar, and open the world's eyes?";
+			next;
+			menu "Yes, I have thought it over and I am ready to join.", L_Accept, "No, I still believe I must follow my own path.", L_Refuse;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 90: Перша головна розмова та історія
+	// -------------------------------------------------------------
+	if (familiar == 90 && dracula_met == 0) {
+		if (#gl_lang == 1) {
+			mes "[Лорд Дракула]";
+			mes "Хто наважився порушити віковий спокій моєї цитаделі і ступити на ці прокляті землі?..";
+			next;
+			mes "[Лорд Дракула]";
+			mes "Дивно. Смертний... Мій Дворецький пропустив тебе у внутрішні покої. Це означає лише одне: мої слуги втілили свої дріб'язкові земні бажання твоїми руками, а ти виявився наполегливим.";
+			mes "Кажи, людино, навіщо ти подолав цей кривавий шлях крізь тумани потойбіччя, поки твоє серце ще б'ється в грудях?";
+			next;
+
+			mes "[" + strcharinfo(0) + "]";
+			mes "Мій шлях був довгим і сповненим сумнівів. Все почалося в Пронтері, з розмови зі старим дідом. Він шепотів про прадавні часи, про які замовчують сучасні літописи, і згадав легенди, що не давали мені спокою.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Відтоді я почав шукати істину. Я збирав по крихтах заборонені хроніки, читав старовинні сувої та слухав таємні перекази. Усі вони твердили одне й те саме: три великі сили — Лікани, Фамільяри та Святий Орден — занурилися у нескінченну війну.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "У людських книгах вас та вашу сутність змальовують як абсолютне, безжальне зло, що прагне лише крові та руйнувань. Проте, читаючи між рядків, я відчув фальш. Мені стало щиро прикро, що люди, Лікани та Фамільяри не можуть жити поруч без цієї вічної, сліпої ворожнечі. Я відмовився вірити догмам Святого Ордену і прийшов сюди, щоб почути правду з перших вуст.";
+			next;
+
+			mes "[Лорд Дракула]";
+			mes "Ха-ха-ха... Дивовижно. Воістину дивовижно!";
+			mes "За сотні років мого ув'язнення в цих сутінках я ще не зустрічав смертного з настільки гострим розумом і чистим поглядом. Мені приємно, що у світі живих ще залишився хтось, здатний мислити глибше, ніж засліплений фанатизмом натовп.";
+			next;
+			mes "[Лорд Дракула]";
+			mes "Слухай же мою істину, людино. Я не обирав долю чудовиська. Я не з власної волі став цим нічним вампіром, навіки замкненим у мороці. Колись це було прадавнє прокляття — страшна ціна, яку мені довелося заплатити за захист моїх земель та тих, кого я любив, від неминучої загибелі.";
+			next;
+			mes "[Лорд Дракула]";
+			mes "Щоб не збожеволіти від самотності та підтримувати баланс сил, я створив Фамільярів. Вони задумувалися як мої вірні супутники, мій щит, моє продовження та опора. Їхнім обов'язком було захищати цей маєток, служити мені та нести світом істинну історію, оберігаючи таємниці від викривлень.";
+			next;
+			mes "[Лорд Дракула]";
+			mes "Але, на жаль, навіть потойбічна вірність має тріщини. Слабкість духу, жадоба влади та відверта дурість деяких моїх слуг призвели до катастрофи. Вони порушили мою заборону, вийшли у світ живих і почали творити безчинства, піддавшись ницім інстинктам.";
+			next;
+			mes "[Лорд Дракула]";
+			mes "Саме через їхні безглузді й жорстокі вчинки людство зненавиділо нас. Святий Орден скористався цим, щоб оголосити священну війну, підняти мечі та підім'яти під себе розум смертних. Тепер я ув'язнений тут, змушений спокутувати та виправляти помилки тих, хто зрадив мій початковий, мирний замисел.";
+			next;
+			mes "[Лорд Дракула]";
+			mes "Я бачу в твоїх очах вогонь справедливості. Мені потрібні такі, як ти. Я був би щиро радий, якби ти виявив свою вільну волю, приєднався до мене, став моїм надійним помічником і допоміг повернути правду в цей засліплений брехнею світ. Ти готовий зробити крок назустріч темряві та стати Фамільяром?";
+			next;
+
+			menu "Так, я згоден стати вашим помічником і нести правду світом.", L_Accept, "Ні, я маю відмовитись. Мій шлях лежить осторонь.", L_Refuse;
+		}
+		if (#gl_lang < 1) {
+			mes "[Lord Dracula]";
+			mes "Who dares to disturb the eternal peace of my citadel and step onto these cursed lands?..";
+			next;
+			mes "[Lord Dracula]";
+			mes "A mortal? My Butler let you into the inner chambers... Speak, human, why have you traveled this bloody path through the mists of the afterlife?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Human books paint you and your essence as absolute evil, but I refused to believe the blind dogmas of the Holy Order. It saddens me that humans, Lycans, and Familiars cannot coexist without this eternal enmity. I came to hear the truth from you.";
+			next;
+			mes "[Lord Dracula]";
+			mes "I created the Familiars to be my loyal companions. But the weakness and foolishness of some of my servants led them to commit atrocities in the living world. Because of their stupidity, the Holy Order declared a holy war.";
+			next;
+			mes "[Lord Dracula]";
+			mes "I see the fire of justice in your eyes. Are you ready to become a Familiar?";
+			next;
+			menu "Yes, I agree to become your assistant and spread the truth.", L_Accept, "No, I must refuse. My path lies elsewhere.", L_Refuse;
+		}
+	}
+	end;
+
+	// -------------------------------------------------------------
+	// МІТКИ ДЛЯ ОБРОБКИ ВИБОРУ ГРАВЦЯ
+	// -------------------------------------------------------------
+L_Accept:
+	set familiar, 100;
+	getitem 15001, 1; 
+	if (#gl_lang == 1) {
+		mes "[Лорд Дракула]";
+		mes "Чудовий і сміливий вибір. Віднині ти — частина моєї родини, мій щит і мій голос у світі живих, де панує брехня Святого Ордену.";
+		mes "Візьми цей знак приналежності до нас. Неси нашу правду гордо, розвіюй туман невігластва і нікому не дозволяй зламати твою волю. Твоя служба починається зараз.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Lord Dracula]";
+		mes "A magnificent and brave choice. From this day forth, you are part of my family, my voice in the living world. Take this token of our bond. Stand tall, and let your service begin.";
+		close;
+	}
+
+L_Refuse:
+	set dracula_met, 1; 
+	if (#gl_lang == 1) {
+		mes "[Лорд Дракула]";
+		mes "Шкода... Дуже шкода. Твій дивовижний розум міг би змінити хід історії та відкрити очі тисячам невинних, але ти обираєш шлях самітника.";
+		mes "Іди з миром, мандрівнику. Я не стану карати тебе за твою чесність, адже поважаю твій вибір. Але пам'ятай — мої двері та моє серце не будуть відчинені вічно. Якщо передумаєш — повертайся.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Lord Dracula]";
+		mes "A pity... Your incredible mind could have changed history, but you choose to stay aside. Go in peace, traveler. I respect your honesty. But remember, my doors will not remain open forever.";
+		close;
+	}
+}

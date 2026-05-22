@@ -103,3 +103,5 @@ prt_castle,68,153,0	warp	prtca10-1	1,1,prt_castle,42,145
 prt_castle,75,107,0	warp	prtca12	2,3,prt_castle,95,107
 prt_castle,82,29,0	warp	prtca11-1	1,1,prt_castle,56,29
 prt_castle,92,107,0	warp	prtca12-1	2,3,prt_castle,72,107
+
+prt_in,128,43,0	warp	prt55-1	1,2,prontera,238,43

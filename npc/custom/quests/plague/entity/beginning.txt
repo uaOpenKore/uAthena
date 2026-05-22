@@ -1,0 +1,1425 @@
+// Місцезнаходження: околиця Пронтери (prontera 270, 210)
+// Назва NPC: Старий Торвальд
+// Початок здобуття сутності
+prontera,146,134,0	script	Old Thorvald	766,{
+
+	// =============================================================
+	// НОВИЙ ФУНКЦІОНАЛ: ОЧИЩЕННЯ ПАМ'ЯТІ (RESET КВЕСТІВ ЗА 10M ZENY)
+	// =============================================================
+	if (lycan == 100 || familiar == 100 || order == 100) {
+		if (#gl_lang == 1) {
+			mes "[Старий Торвальд]";
+			mes "Охо-хо... Очі мої старі, але серце відчуває. Бачу, ти таки знайшов те, що шукав, синку. Від тебе віє неймовірною силою однієї з прадавніх сутностей Мідгарда.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Так, Торвальде. Я пройшов довгий шлях, дізнався всю правду про цю війну і зробив свій остаточний вибір.";
+			next;
+			mes "[Старий Торвальд]";
+			mes "Правда — це важкий тягар, дитино. Скажи мені відверто... чи не жалкуєш ти про свій вибір? Чи не гнітить твою душу обраний шлях?";
+			mes "Знаєш, якщо колись ти відчуєш, що зробив помилку, або вантаж минулого стане занадто важким... я можу тобі допомогти.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Допомогти? Але як старий відшельник може змінити те, що вже сталося?";
+			next;
+			mes "[Старий Торвальд]";
+			mes "Прадавня магія розуму, синку. За **10,000,000 Zeny** я можу повністю стерти твою пам'ять про цей шлях. Я очищу твою голову від сумнівів, і ти зможеш почати все з чистого аркуша, ніби нічого й не було.";
+			mes "Ну то як? Бажаєш забути все і повернути собі спокій?";
+			next;
+			
+			menu "Так, я втомився. Очисти мою пам'ять, я плачу.", T_Reset_Quest,
+			     "Ні, я не жалію про свій вибір. Моя доля залишається зі мною.", T_Refuse_Reset;
+		}
+		if (#gl_lang < 1) {
+			mes "[Old Thorvald]";
+			mes "Oho-ho... My eyes are old, but my heart can feel. I see you have found what you were looking for, son. You radiate the incredible power of one of the ancient entities of Midgard.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Yes, Thorvald. I have traveled a long road, learned the whole truth about this war, and made my final choice.";
+			next;
+			mes "[Old Thorvald]";
+			mes "The truth is a heavy burden, child. Tell me honestly... do you regret your choice? Does the chosen path weigh heavily on your soul?";
+			mes "You know, if you ever feel that you made a mistake, or if the weight of the past becomes too heavy... I can help you.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Help me? But how can an old hermit change what has already happened?";
+			next;
+			mes "[Old Thorvald]";
+			mes "Ancient mind magic, son. For **10,000,000 Zeny**, I can completely erase your memory of this path. I will clear your head of doubts, and you can start anew, as if nothing ever happened.";
+			mes "So, what do you say? Do you wish to forget everything and reclaim your peace?";
+			next;
+			
+			menu "Yes, I am tired. Erase my memory, I will pay.", T_Reset_Quest,
+			     "No, I don't regret my choice. My destiny stays with me.", T_Refuse_Reset;
+		}
+	}
+
+	// --- ПЕРЕВІРКА ПОВТОРНОГО ЗВЕРНЕННЯ (entity == 1) ---
+	if (entity > 0) {
+		if (#gl_lang == 1) {
+			mes "[Старий Торвальд]";
+			mes "Я вже розповів тобі все, що знав, синку. ";
+			mes "Може ти знайдеш щось у старих рукописах Пронтери...";
+			mes "Темрява згущується, бережи себе і готуйся до того, що йде...";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Old Thorvald]";
+			mes "I have already told you everything I knew, son.";
+			mes "Maybe you will find something in the old manuscripts of Prontera...";
+			mes "The darkness is gathering, take care of yourself and prepare for what is coming...";
+			close;
+		}
+	}
+
+	// --- ПОЧАТОК ДІАЛОГУ ---
+	
+	// Репліка 1 (Гравець)
+	if (#gl_lang == 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Дивно... Ніколи раніше не звертав уваги, але мне здається, що в Пронтері стало якось темніше. Сонце вже не так сяє, а тіні навколо стали довшими й холоднішими...";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Strange... I've never noticed it before, but it feels like it has gotten darker in Prontera. The sun doesn't shine the same way anymore, and the shadows around have become longer and colder...";
+		next;
+	}
+	
+	// Репліка 2 (Старий Торвальд)
+	if (#gl_lang == 1) {
+		mes "[Старий Торвальд]";
+		mes "Хе-хе... Очі тебе не обманюють, дитино. Це ніч повертається до Мідгарда. Справжня, первісна ніч.";
+		mes "Сонце ховає свій лик, і це може означати тільки одне — давнє зло, що спало у найтемніших кутках світу, знову прокидається...";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[Old Thorvald]";
+		mes "Heh-heh... Your eyes do not deceive you, child. This is the night returning to Midgard. A true, primeval night.";
+		mes "The sun hides its face, and this can only mean one thing — an ancient evil, which slept in the darkest corners of the world, is awakening again...";
+		next;
+	}
+	
+	// Репліка 3 (Гравець)
+	if (#gl_lang == 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Давнє зло... Про що ти ?";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "An ancient evil... What are you talking about?";
+		next;
+	}
+		
+	// Репліка 4 (Старий Торвальд - Лікани)
+	if (#gl_lang == 1) {
+		mes "[Старий Торвальд]";
+		mes "У часи, коли Мідгард ще не знав величі білих мурів, земля ця була розірвана між двома вічними жахами.";
+		mes "Зі сходу правили лікани — люті прислужники первісних перевертнів, які випалювали поселення під час повнолуння.";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[Old Thorvald]";
+		mes "In times when Midgard did not yet know the grandeur of white walls, this land was torn between two eternal horrors.";
+		mes "From the east ruled the lycans — fierce servants of primal werewolves, who burned down settlements during the full moon.";
+		next;
+	}
+	
+	// Репліка 5 (Старий Торвальд - Фамільяри та Брінгільд)
+	if (#gl_lang == 1) {
+		mes "[Старий Торвальд]";
+		mes "Захід же тримали в страху фамільяри — витончені, але безжальні слуги вампірських лордів, які випивали з королівства саме життя, наче вино.";
+		mes "Іскра надії спалахнула там, де її ніхто не чекав — у серці молодої войовниці на ім'я Брінгільд...";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[Old Thorvald]";
+		mes "The west was held in fear by familiars — elegant but ruthless servants of vampire lords, who drank the very life out of the kingdom like wine.";
+		mes "A spark of hope ignited where no one expected it — in the heart of a young warrior named Brynhild...";
+		next;
+	}
+	
+	// Репліка 6 (Гравець)
+	if (#gl_lang == 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Брінгільд? Це неймовірно... Торвальде, а що було далі? Що ви ще пам'ятаєте про ті часи?";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Brynhild? This is incredible... Thorvald, what happened next? What else do you remember about those times?";
+		next;
+	}
+	
+	// Репліка 7 (Старий Торвальд - Фінал)
+	if (#gl_lang == 1) {
+		mes "[Старий Торвальд]";
+		mes "Більше нічого, синку... Нічого.";
+		mes "Моя пам'ять уже не та, та й історія ця — лише відлуння минулого. Це те, що розповідав мені мій дід, а його діду — його дід, а тому діду — ще його дід.";
+		mes "Правда це чи легенда? Хто знає... Але темрява вже тут. Бережи себе.";
+	}
+	if (#gl_lang < 1) {
+		mes "[Old Thorvald]";
+		mes "Nothing more, son... Nothing.";
+		mes "My memory is not what it used to be, and this story is just an echo of the past. This is what my grandfather told me, and his grandfather told his grandfather, and that grandfather was told by yet another grandfather.";
+		mes "Is it true or a legend? Who knows... But the darkness is already here. Take care of yourself.";
+	}
+	
+	// --- ЗАПИС СУТНОСТІ ТА ЗАКРИТТЯ ---
+	set entity, 1;
+	close;
+
+// =============================================================
+// МІТКИ ОБРОБКИ РЕЗЕТУ
+// =============================================================
+
+T_Refuse_Reset:
+	if (#gl_lang == 1) {
+		mes "[Старий Торвальд]";
+		mes "Що ж, це твій вибір і твоя доля. Носи свій титул гідно. Але якщо колись тобі все набридне — приходь, моя пропозиція залишиться в силі.";
+		close;
+	} else {
+		mes "[Old Thorvald]";
+		mes "Well, that is your choice and your destiny. Wear your title with dignity. But if you ever get tired of it all — come back, my offer will stand.";
+		close;
+	}
+
+T_Reset_Quest:
+	// 1. ПЕРЕВІРКА НАЯВНОСТІ ГРОШЕЙ
+	if (Zeny < 10000000) {
+		if (#gl_lang == 1) {
+			mes "[Старий Торвальд]";
+			mes "Хе-хе, синку... Прадавня магія розуму вимагає колосальних сил і дуже рідкісних інгредієнтів. У тебе немає **50,000,000 Zeny**.";
+			mes "Повертайся, коли збереш потрібну суму.";
+			close;
+		} else {
+			mes "[Old Thorvald]";
+			mes "Heh-heh, son... Ancient mind magic requires colossal energy and very rare ingredients. You do not have **50,000,000 Zeny**.";
+			mes "Return when you have the required amount.";
+			close;
+		}
+	}
+
+	// 2. ПЕРЕВІРКА НАЯВНОСТІ ПРЕДМЕТА САМЕ В ІНВЕНТАРІ
+	// 15001 - Орден, 15002 - Лікани, 15003 - Фамільяри
+	if (countitem(15001) < 1 && countitem(15002) < 1 && countitem(15003) < 1) {
+		if (#gl_lang == 1) {
+			mes "[Старий Торвальд]";
+			mes "Дивно... Я відчуваю твою силу, але не бачу твого знака приналежності до фракції у твоєму інвентарі.";
+			mes "Якщо ти зараз одягнув його на себе, то **зніми предмет і просто залиш його в інвентарі**. Тільки тоді я зможу провести ритуал і розірвати цей зв'язок.";
+			close;
+		} else {
+			mes "[Old Thorvald]";
+			mes "Strange... I feel your power, but I don't see your faction token in your inventory.";
+			mes "If you are currently wearing it, please **unequip the item and leave it in your inventory**. Only then can I perform the ritual and break this bond.";
+			close;
+		}
+	}
+
+	// Вилучаємо лише той предмет, який лежить в інвентарі
+	if (countitem(15001) > 0) delitem 15001, 1;
+	if (countitem(15002) > 0) delitem 15002, 1;
+	if (countitem(15003) > 0) delitem 15003, 1;
+
+	// Знімаємо оплату
+	set Zeny, Zeny - 10000000;
+
+	// 3. ПОВНЕ ОБНУЛЕННЯ ВСІХ ЗМІННИХ СЮЖЕТУ (Повний Вап-аут)
+	set lycan, 0;
+	set familiar, 0;
+	set order, 0;
+	set entity, 0;
+	
+	// Лікани
+	set balto_maze, 0;
+	set balto_done, 0;
+	set balto_count, 0;
+	set balto_mark1, 0;
+	set balto_mark2, 0;
+	set balto_mark3, 0;
+	set balto_mark4, 0;
+	set ragna_talk, 0;
+	set bjorn_talk, 0;
+	set lycan_refused, 0;
+	set fenrir_done, 0;
+	set romulus_done, 0;
+	set romulus_water_quest, 0;
+
+	// Святий Орден
+	set book, 0;
+	set order_story, 0;
+	set order_hunt, 0;
+	set count_wolf, 0;
+	set count_skel, 0;
+	set order_oaths_started, 0;
+	set order_oaths, 0;
+	set order_story, 0;
+
+	// Фамільяри
+	set dracula_met, 0;
+	set bro_1, 0;
+	set bro_2, 0;
+	set bro_3, 0;
+	set nif_npc_mask, 0;
+	set nif_annoy_count, 0;
+	set found_books, 0;
+	set eugene_secret, 0;
+	set gonryun_brother,0;
+
+	// Ефекти наочності (магічний спалах)
+	specialeffect2 8;
+
+	if (#gl_lang == 1) {
+		mes "[Старий Торвальд]";
+		mes "*Старець кладе долоні вам на скроні, шепочучи прадавні закляття. Ваші очі застилає біле сяйво, а спогади про вовчі зграї, вампірів та ордени розчиняються в повітрі...*";
+		next;
+		mes "[Старий Торвальд]";
+		mes "Дякую тобі за те, що ти пройшов цей шлях і взнав усю правду... Але тепер настав час її забути. Твій розум чистий.";
+		mes "Іди з миром, дитино. Твоя історія починається знову.";
+		close;
+	} else {
+		mes "[Old Thorvald]";
+		mes "*The old man places his palms on your temples, whispering ancient incantations. A white light blinds your eyes, and memories of wolf packs, vampires, and holy orders dissolve into thin air...*";
+		next;
+		mes "[Old Thorvald]";
+		mes "Thank you for walking this path and learning the whole truth... But now, it is time to forget it. Your mind is clear.";
+		mes "Go in peace, child. Your story begins anew.";
+		close;
+	}
+}
+
+// Місцезнаходження: бібліотека/приміщення Пронтери (prt_in 176, 66)
+// Назва NPC: Старі Полиці (прозорий спрайт 111)
+
+
+prt_in,176,66,0	script	Старі Полиці	111,{
+
+	// --- ПЕРЕВІРКА ЕТАПУ КВЕСТУ ---
+	// Якщо гравець ще не розмовляв з дідом
+	if (entity < 1) {
+		if (#gl_lang == 1) {
+			mes "[Старі Полиці]";
+			mes "Звичайні запилені книжкові полиці. Тут немає нічого цікавого для вас.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Old Shelves]";
+			mes "Ordinary dusty bookshelves. There is nothing of interest to you here.";
+			close;
+		}
+	}
+
+	// Якщо документ уже знайдено і прочитано (entity == 2 або більше)
+	if (entity >= 2) {
+		if (#gl_lang == 1) {
+			mes "[Старі Полиці]";
+			mes "Ви вже обшукали ці полиці і знайшли все, що могли. Треба дізнатися більше про колишнього головнокомандувача...";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Old Shelves]";
+			mes "You have already searched these shelves and found everything you could. You need to find out more about the former Commander-in-Chief...";
+			close;
+		}
+	}
+
+	// --- ЛОГІКА ТИЦЯННЯ (КЛІКІВ) ---
+	// Якщо змінна кліків ще не існує, задаємо її як 0
+	if (search_count < 1) {
+		set search_count, 1;
+	}
+
+	// Перші 4 кліки - пусті пошуки
+	if (search_count < 5) {
+		if (#gl_lang == 1) {
+			if (search_count == 1) mes "Ви гортаєте старі книжки... Нічого не знайдено.";
+			if (search_count == 2) mes "Купа пилу та старі звірти про податки. І тут нічого.";
+			if (search_count == 3) mes "Ви перевіряєте наступну полицю... Тільки порожні сувої.";
+			if (search_count == 4) mes "Пальці вже почорніли від бруду, але поки що жодного результату.";
+			set search_count, search_count + 1;
+			close;
+		}
+		if (#gl_lang < 1) {
+			if (search_count == 1) mes "You flip through old books... Nothing found.";
+			if (search_count == 2) mes "A pile of dust and old tax reports. Nothing here either.";
+			if (search_count == 3) mes "You check the next shelf... Only empty scrolls.";
+			if (search_count == 4) mes "Your fingers are already black with dirt, but no result yet.";
+			set search_count, search_count + 1;
+			close;
+		}
+	}
+
+	// --- 5-Й КЛІК: ЗНАХІДКА ДОКУМЕНТА ---
+	if (search_count == 5) {
+		if (#gl_lang == 1) {
+			mes "[Пошук]";
+			mes "Раптом у самому кінці полиці, за пильними, напівзгнілими сувоями, ваші пальці намацують дуже дивний документ...";
+			next;
+			menu "Прочитати документ", L_Read, "Відмовитись і піти", L_Cancel;
+		}
+		if (#gl_lang < 1) {
+			mes "[Search]";
+			mes "Suddenly, at the very end of the shelf, behind dusty, half-rotten scrolls, your fingers feel a very strange document...";
+			next;
+			menu "Read the document", L_Read, "Refuse and leave", L_Cancel;
+		}
+	}
+
+// --- БЛОК ЧИТАННЯ ---
+L_Read:
+	if (#gl_lang == 1) {
+		mes "[Старий Рукопис]";
+		mes "...по...вс..тання... кр..вавий орден... #$&@!";
+		mes "...війна... світло згасає... @#! первісні..";
+		mes "...велике зло... про..кляття... лік..ани та фам..іліари...";
+		mes "...замок Пронтера впаде, якщо... %^*$#...";
+		next;
+		mes "[Старий Рукопис]";
+		mes "Текст сильно пошкоджений часом і вологою, але в самому кінці документа ледь помітно стоїть підпис:";
+		mes "«..оловнокомандувач замку Пронтера, генерал Вальдемар»";
+		next;
+		mes "[" + strcharinfo(0) + "]";
+		mes "Генерал Вальдемар? Хм... Мені потрібно знайти когось, хто знає історію цього головнокомандувача або пам'ятає ті часи.";
+		// Скидаємо лічильник кліків для порядку, міняємо entity
+		set search_count, 0;
+		set entity, 2;
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Old Manuscript]";
+		mes "...re..bel..lion... bl..oody order... #$&@!";
+		mes "...war... light fades... @#! primal..";
+		mes "...great evil... cu..rse... lyc..ans and fam..iliars...";
+		mes "...Prontera castle will fall if... %^*$#...";
+		next;
+		mes "[Old Manuscript]";
+		mes "The text is severely damaged by time and moisture, but at the very end of the document, a signature is barely visible:";
+		mes "..ommander-in-Chief of Prontera Castle, General Waldemar";
+		next;
+		mes "[" + strcharinfo(0) + "]";
+		mes "General Waldemar? Hm... I need to find someone who knows the history of this Commander-in-Chief or remembers those times.";
+		set search_count, 0;
+		set entity, 2;
+		close;
+	}
+
+// --- БЛОК ВІДМОВИ ---
+L_Cancel:
+	if (#gl_lang == 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Зараз не час читати старе шмаття. Повернуся до цього пізніше.";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Now is not the time to read old rags. I will come back to this later.";
+		close;
+	}
+}
+/// Лицарі Пронтери 
+prt_castle,84,67,4	script	Knight Gilbert	734,{
+	// Якщо гравець ще не знайшов документ
+	if (entity < 2) {
+		if (#gl_lang == 1) { mes "[Гілберт]"; mes "Привіт. Я зараз зайнятий службою, йди собі."; close; }
+		if (#gl_lang < 1) { mes "[Gilbert]"; mes "Hello. I am busy with my duty right now, go away."; close; }
+	}
+	// Якщо квест уже пройдено далі
+	if (entity > 5) {
+		if (#gl_lang == 1) { mes "[Гілберт]"; mes "Тобі варто перевірити Альдебаран, як тобі й казали. Бувай."; close; }
+		if (#gl_lang < 1) { mes "[Gilbert]"; mes "You should check Aldebaran, as you were told. Goodbye."; close; }
+	}
+
+	// ПЕРЕВІРКА ПОВТОРНОЇ РОЗМОВИ З ЦИМ ЖЕ НПЦ:
+	// Використовуємо біт 1 (всього для 4-х нпц будуть біти 1, 2, 4, 8)
+	if (talked_officers & 1) {
+		if (entity <= 4) {
+			if (#gl_lang == 1) {
+				mes "[Гілберт]";
+				mes "Я ж казав тобі, що нічого не знаю про Вальдемара. Запитай когось іншого.";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Gilbert]";
+				mes "I already told you, I know nothing about Waldemar. Ask someone else.";
+				close;
+			}
+		}
+	}
+
+	// --- ДІАЛОГ КВЕСТУ ---
+	if (#gl_lang == 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Вітаю. Чи чули ви щось про Генерала Вальдемара, який керував воїнами після заснування ордену?";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Greetings. Have you heard anything about General Waldemar, who led the warriors after the foundation of the order?";
+		next;
+	}
+
+	// ЛОГІКА: Якщо це один з перших трьох NPC (entity від 2 до 4)
+	if (entity >= 2) {
+		if (entity <= 4) {
+			if (#gl_lang == 1) {
+				mes "[Гілберт]";
+				mes "Вальдемар? Хм... Я знаю багатьох офіцерів Пронтери, але це ім'я чую вперше. Навряд чи такий генерал служив у наші часи. Звернись до когось іншого.";
+				// Записуємо, що з Гілбертом (біт 1) уже поговорили
+				set talked_officers, talked_officers | 1;
+				set entity, entity + 1;
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Gilbert]";
+				mes "Waldemar? Hm... I know many officers of Prontera, but this is the first time I hear this name. It's unlikely such a general served in our time. Ask someone else.";
+				// Записуємо, що з Гілбертом (біт 1) уже поговорили
+				set talked_officers, talked_officers | 1;
+				set entity, entity + 1;
+				close;
+			}
+		}
+	}
+
+	// ЛОГІКА: Якщо це фінальний четвертий NPC (entity == 5)
+	if (entity == 5) {
+		if (#gl_lang == 1) {
+			mes "[Гілберт]";
+			mes "Генерал Вальдемар?! Зачекай... Старі легенди Пронтери... Згадав!";
+			mes "Колись дуже давно мій наставник розповідав мені про великого лідера офіцерів, якого звали Вальдемар.";
+			next;
+			mes "[Гілберт]";
+			mes "Мій наставник уже давно покинув Пронтеру. Зараз його треба шукара десь біля величних замків Альдебарана. Вирушай туди, якщо хочеш дізнатися правду.";
+			// Квест виконано, скидаємо маску розмов для чистоти бази даних
+			set talked_officers, 0;
+			set entity, 6;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Gilbert]";
+			mes "General Waldemar?! Wait... The old legends of Prontera... I remember!";
+			mes "A long time ago, my mentor told me about a great leader of warriors named Waldemar.";
+			next;
+			mes "[Gilbert]";
+			mes "My mentor left Prontera long ago. Now you should look for him somewhere near the grand castles of Aldebaran. Go there if you want to find out the truth.";
+			// Квест виконано, скидаємо маску розмов для чистоти бази даних
+			set talked_officers, 0;
+			set entity, 6;
+			close;
+		}
+	}
+}
+
+prt_castle,120,67,4	script	Knight Raymond	733,{
+	// Якщо гравець ще не знайшов документ
+	if (entity < 2) {
+		if (#gl_lang == 1) { mes "[Раймонд]"; mes "Я на варті, не заважай мені. Йди собі."; close; }
+		if (#gl_lang < 1) { mes "[Raymond]"; mes "I am on guard, do not disturb me. Go away."; close; }
+	}
+	// Якщо квест уже пройдено далі
+	if (entity > 5) {
+		if (#gl_lang == 1) { mes "[Раймонд]"; mes "Тобі вже дали підказку про Альдебаран. Не гай тут час."; close; }
+		if (#gl_lang < 1) { mes "[Raymond]"; mes "You have already been given a clue about Aldebaran. Don't waste time here."; close; }
+	}
+
+	// ПЕРЕВІРКА ПОВТОРНОЇ РОЗМОВИ З ЦИМ ЖЕ НПЦ:
+	// Використовуємо біт 2 для другого офіцера
+	if (talked_officers & 2) {
+		if (entity <= 4) {
+			if (#gl_lang == 1) {
+				mes "[Раймонд]";
+				mes "Я вже відповів, що нічого не чув про Вальдемара. Шукай далі.";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Raymond]";
+				mes "I already answered that I heard nothing about Waldemar. Keep looking.";
+				close;
+			}
+		}
+	}
+
+	// --- ДІАЛОГ КВЕСТУ ---
+	if (#gl_lang == 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Вітаю. Чи чули ви щось про Генерала Вальдемара, який керував воїнами після заснування ордену?";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Greetings. Have you heard anything about General Waldemar, who led the warriors after the foundation of the order?";
+		next;
+	}
+
+	// ЛОГІКА: Якщо це один з перших трьох NPC (entity від 2 до 4)
+	if (entity >= 2) {
+		if (entity <= 4) {
+			if (#gl_lang == 1) {
+				mes "[Раймонд]";
+				mes "Вальдемар? Ні, у наших військових архівах немає командувача з таким ім'ям. Можливо, він служив ще до того, як звели ці стіни. Тобі варто опитати інших.";
+				// Записуємо біт 2 для Раймонда
+				set talked_officers, talked_officers | 2;
+				set entity, entity + 1;
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Raymond]";
+				mes "Waldemar? No, there is no commander by that name in our military archives. Perhaps he served even before these walls were built. You should question others.";
+				// Записуємо біт 2 для Раймонда
+				set talked_officers, talked_officers | 2;
+				set entity, entity + 1;
+				close;
+			}
+		}
+	}
+
+	// ЛОГІКА: Якщо це фінальний четвертий NPC (entity == 5)
+	if (entity == 5) {
+		if (#gl_lang == 1) {
+			mes "[Раймонд]";
+			mes "Генерал Вальдемар?! Стривай, це ім'я звучить наче з прадавніх переказів...";
+			mes "Згадав! Багато років тому мій старий наставник розповідав мені про легендарного тактика, якого звали Вальдемар.";
+			next;
+			mes "[Раймонд]";
+			mes "Мій наставник давно відійшов від справ і покинув столицю. Тобі слід шукати його поблизу великих замків Альдебарана, якщо ти справді хочеш розплутати цю таємницю.";
+			// Квест виконано, очищаємо маску
+			set talked_officers, 0;
+			set entity, 6;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Raymond]";
+			mes "General Waldemar?! Wait, that name sounds like it's from ancient legends...";
+			mes "I remember! Many years ago, my old mentor told me about a legendary tactician named Waldemar.";
+			next;
+			mes "[Raymond]";
+			mes "My mentor has long retired and left the capital. You should look for him near the grand castles of Aldebaran if you truly want to unravel this mystery.";
+			// Квест виконано, очищаємо маску
+			set talked_officers, 0;
+			set entity, 6;
+			close;
+		}
+	}
+}
+
+prt_castle,173,104,4	script	Knight Brandon	707,{
+	// Якщо гравець ще не знайшов документ
+	if (entity < 2) {
+		if (#gl_lang == 1) { mes "[Брандон]"; mes "Якого біса ти тут вештаєшся? Справа державної ваги, геть звідси, йди собі!"; close; }
+		if (#gl_lang < 1) { mes "[Brandon]"; mes "Why the hell are you loitering here? This is a matter of state importance, get out of here, go away!"; close; }
+	}
+	// Якщо квест уже пройдено далі
+	if (entity > 5) {
+		if (#gl_lang == 1) { mes "[Брандон]"; mes "Я сказав тобі забиратися в Альдебаран! Зникни з моїх очей!"; close; }
+		if (#gl_lang < 1) { mes "[Brandon]"; mes "I told you to get lost to Aldebaran! Get out of my sight!"; close; }
+	}
+
+	// ПЕРЕВІРКА ПОВТОРНОЇ РОЗМОВИ З ЦИМ ЖЕ НПЦ (Злість при повторному зверненні)
+	// Використовуємо біт 4 для третього офіцера
+	if (talked_officers & 4) {
+		if (entity <= 4) {
+			if (#gl_lang == 1) {
+				mes "[Брандон]";
+				mes "Ти що, тупий?! Я вже сказав, що ніякого Вальдемара не знаю! Склей пельку і забирайся геть, поки я не кинув тебе до в'язниці!";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Brandon]";
+				mes "Are you stupid?! I already told you I don't know any Waldemar! Shut your mouth and get lost before I throw you in the dungeon!";
+				close;
+			}
+		}
+	}
+
+	// --- ДІАЛОГ КВЕСТУ (Змінений текст запитання) ---
+	if (#gl_lang == 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Пробачте. Я шукаю відомості про командира Вальдемара. Він очолював лицарів одразу після того, як утворився орден. Вам щось відомо?";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Excuse me. I am looking for information about Commander Waldemar. He led the knights right after the order was formed. Do you know anything?";
+		next;
+	}
+
+	// ЛОГІКА: Якщо це один з перших трьох NPC (entity від 2 до 4) + Злість у кінці відмови
+	if (entity >= 2) {
+		if (entity <= 4) {
+			if (#gl_lang == 1) {
+				mes "[Брандон]";
+				mes "Який ще Вальдемар?! Що за нісенітниця! Я знаю кожного командира в цьому замку по імені, і ніякого Вальдемара серед них немає й близько!";
+				mes "У мене по горло реальної роботи, а ти лізеш зі своїми дурними казками! Забирайся геть і діставай когось іншого, задовбав!";
+				// Записуємо біт 4 для Брандона
+				set talked_officers, talked_officers | 4;
+				set entity, entity + 1;
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Brandon]";
+				mes "What Waldemar?! What nonsense! I know every commander in this castle by name, and there is no Waldemar anywhere near them!";
+				mes "I am up to my neck in real work, and you come here with your stupid fairy tales! Get out of here and bother someone else, you're annoying me!";
+				// Записуємо біт 4 для Брандона
+				set talked_officers, talked_officers | 4;
+				set entity, entity + 1;
+				close;
+			}
+		}
+	}
+
+	// ЛОГІКА: Якщо це фінальний четвертий NPC (entity == 5)
+	if (entity == 5) {
+		if (#gl_lang == 1) {
+			mes "[Брандон]";
+			mes "Вальдемар?! Гррр... Сякі-такі біси, звідки ти розкопав це ім'я?!";
+			mes "Ти змусив мої мізки кипіти... Але прокляття, мій старий наставник колись згадував Вальдемара, коли запікав мене тренуваннями!";
+			next;
+			mes "[Брандон]";
+			mes "Він казав, що це ім'я стерли з історії Пронтери! Мій наставник давно звалив звідси на пенсію. Шукай цього старого хріна біля замків Альдебарана! А тепер щезни з моїх очей!";
+			// Квест виконано, очищаємо маску
+			set talked_officers, 0;
+			set entity, 6;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Brandon]";
+			mes "Waldemar?! Grrr... What the hell, where did you dig up that name?!";
+			mes "You made my brains boil... But damn it, my old mentor once mentioned Waldemar when he was torturing me with training!";
+			next;
+			mes "[Brandon]";
+			mes "He said that name was erased from Prontera's history! My mentor left this place for retirement long ago. Look for that old bastard near the castles of Aldebaran! Now disappear from my sight!";
+			// Квест виконано, очищаємо маску
+			set talked_officers, 0;
+			set entity, 6;
+			close;
+		}
+	}
+}
+
+// Місцезнаходження: територія замків Альдебарана (alde_gld 182, 164)
+// Назва NPC: Наставник Болдвін
+alde_gld,182,164,4	script	Baldwin	752,{
+
+	// Якщо гравець ще не розпитав офіцерів у Пронтері
+	if (entity < 6) {
+		if (#gl_lang == 1) {
+			mes "[Болдвін]";
+			mes "Привіт, мандрівнику. Спокій цих замків не повинен бути порушений. Якщо у тебе немає до мене важливих справ, то йди собі.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Baldwin]";
+			mes "Greetings, traveler. The peace of these castles must not be disturbed. If you have no important business with me, then go away.";
+			close;
+		}
+	}
+
+	// Якщо гравець уже поговорив з ним і отримав завдання в Юно (entity == 7 або більше)
+	if (entity >= 7) {
+		if (#gl_lang == 1) {
+			mes "[Болдвін]";
+			mes "Я вже сказав тобі все, що знав, синку. Твій шлях лежить до великої бібліотеки міста Юно. Шукай там архіваріуса Юджина.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Baldwin]";
+			mes "I have already told you everything I knew, son. Your path lies to the great library of Yuno. Look for archivist Eugene there.";
+			close;
+		}
+	}
+
+	// --- ДІАЛОГ КВЕСТУ (Коли entity == 6) ---
+	if (#gl_lang == 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Вітаю, майстре. Мене направили до вас офіцери з Пронтери. Я шукаю правду про Генерала Вальдемара та часи, коли ніч володарювала над Мідгардом...";
+		next;
+	}
+	if (#gl_lang < 1) {
+		mes "[" + strcharinfo(0) + "]";
+		mes "Greetings, master. I was sent to you by the officers from Prontera. I am looking for the truth about General Waldemar and the times when night ruled over Midgard...";
+		next;
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Болдвін]";
+		mes "Вальдемар... Отже, хтось таки докопався до цього імені в столиці. Навіть через стільки років темрява знаходить спосіб нагадати про себе.";
+		mes "Так, синку, я пам'ятаю його. Але історія, яку ти шукаєш, набагато більша, ніж життя одного генерала.";
+		next;
+		mes "[Болдвін]";
+			mes "Колись, будучи молодим лицарем, я охороняв мудреців і мав доступ до заборонених залів. Там я читав древні рукописи з бібліотеки Юно.";
+		mes "Саме з них я дізнався справжню історію Святого Ордену, про лютих ліканів зі сходу та безжальних фамільярів із заходу, а також про їхню криваву війну, що ледь не спалила цей світ.";
+		next;
+		mes "[Болдвін]";
+		mes "Моя пам'ять уже слабка, і я не можу переказати тобі кожне слово. Якщо ти справді хочеш дізнатися правду і зрозуміти, чому сонце над Пронтерою згасає — ти повинен вивчити ті архіви сам.";
+		mes "Вирушай у небесне місто Юно. У великій бібліотеці знайди людину на ім'я Юджин. Він архіваріус і знає кожен закуток сховища. Саме Юджин розповість тобі, де шукати ці старі сувої.";
+		next;
+		mes "[" + strcharinfo(0) + "]";
+		mes "Бібліотека Юно... Архіваріус Юджин. Дякую, майстре Болдвін, я знайду його.";
+		
+		// Переводимо квест на етап 7
+		set entity, 7;
+		close;
+	}
+	
+	if (#gl_lang < 1) {
+		mes "[Baldwin]";
+		mes "Waldemar... So, someone finally dug up that name in the capital. Even after all these years, the darkness finds a way to remind us of itself.";
+		mes "Yes, son, I remember him. But the story you are looking for is much bigger than the life of a single general.";
+		next;
+		mes "[Baldwin]";
+		mes "Long ago, as a young knight, I guarded the sages and had access to forbidden halls. There, I read ancient manuscripts from the library of Yuno.";
+		mes "It was from them that I learned the true history of the Holy Order, about the fierce lycans from the east and the ruthless familiars from the west, and about their bloody war that almost burned this world.";
+		next;
+		mes "[Baldwin]";
+		mes "My memory is weak now, and I cannot recount every word to you. If you truly want to know the truth and understand why the sun over Prontera is fading — you must study those archives yourself.";
+		mes "Head to the sky city of Yuno. In the great library, find a man named Eugene. He is an archivist and knows every corner of the vault. Eugene will tell you exactly where to look for those old scrolls.";
+		next;
+		mes "[" + strcharinfo(0) + "]";
+		mes "Yuno Library... Archivist Eugene. Thank you, Master Baldwin, I will find him.";
+		
+		// Переводимо квест на етап 7
+		set entity, 7;
+		close;
+	}
+}
+
+// Місцезнаходження: внутрішнє приміщення бібліотеки Юно (yuno_in02 106, 164)
+// Назва NPC: Архіваріус Юджин
+yuno_in02,106,164,4	script	Archivist Eugene	833,{
+
+	// --- ПЕРЕВІРКА: Гравець ще не отримав наведення від Болдвіна ---
+	if (entity < 7) {
+		if (#gl_lang == 1) {
+			mes "[Юджин]";
+			mes "Тихіше, мандрівнику. Це обитель знань, тут не місце для порожніх блукань. Якщо не шукаєш книг — йди собі.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Eugene]";
+			mes "Quieter, traveler. This is an abode of knowledge, no place for empty wandering. If you are not looking for books — go away.";
+			close;
+		}
+	}
+
+	// --- ЕТАП 1: Перша розмова та відправка на пошуки уривків (entity == 7) ---
+	if (entity == 7) {
+		if (#gl_lang == 1) {
+			mes "[Архіваріус Юджин]";
+			mes "Я чекав на тебе.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Чекав на мене? Але звідки ти мій знати, що я прийду?";
+			next;
+			mes "[Архіваріус Юджин]";
+			mes "Я знав, що ти прийдеш... Ну, можливо, не саме ти, але загалом. Після того, як небо над Мідгардом почорніло, я чекав на тебе чи на когось схожого. На того, хто захоче розібратися з усім цим.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Майстер Болдвін з Альдебарана сказав, що в архівах цієї літаючої бібліотеки заховані прадавні сувої про Святий Орден, ліканів та фамільярів. Мені потрібно вивчити їх.";
+			next;
+			mes "[Архіваріус Юджин]";
+			mes "Болдвін... Старий вовк ще пам'ятає дорогу до істини. Що ж, сувої справді тут, але час та хаос розкидали їхні уривки по різних залах нашої великої бібліотеки.";
+			mes "Шукай їх серед старих полиць та прихованих тайників у цих стінах. Тобі потрібно зібрати 5 уривків давніх хронік. Повертайся, коли знайдеш їх усі.";
+			
+			set entity, 8;
+			close;
+		}
+		
+		if (#gl_lang < 1) {
+			mes "[Archivist Eugene]";
+			mes "I have been waiting for you.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Waiting for me? But how could you know that I would come?";
+			next;
+			mes "[Archivist Eugene]";
+			mes "I knew you would come... Well, perhaps not you specifically, but in general. Ever since the sky over Midgard turned black, I have been waiting for you or someone like you. Someone who wants to unravel all this.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Master Baldwin from Aldebaran told me that ancient scrolls about the Holy Order, lycans, and familiars are hidden in the archives of this sky library. I need to study them.";
+			next;
+			mes "[Archivist Eugene]";
+			mes "Baldwin... That old wolf still remembers the path to the truth. Well, the scrolls are indeed here, but time and chaos have scattered their fragments across different halls of our great library.";
+			mes "Look for them among the old shelves and hidden caches within these walls. You need to gather 5 fragments of ancient chronicles. Return when you find them all.";
+			
+			set entity, 8;
+			close;
+		}
+	}
+
+	// --- ЕТАП 2: Гравець уже шукає, але зібрав менше 5 уривків ---
+	if (entity == 8) {
+		if (book < 5) {
+			if (#gl_lang == 1) {
+				mes "[Архіваріус Юджин]";
+				mes "Ти ще не знайшов усі частини. Усього має бути 5 уривків давніх хронік. Шукай ретельніше серед книжкових полиць у залах бібліотеки.";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Archivist Eugene]";
+				mes "You haven't found all the pieces yet. There must be 5 fragments of ancient chronicles in total. Search more thoroughly among the bookshelves in the library halls.";
+				close;
+			}
+		}
+	}
+
+	// --- ЕТАП 3: Гравець зібрав усі 5 уривків (book == 5) ---
+	if (entity == 8) {
+		if (book >= 5) {
+			if (#gl_lang == 1) {
+				mes "[Архіваріус Юджин]";
+				mes "Бачу, тобі вдалося... Дивовижно. Ці уривки знову разом. Хроніки первісної ночі, війни сутностей та великої самопожертви Ордену...";
+				mes "Ех... Як же я хотів би бути одним із них...";
+				next;
+				mes "[" + strcharinfo(0) + "]";
+				mes "Одним із них? Кого ти маєш на увазі, Юджине? Воїнів Ордену чи когось іншого?";
+				next;
+				mes "[Архіваріус Юджин]";
+				mes "А? Що? Старечий маразм, не звертай уваги... Книжковий пил зовсім забив мені голову, забудь про мої слова, це просто роздуми про велич минулого!";
+				next;
+				mes "[Архіваріус Юджин]";
+				mes "Але послухай мене уважно, синку. Якщо до Мідгарда знову повертається первісна ніч, це може означати лише одне — темні сили минулого остаточно прокинулися, а разом з ними повертаються і their головні постаті. Владики Ліканів та Вампірські Лорди...";
+				mes "Я слышав краєм вуха, що десь у глибоких тінях Мідгарда вже формується новий загін Святого Ордену, щоб протистояти цьому жаху. Тобі варто бути готовим.";
+				
+				set entity, 9;
+				set eugene_time, gettimetick(2); // ЗАПИСУЄМО ПОТОЧНИЙ ЧАС СЕРВЕРА
+				close;
+			}
+			
+			if (#gl_lang < 1) {
+				mes "[Archivist Eugene]";
+				mes "I see you succeeded... Amazing. These fragments are together again. The chronicles of the primeval night, the war of entities, and the great sacrifice of the Order...";
+				mes "Ah... How I wish I could be one of them...";
+				next;
+				mes "[" + strcharinfo(0) + "]";
+				mes "One of them? Who do you mean, Eugene? The warriors of the Order, or someone else?";
+				next;
+				mes "[Archivist Eugene]";
+				mes "Ah? What? Just an old man's rambling, pay no attention... The book dust has completely muddled my brain, forget my words, it's just reflections on the grandeur of the past!";
+				next;
+				mes "[Archivist Eugene]";
+				mes "But listen to me carefully, son. If the primeval night is returning to Midgard, it can only mean one thing — the dark forces of the past have completely awakened, and along with them, their main figures are returning. The Lycan Lords and Vampire Lords...";
+				mes "I heard a rumor that somewhere in the deep shadows of Midgard, a new squad of the Holy Order is already forming to oppose this horror. You should be prepared.";
+				
+				set entity, 9;
+				set eugene_time, gettimetick(2); // RECORD SERVER TIME
+				close;
+			}
+		}
+	}
+
+	// --- ТАЄМНИЙ ЕТАП: Минуло 5+ хвилин після фіналу (entity >= 9) ---
+	if (entity >= 9 && eugene_secret == 0) {
+		// Перевіряємо різницю в часі (поточний tick мінус збережений tick)
+		if (gettimetick(2) - eugene_time >= 300) {
+			if (#gl_lang == 1) {
+				mes "[" + strcharinfo(0) + "]";
+				mes "Юджине, послухай... Мене не полишає думка про те, що ти сказав тоді. Що ти хотів би бути 'одним із них'.";
+				mes "Кого ти все ж таки мав на увазі? Ти явно щось недоговорюєш. Старечий маразм тут ні до чого, викладай правду.";
+				next;
+				mes "[Архіваріус Юджин]";
+				mes "(. Юджин здригається, озирається навколо і важко зітхає, потираючи скроні .)";
+				next;
+				mes "[Архіваріус Юджин]";
+				mes "Допитливий розум... Я знав, що ти повернешся з цим питанням. Гаразд, твоя правда. Занадто довго я ховав істину на цих полицях.";
+				mes "Справа в тому, що Святий Орден — це лише одна сторона барикад. Поки вони готуються до війни, інші сутності теж шукають своїх лідерів.";
+				next;
+				mes "[Архіваріус Юджин]";
+				mes "Мій рідний брат... Він обрав зовсім інший шлях. Він знає про природу Ліканів та прадавніх вампірських Фамільярів набагато більше, ніж усі книжки в цьому залі разом ужиті.";
+				mes "Зараз він переховується від світу. Тобі варто знайти його, якщо твій дух готовий пізнати справжню темряву.";
+				next;
+				mes "[Архіваріус Юджин]";
+				mes "Він вирушив на далекий схід. Знайди його в Гонрайні. Він стоїть десь на скелястих островах, милується заходом сонця і шукає спокій... Його звуть... Втім, ти сам усе зрозумієш.";
+				
+				set lycan, 1;         // Присвоюємо початковий маркер ліканів
+				set familiar, 1;      // Присвоюємо початковий маркер фамільярів
+				set eugene_secret, 1; // Закриваємо цей секретний діалог, щоб не повторювався
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[" + strcharinfo(0) + "]";
+				mes "Eugene, listen... I can't shake the thought of what you said back then. That you wished you could be 'one of them'.";
+				mes "Who exactly did you mean? You are clearly hiding something. This is not about old age, tell me the truth.";
+				next;
+				mes "[Archivist Eugene]";
+				mes "(. Eugene flinches, looks around, and sighs heavily, rubbing his temples .)";
+				next;
+				mes "[Archivist Eugene]";
+				mes "An inquisitive mind... I knew you would return with this question. Alright, you are right. Too long have I hidden the truth on these shelves.";
+				mes "The thing is, the Holy Order is just one side of the barricades. While they prepare for war, other entities are also looking for their leaders.";
+				next;
+				mes "[Archivist Eugene]";
+				mes "My own brother... He chose a completely different path. He knows far more about the nature of Lycans and ancient vampire Familiars than all the books in this hall combined.";
+				mes "He is currently hiding from the world. You should find him if your spirit is ready to embrace the true darkness.";
+				next;
+				mes "[Archivist Eugene]";
+				mes "He traveled to the far east. Find him in Gonryun. He is standing somewhere on the rocky islands, admiring the sunset and seeking peace... His name is... Well, you will understand everything yourself.";
+				
+				set lycan, 1;
+				set familiar, 1;
+				set eugene_secret, 1;
+				close;
+			}
+		}
+	}
+
+	// --- ЕТАП 4: Фінальна заглушка після завершення розмови ---
+	if (entity >= 9) {
+		if (#gl_lang == 1) {
+			mes "[Архіваріус Юджин]";
+			mes "Темрява вже близько. Будь обережним і шукай тих, хто збирає сили для Нового Ордену. Світло Мідгарда тепер у ваших руках.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Archivist Eugene]";
+			mes "The darkness is close. Be careful and look for those who are gathering forces for the New Order. The light of Midgard is now in your hands.";
+			close;
+		}
+	}
+}
+
+yuno_in02,74,200,0	script	Ancient manuscript  №1	111,{
+	// ДОЗВІЛ НА ЧИТАННЯ ТІЛЬКИ ПІСЛЯ РОЗМОВИ З ЮДЖИНОМ (коли entity == 8)
+	if (entity < 8) {
+		if (#gl_lang == 1) { mes "[Книжкова полиця]"; mes "Старі фоліанти з філософії. Зараз вони вам не потрібні."; close; }
+		if (#gl_lang < 1) { mes "[Bookshelf]"; mes "Old philosophy tomes. You don't need them right now."; close; }
+	}
+
+	// Перевірка, чи читав гравець саме цей сувій (біт 1)
+	if (found_books & 1) {
+		if (#gl_lang == 1) { mes "[Хроніки Ордену]"; mes "Ви вже вивчили цей уривок про заснування Святого Ордену Хранителів Світла."; close; }
+		if (#gl_lang < 1) { mes "[Chronicles of the Order]"; mes "You have already studied this fragment about the foundation of the Holy Order of Lightkeepers."; close; }
+	}
+
+	// Читання історії
+	if (#gl_lang == 1) {
+		mes "[Том I: Narodження Світла]";
+		mes "...У часи, коли первісний морок душив Мідгард, а перші люди ховалися v печерах від жахів ночі, тринадцять праведних магів та воїнів зібралися під тисячолітнім ясенем.";
+		mes "Вони присягнули на крові та залізі стати щитом для беззахисних. Так народився Святий Орден — Хранителі Світла.";
+		next;
+		mes "[Том I: Narodження Світла]";
+		mes "Вони звели перші білі мури, які не могла пробити жодна темна магія, і благословили свої клинки небесним вогнем.";
+		mes "Орден став символом надії, випалюючи заразу по всьому контененту та даруючи людям перші століття безпечного сонця й процвітання...";
+		next;
+		
+		set found_books, found_books | 1;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. Ви успішно прочитали та законспектували першу частину хронік .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Volume I: The Birth of Light]";
+		mes "...In times when the primeval darkness strangled Midgard and the first humans hid in caves from the horrors of the night, thirteen righteous mages and warriors gathered beneath the millennial ash tree.";
+		mes "They swore an oath on blood and iron to become a shield for the defenseless. Thus, the Holy Order — the Keepers of Light — was born.";
+		next;
+		mes "[Volume I: The Birth of Light]";
+		mes "They built the first white walls that no dark magic could pierce, and blessed their blades with celestial fire.";
+		mes "The Order became a symbol of hope, burning out the plague across the continent and granting humanity its first centuries of safe sun and prosperity...";
+		next;
+		
+		set found_books, found_books | 1;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. You have successfully read and summarized the first part of the chronicles .)";
+		close;
+	}
+}
+
+
+yuno_in02,80,181,0	script	Ancient manuscript  №2	111,{
+	// ДОЗВІЛ НА ЧИТАННЯ ТІЛЬКИ ПІСЛЯ РОЗМОВИ З ЮДЖИНОМ (коли entity == 8)
+	if (entity < 8) {
+		if (#gl_lang == 1) { mes "[Книжкова полиця]"; mes "Тут лише книги про анатомію тварин Мідгарда."; close; }
+		if (#gl_lang < 1) { mes "[Bookshelf]"; mes "Only books about the anatomy of Midgard's animals here."; close; }
+	}
+
+	// Перевірка (біт 2)
+	if (found_books & 2) {
+		if (#gl_lang == 1) { mes "[Хроніки Ордену]"; mes "Ви вже читали цей сувій про первісне прокляття Ліканів."; close; }
+		if (#gl_lang < 1) { mes "[Chronicles of the Order]"; mes "You have already read this scroll about the primal curse of the Lycans."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Том II: Кров Вовка]";
+		mes "...Але на сході, де гори торкаються хмар, людська гординя породила новий жах. Прагнучи здобути нелюдську силу та лють природи, вожді диких племен уклали союз із духами звірів.";
+		mes "Їхній лідер, Люціан, першим випив кров Первісного Вовка під кривавим місяцем.";
+		next;
+		mes "[Том II: Кров Вовка]";
+		mes "Його плоть розірвалася, кістки перебудувалися, і він перетворився на першого Лікана — безжального монстра, що поєднав розум людини та звірину жорстокість.";
+		mes "Прокляття Люціана поширювалося наче чума через укуси, породивши цілу армію вовків-перевертнів. Кажуть, після поразки Люціан утік на далеку північ, де лютують вічні завірюхи і панує непроглядна крига...";
+		next;
+		
+		set found_books, found_books | 2;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. Ви успішно прочитали та законспектували другу частину хронік .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Volume II: Blood of the Wolf]";
+		mes "...But in the east, where mountains touch the clouds, human pride gave birth to a new horror. Desiring to gain superhuman strength and nature's fury, the chiefs of wild tribes made a pact with beast spirits.";
+		mes "Their leader, Lucian, was the first to drink the blood of the Primal Wolf under a blood moon.";
+		next;
+		mes "[Volume II: Blood of the Wolf]";
+		mes "His flesh tore apart, his bones reshaped, and he transformed into the first Lycan — a ruthless monster combining human intellect and bestial cruelty.";
+		mes "Lucian's curse spread like a plague through bites, birthing an entire army of werewolves. It is said that after the defeat, Lucian fled to the far north, where eternal blizzards rage and impenetrable ice rules...";
+		next;
+		
+		set found_books, found_books | 2;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. You have successfully read and summarized the second part of the chronicles .)";
+		close;
+	}
+}
+
+yuno_in02,92,222,0	script	Ancient manuscript  №3	111,{
+	// ДОЗВІЛ НА ЧИТАННЯ ТІЛЬКИ ПІСЛЯ РОЗМОВИ З ЮДЖИНОМ (коли entity == 8)
+	if (entity < 8) {
+		if (#gl_lang == 1) { mes "[Книжкова полиця]"; mes "Полиці покриті захисною магією. Книги не піддаються."; close; }
+		if (#gl_lang < 1) { mes "[Bookshelf]"; mes "The shelves are covered in protective magic. The books won't budge."; close; }
+	}
+
+	// Перевірка (біт 4)
+	if (found_books & 4) {
+		if (#gl_lang == 1) { mes "[Хроніки Ордену]"; mes "Ви вже вивчили похмуру історію виникнення Вампірів та їхніх Фамільярів."; close; }
+		if (#gl_lang < 1) { mes "[Chronicles of the Order]"; mes "You have already studied the dark history of the origin of Vampires and their Familiars."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Том III: Багряне Вино]";
+		mes "...Поки схід палав у вовчому вогні, захід погруз у витонченому гріху. У темних підземеллях аристократи шукали безсмертя через заборонену некромантію. Лорд Дракула першим зрікся своєї душі.";
+		mes "Він уклав пакт із безоднею, обмінявши стукіт серця на вічну молодість та невгамовну жагу до людської крові.";
+		next;
+		mes "[Том III: Багряне Вино]";
+		mes "Так з'явилися вампіри. А щоб тримати смертних у покорі, вони створили Фамільярів — звабливих, але безжальних істот, що стали їхніми очима, вухами та катами.";
+		mes "Ці витончені слуги випивали життя з цілих королівств. Подейкують, що після падіння свого замку, поранений Лорд Дракула зник у найтемніших, закинутих катакомбах під старими містами Мідгарда, де ніколи не буває сонячного світла...";
+		next;
+		
+		set found_books, found_books | 4;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. Ви успішно прочитали та законспектували третю частину хронік .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Volume III: Crimson Wine]";
+		mes "...While the east burned in wolf fire, the west sank into refined sin. In dark dungeons, aristocrats sought immortality through forbidden necromancy. Lord Dracula was the first to renounce his soul.";
+		mes "He made a pact with the abyss, trading his heartbeat for eternal youth and an unquenchable thirst for human blood.";
+		next;
+		mes "[Volume III: Crimson Wine]";
+		mes "Thus, vampires emerged. And to keep mortals in submission, they created Familiars — seductive yet ruthless creatures who became their eyes, ears, and executioners.";
+		mes "These elegant servants drank the life out of entire kingdoms. Rumor has it that after the fall of his castle, the wounded Lord Dracula vanished into the darkest, abandoned catacombs beneath the old cities of Midgard, where sunlight never reaches...";
+		next;
+		
+		set found_books, found_books | 4;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. You have successfully read and summarized the third part of the chronicles .)";
+		close;
+	}
+
+}
+
+yuno_in02,113,200,0	script	Ancient manuscript №4	111,{
+	// ДОЗВІЛ НА ЧИТАННЯ ТІЛЬКИ ПІСЛЯ РОЗМОВИ З ЮДЖИНОМ (коли entity == 8)
+	if (entity < 8) {
+		if (#gl_lang == 1) { mes "[Книжкова полиця]"; mes "Старі карти битв та зведення тактики. Нічого цікавого."; close; }
+		if (#gl_lang < 1) { mes "[Bookshelf]"; mes "Old battle maps and tactical summaries. Nothing interesting."; close; }
+	}
+
+	// Перевірка (біт 8)
+	if (found_books & 8) {
+		if (#gl_lang == 1) { mes "[Хроніки Ордену]"; mes "Ви вже читали про криваву війну та часи, коли Орден ледь не загинув."; close; }
+		if (#gl_lang < 1) { mes "[Chronicles of the Order]"; mes "You have already read about the bloody war and the times when the Order almost perished."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Том IV: Попіл і Тіні]";
+		mes "...Коли дві армії жаху зійшлися на землях Мідгарда, Святий Орден став між ними. Це була війна на винищення. Але Люціан та Дракула уклали тимчасовий Багряний Пакт, об'єднавши ікла та кігті проти загального ворога — Світла.";
+		mes "Цей союз Ліканів та Вампірів був апокаліпсисом. Навала нічних тварюк випалювала міста одне за одним.";
+		next;
+		mes "[Том IV: Попіл і Тіні]";
+		mes "Білі мури руйнувалися під тиском тисяч перевертнів, а витончені фамільяри проникали в саме серце командування, труячи лідерів Ордену. Воїни Світла програвали битву за битвою.";
+		mes "Орден був знекровлений, загнаний у кут і за крок до повного знищення. Здавалося, Мідгард назавжди зануриться у вічну ніч...";
+		next;
+		
+		set found_books, found_books | 8;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. Ви успішно прочитали та законспектували четверту частину хронік .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Volume IV: Ashes and Shadows]";
+		mes "...When the two armies of horror clashed on the lands of Midgard, the Holy Order stood between them. It was a war of annihilation. But Lucian and Dracula concluded a temporary Crimson Pact, uniting fangs and claws against the common enemy — the Light.";
+		mes "This alliance of Lycans and Vampires was an apocalypse. The onslaught of night creatures burned down cities one by one.";
+		next;
+		mes "[Volume IV: Ashes and Shadows]";
+		mes "White walls crumbled under the pressure of thousands of werewolves, while elegant familiars infiltrated the very heart of the command, poisoning the Order's leaders. The Warriors of Light were losing battle after battle.";
+		mes "The Order was drained of blood, cornered, and a step away from complete destruction. It seemed Midgard would plunge into eternal night forever...";
+		next;
+		
+		set found_books, found_books | 8;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. You have successfully read and summarized the fourth part of the chronicles .)";
+		close;
+	}
+}
+
+yuno_in02,100,199,0	script	Ancient manuscript №5	111,{
+	// ДОЗВІЛ НА ЧИТАННЯ ТІЛЬКИ ПІСЛЯ РОЗМОВИ З ЮДЖИНОМ (коли entity == 8)
+	if (entity < 8) {
+		if (#gl_lang == 1) { mes "[Книжкова полиця]"; mes "Тут викарбувані імена великих героїв минулого. Текст стерся."; close; }
+		if (#gl_lang < 1) { mes "[Bookshelf]"; mes "The names of great heroes of the past are carved here. The text has faded."; close; }
+	}
+
+	// Перевірка (біт 16)
+	if (found_books & 16) {
+		if (#gl_lang == 1) { mes "[Хроніки Ордену]"; mes "Ви вже знаєте фінал великої війни та ціну перемоги над темрявою."; close; }
+		if (#gl_lang < 1) { mes "[Chronicles of the Order]"; mes "You already know the finale of the great war and the price of victory over darkness."; close; }
+	}
+
+	if (#gl_lang == 1) {
+		mes "[Том V: Останній Світанок]";
+		mes "...Коли надія майже згасла, молода войовниця Брінгільд підняла над головою палаючий Меч Світанку. Вона повела залишки лицарів у самогубну атаку прямо на цитадель ворога. Це була остання, найкривавіша битва.";
+		mes "Ціною власного життя Брінгільд запечатала первісну темряву, розірвавши зв'язок Люціана та Дракули з їхніми джерелами сили.";
+		next;
+		mes "[Том V: Останній Світанок]";
+		mes "Побачивши, що їхні боги слабшають, Орден перейшов у контрнаступ. Лікани були розбиті та загнані назад у ліси, а фамільяри розвіялися на попіл під першими променями нового сонця.";
+		mes "Світло перемогло, але ціна була страшною — Орден втратив майже всіх своїх бійців і пішов у тінь, стерши згадки про себе з історії, щоб уберегти нащадків від страху. Але якщо ніч повертається... Дракула і Люціан знову шукають спосіб повернути свою велич...";
+		next;
+		
+		set found_books, found_books | 16;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. Ви успішно прочитали та законспектували фінальну частину хронік .)";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Volume V: The Last Dawn]";
+		mes "...When hope had almost faded, a young warrior named Brynhild raised the burning Sword of Dawn above her head. She led the remnants of the knights in a suicidal charge directly into the enemy's citadel. It was the final, bloodiest battle.";
+		mes "At the cost of her own life, Brynhild sealed the primeval darkness, severing the connection of Lucian and Dracula from their sources of power.";
+		next;
+		mes "[Volume V: The Last Dawn]";
+		mes "Seeing their gods weaken, the Order launched a counter-offensive. The Lycans were crushed and driven back into the forests, while the familiars turned to ash under the first rays of the new sun.";
+		mes "The Light won, but the price was terrible — the Order lost nearly all its fighters and faded into the shadows, erasing mentions of itself from history to protect descendants from fear. But if the night returns... Dracula and Lucian are searching for a way to reclaim their grandeur once more...";
+		next;
+		
+		set found_books, found_books | 16;
+		set book, book + 1;
+		if (book == 5) { set entity, 8; }
+		mes "(. You have successfully read and summarized the final part of the chronicles .)";
+		close;
+	}
+}
+
+gonryun,46,252,3	script	Hermit Ryan	712,{
+	// 1. ЗАГЛУШКА: Якщо гравець не знає Юджина і не виявив секрет
+	if (eugene_secret == 0) {
+		if (#gl_lang == 1) {
+			mes "[Самітник Раян]";
+			mes "Іди своєю дорогою, чужинцю. Шум хвиль і промені сонця — єдині співрозмовники, яких я тут потребую.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Hermit Ryan]";
+			mes "Go your way, stranger. The sound of waves and the rays of the sun are the only companions I need here.";
+			close;
+		}
+	}
+
+	// 2. ЕТАП 0: Гравець намагається заговорити (Треба клікнути кілька разів)
+	if (gonryun_brother == 0) {
+		set @clicks, @clicks + 1; // Рахуємо кліки за поточну ігрову сесію
+
+		if (@clicks < 5) { // Відшиваємо гравця випадковими фразами (рандом 1-5)
+			set @random_phrase, rand(1, 5);
+			
+			if (#gl_lang == 1) {
+				mes "[Самітник Раян]";
+				if (@random_phrase == 1) mes "Я ж сказав, я не приймаю гостей. Провалюй.";
+				if (@random_phrase == 2) mes "Хлопче, ти затуляєш мені сонце. Зроби ласку, зникни.";
+				if (@random_phrase == 3) mes "Тобі немає чим зайнятися в Пронтері? Навіщо ти марнуєш мій час?";
+				if (@random_phrase == 4) mes "Мене не цікавлять твої справи, ким би ти не був. Облиш мене.";
+				if (@random_phrase == 5) mes "Ти неймовірно настирливий... Я не буду з тобою розмовляти.";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Hermit Ryan]";
+				if (@random_phrase == 1) mes "I told you, I don't receive guests. Clear out.";
+				if (@random_phrase == 2) mes "Kid, you're blocking my sun. Do me a favor and disappear.";
+				if (@random_phrase == 3) mes "Don't you have anything better to do in Prontera? Why waste my time?";
+				if (@random_phrase == 4) mes "I care nothing for your affairs, whoever you are. Leave me be.";
+				if (@random_phrase == 5) mes "You are incredibly persistent... I have nothing to say to you.";
+				close;
+			}
+		}
+
+		// Коли гравець пробився через кліки (на 5-й раз), Раян помічає дух Юджина і починає розмову
+		set gonryun_brother, 1; 
+	}
+
+	// 3. ЕТАП 1: Перша довга історія про Ліканів
+	if (gonryun_brother == 1) {
+		if (#gl_lang == 1) {
+			mes "[Самітник Раян]";
+			mes "Стій... Стривай. Від тебе тхне архівним пилом архіпелагу Юно... І цим нестерпним, але до болю знайомим чаєм із шавлії.";
+			mes "Юджин. Це мій старий зануда-брат відправив тебе, чи не так? Тільки він міг розгледіти щось особливе в твоїх очах.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Він думає, що книги знають усе. Але книги пишуть переможці, а істинна історія стікає кров'ю в глибоких хащах.";
+			mes "Ти прийшов дізнатися про перевертнів? Про Ліканів, яких твій 'Святий Орден' виставляє безжальними чудовиськами?";
+			next;
+			mes "[Самітник Раян]";
+			mes "Слухай же... Багато століть тому, задовго до того, як люди звели свої кам'яні міста, племена Ліканів жили в повній гармонії з природою Мідгарда. Вони не були монстрами.";
+			mes "Вони були Хранителями Лісів. Справжніми дітьми дикої природи, які шанували баланс, захищали слабких тварин і ніколи не вбивали заради забави або жадібності. Їхня сила походила від самої землі.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Усе змінилося, коли з глибоких підземель виповзли інші істоти — Фамільяри. Стародавні вампірські клани, голодні та безжальні. Їм потрібна була кров. Але замість того, щоб полювати на людей і піднімати паніку, вони обрали легшу здобич — вони почали винищувати лісових звірів, що перебували під захистом Ліканів.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Фамільяри оголосили таємне полювання на вовчі племена, виловлюючи їх поодинці, щоб пити їхню гарячу, сповнену люті кров, яка давала вампірам неймовірну регенерацію та силу.";
+			mes "Лікани довго терпіли, але коли прадавні ліси перетворилися на цвинтарі, їхнє терпіння лопнуло. Спалахнула кривава війна.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Тож пам'ятай: Лікани взялися за ікла та кігті не через жадобу до вбивства, а щоб захистити свій дім і свої сім'ї від повного винищення. Їхня лють — це лише крик відчаю.";
+			
+			set lycan, 1;          // Переконуємось, що змінна точно дорівнює 1
+			set gonryun_brother, 2; // Переводимо на наступний крок історії
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Hermit Ryan]";
+			mes "Wait... Hold on. You reek of the archival dust of Yuno... and that insufferable, yet painfully familiar sage tea.";
+			mes "Eugene. It was my old bore of a brother who sent you, wasn't it? Only he could spot something special in your eyes.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "He thinks books know everything. But books are written by victors, while the true history bleeds out in the deep thickets.";
+			mes "You came to learn about the werewolves? About the Lycans, whom your 'Holy Order' brands as merciless monsters?";
+			next;
+			mes "[Hermit Ryan]";
+			mes "Listen closely... Many centuries ago, long before humans built their stone cities, the Lycan tribes lived in complete harmony with Midgard's nature. They were not monsters.";
+			mes "They were the Wardens of the Forests. True children of the wild who revered the balance, protected weak beasts, and never killed for sport or greed. Their power came from the earth itself.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "Everything changed when other creatures crawled out from the deep dungeons — the Familiars. Ancient vampire clans, starved and ruthless. They craved blood. But instead of hunting humans and causing panic, they chose easier prey — they began wiping out the forest animals under Lycan protection.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "The Familiars declared a secret hunt on the wolf tribes, catching them one by one to drink their hot, rage-filled blood, which granted the vampires incredible regeneration and strength.";
+			mes "The Lycans endured for a long time, but when the ancient woods turned into graveyards, their patience snapped. A bloody war erupted.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "So remember: the Lycans bared their fangs and claws not out of a thirst for slaughter, but to defend their home and families from absolute extinction. Their fury is merely a cry of despair.";
+			
+			set lycan, 1;
+			set gonryun_brother, 2;
+			close;
+		}
+	}
+
+	// 4. ЕТАП 2: Друга довга історія про Фамільярів
+	if (gonryun_brother == 2) {
+		if (#gl_lang == 1) {
+			mes "[Самітник Раян]";
+			mes "Ти знову тут? Що ж, бачу, твій розум не засліплений праведними гаслами Конрада. Хочеш почути зворотний бік медалі? Про вампірських Фамільярів?";
+			next;
+			mes "[Самітник Раян]";
+			mes "Орден називає їх виродками пекла. Але давай подивимось на істину без прикрас. Хто такі Фамільяри? Вони — першородні істоти ночі, прокляті носити вічний голод. Вони не обирали свою долю.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Коли їхні клани заснували свої перші підземні королівства, перед ними встав вибір: харчуватися людською расою, стираючи з лиця землі цілі поселення, або знайти інший шлях. І знаєш що? Стародавні Вампірські Лорди проявили милосердя.";
+			mes "Вони уклали кодекс — не чіпати людей, не ламати їхні долі, а натомість піти у ліси та харчуватися дикими звірами, щоб тамувати свій проклятий голод.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Вони просто намагалися вижити, не завдаючи шкоди людству! Але за тварин раптово і дуже жорстоко заступилися Лікани. Дикі перевертні не бажали ділити свої мисливські угіддя ні з ким.";
+			mes "Вони влаштували справжній геноцид Фамільярів. Вони розривали вампірів на шматки, палили їхні гнізда, безжально винищували навіть їхніх невинних кажанів-провідників.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Почалася війна на виживання, де кожна сторона захищала своє право існувати під цим небом. Фамільяри — не абсолютне зло. Вони — трагічні в'язні своєї природи, які захищалися від дикої та некерованої люті вовків.";
+			
+			set familiar, 1;       // Переконуємось, що змінна точно дорівнює 1
+			set gonryun_brother, 3; // Переводимо на фінальний етап
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Hermit Ryan]";
+			mes "Back again? Well, I see your mind isn't completely blinded by Conrad's righteous slogans. Do you want to hear the other side of the coin? About the vampire Familiars?";
+			next;
+			mes "[Hermit Ryan]";
+			mes "The Order calls them hellspawns. But let's look at the unvarnished truth. Who are the Familiars? They are the primeval creatures of the night, cursed to carry eternal hunger. They did not choose their fate.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "When their clans founded their first subterranean kingdoms, they faced a choice: feed on the human race, erasing entire settlements, or find another way. And you know what? The ancient Vampire Lords showed mercy.";
+			mes "They established a code — do not touch humans, do not shatter their lives, but instead go into the forests and feed on wild beasts to sate their cursed hunger.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "They were simply trying to survive without harming humanity! But the Lycans suddenly and brutally intervened to protect the beasts. The wild werewolves refused to share their hunting grounds with anyone.";
+			mes "They unleashed a literal genocide against the Familiars. They tore vampires to shreds, burned their nests, and ruthlessly slaughtered even their innocent guide-bats.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "It became a war of survival, where each side defended its right to exist under this sky. The Familiars are not absolute evil. They are tragic prisoners of their own nature, defending themselves against the wild, untamed fury of the wolves.";
+			
+			set familiar, 1;
+			set gonryun_brother, 3;
+			close;
+		}
+	}
+
+	// 5. ЕТАП 3: Гравець питає думку Раяна (Фінал розмови, наведення на фракції)
+	if (gonryun_brother == 3) {
+		if (#gl_lang == 1) {
+			mes "[" + strcharinfo(0) + "]";
+			mes "Раяне... Я вислухав обидві історії. Вони повністю суперечать тому, що говорять у Пронтері. Що ти сам думаєш про все це? На чиєму ти боці?";
+			next;
+			mes "[Самітник Раян]";
+			mes "(. Раян тихо сміється, дивлячись на далекий лінію горизонту, де сонце торкається моря .)";
+			next;
+			mes "[Самітник Раян]";
+			mes "Що думаю я? Я думаю, що в цьому всесвіті все має перебувати у суворому балансі. Світло не може існувати без тіні, а лють вовка — без холоднокровності вампіра.";
+			mes "Я не надаю переваги нікому з них. Вони всі мають право на життя, і вони всі окропили цю землю своєю кров'ю.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Тепер, коли ти знаєш істину, саме тобі вирішувати, як бути далі. Яку сторону прийняти, чию правду захищати — або ж відкинути їх усі. Твоя доля належить лише тобі.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Але якщо ти шукаєш їх... Я чув вітри, що приносять дивні звістки з різних кінців світу.";
+			mes "Прадавні вампірські клани Фамільярів знову збирають свої сили і таємне військо десь у туманних, мертвих землях **Ніфльхейма (Niflheim)**.";
+			mes "А розрізнені зграї Ліканів скликають свої вовчі прайди у глибоких, непроглядних лісах **Умбали (Umbala)**.";
+			next;
+			mes "[Самітник Раян]";
+			mes "Вирушай туди. Якщо добре походиш і проявиш пильність — ти обов'язково знайдеш тих, хто шукає нових лідерів у цій майбутній війні. А тепер іди. Мені час зустрічати захід сонця.";
+			
+			// Змінні лишаються рівними 1, як ти і просив
+			set lycan, 1;
+			set familiar, 1;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[" + strcharinfo(0) + "]";
+			mes "Ryan... I have heard both stories. They completely contradict what they say in Prontera. What do you think about all this? Whose side are you on?";
+			next;
+			mes "[Hermit Ryan]";
+			mes "(. Ryan chuckles softly, looking at the distant horizon where the sun touches the sea .)";
+			next;
+			mes "[Hermit Ryan]";
+			mes "What do I think? I think that everything in this universe must exist in strict balance. Light cannot exist without shadow, and the fury of a wolf cannot exist without the cold blood of a vampire.";
+			mes "I favor neither of them. They all have a right to live, and they have all drenched this earth with their blood.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "Now that you know the truth, it is entirely up to you to decide what to do next. Which side to take, whose truth to defend — or whether to reject them all. Your fate belongs to you alone.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "But if you seek them... I have heard the winds bringing strange rumors from different corners of the world.";
+			mes "The ancient vampire clans of the Familiars are gathering their forces and a secret army somewhere in the misty, dead lands of **Niflheim**.";
+			mes "Meanwhile, the scattered packs of Lycans are summoning their wolf prides in the deep, impenetrable forests of **Umbala**.";
+			next;
+			mes "[Hermit Ryan]";
+			mes "Go there. If you search well and stay vigilant — you will surely find those looking for new leaders in this upcoming war. Now leave. It is time for me to watch the sunset.";
+			
+			set lycan, 1;
+			set familiar, 1;
+			close;
+		}
+	}
+}

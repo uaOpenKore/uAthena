@@ -12,7 +12,7 @@ yuno_in03,237,103,4	script	Master T	865,{
     next;
 
     // Головне меню вибору
-    set .@menu$, (#gl_lang == 1) ? "Змінити Ріжки Кахо на Шлем Валькірії:Обміняти набір крил та вух на капелюх:Нічого не потрібно" : "Change Lord Kaho's Horns to Valkyrie Helm:Exchange a set of wings and ears for a hat:Nothing needed";
+    set .@menu$, (#gl_lang == 1) ? "Змінити Ріжки Кахо на капелюх Бога Сонця:Обміняти набір крил та вух на капелюх:Нічого не потрібно" : "Change Lord Kaho's Horns to Helm of Sun God:Exchange a set of wings and ears for a hat:Nothing needed";
     
     switch(select(.@menu$)) {
 
@@ -20,11 +20,11 @@ yuno_in03,237,103,4	script	Master T	865,{
         case 1:
             if (#gl_lang == 1) {
                 mes "[Майстер Трансмутації]";
-                mes "Я можу зробити так щоб твої Ріжки Кахо виглядали як Шлем Валькірії.";
+                mes "Я можу зробити так щоб твої Ріжки Кахо виглядали як капелюх Бога Сонця.";
                 mes "Це буде коштувати тобі 1 000 000 зен.";
             } else {
                 mes "[Transmutation Master]";
-                mes "I can make your Lord Kaho's Horns look like a Valkyrie Helm.";
+                mes "I can make your Lord Kaho's Horns look like a Helm of Sun God.";
                 mes "This will cost you 1,000,000 zeny.";
             }
             next;
