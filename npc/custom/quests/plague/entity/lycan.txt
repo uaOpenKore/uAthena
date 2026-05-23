@@ -1,0 +1,1322 @@
+// lycan 
+// balto_maze 
+// balto_done 
+// balto_count 
+// ragna_talk 
+// bjorn_talk 
+// fenrir_done
+// romulus_done
+// romulus_water_quest
+
+
+
+umbala,113,132,4	script	Sherlock	1013,{
+
+	// -------------------------------------------------------------
+	// ЗАХИСТ ВІД ЗРАДНИКІВ: Якщо гравець вибрав іншу сутність — миттєва смерть
+	// -------------------------------------------------------------
+	if (order == 100 || familiar == 100) {
+		atcommand "@die";
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// ЗАГЛУШКА: Якщо квест ще не розпочато
+	// -------------------------------------------------------------
+	if (lycan == 0) {
+		if (#gl_lang == 1) {
+			mes "[Шерлок]";
+			mes "Гав, гав, гав!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Sherlock]";
+			mes "Woof, woof, woof!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 1: Перша зустріч
+	// -------------------------------------------------------------
+	if (lycan == 1) {
+		if (#gl_lang == 1) {
+			mes "[Шерлок]";
+			mes "Чого тобі? Що ти тут ошиваєшся? Що шукаєш?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "От вже знайшов.";
+			next;
+			mes "[Шерлок]";
+			mes "Хмммм, цікава людинка, цікава... Гав-гав.";
+			set lycan, 2;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Sherlock]";
+			mes "What do you want? Why are you hanging around here? What are you looking for?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Well, I've already found it.";
+			next;
+			mes "[Sherlock]";
+			mes "Hmmmm, interesting little human, interesting... Woof-woof.";
+			set lycan, 2;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 2: Перепалка та координати Лідера зграї
+	// -------------------------------------------------------------
+	if (lycan == 2) {
+		if (#gl_lang == 1) {
+			mes "[Шерлок]";
+			mes "Облиш мене, невже не видно, що я тут не просто так?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "А для чого?";
+			next;
+			mes "[Шерлок]";
+			mes "Шукаю таких дурників як ти!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Ей! Правду казали, що Лікани трошки недорозвинуті...";
+			next;
+			mes "[Шерлок]";
+			mes "Сам ти недорозвинутий! Якщо чогось хочеш, то йди до лідера зграї в mjolnir_09.";
+			mes "Там біля водойми його зграя, там тобі все розкажуть... якщо не з'їдять! Гав-гав-гав!";
+			set lycan, 3;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Sherlock]";
+			mes "Leave me alone, can't you see I'm here for a reason?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "And what is that reason?";
+			next;
+			mes "[Sherlock]";
+			mes "Looking for fools just like you!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Hey! People were right when they said Lycans are a bit underdeveloped...";
+			next;
+			mes "[Sherlock]";
+			mes "You are underdeveloped yourself! If you want something, go to the pack leader in mjolnir_09.";
+			mes "His pack is there near the water, they will tell you everything... if they don't eat you first! Woof-woof-woof!";
+			set lycan, 3;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 3: Нагадування
+	// -------------------------------------------------------------
+	if (lycan > 2) {
+		if (#gl_lang == 1) {
+			mes "[Шерлок]";
+			mes "Ти ще тут? Я ж сказав, твій шлях лежить до водойми в mjolnir_09. Біжи, поки я сам тебе не вкусив! Гав!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Sherlock]";
+			mes "Are you still here? I told you, your path leads to the water in mjolnir_09. Run along before I bite you myself! Woof!";
+			close;
+		}
+	}
+}
+
+
+
+mjolnir_09,137,93,4	script	Wolf	1013,{
+	end;
+}
+
+// 2. Дублікати на інші координати
+mjolnir_09,139,95,4	duplicate(Wolf)	Wolf#1	1013
+mjolnir_09,141,95,4	duplicate(Wolf)	Wolf#2	1013
+mjolnir_09,143,93,4	duplicate(Wolf)	Wolf#3	1013
+
+// =============================================================
+// ВОЖАК ЛЮЦІАН — ГОЛОВНИЙ ЛІДЕР ЗГРАЇ ЛІКАНІВ
+// =============================================================
+// =============================================================
+// ВОЖАК ЛЮЦІАН — ГОЛОВНИЙ ЛІДЕР ЗГРАЇ ЛІКАНІВ
+// =============================================================
+mjolnir_09,140,90,4	script	Pack Leader	1785,{
+
+	// -------------------------------------------------------------
+	// ЗАХИСТ ВІД ЗРАДНИКІВ: Миттєва смерть, якщо обрано інший шлях
+	// -------------------------------------------------------------
+	if (order == 100 || familiar == 100) {
+		atcommand "@die";
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// СТАТУС ВЕЛИКОГО ГЕНЕРАЛА: Квест повністю виконано (lycan == 100)
+	// -------------------------------------------------------------
+	if (lycan == 100) {
+		if (#gl_lang == 1) {
+			mes "[Вожак Люціан]";
+			mes "*Схиляє голову на знак глибокої поваги, його голос звучить гордо*";
+			mes "Вітаю тебе, мій Генерале! Дякую тобі за твою добру та вірну службу нашій зграї.";
+			mes "Я ні на мить не помилився в тобі, коли довірив цю місію. Наші сили міцні як ніколи, і все це завдяки твоїй відвазі!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Leader Lucian]";
+			mes "*Bows his head in deep respect, his voice sounding proud*";
+			mes "Greetings, my General! Thank you for your good and faithful service to our pack.";
+			mes "I did not doubt you for a single moment when I entrusted you with this mission. Our forces are stronger than ever, all thanks to your courage!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 5: ФІНАЛЬНИЙ ЗВІТ АБО ПОВТОРНА ПРОПОЗИЦІЯ (lycan == 9)
+	// -------------------------------------------------------------
+	if (lycan == 9) {
+		// Перевіряємо, чи гравець ВЖЕ говорив з ним і просто повертається після відмови
+		if (lycan_refused == 1) {
+			if (#gl_lang == 1) {
+				mes "[Вожак Люціан]";
+				mes "*Радісно піднімає голову, побачивши вас знову*";
+				mes "О, я радий знову бачити тебе, мандрівнику! Твої кроки приємні моєму слуху.";
+				mes "Скажи, чи ти не передумав приєднатись до нашої зграї і стати одним із моїх Генералів? Моя пропозиція досі в силі, і ми чекаємо на твою силу та мудрість!";
+				next;
+				menu "Так, я передумав. З гордістю приймаю твою пропозицію і стаю Генералом!", L_Accept,
+				     "Ні, я досі тримаюся свого шляху. Можливо, іншим разом.", L_Reject;
+			}
+			if (#gl_lang < 1) {
+				mes "[Leader Lucian]";
+				mes "*Raises his head happily upon seeing you again*";
+				mes "Oh, I am glad to see you again, traveler! Your steps are a welcome sound.";
+				mes "Tell me, have you changed your mind about joining our pack and becoming one of my Generals? My offer stands, and we await your strength and wisdom!";
+				next;
+				menu "Yes, I changed my mind. I proudly accept your offer and become a General!", L_Accept,
+				     "No, I still hold my own path. Perhaps another time.", L_Reject;
+			}
+		}
+
+		// Перша, повна розмова та звіт про генералів
+		if (#gl_lang == 1) {
+			mes "[Вожак Люціан]";
+			mes "*Його могутня постать напружується, коли він бачить ваше наближення*";
+			mes "Ти повернувся, мандрівнику! Я відчуваю подих вітру, який приніс пахощі далеких доріг. Розкажи мені, чи знайшов ти моїх генералів? Які новини з куточків Мідгарда?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Я повернувся з новинами, Вожаче Люціане. Мені довелося пройти довгий шлях і допомогти твоїм легіонам.";
+			mes "Генерал Балто був запертий у підступному людському лабіринті, але я зміг прокласти для його зграї безпечний маршрут по мітках, і вони вже вирвалися на поверхню.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Генерал Бйорн в Аютхаї навіть не дав мені договорити! Як тільки він почув твоє ім'я — одразу наказав третьому легіону згортати табір. Вони з радістю залишили спекотні тропіки і вже висунулися на твій заклик.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Але... у мене є й сумні новини. Одного з твоїх генералів, що стояв біля фабрики іграшок, більше немає серед живих. Він та його дружина героїчно загинули в засніжених землях, стримуючи лють монстра Гарма...";
+			next;
+			mes "[Вожак Люціан]";
+			mes "*Його хвіст опускається, а з грудей виривається важке, повне болю зітхання*";
+			mes "О прадавні духи... Великий воїн пав. Моє серце стікає кров'ю за братом, який віддав життя за безпеку цих земель. Чи залишився там хтось із нашої крові?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Так. Там залишився його маленький син, Рагна, разом із братами. Попри юний вік, він оголосив себе новим ватажком і допомагає людям охороняти фабрику. Малюк дуже хоче служити тобі, як його батько, і чекає на твій наказ.";
+			next;
+			mes "[Вожак Люціан]";
+			mes "*У його очах спалахує гордість*";
+			mes "Рагна... Кров героя тече в його жилах! Я б залюбки взяв малого на службу прямо зараз, але він ще занадто малий для суворих походів. Нехай міцніє і захищає фабрику, його час ще прийде.";
+			mes "А щодо тебе, людино... Ти зробив неможливе. Ти об'єднав мою розсіяну армію.";
+			next;
+			mes "[Вожак Люціан]";
+			mes "Ти проявив таку відданість і мужність, яку я рідко бачив навіть серед своїх вовків. Я хочу віддячити тобі сповна. Я пропоную тобі офіційне місце в нашій зграї...";
+			mes "Стань моєю правою лапою. Я готовий зробити тебе своїм новим Великим Генералом армії Ліканів! Ти приймаєш мою пропозицію?";
+			next;
+			
+			menu "Так, я з гордістю приймаю цю честь і стану твоїм Генералом!", L_Accept,
+			     "Ні, Вожаче. Моя дорога кличе мене далі, я маю відмовитись.", L_Reject;
+		}
+		if (#gl_lang < 1) {
+			mes "[Leader Lucian]";
+			mes "*His powerful figure tenses as he sees you approaching*";
+			mes "You have returned, traveler! I feel the breath of the wind that brought the scent of distant roads. Tell me, did you find my generals? What news from the corners of Midgard?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "I have returned with news, Leader Lucian. I had to travel far and help your legions.";
+			mes "General Balto was trapped in a treacherous human labyrinth, but I managed to map out a safe route with markers for his pack, and they have already escaped to the surface.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "General Bjorn in Ayothaya didn't even let me finish! As soon as he heard your name, he ordered the third legion to pack up. They gladly left the hot tropics and are already marching to your call.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "But... I also have sad news. One of your generals, stationed near the toy factory, is no longer among the living. He and his wife heroically perished in the snowy lands, holding back the fury of the monster Garm...";
+			next;
+			mes "[Leader Lucian]";
+			mes "*His tail drops, and a heavy sigh full of pain escapes his chest*";
+			mes "Oh, ancient spirits... A great warrior has fallen. My heart burns for my brother who gave his life for the safety of these lands. Did anyone of our blood remain there?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Yes. His young son, Ragna, remains there with his brothers. Despite his youth, he declared himself the new leader and helps humans guard the factory. The pup deeply wants to serve you just like his father did, and is waiting for your word.";
+			next;
+			mes "[Leader Lucian]";
+			mes "*A spark of pride lights up in his eyes*";
+			mes "Ragna... The blood of a hero runs in his veins! I would gladly take the boy into service right now, but he is still too young for harsh campaigns. Let him grow stronger and guard the factory, his time will come.";
+			mes "As for you, human... You have done the impossible. You reunited my scattered army.";
+			next;
+			mes "[Leader Lucian]";
+			mes "You showed such dedication and courage that I have rarely seen even among my own wolves. I want to reward you fully. I offer you an official place in our pack...";
+			mes "Become my right hand. I am ready to make you my new Great General of the Lycan Army! Do you accept my offer?";
+			next;
+			
+			menu "Yes, I proudly accept this honor and will become your General!", L_Accept,
+			     "No, Leader. My road calls me elsewhere, I must decline.", L_Reject;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ЗАГЛУШКА: Гравець прийшов без направлення Шерлока (lycan < 3)
+	// -------------------------------------------------------------
+	if (lycan < 3) {
+		if (#gl_lang == 1) {
+			mes "[Вожак Люціан]";
+			mes "*Рррррр... Гррр... Гав!*";
+			mes "Забирайся геть, двоногий, поки мої ікла не зімкнулися на твоєму горлі!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Leader Lucian]";
+			mes "*Grrr... Rrrr... Woof!*";
+			mes "Get lost, biped, before my fangs close around your throat!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 3: Головна розмова, історія Ліканів та отримання квесту
+	// -------------------------------------------------------------
+	if (lycan == 3) {
+		if (#gl_lang == 1) {
+			mes "[" + strcharinfo(0) + "]";
+			mes "Фу! Ти чого, не гавкай на мене!";
+			next;
+			mes "[Вожак Люціан]";
+			mes "Що?! Ти з глузду з'їхав, смертний?! Ти стоїш перед лідером прадавньої зграї, а не перед дворовим псом!";
+			mes "Кажи негайно, в чому причина твого приходу, і хто дав тобі сміливість ступити на наші землі, інакше тобі буде дуже непереливки. Моє терпіння тонше за замерзлу кригу!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Тихше, великий вовче, я прийшов із миром... *поблажливо посміхається*";
+			mes "Мій шлях був довгим. Усе почалося із заборонених манускриптів та напівзабутих легенд Мідгарда про нескінченну війну трьох сил. Я знаю про Ліканів, Фамільярів та Святий Орден.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Але я відмовився вірити сліпим догмам людей. Я не люблю насильство без потреби і щиро люблю тварин та природу. Я вірю, що кожна істота в цьому світі, від маленького вовченяти до великих духів, існує не просто так, а за великим прадавнім замислом.";
+			mes "Я прийшов, бо відчуваю фальш у людських книгах, де вас малюють як безжальних чудовиськ. Я хочу почути істину.";
+			next;
+			mes "[Вожак Люціан]";
+			mes "*Уважно вдивляється в очі, гарчання стихає*";
+			mes "Хух... Дивовижно. Ти не схожий на тих фанатиків, що приходять сюди зі сталями та криками.";
+			mes "Слухай же нашу правду. Ми ніколи не шукали цієї війни! Ми просто захищали свої прадавні володіння, ліси та диких звірів від зазіхань Лорда Дракули та його Фамільярів.";
+			next;
+			mes "[Вожак Люціан]";
+			mes "Але потім прийшов Святий Орден. Осліплені своїми 'хрестовими походами' проти вампірів, вони почали випалювати наші ліси та нещадно вбивати тварин заради поживи та забави, проходячи крізь Мідгард.";
+			mes "Ми стали для них просто мішенню, звірами, яких треба винищити. Ми змушені були стати жорстокими, щоб вижити!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Мені щиро шкода, що світ так несправедливо повівся з вами... Ви не заслуговуєте на таку долю.";
+			next;
+			mes "[Вожак Люціан]";
+			mes "Твоє співчуття гріє моє серце, людино. Але зараз у нас скрутні часи. Сили Ордена та Фамільярів знову збирають армії, і проти двох могутніх суперників моя зграя сама не вистоїть. Мені потрібні мої брати.";
+			mes "П'ять моїх старих друзів, лідери моїх найкращих військ, колись розійшлися і сховалися в різних закутках Мідгарда. Мені потрібно, щоб ти відшукав їх і переказав, що Вожак кличе їх назад на службу!";
+			next;
+			mes "[Вожак Люціан]";
+			mes "Ось де їх бачили востаннє:";
+			mes "1-й — здружився з велетенськими медведями в лісах Пайона.";
+			mes "2-й — пішов у безкрайні піски Морока і заснував там власну зграю.";
+			mes "3-й — полюбляє холод, його бачили там, де лютують вічні морози та буревії.";
+			next;
+			mes "[Вожак Люціан]";
+			mes "4-й — заблукав і застряг у прадавньому лабіринті, вже дуже довго шукаючи вихід.";
+			mes "5-й — самий невловимий. Його давно ніхто не бачив, але він мріяв про тепло і спокій. Казав, що пісок терпіти не може, тому шукай його або на сонячних полях Рахеля, або в екзотичному Айотайо.";
+			next;
+			mes "[Вожак Люціан]";
+			mes "Знайди їх усіх, поверни додому! Цим ти врятуєш зграю і назавжди завоюєш нашу повагу та довіру. Твій квест починається зараз!";
+			set lycan, 4;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[" + strcharinfo(0) + "]";
+			mes "Hey! Stop barking at me!";
+			next;
+			mes "[Leader Lucian]";
+			mes "What?! Have you lost your mind, mortal?! You stand before the leader of the ancient pack, not some street dog!";
+			mes "Tell me why you are here, or you will regret the day you were born!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Calm down, great wolf, I came in peace... *smiles gently*";
+			mes "I read the ancient manuscripts about the war between Lycans, Familiars, and the Holy Order. But I refused to believe the dogmas of humans. I love nature and animals, and I believe every creature has its purpose in Midgard.";
+			next;
+			mes "[Leader Lucian]";
+			mes "Listen to our truth then. We only protected our lands from Familiars. But then the Holy Order came. In their holy cruises, they burned our forests and slaughtered animals for food and sport. We had to become ruthless to survive.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "I am truly sorry... You didn't deserve this fate.";
+			next;
+			mes "[Leader Lucian]";
+			mes "Your sympathy is rare, human. But dark times are coming. The Order and Familiars are gathering strength, and I cannot fight them alone. I need my five generals, my old friends who hid across Midgard.";
+			mes "Find them and tell them that the Pack Leader calls them back to service!";
+			next;
+			mes "[Leader Lucian]";
+			mes "Here is where they were last seen:";
+			mes "1st — befriended the bears in Payon forests.";
+			mes "2nd — went to the sands of Morroc to form his own pack.";
+			mes "3rd — was spotted in the lands of eternal ice and storms.";
+			mes "4th — got stuck in a labyrinth, looking for an exit.";
+			mes "5th — wanted warmth and peace, hated sand. Check the fields of Rachel or Ayothaya.";
+			next;
+			mes "[Leader Lucian]";
+			mes "Bring them back to earn our ultimate respect!";
+			set lycan, 4;
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// СТАДІЯ 4: Перевірка виконання завдання (Очікування генералів)
+	// -------------------------------------------------------------
+	if (lycan >= 4 && lycan < 9) {
+		if (#gl_lang == 1) {
+			mes "[Вожак Люціан]";
+			mes "Ну що, мандрівнику? Тобі вдалося знайти моїх генералів?";
+			mes "Пам'ятай місця: ведмеді Пайона, піски Морока, крижані буревії, лабіринт та теплі землі (Рахель або Айотайо).";
+			mes "Часу обмаль, вороги вже близько. Знайди їх усіх і повертайся!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Leader Lucian]";
+			mes "Well, traveler? Did you find my generals?";
+			mes "Remember the locations: Payon bears, Morroc sands, icy storms, the labyrinth, and warm lands (Rachel or Ayothaya).";
+			mes "Time is short. Find them all and return!";
+			close;
+		}
+	}
+
+// -------------------------------------------------------------
+// БЛОКИ ОБРОБКИ ФІНАЛЬНОГО ВИБОРУ
+// -------------------------------------------------------------
+
+L_Accept:
+	if (#gl_lang == 1) {
+		mes "[Вожак Люціан]";
+		mes "*Покладає свою масивну лапу на ваше плече*";
+		mes "Відтепер і до кінця віків — ти наш брат по крові та зброї! Нехай твій клин буде гострим, а дух незламним.";
+		mes "Прийми цей знак нашої найвищої влади та поваги. Носи його з гордістю, Генерале!";
+		next;
+		getitem 15002, 1;
+		set lycan, 100;
+		// На випадок якщо гравець спочатку відмовлявся, видаляємо тимчасовий прапорець
+		set lycan_refused, 0; 
+		mes "[Квест Ліканів]";
+		mes "Ви отримали Знак Генерала Ліканів!";
+		close;
+	} else {
+		mes "[Leader Lucian]";
+		mes "*Places his massive paw on your shoulder*";
+		mes "From this day until the end of time — you are our brother in blood and arms! May your blade be sharp and your spirit unbreakable.";
+		mes "Accept this token of our highest authority and respect. Wear it with pride, General!";
+		next;
+		getitem 15002, 1;
+		set lycan, 100;
+		set lycan_refused, 0;
+		mes "[Lycan Quest]";
+		mes "You have received the Lycan General Token!";
+		close;
+	}
+
+L_Reject:
+	// Виставляємо прапорець, що гравець вже відмовлявся
+	set lycan_refused, 1;
+
+	if (#gl_lang == 1) {
+		mes "[Вожак Люціан]";
+		mes "*Його погляд стає сумним, він повільно киває*";
+		mes "Твої слова ранять моє серце, мандрівнику... Мені щиро шкода, що такий великий воїн обирає самотній шлях.";
+		mes "Але знай: моя пропозиція буде дійсна постійно. Наші двері відчинені, і я щиро сподіваюся, що з часом ти передумаєш і повернешся до нас.";
+		close;
+	} else {
+		mes "[Leader Lucian]";
+		mes "*His gaze turns sad, he slowly nods*";
+		mes "Your words pierce my heart, traveler... I am truly sorry that such a grand warrior chooses a lonely path.";
+		mes "But know this: my offer will stand forever. Our doors remain open, and I truly hope that in time you will change your mind and return to us.";
+		close;
+	}
+}
+
+pay_fild09,148,299,4	script	Fenrir	1106,{
+
+	// -------------------------------------------------------------
+	// ЗАХИСТ ВІД ЗРАДНИКІВ: Смерть від лап генерала
+	// -------------------------------------------------------------
+	if (order == 100 || familiar == 100) {
+		atcommand "@die";
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// ЗАГЛУШКА: Якщо гравець ще не отримав завдання від Вожака Люціана
+	// -------------------------------------------------------------
+	if (lycan < 4) {
+		if (#gl_lang == 1) {
+			mes "[Фенрір]";
+			mes "*Рррррр... Хто ти такий?*";
+			mes "Забирайся геть, від тебе тхне людським страхом. Мені немає діла до смертних.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Fenrir]";
+			mes "*Rrrrr... Who are you?*";
+			mes "Get lost, you smell of human fear. I have no business with mortals.";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ФІНАЛЬНА СТАДІЯ: Завдання Фенріра вже виконане
+	// -------------------------------------------------------------
+	if (fenrir_done == 1) {
+		if (#gl_lang == 1) {
+			mes "[Фенрір]";
+			mes "Дякую тобі ще раз, мандрівнику, що вчасно попередив нас про наступ цих проклятих Фамільярів та Ордену!";
+			mes "Мої вовчі загони вже ситі, повні сил і готові виступати на захист нашого Вожака Люціана. Ми вирушаємо!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Fenrir]";
+			mes "Thank you again, traveler, for warning us about the upcoming onslaught of the Familiars and the Order!";
+			mes "My wolf squads are fed, full of strength, and ready to march out to protect our Leader Lucian. We are heading out!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ОСНОВНИЙ КВЕСТ: Гравець шукає генералів (lycan >= 4)
+	// -------------------------------------------------------------
+	if (lycan > 3 && fenrir_done == 0) {
+		
+		// Якщо гравець уже в процесі збору м'яса
+		if (fenrir_meat > 0) {
+			goto L_CheckMeat;
+		}
+
+		if (#gl_lang == 1) {
+			mes "[" + strcharinfo(0) + "]";
+			mes "Вітаю тебе, могутній генерале! Я прийшов від вожака вашого народу Люціана.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Справа кепська... Сили Святого Ордену та прокляті Фамільяри Лорда Дракули збирають свої армії. Готується масштабний наступ, велика війна проти Ліканів! Вожак Люціан кличе тебе і твої війська назад на службу, сам він не втримає оборону.";
+			next;
+			mes "[Фенрір]";
+			mes "*В його очах спалахує дикий жах, вовна стає дибки*";
+			mes "Що ти кажеш?! Навіть у найгірших кошмарах я не міг уявити, що ці два вороги об'єднають зусилля... Я підозрював, що сутінки знову згущуються над нами, але не сподівався, що це станеться так швидко!";
+			next;
+			mes "[Фенрір]";
+			mes "Мій загін готовий розірвати будького за нашого Вожака Люціана, але ми надто довго жили тут, серед ведмедів Пайона. Попереду довгий, виснажливий шлях, а мої вовки голодні.";
+			mes "Мені потрібно, щоб ти приніс **500 одиниць М'яса (Meat)**, щоб нагодувати моїх відданих воїнів. Без цього вони просто падуть від знесилення в дорозі.";
+			next;
+			mes "[Фенрір]";
+			mes "Я знаю, що це величезна ноша для однієї людини, тому ти можеш приносити м'ясо будьякими партіями, скільки зможеш підняти. Я все підрахую.";
+			set fenrir_meat, 500; // Активуємо лічильник потрібного м'яса
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[" + strcharinfo(0) + "]";
+			mes "Greetings, mighty general! I come from the leader of your people, Lucian.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "The situation is dire... The Holy Order and the Familiars of Lord Dracula are gathering their armies. A full-scale war against Lycans is brewing! Leader Lucian calls you and your pack back to service.";
+			next;
+			mes "[Fenrir]";
+			mes "*Pure horror flashes in his eyes, his fur stands on end*";
+			mes "What are you saying?! I suspected that darkness was closing in on us again, but I never expected it to happen so fast!";
+			next;
+			mes "[Fenrir]";
+			mes "My pack is ready to fight for Leader Lucian, but the journey is long and exhausting. My wolves are starving.";
+			mes "I need you to bring **500 pieces of Meat** to feed my loyal warriors. Bring them in any batches you can carry, and I will keep count.";
+			set fenrir_meat, 500;
+			close;
+		}
+	}
+
+// -------------------------------------------------------------
+	// МІТКА: Прийом м'яса партіями
+// -------------------------------------------------------------
+L_CheckMeat:
+	if (#gl_lang == 1) {
+		mes "[Фенрір]";
+		mes "Ти повернувся. Нам все ще потрібно решта м'яса для зграї.";
+		mes "Залишилося принести: **" + fenrir_meat + "** шт.";
+		next;
+		
+		if (countitem(517) == 0) {
+			mes "[Фенрір]";
+			mes "У тебе немає з собою жодного шматочка м'яса! Поквапся, вовки чекають.";
+			close;
+		}
+
+		set @amount, countitem(517);
+		if (@amount > fenrir_meat) {
+			set @amount, fenrir_meat;
+		}
+
+		delitem 517, @amount;
+		set fenrir_meat, fenrir_meat - @amount;
+
+		if (fenrir_meat > 0) {
+			mes "[Фенрір]";
+			mes "Чудово! Я забрав **" + @amount + "** шт. М'яса і згодував його воїнам.";
+			mes "Залишилося принести ще **" + fenrir_meat + "** шт. Чекаю на тебе.";
+			close;
+		}
+		goto L_FenrirSuccess;
+	}
+	if (#gl_lang < 1) {
+		mes "[Fenrir]";
+		mes "You're back. We still need meat for the pack.";
+		mes "Remaining to bring: **" + fenrir_meat + "** pcs.";
+		next;
+
+		if (countitem(517) == 0) {
+			mes "[Fenrir]";
+			mes "You don't have any meat with you! Hurry up, the wolves are hungry.";
+			close;
+		}
+
+		set @amount, countitem(517);
+		if (@amount > fenrir_meat) {
+			set @amount, fenrir_meat;
+		}
+
+		delitem 517, @amount;
+		set fenrir_meat, fenrir_meat - @amount;
+
+		if (fenrir_meat > 0) {
+			mes "[Fenrir]";
+			mes "Excellent! I took **" + @amount + "** pcs of Meat and fed it to the warriors.";
+			mes "Still need **" + fenrir_meat + "** pcs more. I am waiting.";
+			close;
+		}
+		goto L_FenrirSuccess;
+	}
+
+// -------------------------------------------------------------
+	// МІТКА: Успішне закінчення квесту Фенріра
+// -------------------------------------------------------------
+L_FenrirSuccess:
+	set fenrir_done, 1;
+	set lycan, lycan + 1;
+	
+	if (#gl_lang == 1) {
+		mes "[Фенрір]";
+		mes "Неймовірно! Моє військо повністю нагодоване, повне люті та готове виступати!";
+		mes "Дякую тобі за твою неоціненну допомогу, людино. Ти довів, що гідний нашої поваги. Ми негайно висуваємося на заклик Люціана!";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Fenrir]";
+		mes "Incredible! My army is fully fed, filled with rage, and ready to march!";
+		mes "Thank you for your invaluable help, human. You have proven worthy of our respect. We are moving out immediately at Lucian's call!";
+		close;
+	}
+}
+
+pay_fild09,147,302,4	script	Wolf	1013,{
+	end;
+}
+
+pay_fild09,149,302,4	duplicate(Wolf)	Wolf#1	1013
+
+
+////////////////
+
+moc_fild18,58,346,4	script	Romulus	1106,{
+
+	// -------------------------------------------------------------
+	// ЗАХИСТ ВІД ЗРАДНИКІВ: Смерть від лап генерала
+	// -------------------------------------------------------------
+	if (order == 100 || familiar == 100) {
+		atcommand "@die";
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// ЗАГЛУШКА: Якщо гравець ще не отримав завдання від Вожака Люціана
+	// -------------------------------------------------------------
+	if (lycan < 4) {
+		if (#gl_lang == 1) {
+			mes "[Ромул]";
+			mes "*Рррррр... Гррр...*";
+			mes "Забирайся геть, двоногий хробак! Піски Морока стануть твоєю могилою, якщо ти не зникнеш з моїх очей!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Romulus]";
+			mes "*Rrrrr... Grrr...*";
+			mes "Get lost, bipedal worm! The sands of Morroc will become your grave if you don't vanish from my sight!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ФІНАЛЬНА СТАДІЯ: Завдання Ромула вже виконане
+	// -------------------------------------------------------------
+	if (romulus_done == 1) {
+		if (#gl_lang == 1) {
+			mes "[Ромул]";
+			mes "Моя зграя вирушає з хвилини на хвилину! Ми пройдемо крізь будь-яку бурю, щоб дістатися до Люціана.";
+			mes "Не гай часу, мандрівнику, шукай решту братів!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Romulus]";
+			mes "My pack is leaving any minute now! We will cross any storm to reach Lucian.";
+			mes "Don't waste time, traveler, look for the rest of our brothers!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ОСНОВНИЙ КВЕСТ: Механіка «роздратування» та перевірка води (lycan >= 4)
+	// -------------------------------------------------------------
+	if (lycan > 3 && romulus_done == 0) {
+
+		// Перевірка, чи квест уже активовано і генерал чекає на воду
+		if (romulus_water_quest == 1) {
+			goto L_CheckWater;
+		}
+
+		// Перший клік — генерал посилає гравця
+		if (@romulus_rage == 0) {
+			set @romulus_rage, 1;
+			if (#gl_lang == 1) {
+				mes "[Ромул]";
+				mes "Сонце випалило твої мізки, людино?! Забирайся геть з моїх земель, поки я не здер з тебе шкіру!";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Romulus]";
+				mes "Has the sun burned your brains, human?! Get out of my lands before I skin you alive!";
+				close;
+			}
+		}
+
+		// Другий клік — генерал знову посилає гравця
+		if (@romulus_rage == 1) {
+			set @romulus_rage, 2;
+			if (#gl_lang == 1) {
+				mes "[Ромул]";
+				mes "*Оскалює величезні ікла*";
+				mes "Ти що, недочуваєш?! Я сказав — згинь! Мені плювати, що тобі треба. Ще один крок, і ти станеш обідом для моїх вовків!";
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Romulus]";
+				mes "*Bares his massive fangs*";
+				mes "Are you deaf?! I said vanish! I don't care what you want. One more step, and you're lunch for my wolves!";
+				close;
+			}
+		}
+
+		// Третій клік — вибух терпіння та початок справжнього діалогу
+		if (@romulus_rage == 2) {
+			if (#gl_lang == 1) {
+				mes "[Ромул]";
+				mes "Моє терпіння скоро лусне! Останнє попередження, смертний: кажи, що тобі треба, або це будуть твої останні слова в житті!";
+				next;
+				mes "[" + strcharinfo(0) + "]";
+				mes "Перепрошую, можутьній Ромуле... Прошу, вислухай мене, я прийшов сюди не просто так. Я приніс звістку від вожака вашого народу, Люціана!";
+				next;
+				mes "[Ромул]";
+				mes "*Гарчання миттєво затихає, погляд стає суворим і зосередженим*";
+				mes "Від Люціана?! Що сталося? Кажи негайно!";
+				next;
+				mes "[" + strcharinfo(0) + "]";
+				mes "Святий Орден та Фамільяри Лорда Дракули об'єднують сили для масштабного наступу. Вони хочуть повністю винищити Ліканів! Вожак Люціан збирає всіх прадавніх генералів назад на службу, бо сам проти двох армій він не встоїть.";
+				next;
+				mes "[Ромул]";
+				mes "Прокляття... Дякую за інформацію, мандрівнику. Тепер я бачу, що ти прийшов з добрими намірами, і твої слова змушують мою кров холонути. Вожак кличе — і моя пустельна зграя відповість на заклик!";
+				next;
+				mes "[Ромул]";
+				mes "Але є одна перешкода. Мої вовки виснажені спекою, а попереду довгий перехід через ці кляті гарячі піски. Нам потрібні сили, щоб здолати пустелю.";
+				mes "Принеси мені **10 пляшечок Святої Води**. Ця благословенна вода очистить наш розум від палючого марева і дасть зграї сили перетнути пустелю.";
+				mes "Поквапся, я чекатиму.";
+				set romulus_water_quest, 1;
+				set @romulus_rage, 0;
+				close;
+			}
+			if (#gl_lang < 1) {
+				mes "[Romulus]";
+				mes "My patience is about to snap! Last warning, mortal: speak your mind, or these will be your final words!";
+				next;
+				mes "[" + strcharinfo(0) + "]";
+				mes "I am deeply sorry, mighty Romulus... Please, listen to me. I bring a message from the leader of your people, Lucian!";
+				next;
+				mes "[Romulus]";
+				mes "*The growling stops instantly, his gaze becomes sharp*";
+				mes "From Lucian?! What happened? Speak now!";
+				next;
+				mes "[" + strcharinfo(0) + "]";
+				mes "The Holy Order and the Familiars are gathering their forces for a full-scale war to destroy the Lycans. Leader Lucian calls all ancient generals back to service to stand together!";
+				next;
+				mes "[Romulus]";
+				mes "Curse them... Thank you for the warning, traveler. Lucian calls, and my desert pack will answer!";
+				next;
+				mes "[Romulus]";
+				mes "But my wolves are exhausted by the heat. To cross these burning sands, bring me **10 bottles of Holy Water**. It will protect us from the desert madness.";
+				mes "Hurry, I will be waiting.";
+				set romulus_water_quest, 1;
+				set @romulus_rage, 0;
+				close;
+			}
+		}
+	}
+
+// -------------------------------------------------------------
+// МІТКА: Перевірка та здача Святої Води
+// -------------------------------------------------------------
+L_CheckWater:
+	if (#gl_lang == 1) {
+		mes "[Ромул]";
+		mes "Ти повернувся. Ти приніс **10 пляшечок Святої Води**?";
+		next;
+		
+		if (countitem(523) < 10) {
+			mes "[Ромул]";
+			mes "У тебе недостатньо води! Мені потрібно рівно **10 штук**, щоб напоїти лідерів моїх загонів. Зараз у тебе з собою лише " + countitem(523) + ". Повертайся, коли знайдеш решту.";
+			close;
+		}
+
+		delitem 523, 10;
+		set romulus_done, 1;
+		set lycan, lycan + 1;
+
+		mes "[Ромул]";
+		mes "Чудово! Ця вода — справжнє спасіння. Спека більше не владна над нами.";
+		mes "Дякую тобі, людино. Моя зграя вирушає з хвилини на хвилину на захист Вожака Люціана. Хай прадавні духи бережуть твій шлях!";
+		close;
+	}
+	if (#gl_lang < 1) {
+		mes "[Romulus]";
+		mes "You're back. Did you bring **10 bottles of Holy Water**?";
+		next;
+
+		if (countitem(523) < 10) {
+			mes "[Romulus]";
+			mes "You don't have enough water! I need exactly **10 pieces**. Currently, you only have " + countitem(523) + ". Return when you have them all.";
+			close;
+		}
+
+		delitem 523, 10;
+		set romulus_done, 1;
+		set lycan, lycan + 1;
+
+		mes "[Romulus]";
+		mes "Excellent! This water is a true blessing. The heat has no power over us anymore.";
+		mes "Thank you, human. My pack is leaving any minute now to protect Leader Lucian. May the ancient spirits guard your path!";
+		close;
+	}
+}
+
+// =============================================================
+// ГЕНЕРАЛ БАЛТО 
+// =============================================================
+prt_maze02,158,115,4	script	Balto	1106,{
+
+	// -------------------------------------------------------------
+	// 1. ЗАХИСТ ВІД ЗРАДНИКІВ: Смерть від лап генерала
+	// -------------------------------------------------------------
+	if (order == 100 || familiar == 100) {
+		atcommand "@die";
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// 2. ЗАГЛУШКА: Якщо гравець ще не отримав завдання від Вожака Люціана
+	// -------------------------------------------------------------
+	if (lycan < 4) {
+		if (#gl_lang == 1) {
+			mes "[Балто]";
+			mes "*Грррр... Смертний...*";
+			mes "Не підходь близько. Стіни цього лабіринту тиснуть на мій розум, і я не ручаюся за свою лють.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Balto]";
+			mes "*Grrr... Mortal...*";
+			mes "Do not come close. The walls of this labyrinth crush my mind, and I cannot control my rage.";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// 3. ФІНАЛЬНА СТАДІЯ: Завдання Балто вже виконане повністю (стан 6)
+	// -------------------------------------------------------------
+	if (balto_done == 1) {
+		if (#gl_lang == 1) {
+			mes "[Балто]";
+			mes "Моя зграя вже відчула твої мітки та спускається до виходу. Дякую тобі, мандрівнику!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Balto]";
+			mes "My pack has already caught the scent of your markers and is moving to the exit. Thank you, traveler!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// 4. ЗДАЧА КВЕСТУ: Гравець пройшов усі 4 мітки по порядку (balto_maze == 5)
+	// -------------------------------------------------------------
+	if (lycan > 3 && balto_maze == 5 && balto_done == 0) {
+		set balto_done, 1;
+		set balto_maze, 6;    // Закриваємо квест лабіринту назавжди
+		set lycan, lycan + 1; // Головна змінна Ліканів збільшується на 1 (сюжет іде далі)
+		
+		// Очищаємо за собою старі непотрібні змінні лічильників
+				
+		if (#gl_lang == 1) {
+			mes "[" + strcharinfo(0) + "]";
+			mes "Генерале Балто! Я успішно проклав безпечний маршрут і залишив пахучі мітки аж до самого виходу з лабіринту.";
+			next;
+			mes "[Балто]";
+			mes "*Його очі спалахують радістю, він видає гучний вовчий виття*";
+			mes "Неймовірно! Мої вовки на нижньому ярусі вже почули цей запах через вентиляційні щілини! Тепер ми знаємо куди йти.";
+			mes "Ти зробив велику справу, людино. Я негайно збираю сили і ми прориваємося на поверхню, щоб стати під прапори Люціана. Прощавай, і дякую тобі!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[" + strcharinfo(0) + "]";
+			mes "General Balto! I have successfully mapped out a safe route and left scent markers all the way to the labyrinth exit.";
+			next;
+			mes "[Balto]";
+			mes "*His eyes light up with joy, he lets out a loud wolf howl*";
+			mes "Incredible! My wolves on the lower level have already caught the scent! Now we know the way.";
+			mes "You have done a great deed, human. I am gathering our forces immediately to join Lucian. Farewell, and thank you!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// 5. НАГАДУВАННЯ: Квест у процесі, пройдено від 1 до 3 міток (balto_maze від 1 до 4)
+	// -------------------------------------------------------------
+	if (lycan > 3 && balto_maze >= 1 && balto_maze <= 4 && balto_done == 0) {
+		if (#gl_lang == 1) {
+			mes "[Балто]";
+			mes "Ти ще не закінчив. Мені потрібен чіткий маршрут до самого виходу на поверхню.";
+			mes "Залишай мої особливі мітки на стінах лабіринту в правильному порядку, щоб моя зграя могла знайти дорогу за запахом.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Balto]";
+			mes "You haven't finished yet. I need a clear route to the surface exit.";
+			mes "Leave my special scent markers on the walls in the correct order so my pack stuck below can find their way!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// 6. СТАРТ КВЕСТУ: Перша розмова — активація (виконується при balto_maze == 0)
+	// -------------------------------------------------------------
+	if (lycan > 3 && balto_maze == 0 && balto_done == 0) {
+		if (#gl_lang == 1) {
+			mes "[Балто]";
+			mes "*Оскалюється, але почувши твій спокійний крок, зупиняється*";
+			mes "Стій, смертний. Чому ти не тікаєш від мене в паніці, як інші? Хто ти такий і що забув у цих проклятих стінах?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Я прийшов з миром від вожака вашого народу, Люціана!";
+			next;
+			mes "[Балто]";
+			mes "*Гарчання повністю затихає*";
+			mes "Від Люціана?! Мій Вожак кличе мене?! О прадавні духи, я б уже давно повернувся до нього! Моє військо чекає на мене поверхом нижче, готові до бою...";
+			mes "Але цей клятий лабіринт... Магія людей заплутала ці коридори. Я вже тижнями блукаю цими колами і ніяк не можу знайти шлях назад назовні!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Не хвилюйся, великий вовче. Я знаю цей лабіринт і можу допомогти вам вибратися.";
+			next;
+			mes "[Балто]";
+			mes "Якщо ти зробиш це, зграя ніколи не забуде твого вчинку! Іди вперед до виходу на поверхню.";
+			mes "Я дам тобі свій особливий секрет. Рухайся коридорами лабіринту і залишай мої знаки на стінах у ключових точках. Як тільки прокладеш шлях до самого виходу з лабіринту — повертайся до мене!";
+			set balto_maze, 1;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Balto]";
+			mes "*Bares his fangs, but stops as he notices your calm step*";
+			mes "Stop, mortal. Why aren't you running away in panic? Who are you?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "I come in peace from the leader of your people, Lucian!";
+			next;
+			mes "[Balto]";
+			mes "From Lucian?! My Leader calls for me?! Oh ancient spirits, I would have returned long ago! My army is waiting on the level below...";
+			mes "But this cursed labyrinth... I've been wandering in circles for weeks and cannot find the way out!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Do not worry, great wolf. I know this place and I can help you escape.";
+			next;
+			mes "[Balto]";
+			mes "If you do this, the pack will never forget it! Go ahead towards the exit.";
+			mes "Map out the trail and mark the key points through the corridors all the way to the outside world, then return to me!";
+			set balto_maze, 1;
+			close;
+		}
+	}
+}
+
+
+// =============================================================
+// МІТКИ ЛАБІРИНТУ (СТРОГИЙ ПОРЯДОК ПРОХОДЖЕННЯ)
+// =============================================================
+
+prt_maze02,99,16,4	script	Marker 1	111,{
+	// Мітка 1 активна ТІЛЬКИ якщо квест щойно взято (balto_maze == 1)
+	if (balto_maze != 1) { close; }
+	
+	// Змінюємо значення на 2 (це активує Наступну мітку для сервера)
+	set balto_maze, 2;
+
+	if (#gl_lang == 1) {
+		mes "[Встановлення мітки]";
+		mes "Точка 1 успішно активована!";
+		mes "Шукайте наступну точку.";
+	} else {
+		mes "[Placing Marker]";
+		mes "Marker 1 has been successfully activated!";
+		mes "Look for the next marker.";
+	}
+	close;
+}
+
+prt_maze01,98,168,4	script	Marker 2	111,{
+	// Мітка 2 спрацює ТІЛЬКИ якщо перша мітка вже активована (balto_maze == 2)
+	if (balto_maze != 2) { close; }
+
+	// Змінюємо значення на 3
+	set balto_maze, 3;
+
+	if (#gl_lang == 1) {
+		mes "[Встановлення мітки]";
+		mes "Точка 2 успішно активована!";
+		mes "Шукайте наступну точку.";
+	} else {
+		mes "[Placing Marker]";
+		mes "Marker 2 has been successfully activated!";
+		mes "Look for the next marker.";
+	}
+	close;
+}
+
+prt_maze01,110,19,4	script	Marker 3	111,{
+	// Мітка 3 спрацює ТІЛЬКИ після другої мітки (balto_maze == 3)
+	if (balto_maze != 3) { close; }
+
+	// Змінюємо значення на 4
+	set balto_maze, 4;
+
+	if (#gl_lang == 1) {
+		mes "[Встановлення мітки]";
+		mes "Точка 3 успішно активована!";
+		mes "Шукайте останню точку.";
+	} else {
+		mes "[Placing Marker]";
+		mes "Marker 3 has been successfully activated!";
+		mes "Look for the last marker.";
+	}
+	close;
+}
+
+prt_maze01,180,71,4	script	Marker 4	111,{
+	// Мітка 4 спрацює ТІЛЬКИ після третьої мітки (balto_maze == 4)
+	if (balto_maze != 4) { close; }
+
+	// Фінал: виставляємо значення 5 (Всі мітки успішно пройдені по черзі)
+	set balto_maze, 5;
+
+	if (#gl_lang == 1) {
+		mes "[Квест Ліканів]";
+		mes "Чудово! Всі 4 мітки встановлено в правильному порядку.";
+		mes "Маршрут прокладено, повертайтеся до Генерала Балто.";
+	} else {
+		mes "[Lycan Quest]";
+		mes "Excellent! All 4 markers have been placed in the correct order.";
+		mes "The route is mapped, return to General Balto.";
+	}
+	close;
+}
+
+
+////////////
+
+// =============================================================
+// СИН ГЕНЕРАЛА — МАЛЕНЬКИЙ ЛІКАН РАГНА
+// =============================================================
+xmas,77,237,4	script	Ragna	1107,{
+
+	// -------------------------------------------------------------
+	// 1. ЗАХИСТ ВІД ЗРАДНИКІВ
+	// -------------------------------------------------------------
+	if (order == 100 || familiar == 100) {
+		atcommand "@die";
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// 2. ЗАГЛУШКА: Якщо гравець ще не отримав завдання від Вожака Люціана
+	// -------------------------------------------------------------
+	if (lycan < 4) {
+		if (#gl_lang == 1) {
+			mes "[Малий Рагна]";
+			mes "*Тявкає, намагаючись виглядати грізно*";
+			mes "Іди геть, чужинцю! Я тебя не знаю! Навіть не думай підходити до нашої фабрики, я вмію кусатися!";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Little Ragna]";
+			mes "*Yaps, trying to look fierce*";
+			mes "Go away, stranger! I don't know you! Don't even think about coming near our factory, I know how to bite!";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// 3. ФІНАЛЬНА СТАДІЯ: Історія вже вислухана, чекаємо рішення Люціана (ragna_talk == 1)
+	// -------------------------------------------------------------
+	if (lycan > 4 && ragna_talk == 1) {
+		if (#gl_lang == 1) {
+			mes "[Малий Рагна]";
+			mes "*Дивитися на вас великими, повними надії очима, крутячи хвостом*";
+			mes "О, це знову ти! Ну що, ти вже бачив Великого Вожака Люціана? Ти розповів йому про нас?";
+			mes "Він... він прийме мене та моїх братів на службу? Ми тренуємося щодня, чесно!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Всьому свій час, малюку. Спершу я маю закінчити всі справи і повернутися до Люціана з повною відповіддю. Чекайте тут і охороняйте фабрику.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Little Ragna]";
+			mes "*Looks at you with big, hopeful eyes, wagging his tail*";
+			mes "Oh, it's you again! Well, have you seen the Great Leader Lucian yet? Did you tell him about us?";
+			mes "Will he... will he accept me and my brothers into his service? We train every day, honestly!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "All in good time, little one. First, I must finish all my tasks and return to Lucian with a full report. Wait here and keep guarding the factory.";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// 4. ОСНОВНИЙ КВЕСТ: Довга плаксива розмова та активація прогресу
+	// -------------------------------------------------------------
+	if (lycan > 3 && ragna_talk == 0) {
+		if (#gl_lang == 1) {
+			mes "[Малий Рагна]";
+			mes "*Маленьке вовченя сидить біля входу, загорнувшись у завеликий для нього шкіряний плащ із військовими емблемами*";
+			mes "Хто ти такий, мандрівнику? Навіщо ти прийшов сюди, в ці засніжені землі?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Привіт, малюку. Я прийшов за дорученням Великого Вожака Люціана. Я шукаю місцевого Генерала армії Ліканів. Де я можу знайти твого батька?";
+			next;
+			mes "[Малий Рагна]";
+			mes "*Вушка вовченяти миттєво опускаються, а в очах з'являються сльози*";
+			mes "Батька?.. Його... його більше немає з нами. Як і мами. Вже дуже давно...";
+			mes "Тепер я тут головний! Я — вожак нашої невеликої зграї. Хоч я ще маленький, але я тримаю всіх у кулаці! Нас навіть місцеві люди полюбили...";
+			mes "Ми добре поводимося, не чіпаємо нікого без причини і допомагаємо їм охороняти вхід на цю фабрику іграшок від злих монстрів.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "*Присідає поруч на одне коліно*";
+			mes "О прадавні духи... Мені дуже шкода, малюку. А що саме з ними сталося? Де вони?";
+			next;
+			mes "[Малий Рагна]";
+			mes "*Починає шмигати носом, витираючи сльози широким рукавом плаща*";
+			mes "Це сталося тієї жахливої зими... Мій тато був славетним Генералом у війську Люціана. Він був таким сильним, його шкура була міцнішою за крицю!";
+			mes "Одного дня з глибоких крижаних печер піднявся жахливий монстр — лютий Гарм... Він повів за собою сотні піддалих чудовиськ, щоб знищити все живе на цих землях.";
+			next;
+			mes "[Малий Рагна]";
+			mes "Тато зібрав усю нашу гвардію і пішов на велику битву, прямо туди, у саме серце завірюхи. Мама благала його залишитися, але він сказав, що обов'язок перед Люціаном і зграєю — понад усе.";
+			mes "Битва тривала три дні і три ніч... Вітер вив так гучно, ніби плакав сам світ. На третій день мама не витримала. Вона схопила свої клинки і кинулася в заметіль, щоб допомогти батькові, бо відчула, що його серце замерзає...";
+			next;
+			mes "[Малий Рагна]";
+			mes "Вони... вони обоє загинули там. Мені потім розповіли старі вовки, що тато закрив маму своїм тілом, коли Гарм завдав останнього, смертельного удару крижаним подихом. Вони так і замерзли разом, тримаючи одне одного за лапи...";
+			mes "*Малюк тихо плаче, але раптом стискає свої маленькі кулачки і піднімає голову*";
+			mes "Але це нічого! Я не плачу! Лікани не плачуть! Я і мої брати — ми сильні! Ми виростемо, збудуємо велику армію і колись обов'язково помстимося Гарму за маму і тата!";
+			next;
+			mes "[Малий Рагна]";
+			mes "Ми готові хоч зараз йти на допомогу Люціану! Ми будемо вірно служити йому, як служив наш батько-генерал. Тільки... тільки покличте нас!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "*Торкається плеча вовченяти*";
+			mes "Ти дуже хоробрий, Рагно. Твій батько пишався б тобою. Я обов'язково повернуся до Вожака Люціана і розкажу йому всю історію вашої родини.";
+			mes "Якщо він дозволить — я особисто прийду сюди знову і заберу тебе разом із братами на офіційну службу до нашої столиці. Чекай на мене.";
+			next;
+			mes "[Малий Рагна]";
+			mes "*Швидко витирає сльози і радісно тявкає*";
+			mes "Дякую тобі, добрий мандрівнику! Я чекатиму! Ми всі будемо чекати!";
+			
+			// Збільшуємо сюжетну змінну та фіксуємо розмову
+			set ragna_talk, 1;
+			set lycan, lycan + 1;
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[Little Ragna]";
+			mes "*A small wolf pup sits near the entrance, wrapped in a leather military cloak that is way too big for him*";
+			mes "Who are you, traveler? Why have you come here to these snowy lands?";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Hello, little one. I come on behalf of Great Leader Lucian. I am looking for the local Lycan Army General. Where can I find your father?";
+			next;
+			mes "[Little Ragna]";
+			mes "*The pup's ears immediately drop, and tears well up in his eyes*";
+			mes "Father?.. He... he is no longer with us. Neither is mother. It happened a long time ago...";
+			mes "Now I am in charge here! I am the leader of our small pack. Even though I am still little, I keep everyone in line! Even the local humans like us...";
+			mes "We behave well, we don't trouble anyone without reason, and we help them guard the entrance to this Toy Factory from evil monsters.";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "*Kneels down on one knee next to him*";
+			mes "Oh, ancient spirits... I am so sorry, little one. What exactly happened to them? Where are they?";
+			next;
+			mes "[Little Ragna]";
+			mes "*Starts sniffing, wiping away tears with the wide sleeve of his cloak*";
+			mes "It happened during that terrible winter... My dad was a glorious General in Lucian's army. He was so strong, his hide was tougher than steel!";
+			mes "One day, a terrifying monster rose from the deep ice caves — the ferocious Garm... He led hundreds of vicious beasts to destroy everything in these lands.";
+			next;
+			mes "[Little Ragna]";
+			mes "Dad gathered our entire guard and went into the grand battle, right into the heart of the blizzard. Mom begged him to stay, but he said that duty to Lucian and the pack comes before everything.";
+			mes "The battle lasted for three days and three nights... The wind howled so loudly, it felt like the world itself was crying. On the third day, mom couldn't take it anymore. She grabbed her blades and rushed into the storm to help him, because she felt his heart was freezing...";
+			next;
+			mes "[Little Ragna]";
+			mes "They... they both died there. The old wolves told me later that dad covered mom with his own body when Garm dealt the final, fatal blow with his icy breath. They froze together, holding each other's paws...";
+			mes "*The pup cries softly, but suddenly clenches his small fists and raises his head*";
+			mes "But it's okay! I am not crying! Lycans don't cry! Me and my brothers — we are strong! We will grow up, build a great army, and one day we will definitely take revenge on Garm for mom and dad!";
+			next;
+			mes "[Little Ragna]";
+			mes "We are ready to go and help Lucian right now! We will serve him faithfully, just like our father did. Just... just call for us!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "*Touches the pup's shoulder*";
+			mes "You are very brave, Ragna. Your father would be proud of you. I will definitely return to Leader Lucian and tell him the whole story of your family.";
+			mes "If he allows it, I will personally come back here and take you and your brothers into official service. Wait for me.";
+			next;
+			mes "[Little Ragna]";
+			mes "*Quickly wipes his tears and yaps happily*";
+			mes "Thank you, kind traveler! I will wait! We will all be waiting!";
+			
+			set ragna_talk, 1;
+			set lycan, lycan + 1;
+			close;
+		}
+	}
+}
+
+xmas,75,237,3	script	Wolf Pup	1107,{ end; }
+xmas,76,239,3	script	Wolf Pup	1107,{ end; }
+xmas,78,239,3	script	Wolf Pup	1107,{ end; }
+
+
+/////////////
+
+// =============================================================
+// ОСТАННІЙ ГЕНЕРАЛ — БЙОРН
+// =============================================================
+ayothaya,102,233,4	script	Bjorn	1106,{
+
+	// -------------------------------------------------------------
+	// 0. ПОВНА НЕКЛІКАБЕЛЬНІСТЬ ПІСЛЯ ЗАВЕРШЕННЯ
+	// -------------------------------------------------------------
+	// Як тільки квест виконано (bjorn_talk == 1), NPC повністю ігнорує будь-які кліки
+	if (bjorn_talk == 1) {
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// 1. ЗАХИСТ ВІД ЗРАДНИКІВ
+	// -------------------------------------------------------------
+	if (order == 100 || familiar == 100) {
+		atcommand "@die";
+		end;
+	}
+
+	// -------------------------------------------------------------
+	// 2. ЗАГЛУШКА: Якщо гравець ще не дійшов до цього етапу сюжету
+	// -------------------------------------------------------------
+	// Якщо змінна lycan ще не досягла потрібного значення (наприклад, менше 5 після попередніх генералів)
+	if (lycan < 5) {
+		if (#gl_lang == 1) {
+			mes "[Генерал Бйорн]";
+			mes "*Гріється на сонці, ліниво привідкривши одне око*";
+			mes "Іди своєю дорогою, смертний. Мало того, що спека неймовірна, так ще й ти тут вештаєшся під ногами.";
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[General Bjorn]";
+			mes "*Basks in the sun, lazily opening one eye*";
+			mes "Go your way, mortal. Not only is the heat unbearable, but you are also wandering under my feet.";
+			close;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// 3. ОСНОВНИЙ КВЕСТ: Рішуча розмова та фінал місій Люціана
+	// -------------------------------------------------------------
+	if (lycan > 4 && bjorn_talk == 0) {
+		if (#gl_lang == 1) {
+			mes "[Генерал Бйорн]";
+			mes "*Величезний вовк різко підводиться, його загартована в боях броня гучно брязкає*";
+			mes "Чужинцю! Навіть не починай цю промову. Стули пельку, я чудово знаю, від кого ти прийшов і чого шукаєш у цих тропіках!";
+			next;
+			mes "[Генерал Бйорн]";
+			mes "Моя армія вже давно готова до виходу. Нам і так набридло гріти старі кістки на цьому клятому сонці! Пора згадати смак справжньої битви і показати всім, хто справжній господар у лісах Мідгарда!";
+			mes "Люціан кличе — і ми йдемо. А тепер не заважай, з дороги!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "Але це і є мій шлях, Генерале! Я тут, щоб допомогти вам. Я хочу довести людям, що Лікани — це не просто дикі звірі чи монстри, а гордий народ, з яким варто рахуватися!";
+			next;
+			mes "[Генерал Бйорн]";
+			mes "*Пильно вдивляється у ваші очі, а потім схвально і гучно регоче*";
+			mes "Ха-ха-ха! Оце так зухвалість! Знаєш, людино... я вражений твоїми словами та твоєю сміливістю. Не кожен смертний ризикне говорити таке прямо мені в очі.";
+			next;
+			mes "[Генерал Бйорн]";
+			mes "Що ж, якщо тобі колись знадобиться допомога — моя міцна лапа та гострі ікла завжди до твоїх послуг. Наша зграя висувається негайно! Повертайся до Люціана і передай, що третій легіон уже в дорозі.";
+			
+			// Фіксуємо проходження квесту
+			set bjorn_talk, 1;
+			set lycan, lycan + 1; // +1 до сюжету, тепер можна здавати фінал Люціану
+			close;
+		}
+		if (#gl_lang < 1) {
+			mes "[General Bjorn]";
+			mes "*The massive wolf abruptly stands up, his battle-hardened armor clanking loudly*";
+			mes "Stranger! Don't even start that speech. Hold your tongue, I know perfectly well who sent you and what you are looking for in these tropics!";
+			next;
+			mes "[General Bjorn]";
+			mes "My army is already prepared for the march. We are sick and tired of warming our old bones under this cursed sun! It's time to remember the taste of real battle and show everyone who the true master of Midgard's forests is!";
+			mes "Lucian calls — and we answer. Now step aside, do not block our path!";
+			next;
+			mes "[" + strcharinfo(0) + "]";
+			mes "But this is my path, General! I am here to help you. I want to prove to humans that Lycans are not just wild beasts or monsters, but a proud nation to be reckoned with!";
+			next;
+			mes "[General Bjorn]";
+			mes "*Stares deeply into your eyes, then lets out an appreciative, booming laugh*";
+			mes "Ha-ha-ha! What insolence! You know, human... I am impressed by your words and your courage. Not every mortal would dare to say that straight to my face.";
+			next;
+			mes "[General Bjorn]";
+			mes "Well then, if you ever need help — my strong paw and sharp fangs are always at your service. Our pack is moving out immediately! Return to Lucian and tell him that the third legion is already on its way.";
+			
+			set bjorn_talk, 1;
+			set lycan, lycan + 1;
+			close;
+		}
+	}
+}
+
+ayothaya,102,236,4	script	Bjorn Soldier	1013,{ end; }
+ayothaya,104,235,4	script	Bjorn Soldier	1013,{ end; }
+ayothaya,100,235,4	script	Bjorn Soldier	1013,{ end; }

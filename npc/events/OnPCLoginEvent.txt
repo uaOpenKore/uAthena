@@ -1,0 +1,65 @@
+prontera,1,1,1	script	OnPCLoginEvent	-1,{
+
+OnPCLoginEvent:
+	// Твої стандартні команди при вході
+	atcommand "@autoloot";
+	atcommand "@showexp";
+	atcommand "@showzeny";
+	atcommand "/noctrl";
+	charcommand "/nc";
+
+	goto L_FixAppearance;
+
+OnPCLoadMapEvent:
+	// Спрацьовує при телепортах та зміні карт
+
+L_FixAppearance:
+	// Пауза 1.5 секунди, щоб клієнт встиг завантажити карту
+	sleep2 1500;
+
+	// Зчитуємо графічний вигляд усіх трьох слотів голови
+	set @current_top, getlook(4); // Upper (Шолом)
+	set @current_mid, getlook(5); // Middle (Окуляри/Вуха)
+	set @current_bot, getlook(6); // Lower (Твої маски)
+
+	// Якщо в нижньому слоті взагалі є якась маска (LOOK-ID більше 0)
+	if (@current_bot > 0) {
+		
+		set @look_to_apply, 0;
+
+		// Визначаємо, яка саме реліквія зараз активна за одягненим предметом
+		if (isequipped(15001)) {
+			if (vamp_look == 0) set @look_to_apply, 214;
+			else set @look_to_apply, vamp_look;
+		}
+		else if (isequipped(15002)) {
+			if (lycan_look == 0) set @look_to_apply, 214;
+			else set @look_to_apply, lycan_look;
+		}
+		else if (isequipped(15003)) {
+			if (order_look == 0) set @look_to_apply, 214;
+			else set @look_to_apply, order_look;
+		}
+
+		// Якщо сумісний предмет знайдено — форсуємо синхронізацію шапок
+		if (@look_to_apply > 0) {
+			
+			// 1. Спочатку повністю скидаємо, а потім повертаємо вигляд маски
+			setlook 6, 0;
+			setlook 6, @look_to_apply;
+
+			// 2. М'яко оновлюємо верхній слот (Шолом), щоб він виплив поверх маски
+			if (@current_top > 0) {
+				setlook 4, 0;
+				setlook 4, @current_top;
+			}
+
+			// 3. М'яко оновлюємо середній слот
+			if (@current_mid > 0) {
+				setlook 5, 0;
+				setlook 5, @current_mid;
+			}
+		}
+	}
+	end;
+}

@@ -13,31 +13,105 @@
 //============================================================
 
 prontera.gat,147,177,7	script	Kiel Capry	832,{
+	// Перевірка: якщо квест виконано або на потрібному етапі (38 і більше)
+	if (KielHyreQuest >= 38) {
+		mes "[Kiel Capry]";
+		if (#gl_lang == 1) {
+			mes "Дякую, що допоміг моєму батькові! Можу запропонувати тобі перенести тебе до входу в підземелля.";
+			next;
+			menu "Так, давай.", M_CapryShortCut, "Ні, дякую.", -;
+		}
+		if (#gl_lang < 1) {
+			mes "Thank you for helping my father! I can offer to warp you to the dungeon entrance.";
+			next;
+			menu "Yes, please.", M_CapryShortCut, "No, thanks.", -;
+		}
+		
+		// Якщо гравець вибрав "Ні", скрипт завершує роботу
+		mes "[Kiel Capry]";
+		mes callfunc("F_Bye");
+		close;
+	}
+
+	// Головний сценарій розмови (якщо KielHyreQuest менше 38 або відсутня)
 	mes "[Kiel Capry]";
 	mes callfunc("F_Hi");
-	mes "Help us! Everybody's evacuated! There's been an accident in my father's University...";
+	
+	if (#gl_lang == 1) {
+		mes "Допоможіть нам! Усі евакуйовані! В Університеті мого батька стався нещасний випадок...";
+	}
+	if (#gl_lang < 1) {
+		mes "Help us! Everybody's evacuated! There's been an accident in my father's University...";
+	}
+	
 	if(rand(2))close;
 	specialeffect 417;
 	next;
 	emotion e_wah;
+	
 	mes "[Kiel Capry]";
-	mes "My father, ^FF0000Kiel Carlo^000000 is waiting for help in the broken elevator.";
+	if (#gl_lang == 1) {
+		mes "Мій батько, ^FF0000Кіль Карло^000000, чекає на допомогу в зламаному ліфті.";
+	}
+	if (#gl_lang < 1) {
+		mes "My father, ^FF0000Kiel Carlo^000000 is waiting for help in the broken elevator.";
+	}
+	
 	if(rand(2))close;
 	next;
+	
 	mes "[Kiel Capry]";
-	mes "What? Our home is located in the middle of ^FF0000Yuno field 08^000000...";
+	if (#gl_lang == 1) {
+		mes "Що? Наш дім розташований посеред ^FF0000Yuno field 08^000000...";
+	}
+	if (#gl_lang < 1) {
+		mes "What? Our home is located in the middle of ^FF0000Yuno field 08^000000...";
+	}
 	close;
+
+M_CapryShortCut:
+	warp "yuno_fild08.gat",74,173;
+	end;
 }
 
 kh_school.gat,119,146,3	script	Kiel Carlo	748,{
+	// Перевірка на проходження квесту (короткий шлях)
+	if (KielHyreQuest >= 38) {
+		mes "[Kiel Carlo]";
+		if (#gl_lang == 1) {
+			mes "Бачу, ти вже був у підземеллі. Можу допомогти тобі дістатися до його входу коротким шляхом.";
+			next;
+			menu "Так, давай.", M_ShortCut, "Ні, дякую.", -;
+		}
+		if (#gl_lang < 1) {
+			mes "I see you have already been to the dungeon. I can help you get to its entrance via a short cut.";
+			next;
+			menu "Yes, please.", M_ShortCut, "No, thanks.", -;
+		}
+	}
+
 	mes "[Kiel Carlo]";
 	mes callfunc("F_Hi");
-	mes "We have evacuated all the students!";
-	mes "What? Are you going to jump in the lift tunnel, right into the hands of those gone bad robots?";
-	mes "Well... we need money. Will you pay 10.000z?";
+	
+	if (#gl_lang == 1) {
+		mes "Ми евакуювали всіх студентів!";
+		mes "Що? Ти збираєшся стрибнути в шахту ліфта, прямо до рук тих збожеволілих роботів?";
+		mes "Ну... нам потрібні гроші. Заплатиш 10.000z?";
+	}
+	if (#gl_lang < 1) {
+		mes "We have evacuated all the students!";
+		mes "What? Are you going to jump in the lift tunnel, right into the hands of those gone bad robots?";
+		mes "Well... we need money. Will you pay 10.000z?";
+	}
 	next;
 	emotion e_hmm;
-	menu "Yep.",M_GO, "No way!",-;
+	
+	if (#gl_lang == 1) {
+		menu "Так.", M_GO, "Ні за що!", -;
+	}
+	if (#gl_lang < 1) {
+		menu "Yep.", M_GO, "No way!", -;
+	}
 
 	mes "[Kiel Carlo]";
 	mes "Well... "+callfunc("F_Bye");
@@ -45,18 +119,36 @@ kh_school.gat,119,146,3	script	Kiel Carlo	748,{
 
 M_GO:
 	mes "[Kiel Carlo]";
-	mes "I refuse to let you enter if you don't meet these conditions:";
-	mes "1. You have to be 70 Base Level or higher.";
-	mes "2. You have to donate 10.000 zeny.";
+	if (#gl_lang == 1) {
+		mes "Я відмовлюся впустити тебе, якщо ти не виконаєш ці умови:";
+		mes "1. Твій базовий рівень має бути 70 або вище.";
+		mes "2. Тобі потрібно пожертвувати 10.000 zeny.";
+	}
+	if (#gl_lang < 1) {
+		mes "I refuse to let you enter if you don't meet these conditions:";
+		mes "1. You have to be 70 Base Level or higher.";
+		mes "2. You have to donate 10.000 zeny.";
+	}
 	next;
+	
 	if(BaseLevel<70 || Zeny<10000){
 		mes "[Kiel Carlo]";
-		mes "Alas... I can't let you in.";
+		if (#gl_lang == 1) {
+			mes "На жаль... Я не можу впустити тебе.";
+		}
+		if (#gl_lang < 1) {
+			mes "Alas... I can't let you in.";
+		}
 		emotion e_sry;
 		close;
 	}
+	
 	set Zeny,Zeny-10000;
 	warp "kh_kiehl02.gat",rand(46,53),rand(9,12);
+	end;
+
+M_ShortCut:
+	warp "yuno_fild08.gat",74,173;
 	end;
 }
 

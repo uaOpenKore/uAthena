@@ -1,9 +1,9 @@
-prontera,0,0,0	script	PCLoginEvent	-1,{
-
-	if (entity == 100) {
-		bonus_script "{ bonus bStr,2; bonus bVit,1; }", 86400000;
-		dispbottom "Entity 100 bonus applied: +2 STR, +1 VIT";
-	}
-
+// OnPCLoginEvent
+-	script	atcommand_on_login	-1,{
+OnPCLoginEvent:
+	// Виконує команду від імені гравця при вході
+	atcommand "@autoloot";
+	atcommand "@showexp";
+	atcommand "@showmoney";
 	end;
 }
