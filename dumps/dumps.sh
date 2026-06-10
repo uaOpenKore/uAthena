@@ -83,7 +83,7 @@ function make_backup {
  }
 
 function create_test {
-  mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e 'insert into login (userid,user_pass,level,lastlogin) values ("Test","Test",99,"2026-01-01 00:00:01")'
+  mysql -h$HOST -P$PORT -u$USER -p$PASSWORD -D$DB -sN -e 'insert into login (userid,user_pass,level,lastlogin,email) values ("Test","Test",99,"2026-01-01 00:00:01", "a@a.com")'
      if [ "$?" != "0" ]
       then
        echo "Problem connecting to database"
