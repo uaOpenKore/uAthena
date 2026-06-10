@@ -1,3 +1,0 @@
-v0.1.1 - 8b74845 - this version is adapted for CentOS 7 x32 & x64
-v0.1.2 - dfc0265 - this version is adapted for CentOS 8
-v0.1.3 - bd46aba - this version is adapted for CentOS 9

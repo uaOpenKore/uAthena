@@ -25,24 +25,13 @@ chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
 echo "/swapfile swap swap defaults 0 0" >>/etc/fstab
-echo "vm.swappiness = 40" >>/etc/sysctl.conf
+echo "vm.swappiness = 15" >>/etc/sysctl.conf
 
 
 3.
-~ Custom build kernel
-apt -y install build-essential libncurses-dev bison flex libssl-dev libelf-dev bc fakeroot dpkg-dev rsync dwarves debhelper-compat
-git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-cd linux-stable
-git tag -l | grep "v6.12\."
-git checkout -b 6.12.1 v6.12.1
-cp /boot/config-$(uname -r) .config
-make menuconfig
-~~ General setup -> Kernel compression mode (ZSTD)
-~~ General setup -> Compiler optimization level (Optimize for size (-Os))
-make -j12 deb-pkg
-dpkg -i ../linux-image-*.deb ../linux-headers-*.deb
-make clean
-git reset --hard HEAD
+~ Backport kernel
+apt -y install -t bookworm-backports linux-image-amd64 linux-headers-amd64
+reboot
 
 4.
 ~ Install libs for making uAthena
