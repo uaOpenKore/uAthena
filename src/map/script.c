@@ -2310,7 +2310,7 @@ const char* conv_str(struct script_state* st, struct script_data* data)
 }
 
 /// Converts the data to an int
-int conv_num(struct script_state* st, struct script_data* data)
+intptr_t conv_num(struct script_state* st, struct script_data* data)
 {
 	char* p;
 	long num;
@@ -2362,7 +2362,7 @@ int conv_num(struct script_state* st, struct script_data* data)
 		data->u.num = 0;
 	}
 #endif
-	return data->u.num;
+	return (intptr_t)data->u.num;
 }
 
 //
@@ -2989,7 +2989,7 @@ struct linkdb_node* script_erase_sleepdb(struct linkdb_node *n)
 /*==========================================
  * sleepp^C}[
  *------------------------------------------*/
-int run_script_timer(int tid, unsigned int tick, int id, int data)
+int run_script_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct script_state *st     = (struct script_state *)data;
 	struct linkdb_node *node    = (struct linkdb_node *)sleep_db;
@@ -3445,7 +3445,7 @@ static int script_save_mapreg(void)
 	mapreg_dirty=0;
 	return 0;
 }
-static int script_autosave_mapreg(int tid,unsigned int tick,int id,int data)
+static int script_autosave_mapreg(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	if(mapreg_dirty)
 		if (script_save_mapreg() == -1)
