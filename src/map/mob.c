@@ -1311,11 +1311,6 @@ static int mob_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
  *------------------------------------------*/
 static unsigned int g_mob_ai_sub_lazy_tick = 0;
 
-static int mob_ai_sub_lazy_wrapper(DBKey key,void * data,va_list ap)
-{
-	return mob_ai_sub_lazy(key, data, ap);
-}
-
 static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 {
 	struct mob_data *md = (struct mob_data *)data;
@@ -1377,6 +1372,11 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 		md->next_walktime = tick+rand()%10000+5000;
 	}
 	return 0;
+}
+
+static int mob_ai_sub_lazy_wrapper(DBKey key,void * data,va_list ap)
+{
+	return mob_ai_sub_lazy(key, data, ap);
 }
 
 /*==========================================
