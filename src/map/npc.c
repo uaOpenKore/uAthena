@@ -1775,20 +1775,27 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 }
 
 /*==========================================
+ * NPCxf[^Ro[g wrapper for x64 compatibility
+ *------------------------------------------*/
+static struct npc_data *g_nd = NULL;
+
+static int npc_convertlabel_db_wrapper(DBKey key, void* data, va_list ap)
+{
+	return npc_convertlabel_db(key, data, ap, g_nd);
+}
+
+/*==========================================
  * NPCxf[^Ro[g
  *------------------------------------------*/
-int npc_convertlabel_db(DBKey key, void* data, va_list ap)
+int npc_convertlabel_db(DBKey key, void* data, va_list ap, struct npc_data *nd)
 {
 	const char *lname = (const char*)key.str;
 	intptr_t pos = (intptr_t)data;
-	struct npc_data *nd;
 	struct npc_label_list *lst;
 	int num;
 	const char *p;
 	int len;
 
-	nullpo_retr(0, ap);
-	nd = (struct npc_data *)va_arg(ap, intptr_t);
 	if (nd == NULL)
 		return 0;
 
@@ -2082,7 +2089,9 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 		// script{
 		// xf[^Ro[g
 		label_db = script_get_label_db();
-		label_db->foreach(label_db, npc_convertlabel_db, nd);
+		g_nd = nd;
+		label_db->foreach(label_db, npc_convertlabel_db_wrapper);
+		g_nd = NULL;
 		label_db->clear(label_db,NULL); // not needed anymore, so clear the db
 
 		// gobt@
