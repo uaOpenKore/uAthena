@@ -297,7 +297,7 @@ static int mail_check_timer_sub(struct map_session_data *sd, va_list va)
 	return 0;
 }
 
-int mail_check_timer(int tid,unsigned int tick,int id,int data)
+int mail_check_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	if(mail_timer != tid)
 		return 0;
