@@ -1775,16 +1775,6 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 }
 
 /*==========================================
- * NPCxf[^Ro[g wrapper for x64 compatibility
- *------------------------------------------*/
-static struct npc_data *g_nd = NULL;
-
-static int npc_convertlabel_db_wrapper(DBKey key, void* data, va_list ap)
-{
-	return npc_convertlabel_db(key, data, ap, g_nd);
-}
-
-/*==========================================
  * NPCxf[^Ro[g
  *------------------------------------------*/
 int npc_convertlabel_db(DBKey key, void* data, va_list ap, struct npc_data *nd)
@@ -1825,6 +1815,16 @@ int npc_convertlabel_db(DBKey key, void* data, va_list ap, struct npc_data *nd)
 	nd->u.scr.label_list_num = num+1;
 
 	return 0;
+}
+
+/*==========================================
+ * NPCxf[^Ro[g wrapper for x64 compatibility
+ *------------------------------------------*/
+static struct npc_data *g_nd = NULL;
+
+static int npc_convertlabel_db_wrapper(DBKey key, void* data, va_list ap)
+{
+	return npc_convertlabel_db(key, data, ap, g_nd);
 }
 
 /*==========================================
