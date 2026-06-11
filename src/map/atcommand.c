@@ -8523,8 +8523,6 @@ int atcommand_refreshonline(const int fd, struct map_session_data* sd, const cha
 	return 0;
 }
 
-#endif /* end sql only */
-
 /*==========================================
  * Show Monster DB Info   v 1.0
  * originally by [Lupus] eAthena
