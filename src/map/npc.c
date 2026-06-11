@@ -321,9 +321,9 @@ int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 	char* name;
 
 	ev = (struct event_data *)data;
-	c = va_arg(ap, int *);
-	name = va_arg(ap,char *);
-	rid = va_arg(ap, int);
+	c = (int *)va_arg(ap, intptr_t);
+	name = (char *)va_arg(ap, intptr_t);
+	rid = (int)va_arg(ap, intptr_t);
 
 	if( (p=strchr(p, ':')) && p && strcmpi(name, p)==0 ) {
 		if(rid)
