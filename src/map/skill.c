@@ -6342,7 +6342,7 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 
 	case HW_GRAVITATION:
 		if ((sg = skill_unitsetting(src,skillid,skilllv,x,y,0)))
-			sc_start4(src,type,100,skilllv,0,BCT_SELF,(int)sg,skill_get_time(skillid,skilllv));
+			sc_start4(src,type,100,skilllv,0,BCT_SELF,(intptr_t)sg,skill_get_time(skillid,skilllv));
 		flag|=1;
 		break;
 
@@ -6369,7 +6369,7 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 	case SG_MOON_WARM:
 	case SG_STAR_WARM:
 		if ((sg = skill_unitsetting(src,skillid,skilllv,src->x,src->y,0)))
-			sc_start4(src,type,100,skilllv,0,0,(int)sg,skill_get_time(skillid,skilllv));
+			sc_start4(src,type,100,skilllv,0,0,(intptr_t)sg,skill_get_time(skillid,skilllv));
 		flag|=1;
 		break;
 
@@ -6382,7 +6382,7 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 			if (!sg) break;
 			if (sc && sc->data[type].timer != -1)
 				status_change_end(src,type,-1); //Was under someone else's Gospel. [Skotlex]
-			sc_start4(src,type,100,skilllv,0,(int)sg,BCT_SELF,skill_get_time(skillid,skilllv));
+			sc_start4(src,type,100,skilllv,0,(intptr_t)sg,BCT_SELF,skill_get_time(skillid,skilllv));
 			clif_skill_poseffect(src, skillid, skilllv, 0, 0, tick); // PA_GOSPEL music packet
 		}
 		break;
@@ -7012,7 +7012,7 @@ struct skill_unit_group *skill_unitsetting (struct block_list *src, int skillid,
 			sd->skilllv_dance = skilllv;
 		}
 		if (
-			sc_start4(src, SC_DANCING, 100, skillid, (int)group, skilllv,
+			sc_start4(src, SC_DANCING, 100, skillid, (intptr_t)group, skilllv,
 				(group->state.song_dance&2?BCT_SELF:0), limit+1000) &&
 			sd && group->state.song_dance&2 && skillid != CG_HERMODE //Hermod is a encore with a warp!
 		)
@@ -7059,7 +7059,7 @@ int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, unsigned 
 	case UNT_SAFETYWALL:
 		//TODO: Find a more reliable way to handle the link to sg, this could cause dangling pointers. [Skotlex]
 		if (sc && sc->data[type].timer == -1)
-			sc_start4(bl,type,100,sg->skill_lv,sg->group_id,(int)sg,0,sg->limit);
+			sc_start4(bl,type,100,sg->skill_lv,sg->group_id,(intptr_t)sg,0,sg->limit);
 		break;
 
 	case UNT_WARP_WAITING:

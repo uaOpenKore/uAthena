@@ -384,7 +384,7 @@ struct script_regstr {
 
 struct status_change_entry {
 	int timer;
-	int val1,val2,val3,val4;
+	intptr_t val1,val2,val3,val4;
 };
 
 struct status_change {

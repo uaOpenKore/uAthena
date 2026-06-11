@@ -4557,7 +4557,7 @@ int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int f
  * &4: sc_data loaded, no value has to be altered.
  * &8: rate should not be reduced
  *------------------------------------------*/
-int status_change_start(struct block_list *bl,int type,int rate,int val1,int val2,int val3,int val4,int tick,int flag)
+int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,intptr_t val2,intptr_t val3,intptr_t val4,int tick,int flag)
 {
 	struct map_session_data *sd = NULL;
 	struct status_change* sc;
@@ -6870,7 +6870,7 @@ int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 	case SC_SPLASHER:
 		if (sc->data[type].val4 % 1000 == 0) {
 			char timer[10];
-			snprintf (timer, 10, "%d", sc->data[type].val4/1000);
+			snprintf (timer, 10, "%d", (int)(sc->data[type].val4/1000));
 			clif_message(bl, timer);
 		}
 		if((sc->data[type].val4 -= 500) > 0) {

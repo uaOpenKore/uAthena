@@ -2287,7 +2287,7 @@ const char* conv_str(struct script_state* st, struct script_data* data)
 	else if( data_isint(data) )
 	{// int -> string
 		CREATE(p, char, ITEM_NAME_LENGTH);
-		snprintf(p, ITEM_NAME_LENGTH, "%d", data->u.num);
+		snprintf(p, ITEM_NAME_LENGTH, "%d", (int)data->u.num);
 		p[ITEM_NAME_LENGTH-1] = '\0';
 		data->type = C_STR;
 		data->u.str = p;
@@ -3385,7 +3385,7 @@ static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
 	int num=key.i&0x00ffffff, i=key.i>>24; // [zBuffer]
 	char *name=str_buf+str_data[num].str;
 	if ( name[1] != '@') {
-		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%d' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,(intptr_t)data,mapregsql_db_varname,name,mapregsql_db_index,i);
+		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%d' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,(int)data,mapregsql_db_varname,name,mapregsql_db_index,i);
 		if(mysql_query(&mmysql_handle, tmp_sql) ) {
 			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);

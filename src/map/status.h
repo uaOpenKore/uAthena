@@ -652,7 +652,7 @@ int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int f
 #define sc_start2(bl, type, rate, val1, val2, tick) status_change_start(bl,type,100*(rate),val1,val2,0,0,tick,0)
 #define sc_start4(bl, type, rate, val1, val2, val3, val4, tick) status_change_start(bl,type,100*(rate),val1,val2,val3,val4,tick,0)
 
-int status_change_start(struct block_list *bl,int type,int rate,int val1,int val2,int val3,int val4,int tick,int flag);
+int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,intptr_t val2,intptr_t val3,intptr_t val4,int tick,int flag);
 int status_change_end( struct block_list* bl , int type,int tid );
 int kaahi_heal_timer(int tid, unsigned int tick, intptr_t id, intptr_t data);
 int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data);
