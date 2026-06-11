@@ -70,8 +70,8 @@ int party_searchname_sub(DBKey key,void *data,va_list ap)
 {
 	struct party_data *p=(struct party_data *)data,**dst;
 	char *str;
-	str=va_arg(ap,char *);
-	dst=va_arg(ap,struct party_data **);
+	str=(char*)va_arg(ap, intptr_t);
+	dst=(struct party_data **)va_arg(ap, intptr_t);
 	if(strncmpi(p->party.name,str,NAME_LENGTH)==0)
 		*dst=p;
 	return 0;

@@ -2270,12 +2270,12 @@ int skill_area_sub (struct block_list *bl, va_list ap)
 	nullpo_retr(0, bl);
 	nullpo_retr(0, ap);
 
-	src=va_arg(ap,struct block_list *);
-	skill_id=va_arg(ap,int);
-	skill_lv=va_arg(ap,int);
-	tick=va_arg(ap,unsigned int);
-	flag=va_arg(ap,int);
-	func=va_arg(ap,SkillFunc);
+	src=(struct block_list *)va_arg(ap, intptr_t);
+	skill_id=(int)va_arg(ap, intptr_t);
+	skill_lv=(int)va_arg(ap, intptr_t);
+	tick=(unsigned int)va_arg(ap, intptr_t);
+	flag=(int)va_arg(ap, intptr_t);
+	func=(SkillFunc)va_arg(ap, intptr_t);
 
 	if(battle_check_target(src,bl,flag) > 0)
 		func(src,bl,skill_id,skill_lv,tick,flag);
@@ -2295,7 +2295,7 @@ static int skill_check_unit_range_sub (struct block_list *bl, va_list ap)
 	if(!unit->alive)
 		return 0;
 
-	skillid = va_arg(ap,int);
+	skillid = (int)va_arg(ap, intptr_t);
 	g_skillid = unit->group->skill_id;
 
 	switch (skillid)
@@ -2355,7 +2355,7 @@ static int skill_check_unit_range2_sub (struct block_list *bl, va_list ap)
 	if(status_isdead(bl))
 		return 0;
 
-	skillid = va_arg(ap,int);
+	skillid = (int)va_arg(ap, intptr_t);
 	if (skillid==HP_BASILICA && bl->type==BL_PC)
 		return 0;
 
@@ -2403,16 +2403,16 @@ int skill_guildaura_sub (struct block_list *bl, va_list ap)
 
 	sd = (struct map_session_data *)bl;
 
-	id = va_arg(ap,int);
-	gid = va_arg(ap,int);
+	id = (int)va_arg(ap, intptr_t);
+	gid = (int)va_arg(ap, intptr_t);
 	if (sd->status.guild_id != gid)
 		return 0;
 
 	if(id == sd->bl.id && battle_config.guild_aura&16)
 		return 0;
 
-	strvit = va_arg(ap,int);
-	agidex = va_arg(ap,int);
+	strvit = (int)va_arg(ap, intptr_t);
+	agidex = (int)va_arg(ap, intptr_t);
 
 	if (sd->sc.count && sd->sc.data[SC_GUILDAURA].timer != -1) {
 		if (sd->sc.data[SC_GUILDAURA].val3 != strvit ||
@@ -6549,8 +6549,8 @@ int skill_castend_map (struct map_session_data *sd, int skill_num, const char *m
 static int skill_dance_overlap_sub(struct block_list *bl, va_list ap)
 {
 	struct skill_unit *target = (struct skill_unit*)bl,
-		*src = va_arg(ap, struct skill_unit*);
-	int flag = va_arg(ap, int);
+		*src = (struct skill_unit*)va_arg(ap, intptr_t);
+	int flag = (int)va_arg(ap, intptr_t);
 	if (src == target)
 		return 0;
 	if (!target->group || !(target->group->state.song_dance&0x1))
@@ -7754,9 +7754,9 @@ int skill_unit_effect (struct block_list *bl, va_list ap)
 	int flag,skill_id;
 	unsigned int tick;
 
-	unit=va_arg(ap,struct skill_unit*);
-	tick = va_arg(ap,unsigned int);
-	flag = va_arg(ap,unsigned int);
+	unit=(struct skill_unit*)va_arg(ap, intptr_t);
+	tick = (unsigned int)va_arg(ap, intptr_t);
+	flag = (unsigned int)va_arg(ap, intptr_t);
 
 	if (!unit->alive || bl->prev==NULL)
 		return 0;
@@ -7877,12 +7877,12 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 	nullpo_retr(0, bl);
 	nullpo_retr(0, ap);
 	nullpo_retr(0, tsd=(struct map_session_data*)bl);
-	nullpo_retr(0, src=va_arg(ap,struct block_list *));
+	nullpo_retr(0, src=(struct block_list *)va_arg(ap, intptr_t));
 	nullpo_retr(0, sd=(struct map_session_data*)src);
 
-	c=va_arg(ap,int *);
-	p_sd = va_arg(ap, int *);
-	skillid = va_arg(ap,int);
+	c=(int *)va_arg(ap, intptr_t);
+	p_sd = (int *)va_arg(ap, intptr_t);
+	skillid = (int)va_arg(ap, intptr_t);
 
 	if ((skillid != PR_BENEDICTIO && *c >=1) || *c >=2)
 		return 0; //Partner found for ensembles, or the two companions for Benedictio. [Skotlex]
@@ -7988,10 +7988,10 @@ static int skill_check_condition_mob_master_sub (struct block_list *bl, va_list 
 	struct mob_data *md;
 
 	md=(struct mob_data*)bl;
-	src_id=va_arg(ap,int);
-	mob_class=va_arg(ap,int);
-	skill=va_arg(ap,int);
-	c=va_arg(ap,int *);
+	src_id=(int)va_arg(ap, intptr_t);
+	mob_class=(int)va_arg(ap, intptr_t);
+	skill=(int)va_arg(ap, intptr_t);
+	c=(int *)va_arg(ap, intptr_t);
 
 	if(md->master_id != src_id ||
 		md->special_state.ai != (skill == AM_SPHEREMINE?2:3))
@@ -9224,7 +9224,7 @@ int skill_autospell (struct map_session_data *sd, int skillid)
 static int skill_sit_count (struct block_list *bl, va_list ap)
 {
 	struct map_session_data *sd;
-	int type =va_arg(ap,int);
+	int type =(int)va_arg(ap, intptr_t);
 	sd=(struct map_session_data*)bl;
 
 	if(!pc_issit(sd))
@@ -9242,7 +9242,7 @@ static int skill_sit_count (struct block_list *bl, va_list ap)
 static int skill_sit_in (struct block_list *bl, va_list ap)
 {
 	struct map_session_data *sd;
-	int type =va_arg(ap,int);
+	int type =(int)va_arg(ap, intptr_t);
 
 	sd=(struct map_session_data*)bl;
 
@@ -9265,7 +9265,7 @@ static int skill_sit_in (struct block_list *bl, va_list ap)
 static int skill_sit_out (struct block_list *bl, va_list ap)
 {
 	struct map_session_data *sd;
-	int type =va_arg(ap,int);
+	int type =(int)va_arg(ap, intptr_t);
 	sd=(struct map_session_data*)bl;
 	if(sd->state.gangsterparadise && type&1)
 		sd->state.gangsterparadise=0;
@@ -9322,12 +9322,12 @@ int skill_frostjoke_scream (struct block_list *bl, va_list ap)
 
 	nullpo_retr(0, bl);
 	nullpo_retr(0, ap);
-	nullpo_retr(0, src=va_arg(ap,struct block_list*));
+	nullpo_retr(0, src=(struct block_list*)va_arg(ap, intptr_t));
 
-	skillnum=va_arg(ap,int);
-	skilllv=va_arg(ap,int);
+	skillnum=(int)va_arg(ap, intptr_t);
+	skilllv=(int)va_arg(ap, intptr_t);
 	if(skilllv <= 0) return 0;
-	tick=va_arg(ap,unsigned int);
+	tick=(unsigned int)va_arg(ap, intptr_t);
 
 	if (src == bl || status_isdead(bl))
 		return 0;
@@ -9387,14 +9387,14 @@ int skill_attack_area (struct block_list *bl, va_list ap)
 	if(status_isdead(bl))
 		return 0;
 
-	atk_type = va_arg(ap,int);
-	src=va_arg(ap,struct block_list*);
-	dsrc=va_arg(ap,struct block_list*);
-	skillid=va_arg(ap,int);
-	skilllv=va_arg(ap,int);
-	tick=va_arg(ap,unsigned int);
-	flag=va_arg(ap,int);
-	type=va_arg(ap,int);
+	atk_type = (int)va_arg(ap, intptr_t);
+	src=(struct block_list*)va_arg(ap, intptr_t);
+	dsrc=(struct block_list*)va_arg(ap, intptr_t);
+	skillid=(int)va_arg(ap, intptr_t);
+	skilllv=(int)va_arg(ap, intptr_t);
+	tick=(unsigned int)va_arg(ap, intptr_t);
+	flag=(int)va_arg(ap, intptr_t);
+	type=(int)va_arg(ap, intptr_t);
 
 
 	if (skill_area_temp[1] == bl->id) //This is the target of the skill, do a full attack and skip target checks.
@@ -9503,7 +9503,7 @@ int skill_greed (struct block_list *bl, va_list ap)
 
 	nullpo_retr(0, bl);
 	nullpo_retr(0, ap);
-	nullpo_retr(0, src = va_arg(ap, struct block_list *));
+	nullpo_retr(0, src = (struct block_list *)va_arg(ap, intptr_t));
 
 	if(src->type == BL_PC && (sd=(struct map_session_data *)src) && bl->type==BL_ITEM && (fitem=(struct flooritem_data *)bl))
 		pc_takeitem(sd, fitem);
@@ -9521,9 +9521,9 @@ int skill_cell_overlap(struct block_list *bl, va_list ap)
 	struct skill_unit *unit;
 	struct block_list *src;
 
-	skillid = va_arg(ap,int);
-	alive = va_arg(ap,int *);
-	src = va_arg(ap,struct block_list *);
+	skillid = (int)va_arg(ap, intptr_t);
+	alive = (int *)va_arg(ap, intptr_t);
+	src = (struct block_list *)va_arg(ap, intptr_t);
 	unit = (struct skill_unit *)bl;
 	if (unit == NULL || unit->group == NULL || (*alive) == 0)
 		return 0;
@@ -9634,8 +9634,8 @@ int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap)
 	struct block_list *from_bl;
 	struct block_list *to_bl;
 	md = (struct mob_data*)bl;
-	from_bl = va_arg(ap,struct block_list *);
-	to_bl = va_arg(ap,struct block_list *);
+	from_bl = (struct block_list *)va_arg(ap, intptr_t);
+	to_bl = (struct block_list *)va_arg(ap, intptr_t);
 
 	if(ud && ud->target == from_bl->id)
 		ud->target = to_bl->id;
@@ -9650,7 +9650,7 @@ int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap)
  *------------------------------------------*/
 int skill_count_target (struct block_list *bl, va_list ap)
 {
-	struct block_list *src = va_arg(ap,struct block_list *);
+	struct block_list *src = (struct block_list *)va_arg(ap, intptr_t);
 	if (battle_check_target(src,bl,BCT_ENEMY) > 0)
 		return 1;
 	return 0;
@@ -9666,10 +9666,10 @@ int skill_trap_splash (struct block_list *bl, va_list ap)
 	struct skill_unit_group *sg;
 	struct block_list *ss;
 	int i,count;
-	src = va_arg(ap,struct block_list *);
+	src = (struct block_list *)va_arg(ap, intptr_t);
 	unit = (struct skill_unit *)src;
-	tick = va_arg(ap,int);
-	count = va_arg(ap,int);
+	tick = (int)va_arg(ap, intptr_t);
+	count = (int)va_arg(ap, intptr_t);
 	
 	nullpo_retr(0, sg = unit->group);
 	nullpo_retr(0, ss = map_id2bl(sg->src_id));
@@ -10126,8 +10126,8 @@ int skill_unit_timer_sub_onplace (struct block_list *bl, va_list ap)
 	struct skill_unit_group *group;
 	unsigned int tick;
 
-	unit = va_arg(ap,struct skill_unit *);
-	tick = va_arg(ap,unsigned int);
+	unit = (struct skill_unit *)va_arg(ap, intptr_t);
+	tick = (unsigned int)va_arg(ap, intptr_t);
 
 	if (!unit->alive || bl->prev==NULL)
 		return 0;
@@ -10156,7 +10156,7 @@ int skill_unit_timer_sub (struct block_list *bl, va_list ap)
 	int flag;
 
 	unit=(struct skill_unit *)bl;
-	tick=va_arg(ap,unsigned int);
+	tick=(unsigned int)va_arg(ap, intptr_t);
 
 	if(!unit->alive)
 		return 0;
@@ -10266,9 +10266,9 @@ int skill_unit_move_sub (struct block_list *bl, va_list ap)
 	unsigned int tick,flag,result;
 	int skill_id;
 
-	target=va_arg(ap,struct block_list*);
-	tick = va_arg(ap,unsigned int);
-	flag = va_arg(ap,int);
+	target=(struct block_list*)va_arg(ap, intptr_t);
+	tick = (unsigned int)va_arg(ap, intptr_t);
+	flag = (int)va_arg(ap, intptr_t);
 
 	nullpo_retr(0, group=unit->group);
 

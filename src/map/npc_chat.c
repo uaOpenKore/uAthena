@@ -358,9 +358,9 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 	if (npcParse == NULL || npcParse->active == NULL)
 		return 0;
 
-	msg = va_arg(ap,char*);
-	len = va_arg(ap,int);
-	sd = va_arg(ap,struct map_session_data *);
+	msg = (char*)va_arg(ap, intptr_t);
+	len = (int)va_arg(ap, intptr_t);
+	sd = (struct map_session_data *)va_arg(ap, intptr_t);
 
 	// iterate across all active sets
 	for (pcreset = npcParse->active; pcreset != NULL; pcreset = pcreset->next)

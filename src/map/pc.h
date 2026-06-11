@@ -122,7 +122,7 @@ int pc_can_give_items(int level); //[Lupus]
 int pc_setrestartvalue(struct map_session_data *sd,int type);
 int pc_makesavestatus(struct map_session_data *);
 int pc_setnewpc(struct map_session_data*,int,int,int,unsigned int,int,int);
-int pc_authok(struct map_session_data*, int, time_t, struct mmo_charstatus *);
+int pc_authok(struct map_session_data*, int, int, struct mmo_charstatus *);
 int pc_authfail(struct map_session_data *);
 int pc_reg_received(struct map_session_data *sd);
 

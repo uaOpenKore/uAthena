@@ -129,7 +129,7 @@ struct char_session_data{
 	int account_id, login_id1, login_id2, sex;
 	int found_char[MAX_CHARS];
 	char email[40]; // e-mail (default: a@a.com) by [Yor]
-	time_t connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
+	int connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
 };
 
 #define AUTH_FIFO_SIZE 256
@@ -138,7 +138,7 @@ struct {
 	uint32 ip;
 	int delflag;
 	int sex;
-	time_t connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
+	int connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
 } auth_fifo[AUTH_FIFO_SIZE];
 int auth_fifo_pos = 0;
 
@@ -1830,7 +1830,7 @@ int parse_fromlogin(int fd)
 					WFIFOSET(i,3);
 				} else {
 					memcpy(sd->email, RFIFOP(fd, 7), 40);
-					sd->connect_until_time = (time_t)RFIFOL(fd,47);
+					sd->connect_until_time = RFIFOL(fd,47);
 					char_auth_ok(i, sd);
 				}
 			}
@@ -1844,7 +1844,7 @@ int parse_fromlogin(int fd)
 				if (session[i] && (sd = (struct char_session_data*)session[i]->session_data)) {
 					if (sd->account_id == RFIFOL(fd,2)) {
 						memcpy(sd->email, RFIFOP(fd,6), 40);
-						sd->connect_until_time = (time_t)RFIFOL(fd,46);
+						sd->connect_until_time = RFIFOL(fd,46);
 						break;
 					}
 				}
@@ -2670,7 +2670,7 @@ int parse_frommap(int fd)
 				WFIFOL(map_fd,4) = RFIFOL(fd,2); //Account ID
 				WFIFOL(map_fd,8) = RFIFOL(fd,6); //Login1
 				WFIFOL(map_fd,16) = RFIFOL(fd,10); //Login2
-				WFIFOL(map_fd,12) = (unsigned long)0; //TODO: connect_until_time, how do I figure it out right now?
+				WFIFOL(map_fd,12) = 0; //TODO: connect_until_time, how do I figure it out right now?
 				memcpy(WFIFOP(map_fd,20), char_data, sizeof(struct mmo_charstatus));
 				WFIFOSET(map_fd, WFIFOW(map_fd,2));
 				data = idb_ensure(online_char_db, RFIFOL(fd, 2), create_online_char_data);
@@ -3277,7 +3277,7 @@ int parse_char(int fd)
 			WFIFOL(map_fd,4) = auth_fifo[auth_fifo_pos].account_id;
 			WFIFOL(map_fd,8) = auth_fifo[auth_fifo_pos].login_id1;
 			WFIFOL(map_fd,16) = auth_fifo[auth_fifo_pos].login_id2;
-			WFIFOL(map_fd,12) = (unsigned long)auth_fifo[auth_fifo_pos].connect_until_time;
+			WFIFOL(map_fd,12) = auth_fifo[auth_fifo_pos].connect_until_time;
 			memcpy(WFIFOP(map_fd,20), &char_dat, sizeof(struct mmo_charstatus));
 			WFIFOSET(map_fd, WFIFOW(map_fd,2));
 

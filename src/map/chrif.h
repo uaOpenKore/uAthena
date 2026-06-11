@@ -6,7 +6,7 @@
 
 struct auth_node{
 	int account_id, login_id1, login_id2, sex, fd;
-	time_t connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
+	int connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
 	struct map_session_data *sd;	//Data from logged on char.
 	struct mmo_charstatus *char_dat;	//Data from char server.
 	unsigned int node_created; //For node auto-deleting

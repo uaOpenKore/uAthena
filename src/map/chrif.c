@@ -865,11 +865,11 @@ int chrif_accountban(int fd)
 	}
 	else if (RFIFOB(fd,6) == 1) // 0: change of statut, 1: ban
 	{
-		time_t timestamp;
+		int timestamp;
 		char tmpstr[2048];
-		timestamp = (time_t)RFIFOL(fd,7); // status or final date of a banishment
+		timestamp = RFIFOL(fd,7); // status or final date of a banishment
 		strcpy(tmpstr, "Your account has been banished until ");
-		strftime(tmpstr + strlen(tmpstr), 24, "%d-%m-%Y %H:%M:%S", localtime(&timestamp));
+		strftime(tmpstr + strlen(tmpstr), 24, "%d-%m-%Y %H:%M:%S", localtime((time_t*)&timestamp));
 		clif_displaymessage(sd->fd, tmpstr);
 	}
 

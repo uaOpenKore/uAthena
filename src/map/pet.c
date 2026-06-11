@@ -977,7 +977,7 @@ static int pet_ai_sub_hard(struct pet_data *pd, struct map_session_data *sd, uns
 
 static int pet_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 {
-	unsigned int tick = va_arg(ap,unsigned int);
+	unsigned int tick = (unsigned int)va_arg(ap, intptr_t);
 	if(sd->status.pet_id && sd->pd)
 		pet_ai_sub_hard(sd->pd,sd,tick);
 
@@ -998,8 +998,8 @@ static int pet_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 	struct block_list **target;
 	int sd_id =0;
 
-	pd=va_arg(ap,struct pet_data *);
-	target=va_arg(ap,struct block_list**);
+	pd=(struct pet_data *)va_arg(ap, intptr_t);
+	target=(struct block_list**)va_arg(ap, intptr_t);
 
 	sd_id = fitem->first_get_id;
 

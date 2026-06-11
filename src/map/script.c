@@ -3371,7 +3371,7 @@ static int script_load_mapreg(void)
 static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
 {
 #if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp=va_arg(ap,FILE*);
+	FILE *fp=(FILE*)va_arg(ap, intptr_t);
 	int num=key.i&0x00ffffff, i=key.i>>24;
 	char *name=str_buf+str_data[num].str;
 	if( name[1]!='@' ){
@@ -3397,7 +3397,7 @@ static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
 static int script_save_mapreg_strsub(DBKey key,void *data,va_list ap)
 {
 #if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp=va_arg(ap,FILE*);
+	FILE *fp=(FILE*)va_arg(ap, intptr_t);
 	int num=key.i&0x00ffffff, i=key.i>>24;
 	char *name=str_buf+str_data[num].str;
 	if( name[1]!='@' ){
@@ -4878,9 +4878,9 @@ static int buildin_areawarp_sub(struct block_list *bl,va_list ap)
 {
 	int x,y;
 	unsigned int map;
-	map=va_arg(ap, unsigned int);
-	x=va_arg(ap,int);
-	y=va_arg(ap,int);
+	map=(unsigned int)va_arg(ap, intptr_t);
+	x=(int)va_arg(ap, intptr_t);
+	y=(int)va_arg(ap, intptr_t);
 	if(map == 0)
 		pc_randomwarp((TBL_PC *)bl,3);
 	else
@@ -7772,8 +7772,8 @@ BUILDIN_FUNC(areamonster)
 static int buildin_killmonster_sub(struct block_list *bl,va_list ap)
 {
 	TBL_MOB* md = (TBL_MOB*)bl;
-	char *event=va_arg(ap,char *);
-	int allflag=va_arg(ap,int);
+	char *event=(char*)va_arg(ap, intptr_t);
+	int allflag=(int)va_arg(ap, intptr_t);
 
 	if(!allflag){
 		if(strcmp(event,md->npc_event)==0)
@@ -8184,10 +8184,10 @@ static int buildin_mapannounce_sub(struct block_list *bl,va_list ap)
 {
 	char *str, *color;
 	int len,flag;
-	str=va_arg(ap,char *);
-	len=va_arg(ap,int);
-	flag=va_arg(ap,int);
-	color=va_arg(ap,char *);
+	str=(char*)va_arg(ap, intptr_t);
+	len=(int)va_arg(ap, intptr_t);
+	flag=(int)va_arg(ap, intptr_t);
+	color=(char*)va_arg(ap, intptr_t);
 	if (color)
 		clif_announce(bl,str,len, strtol(color, (char **)NULL, 0), flag|3);
 	else
@@ -8327,7 +8327,7 @@ BUILDIN_FUNC(getmapusers)
  *------------------------------------------*/
 static int buildin_getareausers_sub(struct block_list *bl,va_list ap)
 {
-	int *users=va_arg(ap,int *);
+	int *users=(int*)va_arg(ap, intptr_t);
 	(*users)++;
 	return 0;
 }
@@ -8355,8 +8355,8 @@ BUILDIN_FUNC(getareausers)
  *------------------------------------------*/
 static int buildin_getareadropitem_sub(struct block_list *bl,va_list ap)
 {
-	int item=va_arg(ap,int);
-	int *amount=va_arg(ap,int *);
+	int item=(int)va_arg(ap, intptr_t);
+	int *amount=(int*)va_arg(ap, intptr_t);
 	struct flooritem_data *drop=(struct flooritem_data *)bl;
 
 	if(drop->item_data.nameid==item)
@@ -9389,9 +9389,9 @@ BUILDIN_FUNC(emotion)
 
 static int buildin_maprespawnguildid_sub_pc(DBKey key, void *data, va_list ap)
 {
-	int m=va_arg(ap,int);
-	int g_id=va_arg(ap,int);
-	int flag=va_arg(ap,int);
+	int m=(int)va_arg(ap, intptr_t);
+	int g_id=(int)va_arg(ap, intptr_t);
+	int flag=(int)va_arg(ap, intptr_t);
 	TBL_PC *sd = (TBL_PC*)data;
 
 	if(!sd || sd->bl.m != m)
@@ -9899,7 +9899,7 @@ BUILDIN_FUNC(stoptimer)	// Added by RoVeRT
 
 static int buildin_mobcount_sub(struct block_list *bl,va_list ap)	// Added by RoVeRT
 {
-	char *event=va_arg(ap,char *);
+	char *event=(char*)va_arg(ap, intptr_t);
 	if(strcmp(event,((struct mob_data *)bl)->npc_event)==0)
 		return 1;
 	return 0;
@@ -10538,8 +10538,8 @@ BUILDIN_FUNC(soundeffect)
 
 int soundeffect_sub(struct block_list* bl,va_list ap)
 {
-	char* name = va_arg(ap,char*);
-	int type = va_arg(ap,int);
+	char* name = (char*)va_arg(ap, intptr_t);
+	int type = (int)va_arg(ap, intptr_t);
 
 	clif_soundeffect((TBL_PC *)bl, bl, name, type);
 

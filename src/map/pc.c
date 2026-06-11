@@ -576,7 +576,7 @@ int pc_isequip(struct map_session_data *sd,int n)
  * session id
  * charIXe?^X
  *------------------------------------------*/
-int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_time, struct mmo_charstatus *st)
+int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time, struct mmo_charstatus *st)
 {
 	TBL_PC* old_sd;
 	int i;
