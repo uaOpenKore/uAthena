@@ -13,21 +13,18 @@ COMMON_SQL_H = sql.h
 
 HAVE_MYSQL=@HAVE_MYSQL@
 ifeq ($(HAVE_MYSQL),yes)
-	ALL_DEPENDS=txt sql
+	ALL_DEPENDS=sql
 	SQL_DEPENDS=common common_sql
 else
-	ALL_TARGET=txt
 	SQL_DEPENDS=needs_mysql
 endif
 
 @SET_MAKE@
 
 #####################################################################
-.PHONY : all txt sql clean help
+.PHONY : all sql clean help
 
-all: $(ALL_DEPENDS)
-
-txt: common
+all: sql
 
 sql: $(SQL_DEPENDS)
 
@@ -35,8 +32,7 @@ clean:
 	rm -rf *.o obj_all obj_sql svnversion.h
 
 help:
-	@echo "possible targets are 'txt' 'sql' 'all' 'clean' 'help'"
-	@echo "'txt'    - builds object files used in txt servers"
+	@echo "possible targets are 'sql' 'all' 'clean' 'help'"
 	@echo "'sql'    - builds object files used in sql servers"
 	@echo "'all'    - builds all above targets"
 	@echo "'clean'  - cleans builds and objects"

@@ -1,4 +1,4 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+﻿// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
 #include "../common/db.h"
@@ -1018,7 +1018,7 @@ static int pet_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 	return 0;
 }
 
-static int pet_delay_item_drop(int tid,unsigned int tick,int id,int data)
+static int pet_delay_item_drop(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct item_drop_list *list;
 	struct item_drop *ditem, *ditem_prev;
@@ -1078,7 +1078,7 @@ int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd)
 	pd->ud.canact_tick = gettick()+10000;	//	10*1000msE
 
 	if (dlist->item)
-		add_timer(gettick()+540,pet_delay_item_drop,(int)dlist,0);
+		add_timer(gettick()+540,pet_delay_item_drop,(intptr_t)dlist,0);
 	else
 		ers_free(item_drop_list_ers, dlist);
 	return 1;

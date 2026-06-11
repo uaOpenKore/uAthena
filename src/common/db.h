@@ -154,6 +154,8 @@ typedef enum db_opt {
 typedef union dbkey {
 	int i;
 	unsigned int ui;
+	intptr_t iptr;
+	uintptr_t uiptr;
 	const char *str;
 } DBKey;
 
@@ -496,8 +498,8 @@ struct dbt {
 #	define ui2key  db_ui2key
 #	define str2key db_str2key
 #else /* not DB_MANUAL_CAST_TO_UNION */
-#	define i2key(k)   ((DBKey)(int)(k))
-#	define ui2key(k)  ((DBKey)(unsigned int)(k))
+#	define i2key(k)   ((DBKey)(intptr_t)(k))
+#	define ui2key(k)  ((DBKey)(uintptr_t)(k))
 #	define str2key(k) ((DBKey)(const char *)(k))
 #endif /* not DB_MANUAL_CAST_TO_UNION */
 

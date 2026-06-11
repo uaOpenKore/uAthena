@@ -1,9 +1,4 @@
-all txt: txtobj map-server
-
-sql: sqlobj map-server_sql
-
-txtobj:
-	mkdir txtobj
+all: sqlobj map-server_sql
 
 sqlobj:
 	mkdir sqlobj
@@ -26,50 +21,16 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/log.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o \
 	$(COMMON_OBJ)
 
-map-server: $(OBJECTS:obj/%=txtobj/%)
-	$(CC) -o ../../$@ $> $(LIBS) $(LIB_S)
-
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
 	$(CC) -o ../../$@ $> $(LIB_S)
-
-txtobj/%.o: %.c
-	$(COMPILE.c) -DTXT_ONLY $(OUTPUT_OPTION) $<
 
 sqlobj/%.o: %.c
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 clean:
-	rm -rf *.o ../../map-server ../../map-server_sql sqlobj txtobj GNUmakefile
+	rm -rf *.o ../../map-server_sql sqlobj GNUmakefile
 
 # DO NOT DELETE
-
-txtobj/map.o: map.c map.h chrif.h clif.h npc.h pc.h mob.h chat.h skill.h itemdb.h storage.h party.h pet.h atcommand.h $(COMMON_H)
-txtobj/chrif.o: chrif.c map.h battle.h chrif.h clif.h intif.h pc.h npc.h $(COMMON_H)
-txtobj/clif.o: clif.c map.h chrif.h clif.h mob.h intif.h pc.h npc.h itemdb.h chat.h script.h storage.h party.h guild.h atcommand.h pet.h charcommand.h $(COMMON_H)
-txtobj/pc.o: pc.c map.h clif.h intif.h pc.h npc.h mob.h itemdb.h battle.h skill.h script.h party.h guild.h pet.h trade.h storage.h chat.h vending.h $(COMMON_H)
-txtobj/status.o: status.c pc.h map.h clif.h status.h mob.h itemdb.h battle.h skill.h script.h pet.h guild.h $(COMMON_H)
-txtobj/npc.o: npc.c map.h npc.h clif.h pc.h script.h mob.h itemdb.h battle.h $(COMMON_H)
-txtobj/npc_chat.o: npc_chat.c map.h npc.h clif.h pc.h script.h mob.h itemdb.h battle.h $(COMMON_H)
-txtobj/chat.o: chat.c map.h clif.h pc.h chat.h $(COMMON_H)
-txtobj/path.o: path.c map.h battle.h $(COMMON_H)
-txtobj/itemdb.o: itemdb.c map.h battle.h itemdb.h $(COMMON_H)
-txtobj/mob.o: mob.c map.h clif.h intif.h pc.h mob.h skill.h battle.h npc.h itemdb.h date.h $(COMMON_H)
-txtobj/script.o: script.c itemdb.h map.h pc.h mob.h clif.h intif.h npc.h script.h storage.h skill.h pet.h battle.h log.h $(COMMON_H)
-txtobj/storage.o: storage.c itemdb.h pc.h clif.h intif.h storage.h guild.h $(COMMON_H)
-txtobj/skill.o: skill.c skill.h map.h clif.h pc.h mob.h battle.h itemdb.h script.h date.h $(COMMON_H)
-txtobj/atcommand.o: atcommand.c atcommand.h itemdb.h pc.h map.h skill.h clif.h mob.h intif.h battle.h storage.h guild.h pet.h log.h $(COMMON_H)
-txtobj/battle.o: battle.c battle.h skill.h map.h mob.h pc.h pet.h guild.h $(COMMON_H)
-txtobj/intif.o: intif.c intif.h chrif.h clif.h party.h guild.h storage.h map.h battle.h pet.h $(COMMON_H)
-txtobj/trade.o: trade.c trade.h clif.h itemdb.h map.h pc.h npc.h $(COMMON_H)
-txtobj/party.o: party.c party.h clif.h intif.h pc.h map.h battle.h $(COMMON_H)
-txtobj/vending.o: vending.c vending.h clif.h itemdb.h map.h pc.h $(COMMON_H)
-txtobj/guild.o: guild.c guild.h storage.h battle.h clif.h intif.h pc.h npc.h map.h $(COMMON_H)
-txtobj/pet.o: pet.c pet.h map.h clif.h chrif.h intif.h pc.h itemdb.h battle.h mob.h npc.h script.h $(COMMON_H)
-txtobj/log.o: log.c log.h map.h $(COMMON_H)
-txtobj/charcommand.o: charcommand.c charcommand.h itemdb.h pc.h map.h skill.h clif.h mob.h intif.h battle.h storage.h guild.h pet.h log.h $(COMMON_H)
-txtobj/date.o: date.c date.h $(COMMON_H)
-txtobj/unit.o: unit.c unit.h $(COMMON_H)
-txtobj/mercenary.o: mercenary.c mercenary.h $(COMMON_H)
 
 sqlobj/map.o: map.c map.h chrif.h clif.h npc.h pc.h mob.h chat.h skill.h itemdb.h storage.h party.h pet.h atcommand.h log.h $(COMMON_H)
 sqlobj/chrif.o: chrif.c map.h battle.h chrif.h clif.h intif.h pc.h npc.h $(COMMON_H)

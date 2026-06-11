@@ -174,7 +174,7 @@ int guild_storage_fromsql(int guild_id, struct guild_storage *p){
 int inter_storage_sql_init(void){
 
 	//memory alloc
-	ShowDebug("interserver storage memory initialize....(%d byte)\n",sizeof(struct storage));
+	ShowDebug("interserver storage memory initialize....(%zu byte)\n",sizeof(struct storage));
 	storage_pt = (struct storage*)aCalloc(sizeof(struct storage), 1);
 	guild_storage_pt = (struct guild_storage*)aCalloc(sizeof(struct guild_storage), 1);
 //	memset(storage_pt,0,sizeof(struct storage)); //Calloc sets stuff to 0 already. [Skotlex]
@@ -300,7 +300,7 @@ int mapif_parse_SaveStorage(int fd){
 	account_id=RFIFOL(fd,4);
 	len=RFIFOW(fd,2);
 	if(sizeof(struct storage)!=len-8){
-		ShowError("inter storage: data size error %d %d\n",sizeof(struct storage),len-8);
+		ShowError("inter storage: data size error %zu %d\n",sizeof(struct storage),len-8);
 	}else{
 		memcpy(&storage_pt[0],RFIFOP(fd,8),sizeof(struct storage));
 		storage_tosql(account_id, storage_pt);
@@ -325,7 +325,7 @@ int mapif_parse_SaveGuildStorage(int fd)
 	guild_id=RFIFOL(fd,8);
 	len=RFIFOW(fd,2);
 	if(sizeof(struct guild_storage)!=len-12){
-		ShowError("inter storage: data size error %d %d\n",sizeof(struct guild_storage),len-12);
+		ShowError("inter storage: data size error %zu %d\n",sizeof(struct guild_storage),len-12);
 	}
 	else {
 #if 0	// Again, innodb key checks make the check pointless

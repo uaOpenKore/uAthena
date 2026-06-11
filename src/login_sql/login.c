@@ -22,9 +22,6 @@
 #include <string.h>
 
 //add include for DBMS(mysql)
-#ifdef WIN32
-#include <winsock2.h>
-#endif
 #include <mysql.h>
 
 struct Login_Config {
@@ -140,7 +137,7 @@ static void* create_online_user(DBKey key, va_list args)
 }
 
 int charif_sendallwos(int sfd, unsigned char *buf, unsigned int len);
-static int waiting_disconnect_timer(int tid, unsigned int tick, int id, int data);
+static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, intptr_t data);
 
 //-----------------------------------------------------
 // Online User Database [Wizputer]
@@ -171,7 +168,7 @@ void remove_online_user(int account_id)
 	idb_remove(online_db,account_id);
 }
 
-static int waiting_disconnect_timer(int tid, unsigned int tick, int id, int data)
+static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct online_login_data *p;
 	if ((p= idb_get(online_db, id)) != NULL && p->waiting_disconnect == id)
@@ -182,7 +179,7 @@ static int waiting_disconnect_timer(int tid, unsigned int tick, int id, int data
 	return 0;
 }
 
-static int sync_ip_addresses(int tid, unsigned int tick, int id, int data)
+static int sync_ip_addresses(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	unsigned char buf[2];
 	ShowInfo("IP Sync in progress...\n");
@@ -265,7 +262,7 @@ void send_GM_accounts(int fd)
 /*=============================================
  * Does a mysql_ping to all connection handles
  *---------------------------------------------*/
-int login_sql_ping(int tid, unsigned int tick, int id, int data)
+int login_sql_ping(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
 	mysql_ping(&mysql_handle);
@@ -1723,7 +1720,7 @@ static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 	return 0;
 }
 
-static int online_data_cleanup(int tid, unsigned int tick, int id, int data)
+static int online_data_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	online_db->foreach(online_db, online_data_cleanup_sub);
 	return 0;
@@ -1786,7 +1783,7 @@ int login_lan_config_read(const char *lancfgName)
 //-----------------------------------------------------
 // clear expired ip bans
 //-----------------------------------------------------
-int ip_ban_flush(int tid, unsigned int tick, int id, int data)
+int ip_ban_flush(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	if(mysql_query(&mysql_handle, "DELETE FROM `ipbanlist` WHERE `rtime` <= NOW()")) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));

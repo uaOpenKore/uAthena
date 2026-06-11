@@ -25,27 +25,7 @@ PLUGIN_EVENTS_TABLE = {
 
 //////////////////////////////////////
 
-#if defined(_WIN32) || defined(MINGW)
-	int sig_init()
-	{
-		ShowError("sig: This plugin is not supported - Enable 'exchndl' instead!\n");
-		return 0;
-	}
-	int sig_final() { return 0; }
-#elif defined (__NETBSD__) || defined (__FREEBSD__)
-	int sig_init()
-	{
-		ShowError("sig: This plugin is not supported!\n");
-		return 0;
-	}
-	int sig_final() { return 0; }
-#else
-
-//////////////////////////////////////
-
-#if !defined(CYGWIN)
-	#include <execinfo.h>
-#endif
+#include <execinfo.h>
 
 const char* (*getrevision)();
 unsigned long (*getuptime)();
@@ -60,13 +40,6 @@ int sig_final ();
 // (sigaction() is POSIX; signal() is not.)  Taken from Stevens' _Advanced
 // Programming in the UNIX Environment_.
 //
-#ifdef WIN32	// windows don't have SIGPIPE
-#define SIGPIPE SIGINT
-#endif
-
-#ifndef POSIX
-#define compat_signal(signo, func) signal(signo, func)
-#else
 sigfunc *compat_signal(int signo, sigfunc *func)
 {
 	struct sigaction sact, oact;
@@ -83,23 +56,19 @@ sigfunc *compat_signal(int signo, sigfunc *func)
 
 	return (oact.sa_handler);
 }
-#endif
 
 /*=========================================
  *	Dumps the stack using glibc's backtrace
  *-----------------------------------------
  */
-#ifdef CYGWIN
-	#define FOPEN_ freopen
-	extern void cygwin_stackdump();
-#else
-	#define FOPEN_(fn,m,s) fopen(fn,m)
-#endif
 void sig_dump(int sn)
 {
 	FILE *fp;
 	char file[256];
 	int no = 0;
+	void* array[20];
+	char **stack;
+	size_t size;
 
 	crash_flag = 1;	
 	// search for a usable filename
@@ -108,13 +77,8 @@ void sig_dump(int sn)
 	} while((fp = fopen(file,"r")) && (fclose(fp), no < 9999));
 	// dump the trace into the file
 
-	if ((fp = FOPEN_(file, "w", stderr)) != NULL) {
+	if ((fp = fopen(file, "w")) != NULL) {
 		const char *revision;
-	#ifndef CYGWIN
-		void* array[20];
-		char **stack;
-		size_t size;
-	#endif
 
 		ShowNotice ("Dumping stack to '"CL_WHITE"%s"CL_RESET"'...\n", file);
 		if ((revision = getrevision()) != NULL)
@@ -124,9 +88,6 @@ void sig_dump(int sn)
 		fprintf(fp, "Exception: %s \n", strsignal(sn));
 		fflush (fp);
 
-	#ifdef CYGWIN
-		cygwin_stackdump ();
-	#else
 		fprintf(fp, "Stack trace:\n");
 		size = backtrace (array, 20);
 		stack = backtrace_symbols (array, size);
@@ -135,7 +96,6 @@ void sig_dump(int sn)
 		}
 		fprintf(fp,"End of stack trace\n");
 		free(stack);
-	#endif
 
 		ShowNotice("%s Saved.\n", file);
 		fflush(stdout);
@@ -190,11 +150,6 @@ int sig_final ()
 int sig_init ()
 {
 	void (*func) = sig_dump;
-#ifdef CYGWIN	// test if dumper is enabled
-	char *buf = getenv ("CYGWIN");
-	if (buf && strstr(buf, "error_start") != NULL)
-		func = SIG_DFL;
-#endif
 
 	IMPORT_SYMBOL(server_name, 1);
 	IMPORT_SYMBOL(getrevision, 6);
@@ -203,10 +158,7 @@ int sig_init ()
 	compat_signal(SIGSEGV, func);
 	compat_signal(SIGFPE, func);
 	compat_signal(SIGILL, func);
-	#ifndef __WIN32
-		compat_signal(SIGBUS, func);
-	#endif
+	compat_signal(SIGBUS, func);
 
 	return 1;
 }
-#endif

@@ -1,7 +1,6 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef TXT_ONLY
 // Mail System for eAthena SQL
 // Created by Valaris
 // moved all strings to msg_athena.conf [Lupus]
@@ -341,5 +340,3 @@ int do_init_mail(void)
 	mail_timer=add_timer(gettick()+MAIL_CHECK_TIME,mail_check_timer,0,0);
 	return 0;
 }
-
-#endif

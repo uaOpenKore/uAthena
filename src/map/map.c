@@ -43,11 +43,7 @@
 #include <stdarg.h>
 #include <math.h>
 
-#ifndef _WIN32
 #include <unistd.h>
-#endif
-
-#ifndef TXT_ONLY
 
 #include "mail.h"
 
@@ -92,8 +88,6 @@ char mail_db[32] = "mail";
 MYSQL mail_handle;
 MYSQL_RES* mail_res;
 MYSQL_ROW mail_row;
-
-#endif /* not TXT_ONLY */
 
 int lowest_gm_level = 1;
 
@@ -282,7 +276,7 @@ int map_freeblock_unlock (void)
 // Ado_timer() gbvxA
 // block_free_lock xB
 
-int map_freeblock_timer (int tid, unsigned int tick, int id, int data)
+int map_freeblock_timer (int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	if (block_free_lock > 0) {
 		ShowError("map_freeblock_timer: block_free_lock(%d) is invalid.\n", block_free_lock);
@@ -1371,7 +1365,7 @@ void map_foreachobject(int (*func)(struct block_list*,va_list),int type,...)
  * Amap_clearflooritem(id)
  * map.h?#define
  *------------------------------------------*/
-int map_clearflooritem_timer(int tid,unsigned int tick,int id,int data)
+int map_clearflooritem_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct flooritem_data *fitem=NULL;
 
@@ -2009,7 +2003,7 @@ int mob_cache_cleanup_sub(struct block_list *bl, va_list ap)
 	return 1;
 }
 
-int map_removemobs_timer(int tid, unsigned int tick, int id, int data)
+int map_removemobs_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	int k;
 	if (id < 0 || id >= MAX_MAP_PER_SERVER)
@@ -3085,8 +3079,6 @@ int map_config_read(char *cfgName)
 				strcpy(help2_txt, w2);
 			} else if (strcmpi(w1, "charhelp_txt") == 0) {
 				strcpy(charhelp_txt, w2);
-			} else if (strcmpi(w1, "mapreg_txt") == 0) {
-				strcpy(mapreg_txt, w2);
 			} else if(strcmpi(w1,"read_map_from_cache") == 0){
 				if (atoi(w2) == 2)
 					map_read_flag = READ_FROM_BITMAP_COMPRESSED;
@@ -3142,8 +3134,7 @@ int inter_config_read(char *cfgName)
 		} else if(strcmpi(w1, "main_chat_nick")==0){
 			strcpy(main_chat_nick, w2);
 
-	#ifndef TXT_ONLY
-		} else if(strcmpi(w1,"item_db_db")==0){
+	} else if(strcmpi(w1,"item_db_db")==0){
 			strcpy(item_db_db,w2);
 		} else if(strcmpi(w1,"mob_db_db")==0){
 			strcpy(mob_db_db,w2);
@@ -3197,7 +3188,6 @@ int inter_config_read(char *cfgName)
 			strcpy(mail_server_db, w2);
 		} else if(strcmpi(w1,"mail_db")==0) {
 			strcpy(mail_db, w2);
-	#endif
 		//support the import command, just like any other config
 		} else if(strcmpi(w1,"import")==0){
 			inter_config_read(w2);
@@ -3208,7 +3198,6 @@ int inter_config_read(char *cfgName)
 	return 0;
 }
 
-#ifndef TXT_ONLY
 /*=======================================
  *  MySQL Init
  *---------------------------------------*/
@@ -3297,7 +3286,7 @@ int log_sql_init(void)
 /*=============================================
  * Does a mysql_ping to all connection handles
  *---------------------------------------------*/
-int map_sql_ping(int tid, unsigned int tick, int id, int data)
+int map_sql_ping(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
 	mysql_ping(&mmysql_handle);
@@ -3333,7 +3322,6 @@ int sql_ping_init(void)
 
 	return 0;
 }
-#endif /* not TXT_ONLY */
 
 int map_db_final(DBKey k,void *d,va_list ap)
 {
@@ -3464,9 +3452,7 @@ void do_final(void)
 	pc_db->destroy(pc_db, NULL);
 	charid_db->destroy(charid_db, NULL);
 
-#ifndef TXT_ONLY
     map_sql_close();
-#endif /* not TXT_ONLY */
 	ShowStatus("Successfully terminated.\n");
 }
 
@@ -3559,10 +3545,8 @@ int do_init(int argc, char *argv[])
 			MSG_CONF_NAME = argv[i+1];
 		else if (strcmp(argv[i],"--grf_path_file") == 0 || strcmp(argv[i],"--grf-path-file") == 0)
 			GRF_PATH_FILENAME = argv[i+1];
-#ifndef TXT_ONLY
 		else if (strcmp(argv[i],"--inter_config") == 0 || strcmp(argv[i],"--inter-config") == 0)
 			INTER_CONF_NAME = argv[i+1];
-#endif
 		else if (strcmp(argv[i],"--log_config") == 0 || strcmp(argv[i],"--log-config") == 0)
 			LOG_CONF_NAME = argv[i+1];
 		else if (strcmp(argv[i],"--run_once") == 0)	// close the map-server as soon as its done.. for testing [Celest]
@@ -3607,9 +3591,7 @@ int do_init(int argc, char *argv[])
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
 	map_db = db_alloc(__FILE__,__LINE__,DB_UINT,DB_OPT_BASE,sizeof(int));
 	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
-#ifndef TXT_ONLY
 	map_sql_init();
-#endif /* not TXT_ONLY */
 
 	mapindex_init();
 	grfio_init(GRF_PATH_FILENAME);
@@ -3638,7 +3620,6 @@ int do_init(int argc, char *argv[])
 	do_init_merc();	//[orn]
 	do_init_npc();
 	do_init_unit();
-#ifndef TXT_ONLY /* mail system [Valaris] */
 	if(mail_server_enable)
 		do_init_mail();
 
@@ -3646,7 +3627,6 @@ int do_init(int argc, char *argv[])
 		log_sql_init();
 
 	sql_ping_init();
-#endif /* not TXT_ONLY */
 
 	npc_event_do_oninit();	// npcOnInitCxg?s
 

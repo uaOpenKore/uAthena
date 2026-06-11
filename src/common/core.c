@@ -3,9 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef _WIN32
 #include <unistd.h>
-#endif
 #include <signal.h>
 #include <string.h>
 
@@ -21,9 +19,7 @@
 #include "../common/plugins.h"
 #endif
 
-#ifndef _WIN32
-	#include "svnversion.h"
-#endif
+#include "svnversion.h"
 
 int runflag = 1;
 int arg_c = 0;
@@ -42,13 +38,6 @@ char SERVER_TYPE = ATHENA_SERVER_NONE;
 // (sigaction() is POSIX; signal() is not.)  Taken from Stevens' _Advanced
 // Programming in the UNIX Environment_.
 //
-#ifdef WIN32	// windows don't have SIGPIPE
-#define SIGPIPE SIGINT
-#endif
-
-#ifndef POSIX
-#define compat_signal(signo, func) signal(signo, func)
-#else
 sigfunc *compat_signal(int signo, sigfunc *func)
 {
 	struct sigaction sact, oact;
@@ -65,7 +54,6 @@ sigfunc *compat_signal(int signo, sigfunc *func)
 
 	return (oact.sa_handler);
 }
-#endif
 
 /*======================================
  *	CORE : Signal Sub Function
@@ -81,7 +69,6 @@ static void sig_proc(int sn)
 			exit(0);
 		runflag = 0;
 		break;
-#ifndef _WIN32
 	case SIGXFSZ:
 		// ignore and allow it to set errno to EFBIG
 		ShowWarning ("Max file size reached!\n");
@@ -90,7 +77,6 @@ static void sig_proc(int sn)
 	case SIGPIPE:
 		ShowMessage ("Broken pipe found... closing socket\n");	// set to eof in socket.c
 		break;	// does nothing here
-#endif
 	}
 }
 
@@ -103,12 +89,10 @@ void signals_init (void)
 	compat_signal(SIGSEGV, SIG_DFL);
 	compat_signal(SIGFPE, SIG_DFL);
 	compat_signal(SIGILL, SIG_DFL);
-	#ifndef _WIN32
-		compat_signal(SIGXFSZ, sig_proc);
-		compat_signal(SIGPIPE, sig_proc);
-		compat_signal(SIGBUS, SIG_DFL);
-		compat_signal(SIGTRAP, SIG_DFL);
-	#endif
+	compat_signal(SIGXFSZ, sig_proc);
+	compat_signal(SIGPIPE, sig_proc);
+	compat_signal(SIGBUS, SIG_DFL);
+	compat_signal(SIGTRAP, SIG_DFL);
 }
 #endif
 
@@ -193,13 +177,11 @@ static void display_title(void)
 // Warning if logged in as superuser (root)
 void usercheck(void)
 {
-#ifndef _WIN32
     if ((getuid() == 0) && (getgid() == 0)) {
 	ShowWarning ("You are running eAthena as the root superuser.\n");
 	ShowWarning ("It is unnecessary and unsafe to run eAthena with root privileges.\n");
 	sleep(3);
     }
-#endif
 }
 
 /*======================================

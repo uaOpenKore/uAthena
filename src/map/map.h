@@ -795,9 +795,7 @@ struct map_session_data {
 
 	char fakename[NAME_LENGTH]; // fake names [Valaris]
 
-#ifndef TXT_ONLY
 	int mail_counter;	// mail counter for mail system [Valaris]
-#endif
 
 	int duel_group; // duel vars [LuzZza]
 	int duel_invite;
@@ -1323,8 +1321,8 @@ void map_quit_ack(struct map_session_data *);
 int map_addnpc(int,struct npc_data *);
 
 // ACeA
-int map_clearflooritem_timer(int,unsigned int,int,int);
-int map_removemobs_timer(int,unsigned int,int,int);
+int map_clearflooritem_timer(int,unsigned int,intptr_t,intptr_t);
+int map_removemobs_timer(int,unsigned int,intptr_t,intptr_t);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
 int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,struct map_session_data *,struct map_session_data *,int);
 
@@ -1399,11 +1397,6 @@ extern char *GRF_PATH_FILENAME;
 
 extern char *map_server_dns;
 
-#ifndef TXT_ONLY
-
-#ifdef WIN32
-#include <winsock2.h>
-#endif
 #include <mysql.h>
 
 extern char tmp_sql[65535];
@@ -1428,8 +1421,6 @@ extern char mob_db_db[32];
 extern char mob_db2_db[32];
 extern char char_db[32];
 extern char mail_db[32];
-
-#endif /* not TXT_ONLY */
 //Useful typedefs from jA [Skotlex]
 typedef struct map_session_data TBL_PC;
 typedef struct npc_data         TBL_NPC;

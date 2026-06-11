@@ -147,7 +147,7 @@ struct delay_damage {
 	unsigned short attack_type;
 };
 
-int battle_delay_damage_sub (int tid, unsigned int tick, int id, int data)
+int battle_delay_damage_sub (int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct delay_damage *dat = (struct delay_damage *)data;
 	struct block_list *target = map_id2bl(dat->target);
@@ -193,7 +193,7 @@ int battle_delay_damage (unsigned int tick, struct block_list *src, struct block
 	dat->dmg_lv = dmg_lv;
 	dat->delay = ddelay;
 	dat->distance = distance_bl(src, target)+10; //Attack should connect regardless unless you teleported.
-	add_timer(tick, battle_delay_damage_sub, src->id, (int)dat);
+	add_timer(tick, battle_delay_damage_sub, src->id, (intptr_t)dat);
 	
 	return 0;
 }

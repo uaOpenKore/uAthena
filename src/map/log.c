@@ -58,15 +58,11 @@ int should_log_item(int filter, int nameid, int amount)
 
 int log_branch(struct map_session_data *sd)
 {
-#ifndef TXT_ONLY
 	char t_name[NAME_LENGTH*2];
-#endif
-	FILE *logfp;
 
 	if(!log_config.enable_logs)
 		return 0;
 	nullpo_retr(0, sd);
-#ifndef TXT_ONLY
 	if(log_config.sql_logs > 0)
 	{
 		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`branch_date`, `account_id`, `char_id`, `char_name`, `map`) VALUES (NOW(), '%d', '%d', '%s', '%s')",
@@ -79,41 +75,29 @@ int log_branch(struct map_session_data *sd)
 		}
 		return 1;
 	}
-#endif
-	if((logfp=fopen(log_config.log_branch,"a+")) == NULL)
-		return 0;
-	time(&curtime);
-	strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-	fprintf(logfp,"%s - %s[%d:%d]\t%s%s", timestring, sd->status.name, sd->status.account_id, sd->status.char_id, mapindex_id2name(sd->mapindex), RETCODE);
-	fclose(logfp);
-	return 1;
+	return 0;
 }
 
 
 int log_pick_pc(struct map_session_data *sd, const char *type, int nameid, int amount, struct item *itm)
 {
-	FILE *logfp;
 	char *mapname;
 
 	nullpo_retr(0, sd);
-	//Should we log this item? [Lupus]
 	if (!should_log_item(log_config.filter,nameid, amount))
-		return 0; //we skip logging this items set - they doesn't met our logging conditions [Lupus]
+		return 0;
 
 	mapname = (char*)mapindex_id2name(sd->mapindex);
 
 	if(mapname==NULL)
 		mapname="";
 
-#ifndef TXT_ONLY
 	if(log_config.sql_logs > 0)
 	{
 		if (itm==NULL) {
-		//We log common item
 			sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%s')",
 			 log_config.log_pick_db, sd->status.char_id, type, nameid, amount, mapname);
 		} else {
-		//We log Extended item
 			sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `refine`, `card0`, `card1`, `card2`, `card3`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s')",
 			 log_config.log_pick_db, sd->status.char_id, type, itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname);
 		}
@@ -126,51 +110,28 @@ int log_pick_pc(struct map_session_data *sd, const char *type, int nameid, int a
 		}
 		return 1;
 	}
-#endif
-	if((logfp=fopen(log_config.log_pick,"a+")) == NULL)
-		return 0;
-	time(&curtime);
-	strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-
-	if (itm==NULL) {
-	//We log common item
-		fprintf(logfp,"%s - %d\t%s\t%d,%d,%s%s",
-			timestring, sd->status.char_id, type, nameid, amount, mapname, RETCODE);
-
-	} else {
-	//We log Extended item
-		fprintf(logfp,"%s - %d\t%s\t%d,%d,%d,%d,%d,%d,%d,%s%s",
-			timestring, sd->status.char_id, type, itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname, RETCODE);
-	}
-	fclose(logfp);
-	return 1; //Logged
+	return 0;
 }
 
 //Mob picked item
 int log_pick_mob(struct mob_data *md, const char *type, int nameid, int amount, struct item *itm)
 {
-	FILE *logfp;
 	char *mapname;
 
 	nullpo_retr(0, md);
-	//Should we log this item? [Lupus]
 	if (!should_log_item(log_config.filter,nameid, amount))
-		return 0; //we skip logging this items set - they doesn't met our logging conditions [Lupus]
+		return 0;
 
-	//either PLAYER or MOB (here we get map name and objects ID)
 	mapname = map[md->bl.m].name;
 	if(mapname==NULL)
 		mapname="";
 
-#ifndef TXT_ONLY
 	if(log_config.sql_logs > 0)
 	{
 		if (itm==NULL) {
-		//We log common item
 			sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%s')",
 			 log_config.log_pick_db, md->class_, type, nameid, amount, mapname);
 		} else {
-		//We log Extended item
 			sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `refine`, `card0`, `card1`, `card2`, `card3`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s')",
 			 log_config.log_pick_db, md->class_, type, itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname);
 		}
@@ -183,34 +144,15 @@ int log_pick_mob(struct mob_data *md, const char *type, int nameid, int amount, 
 		}
 		return 1;
 	}
-#endif
-	if((logfp=fopen(log_config.log_pick,"a+")) == NULL)
-		return 0;
-	time(&curtime);
-	strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-
-	if (itm==NULL) {
-	//We log common item
-		fprintf(logfp,"%s - %d\t%s\t%d,%d,%s%s",
-			timestring, md->class_, type, nameid, amount, mapname, RETCODE);
-
-	} else {
-	//We log Extended item
-		fprintf(logfp,"%s - %d\t%s\t%d,%d,%d,%d,%d,%d,%d,%s%s",
-			timestring, md->class_, type, itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname, RETCODE);
-	}
-	fclose(logfp);
-	return 1; //Logged
+	return 0;
 }
 
 int log_zeny(struct map_session_data *sd, char *type, struct map_session_data *src_sd, int amount)
 {
-//	FILE *logfp;
 	if(!log_config.enable_logs || (log_config.zeny!=1 && abs(amount)<log_config.zeny))
 		return 0;
 
 	nullpo_retr(0, sd);
-#ifndef TXT_ONLY
 	if(log_config.sql_logs > 0)
 	{
 		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `src_id`, `type`, `amount`, `map`) VALUES (NOW(), '%d', '%d', '%s', '%d', '%s')",
@@ -223,25 +165,14 @@ int log_zeny(struct map_session_data *sd, char *type, struct map_session_data *s
 		}
 		return 1;
 	}
-#endif
-//		if((logfp=fopen(log_config.log_zeny,"a+")) == NULL)
-//			return 0;
-//		time(&curtime);
-//		strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-//		fprintf(logfp,"%s - %s[%d]\t%s[%d]\t%d\t%s", timestring, sd->status.name, sd->status.account_id, target_sd->status.name, target_sd->status.account_id, sd->deal.zeny, RETCODE);
-//		fclose(logfp);
-//		return 1;
 	return 0;
 }
 
 int log_mvpdrop(struct map_session_data *sd, int monster_id, int *log_mvp)
 {
-	FILE *logfp;
-
 	if(!log_config.enable_logs)
 		return 0;
 	nullpo_retr(0, sd);
-#ifndef TXT_ONLY
 	if(log_config.sql_logs > 0)
 	{
 		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`mvp_date`, `kill_char_id`, `monster_id`, `prize`, `mvpexp`, `map`) VALUES (NOW(), '%d', '%d', '%d', '%d', '%s') ", log_config.log_mvpdrop_db, sd->status.char_id, monster_id, log_mvp[0], log_mvp[1], mapindex_id2name(sd->mapindex));
@@ -253,29 +184,18 @@ int log_mvpdrop(struct map_session_data *sd, int monster_id, int *log_mvp)
 		}
 		return 1;
 	}
-#endif
-	if((logfp=fopen(log_config.log_mvpdrop,"a+")) == NULL)
-		return 0;
-	time(&curtime);
-	strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-	fprintf(logfp,"%s - %s[%d:%d]\t%d\t%d,%d%s", timestring, sd->status.name, sd->status.account_id, sd->status.char_id, monster_id, log_mvp[0], log_mvp[1], RETCODE);
-	fclose(logfp);
 	return 0;
 }
 
 
 int log_atcommand(struct map_session_data *sd, const char *message)
 {
-	FILE *logfp;
-#ifndef TXT_ONLY
 	char t_name[NAME_LENGTH*2];
-	char t_msg[CHAT_SIZE*2+1]; //These are the contents of an @ call, so there shouldn't be overflow danger here?
-#endif
+	char t_msg[CHAT_SIZE*2+1];
 
 	if(!log_config.enable_logs)
 		return 0;
 	nullpo_retr(0, sd);
-#ifndef TXT_ONLY
 	if(log_config.sql_logs > 0)
 	{
 		if (strlen(message) > CHAT_SIZE) {
@@ -294,28 +214,17 @@ int log_atcommand(struct map_session_data *sd, const char *message)
 		}
 		return 1;
 	}
-#endif
-	if((logfp=fopen(log_config.log_gm,"a+")) == NULL)
-		return 0;
-	time(&curtime);
-	strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-	fprintf(logfp,"%s - %s[%d]: %s%s",timestring,sd->status.name,sd->status.account_id,message,RETCODE);
-	fclose(logfp);
-	return 1;
+	return 0;
 }
 
 int log_npc(struct map_session_data *sd, const char *message)
-{	//[Lupus]
-	FILE *logfp;
-#ifndef TXT_ONLY
+{
 	char t_name[NAME_LENGTH*2];
-	char t_msg[255+1]; //it's 255 chars MAX.
-#endif
+	char t_msg[255+1];
 
 	if(!log_config.enable_logs)
 		return 0;
 	nullpo_retr(0, sd);
-#ifndef TXT_ONLY
 	if(log_config.sql_logs > 0)
 	{
 		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`npc_date`, `account_id`, `char_id`, `char_name`, `map`, `mes`) VALUES(NOW(), '%d', '%d', '%s', '%s', '%s') ",
@@ -328,42 +237,18 @@ int log_npc(struct map_session_data *sd, const char *message)
 		}
 		return 1;
 	}
-#endif
-	if((logfp=fopen(log_config.log_npc,"a+")) == NULL)
-		return 0;
-	time(&curtime);
-	strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-	fprintf(logfp,"%s - %s[%d]: %s%s",timestring,sd->status.name,sd->status.account_id,message,RETCODE);
-	fclose(logfp);
-	return 1;
+	return 0;
 }
 
 
 int log_chat(const char* type, int type_id, int src_charid, int src_accid, const char* map, int x, int y, const char* dst_charname, const char* message)
 {
-	// Log CHAT (Global, Whisper, Party, Guild, Main chat)
-	// LOGGING FILTERS [Lupus]
-	//=============================================================
-	//00 = Don't log at all
-	//Advanced Filter Bits: ||
-	//01 - Log Global messages
-	//02 - Log Whisper messages
-	//04 - Log Party messages
-	//08 - Log Guild messages
-	//16 - Log Main chat messages
-	//32 - Don't log anything when WOE is on
-
-	FILE *logfp;
-#ifndef TXT_ONLY
 	char t_charname[NAME_LENGTH*2];
-	char t_msg[CHAT_SIZE*2+1]; //Chat line fully escaped, with an extra space just in case.
-#endif
+	char t_msg[CHAT_SIZE*2+1];
 
-	//Check ON/OFF
 	if(log_config.chat <= 0)
-		return 0; //Deactivated
+		return 0;
 
-#ifndef TXT_ONLY
 	if(log_config.sql_logs > 0){
 		if (strlen(message) > CHAT_SIZE) {
 			if (battle_config.error_log)
@@ -381,15 +266,7 @@ int log_chat(const char* type, int type_id, int src_charid, int src_accid, const
 		}
 		return 1;
 	}
-#endif
-	if((logfp = fopen(log_config.log_chat, "a+")) == NULL)
-		return 0;
-	time(&curtime);
-	strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-	fprintf(logfp, "%s - %s,%d,%d,%d,%s,%d,%d,%s,%s%s",
-		timestring, type, type_id, src_charid, src_accid, map, x, y, dst_charname, message, RETCODE);
-	fclose(logfp);
-	return 1;
+	return 0;
 }
 
 
@@ -458,7 +335,6 @@ int log_config_read(char *cfgName)
 				log_config.mvpdrop = (atoi(w2));
 			}
 
-#ifndef TXT_ONLY
 			else if(strcmpi(w1, "log_branch_db") == 0) {
 				strcpy(log_config.log_branch_db, w2);
 				if(log_config.branch == 1)
@@ -487,37 +363,6 @@ int log_config_read(char *cfgName)
 				strcpy(log_config.log_chat_db, w2);
 				if(log_config.chat > 0)
 					ShowNotice("Logging CHAT to table `%s`\n", w2);
-			}
-#endif
-
-			else if(strcmpi(w1, "log_branch_file") == 0) {
-				strcpy(log_config.log_branch, w2);
-				if(log_config.branch > 0 && log_config.sql_logs < 1)
-					ShowNotice("Logging Dead Branch Usage to file `%s`.txt\n", w2);
-			} else if(strcmpi(w1, "log_pick_file") == 0) {
-				strcpy(log_config.log_pick, w2);
-				if(log_config.filter > 0 && log_config.sql_logs < 1)
-					ShowNotice("Logging Item Picks to file `%s`.txt\n", w2);
-			} else if(strcmpi(w1, "log_zeny_file") == 0) {
-				strcpy(log_config.log_zeny, w2);
-				if(log_config.zeny > 0 && log_config.sql_logs < 1)
-					ShowNotice("Logging Zeny to file `%s`.txt\n", w2);
-			} else if(strcmpi(w1, "log_mvpdrop_file") == 0) {
-				strcpy(log_config.log_mvpdrop, w2);
-				if(log_config.mvpdrop > 0 && log_config.sql_logs < 1)
-					ShowNotice("Logging MVP Drops to file `%s`.txt\n", w2);
-			} else if(strcmpi(w1, "log_gm_file") == 0) {
-				strcpy(log_config.log_gm, w2);
-				if(log_config.gm > 0 && log_config.sql_logs < 1)
-					ShowNotice("Logging GM Level %d Commands to file `%s`.txt\n", log_config.gm, w2);
-			} else if(strcmpi(w1, "log_npc_file") == 0) {
-				strcpy(log_config.log_npc, w2);
-				if(log_config.npc > 0 && log_config.sql_logs < 1)
-					ShowNotice("Logging NPC 'logmes' to file `%s`.txt\n", w2);
-			} else if(strcmpi(w1, "log_chat_file") == 0) {
-				strcpy(log_config.log_chat, w2);
-				if(log_config.chat > 0 && log_config.sql_logs < 1)					
-					ShowNotice("Logging CHAT to file `%s`.txt\n", w2);
 			//support the import command, just like any other config
 			} else if(strcmpi(w1,"import") == 0) {
 				log_config_read(w2);

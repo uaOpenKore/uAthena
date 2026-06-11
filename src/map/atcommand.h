@@ -204,8 +204,6 @@ enum AtCommandType {
 	AtCommand_NpcTalk,
 	AtCommand_PetTalk,
 	AtCommand_Users,
-	// SQL-only commands start
-#ifndef TXT_ONLY
 	AtCommand_CheckMail, // [Valaris]
 	AtCommand_ListMail, // [Valaris]
 	AtCommand_ListNewMail, // [Valaris]
@@ -214,8 +212,6 @@ enum AtCommandType {
 	AtCommand_DeleteMail, // [Valaris]
 	AtCommand_SendPriorityMail, // [Valaris]
 	AtCommand_RefreshOnline, // [Valaris]
-	// SQL-only commands end
-#endif
 	AtCommand_SkillTree, // by MouseJstr
 	AtCommand_Marry, // by MouseJstr
 	AtCommand_Divorce, // by MouseJstr

@@ -25,26 +25,9 @@
 //////////////////////////////////////////////////////////////////////////
 // setting some defines on platforms
 //////////////////////////////////////////////////////////////////////////
-#if (defined(__WIN32__) || defined(__WIN32) || defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER) || defined(__BORLANDC__)) && !defined(WIN32)
-#define WIN32
-#endif
-
-#if defined(__MINGW32__) && !defined(MINGW)
-#define MINGW
-#endif
-
-// __APPLE__ is the only predefined macro on MacOS X
-#if defined(__APPLE__)
-#define __DARWIN__
-#endif
-
 // 64bit OS
-#if defined(_M_IA64) || defined(_M_X64) || defined(_WIN64) || defined(_LP64) || defined(_ILP64) || defined(__LP64__) || defined(__ppc64__)
+#if defined(_LP64) || defined(__LP64__) || defined(__ppc64__)
 #define __64BIT__
-#endif
-
-#if defined(_ILP64)
-#error "this specific 64bit architecture is not supported"
 #endif
 
 // debug mode
@@ -53,7 +36,7 @@
 #endif
 
 // disable attributed stuff on non-GNU
-#if !defined(__GNUC__) && !defined(MINGW)
+#if !defined(__GNUC__)
 #  define  __attribute__(x)
 #endif
 
@@ -74,7 +57,13 @@
 // Integers with guaranteed _exact_ size.
 //////////////////////////////////////////////////////////////////////////
 
+#include <stdint.h>
+
+#ifdef __64BIT__
+#define SIZEOF_LONG 8
+#else
 #define SIZEOF_LONG 4
+#endif
 #define SIZEOF_INT 4
 #define HAVE_INT_8_16_32
 
@@ -139,32 +128,16 @@ typedef unsigned long int   ppuint32;
 //////////////////////////////
 #include <stddef.h> // size_t
 
-#if defined(WIN32) && !defined(MINGW) // does not have a signed size_t
-//////////////////////////////
-#if defined(_WIN64)	// naive 64bit windows platform
-typedef __int64			ssize_t;
-#else
-typedef int				ssize_t;
-#endif
-//////////////////////////////
-#endif
-//////////////////////////////
+
 
 
 //////////////////////////////////////////////////////////////////////////
 // portable 64-bit integers
 //////////////////////////////////////////////////////////////////////////
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-typedef __int64				int64;
-typedef signed __int64		sint64;
-typedef unsigned __int64	uint64;
-#define LLCONST(a)			(a##i64)
-#else
 typedef long long			int64;
 typedef signed long long	sint64;
 typedef unsigned long long	uint64;
 #define LLCONST(a)			(a##ll)
-#endif
 
 #ifndef INT64_MIN
 #define INT64_MIN  (LLCONST(-9223372036854775807)-1)
@@ -180,25 +153,10 @@ typedef unsigned long long	uint64;
 //////////////////////////////////////////////////////////////////////////
 // some redefine of function redefines for some Compilers
 //////////////////////////////////////////////////////////////////////////
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-#define strcasecmp			stricmp
-#define strncasecmp			strnicmp
-#define strncmpi			strnicmp
-#define snprintf			_snprintf
-#if defined(_MSC_VER) && _MSC_VER < 1400
-#define vsnprintf			_vsnprintf
-#endif
-#else
 #define strcmpi				strcasecmp
 #define stricmp				strcasecmp
 #define strncmpi			strncasecmp
 #define strnicmp			strncasecmp
-#endif
-
-// keyword replacement in windows
-#ifdef _WIN32
-#define inline __inline
-#endif
 
 /////////////////////////////
 // for those still not building c++
@@ -250,26 +208,12 @@ typedef char bool;
 //////////////////////////////////////////////////////////////////////////
 // path separator
 
-#if defined(WIN32)
-#define PATHSEP '\\'
-#elif defined(__APPLE__)
-#define PATHSEP ':'
-#else
 #define PATHSEP '/'
-#endif
 
 //////////////////////////////////////////////////////////////////////////
 // EOL separator
 
-#if defined(WIN32) || defined(CYGWIN)
-#define RETCODE	"\r\n"	// CR/LF : Windows systems
-/*FIXME: Mac OSX also uses \n, only pre-OSX uses \r
-#elif defined(__APPLE__)
-#define RETCODE "\r"	// CR : Macintosh systems
-*/
-#else
 #define RETCODE "\n"	// LF : Unix systems
-#endif
 
 #define RET RETCODE
 
@@ -283,9 +227,6 @@ typedef char bool;
 // extern "C" {
 #include <assert.h>
 // }
-#if !defined(DEFCPP) && defined(WIN32) && !defined(MINGW)
-#include <crtdbg.h>
-#endif
 #define Assert(EX) assert(EX)
 #endif
 #endif /* ! defined(Assert) */

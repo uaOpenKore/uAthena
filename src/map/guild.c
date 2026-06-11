@@ -1,4 +1,4 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+﻿// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
@@ -64,10 +64,10 @@ struct{
 #define GUILD_SAVE_INTERVAL 300000
 int guild_save_timer = -1;
 
-int guild_payexp_timer(int tid,unsigned int tick,int id,int data);
-int guild_gvg_eliminate_timer(int tid,unsigned int tick,int id,int data);
-int guild_save_sub(int tid,unsigned int tick,int id,int data);
-static int guild_send_xy_timer(int tid,unsigned int tick,int id,int data);
+int guild_payexp_timer(int tid,unsigned int tick,intptr_t id,intptr_t data);
+int guild_gvg_eliminate_timer(int tid,unsigned int tick,intptr_t id,intptr_t data);
+int guild_save_sub(int tid,unsigned int tick,intptr_t id,intptr_t data);
+static int guild_send_xy_timer(int tid,unsigned int tick,intptr_t id,intptr_t data);
 
  // Modified [Komurka]
 int guild_skill_get_max (int id)
@@ -381,7 +381,7 @@ int guild_payexp_timer_sub(DBKey dataid, void *data, va_list ap)
 	return 0;
 }
 
-int guild_payexp_timer(int tid, unsigned int tick, int id, int data)
+int guild_payexp_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	guild_expcache_db->clear(guild_expcache_db,guild_payexp_timer_sub);
 	return 0;
@@ -409,7 +409,7 @@ int guild_send_xy_timer_sub(DBKey key,void *data,va_list ap)
 }
 
 //Code from party_send_xy_timer [Skotlex]
-static int guild_send_xy_timer(int tid,unsigned int tick,int id,int data)
+static int guild_send_xy_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	guild_db->foreach(guild_db,guild_send_xy_timer_sub,tick);
 	return 0;
@@ -1866,7 +1866,7 @@ int guild_agit_end(void)
 	return 0;
 }
 
-int guild_gvg_eliminate_timer(int tid,unsigned int tick,int id,int data)
+int guild_gvg_eliminate_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {	// Run One NPC_Event[OnAgitEliminate]
 	char *name = (char*)data;
 	size_t len = (name) ? strlen(name) : 0; 
@@ -1889,7 +1889,7 @@ int guild_gvg_eliminate_timer(int tid,unsigned int tick,int id,int data)
 
 static int Ghp[MAX_GUILDCASTLE][MAX_GUARDIANS];	// so save only if HP are changed // experimental code [Yor]
 static int Gid[MAX_GUILDCASTLE];
-int guild_save_sub(int tid,unsigned int tick,int id,int data)
+int guild_save_sub(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct guild_castle *gc;
 	int i,j;
@@ -1925,7 +1925,7 @@ int guild_agit_break(struct mob_data *md)
 // But Script will be stop, so nothing...
 // Maybe will be changed in the futher..
 //      int c = npc_event_do(evname);
-	add_timer(gettick()+battle_config.gvg_eliminate_time,guild_gvg_eliminate_timer,md->bl.m,(int)evname);
+	add_timer(gettick()+battle_config.gvg_eliminate_time,guild_gvg_eliminate_timer,md->bl.m,(intptr_t)evname);
 	return 0;
 }
 

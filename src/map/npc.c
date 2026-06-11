@@ -185,7 +185,7 @@ int npc_event_dequeue(struct map_session_data* sd)
 /*==========================================
  * Cxgxs
  *------------------------------------------*/
-int npc_event_timer(int tid, unsigned int tick, int id, int data)
+int npc_event_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	char* eventname = (char *)data;
 	struct event_data* ev = strdb_get(ev_db,eventname);
@@ -281,7 +281,7 @@ int npc_timer(int tid,unsigned int tick,int id,int data)	// Added by RoVeRT
  *------------------------------------------*/
 int npc_event_export(char* lname, void* data, va_list ap)
 {
-	int pos = (int)data;
+	int pos = (int)(intptr_t)data;
 	struct npc_data* nd = va_arg(ap, struct npc_data *);
 
 	if ((lname[0]=='O' || lname[0]=='o')&&(lname[1]=='N' || lname[1]=='n')) {
@@ -389,7 +389,7 @@ int npc_event_do(const char* name)
 /*==========================================
  * vCxgs
  *------------------------------------------*/
-int npc_event_do_clock(int tid, unsigned int tick, int id, int data)
+int npc_event_do_clock(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	time_t timer;
 	struct tm *t;
@@ -467,7 +467,7 @@ int npc_addeventtimer(struct npc_data* nd, int tick, const char* name)
 		strncpy(evname,name,NAME_LENGTH);
 		evname[NAME_LENGTH-1] = '\0';
 		nd->eventtimer[i]=add_timer(gettick()+tick,
-			npc_event_timer,nd->bl.id,(int)evname);
+			npc_event_timer,nd->bl.id,(intptr_t)evname);
 	}else
 		ShowWarning("npc_addtimer: event timer is full !\n");
 
@@ -536,7 +536,7 @@ int npc_do_ontimer(int npc_id, int option)
  *------------------------------------------*/
 int npc_timerevent_import(char* lname, void* data, va_list ap)
 {
-	int pos=(int)data;
+	int pos=(int)(intptr_t)data;
 	struct npc_data *nd=va_arg(ap,struct npc_data *);
 	int t=0,i=0;
 
@@ -573,7 +573,7 @@ struct timer_event_data {
 /*==========================================
  * ^C}[Cxgs
  *------------------------------------------*/
-int npc_timerevent(int tid, unsigned int tick, int id, int data)
+int npc_timerevent(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	int next,t,old_rid,old_timer;
 	unsigned int old_tick;
@@ -611,9 +611,9 @@ int npc_timerevent(int tid, unsigned int tick, int id, int data)
 			- nd->u.scr.timer_event[ ted->next-1 ].timer;
 		ted->time+=next;
 		if (sd)
-			sd->npc_timer_id = add_timer(tick+next,npc_timerevent,id,(int)ted);
+			sd->npc_timer_id = add_timer(tick+next,npc_timerevent,id,(intptr_t)ted);
 		else
-			nd->u.scr.timerid = add_timer(tick+next,npc_timerevent,id,(int)ted);
+			nd->u.scr.timerid = add_timer(tick+next,npc_timerevent,id,(intptr_t)ted);
 	} else {
 		if (sd)
 			sd->npc_timer_id = -1;
@@ -681,9 +681,9 @@ int npc_timerevent_start(struct npc_data* nd, int rid)
 	next = nd->u.scr.timer_event[j].timer - nd->u.scr.timer;
 	ted->time = nd->u.scr.timer_event[j].timer;
 	if (sd)
-		sd->npc_timer_id = add_timer(gettick()+next,npc_timerevent,nd->bl.id,(int)ted);
+		sd->npc_timer_id = add_timer(gettick()+next,npc_timerevent,nd->bl.id,(intptr_t)ted);
 	else
-		nd->u.scr.timerid = add_timer(gettick()+next,npc_timerevent,nd->bl.id,(int)ted);
+		nd->u.scr.timerid = add_timer(gettick()+next,npc_timerevent,nd->bl.id,(intptr_t)ted);
 	return 0;
 }
 /*==========================================
@@ -1780,7 +1780,7 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 int npc_convertlabel_db(DBKey key, void* data, va_list ap)
 {
 	const char *lname = (const char*)key.str;
-	int pos = (int)data;
+	int pos = (int)(intptr_t)data;
 	struct npc_data *nd;
 	struct npc_label_list *lst;
 	int num;

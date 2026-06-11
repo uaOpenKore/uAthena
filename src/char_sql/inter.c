@@ -295,7 +295,7 @@ int inter_log(char* fmt, ...)
 /*=============================================
  * Does a mysql_ping to all connection handles
  *---------------------------------------------*/
-int inter_sql_ping(int tid, unsigned int tick, int id, int data)
+int inter_sql_ping(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
 	mysql_ping(&mysql_handle);

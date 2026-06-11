@@ -17,16 +17,6 @@ char* trim(char* str);
 char* normalize_name(char* str,const char* delims);
 const char *stristr(const char *haystack, const char *needle);
 
-#ifdef WIN32
-#define HAVE_STRTOK_R
-#define strtok_r(s,delim,save_ptr) _strtok_r((s),(delim),(save_ptr))
-char* _strtok_r(char* s1, const char* s2, char** lasts);
-#endif
-
-#if !(defined(WIN32) && defined(_MSC_VER) && _MSC_VER >= 1400)
-size_t strnlen (const char* string, size_t maxlen);
-#endif
-
 int e_mail_check(char* email);
 int config_switch(const char* str);
 

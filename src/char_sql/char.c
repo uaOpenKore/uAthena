@@ -16,13 +16,9 @@
 #include "char.h"
 
 #include <sys/types.h>
-#ifdef WIN32
-#include <winsock2.h>
-#else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#endif
 #include <time.h>
 #include <signal.h>
 #include <fcntl.h>
@@ -203,7 +199,7 @@ static void * create_online_char_data(DBKey key, va_list args)
 	return character;
 }
 
-static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, int data);
+static int chardb_waiting_disconnect(int tid, unsigned int tick, intptr_t id, intptr_t data);
 
 //-------------------------------------------------
 // Set Character online/offline [Wizputer]
@@ -1762,7 +1758,7 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 	mmo_char_send006b(fd, sd);
 }
 
-int send_accounts_tologin(int tid, unsigned int tick, int id, int data);
+int send_accounts_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data);
 
 int parse_fromlogin(int fd)
 {
@@ -2589,7 +2585,7 @@ int parse_frommap(int fd)
 			struct online_char_data* character;
 			if (size - 13 != sizeof(struct mmo_charstatus))
 			{
-				ShowError("parse_from_map (save-char): Size mismatch! %d != %d\n", size-13, sizeof(struct mmo_charstatus));
+				ShowError("parse_from_map (save-char): Size mismatch! %d != %zu\n", size-13, sizeof(struct mmo_charstatus));
 				RFIFOSKIP(fd,size);
 				break;
 			}
@@ -3588,7 +3584,7 @@ int mapif_send(int fd, unsigned char *buf, unsigned int len)
 	return 0;
 }
 
-int send_users_tologin(int tid, unsigned int tick, int id, int data)
+int send_users_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	int users = count_users();
 	unsigned char buf[16];
@@ -3624,7 +3620,7 @@ static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-int send_accounts_tologin(int tid, unsigned int tick, int id, int data)
+int send_accounts_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	int users = count_users(), i=0;
 
@@ -3640,7 +3636,7 @@ int send_accounts_tologin(int tid, unsigned int tick, int id, int data)
 	return 0;
 }
 
-int check_connect_login_server(int tid, unsigned int tick, int id, int data)
+int check_connect_login_server(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	if (login_fd > 0 && session[login_fd] != NULL)
 		return 0;
@@ -3675,7 +3671,7 @@ int check_connect_login_server(int tid, unsigned int tick, int id, int data)
 //Invoked 15 seconds after mapif_disconnectplayer in case the map server doesn't
 //replies/disconnect the player we tried to kick. [Skotlex]
 //------------------------------------------------
-static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, int data)
+static int chardb_waiting_disconnect(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct online_char_data* character;
 	if ((character = idb_get(online_char_db, id)) != NULL && character->waiting_disconnect == tid)
@@ -4068,7 +4064,7 @@ static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 	return 0;
 }
 
-static int online_data_cleanup(int tid, unsigned int tick, int id, int data)
+static int online_data_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	online_char_db->foreach(online_char_db, online_data_cleanup_sub);
 	return 0;

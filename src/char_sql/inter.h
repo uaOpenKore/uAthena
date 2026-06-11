@@ -25,9 +25,6 @@ int inter_log(char *fmt,...);
 extern unsigned int party_share_level;
 extern char inter_log_filename[1024];
 
-#ifdef WIN32
-#include <winsock2.h>
-#endif
 //add include for DBMS(mysql)
 #include <mysql.h>
 

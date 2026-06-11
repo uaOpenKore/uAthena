@@ -6,7 +6,7 @@
 
 #include <time.h>
 #include "cbasetypes.h"
-#include "utils.h" // _WIN32
+#include "utils.h"
 
 #define FIFOSIZE_SERVERLINK	256*1024
 
@@ -329,10 +329,7 @@ struct guild {
 	short guild_lv, connect_member, max_member, average_lv;
 	unsigned int exp,next_exp;
 	int skill_point;
-#ifdef TXT_ONLY
-	//FIXME: Gotta remove this variable completely, but doing so screws up the format of the txt save file...
-	int castle_id;
-#endif
+
 	char name[NAME_LENGTH],master[NAME_LENGTH];
 	struct guild_member member[MAX_GUILD];
 	struct guild_position position[MAX_GUILDPOSITION];
@@ -342,9 +339,7 @@ struct guild {
 	struct guild_alliance alliance[MAX_GUILDALLIANCE];
 	struct guild_expulsion expulsion[MAX_GUILDEXPULSION];
 	struct guild_skill skill[MAX_GUILDSKILL];
-#ifndef TXT_ONLY
 	unsigned short save_flag;
-#endif
 };
 
 struct guild_castle {

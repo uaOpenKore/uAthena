@@ -692,7 +692,7 @@ int clif_clearunit_area(struct block_list* bl, uint8 type)
 	return 0;
 }
 
-static int clif_clearunit_delayed_sub(int tid, unsigned int tick, int id, int data)
+static int clif_clearunit_delayed_sub(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct block_list *bl = (struct block_list *)id;
 	clif_clearunit_area(bl, 0);
@@ -705,7 +705,7 @@ int clif_clearunit_delayed(struct block_list* bl, unsigned int tick)
 	struct block_list *tbl;
 	tbl = aMalloc(sizeof (struct block_list));
 	memcpy (tbl, bl, sizeof (struct block_list));
-	add_timer(tick, clif_clearunit_delayed_sub, (int)tbl, 0);
+	add_timer(tick, clif_clearunit_delayed_sub, (intptr_t)tbl, 0);
 	return 0;
 }
 
@@ -1583,7 +1583,7 @@ void clif_move(struct unit_data *ud)
 /*==========================================
  * Delays the map_quit of a player after they are disconnected. [Skotlex]
  *------------------------------------------*/
-static int clif_delayquit(int tid, unsigned int tick, int id, int data)
+static int clif_delayquit(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd = NULL;
 
@@ -1614,7 +1614,7 @@ void clif_quitsave(int fd,struct map_session_data *sd)
 /*==========================================
  *
  *------------------------------------------*/
-static int clif_waitclose(int tid, unsigned int tick, int id, int data)
+static int clif_waitclose(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	if (session[id] && session[id]->func_parse == clif_parse) //Avoid disconnecting non-players, as pointed out by End of Exam [Skotlex]
 		set_eof(id);
