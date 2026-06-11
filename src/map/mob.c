@@ -1309,6 +1309,13 @@ static int mob_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 /*==========================================
  * Negligent mode MOB AI (PC is not in near)
  *------------------------------------------*/
+static unsigned int g_mob_ai_sub_lazy_tick = 0;
+
+static int mob_ai_sub_lazy_wrapper(DBKey key,void * data,va_list ap)
+{
+	return mob_ai_sub_lazy(key, data, ap);
+}
+
 static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 {
 	struct mob_data *md = (struct mob_data *)data;
@@ -1323,7 +1330,7 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 	if (battle_config.mob_ai&0x20 && map[md->bl.m].users>0)
 		return mob_ai_sub_hard(&md->bl, ap);
 
-	tick=(unsigned int)va_arg(ap, intptr_t);
+	tick = g_mob_ai_sub_lazy_tick;
 
 	if(DIFF_TICK(tick,md->last_thinktime)< 10*MIN_MOBTHINKTIME)
 		return 0;
@@ -1377,7 +1384,8 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
  *------------------------------------------*/
 static int mob_ai_lazy(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
-	map_foreachiddb(mob_ai_sub_lazy,tick);
+	g_mob_ai_sub_lazy_tick = tick;
+	map_foreachiddb(mob_ai_sub_lazy_wrapper,tick);
 	return 0;
 }
 
@@ -1387,9 +1395,10 @@ static int mob_ai_lazy(int tid,unsigned int tick,intptr_t id,intptr_t data)
 static int mob_ai_hard(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 
-	if (battle_config.mob_ai&0x20)
-		map_foreachiddb(mob_ai_sub_lazy,tick);
-	else
+	if (battle_config.mob_ai&0x20) {
+		g_mob_ai_sub_lazy_tick = tick;
+		map_foreachiddb(mob_ai_sub_lazy_wrapper,tick);
+	} else
 		clif_foreachclient(mob_ai_sub_foreachclient,tick);
 
 	return 0;
