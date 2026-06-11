@@ -701,7 +701,7 @@ int mmo_auth(struct mmo_account* account, int fd)
 static int online_db_setoffline(DBKey key, void* data, va_list ap)
 {
 	struct online_login_data *p = (struct online_login_data *)data;
-	int server = va_arg(ap, int);
+	int server = (int)va_arg(ap, intptr_t);
 	if (server == -1) {
 		p->char_server = -1;
 		if (p->waiting_disconnect != -1)
