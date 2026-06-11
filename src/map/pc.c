@@ -6650,7 +6650,7 @@ int pc_calc_pvprank(struct map_session_data *sd)
 /*==========================================
  * PVPvZ(timer)
  *------------------------------------------*/
-int pc_calc_pvprank_timer(int tid,unsigned int tick,int id,int data)
+int pc_calc_pvprank_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd=NULL;
 
