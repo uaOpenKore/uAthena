@@ -89,7 +89,7 @@ void set_defaultparse(ParseFunc defaultparse)
 /*======================================
  *	CORE : Socket options
  *--------------------------------------*/
-void set_nonblocking(int fd, unsigned long yes)
+void set_nonblocking(int fd, int yes)
 {
 	// TCP_NODELAY BOOL Disables the Nagle algorithm for send coalescing.
 	if(MODE_NODELAY)
