@@ -867,8 +867,10 @@ int parse_fromchar(int fd)
 			sql_res = mysql_store_result(&mysql_handle) ;
 			if (sql_res) {
 				sql_row = mysql_fetch_row(sql_res);
-				connect_until_time = atol(sql_row[1]);
-				strcpy(email, sql_row[0]);
+				if (sql_row) {
+					connect_until_time = atol(sql_row[1]);
+					strncpy(email, sql_row[0], 40); email[39] = 0;
+				}
 			}
 			mysql_free_result(sql_res);
 			//printf("parse_fromchar: E-mail/limited time request from '%s' server (concerned account: %d)\n", server[id].name, RFIFOL(fd,2));
@@ -929,7 +931,7 @@ int parse_fromchar(int fd)
 				if (sql_res) {
 					sql_row = mysql_fetch_row(sql_res);	//row fetching
 
-					if (strcmpi(sql_row[1], actual_email) == 0) {
+					if (sql_row && strcmpi(sql_row[1], actual_email) == 0) {
 						sprintf(tmpsql, "UPDATE `%s` SET `email` = '%s' WHERE `%s` = '%d'", login_db, new_email, login_db_account_id, acc);
 						// query
 						if (mysql_query(&mysql_handle, tmpsql)) {
@@ -939,6 +941,7 @@ int parse_fromchar(int fd)
 						ShowInfo("Char-server '%s': Modify an e-mail on an account (@email GM command) (account: %d (%s), new e-mail: %s, ip: %s)." RETCODE,
 							server[id].name, acc, sql_row[0], actual_email, ip);
 					}
+					mysql_free_result(sql_res);
 				}
 
 			}
@@ -960,10 +963,8 @@ int parse_fromchar(int fd)
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
 			}
 			sql_res = mysql_store_result(&mysql_handle);
-			if (sql_res) {
-				sql_row = mysql_fetch_row(sql_res); // row fetching
-			}
-			if (atoi(sql_row[0]) != statut && statut != 0) {
+			sql_row = sql_res ? mysql_fetch_row(sql_res) : NULL;
+			if (sql_row && atoi(sql_row[0]) != statut && statut != 0) {
 				unsigned char buf[16];
 				WBUFW(buf,0) = 0x2731;
 				WBUFL(buf,2) = acc;
@@ -971,6 +972,8 @@ int parse_fromchar(int fd)
 				WBUFL(buf,7) = statut; // status or final date of a banishment
 				charif_sendallwos(-1, buf, 11);
 			}
+			if (sql_res)
+				mysql_free_result(sql_res);
 			sprintf(tmpsql,"UPDATE `%s` SET `state` = '%d' WHERE `%s` = '%d'", login_db, statut,login_db_account_id,acc);
 			//query
 			if(mysql_query(&mysql_handle, tmpsql)) {
@@ -996,10 +999,10 @@ int parse_fromchar(int fd)
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
 			}
 			sql_res = mysql_store_result(&mysql_handle);
-			if (sql_res) {
-				sql_row = mysql_fetch_row(sql_res); // row fetching
-			}
-			tmptime = atol(sql_row[0]);
+			sql_row = sql_res ? mysql_fetch_row(sql_res) : NULL;
+			tmptime = sql_row ? atol(sql_row[0]) : 0;
+			if (sql_res)
+				mysql_free_result(sql_res);
 			if (tmptime == 0 || tmptime < time(NULL))
 				timestamp = time(NULL);
 			else
@@ -1054,19 +1057,18 @@ int parse_fromchar(int fd)
 			}
 
 			sql_res = mysql_store_result(&mysql_handle) ;
-
-			if (sql_res)	{
-				if (mysql_num_rows(sql_res) == 0) {
+			sql_row = sql_res ? mysql_fetch_row(sql_res) : NULL;
+			if (sql_row == NULL) {
+				if (sql_res)
 					mysql_free_result(sql_res);
-					return 0;
-				}
-				sql_row = mysql_fetch_row(sql_res);	//row fetching
+				return 0;
 			}
 
 			if (strcmpi(sql_row[0], "M") == 0)
 				sex = 0; //Change to female
 			else
 				sex = 1; //Change to make
+			mysql_free_result(sql_res);
 			sprintf(tmpsql,"UPDATE `%s` SET `sex` = '%c' WHERE `%s` = '%d'", login_db, (sex?'M':'F'), login_db_account_id, acc);
 			//query
 			if(mysql_query(&mysql_handle, tmpsql)) {
