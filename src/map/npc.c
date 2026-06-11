@@ -1788,7 +1788,7 @@ int npc_convertlabel_db(DBKey key, void* data, va_list ap)
 	int len;
 
 	nullpo_retr(0, ap);
-	nd = va_arg(ap,struct npc_data *);
+	nd = (struct npc_data *)va_arg(ap, intptr_t);
 	if (nd == NULL)
 		return 0;
 
