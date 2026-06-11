@@ -250,7 +250,7 @@ static struct linkdb_node *sleep_db;
  * [Jvg^Cv (Kv)
  *------------------------------------------*/
 const char* parse_subexpr(const char* p,int limit);
-void push_val(struct script_stack *stack,int type,int val);
+void push_val(struct script_stack *stack,int type,intptr_t val);
 int run_func(struct script_state *st);
 
 int mapreg_setreg(int num,int val);
@@ -2383,7 +2383,7 @@ void stack_expand(struct script_stack* stack)
 #define push_val(stack,type,val) push_val2(stack, type, val, NULL)
 
 /// Pushes a value into the stack (with reference)
-void push_val2(struct script_stack* stack, int type, int val, struct linkdb_node** ref)
+void push_val2(struct script_stack* stack, int type, intptr_t val, struct linkdb_node** ref)
 {
 	if( stack->sp >= stack->sp_max )
 		stack_expand(stack);
