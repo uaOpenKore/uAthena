@@ -4014,7 +4014,7 @@ void do_final(void)
 
 	mapindex_final();
 
-	sprintf(tmp_sql,"DELETE FROM `ragsrvinfo");
+	sprintf(tmp_sql,"DELETE FROM `ragsrvinfo`");
 	if (mysql_query(&mysql_handle, tmp_sql))
 	{
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));

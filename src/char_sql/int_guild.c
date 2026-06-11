@@ -1259,14 +1259,14 @@ int mapif_guild_castle_alldataload(int fd) {
 			gc->guardian[5].visible = atoi(sql_row[15]);
 			gc->guardian[6].visible = atoi(sql_row[16]);
 			gc->guardian[7].visible = atoi(sql_row[17]);
-			gc->guardian[0].visible = atoi(sql_row[18]);
-			gc->guardian[1].visible = atoi(sql_row[19]);
-			gc->guardian[2].visible = atoi(sql_row[20]);
-			gc->guardian[3].visible = atoi(sql_row[21]);
-			gc->guardian[4].visible = atoi(sql_row[22]);
-			gc->guardian[5].visible = atoi(sql_row[23]);
-			gc->guardian[6].visible = atoi(sql_row[24]);
-			gc->guardian[7].visible = atoi(sql_row[25]);
+			gc->guardian[0].hp = atoi(sql_row[18]);
+			gc->guardian[1].hp = atoi(sql_row[19]);
+			gc->guardian[2].hp = atoi(sql_row[20]);
+			gc->guardian[3].hp = atoi(sql_row[21]);
+			gc->guardian[4].hp = atoi(sql_row[22]);
+			gc->guardian[5].hp = atoi(sql_row[23]);
+			gc->guardian[6].hp = atoi(sql_row[24]);
+			gc->guardian[7].hp = atoi(sql_row[25]);
 			memcpy(WFIFOP(fd,len), gc, sizeof(struct guild_castle));
 			len += sizeof(struct guild_castle);
 		}

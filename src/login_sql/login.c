@@ -801,8 +801,10 @@ int parse_fromchar(int fd)
 				sql_res = mysql_store_result(&mysql_handle) ;
 				if (sql_res) {
 					sql_row = mysql_fetch_row(sql_res);
-					connect_until_time = atol(sql_row[1]);
-					strncpy(email, sql_row[0], 40); email[39] = 0;
+					if (sql_row) {
+						connect_until_time = atol(sql_row[1]);
+						strncpy(email, sql_row[0], 40); email[39] = 0;
+					}
 					mysql_free_result(sql_res);
 				}
 				WFIFOHEAD(fd,51);
