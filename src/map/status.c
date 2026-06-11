@@ -6964,10 +6964,10 @@ int status_change_timer_sub(struct block_list *bl, va_list ap )
 	int type;
 	unsigned int tick;
 
-	src=va_arg(ap,struct block_list*);
-	sc=va_arg(ap,struct status_change*);
-	type=va_arg(ap,int);
-	tick=va_arg(ap,unsigned int);
+	src=(struct block_list*)va_arg(ap, intptr_t);
+	sc=(struct status_change*)va_arg(ap, intptr_t);
+	type=(int)va_arg(ap, intptr_t);
+	tick=(unsigned int)va_arg(ap, intptr_t);
 	tsc=status_get_sc(bl);
 	
 	if (status_isdead(bl))

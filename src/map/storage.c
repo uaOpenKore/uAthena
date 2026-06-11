@@ -74,7 +74,7 @@ void do_final_storage(void) // by [MC Cameri]
 
 static int storage_reconnect_sub(DBKey key,void *data,va_list ap)
 { //Parses storage and saves 'dirty' ones upon reconnect. [Skotlex]
-	int type = va_arg(ap, int);
+	int type = (int)va_arg(ap, intptr_t);
 	if (type)
 	{	//Guild Storage
 		struct guild_storage* stor = (struct guild_storage*) data;

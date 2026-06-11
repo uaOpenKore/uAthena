@@ -1530,8 +1530,8 @@ void unit_dataset(struct block_list *bl)
  *------------------------------------------*/
 static int unit_counttargeted_sub(struct block_list* bl, va_list ap)
 {
-	int id = va_arg(ap, int);
-	int target_lv = va_arg(ap, int); // extra condition
+	int id = (int)va_arg(ap, intptr_t);
+	int target_lv = (int)va_arg(ap, intptr_t); // extra condition
 	struct unit_data* ud;
 
 	if(bl->id == id)
