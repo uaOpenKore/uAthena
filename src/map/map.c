@@ -649,7 +649,7 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list), struct block_lis
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
@@ -727,7 +727,7 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
@@ -801,7 +801,7 @@ int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, in
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
@@ -943,7 +943,7 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	//
 
@@ -1002,7 +1002,7 @@ int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
@@ -1183,7 +1183,7 @@ int map_foreachinpath(int (*func)(struct block_list*,va_list),int m,int x0,int y
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	//This check is done in case some object gets killed due to further skill processing.
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();
 
@@ -1240,7 +1240,7 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type,..
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
@@ -1349,7 +1349,7 @@ void map_foreachobject(int (*func)(struct block_list*,va_list),int type,...)
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if( bl_list[i]->prev || bl_list[i]->next )
-			func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();
 

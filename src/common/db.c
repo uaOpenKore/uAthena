@@ -1577,7 +1577,7 @@ static int db_obj_vforeach(DB self, DBApply func, va_list args)
 		while (node) {
 			parent = node->parent;
 			if (!(node->deleted))
-				sum += func(node->key, node->data, args);
+				{ va_list _argc; va_copy(_argc, args); sum += func(node->key, node->data, _argc); va_end(_argc); }
 			if (node->left) {
 				node = node->left;
 				continue;
@@ -1673,7 +1673,7 @@ static int db_obj_vclear(DB self, DBApply func, va_list args)
 				db_dup_key_free(db, node->key);
 			} else {
 				if (func)
-					sum += func(node->key, node->data, args);
+					{ va_list _argc; va_copy(_argc, args); sum += func(node->key, node->data, _argc); va_end(_argc); }
 				db->release(node->key, node->data, DB_RELEASE_BOTH);
 				node->deleted = 1;
 			}
