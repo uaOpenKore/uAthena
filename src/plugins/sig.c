@@ -40,6 +40,8 @@ int sig_final ();
 // (sigaction() is POSIX; signal() is not.)  Taken from Stevens' _Advanced
 // Programming in the UNIX Environment_.
 //
+typedef void (*sigfunc)(int);
+
 sigfunc *compat_signal(int signo, sigfunc *func)
 {
 	struct sigaction sact, oact;
