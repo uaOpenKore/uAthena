@@ -1,3 +1,4 @@
+.PHONY: sql all
 sql all: obj common
 
 obj:

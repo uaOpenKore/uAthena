@@ -2,6 +2,7 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
+#include "../common/utils.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
