@@ -281,7 +281,7 @@ int inter_log(char* fmt, ...)
 	va_list ap;
 	va_start(ap,fmt);
 
-	vsprintf(str,fmt,ap);
+	vsnprintf(str,sizeof(str),fmt,ap);
 	sprintf(tmp_sql,"INSERT INTO `%s` (`time`, `log`) VALUES (NOW(),  '%s')",interlog_db, jstrescapecpy(temp_str,str));
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -741,7 +741,7 @@ int mapif_parse_WisToGM(int fd)
 // Save account_reg into sql (type=2)
 int mapif_parse_Registry(int fd)
 {
-	int j,p,len, max;
+	int j,p,len=0, max;
 	struct accreg *reg=accreg_pt;
 
 	memset(accreg_pt,0,sizeof(struct accreg));

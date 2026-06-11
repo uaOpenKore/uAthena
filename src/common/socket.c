@@ -446,7 +446,7 @@ int RFIFOSKIP(int fd, int len)
 		//fprintf(stderr,"too many skip\n");
 		//exit(1);
 		//better than a COMPLETE program abort // TEST! :)
-		ShowError("too many skip (%d) now skipped: %d (FD: %d)\n", len, RFIFOREST(fd), fd);
+		ShowError("too many skip (%d) now skipped: %u (FD: %d)\n", len, (unsigned int)RFIFOREST(fd), fd);
 		len = RFIFOREST(fd);
 	}
 	s->rdata_pos = s->rdata_pos + len;
@@ -465,8 +465,8 @@ int WFIFOSET(int fd, int len)
 	if(s->wdata_size+len > s->max_wdata)
 	{	// actually there was a buffer overflow already
 		uint32 ip = s->client_addr;
-		ShowFatalError("socket: Buffer Overflow. Connection %d (%d.%d.%d.%d) has written %d bytes on a %d/%d bytes buffer.\n",
-			fd, CONVIP(ip), len, s->wdata_size, s->max_wdata);
+		ShowFatalError("socket: Buffer Overflow. Connection %d (%d.%d.%d.%d) has written %d bytes on a %u/%u bytes buffer.\n",
+			fd, CONVIP(ip), len, (unsigned int)s->wdata_size, (unsigned int)s->max_wdata);
 		ShowDebug("Likely command that caused it: 0x%x\n", (*(unsigned short*)(s->wdata + s->wdata_size)));
 		// no other chance, make a better fifo model
 		exit(1);
@@ -493,7 +493,7 @@ int do_sendrecv(int next)
 	fd_set rfd;
 	struct sockaddr_in	addr_check;
 	struct timeval timeout;
-	int ret,i,size;
+	int ret,i; socklen_t size;
 
 	last_tick = time(0);
 

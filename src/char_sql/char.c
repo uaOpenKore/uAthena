@@ -1625,9 +1625,9 @@ int mmo_char_tobuf(uint8* buf, struct mmo_charstatus* p)
 		return 0;
 
 	WBUFL(buf,0) = p->char_id;
-	WBUFL(buf,4) = min(p->base_exp, LONG_MAX);
+	WBUFL(buf,4) = p->base_exp;
 	WBUFL(buf,8) = p->zeny;
-	WBUFL(buf,12) = min(p->job_exp, LONG_MAX);
+	WBUFL(buf,12) = p->job_exp;
 	WBUFL(buf,16) = p->job_level;
 	WBUFL(buf,20) = 0; // probably opt1
 	WBUFL(buf,24) = 0; // probably opt2
@@ -3093,9 +3093,9 @@ int parse_char(int fd)
 		{
 
 		case 0x65: // request to connect
-			ShowInfo("request connect - account_id:%d/login_id1:%d/login_id2:%d\n", RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10));
 			if (RFIFOREST(fd) < 17)
 				return 0;
+			ShowInfo("request connect - account_id:%d/login_id1:%d/login_id2:%d\n", RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10));
 		{
 			if (sd) {
 				//Received again auth packet for already authentified account?? Discard it.
