@@ -6868,9 +6868,9 @@ int atcommand_dropall(const int fd, struct map_session_data* sd, const char* com
 	int i;
 	nullpo_retr(-1, sd);
 	for (i = 0; i < MAX_INVENTORY; i++) {
-	if (sd->status.inventory[i].amount) {
-		if(sd->status.inventory[i].equip != 0)
-			pc_unequipitem(sd, i, 3);
+		if (sd->status.inventory[i].amount) {
+			if(sd->status.inventory[i].equip != 0)
+				pc_unequipitem(sd, i, 3);
 			pc_dropitem(sd,  i, sd->status.inventory[i].amount);
 		}
 	}
@@ -7130,10 +7130,10 @@ int atcommand_skilltree(const int fd, struct map_session_data* sd, const char* c
 			meets = 0;
 		}
 
-		if (meets == 1) {
-			sprintf(atcmd_output, "I believe the player meets all the requirements for that skill");
-			clif_displaymessage(fd, atcmd_output);
-		}
+	if (meets == 1) {
+		sprintf(atcmd_output, "I believe the player meets all the requirements for that skill");
+		clif_displaymessage(fd, atcmd_output);
+	}
 
 	return 0;
 }

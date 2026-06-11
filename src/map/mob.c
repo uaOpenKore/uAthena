@@ -3866,10 +3866,10 @@ static int mob_readdb_race(void)
 void mob_reload(void)
 {
 	int i;
-    if(db_use_sqldbs)
-        mob_read_sqldb();
-    else
-	mob_readdb();
+	if(db_use_sqldbs)
+		mob_read_sqldb();
+	else
+		mob_readdb();
 
 	mob_readdb_mobavail();
 	mob_read_randommonster();
@@ -3892,10 +3892,10 @@ int do_init_mob(void)
 	item_drop_ers = ers_new(sizeof(struct item_drop));
 	item_drop_list_ers = ers_new(sizeof(struct item_drop_list));
 
-    if(db_use_sqldbs)
-        mob_read_sqldb();
-    else
-        mob_readdb();
+	if(db_use_sqldbs)
+		mob_read_sqldb();
+	else
+		mob_readdb();
 
 	mob_readdb_mobavail();
 	mob_read_randommonster();

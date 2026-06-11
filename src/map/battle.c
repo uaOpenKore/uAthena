@@ -3205,15 +3205,15 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			TBL_MOB*md = (TBL_MOB*)s_bl;
 			if (!(agit_flag && map[m].flag.gvg_castle) && md->guardian_data && md->guardian_data->guild_id)
 				return 0; //Disable guardians/emperium owned by Guilds on non-woe times.
-				if (!md->special_state.ai) { //Normal mobs.
-					if (t_bl->type == BL_MOB && !((TBL_MOB*)t_bl)->special_state.ai)
-						state |= BCT_PARTY; //Normal mobs with no ai are friends.
-					else
-						state |= BCT_ENEMY; //However, all else are enemies.
-				} else {
-					if (t_bl->type == BL_MOB && !((TBL_MOB*)t_bl)->special_state.ai)
-						state |= BCT_ENEMY; //Natural enemy for AI mobs are normal mobs.
-				}
+			if (!md->special_state.ai) { //Normal mobs.
+				if (t_bl->type == BL_MOB && !((TBL_MOB*)t_bl)->special_state.ai)
+					state |= BCT_PARTY; //Normal mobs with no ai are friends.
+				else
+					state |= BCT_ENEMY; //However, all else are enemies.
+			} else {
+				if (t_bl->type == BL_MOB && !((TBL_MOB*)t_bl)->special_state.ai)
+					state |= BCT_ENEMY; //Natural enemy for AI mobs are normal mobs.
+			}
 			break;
 		}
 		default:

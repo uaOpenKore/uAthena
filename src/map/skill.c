@@ -4271,7 +4271,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			i = status_change_end(bl, type, -1);
 		else
 			i = sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
-			clif_skill_nodamage(src,bl,skillid,skilllv,i);
+		clif_skill_nodamage(src,bl,skillid,skilllv,i);
 		break;
 	case SL_KAITE:
 	case SL_KAAHI:

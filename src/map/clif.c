@@ -5036,7 +5036,7 @@ int clif_pvpset(struct map_session_data *sd,int pvprank,int pvpnum,int type)
 		WBUFW(buf,0) = 0x19a;
 		WBUFL(buf,2) = sd->bl.id;
 		if(sd->sc.option&(OPTION_HIDE|OPTION_CLOAK))
-			WBUFL(buf,6) = ULONG_MAX; //On client displays as --
+			WBUFL(buf,6) = 0xFFFFFFFF; //On client displays as -- (was ULONG_MAX, an 8-byte value on x64)
 		else
 			WBUFL(buf,6) = pvprank;
 		WBUFL(buf,10) = pvpnum;
@@ -5807,8 +5807,8 @@ int clif_party_leaved(struct party_data* p, struct map_session_data* sd, int acc
 	if(!sd && (flag&0xf0)==0)
 	{
 		for(i=0;i<MAX_PARTY && !p->data[i].sd;i++);
-			if (i < MAX_PARTY)
-				sd = p->data[i].sd;
+		if (i < MAX_PARTY)
+			sd = p->data[i].sd;
 	}
 
 	if(!sd) return 0;
