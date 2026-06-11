@@ -316,11 +316,6 @@ static int g_npc_event_doall_c = 0;
 static char g_npc_event_doall_name[64] = "";
 static int g_npc_event_doall_rid = 0;
 
-static int npc_event_doall_sub_wrapper(DBKey key, void* data, va_list ap)
-{
-	return npc_event_doall_sub(key, data, ap);
-}
-
 int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 {
 	const char* p = key.str;
@@ -338,6 +333,12 @@ int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 
 	return 0;
 }
+
+static int npc_event_doall_sub_wrapper(DBKey key, void* data, va_list ap)
+{
+	return npc_event_doall_sub(key, data, ap);
+}
+
 int npc_event_doall(const char* name)
 {
 	char buf[64] = "::";
