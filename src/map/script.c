@@ -435,7 +435,7 @@ static void script_reportdata(struct script_data* data)
 		ShowDebug("Data: nothing (nil)\n");
 		break;
 	case C_INT:// number
-		ShowDebug("Data: number value=%d\n", data->u.num);
+		ShowDebug("Data: number value=%d\n", (int)data->u.num);
 		break;
 	case C_STR:
 	case C_CONSTSTR:// string
@@ -464,7 +464,7 @@ static void script_reportdata(struct script_data* data)
 		}
 		break;
 	case C_POS:// label
-		ShowDebug("Data: label pos=%d\n", data->u.num);
+		ShowDebug("Data: label pos=%d\n", (int)data->u.num);
 		break;
 	default:
 		ShowDebug("Data: %s\n", script_op2name(data->type));
@@ -3494,42 +3494,42 @@ int script_config_read_sub(char *cfgName)
 		else if(strcmpi(w1,"die_event_name")==0) {
 			strncpy(script_config.die_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.die_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.die_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.die_event_name);
 		}
 		else if(strcmpi(w1,"kill_pc_event_name")==0) {
 			strncpy(script_config.kill_pc_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.kill_pc_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.kill_pc_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.kill_pc_event_name);
 		}
 		else if(strcmpi(w1,"kill_mob_event_name")==0) {
 			strncpy(script_config.kill_mob_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.kill_mob_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.kill_mob_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.kill_mob_event_name);
 		}
 		else if(strcmpi(w1,"login_event_name")==0) {
 			strncpy(script_config.login_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.login_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.login_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.login_event_name);
 		}
 		else if(strcmpi(w1,"logout_event_name")==0) {
 			strncpy(script_config.logout_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.logout_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.logout_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.logout_event_name);
 		}
 		else if(strcmpi(w1,"loadmap_event_name")==0) {
 			strncpy(script_config.loadmap_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.loadmap_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.loadmap_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.loadmap_event_name);
 		}
 		else if(strcmpi(w1,"baselvup_event_name")==0) {
 			strncpy(script_config.baselvup_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.baselvup_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.baselvup_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.baselvup_event_name);
 		}
 		else if(strcmpi(w1,"joblvup_event_name")==0) {
 			strncpy(script_config.joblvup_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.joblvup_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.joblvup_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.joblvup_event_name);
 		}
 		else if(strcmpi(w1,"import")==0){
 			script_config_read_sub(w2);

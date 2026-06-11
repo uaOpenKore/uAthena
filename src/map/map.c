@@ -2009,7 +2009,7 @@ int map_removemobs_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 	if (id < 0 || id >= MAX_MAP_PER_SERVER)
 	{	//Incorrect map id!
 		if (battle_config.error_log)
-			ShowError("map_removemobs_timer error: timer %d points to invalid map %d\n",tid, id);
+			ShowError("map_removemobs_timer error: timer %d points to invalid map %d\n",tid, (int)id);
 		return 0;
 	}
 	if (map[id].mob_delete_timer != tid)
@@ -2699,7 +2699,7 @@ int map_waterheight(char* mapname)
 		aFree(rsw);
 		return wh;
 	}
-	ShowWarning("Failed to find water level for (%s)\n", mapname, fn);
+	ShowWarning("Failed to find water level for (%s)\n", mapname);
 	return NO_WATER;
 }
 

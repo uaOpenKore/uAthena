@@ -11317,7 +11317,7 @@ int skill_readdb (void)
 
 		i=atoi(split[0]);
 		if (i >= GD_SKILLRANGEMIN && i <= GD_SKILLRANGEMAX) {
-			ShowWarning("read skill_db: Can't use skill id %d as guild skills are placed there!\n");
+			ShowWarning("read skill_db: Can't use skill id %d as guild skills are placed there!\n", i);
 			continue;
 		}
 		if (i >= GD_SKILLBASE)

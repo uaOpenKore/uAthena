@@ -6554,7 +6554,7 @@ int kaahi_heal_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 		return 0;
 	if(sc->data[data].val4 != tid) {
 		if (battle_config.error_log)
-			ShowError("kaahi_heal_timer: Timer mismatch: %d != %d\n", tid, sc->data[data].val4);
+			ShowError("kaahi_heal_timer: Timer mismatch: %d != %d\n", tid, (int)sc->data[data].val4);
 		sc->data[data].val4=-1;
 		return 0;
 	}
@@ -6594,7 +6594,7 @@ int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 	
 	if (!sc || !status)
 	{	//Temporal debug until case is resolved. [Skotlex]
-		ShowDebug("status_change_timer: Null pointer id: %d data: %d bl-type: %d\n", id, data, bl?bl->type:-1);
+		ShowDebug("status_change_timer: Null pointer id: %d data: %d bl-type: %d\n", (int)id, (int)data, bl?bl->type:-1);
 		return 0;
 	}
 

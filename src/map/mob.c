@@ -425,7 +425,7 @@ static int mob_spawn_guardian_sub(int tid,unsigned int tick,intptr_t id,intptr_t
 
 	if (g == NULL)
 	{	//Liberate castle, if the guild is not found this is an error! [Skotlex]
-		ShowError("mob_spawn_guardian_sub: Couldn't load guild %d!\n",data);
+		ShowError("mob_spawn_guardian_sub: Couldn't load guild %d!\n",(int)data);
 		if (md->class_ == MOBID_EMPERIUM)
 		{	//Not sure this is the best way, but otherwise we'd be invoking this for ALL guardians spawned later on.
 			md->guardian_data->guild_id = 0;
@@ -3095,7 +3095,7 @@ int mob_parse_dbrow(char** str)
 		return 0;
 	}
 	if (pcdb_checkid(class_)) {
-		ShowWarning("Mob with ID: %d not loaded. That ID is reserved for player classes.\n");
+		ShowWarning("Mob with ID: %d not loaded. That ID is reserved for player classes.\n", class_);
 		return 0;
 	}
 
@@ -3348,7 +3348,7 @@ static int mob_readdb(void)
 			ln++; // counts the number of correctly parsed entries
 		}
 		fclose(fp);
-		ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, filename[fi]);
+		ShowStatus("Done reading '"CL_WHITE"%u"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, filename[fi]);
 		ln = 0;
 	}
 	return 0;
@@ -3378,7 +3378,7 @@ static int mob_read_sqldb(void)
 			}
 
 			mysql_free_result(sql_res);
-			ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, mob_db_name[fi]);
+			ShowStatus("Done reading '"CL_WHITE"%u"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, mob_db_name[fi]);
 			ln = 0;
 		}
 	}

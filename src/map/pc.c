@@ -2209,7 +2209,7 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		for (i = 0; i < ARRAYLENGTH(sd->skillatk) && sd->skillatk[i].id != 0 && sd->skillatk[i].id != type2; i++);
 		if (i == ARRAYLENGTH(sd->skillatk))
 		{	//Better mention this so the array length can be updated. [Skotlex]
-			ShowDebug("run_script: bonus2 bSkillAtk reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->skillatk), type2, val);
+			ShowDebug("run_script: bonus2 bSkillAtk reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", (int)ARRAYLENGTH(sd->skillatk), type2, val);
 			break;
 		}
 		if (sd->skillatk[i].id == type2)
@@ -2225,7 +2225,7 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		for (i = 0; i < ARRAYLENGTH(sd->skillheal) && sd->skillheal[i].id != 0 && sd->skillheal[i].id != type2; i++);
 		if (i == ARRAYLENGTH(sd->skillheal))
 		{	//Better mention this so the array length can be updated. [Skotlex]
-			ShowDebug("run_script: bonus2 bSkillHeal reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->skillheal), type2, val);
+			ShowDebug("run_script: bonus2 bSkillHeal reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", (int)ARRAYLENGTH(sd->skillheal), type2, val);
 			break;
 		}
 		if (sd->skillheal[i].id == type2)

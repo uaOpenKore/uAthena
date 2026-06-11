@@ -83,14 +83,14 @@ enum msg_type {
 };
 
 extern void ClearScreen(void);
-extern int ShowMessage(const char *, ...);
-extern int ShowStatus(const char *, ...);
-extern int ShowSQL(const char *, ...);
-extern int ShowInfo(const char *, ...);
-extern int ShowNotice(const char *, ...);
-extern int ShowWarning(const char *, ...);
-extern int ShowDebug(const char *, ...);
-extern int ShowError(const char *, ...);
-extern int ShowFatalError(const char *, ...);
+extern int ShowMessage(const char *, ...) __attribute__((format(printf,1,2)));
+extern int ShowStatus(const char *, ...) __attribute__((format(printf,1,2)));
+extern int ShowSQL(const char *, ...) __attribute__((format(printf,1,2)));
+extern int ShowInfo(const char *, ...) __attribute__((format(printf,1,2)));
+extern int ShowNotice(const char *, ...) __attribute__((format(printf,1,2)));
+extern int ShowWarning(const char *, ...) __attribute__((format(printf,1,2)));
+extern int ShowDebug(const char *, ...) __attribute__((format(printf,1,2)));
+extern int ShowError(const char *, ...) __attribute__((format(printf,1,2)));
+extern int ShowFatalError(const char *, ...) __attribute__((format(printf,1,2)));
 
 #endif /* _SHOWMSG_H_ */
