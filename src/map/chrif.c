@@ -497,7 +497,7 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 
-int auth_db_cleanup(int tid, unsigned int tick, int id, int data)
+int auth_db_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	auth_db->foreach(auth_db, auth_db_cleanup_sub);
 	return 0;
@@ -1326,7 +1326,7 @@ int chrif_parse(int fd)
 	return 0;
 }
 
-int send_usercount_tochar(int tid, unsigned int tick, int id, int data)
+int send_usercount_tochar(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	int count;
 	static int last_count = 0;
@@ -1350,7 +1350,7 @@ int send_usercount_tochar(int tid, unsigned int tick, int id, int data)
  * timer
  * mapIqNCAglcharI
  *------------------------------------------*/
-int send_users_tochar(int tid, unsigned int tick, int id, int data)
+int send_users_tochar(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	int count, users=0, i;
 	struct map_session_data **all_sd;
@@ -1376,7 +1376,7 @@ int send_users_tochar(int tid, unsigned int tick, int id, int data)
  * timer
  * charImFAx
  *------------------------------------------*/
-int check_connect_char_server(int tid, unsigned int tick, int id, int data)
+int check_connect_char_server(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	static int displayed = 0;
 	if (char_fd <= 0 || session[char_fd] == NULL)
