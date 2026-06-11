@@ -745,7 +745,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	// message of the limited time of the account
 	if (connect_until_time != 0) { // don't display if it's unlimited or unknow value
 		char tmpstr[1024];
-		strftime(tmpstr, sizeof(tmpstr) - 1, msg_txt(501), localtime((time_t*)&connect_until_time)); // "Your account time limit is: %d-%m-%Y %H:%M:%S."
+		time_t exp_time = (time_t)connect_until_time; // widen: localtime needs a real time_t, not a casted int (x64)
+		strftime(tmpstr, sizeof(tmpstr) - 1, msg_txt(501), localtime(&exp_time)); // "Your account time limit is: %d-%m-%Y %H:%M:%S."
 		clif_wis_message(sd->fd, wisp_server_name, tmpstr, strlen(tmpstr)+1);
 	}
 
