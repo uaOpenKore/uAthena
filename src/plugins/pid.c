@@ -2,12 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if !defined _WIN32 || defined MINGW
-	#include <unistd.h> // getpid(), unlink()
-#else
-	#include <windows.h>
-	#define getpid GetCurrentProcessId
-#endif
+#include <unistd.h> // getpid(), unlink()
 
 #include "../common/plugin.h"
 

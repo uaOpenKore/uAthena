@@ -1,8 +1,0 @@
-[Unit]
-Description=uAthena-TXT
-Wants=uAlogin-txt.service uAchar-txt.service uAmap-txt.service
-Requires=uAmap-txt.service uAchar-txt.service uAlogin-txt.service
-Conflicts=uAlogin.service uAchar.service uAmap.service uAthena.target shutdown.target
-
-[Install]
-WantedBy=multi-user.target

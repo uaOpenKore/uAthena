@@ -1,4 +1,4 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+﻿// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
@@ -33,9 +33,7 @@
 #include "trade.h"
 #include "unit.h"
 
-#ifndef TXT_ONLY
 #include "mail.h"
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -222,7 +220,6 @@ ACMD_FUNC(users);
 ACMD_FUNC(reset);
 ACMD_FUNC(autoloot);  // Improved version imported from Freya.
 
-#ifndef TXT_ONLY
 ACMD_FUNC(checkmail); // [Valaris]
 ACMD_FUNC(listmail); // [Valaris]
 ACMD_FUNC(listnewmail); // [Valaris]
@@ -231,7 +228,6 @@ ACMD_FUNC(sendmail); // [Valaris]
 ACMD_FUNC(sendprioritymail); // [Valaris]
 ACMD_FUNC(deletemail); // [Valaris]
 ACMD_FUNC(refreshonline); // [Valaris]
-#endif /* TXT_ONLY */
 
 ACMD_FUNC(skilltree); // by MouseJstr
 
@@ -534,7 +530,6 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Users,              "@users",           40, atcommand_users },
 	{ AtCommand_ResetState,         "@reset",           40, atcommand_reset },
 
-#ifndef TXT_ONLY // sql-only commands
 	{ AtCommand_CheckMail,          "@checkmail",        1, atcommand_listmail }, // [Valaris]
 	{ AtCommand_ListMail,           "@listmail",         1, atcommand_listmail }, // [Valaris]
 	{ AtCommand_ListNewMail,        "@listnewmail",      1, atcommand_listmail }, // [Valaris]
@@ -543,8 +538,6 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_SendMail,           "@sendmail",         1, atcommand_sendmail }, // [Valaris]
 	{ AtCommand_SendPriorityMail,   "@sendprioritymail",80, atcommand_sendmail }, // [Valaris]
 	{ AtCommand_RefreshOnline,      "@refreshonline",   99, atcommand_refreshonline }, // [Valaris]
-
-#endif /* TXT_ONLY */
 	{ AtCommand_SkillTree,          "@skilltree",       40, atcommand_skilltree }, // [MouseJstr]
 	{ AtCommand_Marry,              "@marry",           40, atcommand_marry }, // [MouseJstr]
 	{ AtCommand_Divorce,            "@divorce",         40, atcommand_divorce }, // [MouseJstr]
@@ -5165,9 +5158,7 @@ int atcommand_reloadbattleconf(const int fd, struct map_session_data* sd, const 
 	) != 0)
   	{	//Drop rates changed.
 		mob_reload(); //Needed as well so rate changes take effect.
-#ifndef TXT_ONLY
 		chrif_ragsrvinfo(battle_config.base_exp_rate, battle_config.job_exp_rate, battle_config.item_rate_common);
-#endif
 	}
 	clif_displaymessage(fd, msg_txt(255));
 	return 0;
@@ -8446,7 +8437,7 @@ int atcommand_killid2(const int fd, struct map_session_data* sd, const char* com
    return 0;
 }
 
-#ifndef TXT_ONLY  /* Begin SQL-Only commands */
+/* Begin SQL-Only commands */
 
 /*==========================================
  * Mail System commands by [Valaris]
@@ -8531,8 +8522,6 @@ int atcommand_refreshonline(const int fd, struct map_session_data* sd, const cha
 	send_users_tochar(-1, gettick(), 0, 0);
 	return 0;
 }
-
-#endif /* end sql only */
 
 /*==========================================
  * Show Monster DB Info   v 1.0
@@ -8648,7 +8637,7 @@ int atcommand_mobinfo(const int fd, struct map_session_data* sd, const char* com
 * @showmobs by KarLaeda
 * => For 5 sec displays the mobs on minimap
 *------------------------------------------*/
-int atshowmobs_timer(int tid, unsigned int tick, int id, int data)
+int atshowmobs_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd;
 

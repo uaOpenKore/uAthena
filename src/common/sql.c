@@ -2,14 +2,12 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
+#include "../common/utils.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "sql.h"
 
-#ifdef WIN32
-#include <winsock2.h>
-#endif
 #include <mysql.h>
 #include <string.h>// strlen/strnlen/memcpy/memset
 #include <stdlib.h>// strtoul

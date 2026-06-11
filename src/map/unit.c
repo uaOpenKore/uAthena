@@ -257,7 +257,7 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,int id,int data)
 	return 0;
 }
 
-static int unit_delay_walktoxy_timer(int tid, unsigned int tick, int id, int data)
+static int unit_delay_walktoxy_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct block_list *bl = map_id2bl(id);
 

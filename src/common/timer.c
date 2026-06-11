@@ -8,16 +8,8 @@
 #include "../common/showmsg.h"
 #include "timer.h"
 
-#ifdef WIN32
-//#define __USE_W32_SOCKETS
-// Well, this won't last another 30++ years (where conversion will truncate).
-//#define _USE_32BIT_TIME_T	// use 32 bit time variables on 64bit windows
-//#include <windows.h>
-#include <winsock2.h>
-#else
 #include <sys/socket.h>
 #include <sys/time.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,9 +73,9 @@ int add_timer_func_list(TimerFunc func, char* name)
 		for( tfl=tfl_root; tfl != NULL; tfl=tfl->next )
 		{// check suspicious cases
 			if( func == tfl->func )
-				ShowWarning("add_timer_func_list: duplicating function %08x(%s) as %s.\n",(int)tfl->func,tfl->name,name);
+				ShowWarning("add_timer_func_list: duplicating function %p(%s) as %s.\n",(void*)tfl->func,tfl->name,name);
 			else if( strcmp(name,tfl->name) == 0 )
-				ShowWarning("add_timer_func_list: function %08X has the same name as %08X(%s)\n",(int)func,(int)tfl->func,tfl->name);
+				ShowWarning("add_timer_func_list: function %p has the same name as %p(%s)\n",(void*)func,(void*)tfl->func,tfl->name);
 		}
 		CREATE(tfl,struct timer_func_list,1);
 		tfl->next = tfl_root;
@@ -114,17 +106,12 @@ static int gettick_count;
 
 unsigned int gettick_nocache(void)
 {
-#ifdef _WIN32
-	gettick_count = 256;
-	return gettick_cache = GetTickCount();
-#else
 	struct timeval tval;
 
 	gettimeofday(&tval, NULL);
 	gettick_count = 256;
 
 	return gettick_cache = tval.tv_sec * 1000 + tval.tv_usec / 1000;
-#endif
 }
 
 unsigned int gettick(void)
@@ -232,7 +219,7 @@ static int acquire_timer(void)
 	return tid;
 }
 
-int add_timer(unsigned int tick,TimerFunc func, int id, int data)
+int add_timer(unsigned int tick,TimerFunc func, intptr_t id, intptr_t data)
 {
 	int tid = acquire_timer();
 
@@ -247,13 +234,13 @@ int add_timer(unsigned int tick,TimerFunc func, int id, int data)
 	return tid;
 }
 
-int add_timer_interval(unsigned int tick, TimerFunc func, int id, int data, int interval)
+int add_timer_interval(unsigned int tick, TimerFunc func, intptr_t id, intptr_t data, int interval)
 {
 	int tid;
 
 	if (interval < 1) {
-		ShowError("add_timer_interval : function %08x(%s) has invalid interval %d!\n",
-			 (int)func, search_timer_func_list(func), interval);
+		ShowError("add_timer_interval : function %p(%s) has invalid interval %d!\n",
+			 (void*)func, search_timer_func_list(func), interval);
 		return -1;
 	}
 	
@@ -272,13 +259,13 @@ int add_timer_interval(unsigned int tick, TimerFunc func, int id, int data, int 
 int delete_timer(int id, TimerFunc func)
 {
 	if (id <= 0 || id >= timer_data_num) {
-		ShowError("delete_timer error : no such timer %d (%08x(%s))\n", id, (int)func, search_timer_func_list(func));
+		ShowError("delete_timer error : no such timer %d (%p(%s))\n", id, (void*)func, search_timer_func_list(func));
 		return -1;
 	}
 	if (timer_data[id].func != func) {
-		ShowError("delete_timer error : function mismatch %08x(%s) != %08x(%s)\n",
-			 (int)timer_data[id].func, search_timer_func_list(timer_data[id].func),
-			 (int)func, search_timer_func_list(func));
+		ShowError("delete_timer error : function mismatch %p(%s) != %p(%s)\n",
+			 (void*)timer_data[id].func, search_timer_func_list(timer_data[id].func),
+			 (void*)func, search_timer_func_list(func));
 		return -2;
 	}
 	// 
@@ -315,7 +302,7 @@ int settick_timer(int tid, unsigned int tick)
 	{// skip timers with the same tick
 		if( DIFF_TICK(old_tick,timer_data[timer_heap[old_pos]].tick) != 0 )
 		{
-			ShowError("settick_timer: no such timer %d (%08x(%s))\n", tid, (int)timer_data[tid].func, search_timer_func_list(timer_data[tid].func));
+			ShowError("settick_timer: no such timer %d (%p(%s))\n", tid, (void*)timer_data[tid].func, search_timer_func_list(timer_data[tid].func));
 			return -1;
 		}
 		++old_pos;

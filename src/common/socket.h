@@ -8,14 +8,9 @@
 #include "../common/cbasetypes.h"
 #endif
 
-#ifdef WIN32
-	#include <winsock2.h>
-	typedef long in_addr_t;
-#else
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-#endif
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 #include <time.h>
 

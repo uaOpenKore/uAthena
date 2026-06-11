@@ -2463,7 +2463,7 @@ void script_free_vars(struct linkdb_node **node)
 {
 	struct linkdb_node *n = *node;
 	while(n) {
-		char *name   = str_buf + str_data[(int)(n->key)&0x00ffffff].str;
+		char *name   = str_buf + str_data[(int)(intptr_t)(n->key)&0x00ffffff].str;
 		char postfix = name[strlen(name)-1];
 		if( postfix == '$' ) {
 			// ^Af[^
@@ -3001,7 +3001,7 @@ int run_script_timer(int tid, unsigned int tick, int id, int data)
 		st->state = END;
 	}
 	while( node && st->sleep.timer != -1 ) {
-		if( (int)node->key == st->oid && ((struct script_state *)node->data)->sleep.timer == st->sleep.timer ) {
+		if( (intptr_t)node->key == st->oid && ((struct script_state *)node->data)->sleep.timer == st->sleep.timer ) {
 			script_erase_sleepdb(node);
 			st->sleep.timer = -1;
 			break;
@@ -3141,7 +3141,7 @@ void run_script_main(struct script_state *st)
 		//Delay execution
 		st->sleep.charid = sd?sd->status.char_id:0;
 		st->sleep.timer  = add_timer(gettick()+st->sleep.tick,
-			run_script_timer, st->sleep.charid, (int)st);
+			run_script_timer, st->sleep.charid, (intptr_t)st);
 		linkdb_insert(&sleep_db, (void*)st->oid, st);
 		//Restore previous script
 		if (sd) {
@@ -3385,7 +3385,7 @@ static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
 	int num=key.i&0x00ffffff, i=key.i>>24; // [zBuffer]
 	char *name=str_buf+str_data[num].str;
 	if ( name[1] != '@') {
-		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%d' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,(int)data,mapregsql_db_varname,name,mapregsql_db_index,i);
+		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%d' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,(intptr_t)data,mapregsql_db_varname,name,mapregsql_db_index,i);
 		if(mysql_query(&mmysql_handle, tmp_sql) ) {
 			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
@@ -4667,8 +4667,8 @@ BUILDIN_FUNC(callfunc)
 
 		script_pushint(st,j);				// vbV
 		script_pushint(st,st->stack->defsp);	// X^bN|C^vbV
-		script_pushint(st,(int)st->script);	// XNvgvbV
-		script_pushint(st,(int)st->stack->var_function);	// vbV
+		script_pushint(st,(intptr_t)st->script);	// XNvgvbV
+		script_pushint(st,(intptr_t)st->stack->var_function);	// vbV
 		push_val(st->stack,C_RETINFO,st->pos);		// XNvguvbV
 
 		oldscr = st->script;
@@ -4718,8 +4718,8 @@ BUILDIN_FUNC(callsub)
 
 		script_pushint(st,j);				// vbV
 		script_pushint(st,st->stack->defsp);	// X^bN|C^vbV
-		script_pushint(st,(int)st->script);	// XNvgvbV
-		script_pushint(st,(int)st->stack->var_function);	// vbV
+		script_pushint(st,(intptr_t)st->script);	// XNvgvbV
+		script_pushint(st,(intptr_t)st->stack->var_function);	// vbV
 		push_val(st->stack,C_RETINFO,st->pos);		// XNvguvbV
 
 		st->pos=pos;
@@ -12863,7 +12863,7 @@ BUILDIN_FUNC(awake)
 
 	while( node )
 	{
-		if( (int)node->key == nd->bl.id )
+		if( (intptr_t)node->key == nd->bl.id )
 		{// sleep timer for the npc
 			struct script_state* tst = (struct script_state*)node->data;
 			TBL_PC* sd = map_id2sd(tst->rid);

@@ -6539,7 +6539,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	return 1;
 }
 
-int kaahi_heal_timer(int tid, unsigned int tick, int id, int data)
+int kaahi_heal_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct block_list *bl;
 	struct status_change *sc;
@@ -6576,7 +6576,7 @@ int kaahi_heal_timer(int tid, unsigned int tick, int id, int data)
 /*==========================================
  * Xe[^XI^C}[
  *------------------------------------------*/
-int status_change_timer(int tid, unsigned int tick, int id, int data)
+int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	int type = data;
 	struct block_list *bl;
@@ -6588,9 +6588,7 @@ int status_change_timer(int tid, unsigned int tick, int id, int data)
 	int temp_timerid;
 
 	bl=map_id2bl(id);
-#ifndef _WIN32
 	nullpo_retr_f(0, bl, "id=%d data=%d",id,data);
-#endif
 	sc=status_get_sc(bl);
 	status = status_get_status_data(bl);
 	

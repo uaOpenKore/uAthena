@@ -1016,7 +1016,7 @@ int intif_parse_LoadStorage(int fd)
 	}
 	if (RFIFOW(fd,2)-8 != sizeof(struct storage)) {
 		if (battle_config.error_log)
-			ShowError("intif_parse_LoadStorage: data size error %d %d\n", RFIFOW(fd,2)-8, sizeof(struct storage));
+			ShowError("intif_parse_LoadStorage: data size error %d %zu\n", RFIFOW(fd,2)-8, sizeof(struct storage));
 		return 1;
 	}
 	if(battle_config.save_log)
@@ -1074,7 +1074,7 @@ int intif_parse_LoadGuildStorage(int fd)
 	if( RFIFOW(fd,2)-12 != sizeof(struct guild_storage) ){
 		gstor->storage_status = 0;
 		if(battle_config.error_log)
-			ShowError("intif_parse_LoadGuildStorage: data size error %d %d\n",RFIFOW(fd,2)-12 , sizeof(struct guild_storage));
+			ShowError("intif_parse_LoadGuildStorage: data size error %d %zu\n",RFIFOW(fd,2)-12 , sizeof(struct guild_storage));
 		return 1;
 	}
 	if(battle_config.save_log)
@@ -1116,7 +1116,7 @@ int intif_parse_PartyInfo(int fd)
 //	printf("intif: party info %d\n",RFIFOL(fd,4));
 	if( RFIFOW(fd,2)!=sizeof(struct party)+4 ){
 		if(battle_config.error_log)
-			ShowError("intif: party info : data size error %d %d %d\n",RFIFOL(fd,4),RFIFOW(fd,2),sizeof(struct party)+4);
+			ShowError("intif: party info : data size error %d %d %zu\n",RFIFOL(fd,4),RFIFOW(fd,2),sizeof(struct party)+4);
 	}
 	party_recv_info((struct party *)RFIFOP(fd,4));
 	return 0;
@@ -1182,7 +1182,7 @@ int intif_parse_GuildInfo(int fd)
 //		printf("intif: guild info %d\n",RFIFOL(fd,4));
 	if( RFIFOW(fd,2)!=sizeof(struct guild)+4 ){
 		if(battle_config.error_log)
-			ShowError("intif: guild info : data size error Gid: %d recv size: %d Expected size: %d\n",RFIFOL(fd,4),RFIFOW(fd,2),sizeof(struct guild)+4);
+			ShowError("intif: guild info : data size error Gid: %d recv size: %d Expected size: %zu\n",RFIFOL(fd,4),RFIFOW(fd,2),sizeof(struct guild)+4);
 	}
 	guild_recv_info((struct guild *)RFIFOP(fd,4));
 	return 0;
@@ -1288,7 +1288,7 @@ int intif_parse_GuildPosition(int fd)
 {
 	if( RFIFOW(fd,2)!=sizeof(struct guild_position)+12 ){
 		if(battle_config.error_log)
-			ShowError("intif: guild info : data size error\n %d %d %d",RFIFOL(fd,4),RFIFOW(fd,2),sizeof(struct guild_position)+12);
+			ShowError("intif: guild info : data size error\n %d %d %zu",RFIFOL(fd,4),RFIFOW(fd,2),sizeof(struct guild_position)+12);
 	}
 	guild_position_changed(RFIFOL(fd,4),RFIFOL(fd,8),(struct guild_position *)RFIFOP(fd,12));
 	return 0;
@@ -1360,7 +1360,7 @@ int intif_parse_RecvPetData(int fd)
 	len=RFIFOW(fd,2);
 	if(sizeof(struct s_pet)!=len-9) {
 		if(battle_config.etc_log)
-			ShowError("intif: pet data: data size error %d %d\n",sizeof(struct s_pet),len-9);
+			ShowError("intif: pet data: data size error %zu %d\n",sizeof(struct s_pet),len-9);
 	}
 	else{
 		memcpy(&p,RFIFOP(fd,9),sizeof(struct s_pet));
@@ -1418,7 +1418,7 @@ int intif_parse_CreateHomunculus(int fd)
 	len=RFIFOW(fd,2)-9;
 	if(sizeof(struct s_homunculus)!=len) {
 		if(battle_config.etc_log)
-			ShowError("intif: create homun data: data size error %d != %d\n",sizeof(struct s_homunculus),len);
+			ShowError("intif: create homun data: data size error %zu != %d\n",sizeof(struct s_homunculus),len);
 		return 0;
 	}
 	merc_hom_recv_data(RFIFOL(fd,4), (struct s_homunculus*)RFIFOP(fd,9), RFIFOB(fd,8)) ;
@@ -1433,7 +1433,7 @@ int intif_parse_RecvHomunculusData(int fd)
 
 	if(sizeof(struct s_homunculus)!=len) {
 		if(battle_config.etc_log)
-			ShowError("intif: homun data: data size error %d %d\n",sizeof(struct s_homunculus),len);
+			ShowError("intif: homun data: data size error %zu %d\n",sizeof(struct s_homunculus),len);
 		return 0;
 	}
 	merc_hom_recv_data(RFIFOL(fd,4), (struct s_homunculus*)RFIFOP(fd,9), RFIFOB(fd,8));

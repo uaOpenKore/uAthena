@@ -57,20 +57,7 @@ circumstance. */
 #define PCRE_PRERELEASE
 #define PCRE_DATE           18-Dec-2006
 
-/* Win32 uses DLL by default; it needs special stuff for exported functions
-when building PCRE. */
 
-#ifdef _WIN32
-#  ifdef PCRE_DEFINITION
-#    ifdef DLL_EXPORT
-#      define PCRE_DATA_SCOPE __declspec(dllexport)
-#    endif
-#  else
-#    ifndef PCRE_STATIC
-#      define PCRE_DATA_SCOPE extern __declspec(dllimport)
-#    endif
-#  endif
-#endif
 
 /* Otherwise, we use the standard "extern". */
 

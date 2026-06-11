@@ -1,4 +1,4 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+﻿// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
 #include <stdio.h>
@@ -25,8 +25,8 @@ PLUGIN_EVENTS_TABLE = {
 };
 
 unsigned int (*gettick)();
-int (*add_timer_func_list)(int (*)(int,unsigned int,int,int),char*);
-int (*add_timer_interval)(unsigned int,int (*)(int,unsigned int,int,int),int,int,int);
+int (*add_timer_func_list)(int (*)(int,unsigned int,intptr_t,intptr_t),char*);
+int (*add_timer_interval)(unsigned int,int (*)(int,unsigned int,intptr_t,intptr_t),int,int,int);
 
 //-----------------------------------------------------
 //I'm Alive Alert

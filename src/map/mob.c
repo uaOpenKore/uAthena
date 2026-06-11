@@ -1,4 +1,4 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+﻿// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
@@ -1423,7 +1423,7 @@ static struct item_drop* mob_setlootitem(struct item* item)
 /*==========================================
  * item drop with delay (timer function)
  *------------------------------------------*/
-static int mob_delay_item_drop(int tid, unsigned int tick, int id, int data)
+static int mob_delay_item_drop(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct item_drop_list *list;
 	struct item_drop *ditem, *ditem_prev;
@@ -1473,7 +1473,7 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 	dlist->item = ditem;
 }
 
-int mob_timer_delete(int tid, unsigned int tick, int id, int data)
+int mob_timer_delete(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct block_list *bl=map_id2bl(id);
 	nullpo_retr(0, bl);
@@ -1514,7 +1514,7 @@ int mob_deleteslave(struct mob_data *md)
 	return 0;
 }
 // Mob respawning through KAIZEL or NPC_REBIRTH [Skotlex]
-int mob_respawn(int tid, unsigned int tick, int id,int data )
+int mob_respawn(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct block_list *bl = map_id2bl(id);
 
@@ -1979,7 +1979,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				mob_item_drop(md, dlist, mob_setlootitem(&md->lootitem[i]), 1, 10000);
 		}
 		if (dlist->item) //There are drop items.
-			add_timer(tick + (!battle_config.delay_battle_damage?500:0), mob_delay_item_drop, (int)dlist, 0);
+			add_timer(tick + (!battle_config.delay_battle_damage?500:0), mob_delay_item_drop, (intptr_t)dlist, 0);
 		else //No drops
 			ers_free(item_drop_list_ers, dlist);
 	} else if (md->lootitem && md->lootitem_count) {	//Loot MUST drop!
@@ -1993,7 +1993,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		dlist->item = NULL;
 		for(i = 0; i < md->lootitem_count; i++)
 			mob_item_drop(md, dlist, mob_setlootitem(&md->lootitem[i]), 1, 10000);
-		add_timer(tick + (!battle_config.delay_battle_damage?500:0), mob_delay_item_drop, (int)dlist, 0);
+		add_timer(tick + (!battle_config.delay_battle_damage?500:0), mob_delay_item_drop, (intptr_t)dlist, 0);
 	}
 
 	if(mvp_sd && md->db->mexp > 0 && !md->special_state.ai)
@@ -3345,10 +3345,6 @@ static int mob_readdb(void)
 	return 0;
 }
 
-#ifndef TXT_ONLY
-/*==========================================
- * SQL reading
- *------------------------------------------*/
 static int mob_read_sqldb(void)
 {
 	char *mob_db_name[] = { mob_db_db, mob_db2_db };
@@ -3369,7 +3365,7 @@ static int mob_read_sqldb(void)
 				if (!mob_parse_dbrow(sql_row))
 					continue;
 
-				ln++; // counts the number of correctly parsed entries
+				ln++;
 			}
 
 			mysql_free_result(sql_res);
@@ -3379,7 +3375,6 @@ static int mob_read_sqldb(void)
 	}
 	return 0;
 }
-#endif /* not TXT_ONLY */
 
 /*==========================================
  * MOB display graphic change data reading
@@ -3862,17 +3857,14 @@ static int mob_readdb_race(void)
 void mob_reload(void)
 {
 	int i;
-#ifndef TXT_ONLY
     if(db_use_sqldbs)
         mob_read_sqldb();
     else
-#endif /* TXT_ONLY */
 	mob_readdb();
 
 	mob_readdb_mobavail();
 	mob_read_randommonster();
 
-	//Mob skills need to be cleared before re-reading them. [Skotlex]
 	for (i = 0; i < MAX_MOB_DB; i++)
 		if (mob_db_data[i])
 		{
@@ -3883,22 +3875,17 @@ void mob_reload(void)
 	mob_readdb_race();
 }
 
-/*==========================================
- * Circumference initialization of mob
- *------------------------------------------*/
 int do_init_mob(void)
-{	//Initialize the mob database
-	memset(mob_db_data,0,sizeof(mob_db_data)); //Clear the array
-	mob_db_data[0] = aCalloc(1, sizeof (struct mob_data));	//This mob is used for random spawns
-	mob_makedummymobdb(0); //The first time this is invoked, it creates the dummy mob
+{
+	memset(mob_db_data,0,sizeof(mob_db_data));
+	mob_db_data[0] = aCalloc(1, sizeof (struct mob_data));
+	mob_makedummymobdb(0);
 	item_drop_ers = ers_new(sizeof(struct item_drop));
 	item_drop_list_ers = ers_new(sizeof(struct item_drop_list));
 
-#ifndef TXT_ONLY
     if(db_use_sqldbs)
         mob_read_sqldb();
     else
-#endif /* TXT_ONLY */
         mob_readdb();
 
 	mob_readdb_mobavail();

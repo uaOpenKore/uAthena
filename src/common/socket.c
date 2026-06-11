@@ -14,49 +14,30 @@
 #include <string.h>
 #include <sys/types.h>
 
-#ifdef WIN32
-	#include <winsock2.h>
-	#include <io.h>
-#else
-	#include <errno.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <netinet/tcp.h>
-	#include <net/if.h>
-	#include <unistd.h>
-	#include <sys/time.h>
-	#include <sys/ioctl.h>
-	#include <netdb.h>
-	#include <arpa/inet.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <net/if.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/ioctl.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 
-	#ifndef SIOCGIFCONF
-	#include <sys/sockio.h> // SIOCGIFCONF on Solaris, maybe others? [Shinomori]
-	#endif
+#ifndef SIOCGIFCONF
+#include <sys/sockio.h> // SIOCGIFCONF on Solaris, maybe others? [Shinomori]
 #endif
 
-// portability layer
-#ifdef WIN32
-	typedef int socklen_t;
+#define SOCKET_ERROR -1
+#define INVALID_SOCKET -1
+#define ioctlsocket ioctl
+#define closesocket close
 
-	#define s_errno WSAGetLastError()
-	#define S_ENOTSOCK WSAENOTSOCK
-	#define S_EWOULDBLOCK WSAEWOULDBLOCK
-	#define S_ECONNABORTED WSAECONNABORTED
-
-	#define SHUT_RD   SD_RECEIVE
-	#define SHUT_WR   SD_SEND
-	#define SHUT_RDWR SD_BOTH
-#else
-	#define SOCKET_ERROR -1
-	#define INVALID_SOCKET -1
-	#define ioctlsocket ioctl
-	#define closesocket close
-
-	#define s_errno errno
-	#define S_ENOTSOCK EBADF
-	#define S_EWOULDBLOCK EAGAIN
-	#define S_ECONNABORTED ECONNABORTED
-#endif
+#define s_errno errno
+#define S_ENOTSOCK EBADF
+#define S_EWOULDBLOCK EAGAIN
+#define S_ECONNABORTED ECONNABORTED
 
 fd_set readfds;
 int fd_max;
@@ -122,15 +103,10 @@ void set_nonblocking(int fd, unsigned long yes)
 
 void setsocketopts(int fd)
 {
-	int yes = 1; // reuse fix
-#ifndef WIN32
-    // set SO_REAUSEADDR to true, unix only. on windows this option causes
-    // the previous owner of the socket to give up, which is not desirable
-    // in most cases, neither compatible with unix.
+	int yes = 1;
 	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(char *)&yes,sizeof(yes));
 #ifdef SO_REUSEPORT
 	setsockopt(fd,SOL_SOCKET,SO_REUSEPORT,(char *)&yes,sizeof(yes));
-#endif
 #endif
 	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&yes, sizeof(yes));
 //	setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *) &wfifo_size , sizeof(rfifo_size ));
@@ -581,22 +557,11 @@ int do_sendrecv(int next)
 		fd_max = ret;
 	}
 
-#ifdef WIN32
-	// on windows, enumerating all members of the fd_set is way faster if we access the internals
-	for(i=0;i<(int)rfd.fd_count;i++)
-	{
-		if(session[rfd.fd_array[i]])
-			session[rfd.fd_array[i]]->func_recv(rfd.fd_array[i]);
-	}
-#else
-	// otherwise assume that the fd_set is a bit-array and enumerate it in a standard way
-	//TODO: select() returns the number of readable sockets; use that to exit the fd_max loop faster
 	for (i = 1; i < fd_max; i++)
 	{
 		if(FD_ISSET(i,&rfd) && session[i])
 			session[i]->func_recv(i);
 	}
-#endif
 
 	// POSTSEND Send remaining data and handle eof sessions.
 #ifdef SEND_SHORTLIST
@@ -803,7 +768,7 @@ static int connect_check_(uint32 ip)
 
 /// Timer function.
 /// Deletes old connection history records.
-static int connect_check_clear(int tid, unsigned int tick, int id, int data)
+static int connect_check_clear(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	int i;
 	int clear = 0;
@@ -998,34 +963,6 @@ int socket_getips(uint32* ips, int max)
 	if( ips == NULL || max <= 0 )
 		return 0;
 
-#ifdef WIN32
-	{
-		char fullhost[255];
-		u_long** a;
-		struct hostent* hent;
-
-		// XXX This should look up the local IP addresses in the registry
-		// instead of calling gethostbyname. However, the way IP addresses
-		// are stored in the registry is annoyingly complex, so I'll leave
-		// this as T.B.D. [Meruru]
-		if( gethostname(fullhost, sizeof(fullhost)) == SOCKET_ERROR )
-		{
-			ShowError("socket_getips: No hostname defined!\n");
-			return 0;
-		}
-		else
-		{
-			hent = gethostbyname(fullhost);
-			if( hent == NULL ){
-				ShowError("socket_getips: Cannot resolve our own hostname to an IP address\n");
-				return 0;
-			}
-			a = (u_long**)hent->h_addr_list;
-			for( ; a[num] != NULL && num < max; ++num)
-				ips[num] = (uint32)ntohl(*a[num]);
-		}
-	}
-#else // not WIN32
 	{
 		int pos;
 		int fd;
@@ -1057,16 +994,11 @@ int socket_getips(uint32* ips, int max)
 					if( ad != INADDR_LOOPBACK && ad != INADDR_ANY )
 						ips[num++] = (uint32)ad;
 				}
-	#if (defined(BSD) && BSD >= 199103) || defined(_AIX) || defined(__APPLE__)
-				pos += ir->ifr_addr.sa_len + sizeof(ir->ifr_name);
-	#else// not AIX or APPLE
 				pos += sizeof(struct ifreq);
-	#endif//not AIX or APPLE
 			}
 		}
 		closesocket(fd);
 	}
-#endif // not W32
 
 	// Use loopback if no ips are found
 	if( num == 0 )
@@ -1078,23 +1010,6 @@ int socket_getips(uint32* ips, int max)
 void socket_init(void)
 {
 	char *SOCKET_CONF_FILENAME = "conf/packet_athena.conf";
-
-#ifdef WIN32
-	{// Start up windows networking
-		WSADATA wsaData;
-		WORD wVersionRequested = MAKEWORD(2, 0);
-		if( WSAStartup(wVersionRequested, &wsaData) != 0 )
-		{
-			ShowError("socket_init: WinSock not available!\n");
-			return;
-		}
-		if( LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0 )
-		{
-			printf("socket_init: WinSock version mismatch (2.0 or compatible required)!\n");
-			return;
-		}
-	}
-#endif
 
 	// Get initial local ips
 	naddr_ = socket_getips(addr_,16);

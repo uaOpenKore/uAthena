@@ -8,35 +8,20 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#ifndef WIN32
 #include <unistd.h>
-#else
-#include <windows.h>
-#define F_OK   0x0
-#define R_OK   0x4
-#endif
 
-#ifndef WIN32
-	#define exists(filename) (!access(filename, F_OK))
-#else
-// could be speed up maybe?
-int exists(char *file) {
-	FILE *fp;
-	if ((fp = fopen(file,"r")) && fclose(fp) == 0) return 1;
-	return 0;
-}
-#endif
+#define exists(filename) (!access(filename, F_OK))
 
-// ‘‚«‚İƒtƒ@ƒCƒ‹‚Ì•ÛŒìˆ—
-// i‘‚«‚İ‚ªI‚í‚é‚Ü‚ÅA‹Œƒtƒ@ƒCƒ‹‚ğ•ÛŠÇ‚µ‚Ä‚¨‚­j
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İƒtï¿½@ï¿½Cï¿½ï¿½ï¿½Ì•ÛŒìˆï¿½ï¿½
+// ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İ‚ï¿½ï¿½Iï¿½ï¿½ï¿½Ü‚ÅAï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ÛŠÇ‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½j
 
-// V‚µ‚¢ƒtƒ@ƒCƒ‹‚Ì‘‚«‚İŠJn
+// ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İŠJï¿½n
 FILE* lock_fopen (const char* filename, int *info) {
 	char newfile[512];
 	FILE *fp;
 	int no = 0;
 
-	// ˆÀ‘S‚Èƒtƒ@ƒCƒ‹–¼‚ğ“¾‚éiè”²‚«j
+	// ï¿½ï¿½ï¿½Sï¿½Èƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ğ“¾‚ï¿½iï¿½è”²ï¿½ï¿½ï¿½j
 	do {
 		sprintf(newfile, "%s_%04d.tmp", filename, ++no);
 	} while((fp = fopen(newfile,"r")) && (fclose(fp), no < 9999));
@@ -44,7 +29,7 @@ FILE* lock_fopen (const char* filename, int *info) {
 	return fopen(newfile,"w");
 }
 
-// ‹Œƒtƒ@ƒCƒ‹‚ğíœ•Vƒtƒ@ƒCƒ‹‚ğƒŠƒl[ƒ€
+// ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½íœï¿½ï¿½ï¿½Vï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½[ï¿½ï¿½
 int lock_fclose (FILE *fp, const char* filename, int *info) {
 	int ret = 1;
 	char newfile[512];
@@ -57,14 +42,10 @@ int lock_fclose (FILE *fp, const char* filename, int *info) {
 		if (exists(oldfile)) remove(oldfile);	// remove backup file if it already exists
 		rename (filename, oldfile);				// backup our older data instead of deleting it
 
-		// ‚±‚Ìƒ^ƒCƒ~ƒ“ƒO‚Å—‚¿‚é‚ÆÅˆ«B
+		// ï¿½ï¿½ï¿½Ìƒ^ï¿½Cï¿½~ï¿½ï¿½ï¿½Oï¿½Å—ï¿½ï¿½ï¿½ï¿½ï¿½ÆÅˆï¿½ï¿½B
 		if ((ret = rename(newfile,filename)) != 0) {	// rename our temporary file to its correct name
-#if defined(__NETBSD__) || defined(_WIN32) || defined(sun) || defined (_sun) || defined (__sun__)
-			ShowError("%s - '"CL_WHITE"%s"CL_RESET"'\n", strerror(errno), newfile);
-#else
 			char ebuf[255];
 			ShowError("%s - '"CL_WHITE"%s"CL_RESET"'\n", strerror_r(errno, ebuf, sizeof(ebuf)), newfile);
-#endif
 		}
 	}
 

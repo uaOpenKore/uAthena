@@ -8,32 +8,25 @@
 #include "../common/cbasetypes.h"
 #endif
 
-#ifdef WIN32
-/* We need winsock lib to have timeval struct - windows is weirdo */
-//#define __USE_W32_SOCKETS
-//#include <windows.h>
-#include <winsock2.h>
-#endif
-
 #define BASE_TICK 5
 
 #define TIMER_ONCE_AUTODEL 0x1
 #define TIMER_INTERVAL 0x2
 #define TIMER_REMOVE_HEAP 0x10
 
-#define DIFF_TICK(a,b) ((int)((a)-(b)))
+#define DIFF_TICK(a,b) ((int)((int32_t)((a)-(b))))
 
 #define INVALID_TIMER -1
 
 // Struct declaration
 
-typedef int (*TimerFunc)(int,unsigned int,int,int);
+typedef int (*TimerFunc)(int,unsigned int,intptr_t,intptr_t);
 
 struct TimerData {
 	unsigned int tick;
 	TimerFunc func;
-	int id;
-	int data;
+	intptr_t id;
+	intptr_t data;
 	int type;
 	int interval;
 	int heap_pos;
@@ -44,8 +37,8 @@ struct TimerData {
 unsigned int gettick_nocache(void);
 unsigned int gettick(void);
 
-int add_timer(unsigned int,TimerFunc f,int,int);
-int add_timer_interval(unsigned int tick, TimerFunc func, int id, int data, int interval);
+int add_timer(unsigned int,TimerFunc f,intptr_t,intptr_t);
+int add_timer_interval(unsigned int tick, TimerFunc func, intptr_t id, intptr_t data, int interval);
 int delete_timer(int,TimerFunc f);
 
 int addtick_timer(int tid,unsigned int tick);

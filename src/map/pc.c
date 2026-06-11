@@ -30,9 +30,7 @@
 #include "vending.h" // vending_closevending()
 #include "pc.h"
 
-#ifndef TXT_ONLY // mail system [Valaris]
-#include "mail.h"
-#endif
+#include "mail.h" // mail system [Valaris]
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -741,10 +739,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 			clif_displaymessage(sd->fd, motd_text[i]);
 	}
 
-#ifndef TXT_ONLY
 	if(mail_server_enable)
 		mail_check(sd,1); // check mail at login [Valaris]
-#endif
 
 	// message of the limited time of the account
 	if (connect_until_time != 0) { // don't display if it's unlimited or unknow value
@@ -6159,7 +6155,7 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
 /*==========================================
  * Cxg^C}??
  *------------------------------------------*/
-static int pc_eventtimer(int tid,unsigned int tick,int id,int data)
+static int pc_eventtimer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd=map_id2sd(id);
 	char *p = (char *)data;
@@ -6197,7 +6193,7 @@ int pc_addeventtimer(struct map_session_data *sd,int tick,const char *name)
 
 	evname = aStrdup(name);
 	sd->eventtimer[i]=add_timer(gettick()+tick,
-		pc_eventtimer,sd->bl.id,(int)evname);
+		pc_eventtimer,sd->bl.id,(intptr_t)evname);
 	sd->eventcount++;
 
 	return 1;
@@ -6955,7 +6951,7 @@ static int pc_daynight_timer_sub(struct map_session_data *sd,va_list ap)
  * timer to do the day [Yor]
  * data: 0 = called by timer, 1 = gmcommand/script
  *------------------------------------------------*/
-int map_day_timer(int tid, unsigned int tick, int id, int data)
+int map_day_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	char tmp_soutput[1024];
 
@@ -6976,7 +6972,7 @@ int map_day_timer(int tid, unsigned int tick, int id, int data)
  * timer to do the night [Yor]
  * data: 0 = called by timer, 1 = gmcommand/script
  *------------------------------------------------*/
-int map_night_timer(int tid, unsigned int tick, int id, int data)
+int map_night_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	char tmp_soutput[1024];
 

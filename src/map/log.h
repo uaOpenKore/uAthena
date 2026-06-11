@@ -9,11 +9,7 @@ struct map_session_data;
 struct mob_data;
 struct item;
 
-#ifndef TXT_ONLY
-
 extern char db_server_logdb[32];
-
-#endif //NOT TXT_ONLY
 
 //New logs
 int log_pick_pc(struct map_session_data *sd, const char *type, int nameid, int amount, struct item *itm);

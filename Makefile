@@ -60,27 +60,18 @@ GOPT += -m32
 # Makes map-wide script variables be saved to SQL instead of TXT files.
  OPT += -DMAPREGSQL
 
-PLATFORM = $(shell uname)
-
 CFLAGS = $(OPT) $(OS_TYPE)
 
-ifdef SQLFLAG
-  ifdef IS_MINGW
-    CFLAGS += -I../mysql
-    LIBS += -lmysql
+MYSQLFLAG_CONFIG = $(shell which mysql_config)
+ifeq ($(findstring /,$(MYSQLFLAG_CONFIG)), /)
+  MYSQLFLAG_VERSION = $(shell $(MYSQLFLAG_CONFIG) --version | sed s:\\..*::)
+  ifeq ($(findstring 5,$(MYSQLFLAG_VERSION)), 5)
+    MYSQLFLAG_CONFIG_ARGUMENT = --include
   else
-    MYSQLFLAG_CONFIG = $(shell which mysql_config)
-    ifeq ($(findstring /,$(MYSQLFLAG_CONFIG)), /)
-      MYSQLFLAG_VERSION = $(shell $(MYSQLFLAG_CONFIG) --version | sed s:\\..*::)
-      ifeq ($(findstring 5,$(MYSQLFLAG_VERSION)), 5)
-        MYSQLFLAG_CONFIG_ARGUMENT = --include
-      else
-        MYSQLFLAG_CONFIG_ARGUMENT = --cflags
-      endif
-      CFLAGS += $(shell $(MYSQLFLAG_CONFIG) $(MYSQLFLAG_CONFIG_ARGUMENT))
-      LIBS += $(shell $(MYSQLFLAG_CONFIG) --libs)
-    endif
+    MYSQLFLAG_CONFIG_ARGUMENT = --cflags
   endif
+  CFLAGS += $(shell $(MYSQLFLAG_CONFIG) $(MYSQLFLAG_CONFIG_ARGUMENT))
+  LIBS += $(shell $(MYSQLFLAG_CONFIG) --libs)
 endif
 
 ifneq ($(findstring "[[:space:]]-lz[[:space:]]",$(LIBS)), -lz)
@@ -94,12 +85,10 @@ MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS) $(GOPT)" LIB_S="$(LIBS) $(GOPT)"
 
 endif
 
-.PHONY: txt sql common login login_sql char char_sql map map_sql ladmin converters \
-	addons plugins tools clean depend
+.PHONY: sql common login_sql char_sql map_sql ladmin \
+	plugins tools clean depend
 
-all: txt sql
-
-txt : Makefile.cache common login char map
+all: sql
 
 ifdef SQLFLAG
 sql: Makefile.cache common login_sql char_sql map_sql
@@ -110,15 +99,6 @@ endif
 
 common: src/common/GNUmakefile
 	$(MAKE) -C src/$@ $(MKDEF)
-
-login: src/login/GNUmakefile common
-	$(MAKE) -C src/$@ $(MKDEF) txt
-
-char: src/char/GNUmakefile common
-	$(MAKE) -C src/$@ $(MKDEF) txt
-
-map: src/map/GNUmakefile common
-	$(MAKE) -C src/$@ $(MKDEF) txt
 
 login_sql: src/login_sql/GNUmakefile common
 	$(MAKE) -C src/$@ $(MKDEF) sql
@@ -138,40 +118,25 @@ plugins addons: src/plugins/GNUmakefile common
 tools:
 	$(MAKE) -C src/tool $(MKDEF)
 	
-ifdef SQLFLAG
-converters: src/txt-converter/GNUmakefile common
-	$(MAKE) -C src/txt-converter $(MKDEF)
-else
-converters:
-	$(MAKE) SQLFLAG=1 $@
-endif
-
-clean: src/common/GNUmakefile src/login/GNUmakefile src/login_sql/GNUmakefile \
-	src/char/GNUmakefile src/char_sql/GNUmakefile src/map/GNUmakefile \
-	src/ladmin/GNUmakefile src/plugins/GNUmakefile src/txt-converter/GNUmakefile
+clean: src/common/GNUmakefile src/login_sql/GNUmakefile \
+	src/char_sql/GNUmakefile src/map/GNUmakefile \
+	src/ladmin/GNUmakefile src/plugins/GNUmakefile
 	rm -f Makefile.cache
 	$(MAKE) -C src/common $@
-	$(MAKE) -C src/login $@
 	$(MAKE) -C src/login_sql $@
-	$(MAKE) -C src/char $@
 	$(MAKE) -C src/char_sql $@
 	$(MAKE) -C src/map $@
 	$(MAKE) -C src/ladmin $@
 	$(MAKE) -C src/plugins $@
-	$(MAKE) -C src/txt-converter $@
 
-depend: src/common/GNUmakefile src/login/GNUmakefile src/login_sql/GNUmakefile \
-	src/char/GNUmakefile src/char_sql/GNUmakefile src/map/GNUmakefile \
-	src/ladmin/GNUmakefile src/plugins/GNUmakefile src/txt-converter/GNUmakefile
+depend: src/common/GNUmakefile src/login_sql/GNUmakefile \
+	src/char_sql/GNUmakefile src/map/GNUmakefile \
+	src/ladmin/GNUmakefile src/plugins/GNUmakefile
 	cd src/common; makedepend -fGNUmakefile -pobj/ -Y. *.c; cd ../..;
-	cd src/login; makedepend -DTXT_ONLY -fGNUmakefile -Y. -Y../common *.c; cd ../..;
 	cd src/login_sql; makedepend -fGNUmakefile -Y. -Y../common *.c; cd ../..;
-	cd src/char; makedepend -DTXT_ONLY -fGNUmakefile -Y. -Y../common *.c; cd ../..;
 	cd src/char_sql; makedepend -fGNUmakefile -Y. -Y../common *.c; cd ../..;
-	cd src/map; makedepend -DTXT_ONLY -fGNUmakefile -ptxtobj/ -Y. -Y../common *.c; cd ../..;
-	cd src/map; makedepend -fGNUmakefile -a -psqlobj/ -Y. -Y../common *.c; cd ../..;
+	cd src/map; makedepend -fGNUmakefile -psqlobj/ -Y. -Y../common *.c; cd ../..;
 	cd src/ladmin; makedepend -fGNUmakefile -Y. -Y../common *.c; cd ../..;
-	cd src/txt-converter; makedepend -DTXT_SQL_CONVERT -fGNUmakefile -Y. -Y../common *.c; cd ../..;
 	$(MAKE) -C src/plugins $@
 
 Makefile.cache:
@@ -181,25 +146,20 @@ src/%/GNUmakefile: src/%/Makefile
 	sed -e 's/$$>/$$^/' $< > $@
 
 src/common/GNUmakefile: src/common/Makefile
-src/login/GNUmakefile: src/login/Makefile
 src/login_sql/GNUmakefile: src/login_sql/Makefile
-src/char/GNUmakefile: src/char/Makefile
 src/char_sql/GNUmakefile: src/char_sql/Makefile
 src/map/GNUmakefile: src/map/Makefile
 src/plugins/GNUmakefile: src/plugins/Makefile
 src/ladmin/GNUmakefile: src/ladmin/Makefile
-src/txt-converter/GNUmakefile: src/txt-converter/Makefile
 
 install:
 		$(shell mkdir -p /opt/uathena/bin/log/)
 		$(shell mkdir -p /opt/uathena/backup/)
-		$(shell cp -r save  /opt/uathena/)
 		$(shell cp -r db    /opt/uathena/)
 		$(shell cp -r conf  /opt/uathena/)
 		$(shell cp -r conf-tmpl  /opt/uathena/)
 		$(shell cp -r npc   /opt/uathena/)
-		$(shell cp *-server* /opt/uathena/bin/)
-		$(shell ln -s /opt/uathena/save/    /opt/uathena/bin/)
+		$(shell cp *_sql /opt/uathena/bin/)
 		$(shell ln -s /opt/uathena/db/      /opt/uathena/bin/)
 		$(shell ln -s /opt/uathena/conf/    /opt/uathena/bin/)
 		$(shell ln -s /opt/uathena/npc/     /opt/uathena/bin/)
@@ -214,8 +174,6 @@ uninstall:
 		$(shell rm -fr /opt/uathena/conf)
 		$(shell rm -fr /opt/uathena/conf-tmpl)
 		$(shell rm -fr /opt/uathena/npc)
-		$(shell rm -fr /opt/uathena/bin)
-		$(shell rm -fr /opt/uathena/save)
 		$(shell rm -f  /opt/uathena/log)
 		$(shell rm -f /etc/systemd/system/uA*)
 		$(shell systemctl daemon-reload)
@@ -224,7 +182,7 @@ erase:
 		$(shell rm -rf /opt/uathena/)
 
 update:
-		$(shell cp -f *-server* /opt/uathena/bin/)
+		$(shell cp -f *_sql /opt/uathena/bin/)
 		$(shell cp -rf db    /opt/uathena/)
 		$(shell cp -rf npc   /opt/uathena/)
 

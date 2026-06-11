@@ -1,4 +1,5 @@
-txt sql all: obj common
+.PHONY: sql all
+sql all: obj common
 
 obj:
 	mkdir obj

@@ -29,7 +29,7 @@ extern struct Script_Config {
 struct script_data {
 	int type;
 	union script_data_val {
-		int num;
+		intptr_t num;
 		char *str;
 	} u;
 	struct linkdb_node** ref;
@@ -71,10 +71,10 @@ void run_script_sub(struct script_code *rootscript,int pos,int rid,int oid, char
 void run_script(struct script_code*,int,int,int);
 
 int set_var(struct map_session_data *sd, char *name, void *val);
-int conv_num(struct script_state *st,struct script_data *data);
+intptr_t conv_num(struct script_state *st,struct script_data *data);
 const char* conv_str(struct script_state *st,struct script_data *data);
 
-int run_script_timer(int tid, unsigned int tick, int id, int data);
+int run_script_timer(int tid, unsigned int tick, int id, intptr_t data);
 void run_script_main(struct script_state *st);
 
 void script_stop_sleeptimers(int id);
@@ -92,6 +92,6 @@ int do_final_script(void);
 int add_str(const char *p);
 int script_reload(void);
 
-extern char mapreg_txt[];
+
 
 #endif /* _SCRIPT_H_ */

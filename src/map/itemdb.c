@@ -617,11 +617,7 @@ static int itemdb_gendercheck(struct item_data *id)
 
 	return (battle_config.ignore_items_gender?2:id->sex);
 }
-#ifndef TXT_ONLY
 
-/*======================================
- * SQL
- *======================================*/
 static int itemdb_read_sqldb(void)
 {
 	unsigned short nameid;
@@ -797,7 +793,6 @@ static int itemdb_read_sqldb(void)
 
 	return 0;
 }
-#endif /* not TXT_ONLY */
 
 /*==========================================
  * ACef[^x[X
@@ -981,11 +976,9 @@ static int itemdb_readdb(void)
  *------------------------------------*/
 static void itemdb_read(void)
 {
-#ifndef TXT_ONLY
 	if (db_use_sqldbs)
 		itemdb_read_sqldb();
 	else
-#endif
 		itemdb_readdb();
 
 	itemdb_read_itemgroup();

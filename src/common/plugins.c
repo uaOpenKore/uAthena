@@ -14,9 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef WIN32
 #include <unistd.h>
-#endif
 
 //////////////////////////////////////////////
 
@@ -280,16 +278,6 @@ void plugin_unload(Plugin* plugin)
 		DLL_CLOSE(plugin->dll);
 	aFree(plugin);
 }
-
-#ifdef WIN32
-char *DLL_ERROR(void)
-{
-	static char dllbuf[80];
-	DWORD dw = GetLastError();
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dw, 0, dllbuf, 80, NULL);
-	return dllbuf;
-}
-#endif
 
 ////// Initialize/Finalize ////////////////////
 

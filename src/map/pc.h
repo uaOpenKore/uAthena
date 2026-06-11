@@ -309,8 +309,8 @@ enum {ADDITEM_EXIST,ADDITEM_NEW,ADDITEM_OVERAMOUNT};
 // timer for night.day
 extern int day_timer_tid;
 extern int night_timer_tid;
-int map_day_timer(int,unsigned int,int,int); // by [yor]
-int map_night_timer(int,unsigned int,int,int); // by [yor]
+int map_day_timer(int,unsigned int,intptr_t,intptr_t); // by [yor]
+int map_night_timer(int,unsigned int,intptr_t,intptr_t); // by [yor]
 
 //Duel functions // [LuzZza]
 int duel_create(struct map_session_data* sd, const unsigned int maxpl);
