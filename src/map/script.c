@@ -1487,7 +1487,7 @@ const char* parse_syntax(const char* p)
 					str_data[l].type = C_USERFUNC;
 				set_label(l, script_pos, p);
 				if( parse_options&SCRIPT_USE_LABEL_DB )
-					strdb_put(scriptlabel_db, GETSTRING(str_data[l].str), (void*)script_pos);
+					strdb_put(scriptlabel_db, GETSTRING(str_data[l].str), (void*)(intptr_t)script_pos);
 				return skip_space(p);
 			}
 		}
@@ -1949,7 +1949,7 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 			i=add_word(p);
 			set_label(i,script_pos,p);
 			if( parse_options&SCRIPT_USE_LABEL_DB )
-				strdb_put(scriptlabel_db, GETSTRING(str_data[i].str), (void*)script_pos);
+				strdb_put(scriptlabel_db, GETSTRING(str_data[i].str), (void*)(intptr_t)script_pos);
 			p=tmpp+1;
 			continue;
 		}
