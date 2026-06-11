@@ -1,4 +1,4 @@
-all: sqlobj map-server_sql
+all sql: sqlobj map-server_sql
 
 sqlobj:
 	mkdir sqlobj
