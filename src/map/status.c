@@ -657,7 +657,7 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 			}
 			if (sc->data[SC_GRAVITATION].timer != -1 &&
 				sc->data[SC_GRAVITATION].val3 == BCT_SELF) {
-				struct skill_unit_group *sg = (struct skill_unit_group *)sc->data[SC_GRAVITATION].val4;
+				struct skill_unit_group *sg = (struct skill_unit_group *)(intptr_t)sc->data[SC_GRAVITATION].val4;
 				if (sg) {
 					skill_delunitgroup(target,sg, 0);
 					sc->data[SC_GRAVITATION].val4 = 0;
@@ -6242,7 +6242,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 		case SC_BLADESTOP:
 			if(sc->data[type].val4)
 			{
-				struct block_list *tbl = (struct block_list *)sc->data[type].val4;
+				struct block_list *tbl = (struct block_list *)(intptr_t)sc->data[type].val4;
 				struct status_change *tsc = status_get_sc(tbl);
 				sc->data[type].val4 = 0;
 				if(tsc && tsc->data[SC_BLADESTOP].timer!=-1)
@@ -6260,7 +6260,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 				struct skill_unit_group *group;
 				if(sc->data[type].val2)
 				{
-					group = (struct skill_unit_group *)sc->data[type].val2;
+					group = (struct skill_unit_group *)(intptr_t)sc->data[type].val2;
 					sc->data[type].val2 = 0;
 					skill_delunitgroup(bl, group, 0);
 				}
@@ -6351,7 +6351,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			break;
 		case SC_GOSPEL: //Clear the buffs from other chars.
 			if (sc->data[type].val3) { //Clear the group.
-				struct skill_unit_group *group = (struct skill_unit_group *)sc->data[type].val3;
+				struct skill_unit_group *group = (struct skill_unit_group *)(intptr_t)sc->data[type].val3;
 				sc->data[type].val3 = 0;
 				skill_delunitgroup(bl, group, 0);
 			}
@@ -6368,7 +6368,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 			break;
 		case SC_WARM:
 			if (sc->data[type].val4) { //Clear the group.
-				struct skill_unit_group *group = (struct skill_unit_group *)sc->data[type].val4;
+				struct skill_unit_group *group = (struct skill_unit_group *)(intptr_t)sc->data[type].val4;
 				sc->data[type].val4 = 0;
 				skill_delunitgroup(bl, group, 0);
 			}
@@ -6588,7 +6588,7 @@ int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 	int temp_timerid;
 
 	bl=map_id2bl(id);
-	nullpo_retr_f(0, bl, "id=%d data=%d",id,data);
+	nullpo_retr_f(0, bl, "id=%ld data=%ld",id,data);
 	sc=status_get_sc(bl);
 	status = status_get_status_data(bl);
 	
@@ -7287,7 +7287,7 @@ static int status_natural_heal(DBKey key,void * data,va_list ap)
 }
 
 //Natural heal main timer.
-static int status_natural_heal_timer(int tid,unsigned int tick,int id,int data)
+static int status_natural_heal_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	natural_heal_diff_tick = DIFF_TICK(tick,natural_heal_prev_tick);
 	map_foreachiddb(status_natural_heal);

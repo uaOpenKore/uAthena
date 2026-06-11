@@ -163,7 +163,7 @@ void mob_heal(struct mob_data *md,unsigned int heal);
 int do_init_mob(void);
 int do_final_mob(void);
 
-int mob_timer_delete(int tid, unsigned int tick, int id, int data);
+int mob_timer_delete(int tid, unsigned int tick, intptr_t id, intptr_t data);
 int mob_deleteslave(struct mob_data *md);
 
 int mob_random_class (int *value, size_t count);

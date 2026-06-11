@@ -68,7 +68,7 @@ static struct {
  * Local prototype declaration   (only required thing)
  *------------------------------------------*/
 static int mob_makedummymobdb(int);
-static int mob_spawn_guardian_sub(int,unsigned int,int,int);
+static int mob_spawn_guardian_sub(int,unsigned int,intptr_t,intptr_t);
 int mobskill_use(struct mob_data *md,unsigned int tick,int event);
 int mob_skillid2skillidx(int class_,int skillid);
 
@@ -404,7 +404,7 @@ int mob_once_spawn_area(struct map_session_data *sd,const char *mapname,
 /*==========================================
  * Set a Guardian's guild data [Skotlex]
  *------------------------------------------*/
-static int mob_spawn_guardian_sub(int tid,unsigned int tick,int id,int data)
+static int mob_spawn_guardian_sub(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {	//Needed because the guild_data may not be available at guardian spawn time.
 	struct block_list* bl = map_id2bl(id);
 	struct mob_data* md; 
@@ -600,7 +600,7 @@ int mob_linksearch(struct block_list *bl,va_list ap)
 /*==========================================
  * mob spawn with delay (timer function)
  *------------------------------------------*/
-static int mob_delayspawn(int tid, unsigned int tick, int m, int n)
+static int mob_delayspawn(int tid, unsigned int tick, intptr_t m, intptr_t n)
 {
 	struct block_list *bl = map_id2bl(m);
 	if (bl && bl->type == BL_MOB)
@@ -1375,7 +1375,7 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 /*==========================================
  * Negligent processing for mob outside PC field of view   (interval timer function)
  *------------------------------------------*/
-static int mob_ai_lazy(int tid,unsigned int tick,int id,int data)
+static int mob_ai_lazy(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	map_foreachiddb(mob_ai_sub_lazy,tick);
 	return 0;
@@ -1384,7 +1384,7 @@ static int mob_ai_lazy(int tid,unsigned int tick,int id,int data)
 /*==========================================
  * Serious processing for mob in PC field of view   (interval timer function)
  *------------------------------------------*/
-static int mob_ai_hard(int tid,unsigned int tick,int id,int data)
+static int mob_ai_hard(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 
 	if (battle_config.mob_ai&0x20)

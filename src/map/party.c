@@ -26,7 +26,7 @@
 
 static DB party_db;
 int party_share_level = 10;
-int party_send_xy_timer(int tid,unsigned int tick,int id,int data);
+int party_send_xy_timer(int tid,unsigned int tick,intptr_t id,intptr_t data);
 
 /*==========================================
  * Fills the given party_member structure according to the sd provided.
@@ -681,7 +681,7 @@ int party_send_xy_timer_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 
-int party_send_xy_timer(int tid,unsigned int tick,int id,int data)
+int party_send_xy_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	party_db->foreach(party_db,party_send_xy_timer_sub,tick);
 	return 0;

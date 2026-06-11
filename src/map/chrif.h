@@ -42,11 +42,11 @@ int chrif_save_scdata(struct map_session_data *sd);
 int chrif_ragsrvinfo(int base_rate,int job_rate, int drop_rate);
 int chrif_char_offline(struct map_session_data *sd);
 int chrif_char_reset_offline(void);
-int send_users_tochar(int tid, unsigned int tick, int id, int data);
+int send_users_tochar(int tid, unsigned int tick, intptr_t id, intptr_t data);
 int chrif_char_online(struct map_session_data *sd);
 int chrif_changesex(int id, int sex);
 int chrif_chardisconnect(struct map_session_data *sd);
-int check_connect_char_server(int tid, unsigned int tick, int id, int data);
+int check_connect_char_server(int tid, unsigned int tick, intptr_t id, intptr_t data);
 
 int do_final_chrif(void);
 int do_init_chrif(void);

@@ -224,7 +224,7 @@ int pet_sc_check(struct map_session_data *sd, int type)
 	return 0;
 }
 
-static int pet_hungry(int tid,unsigned int tick,int id,int data)
+static int pet_hungry(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
 	struct pet_data *pd;
@@ -984,7 +984,7 @@ static int pet_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 	return 0;
 }
 
-static int pet_ai_hard(int tid,unsigned int tick,int id,int data)
+static int pet_ai_hard(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	clif_foreachclient(pet_ai_sub_foreachclient,tick);
 
@@ -1087,7 +1087,7 @@ int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd)
 /*==========================================
  * pet bonus giving skills [Valaris] / Rewritten by [Skotlex]
  *------------------------------------------*/
-int pet_skill_bonus_timer(int tid,unsigned int tick,int id,int data)
+int pet_skill_bonus_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd=map_id2sd(id);
 	struct pet_data *pd;
@@ -1132,7 +1132,7 @@ int pet_skill_bonus_timer(int tid,unsigned int tick,int id,int data)
 /*==========================================
  * pet recovery skills [Valaris] / Rewritten by [Skotlex]
  *------------------------------------------*/
-int pet_recovery_timer(int tid,unsigned int tick,int id,int data)
+int pet_recovery_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd=map_id2sd(id);
 	struct pet_data *pd;
@@ -1161,7 +1161,7 @@ int pet_recovery_timer(int tid,unsigned int tick,int id,int data)
 	return 0;
 }
 
-int pet_heal_timer(int tid,unsigned int tick,int id,int data)
+int pet_heal_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd=map_id2sd(id);
 	struct status_data *status;
@@ -1200,7 +1200,7 @@ int pet_heal_timer(int tid,unsigned int tick,int id,int data)
 /*==========================================
  * pet support skills [Skotlex]
  *------------------------------------------*/
-int pet_skill_support_timer(int tid,unsigned int tick,int id,int data)
+int pet_skill_support_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd=map_id2sd(id);
 	struct pet_data *pd;

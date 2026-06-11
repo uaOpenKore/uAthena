@@ -484,9 +484,9 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 				if (sc->data[SC_CLOAKING].timer != -1)
 					skill_check_cloaking(bl, sc);
 				if (sc->data[SC_DANCING].timer != -1)
-					skill_unit_move_unit_group((struct skill_unit_group *)sc->data[SC_DANCING].val2, bl->m, x1-x0, y1-y0);
+					skill_unit_move_unit_group((struct skill_unit_group *)(intptr_t)sc->data[SC_DANCING].val2, bl->m, x1-x0, y1-y0);
 				if (sc->data[SC_WARM].timer != -1)
-					skill_unit_move_unit_group((struct skill_unit_group *)sc->data[SC_WARM].val4, bl->m, x1-x0, y1-y0);
+					skill_unit_move_unit_group((struct skill_unit_group *)(intptr_t)sc->data[SC_WARM].val4, bl->m, x1-x0, y1-y0);
 			}
 		}
 	}
