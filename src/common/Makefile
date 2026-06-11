@@ -1,4 +1,4 @@
-txt sql all: obj common
+sql all: obj common
 
 obj:
 	mkdir obj
