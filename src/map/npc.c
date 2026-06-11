@@ -312,46 +312,52 @@ int npc_event_sub(struct map_session_data* sd, struct event_data* ev, const char
 /*==========================================
  * SNPCOn*Cxgs
  *------------------------------------------*/
+static int g_npc_event_doall_c = 0;
+static char g_npc_event_doall_name[64] = "";
+static int g_npc_event_doall_rid = 0;
+
+static int npc_event_doall_sub_wrapper(DBKey key, void* data, va_list ap)
+{
+	return npc_event_doall_sub(key, data, ap);
+}
+
 int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 {
 	const char* p = key.str;
 	struct event_data* ev;
-	int* c;
-	int rid;
-	char* name;
 
 	ev = (struct event_data *)data;
-	c = (int *)va_arg(ap, intptr_t);
-	name = (char *)va_arg(ap, intptr_t);
-	rid = (int)va_arg(ap, intptr_t);
 
-	if( (p=strchr(p, ':')) && p && strcmpi(name, p)==0 ) {
-		if(rid)
-			npc_event_sub(((struct map_session_data *)map_id2bl(rid)),ev,key.str);
+	if( (p=strchr(p, ':')) && p && strcmpi(g_npc_event_doall_name, p)==0 ) {
+		if(g_npc_event_doall_rid)
+			npc_event_sub(((struct map_session_data *)map_id2bl(g_npc_event_doall_rid)),ev,key.str);
 		else
-			run_script(ev->nd->u.scr.script,ev->pos,rid,ev->nd->bl.id);
-		(*c)++;
+			run_script(ev->nd->u.scr.script,ev->pos,g_npc_event_doall_rid,ev->nd->bl.id);
+		g_npc_event_doall_c++;
 	}
 
 	return 0;
 }
 int npc_event_doall(const char* name)
 {
-	int c = 0;
 	char buf[64] = "::";
 
 	strncpy(buf+2, name, 62);
-	ev_db->foreach(ev_db,npc_event_doall_sub,&c,buf,0);
-	return c;
+	g_npc_event_doall_c = 0;
+	strncpy(g_npc_event_doall_name, name, 63);
+	g_npc_event_doall_name[63] = '\0';
+	g_npc_event_doall_rid = 0;
+	ev_db->foreach(ev_db,npc_event_doall_sub_wrapper);
+	return g_npc_event_doall_c;
 }
 int npc_event_doall_id(const char* name, int rid)
 {
-	int c = 0;
-	char buf[64] = "::";
-
-	strncpy(buf+2, name, 62);
-	ev_db->foreach(ev_db,npc_event_doall_sub,&c,buf,rid);
-	return c;
+	strncpy(g_npc_event_doall_name, name, 63);
+	g_npc_event_doall_name[63] = '\0';
+	g_npc_event_doall_c = 0;
+	g_npc_event_doall_rid = rid;
+	ev_db->foreach(ev_db,npc_event_doall_sub_wrapper);
+	return g_npc_event_doall_c;
 }
 
 int npc_event_do_sub(DBKey key, void* data, va_list ap)
