@@ -97,7 +97,7 @@ int pc_set_gm_level(int account_id, int level)
     return 0;
 }
 
-static int pc_invincible_timer(int tid,unsigned int tick,int id,int data)
+static int pc_invincible_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
 
@@ -132,7 +132,7 @@ void pc_delinvincibletimer_sub(struct map_session_data *sd)
 	skill_unit_move(&sd->bl,gettick(),1);
 }
 
-static int pc_spiritball_timer(int tid,unsigned int tick,int id,int data)
+static int pc_spiritball_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
 
@@ -3980,7 +3980,7 @@ char* job_name(int class_)
 	}
 }
 
-int pc_follow_timer(int tid,unsigned int tick,int id,int data)
+int pc_follow_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
 	struct block_list *tbl;
@@ -4827,7 +4827,7 @@ int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
 	return 0;
 }
 
-static int pc_respawn(int tid,unsigned int tick,int id,int data)
+static int pc_respawn(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd(id);
 	if (sd && pc_isdead(sd))
@@ -6905,7 +6905,7 @@ static int pc_autosave_sub(DBKey key,void * data,va_list ap)
 /*==========================================
  * Z?u (timer??)
  *------------------------------------------*/
-int pc_autosave(int tid,unsigned int tick,int id,int data)
+int pc_autosave(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	int interval;
 
