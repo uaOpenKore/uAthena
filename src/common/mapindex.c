@@ -131,7 +131,7 @@ unsigned short mapindex_name2id(const char* name)
 
 const char* mapindex_id2name(unsigned short id)
 {
-	if (id > MAX_MAPINDEX || !mapindex_exists(id)) {
+	if (id >= MAX_MAPINDEX || !mapindex_exists(id)) {
 		ShowDebug("mapindex_id2name: Requested name for non-existant map index [%d] in cache.\n", id);
 		return indexes[0].name; // dummy empty string so that the callee doesn't crash
 	}

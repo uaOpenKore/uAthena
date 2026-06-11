@@ -2611,7 +2611,7 @@ int atcommand_baselevelup(const int fd, struct map_session_data* sd, const char*
 {
 	int level=0, i=0, status_point=0;
 	nullpo_retr(-1, sd);
-	level = atoi(message);
+	level = message ? atoi(message) : 0;
 
 	if (!message || !*message || !level) {
 		clif_displaymessage(fd, "Please, enter a level adjustment (usage: @lvup/@blevel/@baselvlup <number of levels>).");
@@ -2671,8 +2671,8 @@ int atcommand_joblevelup(const int fd, struct map_session_data* sd, const char* 
 {
 	int level=0;
 	nullpo_retr(-1, sd);
-	
-	level = atoi(message);
+
+	level = message ? atoi(message) : 0;
 
 	if (!message || !*message || !level) {
 		clif_displaymessage(fd, "Please, enter a level adjustment (usage: @joblvup/@jlevel/@joblvlup <number of levels>).");
@@ -3106,7 +3106,7 @@ int atcommand_go(const int fd, struct map_session_data* sd, const char* command,
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
  
 	// get the number
-	town = atoi(message);
+	town = message ? atoi(message) : 0;
  
 	// if no value, display all value
 	if (!message || !*message || sscanf(message, "%15s", map_name) < 1 || town < -3 || town >= (int)(sizeof(data) / sizeof(data[0]))) {
@@ -7473,7 +7473,7 @@ int atcommand_partyoption(const int fd, struct map_session_data* sd, const char*
 		return -1;
 	}
 	
-	if(!message || !*message || sscanf(message, "%15s %15s", w1, w2) < 2)
+	if(!message || !*message || sscanf(message, "%14s %14s", w1, w2) < 2)
 	{
 		clif_displaymessage(fd, "Command usage: @changeoption <pickup share: yes/no> <item distribution: yes/no>");
 		return -1;
@@ -8173,9 +8173,9 @@ int atcommand_petid(const int fd, struct map_session_data* sd, const char* comma
 	clif_displaymessage(fd,temp0);
 	while (i < MAX_PET_DB) {
 		strcpy(temp1,pet_db[i].name);
-		strcpy(temp1, estr_lower(temp1));
+		estr_lower(temp1);
 		strcpy(temp0,pet_db[i].jname);
-		strcpy(temp0, estr_lower(temp1));
+		estr_lower(temp0);
 		if (strstr(temp1, searchtext) || strstr(temp0, searchtext) ) {
   			snprintf(temp0, sizeof(temp0), "ID: %i -- Name: %s", pet_db[i].class_,
      			pet_db[i].jname);
@@ -9176,20 +9176,20 @@ int atcommand_adopt(const int fd, struct map_session_data* sd, const char* comma
 	        printf("Adopting: --%s--%s--%s--\n",player1,player2,player3);
 
         if((pl_sd1=map_nick2sd((char *) player1)) == NULL) {
-                sprintf(player2, "Cannot find player %s online", player1);
-                clif_displaymessage(fd, player2);
+                sprintf(atcmd_output, "Cannot find player %s online", player1);
+                clif_displaymessage(fd, atcmd_output);
                 return -1;
         }
 
         if((pl_sd2=map_nick2sd((char *) player2)) == NULL) {
-                sprintf(player1, "Cannot find player %s online", player2);
-                clif_displaymessage(fd, player1);
+                sprintf(atcmd_output, "Cannot find player %s online", player2);
+                clif_displaymessage(fd, atcmd_output);
                 return -1;
 	}
  
        if((pl_sd3=map_nick2sd((char *) player3)) == NULL) {
-                sprintf(player1, "Cannot find player %s online", player3);
-                clif_displaymessage(fd, player1);
+                sprintf(atcmd_output, "Cannot find player %s online", player3);
+                clif_displaymessage(fd, atcmd_output);
                 return -1;
         }
 

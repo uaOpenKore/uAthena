@@ -730,7 +730,7 @@ const char*	skill_get_name( int id ){
 		id = GD_SKILLRANGEMIN + id - GD_SKILLBASE;
 	if (id >= HM_SKILLBASE)	//[orn]
 		id = HM_SKILLRANGEMIN + id - HM_SKILLBASE;
-	if (id < 1 || id > MAX_SKILL_DB || skill_db[id].name==NULL)
+	if (id < 1 || id >= MAX_SKILL_DB || skill_db[id].name==NULL)
 		return "UNKNOWN_SKILL"; //Can't use skill_chk because we return a string.
 	return skill_db[id].name;
 }
@@ -741,7 +741,7 @@ const char*	skill_get_desc( int id ){
 		id = GD_SKILLRANGEMIN + id - GD_SKILLBASE;
 	if (id >= HM_SKILLBASE)	//[orn]
 		id = HM_SKILLRANGEMIN + id - HM_SKILLBASE;
-	if (id < 1 || id > MAX_SKILL_DB || skill_db[id].desc==NULL)
+	if (id < 1 || id >= MAX_SKILL_DB || skill_db[id].desc==NULL)
 		return "Unknown Skill"; //Can't use skill_chk because we return a string.
 	return skill_db[id].desc;
 }
@@ -895,7 +895,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	if (i >= HM_SKILLBASE)	//[orn]
 		i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
 
-	if (i > MAX_SKILL || i < 0)
+	if (i >= MAX_SKILL || i < 0)
 		return 1;
 
 	if (battle_config.gm_skilluncond && pc_isGM(sd) >= battle_config.gm_skilluncond)
@@ -976,7 +976,7 @@ int skillnotok_hom (int skillid, struct homun_data *hd)
 	if (i >= HM_SKILLBASE)	//[orn]
 		i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
 
-	if (i > MAX_SKILL || i < 0)
+	if (i >= MAX_SKILL || i < 0)
 		return 1;
 
 	if (hd->blockskill[i] > 0)
@@ -4026,7 +4026,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			}
 			//Look for an empty slot (or reuse in case you cast it twice in the same char. [Skotlex]
 			for (i = 0; i < skilllv && i < 5 && sd->devotion[i]!=bl->id && sd->devotion[i]; i++);
-			if (i == skilllv)
+			if (i >= skilllv || i >= 5)
 			{
 				clif_skill_fail(sd,skillid,0,0);
 				map_freeblock_unlock();
@@ -11324,7 +11324,7 @@ int skill_readdb (void)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
 		if (i >= HM_SKILLBASE)	//[orn]
 			i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
-		if(i<=0 || i>MAX_SKILL_DB)
+		if(i<=0 || i>=MAX_SKILL_DB)
 			continue;
 
 		skill_split_atoi(split[1],skill_db[i].range);
@@ -11383,7 +11383,7 @@ int skill_readdb (void)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
 		if (i >= HM_SKILLBASE)	//[orn]
 			i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
-		if(i<=0 || i>MAX_SKILL_DB)
+		if(i<=0 || i>=MAX_SKILL_DB)
 			continue;
 
 		skill_split_atoi(split[1],skill_db[i].hp);
@@ -11476,7 +11476,7 @@ int skill_readdb (void)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
 		if (i >= HM_SKILLBASE)	//[orn]
 			i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
-		if(i<=0 || i>MAX_SKILL_DB)
+		if(i<=0 || i>=MAX_SKILL_DB)
 			continue;
 
 		skill_split_atoi(split[1],skill_db[i].cast);
@@ -11510,7 +11510,7 @@ int skill_readdb (void)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
 		if (i >= HM_SKILLBASE)	//[orn]
 			i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
-		if(i<=0 || i>MAX_SKILL_DB)
+		if(i<=0 || i>=MAX_SKILL_DB)
 			continue;
 		skill_db[i].unit_id[0] = strtol(split[1],NULL,16);
 		skill_db[i].unit_id[1] = strtol(split[2],NULL,16);
@@ -11676,7 +11676,7 @@ int skill_readdb (void)
 		i=atoi(split[0]);
 		if (i >= GD_SKILLBASE)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
-		if(i<=0 || i>MAX_SKILL_DB)
+		if(i<=0 || i>=MAX_SKILL_DB)
 			continue;
 
 		skill_split_atoi(split[1],skill_db[i].castnodex);
@@ -11706,7 +11706,7 @@ int skill_readdb (void)
 		i=atoi(split[0]);
 		if (i >= GD_SKILLBASE)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
-		if(i<=0 || i>MAX_SKILL_DB)
+		if(i<=0 || i>=MAX_SKILL_DB)
 			continue;
 		skill_db[i].nocast|=atoi(split[1]);
 		k++;

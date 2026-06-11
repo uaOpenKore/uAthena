@@ -150,8 +150,10 @@ struct delay_damage {
 int battle_delay_damage_sub (int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct delay_damage *dat = (struct delay_damage *)data;
-	struct block_list *target = map_id2bl(dat->target);
-	if (target && dat && map_id2bl(id) == dat->src && target->prev != NULL && !status_isdead(target) &&
+	struct block_list *target;
+	if (!dat) return 0;
+	target = map_id2bl(dat->target);
+	if (target && map_id2bl(id) == dat->src && target->prev != NULL && !status_isdead(target) &&
 		target->m == dat->src->m && check_distance_bl(dat->src, target, dat->distance)) //Check to see if you haven't teleported. [Skotlex]
 	{
 		status_fix_damage(dat->src, target, dat->damage, dat->delay);
@@ -213,7 +215,7 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 	if (atk_elem < 0 || atk_elem >= ELE_MAX)
 		atk_elem = rand()%ELE_MAX;
 
-	if (def_type < 0 || def_type > ELE_MAX ||
+	if (def_type < 0 || def_type >= ELE_MAX ||
 		def_lv < 1 || def_lv > 4) {
 		if (battle_config.error_log)
 			ShowError("battle_attr_fix: unknown attr type: atk=%d def_type=%d def_lv=%d\n",atk_elem,def_type,def_lv);

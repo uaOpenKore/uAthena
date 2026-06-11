@@ -2954,9 +2954,9 @@ int parse_console(char* buf)
 	memset(&sd, 0, sizeof(struct map_session_data));
 	strcpy(sd.status.name, "console");
 
-	if( (n=sscanf(buf, "%[^:]:%[^:]:%99s %d %d[^\n]",type,command,map,&x,&y)) < 5 )
-		if( (n=sscanf(buf, "%[^:]:%[^\n]",type,command)) < 2 )
-			n = sscanf(buf,"%[^\n]",type);
+	if( (n=sscanf(buf, "%63[^:]:%63[^:]:%63s %d %d[^\n]",type,command,map,&x,&y)) < 5 )
+		if( (n=sscanf(buf, "%63[^:]:%63[^\n]",type,command)) < 2 )
+			n = sscanf(buf,"%63[^\n]",type);
 
 	if( n == 5 ) {
 		m = map_mapname2mapid(map);

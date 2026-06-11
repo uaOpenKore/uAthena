@@ -6886,7 +6886,7 @@ int clif_guild_expulsion(struct map_session_data *sd,const char *name,const char
 	WBUFW(buf, 0)=0x15c;
 	memcpy(WBUFP(buf, 2),name,NAME_LENGTH);
 	memcpy(WBUFP(buf,26),mes,40);
-	memcpy(WBUFP(buf,66),"dummy",NAME_LENGTH);
+	strncpy((char*)WBUFP(buf,66),"dummy",NAME_LENGTH);	// zero-pads; memcpy read past the literal
 	clif_send(buf,packet_len(0x15c),&sd->bl,GUILD);
 	return 0;
 }
@@ -6912,7 +6912,7 @@ int clif_guild_expulsionlist(struct map_session_data *sd)
 		if(e->account_id>0){
 			memcpy(WFIFOP(fd,c*88+ 4),e->name,NAME_LENGTH);
 			memcpy(WFIFOP(fd,c*88+28),e->acc,24);
-			memcpy(WFIFOP(fd,c*88+52),e->mes,44);
+			memcpy(WFIFOP(fd,c*88+52),e->mes,40);	// mes is char[40]; 44 overran both struct and the 88-byte record
 			c++;
 		}
 	}
@@ -11230,11 +11230,11 @@ void clif_parse_Alchemist(int fd,struct map_session_data *sd)
 			} else
 				memcpy(WFIFOP(fd, 2 + 24 * i), chemist_fame_list[i].name, NAME_LENGTH);
 		} else
-			memcpy(WFIFOP(fd, 2 + 24 * i), "None", NAME_LENGTH);
+			strncpy((char*)WFIFOP(fd, 2 + 24 * i), "None", NAME_LENGTH);
 		WFIFOL(fd, 242 + i * 4) = chemist_fame_list[i].fame;
 	}
 	for(;i < 10; i++) { //In case the MAX is less than 10.
-		memcpy(WFIFOP(fd, 2 + 24 * i), "Unavailable", NAME_LENGTH);
+		strncpy((char*)WFIFOP(fd, 2 + 24 * i), "Unavailable", NAME_LENGTH);
 		WFIFOL(fd, 242 + i * 4) = 0;
 	}
 
@@ -11273,11 +11273,11 @@ void clif_parse_Taekwon(int fd,struct map_session_data *sd)
 			} else
 				memcpy(WFIFOP(fd, 2 + 24 * i), taekwon_fame_list[i].name, NAME_LENGTH);
 		} else
-			memcpy(WFIFOP(fd, 2 + 24 * i), "None", NAME_LENGTH);
+			strncpy((char*)WFIFOP(fd, 2 + 24 * i), "None", NAME_LENGTH);
 		WFIFOL(fd, 242 + i * 4) = taekwon_fame_list[i].fame;
 	}
 	for(;i < 10; i++) { //In case the MAX is less than 10.
-		memcpy(WFIFOP(fd, 2 + 24 * i), "Unavailable", NAME_LENGTH);
+		strncpy((char*)WFIFOP(fd, 2 + 24 * i), "Unavailable", NAME_LENGTH);
 		WFIFOL(fd, 242 + i * 4) = 0;
 	}
 	WFIFOSET(fd, packet_len(0x226));
@@ -11305,7 +11305,7 @@ void clif_parse_RankingPk(int fd,struct map_session_data *sd)
 	WFIFOHEAD(fd,packet_len(0x238));
 	WFIFOW(fd,0) = 0x238;
 	for(i=0;i<10;i++){
-		memcpy(WFIFOP(fd,i*24+2), "Unknown", NAME_LENGTH);
+		strncpy((char*)WFIFOP(fd,i*24+2), "Unknown", NAME_LENGTH);
 		WFIFOL(fd,i*4+242) = 0;
 	}
 	WFIFOSET(fd, packet_len(0x238));
@@ -11825,7 +11825,7 @@ static int packetdb_readdb(void)
 		ln++;
 		if(line[0]=='/' && line[1]=='/')
 			continue;
-		if (sscanf(line,"%256[^:]: %256[^\r\n]",w1,w2) == 2)
+		if (sscanf(line,"%63[^:]: %63[^\r\n]",w1,w2) == 2)
 		{
 			if(strcmpi(w1,"packet_ver")==0) {
 				int prev_ver = packet_ver;

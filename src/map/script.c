@@ -4366,7 +4366,7 @@ BUILDIN_FUNC(close2)
 static int menu_countoptions(const char* str, int max_count, int* total)
 {
 	int count = 0;
-	int bogus_total;
+	int bogus_total = 0;
 
 	if( total == NULL )
 		total = &bogus_total;
@@ -12170,7 +12170,7 @@ BUILDIN_FUNC(npcshopadditem)
 		return 0;
 	}
 	amount = ((st->end-2)/2)+1;
-	while (nd->u.shop_item[n].nameid && n < MAX_SHOPITEM)
+	while (n < MAX_SHOPITEM && nd->u.shop_item[n].nameid)
 		n++;
 
 
@@ -12216,7 +12216,7 @@ BUILDIN_FUNC(npcshopdelitem)
 		size++;
 
 	while (script_hasdata(st,i)) {
-		for(n=0;nd->u.shop_item[n].nameid && n < MAX_SHOPITEM;n++) {
+		for(n=0;n < MAX_SHOPITEM && nd->u.shop_item[n].nameid;n++) {
 			if (nd->u.shop_item[n].nameid == script_getnum(st,i)) {
 				// We're moving 1 extra empty block. Junk data is eliminated later.
 				memmove(&nd->u.shop_item[n], &nd->u.shop_item[n+1], sizeof(nd->u.shop_item[0])*(size-n));

@@ -732,7 +732,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	}
 
 	// Message of the Day [Valaris]
-	for(i=0; motd_text[i][0] && i < MOTD_LINE_SIZE; i++) {
+	for(i=0; i < MOTD_LINE_SIZE && motd_text[i][0]; i++) {
 		if (battle_config.motd_type)
 			clif_disp_onlyself(sd,motd_text[i],strlen(motd_text[i]));
 		else
@@ -3599,6 +3599,9 @@ int pc_checkskill(struct map_session_data *sd,int skill_id)
 			return guild_checkskill(g,skill_id);
 		return 0;
 	}
+
+	if( skill_id < 0 || skill_id >= MAX_SKILL )
+		return 0;
 
 	if(sd->status.skill[skill_id].id == skill_id)
 		return (sd->status.skill[skill_id].lv);
@@ -7068,7 +7071,7 @@ int duel_create(struct map_session_data* sd, const unsigned int maxpl)
 	int i=1;
 	char output[256];
 
-	while(duel_list[i].members_count > 0 && i < MAX_DUEL) i++;
+	while(i < MAX_DUEL && duel_list[i].members_count > 0) i++;
 	if(i == MAX_DUEL) return 0;
 
 	duel_count++;

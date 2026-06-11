@@ -72,7 +72,7 @@ static int guild_send_xy_timer(int tid,unsigned int tick,intptr_t id,intptr_t da
  // Modified [Komurka]
 int guild_skill_get_max (int id)
 {
-	if (id  < GD_SKILLBASE || id > GD_SKILLBASE+MAX_GUILDSKILL)
+	if (id  < GD_SKILLBASE || id >= GD_SKILLBASE+MAX_GUILDSKILL)
 		return 0;
 	return guild_skill_tree[id-GD_SKILLBASE].max;
 }
@@ -1874,7 +1874,7 @@ int guild_gvg_eliminate_timer(int tid,unsigned int tick,intptr_t id,intptr_t dat
 	// if this happens, it's ruined anyway
 	int c=0;
 
-	if(agit_flag)	// Agit not already End
+	if(agit_flag && len >= 5)	// Agit not already End (and evname must end in "Break")
 	{
 		char *evname=(char*)aMalloc( (len + 10) * sizeof(char));
 		memcpy(evname,name,len - 5);

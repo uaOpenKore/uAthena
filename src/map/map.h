@@ -646,8 +646,8 @@ struct map_session_data {
 	int reseff[SC_COMMON_MAX-SC_COMMON_MIN+1];
 	int weapon_coma_ele[ELE_MAX];
 	int weapon_coma_race[RC_MAX];
-	int weapon_atk[16];
-	int weapon_atk_rate[16];
+	int weapon_atk[23];	// 23 = MAX_WEAPON_TYPE (pc.h); was [16] -> OOB for W_KATAR..W_HUUMA
+	int weapon_atk_rate[23];	// 23 = MAX_WEAPON_TYPE (pc.h)
 	int arrow_addele[ELE_MAX];
 	int arrow_addrace[RC_MAX];
 	int arrow_addsize[3];
