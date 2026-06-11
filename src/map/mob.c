@@ -1300,7 +1300,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 static int mob_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 {
 	unsigned int tick;
-	tick=va_arg(ap,unsigned int);
+	tick=(unsigned int)va_arg(ap, intptr_t);
 	map_foreachinrange(mob_ai_sub_hard,&sd->bl, AREA_SIZE*2, BL_MOB,tick);
 
 	return 0;
@@ -1323,7 +1323,7 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 	if (battle_config.mob_ai&0x20 && map[md->bl.m].users>0)
 		return mob_ai_sub_hard(&md->bl, ap);
 
-	tick=va_arg(ap,unsigned int);
+	tick=(unsigned int)va_arg(ap, intptr_t);
 
 	if(DIFF_TICK(tick,md->last_thinktime)< 10*MIN_MOBTHINKTIME)
 		return 0;
