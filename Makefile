@@ -9,7 +9,10 @@ CC = gcc -pipe
 MAKE = make
 # MAKE = gmake
 
-OPT = -Os
+#OPT = -Os
+
+OPT = -O0
+
 # OPT = -O2
 # OPT = -O3
 # OPT += -g
@@ -40,10 +43,13 @@ OPT += -DPCRE_SUPPORT
 OPT += -I../common
 OPT += -I/usr/include
 OPT += -I/usr/include/mysql
+OPT += -I/usr/local/include
 
-LIBS += -L/usr/lib64
+
+LIBS += -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu
 LIBS += -L/usr/lib -L/usr/lib32 -L/usr/libx32
 LIBS += -lpcre
+LIBS += -L/usr/local/lib
 
 LIBS += -L/usr/lib64/mysql
 LIBS += -L/usr/lib/mysql 

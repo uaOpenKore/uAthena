@@ -37,7 +37,7 @@ apt -y install -t trixie-backports linux-image-amd64 linux-headers-amd64
 dpkg --add-architecture i386
 apt update
 
-apt -y install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev libmariadb-dev:i386 libmariadb-dev-compat:i386
+apt -y install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev libmariadb-dev:i386 libmariadb-dev-compat:i386 build-essential g++ ccache
 
 echo "deb http://deb.debian.org/debian bookworm main" > /etc/apt/sources.list.d/bookworm-compat.list
 apt update
@@ -62,9 +62,25 @@ git clone git@github.com:uaOpenKore/uGATs.git data
 cd ~
 git clone git@github.com:uaOpenKore/uAthena.git
 
-cd 
+cd ~/uAthena
 
-cd uAthena
+6.1
+~ make and install old PCRE
+
+cd ~/uAthena
+cd pcre-8.45
+CC=gcc CXX=g++ ./configure --prefix=/usr/local --enable-utf --enable-unicode-properties --enable-pcre16 --enable-pcre32
+make -j$(nproc)
+make install
+ldconfig
+cd /usr/local/lib
+ln -s libpcre.so.0 libpcre.so.1
+echo "/usr/local/lib" > /etc/ld.so.conf.d/local-libs.conf
+ldconfig
+
+6.2
+
+cd ~/uAthena
 make
 make install
 
