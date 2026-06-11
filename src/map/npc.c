@@ -1780,7 +1780,7 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 int npc_convertlabel_db(DBKey key, void* data, va_list ap)
 {
 	const char *lname = (const char*)key.str;
-	int pos = (int)(intptr_t)data;
+	intptr_t pos = (intptr_t)data;
 	struct npc_data *nd;
 	struct npc_label_list *lst;
 	int num;
@@ -1788,7 +1788,9 @@ int npc_convertlabel_db(DBKey key, void* data, va_list ap)
 	int len;
 
 	nullpo_retr(0, ap);
-	nullpo_retr(0, nd = va_arg(ap,struct npc_data *));
+	nd = va_arg(ap,struct npc_data *);
+	if (nd == NULL)
+		return 0;
 
 	lst = nd->u.scr.label_list;
 	num = nd->u.scr.label_list_num;
@@ -1811,7 +1813,7 @@ int npc_convertlabel_db(DBKey key, void* data, va_list ap)
 	}
 	memcpy(lst[num].name, lname, len);
 	lst[num].name[len]=0;
-	lst[num].pos = pos;
+	lst[num].pos = (int)pos;
 	nd->u.scr.label_list = lst;
 	nd->u.scr.label_list_num = num+1;
 
