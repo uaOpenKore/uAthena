@@ -41,6 +41,7 @@
 #define _DB_H_
 
 #include <stdarg.h>
+#include <stdint.h>
 
 /*****************************************************************************\
  *  (1) Section with public typedefs, enums, unions, structures and defines. *
