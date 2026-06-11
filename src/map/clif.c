@@ -204,7 +204,7 @@ int clif_foreachclient(int (*func)(struct map_session_data*, va_list),...) //rec
 		if ( session[i] && session[i]->func_parse == clif_parse) {
 			sd = (struct map_session_data*)session[i]->session_data;
 			if ( sd && sd->state.auth && !sd->state.waitingdisconnect )
-				func(sd, ap);
+			{ va_list _apc; va_copy(_apc, ap); func(sd, _apc); va_end(_apc); }
 		}
 	}
 

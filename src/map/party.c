@@ -874,7 +874,7 @@ int party_foreachsamemap(int (*func)(struct block_list*,va_list),struct map_sess
 	map_freeblock_lock();
 	
 	for(i=0;i<blockcount;i++)
-		total += func(list[i],ap);
+	{ va_list _apc; va_copy(_apc, ap); total += func(list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();
 
