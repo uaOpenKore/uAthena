@@ -74,7 +74,7 @@ int set_var(struct map_session_data *sd, char *name, void *val);
 intptr_t conv_num(struct script_state *st,struct script_data *data);
 const char* conv_str(struct script_state *st,struct script_data *data);
 
-int run_script_timer(int tid, unsigned int tick, int id, intptr_t data);
+int run_script_timer(int tid, unsigned int tick, intptr_t id, intptr_t data);
 void run_script_main(struct script_state *st);
 
 void script_stop_sleeptimers(int id);
