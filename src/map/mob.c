@@ -68,7 +68,7 @@ static struct {
  * Local prototype declaration   (only required thing)
  *------------------------------------------*/
 static int mob_makedummymobdb(int);
-static int mob_spawn_guardian_sub(int,unsigned int,int,int);
+static int mob_spawn_guardian_sub(int,unsigned int,intptr_t,intptr_t);
 int mobskill_use(struct mob_data *md,unsigned int tick,int event);
 int mob_skillid2skillidx(int class_,int skillid);
 
