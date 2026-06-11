@@ -593,7 +593,7 @@ int check_ttl_wisdata_sub(DBKey key, void *data, va_list ap)
 {
 	unsigned long tick;
 	struct WisData *wd = (struct WisData *)data;
-	tick = va_arg(ap, unsigned long);
+	tick = (unsigned long)va_arg(ap, intptr_t);
 
 	if (DIFF_TICK(tick, wd->tick) > WISDATA_TTL && wis_delnum < WISDELLIST_MAX)
 		wis_dellist[wis_delnum++] = wd->id;

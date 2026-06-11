@@ -48,8 +48,8 @@ int inter_guild_tosql(struct guild *g,int flag);
 
 static int guild_save(DBKey key, void *data, va_list ap) {
 	struct guild *g = (struct guild*) data;
-	int *last_id = va_arg(ap, int *);
-	int *state = va_arg(ap, int *);
+	int *last_id = (int *)va_arg(ap, intptr_t);
+	int *state = (int *)va_arg(ap, intptr_t);
 	
 	if ((*state) == 0 && g->guild_id == (*last_id))
 		(*state)++; //Save next guild in the list.

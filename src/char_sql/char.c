@@ -304,7 +304,7 @@ void set_char_offline(int char_id, int account_id)
 static int char_db_setoffline(DBKey key, void* data, va_list ap)
 {
 	struct online_char_data* character = (struct online_char_data*)data;
-	int server = va_arg(ap, int);
+	int server = (int)va_arg(ap, intptr_t);
 	if (server == -1) {
 		character->char_id = -1;
 		character->server = -1;
@@ -320,7 +320,7 @@ static int char_db_setoffline(DBKey key, void* data, va_list ap)
 static int char_db_kickoffline(DBKey key, void* data, va_list ap)
 {
 	struct online_char_data* character = (struct online_char_data*)data;
-	int server = va_arg(ap, int);
+	int server = (int)va_arg(ap, intptr_t);
 
 	if (server > -1 && character->server != server)
 		return 0;
@@ -3607,8 +3607,8 @@ int send_users_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data)
 static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
 {
 	struct online_char_data* character = (struct online_char_data*)data;
-	int *i = va_arg(ap, int*);
-	int count = va_arg(ap, int);
+	int *i = (int *)va_arg(ap, intptr_t);
+	int count = (int)va_arg(ap, intptr_t);
 	if ((*i) >= count)
 		return 0; //This is an error that shouldn't happen....
 	if(character->server > -1) {
