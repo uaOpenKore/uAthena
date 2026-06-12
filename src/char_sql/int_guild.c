@@ -54,10 +54,12 @@ static int guild_save(DBKey key, void *data, va_list ap) {
 	if ((*state) == 0 && g->guild_id == (*last_id))
 		(*state)++; //Save next guild in the list.
 	else if (g->save_flag&GS_MASK && (*state) == 1) {
-	   inter_guild_tosql(g, g->save_flag&GS_MASK);
-		g->save_flag &= ~GS_MASK;
+		//Clear the dirty bits only if the save fully succeeded; on a DB error
+		//keep them set so the guild is retried next cycle (no silent data loss).
+		if (inter_guild_tosql(g, g->save_flag&GS_MASK))
+			g->save_flag &= ~GS_MASK;
 
-		//Some guild saved.
+		//Some guild saved (or attempted).
 		(*last_id) = g->guild_id;
 		(*state)++;
 	}
@@ -133,6 +135,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 	char emblem_data[sizeof(g->emblem_data)*2+1]; //2 hex chars per emblem byte + NUL (g->emblem_data is 2048 -> 4097)
 	char new_guild = 0;
 	int i=0, sql_index;
+	int errors = 0; //count failed queries; the guild stays dirty for retry if any fail
 
 	if (g->guild_id<=0 && g->guild_id != -1) return 0;
 
@@ -241,6 +244,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 		{
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		}
 	}
 
@@ -256,6 +260,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				continue;
 #endif
 			if(m->account_id) {
+				int member_ok = 1;
 				//Since nothing references guild member table as foreign keys, it's safe to use REPLACE INTO
 				sprintf(tmp_sql,"REPLACE INTO `%s` (`guild_id`,`account_id`,`char_id`,`hair`,`hair_color`,`gender`,`class`,`lv`,`exp`,`exp_payper`,`online`,`position`,`name`) "
 					"VALUES ('%d','%d','%d','%d','%d','%d','%d','%d','%u','%d','%d','%d','%s')",
@@ -267,6 +272,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				{
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+					errors++; member_ok = 0;
 				}
 				if (m->modified & GS_MEMBER_NEW)
 				{
@@ -276,9 +282,11 @@ int inter_guild_tosql(struct guild *g,int flag)
 					{
 						ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 						ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+						errors++; member_ok = 0;
 					}
 				}
-				m->modified = GS_MEMBER_UNMODIFIED;
+				if (member_ok) //only mark the member saved if its queries succeeded
+					m->modified = GS_MEMBER_UNMODIFIED;
 			}
 		}
 	}
@@ -298,8 +306,10 @@ int inter_guild_tosql(struct guild *g,int flag)
 			if(mysql_query(&mysql_handle, tmp_sql) ) {
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				errors++;
 			}
-			p->modified = GS_POSITION_UNMODIFIED;
+			else
+				p->modified = GS_POSITION_UNMODIFIED;
 		}
 	}
 
@@ -315,6 +325,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 		{
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		}
 		else
 		{
@@ -332,6 +343,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 					{
 						ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 						ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+						errors++;
 					}
 				}
 			}
@@ -352,6 +364,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				if(mysql_query(&mysql_handle, tmp_sql) ) {
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+					errors++;
 				}
 			}
 		}
@@ -368,6 +381,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				if(mysql_query(&mysql_handle, tmp_sql) ) {
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+					errors++;
 				}
 			}
 		}
@@ -375,7 +389,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 
 	if (save_log)
 		ShowInfo("Saved guild (%d - %s):%s\n",g->guild_id,g->name,t_info);
-	return 1;
+	return errors == 0; //1 only if every query succeeded; else caller keeps it dirty for retry
 }
 #ifndef TXT_SQL_CONVERT
 // Read guild from sql

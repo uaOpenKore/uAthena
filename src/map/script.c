@@ -3384,11 +3384,13 @@ static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
 #else
 	int num=key.i&0x00ffffff, i=key.i>>24; // [zBuffer]
 	char *name=str_buf+str_data[num].str;
+	int *errors = va_arg(ap, int *);
 	if ( name[1] != '@') {
 		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%d' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,(int)data,mapregsql_db_varname,name,mapregsql_db_index,i);
 		if(mysql_query(&mmysql_handle, tmp_sql) ) {
 			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			(*errors)++;
 		}
 	}
 	return 0;
@@ -3411,11 +3413,13 @@ static int script_save_mapreg_strsub(DBKey key,void *data,va_list ap)
 	char tmp_str2[512];
 	int num=key.i&0x00ffffff, i=key.i>>24;
 	char *name=str_buf+str_data[num].str;
+	int *errors = va_arg(ap, int *);
 	if ( name[1] != '@') {
 		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%s' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,jstrescapecpy(tmp_str2,(char *)data),mapregsql_db_varname,name,mapregsql_db_index,i);
 		if(mysql_query(&mmysql_handle, tmp_sql) ) {
 			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			(*errors)++;
 		}
 	}
 	return 0;
@@ -3423,6 +3427,7 @@ static int script_save_mapreg_strsub(DBKey key,void *data,va_list ap)
 }
 static int script_save_mapreg(void)
 {
+	int errors = 0; //any failed UPDATE keeps mapreg_dirty set so the save is retried
 #if defined(TXT_ONLY) || !defined(MAPREGSQL)
 	FILE *fp;
 	int lock;
@@ -3436,13 +3441,14 @@ static int script_save_mapreg(void)
 	lock_fclose(fp,mapreg_txt,&lock);
 #else
 	unsigned int perfomance = (unsigned int)time(NULL);
-	mapreg_db->foreach(mapreg_db,script_save_mapreg_intsub);  // [zBuffer]
-	mapregstr_db->foreach(mapregstr_db,script_save_mapreg_strsub);
+	mapreg_db->foreach(mapreg_db,script_save_mapreg_intsub, &errors);  // [zBuffer]
+	mapregstr_db->foreach(mapregstr_db,script_save_mapreg_strsub, &errors);
 	perfomance = ((unsigned int)time(NULL) - perfomance);
 	if(perfomance > 2)
 		ShowWarning("Slow Query: MapregSQL Saving @ %d second(s).\n", perfomance);
 #endif
-	mapreg_dirty=0;
+	if (errors == 0) //only mark clean if every row saved; else retry next autosave
+		mapreg_dirty=0;
 	return 0;
 }
 static int script_autosave_mapreg(int tid,unsigned int tick,intptr_t id,intptr_t data)
