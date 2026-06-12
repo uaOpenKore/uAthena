@@ -1186,10 +1186,6 @@ int status_base_amotion_pc(struct map_session_data* sd, struct status_data* stat
 	// raw delay adjustment from bAspd bonus
 	amotion+= sd->aspd_add;
 
-	ShowInfo("ASPD: class=%d weapon=%d wt1=%d wt2=%d agi=%d dex=%d aspd_add=%d result=%d max_aspd=%d\n",
-		sd->status.class_, sd->status.weapon, sd->weapontype1, sd->weapontype2,
-		status->agi, status->dex, sd->aspd_add, amotion, battle_config.max_aspd);
-
 	return amotion;
 }
 
@@ -2331,10 +2327,8 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		clif_updatestatus(sd,SP_HIT);
 	if(b_status.flee != status->flee)
 		clif_updatestatus(sd,SP_FLEE1);
-	if(b_status.amotion != status->amotion) {
-		ShowInfo("ASPD_SEND: old=%d new=%d\n", b_status.amotion, status->amotion);
+	if(b_status.amotion != status->amotion)
 		clif_updatestatus(sd,SP_ASPD);
-	}
 	if(b_status.rhw.atk != status->rhw.atk ||
 		b_status.lhw->atk != status->lhw->atk ||
 		b_status.batk != status->batk)
