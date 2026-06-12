@@ -1686,7 +1686,12 @@ int mapif_parse_GuildMemberInfoChange(int fd,int guild_id,int account_id,int cha
 	{
 		case GMI_POSITION:
 		  {
-			g->member[i].position=*((int *)data);
+			int pos = *((int *)data);
+			//Untrusted (client-controlled): a bad position is later used as a
+			//g->position[] subscript on the map side -> reject out-of-range.
+			if( pos < 0 || pos >= MAX_GUILDPOSITION )
+				break;
+			g->member[i].position=pos;
 			g->member[i].modified = GS_MEMBER_MODIFIED;
 			mapif_guild_memberinfochanged(guild_id,account_id,char_id,type,data,len);
 			g->save_flag |= GS_MEMBER;

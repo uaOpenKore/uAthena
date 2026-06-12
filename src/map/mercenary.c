@@ -168,6 +168,8 @@ int merc_hom_checkskill(struct homun_data *hd,int skill_id)
 	int i = skill_id - HM_SKILLBASE - 1;
 	if(!hd)
 		return 0;
+	if( i < 0 || i >= MAX_HOMUNSKILL ) //defense-in-depth: don't index hskill[] out of range
+		return 0;
 
 	if(hd->homunculus.hskill[i].id == skill_id)
 		return (hd->homunculus.hskill[i].lv);
@@ -193,6 +195,8 @@ void merc_hom_skillup(struct homun_data *hd,int skillnum)
 		return;
 
 	i = skillnum - HM_SKILLBASE - 1;
+	if( i < 0 || i >= MAX_HOMUNSKILL ) //crafted skillup packet: skillnum outside the homun range -> OOB
+		return;
 	if(hd->homunculus.skillpts > 0 &&
 		hd->homunculus.hskill[i].id &&
 		hd->homunculus.hskill[i].flag == 0 && //Don't allow raising while you have granted skills. [Skotlex]
