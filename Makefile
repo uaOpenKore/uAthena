@@ -10,10 +10,10 @@ MAKE = make
 # MAKE = gmake
 
 ### Dev & Test server
-OPT = -O0 -g3 
+# OPT = -O0 -g3 
 
 ### Production server 
-# OPT = -g -O2  -fno-strict-aliasing вместо
+ OPT = -g -O2  -fno-strict-aliasing вместо
 
 
 # OPT += -march=generic -mtune=generic
