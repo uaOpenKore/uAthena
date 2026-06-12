@@ -21,6 +21,8 @@ Group=root
 
 OOMScoreAdjust=-500
 
+LimitNOFILE=65536
+
 ExecStart=/opt/uathena/bin/ua-start.sh login sql
 ExecStop=/opt/uathena/bin/ua-stop.sh login
 ExecReload=/opt/uathena/bin/ua-restart.sh login sql

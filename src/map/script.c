@@ -3286,42 +3286,6 @@ int mapreg_setregstr(int num,const char *str)
  *------------------------------------------*/
 static int script_load_mapreg(void)
 {
-#if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp;
-	char line[1024];
-
-	if( (fp=fopen(mapreg_txt,"rt"))==NULL )
-		return -1;
-
-	while(fgets(line,sizeof(line),fp))
-	{
-		char buf1[256],buf2[1024],*p;
-		int n,v,s,i;
-		if( sscanf(line,"%255[^,],%d\t%n",buf1,&i,&n)!=2 &&
-			(i=0,sscanf(line,"%[^\t]\t%n",buf1,&n)!=1) )
-			continue;
-		if( buf1[strlen(buf1)-1]=='$' ){
-			if( sscanf(line+n,"%[^\n\r]",buf2)!=1 ){
-				ShowError("%s: %s broken data !\n",mapreg_txt,buf1);
-				continue;
-			}
-			p=(char *)aMallocA((strlen(buf2) + 1)*sizeof(char));
-			strcpy(p,buf2);
-			s= add_str(buf1);
-			idb_put(mapregstr_db,(i<<24)|s,p);
-		}else{
-			if( sscanf(line+n,"%d",&v)!=1 ){
-				ShowError("%s: %s broken data !\n",mapreg_txt,buf1);
-				continue;
-			}
-			s= add_str(buf1);
-			idb_put(mapreg_db,(i<<24)|s,(void*)v);
-		}
-	}
-	fclose(fp);
-	mapreg_dirty=0;
-	return 0;
-#else
 	// SQL mapreg code start [zBuffer]
 	/*
 	     0       1       2
@@ -3364,25 +3328,12 @@ static int script_load_mapreg(void)
 	perfomance = (((unsigned int)time(NULL)) - perfomance);
 	ShowInfo("SQL Mapreg Loading Completed Under %d Seconds.\n",perfomance);
 	return 0;
-#endif /* TXT_ONLY */
 }
 /*==========================================
  * iI}bv
  *------------------------------------------*/
 static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
 {
-#if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp=(FILE*)va_arg(ap, intptr_t);
-	int num=key.i&0x00ffffff, i=key.i>>24;
-	char *name=str_buf+str_data[num].str;
-	if( name[1]!='@' ){
-		if(i==0)
-			fprintf(fp,"%s\t%d\n", name, (int)data);
-		else
-			fprintf(fp,"%s,%d\t%d\n", name, i, (int)data);
-	}
-	return 0;
-#else
 	int num=key.i&0x00ffffff, i=key.i>>24; // [zBuffer]
 	char *name=str_buf+str_data[num].str;
 	int *errors = va_arg(ap, int *);
@@ -3395,22 +3346,9 @@ static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
 		}
 	}
 	return 0;
-#endif
 }
 static int script_save_mapreg_strsub(DBKey key,void *data,va_list ap)
 {
-#if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp=(FILE*)va_arg(ap, intptr_t);
-	int num=key.i&0x00ffffff, i=key.i>>24;
-	char *name=str_buf+str_data[num].str;
-	if( name[1]!='@' ){
-		if(i==0)
-			fprintf(fp,"%s\t%s\n", name, (char *)data);
-		else
-			fprintf(fp,"%s,%d\t%s\n", name, i, (char *)data);
-	}
-	return 0;
-#else
 	char tmp_str2[512];
 	int num=key.i&0x00ffffff, i=key.i>>24;
 	char *name=str_buf+str_data[num].str;
@@ -3424,30 +3362,16 @@ static int script_save_mapreg_strsub(DBKey key,void *data,va_list ap)
 		}
 	}
 	return 0;
-#endif
 }
 static int script_save_mapreg(void)
 {
 	int errors = 0; //any failed UPDATE keeps mapreg_dirty set so the save is retried
-#if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp;
-	int lock;
-
-	if( (fp=lock_fopen(mapreg_txt,&lock))==NULL ) {
-		ShowError("script_save_mapreg: Unable to lock-open file [%s]\n",mapreg_txt);
-		return -1;
-	}
-	mapreg_db->foreach(mapreg_db,script_save_mapreg_intsub,fp);
-	mapregstr_db->foreach(mapregstr_db,script_save_mapreg_strsub,fp);
-	lock_fclose(fp,mapreg_txt,&lock);
-#else
 	unsigned int perfomance = (unsigned int)time(NULL);
 	mapreg_db->foreach(mapreg_db,script_save_mapreg_intsub, &errors);  // [zBuffer]
 	mapregstr_db->foreach(mapregstr_db,script_save_mapreg_strsub, &errors);
 	perfomance = ((unsigned int)time(NULL) - perfomance);
 	if(perfomance > 2)
 		ShowWarning("Slow Query: MapregSQL Saving @ %d second(s).\n", perfomance);
-#endif
 	if (errors == 0) //only mark clean if every row saved; else retry next autosave
 		mapreg_dirty=0;
 	return 0;
@@ -11942,7 +11866,6 @@ BUILDIN_FUNC(setd)
 
 BUILDIN_FUNC(query_sql)
 {
-#ifndef TXT_ONLY
 	char *name = NULL;
 	const char *query;
 	int num, i = 0,j, nb_rows;
@@ -12013,10 +11936,6 @@ BUILDIN_FUNC(query_sql)
 		mysql_free_result(sql_res);
 	}
 	script_pushint(st,i);
-#else
-	//for TXT version, we always return -1
-	script_pushint(st,-1);
-#endif
 	return 0;
 }
 
