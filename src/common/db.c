@@ -104,7 +104,7 @@
  * @private
  * @see DB_impl#ht
  */
-#define HASH_SIZE (256+27)
+#define HASH_SIZE 16381 // prime; all DBs are boot-time singletons (~24/process), so the cost is ~2.5MB total
 
 /**
  * A node in a RED-BLACK tree of the database.
@@ -1764,7 +1764,7 @@ static int db_obj_vdestroy(DB self, DBApply func, va_list args)
 	if (db->free_lock)
 		ShowWarning("db_vdestroy: Database is still in use, %u lock(s) left. Continuing database destruction.\n"
 				"Database allocated at %s:%d\n",
-				db->alloc_file, db->alloc_line, db->free_lock);
+				db->free_lock, db->alloc_file, db->alloc_line);
 
 #ifdef DB_ENABLE_STATS
 	switch (db->type) {
