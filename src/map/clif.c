@@ -9094,6 +9094,8 @@ void clif_parse_UnequipItem(int fd,struct map_session_data *sd)
 		return;
 
 	index = RFIFOW(fd,2)-2;
+	if (index < 0 || index >= MAX_INVENTORY) //prevent out-of-bounds access from a crafted packet
+		return;
 
 	pc_unequipitem(sd,index,1);
 }
@@ -9199,6 +9201,9 @@ void clif_parse_CreateChatRoom(int fd, struct map_session_data* sd)
 	char s_title[CHATROOM_TITLE_SIZE];
 	char s_password[CHATROOM_PASS_SIZE];
 
+	if (len < 0)
+		return; //packet shorter than the 15-byte header: title length would underflow into safestrncpy
+
 	if (sd->sc.data[SC_NOCHAT].timer!=-1 && sd->sc.data[SC_NOCHAT].val1&MANNER_NOROOM)
 		return;
 	if(battle_config.basic_skill_check && pc_checkskill(sd,NV_BASIC) < 4) {
@@ -9233,6 +9238,10 @@ void clif_parse_ChatRoomStatusChange(int fd, struct map_session_data* sd)
 
 	char s_title[CHATROOM_TITLE_SIZE];
 	char s_password[CHATROOM_PASS_SIZE];
+
+	if (len < 0)
+		return; //packet shorter than the 15-byte header: title length would underflow into safestrncpy
+
 	safestrncpy(s_title, title, min(len+1,CHATROOM_TITLE_SIZE));
 	safestrncpy(s_password, password, CHATROOM_PASS_SIZE);
 

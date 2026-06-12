@@ -9296,7 +9296,7 @@ int atcommand_me(const int fd, struct map_session_data* sd, const char* command,
 	}
 	
 	sscanf(message, "%199[^\n]", tempmes);
-	sprintf(atcmd_output, msg_txt(270), sd->status.name, tempmes);
+	snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(270), sd->status.name, tempmes);
 	     clif_disp_overhead(sd, atcmd_output);
     
 	return 0;
@@ -9709,7 +9709,7 @@ int atcommand_main(const int fd, struct map_session_data* sd, const char* comman
 				clif_displaymessage(fd, msg_txt(387));
 				return -1;
 			}
-			sprintf(atcmd_output, msg_txt(386), sd->status.name, message);
+			snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(386), sd->status.name, message);
 			// I use 0xFE000000 color for signalizing that this message is
 			// main chat message. 0xFE000000 is invalid color, same using
 			// 0xFF000000 for simple (not colored) GM messages. [LuzZza]

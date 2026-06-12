@@ -6437,6 +6437,9 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 	int i;
 	nullpo_retr(0, sd);
 
+	if (n < 0 || n >= MAX_INVENTORY) //guard all callers, not just the packet handler
+		return 0;
+
 // -- moonsoul	(if player is berserk then cannot unequip)
 //
 	if(!(flag&2) && sd->sc.count && (sd->sc.data[SC_BLADESTOP].timer!=-1 || sd->sc.data[SC_BERSERK].timer!=-1)){
