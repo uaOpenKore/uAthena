@@ -10,8 +10,10 @@ ReloadPropagatedFrom=uAthena.target
 Type=simple
 PIDFile=/opt/uathena/bin/PID-map.pid
 WorkingDirectory=/opt/uathena/bin/
-StandardOutput=/opt/uathena/log/uAmap.log
-StandardError=/opt/uathena/log/uAmap.log
+# append: (not a bare path or file:) so the console log PERSISTS across restarts
+# and crashes instead of being truncated/sent to the journal.
+StandardOutput=append:/opt/uathena/log/uAmap.log
+StandardError=append:/opt/uathena/log/uAmap.log
 
 
 User=root
