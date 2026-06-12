@@ -391,6 +391,8 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 		for (e = pcreset->head; e != NULL; e = e->next)
 		{
 	#ifdef USE_PCRE2
+			if (!e->code || !e->md)
+				continue;
 			int rc = pcre2_match(e->code, (PCRE2_SPTR)msg, len, 0, 0, e->md, NULL);
 			if (rc > 0)
 			{
@@ -402,6 +404,8 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 					set_var(sd, var, val);
 				}
 #else
+			if (!e->pcre)
+				continue;
 			int offsets[2*10 + 10]; // 1/3 reserved for temp space requred by pcre_exec
 
 			// perform pattern match
