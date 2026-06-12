@@ -12,7 +12,11 @@
 #include "map.h" // struct mob_data, struct npc_data
 #include "script.h" // set_var()
 
+#ifdef USE_PCRE2
+#include <pcre2.h>
+#else
 #include "pcre.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,8 +75,13 @@
 struct pcrematch_entry {
 	struct pcrematch_entry* next;
 	char* pattern;
+#ifdef USE_PCRE2
+	pcre2_code *code;
+	pcre2_match_data *md;
+#else
 	pcre* pcre;
 	pcre_extra* pcre_extra;
+#endif
 	char* label;
 };
 
@@ -106,8 +115,13 @@ struct npc_parse {
  */
 void finalize_pcrematch_entry(struct pcrematch_entry* e)
 {
+#ifdef USE_PCRE2
+	if (e->code) pcre2_code_free(e->code);
+	if (e->md) pcre2_match_data_free(e->md);
+#else
 	pcre_free(e->pcre);
 	pcre_free(e->pcre_extra);
+#endif
 	aFree(e->pattern);
 	aFree(e->label);
 }
@@ -307,15 +321,23 @@ static struct pcrematch_entry* create_pcrematch_entry(struct pcrematch_set* set)
  */
 void npc_chat_def_pattern(struct npc_data* nd, int setid, const char* pattern, const char* label)
 {
-	const char *err;
-	int erroff;
-
 	struct pcrematch_set * s = lookup_pcreset(nd, setid);
 	struct pcrematch_entry *e = create_pcrematch_entry(s);
 	e->pattern = aStrdup(pattern);
 	e->label = aStrdup(label);
+#ifdef USE_PCRE2
+	int errcode;
+	PCRE2_SIZE erroff;
+	e->code = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED,
+		PCRE2_CASELESS, &errcode, &erroff, NULL);
+	if (e->code)
+		e->md = pcre2_match_data_create_from_pattern(e->code, NULL);
+#else
+	const char *err;
+	int erroff;
 	e->pcre = pcre_compile(pattern, PCRE_CASELESS, &err, &erroff, NULL);
 	e->pcre_extra = pcre_study(e->pcre, 0, &err);
+#endif
 }
 
 /**
@@ -368,6 +390,18 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 		// interate across all patterns in that set
 		for (e = pcreset->head; e != NULL; e = e->next)
 		{
+	#ifdef USE_PCRE2
+			int rc = pcre2_match(e->code, (PCRE2_SPTR)msg, len, 0, 0, e->md, NULL);
+			if (rc > 0)
+			{
+				for (i = 0; i < rc; i++)
+				{
+					char var[6], val[255];
+					snprintf(var, sizeof(var), "$@p%i$", i);
+					pcre2_substring_copy_bynumber(e->md, i, (PCRE2_UCHAR *)val, sizeof(val));
+					set_var(sd, var, val);
+				}
+#else
 			int offsets[2*10 + 10]; // 1/3 reserved for temp space requred by pcre_exec
 
 			// perform pattern match
@@ -382,6 +416,7 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 					pcre_copy_substring(msg, offsets, r, i, val, sizeof(val));
 					set_var(sd, var, val);
 				}
+#endif
 
 				// find the target label.. this sucks..
 				lst = nd->u.scr.label_list;

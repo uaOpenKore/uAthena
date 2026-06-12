@@ -40,6 +40,16 @@ OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno
 
 OPT += -DPCRE_SUPPORT
 
+# Auto-detect PCRE2, fall back to PCRE8
+PCRE2_CONFIG = $(shell which pcre2-config 2>/dev/null)
+ifneq ($(PCRE2_CONFIG),)
+  OPT += -DUSE_PCRE2
+  LIBS += $(shell pcre2-config --libs-8)
+  CFLAGS += $(shell pcre2-config --cflags)
+else
+  LIBS += -lpcre
+endif
+
 OPT += -I../common
 OPT += -I/usr/include
 OPT += -I/usr/include/mysql
@@ -48,7 +58,6 @@ OPT += -I/usr/local/include
 
 LIBS += -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu
 LIBS += -L/usr/lib -L/usr/lib32 -L/usr/libx32
-LIBS += -lpcre
 LIBS += -L/usr/local/lib
 
 LIBS += -L/usr/lib64/mysql
