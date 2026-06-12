@@ -310,14 +310,14 @@ static void ers_obj_destroy(ERS self)
 		}
 	}
 	if (count) { // missing entries
-		ShowWarning("ers::destroy : %u entries missing (possible double free), continuing destruction (entry size=%u).",
+		ShowWarning("ers::destroy : %u entries missing (possible double free), continuing destruction (entry size=%zu).",
 				count, obj->size);
 	} else if (reuse) { // extra entries
 		while (reuse && count != UINT32_MAX) {
 			count++;
 			reuse = reuse->next;
 		}
-		ShowWarning("ers::destroy : %u extra entries found, continuing destruction (entry size=%u).",
+		ShowWarning("ers::destroy : %u extra entries found, continuing destruction (entry size=%zu).",
 				count, obj->size);
 	}
 	// destroy the entry manager
@@ -461,7 +461,7 @@ void ers_report(void)
 		// Entry manager report
 		ShowMessage(CL_BOLD"[Entry manager #%u report]\n"CL_NORMAL, i);
 		ShowMessage("\tinstances          : %u\n", obj->destroy);
-		ShowMessage("\tentry size         : %u\n", obj->size);
+		ShowMessage("\tentry size         : %zu\n", obj->size);
 		ShowMessage("\tblock array size   : %u\n", obj->max);
 		ShowMessage("\tallocated blocks   : %u\n", obj->num);
 		ShowMessage("\tentries being used : %u\n", used);
