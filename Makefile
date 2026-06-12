@@ -40,15 +40,9 @@ OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno
 
 OPT += -DPCRE_SUPPORT
 
-# Auto-detect PCRE2, fall back to PCRE8
-PCRE2_CONFIG = $(shell which pcre2-config 2>/dev/null)
-ifneq ($(PCRE2_CONFIG),)
-  OPT += -DUSE_PCRE2
-  LIBS += $(shell pcre2-config --libs-8)
-  CFLAGS += $(shell pcre2-config --cflags)
-else
-  LIBS += -lpcre
-endif
+# PCRE2
+LIBS += $(shell pcre2-config --libs-8)
+CFLAGS += $(shell pcre2-config --cflags)
 
 OPT += -I../common
 OPT += -I/usr/include
