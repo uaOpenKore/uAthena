@@ -208,7 +208,9 @@ ZoDIaC ( ZoDIaC )
 
 ### 5.2.1. UaRO Team
 
-Serhii Pechenin (moeng/Sergio/pixel/fbsd61)  
+Serhii Pechenin (moeng/Sergio/pixel/fbsd61) 
+
 Vitaly Yuzvishen (kwebmn)
+
 Plague-UA
 
