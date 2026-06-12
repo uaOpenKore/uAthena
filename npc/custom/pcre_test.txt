@@ -1,0 +1,9 @@
+morocc,160,267,4	script	PCRE Test	763,{
+OnInit:
+	defpattern 1, "Hi", "OnHi";
+	activatepset 1;
+	end;
+OnHi:
+	message strcharinfo(0), "Hello!";
+	end;
+}
