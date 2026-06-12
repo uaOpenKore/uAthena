@@ -14,6 +14,11 @@
 
 #include <time.h>
 
+// Maximum socket fd the server can hold. Replaces the old FD_SETSIZE (1024)
+// ceiling that select() imposed; with epoll the limit is just this array size
+// (and the OS open-file limit, which socket_init raises via setrlimit).
+#define SOCKET_MAX 32768
+
 
 // socket I/O macros
 #define RFIFOHEAD(fd)
@@ -75,12 +80,13 @@ struct socket_data {
 	RecvFunc func_recv;
 	SendFunc func_send;
 	ParseFunc func_parse;
+	unsigned char in_shortlist; // already queued in the send shortlist (dedup)
 };
 
 
 // Data prototype declaration
 
-extern struct socket_data* session[FD_SETSIZE];
+extern struct socket_data* session[SOCKET_MAX];
 
 extern int fd_max;
 

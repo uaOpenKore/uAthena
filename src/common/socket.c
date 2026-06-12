@@ -24,6 +24,8 @@
 #include <sys/ioctl.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <sys/epoll.h>
+#include <sys/resource.h>
 
 #ifndef SIOCGIFCONF
 #include <sys/sockio.h> // SIOCGIFCONF on Solaris, maybe others? [Shinomori]
@@ -39,7 +41,10 @@
 #define S_EWOULDBLOCK EAGAIN
 #define S_ECONNABORTED ECONNABORTED
 
-fd_set readfds;
+// epoll: replaces the select() readable-fd set. epoll_fd is the epoll instance;
+// epoll_events is filled by epoll_wait with the ready sockets each tick.
+static int epoll_fd = -1;
+static struct epoll_event* epoll_events = NULL;
 int fd_max;
 time_t last_tick;
 time_t stall_time = 60;
@@ -55,13 +60,34 @@ int naddr_ = 0;   // # of ip addresses
 size_t rfifo_size = (16*1024);
 size_t wfifo_size = (16*1024);
 
-struct socket_data* session[FD_SETSIZE];
+struct socket_data* session[SOCKET_MAX];
 
 #ifdef SEND_SHORTLIST
-int send_shortlist_array[FD_SETSIZE];// we only support FD_SETSIZE sockets, limit the array to that
+int send_shortlist_array[SOCKET_MAX];// fd's that have data to send / need eof handling
 int send_shortlist_count = 0;// how many fd's are in the shortlist
-fd_set send_shortlist_fd_set;// to know if specific fd's are already in the shortlist
+// dedup is tracked per-session via session[fd]->in_shortlist (an fd_set would
+// have re-imposed the FD_SETSIZE ceiling we are removing).
 #endif
+
+/// Registers fd with the epoll instance for read readiness (level-triggered,
+/// matching the old select() semantics — the fifo recv reads what it can each
+/// tick and gets re-notified while data remains).
+static void epoll_add(int fd)
+{
+	struct epoll_event ev;
+	memset(&ev, 0, sizeof(ev));
+	ev.events = EPOLLIN;
+	ev.data.fd = fd;
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &ev) != 0)
+		ShowError("epoll_add: EPOLL_CTL_ADD failed for fd %d (code %d)\n", fd, errno);
+}
+
+/// Removes fd from the epoll instance (closing the fd also removes it, so a
+/// missing entry here is not an error).
+static void epoll_del(int fd)
+{
+	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+}
 
 int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse);
 
@@ -150,7 +176,7 @@ int recv_to_fifo(int fd)
 	if (len == SOCKET_ERROR) {
 		if (s_errno == S_ECONNABORTED) {
 			ShowWarning("recv_to_fifo: Software caused connection abort on session #%d\n", fd);
-			FD_CLR(fd, &readfds); //Remove the socket so the select() won't hang on it.
+			epoll_del(fd); //Stop polling this dead socket until it's closed.
 		}
 		if (s_errno != S_EWOULDBLOCK) {
 			//ShowDebug("recv_to_fifo: error %d, ending connection #%d\n", s_errno, fd);
@@ -184,7 +210,7 @@ int send_from_fifo(int fd)
 	if (len == SOCKET_ERROR) {
 		if (s_errno == S_ECONNABORTED) {
 			ShowWarning("send_from_fifo: Software caused connection abort on session #%d\n", fd);
-			FD_CLR(fd, &readfds); //Remove the socket so the select() won't hang on it.
+			epoll_del(fd); //Stop polling this dead socket until it's closed.
 		}
 		if (s_errno != S_EWOULDBLOCK) {
 			//ShowDebug("send_from_fifo: error %d, ending connection #%d\n", s_errno, fd);
@@ -236,8 +262,8 @@ int connect_client(int listen_fd)
 		return -1;
 	}
 
-	if ( fd >= FD_SETSIZE ) { //Not enough capacity for this socket
-		ShowError("connect_client: New socket #%d is greater than can we handle! Increase the value of FD_SETSIZE (currently %d) for your OS to fix this!\n", fd, FD_SETSIZE);
+	if ( fd >= SOCKET_MAX ) { //Not enough capacity for this socket
+		ShowError("connect_client: New socket #%d exceeds SOCKET_MAX (%d)!\n", fd, SOCKET_MAX);
 		closesocket(fd);
 		return -1;
 	}
@@ -253,7 +279,7 @@ int connect_client(int listen_fd)
 #endif
 
 	if( fd_max <= fd ) fd_max = fd + 1;
-	FD_SET(fd,&readfds);
+	epoll_add(fd);
 
 	create_session(fd, recv_to_fifo, send_from_fifo, default_func_parse);
 	session[fd]->client_addr = ntohl(client_address.sin_addr.s_addr);
@@ -275,8 +301,8 @@ int make_listen_bind(uint32 ip, uint16 port)
 		exit(1);
 	}
 
-	if ( fd >= FD_SETSIZE ) { //Not enough capacity for this socket
-		ShowError("make_listen_bind: New socket #%d is greater than can we handle! Increase the value of FD_SETSIZE (currently %d) for your OS to fix this!\n", fd, FD_SETSIZE);
+	if ( fd >= SOCKET_MAX ) { //Not enough capacity for this socket
+		ShowError("make_listen_bind: New socket #%d exceeds SOCKET_MAX (%d)!\n", fd, SOCKET_MAX);
 		closesocket(fd);
 		return -1;
 	}
@@ -298,14 +324,14 @@ int make_listen_bind(uint32 ip, uint16 port)
 		ShowError("listen failed (socket %d, code %d)!\n", fd, s_errno);
 		exit(1);
 	}
-	if ( fd < 0 || fd > FD_SETSIZE )
+	if ( fd < 0 || fd > SOCKET_MAX )
 	{ //Crazy error that can happen in Windows? (info from Freya)
 		ShowFatalError("listen() returned invalid fd %d!\n",fd);
 		exit(1);
 	}
 
 	if(fd_max <= fd) fd_max = fd + 1;
-	FD_SET(fd, &readfds);
+	epoll_add(fd);
 
 	create_session(fd, connect_client, null_send, null_parse);
 
@@ -325,8 +351,8 @@ int make_connection(uint32 ip, uint16 port)
 		return -1;
 	}
 
-	if ( fd >= FD_SETSIZE ) { //Not enough capacity for this socket
-		ShowError("make_connection: New socket #%d is greater than can we handle! Increase the value of FD_SETSIZE (currently %d) for your OS to fix this!\n", fd, FD_SETSIZE);
+	if ( fd >= SOCKET_MAX ) { //Not enough capacity for this socket
+		ShowError("make_connection: New socket #%d exceeds SOCKET_MAX (%d)!\n", fd, SOCKET_MAX);
 		closesocket(fd);
 		return -1;
 	}
@@ -349,7 +375,7 @@ int make_connection(uint32 ip, uint16 port)
 	set_nonblocking(fd, 1);
 
 	if (fd_max <= fd) fd_max = fd + 1;
-	FD_SET(fd,&readfds);
+	epoll_add(fd);
 
 	create_session(fd, recv_to_fifo, send_from_fifo, default_func_parse);
 	session[fd]->rdata_tick = last_tick;
@@ -372,9 +398,9 @@ int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc fun
 
 int delete_session(int fd)
 {
-	if (fd <= 0 || fd >= FD_SETSIZE)
+	if (fd <= 0 || fd >= SOCKET_MAX)
 		return -1;
-	FD_CLR(fd, &readfds);
+	epoll_del(fd);
 	if (session[fd]) {
 		aFree(session[fd]->rdata);
 		aFree(session[fd]->wdata);
@@ -490,97 +516,37 @@ int WFIFOSET(int fd, int len)
 
 int do_sendrecv(int next)
 {
-	fd_set rfd;
-	struct sockaddr_in	addr_check;
-	struct timeval timeout;
-	int ret,i; socklen_t size;
+	int ret, n, i;
 
 	last_tick = time(0);
 
-	// PRESEND Timers are executed before do_sendrecv and can send packets
-	// and/or set sessions to eof. Send remaining data and handle eof sessions.
-#ifdef SEND_SHORTLIST
+	// PRESEND Timers run before do_sendrecv and can queue packets and/or set
+	// sessions to eof. Flush queued data and close eof sessions.
 	send_shortlist_do_sends();
-#else
-	for (i = 1; i < fd_max; i++)
+
+	// Wait for readable sockets (replaces select). next is the ms until the
+	// next timer; epoll_wait takes its timeout directly in milliseconds.
+	// Level-triggered: any ready fd not fully drained this tick is reported
+	// again next time, so a fifo recv that doesn't empty the socket is safe.
+	ret = epoll_wait(epoll_fd, epoll_events, SOCKET_MAX, next);
+	if( ret < 0 )
 	{
-		if(!session[i])
-			continue;
-
-		if(session[i]->wdata_size)
-			session[i]->func_send(i);
-	}
-#endif
-
-	// can timeout until the next tick
-	timeout.tv_sec  = next/1000;
-	timeout.tv_usec = next%1000*1000;
-
-	for(memcpy(&rfd, &readfds, sizeof(rfd));
-		(ret = select(fd_max, &rfd, NULL, NULL, &timeout))<0;
-		memcpy(&rfd, &readfds, sizeof(rfd)))
-	{
-		if(s_errno != S_ENOTSOCK)
-			return 0;
-
-		//Well then the error is due to a bad socket. Lets find and remove it
-		//and try again
-		for(i = 1; i < fd_max; i++)
-		{
-			if(!session[i])
-			{
-				if (FD_ISSET(i, &readfds)) {
-					ShowError("Deleting non-cleared session %d\n", i);
-					FD_CLR(i, &readfds);
-				}
-				continue;
-			}
-
-			//check the validity of the socket. Does what the last thing did
-			//just alot faster [Meruru]
-			size = sizeof(struct sockaddr);
-			if(getsockname(i,(struct sockaddr*)&addr_check,&size)<0)
-				if(s_errno == S_ENOTSOCK)
-				{
-					ShowError("Deleting invalid session %d\n", i);
-					//So the code can react accordingly
-					set_eof(i);
-					session[i]->func_parse(i);
-					delete_session(i); //free the bad session
-					continue;
-				}
-
-			if (!FD_ISSET(i, &readfds))
-				FD_SET(i,&readfds);
-			ret = i;
-		}
-		fd_max = ret;
+		if( s_errno != EINTR )
+			ShowError("do_sendrecv: epoll_wait failed (code %d)\n", s_errno);
+		ret = 0; // nothing to dispatch this round
 	}
 
-	for (i = 1; i < fd_max; i++)
+	for( n = 0; n < ret; ++n )
 	{
-		if(FD_ISSET(i,&rfd) && session[i])
+		i = epoll_events[n].data.fd;
+		// A closed fd is auto-removed from epoll, so session[i] is the guard.
+		// EPOLLHUP/EPOLLERR also land here; func_recv's recv() detects them.
+		if( session[i] )
 			session[i]->func_recv(i);
 	}
 
-	// POSTSEND Send remaining data and handle eof sessions.
-#ifdef SEND_SHORTLIST
+	// POSTSEND Flush queued data and close eof sessions.
 	send_shortlist_do_sends();
-#else
-	for (i = 1; i < fd_max; i++)
-	{
-		if(!session[i])
-			continue;
-
-		if(session[i]->wdata_size)
-			session[i]->func_send(i);
-
-		if(session[i]->eof) //func_send can't free a session, this is safe.
-		{	//Finally, even if there is no data to parse, connections signalled eof should be closed, so we call parse_func [Skotlex]
-			session[i]->func_parse(i); //This should close the session immediately.
-		}
-	}
-#endif
 
 	return 0;
 }
@@ -943,6 +909,11 @@ void socket_final(void)
 	aFree(session[0]->rdata);
 	aFree(session[0]->wdata);
 	aFree(session[0]);
+
+	if( epoll_events )
+		aFree(epoll_events);
+	if( epoll_fd != -1 )
+		close(epoll_fd);
 }
 
 /// Closes a socket.
@@ -1014,7 +985,30 @@ void socket_init(void)
 	// Get initial local ips
 	naddr_ = socket_getips(addr_,16);
 
-	FD_ZERO(&readfds);
+	// Raise the open-file limit so SOCKET_MAX sockets are actually usable
+	// (the OS default is often 1024 — the old select() ceiling).
+#ifdef HAVE_SETRLIMIT
+	{
+		struct rlimit rl;
+		if( getrlimit(RLIMIT_NOFILE, &rl) == 0 && rl.rlim_cur < (rlim_t)SOCKET_MAX )
+		{
+			rl.rlim_cur = (rlim_t)SOCKET_MAX;
+			if( rl.rlim_max < (rlim_t)SOCKET_MAX )
+				rl.rlim_max = (rlim_t)SOCKET_MAX;
+			if( setrlimit(RLIMIT_NOFILE, &rl) != 0 )
+				ShowWarning("socket_init: could not raise the open-file limit to %d; connections stay capped by the OS limit.\n", SOCKET_MAX);
+		}
+	}
+#endif
+
+	// Create the epoll instance and its event buffer (replaces the select fd_set).
+	epoll_fd = epoll_create1(0);
+	if( epoll_fd == -1 )
+	{
+		ShowFatalError("socket_init: epoll_create1 failed (code %d)!\n", errno);
+		exit(1);
+	}
+	CREATE(epoll_events, struct epoll_event, SOCKET_MAX);
 
 	socket_config_read(SOCKET_CONF_FILENAME);
 
@@ -1036,7 +1030,7 @@ void socket_init(void)
 
 int session_isValid(int fd)
 {
-	return ( (fd > 0) && (fd < FD_SETSIZE) && (session[fd] != NULL) );
+	return ( (fd > 0) && (fd < SOCKET_MAX) && (session[fd] != NULL) );
 }
 
 int session_isActive(int fd)
@@ -1078,11 +1072,12 @@ uint16 ntows(uint16 netshort)
 // sending or eof handling.
 void send_shortlist_add_fd(int fd)
 {
-	if( FD_ISSET(fd, &send_shortlist_fd_set) )
+	if( !session_isValid(fd) )
+		return;
+	if( session[fd]->in_shortlist )
 		return;// Refuse to add duplicate FDs to the shortlist
 
-	FD_SET(fd, &send_shortlist_fd_set);
-
+	session[fd]->in_shortlist = 1;
 	// Add to the end of the shortlist array.
 	send_shortlist_array[send_shortlist_count++] = fd;
 }
@@ -1091,9 +1086,6 @@ void send_shortlist_add_fd(int fd)
 void send_shortlist_do_sends()
 {
 	int i = 0;
-
-	// Assume all or most of the fd's don't remain in the shortlist
-	FD_ZERO(&send_shortlist_fd_set);
 
 	while( i < send_shortlist_count )
 	{
@@ -1109,20 +1101,22 @@ void send_shortlist_do_sends()
 
 			// If it's been marked as eof, call the parse func on it so that
 			// the socket will be immediately closed.
-			if( session[fd]->eof )
+			if( session[fd] && session[fd]->eof )
 				session[fd]->func_parse(fd);
 
 			// If the session still exists, is not eof and has things left to
-			// be sent from it we'll keep it in the shortlist.
+			// be sent from it we'll keep it in the shortlist (flag stays set).
 			if( session[fd] && !session[fd]->eof && session[fd]->wdata_size )
 			{
-				FD_SET(fd, &send_shortlist_fd_set);
 				++i;
 				continue;
 			}
 		}
 
-		// Remove fd from shortlist, move the last fd to the current position
+		// Remove fd from the shortlist: clear its flag (if the session lives)
+		// and move the last entry into this slot.
+		if( session[fd] )
+			session[fd]->in_shortlist = 0;
 		send_shortlist_array[i] = send_shortlist_array[--send_shortlist_count];
 	}
 }
