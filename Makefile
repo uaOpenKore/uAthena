@@ -42,14 +42,7 @@ OPT += -DPCRE_SUPPORT
 
 # PCRE2
 OPT += -DPCRE2_CODE_UNIT_WIDTH=8
-PCRE2_CONFIG = $(shell which pcre2-config 2>/dev/null)
-ifneq ($(PCRE2_CONFIG),)
-  LIBS += $(shell pcre2-config --libs-8)
-  CFLAGS += $(shell pcre2-config --cflags)
-else
-  LIBS += $(shell pkg-config --libs libpcre2-8 2>/dev/null)
-  CFLAGS += $(shell pkg-config --cflags libpcre2-8 2>/dev/null)
-endif
+LIBS += -lpcre2-8
 
 OPT += -I../common
 OPT += -I/usr/include
