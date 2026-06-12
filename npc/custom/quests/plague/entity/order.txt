@@ -203,22 +203,6 @@ prontera,235,42,7	script	Holy Order Guard	708,{
 	}
 }
 
-	// 2. �����: ������� �� �� ������� (entity ����� 10)
-	if (entity < 10) {
-		if (#gl_lang == 1) {
-			mes "[���������]";
-			mes "���! ���� ������ ����������. �� �������� �������� �� �������� ������� ������.";
-			mes "��� ���� �������, ��������, ���� � �� �������� ���� �����.";
-			close;
-		}
-		if (#gl_lang < 1) {
-			mes "[Guard]";
-			mes "Halt! Entrance is strictly forbidden. This is private property under the protection of the Holy Order.";
-			mes "Be on your way, civilian, before I have to remove you by force.";
-			close;
-		}
-}
-}
 // disowned code
 //	if (entity < 10) {
 //		if (#gl_lang == 1) {
