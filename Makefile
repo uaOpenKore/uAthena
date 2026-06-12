@@ -9,14 +9,12 @@ CC = gcc -pipe
 MAKE = make
 # MAKE = gmake
 
-#OPT = -Os
+### Dev & Test server
+OPT = -O0 -g3 
 
-OPT = -O0
+### Production server 
+# OPT = -g -O2  -fno-strict-aliasing вместо
 
-# OPT = -O2
-# OPT = -O3
-# OPT += -g
-OPT += -g3
 
 # OPT += -march=generic -mtune=generic
  OPT += -rdynamic
@@ -28,7 +26,7 @@ OPT += -fno-omit-frame-pointer
 # OPT += -DGCOLLECT
 # OPT += -DMEMWATCH
 # OPT += -DDMALLOC -DDMALLOC_FUNC_CHECK
- OPT += -DBCHECK
+# OPT += -DBCHECK
 
 # LIBS += -lgc
 # LIBS += -ldmalloc
