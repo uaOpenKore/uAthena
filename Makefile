@@ -12,8 +12,8 @@ MAKE = make
 ### Dev & Test server
 # OPT = -O0 -g3 
 
-### Production server 
- OPT = -g -O2  -fno-strict-aliasing вместо
+### Production server
+ OPT = -g -O2 -fno-strict-aliasing
 
 
 # OPT += -march=generic -mtune=generic
