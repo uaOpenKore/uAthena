@@ -56,7 +56,6 @@ LIBS += -L/usr/lib/mysql
 LIBS += -lmysqlclient
 
 LIBS += -ldl
-#GOPT += -m32
 
 
 # Server Packet Protocol version (also defined in src/common/mmo.h)
