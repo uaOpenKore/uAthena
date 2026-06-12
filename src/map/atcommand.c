@@ -6420,7 +6420,7 @@ int atcommand_broadcast(const int fd, struct map_session_data* sd, const char* c
 		return -1;
 	}
 
-	sprintf(atcmd_output, "%s : %s", sd->status.name, message);
+	snprintf(atcmd_output, sizeof(atcmd_output), "%s : %s", sd->status.name, message);
 	intif_GMmessage(atcmd_output, strlen(atcmd_output) + 1, 0);
 
 	return 0;
@@ -6440,7 +6440,7 @@ int atcommand_localbroadcast(const int fd, struct map_session_data* sd, const ch
 		return -1;
 	}
 
-	sprintf(atcmd_output, "%s : %s", sd->status.name, message);
+	snprintf(atcmd_output, sizeof(atcmd_output), "%s : %s", sd->status.name, message);
 
 	clif_GMmessage(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, 1); // 1: ALL_SAMEMAP
 
@@ -9487,7 +9487,7 @@ int atcommand_invite(const int fd, struct map_session_data* sd, const char* comm
 
 	if(battle_config.duel_only_on_same_map && target_sd->bl.m != sd->bl.m)
 	{
-		sprintf(atcmd_output, msg_txt(364), message);
+		snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(364), message);
 		clif_displaymessage(fd, atcmd_output);
 		return 0;
 	}
@@ -9758,7 +9758,7 @@ int atcommand_request(const int fd, struct map_session_data* sd, const char* com
 		return -1;
 	}
 
-	sprintf(atcmd_output, msg_txt(278), message);
+	snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(278), message);
 	intif_wis_message_to_gm(sd->status.name, lowest_gm_level, atcmd_output);
 	clif_disp_onlyself(sd, atcmd_output, strlen(atcmd_output));
 	clif_displaymessage(sd->fd,msg_txt(279));

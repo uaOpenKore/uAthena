@@ -490,6 +490,8 @@ int mapif_party_broken(int party_id,int flag)
 int mapif_party_message(int party_id,int account_id,char *mes,int len, int sfd)
 {
 	unsigned char buf[512];
+	if (len < 0 || len > (int)sizeof(buf)-12)
+		return 0; //reject malformed length to avoid buf[] overflow
 	WBUFW(buf,0)=0x3827;
 	WBUFW(buf,2)=len+12;
 	WBUFL(buf,4)=party_id;

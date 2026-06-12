@@ -919,6 +919,8 @@ int mapif_parse_WisToGM(int fd)
 	char *message;
 
 	mes_len =  RFIFOW(fd,2) - 30;
+	if (mes_len < 1)
+		return 0; //malformed packet: avoid negative-length memcpy and message[-1] write
 	message = (char *) (mes_len >= 255 ? (char *) aMallocA(mes_len) : mbuf);
 
 	min_gm_level = (int)RFIFOW(fd,28);

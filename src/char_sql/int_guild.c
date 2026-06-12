@@ -130,7 +130,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 		t_ename[NAME_LENGTH*2],
 		t_emes[80],
 		t_info[240];
-	char emblem_data[4096];
+	char emblem_data[sizeof(g->emblem_data)*2+1]; //2 hex chars per emblem byte + NUL (g->emblem_data is 2048 -> 4097)
 	char new_guild = 0;
 	int i=0, sql_index;
 
@@ -1886,7 +1886,9 @@ int mapif_parse_GuildNotice(int fd,int guild_id,const char *mes1,const char *mes
 		return 0;
 
 	memcpy(g->mes1,mes1,60);
+	g->mes1[sizeof(g->mes1)-1] = '\0'; //the wire field is fixed-size and may not be NUL-terminated
 	memcpy(g->mes2,mes2,120);
+	g->mes2[sizeof(g->mes2)-1] = '\0';
 	g->save_flag |= GS_MES;	//Change mes of guild
 	return mapif_guild_notice(g);
 }
@@ -1899,7 +1901,9 @@ int mapif_parse_GuildEmblem(int fd,int len,int guild_id,int dummy,const char *da
 	if(g==NULL)
 		return 0;
 
-	if (len > sizeof(g->emblem_data))
+	if (len < 0)
+		return 0; //malformed packet: don't over-read the RFIFO buffer
+	if (len > (int)sizeof(g->emblem_data))
 		len = sizeof(g->emblem_data);
 
 	memcpy(g->emblem_data,data,len);

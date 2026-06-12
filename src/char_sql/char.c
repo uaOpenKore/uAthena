@@ -2428,7 +2428,7 @@ int parse_frommap(int fd)
 
 			memset(server[id].map, 0, sizeof(server[id].map));
 			j = 0;
-			for(i = 4; i < RFIFOW(fd,2); i += 4) {
+			for(i = 4; i < RFIFOW(fd,2) && j < MAX_MAP_PER_SERVER; i += 4) {
 				server[id].map[j] = RFIFOW(fd,i);
 				j++;
 			}
@@ -3335,6 +3335,7 @@ int parse_char(int fd)
 
 			ShowInfo(CL_RED"Request Char Deletion: "CL_GREEN"%d (%d)"CL_RESET"\n", sd->account_id, cid);
 			memcpy(email, RFIFOP(fd,6), 40);
+			email[sizeof(email)-1] = '\0'; //packet field may not be NUL-terminated; strcmpi below would over-read
 			RFIFOSKIP(fd,RFIFOREST(fd)); // hack to make the other deletion packet work
 
 			// Check if e-mail is correct
