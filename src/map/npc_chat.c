@@ -377,8 +377,9 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 				for (i = 0; i < rc; i++)
 				{
 					char var[6], val[255];
+					PCRE2_SIZE blen = sizeof(val);
 					snprintf(var, sizeof(var), "$@p%i$", i);
-					pcre2_substring_copy_bynumber(e->md, i, (PCRE2_UCHAR *)val, sizeof(val));
+					pcre2_substring_copy_bynumber(e->md, i, (PCRE2_UCHAR *)val, &blen);
 					set_var(sd, var, val);
 				}
 
