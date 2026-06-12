@@ -228,7 +228,8 @@ char mapregsql_db[32] = "mapreg";
 char mapregsql_db_varname[32] = "varname";
 char mapregsql_db_index[32] = "index";
 char mapregsql_db_value[32] = "value";
-char tmp_sql[65535];
+// tmp_sql is defined once in map.c (extern in map.h) — was redundantly
+// re-defined here, which breaks -fno-common.
 // --------------------------------------------------------
 #endif
 

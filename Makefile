@@ -32,7 +32,6 @@ OPT += -fno-omit-frame-pointer
 # LIBS += -ldmalloc
 
 OPT += -ffast-math
-OPT += -fcommon
 OPT += -march=native -mtune=native
 
 OPT += -Wall

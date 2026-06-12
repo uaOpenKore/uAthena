@@ -7011,6 +7011,9 @@ void pc_setstand(struct map_session_data *sd){
 /*==========================================
  * Duel organizing functions [LuzZza]
  *------------------------------------------*/
+struct duel_data duel_list[MAX_DUEL];	// real definitions (declared extern in map.h)
+int duel_count = 0;
+
 void duel_savetime(struct map_session_data* sd)
 {
 	time_t timer;

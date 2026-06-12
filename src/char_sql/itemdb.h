@@ -22,7 +22,7 @@ enum {
 	IT_AMMO,    //10
 	IT_DELAYCONSUME,//11
 	IT_MAX
-} item_types;
+};	// was '} item_types;' — a stray unused global of an anonymous enum (broke -fno-common)
 
 struct item_data {
 	int nameid;

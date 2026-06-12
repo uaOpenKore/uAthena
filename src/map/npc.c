@@ -38,6 +38,8 @@ struct npc_src_list {
 };
 static struct npc_src_list* npc_src_files = NULL;
 
+struct npc_data *fake_nd = NULL;	// real definition (declared extern in npc.h)
+
 static int npc_id=START_NPC_NUM;
 static int npc_warp=0;
 static int npc_shop=0;

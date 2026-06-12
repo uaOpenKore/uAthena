@@ -36,6 +36,7 @@ Plugin* plugin_head = NULL;
 
 static Plugin_Info default_info = { "Unknown", PLUGIN_ALL, "0", PLUGIN_VERSION, "Unknown" };
 
+void** plugin_call_table = NULL;	// real definition (declared extern in plugin.h)
 static size_t call_table_size	= 0;
 static size_t max_call_table	= 0;
 

@@ -39,7 +39,7 @@ enum {
 	W_GRENADE,	//21
 	W_HUUMA,	//22
 	MAX_WEAPON_TYPE
-} weapon_type;
+};	// (was '} weapon_type;' — unused global, broke -fno-common)
 
 enum {
 	A_ARROW = 1,
@@ -49,7 +49,7 @@ enum {
 	A_GRENADE,  //5
 	A_SHURIKEN, //6
 	A_KUNAI     //7
-} ammo_type;
+};	// (was '} ammo_type;' — unused global)
 //Equip position constants
 enum {
 	EQP_HEAD_LOW = 0x0001, 
@@ -63,7 +63,7 @@ enum {
 	EQP_ACC_L    = 0x0008,
 	EQP_ACC_R    = 0x0080, //128
 	EQP_AMMO     = 0x8000, //32768
-} equip_pos_enum;
+};	// (was '} equip_pos_enum;' — unused global)
 
 #define EQP_WEAPON EQP_HAND_R
 #define EQP_SHIELD EQP_HAND_L
@@ -86,7 +86,7 @@ enum {
 	EQI_HAND_R,
 	EQI_AMMO,
 	EQI_MAX
-} equip_index_enum;
+};	// (was '} equip_index_enum;' — unused global)
 
 #define pc_setdead(sd) ((sd)->state.dead_sit = (sd)->vd.dead_sit = 1)
 #define pc_setsit(sd) ((sd)->state.dead_sit = (sd)->vd.dead_sit = 2)
