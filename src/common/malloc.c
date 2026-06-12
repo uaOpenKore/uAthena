@@ -7,6 +7,7 @@
 #include "../common/malloc.h"
 #include "../common/core.h"
 #include "../common/showmsg.h"
+#include <pthread.h>
 
 #ifdef MINICORE
 	#undef LOG_MEMMGR
@@ -189,7 +190,15 @@ static void   block_free(struct block* p);
 static void memmgr_info(void);
 static unsigned int memmgr_usage_bytes = 0;
 
-void* _mmalloc(size_t size, const char *file, int line, const char *func )
+// The memmgr's global block/unit lists are shared state. A single mutex makes
+// aMalloc/aFree thread-safe (for the async SQL log worker and any future
+// threads). block_malloc/block_free use the system allocator and never re-enter
+// _mmalloc/_mfree, so a plain (non-recursive) mutex on the two entry points is
+// enough; _mcalloc/_mrealloc/_mstrdup are safe transitively (they funnel through
+// these and otherwise touch only caller-private memory).
+static pthread_mutex_t memmgr_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static void* mmalloc_impl(size_t size, const char *file, int line, const char *func )
 {
 	int i;
 	struct block *block;
@@ -292,6 +301,15 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func )
 	//return NULL;
 };
 
+void* _mmalloc(size_t size, const char *file, int line, const char *func )
+{
+	void *ret;
+	pthread_mutex_lock(&memmgr_mutex);
+	ret = mmalloc_impl(size, file, line, func);
+	pthread_mutex_unlock(&memmgr_mutex);
+	return ret;
+}
+
 void* _mcalloc(size_t num, size_t size, const char *file, int line, const char *func )
 {
 	void *p = _mmalloc(num * size,file,line,func);
@@ -333,7 +351,7 @@ char* _mstrdup(const char *p, const char *file, int line, const char *func )
 	}
 }
 
-void _mfree(void *ptr, const char *file, int line, const char *func )
+static void mfree_impl(void *ptr, const char *file, int line, const char *func )
 {
 	struct unit_head *head;
 	size_t size_hash;
@@ -422,6 +440,13 @@ void _mfree(void *ptr, const char *file, int line, const char *func )
 			ptr = NULL;
 		}
 	}
+}
+
+void _mfree(void *ptr, const char *file, int line, const char *func )
+{
+	pthread_mutex_lock(&memmgr_mutex);
+	mfree_impl(ptr, file, line, func);
+	pthread_mutex_unlock(&memmgr_mutex);
 }
 
 /* \ */
