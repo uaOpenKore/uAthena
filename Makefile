@@ -20,7 +20,10 @@ OPT += -g3
 
 # OPT += -march=generic -mtune=generic
  OPT += -rdynamic
- OPT += -fomit-frame-pointer
+
+#OPT += -fomit-frame-pointer
+OPT += -fno-omit-frame-pointer
+
  OPT += -DCHRIF_OLDINFO
 # OPT += -DGCOLLECT
 # OPT += -DMEMWATCH
