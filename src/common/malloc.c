@@ -435,7 +435,7 @@ static void memmgr_info(void)
 		return;
 	}
 	ShowMessage(
-		"Blocks: %04u , BlockSize: %06u Byte , Used: %08uKB\n",
+		"Blocks: %04u , BlockSize: %06zu Byte , Used: %08zuKB\n",
 		block_last->block_no+1,sizeof(struct block),
 		(block_last->block_no+1) * sizeof(struct block) / 1024
 	);
@@ -446,7 +446,7 @@ static void memmgr_info(void)
 			ShowMessage("unused.\n");
 		} else {
 			ShowMessage(
-				"size: %05u byte. used: %04u/%04u prev:",
+				"size: %05zu byte. used: %04u/%04u prev:",
 				p->unit_size - sizeof(struct unit_head),p->unit_used,p->unit_count
 			);
 			if(p->samesize_prev == NULL) {

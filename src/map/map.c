@@ -3452,6 +3452,8 @@ void do_final(void)
 	pc_db->destroy(pc_db, NULL);
 	charid_db->destroy(charid_db, NULL);
 
+	log_async_final(); // drain buffered SQL logs before closing the handles
+
     map_sql_close();
 	ShowStatus("Successfully terminated.\n");
 }
@@ -3623,8 +3625,10 @@ int do_init(int argc, char *argv[])
 	if(mail_server_enable)
 		do_init_mail();
 
-	if (log_config.sql_logs)
+	if (log_config.sql_logs) {
 		log_sql_init();
+		log_async_init();
+	}
 
 	sql_ping_init();
 
