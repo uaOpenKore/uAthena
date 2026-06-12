@@ -6350,6 +6350,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 			sd->weapontype1 = 0;
 		pc_calcweapontype(sd);
 		clif_changelook(&sd->bl,LOOK_WEAPON,sd->status.weapon);
+		ShowInfo("EQUIP: R-hand look=%d -> weapontype1=%d status.weapon=%d\n", id?id->look:-1, sd->weapontype1, sd->status.weapon);
 	}
 	if(pos & EQP_HAND_L) {
 		if(id) {
@@ -6461,6 +6462,7 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		sd->status.weapon = sd->weapontype2;
 		pc_calcweapontype(sd);
 		clif_changelook(&sd->bl,LOOK_WEAPON,sd->status.weapon);
+		ShowInfo("UNEQUIP: R-hand -> weapontype1=%d status.weapon=%d\n", sd->weapontype1, sd->status.weapon);
 		if(sd->sc.data[SC_DANCING].timer!=-1) //When unequipping, stop dancing. [Skotlex]
 			skill_stop_dancing(&sd->bl);
 	}
