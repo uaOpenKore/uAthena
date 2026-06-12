@@ -10,32 +10,27 @@ deb https://ftp.debian.org/debian/ trixie-proposed-updates contrib main non-free
 
 apt update
 apt -y upgrade
-apt -y install git libncurses5-dev gcc make autoconf exuberant-ctags bc libssl-dev mc
-
-vi /etc/sudoers
-pix     ALL=(ALL:ALL) ALL
-
-reboot
+apt -y install git libncurses5-dev gcc make autoconf exuberant-ctags bc libssl-dev mc util-tools
 
 
 2.
 ~ Сorrect creation of swap:
 dd if=/dev/zero of=/swapfile bs=1MB count=4096
 chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
+/usr/sbin/mkswap /swapfile
+/usr/sbin/swapon /swapfile
 echo "/swapfile swap swap defaults 0 0" >>/etc/fstab
 echo "vm.swappiness = 15" >>/etc/sysctl.conf
 
-
 3.
 ~ New kernel backport
-apt -y install -t trixie-backports linux-image-amd64 linux-headers-amd64
+apt -y install -t trixie-backports linux-image-amd64 linux-headers-amd64 linux-perf
+reboot
 
 4.
 ~ Install libs for making uAthena
 
-apt -y install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev libmariadb-dev libmariadb-dev-compat build-essential g++ ccache linux-perf libpcre2-dev
+apt -y install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev libmariadb-dev libmariadb-dev-compat build-essential g++ ccache libpcre2-dev
 
 5.
 ~  Instal SQL server if it needed in VM guest
@@ -43,7 +38,6 @@ apt -y install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev libmariadb-
 apt -y install mariadb-server
 systemctl start mariadb
 systemctl enable mariadb
-~Grant access for root to connect server from any hosts
 
 6.
 ~ Install uAthena
