@@ -41,6 +41,7 @@ OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno
 OPT += -DPCRE_SUPPORT
 
 # PCRE2
+OPT += -DPCRE2_CODE_UNIT_WIDTH=8
 LIBS += $(shell pcre2-config --libs-8)
 CFLAGS += $(shell pcre2-config --cflags)
 
