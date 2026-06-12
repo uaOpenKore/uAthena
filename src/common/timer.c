@@ -34,25 +34,13 @@ static int* free_timer_list		= NULL;
 static int free_timer_list_max	= 0;
 static int free_timer_list_pos	= 0;
 
-//NOTE: using a binary heap should improve performance [FlavioJS]
-// timer heap (ordered array of tid's)
+// timer min-heap: timer_heap[] holds tid's ordered so the soonest-to-expire
+// sits at the root (index 0). timer_data[tid].heap_pos is the back-reference to
+// each tid's slot, so settick/delete can relocate a timer in O(log n).
+// Replaces the old O(n) insertion-sorted array (the [FlavioJS] TODO).
 static int timer_heap_num = 0;
 static int timer_heap_max = 0;
 static int* timer_heap = NULL;
-// searches for the target tick's position and stores it in pos (binary search)
-#define HEAP_SEARCH(target,from,to,pos) \
-	do { \
-		int max,pivot; \
-		pos = from; \
-		max = to; \
-		while (pos < max) { \
-			pivot = (pos + max) / 2; \
-			if (DIFF_TICK(target, timer_data[timer_heap[pivot]].tick) < 0) \
-				pos = pivot + 1; \
-			else \
-				max = pivot; \
-		} \
-	} while(0)
 
 // for debug
 struct timer_func_list {
@@ -123,15 +111,49 @@ unsigned int gettick(void)
 }
 
 /*======================================
- * 	CORE : Timer Heap
+ * 	CORE : Timer min-heap
  *--------------------------------------*/
-/// Adds a timer to the timer_heap
+/// Moves the timer at heap position pos up toward the root until the heap
+/// property holds, updating heap_pos for every timer it shifts.
+static void heap_sift_up(int pos)
+{
+	int tid = timer_heap[pos];
+	while (pos > 0) {
+		int parent = (pos - 1) / 2;
+		if (DIFF_TICK(timer_data[tid].tick, timer_data[timer_heap[parent]].tick) >= 0)
+			break; // parent already expires no later -> heap ok
+		timer_heap[pos] = timer_heap[parent];
+		timer_data[timer_heap[pos]].heap_pos = pos;
+		pos = parent;
+	}
+	timer_heap[pos] = tid;
+	timer_data[tid].heap_pos = pos;
+}
+
+/// Moves the timer at heap position pos down toward the leaves until the heap
+/// property holds, updating heap_pos for every timer it shifts.
+static void heap_sift_down(int pos)
+{
+	int tid = timer_heap[pos];
+	int half = timer_heap_num / 2; // first leaf index
+	while (pos < half) {
+		int child = 2 * pos + 1; // left child
+		if (child + 1 < timer_heap_num &&
+			DIFF_TICK(timer_data[timer_heap[child+1]].tick, timer_data[timer_heap[child]].tick) < 0)
+			child++; // right child expires sooner
+		if (DIFF_TICK(timer_data[timer_heap[child]].tick, timer_data[tid].tick) >= 0)
+			break; // soonest child expires no sooner -> heap ok
+		timer_heap[pos] = timer_heap[child];
+		timer_data[timer_heap[pos]].heap_pos = pos;
+		pos = child;
+	}
+	timer_heap[pos] = tid;
+	timer_data[tid].heap_pos = pos;
+}
+
+/// Adds a timer to the heap. O(log n).
 static void push_timer_heap(int tid)
 {
-	unsigned int tick;
-	int pos;
-	int i;
-
 	// check number of element
 	if (timer_heap_num >= timer_heap_max) {
 		if (timer_heap_max == 0) {
@@ -144,41 +166,24 @@ static void push_timer_heap(int tid)
 		}
 	}
 
-	// do a sorting from higher to lower
-	tick = timer_data[tid].tick; // speed up
-	// with less than 4 values, it's speeder to use simple loop
-	if (timer_heap_num < 4) {
-		for(i = timer_heap_num; i > 0; i--)
-		{
-//			if (j < timer_data[timer_heap[i - 1]].tick) //Plain comparisons break on bound looping timers. [Skotlex]
-			if (DIFF_TICK(tick, timer_data[timer_heap[i - 1]].tick) < 0)
-				break;
-			else
-				timer_heap[i] = timer_heap[i - 1];
-		}
-		timer_heap[i] = tid;
-	// searching by dichotomy (binary search)
-	} else {
-		// if lower actual item is higher than new
-//		if (j < timer_data[timer_heap[timer_heap_num - 1]].tick) //Plain comparisons break on bound looping timers. [Skotlex]
-		if (DIFF_TICK(tick, timer_data[timer_heap[timer_heap_num - 1]].tick) < 0)
-			timer_heap[timer_heap_num] = tid;
-		else {
-			// searching position
-			HEAP_SEARCH(tick,0,timer_heap_num-1,pos);
-			// move elements - do loop if there are a little number of elements to move
-			if (timer_heap_num - pos < 5) {
-				for(i = timer_heap_num; i > pos; i--)
-					timer_heap[i] = timer_heap[i - 1];
-			// move elements - else use memmove (speeder for a lot of elements)
-			} else
-				memmove(&timer_heap[pos + 1], &timer_heap[pos], sizeof(int) * (timer_heap_num - pos));
-			// save new element
-			timer_heap[pos] = tid;
-		}
-	}
-
+	timer_heap[timer_heap_num] = tid;
+	timer_data[tid].heap_pos = timer_heap_num;
 	timer_heap_num++;
+	heap_sift_up(timer_heap_num - 1);
+}
+
+/// Removes and returns the soonest-to-expire timer id (the heap root). O(log n).
+static int pop_timer_heap(void)
+{
+	int tid = timer_heap[0];
+	timer_data[tid].heap_pos = -1;
+	timer_heap_num--;
+	if (timer_heap_num > 0) {
+		timer_heap[0] = timer_heap[timer_heap_num];
+		timer_data[timer_heap[0]].heap_pos = 0;
+		heap_sift_down(0);
+	}
+	return tid;
 }
 
 /*==========================
@@ -282,55 +287,32 @@ int addtick_timer(int tid, unsigned int tick)
 	return settick_timer(tid, timer_data[tid].tick+tick);
 }
 
-//Sets the tick at which the timer triggers directly (meant as a replacement of delete_timer + add_timer) [Skotlex]
-//FIXME: DON'T use this function yet, it is not correctly reorganizing the timer stack causing unexpected problems later on!
+//Sets the tick at which the timer triggers directly (a replacement of delete_timer + add_timer) [Skotlex]
+//Reworked for the min-heap: the timer is located in O(1) via its heap_pos
+//back-reference, then sifted up or down in O(log n). (The old sorted-array
+//version was buggy - it did not reorganize the heap correctly.)
 int settick_timer(int tid, unsigned int tick)
 {
-	int old_pos,pos;
-	unsigned int old_tick;
+	int pos;
 
-	old_tick = timer_data[tid].tick;
-	if( old_tick == tick )
+	if( timer_data[tid].tick == tick )
 		return tick;
 
-	//FIXME: This search is not all that effective... there doesn't seems to be a better way to locate an element in the heap.
-	//for(i = timer_heap_num-1; i >= 0 && timer_heap[i] != tid; i--);
-
-	// search old_tick position
-	HEAP_SEARCH(old_tick,0,timer_heap_num-1,old_pos);
-	while( timer_heap[old_pos] != tid )
-	{// skip timers with the same tick
-		if( DIFF_TICK(old_tick,timer_data[timer_heap[old_pos]].tick) != 0 )
-		{
-			ShowError("settick_timer: no such timer %d (%p(%s))\n", tid, (void*)timer_data[tid].func, search_timer_func_list(timer_data[tid].func));
-			return -1;
-		}
-		++old_pos;
+	pos = timer_data[tid].heap_pos;
+	if( pos < 0 || pos >= timer_heap_num || timer_heap[pos] != tid )
+	{
+		ShowError("settick_timer: no such timer %d (%p(%s))\n", tid, (void*)timer_data[tid].func, search_timer_func_list(timer_data[tid].func));
+		return -1;
 	}
 
-	if( DIFF_TICK(tick,timer_data[tid].tick) < 0 )
-	{// Timer is accelerated, shift timer near the end of the heap.
-		if (old_pos == timer_heap_num-1) //Nothing to shift.
-			pos = old_pos;
-		else {
-			HEAP_SEARCH(tick,old_pos+1,timer_heap_num-1,pos);
-			--pos;
-			if (pos != old_pos)
-				memmove(&timer_heap[old_pos], &timer_heap[old_pos+1], (pos-old_pos)*sizeof(int));
-		}
-	} else
-	{// Timer is delayed, shift timer near the beginning of the heap.
-		if (old_pos == 0) //Nothing to shift.
-			pos = old_pos;
-		else {
-			HEAP_SEARCH(tick,0,old_pos-1,pos);
-			++pos;
-			if (pos != old_pos)
-				memmove(&timer_heap[pos+1], &timer_heap[pos], (old_pos-pos)*sizeof(int));
-		}
-	}
-	timer_heap[pos] = tid;
 	timer_data[tid].tick = tick;
+	// If the new tick is sooner than the parent's, the timer rises toward the
+	// root; otherwise it may sink toward the leaves (sift_down is a no-op if it
+	// is already correctly placed).
+	if( pos > 0 && DIFF_TICK(tick, timer_data[timer_heap[(pos-1)/2]].tick) < 0 )
+		heap_sift_up(pos);
+	else
+		heap_sift_down(pos);
 	return tick;
 }
 
@@ -344,28 +326,31 @@ struct TimerData* get_timer(int tid)
 //This funtion will rearrange the heap and assign new tick values.
 static void fix_timer_heap(unsigned int tick)
 {
-	if (timer_heap_num >= 0 && tick < 0x00010000 && timer_data[timer_heap[0]].tick > 0xf0000000)
-	{	//The last timer is way too far into the future, and the current tick is too close to 0, overflow was very likely
-		//(not perfect, but will work as long as the timer is not expected to happen 50 or so days into the future)
-		int i;
-		int *tmp_heap;
-		for (i=0; i < timer_heap_num && timer_data[timer_heap[i]].tick > 0xf0000000; i++)
-		{	//All functions with high tick value should had been executed already...
+	int i, any = 0;
+
+	if (timer_heap_num <= 0 || tick >= 0x00010000)
+		return;
+
+	//Pre-wrap leftovers: timers scheduled just before the tick wrapped now look
+	//like they are ~49 days in the future. Reset them to fire now.
+	//(not perfect, but works as long as no timer is genuinely expected 50+ days out)
+	for (i = 0; i < timer_heap_num; i++) {
+		if (timer_data[timer_heap[i]].tick > 0xf0000000) {
 			timer_data[timer_heap[i]].tick = 0;
+			any = 1;
 		}
-		//Move elements to readjust the heap.
-		tmp_heap = aCalloc(sizeof(int), i);
-		memcpy(tmp_heap, timer_heap, i*sizeof(int));
-		memmove(timer_heap, &timer_heap[i], (timer_heap_num-i)*sizeof(int));
-		memmove(&timer_heap[timer_heap_num-i], tmp_heap, i*sizeof(int));
-		aFree(tmp_heap);
 	}
+	//Many ticks changed -> rebuild the heap (build-heap, O(n); happens at most
+	//once per ~49-day tick wrap).
+	if (any)
+		for (i = timer_heap_num/2 - 1; i >= 0; i--)
+			heap_sift_down(i);
 }
 
 int do_timer(unsigned int tick)
 {
-	static int fix_heap_flag = 0; //Flag for fixing the stack only once per tick loop. May not be the best way, but it's all I can think of currently :X [Skotlex]
-	int i, nextmin = 1000;
+	static int fix_heap_flag = 0; //Fix the heap only once per tick wrap. [Skotlex]
+	int nextmin = 1000;
 
 	if (tick < 0x010000 && fix_heap_flag)
 	{
@@ -374,18 +359,16 @@ int do_timer(unsigned int tick)
 	}
 
 	while(timer_heap_num) {
-		i = timer_heap[timer_heap_num - 1]; // next shorter element
+		int i = timer_heap[0]; // soonest-to-expire (heap root)
 		if ((nextmin = DIFF_TICK(timer_data[i].tick, tick)) > 0)
 			break;
 
-		--timer_heap_num; // suppress the actual element from the table
+		pop_timer_heap(); // remove it from the heap
 		timer_data[i].type |= TIMER_REMOVE_HEAP;
 		if (timer_data[i].func) {
 			if (nextmin < -1000) {
-				// 1bxA
-				// timer^C~Ol
-				// o^C~O(tick)
-				// timer^C~Ox
+				// fired far too late: pass the current tick rather than the
+				// (long past) scheduled one, so the callback doesn't over-rewind
 				timer_data[i].func(i, tick, timer_data[i].id, timer_data[i].data);
 			} else {
 				timer_data[i].func(i, timer_data[i].tick, timer_data[i].id, timer_data[i].data);
