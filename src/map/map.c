@@ -3616,6 +3616,11 @@ int do_init(int argc, char *argv[])
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
 
+	// [perf] Send coalescing is a map-only optimization (game clients): enable it
+	// here from config. It stays 0 on login/char, which must not delay their
+	// inter-server links.
+	socket_send_coalesce_ms = battle_config.socket_send_coalesce_ms;
+
 	// [perf] Optionally move client send() syscalls onto a dedicated worker thread
 	// (send_worker.c), off the single game loop. Off by default; enable in
 	// battle_athena.conf with socket_async_send: 1.

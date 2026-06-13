@@ -67,7 +67,11 @@ size_t wfifo_size = (16*1024);
 // (cuts syscalls, TCP segments and the qdisc TX-lock contention). Bulk (>= the
 // threshold, i.e. already ~a full segment) and eof sessions flush immediately,
 // so combat bursts are not delayed. Set the interval to 0 to disable.
-int socket_send_coalesce_ms = 20;
+// DEFAULT 0 (off): only the map server turns it on (map.c, from battle_config).
+// login/char must NOT coalesce — they ACCEPT inter-server connections inbound, so
+// client_addr is non-zero there too and can't tell a server link from a game
+// client; delaying inter-server traffic destabilises the char<->login link.
+int socket_send_coalesce_ms = 0;
 #define SOCKET_COALESCE_BYTES 1400  // ~one TCP segment (1500 MTU - headers)
 
 // [perf] When set (map server only), client send() syscalls are performed on a

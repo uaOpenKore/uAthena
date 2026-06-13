@@ -376,6 +376,7 @@ extern struct Battle_Config {
 	unsigned short mob_ai; //Configures various mob_ai settings to make them smarter or dumber(official). [Skotlex]
 	unsigned short mob_ai_lazy_skip_emptymap; // [perf] skip lazy AI for mobs on player-less maps (cosmetic walk-to-spawn only). 0=off(default)
 	unsigned short socket_async_send; // [perf] 1 = run client send() on a dedicated worker thread (off the game loop). 0=off(default)
+	unsigned short socket_send_coalesce_ms; // [perf] map-only send coalescing window in ms (0=off). default 20
 	unsigned short hom_setting; //Configures various homunc settings which make them behave unlike normal characters.. [Skotlex]
 	unsigned short dynamic_mobs; // Dynamic Mobs [Wizputer] - battle_athena flag implemented by [random]
 	unsigned short mob_remove_damaged; // Dynamic Mobs - Remove mobs even if damaged [Wizputer]
