@@ -1322,6 +1322,14 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 	if(md->bl.type!=BL_MOB || md->bl.prev == NULL)
 		return 0;
 
+	// [perf] Optionally skip lazy AI for mobs on player-less maps. Their only lazy
+	// action there is a low-probability walk back toward spawn (cosmetic, unseen
+	// until a player arrives) plus slave-follow; both resume the instant someone
+	// enters the map (stale last_thinktime -> processed next tick). Gated; default
+	// 0 preserves the original behaviour. Does NOT touch respawn (separate timer).
+	if (battle_config.mob_ai_lazy_skip_emptymap && map[md->bl.m].users <= 0)
+		return 0;
+
 	if (battle_config.mob_ai&0x20 && map[md->bl.m].users>0)
 		return mob_ai_sub_hard(&md->bl, ap);
 
