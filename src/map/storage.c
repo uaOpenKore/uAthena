@@ -513,6 +513,13 @@ int storage_guild_storageopen(struct map_session_data *sd)
 		return 1;
 	}
 
+	if(guild_storage_lock) {
+		// Lock enabled: always re-fetch so the char-server (re)acquires the lock for
+		// this map-server. The storage_status/dirty guards in intif_parse_LoadGuildStorage
+		// still block a same-server double-open.
+		intif_request_guild_storage(sd->status.account_id,sd->status.guild_id);
+		return 0;
+	}
 	if((gstor = guild2storage2(sd->status.guild_id)) == NULL) {
 		intif_request_guild_storage(sd->status.account_id,sd->status.guild_id);
 		return 0;
@@ -713,6 +720,8 @@ int storage_guild_storagesave(int account_id, int guild_id, int flag)
 			stor->storage_status = 0;
 	 	if (stor->dirty)
 			intif_send_guild_storage(account_id,stor);
+		if (flag) //logout / map-change: release the cross-server lock after the final save
+			intif_guild_storage_unlock(guild_id);
 		return 1;
 	}
 	return 0;
@@ -748,6 +757,7 @@ int storage_guild_storageclose(struct map_session_data *sd)
 		else
 			storage_guild_storagesave(sd->status.account_id, sd->status.guild_id,0);
 		stor->storage_status=0;
+		intif_guild_storage_unlock(sd->status.guild_id); // release the cross-server lock
 	}
 	sd->state.storage_flag = 0;
 
@@ -761,6 +771,8 @@ int storage_guild_storage_quit(struct map_session_data *sd,int flag)
 	nullpo_retr(0, sd);
 	nullpo_retr(0, stor=guild2storage2(sd->status.guild_id));
 	
+	intif_guild_storage_unlock(sd->status.guild_id); // release the cross-server lock (covers all quit paths)
+
 	if(flag)
 	{	//Only during a guild break flag is 1 (don't save storage)
 		sd->state.storage_flag = 0;

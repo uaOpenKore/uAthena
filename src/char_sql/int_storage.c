@@ -20,6 +20,12 @@
 struct storage *storage_pt=NULL;
 struct guild_storage *guild_storage_pt=NULL;
 
+// Cross-map-server guild storage lock: the char-server is the single arbiter, so
+// a guild's storage can be checked out by only one map-server at a time. Maps
+// guild_id -> owner map-server fd. Gated by inter_athena.conf 'guild_storage_lock'.
+extern int guild_storage_lock;
+static struct dbt *guild_storage_lock_db = NULL;
+
 #endif //TXT_SQL_CONVERT
 // storage data -> DB conversion
 int storage_tosql(int account_id,struct storage *p){
@@ -177,6 +183,7 @@ int inter_storage_sql_init(void){
 	ShowDebug("interserver storage memory initialize....(%zu byte)\n",sizeof(struct storage));
 	storage_pt = (struct storage*)aCalloc(sizeof(struct storage), 1);
 	guild_storage_pt = (struct guild_storage*)aCalloc(sizeof(struct guild_storage), 1);
+	guild_storage_lock_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 //	memset(storage_pt,0,sizeof(struct storage)); //Calloc sets stuff to 0 already. [Skotlex]
 //	memset(guild_storage_pt,0,sizeof(struct guild_storage));
 
@@ -186,7 +193,8 @@ int inter_storage_sql_init(void){
 void inter_storage_sql_final(void)
 {
 	if (storage_pt) aFree(storage_pt);
-	if (guild_storage_pt) aFree(guild_storage_pt);	 
+	if (guild_storage_pt) aFree(guild_storage_pt);
+	if (guild_storage_lock_db) guild_storage_lock_db->destroy(guild_storage_lock_db, NULL);
 	return;
 }
 // q?f[^?
@@ -309,11 +317,62 @@ int mapif_parse_SaveStorage(int fd){
 	return 0;
 }
 
+// Tell a map-server its guild-storage open was denied (held by another server).
+static int mapif_guild_storage_busy(int fd, int account_id, int guild_id)
+{
+	WFIFOHEAD(fd,10);
+	WFIFOW(fd,0) = 0x381a;
+	WFIFOL(fd,2) = account_id;
+	WFIFOL(fd,6) = guild_id;
+	WFIFOSET(fd,10);
+	return 0;
+}
+
 int mapif_parse_LoadGuildStorage(int fd)
 {
+	int account_id, guild_id;
 	RFIFOHEAD(fd);
-	mapif_load_guild_storage(fd,RFIFOL(fd,2),RFIFOL(fd,6));
+	account_id = RFIFOL(fd,2);
+	guild_id = RFIFOL(fd,6);
+	if(guild_storage_lock && guild_id > 0)
+	{	// enforce the cross-server lock: only the holder (or a free guild) may load
+		int owner = (int)(intptr_t)idb_get(guild_storage_lock_db, guild_id);
+		if(owner && owner != fd)
+			return mapif_guild_storage_busy(fd, account_id, guild_id);
+		idb_put(guild_storage_lock_db, guild_id, (void*)(intptr_t)fd);
+	}
+	mapif_load_guild_storage(fd, account_id, guild_id);
 	return 0;
+}
+
+// Release the lock on a guild's storage (sent by the map-server when it closes).
+int mapif_parse_GuildStorageUnlock(int fd)
+{
+	int guild_id;
+	RFIFOHEAD(fd);
+	guild_id = RFIFOL(fd,2);
+	if(guild_storage_lock && guild_id > 0)
+	{
+		int owner = (int)(intptr_t)idb_get(guild_storage_lock_db, guild_id);
+		if(owner == fd)
+			idb_remove(guild_storage_lock_db, guild_id);
+	}
+	return 0;
+}
+
+// Free every guild-storage lock held by a map-server fd, so a crashed map-server
+// cannot wedge a guild's storage forever. Called from char.c on map disconnect.
+static int guildlock_release_sub(DBKey key, void* data, va_list ap)
+{
+	int fd = va_arg(ap, int);
+	if((int)(intptr_t)data == fd)
+		idb_remove(guild_storage_lock_db, key.i);
+	return 0;
+}
+void inter_storage_guildlock_release(int fd)
+{
+	if(guild_storage_lock_db)
+		guild_storage_lock_db->foreach(guild_storage_lock_db, guildlock_release_sub, fd);
 }
 
 int mapif_parse_SaveGuildStorage(int fd)
@@ -363,6 +422,7 @@ int inter_storage_parse_frommap(int fd){
 	case 0x3011: mapif_parse_SaveStorage(fd); break;
 	case 0x3018: mapif_parse_LoadGuildStorage(fd); break;
 	case 0x3019: mapif_parse_SaveGuildStorage(fd); break;
+	case 0x301a: mapif_parse_GuildStorageUnlock(fd); break;
 	default:
 		return 0;
 	}

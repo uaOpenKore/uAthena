@@ -29,7 +29,7 @@
 
 static const int packet_len_table[]={
 	-1,-1,27,-1, -1, 0,37, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3800-0x380f
-	-1, 7, 0, 0,  0, 0, 0, 0, -1,11, 0, 0,  0, 0,  0, 0, //0x3810
+	-1, 7, 0, 0,  0, 0, 0, 0, -1,11,10, 0,  0, 0,  0, 0, //0x3810
 	39,-1,15,15, 14,19, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
 	10,-1,15, 0, 79,19, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
 	 9, 9,-1,14,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3840
@@ -376,6 +376,29 @@ int intif_send_guild_storage(int account_id,struct guild_storage *gstor)
 	WFIFOL(inter_fd,8) = gstor->guild_id;
 	memcpy( WFIFOP(inter_fd,12),gstor, sizeof(struct guild_storage) );
 	WFIFOSET(inter_fd,WFIFOW(inter_fd,2));
+	return 0;
+}
+
+// Ask the char-server to release this map-server's lock on a guild's storage.
+// Sent on every guild-storage close; the char-server no-ops it unless the
+// cross-server lock is enabled (idempotent: release only if we are the owner).
+int intif_guild_storage_unlock(int guild_id)
+{
+	if (CheckForCharServer())
+		return 0;
+	WFIFOHEAD(inter_fd,6);
+	WFIFOW(inter_fd,0) = 0x301a;
+	WFIFOL(inter_fd,2) = guild_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+}
+
+// Char-server denied a guild-storage open (it is held by another map-server).
+int intif_parse_GuildStorageBusy(int fd)
+{
+	struct map_session_data *sd = map_id2sd(RFIFOL(fd,2)); // account_id (== bl.id for a player)
+	if(sd)
+		clif_displaymessage(sd->fd, "The guild storage is in use on another server.");
 	return 0;
 }
 
@@ -1504,6 +1527,7 @@ int intif_parse(int fd)
 	case 0x3811:	intif_parse_SaveStorage(fd); break;
 	case 0x3818:	intif_parse_LoadGuildStorage(fd); break;
 	case 0x3819:	intif_parse_SaveGuildStorage(fd); break;
+	case 0x381a:	intif_parse_GuildStorageBusy(fd); break;
 	case 0x3820:	intif_parse_PartyCreated(fd); break;
 	case 0x3821:	intif_parse_PartyInfo(fd); break;
 	case 0x3822:	intif_parse_PartyMemberAdded(fd); break;

@@ -26,6 +26,7 @@ int intif_request_storage(int account_id);
 int intif_send_storage(struct storage *stor);
 int intif_request_guild_storage(int account_id, int guild_id);
 int intif_send_guild_storage(int account_id, struct guild_storage *gstor);
+int intif_guild_storage_unlock(int guild_id);
 
 
 int intif_create_party(struct party_member *member,char *name,int item,int item2);

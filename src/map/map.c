@@ -59,6 +59,7 @@ char map_server_db[32] = "ragnarok";
 MYSQL mmysql_handle;
 AsyncDB* map_async_db = NULL;  // async writer for game-DB writes (mapreg)
 AsyncDB* mail_async_db = NULL; // async writer for the (optional) mail DB
+int guild_storage_lock = 0;    // cross-map-server guild storage lock (inter_athena.conf); 0 = off
 MYSQL_RES* sql_res;
 MYSQL_ROW sql_row;
 
@@ -3043,6 +3044,8 @@ int map_config_read(char *cfgName)
 				chrif_setuserid(w2);
 			} else if (strcmpi(w1, "passwd") == 0) {
 				chrif_setpasswd(w2);
+			} else if (strcmpi(w1, "guild_storage_lock") == 0) {
+				guild_storage_lock = atoi(w2);
 			} else if (strcmpi(w1, "char_ip") == 0) {
 				char_ip_set = chrif_setip(w2);
 			} else if (strcmpi(w1, "char_port") == 0) {

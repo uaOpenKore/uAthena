@@ -12,6 +12,7 @@
 #include "inter.h"
 #include "int_guild.h"
 #include "int_homun.h"
+#include "int_storage.h"
 #include "itemdb.h"
 #include "char.h"
 
@@ -2396,6 +2397,7 @@ int parse_frommap(int fd)
 			}
 			server_fd[id] = -1;
 			online_char_db->foreach(online_char_db,char_db_setoffline,id); //Tag relevant chars as 'in disconnected' server.
+			inter_storage_guildlock_release(fd); //free any guild-storage locks this map-server held
 		}
 		do_close(fd);
 		return 0;

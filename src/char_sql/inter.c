@@ -47,6 +47,7 @@ char login_server_db[32] = "ragnarok";
 
 static struct accreg *accreg_pt;
 unsigned int party_share_level = 10;
+int guild_storage_lock = 0; // cross-map-server guild storage lock (inter_athena.conf); 0 = off
 char main_chat_nick[16] = "Main";
 
 // sending packet list
@@ -65,7 +66,7 @@ int inter_send_packet_length[] = {
 // recv. packet list
 int inter_recv_packet_length[] = {
 	-1,-1, 7,-1, -1,13,36, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3000-
-	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 0, 0,  0, 0,  0, 0,	// 3010-
+	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 6, 0,  0, 0,  0, 0,	// 3010-
 	-1, 6,-1,14, 14,19, 6,-1, 14,14, 0, 0,  0, 0,  0, 0,	// 3020-
 	-1, 6,-1,-1, 55,19, 6,-1, 14,-1,-1,-1, 14,19,186,-1,	// 3030-
 	 5, 9, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3040-
@@ -261,6 +262,8 @@ static int inter_config_read(const char* cfgName)
 			log_inter = atoi(w2);
 		else if(!strcmpi(w1,"main_chat_nick"))
 			strcpy(main_chat_nick, w2);
+		else if(!strcmpi(w1,"guild_storage_lock"))
+			guild_storage_lock = atoi(w2);
 #endif //TXT_SQL_CONVERT
 		else if(!strcmpi(w1,"import"))
 			inter_config_read(w2);
