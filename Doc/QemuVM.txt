@@ -1,0 +1,71 @@
+Теперь сетевой тюнинг QEMU/KVM. Сразу к корню: главное ограничение — 2 vCPU. У тебя на двух ядрах толкаются игровой поток + поток отправки (воркер) + сетевые softirq (RX/TX) + log/db-воркеры. Отсюда и rubber-banding (воркер шедулится
+  с задержкой, т.к. ядра заняты) и __pv_queued_spin_lock_slowpath (qdisc/softirq дерётся за те же ядра). Воркер задумывался, чтобы отправка шла на отдельном ядре — а отдельного ядра нет.
+
+  По приоритету:
+
+  1. vCPU: 2 → 4 (это и есть фикс rubber-banding)
+
+  Чтобы воркер реально работал параллельно: нужно ядро игровому потоку, ядро воркеру, и ядра под сетевые softirq отдельно от них.
+
+  В libvirt XML домена:
+  <vcpu placement='static'>4</vcpu>
+  <cputune>
+    <vcpupin vcpu='0' cpuset='2'/>
+    <vcpupin vcpu='1' cpuset='3'/>
+    <vcpupin vcpu='2' cpuset='4'/>
+    <vcpupin vcpu='3' cpuset='5'/>
+    <emulatorpin cpuset='0-1'/>   <!-- QEMU/vhost-нити — прочь с ядер vCPU -->
+  </cputune>
+  <cpu mode='host-passthrough' check='none'/>
+  (cpuset — реальные ядра хоста; подбери под свою топологию, главное — vCPU прибиты к выделенным физическим ядрам и не делят их с эмулятором.)
+
+  Внутри гостя: процесс map (игр. поток + воркер) держим на vCPU 0-1, сетевые softirq — на 2-3 (см. п.3). Тогда воркер не конкурирует с softirq → отправка движения уходит вовремя → откатов нет.
+
+  2. virtio-net: vhost + multiqueue
+
+  Backend должен быть vhost (ядерный virtio, не userspace QEMU), и несколько очередей:
+  <interface type='...'>
+    <model type='virtio'/>
+    <driver name='vhost' queues='4'/>   <!-- = числу vCPU -->
+  </interface>
+  В госте включить очереди:
+  ethtool -L eth0 combined 4
+  ethtool -K eth0 gro on tso on gso on        # offload'ы
+  tc qdisc show dev eth0                        # должно стать 'mq' → у каждой очереди свой лок (меньше contention в qdisc)
+
+  3. IRQ/softirq-affinity в госте (бьём по спинлоку и латентности)
+
+  Развести softirq сетевых очередей по ядрам 2-3, подальше от игрового потока:
+  # по одной virtio-очереди на ядро:
+  for irq in $(grep -oE '^ *[0-9]+(?=:.*virtio.*input)' /proc/interrupts); do …; done
+  # проще — поставить irqbalance и/или вручную записать smp_affinity_list очередям → 2,3
+  echo 2 > /proc/irq/<irq_rx0>/smp_affinity_list
+  echo 3 > /proc/irq/<irq_rx1>/smp_affinity_list
+  # RPS/XPS на те же ядра:
+  echo 4 > /sys/class/net/eth0/queues/rx-0/rps_cpus   # маска ядра 2
+  echo 8 > /sys/class/net/eth0/queues/tx-0/xps_cpus   # маска ядра 3
+  И прибить сам map к ядрам 0-1: taskset -cp 0,1 <map_pid> (или systemd CPUAffinity=0 1 в юните). Пиннинг vCPU + разнос softirq заодно резко снижает __pv_queued_spin_lock_slowpath — paravirt-спинлок контендит в основном из-за вытеснения
+  vCPU, а на прибитых ядрах вытеснения нет.
+
+  4. Сеть VM: NAT (virbr0) → мост/macvtap
+
+  192.168.122.16 — это дефолтная libvirt-NAT (virbr0). Весь клиентский трафик идёт через хостовый iptables-DNAT + conntrack, а под ВоЕ (сотни соединений, высокий pps) conntrack-локи на хосте — реальный налог (часть того же спинлока —
+  это nf_conntrack).
+  - Лучше: перевести VM на bridge/macvtap (прямой L2, без хостового NAT/conntrack). Нужен маршрутизируемый IP на VM или мост к физическому NIC.
+  - Если NAT остаётся: хотя бы поднять conntrack на хосте:
+  sysctl -w net.netfilter.nf_conntrack_max=262144
+  echo 65536 > /sys/module/nf_conntrack/parameters/hashsize
+
+  5. sysctl в госте (буферы под сотни соединений)
+
+  net.core.somaxconn=4096
+  net.core.netdev_max_backlog=5000
+  net.core.rmem_max=16777216
+  net.core.wmem_max=16777216
+  net.ipv4.tcp_rmem=4096 87380 16777216
+  net.ipv4.tcp_wmem=4096 65536 16777216
+  net.ipv4.tcp_mtu_probing=1
+
+  ---
+  Если коротко — что сделать в первую очередь: (1) 4 vCPU + пиннинг, (2) vhost+multiqueue, (3) разнести softirq на отдельные ядра. Это напрямую и про rubber-banding (воркеру даём ядро), и про спинлок. NAT→bridge — следующим шагом, он
+  про потолок под сотнями соединений.
