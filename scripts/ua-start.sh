@@ -52,7 +52,8 @@ PERF_DIR="$LOG_DIR/perf"
 CRASH_INDEX="$CRASH_DIR/crash-history.log"
 CONSOLE_LOG="$LOG_DIR/uA${SERVER}.log"
 
-UA_PERF="${UA_PERF:-0}"
+# Profiler ON by default during the perf-tuning period (set UA_PERF=0 to disable).
+UA_PERF="${UA_PERF:-1}"
 UA_PERF_FREQ="${UA_PERF_FREQ:-99}"
 UA_CORE_KEEP="${UA_CORE_KEEP:-10}"
 UA_PERF_KEEP="${UA_PERF_KEEP:-10}"

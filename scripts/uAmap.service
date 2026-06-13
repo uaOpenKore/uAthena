@@ -6,6 +6,11 @@ Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.t
 PartOf=uAthena.target
 ReloadPropagatedFrom=uAthena.target
 
+# Disable systemd's start-rate limiter: a crash-loop must keep restarting (and
+# keep producing crash dumps for later analysis) instead of latching into
+# 'failed'. StartLimitIntervalSec lives in [Unit] since systemd 230+.
+StartLimitIntervalSec=0
+
 [Service]
 Type=simple
 PIDFile=/opt/uathena/bin/PID-map.pid
