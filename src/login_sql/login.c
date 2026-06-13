@@ -11,6 +11,7 @@
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
 #include "../common/version.h"
+#include "../common/random.h"
 #include "../common/md5calc.h"
 #include "login.h"
 
@@ -683,8 +684,14 @@ int mmo_auth(struct mmo_account* account, int fd)
 		}
 	}
 
-	account->login_id1 = rand();
-	account->login_id2 = rand();
+	// Session auth tokens must be unpredictable (a guessed pair lets an attacker
+	// hijack the char/map handoff) - draw from the kernel CSPRNG, not rand().
+	{
+		uint32 sid[2];
+		if (!rnd_secure_fill(sid, sizeof(sid))) { sid[0] = rnd_u32(); sid[1] = rnd_u32(); }
+		account->login_id1 = (int)(sid[0] & 0x7FFFFFFF);
+		account->login_id2 = (int)(sid[1] & 0x7FFFFFFF);
+	}
 
 	if (account->sex != 2 && account->account_id < START_ACCOUNT_NUM)
 		ShowWarning("Account %s has account id %d! Account IDs must be over %d to work properly!\n", account->userid, account->account_id, START_ACCOUNT_NUM);
@@ -1560,9 +1567,10 @@ int parse_login(int fd)
 
 			// Creation of the coding key
 			memset(ld->md5key, '\0', sizeof(ld->md5key));
-			ld->md5keylen = (uint16)(12 + rand() % 4);
+			ld->md5keylen = (uint16)(12 + rnd() % 4); // length 12-15 (not secret)
+			rnd_secure_fill(ld->md5key, ld->md5keylen); // the challenge key must be unpredictable
 			for(i = 0; i < ld->md5keylen; i++)
-				ld->md5key[i] = (char)(1 + rand() % 255);
+				ld->md5key[i] = (char)(1 + ((unsigned char)ld->md5key[i] % 255)); // [1,255], no NUL byte
 
 			WFIFOHEAD(fd,4 + ld->md5keylen);
 			WFIFOW(fd,0) = 0x01dc;
@@ -1994,7 +2002,7 @@ int do_init(int argc, char** argv)
 	sql_config_read(SQL_CONF_NAME);
 	login_lan_config_read((argc > 2) ? argv[2] : LAN_CONF_NAME);
 
-	srand((unsigned int)time(NULL));
+	rnd_init(); // seed the game PRNG; auth tokens/keys use the CSPRNG (rnd_secure_fill) directly
 
 	for(i=0;i<AUTH_FIFO_SIZE;i++)
 		auth_fifo[i].delflag=1;
