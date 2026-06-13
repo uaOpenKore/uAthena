@@ -9,4 +9,4 @@ CREATE TABLE `mail` (
   `priority` tinyint(1) NOT NULL default '0',
   `check_flag` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`message_id`)
-) TYPE=MyISAM;
+) ;
