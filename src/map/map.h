@@ -11,6 +11,8 @@
 #include "../common/mapindex.h"
 #include "../common/db.h"
 
+#include "async_db.h" // AsyncDB
+
 #include "itemdb.h" // MAX_ITEMGROUP
 #include "status.h" // SC_MAX
 
@@ -1421,6 +1423,10 @@ extern char mob_db_db[32];
 extern char mob_db2_db[32];
 extern char char_db[32];
 extern char mail_db[32];
+
+// Asynchronous writer for game-DB writes (mapreg, mail) - keeps DB round-trips
+// off the single-threaded game loop. NULL if it could not start (fall back to sync).
+extern AsyncDB* map_async_db;
 //Useful typedefs from jA [Skotlex]
 typedef struct map_session_data TBL_PC;
 typedef struct npc_data         TBL_NPC;

@@ -36,6 +36,7 @@
 #include "charcommand.h"
 
 #include "log.h"
+#include "async_db.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,6 +57,7 @@ char map_server_id[32] = "ragnarok";
 char map_server_pw[32] = "ragnarok";
 char map_server_db[32] = "ragnarok";
 MYSQL mmysql_handle;
+AsyncDB* map_async_db = NULL; // async writer for game-DB writes (mapreg, mail)
 MYSQL_RES* sql_res;
 MYSQL_ROW sql_row;
 
@@ -3452,6 +3454,8 @@ void do_final(void)
 	pc_db->destroy(pc_db, NULL);
 	charid_db->destroy(charid_db, NULL);
 
+	async_db_destroy(map_async_db); // drain buffered game-DB writes, join the worker
+	map_async_db = NULL;
 	log_async_final(); // drain buffered SQL logs before closing the handles
 
     map_sql_close();
@@ -3594,6 +3598,12 @@ int do_init(int argc, char *argv[])
 	map_db = db_alloc(__FILE__,__LINE__,DB_UINT,DB_OPT_BASE,sizeof(int));
 	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	map_sql_init();
+
+	// Asynchronous writer for game-DB writes (mapreg, mail): the game loop hands
+	// it finished SQL and never blocks on a DB round-trip. NULL -> callers fall
+	// back to a synchronous query. Flush every 20 seconds.
+	map_async_db = async_db_create("game", map_server_ip, map_server_id, map_server_pw,
+		map_server_db, map_server_port, default_codepage, 20);
 
 	mapindex_init();
 	grfio_init(GRF_PATH_FILENAME);
