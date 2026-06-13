@@ -7,7 +7,7 @@ obj:
 common: obj/core.o obj/socket.o obj/timer.o obj/db.o obj/plugins.o obj/lock.o \
 	obj/nullpo.o obj/malloc.o obj/showmsg.o  obj/strlib.o obj/utils.o \
 	obj/grfio.o obj/minicore.o obj/minisocket.o obj/minimalloc.o \
-	obj/mapindex.o obj/ers.o obj/md5calc.o
+	obj/mapindex.o obj/ers.o obj/md5calc.o obj/random.o
 
 
 obj/%.o: %.c
@@ -53,5 +53,6 @@ obj/strlib.o: strlib.c strlib.h utils.h
 obj/mapindex.o: mapindex.c mapindex.h
 obj/utils.o: utils.c utils.h malloc.h showmsg.h mmo.h
 obj/md5calc.o: md5calc.c md5calc.h
+obj/random.o: random.c random.h cbasetypes.h
 mmo.h: cbasetypes.h
 	@touch mmo.h

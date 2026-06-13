@@ -4731,8 +4731,8 @@ BUILDIN_FUNC(return)
 /// Returns a random number from 0 to <range>-1.
 /// Or returns a random number from <min> to <max>.
 /// If <min> is greater than <max>, their numbers are switched.
-/// rand(<range>) -> <int>
-/// rand(<min>,<max>) -> <int>
+/// rnd(<range>) -> <int>
+/// rnd(<min>,<max>) -> <int>
 BUILDIN_FUNC(rand)
 {
 	int range;
@@ -4755,7 +4755,7 @@ BUILDIN_FUNC(rand)
 	if( range <= 1 )
 		script_pushint(st, min);
 	else
-		script_pushint(st, rand()%range + min);
+		script_pushint(st, rnd()%range + min);
 
 	return 0;
 }

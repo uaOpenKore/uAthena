@@ -2000,7 +2000,7 @@ static void clif_addcards(unsigned char* buf, struct item* item)
 	}
 	//Client only receives four cards.. so randomly send them a set of cards. [Skotlex]
 	if (MAX_SLOTS > 4 && (j = itemdb_slot(item->nameid)) > 4)
-		i = rand()%(j-3); //eg: 6 slots, possible i values: 0->3, 1->4, 2->5 => i = rand()%3;
+		i = rnd()%(j-3); //eg: 6 slots, possible i values: 0->3, 1->4, 2->5 => i = rnd()%3;
 
 	//Normal items.
 	if (item->card[i] > 0 && (j=itemdb_viewid(item->card[i])) > 0)
@@ -3795,8 +3795,8 @@ int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tic
 	sc = status_get_sc(dst);
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION].timer != -1) {
-			if(damage > 0) damage = damage*(5+sc->data[SC_HALLUCINATION].val1) + rand()%100;
-			if(damage2 > 0) damage2 = damage2*(5+sc->data[SC_HALLUCINATION].val1) + rand()%100;
+			if(damage > 0) damage = damage*(5+sc->data[SC_HALLUCINATION].val1) + rnd()%100;
+			if(damage2 > 0) damage2 = damage2*(5+sc->data[SC_HALLUCINATION].val1) + rnd()%100;
 		}
 	}
 
@@ -4382,7 +4382,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,
 
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION].timer != -1 && damage > 0)
-			damage = damage*(5+sc->data[SC_HALLUCINATION].val1) + rand()%100;
+			damage = damage*(5+sc->data[SC_HALLUCINATION].val1) + rnd()%100;
 	}
 
 #if PACKETVER < 3
@@ -4471,7 +4471,7 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,
 
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION].timer != -1 && damage > 0)
-			damage = damage*(5+sc->data[SC_HALLUCINATION].val1) + rand()%100;
+			damage = damage*(5+sc->data[SC_HALLUCINATION].val1) + rnd()%100;
 	}
 
 	WBUFW(buf,0)=0x115;

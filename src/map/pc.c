@@ -3305,7 +3305,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 		itemid = md->db->dropitem[i].nameid;
 		if(itemid <= 0)
 			continue;
-		if(rand() % 10000 < md->db->dropitem[i].p*rate/100)
+		if(rnd() % 10000 < md->db->dropitem[i].p*rate/100)
 			break;
 	}
 	if (i == MAX_STEAL_DROP)
@@ -3364,8 +3364,8 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
 
 	skill = pc_checkskill(sd,RG_STEALCOIN)*10;
 	rate = skill + (sd->status.base_level - md->level)*3 + sd->battle_status.dex*2 + sd->battle_status.luk*2;
-	if(rand()%1000 < rate) {
-		pc_getzeny(sd,md->level*10 + rand()%100);
+	if(rnd()%1000 < rate) {
+		pc_getzeny(sd,md->level*10 + rnd()%100);
 		md->state.steal_coin_flag = 1;
 		return 1;
 	}
@@ -3463,8 +3463,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 				ShowError("pc_setpos: attempt to place player %s (%d:%d) on non-walkable tile (%s-%d,%d)\n", sd->status.name, sd->status.account_id, sd->status.char_id, mapindex_id2name(mapindex),x,y);
 		}
 		do {
-			x=rand()%(map[m].xs-2)+1;
-			y=rand()%(map[m].ys-2)+1;
+			x=rnd()%(map[m].xs-2)+1;
+			y=rnd()%(map[m].ys-2)+1;
 		} while(map_getcell(m,x,y,CELL_CHKNOPASS));
 	}
 
@@ -3524,8 +3524,8 @@ int pc_randomwarp(struct map_session_data *sd, int type)
 		return 0;
 
 	do{
-		x=rand()%(map[m].xs-2)+1;
-		y=rand()%(map[m].ys-2)+1;
+		x=rnd()%(map[m].xs-2)+1;
+		y=rnd()%(map[m].ys-2)+1;
 	}while(map_getcell(m,x,y,CELL_CHKNOPASS) && (i++)<1000 );
 
 	if (i < 1000)
@@ -5009,8 +5009,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			eq_num++;
 		}
 		if(eq_num > 0){
-			int n = eq_n[rand()%eq_num];
-			if(rand()%10000 < sd->status.karma){
+			int n = eq_n[rnd()%eq_num];
+			if(rnd()%10000 < sd->status.karma){
 				if(sd->status.inventory[n].equip)
 					pc_unequipitem(sd,n,0);
 				pc_dropitem(sd,n,1);
@@ -5122,8 +5122,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 					}
 				}
 				if(eq_num > 0){
-					int n = eq_n[rand()%eq_num];
-					if(rand()%10000 < per){
+					int n = eq_n[rnd()%eq_num];
+					if(rnd()%10000 < per){
 						if(sd->status.inventory[n].equip)
 							pc_unequipitem(sd,n,3);
 						pc_dropitem(sd,n,1);
@@ -5133,7 +5133,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			else if(id > 0){
 				for(i=0;i<MAX_INVENTORY;i++){
 					if(sd->status.inventory[i].nameid == id
-						&& rand()%10000 < per
+						&& rnd()%10000 < per
 						&& ((type == 1 && !sd->status.inventory[i].equip)
 							|| (type == 2 && sd->status.inventory[i].equip)
 							|| type == 3) ){

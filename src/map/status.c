@@ -4468,7 +4468,7 @@ int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int f
 		break;
 	default:
 		//Effect that cannot be reduced? Likely a buff.
-		if (!(rand()%10000 < rate))
+		if (!(rnd()%10000 < rate))
 			return 0;
 		return tick?tick:1;
 	}
@@ -4527,7 +4527,7 @@ int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int f
 			&& sd->reseff[type-SC_COMMON_MIN] > 0)
 			rate -= rate*sd->reseff[type-SC_COMMON_MIN]/10000;
 	}
-	if (!(rand()%10000 < rate))
+	if (!(rnd()%10000 < rate))
 		return 0;
 
 	//Why would a status start with no duration? Presume it has
@@ -5055,10 +5055,10 @@ int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,in
 		case SC_ELEMENTALCHANGE:
 			//Val1 is elemental change level, val2 is element to use.
 			if (!val2) //Val 3 holds the element, when not given, a random one is picked.
-				val2 = rand()%ELE_MAX;
+				val2 = rnd()%ELE_MAX;
 			//Elemental Lv is always a random value between  1 and 4.
 			if (val1 == 1)
-				val1 =1+rand()%4;
+				val1 =1+rnd()%4;
 			else if (val1 > 4)
 				val1 = 4;
 			break;
@@ -5730,7 +5730,7 @@ int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,in
 			break;
 		case SC_SKA:  
 			val2 = tick/1000;  
-			val3 = rand()%100; //Def changes randomly every second...  
+			val3 = rnd()%100; //Def changes randomly every second...  
 			tick = 1000;
 			break;
 		case SC_JAILED:
@@ -5787,7 +5787,7 @@ int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,in
 			if (val2 >= ELE_MAX)
 				val2 = val2%ELE_MAX;
 			else if (val2 < 0)
-				val2 = rand()%ELE_MAX;
+				val2 = rnd()%ELE_MAX;
 			break;
 		case SC_CRITICALWOUND:
 			val2 = 10*val1; //Heal effectiveness decrease
@@ -6637,7 +6637,7 @@ int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 
 	case SC_SKA:  
 		if((--sc->data[type].val2)>0){  
-			sc->data[type].val3 = rand()%100; //Random defense.  
+			sc->data[type].val3 = rnd()%100; //Random defense.  
 			sc->data[type].timer=add_timer(  
 				1000+tick, status_change_timer,  
 				bl->id, data);  
@@ -6736,7 +6736,7 @@ int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 		// - ??
 		// To-do: bleeding effect increases damage taken?
 		if ((--sc->data[type].val4) >= 0) {
-			status_fix_damage(NULL, bl, rand()%600 + 200, 0);
+			status_fix_damage(NULL, bl, rnd()%600 + 200, 0);
 			if (status_isdead(bl))
 				break;
 			sc->data[type].timer = add_timer(10000 + tick, status_change_timer, bl->id, data ); 
@@ -7271,7 +7271,7 @@ static int status_natural_heal(DBKey key,void * data,va_list ap)
 						100,rate,skill_get_time(TK_SPTIME, rate));
 				if (
 					(sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
-					rand()%10000 < battle_config.sg_angel_skill_ratio
+					rnd()%10000 < battle_config.sg_angel_skill_ratio
 				) { //Angel of the Sun/Moon/Star
 					clif_feel_hate_reset(sd);
 					pc_resethate(sd);

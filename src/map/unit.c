@@ -186,7 +186,7 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,intptr_t id,intptr_t da
 		if (
 			(sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
 			!(ud->walk_count%WALK_SKILL_INTERVAL) &&
-			rand()%10000 < battle_config.sg_miracle_skill_ratio
+			rnd()%10000 < battle_config.sg_miracle_skill_ratio
 		)	//SG_MIRACLE [Komurka]
 			sc_start(&sd->bl,SC_MIRACLE,100,1,battle_config.sg_miracle_skill_duration);
 	} else if (md) {

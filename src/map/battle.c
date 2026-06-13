@@ -82,7 +82,7 @@ struct block_list* battle_gettargeted(struct block_list *target)
 	map_foreachinrange(battle_gettargeted_sub, target, AREA_SIZE, BL_CHAR, bl_list, &c, target->id);
 	if (c == 0 || c > 24)
 		return NULL;
-	return bl_list[rand()%c];
+	return bl_list[rnd()%c];
 }
 
 
@@ -131,7 +131,7 @@ struct block_list* battle_getenemy(struct block_list *target, int type, int rang
 	map_foreachinrange(battle_getenemy_sub, target, range, type, bl_list, &c, target);
 	if (c == 0 || c > 24)
 		return NULL;
-	return bl_list[rand()%c];
+	return bl_list[rnd()%c];
 }
 
 // _??[Wx
@@ -213,7 +213,7 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 	if (target) tsc = status_get_sc(target);
 	
 	if (atk_elem < 0 || atk_elem >= ELE_MAX)
-		atk_elem = rand()%ELE_MAX;
+		atk_elem = rnd()%ELE_MAX;
 
 	if (def_type < 0 || def_type >= ELE_MAX ||
 		def_lv < 1 || def_lv > 4) {
@@ -305,7 +305,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 
 		if(sc->data[SC_AUTOGUARD].timer != -1 && flag&BF_WEAPON &&
 			!(skill_get_nk(skill_num)&NK_NO_CARDFIX_ATK) &&
-			rand()%100 < sc->data[SC_AUTOGUARD].val2)
+			rnd()%100 < sc->data[SC_AUTOGUARD].val2)
 		{
 			int delay;
 			clif_skill_nodamage(bl,bl,CR_AUTOGUARD,sc->data[SC_AUTOGUARD].val1,1);
@@ -318,7 +318,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 				delay = 100;
 			unit_set_walkdelay(bl, gettick(), delay, 1);
 
-			if(sc->data[SC_SHRINK].timer != -1 && rand()%100<5*sc->data[SC_AUTOGUARD].val1)
+			if(sc->data[SC_SHRINK].timer != -1 && rnd()%100<5*sc->data[SC_AUTOGUARD].val1)
 				skill_blown(bl,src,skill_get_blewcount(CR_SHRINK,1),-1,0);
 			return 0;
 		}
@@ -326,14 +326,14 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 // -- moonsoul (chance to block attacks with new Lord Knight skill parrying)
 //
 		if(sc->data[SC_PARRYING].timer != -1 && flag&BF_WEAPON &&
-			rand()%100 < sc->data[SC_PARRYING].val2) {
+			rnd()%100 < sc->data[SC_PARRYING].val2) {
 			clif_skill_nodamage(bl,bl,LK_PARRYING,sc->data[SC_PARRYING].val1,1);
 			return 0;
 		}
 		
 		if(sc->data[SC_DODGE].timer != -1 && !sc->opt1 &&
 			(flag&BF_LONG || sc->data[SC_SPURT].timer != -1)
-			&& rand()%100 < 20) {
+			&& rnd()%100 < 20) {
 			if (sd && pc_issit(sd)) pc_setstand(sd); //Stand it to dodge.
 			clif_skill_nodamage(bl,bl,TK_DODGE,1,1);
 			if (sc->data[SC_COMBO].timer == -1)
@@ -348,7 +348,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 			return 0;
 
 		if(sc->data[SC_KAUPE].timer != -1 &&
-			rand()%100 < sc->data[SC_KAUPE].val2 &&
+			rnd()%100 < sc->data[SC_KAUPE].val2 &&
 			(src->type == BL_PC || !skill_num))
 		{	//Kaupe only blocks all skills of players.
 			clif_specialeffect(bl, 462, AREA);
@@ -433,7 +433,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 				((TBL_PC *)src)->status.weapon == W_2HSWORD
 			))
 		){
-			if(rand()%100 < sc->data[SC_REJECTSWORD].val2){
+			if(rnd()%100 < sc->data[SC_REJECTSWORD].val2){
 				damage = damage*50/100;
 				status_fix_damage(bl,src,damage,clif_damage(bl,src,gettick(),0,0,damage,0,0,0));
 				clif_skill_nodamage(bl,bl,ST_REJECTSWORD,sc->data[SC_REJECTSWORD].val1,1);
@@ -461,7 +461,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,i
 		//Probably not the most correct place, but it'll do here
 		//(since battle_drain is strictly for players currently)
 		if (sc->data[SC_BLOODLUST].timer != -1 && flag&BF_WEAPON && damage > 0 &&
-			rand()%100 < sc->data[SC_BLOODLUST].val3)
+			rnd()%100 < sc->data[SC_BLOODLUST].val3)
 			status_heal(src, damage*sc->data[SC_BLOODLUST].val4/100, 0, 3);
 
 	}
@@ -582,7 +582,7 @@ static int battle_calc_drain(int damage, int rate, int per)
 {
 	int diff = 0;
 
-	if (per && rand()%1000 < rate) {
+	if (per && rnd()%1000 < rate) {
 		diff = (damage * per) / 100;
 		if (diff == 0) {
 			if (per > 0)
@@ -736,7 +736,7 @@ static int battle_calc_base_damage(struct status_data *status, struct weapon_atk
 	
 	//Weapon Damage calculation
 	if (!(flag&1))
-		damage = (atkmax>atkmin? rand()%(atkmax-atkmin):0)+atkmin;
+		damage = (atkmax>atkmin? rnd()%(atkmax-atkmin):0)+atkmin;
 	else 
 		damage = atkmax;
 	
@@ -744,7 +744,7 @@ static int battle_calc_base_damage(struct status_data *status, struct weapon_atk
 	{
 		//rodatazone says the range is 0~arrow_atk-1 for non crit
 		if (flag&2 && sd->arrow_atk)
-			damage += ((flag&1)?sd->arrow_atk:rand()%sd->arrow_atk);
+			damage += ((flag&1)?sd->arrow_atk:rnd()%sd->arrow_atk);
 
 		//SizeFix only for players
 		if (!(sd->special_state.no_sizefix || (flag&8)))
@@ -764,12 +764,12 @@ static int battle_calc_base_damage(struct status_data *status, struct weapon_atk
 	if(sd) {
 		if (type == EQI_HAND_L) {
 			if(sd->left_weapon.overrefine)
-				damage += rand()%sd->left_weapon.overrefine+1;
+				damage += rnd()%sd->left_weapon.overrefine+1;
 			if (sd->weapon_atk_rate[sd->weapontype2])
 				damage += damage*sd->weapon_atk_rate[sd->weapontype2]/100;;
 		} else { //Right hand
 			if(sd->right_weapon.overrefine)
-				damage += rand()%sd->right_weapon.overrefine+1;
+				damage += rnd()%sd->right_weapon.overrefine+1;
 			if (sd->weapon_atk_rate[sd->weapontype1])
 				damage += damage*sd->weapon_atk_rate[sd->weapontype1]/100;;
 		}
@@ -958,7 +958,7 @@ static struct Damage battle_calc_weapon_attack(
 	} else //Range for normal attacks.
 		wd.flag |= flag.arrow?BF_LONG:BF_SHORT;
 
-	if (!skill_num && tstatus->flee2 && rand()%1000 < tstatus->flee2)
+	if (!skill_num && tstatus->flee2 && rnd()%1000 < tstatus->flee2)
 	{	//Check for Lucky Dodge
 		wd.type=0x0b;
 		wd.dmg_lv=ATK_LUCKY;
@@ -1033,7 +1033,7 @@ static struct Damage battle_calc_weapon_attack(
 		}
 		if(tsd && tsd->critical_def)
 			cri = cri*(100-tsd->critical_def)/100;
-		if (rand()%1000 < cri)
+		if (rnd()%1000 < cri)
 			flag.cri= 1;
 	}
 	if (flag.cri)
@@ -1041,7 +1041,7 @@ static struct Damage battle_calc_weapon_attack(
 		wd.type = 0x0a;
 		flag.idef = flag.idef2 = flag.hit = 1;
 	} else {	//Check for Perfect Hit
-		if(sd && sd->perfect_hit > 0 && rand()%100 < sd->perfect_hit)
+		if(sd && sd->perfect_hit > 0 && rnd()%100 < sd->perfect_hit)
 			flag.hit = 1;
 		if (sc && sc->data[SC_FUSION].timer != -1) {
 			flag.hit = 1; //SG_FUSION always hit [Komurka]
@@ -1137,7 +1137,7 @@ static struct Damage battle_calc_weapon_attack(
 
 		hitrate = cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate);
 
-		if(rand()%100 >= hitrate)
+		if(rnd()%100 >= hitrate)
 			wd.dmg_lv = ATK_FLEE;
 		else
 			flag.hit = 1;
@@ -1283,7 +1283,7 @@ static struct Damage battle_calc_weapon_attack(
 			if(sd &&
 				sd->random_attack_increase_add > 0 &&
 				sd->random_attack_increase_per &&
-				rand()%100 < sd->random_attack_increase_per
+				rnd()%100 < sd->random_attack_increase_per
 				)
 				skillratio += sd->random_attack_increase_add;
 		
@@ -1359,7 +1359,7 @@ static struct Damage battle_calc_weapon_attack(
 						skillratio += 100; //Max damage for non players.
 					break;
 				case NPC_RANDOMATTACK:
-					skillratio += rand()%150-50;
+					skillratio += rnd()%150-50;
 					break;
 				case NPC_WATERATTACK:
 				case NPC_GROUNDATTACK:
@@ -1581,7 +1581,7 @@ static struct Damage battle_calc_weapon_attack(
 					break;
 				case GS_MAGICALBULLET:
 					if(sstatus->matk_max>sstatus->matk_min) {
-						ATK_ADD(sstatus->matk_min+rand()%(sstatus->matk_max-sstatus->matk_min));
+						ATK_ADD(sstatus->matk_min+rnd()%(sstatus->matk_max-sstatus->matk_min));
 					} else {
 						ATK_ADD(sstatus->matk_min);
 					}
@@ -1698,7 +1698,7 @@ static struct Damage battle_calc_weapon_attack(
 			if (tsd)	//Sd vit-eq
 			{	//[VIT*0.5] + rnd([VIT*0.3], max([VIT*0.3],[VIT^2/150]-1))
 				vit_def = def2*(def2-15)/150;
-				vit_def = def2/2 + (vit_def>0?rand()%vit_def:0);
+				vit_def = def2/2 + (vit_def>0?rnd()%vit_def:0);
 				
 				if((battle_check_undead(sstatus->race,sstatus->def_ele) || sstatus->race==RC_DEMON) &&
 					(skill=pc_checkskill(tsd,AL_DP)) >0)
@@ -1706,7 +1706,7 @@ static struct Damage battle_calc_weapon_attack(
 			} else { //Mob-Pet vit-eq
 				//VIT + rnd(0,[VIT/20]^2-1)
 				vit_def = (def2/20)*(def2/20);
-				vit_def = def2 + (vit_def>0?rand()%vit_def:0);
+				vit_def = def2 + (vit_def>0?rnd()%vit_def:0);
 			}
 			
 			if (battle_config.weapon_defense_type) {
@@ -1957,7 +1957,7 @@ static struct Damage battle_calc_weapon_attack(
 	{	//Check for double attack.
 		if(((skill_lv = pc_checkskill(sd,TF_DOUBLE)) > 0 && sd->weapontype1 == W_DAGGER) || sd->double_rate > 0)
 		{	//Success chance is not added, the higher one is used [Skotlex]
-			if (rand()%100 < (5*skill_lv>sd->double_rate?5*skill_lv:sd->double_rate))
+			if (rnd()%100 < (5*skill_lv>sd->double_rate?5*skill_lv:sd->double_rate))
 			{
 				wd.div_=skill_get_num(TF_DOUBLE,skill_lv?skill_lv:1);
 				damage_div_fix(wd.damage, wd.div_);
@@ -1966,7 +1966,7 @@ static struct Damage battle_calc_weapon_attack(
 		} else
 		if (sd->weapontype1 == W_REVOLVER &&
 			(skill_lv = pc_checkskill(sd,GS_CHAINACTION)) > 0 &&
-			(rand()%100 < 5*skill_lv)
+			(rnd()%100 < 5*skill_lv)
 			)
 		{
 			wd.div_=skill_get_num(GS_CHAINACTION,skill_lv);
@@ -2197,7 +2197,7 @@ struct Damage battle_calc_magic_attack(
 				i = 20*skill_lv + sstatus->luk + sstatus->int_ + status_get_lv(src)
 				  	+ 200 - 200*tstatus->hp/tstatus->max_hp;
 				if(i > 700) i = 700;
-				if(rand()%1000 < i && !(tstatus->mode&MD_BOSS))
+				if(rnd()%1000 < i && !(tstatus->mode&MD_BOSS))
 					ad.damage = tstatus->hp;
 				else
 					ad.damage = status_get_lv(src) + sstatus->int_ + skill_lv * 10;
@@ -2212,12 +2212,12 @@ struct Damage battle_calc_magic_attack(
 			{
 				if (skill_num == NPC_EARTHQUAKE) {
 					if (sstatus->rhw.atk2 > sstatus->rhw.atk)
-						MATK_ADD(sstatus->rhw.atk + rand()%(1+sstatus->rhw.atk2-sstatus->rhw.atk))
+						MATK_ADD(sstatus->rhw.atk + rnd()%(1+sstatus->rhw.atk2-sstatus->rhw.atk))
 					else
 						MATK_ADD(sstatus->rhw.atk);
 				} else
 				if (sstatus->matk_max > sstatus->matk_min) {
-					MATK_ADD(sstatus->matk_min+rand()%(1+sstatus->matk_max-sstatus->matk_min));
+					MATK_ADD(sstatus->matk_min+rnd()%(1+sstatus->matk_max-sstatus->matk_min));
 				} else {
 					MATK_ADD(sstatus->matk_min);
 				}
@@ -2511,14 +2511,14 @@ struct Damage  battle_calc_misc_attack(
 		md.damage=3;
 		break;
 	case NPC_DARKBREATH:
-		md.damage = 500 + (skill_lv-1)*1000 + rand()%1000;
+		md.damage = 500 + (skill_lv-1)*1000 + rnd()%1000;
 		if(md.damage > 9999) md.damage = 9999;
 		break;
 	case PA_PRESSURE:
 		md.damage=500+300*skill_lv;
 		break;
 	case PA_GOSPEL:
-		md.damage = 1+rand()%9999;
+		md.damage = 1+rnd()%9999;
 		break;
 	case CR_ACIDDEMONSTRATION: // updated the formula based on a Japanese formula found to be exact [Reddozen]
 		md.damage = 7*tstatus->vit*sstatus->int_*sstatus->int_ / (10*(tstatus->vit+sstatus->int_));
@@ -2531,7 +2531,7 @@ struct Damage  battle_calc_misc_attack(
 	case NJ_ZENYNAGE:
 		md.damage = skill_get_zeny(skill_num ,skill_lv);
 		if (!md.damage) md.damage = 2;
-		md.damage = md.damage + rand()%md.damage;
+		md.damage = md.damage + rnd()%md.damage;
 		if (is_boss(target))
 			md.damage=md.damage/3;
 		else if (tsd)
@@ -2544,7 +2544,7 @@ struct Damage  battle_calc_misc_attack(
 		md.damage = sstatus->max_hp * (50 + 50 * skill_lv) / 100 ;
 		break ;
 	case ASC_BREAKER:
-		md.damage = 500+rand()%500 + 5*skill_lv * sstatus->int_;
+		md.damage = 500+rnd()%500 + 5*skill_lv * sstatus->int_;
 		nk|=NK_IGNORE_FLEE|NK_NO_ELEFIX; //These two are not properties of the weapon based part.
 		break;
 	}
@@ -2591,7 +2591,7 @@ struct Damage  battle_calc_misc_attack(
 			else if (hitrate < battle_config.min_hitrate)
 				hitrate = battle_config.min_hitrate;
 
-			if(rand()%100 < hitrate)
+			if(rnd()%100 < hitrate)
 				i = 1;
 		}
 		if (!i) {
@@ -2706,8 +2706,8 @@ int battle_calc_return_damage(struct block_list* bl, int* damage, int direct, in
 	if(flag&BF_MAGIC)
 	{
 		if(
-			(sd && sd->magic_damage_return && direct && rand()%100 < sd->magic_damage_return)
-			|| (sc && sc->data[SC_MAGICMIRROR].timer != -1 && rand()%100 < sc->data[SC_MAGICMIRROR].val2)
+			(sd && sd->magic_damage_return && direct && rnd()%100 < sd->magic_damage_return)
+			|| (sc && sc->data[SC_MAGICMIRROR].timer != -1 && rnd()%100 < sc->data[SC_MAGICMIRROR].val2)
 			)
 		{	//Bounces back full damage, you take none.
 			rdamage = *damage;
@@ -2756,7 +2756,7 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, 
 		}
 	}
 
-	if (sd->sp_vanish_rate && rand()%1000 < sd->sp_vanish_rate)
+	if (sd->sp_vanish_rate && rnd()%1000 < sd->sp_vanish_rate)
 		status_percent_damage(&sd->bl, tbl, 0, (unsigned char)sd->sp_vanish_per);
 	if (!thp && !tsp) return;
 
@@ -2881,7 +2881,7 @@ int battle_weapon_attack(struct block_list* src, struct block_list* target, unsi
 			triple_rate+= triple_rate*(sc->data[SC_SKILLRATE_UP].val2)/100;
 			status_change_end(src,SC_SKILLRATE_UP,-1);
 		}
-		if (rand()%100 < triple_rate)
+		if (rnd()%100 < triple_rate)
 			return skill_attack(BF_WEAPON,src,src,target,MO_TRIPLEATTACK,skillv,tick,0);
 	}
 
@@ -2921,11 +2921,11 @@ int battle_weapon_attack(struct block_list* src, struct block_list* target, unsi
 
 	battle_delay_damage(tick+wd.amotion, src, target, wd.flag, 0, 0, damage, wd.dmg_lv, wd.dmotion);
 
-	if (sc && sc->data[SC_AUTOSPELL].timer != -1 && rand()%100 < sc->data[SC_AUTOSPELL].val4) {
+	if (sc && sc->data[SC_AUTOSPELL].timer != -1 && rnd()%100 < sc->data[SC_AUTOSPELL].val4) {
 		int sp = 0;
 		int skillid = sc->data[SC_AUTOSPELL].val2;
 		int skilllv = sc->data[SC_AUTOSPELL].val3;
-		int i = rand()%100;
+		int i = rnd()%100;
 		if (sc->data[SC_SPIRIT].timer != -1 && sc->data[SC_SPIRIT].val2 == SL_SAGE)
 			i = 0; //Max chance, no skilllv reduction. [Skotlex]
 		if (i >= 50) skilllv -= 2;
@@ -2963,7 +2963,7 @@ int battle_weapon_attack(struct block_list* src, struct block_list* target, unsi
 
 	if (tsc) {
 		if (tsc->data[SC_POISONREACT].timer != -1 &&
-			(rand()%100 < tsc->data[SC_POISONREACT].val3
+			(rnd()%100 < tsc->data[SC_POISONREACT].val3
 			|| sstatus->def_ele == ELE_POISON) &&
 //			check_distance_bl(src, target, tstatus->rhw.range+1) && Doesn't checks range! o.O;
 			status_check_skilluse(target, src, TF_POISON, 0)

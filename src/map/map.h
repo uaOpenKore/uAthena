@@ -12,6 +12,7 @@
 #include "../common/db.h"
 
 #include "async_db.h" // AsyncDB
+#include "../common/random.h" // rnd()
 
 #include "itemdb.h" // MAX_ITEMGROUP
 #include "status.h" // SC_MAX
