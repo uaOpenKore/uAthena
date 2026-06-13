@@ -150,6 +150,7 @@ struct block {
 	size_t unit_hash;		/* jbgnbV */
 	int    unit_count;		/* jbg */
 	int    unit_used;		/* gpjbg */
+	int    unit_freehead;	/* [perf] index of first free unit (per-block free list head), -1 if full */
 	char   data[BLOCK_DATA_SIZE];
 };
 
@@ -189,6 +190,12 @@ static struct block* block_malloc(void);
 static void   block_free(struct block* p);
 static void memmgr_info(void);
 static unsigned int memmgr_usage_bytes = 0;
+
+// [perf] A free unit threads the index of the next free unit in its block through
+// the first int of its (currently unused) payload. Allocation pops the block's
+// free list in O(1) instead of linearly scanning every unit for an empty slot,
+// which made filling a block O(unit_count^2) (the boot-time script-parse hot spot).
+#define UNIT_NEXT_FREE(blk,idx) (*(int*)((char*)&(blk)->data[(blk)->unit_size * (idx)] + sizeof(struct unit_head) - sizeof(int)))
 
 // The memmgr's global block/unit lists are shared state. A single mutex makes
 // aMalloc/aFree thread-safe (for the async SQL log worker and any future
@@ -263,42 +270,44 @@ static void* mmalloc_impl(size_t size, const char *file, int line, const char *f
 		block->unit_count = (int)(BLOCK_DATA_SIZE / block->unit_size);
 		block->unit_used  = 0;
 		block->unit_hash  = size_hash;
-		/* gpFlag */
+		/* mark every unit free and thread them into the block's free list 0->1->...->-1 [perf] */
 		for(i=0;i<block->unit_count;i++) {
 			((struct unit_head*)(&block->data[block->unit_size * i]))->block = NULL;
+			UNIT_NEXT_FREE(block, i) = (i + 1 < block->unit_count) ? (i + 1) : -1;
 		}
+		block->unit_freehead = 0;
 	}
-	/* jbggpZ */
+	/* O(1) allocation: pop this block's free-unit list (no per-unit scan) [perf] */
 	block = unit_unfill[size_hash];
-	block->unit_used++;
-
-	/* jbgSg */
-	if(block->unit_count == block->unit_used) {
-		do {
-			unit_unfill[size_hash] = unit_unfill[size_hash]->samesize_next;
-		} while(
-			unit_unfill[size_hash] != NULL &&
-			unit_unfill[size_hash]->unit_count == unit_unfill[size_hash]->unit_used
-		);
-	}
-
-	/* ubNjbg{ */
-	for(i=0;i<block->unit_count;i++) {
-		struct unit_head *head = (struct unit_head*)(&block->data[block->unit_size * i]);
-		if(head->block == NULL) {
-			head->block = block;
-			head->size  = size;
-			head->line  = line;
-			head->file  = file;
-			*(int*)((char*)head + sizeof(struct unit_head) - sizeof(int) + size) = 0xdeadbeaf;
-			return (char *)head + sizeof(struct unit_head) - sizeof(int);
+	{
+		int idx = block->unit_freehead;
+		struct unit_head *head;
+		if(idx < 0) { /* invariant: a non-full unfill block always has a free unit */
+			ShowFatalError("Memory manager::memmgr_malloc() serious error (allocating %zu+%zu bytes at %s:%d)\n", sizeof(struct unit_head_large), size, file, line);
+			memmgr_info();
+			exit(1);
 		}
+		head = (struct unit_head*)(&block->data[block->unit_size * idx]);
+		block->unit_freehead = UNIT_NEXT_FREE(block, idx);	/* pop */
+		block->unit_used++;
+
+		/* if the block is now full, advance unit_unfill to the next one with space */
+		if(block->unit_count == block->unit_used) {
+			do {
+				unit_unfill[size_hash] = unit_unfill[size_hash]->samesize_next;
+			} while(
+				unit_unfill[size_hash] != NULL &&
+				unit_unfill[size_hash]->unit_count == unit_unfill[size_hash]->unit_used
+			);
+		}
+
+		head->block = block;
+		head->size  = size;
+		head->line  = line;
+		head->file  = file;
+		*(int*)((char*)head + sizeof(struct unit_head) - sizeof(int) + size) = 0xdeadbeaf;
+		return (char *)head + sizeof(struct unit_head) - sizeof(int);
 	}
-	// B
-		ShowFatalError("Memory manager::memmgr_malloc() serious error (allocating %zu+%zu bytes at %s:%d)\n", sizeof(struct unit_head_large), size, file, line);
-	memmgr_info();
-	exit(1);
-	//return NULL;
 };
 
 void* _mmalloc(size_t size, const char *file, int line, const char *func )
@@ -429,7 +438,11 @@ static void mfree_impl(void *ptr, const char *file, int line, const char *func )
 				}
 				block_free(block);
 			} else {
-				/* jbg */
+				/* push the freed unit back onto its block's free list [perf] */
+				int idx = (int)(((char*)head - block->data) / (long)block->unit_size);
+				UNIT_NEXT_FREE(block, idx) = block->unit_freehead;
+				block->unit_freehead = idx;
+				/* keep unit_unfill pointing at the earliest block that has space */
 				if(
 					unit_unfill[block->unit_hash] == NULL ||
 					unit_unfill[block->unit_hash]->samesize_no > block->samesize_no
