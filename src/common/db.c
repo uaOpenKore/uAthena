@@ -1192,10 +1192,21 @@ static unsigned int db_obj_vgetall(DB self, void **buf, unsigned int max, DBMatc
 		node = db->ht[i];
 		while (node) {
 			parent = node->parent;
-			if (!(node->deleted) && match(node->key, node->data, args) == 0) {
-				if (buf && ret < max)
-					buf[ret] = node->data;
-				ret++;
+			if (!(node->deleted)) {
+				// match() consumes the va_list (e.g. itemdb search does va_arg),
+				// so give each node a fresh copy - reusing `args` fed the next
+				// node a wild pointer and crashed @iteminfo on x64. [matches the
+				// va_copy already in db_obj_vforeach/vclear]
+				va_list _argc;
+				int _match;
+				va_copy(_argc, args);
+				_match = match(node->key, node->data, _argc);
+				va_end(_argc);
+				if (_match == 0) {
+					if (buf && ret < max)
+						buf[ret] = node->data;
+					ret++;
+				}
 			}
 			if (node->left) {
 				node = node->left;
