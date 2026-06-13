@@ -60,6 +60,15 @@ int naddr_ = 0;   // # of ip addresses
 size_t rfifo_size = (16*1024);
 size_t wfifo_size = (16*1024);
 
+// [perf] Send coalescing: a session whose pending out-buffer is below
+// SOCKET_COALESCE_BYTES is flushed at most once per socket_send_coalesce_ms, so
+// the dribble of tiny per-loop packets batches into fewer/larger send() calls
+// (cuts syscalls, TCP segments and the qdisc TX-lock contention). Bulk (>= the
+// threshold, i.e. already ~a full segment) and eof sessions flush immediately,
+// so combat bursts are not delayed. Set the interval to 0 to disable.
+int socket_send_coalesce_ms = 20;
+#define SOCKET_COALESCE_BYTES 1400  // ~one TCP segment (1500 MTU - headers)
+
 struct socket_data* session[SOCKET_MAX];
 
 #ifdef SEND_SHORTLIST
@@ -523,6 +532,13 @@ int do_sendrecv(int next)
 	// PRESEND Timers run before do_sendrecv and can queue packets and/or set
 	// sessions to eof. Flush queued data and close eof sessions.
 	send_shortlist_do_sends();
+
+	// [perf] If small sends are being deferred for coalescing, don't let epoll
+	// sleep past the coalesce window, or that dribble would stall up to a full
+	// timer interval; wake in time to flush it.
+	if( socket_send_coalesce_ms > 0 && send_shortlist_count > 0
+	 && (next < 0 || next > socket_send_coalesce_ms) )
+		next = socket_send_coalesce_ms;
 
 	// Wait for readable sockets (replaces select). next is the ms until the
 	// next timer; epoll_wait takes its timeout directly in milliseconds.
@@ -1095,9 +1111,22 @@ void send_shortlist_do_sends()
 		// check for the eof state.
 		if( session[fd] )
 		{
-			// Send data
+			// Send data — coalesce small dribbles (see socket_send_coalesce_ms).
 			if( session[fd]->wdata_size )
+			{
+				if( socket_send_coalesce_ms > 0
+				 && session[fd]->client_addr != 0  // real clients only, never inter-server (s2s)
+				 && !session[fd]->eof
+				 && session[fd]->wdata_size < SOCKET_COALESCE_BYTES
+				 && DIFF_TICK(gettick(), session[fd]->last_send_tick) < socket_send_coalesce_ms )
+				{
+					// too soon and too little: keep it queued, flush on a later pass
+					++i;
+					continue;
+				}
+				session[fd]->last_send_tick = gettick();
 				session[fd]->func_send(fd);
+			}
 
 			// If it's been marked as eof, call the parse func on it so that
 			// the socket will be immediately closed.

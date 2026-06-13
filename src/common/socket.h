@@ -89,6 +89,7 @@ struct socket_data {
 	SendFunc func_send;
 	ParseFunc func_parse;
 	unsigned char in_shortlist; // already queued in the send shortlist (dedup)
+	unsigned int last_send_tick; // [perf] gettick() of last flush, for send coalescing
 };
 
 
