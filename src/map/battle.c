@@ -4030,7 +4030,7 @@ void battle_set_defaults()
 	battle_config.mob_ai = 0;
 	battle_config.mob_ai_lazy_skip_emptymap = 0; // [perf] default off = original behaviour
 	battle_config.socket_async_send = 0; // [perf] default off = inline send on the game loop
-	battle_config.socket_send_coalesce_ms = 20; // [perf] map-only client send coalescing window
+	battle_config.socket_send_coalesce_ms = 0; // [perf] OFF by default: delays map-entry data to remote clients (use the send worker instead)
 	battle_config.hom_setting = 0xFFFF;
 	battle_config.dynamic_mobs = 1; // use Dynamic Mobs [Wizputer]
 	battle_config.mob_remove_damaged = 1; // Dynamic Mobs - Remove mobs even if damaged [Wizputer]
