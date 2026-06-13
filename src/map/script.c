@@ -169,9 +169,13 @@ int str_hash[SCRIPT_HASH_SIZE];
 
 static struct dbt *mapreg_db=NULL;
 static struct dbt *mapregstr_db=NULL;
+static struct dbt *mapreg_dirty_db=NULL; // map registers changed since the last flush (a key-set)
 static int mapreg_dirty=-1;
 char mapreg_txt[256]="save/mapreg.txt";
-#define MAPREG_AUTOSAVE_INTERVAL	(300*1000)
+// Map registers are persisted off the game loop: per-event writes only touch
+// memory and mark the key dirty; this timer flushes the dirty set to the DB via
+// the async writer. 20s coalesces hot counters into one DB write per key.
+#define MAPREG_AUTOSAVE_INTERVAL	(20*1000)
 
 static struct dbt *scriptlabel_db=NULL;
 static struct dbt *userfunc_db=NULL;
@@ -3199,40 +3203,38 @@ void run_script_main(struct script_state *st)
 /*==========================================
  * }bvX
  *------------------------------------------*/
+// Submit a mapreg persistence statement: hand it to the async writer if the
+// worker is up, otherwise fall back to a synchronous query so nothing is lost.
+static void mapreg_submit(const char* sql)
+{
+	if(map_async_db)
+		async_db_submit(map_async_db, sql);
+	else if(mysql_query(&mmysql_handle, sql)){
+		ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,sql);
+	}
+}
+
+// Mark a map register changed so the next flush persists it. $@temp globals are
+// never written to the DB, so they are not tracked.
+static void mapreg_mark_dirty(int num)
+{
+	const char* name = str_buf+str_data[num&0x00ffffff].str;
+	if(name[1] == '@')
+		return;
+	if(mapreg_dirty_db)
+		idb_put(mapreg_dirty_db, num, (void*)(intptr_t)1);
+	mapreg_dirty = 1;
+}
+
 int mapreg_setreg(int num,int val)
 {
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-	int i=num>>24;
-	char *name=str_buf+str_data[num&0x00ffffff].str;
-	char tmp_str[64];
-#endif
-
-	if(val!=0) {
-		if(idb_put(mapreg_db,num,(void*)val))
-			;
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-		else if(name[1] != '@') {
-			sprintf(tmp_sql,"INSERT INTO `%s`(`%s`,`%s`,`%s`) VALUES ('%s','%d','%d')",mapregsql_db,mapregsql_db_varname,mapregsql_db_index,mapregsql_db_value,jstrescapecpy(tmp_str,name),i,val);
-			if(mysql_query(&mmysql_handle,tmp_sql)){
-				ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-		}
-#endif
-	} else { // [zBuffer]
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-		if(name[1] != '@') { // Remove from database because it is unused.
-			sprintf(tmp_sql,"DELETE FROM `%s` WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_varname,name,mapregsql_db_index,i);
-			if(mysql_query(&mmysql_handle,tmp_sql)){
-				ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-		}
-#endif
+	if(val!=0)
+		idb_put(mapreg_db,num,(void*)(intptr_t)val);
+	else
 		idb_remove(mapreg_db,num);
-	}
 
-	mapreg_dirty=1;
+	mapreg_mark_dirty(num); // persisted off the loop by the 20s flush
 	return 1;
 }
 /*==========================================
@@ -3241,43 +3243,17 @@ int mapreg_setreg(int num,int val)
 int mapreg_setregstr(int num,const char *str)
 {
 	char *p;
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-	char tmp_str[64];
-	char tmp_str2[512];
-	int i=num>>24; // [zBuffer]
-	char *name=str_buf+str_data[num&0x00ffffff].str;
-#endif
 
 	if( str==NULL || *str==0 ){
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-		if(name[1] != '@') {
-			sprintf(tmp_sql,"DELETE FROM `%s` WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_varname,name,mapregsql_db_index,i);
-			if(mysql_query(&mmysql_handle,tmp_sql)){
-				ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-		}
-#endif
 		idb_remove(mapregstr_db,num);
-		mapreg_dirty=1;
+		mapreg_mark_dirty(num);
 		return 1;
 	}
 	p=(char *)aMallocA((strlen(str)+1)*sizeof(char));
 	strcpy(p,str);
+	idb_put(mapregstr_db,num,p); // DB_OPT_RELEASE_DATA frees any previous string
 
-	if (idb_put(mapregstr_db,num,p))
-		;
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-	else if(name[1] != '@'){ //put returned null, so we must insert.
-		// Someone is causing a database size infinite increase here without name[1] != '@' [Lance]
-		sprintf(tmp_sql,"INSERT INTO `%s`(`%s`,`%s`,`%s`) VALUES ('%s','%d','%s')",mapregsql_db,mapregsql_db_varname,mapregsql_db_index,mapregsql_db_value,jstrescapecpy(tmp_str,name),i,jstrescapecpy(tmp_str2,p));
-		if(mysql_query(&mmysql_handle,tmp_sql)){
-			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-		}
-	}
-#endif
-	mapreg_dirty=1;
+	mapreg_mark_dirty(num); // persisted off the loop by the 20s flush
 	return 1;
 }
 
@@ -3332,48 +3308,51 @@ static int script_load_mapreg(void)
 /*==========================================
  * iI}bv
  *------------------------------------------*/
-static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
+// Flush one dirty map register. With no UNIQUE(varname,index) key we cannot
+// UPSERT, so DELETE then INSERT the current value (this also self-heals any
+// duplicate rows). FIFO ordering in the async queue keeps writes consistent.
+static int mapreg_flush_sub(DBKey key,void *data,va_list ap)
 {
-	int num=key.i&0x00ffffff, i=key.i>>24; // [zBuffer]
-	char *name=str_buf+str_data[num].str;
-	int *errors = va_arg(ap, int *);
-	if ( name[1] != '@') {
-		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%d' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,(int)data,mapregsql_db_varname,name,mapregsql_db_index,i);
-		if(mysql_query(&mmysql_handle, tmp_sql) ) {
-			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			(*errors)++;
-		}
+	int num = key.i;
+	int idx = num>>24;
+	char *name = str_buf+str_data[num&0x00ffffff].str;
+	int *count = va_arg(ap, int *);
+	char esc_name[2*32+1];
+	void *v;
+
+	if(name[1] == '@') // never persisted
+		return 0;
+
+	jstrescapecpy(esc_name, name);
+	sprintf(tmp_sql,"DELETE FROM `%s` WHERE `%s`='%s' AND `%s`='%d'",
+		mapregsql_db,mapregsql_db_varname,esc_name,mapregsql_db_index,idx);
+	mapreg_submit(tmp_sql);
+
+	if((v = idb_get(mapreg_db,num)) != NULL){
+		sprintf(tmp_sql,"INSERT INTO `%s`(`%s`,`%s`,`%s`) VALUES ('%s','%d','%d')",
+			mapregsql_db,mapregsql_db_varname,mapregsql_db_index,mapregsql_db_value,
+			esc_name,idx,(int)(intptr_t)v);
+		mapreg_submit(tmp_sql);
+	} else if((v = idb_get(mapregstr_db,num)) != NULL){
+		char esc_val[2*255+1];
+		jstrescapecpy(esc_val,(char *)v);
+		sprintf(tmp_sql,"INSERT INTO `%s`(`%s`,`%s`,`%s`) VALUES ('%s','%d','%s')",
+			mapregsql_db,mapregsql_db_varname,mapregsql_db_index,mapregsql_db_value,
+			esc_name,idx,esc_val);
+		mapreg_submit(tmp_sql);
 	}
-	return 0;
-}
-static int script_save_mapreg_strsub(DBKey key,void *data,va_list ap)
-{
-	char tmp_str2[512];
-	int num=key.i&0x00ffffff, i=key.i>>24;
-	char *name=str_buf+str_data[num].str;
-	int *errors = va_arg(ap, int *);
-	if ( name[1] != '@') {
-		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%s' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,jstrescapecpy(tmp_str2,(char *)data),mapregsql_db_varname,name,mapregsql_db_index,i);
-		if(mysql_query(&mmysql_handle, tmp_sql) ) {
-			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			(*errors)++;
-		}
-	}
+	// else: the register was deleted - the DELETE above is the whole job
+	(*count)++;
 	return 0;
 }
 static int script_save_mapreg(void)
 {
-	int errors = 0; //any failed UPDATE keeps mapreg_dirty set so the save is retried
-	unsigned int perfomance = (unsigned int)time(NULL);
-	mapreg_db->foreach(mapreg_db,script_save_mapreg_intsub, &errors);  // [zBuffer]
-	mapregstr_db->foreach(mapregstr_db,script_save_mapreg_strsub, &errors);
-	perfomance = ((unsigned int)time(NULL) - perfomance);
-	if(perfomance > 2)
-		ShowWarning("Slow Query: MapregSQL Saving @ %d second(s).\n", perfomance);
-	if (errors == 0) //only mark clean if every row saved; else retry next autosave
-		mapreg_dirty=0;
+	int count = 0;
+	if(mapreg_dirty_db){
+		mapreg_dirty_db->foreach(mapreg_dirty_db,mapreg_flush_sub, &count);
+		mapreg_dirty_db->clear(mapreg_dirty_db, NULL);
+	}
+	mapreg_dirty = 0;
 	return 0;
 }
 static int script_autosave_mapreg(int tid,unsigned int tick,intptr_t id,intptr_t data)
@@ -3507,6 +3486,7 @@ int do_final_script()
 
 	mapreg_db->destroy(mapreg_db,NULL);
 	mapregstr_db->destroy(mapregstr_db,NULL);
+	mapreg_dirty_db->destroy(mapreg_dirty_db,NULL);
 	scriptlabel_db->destroy(scriptlabel_db,NULL);
 	userfunc_db->destroy(userfunc_db,do_final_userfunc_sub);
 	if(sleep_db) {
@@ -3534,6 +3514,7 @@ int do_init_script()
 {
 	mapreg_db= db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	mapregstr_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	mapreg_dirty_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	userfunc_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_RELEASE_BOTH,50);
 	scriptlabel_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY|DB_OPT_ALLOW_NULL_DATA,50);
 
@@ -3553,6 +3534,7 @@ int script_reload()
 
 	mapreg_db->clear(mapreg_db, NULL);
 	mapregstr_db->clear(mapregstr_db, NULL);
+	mapreg_dirty_db->clear(mapreg_dirty_db, NULL);
 	userfunc_db->clear(userfunc_db,do_final_userfunc_sub);
 	scriptlabel_db->clear(scriptlabel_db, NULL);
 

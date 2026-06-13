@@ -8,5 +8,11 @@ CREATE TABLE `mail` (
   `read_flag` tinyint(1) NOT NULL default '0',
   `priority` tinyint(1) NOT NULL default '0',
   `check_flag` tinyint(1) NOT NULL default '0',
+<<<<<<< HEAD
   PRIMARY KEY  (`message_id`)
 ) ;
+=======
+  PRIMARY KEY  (`message_id`),
+  KEY `to_account_id` (`to_account_id`)
+) ENGINE=MyISAM;
+>>>>>>> c35b7eb3116eaf986fb839e08a7500ee7bee0778
