@@ -26,6 +26,13 @@ Group=root
 
 OOMScoreAdjust=-500
 
+# [perf] Pin the map server (game-loop thread + send worker) to CPUs 0-1, leaving
+# CPUs 2-3 for the NIC RX/TX softirq (see scripts/rc.local). This keeps network
+# interrupt processing off the cores running the tick and the send worker, so the
+# worker's send()s aren't delayed (the cause of movement rubber-banding). Assumes
+# a 4-vCPU VM with the layout from rc.local; adjust if your core count differs.
+CPUAffinity=0 1
+
 # Raise the open-file limit so the epoll/SOCKET_MAX connection headroom is
 # usable (the in-code setrlimit cannot exceed the systemd-imposed hard cap).
 LimitNOFILE=65536

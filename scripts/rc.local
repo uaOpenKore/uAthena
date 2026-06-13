@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# Network tuning for the game VM (map server). Copy this to /etc/rc.local on the
+# guest, then:   chmod +x /etc/rc.local && systemctl enable rc-local
+# (systemd has no rc.local by default on Debian; the rc-local shim runs it.)
+#
+# Layout assumed (4 vCPU, see scripts/uAmap.service CPUAffinity):
+#     CPU 0-1  = map server (game-loop thread + send worker)
+#     CPU 2-3  = NIC RX/TX softirq
+# Goal: keep network interrupt work off the cores running the tick + send worker,
+# so the worker's send()s go out promptly (fixes movement rubber-banding) and the
+# qdisc TX lock (__pv_queued_spin_lock_slowpath) stops contending with the game.
+#
+# Edit the four variables below if your interface name / core count differ.
+
+IFACE=enp1s0          # guest NIC (check with: ip -br link)
+QUEUES=4              # virtio-net queues = number of vCPUs
+NET_CPUS="2 3"        # cores that handle the NIC (away from the map process)
+APP_CPUS="0 1"        # cores the map process runs on (where send() is issued)
+
+# --- 1. virtio-net multiqueue + offloads ----------------------------------
+ethtool -L "$IFACE" combined "$QUEUES" 2>/dev/null
+ethtool -K "$IFACE" gro on tso on gso on 2>/dev/null
+
+# --- 2. NIC queue interrupts -> NET_CPUS (round-robin) ---------------------
+# Auto-detects the per-queue IRQs (virtioN-input.M / -output.M, or IFACE-rx/-tx),
+# so no hand-edited IRQ numbers. Move them off the game/worker cores.
+net=($NET_CPUS); i=0
+for irq in $(grep -E "virtio[0-9]+-(input|output)|${IFACE}-(rx|tx)" /proc/interrupts | sed 's/:.*//; s/ //g'); do
+    echo "${net[$((i % ${#net[@]}))]}" > "/proc/irq/$irq/smp_affinity_list" 2>/dev/null
+    i=$((i + 1))
+done
+
+# --- 3. RPS: receive packet steering -> NET_CPUS --------------------------
+rps=0; for c in $NET_CPUS; do rps=$((rps | (1 << c))); done; rps=$(printf '%x' "$rps")
+for q in /sys/class/net/$IFACE/queues/rx-*; do
+    echo "$rps" > "$q/rps_cpus" 2>/dev/null
+done
+
+# --- 4. XPS: each app core gets its own TX queue --------------------------
+# Splits the qdisc TX lock for the send worker's transmits (CPU0->tx-0, CPU1->tx-1, ...).
+app=($APP_CPUS); j=0
+for q in /sys/class/net/$IFACE/queues/tx-*; do
+    c=${app[$((j % ${#app[@]}))]}
+    printf '%x' $((1 << c)) > "$q/xps_cpus" 2>/dev/null
+    j=$((j + 1))
+done
+
+# --- 5. conntrack table (guest side; the host NAT conntrack is separate) ---
+[ -d /sys/module/nf_conntrack ] && echo 65536 > /sys/module/nf_conntrack/parameters/hashsize 2>/dev/null
+sysctl -q -w net.netfilter.nf_conntrack_max=262144 2>/dev/null
+
+# --- 6. socket buffers / backlog for hundreds of connections --------------
+sysctl -q -w net.core.somaxconn=4096 2>/dev/null
+sysctl -q -w net.core.netdev_max_backlog=5000 2>/dev/null
+sysctl -q -w net.core.rmem_max=16777216 2>/dev/null
+sysctl -q -w net.core.wmem_max=16777216 2>/dev/null
+sysctl -q -w net.ipv4.tcp_rmem="4096 87380 16777216" 2>/dev/null
+sysctl -q -w net.ipv4.tcp_wmem="4096 65536 16777216" 2>/dev/null
+sysctl -q -w net.ipv4.tcp_mtu_probing=1 2>/dev/null
+
+# --- 7. irqbalance off (it would override the manual IRQ affinity above) ---
+systemctl disable --now irqbalance 2>/dev/null
+
+tc qdisc show dev "$IFACE"   # for the boot log: should show 'mq'
+exit 0
