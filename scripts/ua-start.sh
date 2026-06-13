@@ -25,7 +25,8 @@
 #   UA_BIN_DIR        dir of the binaries   (default .  -> WorkingDirectory)
 #   UA_PERF=1         enable perf profiling (default off)
 #   UA_PERF_FREQ      perf sample Hz        (default 99)
-#   UA_CORE_KEEP      newest cores to keep  (default 10; reports never pruned)
+#   UA_CORE_KEEP      cores to keep after decoding (default 0 = delete once the
+#                     backtrace is saved; cores are ~0.5G. text reports kept)
 #   UA_PERF_KEEP      newest perf.data keep (default 10)
 #   UA_SET_COREPATTERN=0  do not touch kernel.core_pattern
 
@@ -55,7 +56,7 @@ CONSOLE_LOG="$LOG_DIR/uA${SERVER}.log"
 # Profiler ON by default during the perf-tuning period (set UA_PERF=0 to disable).
 UA_PERF="${UA_PERF:-1}"
 UA_PERF_FREQ="${UA_PERF_FREQ:-99}"
-UA_CORE_KEEP="${UA_CORE_KEEP:-10}"
+UA_CORE_KEEP="${UA_CORE_KEEP:-0}"   # 0 = delete each core after its backtrace is saved (~0.5G each)
 UA_PERF_KEEP="${UA_PERF_KEEP:-10}"
 UA_SET_COREPATTERN="${UA_SET_COREPATTERN:-1}"
 
@@ -122,8 +123,15 @@ capture_crash() {
 	if [ -n "$core" ] && [ -r "$core" ]; then
 		echo >> "$report"
 		"$SELF_DIR/ua-crashdump.sh" "$BIN" "$core" >> "$report" 2>&1
-		echo "ua-start: CRASH $name -> $report   [core: $core]" >&2
+		# The text report holds the full backtrace and is kept forever; the core
+		# is ~0.5G, so by default (UA_CORE_KEEP=0) drop it now that it is decoded.
+		# Set UA_CORE_KEEP=N to retain the N newest cores for deeper post-mortem.
 		prune_keep "$CORE_DIR" "core.*" "$UA_CORE_KEEP"
+		if [ -e "$core" ]; then
+			echo "ua-start: CRASH $name -> $report   [core kept: $core]" >&2
+		else
+			echo "ua-start: CRASH $name -> $report   [backtrace saved, core deleted]" >&2
+		fi
 	elif command -v coredumpctl >/dev/null 2>&1; then
 		# systemd-coredump owns the core (core_pattern is a pipe).
 		echo >> "$report"
