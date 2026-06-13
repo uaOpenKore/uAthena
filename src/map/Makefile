@@ -3,7 +3,7 @@ all sql: sqlobj map-server_sql
 sqlobj:
 	mkdir sqlobj
 
-COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/timer.o \
+COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
 	../common/obj/nullpo.o ../common/obj/malloc.o ../common/obj/showmsg.o \
 	../common/obj/utils.o ../common/obj/strlib.o ../common/obj/grfio.o \

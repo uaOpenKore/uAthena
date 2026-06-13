@@ -102,6 +102,9 @@ extern int fd_max;
 extern time_t last_tick;
 extern time_t stall_time;
 
+extern int socket_send_coalesce_ms; // [perf] send coalescing window (ms); 0 disables
+extern int socket_async_send;       // [perf] 1 = client send() runs on the send worker thread
+
 //////////////////////////////////
 // some checking on sockets
 extern int session_isValid(int fd);

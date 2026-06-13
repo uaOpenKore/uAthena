@@ -7,6 +7,7 @@
 #include "../common/grfio.h"
 #include "../common/malloc.h"
 #include "../common/socket.h" // WFIFO*()
+#include "../common/send_worker.h" // [perf] off-thread client sends
 #include "../common/showmsg.h"
 #include "../common/version.h"
 #include "../common/nullpo.h"
@@ -3614,6 +3615,15 @@ int do_init(int argc, char *argv[])
 	script_config_read(SCRIPT_CONF_NAME);
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
+
+	// [perf] Optionally move client send() syscalls onto a dedicated worker thread
+	// (send_worker.c), off the single game loop. Off by default; enable in
+	// battle_athena.conf with socket_async_send: 1.
+	socket_async_send = battle_config.socket_async_send;
+	if( socket_async_send ) {
+		sendworker_init();
+		ShowStatus("Async send worker enabled (client send() off the game loop).\n");
+	}
 
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]

@@ -8,6 +8,7 @@
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "socket.h"
+#include "send_worker.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,6 +69,11 @@ size_t wfifo_size = (16*1024);
 // so combat bursts are not delayed. Set the interval to 0 to disable.
 int socket_send_coalesce_ms = 20;
 #define SOCKET_COALESCE_BYTES 1400  // ~one TCP segment (1500 MTU - headers)
+
+// [perf] When set (map server only), client send() syscalls are performed on a
+// dedicated worker thread (see send_worker.c) instead of inline on the game loop.
+// 0 = inline (default, all servers). Set before accepting connections.
+int socket_async_send = 0;
 
 struct socket_data* session[SOCKET_MAX];
 
@@ -213,6 +219,15 @@ int send_from_fifo(int fd)
 
 	if (session[fd]->wdata_size == 0)
 		return 0;
+
+	// [perf] Off-thread send: hand an owned copy to the send worker and return,
+	// so the game loop never enters the kernel TCP stack for client traffic.
+	// Inter-server (s2s, client_addr==0) always stays on the inline path.
+	if( socket_async_send && session[fd]->client_addr != 0 ) {
+		sendworker_send(fd, session[fd]->wdata, session[fd]->wdata_size);
+		session[fd]->wdata_size = 0;
+		return 0;
+	}
 
 	len = send(fd, (const char *) session[fd]->wdata, session[fd]->wdata_size, 0);
 
@@ -402,6 +417,9 @@ int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc fun
 	session[fd]->func_recv  = func_recv;
 	session[fd]->func_send  = func_send;
 	session[fd]->func_parse = func_parse;
+	// [perf] clear any residual send-worker state if this fd number is being reused
+	if( socket_async_send )
+		sendworker_reset(fd);
 	return 0;
 }
 
@@ -898,6 +916,7 @@ int socket_config_read(const char* cfgName)
 void socket_final(void)
 {
 	int i;
+	sendworker_final(); // stop the send thread (no-op if never started) before tearing down sessions
 #ifndef MINICORE
 	ConnectHistory* hist;
 	ConnectHistory* next_hist;
@@ -935,7 +954,12 @@ void socket_final(void)
 /// Closes a socket.
 void do_close(int fd)
 {
-	flush_fifo(fd); // Try to send what's left (although it might not succeed since it's a nonblocking socket)
+	flush_fifo(fd); // Try to send what's left (hands off to the worker when async)
+	// [perf] async send: make the worker let go of this fd (drop+best-effort flush
+	// its queue, wait out any in-flight send) BEFORE we close/reuse it, so a send
+	// can never land on a closed or recycled fd.
+	if( socket_async_send )
+		sendworker_release(fd);
 	shutdown(fd, SHUT_RDWR); // Disallow further reads/writes
 	closesocket(fd); // We don't really care if these closing functions return an error, we are just shutting down and not reusing this socket.
 	if (session[fd]) delete_session(fd);
