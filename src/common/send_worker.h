@@ -26,6 +26,7 @@ static inline void sendworker_final(void) {}
 static inline void sendworker_send(int fd, const unsigned char *buf, size_t len) { (void)fd; (void)buf; (void)len; }
 static inline void sendworker_release(int fd) { (void)fd; }
 static inline void sendworker_reset(int fd) { (void)fd; }
+static inline void sendworker_set_coalesce(int on) { (void)on; }
 #else
 
 // Start/stop the worker thread. Idempotent. Call before accepting clients.
@@ -41,6 +42,9 @@ void sendworker_release(int fd);
 
 // Before reusing fd for a new connection: clear any residual state.
 void sendworker_reset(int fd);
+
+// Enable/disable merging an fd's queued chunks into one send() (no added delay).
+void sendworker_set_coalesce(int on);
 
 #endif /* MINICORE */
 #endif /* _SEND_WORKER_H_ */

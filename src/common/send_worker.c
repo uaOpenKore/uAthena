@@ -47,6 +47,9 @@ static pthread_cond_t  g_work_cv = PTHREAD_COND_INITIALIZER;  // worker wakes on
 static pthread_cond_t  g_close_cv= PTHREAD_COND_INITIALIZER;  // close() waits for in_use to clear
 static pthread_t       g_thread;
 static int             g_running = 0;
+static int             sw_coalesce = 0;  // [perf] merge an fd's queued chunks into one send()
+
+void sendworker_set_coalesce(int on) { sw_coalesce = on ? 1 : 0; }
 
 // caller holds g_mtx
 static void ready_push(int fd)
@@ -106,6 +109,27 @@ static void *sw_main(void *unused)
 			sw[fd].head = sw[fd].tail = NULL;
 			sw[fd].in_use = 1;
 			pthread_mutex_unlock(&g_mtx);
+
+			// [perf] Coalesce: merge the chunks already queued for this fd into
+			// one buffer so they go out in a single send() (fewer syscalls /
+			// segments / qdisc-lock trips). No delay — only what is ALREADY
+			// queued is merged. On OOM, fall back to sending chunk-by-chunk.
+			if( sw_coalesce && list && list->next ) {
+				size_t total = 0;
+				struct sw_chunk *c, *big;
+				for( c = list; c; c = c->next ) total += c->len - c->off;
+				big = (struct sw_chunk*)malloc(sizeof(struct sw_chunk) + total);
+				if( big ) {
+					size_t o = 0;
+					for( c = list; c; c = c->next ) {
+						memcpy(big->data + o, c->data + c->off, c->len - c->off);
+						o += c->len - c->off;
+					}
+					big->next = NULL; big->off = 0; big->len = total;
+					free_chain(list);
+					list = big;
+				}
+			}
 
 			while( list ) {
 				struct sw_chunk *c = list;

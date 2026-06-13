@@ -61,18 +61,15 @@ int naddr_ = 0;   // # of ip addresses
 size_t rfifo_size = (16*1024);
 size_t wfifo_size = (16*1024);
 
-// [perf] Send coalescing: a session whose pending out-buffer is below
-// SOCKET_COALESCE_BYTES is flushed at most once per socket_send_coalesce_ms, so
-// the dribble of tiny per-loop packets batches into fewer/larger send() calls
-// (cuts syscalls, TCP segments and the qdisc TX-lock contention). Bulk (>= the
-// threshold, i.e. already ~a full segment) and eof sessions flush immediately,
-// so combat bursts are not delayed. Set the interval to 0 to disable.
-// DEFAULT 0 (off): only the map server turns it on (map.c, from battle_config).
-// login/char must NOT coalesce — they ACCEPT inter-server connections inbound, so
-// client_addr is non-zero there too and can't tell a server link from a game
-// client; delaying inter-server traffic destabilises the char<->login link.
+// [perf] Send coalescing (map server only). When > 0, the send worker combines
+// the chunks already queued for a client into a single send() instead of one
+// syscall per chunk — fewer syscalls, fewer TCP segments, less qdisc TX-lock
+// contention under crowded maps (WoE). It adds NO delay: only whatever is already
+// queued is merged, so it cannot hold back map-entry data (an earlier timer-based
+// version did, and broke "enter game" for remote clients). Requires the worker
+// (socket_async_send: 1). map.c forwards this to the worker via
+// sendworker_set_coalesce(). 0 = off. The value is treated as a boolean for now.
 int socket_send_coalesce_ms = 0;
-#define SOCKET_COALESCE_BYTES 1400  // ~one TCP segment (1500 MTU - headers)
 
 // [perf] When set (map server only), client send() syscalls are performed on a
 // dedicated worker thread (see send_worker.c) instead of inline on the game loop.
@@ -554,13 +551,6 @@ int do_sendrecv(int next)
 	// PRESEND Timers run before do_sendrecv and can queue packets and/or set
 	// sessions to eof. Flush queued data and close eof sessions.
 	send_shortlist_do_sends();
-
-	// [perf] If small sends are being deferred for coalescing, don't let epoll
-	// sleep past the coalesce window, or that dribble would stall up to a full
-	// timer interval; wake in time to flush it.
-	if( socket_send_coalesce_ms > 0 && send_shortlist_count > 0
-	 && (next < 0 || next > socket_send_coalesce_ms) )
-		next = socket_send_coalesce_ms;
 
 	// Wait for readable sockets (replaces select). next is the ms until the
 	// next timer; epoll_wait takes its timeout directly in milliseconds.
@@ -1139,22 +1129,12 @@ void send_shortlist_do_sends()
 		// check for the eof state.
 		if( session[fd] )
 		{
-			// Send data — coalesce small dribbles (see socket_send_coalesce_ms).
+			// Send data. (Coalescing is NOT done here — it was timer-based and
+			// throttled the drain of a window-limited remote client, breaking
+			// map entry. It now lives in the send worker, which combines queued
+			// chunks into one send() with no added delay. See send_worker.c.)
 			if( session[fd]->wdata_size )
-			{
-				if( socket_send_coalesce_ms > 0
-				 && session[fd]->client_addr != 0  // real clients only, never inter-server (s2s)
-				 && !session[fd]->eof
-				 && session[fd]->wdata_size < SOCKET_COALESCE_BYTES
-				 && DIFF_TICK(gettick(), session[fd]->last_send_tick) < socket_send_coalesce_ms )
-				{
-					// too soon and too little: keep it queued, flush on a later pass
-					++i;
-					continue;
-				}
-				session[fd]->last_send_tick = gettick();
 				session[fd]->func_send(fd);
-			}
 
 			// If it's been marked as eof, call the parse func on it so that
 			// the socket will be immediately closed.

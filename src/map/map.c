@@ -3616,10 +3616,10 @@ int do_init(int argc, char *argv[])
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
 
-	// [perf] Send coalescing is a map-only optimization (game clients): enable it
-	// here from config. It stays 0 on login/char, which must not delay their
-	// inter-server links.
+	// [perf] Send coalescing (map-only): the worker merges a client's queued
+	// chunks into one send(). Forward the config to the worker.
 	socket_send_coalesce_ms = battle_config.socket_send_coalesce_ms;
+	sendworker_set_coalesce(socket_send_coalesce_ms > 0);
 
 	// [perf] Optionally move client send() syscalls onto a dedicated worker thread
 	// (send_worker.c), off the single game loop. Off by default; enable in

@@ -130,10 +130,17 @@ int main(void)
 {
 	signal(SIGPIPE, SIG_IGN);  // a closed peer must not kill us (the server ignores it too)
 	sendworker_init();
-	t_order();
-	t_backpressure();
-	t_release();
-	t_many();
+
+	int pass;
+	for( pass = 0; pass < 2; pass++ ) {
+		sendworker_set_coalesce(pass);  // 0 = per-chunk, 1 = merge queued chunks
+		printf("--- coalesce=%d ---\n", pass);
+		t_order();
+		t_backpressure();
+		t_release();
+		t_many();
+	}
+
 	sendworker_final();
 	printf(fails ? "\nFAILED\n" : "\nALL PASSED\n");
 	return fails;
