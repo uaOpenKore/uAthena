@@ -7286,11 +7286,24 @@ static int status_natural_heal(DBKey key,void * data,va_list ap)
 	return flag;
 }
 
+// Natural-heal applies only to BL_PC and BL_HOM (BL_REGEN). A homunculus is always
+// reachable from its online master via sd->hd, so iterating pc_db (online players)
+// instead of the whole id_db covers every regen target while skipping the thousands
+// of mobs/NPCs/items that the old map_foreachiddb scan visited only to return 0. [perf]
+static int status_natural_heal_pc(DBKey key,void * data,va_list ap)
+{
+	struct map_session_data *sd = (struct map_session_data*)data; // bl is the first member, data == &sd->bl
+	status_natural_heal(key, data, ap);              // the player (status_natural_heal ignores key/ap)
+	if (sd->hd)
+		status_natural_heal(key, &sd->hd->bl, ap);   // his homunculus, if summoned (vaporized -> no-op via regen block)
+	return 0;
+}
+
 //Natural heal main timer.
 static int status_natural_heal_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	natural_heal_diff_tick = DIFF_TICK(tick,natural_heal_prev_tick);
-	map_foreachiddb(status_natural_heal);
+	map_foreachpc(status_natural_heal_pc);
 	natural_heal_prev_tick = tick;
 	return 0;
 }

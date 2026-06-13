@@ -112,6 +112,7 @@ char *GRF_PATH_FILENAME;
 //  static?J?
 static struct dbt * id_db=NULL;
 static struct dbt * pc_db=NULL;
+static struct dbt * livemob_db=NULL;	// non-owning index of spawned mobs (subset of id_db), for cheap mob-only iteration [perf]
 static struct dbt * map_db=NULL;
 static struct dbt * charid_db=NULL;
 
@@ -1623,6 +1624,8 @@ void map_addiddb(struct block_list *bl)
 
 	if (bl->type == BL_PC)
 		idb_put(pc_db,bl->id,bl);
+	else if (bl->type == BL_MOB)
+		idb_put(livemob_db,bl->id,bl);	// keep the mob-only index in lockstep with id_db [perf]
 	idb_put(id_db,bl->id,bl);
 }
 
@@ -1635,6 +1638,8 @@ void map_deliddb(struct block_list *bl)
 
 	if (bl->type == BL_PC)
 		idb_remove(pc_db,bl->id);
+	else if (bl->type == BL_MOB)
+		idb_remove(livemob_db,bl->id);	// keep the mob-only index in lockstep with id_db [perf]
 	idb_remove(id_db,bl->id);
 }
 
@@ -1876,6 +1881,16 @@ void map_foreachpc(int (*func)(DBKey,void*,va_list),...)
 	va_list ap;
 	va_start(ap,func);
 	pc_db->vforeach(pc_db,func,ap);
+	va_end(ap);
+}
+
+// Iterate only spawned mobs (mob_db is a maintained subset of id_db). Far cheaper
+// than map_foreachiddb() for mob-only timers when the world holds many NPCs/items. [perf]
+void map_foreachmob(int (*func)(DBKey,void*,va_list),...)
+{
+	va_list ap;
+	va_start(ap,func);
+	livemob_db->vforeach(livemob_db,func,ap);
 	va_end(ap);
 }
 
@@ -3456,6 +3471,7 @@ void do_final(void)
 
 	id_db->destroy(id_db, NULL);
 	pc_db->destroy(pc_db, NULL);
+	livemob_db->destroy(livemob_db, NULL);	// non-owning index: mobs themselves are freed via id_db cleanup [perf]
 	charid_db->destroy(charid_db, NULL);
 
 	async_db_destroy(map_async_db); // drain buffered game-DB writes, join the worker
@@ -3601,6 +3617,7 @@ int do_init(int argc, char *argv[])
 
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
+	livemob_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Non-owning mob-only index for cheap lazy-AI iteration. [perf]
 	map_db = db_alloc(__FILE__,__LINE__,DB_UINT,DB_OPT_BASE,sizeof(int));
 	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	map_sql_init();

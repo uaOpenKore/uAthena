@@ -1385,7 +1385,7 @@ static int mob_ai_sub_lazy_wrapper(DBKey key,void * data,va_list ap)
 static int mob_ai_lazy(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	g_mob_ai_sub_lazy_tick = tick;
-	map_foreachiddb(mob_ai_sub_lazy_wrapper,tick);
+	map_foreachmob(mob_ai_sub_lazy_wrapper,tick);	// mob-only index instead of full id_db scan [perf]
 	return 0;
 }
 
@@ -1397,7 +1397,7 @@ static int mob_ai_hard(int tid,unsigned int tick,intptr_t id,intptr_t data)
 
 	if (battle_config.mob_ai&0x20) {
 		g_mob_ai_sub_lazy_tick = tick;
-		map_foreachiddb(mob_ai_sub_lazy_wrapper,tick);
+		map_foreachmob(mob_ai_sub_lazy_wrapper,tick);	// mob-only index instead of full id_db scan [perf]
 	} else
 		clif_foreachclient(mob_ai_sub_foreachclient,tick);
 
