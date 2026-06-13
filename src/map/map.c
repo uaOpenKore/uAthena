@@ -57,7 +57,8 @@ char map_server_id[32] = "ragnarok";
 char map_server_pw[32] = "ragnarok";
 char map_server_db[32] = "ragnarok";
 MYSQL mmysql_handle;
-AsyncDB* map_async_db = NULL; // async writer for game-DB writes (mapreg, mail)
+AsyncDB* map_async_db = NULL;  // async writer for game-DB writes (mapreg)
+AsyncDB* mail_async_db = NULL; // async writer for the (optional) mail DB
 MYSQL_RES* sql_res;
 MYSQL_ROW sql_row;
 
@@ -3456,6 +3457,8 @@ void do_final(void)
 
 	async_db_destroy(map_async_db); // drain buffered game-DB writes, join the worker
 	map_async_db = NULL;
+	async_db_destroy(mail_async_db); // drain buffered mail writes, join the worker
+	mail_async_db = NULL;
 	log_async_final(); // drain buffered SQL logs before closing the handles
 
     map_sql_close();
@@ -3604,6 +3607,9 @@ int do_init(int argc, char *argv[])
 	// back to a synchronous query. Flush every 20 seconds.
 	map_async_db = async_db_create("game", map_server_ip, map_server_id, map_server_pw,
 		map_server_db, map_server_port, default_codepage, 20);
+	if(mail_server_enable)
+		mail_async_db = async_db_create("mail", mail_server_ip, mail_server_id, mail_server_pw,
+			mail_server_db, mail_server_port, default_codepage, 20);
 
 	mapindex_init();
 	grfio_init(GRF_PATH_FILENAME);

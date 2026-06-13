@@ -26,6 +26,18 @@
 
 int MAIL_CHECK_TIME = 120000;
 int mail_timer;
+
+// Submit a mail write off the game loop via the async writer, or fall back to a
+// synchronous query on mail_handle if the writer is not running.
+static void mail_submit(const char* sql)
+{
+	if(mail_async_db)
+		async_db_submit(mail_async_db, sql);
+	else if(mysql_query(&mail_handle, sql)){
+		ShowSQL("DB error - %s\n",mysql_error(&mail_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,sql);
+	}
+}
 //extern char *msg_table[1000]; // Server messages (0-499 reserved for GM commands, 500-999 reserved for others)
 
 int mail_check(struct map_session_data *sd,int type)
@@ -262,23 +274,19 @@ int mail_send(struct map_session_data *sd, char *name, char *message, int flag)
 
 		while ((mail_row = mysql_fetch_row(mail_res))) {
 			if(strcmp(name,"*")==0) {
-				sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`to_account_id`,`from_account_id`,`from_char_name`,`message`,`priority`)"
+				sprintf(tmp_sql, "INSERT INTO `%s` (`to_account_id`,`from_account_id`,`from_char_name`,`message`,`priority`)"
 					" VALUES ('%d', '%d', '%s', '%s', '%d')",mail_db, atoi(mail_row[0]), sd->status.account_id, sd->status.name, jstrescape(message), flag);
 			}
 			else {
-				sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`to_account_id`,`to_char_name`,`from_account_id`,`from_char_name`,`message`,`priority`)"
+				sprintf(tmp_sql, "INSERT INTO `%s` (`to_account_id`,`to_char_name`,`from_account_id`,`from_char_name`,`message`,`priority`)"
 					" VALUES ('%d', '%s', '%d', '%s', '%s', '%d')",mail_db, atoi(mail_row[0]), mail_row[1], sd->status.account_id, sd->status.name, jstrescape(message), flag);
 				if(pc_isGM(sd) < 80)
 					sd->mail_counter=5;
 			}
 
-			if(mysql_query(&mail_handle, tmp_sql) ) {
-				mysql_free_result(mail_res);
-				ShowSQL("DB error - %s\n",mysql_error(&mail_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-				return 0;
-			}
+			mail_submit(tmp_sql); // queued off the game loop (batched GM-broadcast INSERTs no longer stall the tick)
 		}
+		mysql_free_result(mail_res);
 	}
 
 	//clif_displaymessage(sd->fd,"Mail has been sent.");
