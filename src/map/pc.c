@@ -1756,6 +1756,12 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			sd->ignore_mdef[RC_BOSS] += val;
 		}
 		break;
+	case SP_IGNORE_DEF_RATE:	// bonus bIgnoreDefRate,n -- ignore n% of every target's physical DEF
+		if(sd->state.lr_flag != 2) {
+			sd->ignore_def[RC_NONBOSS] += val;
+			sd->ignore_def[RC_BOSS] += val;
+		}
+		break;
 	case SP_PERFECT_HIT_RATE:
 		if(sd->state.lr_flag != 2 && sd->perfect_hit < val)
 			sd->perfect_hit = val;
@@ -2073,6 +2079,10 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	case SP_IGNORE_MDEF_RATE:	// bonus2 bIgnoreMdefRate,race,n -- ignore n% MDEF of that race on magic
 		if(sd->state.lr_flag != 2)
 			sd->ignore_mdef[type2]+=val;
+		break;
+	case SP_IGNORE_DEF_RATE:	// bonus2 bIgnoreDefRate,race,n -- ignore n% physical DEF of that race
+		if(sd->state.lr_flag != 2)
+			sd->ignore_def[type2]+=val;
 		break;
 	case SP_ADDEFF:
 		if (type2 > SC_MAX) {

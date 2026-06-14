@@ -1677,6 +1677,14 @@ static struct Damage battle_calc_weapon_attack(
 			short vit_def;
 			signed char def1 = (signed char)status_get_def(target); //Don't use tstatus->def1 due to skill timer reductions.
 			short def2 = (short)tstatus->def2;
+			if(sd) {	// bIgnoreDefRate: ignore a % of the target's physical DEF (sum boss/nonboss + race, cap 100%)
+				int ig = sd->ignore_def[is_boss(target)?RC_BOSS:RC_NONBOSS] + sd->ignore_def[tstatus->race];
+				if(ig) {
+					if(ig > 100) ig = 100;
+					def1 -= def1 * ig/100;
+					def2 -= def2 * ig/100;
+				}
+			}
 			if(battle_config.vit_penalty_type &&
 				battle_config.vit_penalty_target&target->type)
 			{

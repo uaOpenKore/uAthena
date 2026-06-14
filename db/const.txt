@@ -363,6 +363,7 @@ bDelayrate	1083
 bHPDrainRateRace	1084
 bSPDrainRateRace	1085
 bIgnoreMdefRate	1086
+bIgnoreDefRate	1087
 
 bRestartFullRecover	2000
 bNoCastCancel	2001
