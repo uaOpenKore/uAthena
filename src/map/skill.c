@@ -1482,6 +1482,21 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			if (sd->addeff[i].flag&ATF_SELF)
 				status_change_start(src,type,rate,7,0,0,0,skill,0);
 		}
+
+		if( skillid )
+		{ // bonus3 bAddEffOnSkill: inflict a status on target/self when using this skill
+			for( i = 0; i < ARRAYLENGTH(sd->addeff3) && sd->addeff3[i].skill; i++ )
+			{
+				if( skillid != sd->addeff3[i].skill || !sd->addeff3[i].rate )
+					continue;
+				type = sd->addeff3[i].id;
+				skill = skill_get_time2(StatusSkillChangeTable[type],7);
+				if( sd->addeff3[i].target&ATF_TARGET )
+					status_change_start(bl,type,sd->addeff3[i].rate,7,0,0,0,skill,0);
+				if( sd->addeff3[i].target&ATF_SELF )
+					status_change_start(src,type,sd->addeff3[i].rate,7,0,0,0,skill,0);
+			}
+		}
 	}
 
 	if (md && battle_config.summons_trigger_autospells && md->master_id && md->special_state.ai)

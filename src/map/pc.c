@@ -1251,6 +1251,29 @@ static int pc_bonus_autospell_del(struct s_autospell *spell, int max, short id, 
 	return rate;
 }
 
+// addeff3: register an "inflict status <id> when USING skill <skill>" entry (bonus3 bAddEffOnSkill). [on-skill]
+static int pc_bonus_addeff_onskill(struct s_addeffectonskill* effect, int max, short id, short rate, short skill, unsigned char target)
+{
+	int i;
+	for( i = 0; i < max && effect[i].skill; i++ )
+	{
+		if( effect[i].id == id && effect[i].skill == skill && effect[i].target == target )
+		{
+			effect[i].rate += rate;
+			return 1;
+		}
+	}
+	if( i == max ) {
+		ShowWarning("pc_bonus: Reached max (%d) number of add effects on skill per character!\n", max);
+		return 0;
+	}
+	effect[i].id = id;
+	effect[i].rate = rate;
+	effect[i].skill = skill;
+	effect[i].target = target;
+	return 1;
+}
+
 // autospell3: register a "cast skill <id> when USING source skill <src_skill>" entry (bonus4 bAutoSpellOnSkill). [on-skill]
 static int pc_bonus_autospell_onskill(struct s_autospell *spell, int max, short src_skill, short id, short lv, short rate, short card_id)
 {
@@ -2651,6 +2674,14 @@ int pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 				ATF_SHORT|ATF_LONG|(val?ATF_TARGET:ATF_SELF)|(val==2?ATF_SELF:0));
 		break;
 
+	case SP_ADDEFF_ONSKILL:	// bonus3 bAddEffOnSkill,<skill>,<eff>,<rate> -- chance to inflict <eff> on the target when using <skill>
+		if( type3 > SC_MAX ) {
+			ShowWarning("pc_bonus3 (Add Effect on skill): %d is not supported.\n", type3);
+			break;
+		}
+		if( sd->state.lr_flag != 2 )
+			pc_bonus_addeff_onskill(sd->addeff3, MAX_PC_BONUS, type3, val, type2, ATF_TARGET);
+		break;
 	default:
 		if(battle_config.error_log)
 			ShowWarning("pc_bonus3: unknown type %d %d %d %d!\n",type,type2,type3,val);

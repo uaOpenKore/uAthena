@@ -682,6 +682,10 @@ struct map_session_data {
 		short id, rate, arrow_rate;
 		unsigned char flag;
 	} addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
+	struct s_addeffectonskill{	// inflict a status when USING a skill (bonus3 bAddEffOnSkill)
+		short id, rate, skill;
+		unsigned char target;
+	} addeff3[MAX_PC_BONUS];
 	struct { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		short id, val;
 	} skillatk[MAX_PC_BONUS], skillheal[5], skillheal2[5], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS]; //skillheal2: per-skill heal RECEIVED +% (bonus2 bSkillHeal2); skillcast: per-skill cast-rate (bonus2 bCastRate)
@@ -1222,7 +1226,8 @@ enum _sp {
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE, //2041
 	SP_MAGIC_HP_GAIN_VALUE, SP_MAGIC_SP_GAIN_VALUE, //2042-2043 (backported bonuses; uAthena-local numbers, not eAthena's)
 	SP_ADDCLASSDROPITEM, //2044
-	SP_AUTOSPELL_ONSKILL //2045
+	SP_AUTOSPELL_ONSKILL, //2045
+	SP_ADDEFF_ONSKILL //2046
 	//Note: 1030 (was SP_FREE3) and 2022 (was SP_FREE) are now SP_SP_REGEN_RATE / SP_HP_REGEN_RATE.
 	//No free legacy slots remain; add new bonus types at the end of the 2000+ range.
 };
