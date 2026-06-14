@@ -191,6 +191,7 @@ extern struct Battle_Config {
 	unsigned short heal_exp;
 	unsigned short max_heal_lv;
 	int max_heal; //Mitternacht
+	unsigned short skill_add_heal_rate; // bitmask: which heal skills bHealPower (add_heal_rate) boosts (1 Heal, 2 Sanctuary, 4 PotionPitcher, 8 SlimPitcher, 16 AppleIdun)
 	unsigned short resurrection_exp;
 	unsigned short shop_exp;
 	unsigned short combo_delay_rate;

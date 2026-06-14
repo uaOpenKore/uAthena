@@ -3443,6 +3443,7 @@ static const struct battle_data_short {
 	{ "finger_offensive_type",             &battle_config.finger_offensive_type	},
 	{ "heal_exp",                          &battle_config.heal_exp					},
 	{ "max_heal_lv",                       &battle_config.max_heal_lv	},
+	{ "skill_add_heal_rate",               &battle_config.skill_add_heal_rate	},
 	{ "resurrection_exp",                  &battle_config.resurrection_exp			},
 	{ "shop_exp",                          &battle_config.shop_exp					},
 	{ "combo_delay_rate",                  &battle_config.combo_delay_rate			},
@@ -3853,6 +3854,7 @@ void battle_set_defaults()
 	battle_config.heal_exp=0;
 	battle_config.max_heal=9999;
 	battle_config.max_heal_lv=11;
+	battle_config.skill_add_heal_rate=7;
 	battle_config.resurrection_exp=0;
 	battle_config.shop_exp=0;
 	battle_config.combo_delay_rate=100;

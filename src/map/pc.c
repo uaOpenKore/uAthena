@@ -2016,6 +2016,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(!sd->state.lr_flag)
 			sd->hp_gain_value += val;
 		break;
+	case SP_ADD_HEAL_RATE:	// bonus bHealPower,n -- +n% heal/healing-skill output (caster), gated by battle_config.skill_add_heal_rate
+		if(sd->state.lr_flag != 2)
+			sd->add_heal_rate += val;
+		break;
 	default:
 		if(battle_config.error_log)
 			ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);
@@ -4983,13 +4987,28 @@ int pc_skillatk_bonus(struct map_session_data *sd, int skill_num)
 
 int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
 {
-	int i;
+	int i, bonus = sd->add_heal_rate;	// bHealPower: flat +% to healing output (gated per-skill below)
+
+	if( bonus )
+	{
+		switch( skill_num )
+		{
+		case AL_HEAL:           if( !(battle_config.skill_add_heal_rate&1) ) bonus = 0; break;
+		case PR_SANCTUARY:      if( !(battle_config.skill_add_heal_rate&2) ) bonus = 0; break;
+		case AM_POTIONPITCHER:  if( !(battle_config.skill_add_heal_rate&4) ) bonus = 0; break;
+		case CR_SLIMPITCHER:    if( !(battle_config.skill_add_heal_rate&8) ) bonus = 0; break;
+		case BA_APPLEIDUN:      if( !(battle_config.skill_add_heal_rate&16) ) bonus = 0; break;
+		}
+	}
+
 	for (i = 0; i < ARRAYLENGTH(sd->skillheal) && sd->skillheal[i].id; i++)
 	{
-		if (sd->skillheal[i].id == skill_num)
-			return sd->skillheal[i].val;
+		if (sd->skillheal[i].id == skill_num) {
+			bonus += sd->skillheal[i].val;	// bSkillHeal: per-skill heal +%
+			break;
+		}
 	}
-	return 0;
+	return bonus;
 }
 
 static int pc_respawn(int tid,unsigned int tick,intptr_t id,intptr_t data)
