@@ -14,12 +14,17 @@ Map-server поднимался для проверки парсинга `const.
 - ✅ **Все Tier-5 бонусы и карты (Vanberk/Isilla) парсятся без ошибок** — ни один предмет с
   `bIgnoreDefRate`/`bHealPower`/`bMagicHP-SPGainValue`/`bSkillHeal2`/`bHealpower2`/`bAddClassDropItem`/
   `bAutoSpellOnSkill`/`bAddEffOnSkill`/`autobonus3` не даёт `script error`.
-- ⚠️ **Отдельная находка (НЕ Tier-5):** ~133 `script error` от предметов из data-backport (item_db2) и
-  оригинального item_db, зовущих buildin'ы **ep11-13 фич, которых в pre-12 uAthena нет**: `rentitem` (98 —
-  аренда), `setfont` (9), `mercenary_create`/`mercenary_sc_start` (12 — наёмники), `searchstores`/
-  `buyingstore` (4), `bonusautoscript`/`bonusautoscript2` (8 — старый синтаксис). Эти предметы **грузятся**
-  (определение есть), но их скрипт пустой и при старте логируется ошибка. Решение по ним — отдельная задача
-  (реализовать buildin'ы / нейтрализовать скрипты / убрать out-of-era предметы).
+- ✅ **Итог: 0 `script error` при старте** (было ~133). Что было сделано с пред-существующими ошибками
+  (НЕ Tier-5):
+  - **125 out-of-era предметов** (data-backport) звали buildin'ы ep11-13 фич, которых в pre-12 нет
+    (`rentitem`×98, `setfont`×9, `mercenary_create`/`sc_start`×12, `searchstores`/`buyingstore`×4) →
+    скрипт **нейтрализован на `{}`** (предмет остаётся, эффекта нет). По твоему решению.
+  - **8 реальных карт/оружия** с `bonusautoscript`/`bonusautoscript2` (Tegron 1181, Bloody Eater 1182,
+    Nemesis 1541, Ixion's Wings 1737, Hodremlin 4413, Ice Titan 4417, Atroce 4425, Desert Twilight 13034)
+    → **конвертированы в `autobonus` из eAthena master** (теперь реально работают; Nemesis использует
+    наш новый `bAutoSpellOnSkill`).
+  - Найден и починен **баг лексера** `/* */` (`||`→`&&` в `skip_space`).
+- Перепроверка: `timeout 25 ./map-server_sql >/tmp/b.log 2>&1; grep -c "script error" /tmp/b.log` → `0`.
 
 ---
 
