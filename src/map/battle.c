@@ -2188,7 +2188,7 @@ struct Damage battle_calc_magic_attack(
 		{	//Calc base damage according to skill
 			case AL_HEAL:
 			case PR_BENEDICTIO:
-				ad.damage = skill_calc_heal(src, target, skill_lv)/2;
+				ad.damage = skill_calc_heal(src, target, skill_num, skill_lv)/2;
 				break;
 			case PR_ASPERSIO:
 				ad.damage = 40;

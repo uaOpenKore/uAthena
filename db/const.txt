@@ -365,6 +365,8 @@ bSPDrainRateRace	1085
 bIgnoreMdefRate	1086
 bIgnoreDefRate	1087
 bHealPower	1088
+bSkillHeal2	1089
+bHealpower2	1090
 bMagicHPGainValue	2042
 bMagicSPGainValue	2043
 

@@ -684,7 +684,7 @@ struct map_session_data {
 	} addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
 	struct { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		short id, val;
-	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS]; //skillcast: per-skill cast-rate (bonus2 bCastRate)
+	} skillatk[MAX_PC_BONUS], skillheal[5], skillheal2[5], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS]; //skillheal2: per-skill heal RECEIVED +% (bonus2 bSkillHeal2); skillcast: per-skill cast-rate (bonus2 bCastRate)
 	struct {
 		short class_, rate;
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS],
@@ -709,6 +709,7 @@ struct map_session_data {
 	int ignore_mdef[RC_MAX];	// % of target MDEF ignored on magic (bonus bIgnoreMdefRate / bonus2 by race)
 	int ignore_def[RC_MAX];	// % of target physical DEF ignored (bonus bIgnoreDefRate / bonus2 by race)
 	int add_heal_rate;	// heal/healing-skill output +% on the caster (bonus bHealPower)
+	int add_heal2_rate;	// healing RECEIVED +% on the target (bonus bHealpower2)
 	int perfect_hit;
 	int perfect_hit_add;
 	int get_zeny_rate;
@@ -1205,6 +1206,7 @@ enum _sp {
 	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE,SP_IGNORE_MDEF_RATE, // 1083-1086
 	SP_IGNORE_DEF_RATE, // 1087
 	SP_ADD_HEAL_RATE, // 1088
+	SP_SKILL_HEAL2, SP_ADD_HEAL2_RATE, // 1089-1090
 	
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_NO_MISC_DAMAGE,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010

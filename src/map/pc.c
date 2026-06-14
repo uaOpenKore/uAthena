@@ -2028,6 +2028,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(sd->state.lr_flag != 2)
 			sd->add_heal_rate += val;
 		break;
+	case SP_ADD_HEAL2_RATE:	// bonus bHealpower2,n -- +n% healing received (target side)
+		if(sd->state.lr_flag != 2)
+			sd->add_heal2_rate += val;
+		break;
 	default:
 		if(battle_config.error_log)
 			ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);
@@ -2389,6 +2393,22 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		else {
 			sd->skillheal[i].id = type2;
 			sd->skillheal[i].val = val;
+		}
+		break;
+	case SP_SKILL_HEAL2:	// bonus2 bSkillHeal2,skill,n -- +n% to that skill's heal RECEIVED (target side)
+		if(sd->state.lr_flag == 2)
+			break;
+		for (i = 0; i < ARRAYLENGTH(sd->skillheal2) && sd->skillheal2[i].id != 0 && sd->skillheal2[i].id != type2; i++);
+		if (i == ARRAYLENGTH(sd->skillheal2))
+		{
+			ShowDebug("run_script: bonus2 bSkillHeal2 reached its limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", (int)ARRAYLENGTH(sd->skillheal2), type2, val);
+			break;
+		}
+		if (sd->skillheal2[i].id == type2)
+			sd->skillheal2[i].val += val;
+		else {
+			sd->skillheal2[i].id = type2;
+			sd->skillheal2[i].val = val;
 		}
 		break;
 	case SP_ADD_SKILL_BLOW:
@@ -5013,6 +5033,21 @@ int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
 	{
 		if (sd->skillheal[i].id == skill_num) {
 			bonus += sd->skillheal[i].val;	// bSkillHeal: per-skill heal +%
+			break;
+		}
+	}
+	return bonus;
+}
+
+// Heal-received bonus on the TARGET: flat add_heal2_rate (bHealpower2) + per-skill skillheal2 (bSkillHeal2).
+int pc_skillheal2_bonus(struct map_session_data *sd, int skill_num)
+{
+	int i, bonus = sd->add_heal2_rate;
+
+	for (i = 0; i < ARRAYLENGTH(sd->skillheal2) && sd->skillheal2[i].id; i++)
+	{
+		if (sd->skillheal2[i].id == skill_num) {
+			bonus += sd->skillheal2[i].val;
 			break;
 		}
 	}

@@ -853,9 +853,10 @@ int skill_get_range2 (struct block_list *bl, int id, int lv)
 	return range;
 }
 
-int skill_calc_heal (struct block_list *src, struct block_list *target, int skill_lv)
+int skill_calc_heal (struct block_list *src, struct block_list *target, int skill_id, int skill_lv)
 {
 	int skill, heal;
+	struct map_session_data *tsd = (target && target->type == BL_PC) ? (struct map_session_data *)target : NULL;
 	struct status_change* sc;
 
 	if (skill_lv >= battle_config.max_heal_lv)
@@ -867,6 +868,9 @@ int skill_calc_heal (struct block_list *src, struct block_list *target, int skil
 
 	if(src->type == BL_HOM && (skill = merc_hom_checkskill(((TBL_HOM*)src), HLIF_BRAIN)) > 0)
 		heal += heal * skill * 2 / 100;
+
+	if(tsd && (skill = pc_skillheal2_bonus(tsd, skill_id)) != 0)	// bHealpower2 / bSkillHeal2: healing received +%
+		heal += heal * skill / 100;
 
 	sc = status_get_sc(target);
 	if (sc && sc->count && sc->data[SC_CRITICALWOUND].timer!=-1)
@@ -3495,7 +3499,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case HLIF_HEAL:	//[orn]
 	case AL_HEAL:
 		{
-			int heal = skill_calc_heal(src, bl, skilllv);
+			int heal = skill_calc_heal(src, bl, skillid, skilllv);
 			int heal_get_jobexp;
 
 			if (status_isimmune(bl) || (dstmd && dstmd->class_ == MOBID_EMPERIUM))
@@ -5692,7 +5696,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				bl = map_id2bl(battle_gettarget(src));
 
 			if (!bl) bl = src;
-			i = skill_calc_heal( src, bl, 1+rnd()%skilllv);
+			i = skill_calc_heal( src, bl, skillid, 1+rnd()%skilllv);
 			if (sd && (rndv = pc_skillheal_bonus(sd, skillid)) > 0)
 				i += i * rndv / 100;
 			//Eh? why double skill packet?
