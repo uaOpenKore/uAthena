@@ -1220,7 +1220,8 @@ enum _sp {
 	SP_UNSTRIPABLE_WEAPON,SP_UNSTRIPABLE_ARMOR,SP_UNSTRIPABLE_HELM,SP_UNSTRIPABLE_SHIELD,  // 2034-2037
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE, //2041
-	SP_MAGIC_HP_GAIN_VALUE, SP_MAGIC_SP_GAIN_VALUE //2042-2043 (backported bonuses; uAthena-local numbers, not eAthena's)
+	SP_MAGIC_HP_GAIN_VALUE, SP_MAGIC_SP_GAIN_VALUE, //2042-2043 (backported bonuses; uAthena-local numbers, not eAthena's)
+	SP_ADDCLASSDROPITEM //2044
 	//Note: 1030 (was SP_FREE3) and 2022 (was SP_FREE) are now SP_SP_REGEN_RATE / SP_HP_REGEN_RATE.
 	//No free legacy slots remain; add new bonus types at the end of the 2000+ range.
 };

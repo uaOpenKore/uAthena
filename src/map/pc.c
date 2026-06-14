@@ -2548,6 +2548,10 @@ int pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 		if(sd->state.lr_flag != 2)
 			pc_bonus_item_drop(sd->add_drop, &sd->add_drop_count, type2, 0, 1<<type3, val);
 		break;
+	case SP_ADDCLASSDROPITEM:	// bonus3 bAddClassDropItem,item,mobclass,rate -- drop <item> from a specific mob class (id), encoded as a negative race
+		if(sd->state.lr_flag != 2)
+			pc_bonus_item_drop(sd->add_drop, &sd->add_drop_count, type2, 0, -type3, val);
+		break;
 	case SP_AUTOSPELL:
 		if(sd->state.lr_flag != 2)
 			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, type2, type3, val, 0, current_equip_card_id);

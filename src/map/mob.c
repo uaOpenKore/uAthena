@@ -1968,8 +1968,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			{
 				if (sd->add_drop[i].id < 0)
 					continue;
-				if (sd->add_drop[i].race & (1<<status->race) ||
-					sd->add_drop[i].race & 1<<(status->mode&MD_BOSS?RC_BOSS:RC_NONBOSS))
+				if (sd->add_drop[i].race == -md->class_ ||	// negative race == specific mob class (bAddClassDropItem)
+					(sd->add_drop[i].race > 0 && (
+						sd->add_drop[i].race & (1<<status->race) ||
+						sd->add_drop[i].race & 1<<(status->mode&MD_BOSS?RC_BOSS:RC_NONBOSS))))
 				{
 					//check if the bonus item drop rate should be multiplied with mob level/10 [Lupus]
 					if(sd->add_drop[i].rate < 0) {

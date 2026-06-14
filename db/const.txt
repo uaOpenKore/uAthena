@@ -369,6 +369,7 @@ bSkillHeal2	1089
 bHealpower2	1090
 bMagicHPGainValue	2042
 bMagicSPGainValue	2043
+bAddClassDropItem	2044
 
 bRestartFullRecover	2000
 bNoCastCancel	2001
