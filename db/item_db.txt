@@ -3260,12 +3260,12 @@
 12200,Event_Cake,Event Cake,2,,10,50,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12201,Red_Box_,Old Red Box,2,50000,,200,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 // Cash Shop Usable Items
-12202,STR_Dish,Steamed_Tongue,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_STRFood,1800000, 10; percentheal 15,5; },{},{}
-12203,AGI_Dish,Steamed_Desert_Scorpions,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_AGIFood,1800000, 10; percentheal 15,5; },{},{}
-12204,INT_Dish,Dragon_Breath_Cocktail,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INTFood,1800000, 10; percentheal 15,5; },{},{}
-12205,DEX_Dish,Hwergelmir's_Tonic,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_DEXFood,1800000, 10; percentheal 15,5; },{},{}
-12206,LUK_Dish,Cooked_Nine_Tail,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_LUKFood,1800000, 10; percentheal 15,5; },{},{}
-12207,VIT_Dish,Immortal_Stew,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_VITFood,1800000, 10; percentheal 15,5; },{},{}
+12202,STR_Dish,Steamed_Tongue,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_FOOD_STR_CASH,1800000,10; percentheal 15,5; },{},{}
+12203,AGI_Dish,Steamed_Desert_Scorpions,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_FOOD_AGI_CASH,1800000,10; percentheal 15,5; },{},{}
+12204,INT_Dish,Dragon_Breath_Cocktail,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_FOOD_INT_CASH,1800000,10; percentheal 15,5; },{},{}
+12205,DEX_Dish,Hwergelmir's_Tonic,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_FOOD_DEX_CASH,1800000,10; percentheal 15,5; },{},{}
+12206,LUK_Dish,Cooked_Nine_Tail,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_FOOD_LUK_CASH,1800000,10; percentheal 15,5; },{},{}
+12207,VIT_Dish,Immortal_Stew,0,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_FOOD_VIT_CASH,1800000,10; percentheal 15,5; },{},{}
 12208,Battle_Manual,Battle Manual,2,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_EXPBOOST,1800000,50; },{},{}
 12209,Insurance,Life Insurance,2,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_LIFEINSURANCE,1800000,0; },{},{}
 12210,Bubble_Gum,Bubble Gum,2,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_ITEMBOOST,1800000,200; },{},{}

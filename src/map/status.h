@@ -272,6 +272,12 @@ enum {
 	SC_SUMMER,	//256 (placeholder to keep enum aligned with const.txt)
 	SC_EXPBOOST,	//257 - Battle/Field Manual exp boost
 	SC_ITEMBOOST,	//258 - Bubble Gum drop boost
+	SC_FOOD_STR_CASH,	//259 - cash-shop stat food, distinct from normal food
+	SC_FOOD_AGI_CASH,	//260
+	SC_FOOD_VIT_CASH,	//261
+	SC_FOOD_INT_CASH,	//262
+	SC_FOOD_DEX_CASH,	//263
+	SC_FOOD_LUK_CASH,	//264
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };
 int SkillStatusChangeTable(int skill);

@@ -446,6 +446,12 @@ void initChangeTables(void)
 	//element, but alas, all of them are mob-target only with the exception of
 	//NPC_CHANGEUNDEAD, so this should be alright. [Skotlex]
 	StatusIconChangeTable[SC_STRFOOD] = SI_FOODSTR;
+	StatusIconChangeTable[SC_FOOD_STR_CASH] = SI_FOODSTR;	//cash food reuses the normal food icons
+	StatusIconChangeTable[SC_FOOD_AGI_CASH] = SI_FOODAGI;
+	StatusIconChangeTable[SC_FOOD_VIT_CASH] = SI_FOODVIT;
+	StatusIconChangeTable[SC_FOOD_INT_CASH] = SI_FOODINT;
+	StatusIconChangeTable[SC_FOOD_DEX_CASH] = SI_FOODDEX;
+	StatusIconChangeTable[SC_FOOD_LUK_CASH] = SI_FOODLUK;
 	StatusIconChangeTable[SC_AGIFOOD] = SI_FOODAGI;
 	StatusIconChangeTable[SC_VITFOOD] = SI_FOODVIT;
 	StatusIconChangeTable[SC_INTFOOD] = SI_FOODINT;
@@ -484,6 +490,12 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_INTFOOD] |= SCB_INT;
 	StatusChangeFlagTable[SC_DEXFOOD] |= SCB_DEX;
 	StatusChangeFlagTable[SC_LUKFOOD] |= SCB_LUK;
+	StatusChangeFlagTable[SC_FOOD_STR_CASH] |= SCB_STR;
+	StatusChangeFlagTable[SC_FOOD_AGI_CASH] |= SCB_AGI;
+	StatusChangeFlagTable[SC_FOOD_VIT_CASH] |= SCB_VIT;
+	StatusChangeFlagTable[SC_FOOD_INT_CASH] |= SCB_INT;
+	StatusChangeFlagTable[SC_FOOD_DEX_CASH] |= SCB_DEX;
+	StatusChangeFlagTable[SC_FOOD_LUK_CASH] |= SCB_LUK;
 	StatusChangeFlagTable[SC_HITFOOD] |= SCB_HIT;
 	StatusChangeFlagTable[SC_FLEEFOOD] |= SCB_FLEE;
 	StatusChangeFlagTable[SC_BATKFOOD] |= SCB_BATK;
@@ -3153,6 +3165,8 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += sc->data[SC_INCSTR].val1;
 	if(sc->data[SC_STRFOOD].timer!=-1)
 		str += sc->data[SC_STRFOOD].val1;
+	if(sc->data[SC_FOOD_STR_CASH].timer!=-1)	//cash food: add only the excess over normal (max, no double-stack)
+		str += max(0, sc->data[SC_FOOD_STR_CASH].val1 - (sc->data[SC_STRFOOD].timer!=-1?sc->data[SC_STRFOOD].val1:0));
 	if(sc->data[SC_BATTLEORDERS].timer!=-1)
 		str += 5;
 	if(sc->data[SC_GUILDAURA].timer != -1 && sc->data[SC_GUILDAURA].val3>>16)
@@ -3196,6 +3210,8 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi += sc->data[SC_INCAGI].val1;
 	if(sc->data[SC_AGIFOOD].timer!=-1)
 		agi += sc->data[SC_AGIFOOD].val1;
+	if(sc->data[SC_FOOD_AGI_CASH].timer!=-1)
+		agi += max(0, sc->data[SC_FOOD_AGI_CASH].val1 - (sc->data[SC_AGIFOOD].timer!=-1?sc->data[SC_AGIFOOD].val1:0));
 	if(sc->data[SC_GUILDAURA].timer != -1 && sc->data[SC_GUILDAURA].val4>>16)
 		agi += sc->data[SC_GUILDAURA].val4>>16;
 	if(sc->data[SC_TRUESIGHT].timer!=-1)
@@ -3231,6 +3247,8 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 		vit += sc->data[SC_INCVIT].val1;
 	if(sc->data[SC_VITFOOD].timer!=-1)
 		vit += sc->data[SC_VITFOOD].val1;
+	if(sc->data[SC_FOOD_VIT_CASH].timer!=-1)
+		vit += max(0, sc->data[SC_FOOD_VIT_CASH].val1 - (sc->data[SC_VITFOOD].timer!=-1?sc->data[SC_VITFOOD].val1:0));
 	if(sc->data[SC_CHANGE].timer!=-1)
 		vit += sc->data[SC_CHANGE].val2;
 	if(sc->data[SC_GUILDAURA].timer != -1 && sc->data[SC_GUILDAURA].val3&0xFFFF)
@@ -3260,6 +3278,8 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ += sc->data[SC_INCINT].val1;
 	if(sc->data[SC_INTFOOD].timer!=-1)
 		int_ += sc->data[SC_INTFOOD].val1;
+	if(sc->data[SC_FOOD_INT_CASH].timer!=-1)
+		int_ += max(0, sc->data[SC_FOOD_INT_CASH].val1 - (sc->data[SC_INTFOOD].timer!=-1?sc->data[SC_INTFOOD].val1:0));
 	if(sc->data[SC_CHANGE].timer!=-1)
 		int_ += sc->data[SC_CHANGE].val3;
 	if(sc->data[SC_BATTLEORDERS].timer!=-1)
@@ -3302,6 +3322,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += sc->data[SC_INCDEX].val1;
 	if(sc->data[SC_DEXFOOD].timer!=-1)
 		dex += sc->data[SC_DEXFOOD].val1;
+	if(sc->data[SC_FOOD_DEX_CASH].timer!=-1)
+		dex += max(0, sc->data[SC_FOOD_DEX_CASH].val1 - (sc->data[SC_DEXFOOD].timer!=-1?sc->data[SC_DEXFOOD].val1:0));
 	if(sc->data[SC_BATTLEORDERS].timer!=-1)
 		dex += 5;
 	if(sc->data[SC_GUILDAURA].timer != -1 && sc->data[SC_GUILDAURA].val4&0xFFFF)
@@ -3341,6 +3363,8 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk += sc->data[SC_INCLUK].val1;
 	if(sc->data[SC_LUKFOOD].timer!=-1)
 		luk += sc->data[SC_LUKFOOD].val1;
+	if(sc->data[SC_FOOD_LUK_CASH].timer!=-1)
+		luk += max(0, sc->data[SC_FOOD_LUK_CASH].val1 - (sc->data[SC_LUKFOOD].timer!=-1?sc->data[SC_LUKFOOD].val1:0));
 	if(sc->data[SC_TRUESIGHT].timer!=-1)
 		luk += 5;
 	if(sc->data[SC_GLORIA].timer!=-1)
@@ -6097,6 +6121,12 @@ int status_change_clear(struct block_list *bl,int type)
 		case SC_JAILED:
 		case SC_EXPBOOST:	//Battle/Field Manual & Bubble Gum survive death [eAthena]
 		case SC_ITEMBOOST:
+		case SC_FOOD_STR_CASH:	//cash-shop food survives death
+		case SC_FOOD_AGI_CASH:
+		case SC_FOOD_VIT_CASH:
+		case SC_FOOD_INT_CASH:
+		case SC_FOOD_DEX_CASH:
+		case SC_FOOD_LUK_CASH:
 			continue;
 		}
 		status_change_end(bl, i, INVALID_TIMER);
@@ -7075,6 +7105,12 @@ int status_change_clear_buffs (struct block_list *bl, int type)
 			case SC_MATKFOOD:
 			case SC_EXPBOOST:	//exp/drop boosts are not dispelled by Gospel/clearance [eAthena 2011]
 			case SC_ITEMBOOST:
+			case SC_FOOD_STR_CASH:	//cash-shop food not dispelled by Gospel/clearance
+			case SC_FOOD_AGI_CASH:
+			case SC_FOOD_VIT_CASH:
+			case SC_FOOD_INT_CASH:
+			case SC_FOOD_DEX_CASH:
+			case SC_FOOD_LUK_CASH:
 				continue;
 
 			//Debuffs that can be removed.
