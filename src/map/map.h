@@ -706,6 +706,8 @@ struct map_session_data {
 	int crit_atk_rate;
 	int hp_loss_rate;
 	int sp_loss_rate;
+	int hp_regen_rate;	// [perf/bonus] interval (ms) for bonus2 bHPRegenRate
+	int sp_regen_rate;	// interval (ms) for bonus2 bSPRegenRate
 	int classchange; // [Valaris]
 	int speed_add_rate, aspd_add;
 	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
@@ -715,6 +717,8 @@ struct map_session_data {
 	short hp_loss_value;
 	short sp_loss_value;
 	short hp_loss_type;
+	short hp_regen_value;	// HP gained per hp_regen_rate ms (bonus2 bHPRegenRate)
+	short sp_regen_value;	// SP gained per sp_regen_rate ms (bonus2 bSPRegenRate)
 	short sp_gain_value, hp_gain_value;
 	short sp_vanish_rate;
 	short sp_vanish_per;	
@@ -735,6 +739,8 @@ struct map_session_data {
 
 	int hp_loss_tick;
 	int sp_loss_tick;
+	int hp_regen_tick;	// accumulator (NOT zeroed on recalc, like hp_loss_tick)
+	int sp_regen_tick;
 
 	int itemid;
 	short itemindex;	//Used item's index in sd->inventory [Skotlex]
@@ -1165,7 +1171,7 @@ enum _sp {
 	SP_CRITICAL_DEF,SP_NEAR_ATK_DEF,SP_LONG_ATK_DEF, // 1019-1021
 	SP_DOUBLE_RATE, SP_DOUBLE_ADD_RATE, SP_SKILL_HEAL, SP_MATK_RATE, // 1022-1025
 	SP_IGNORE_DEF_ELE,SP_IGNORE_DEF_RACE, // 1026-1027
-	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_FREE3, // 1028-1030
+	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_SP_REGEN_RATE, // 1028-1030 (1030 was the free SP_FREE3)
 	SP_MAGIC_ATK_DEF,SP_MISC_ATK_DEF, // 1031-1032
 	SP_IGNORE_MDEF_ELE,SP_IGNORE_MDEF_RACE, // 1033-1034
 	SP_MAGIC_ADDELE,SP_MAGIC_ADDRACE,SP_MAGIC_ADDSIZE, // 1035-1037
@@ -1188,15 +1194,14 @@ enum _sp {
 
 	SP_CRIT_ATK_RATE, SP_CRITICAL_ADDRACE, SP_NO_REGEN, SP_ADDEFF_WHENHIT, SP_AUTOSPELL_WHENHIT, // 2013-2017
 	SP_SKILL_ATK, SP_UNSTRIPABLE, SP_ADD_DAMAGE_BY_CLASS, // 2018-2020
-	SP_SP_GAIN_VALUE, SP_FREE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
+	SP_SP_GAIN_VALUE, SP_HP_REGEN_RATE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025 (2022 was the free SP_FREE)
 	SP_SUBSIZE, SP_HP_DRAIN_VALUE_RACE, SP_ADD_ITEM_HEAL_RATE, SP_SP_DRAIN_VALUE_RACE, SP_EXP_ADDRACE,	// 2026-2030
 	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_ADDEFF_WHENHIT_SHORT,	// 2031-2033
 	SP_UNSTRIPABLE_WEAPON,SP_UNSTRIPABLE_ARMOR,SP_UNSTRIPABLE_HELM,SP_UNSTRIPABLE_SHIELD,  // 2034-2037
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
-	//Before adding another, note that these are free:
-	//1030 (SP_FREE3, previous AspdAddRate)
-	//2022 (SP_FREE, previous bDefIgnoreMob)
+	//Note: 1030 (was SP_FREE3) and 2022 (was SP_FREE) are now SP_SP_REGEN_RATE / SP_HP_REGEN_RATE.
+	//No free legacy slots remain; add new bonus types at the end of the 2000+ range.
 };
 
 enum _look {

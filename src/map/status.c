@@ -1736,6 +1736,8 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->crit_atk_rate)
 		+ sizeof(sd->hp_loss_rate)
 		+ sizeof(sd->sp_loss_rate)
+		+ sizeof(sd->hp_regen_rate)
+		+ sizeof(sd->sp_regen_rate)
 		+ sizeof(sd->classchange)
 		+ sizeof(sd->speed_add_rate)
 		+ sizeof(sd->aspd_add)
@@ -1748,6 +1750,8 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->hp_loss_value)
 		+ sizeof(sd->sp_loss_value)
 		+ sizeof(sd->hp_loss_type)
+		+ sizeof(sd->hp_regen_value)
+		+ sizeof(sd->sp_regen_value)
 		+ sizeof(sd->hp_gain_value)
 		+ sizeof(sd->sp_gain_value)
 		+ sizeof(sd->sp_vanish_rate)
@@ -7138,6 +7142,9 @@ static int status_natural_heal(DBKey key,void * data,va_list ap)
 
 	if (sd && (sd->hp_loss_value > 0 || sd->sp_loss_value > 0))
 		pc_bleeding(sd, natural_heal_diff_tick);
+
+	if (sd && (sd->hp_regen_value > 0 || sd->sp_regen_value > 0))
+		pc_regen(sd, natural_heal_diff_tick);
 
 	if(flag&(RGN_SHP|RGN_SSP) && regen->ssregen &&
 		(vd = status_get_viewdata(bl)) && vd->dead_sit == 2)

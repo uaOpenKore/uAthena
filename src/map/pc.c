@@ -2272,6 +2272,18 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			sd->hp_loss_rate = val;
 		}
 		break;
+	case SP_HP_REGEN_RATE:	// bonus2 bHPRegenRate,value,interval_ms -- gain value HP every interval (mirror of HP Loss)
+		if(sd->state.lr_flag != 2) {
+			sd->hp_regen_value = type2;
+			sd->hp_regen_rate = val;
+		}
+		break;
+	case SP_SP_REGEN_RATE:	// bonus2 bSPRegenRate,value,interval_ms
+		if(sd->state.lr_flag != 2) {
+			sd->sp_regen_value = type2;
+			sd->sp_regen_rate = val;
+		}
+		break;
 	case SP_ADDRACE2:
 		if (!(type2 > 0 && type2 < MAX_MOB_RACE_DB))
 			break;
@@ -6855,6 +6867,39 @@ void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick)
 
 	if (hp > 0 || sp > 0)
 		status_zap(&sd->bl, hp, sp);
+
+	return;
+}
+
+/*==========================================
+ * Item-granted HP/SP regen (bonus2 bHPRegenRate/bSPRegenRate): the opposite of
+ * HP/SP Loss -- gain `value` HP/SP every `rate` ms. Ticks unconditionally (eAthena
+ * pre-renewal long-standing behaviour: r13... "make regen work always, like Hp/Sp
+ * Loss"), no heal popup. status_heal flag 0 -> Berserk still suppresses HP regen.
+ * rate>0 is required so a malformed item (rate 0) cannot spin the while-loops.
+ *------------------------------------------*/
+void pc_regen (struct map_session_data *sd, unsigned int diff_tick)
+{
+	int hp = 0, sp = 0;
+
+	if (sd->hp_regen_value > 0 && sd->hp_regen_rate > 0) {
+		sd->hp_regen_tick += diff_tick;
+		while (sd->hp_regen_tick >= sd->hp_regen_rate) {
+			hp += sd->hp_regen_value;
+			sd->hp_regen_tick -= sd->hp_regen_rate;
+		}
+	}
+
+	if (sd->sp_regen_value > 0 && sd->sp_regen_rate > 0) {
+		sd->sp_regen_tick += diff_tick;
+		while (sd->sp_regen_tick >= sd->sp_regen_rate) {
+			sp += sd->sp_regen_value;
+			sd->sp_regen_tick -= sd->sp_regen_rate;
+		}
+	}
+
+	if (hp > 0 || sp > 0)
+		status_heal(&sd->bl, hp, sp, 0);
 
 	return;
 }
