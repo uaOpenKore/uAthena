@@ -64,11 +64,13 @@ size_t wfifo_size = (16*1024);
 // [perf] Send coalescing (map server only). When > 0, the send worker combines
 // the chunks already queued for a client into a single send() instead of one
 // syscall per chunk — fewer syscalls, fewer TCP segments, less qdisc TX-lock
-// contention under crowded maps (WoE). It adds NO delay: only whatever is already
-// queued is merged, so it cannot hold back map-entry data (an earlier timer-based
-// version did, and broke "enter game" for remote clients). Requires the worker
-// (socket_async_send: 1). map.c forwards this to the worker via
-// sendworker_set_coalesce(). 0 = off. The value is treated as a boolean for now.
+// contention under crowded maps (WoE). The worker holds an fd's lone sub-segment
+// dribble up to this many ms so the small packets that pile up go out as one
+// send(); anything that reaches ~1 TCP segment, and every EAGAIN drain, flushes
+// immediately, so it cannot hold back a map-entry/spawn burst (an earlier
+// game-loop timer version did, and broke "enter game" for remote clients).
+// Requires the worker (socket_async_send: 1). map.c forwards this to the worker
+// via sendworker_set_coalesce(). <=0 = off; >0 = window in ms (tune by testing).
 int socket_send_coalesce_ms = 0;
 
 // [perf] When set (map server only), client send() syscalls are performed on a

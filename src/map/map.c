@@ -3616,10 +3616,12 @@ int do_init(int argc, char *argv[])
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
 
-	// [perf] Send coalescing (map-only): the worker merges a client's queued
-	// chunks into one send(). Forward the config to the worker.
+	// [perf] Send coalescing (map-only): the worker holds a client's lone
+	// sub-segment packets up to this many ms so they go out as one send() (bulk
+	// and EAGAIN drains flush at once). Forward the raw ms window to the worker;
+	// <=0 disables it. Needs socket_async_send: 1 (it is a send-worker feature).
 	socket_send_coalesce_ms = battle_config.socket_send_coalesce_ms;
-	sendworker_set_coalesce(socket_send_coalesce_ms > 0);
+	sendworker_set_coalesce(socket_send_coalesce_ms);
 
 	// [perf] Optionally move client send() syscalls onto a dedicated worker thread
 	// (send_worker.c), off the single game loop. Off by default; enable in

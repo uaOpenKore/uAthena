@@ -6,6 +6,15 @@
 // the game thread is never blocked behind the kernel TCP stack. Per-fd state is
 // a stable fd-indexed array, decoupled from the session lifetime. Chunks use raw
 // malloc/free (cross-thread; never the game allocator), exactly like log_async.
+//
+// Send coalescing (socket_send_coalesce_ms > 0): a lone *sub-segment* dribble for
+// an fd is HELD for up to the configured window so the small packets that pile up
+// during the window go out as ONE send() (fewer syscalls / TCP segments / qdisc
+// trips on crowded maps -- WoE). Anything that reaches ~1 TCP segment, and every
+// EAGAIN drain, flushes immediately, so a map-entry/spawn burst is NEVER throttled
+// (the bug the old game-loop timer coalescing caused). The window only delays when
+// to START draining freshly-queued small data; it never throttles an in-progress
+// drain.
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +30,8 @@
 #endif
 
 #define SW_MAX SOCKET_MAX
-#define SW_RETRY_MS 5   // delay before re-trying an EAGAIN (backpressured) fd
+#define SW_RETRY_MS 5      // delay before re-trying an EAGAIN (backpressured) fd
+#define SW_COALESCE_BYTES 1400  // >= ~1 TCP segment: flush now, never wait the window
 
 struct sw_chunk {
 	struct sw_chunk *next;
@@ -32,32 +42,101 @@ struct sw_chunk {
 
 struct sw_fd {
 	struct sw_chunk *head, *tail;   // pending FIFO
-	unsigned char in_ready;         // queued in g_ready (dedup)
+	struct timespec due;            // when a deferred fd becomes ready (abs, CLOCK_REALTIME)
+	unsigned char in_ready;         // queued in g_ready (drain now); dedup
 	unsigned char in_use;           // worker is mid-send on this fd
 	unsigned char closing;          // game thread is closing it; worker must let go
-	unsigned char backlogged;       // EAGAIN remainder, pending a timed retry
+	unsigned char deferred;         // queued in g_defer awaiting .due; dedup
+	unsigned char defer_backlog;    // deferral reason: 1 = EAGAIN retry, 0 = coalesce window
 };
 
 static struct sw_fd sw[SW_MAX];
-static int g_ready[SW_MAX];    int g_ready_n = 0;     // fds with work to do now
-static int g_backlog[SW_MAX];  int g_backlog_n = 0;   // fds awaiting EAGAIN retry
+static int g_ready[SW_MAX];   int g_ready_n = 0;   // fds with work to do now
+static int g_defer[SW_MAX];   int g_defer_n = 0;   // fds awaiting a deadline (coalesce / EAGAIN)
 
 static pthread_mutex_t g_mtx     = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  g_work_cv = PTHREAD_COND_INITIALIZER;  // worker wakes on new work
 static pthread_cond_t  g_close_cv= PTHREAD_COND_INITIALIZER;  // close() waits for in_use to clear
 static pthread_t       g_thread;
 static int             g_running = 0;
-static int             sw_coalesce = 0;  // [perf] merge an fd's queued chunks into one send()
+static int             sw_coalesce_ms = 0;  // [perf] 0/neg = off; >0 = flush window in ms (under g_mtx)
 
-void sendworker_set_coalesce(int on) { sw_coalesce = on ? 1 : 0; }
+void sendworker_set_coalesce(int ms)
+{
+	pthread_mutex_lock(&g_mtx);
+	sw_coalesce_ms = ms;
+	pthread_mutex_unlock(&g_mtx);
+}
+
+// --- small time helpers (CLOCK_REALTIME, to match pthread_cond_timedwait) -----
+static struct timespec now_plus_ms(int ms)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	ts.tv_nsec += (long)ms * 1000000L;
+	ts.tv_sec  += ts.tv_nsec / 1000000000L;
+	ts.tv_nsec %= 1000000000L;
+	return ts;
+}
+static int ts_ge(struct timespec a, struct timespec b)  // a >= b ?
+{
+	return a.tv_sec != b.tv_sec ? a.tv_sec > b.tv_sec : a.tv_nsec >= b.tv_nsec;
+}
+static int ts_lt(struct timespec a, struct timespec b)  // a < b ?
+{
+	return a.tv_sec != b.tv_sec ? a.tv_sec < b.tv_sec : a.tv_nsec < b.tv_nsec;
+}
 
 // caller holds g_mtx
 static void ready_push(int fd)
 {
-	if( !sw[fd].in_ready && !sw[fd].backlogged && g_ready_n < SW_MAX ) {
+	if( !sw[fd].in_ready && !sw[fd].deferred && g_ready_n < SW_MAX ) {
 		g_ready[g_ready_n++] = fd;
 		sw[fd].in_ready = 1;
 	}
+}
+
+// caller holds g_mtx; caller has already set sw[fd].due and sw[fd].defer_backlog
+static void defer_add(int fd)
+{
+	if( !sw[fd].deferred && g_defer_n < SW_MAX ) {
+		sw[fd].deferred = 1;
+		g_defer[g_defer_n++] = fd;
+	}
+}
+
+// caller holds g_mtx
+static void defer_remove(int fd)
+{
+	int i;
+	if( !sw[fd].deferred )
+		return;
+	sw[fd].deferred = 0;
+	for( i = 0; i < g_defer_n; i++ )
+		if( g_defer[i] == fd ) { g_defer[i] = g_defer[--g_defer_n]; return; }
+}
+
+// caller holds g_mtx; total unsent bytes queued for fd
+static size_t qbytes_of(int fd)
+{
+	size_t b = 0; struct sw_chunk *c;
+	for( c = sw[fd].head; c; c = c->next ) b += c->len - c->off;
+	return b;
+}
+
+// caller holds g_mtx; fd has head data and is idle (not in_use/in_ready/deferred):
+// drain it now if coalescing is off or it already fills a segment, else arm the
+// coalesce window so more small packets can pile in before one send().
+static void sched_fd(int fd)
+{
+	if( sw_coalesce_ms <= 0 || qbytes_of(fd) >= SW_COALESCE_BYTES ) {
+		ready_push(fd);
+	} else {
+		sw[fd].defer_backlog = 0;
+		sw[fd].due = now_plus_ms(sw_coalesce_ms);
+		defer_add(fd);
+	}
+	pthread_cond_signal(&g_work_cv);
 }
 
 static void free_chain(struct sw_chunk *c)
@@ -73,22 +152,26 @@ static void *sw_main(void *unused)
 	{
 		while( g_running && g_ready_n == 0 )
 		{
-			if( g_backlog_n > 0 ) {
-				// retry backpressured fds after a short delay (no busy-spin)
-				struct timespec ts; int k;
-				clock_gettime(CLOCK_REALTIME, &ts);
-				ts.tv_nsec += SW_RETRY_MS * 1000000L;
-				if( ts.tv_nsec >= 1000000000L ) { ts.tv_sec++; ts.tv_nsec -= 1000000000L; }
+			if( g_defer_n > 0 ) {
+				// sleep until the earliest deferred deadline (no busy-spin), then
+				// promote every fd whose coalesce window / EAGAIN retry has elapsed.
+				struct timespec ts = sw[g_defer[0]].due, now;
+				int k, r, w = 0;
+				for( k = 1; k < g_defer_n; k++ )
+					if( ts_lt(sw[g_defer[k]].due, ts) ) ts = sw[g_defer[k]].due;
 				pthread_cond_timedwait(&g_work_cv, &g_mtx, &ts);
-				for( k = 0; k < g_backlog_n; k++ ) {
-					int bfd = g_backlog[k];
-					sw[bfd].backlogged = 0;
-					if( sw[bfd].head && !sw[bfd].in_ready && g_ready_n < SW_MAX ) {
-						g_ready[g_ready_n++] = bfd;
-						sw[bfd].in_ready = 1;
+				clock_gettime(CLOCK_REALTIME, &now);
+				for( r = 0; r < g_defer_n; r++ ) {
+					int dfd = g_defer[r];
+					if( ts_ge(now, sw[dfd].due) ) {
+						sw[dfd].deferred = 0;
+						if( sw[dfd].head && !sw[dfd].in_ready && !sw[dfd].in_use && !sw[dfd].closing )
+							ready_push(dfd);
+					} else {
+						g_defer[w++] = dfd;   // not due yet: keep
 					}
 				}
-				g_backlog_n = 0;
+				g_defer_n = w;
 			} else {
 				pthread_cond_wait(&g_work_cv, &g_mtx);
 			}
@@ -99,7 +182,7 @@ static void *sw_main(void *unused)
 		{
 			int fd = g_ready[--g_ready_n];
 			struct sw_chunk *list, *rem = NULL;
-			int eagain = 0, dead = 0;
+			int eagain = 0, dead = 0, coalesce;
 			sw[fd].in_ready = 0;
 			if( sw[fd].closing || sw[fd].head == NULL )
 				continue;
@@ -108,13 +191,14 @@ static void *sw_main(void *unused)
 			list = sw[fd].head;
 			sw[fd].head = sw[fd].tail = NULL;
 			sw[fd].in_use = 1;
+			coalesce = (sw_coalesce_ms > 0);   // read under lock
 			pthread_mutex_unlock(&g_mtx);
 
-			// [perf] Coalesce: merge the chunks already queued for this fd into
-			// one buffer so they go out in a single send() (fewer syscalls /
-			// segments / qdisc-lock trips). No delay — only what is ALREADY
-			// queued is merged. On OOM, fall back to sending chunk-by-chunk.
-			if( sw_coalesce && list && list->next ) {
+			// [perf] Coalesce: merge the chunks queued for this fd into one buffer
+			// so they go out in a single send(). When the window is on these are the
+			// small packets that accumulated during it; merging cuts syscalls /
+			// segments / qdisc-lock trips. On OOM, fall back to chunk-by-chunk.
+			if( coalesce && list && list->next ) {
 				size_t total = 0;
 				struct sw_chunk *c, *big;
 				for( c = list; c; c = c->next ) total += c->len - c->off;
@@ -153,18 +237,22 @@ static void *sw_main(void *unused)
 			pthread_mutex_lock(&g_mtx);
 			sw[fd].in_use = 0;
 			if( rem && !sw[fd].closing && !dead ) {
-				// prepend the unsent remainder, schedule a delayed retry
+				// prepend the unsent remainder, schedule a delayed EAGAIN retry. The
+				// coalesce window NEVER throttles this drain -- only the 5ms retry.
 				struct sw_chunk *t = rem;
 				while( t->next ) t = t->next;
 				t->next = sw[fd].head;
 				sw[fd].head = rem;
 				if( sw[fd].tail == NULL ) sw[fd].tail = t;
-				if( !sw[fd].backlogged && g_backlog_n < SW_MAX ) {
-					sw[fd].backlogged = 1;
-					g_backlog[g_backlog_n++] = fd;
-				}
-			} else if( rem ) {
-				free_chain(rem);
+				sw[fd].defer_backlog = 1;
+				sw[fd].due = now_plus_ms(SW_RETRY_MS);
+				defer_add(fd);
+			} else {
+				if( rem )
+					free_chain(rem);
+				// chunks may have been queued during the unlocked send: (re)schedule
+				if( sw[fd].head && !sw[fd].in_ready && !sw[fd].deferred && !sw[fd].closing )
+					sched_fd(fd);
 			}
 			if( sw[fd].closing )
 				pthread_cond_broadcast(&g_close_cv);
@@ -196,9 +284,20 @@ void sendworker_send(int fd, const unsigned char *buf, size_t len)
 	if( sw[fd].tail ) sw[fd].tail->next = c;
 	else              sw[fd].head = c;
 	sw[fd].tail = c;
-	if( !sw[fd].in_ready && !sw[fd].backlogged ) {  // already queued? backlog retry will catch it
-		ready_push(fd);
-		pthread_cond_signal(&g_work_cv);
+
+	if( sw[fd].in_use || sw[fd].in_ready ) {
+		// worker is draining or has already scheduled this fd; it will pick up the
+		// new chunk when it (re)checks head. nothing to do.
+	} else if( sw[fd].deferred ) {
+		// waiting on a deadline. If it's a coalesce window and we've now reached the
+		// flush threshold, promote to immediate; otherwise let the window fire.
+		if( !sw[fd].defer_backlog && qbytes_of(fd) >= SW_COALESCE_BYTES ) {
+			defer_remove(fd);
+			ready_push(fd);
+			pthread_cond_signal(&g_work_cv);
+		}
+	} else {
+		sched_fd(fd);
 	}
 	pthread_mutex_unlock(&g_mtx);
 }
@@ -210,6 +309,7 @@ void sendworker_release(int fd)
 		return;
 	pthread_mutex_lock(&g_mtx);
 	sw[fd].closing = 1;
+	defer_remove(fd);                // drop any armed coalesce/retry deadline
 	c = sw[fd].head;                 // detach everything not in-flight
 	sw[fd].head = sw[fd].tail = NULL;
 	while( sw[fd].in_use )           // wait out an in-flight send on this fd
@@ -233,10 +333,12 @@ void sendworker_reset(int fd)
 	if( fd <= 0 || fd >= SW_MAX )
 		return;
 	pthread_mutex_lock(&g_mtx);
+	defer_remove(fd);                // drop any armed deadline before fd reuse
 	c = sw[fd].head;
 	sw[fd].head = sw[fd].tail = NULL;
 	sw[fd].closing = 0;
 	sw[fd].in_use  = 0;
+	sw[fd].defer_backlog = 0;
 	pthread_mutex_unlock(&g_mtx);
 	free_chain(c);
 }
@@ -266,5 +368,8 @@ void sendworker_final(void)
 	for( i = 0; i < SW_MAX; i++ ) {
 		free_chain(sw[i].head);
 		sw[i].head = sw[i].tail = NULL;
+		sw[i].in_ready = sw[i].in_use = sw[i].closing = sw[i].deferred = 0;
 	}
+	g_ready_n = 0;
+	g_defer_n = 0;
 }

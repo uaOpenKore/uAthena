@@ -11,6 +11,7 @@
 #include <poll.h>
 #include <errno.h>
 #include <signal.h>
+#include <time.h>
 #include <sys/socket.h>
 #include "send_worker.h"
 
@@ -126,20 +127,77 @@ static void t_many(void)
 	fails += !ok;
 }
 
+// elapsed-ms helper for the timing tests
+static long ms_since(struct timespec t0)
+{
+	struct timespec t1; clock_gettime(CLOCK_MONOTONIC, &t1);
+	return (t1.tv_sec - t0.tv_sec)*1000L + (t1.tv_nsec - t0.tv_nsec)/1000000L;
+}
+
+// Test 5: with a coalesce window, a lone sub-segment packet is HELD for ~the
+//         window (not sent immediately) but still arrives byte-exact afterwards.
+static void t_window(void)
+{
+	int sv[2]; unsigned char msg[64], rcv[64]; int win = 80; struct timespec t0;
+	socketpair(AF_UNIX, SOCK_STREAM, 0, sv);
+	set_nonblock(sv[0]);
+	sendworker_set_coalesce(win);
+	pat(msg, sizeof msg, 123u);
+	clock_gettime(CLOCK_MONOTONIC, &t0);
+	sendworker_send(sv[0], msg, sizeof msg);
+	// a fraction into the window: nothing should have arrived yet
+	{ size_t early = read_n(sv[1], rcv, sizeof msg, win/4);
+	  int ok = (early == 0);
+	  printf("5. sub-seg packet held for window (%dms): %s (early %zu)\n", win, ok?"ok":"FAIL", early);
+	  fails += !ok; }
+	// well past it: must arrive, byte-exact, and not before the window
+	{ size_t got = read_n(sv[1], rcv, sizeof msg, win*5); long dt = ms_since(t0);
+	  int ok = (got==sizeof msg) && (memcmp(msg,rcv,sizeof msg)==0) && (dt >= win/2);
+	  printf("   ...then flushed after ~%ldms          : %s (got %zu)\n", dt, ok?"ok":"FAIL", got);
+	  fails += !ok; }
+	sendworker_set_coalesce(0);
+	close(sv[0]); close(sv[1]);
+}
+
+// Test 6: a bulk packet (>= ~1 TCP segment) is sent IMMEDIATELY despite the
+//         window, so map-entry/spawn bursts are never throttled (the regression
+//         that the old timer-based coalescing caused).
+static void t_window_bulk(void)
+{
+	int sv[2]; unsigned char *msg, *rcv; size_t len = 2000; int win = 300; struct timespec t0;
+	socketpair(AF_UNIX, SOCK_STREAM, 0, sv);
+	set_nonblock(sv[0]);
+	sendworker_set_coalesce(win);
+	msg = malloc(len); rcv = malloc(len);
+	pat(msg, len, 77u);
+	clock_gettime(CLOCK_MONOTONIC, &t0);
+	sendworker_send(sv[0], msg, len);
+	{ size_t got = read_n(sv[1], rcv, len, win); long dt = ms_since(t0);
+	  int ok = (got==len) && (memcmp(msg,rcv,len)==0) && (dt < win/2);
+	  printf("6. bulk packet bypasses window (%dms)  : %s (got %zu, %ldms)\n", win, ok?"ok":"FAIL", got, dt);
+	  fails += !ok; }
+	sendworker_set_coalesce(0);
+	free(msg); free(rcv); close(sv[0]); close(sv[1]);
+}
+
 int main(void)
 {
 	signal(SIGPIPE, SIG_IGN);  // a closed peer must not kill us (the server ignores it too)
 	sendworker_init();
 
-	int pass;
+	int win[2] = { 0, 10 }, pass;
 	for( pass = 0; pass < 2; pass++ ) {
-		sendworker_set_coalesce(pass);  // 0 = per-chunk, 1 = merge queued chunks
-		printf("--- coalesce=%d ---\n", pass);
+		sendworker_set_coalesce(win[pass]);  // 0 = off, >0 = flush window in ms
+		printf("--- coalesce_ms=%d ---\n", win[pass]);
 		t_order();
 		t_backpressure();
 		t_release();
 		t_many();
 	}
+
+	printf("--- timing ---\n");
+	t_window();
+	t_window_bulk();
 
 	sendworker_final();
 	printf(fails ? "\nFAILED\n" : "\nALL PASSED\n");
