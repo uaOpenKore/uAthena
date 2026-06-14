@@ -47,5 +47,8 @@ Holy Stick (**1631**) → Turn Undead / Magnus Exorcismus / Assumptio −25%; St
 - ✅ **Quagmire** действует на боссов (полная длительность — eAthena-нерф 5× НЕ берём). Тест: кинуть Quagmire на MVP → у босса падают AGI/DEX/ASPD/скорость.
 
 ## Tier 3 — новые фичи · ⏳ не готово
-- **SC_ITEMBOOST / EXPBOOST** (Bubble Gum / Battle Manual) — буст дропа/опыта; не снимается Gospel.
+- ✅ **SC_ITEMBOOST / EXPBOOST** (Bubble Gum **12210** / Battle Manual **12208**): юзнуть → иконка баффа.
+  - Bubble Gum: дроп ×2 (кап 90%, если базовый не выше). Тест: бить мобов с/без — дроп выше.
+  - Battle Manual: +50% base+job exp. Тест: убить моба — опыта больше.
+  - **Переживают смерть** и **не снимаются Gospel/диспелом**. Тест: умереть → бафф остался; под Gospel → остался.
 - **Cash Food** — стат-еда из кэш-шопа отдельными баффами (не стакается с обычной, переживает смерть).

@@ -440,6 +440,8 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_INCSTR] = SI_INCSTR;
 	StatusIconChangeTable[SC_MIRACLE] = SI_SPIRIT;
 	StatusIconChangeTable[SC_INTRAVISION] = SI_INTRAVISION;
+	StatusIconChangeTable[SC_EXPBOOST] = SI_EXPBOOST;
+	StatusIconChangeTable[SC_ITEMBOOST] = SI_ITEMBOOST;
 	//This seems wrong as it sets the same icon to all skills that change your
 	//element, but alas, all of them are mob-target only with the exception of
 	//NPC_CHANGEUNDEAD, so this should be alright. [Skotlex]
@@ -6093,6 +6095,8 @@ int status_change_clear(struct block_list *bl,int type)
 		case SC_READYTURN:
 		case SC_DODGE:
 		case SC_JAILED:
+		case SC_EXPBOOST:	//Battle/Field Manual & Bubble Gum survive death [eAthena]
+		case SC_ITEMBOOST:
 			continue;
 		}
 		status_change_end(bl, i, INVALID_TIMER);
@@ -7069,6 +7073,8 @@ int status_change_clear_buffs (struct block_list *bl, int type)
 			case SC_BATKFOOD:
 			case SC_WATKFOOD:
 			case SC_MATKFOOD:
+			case SC_EXPBOOST:	//exp/drop boosts are not dispelled by Gospel/clearance [eAthena 2011]
+			case SC_ITEMBOOST:
 				continue;
 
 			//Debuffs that can be removed.

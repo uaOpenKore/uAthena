@@ -269,6 +269,9 @@ enum {
 	SC_CRITICALWOUND,
 	SC_MAGICMIRROR,
 	SC_SLOWCAST,
+	SC_SUMMER,	//256 (placeholder to keep enum aligned with const.txt)
+	SC_EXPBOOST,	//257 - Battle/Field Manual exp boost
+	SC_ITEMBOOST,	//258 - Bubble Gum drop boost
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };
 int SkillStatusChangeTable(int skill);

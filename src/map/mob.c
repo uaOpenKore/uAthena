@@ -1930,6 +1930,11 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				(int)(md->level - sd->status.base_level) >= 20)
 				drop_rate = (int)(drop_rate*1.25); // pk_mode increase drops if 20 level difference [Valaris]
 
+			// Bubble Gum (SC_ITEMBOOST): boost the killer's drop rate by val1%, capped
+			// at 90% unless the base rate is already higher [eAthena].
+			if (sd && sd->sc.data[SC_ITEMBOOST].timer != -1)
+				drop_rate = max(drop_rate, cap_value((int)(0.5+drop_rate*sd->sc.data[SC_ITEMBOOST].val1/100.),0,9000));
+
 			// attempt to drop the item
 			if (rnd() % 10000 >= drop_rate)
 				continue;
