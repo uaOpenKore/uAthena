@@ -2804,6 +2804,35 @@ static int skill_reveal_trap (struct block_list *bl, va_list ap)
 }
 
 /*==========================================
+ * Trigger effects that fire when the player USES a skill. Ported from eAthena.
+ * Currently handles autobonus3 (chance-on-skill temporary bonus). autospell3 /
+ * addeff3 hooks are added by later commits. [on-skill]
+ *------------------------------------------*/
+int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int skillid, unsigned int tick)
+{
+	int i;
+
+	if( sd == NULL || skillid <= 0 )
+		return 0;
+
+	if( sd->autobonus3[0].rate )
+	{
+		for( i = 0; i < ARRAYLENGTH(sd->autobonus3); i++ )
+		{
+			if( rnd()%1000 >= sd->autobonus3[i].rate )
+				continue;
+			if( sd->autobonus3[i].active != INVALID_TIMER )
+				continue;
+			if( sd->autobonus3[i].atk_type != skillid )
+				continue;
+			pc_exeautobonus(sd,&sd->autobonus3[i]);
+		}
+	}
+
+	return 1;
+}
+
+/*==========================================
  *
  *
  *------------------------------------------*/
@@ -5921,6 +5950,8 @@ int skill_castend_id (int tid, unsigned int tick, intptr_t id, intptr_t data)
 		else
 			skill_castend_damage_id(src,target,ud->skillid,ud->skilllv,tick,0);
 
+		if (sd) skill_onskillusage(sd, target, ud->skillid, tick);
+
 		sc = status_get_sc(src);
 		if(sc && sc->count) {
 			if(sc->data[SC_MAGICPOWER].timer != -1 &&
@@ -6079,6 +6110,8 @@ int skill_castend_pos (int tid, unsigned int tick, intptr_t id, intptr_t data)
 
 		map_freeblock_lock();
 		skill_castend_pos2(src,ud->skillx,ud->skilly,ud->skillid,ud->skilllv,tick,0);
+
+		if (sd) skill_onskillusage(sd, NULL, ud->skillid, tick);
 
 		if (ud->skilltimer == -1) {
 			if (md) md->skillidx = -1;
