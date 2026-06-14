@@ -7320,11 +7320,10 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 						skill_attack(BF_WEAPON,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 				break;
 				case WZ_STORMGUST:
-					if (tsc && tsc->data[SC_FREEZE].val4 != sg->group_id)
-					{	//Reset hit counter when under new storm gust.
-						tsc->data[SC_FREEZE].val4 = sg->group_id;
-						tsc->data[SC_FREEZE].val3 = 0;
-					}
+					// SG hit counter persists across recasts -- it is NOT reset when a
+					// new Storm Gust group hits the target [eAthena 2010], so overlapping
+					// SGs accumulate hits and freeze faster. A successful freeze resets it
+					// (sc_start(SC_FREEZE) sets val3 back to 0).
 					if (skill_attack(skill_get_type(sg->skill_id),ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0) > 0
 						&& tsc) //Increase freeze counter if attack connects.
 						tsc->data[SC_FREEZE].val3++; //SG hit counter.
