@@ -2335,10 +2335,20 @@ struct Damage battle_calc_magic_attack(
 		}
 
 		if(!flag.imdef){
+			int mdef  = tstatus->mdef;
+			int mdef2 = tstatus->mdef2;
+			if(sd) {	// bIgnoreMdefRate: ignore a % of the target's MDEF (sum boss/nonboss + race, cap 100%)
+				int ig = sd->ignore_mdef[is_boss(target)?RC_BOSS:RC_NONBOSS] + sd->ignore_mdef[tstatus->race];
+				if(ig) {
+					if(ig > 100) ig = 100;
+					mdef  -= mdef  * ig/100;
+					mdef2 -= mdef2 * ig/100;
+				}
+			}
 			if(battle_config.magic_defense_type)
-				ad.damage = ad.damage - tstatus->mdef*battle_config.magic_defense_type - tstatus->mdef2;
+				ad.damage = ad.damage - mdef*battle_config.magic_defense_type - mdef2;
 			else
-				ad.damage = ad.damage * (100-tstatus->mdef)/100 - tstatus->mdef2;
+				ad.damage = ad.damage * (100-mdef)/100 - mdef2;
 		}
 
 		if(skill_num == CR_GRANDCROSS || skill_num == NPC_GRANDDARKNESS)

@@ -694,6 +694,7 @@ struct map_session_data {
 	int near_attack_def_rate,long_attack_def_rate,magic_def_rate,misc_def_rate;
 	int ignore_mdef_ele;
 	int ignore_mdef_race;
+	int ignore_mdef[RC_MAX];	// % of target MDEF ignored on magic (bonus bIgnoreMdefRate / bonus2 by race)
 	int perfect_hit;
 	int perfect_hit_add;
 	int get_zeny_rate;
@@ -1186,7 +1187,7 @@ enum _sp {
 	SP_NO_KNOCKBACK,SP_CLASSCHANGE, // 1077-1078
 	SP_HP_DRAIN_VALUE,SP_SP_DRAIN_VALUE, // 1079-1080
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
-	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
+	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE,SP_IGNORE_MDEF_RATE, // 1083-1086
 	
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_NO_MISC_DAMAGE,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010
