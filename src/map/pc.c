@@ -2016,6 +2016,14 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(!sd->state.lr_flag)
 			sd->hp_gain_value += val;
 		break;
+	case SP_MAGIC_HP_GAIN_VALUE:	// bonus bMagicHPGainValue,n -- +n HP on a magic killing blow
+		if(!sd->state.lr_flag)
+			sd->magic_hp_gain_value += val;
+		break;
+	case SP_MAGIC_SP_GAIN_VALUE:	// bonus bMagicSPGainValue,n -- +n SP on a magic killing blow
+		if(!sd->state.lr_flag)
+			sd->magic_sp_gain_value += val;
+		break;
 	case SP_ADD_HEAL_RATE:	// bonus bHealPower,n -- +n% heal/healing-skill output (caster), gated by battle_config.skill_add_heal_rate
 		if(sd->state.lr_flag != 2)
 			sd->add_heal_rate += val;

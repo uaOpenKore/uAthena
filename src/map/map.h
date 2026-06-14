@@ -735,6 +735,7 @@ struct map_session_data {
 	short hp_regen_value;	// HP gained per hp_regen_rate ms (bonus2 bHPRegenRate)
 	short sp_regen_value;	// SP gained per sp_regen_rate ms (bonus2 bSPRegenRate)
 	short sp_gain_value, hp_gain_value;
+	short magic_sp_gain_value, magic_hp_gain_value;	// flat SP/HP gained when KILLING with magic (bonus bMagicSPGainValue / bMagicHPGainValue)
 	short sp_vanish_rate;
 	short sp_vanish_per;	
 	short add_drop_count;
@@ -1216,7 +1217,8 @@ enum _sp {
 	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_ADDEFF_WHENHIT_SHORT,	// 2031-2033
 	SP_UNSTRIPABLE_WEAPON,SP_UNSTRIPABLE_ARMOR,SP_UNSTRIPABLE_HELM,SP_UNSTRIPABLE_SHIELD,  // 2034-2037
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
-	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
+	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE, //2041
+	SP_MAGIC_HP_GAIN_VALUE, SP_MAGIC_SP_GAIN_VALUE //2042-2043 (backported bonuses; uAthena-local numbers, not eAthena's)
 	//Note: 1030 (was SP_FREE3) and 2022 (was SP_FREE) are now SP_SP_REGEN_RATE / SP_HP_REGEN_RATE.
 	//No free legacy slots remain; add new bonus types at the end of the 2000+ range.
 };

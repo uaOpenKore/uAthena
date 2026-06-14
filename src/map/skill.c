@@ -1076,6 +1076,16 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	if (sc && !sc->count)
 		sc = NULL;
 
+	// Magic-kill HP/SP leech (bMagicHPGainValue / bMagicSPGainValue) -- eAthena: on the magic killing blow.
+	// Note: uAthena's general hp/sp_gain_value (weapon leech) is applied unconditionally in mob_dead, so a
+	// magic kill may grant both; harmless since magic gear rarely also carries weapon-leech.
+	if( sd && status_isdead(bl) && attack_type&BF_MAGIC )
+	{
+		int hp = sd->magic_hp_gain_value, sp = sd->magic_sp_gain_value;
+		if( hp || sp )
+			status_heal(src, hp, sp, battle_config.show_hp_sp_gain?2:0);
+	}
+
 	switch(skillid){
 	case 0: // Normal attacks (no skill used)
 	{
