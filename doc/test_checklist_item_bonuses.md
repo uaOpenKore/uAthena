@@ -9,6 +9,18 @@
   `pc_bonus: unknown type ...` — если она есть, бонус не реализован.
 - Сравнивать «с предметом / без предмета» на одном и том же персонаже.
 
+## Статус парсинга (boot-проверка, 2026-06-14)
+Map-server поднимался для проверки парсинга `const.txt` + `item_db.txt` + `item_db2.txt`:
+- ✅ **Все Tier-5 бонусы и карты (Vanberk/Isilla) парсятся без ошибок** — ни один предмет с
+  `bIgnoreDefRate`/`bHealPower`/`bMagicHP-SPGainValue`/`bSkillHeal2`/`bHealpower2`/`bAddClassDropItem`/
+  `bAutoSpellOnSkill`/`bAddEffOnSkill`/`autobonus3` не даёт `script error`.
+- ⚠️ **Отдельная находка (НЕ Tier-5):** ~133 `script error` от предметов из data-backport (item_db2) и
+  оригинального item_db, зовущих buildin'ы **ep11-13 фич, которых в pre-12 uAthena нет**: `rentitem` (98 —
+  аренда), `setfont` (9), `mercenary_create`/`mercenary_sc_start` (12 — наёмники), `searchstores`/
+  `buyingstore` (4), `bonusautoscript`/`bonusautoscript2` (8 — старый синтаксис). Эти предметы **грузятся**
+  (определение есть), но их скрипт пустой и при старте логируется ошибка. Решение по ним — отдельная задача
+  (реализовать buildin'ы / нейтрализовать скрипты / убрать out-of-era предметы).
+
 ---
 
 ## Tier 1 — чинит уже существующие, но не работавшие итемы
