@@ -41,7 +41,7 @@ Holy Stick (**1631**) → Turn Undead / Magnus Exorcismus / Assumptio −25%; St
 *(детальные шаги добавятся при реализации каждого)*
 - Damage-бонусы **стакаются** (True Sight + EDP + Assassin/Crusader Link + card skill-dmg) — урон выше при совмещении.
 - `bAtkRate` **складывается** — ATK% с разного гира суммируется, а не перезаписывается.
-- **HT_POWER** (Beast Strafing) — урон выше при STR ≥ 17 (круче масштаб по STR).
+- ✅ **HT_POWER** (Beast Strafing) — формула `-50+8*STR`: урон выше при STR ≥ 17 (STR 50 ≈ +28%, STR 99 ≈ +41%). Тест: STR-хантер, замерить урон Beast Strafing.
 - **Storm Gust** — счётчик хитов не сбрасывается при рекасте.
 - **Fire Wall / Heat** — каденция ударов 20 мс.
 - **Quagmire** — теперь действует и на боссов.

@@ -1300,8 +1300,8 @@ static struct Damage battle_calc_weapon_attack(
 				case MC_MAMMONITE:
 					skillratio += 50*skill_lv;
 					break;
-				case HT_POWER: //FIXME: How exactly is the STR based damage supposed to be done? [Skotlex]
-					skillratio += 5*sstatus->str;
+				case HT_POWER:	// STR-based Beast Strafing; corrected formula (eAthena bugreport:4675), more dmg at STR>=17
+					skillratio += -50+8*sstatus->str;
 					break;
 				case AC_DOUBLE:
 					skillratio += 10*(skill_lv-1);
