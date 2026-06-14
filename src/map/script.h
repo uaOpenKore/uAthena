@@ -69,6 +69,7 @@ enum script_parse_options {
 struct script_code* parse_script(const char* src,const char* file,int line,int options);
 void run_script_sub(struct script_code *rootscript,int pos,int rid,int oid, char* file, int lineno);
 void run_script(struct script_code*,int,int,int);
+void script_run_autobonus(const char *autobonus, int id, int pos);
 
 int set_var(struct map_session_data *sd, char *name, void *val);
 intptr_t conv_num(struct script_state *st,struct script_data *data);

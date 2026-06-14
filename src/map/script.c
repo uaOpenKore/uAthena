@@ -179,6 +179,7 @@ char mapreg_txt[256]="save/mapreg.txt";
 
 static struct dbt *scriptlabel_db=NULL;
 static struct dbt *userfunc_db=NULL;
+static struct dbt *autobonus_db=NULL; // const char* (script source) -> struct script_code* (parsed bytecode); parse-once cache [autobonus]
 static int parse_options=0;
 struct dbt* script_get_label_db(){ return scriptlabel_db; }
 struct dbt* script_get_userfunc_db(){ return userfunc_db; }
@@ -3476,6 +3477,16 @@ static int do_final_userfunc_sub (DBKey key,void *data,va_list ap)
 	return 0;
 }
 
+static int do_final_autobonus_sub (DBKey key,void *data,va_list ap)
+{
+	struct script_code *script = (struct script_code *)data;
+
+	if( script )
+		script_free_code(script);
+
+	return 0;
+}
+
 /*==========================================
  * I
  *------------------------------------------*/
@@ -3489,6 +3500,7 @@ int do_final_script()
 	mapreg_dirty_db->destroy(mapreg_dirty_db,NULL);
 	scriptlabel_db->destroy(scriptlabel_db,NULL);
 	userfunc_db->destroy(userfunc_db,do_final_userfunc_sub);
+	autobonus_db->destroy(autobonus_db,do_final_autobonus_sub);
 	if(sleep_db) {
 		struct linkdb_node *n = (struct linkdb_node *)sleep_db;
 		while(n) {
@@ -3517,6 +3529,7 @@ int do_init_script()
 	mapreg_dirty_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	userfunc_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_RELEASE_BOTH,50);
 	scriptlabel_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY|DB_OPT_ALLOW_NULL_DATA,50);
+	autobonus_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY,0); // parse-once cache for autobonus scripts [autobonus]
 
 	script_load_mapreg();
 
@@ -3630,6 +3643,9 @@ BUILDIN_FUNC(cutin);
 BUILDIN_FUNC(statusup);
 BUILDIN_FUNC(statusup2);
 BUILDIN_FUNC(bonus);
+BUILDIN_FUNC(autobonus);
+BUILDIN_FUNC(autobonus2);
+BUILDIN_FUNC(autobonus3);
 BUILDIN_FUNC(bonus2);
 BUILDIN_FUNC(bonus3);
 BUILDIN_FUNC(bonus4);
@@ -3958,6 +3974,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(bonus,"bonus3","iiii"),
 	BUILDIN_DEF2(bonus,"bonus4","iiiii"),
 	BUILDIN_DEF2(bonus,"bonus5","iiiiii"),
+	BUILDIN_DEF(autobonus,"sii??"),
+	BUILDIN_DEF(autobonus2,"sii??"),
+	BUILDIN_DEF(autobonus3,"siiv?"),
 	BUILDIN_DEF(skill,"ii?"),
 	BUILDIN_DEF(addtoskill,"ii?"), // [Valaris]
 	BUILDIN_DEF(guildskill,"ii"),
@@ -6937,6 +6956,132 @@ BUILDIN_FUNC(statusup2)
 /// bonus3 <bonus type>,<val1>,<val2>,<val3>;
 /// bonus4 <bonus type>,<val1>,<val2>,<val3>,<val4>;
 /// bonus5 <bonus type>,<val1>,<val2>,<val3>,<val4>,<val5>;
+/// Looks up the cached bytecode for an autobonus script source and runs it in
+/// the equip context (current_equip_item_index = equipment index). [autobonus]
+void script_run_autobonus(const char *autobonus, int id, int pos)
+{
+	struct script_code *script = (struct script_code *)strdb_get(autobonus_db, autobonus);
+
+	if( script )
+	{
+		current_equip_item_index = pos;
+		run_script(script,0,id,0);
+	}
+}
+
+/// Parses an autobonus script source once and caches the bytecode keyed by the
+/// source string, so repeated status_calc_pc re-applications reuse it. [autobonus]
+static void script_add_autobonus(const char *autobonus)
+{
+	if( strdb_get(autobonus_db, autobonus) == NULL )
+	{
+		struct script_code *script = parse_script(autobonus, "autobonus", 0, 0);
+
+		if( script )
+			strdb_put(autobonus_db, autobonus, script);
+	}
+}
+
+BUILDIN_FUNC(autobonus)
+{
+	unsigned int dur;
+	short rate;
+	short atk_type = 0;
+	TBL_PC* sd;
+	const char *bonus_script, *other_script = NULL;
+
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0; // no player attached
+	if( sd->state.autobonus&sd->status.inventory[current_equip_item_index].equip )
+		return 0;
+
+	rate = script_getnum(st,3);
+	dur = script_getnum(st,4);
+	bonus_script = script_getstr(st,2);
+	if( !rate || !dur || !bonus_script )
+		return 0;
+	if( script_hasdata(st,5) )
+		atk_type = script_getnum(st,5);
+	if( script_hasdata(st,6) )
+		other_script = script_getstr(st,6);
+
+	if( pc_addautobonus(sd->autobonus,ARRAYLENGTH(sd->autobonus),
+		bonus_script,rate,dur,atk_type,other_script,sd->status.inventory[current_equip_item_index].equip,false) )
+	{
+		script_add_autobonus(bonus_script);
+		if( other_script )
+			script_add_autobonus(other_script);
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(autobonus2)
+{
+	unsigned int dur;
+	short rate;
+	short atk_type = 0;
+	TBL_PC* sd;
+	const char *bonus_script, *other_script = NULL;
+
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0;
+	if( sd->state.autobonus&sd->status.inventory[current_equip_item_index].equip )
+		return 0;
+
+	rate = script_getnum(st,3);
+	dur = script_getnum(st,4);
+	bonus_script = script_getstr(st,2);
+	if( !rate || !dur || !bonus_script )
+		return 0;
+	if( script_hasdata(st,5) )
+		atk_type = script_getnum(st,5);
+	if( script_hasdata(st,6) )
+		other_script = script_getstr(st,6);
+
+	if( pc_addautobonus(sd->autobonus2,ARRAYLENGTH(sd->autobonus2),
+		bonus_script,rate,dur,atk_type,other_script,sd->status.inventory[current_equip_item_index].equip,false) )
+	{
+		script_add_autobonus(bonus_script);
+		if( other_script )
+			script_add_autobonus(other_script);
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(autobonus3)
+{
+	unsigned int dur;
+	short rate,atk_type;
+	TBL_PC* sd;
+	const char *bonus_script, *other_script = NULL;
+
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0;
+	if( sd->state.autobonus&sd->status.inventory[current_equip_item_index].equip )
+		return 0;
+
+	rate = script_getnum(st,3);
+	dur = script_getnum(st,4);
+	atk_type = ( data_isstring(script_getdata(st,5)) ? skill_name2id(script_getstr(st,5)) : script_getnum(st,5) );
+	bonus_script = script_getstr(st,2);
+	if( !rate || !dur || !atk_type || !bonus_script )
+		return 0;
+	if( script_hasdata(st,6) )
+		other_script = script_getstr(st,6);
+
+	if( pc_addautobonus(sd->autobonus3,ARRAYLENGTH(sd->autobonus3),
+		bonus_script,rate,dur,atk_type,other_script,sd->status.inventory[current_equip_item_index].equip,true) )
+	{
+		script_add_autobonus(bonus_script);
+		if( other_script )
+			script_add_autobonus(other_script);
+	}
+	return 0;
+}
+
 BUILDIN_FUNC(bonus)
 {
 	int type;

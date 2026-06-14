@@ -1782,6 +1782,11 @@ int status_calc_pc(struct map_session_data* sd,int first)
 		+ sizeof(sd->add_mdmg_count)
 		);
 
+	// Autobonus
+	pc_delautobonus(sd,sd->autobonus,ARRAYLENGTH(sd->autobonus),true);
+	pc_delautobonus(sd,sd->autobonus2,ARRAYLENGTH(sd->autobonus2),true);
+	pc_delautobonus(sd,sd->autobonus3,ARRAYLENGTH(sd->autobonus3),true);
+
 	// Parse equipment.
 	for(i=0;i<EQI_MAX-1;i++) {
 		current_equip_item_index = index = sd->equip_index[i]; //We pass INDEX to current_equip_item_index - for EQUIP_SCRIPT (new cards solution) [Lupus]

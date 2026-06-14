@@ -658,6 +658,19 @@ const struct skill_name_db skill_names[] = {
 
  };
 
+// Returns the skill id for a skill search-name (e.g. "AL_HEAL"), 0 if unknown.
+// Linear scan over skill_names[]; only called at script parse-equip time. [autobonus]
+int skill_name2id(const char* name)
+{
+	int i;
+	if( name == NULL )
+		return 0;
+	for( i = 0; i < ARRAYLENGTH(skill_names); i++ )
+		if( skill_names[i].name != NULL && strcmpi(skill_names[i].name, name) == 0 )
+			return skill_names[i].id;
+	return 0;
+}
+
 static struct eri *skill_unit_ers = NULL; //For handling skill_unit's [Skotlex]
 static struct eri *skill_timer_ers = NULL; //For handling skill_timerskills [Skotlex]
 
@@ -1515,6 +1528,24 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		}
 	}
 
+	//Autobonus when attacking
+	if( sd && sd->autobonus[0].rate )
+	{
+		int i;
+		for( i = 0; i < ARRAYLENGTH(sd->autobonus); i++ )
+		{
+			if( rnd()%1000 >= sd->autobonus[i].rate )
+				continue;
+			if( sd->autobonus[i].active != INVALID_TIMER )
+				continue;
+			if(!(sd->autobonus[i].atk_type&attack_type&BF_WEAPONMASK &&
+				 sd->autobonus[i].atk_type&attack_type&BF_RANGEMASK &&
+				 sd->autobonus[i].atk_type&attack_type&BF_SKILLMASK))
+				continue; // one or more trigger conditions were not fulfilled
+			pc_exeautobonus(sd,&sd->autobonus[i]);
+		}
+	}
+
 	//Polymorph
 	if(sd && sd->classchange && attack_type&BF_WEAPON &&
 		dstmd && !(tstatus->mode&MD_BOSS) &&
@@ -1686,6 +1717,25 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 			break; //trigger only one auto-spell per hit.
 		}
 	}
+
+	//Autobonus when attacked
+	if( dstsd && !status_isdead(bl) && dstsd->autobonus2[0].rate && !(skillid && skill_get_nk(skillid)&NK_NO_DAMAGE) )
+	{
+		int i;
+		for( i = 0; i < ARRAYLENGTH(dstsd->autobonus2); i++ )
+		{
+			if( rnd()%1000 >= dstsd->autobonus2[i].rate )
+				continue;
+			if( dstsd->autobonus2[i].active != INVALID_TIMER )
+				continue;
+			if(!(dstsd->autobonus2[i].atk_type&attack_type&BF_WEAPONMASK &&
+				 dstsd->autobonus2[i].atk_type&attack_type&BF_RANGEMASK &&
+				 dstsd->autobonus2[i].atk_type&attack_type&BF_SKILLMASK))
+				continue; // one or more trigger conditions were not fulfilled
+			pc_exeautobonus(dstsd,&dstsd->autobonus2[i]);
+		}
+	}
+
 	return 0;
 }
 /*=========================================================================

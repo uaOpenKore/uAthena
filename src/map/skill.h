@@ -148,6 +148,7 @@ int do_final_skill(void);
 //Returns the cast type of the skill: ground cast, castend damage, castend no damage
 enum { CAST_GROUND, CAST_DAMAGE, CAST_NODAMAGE };
 int skill_get_casttype(int id); //[Skotlex]
+int skill_name2id(const char* name); // skill search-name -> id, 0 if unknown [autobonus]
 // XLf?^x?XANZT
 //
 int	skill_get_type( int id );

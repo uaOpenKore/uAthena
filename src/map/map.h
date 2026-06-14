@@ -575,6 +575,7 @@ struct map_session_data {
 		unsigned ignoreAll : 1;
 		unsigned short autoloot;
 		struct guild *gmaster_flag;
+		unsigned short autobonus; //equip-location mask of currently-active autobonuses [Inkfish]
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -640,6 +641,17 @@ struct map_session_data {
 
 	struct weapon_data right_weapon, left_weapon;
 	
+	// chance-on-attack temporary bonus (eAthena autobonus). MUST stay OUT of the
+	// status_calc_pc memset blocks below (bonus_script/other_script are aStrdup'd);
+	// managed manually by pc_addautobonus/pc_delautobonus/pc_exeautobonus.
+	struct s_autobonus {
+		short rate, atk_type;
+		unsigned int duration;
+		char *bonus_script, *other_script;	// aStrdup'd source; parsed bytecode is shared in autobonus_db (parse-once)
+		int active;
+		unsigned short pos;
+	} autobonus[MAX_PC_BONUS], autobonus2[MAX_PC_BONUS], autobonus3[MAX_PC_BONUS];
+
 	// here start arrays to be globally zeroed at the beginning of status_calc_pc()
 	int param_bonus[6],param_equip[6]; //Stores card/equipment bonuses.
 	int subele[ELE_MAX];

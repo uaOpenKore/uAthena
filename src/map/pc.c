@@ -630,6 +630,12 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 
 	for(i = 0; i < MAX_SKILL_LEVEL; i++)
 		sd->spirit_timer[i] = -1;
+	for(i = 0; i < ARRAYLENGTH(sd->autobonus); i++)
+		sd->autobonus[i].active = INVALID_TIMER;
+	for(i = 0; i < ARRAYLENGTH(sd->autobonus2); i++)
+		sd->autobonus2[i].active = INVALID_TIMER;
+	for(i = 0; i < ARRAYLENGTH(sd->autobonus3); i++)
+		sd->autobonus3[i].active = INVALID_TIMER;
 
 	if (battle_config.item_auto_get)
 		sd->state.autoloot = 10000;
@@ -1358,6 +1364,108 @@ static int pc_bonus_item_drop(struct s_add_drop *drop, short *count, short id, s
 /*==========================================
  * ? i\{?iX
  *------------------------------------------*/
+/*==========================================
+ * Auto-bonus: chance-on-attack temporary bonus (ported from eAthena pre-renewal).
+ * The malloc'd scripts live OUTSIDE the status_calc_pc memset (see map.h); the temp
+ * bonus is applied by re-running bonus_script during status_calc_pc while the
+ * equip-location bit is set in sd->state.autobonus, and removed when the timer fires.
+ *------------------------------------------*/
+int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short flag,const char *other_script,unsigned short pos,bool onskill)
+{
+	int i;
+	ARR_FIND(0, max, i, bonus[i].rate == 0);
+	if( i == max )
+	{
+		ShowWarning("pc_addautobonus: Reached max (%d) number of autobonus per character!\n", max);
+		return 0;
+	}
+	if( !onskill )
+	{
+		if( !(flag&BF_RANGEMASK) )
+			flag|=BF_SHORT|BF_LONG; //No range defined? Use both.
+		if( !(flag&BF_WEAPONMASK) )
+			flag|=BF_WEAPON; //No attack type defined? Use weapon.
+		if( !(flag&BF_SKILLMASK) )
+		{
+			if( flag&(BF_MAGIC|BF_MISC) )
+				flag|=BF_SKILL; //These two would never trigger without BF_SKILL
+			if( flag&BF_WEAPON )
+				flag|=BF_NORMAL|BF_SKILL;
+		}
+	}
+	bonus[i].rate = rate;
+	bonus[i].duration = dur;
+	bonus[i].active = INVALID_TIMER;
+	bonus[i].atk_type = flag;
+	bonus[i].pos = pos;
+	bonus[i].bonus_script = aStrdup(script);
+	bonus[i].other_script = other_script?aStrdup(other_script):NULL;
+	return 1;
+}
+
+int pc_endautobonus(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data *sd = map_id2sd((int)id);
+	struct s_autobonus *autobonus = (struct s_autobonus *)data;
+	nullpo_retr(0, sd);
+	nullpo_retr(0, autobonus);
+	autobonus->active = INVALID_TIMER;
+	sd->state.autobonus &= ~autobonus->pos;
+	status_calc_pc(sd,0);
+	return 0;
+}
+
+int pc_exeautobonus(struct map_session_data *sd,struct s_autobonus *autobonus)
+{
+	nullpo_retr(0, sd);
+	nullpo_retr(0, autobonus);
+	if( autobonus->other_script )
+	{
+		int j;
+		ARR_FIND( 0, EQI_MAX-1, j, sd->equip_index[j] >= 0 && sd->status.inventory[sd->equip_index[j]].equip == autobonus->pos );
+		if( j < EQI_MAX-1 )
+			script_run_autobonus(autobonus->other_script,sd->bl.id,sd->equip_index[j]);
+	}
+	autobonus->active = add_timer(gettick()+autobonus->duration, pc_endautobonus, sd->bl.id, (intptr_t)autobonus);
+	sd->state.autobonus |= autobonus->pos;
+	status_calc_pc(sd,0);
+	return 0;
+}
+
+int pc_delautobonus(struct map_session_data* sd, struct s_autobonus *autobonus,char max,bool restore)
+{
+	int i;
+	nullpo_retr(0, sd);
+	for( i = 0; i < max; i++ )
+	{
+		if( autobonus[i].active != INVALID_TIMER )
+		{
+			if( restore && sd->state.autobonus&autobonus[i].pos )
+			{	// still equipped + active: re-apply the bonus for the remaining duration
+				if( autobonus[i].bonus_script )
+				{
+					int j;
+					ARR_FIND( 0, EQI_MAX-1, j, sd->equip_index[j] >= 0 && sd->status.inventory[sd->equip_index[j]].equip == autobonus[i].pos );
+					if( j < EQI_MAX-1 )
+						script_run_autobonus(autobonus[i].bonus_script,sd->bl.id,sd->equip_index[j]);
+				}
+				continue;
+			}
+			else
+			{	// logout / unequipped while active
+				delete_timer(autobonus[i].active,pc_endautobonus);
+				autobonus[i].active = INVALID_TIMER;
+			}
+		}
+		if( autobonus[i].bonus_script ) aFree(autobonus[i].bonus_script);
+		if( autobonus[i].other_script ) aFree(autobonus[i].other_script);
+		autobonus[i].bonus_script = autobonus[i].other_script = NULL;
+		autobonus[i].rate = autobonus[i].atk_type = autobonus[i].duration = autobonus[i].pos = 0;
+		autobonus[i].active = INVALID_TIMER;
+	}
+	return 0;
+}
+
 int pc_bonus(struct map_session_data *sd,int type,int val)
 {
 	struct status_data *status;
@@ -6535,6 +6643,9 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		sd->weapontype1 == 0 && sd->weapontype2 == 0)
 		skill_enchant_elemental_end(&sd->bl,-1);
 
+	if( sd->state.autobonus&sd->status.inventory[n].equip )
+		sd->state.autobonus &= ~sd->status.inventory[n].equip; //Check for activated autobonus [Inkfish]
+
 	sd->status.inventory[n].equip=0;
 
 	if(flag&1) {
@@ -7583,6 +7694,7 @@ int do_init_pc(void)
 	add_timer_func_list(pc_autosave, "pc_autosave");
 	add_timer_func_list(pc_spiritball_timer, "pc_spiritball_timer");
 	add_timer_func_list(pc_follow_timer, "pc_follow_timer");
+	add_timer_func_list(pc_endautobonus, "pc_endautobonus");
 
 	add_timer(gettick() + autosave_interval, pc_autosave, 0, 0);
 

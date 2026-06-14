@@ -265,6 +265,10 @@ struct map_session_data *pc_get_child(struct map_session_data *sd);
 
 void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick);
 void pc_regen (struct map_session_data *sd, unsigned int diff_tick);
+int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short flag,const char *other_script,unsigned short pos,bool onskill);
+int pc_exeautobonus(struct map_session_data *sd,struct s_autobonus *bonus);
+int pc_endautobonus(int tid, unsigned int tick, intptr_t id, intptr_t data);
+int pc_delautobonus(struct map_session_data* sd, struct s_autobonus *bonus,char max,bool restore);
 
 int pc_set_gm_level(int account_id, int level);
 void pc_setstand(struct map_session_data *sd);
