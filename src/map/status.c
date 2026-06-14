@@ -1706,6 +1706,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	//zero up structures...
 	memset(&sd->autospell,0,sizeof(sd->autospell)
 		+ sizeof(sd->autospell2)
+		+ sizeof(sd->autospell3)
 		+ sizeof(sd->addeff)
 		+ sizeof(sd->addeff2)
 		+ sizeof(sd->skillatk)

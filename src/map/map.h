@@ -677,7 +677,7 @@ struct map_session_data {
 	// zeroed structures start here
 	struct s_autospell{
 		short id, lv, rate, card_id, flag;
-	} autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS];
+	} autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS], autospell3[MAX_PC_BONUS]; //autospell3: cast a skill when USING a skill (bonus4 bAutoSpellOnSkill); .flag holds the source skill id
 	struct s_addeffect{
 		short id, rate, arrow_rate;
 		unsigned char flag;
@@ -1221,7 +1221,8 @@ enum _sp {
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
 	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE, //2041
 	SP_MAGIC_HP_GAIN_VALUE, SP_MAGIC_SP_GAIN_VALUE, //2042-2043 (backported bonuses; uAthena-local numbers, not eAthena's)
-	SP_ADDCLASSDROPITEM //2044
+	SP_ADDCLASSDROPITEM, //2044
+	SP_AUTOSPELL_ONSKILL //2045
 	//Note: 1030 (was SP_FREE3) and 2022 (was SP_FREE) are now SP_SP_REGEN_RATE / SP_HP_REGEN_RATE.
 	//No free legacy slots remain; add new bonus types at the end of the 2000+ range.
 };

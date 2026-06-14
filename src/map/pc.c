@@ -1251,6 +1251,26 @@ static int pc_bonus_autospell_del(struct s_autospell *spell, int max, short id, 
 	return rate;
 }
 
+// autospell3: register a "cast skill <id> when USING source skill <src_skill>" entry (bonus4 bAutoSpellOnSkill). [on-skill]
+static int pc_bonus_autospell_onskill(struct s_autospell *spell, int max, short src_skill, short id, short lv, short rate, short card_id)
+{
+	int i;
+	if( !rate )
+		return 0;
+	ARR_FIND(0, max, i, spell[i].id == 0);
+	if( i == max )
+	{
+		ShowWarning("pc_bonus: Reached max (%d) number of autospells per character!\n", max);
+		return 0;
+	}
+	spell[i].flag = src_skill;
+	spell[i].id = id;
+	spell[i].lv = lv;
+	spell[i].rate = rate;
+	spell[i].card_id = card_id;
+	return 1;
+}
+
 static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, short lv, short rate, short flag, short card_id)
 {
 	int i;
@@ -2653,6 +2673,14 @@ int pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type4
 	case SP_AUTOSPELL_WHENHIT:
 		if(sd->state.lr_flag != 2)
 			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, 0, current_equip_card_id);
+		break;
+	case SP_AUTOSPELL_ONSKILL:	// bonus4 bAutoSpellOnSkill,<src skill>,<cast skill>,<lv>,<rate> -- cast <cast skill> when using <src skill>
+		if(sd->state.lr_flag != 2)
+		{
+			int target = skill_get_inf(type2); //Support or Self (non-auto-target) skills should pick self.
+			target = target&INF_SUPPORT_SKILL || (target&INF_SELF_SKILL && !(skill_get_inf2(type2)&INF2_NO_TARGET_SELF));
+			pc_bonus_autospell_onskill(sd->autospell3, MAX_PC_BONUS, type2, target?-type3:type3, type4, val, current_equip_card_id);
+		}
 		break;
 	default:
 		if(battle_config.error_log)

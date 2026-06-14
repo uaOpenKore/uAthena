@@ -2810,10 +2810,37 @@ static int skill_reveal_trap (struct block_list *bl, va_list ap)
  *------------------------------------------*/
 int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int skillid, unsigned int tick)
 {
-	int i;
+	int skill, skilllv, i;
+	struct block_list *tbl;
 
 	if( sd == NULL || skillid <= 0 )
 		return 0;
+
+	for( i = 0; i < ARRAYLENGTH(sd->autospell3) && sd->autospell3[i].flag; i++ )
+	{
+		if( sd->autospell3[i].flag != skillid )
+			continue;
+
+		skill = (sd->autospell3[i].id > 0) ? sd->autospell3[i].id : -sd->autospell3[i].id;
+		if( skillnotok(skill, sd) )
+			continue;
+
+		skilllv = sd->autospell3[i].lv ? sd->autospell3[i].lv : 1;
+		if( skilllv < 0 ) skilllv = 1 + rnd()%(-skilllv);
+
+		if( sd->autospell3[i].id >= 0 && bl == NULL )
+			continue; // a target is required
+		if( rnd()%1000 >= sd->autospell3[i].rate )
+			continue;
+		tbl = (sd->autospell3[i].id < 0) ? &sd->bl : bl;
+
+		switch( skill_get_casttype(skill) )
+		{
+			case CAST_GROUND:   skill_castend_pos2(&sd->bl, tbl->x, tbl->y, skill, skilllv, tick, 0); break;
+			case CAST_NODAMAGE: skill_castend_nodamage_id(&sd->bl, tbl, skill, skilllv, tick, 0); break;
+			case CAST_DAMAGE:   skill_castend_damage_id(&sd->bl, tbl, skill, skilllv, tick, 0); break;
+		}
+	}
 
 	if( sd->autobonus3[0].rate )
 	{

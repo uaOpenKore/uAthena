@@ -7114,8 +7114,8 @@ BUILDIN_FUNC(bonus)
 		pc_bonus3(sd, type, type2, type3, val);
 		break;
 	case 6:
-		type2 = script_getnum(st,3);
-		type3 = script_getnum(st,4);
+		type2 = data_isstring(script_getdata(st,3)) ? skill_name2id(script_getstr(st,3)) : script_getnum(st,3); // skill name allowed (bAutoSpellOnSkill)
+		type3 = data_isstring(script_getdata(st,4)) ? skill_name2id(script_getstr(st,4)) : script_getnum(st,4);
 		type4 = script_getnum(st,5);
 		val   = script_getnum(st,6);
 		pc_bonus4(sd, type, type2, type3, type4, val);
