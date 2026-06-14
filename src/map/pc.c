@@ -2203,6 +2203,22 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			pc_bonus_addeff(sd->addeff2, MAX_PC_BONUS, type2, val, 0,
 				ATF_SHORT|ATF_TARGET);
 		break;
+	case SP_CASTRATE:	// bonus2 bCastRate,skill,% -- per-skill variable cast time (neg = faster)
+		if(sd->state.lr_flag == 2)
+			break;
+		for (i = 0; i < ARRAYLENGTH(sd->skillcast) && sd->skillcast[i].id != 0 && sd->skillcast[i].id != type2; i++);
+		if (i == ARRAYLENGTH(sd->skillcast))
+		{	//Mention this so the array length can be updated. [Skotlex]
+			ShowDebug("run_script: bonus2 bCastRate reached its limit (%d skills per character), bonus skill %d (%+d%%) lost.\n", (int)ARRAYLENGTH(sd->skillcast), type2, val);
+			break;
+		}
+		if (sd->skillcast[i].id == type2)
+			sd->skillcast[i].val += val;
+		else {
+			sd->skillcast[i].id = type2;
+			sd->skillcast[i].val = val;
+		}
+		break;
 	case SP_SKILL_ATK:
 		if(sd->state.lr_flag == 2)
 			break;

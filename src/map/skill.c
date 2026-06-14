@@ -8771,6 +8771,7 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 {
 	int time = skill_get_cast(skill_id, skill_lv);
+	int i;
 	struct map_session_data *sd;
 
 	nullpo_retr(0, bl);
@@ -8785,9 +8786,15 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	}
 
 	// calculate cast time reduced by item/card bonuses
-	if (!(skill_get_castnodex(skill_id, skill_lv)&4))
-		if (sd && sd->castrate != 100)
+	if (!(skill_get_castnodex(skill_id, skill_lv)&4) && sd) {
+		if (sd->castrate != 100)
 			time = time * sd->castrate / 100;
+		// per-skill cast rate (bonus2 bCastRate,skill,%): additive on top of the
+		// global castrate; e.g. -25 => that skill casts 25% faster [eAthena pre-renewal]
+		for (i = 0; i < ARRAYLENGTH(sd->skillcast) && sd->skillcast[i].id; i++)
+			if (sd->skillcast[i].id == skill_id)
+				time += time * sd->skillcast[i].val / 100;
+	}
 
 	// config cast time multiplier
 	if (battle_config.cast_rate != 100)

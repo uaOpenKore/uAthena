@@ -672,7 +672,7 @@ struct map_session_data {
 	} addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
 	struct { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		short id, val;
-	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS];
+	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS]; //skillcast: per-skill cast-rate (bonus2 bCastRate)
 	struct {
 		short class_, rate;
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS],
