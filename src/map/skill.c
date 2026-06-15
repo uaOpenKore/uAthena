@@ -11034,6 +11034,74 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, int nameid, in
 	return 0;
 }
 
+/*==========================================
+ * [Backport] Chat-UI cooking (the 2007 client has no cooking window; see @cooking).
+ * Food recipes are produce_db rows with itemlv 11..20; cooking goes through the
+ * normal skill_produce_mix path (validates the required Cookbook 7472..7476 +
+ * ingredients, applies the success RNG, consumes the materials).
+ *------------------------------------------*/
+static int skill_cooking_is_food(int i)
+{
+	return (skill_produce_db[i].nameid > 0
+		&& skill_produce_db[i].itemlv >= 11 && skill_produce_db[i].itemlv <= 20);
+}
+
+// 1-based canonical index over food recipes (stable; produce_db is fixed at runtime).
+int skill_cooking_nameid(int index)
+{
+	int i, n = 0;
+	for( i = 0; i < MAX_SKILL_PRODUCE_DB; i++ ) {
+		if( !skill_cooking_is_food(i) )
+			continue;
+		if( ++n == index )
+			return skill_produce_db[i].nameid;
+	}
+	return 0;
+}
+
+// Print food recipes to the player's chat. show_all=0 lists only makeable ones.
+// Returns the number of dishes printed.
+int skill_cooking_list(struct map_session_data *sd, int show_all)
+{
+	int i, n = 0, printed = 0;
+	char output[128];
+
+	nullpo_ret(sd);
+	for( i = 0; i < MAX_SKILL_PRODUCE_DB; i++ ) {
+		struct item_data *id;
+		int can;
+		if( !skill_cooking_is_food(i) )
+			continue;
+		n++;
+		can = (skill_can_produce_mix(sd, skill_produce_db[i].nameid, -1, 1) > 0);
+		if( !show_all && !can )
+			continue;
+		id = itemdb_exists(skill_produce_db[i].nameid);
+		snprintf(output, sizeof(output), "%d: %s (Lv%d) - %s", n,
+			id ? id->jname : "unknown",
+			skill_produce_db[i].itemlv - 10,
+			can ? "ready" : "locked");
+		clif_displaymessage(sd->fd, output);
+		printed++;
+	}
+	return printed;
+}
+
+// Cook the index-th food recipe.
+// Returns: 1 success, 0 ruined (RNG), -1 invalid index, -2 missing cookbook/ingredients.
+int skill_cooking_make(struct map_session_data *sd, int index)
+{
+	int nameid;
+
+	nullpo_retr(-1, sd);
+	nameid = skill_cooking_nameid(index);
+	if( nameid <= 0 )
+		return -1;
+	if( skill_can_produce_mix(sd, nameid, -1, 1) <= 0 )
+		return -2;
+	return skill_produce_mix(sd, 0, nameid, 0, 0, 0, 1) ? 1 : 0;
+}
+
 int skill_arrow_create (struct map_session_data *sd, int nameid)
 {
 	int i,j,flag,index=-1;

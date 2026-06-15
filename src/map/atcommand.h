@@ -284,6 +284,8 @@ enum AtCommandType {
 	AtCommand_Status, // status/cooldown chat UI
 	AtCommand_WhereIs, // mob spawn/drop search
 	AtCommand_Market, // vendor/price search
+	AtCommand_Cooking, // chat cooking UI
+	AtCommand_Cook, // alias of @cooking
 	// end <- Ahem, guys, don't place AtCommands after AtCommand_Unknown! [Skotlex]
 	AtCommand_Unknown,
 	AtCommand_MAX

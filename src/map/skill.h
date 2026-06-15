@@ -259,6 +259,9 @@ int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap);	//[orn]
 int skill_can_produce_mix( struct map_session_data *sd, int nameid, int trigger, int qty);
 int skill_produce_mix( struct map_session_data *sd,
 	int skill_id, int nameid, int slot1, int slot2, int slot3, int qty );
+int skill_cooking_nameid(int index); // [Backport] @cooking chat UI
+int skill_cooking_list(struct map_session_data *sd, int show_all); // [Backport] @cooking chat UI
+int skill_cooking_make(struct map_session_data *sd, int index); // [Backport] @cooking chat UI
 
 int skill_arrow_create( struct map_session_data *sd,int nameid);
 

@@ -261,6 +261,7 @@ ACMD_FUNC(quest);  // questlog chat UI
 ACMD_FUNC(status); // status/cooldown chat UI
 ACMD_FUNC(whereis); // mob spawn/drop search
 ACMD_FUNC(market); // vendor/price search
+ACMD_FUNC(cooking); // chat cooking UI
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -589,6 +590,8 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Status,             "@cd",               1, atcommand_status }, // alias
 	{ AtCommand_WhereIs,            "@whereis",          1, atcommand_whereis }, // mob spawn/drop
 	{ AtCommand_Market,             "@market",           1, atcommand_market }, // vendor/price search
+	{ AtCommand_Cooking,            "@cooking",          1, atcommand_cooking }, // chat cooking UI
+	{ AtCommand_Cook,               "@cook",             1, atcommand_cooking }, // alias
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -8706,6 +8709,46 @@ int atcommand_market(const int fd, struct map_session_data* sd, const char* comm
 	{
 		snprintf(atcmd_output, sizeof(atcmd_output), "  ...(+%d more)", total - printed);
 		clif_displaymessage(fd, atcmd_output);
+	}
+	return 0;
+}
+
+/*==========================================
+ * @cooking : chat-based cooking (the 2007 client has no cooking window).
+ * '@cooking' lists dishes you can make now, '@cooking all' lists every dish,
+ * '@cooking <N>' cooks dish N (needs the Cookbook + ingredients).
+ *------------------------------------------*/
+int atcommand_cooking(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int idx;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message )
+	{
+		if( skill_cooking_list(sd, 0) == 0 )
+			clif_displaymessage(fd, "No dishes ready. Need a Cookbook (Lv1-5) + ingredients. Try '@cooking all'.");
+		else
+			clif_displaymessage(fd, "Type '@cooking <number>' to cook a dish listed above.");
+		return 0;
+	}
+	if( strcmpi(message, "all") == 0 )
+	{
+		skill_cooking_list(sd, 1);
+		clif_displaymessage(fd, "Type '@cooking <number>' to cook (needs the Cookbook + ingredients).");
+		return 0;
+	}
+	idx = atoi(message);
+	if( idx <= 0 )
+	{
+		clif_displaymessage(fd, "Usage: @cooking | @cooking all | @cooking <number>");
+		return -1;
+	}
+	switch( skill_cooking_make(sd, idx) )
+	{
+		case 1:  clif_displaymessage(fd, "Cooking success!"); break;
+		case 0:  clif_displaymessage(fd, "The dish was ruined..."); break;
+		case -2: clif_displaymessage(fd, "You lack the required Cookbook or ingredients."); break;
+		default: clif_displaymessage(fd, "Invalid dish number. Use @cooking to list."); break;
 	}
 	return 0;
 }
