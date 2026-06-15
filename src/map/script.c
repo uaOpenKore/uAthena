@@ -3628,6 +3628,7 @@ BUILDIN_FUNC(getguildname);
 BUILDIN_FUNC(getguildmaster);
 BUILDIN_FUNC(getguildmasterid);
 BUILDIN_FUNC(strcharinfo);
+BUILDIN_FUNC(strnpcinfo); // [Backport] NPC name/map introspection
 BUILDIN_FUNC(getequipid);
 BUILDIN_FUNC(getequipname);
 BUILDIN_FUNC(getbrokenid); // [Valaris]
@@ -3963,6 +3964,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getguildmaster,"i"),
 	BUILDIN_DEF(getguildmasterid,"i"),
 	BUILDIN_DEF(strcharinfo,"i"),
+	BUILDIN_DEF(strnpcinfo,"i"),	// [Backport]
 	BUILDIN_DEF(getequipid,"i"),
 	BUILDIN_DEF(getequipname,"i"),
 	BUILDIN_DEF(getbrokenid,"i"), // [Valaris]
@@ -6657,6 +6659,55 @@ BUILDIN_FUNC(strcharinfo)
 			script_pushconststr(st,"");
 			break;
 	}
+
+	return 0;
+}
+
+/*==========================================
+ * strnpcinfo(<type>) - info about the attached NPC. [Backport]
+ * 0:display name  1:visible part (before '#')  2:hidden part (after '#')
+ * 3:unique name (exname)  4:map name
+ *------------------------------------------*/
+BUILDIN_FUNC(strnpcinfo)
+{
+	struct npc_data *nd;
+	int num;
+	char *buf, *name = NULL;
+
+	nd = (struct npc_data *)map_id2bl(st->oid);
+	if( !nd ) {
+		script_pushconststr(st, "");
+		return 0;
+	}
+
+	num = script_getnum(st,2);
+	switch( num ) {
+		case 0: // display name
+			name = aStrdup(nd->name);
+			break;
+		case 1: // visible part of display name (before '#')
+			if( (buf = strchr(nd->name,'#')) != NULL ) {
+				name = aStrdup(nd->name);
+				name[buf - nd->name] = 0;
+			} else
+				name = aStrdup(nd->name);
+			break;
+		case 2: // hidden part of display name (after '#')
+			if( (buf = strchr(nd->name,'#')) != NULL )
+				name = aStrdup(buf+1);
+			break;
+		case 3: // unique name
+			name = aStrdup(nd->exname);
+			break;
+		case 4: // map name
+			name = aStrdup(map[nd->bl.m].name);
+			break;
+	}
+
+	if( name )
+		script_pushstr(st, name);
+	else
+		script_pushconststr(st, "");
 
 	return 0;
 }
