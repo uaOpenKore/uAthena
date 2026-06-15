@@ -3629,6 +3629,8 @@ BUILDIN_FUNC(getguildmaster);
 BUILDIN_FUNC(getguildmasterid);
 BUILDIN_FUNC(strcharinfo);
 BUILDIN_FUNC(strnpcinfo); // [Backport] NPC name/map introspection
+BUILDIN_FUNC(setnpcdisplay); // [Backport] change NPC sprite/name at runtime
+BUILDIN_FUNC(readbook); // [Backport] book-reading UI (no-op on PV7)
 BUILDIN_FUNC(getequipid);
 BUILDIN_FUNC(getequipname);
 BUILDIN_FUNC(getbrokenid); // [Valaris]
@@ -3965,6 +3967,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getguildmasterid,"i"),
 	BUILDIN_DEF(strcharinfo,"i"),
 	BUILDIN_DEF(strnpcinfo,"i"),	// [Backport]
+	BUILDIN_DEF(setnpcdisplay,"sv??"),	// [Backport]
+	BUILDIN_DEF(readbook,"ii"),	// [Backport] no-op (no book UI on PV7)
 	BUILDIN_DEF(getequipid,"i"),
 	BUILDIN_DEF(getequipname,"i"),
 	BUILDIN_DEF(getbrokenid,"i"), // [Valaris]
@@ -6715,6 +6719,68 @@ BUILDIN_FUNC(strnpcinfo)
 	else
 		script_pushconststr(st, "");
 
+	return 0;
+}
+
+/*==========================================
+ * setnpcdisplay("<name>", <newname>|<class>{,<class>{,<size>}}) [Backport]
+ * Change an NPC's display name and/or sprite at runtime. uAthena NPCs have no
+ * per-NPC size field, so the size arg is accepted but ignored. Returns 1 if the
+ * NPC was not found, else 0.
+ *------------------------------------------*/
+BUILDIN_FUNC(setnpcdisplay)
+{
+	const char* name;
+	const char* newname = NULL;
+	int class_ = -1;
+	struct script_data* data;
+	struct npc_data* nd;
+
+	name = script_getstr(st,2);
+	data = script_getdata(st,3);
+
+	if( script_hasdata(st,4) )
+		class_ = script_getnum(st,4);
+	// arg 5 (size) accepted but ignored: uAthena npc_data has no size field.
+
+	get_val(st, data);
+	if( data_isstring(data) )
+		newname = conv_str(st,data);
+	else if( data_isint(data) )
+		class_ = conv_num(st,data);
+	else {
+		ShowError("script:setnpcdisplay: expected a string or number\n");
+		script_reportdata(data);
+		return 1;
+	}
+
+	nd = npc_name2id(name);
+	if( nd == NULL ) { // not found
+		script_pushint(st,1);
+		return 0;
+	}
+
+	if( newname )
+		safestrncpy(nd->name, newname, sizeof(nd->name));
+
+	if( class_ != -1 && nd->class_ != class_ )
+		nd->class_ = class_;
+
+	// refresh: clear the unit out of sight then respawn so clients see the change
+	clif_clearunit_area(&nd->bl, 0);
+	clif_spawn(&nd->bl);
+
+	script_pushint(st,0);
+	return 0;
+}
+
+/*==========================================
+ * readbook(<book id>,<page>) [Backport]
+ * The 2007 client has no book-reading window; accept the args and do nothing so
+ * quests that show a book before granting an item still load and progress.
+ *------------------------------------------*/
+BUILDIN_FUNC(readbook)
+{
 	return 0;
 }
 
