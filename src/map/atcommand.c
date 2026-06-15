@@ -258,6 +258,7 @@ ACMD_FUNC(changelook);
 ACMD_FUNC(mobinfo); //by Lupus
 ACMD_FUNC(quests); // questlog chat UI
 ACMD_FUNC(quest);  // questlog chat UI
+ACMD_FUNC(status); // status/cooldown chat UI
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -582,6 +583,8 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_WhoDrops,           "@whodrops",         1, atcommand_whodrops }, // [Skotlex]
 	{ AtCommand_Quests,             "@quests",           1, atcommand_quests }, // questlog chat UI
 	{ AtCommand_Quest,              "@quest",            1, atcommand_quest }, // questlog chat UI
+	{ AtCommand_Status,             "@status",           1, atcommand_status }, // buffs+cooldowns
+	{ AtCommand_Status,             "@cd",               1, atcommand_status }, // alias
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -8631,6 +8634,56 @@ int atcommand_quest(const int fd, struct map_session_data* sd, const char* comma
 		clif_displaymessage(fd, atcmd_output);
 	}
 	clif_displaymessage(fd, "@quest <N> cancel = drop this quest");
+	return 0;
+}
+
+/*==========================================
+ * @status / @cd : active status changes + skill cooldowns with remaining time
+ * (PV7 client shows neither numerically)
+ *------------------------------------------*/
+int atcommand_status(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int i, shown;
+	unsigned int now = gettick();
+	nullpo_retr(-1, sd);
+
+	clif_displaymessage(fd, "--- Status (buffs/debuffs) ---");
+	shown = 0;
+	for( i = 1; i < SC_MAX; i++ )
+	{
+		const struct TimerData *td;
+		int rem;
+		if( sd->sc.data[i].timer == INVALID_TIMER )
+			continue;
+		td = get_timer(sd->sc.data[i].timer);
+		rem = td ? DIFF_TICK(td->tick, now)/1000 : 0;
+		if( StatusSkillChangeTable[i] > 0 )
+			snprintf(atcmd_output, sizeof(atcmd_output), "[Status] %s: %ds",
+				skill_get_name(StatusSkillChangeTable[i]), rem);
+		else
+			snprintf(atcmd_output, sizeof(atcmd_output), "[Status] SC#%d: %ds", i, rem);
+		clif_displaymessage(fd, atcmd_output);
+		shown++;
+	}
+	if( !shown )
+		clif_displaymessage(fd, "No active status.");
+
+	clif_displaymessage(fd, "--- Cooldowns ---");
+	shown = 0;
+	for( i = 1; i < MAX_SKILL; i++ )
+	{
+		int rem;
+		if( sd->blockskill[i] <= 0 )
+			continue;
+		rem = DIFF_TICK(sd->blockskill_tick[i], now)/1000;
+		if( rem < 0 ) rem = 0;
+		snprintf(atcmd_output, sizeof(atcmd_output), "[CD] %s: %ds", skill_get_name(i), rem);
+		clif_displaymessage(fd, atcmd_output);
+		shown++;
+	}
+	if( !shown )
+		clif_displaymessage(fd, "No cooldowns.");
+
 	return 0;
 }
 
