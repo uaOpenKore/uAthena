@@ -32,6 +32,7 @@
 #include "vending.h"
 #include "pet.h"
 #include "mercenary.h"	//[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "log.h"
 #include "clif.h"
 
@@ -1464,6 +1465,131 @@ int clif_homskillinfoblock(struct map_session_data *sd)
 	WFIFOSET(fd,len);
 
 	return 0;
+}
+
+// [Backport] Mercenary Soldier status window. Client packets 0x29b/0x29d/0x2a2 are
+// PACKETVER >= 20080102; under uAthena's PV7 these are no-ops (no window) — the
+// mercenary still spawns/fights as a visible unit; status is exposed via @merc (MSP3).
+void clif_mercenary_info(struct map_session_data *sd)
+{
+#if PACKETVER >= 20080102
+	int fd;
+	struct mercenary_data *md;
+	struct status_data *status;
+	int atk;
+
+	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+
+	fd = sd->fd;
+	status = &md->battle_status;
+
+	WFIFOHEAD(fd,packet_len(0x29b));
+	WFIFOW(fd,0) = 0x29b;
+	WFIFOL(fd,2) = md->bl.id;
+
+	// Mercenary shows ATK as a random value between ATK ~ ATK2
+	atk = rnd()%(status->rhw.atk2 - status->rhw.atk + 1) + status->rhw.atk;
+	WFIFOW(fd,6) = cap_value(atk, 0, INT16_MAX);
+	WFIFOW(fd,8) = cap_value(status->matk_max, 0, INT16_MAX);
+	WFIFOW(fd,10) = status->hit;
+	WFIFOW(fd,12) = status->cri/10;
+	WFIFOW(fd,14) = status->def;
+	WFIFOW(fd,16) = status->mdef;
+	WFIFOW(fd,18) = status->flee;
+	WFIFOW(fd,20) = status->amotion;
+	strncpy((char*)WFIFOP(fd,22), md->db->name, NAME_LENGTH);
+	WFIFOW(fd,46) = md->db->lv;
+	WFIFOL(fd,48) = status->hp;
+	WFIFOL(fd,52) = status->max_hp;
+	WFIFOL(fd,56) = status->sp;
+	WFIFOL(fd,60) = status->max_sp;
+	WFIFOL(fd,64) = (int)time(NULL) + (mercenary_get_lifetime(md) / 1000);
+	WFIFOW(fd,68) = mercenary_get_faith(md);
+	WFIFOL(fd,70) = mercenary_get_calls(md);
+	WFIFOL(fd,74) = md->mercenary.kill_count;
+	WFIFOW(fd,78) = md->battle_status.rhw.range;
+	WFIFOSET(fd,packet_len(0x29b));
+#endif
+}
+
+void clif_mercenary_updatestatus(struct map_session_data *sd, int type)
+{
+#if PACKETVER >= 20080102
+	struct mercenary_data *md;
+	struct status_data *status;
+	int fd;
+	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+
+	fd = sd->fd;
+	status = &md->battle_status;
+	WFIFOHEAD(fd,packet_len(0x2a2));
+	WFIFOW(fd,0) = 0x2a2;
+	WFIFOW(fd,2) = type;
+	switch( type )
+	{
+		case SP_ATK1:
+			{
+				int atk = rnd()%(status->rhw.atk2 - status->rhw.atk + 1) + status->rhw.atk;
+				WFIFOL(fd,4) = cap_value(atk, 0, INT16_MAX);
+			}
+			break;
+		case SP_MATK1: WFIFOL(fd,4) = cap_value(status->matk_max, 0, INT16_MAX); break;
+		case SP_HIT: WFIFOL(fd,4) = status->hit; break;
+		case SP_CRITICAL: WFIFOL(fd,4) = status->cri/10; break;
+		case SP_DEF1: WFIFOL(fd,4) = status->def; break;
+		case SP_MDEF1: WFIFOL(fd,4) = status->mdef; break;
+		case SP_MERCFLEE: WFIFOL(fd,4) = status->flee; break;
+		case SP_ASPD: WFIFOL(fd,4) = status->amotion; break;
+		case SP_HP: WFIFOL(fd,4) = status->hp; break;
+		case SP_MAXHP: WFIFOL(fd,4) = status->max_hp; break;
+		case SP_SP: WFIFOL(fd,4) = status->sp; break;
+		case SP_MAXSP: WFIFOL(fd,4) = status->max_sp; break;
+		case SP_MERCKILLS: WFIFOL(fd,4) = md->mercenary.kill_count; break;
+		case SP_MERCFAITH: WFIFOL(fd,4) = mercenary_get_faith(md); break;
+	}
+	WFIFOSET(fd,packet_len(0x2a2));
+#endif
+}
+
+void clif_mercenary_skillblock(struct map_session_data *sd)
+{
+#if PACKETVER >= 20080102
+	struct mercenary_data *md;
+	int fd, i, len = 4, id, j;
+
+	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+
+	fd = sd->fd;
+	WFIFOHEAD(fd,4+37*MAX_MERCSKILL);
+	WFIFOW(fd,0) = 0x29d;
+	for( i = 0; i < MAX_MERCSKILL; i++ )
+	{
+		if( (id = md->db->skill[i].id) == 0 )
+			continue;
+		j = id - MC_SKILLBASE;
+		WFIFOW(fd,len) = id;
+		WFIFOL(fd,len+2) = skill_get_inf(id);
+		WFIFOW(fd,len+6) = md->db->skill[j].lv;
+		WFIFOW(fd,len+8) = skill_get_sp(id, md->db->skill[j].lv);
+		WFIFOW(fd,len+10) = skill_get_range2(&md->bl, id, md->db->skill[j].lv);
+		strncpy((char*)WFIFOP(fd,len+12), skill_get_name(id), NAME_LENGTH);
+		WFIFOB(fd,len+36) = 0; // Skillable for Mercenary?
+		len += 37;
+	}
+
+	WFIFOW(fd,2) = len;
+	WFIFOSET(fd,len);
+#endif
+}
+
+void clif_mercenary_message(struct map_session_data* sd, int message)
+{
+#if PACKETVER >= 20080102
+	clif_msg(sd, 1266 + message); // NOTE: clif_msg() must be added when PV is bumped
+#endif
 }
 
 void clif_homskillup(struct map_session_data *sd, int skill_num)

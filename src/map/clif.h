@@ -385,6 +385,12 @@ int clif_hom_food(struct map_session_data *sd,int foodid,int fail);	//[orn]
 void clif_send_homdata(struct map_session_data *sd, int type, int param);	//[orn]
 int clif_hwalkok(struct homun_data *hd);	//[orn]
 
+// [Backport] hired mercenary soldier window (PV7-dormant)
+void clif_mercenary_info(struct map_session_data *sd);
+void clif_mercenary_updatestatus(struct map_session_data *sd, int type);
+void clif_mercenary_skillblock(struct map_session_data *sd);
+void clif_mercenary_message(struct map_session_data* sd, int message);
+
 int clif_foreachclient(int (*)(struct map_session_data*,va_list),...);
 int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type);
 int do_final_clif(void);
