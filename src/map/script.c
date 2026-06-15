@@ -3923,7 +3923,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getarg,"i?"),
 	BUILDIN_DEF(jobchange,"i*"),
 	BUILDIN_DEF(jobname,"i"),
-	BUILDIN_DEF(input,"v"),
+	BUILDIN_DEF(input,"v??"),
 	BUILDIN_DEF(warp,"sii"),
 	BUILDIN_DEF(areawarp,"siiiisii"),
 	BUILDIN_DEF(warpchar,"siii"), // [LuzZza]
@@ -5235,6 +5235,7 @@ BUILDIN_FUNC(input)
 	int num = data->u.num;
 	char *name=str_buf+str_data[num&0x00ffffff].str;
 	char postfix = name[strlen(name)-1];
+	int min, max; // [Backport] optional input range
 
 	if (!sd) return 1;
 
@@ -5243,6 +5244,11 @@ BUILDIN_FUNC(input)
 		script_reportdata(data);
 		return 1;
 	}
+
+	// [Backport] optional range: input <var>{,<min>{,<max>}} (eAthena form);
+	// defaults match uAthena's prior cap (min 0, max vending_max_value).
+	min = (script_hasdata(st,3) ? script_getnum(st,3) : 0);
+	max = (script_hasdata(st,4) ? script_getnum(st,4) : battle_config.vending_max_value);
 
 	if(sd->state.menu_or_input){
 		sd->state.menu_or_input=0;
@@ -5254,7 +5260,7 @@ BUILDIN_FUNC(input)
 		}
 		// Yor, Lupus & Fritz have messed with this.
 		// Basicly it prevents negative input since most scripts do not account for them.
-		sd->npc_amount = cap_value(sd->npc_amount, 0, battle_config.vending_max_value);
+		sd->npc_amount = cap_value(sd->npc_amount, min, max);
 
 		set_reg(st,sd,num,name,(void*)sd->npc_amount,
 			script_getref(st,2));
