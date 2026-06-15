@@ -9,6 +9,7 @@ struct block_list;
 struct mob_data;
 struct pet_data;
 struct homun_data;
+struct mercenary_data;	// [Backport]
 struct status_change;
 
 //Use this to refer the max refinery level [Skotlex]
@@ -579,7 +580,7 @@ enum {
 //Define to determine who gets HP/SP consumed on doing skills/etc. [Skotlex]
 #define BL_CONSUME (BL_PC|BL_HOM)
 //Define to determine who has regen
-#define BL_REGEN (BL_PC|BL_HOM)
+#define BL_REGEN (BL_PC|BL_HOM|BL_MER)
 
 int status_damage(struct block_list *src,struct block_list *target,int hp,int sp, int walkdelay, int flag);
 //Define for standard HP damage attacks.
@@ -683,6 +684,7 @@ int status_calc_pet(struct pet_data* pd, int first); // [Skotlex]
 int status_calc_pc(struct map_session_data* sd,int first);
 int status_calc_mob(struct mob_data* md, int first); //[Skotlex]
 int status_calc_homunculus(struct homun_data *hd, int first);
+int status_calc_mercenary(struct mercenary_data *md, int first);	// [Backport]
 void status_calc_misc(struct block_list *bl, struct status_data *status, int level);
 void status_calc_regen(struct block_list *bl, struct status_data *status, struct regen_data *regen);
 void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, struct status_change *sc);

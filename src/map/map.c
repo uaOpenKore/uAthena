@@ -33,6 +33,7 @@
 #include "guild.h"
 #include "pet.h"
 #include "mercenary.h"	//[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "quest.h"
 #include "achievement.h"
 #include "atcommand.h"
@@ -3696,6 +3697,7 @@ int do_init(int argc, char *argv[])
 	do_init_merc();	//[orn]
 	do_init_quest();
 	do_init_achievement();
+	do_init_mercenary();	// [Backport] hired mercenary soldier
 	do_init_npc();
 	do_init_unit();
 	if(mail_server_enable)

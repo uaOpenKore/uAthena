@@ -20,6 +20,7 @@
 #include "pet.h"
 #include "atcommand.h"
 #include "mercenary.h" //albator
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 
 #include <sys/types.h>
 #include <stdio.h>
@@ -37,7 +38,7 @@ static const int packet_len_table[]={
 	 9, 9,-1,14,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3840
 	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850
 	-1, 7,-1, 7,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin][Inkfish] + Achievements [Backport]
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3870
+	-1, 3, 3, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3870  Mercenary Soldier [Backport]
 	11,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3880
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
 };
@@ -1646,6 +1647,94 @@ int intif_achievement_save(TBL_PC *sd)
 	return 0;
 }
 
+//=========================================================
+// [Backport] Hired Mercenary Soldier inter packets (0x3070-3 <-> 0x3870-2)
+//=========================================================
+int intif_mercenary_create(struct s_mercenary *merc)
+{
+	int size = sizeof(struct s_mercenary) + 4;
+
+	if( CheckForCharServer() )
+		return 0;
+
+	WFIFOHEAD(inter_fd,size);
+	WFIFOW(inter_fd,0) = 0x3070;
+	WFIFOW(inter_fd,2) = size;
+	memcpy(WFIFOP(inter_fd,4), merc, sizeof(struct s_mercenary));
+	WFIFOSET(inter_fd,size);
+	return 0;
+}
+
+int intif_mercenary_request(int merc_id, int char_id)
+{
+	if( CheckForCharServer() )
+		return 0;
+
+	WFIFOHEAD(inter_fd,10);
+	WFIFOW(inter_fd,0) = 0x3071;
+	WFIFOL(inter_fd,2) = merc_id;
+	WFIFOL(inter_fd,6) = char_id;
+	WFIFOSET(inter_fd,10);
+	return 0;
+}
+
+int intif_mercenary_delete(int merc_id)
+{
+	if( CheckForCharServer() )
+		return 0;
+
+	WFIFOHEAD(inter_fd,6);
+	WFIFOW(inter_fd,0) = 0x3072;
+	WFIFOL(inter_fd,2) = merc_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+}
+
+int intif_mercenary_save(struct s_mercenary *merc)
+{
+	int size = sizeof(struct s_mercenary) + 4;
+
+	if( CheckForCharServer() )
+		return 0;
+
+	WFIFOHEAD(inter_fd,size);
+	WFIFOW(inter_fd,0) = 0x3073;
+	WFIFOW(inter_fd,2) = size;
+	memcpy(WFIFOP(inter_fd,4), merc, sizeof(struct s_mercenary));
+	WFIFOSET(inter_fd,size);
+	return 0;
+}
+
+int intif_parse_mercenary_received(int fd)
+{
+	int len = RFIFOW(fd,2) - 5;
+	if( sizeof(struct s_mercenary) != len )
+	{
+		if( battle_config.etc_log )
+			ShowError("intif: create mercenary data size error %d != %d\n", (int)sizeof(struct s_mercenary), len);
+		return 0;
+	}
+
+	merc_data_received((struct s_mercenary*)RFIFOP(fd,5), RFIFOB(fd,4));
+	return 0;
+}
+
+int intif_parse_mercenary_deleted(int fd)
+{
+	if( RFIFOB(fd,2) != 1 )
+		ShowError("Mercenary data delete failure\n");
+
+	return 0;
+}
+
+int intif_parse_mercenary_saved(int fd)
+{
+	if( RFIFOB(fd,2) != 1 )
+		ShowError("Mercenary data save failure\n");
+
+	return 0;
+}
+
 int intif_parse(int fd)
 {
 	int packet_len, cmd;
@@ -1725,6 +1814,9 @@ int intif_parse(int fd)
 	case 0x3861:	intif_parse_questsave(fd); break;
 	case 0x3862:	intif_parse_achievements(fd); break;
 	case 0x3863:	intif_parse_achievementsave(fd); break;
+	case 0x3870:	intif_parse_mercenary_received(fd); break;	// [Backport]
+	case 0x3871:	intif_parse_mercenary_deleted(fd); break;
+	case 0x3872:	intif_parse_mercenary_saved(fd); break;
 	default:
 		if(battle_config.error_log)
 			ShowError("intif_parse : unknown packet %d %x\n",fd,RFIFOW(fd,0));

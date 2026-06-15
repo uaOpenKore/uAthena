@@ -248,7 +248,7 @@ struct block_list {
 	struct block_list *next,*prev;
 	int id;
 	short m,x,y;
-	unsigned char type;
+	unsigned short type;	// [Backport] widened from unsigned char: BL_MER = 0x100 needs >8 bits
 	unsigned char subtype;
 };
 

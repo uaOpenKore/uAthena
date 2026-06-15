@@ -83,6 +83,15 @@ int intif_quest_save(struct map_session_data *sd);
 int intif_request_achievements(struct map_session_data *sd);
 int intif_achievement_save(struct map_session_data *sd);
 
+// [Backport] hired mercenary soldier
+int intif_mercenary_create(struct s_mercenary *merc);
+int intif_mercenary_request(int merc_id, int char_id);
+int intif_mercenary_delete(int merc_id);
+int intif_mercenary_save(struct s_mercenary *merc);
+int intif_parse_mercenary_received(int fd);
+int intif_parse_mercenary_deleted(int fd);
+int intif_parse_mercenary_saved(int fd);
+
 
 int CheckForCharServer(void);
 

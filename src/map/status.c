@@ -22,6 +22,7 @@
 #include "script.h"
 #include "unit.h"
 #include "mercenary.h"
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 
 #include <time.h>
 #include <stdio.h>
@@ -712,6 +713,7 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 		case BL_PC:  pc_damage((TBL_PC*)target,src,hp,sp); break;
 		case BL_MOB: mob_damage((TBL_MOB*)target, src, hp); break;
 		case BL_HOM: merc_damage((TBL_HOM*)target,src,hp,sp); break;
+		case BL_MER: mercenary_damage((TBL_MER*)target,src,hp,sp); break;	// [Backport]
 	}
 
 	if (status->hp)
@@ -731,6 +733,7 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 		case BL_PC:  flag = pc_dead((TBL_PC*)target,src); break;
 		case BL_MOB: flag = mob_dead((TBL_MOB*)target, src, flag&4?3:0); break;
 		case BL_HOM: flag = merc_hom_dead((TBL_HOM*)target,src); break;
+		case BL_MER: flag = mercenary_dead((TBL_MER*)target,src); break;	// [Backport]
 		default:	//Unhandled case, do nothing to object.
 			flag = 0;
 			break;
@@ -831,6 +834,7 @@ int status_heal(struct block_list *bl,int hp,int sp, int flag)
 	case BL_PC:  pc_heal((TBL_PC*)bl,hp,sp,flag&2?1:0); break;
 	case BL_MOB: mob_heal((TBL_MOB*)bl,hp); break;
 	case BL_HOM: merc_hom_heal((TBL_HOM*)bl,hp,sp); break;
+	case BL_MER: mercenary_heal((TBL_MER*)bl,hp,sp); break;	// [Backport]
 	}
 	return hp+sp;
 }
@@ -1134,6 +1138,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			skill_get_inf(skill_num)&INF_SUPPORT_SKILL &&
 			battle_get_master(target) != src)
 			return 0;
+	case BL_MER:	// [Backport] no homun-specific support-skill restriction for mercenaries
 	default:
 		//Check for chase-walk/hiding/cloaking opponents.
 		if (tsc && tsc->option&hide_flag && !(status->mode&(MD_BOSS|MD_DETECTOR)))
@@ -2483,6 +2488,31 @@ int status_calc_homunculus(struct homun_data *hd, int first)
 		clif_hominfo(hd->master,hd,0) ;
 
 	return 1;
+}
+
+// [Backport] Base-status calc for a hired mercenary soldier. The mercenary_db
+// already holds a full status_data, so this just seeds base_status from it and
+// derives the misc fields. uAthena's status_cpy preserves hp/sp, so the saved
+// HP/SP (set on first) carry into battle_status.
+int status_calc_mercenary(struct mercenary_data *md, int first)
+{
+	struct status_data *status = &md->base_status;
+	struct s_mercenary *merc = &md->mercenary;
+
+	if( first )
+	{
+		memcpy(status, &md->db->status, sizeof(struct status_data));
+		status->mode = MD_CANMOVE|MD_CANATTACK;
+		status->hp = status->max_hp;
+		status->sp = status->max_sp;
+		md->battle_status.hp = merc->hp;
+		md->battle_status.sp = merc->sp;
+	}
+
+	status_calc_misc(&md->bl, status, md->db->lv);
+	status_cpy(&md->battle_status, status);
+
+	return 0;
 }
 
 static unsigned short status_calc_str(struct block_list *,struct status_change *,int);
@@ -4051,6 +4081,8 @@ int status_get_class(struct block_list *bl)
 		return ((struct pet_data *)bl)->pet.class_;
 	if(bl->type==BL_HOM)
 		return ((struct homun_data *)bl)->homunculus.class_;
+	if(bl->type==BL_MER)
+		return ((struct mercenary_data *)bl)->mercenary.class_;	// [Backport]
 	return 0;
 }
 /*==========================================
@@ -4065,6 +4097,7 @@ int status_get_lv(struct block_list *bl)
 		case BL_MOB: return ((TBL_MOB*)bl)->level;
 		case BL_PET: return ((TBL_PET*)bl)->pet.level;
 		case BL_HOM: return ((TBL_HOM*)bl)->homunculus.level;
+		case BL_MER: return ((TBL_MER*)bl)->db->lv;	// [Backport]
 	}
 	return 1;
 }
@@ -4075,6 +4108,7 @@ struct regen_data *status_get_regen_data(struct block_list *bl)
 	switch (bl->type) {
 		case BL_PC:  return &((TBL_PC*)bl)->regen;
 		case BL_HOM: return &((TBL_HOM*)bl)->regen;
+		case BL_MER: return &((TBL_MER*)bl)->regen;	// [Backport]
 		default:
 			return NULL;
 	}
@@ -4089,6 +4123,7 @@ struct status_data *status_get_status_data(struct block_list *bl)
 		case BL_MOB: return &((TBL_MOB*)bl)->status;
 		case BL_PET: return &((TBL_PET*)bl)->status;
 		case BL_HOM: return &((TBL_HOM*)bl)->battle_status;
+		case BL_MER: return &((TBL_MER*)bl)->battle_status;	// [Backport]
 		default:
 			return &dummy_status;
 	}
@@ -4102,6 +4137,7 @@ struct status_data *status_get_base_status(struct block_list *bl)
 		case BL_MOB: return ((TBL_MOB*)bl)->base_status ? ((TBL_MOB*)bl)->base_status : &((TBL_MOB*)bl)->db->status;
 		case BL_PET: return &((TBL_PET*)bl)->db->status;
 		case BL_HOM: return &((TBL_HOM*)bl)->base_status;
+		case BL_MER: return &((TBL_MER*)bl)->base_status;	// [Backport]
 		default:
 			return NULL;
 	}
@@ -4170,6 +4206,10 @@ int status_get_party_id(struct block_list *bl)
 		if (((TBL_HOM*)bl)->master)
 			return ((TBL_HOM*)bl)->master->status.party_id;
 		break;
+	case BL_MER:	// [Backport]
+		if (((TBL_MER*)bl)->master)
+			return ((TBL_MER*)bl)->master->status.party_id;
+		break;
 	case BL_SKILL:
 		return ((TBL_SKILL*)bl)->group->party_id;
 	}
@@ -4199,6 +4239,10 @@ int status_get_guild_id(struct block_list *bl)
 	case BL_HOM:
 		if (((TBL_HOM*)bl)->master)
 			return ((TBL_HOM*)bl)->master->status.guild_id;
+		break;
+	case BL_MER:	// [Backport]
+		if (((TBL_MER*)bl)->master)
+			return ((TBL_MER*)bl)->master->status.guild_id;
 		break;
 	case BL_NPC:
 		if (bl->subtype == SCRIPT)
@@ -4233,6 +4277,10 @@ int status_get_emblem_id(struct block_list *bl)
 	case BL_HOM:
 		if (((TBL_HOM*)bl)->master)
 			return ((TBL_HOM*)bl)->master->guild_emblem_id;
+		break;
+	case BL_MER:	// [Backport]
+		if (((TBL_MER*)bl)->master)
+			return ((TBL_MER*)bl)->master->guild_emblem_id;
 		break;
 	case BL_NPC:
 		if (bl->subtype == SCRIPT && ((TBL_NPC*)bl)->u.scr.guild_id > 0) {
@@ -4291,6 +4339,7 @@ struct view_data* status_get_viewdata(struct block_list *bl)
 		case BL_PET: return &((TBL_PET*)bl)->vd;
 		case BL_NPC: return ((TBL_NPC*)bl)->vd;
 		case BL_HOM: return ((TBL_HOM*)bl)->vd;
+		case BL_MER: return ((TBL_MER*)bl)->vd;	// [Backport]
 	}
 	return NULL;
 }
@@ -4305,6 +4354,8 @@ void status_set_viewdata(struct block_list *bl, int class_)
 		vd = npc_get_viewdata(class_);
 	else if (homdb_checkid(class_))
 		vd = merc_get_hom_viewdata(class_);
+	else if (merc_class(class_))
+		vd = merc_get_viewdata(class_);	// [Backport] mercenary soldier
 	else
 		vd = NULL;
 
@@ -4400,6 +4451,15 @@ void status_set_viewdata(struct block_list *bl, int class_)
 				ShowError("status_set_viewdata (HOMUNCULUS): No view data for class %d\n", class_);
 		}
 		break;
+	case BL_MER:	// [Backport]
+		{
+			struct mercenary_data *md = (struct mercenary_data*)bl;
+			if (vd)
+				md->vd = vd;
+			else if (battle_config.error_log)
+				ShowError("status_set_viewdata (MERCENARY): No view data for class %d\n", class_);
+		}
+		break;
 	}
 	vd = status_get_viewdata(bl);
 	if (vd && vd->cloth_color && (
@@ -4417,6 +4477,7 @@ struct status_change *status_get_sc(struct block_list *bl)
 	case BL_MOB: return &((TBL_MOB*)bl)->sc;
 	case BL_NPC: return &((TBL_NPC*)bl)->sc;
 	case BL_HOM: return &((TBL_HOM*)bl)->sc;
+	case BL_MER: return &((TBL_MER*)bl)->sc;	// [Backport]
 	}
 	return NULL;
 }
