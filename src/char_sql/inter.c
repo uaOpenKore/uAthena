@@ -16,6 +16,7 @@
 #include "int_pet.h"
 #include "int_homun.h" //albator
 #include "int_quest.h"
+#include "int_achievement.h"
 
 #define WISDATA_TTL (60*1000)	// Wisf[^(60b)
 #define WISDELLIST_MAX 256			// Wisf[^Xgvf
@@ -863,6 +864,7 @@ int inter_parse_frommap(int fd)
 		  || inter_pet_parse_frommap(fd)
 		  || inter_homunculus_parse_frommap(fd)
 		  || inter_quest_parse_frommap(fd)
+		  || inter_achievement_parse_frommap(fd)
 		   )
 			break;
 		else
