@@ -43,6 +43,7 @@ char interlog_db[256] = "interlog";
 char reg_db[256] = "global_reg_value";
 char skill_db[256] = "skill";
 char memo_db[256] = "memo";
+char quest_db[256] = "quest";
 char guild_db[256] = "guild";
 char guild_alliance_db[256] = "guild_alliance";
 char guild_castle_db[256] = "guild_castle";

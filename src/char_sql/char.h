@@ -71,6 +71,7 @@ extern char interlog_db[256];
 extern char reg_db[256];
 extern char skill_db[256];
 extern char memo_db[256];
+extern char quest_db[256];
 extern char guild_db[256];
 extern char guild_alliance_db[256];
 extern char guild_castle_db[256];
