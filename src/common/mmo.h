@@ -69,6 +69,9 @@
 
 #define MAX_STATUS_TYPE 5
 
+#define MAX_QUEST_DB 2000 //Max quests that the server will load
+#define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a single quest
+
 #define WEDDING_RING_M 2634
 #define WEDDING_RING_F 2635
 
@@ -103,6 +106,16 @@
 #define MAX_HOMUNCULUS_CLASS	16	//[orn]
 #define HM_CLASS_BASE 6001
 #define HM_CLASS_MAX (HM_CLASS_BASE+MAX_HOMUNCULUS_CLASS-1)
+
+//Questlog system [Kevin] [Inkfish]
+typedef enum quest_state { Q_INACTIVE, Q_ACTIVE, Q_COMPLETE } quest_state;
+
+struct quest {
+	int quest_id;
+	unsigned int time;
+	int count[MAX_QUEST_OBJECTIVES];
+	quest_state state;
+};
 
 struct item {
 	int id;

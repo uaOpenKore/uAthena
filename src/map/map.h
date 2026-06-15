@@ -594,6 +594,12 @@ struct map_session_data {
 
 	int packet_ver;  // 5: old, 6: 7july04, 7: 13july04, 8: 26july04, 9: 9aug04/16aug04/17aug04, 10: 6sept04, 11: 21sept04, 12: 18oct04, 13: 25oct04 ... 18
 	struct mmo_charstatus status;
+	// Questlog system [Kevin] [Inkfish]
+	int num_quests;          // total quests (active + inactive + complete)
+	int avail_quests;        // active + inactive (not yet complete)
+	int quest_index[MAX_QUEST_DB]; // index into quest_db[] per quest_log entry
+	struct quest quest_log[MAX_QUEST_DB];
+	bool save_quest;
 	struct registry save_reg;
 	
 	struct item_data *inventory_data[MAX_INVENTORY];
