@@ -3418,6 +3418,7 @@ static const struct battle_data_short {
 	{ "multihit_delay",                    &battle_config.multihit_delay			},
 	{ "quest_skill_learn",                 &battle_config.quest_skill_learn		},
 	{ "quest_skill_reset",                 &battle_config.quest_skill_reset		},
+	{ "quest_progress_notify",             &battle_config.quest_progress_notify	},
 	{ "basic_skill_check",                 &battle_config.basic_skill_check		},
 	{ "guild_emperium_check",              &battle_config.guild_emperium_check		},
 	{ "guild_exp_limit",                   &battle_config.guild_exp_limit			},
@@ -3828,6 +3829,7 @@ void battle_set_defaults()
 	battle_config.multihit_delay=80;
 	battle_config.quest_skill_learn=0;
 	battle_config.quest_skill_reset=1;
+	battle_config.quest_progress_notify=2;
 	battle_config.basic_skill_check=1;
 	battle_config.guild_emperium_check=1;
 	battle_config.guild_exp_limit=50;

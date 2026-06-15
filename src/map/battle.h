@@ -162,6 +162,7 @@ extern struct Battle_Config {
 	unsigned short multihit_delay;  //Adjusts can't walk delay per hit on multi-hitting skills. [Skotlex]
 	unsigned short quest_skill_learn;
 	unsigned short quest_skill_reset;
+	unsigned short quest_progress_notify; // 0=off, 1=each kill, 2=on objective completion
 	unsigned short basic_skill_check;
 	unsigned short guild_emperium_check;
 	unsigned short guild_exp_limit;
