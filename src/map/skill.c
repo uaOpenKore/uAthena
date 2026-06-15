@@ -40,6 +40,12 @@
 #define GD_SKILLRANGEMAX GD_SKILLRANGEMIN+MAX_GUILDSKILL
 #define HM_SKILLRANGEMIN 800
 #define HM_SKILLRANGEMAX HM_SKILLRANGEMIN+MAX_HOMUNSKILL
+//[Backport] Mercenary Soldier skills (MC_SKILLBASE 8201) -> free slice 1000-1040
+//(homun 800-816, guild 900-915; MERC_SKILLRANGEMAX 1040 < MAX_SKILL_DB 1100).
+//The MC branch must precede HM at every remap site: a merc id 8201 also satisfies
+//(id >= HM_SKILLBASE 8000), so HM would otherwise mis-map it.
+#define MERC_SKILLRANGEMIN 1000
+#define MERC_SKILLRANGEMAX MERC_SKILLRANGEMIN+MAX_MERCSKILL
 
 int skill_names_id[MAX_SKILL_DB];
 const struct skill_name_db skill_names[] = {
@@ -687,6 +693,7 @@ struct skill_abra_db skill_abra_db[MAX_SKILL_ABRA_DB];
 	if (i >= GD_SKILLRANGEMIN && i <= GD_SKILLRANGEMAX) { return 0; } \
 	if (i >= HM_SKILLRANGEMIN && i <= HM_SKILLRANGEMAX) { return 0; } \
 	if (i >= GD_SKILLBASE) {i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;} \
+	if (i >= MC_SKILLBASE) {i = MERC_SKILLRANGEMIN + i - MC_SKILLBASE;} /*[Backport]*/ \
 	if (i >= HM_SKILLBASE) {i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;} \
 	if (i < 1 || i >= MAX_SKILL_DB) {return 0;} \
 	if (l <= 0 || l > MAX_SKILL_LEVEL) {return 0;}
@@ -741,6 +748,8 @@ const char*	skill_get_name( int id ){
 		return "UNKNOWN_SKILL";
 	if (id >= GD_SKILLBASE)
 		id = GD_SKILLRANGEMIN + id - GD_SKILLBASE;
+	if (id >= MC_SKILLBASE)	/*[Backport]*/
+		id = MERC_SKILLRANGEMIN + id - MC_SKILLBASE;
 	if (id >= HM_SKILLBASE)	//[orn]
 		id = HM_SKILLRANGEMIN + id - HM_SKILLBASE;
 	if (id < 1 || id >= MAX_SKILL_DB || skill_db[id].name==NULL)
@@ -752,6 +761,8 @@ const char*	skill_get_desc( int id ){
 		return "Unknown Skill";
 	if (id >= GD_SKILLBASE)
 		id = GD_SKILLRANGEMIN + id - GD_SKILLBASE;
+	if (id >= MC_SKILLBASE)	/*[Backport]*/
+		id = MERC_SKILLRANGEMIN + id - MC_SKILLBASE;
 	if (id >= HM_SKILLBASE)	//[orn]
 		id = HM_SKILLRANGEMIN + id - HM_SKILLBASE;
 	if (id < 1 || id >= MAX_SKILL_DB || skill_db[id].desc==NULL)
@@ -909,6 +920,8 @@ int skillnotok (int skillid, struct map_session_data *sd)
 
 	if (i >= GD_SKILLBASE)
 		i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
+	if (i >= MC_SKILLBASE)	/*[Backport]*/
+		i = MERC_SKILLRANGEMIN + i - MC_SKILLBASE;
 	if (i >= HM_SKILLBASE)	//[orn]
 		i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
 
@@ -990,6 +1003,8 @@ int skillnotok_hom (int skillid, struct homun_data *hd)
 
 	if (i >= GD_SKILLBASE)
 		i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
+	if (i >= MC_SKILLBASE)	/*[Backport]*/
+		i = MERC_SKILLRANGEMIN + i - MC_SKILLBASE;
 	if (i >= HM_SKILLBASE)	//[orn]
 		i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
 
@@ -8250,6 +8265,8 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 	// for the guild skills [celest]
 	if (skill >= GD_SKILLBASE)
 		j = GD_SKILLRANGEMIN + skill - GD_SKILLBASE;
+	else if (skill >= MC_SKILLBASE)	/*[Backport]*/
+		j = MERC_SKILLRANGEMIN + skill - MC_SKILLBASE;
 	else if (skill >= HM_SKILLBASE)	//[orn]
 		j = HM_SKILLRANGEMIN + skill - HM_SKILLBASE;
 	else
@@ -11163,6 +11180,8 @@ int skill_blockpc_start(struct map_session_data *sd, int skillid, int tick)
 
 	if (skillid >= GD_SKILLBASE)
 		skillid = GD_SKILLRANGEMIN + skillid - GD_SKILLBASE;
+	if (skillid >= MC_SKILLBASE)	/*[Backport]*/
+		skillid = MERC_SKILLRANGEMIN + skillid - MC_SKILLBASE;
 	if (skillid >= HM_SKILLBASE)	//[orn]
 		skillid = HM_SKILLRANGEMIN + skillid - HM_SKILLBASE;
 	if (skillid < 1 || skillid > MAX_SKILL)
@@ -11194,6 +11213,8 @@ int skill_blockmerc_start(struct homun_data *hd, int skillid, int tick)	//[orn]
 
 	if (skillid >= GD_SKILLBASE)
 		skillid = GD_SKILLRANGEMIN + skillid - GD_SKILLBASE;
+	if (skillid >= MC_SKILLBASE)	/*[Backport]*/
+		skillid = MERC_SKILLRANGEMIN + skillid - MC_SKILLBASE;
 	if (skillid >= HM_SKILLBASE)	//[orn]
 		skillid = HM_SKILLRANGEMIN + skillid - HM_SKILLBASE;
 	if (skillid < 1 || skillid > MAX_SKILL)
@@ -11536,6 +11557,8 @@ int skill_readdb (void)
 		}
 		if (i >= GD_SKILLBASE)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
+		if (i >= MC_SKILLBASE)	/*[Backport]*/
+			i = MERC_SKILLRANGEMIN + i - MC_SKILLBASE;
 		if (i >= HM_SKILLBASE)	//[orn]
 			i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
 		if(i<=0 || i>=MAX_SKILL_DB)
@@ -11595,6 +11618,8 @@ int skill_readdb (void)
 		i=atoi(split[0]);
 		if (i >= GD_SKILLBASE)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
+		if (i >= MC_SKILLBASE)	/*[Backport]*/
+			i = MERC_SKILLRANGEMIN + i - MC_SKILLBASE;
 		if (i >= HM_SKILLBASE)	//[orn]
 			i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
 		if(i<=0 || i>=MAX_SKILL_DB)
@@ -11688,6 +11713,8 @@ int skill_readdb (void)
 		i=atoi(split[0]);
 		if (i >= GD_SKILLBASE)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
+		if (i >= MC_SKILLBASE)	/*[Backport]*/
+			i = MERC_SKILLRANGEMIN + i - MC_SKILLBASE;
 		if (i >= HM_SKILLBASE)	//[orn]
 			i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
 		if(i<=0 || i>=MAX_SKILL_DB)
@@ -11722,6 +11749,8 @@ int skill_readdb (void)
 		i=atoi(split[0]);
 		if (i >= GD_SKILLBASE)
 			i = GD_SKILLRANGEMIN + i - GD_SKILLBASE;
+		if (i >= MC_SKILLBASE)	/*[Backport]*/
+			i = MERC_SKILLRANGEMIN + i - MC_SKILLBASE;
 		if (i >= HM_SKILLBASE)	//[orn]
 			i = HM_SKILLRANGEMIN + i - HM_SKILLBASE;
 		if(i<=0 || i>=MAX_SKILL_DB)
