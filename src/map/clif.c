@@ -11961,6 +11961,145 @@ static int packetdb_readdb(void)
 	return 0;
 }
 
+// ===== Questlog window (ported from eAthena) =====================================
+// Dormant under uAthena's PACKETVER 7: the bodies (and the quest_db dependency)
+// compile to empty stubs, so the quest engine runs headless. Bump PACKETVER to a
+// date-based value >= 20080000 (with a compatible client) to light up the journal.
+#if PACKETVER >= 20080000
+#include "quest.h"  // quest_db[] for the quest-window packets
+#endif
+
+void clif_quest_send_list(struct map_session_data * sd)
+{
+#if PACKETVER >= 20080000
+	int fd = sd->fd;
+	int i;
+	int len = sd->avail_quests*5+8;
+
+	WFIFOHEAD(fd,len);
+	WFIFOW(fd, 0) = 0x2b1;
+	WFIFOW(fd, 2) = len;
+	WFIFOL(fd, 4) = sd->avail_quests;
+
+	for( i = 0; i < sd->avail_quests; i++ )
+	{
+		WFIFOL(fd, i*5+8) = sd->quest_log[i].quest_id;
+		WFIFOB(fd, i*5+12) = sd->quest_log[i].state;
+	}
+
+	WFIFOSET(fd, len);
+#endif
+}
+
+void clif_quest_send_mission(struct map_session_data * sd)
+{
+#if PACKETVER >= 20080000
+	int fd = sd->fd;
+	int i, j;
+	int len = sd->avail_quests*104+8;
+	struct mob_db *mob;
+
+	WFIFOHEAD(fd, len);
+	WFIFOW(fd, 0) = 0x2b2;
+	WFIFOW(fd, 2) = len;
+	WFIFOL(fd, 4) = sd->avail_quests;
+
+	for( i = 0; i < sd->avail_quests; i++ )
+	{
+		WFIFOL(fd, i*104+8) = sd->quest_log[i].quest_id;
+		WFIFOL(fd, i*104+12) = sd->quest_log[i].time - quest_db[sd->quest_index[i]].time;
+		WFIFOL(fd, i*104+16) = sd->quest_log[i].time;
+		WFIFOW(fd, i*104+20) = quest_db[sd->quest_index[i]].num_objectives;
+
+		for( j = 0 ; j < quest_db[sd->quest_index[i]].num_objectives; j++ )
+		{
+			WFIFOL(fd, i*104+22+j*30) = quest_db[sd->quest_index[i]].mob[j];
+			WFIFOW(fd, i*104+26+j*30) = sd->quest_log[i].count[j];
+			mob = mob_db(quest_db[sd->quest_index[i]].mob[j]);
+			memcpy(WFIFOP(fd, i*104+28+j*30), mob?mob->jname:"NULL", NAME_LENGTH);
+		}
+	}
+
+	WFIFOSET(fd, len);
+#endif
+}
+
+void clif_quest_add(struct map_session_data * sd, struct quest * qd, int index)
+{
+#if PACKETVER >= 20080000
+	int fd = sd->fd;
+	int i;
+	struct mob_db *mob;
+
+	WFIFOHEAD(fd, packet_len(0x2b3));
+	WFIFOW(fd, 0) = 0x2b3;
+	WFIFOL(fd, 2) = qd->quest_id;
+	WFIFOB(fd, 6) = qd->state;
+	WFIFOB(fd, 7) = qd->time - quest_db[index].time;
+	WFIFOL(fd, 11) = qd->time;
+	WFIFOW(fd, 15) = quest_db[index].num_objectives;
+
+	for( i = 0; i < quest_db[index].num_objectives; i++ )
+	{
+		WFIFOL(fd, i*30+17) = quest_db[index].mob[i];
+		WFIFOW(fd, i*30+21) = qd->count[i];
+		mob = mob_db(quest_db[index].mob[i]);
+		memcpy(WFIFOP(fd, i*30+23), mob?mob->jname:"NULL", NAME_LENGTH);
+	}
+
+	WFIFOSET(fd, packet_len(0x2b3));
+#endif
+}
+
+void clif_quest_delete(struct map_session_data * sd, int quest_id)
+{
+#if PACKETVER >= 20080000
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0x2b4));
+	WFIFOW(fd, 0) = 0x2b4;
+	WFIFOL(fd, 2) = quest_id;
+	WFIFOSET(fd, packet_len(0x2b4));
+#endif
+}
+
+void clif_quest_update_objective(struct map_session_data * sd, struct quest * qd, int index)
+{
+#if PACKETVER >= 20080000
+	int fd = sd->fd;
+	int i;
+	int len = quest_db[index].num_objectives*12+6;
+
+	WFIFOHEAD(fd, len);
+	WFIFOW(fd, 0) = 0x2b5;
+	WFIFOW(fd, 2) = len;
+	WFIFOW(fd, 4) = quest_db[index].num_objectives;
+
+	for( i = 0; i < quest_db[index].num_objectives; i++ )
+	{
+		WFIFOL(fd, i*12+6) = qd->quest_id;
+		WFIFOL(fd, i*12+10) = quest_db[index].mob[i];
+		WFIFOW(fd, i*12+14) = quest_db[index].count[i];
+		WFIFOW(fd, i*12+16) = qd->count[i];
+	}
+
+	WFIFOSET(fd, len);
+#endif
+}
+
+void clif_quest_update_status(struct map_session_data * sd, int quest_id, bool active)
+{
+#if PACKETVER >= 20080000
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0x2b7));
+	WFIFOW(fd, 0) = 0x2b7;
+	WFIFOL(fd, 2) = quest_id;
+	WFIFOB(fd, 6) = active;
+	WFIFOSET(fd, packet_len(0x2b7));
+#endif
+}
+
 /*==========================================
  *
  *------------------------------------------*/

@@ -20,6 +20,7 @@ struct chat_data;
 struct flooritem_data;
 struct skill_unit;
 struct vending;
+struct quest;
 struct party;
 struct party_data;
 struct guild;
@@ -388,6 +389,14 @@ int clif_foreachclient(int (*)(struct map_session_data*,va_list),...);
 int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type);
 int do_final_clif(void);
 int do_init_clif(void);
+
+// Questlog window (dormant unless PACKETVER >= 20080000)
+void clif_quest_send_list(struct map_session_data *sd);
+void clif_quest_send_mission(struct map_session_data *sd);
+void clif_quest_add(struct map_session_data *sd, struct quest *qd, int index);
+void clif_quest_delete(struct map_session_data *sd, int quest_id);
+void clif_quest_update_objective(struct map_session_data *sd, struct quest *qd, int index);
+void clif_quest_update_status(struct map_session_data *sd, int quest_id, bool active);
 
 
 #endif /* _CLIF_H_ */
