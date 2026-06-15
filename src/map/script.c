@@ -3631,6 +3631,7 @@ BUILDIN_FUNC(strcharinfo);
 BUILDIN_FUNC(strnpcinfo); // [Backport] NPC name/map introspection
 BUILDIN_FUNC(setnpcdisplay); // [Backport] change NPC sprite/name at runtime
 BUILDIN_FUNC(readbook); // [Backport] book-reading UI (no-op on PV7)
+BUILDIN_FUNC(progressbar); // [Backport] cast-progress bar (no-op on PV7)
 BUILDIN_FUNC(getequipid);
 BUILDIN_FUNC(getequipname);
 BUILDIN_FUNC(getbrokenid); // [Valaris]
@@ -3969,6 +3970,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(strnpcinfo,"i"),	// [Backport]
 	BUILDIN_DEF(setnpcdisplay,"sv??"),	// [Backport]
 	BUILDIN_DEF(readbook,"ii"),	// [Backport] no-op (no book UI on PV7)
+	BUILDIN_DEF(progressbar,"si"),	// [Backport] no-op (PV7 has no cast-bar packet)
 	BUILDIN_DEF(getequipid,"i"),
 	BUILDIN_DEF(getequipname,"i"),
 	BUILDIN_DEF(getbrokenid,"i"), // [Valaris]
@@ -6780,6 +6782,17 @@ BUILDIN_FUNC(setnpcdisplay)
  * quests that show a book before granting an item still load and progress.
  *------------------------------------------*/
 BUILDIN_FUNC(readbook)
+{
+	return 0;
+}
+
+/*==========================================
+ * progressbar("<color>",<seconds>) [Backport]
+ * The cast-progress packet is PACKETVER >= 20080318; on the 2007 client (PV7)
+ * eAthena itself compiles this out to a no-op, so we do the same: accept the
+ * args and continue immediately (no bar, no wait).
+ *------------------------------------------*/
+BUILDIN_FUNC(progressbar)
 {
 	return 0;
 }
