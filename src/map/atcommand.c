@@ -22,6 +22,7 @@
 #include "status.h"
 #include "skill.h"
 #include "mob.h"
+#include "quest.h"
 #include "npc.h"
 #include "pet.h"
 #include "mercenary.h" //[orn]
@@ -39,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 char atcommand_symbol = '@'; // first char of the commands (by [Yor])
 
@@ -254,6 +256,8 @@ ACMD_FUNC(undisguiseall);
 ACMD_FUNC(disguiseall);
 ACMD_FUNC(changelook);
 ACMD_FUNC(mobinfo); //by Lupus
+ACMD_FUNC(quests); // questlog chat UI
+ACMD_FUNC(quest);  // questlog chat UI
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -576,6 +580,8 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_ItemInfo,           "@iteminfo",         1, atcommand_iteminfo }, // [Lupus]
 	{ AtCommand_ItemInfo,           "@ii",               1, atcommand_iteminfo }, // [Lupus]
 	{ AtCommand_WhoDrops,           "@whodrops",         1, atcommand_whodrops }, // [Skotlex]
+	{ AtCommand_Quests,             "@quests",           1, atcommand_quests }, // questlog chat UI
+	{ AtCommand_Quest,              "@quest",            1, atcommand_quest }, // questlog chat UI
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -8520,6 +8526,111 @@ int atcommand_sendmail(const int fd, struct map_session_data* sd, const char* co
 int atcommand_refreshonline(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	send_users_tochar(-1, gettick(), 0, 0);
+	return 0;
+}
+
+/*==========================================
+ * Quest chat UI (PV7 client has no quest journal window)
+ *------------------------------------------*/
+// Resolve display position N (1-based, completed-first then active) to a quest_log index.
+static int atcommand_quest_idx(struct map_session_data *sd, int n)
+{
+	int i, k = 0;
+	for( i = 0; i < sd->num_quests; i++ )
+		if( sd->quest_log[i].state == Q_COMPLETE && ++k == n ) return i;
+	for( i = 0; i < sd->num_quests; i++ )
+		if( sd->quest_log[i].state != Q_COMPLETE && ++k == n ) return i;
+	return -1;
+}
+
+// One summary line: [N] <quest_id> "<name>" - <status>[, <time>][ | obj, obj]
+static void atcommand_quest_line(const int fd, struct map_session_data *sd, int idx, int n)
+{
+	struct s_quest_db *q = &quest_db[sd->quest_index[idx]];
+	const char *st = (sd->quest_log[idx].state == Q_COMPLETE) ? "complete" :
+	                 (sd->quest_log[idx].state == Q_ACTIVE)   ? "active" : "inactive";
+	char tbuf[32] = "";
+	char obuf[120] = "";
+	int j;
+	if( sd->quest_log[idx].time )
+	{
+		int rem = (int)(sd->quest_log[idx].time - (unsigned int)time(NULL));
+		if( rem <= 0 ) snprintf(tbuf, sizeof(tbuf), ", expired");
+		else snprintf(tbuf, sizeof(tbuf), ", %dh%02dm left", rem/3600, (rem%3600)/60);
+	}
+	for( j = 0; j < q->num_objectives; j++ )
+	{
+		struct mob_db *mb = mob_db(q->mob[j]);
+		char one[40];
+		snprintf(one, sizeof(one), "%s%s %d/%d", j?", ":"", mb?mb->jname:"?",
+		         sd->quest_log[idx].count[j], q->count[j]);
+		strncat(obuf, one, sizeof(obuf)-strlen(obuf)-1);
+	}
+	snprintf(atcmd_output, sizeof(atcmd_output), "[%d] %d \"%s\" - %s%s%s%s",
+	         n, sd->quest_log[idx].quest_id, q->name[0]?q->name:"(no name)", st, tbuf,
+	         obuf[0]?" | ":"", obuf);
+	clif_displaymessage(fd, atcmd_output);
+}
+
+int atcommand_quests(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int i, n = 0;
+	nullpo_retr(-1, sd);
+	if( sd->num_quests == 0 )
+	{
+		clif_displaymessage(fd, "You have no quests.");
+		return 0;
+	}
+	clif_displaymessage(fd, "--- Quests (completed) ---");
+	for( i = 0; i < sd->num_quests; i++ )
+		if( sd->quest_log[i].state == Q_COMPLETE )
+			atcommand_quest_line(fd, sd, i, ++n);
+	clif_displaymessage(fd, "--- Quests (active) ---");
+	for( i = 0; i < sd->num_quests; i++ )
+		if( sd->quest_log[i].state != Q_COMPLETE )
+			atcommand_quest_line(fd, sd, i, ++n);
+	clif_displaymessage(fd, "@quest <N> = details, @quest <N> cancel = drop");
+	return 0;
+}
+
+int atcommand_quest(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int n = 0, idx, j;
+	char subcmd[16] = "";
+	struct s_quest_db *q;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message || sscanf(message, "%d %15s", &n, subcmd) < 1 )
+	{
+		clif_displaymessage(fd, "Usage: @quest <N> [cancel]   (N from @quests)");
+		return -1;
+	}
+	idx = atcommand_quest_idx(sd, n);
+	if( idx < 0 )
+	{
+		clif_displaymessage(fd, "No quest with that number. Type @quests.");
+		return -1;
+	}
+
+	if( strcmpi(subcmd, "cancel") == 0 )
+	{
+		int qid = sd->quest_log[idx].quest_id;
+		quest_delete(sd, qid);
+		snprintf(atcmd_output, sizeof(atcmd_output), "Quest [%d] (id %d) cancelled.", n, qid);
+		clif_displaymessage(fd, atcmd_output);
+		return 0;
+	}
+
+	atcommand_quest_line(fd, sd, idx, n);
+	q = &quest_db[sd->quest_index[idx]];
+	for( j = 0; j < q->num_objectives; j++ )
+	{
+		struct mob_db *mb = mob_db(q->mob[j]);
+		snprintf(atcmd_output, sizeof(atcmd_output), "  - %s: %d / %d",
+		         mb?mb->jname:"?", sd->quest_log[idx].count[j], q->count[j]);
+		clif_displaymessage(fd, atcmd_output);
+	}
+	clif_displaymessage(fd, "@quest <N> cancel = drop this quest");
 	return 0;
 }
 
