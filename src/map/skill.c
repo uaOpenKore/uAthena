@@ -11106,6 +11106,7 @@ int skill_blockpc_start(struct map_session_data *sd, int skillid, int tick)
 	}
 
 	sd->blockskill[skillid] = 1;
+	sd->blockskill_tick[skillid] = gettick()+tick;	// for @status cooldowns
 	return add_timer(gettick()+tick,skill_blockpc_end,sd->bl.id,skillid);
 }
 

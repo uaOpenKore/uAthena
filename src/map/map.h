@@ -634,6 +634,7 @@ struct map_session_data {
 	short skillid_old,skilllv_old;
 	short skillid_dance,skilllv_dance;
 	char blockskill[MAX_SKILL];	// [celest]
+	unsigned int blockskill_tick[MAX_SKILL];	// expiry tick per skill, for @status cooldowns
 	int cloneskill_id;
 	int menuskill_id, menuskill_val;
 
