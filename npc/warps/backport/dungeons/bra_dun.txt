@@ -1,0 +1,7 @@
+//===== uAthena backport (GENERATED) =========================
+//= Additive pre-renewal warps from eathena-ref.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-warps.py
+//= Source: npc/warps/dungeons/bra_dun.txt
+//============================================================
+bra_dun01,199,35,0	warp	brad1tobrad2	1,1,bra_dun02,261,263
+bra_dun02,261,265,0	warp	brad2tobrad1	1,1,bra_dun01,199,37
