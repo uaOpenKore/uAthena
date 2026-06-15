@@ -3669,6 +3669,12 @@ static const struct battle_data_int {
 	const char *str;
 	int *val;
 } battle_data_int[] = {	//List here battle_athena options which are type int!
+	{ "online_reward_interval",            &battle_config.online_reward_interval	}, // [Backport] minutes online per reward (0=off)
+	{ "online_reward_item",                &battle_config.online_reward_item	},
+	{ "online_reward_amount",              &battle_config.online_reward_amount	},
+	{ "online_reward_zeny",                &battle_config.online_reward_zeny	},
+	{ "online_reward_exp",                 &battle_config.online_reward_exp	},
+	{ "online_reward_afk",                 &battle_config.online_reward_afk	},
 	{ "socket_send_coalesce_ms",           &battle_config.socket_send_coalesce_ms	}, // [perf] map-only send-coalescing window ms (<=0 off)
 	{ "flooritem_lifetime",                &battle_config.flooritem_lifetime		},
 	{ "item_first_get_time",               &battle_config.item_first_get_time		},
@@ -3830,6 +3836,12 @@ void battle_set_defaults()
 	battle_config.quest_skill_learn=0;
 	battle_config.quest_skill_reset=1;
 	battle_config.quest_progress_notify=2;
+	battle_config.online_reward_interval=0;
+	battle_config.online_reward_item=0;
+	battle_config.online_reward_amount=1;
+	battle_config.online_reward_zeny=0;
+	battle_config.online_reward_exp=0;
+	battle_config.online_reward_afk=0;
 	battle_config.basic_skill_check=1;
 	battle_config.guild_emperium_check=1;
 	battle_config.guild_exp_limit=50;

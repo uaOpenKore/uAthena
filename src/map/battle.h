@@ -163,6 +163,12 @@ extern struct Battle_Config {
 	unsigned short quest_skill_learn;
 	unsigned short quest_skill_reset;
 	unsigned short quest_progress_notify; // 0=off, 1=each kill, 2=on objective completion
+	int online_reward_interval; // [Backport] minutes online per reward (0 = off)
+	int online_reward_item;     // item nameid (0 = none)
+	int online_reward_amount;
+	int online_reward_zeny;
+	int online_reward_exp;       // base exp
+	int online_reward_afk;       // 0 = only active (non-idle) players, 1 = reward AFK too
 	unsigned short basic_skill_check;
 	unsigned short guild_emperium_check;
 	unsigned short guild_exp_limit;

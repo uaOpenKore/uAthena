@@ -1756,6 +1756,12 @@ int unit_free(struct block_list *bl, int clrtype)
 		if(status_isdead(bl))
 			pc_setrestartvalue(sd,2);
 
+		// [Backport] stop the online/playtime reward timer
+		if( sd->online_reward_tid != INVALID_TIMER ) {
+			delete_timer(sd->online_reward_tid, pc_online_reward_timer);
+			sd->online_reward_tid = INVALID_TIMER;
+		}
+
 		//Status that are not saved...
 		if(sd->sc.count) {
 			if(sd->sc.data[SC_SPURT].timer!=-1)

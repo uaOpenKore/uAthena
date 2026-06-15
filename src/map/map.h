@@ -607,6 +607,7 @@ struct map_session_data {
 	int achievement_index[MAX_ACHIEVEMENT]; // index into achievement_db[] per log entry
 	bool save_achievement;
 	int active_title;        // achievement_id whose title is active (0 = none)
+	int online_reward_tid;   // [Backport] online/playtime reward timer id
 	struct registry save_reg;
 	
 	struct item_data *inventory_data[MAX_INVENTORY];
