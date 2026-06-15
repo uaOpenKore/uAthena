@@ -600,6 +600,13 @@ struct map_session_data {
 	int quest_index[MAX_QUEST_DB]; // index into quest_db[] per quest_log entry
 	struct quest quest_log[MAX_QUEST_DB];
 	bool save_quest;
+
+	// [Backport] achievements & titles
+	int num_achievements;
+	struct achievement achievement_log[MAX_ACHIEVEMENT];
+	int achievement_index[MAX_ACHIEVEMENT]; // index into achievement_db[] per log entry
+	bool save_achievement;
+	int active_title;        // achievement_id whose title is active (0 = none)
 	struct registry save_reg;
 	
 	struct item_data *inventory_data[MAX_INVENTORY];

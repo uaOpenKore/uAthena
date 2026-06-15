@@ -3,15 +3,20 @@
 
 #include "../common/cbasetypes.h"
 #include "../common/malloc.h"
+#include "../common/nullpo.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "map.h"
+#include "pc.h"
+#include "clif.h"
 #include "achievement.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 struct s_achievement_db achievement_db[MAX_ACHIEVEMENT_DB];
+int achievement_db_count = 0;
 
 /// Returns the achievement_db index for the given id, or -1 if not defined.
 int achievement_search_db(int achievement_id)
@@ -103,9 +108,107 @@ int achievement_read_db(void)
 			continue;
 		k++;
 	}
+	achievement_db_count = k;
 	fclose(fp);
 	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", k, "achievement_db.txt");
 	return 0;
+}
+
+/// Returns the achievement_log index for achievement_id, or -1.
+int achievement_get_index(struct map_session_data *sd, int achievement_id)
+{
+	int i;
+	ARR_FIND(0, sd->num_achievements, i, sd->achievement_log[i].achievement_id == achievement_id);
+	return (i < sd->num_achievements) ? i : -1;
+}
+
+/// Ensures a log entry exists for achievement_id (db index dbidx); returns log index or -1.
+static int achievement_ensure(struct map_session_data *sd, int achievement_id, int dbidx)
+{
+	int i = achievement_get_index(sd, achievement_id);
+	if( i >= 0 )
+		return i;
+	if( sd->num_achievements >= MAX_ACHIEVEMENT )
+		return -1;
+	i = sd->num_achievements;
+	memset(&sd->achievement_log[i], 0, sizeof(struct achievement));
+	sd->achievement_log[i].achievement_id = achievement_id;
+	sd->achievement_index[i] = dbidx;
+	sd->num_achievements++;
+	sd->save_achievement = true;
+	return i;
+}
+
+/// Grants the reward for a completed achievement (idempotent via the rewarded flag).
+static void achievement_reward(struct map_session_data *sd, int i)
+{
+	struct s_achievement_db *ad = &achievement_db[sd->achievement_index[i]];
+	char output[128];
+
+	if( sd->achievement_log[i].rewarded )
+		return;
+	sd->achievement_log[i].rewarded = 1;
+	sd->save_achievement = true;
+
+	if( ad->reward_zeny > 0 )
+		pc_getzeny(sd, ad->reward_zeny);
+	if( ad->reward_exp > 0 )
+		pc_gainexp(sd, NULL, (unsigned int)ad->reward_exp, 0);
+	if( ad->reward_item > 0 ) {
+		struct item it;
+		memset(&it, 0, sizeof(it));
+		it.nameid = ad->reward_item;
+		it.identify = 1;
+		pc_additem(sd, &it, ad->reward_amount > 0 ? ad->reward_amount : 1);
+	}
+
+	snprintf(output, sizeof(output), "Achievement unlocked: %s", ad->name);
+	clif_displaymessage(sd->fd, output);
+	if( ad->title[0] ) {
+		snprintf(output, sizeof(output), "New title available: %s  (use @title)", ad->title);
+		clif_displaymessage(sd->fd, output);
+	}
+}
+
+/// Completes the achievement at log index i if its count reached the goal.
+static void achievement_try_complete(struct map_session_data *sd, int i)
+{
+	struct s_achievement_db *ad = &achievement_db[sd->achievement_index[i]];
+	if( sd->achievement_log[i].completed )
+		return;
+	if( sd->achievement_log[i].count >= ad->target_count ) {
+		sd->achievement_log[i].completed = (unsigned int)time(NULL);
+		sd->save_achievement = true;
+		achievement_reward(sd, i);
+	}
+}
+
+/// Advances all achievements of `group` (filtered by target_id; 0 in db = any) by `amount`.
+/// KILL/QUEST/JOBCHANGE accumulate; BASELEVEL/JOBLEVEL/ZENY take `amount` as the absolute value.
+void achievement_progress(struct map_session_data *sd, int group, int target_id, int amount)
+{
+	int j;
+	nullpo_retv(sd);
+
+	for( j = 0; j < achievement_db_count; j++ )
+	{
+		struct s_achievement_db *ad = &achievement_db[j];
+		int i;
+		if( ad->id <= 0 || ad->group != group )
+			continue;
+		if( ad->target_id != 0 && ad->target_id != target_id )
+			continue;
+		if( (i = achievement_ensure(sd, ad->id, j)) < 0 )
+			continue;
+		if( sd->achievement_log[i].completed )
+			continue;
+		if( group == AG_KILL || group == AG_QUEST || group == AG_JOBCHANGE )
+			sd->achievement_log[i].count += amount;
+		else
+			sd->achievement_log[i].count = amount;
+		sd->save_achievement = true;
+		achievement_try_complete(sd, i);
+	}
 }
 
 void do_init_achievement(void)

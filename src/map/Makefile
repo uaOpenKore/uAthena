@@ -65,4 +65,4 @@ sqlobj/mercenary.o: mercenary.c mercenary.h $(COMMON_H)
 sqlobj/livemob.o: livemob.c livemob.h map.h $(COMMON_H)
 sqlobj/mobgrid.o: mobgrid.c mobgrid.h
 sqlobj/quest.o: quest.c quest.h map.h pc.h npc.h itemdb.h script.h intif.h battle.h mob.h party.h unit.h log.h clif.h chrif.h $(COMMON_H)
-sqlobj/achievement.o: achievement.c achievement.h map.h $(COMMON_H)
+sqlobj/achievement.o: achievement.c achievement.h map.h pc.h clif.h $(COMMON_H)
