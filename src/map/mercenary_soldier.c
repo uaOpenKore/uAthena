@@ -568,10 +568,132 @@ static int read_mercenary_skilldb(void)
 	return 0;
 }
 
+//=========================================================
+// [Backport] Custom Mercenary Soldier AI.
+// eAthena has no autonomous merc AI — the player drives it via the merc skill
+// window, which is dormant under PV7. This self-contained AI (modelled on the
+// pet AI) makes the mercenary follow its master, auto-aggro nearby enemies and
+// melee them. Skill auto-cast is layered on in a later milestone.
+//=========================================================
+#define MIN_MERCTHINKTIME 100
+#define MERC_MAX_DISTANCE 13	// master leash: farther than this -> run back
+#define MERC_FOLLOW_DISTANCE 3	// idle: stay within this of the master
+
+// Find the closest valid enemy in sight (mirrors mob_ai_sub_hard_activesearch).
+static int merc_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
+{
+	struct mercenary_data *md;
+	struct block_list **target;
+	int dist;
+
+	nullpo_ret(bl);
+	md = va_arg(ap, struct mercenary_data *);
+	target = va_arg(ap, struct block_list**);
+
+	if( (*target) == bl || !status_check_skilluse(&md->bl, bl, 0, 0) )
+		return 0;
+	if( battle_check_target(&md->bl, bl, BCT_ENEMY) <= 0 )
+		return 0;
+
+	dist = distance_bl(&md->bl, bl);
+	if( ((*target) == NULL || !check_distance_bl(&md->bl, *target, dist)) &&
+		battle_check_range(&md->bl, bl, md->db->range2) )
+	{
+		(*target) = bl;
+		md->ud.target = bl->id;
+		return 1;
+	}
+	return 0;
+}
+
+static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *sd, unsigned int tick)
+{
+	struct block_list *target = NULL;
+
+	if( md->bl.prev == NULL || sd == NULL || sd->bl.prev == NULL )
+		return 0;
+
+	if( DIFF_TICK(tick, md->last_thinktime) < MIN_MERCTHINKTIME )
+		return 0;
+	md->last_thinktime = tick;
+
+	if( md->ud.skilltimer != -1 )
+		return 0; // casting
+	if( md->bl.m != sd->bl.m )
+		return 0; // master on another map (handled on map change)
+	if( md->ud.walktimer != -1 && md->ud.walkpath.path_pos <= 2 )
+		return 0; // just started walking
+
+	// Master too far -> run back to him (drop any target)
+	if( !check_distance_bl(&sd->bl, &md->bl, MERC_MAX_DISTANCE) )
+	{
+		if( md->ud.walktimer != -1 && md->ud.target == sd->bl.id )
+			return 0; // already heading there
+		if( DIFF_TICK(tick, md->ud.canmove_tick) < 0 )
+			return 0;
+		unit_walktobl(&md->bl, &sd->bl, 3, 0);
+		return 0;
+	}
+
+	// Validate the current target
+	if( md->ud.target )
+	{
+		target = map_id2bl(md->ud.target);
+		if( target == NULL || md->bl.m != target->m || status_isdead(target) ||
+			!check_distance_bl(&md->bl, target, md->db->range3) ||
+			battle_check_target(&md->bl, target, BCT_ENEMY) <= 0 )
+			target = NULL;
+	}
+
+	// No target and idle -> look for a nearby enemy (auto-aggro)
+	if( target == NULL && md->ud.attacktimer == -1 )
+		map_foreachinrange(merc_ai_sub_hard_activesearch, &md->bl, md->db->range2, BL_CHAR, md, &target);
+
+	if( target == NULL )
+	{	// Nothing to fight: stay close to the master
+		if( md->ud.attacktimer != -1 || md->ud.walktimer != -1 )
+			return 0;
+		if( check_distance_bl(&sd->bl, &md->bl, MERC_FOLLOW_DISTANCE) )
+			return 0; // already next to him
+		unit_walktobl(&md->bl, &sd->bl, MERC_FOLLOW_DISTANCE, 0);
+		return 0;
+	}
+
+	// Engage the target
+	if( md->ud.target == target->id && (md->ud.attacktimer != -1 || md->ud.walktimer != -1) )
+		return 0; // already locked on
+
+	if( !battle_check_range(&md->bl, target, md->battle_status.rhw.range) )
+	{	// Out of range -> chase
+		if( !unit_walktobl(&md->bl, target, md->battle_status.rhw.range, 2) )
+			md->ud.target = 0; // unreachable
+		return 0;
+	}
+	unit_attack(&md->bl, target->id, 1); // continuous melee
+	return 0;
+}
+
+static int merc_ai_sub_foreachclient(struct map_session_data *sd, va_list ap)
+{
+	unsigned int tick = va_arg(ap, unsigned int);
+	if( sd->md && sd->md->bl.prev != NULL )
+		merc_ai_sub_hard(sd->md, sd, tick);
+	return 0;
+}
+
+static int merc_ai_hard(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	clif_foreachclient(merc_ai_sub_foreachclient, tick);
+	return 0;
+}
+
 int do_init_mercenary(void)
 {
 	read_mercenarydb();
 	read_mercenary_skilldb();
+
+	add_timer_func_list(merc_ai_hard, "merc_ai_hard");
+	add_timer_interval(gettick()+MIN_MERCTHINKTIME, merc_ai_hard, 0, 0, MIN_MERCTHINKTIME);
 
 	return 0;
 }
