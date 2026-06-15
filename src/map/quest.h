@@ -11,7 +11,7 @@ struct s_quest_db {
 	int mob[MAX_QUEST_OBJECTIVES];
 	int count[MAX_QUEST_OBJECTIVES];
 	int num_objectives;
-	//char name[NAME_LENGTH];
+	char name[64];
 };
 extern struct s_quest_db quest_db[MAX_QUEST_DB];
 

@@ -350,7 +350,22 @@ int quest_read_db(void)
 				break;
 		}
 		quest_db[k].num_objectives = i;
-		//memcpy(quest_db[k].name, str[8], sizeof(str[8]));
+		// 9th field: quoted quest name (e.g. ...,"Transcend") - p points past the 8th comma
+		{
+			char *ns = strchr(p, '"');
+			if( ns != NULL )
+			{
+				char *ne = strchr(ns + 1, '"');
+				if( ne != NULL )
+				{
+					int nlen = (int)(ne - (ns + 1));
+					if( nlen >= (int)sizeof(quest_db[k].name) )
+						nlen = sizeof(quest_db[k].name) - 1;
+					memcpy(quest_db[k].name, ns + 1, nlen);
+					quest_db[k].name[nlen] = '\0';
+				}
+			}
+		}
 		k++;
 	}
 	fclose(fp);
