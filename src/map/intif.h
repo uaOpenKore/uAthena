@@ -80,6 +80,8 @@ int intif_request_questlog(struct map_session_data *sd);
 int intif_parse_questlog(int fd);
 int intif_parse_questsave(int fd);
 int intif_quest_save(struct map_session_data *sd);
+int intif_request_achievements(struct map_session_data *sd);
+int intif_achievement_save(struct map_session_data *sd);
 
 
 int CheckForCharServer(void);

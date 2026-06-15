@@ -700,6 +700,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 
 	// Questlog [Kevin] [Inkfish]
 	intif_request_questlog(sd);
+	// [Backport] Achievements
+	intif_request_achievements(sd);
 
 	clif_authok(sd);
 	map_addiddb(&sd->bl);

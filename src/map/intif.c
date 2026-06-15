@@ -13,6 +13,7 @@
 #include "pc.h"
 #include "intif.h"
 #include "quest.h"
+#include "achievement.h"
 #include "storage.h"
 #include "party.h"
 #include "guild.h"
@@ -35,7 +36,7 @@ static const int packet_len_table[]={
 	10,-1,15, 0, 79,19, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
 	 9, 9,-1,14,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3840
 	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850
-	-1, 7, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish]
+	-1, 7,-1, 7,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin][Inkfish] + Achievements [Backport]
 	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3870
 	11,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3880
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
@@ -1572,6 +1573,77 @@ int intif_quest_save(TBL_PC *sd)
 	return 0;
 }
 
+// [Backport] Achievements - request the log from the char-server on login.
+int intif_request_achievements(TBL_PC *sd)
+{
+	WFIFOHEAD(inter_fd,6);
+	WFIFOW(inter_fd,0) = 0x3062;
+	WFIFOL(inter_fd,2) = sd->status.char_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+}
+
+int intif_parse_achievements(int fd)
+{
+	int char_id = RFIFOL(fd, 4);
+	int i;
+	TBL_PC * sd = map_charid2sd(char_id);
+
+	if( !sd ) //User not online anymore
+		return -1;
+
+	sd->num_achievements = (RFIFOW(fd, 2)-8)/sizeof(struct achievement);
+	memset(&sd->achievement_log, 0, sizeof(sd->achievement_log));
+
+	for( i = 0; i < sd->num_achievements; i++ )
+	{
+		memcpy(&sd->achievement_log[i], RFIFOP(fd, i*sizeof(struct achievement)+8), sizeof(struct achievement));
+		sd->achievement_index[i] = achievement_search_db(sd->achievement_log[i].achievement_id);
+		if( sd->achievement_index[i] < 0 )
+		{
+			ShowError("intif_parse_achievements: achievement %d not found in DB.\n", sd->achievement_log[i].achievement_id);
+			sd->num_achievements--;
+			i--;
+			continue;
+		}
+	}
+
+	return 0;
+}
+
+int intif_parse_achievementsave(int fd)
+{
+	int cid = RFIFOL(fd, 2);
+	TBL_PC *sd = map_id2sd(cid);
+
+	if( !RFIFOB(fd, 6) )
+		ShowError("intif_parse_achievementsave: Failed to save achievement(s) for character %d!\n", cid);
+	else if( sd )
+		sd->save_achievement = false;
+
+	return 0;
+}
+
+int intif_achievement_save(TBL_PC *sd)
+{
+	int len;
+
+	if(CheckForCharServer())
+		return 0;
+
+	len = sizeof(struct achievement)*sd->num_achievements + 8;
+
+	WFIFOHEAD(inter_fd, len);
+	WFIFOW(inter_fd,0) = 0x3063;
+	WFIFOW(inter_fd,2) = len;
+	WFIFOL(inter_fd,4) = sd->status.char_id;
+	if( sd->num_achievements )
+		memcpy(WFIFOP(inter_fd,8), &sd->achievement_log, sizeof(struct achievement)*sd->num_achievements);
+	WFIFOSET(inter_fd, len);
+
+	return 0;
+}
+
 int intif_parse(int fd)
 {
 	int packet_len, cmd;
@@ -1649,6 +1721,8 @@ int intif_parse(int fd)
 	case 0x3893:	intif_parse_DeleteHomunculusOk(fd); break;
 	case 0x3860:	intif_parse_questlog(fd); break;
 	case 0x3861:	intif_parse_questsave(fd); break;
+	case 0x3862:	intif_parse_achievements(fd); break;
+	case 0x3863:	intif_parse_achievementsave(fd); break;
 	default:
 		if(battle_config.error_log)
 			ShowError("intif_parse : unknown packet %d %x\n",fd,RFIFOW(fd,0));
