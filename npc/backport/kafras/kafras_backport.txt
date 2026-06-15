@@ -1,0 +1,7 @@
+//===== uAthena backport (SP1 town NPCs) =====================
+//= Port from eathena-ref; DO NOT EDIT - regenerate via
+//= dumps/forge/backport-town-npcs.py
+//= Source: kafras_mosk+kafras_brasilis (adapted to kaf_alberta)
+//============================================================
+moscovia,223,191,4	duplicate(kaf_alberta)	Kafra Staff#mosk	114
+brasilis,197,221,4	duplicate(kaf_alberta)	Kafra Employee#kaf_bra	117
