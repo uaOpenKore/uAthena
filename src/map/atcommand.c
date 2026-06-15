@@ -259,6 +259,7 @@ ACMD_FUNC(mobinfo); //by Lupus
 ACMD_FUNC(quests); // questlog chat UI
 ACMD_FUNC(quest);  // questlog chat UI
 ACMD_FUNC(status); // status/cooldown chat UI
+ACMD_FUNC(whereis); // mob spawn/drop search
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -585,6 +586,7 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Quest,              "@quest",            1, atcommand_quest }, // questlog chat UI
 	{ AtCommand_Status,             "@status",           1, atcommand_status }, // buffs+cooldowns
 	{ AtCommand_Status,             "@cd",               1, atcommand_status }, // alias
+	{ AtCommand_WhereIs,            "@whereis",          1, atcommand_whereis }, // mob spawn/drop
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -8634,6 +8636,78 @@ int atcommand_quest(const int fd, struct map_session_data* sd, const char* comma
 		clif_displaymessage(fd, atcmd_output);
 	}
 	clif_displaymessage(fd, "@quest <N> cancel = drop this quest");
+	return 0;
+}
+
+/*==========================================
+ * @whereis : where a mob spawns (maps + count) and what it drops
+ * (PV7 client has no mob search)
+ *------------------------------------------*/
+int atcommand_whereis(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int id, m, k, j, total, printed, any;
+	struct mob_db *md;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message )
+	{
+		clif_displaymessage(fd, "Usage: @whereis <mob name>");
+		return -1;
+	}
+	id = mobdb_searchname(message);
+	if( id <= 0 )
+	{
+		snprintf(atcmd_output, sizeof(atcmd_output), "Mob not found: %s", message);
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+	md = mob_db(id);
+
+	snprintf(atcmd_output, sizeof(atcmd_output), "[%s] (id %d)", md->jname, id);
+	clif_displaymessage(fd, atcmd_output);
+
+	// Spawns: one line per map (cap 20), then "(+N more)"
+	clif_displaymessage(fd, "Spawns:");
+	total = 0; printed = 0;
+	for( m = 0; m < map_num; m++ )
+		for( k = 0; k < MAX_MOB_LIST_PER_MAP; k++ )
+		{
+			struct spawn_data *spd = map[m].moblist[k];
+			if( spd && spd->class_ == id )
+			{
+				total++;
+				if( printed < 20 )
+				{
+					snprintf(atcmd_output, sizeof(atcmd_output), "  %s: %d", map[m].name, spd->num);
+					clif_displaymessage(fd, atcmd_output);
+					printed++;
+				}
+				break; // count each map once
+			}
+		}
+	if( total == 0 )
+		clif_displaymessage(fd, "  (none)");
+	else if( total > printed )
+	{
+		snprintf(atcmd_output, sizeof(atcmd_output), "  ...(+%d more)", total - printed);
+		clif_displaymessage(fd, atcmd_output);
+	}
+
+	// Drops
+	clif_displaymessage(fd, "Drops:");
+	any = 0;
+	for( j = 0; j < MAX_MOB_DROP; j++ )
+	{
+		if( md->dropitem[j].nameid <= 0 )
+			continue;
+		snprintf(atcmd_output, sizeof(atcmd_output), "  %s: %.2f%%",
+			itemdb_jname(md->dropitem[j].nameid), md->dropitem[j].p/100.0);
+		clif_displaymessage(fd, atcmd_output);
+		any = 1;
+	}
+	if( !any )
+		clif_displaymessage(fd, "  (none)");
+
 	return 0;
 }
 

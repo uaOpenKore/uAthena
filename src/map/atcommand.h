@@ -282,6 +282,7 @@ enum AtCommandType {
 	AtCommand_Quests, // questlog chat UI
 	AtCommand_Quest,  // questlog chat UI
 	AtCommand_Status, // status/cooldown chat UI
+	AtCommand_WhereIs, // mob spawn/drop search
 	// end <- Ahem, guys, don't place AtCommands after AtCommand_Unknown! [Skotlex]
 	AtCommand_Unknown,
 	AtCommand_MAX
