@@ -117,6 +117,28 @@ struct quest {
 	quest_state state;
 };
 
+// [Backport] Achievements & titles
+#define MAX_ACHIEVEMENT_DB 500 // Max achievement definitions the server loads
+#define MAX_ACHIEVEMENT 256    // Max achievements tracked per character
+
+typedef enum achievement_group {
+	AG_NONE = 0,
+	AG_KILL,       // 1: kill <target_count> of mob <target_id> (0 = any)
+	AG_BASELEVEL,  // 2: reach base level <target_count>
+	AG_JOBLEVEL,   // 3: reach job level <target_count>
+	AG_JOBCHANGE,  // 4: change job (<target_id> job, 0 = any non-novice)
+	AG_QUEST,      // 5: complete <target_count> quests (<target_id> != 0 = that quest)
+	AG_ZENY,       // 6: accumulate <target_count> zeny
+	AG_MAX
+} achievement_group;
+
+struct achievement {           // per-character progress (all-int -> inter-server memcpy safe)
+	int achievement_id;
+	int count;
+	unsigned int completed;    // completion timestamp (0 = not completed)
+	int rewarded;              // 1 = reward granted
+};
+
 struct item {
 	int id;
 	short nameid;
