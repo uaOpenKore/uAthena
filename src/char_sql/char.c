@@ -12,6 +12,7 @@
 #include "inter.h"
 #include "int_guild.h"
 #include "int_homun.h"
+#include "int_mercenary.h"	// [Backport] hired mercenary soldier
 #include "int_storage.h"
 #include "itemdb.h"
 #include "char.h"
@@ -752,6 +753,11 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		}
 	}
 #endif
+
+	// [Backport] hired mercenary soldier owner data (mer_id, loyalty, calls)
+	if( mercenary_owner_tosql(char_id, p) )
+		strcat(save_status, " mercenary");
+
 	if (save_status[0]!='\0' && save_log)
 		ShowInfo("Saved char %d - %s:%s.\n", char_id, p->name, save_status);
 #ifndef TXT_SQL_CONVERT
@@ -1126,6 +1132,10 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	}
 #endif
 
+	// [Backport] hired mercenary soldier owner data (mer_id, loyalty, calls)
+	mercenary_owner_fromsql(char_id, p);
+	strcat(t_msg, " mercenary");
+
 	if (save_log) ShowInfo("Loaded char (%d - %s): %s\n", char_id, p->name, t_msg);	//ok. all data load successfuly!
 
 	cp = idb_ensure(char_db_, char_id, create_charstatus);
@@ -1475,6 +1485,9 @@ int delete_char_sql(int char_id, int partner_id)
 	/* remove homunculus */
 	if (hom_id)
 		inter_delete_homunculus(hom_id);
+
+	/* remove hired mercenary soldier data [Backport] */
+	mercenary_owner_delete(char_id);
 
 	/* delete char's friends list */
 	sprintf(tmp_sql, "DELETE FROM `%s` WHERE `char_id` = '%d'",friend_db, char_id);
