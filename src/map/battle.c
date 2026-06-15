@@ -11,6 +11,7 @@
 
 #include "map.h"
 #include "pc.h"
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "status.h"
 #include "skill.h"
 #include "mob.h"
@@ -95,6 +96,7 @@ int battle_gettarget(struct block_list* bl)
 		case BL_MOB: return ((struct mob_data*)bl)->target_id;
 		case BL_PET: return ((struct pet_data*)bl)->target_id;
 		case BL_HOM: return ((struct homun_data*)bl)->ud.target;
+		case BL_MER: return ((struct mercenary_data*)bl)->ud.target;	// [Backport]
 	}
 	return 0;
 }
@@ -3037,6 +3039,10 @@ struct block_list* battle_get_master(struct block_list *src)
 				if (((TBL_HOM*)src)->master)
 					src = (struct block_list*)((TBL_HOM*)src)->master;
 				break;
+			case BL_MER:	// [Backport]
+				if (((TBL_MER*)src)->master)
+					src = (struct block_list*)((TBL_MER*)src)->master;
+				break;
 			case BL_SKILL:
 				if (((TBL_SKILL*)src)->group && ((TBL_SKILL*)src)->group->src_id)
 					src = map_id2bl(((TBL_SKILL*)src)->group->src_id);
@@ -3123,6 +3129,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 		}
 			break;
 		//Valid targets with no special checks here.
+		case BL_MER:	// [Backport]
 		case BL_HOM:
 			break;
 		//All else not specified is an invalid target.

@@ -20,6 +20,7 @@
 #include "log.h"
 #include "map.h"
 #include "mercenary.h" // merc_is_hom_active()
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "mob.h" // MAX_MOB_RACE_DB
 #include "npc.h" // fake_nd
 #include "pet.h" // pet_unlocktarget()
@@ -740,6 +741,9 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	// Homunculus [albator]
 	if (sd->status.hom_id > 0)
 		intif_homunculus_requestload(sd->status.account_id, sd->status.hom_id);
+	// Hired Mercenary Soldier [Backport]
+	if (sd->status.mer_id > 0)
+		intif_mercenary_request(sd->status.mer_id, sd->status.char_id);
 
 	// Questlog [Kevin] [Inkfish]
 	intif_request_questlog(sd);

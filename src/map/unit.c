@@ -12,6 +12,7 @@
 #include "mob.h"
 #include "pet.h"
 #include "mercenary.h"
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "skill.h"
 #include "clif.h"
 #include "npc.h"
@@ -42,6 +43,7 @@ struct unit_data* unit_bl2ud(struct block_list *bl)
 	if( bl->type == BL_PET) return &((struct pet_data*)bl)->ud;
 	if( bl->type == BL_NPC) return &((struct npc_data*)bl)->ud;
 	if( bl->type == BL_HOM) return &((struct homun_data*)bl)->ud;	//[orn]
+	if( bl->type == BL_MER) return &((struct mercenary_data*)bl)->ud;	// [Backport]
 	return NULL;
 }
 
@@ -1729,6 +1731,17 @@ int unit_remove_map(struct block_list *bl, int clrtype)
 			map_freeblock_unlock();
 			return 0;
 		}
+	} else if (bl->type == BL_MER) {	// [Backport] expired contract -> remove
+		struct mercenary_data *md = (struct mercenary_data *) bl;
+		if( mercenary_get_lifetime(md) <= 0 &&
+			!(md->master && md->master->state.waitingdisconnect)
+		) {	//If logging out, this is deleted on unit_free
+			clif_clearunit_area(bl,clrtype);
+			map_delblock(bl);
+			unit_free(bl,0);
+			map_freeblock_unlock();
+			return 0;
+		}
 	}
 	clif_clearunit_area(bl,clrtype);
 	map_delblock(bl);
@@ -1916,6 +1929,22 @@ int unit_free(struct block_list *bl, int clrtype)
 			}
 		}
 		if(sd) sd->hd = NULL;
+	} else if(bl->type == BL_MER) {	// [Backport]
+		struct mercenary_data *md = (TBL_MER*)bl;
+		struct map_session_data *sd = md->master;
+		if (clrtype >= 0) {
+			if( mercenary_get_lifetime(md) > 0 )
+				mercenary_save(md);
+			else
+			{
+				intif_mercenary_delete(md->mercenary.mercenary_id);
+				if( sd )
+					sd->status.mer_id = 0;
+			}
+		}
+		if( sd )
+			sd->md = NULL;
+		merc_contract_stop(md);
 	}
 
 	skill_clear_unitgroup(bl);

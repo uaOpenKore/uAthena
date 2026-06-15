@@ -19,6 +19,7 @@
 #include "quest.h"
 #include "achievement.h"
 #include "mercenary.h"	//[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "guild.h"
 #include "itemdb.h"
 #include "skill.h"
@@ -1585,6 +1586,18 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 			md->attacked_id = src->id;
 		break;
 	}
+	case BL_MER:	// [Backport] hired mercenary soldier
+	{
+		struct mercenary_data *mer = (TBL_MER*)src;
+		if (mer->master)
+			char_id = mer->master->status.char_id;
+		if (damage)
+			md->attacked_id = src->id;
+		// Count the kill toward the mercenary's loyalty when the mob is challenging enough
+		if (mer->master && md->level > mer->master->status.base_level/2)
+			mercenary_kills(mer);
+		break;
+	}
 	case BL_PET:
 	{
 		struct pet_data *pd = (TBL_PET*)src;
@@ -2137,6 +2150,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			break;
 		case BL_HOM:
 			sd = ((TBL_HOM*)src)->master;
+			break;
+		case BL_MER:	// [Backport]
+			sd = ((TBL_MER*)src)->master;
 			break;
 		}
 		if(sd && battle_config.mob_npc_event_type) {

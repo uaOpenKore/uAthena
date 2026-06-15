@@ -26,6 +26,7 @@
 #include "npc.h"
 #include "pet.h"
 #include "mercenary.h"	//[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "intif.h"
 #include "quest.h"
 #include "skill.h"
@@ -12721,6 +12722,7 @@ BUILDIN_FUNC(rid2name)
 			case BL_NPC: script_pushconststr(st,((TBL_NPC*)bl)->exname); break;
 			case BL_PET: script_pushconststr(st,((TBL_PET*)bl)->pet.name); break;
 			case BL_HOM: script_pushconststr(st,((TBL_HOM*)bl)->homunculus.name); break;
+			case BL_MER: script_pushconststr(st,((TBL_MER*)bl)->db->name); break;	// [Backport]
 			default:
 				ShowError("buildin_rid2name: BL type unknown.\n");
 				script_pushconststr(st,"");
