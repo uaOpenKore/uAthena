@@ -698,6 +698,9 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	if (sd->status.hom_id > 0)
 		intif_homunculus_requestload(sd->status.account_id, sd->status.hom_id);
 
+	// Questlog [Kevin] [Inkfish]
+	intif_request_questlog(sd);
+
 	clif_authok(sd);
 	map_addiddb(&sd->bl);
 	if (map_charid2nick(sd->status.char_id) == NULL)
