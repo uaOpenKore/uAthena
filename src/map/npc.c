@@ -2741,6 +2741,7 @@ static int npc_parse_mapcell(char* w1, char* w2, char* w3, char* w4)
 void npc_parsesrcfile(const char* name)
 {
 	int m, lines = 0;
+	int in_comment = 0; // [Backport] inside a C-style /* */ block comment
 	char line[2048];
 
 	FILE *fp = fopen (name,"r");
@@ -2758,6 +2759,24 @@ void npc_parsesrcfile(const char* name)
 
 		if (line[0] == '/' && line[1] == '/')
 			continue;
+
+		// [Backport] C-style block comments /* ... */ . eAthena scripts put the
+		// delimiters on their own lines; without this the parser emits errors on
+		// them and loads the commented-out NPCs in between as live ones.
+		if (in_comment) {
+			if (strstr(line, "*/") != NULL)
+				in_comment = 0;
+			continue;
+		}
+		{
+			const char* lp = line;
+			while (*lp == ' ' || *lp == '\t') lp++;
+			if (lp[0] == '/' && lp[1] == '*') {
+				if (strstr(lp + 2, "*/") == NULL)
+					in_comment = 1;
+				continue;
+			}
+		}
 
 		if (!sscanf(line, " %n", &i) && i == strlen(line)) // just whitespace
 			continue;
