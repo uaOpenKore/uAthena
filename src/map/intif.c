@@ -12,6 +12,7 @@
 #include "clif.h"
 #include "pc.h"
 #include "intif.h"
+#include "quest.h"
 #include "storage.h"
 #include "party.h"
 #include "guild.h"
@@ -33,9 +34,9 @@ static const int packet_len_table[]={
 	39,-1,15,15, 14,19, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
 	10,-1,15, 0, 79,19, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
 	 9, 9,-1,14,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3840
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
+	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850
+	-1, 7, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish]
+	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3870
 	11,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3880
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
 };
@@ -1487,6 +1488,90 @@ int intif_parse_DeleteHomunculusOk(int fd)
 // inter serverM
 // G[0(false)
 // pPbg1,pPbg2
+/***************************************
+ QUESTLOG SYSTEM FUNCTIONS (ported from eAthena)
+***************************************/
+
+int intif_request_questlog(TBL_PC *sd)
+{
+	WFIFOHEAD(inter_fd,6);
+	WFIFOW(inter_fd,0) = 0x3060;
+	WFIFOL(inter_fd,2) = sd->status.char_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+}
+
+int intif_parse_questlog(int fd)
+{
+	int char_id = RFIFOL(fd, 4);
+	int i;
+	TBL_PC * sd = map_charid2sd(char_id);
+
+	//User not online anymore
+	if(!sd)
+		return -1;
+
+	sd->avail_quests = sd->num_quests = (RFIFOW(fd, 2)-8)/sizeof(struct quest);
+
+	memset(&sd->quest_log, 0, sizeof(sd->quest_log));
+
+	for( i = 0; i < sd->num_quests; i++ )
+	{
+		memcpy(&sd->quest_log[i], RFIFOP(fd, i*sizeof(struct quest)+8), sizeof(struct quest));
+
+		sd->quest_index[i] = quest_search_db(sd->quest_log[i].quest_id);
+
+		if( sd->quest_index[i] < 0 )
+		{
+			ShowError("intif_parse_questlog: quest %d not found in DB.\n",sd->quest_log[i].quest_id);
+			sd->avail_quests--;
+			sd->num_quests--;
+			i--;
+			continue;
+		}
+
+		if( sd->quest_log[i].state == Q_COMPLETE )
+			sd->avail_quests--;
+	}
+
+	quest_pc_login(sd);
+
+	return 0;
+}
+
+int intif_parse_questsave(int fd)
+{
+	int cid = RFIFOL(fd, 2);
+	TBL_PC *sd = map_id2sd(cid);
+
+	if( !RFIFOB(fd, 6) )
+		ShowError("intif_parse_questsave: Failed to save quest(s) for character %d!\n", cid);
+	else if( sd )
+		sd->save_quest = false;
+
+	return 0;
+}
+
+int intif_quest_save(TBL_PC *sd)
+{
+	int len;
+
+	if(CheckForCharServer())
+		return 0;
+
+	len = sizeof(struct quest)*sd->num_quests + 8;
+
+	WFIFOHEAD(inter_fd, len);
+	WFIFOW(inter_fd,0) = 0x3061;
+	WFIFOW(inter_fd,2) = len;
+	WFIFOL(inter_fd,4) = sd->status.char_id;
+	if( sd->num_quests )
+		memcpy(WFIFOP(inter_fd,8), &sd->quest_log, sizeof(struct quest)*sd->num_quests);
+	WFIFOSET(inter_fd,  len);
+
+	return 0;
+}
+
 int intif_parse(int fd)
 {
 	int packet_len, cmd;
@@ -1562,6 +1647,8 @@ int intif_parse(int fd)
 	case 0x3891:	intif_parse_RecvHomunculusData(fd); break;
 	case 0x3892:	intif_parse_SaveHomunculusOk(fd); break;
 	case 0x3893:	intif_parse_DeleteHomunculusOk(fd); break;
+	case 0x3860:	intif_parse_questlog(fd); break;
+	case 0x3861:	intif_parse_questsave(fd); break;
 	default:
 		if(battle_config.error_log)
 			ShowError("intif_parse : unknown packet %d %x\n",fd,RFIFOW(fd,0));

@@ -27,6 +27,7 @@
 #include "pet.h"
 #include "mercenary.h"	//[orn]
 #include "intif.h"
+#include "quest.h"
 #include "skill.h"
 #include "chat.h"
 #include "battle.h"
@@ -3897,6 +3898,13 @@ BUILDIN_FUNC(deactivatepset); // MouseJstr
 BUILDIN_FUNC(deletepset); // MouseJstr
 #endif
 
+// Questlog system [Kevin] [Inkfish]
+BUILDIN_FUNC(setquest);
+BUILDIN_FUNC(erasequest);
+BUILDIN_FUNC(completequest);
+BUILDIN_FUNC(changequest);
+BUILDIN_FUNC(checkquest);
+
 struct script_function buildin_func[] = {
 	// NPC interaction
 	BUILDIN_DEF(mes,"s"),
@@ -4221,8 +4229,60 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(roclass,"i*"),	//[Skotlex]
 	BUILDIN_DEF(checkvending,"*"),
 	BUILDIN_DEF(checkchatting,"*"),
+	// Questlog system [Kevin] [Inkfish]
+	BUILDIN_DEF(setquest,"i"),
+	BUILDIN_DEF(erasequest,"i"),
+	BUILDIN_DEF(completequest,"i"),
+	BUILDIN_DEF(changequest,"ii"),
+	BUILDIN_DEF(checkquest,"i?"),
 	{NULL,NULL,NULL},
 };
+
+/////////////////////////////////////////////////////////////////////
+// Questlog system [Kevin] [Inkfish]
+//
+BUILDIN_FUNC(setquest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	nullpo_retr(0, sd);
+	quest_add(sd, script_getnum(st, 2));
+	return 0;
+}
+
+BUILDIN_FUNC(erasequest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	nullpo_retr(0, sd);
+	quest_delete(sd, script_getnum(st, 2));
+	return 0;
+}
+
+BUILDIN_FUNC(completequest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	nullpo_retr(0, sd);
+	quest_update_status(sd, script_getnum(st, 2), Q_COMPLETE);
+	return 0;
+}
+
+BUILDIN_FUNC(changequest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	nullpo_retr(0, sd);
+	quest_change(sd, script_getnum(st, 2), script_getnum(st, 3));
+	return 0;
+}
+
+BUILDIN_FUNC(checkquest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	quest_check_type type = HAVEQUEST;
+	nullpo_retr(0, sd);
+	if( script_hasdata(st, 3) )
+		type = (quest_check_type)script_getnum(st, 3);
+	script_pushint(st, quest_check(sd, script_getnum(st, 2), type));
+	return 0;
+}
 
 /////////////////////////////////////////////////////////////////////
 // NPC interaction
