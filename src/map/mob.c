@@ -1393,6 +1393,13 @@ static int mob_ai_sub_lazy_wrapper(DBKey key,void * data,va_list ap)
  *------------------------------------------*/
 static int mob_ai_lazy(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
+	// [perf] Under mob_ai&0x20 the 100ms hard timer already drives every mob via
+	// the same map_foreachmob(mob_ai_sub_lazy_wrapper): populated maps run the
+	// hard AI, player-less maps run the lazy path rate-limited to 10*MIN_MOBTHINKTIME
+	// (1000ms) by last_thinktime. The lazy cadence is set by that gate, not by this
+	// timer's period, so this once-a-second pass would only be gated out - skip it.
+	if (battle_config.mob_ai&0x20)
+		return 0;
 	g_mob_ai_sub_lazy_tick = tick;
 	map_foreachmob(mob_ai_sub_lazy_wrapper,tick);	// mob-only index instead of full id_db scan [perf]
 	return 0;
