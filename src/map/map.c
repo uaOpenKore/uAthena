@@ -39,6 +39,10 @@
 #include "log.h"
 #include "async_db.h"
 #include "livemob.h"	// [perf] flat-array live-mob index (replaces livemob_db DBMap)
+#include "mobgrid.h"	// [perf] per-map player-presence grid
+#if BLOCK_SIZE != MOBGRID_BLOCK
+#error "MOBGRID_BLOCK must equal BLOCK_SIZE"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -369,6 +373,8 @@ int map_addblock_sub (struct block_list *bl, int flag)
 		if (bl->next) bl->next->prev = bl;
 		map[m].block[pos] = bl;
 		map[m].block_count[pos]++;
+		if (bl->type == BL_PC || bl->type == BL_HOM)
+			mobgrid_inc(map[m].block_pc_count, pos);	// [perf] exact PC/HOM presence
 		if (bl->type == BL_PC && flag)
 		{
 			struct map_session_data* sd;
@@ -411,6 +417,9 @@ int map_delblock_sub (struct block_list *bl, int flag)
 #endif
 	
 	b = bl->x/BLOCK_SIZE+(bl->y/BLOCK_SIZE)*map[bl->m].bxs;
+
+	if (bl->type == BL_PC || bl->type == BL_HOM)
+		mobgrid_dec(map[bl->m].block_pc_count, b);	// [perf] exact PC/HOM presence
 
 	if (bl->type == BL_PC && flag)
 		if (--map[bl->m].users == 0 && battle_config.dynamic_mobs)	//[Skotlex]
@@ -1896,6 +1905,13 @@ void map_foreachmob(int (*func)(DBKey,void*,va_list),...)
 	va_end(ap);
 }
 
+// [perf] Cheap "is a PC/HOM within range tiles of (x,y) on map m" probe over the
+// exact-count presence grid (mobgrid), used to skip provably-empty mob scans.
+int map_pc_near(int m, int x, int y, int range)
+{
+	return mobgrid_any(map[m].block_pc_count, map[m].bxs, map[m].bys, x, y, range);
+}
+
 /*==========================================
  * id_db?Sfunc?s
  *------------------------------------------*/
@@ -2913,6 +2929,7 @@ int map_readallmaps (void)
 				size = map[i].bxs * map[i].bys * sizeof(int);
 				map[i].block_count = (int*)aCallocA(size, 1);
 				map[i].block_mob_count = (int*)aCallocA(size, 1);
+				map[i].block_pc_count = (int*)aCallocA(size, 1);	// [perf] mobgrid
 
 				uidb_put(map_db, (unsigned int)map[i].index, &map[i]);
 
@@ -3463,6 +3480,7 @@ void do_final(void)
 		if(map[i].block_mob) aFree(map[i].block_mob);
 		if(map[i].block_count) aFree(map[i].block_count);
 		if(map[i].block_mob_count) aFree(map[i].block_mob_count);
+		if(map[i].block_pc_count) aFree(map[i].block_pc_count);
 		if(battle_config.dynamic_mobs) { //Dynamic mobs flag by [random]
 			for (j=0; j<MAX_MOB_LIST_PER_MAP; j++)
 				if (map[i].moblist[j]) aFree(map[i].moblist[j]);

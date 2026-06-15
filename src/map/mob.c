@@ -1180,16 +1180,24 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			view_range, BL_ITEM, md, &tbl);
 	}
 
-	if ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW)
+	// [perf] The active/change-chase scans only seek BL_PC|BL_HOM (a normal mob's
+	// DEFAULT_ENEMY_TYPE). If none is within view_range the scan is provably empty,
+	// so skip it: tbl stays NULL and the no-target idle path runs below, exactly as
+	// if the scan had found nothing. Summoned mobs (special_state.ai) target
+	// BL_CHAR incl. mobs, so they always scan.
+	{
+	int pc_near = md->special_state.ai || map_pc_near(md->bl.m, md->bl.x, md->bl.y, view_range);
+	if (pc_near && ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW))
 	{
 		map_foreachinrange (mob_ai_sub_hard_activesearch, &md->bl,
 			view_range, DEFAULT_ENEMY_TYPE(md), md, &tbl);
 	} else
-	if (mode&MD_CHANGECHASE && (md->state.skillstate == MSS_RUSH || md->state.skillstate == MSS_FOLLOW))
+	if (pc_near && mode&MD_CHANGECHASE && (md->state.skillstate == MSS_RUSH || md->state.skillstate == MSS_FOLLOW))
 	{
 		search_size = view_range<md->status.rhw.range ? view_range:md->status.rhw.range;
 		map_foreachinrange (mob_ai_sub_hard_changechase, &md->bl,
 				search_size, DEFAULT_ENEMY_TYPE(md), md, &tbl);
+	}
 	}
 
 	if (!tbl) { //No targets available.
