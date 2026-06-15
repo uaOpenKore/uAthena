@@ -211,6 +211,15 @@ void achievement_progress(struct map_session_data *sd, int group, int target_id,
 	}
 }
 
+// [Backport] On login (after the log loads) catch up level/zeny milestones.
+void achievement_login(struct map_session_data *sd)
+{
+	nullpo_retv(sd);
+	achievement_progress(sd, AG_BASELEVEL, 0, sd->status.base_level);
+	achievement_progress(sd, AG_JOBLEVEL,  0, sd->status.job_level);
+	achievement_progress(sd, AG_ZENY,      0, sd->status.zeny);
+}
+
 void do_init_achievement(void)
 {
 	achievement_read_db();

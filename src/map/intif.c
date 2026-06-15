@@ -1608,6 +1608,8 @@ int intif_parse_achievements(int fd)
 		}
 	}
 
+	achievement_login(sd);
+
 	return 0;
 }
 

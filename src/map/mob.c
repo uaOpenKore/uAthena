@@ -17,6 +17,7 @@
 #include "status.h"
 #include "mob.h"
 #include "quest.h"
+#include "achievement.h"
 #include "mercenary.h"	//[orn]
 #include "guild.h"
 #include "itemdb.h"
@@ -1811,6 +1812,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		// Questlog: credit hunt objectives to each damage-dealer [Kevin] [Inkfish]
 		if (tmpsd[i]->avail_quests)
 			quest_update_objective(tmpsd[i], md->class_);
+		achievement_progress(tmpsd[i], AG_KILL, md->class_, 1);
 
 		if (!battle_config.exp_calc_type && md->tdmg)
 			//jAthena's exp formula based on total damage.

@@ -15,6 +15,7 @@
 #include "clif.h"
 #include "date.h" // is_day_of_*()
 #include "intif.h"
+#include "achievement.h"
 #include "itemdb.h"
 #include "log.h"
 #include "map.h"
@@ -4342,6 +4343,7 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	clif_updatestatus(sd,SP_BASELEVEL);
 	clif_updatestatus(sd,SP_NEXTBASEEXP);
 	status_calc_pc(sd,0);
+	achievement_progress(sd, AG_BASELEVEL, 0, sd->status.base_level);
 	status_percent_heal(&sd->bl,100,100);
 
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
@@ -4390,6 +4392,7 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 
 	clif_updatestatus(sd,SP_JOBLEVEL);
 	clif_updatestatus(sd,SP_NEXTJOBEXP);
+	achievement_progress(sd, AG_JOBLEVEL, 0, sd->status.job_level);
 	clif_updatestatus(sd,SP_SKILLPOINT);
 	status_calc_pc(sd,0);
 	clif_misceffect(&sd->bl,1);
@@ -5831,6 +5834,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	clif_updatestatus(sd,SP_JOBLEVEL);
 	clif_updatestatus(sd,SP_JOBEXP);
 	clif_updatestatus(sd,SP_NEXTJOBEXP);
+	achievement_progress(sd, AG_JOBCHANGE, job, 1);
 
 	for(i=0;i<EQI_MAX;i++) {
 		if(sd->equip_index[i] >= 0)

@@ -24,6 +24,7 @@
 #include "log.h"
 #include "clif.h"
 #include "quest.h"
+#include "achievement.h"
 #include "intif.h"
 #include "chrif.h"
 
@@ -285,6 +286,7 @@ int quest_update_status(TBL_PC * sd, int quest_id, quest_state status)
 	}
 
 	clif_quest_delete(sd, quest_id);
+	achievement_progress(sd, AG_QUEST, quest_id, 1);
 
 	if( save_settings&64 )
 		chrif_save(sd,0);

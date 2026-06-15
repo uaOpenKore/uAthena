@@ -3,6 +3,8 @@
 #ifndef _ACHIEVEMENT_H_
 #define _ACHIEVEMENT_H_
 
+#include "../common/mmo.h" // MAX_ACHIEVEMENT_DB, struct achievement, achievement_group
+
 struct map_session_data;
 
 struct s_achievement_db {
@@ -22,6 +24,7 @@ extern struct s_achievement_db achievement_db[MAX_ACHIEVEMENT_DB];
 int achievement_search_db(int achievement_id);
 int achievement_get_index(struct map_session_data *sd, int achievement_id);
 void achievement_progress(struct map_session_data *sd, int group, int target_id, int amount);
+void achievement_login(struct map_session_data *sd);
 void do_init_achievement(void);
 
 #endif /* _ACHIEVEMENT_H_ */
