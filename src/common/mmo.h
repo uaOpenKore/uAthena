@@ -107,6 +107,11 @@
 #define HM_CLASS_BASE 6001
 #define HM_CLASS_MAX (HM_CLASS_BASE+MAX_HOMUNCULUS_CLASS-1)
 
+//Base Mercenary Soldier skill. [Backport]
+#define MC_SKILLBASE 8201
+#define MAX_MERCSKILL 40
+#define MAX_MERCENARY_CLASS 100
+
 //Questlog system [Kevin] [Inkfish]
 typedef enum quest_state { Q_INACTIVE, Q_ACTIVE, Q_COMPLETE } quest_state;
 
@@ -214,6 +219,15 @@ struct s_homunculus {	//[orn]
 	int luk ;
 };
 
+struct s_mercenary {	// [Backport] hired mercenary soldier (NOT the homunculus merc_hom_*)
+	int mercenary_id;
+	int char_id;
+	short class_;
+	int hp, sp;
+	unsigned int kill_count;
+	unsigned int life_time;
+};
+
 struct friend {
 	int account_id;
 	int char_id;
@@ -246,8 +260,11 @@ struct mmo_charstatus {
 	short manner;
 	unsigned char karma;
 	short hair,hair_color,clothes_color;
-	int party_id,guild_id,pet_id,hom_id;
+	int party_id,guild_id,pet_id,hom_id,mer_id;
 	int fame;
+	int arch_faith, arch_calls;		// [Backport] mercenary loyalty/calls (mercenary_owner table)
+	int spear_faith, spear_calls;
+	int sword_faith, sword_calls;
 
 	short weapon,shield;
 	short head_top,head_mid,head_bottom;

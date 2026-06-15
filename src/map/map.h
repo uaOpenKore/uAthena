@@ -198,10 +198,11 @@ enum bl_type {
 	BL_SKILL = 0x020,
 	BL_NPC = 0x040,
 	BL_CHAT = 0x080,
+	BL_MER = 0x100,	// [Backport] hired mercenary soldier (eAthena uses 0x010 but that bit is BL_ITEM here)
 };
 
 //For common mapforeach calls. Since pets cannot be affected, they aren't included here yet.
-#define BL_CHAR (BL_PC|BL_MOB|BL_HOM)
+#define BL_CHAR (BL_PC|BL_MOB|BL_HOM|BL_MER)
 #define BL_ALL 0xfff
 
 enum bl_subtype { WARP, SHOP, SCRIPT, MONS };
@@ -820,6 +821,7 @@ struct map_session_data {
 
 	struct pet_data *pd;
 	struct homun_data *hd;	// [blackhole89]
+	struct mercenary_data *md;	// [Backport] hired mercenary soldier
 
 	struct{
 		int  m; //-1 - none, other: map index corresponding to map name.
@@ -1199,7 +1201,10 @@ enum _sp {
 
 	SP_BASEJOB=119,	// 100+19 - celest
 	SP_BASECLASS=120,	//Hmm.. why 100+19? I just use the next one... [Skotlex]
-	
+
+	// Mercenaries [Backport]
+	SP_MERCFLEE=165, SP_MERCKILLS=189, SP_MERCFAITH=190,
+
 	// original 1000-
 	SP_ATTACKRANGE=1000,	SP_ATKELE,SP_DEFELE,	// 1000-1002
 	SP_CASTRATE, SP_MAXHPRATE, SP_MAXSPRATE, SP_SPRATE, // 1003-1006
@@ -1490,6 +1495,7 @@ typedef struct chat_data        TBL_CHAT;
 typedef struct skill_unit       TBL_SKILL;
 typedef struct pet_data         TBL_PET;
 typedef struct homun_data       TBL_HOM;
+typedef struct mercenary_data   TBL_MER;	// [Backport]
 
 #define BL_CAST(type_, bl , dest) \
 	(((bl) == NULL || (bl)->type != type_) ? ((dest) = NULL, 0) : ((dest) = (T ## type_ *)(bl), 1))

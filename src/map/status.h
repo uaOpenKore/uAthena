@@ -278,6 +278,15 @@ enum {
 	SC_FOOD_INT_CASH,	//262
 	SC_FOOD_DEX_CASH,	//263
 	SC_FOOD_LUK_CASH,	//264
+
+	// Mercenary Only Bonus Effects [Backport]
+	SC_MERC_FLEEUP,
+	SC_MERC_ATKUP,
+	SC_MERC_HPUP,
+	SC_MERC_SPUP,
+	SC_MERC_HITUP,
+	SC_MERC_QUICKEN,
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };
 int SkillStatusChangeTable(int skill);
