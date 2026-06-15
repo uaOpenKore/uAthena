@@ -38,6 +38,11 @@
 
 #include "log.h"
 #include "async_db.h"
+#include "livemob.h"	// [perf] flat-array live-mob index (replaces livemob_db DBMap)
+#include "mobgrid.h"	// [perf] per-map player-presence grid
+#if BLOCK_SIZE != MOBGRID_BLOCK
+#error "MOBGRID_BLOCK must equal BLOCK_SIZE"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -113,7 +118,7 @@ char *GRF_PATH_FILENAME;
 //  static?J?
 static struct dbt * id_db=NULL;
 static struct dbt * pc_db=NULL;
-static struct dbt * livemob_db=NULL;	// non-owning index of spawned mobs (subset of id_db), for cheap mob-only iteration [perf]
+// live-mob index is now a flat array in livemob.c (cheaper than a DBMap vforeach) [perf]
 static struct dbt * map_db=NULL;
 static struct dbt * charid_db=NULL;
 
@@ -368,6 +373,8 @@ int map_addblock_sub (struct block_list *bl, int flag)
 		if (bl->next) bl->next->prev = bl;
 		map[m].block[pos] = bl;
 		map[m].block_count[pos]++;
+		if (bl->type == BL_PC || bl->type == BL_HOM)
+			mobgrid_inc(map[m].block_pc_count, pos);	// [perf] exact PC/HOM presence
 		if (bl->type == BL_PC && flag)
 		{
 			struct map_session_data* sd;
@@ -410,6 +417,9 @@ int map_delblock_sub (struct block_list *bl, int flag)
 #endif
 	
 	b = bl->x/BLOCK_SIZE+(bl->y/BLOCK_SIZE)*map[bl->m].bxs;
+
+	if (bl->type == BL_PC || bl->type == BL_HOM)
+		mobgrid_dec(map[bl->m].block_pc_count, b);	// [perf] exact PC/HOM presence
 
 	if (bl->type == BL_PC && flag)
 		if (--map[bl->m].users == 0 && battle_config.dynamic_mobs)	//[Skotlex]
@@ -1626,7 +1636,7 @@ void map_addiddb(struct block_list *bl)
 	if (bl->type == BL_PC)
 		idb_put(pc_db,bl->id,bl);
 	else if (bl->type == BL_MOB)
-		idb_put(livemob_db,bl->id,bl);	// keep the mob-only index in lockstep with id_db [perf]
+		livemob_add(bl);	// keep the flat mob-only index in lockstep with id_db [perf]
 	idb_put(id_db,bl->id,bl);
 }
 
@@ -1640,7 +1650,7 @@ void map_deliddb(struct block_list *bl)
 	if (bl->type == BL_PC)
 		idb_remove(pc_db,bl->id);
 	else if (bl->type == BL_MOB)
-		idb_remove(livemob_db,bl->id);	// keep the mob-only index in lockstep with id_db [perf]
+		livemob_remove(bl);	// keep the flat mob-only index in lockstep with id_db [perf]
 	idb_remove(id_db,bl->id);
 }
 
@@ -1891,8 +1901,15 @@ void map_foreachmob(int (*func)(DBKey,void*,va_list),...)
 {
 	va_list ap;
 	va_start(ap,func);
-	livemob_db->vforeach(livemob_db,func,ap);
+	livemob_foreach(func,ap);	// flat-array iteration, no HASH_SIZE bucket sweep [perf]
 	va_end(ap);
+}
+
+// [perf] Cheap "is a PC/HOM within range tiles of (x,y) on map m" probe over the
+// exact-count presence grid (mobgrid), used to skip provably-empty mob scans.
+int map_pc_near(int m, int x, int y, int range)
+{
+	return mobgrid_any(map[m].block_pc_count, map[m].bxs, map[m].bys, x, y, range);
 }
 
 /*==========================================
@@ -2912,6 +2929,7 @@ int map_readallmaps (void)
 				size = map[i].bxs * map[i].bys * sizeof(int);
 				map[i].block_count = (int*)aCallocA(size, 1);
 				map[i].block_mob_count = (int*)aCallocA(size, 1);
+				map[i].block_pc_count = (int*)aCallocA(size, 1);	// [perf] mobgrid
 
 				uidb_put(map_db, (unsigned int)map[i].index, &map[i]);
 
@@ -3462,6 +3480,7 @@ void do_final(void)
 		if(map[i].block_mob) aFree(map[i].block_mob);
 		if(map[i].block_count) aFree(map[i].block_count);
 		if(map[i].block_mob_count) aFree(map[i].block_mob_count);
+		if(map[i].block_pc_count) aFree(map[i].block_pc_count);
 		if(battle_config.dynamic_mobs) { //Dynamic mobs flag by [random]
 			for (j=0; j<MAX_MOB_LIST_PER_MAP; j++)
 				if (map[i].moblist[j]) aFree(map[i].moblist[j]);
@@ -3472,7 +3491,7 @@ void do_final(void)
 
 	id_db->destroy(id_db, NULL);
 	pc_db->destroy(pc_db, NULL);
-	livemob_db->destroy(livemob_db, NULL);	// non-owning index: mobs themselves are freed via id_db cleanup [perf]
+	livemob_final();	// non-owning index: mobs themselves are freed via id_db cleanup [perf]
 	charid_db->destroy(charid_db, NULL);
 
 	async_db_destroy(map_async_db); // drain buffered game-DB writes, join the worker
@@ -3634,7 +3653,7 @@ int do_init(int argc, char *argv[])
 
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
-	livemob_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Non-owning mob-only index for cheap lazy-AI iteration. [perf]
+	livemob_init();	//Non-owning flat mob-only index for cheap lazy-AI iteration. [perf]
 	map_db = db_alloc(__FILE__,__LINE__,DB_UINT,DB_OPT_BASE,sizeof(int));
 	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	map_sql_init();

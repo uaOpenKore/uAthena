@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cd /GRF/data
+git pull
+
 cd /root/uAthena
 make clean
 git pull

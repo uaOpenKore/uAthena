@@ -202,6 +202,7 @@ int mob_parse_dataset(struct spawn_data *data)
 struct mob_data* mob_spawn_dataset(struct spawn_data *data)
 {
 	struct mob_data *md = aCalloc(1, sizeof(struct mob_data));
+	md->livemob_idx = -1;	// not in the live-mob index until map_addiddb() [perf]
 	md->bl.id= npc_get_new_npc_id();
 	md->bl.type = BL_MOB;
 	md->bl.subtype = MONS;
@@ -1179,16 +1180,24 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			view_range, BL_ITEM, md, &tbl);
 	}
 
-	if ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW)
+	// [perf] The active/change-chase scans only seek BL_PC|BL_HOM (a normal mob's
+	// DEFAULT_ENEMY_TYPE). If none is within view_range the scan is provably empty,
+	// so skip it: tbl stays NULL and the no-target idle path runs below, exactly as
+	// if the scan had found nothing. Summoned mobs (special_state.ai) target
+	// BL_CHAR incl. mobs, so they always scan.
+	{
+	int pc_near = md->special_state.ai || map_pc_near(md->bl.m, md->bl.x, md->bl.y, view_range);
+	if (pc_near && ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW))
 	{
 		map_foreachinrange (mob_ai_sub_hard_activesearch, &md->bl,
 			view_range, DEFAULT_ENEMY_TYPE(md), md, &tbl);
 	} else
-	if (mode&MD_CHANGECHASE && (md->state.skillstate == MSS_RUSH || md->state.skillstate == MSS_FOLLOW))
+	if (pc_near && mode&MD_CHANGECHASE && (md->state.skillstate == MSS_RUSH || md->state.skillstate == MSS_FOLLOW))
 	{
 		search_size = view_range<md->status.rhw.range ? view_range:md->status.rhw.range;
 		map_foreachinrange (mob_ai_sub_hard_changechase, &md->bl,
 				search_size, DEFAULT_ENEMY_TYPE(md), md, &tbl);
+	}
 	}
 
 	if (!tbl) { //No targets available.
@@ -1392,6 +1401,13 @@ static int mob_ai_sub_lazy_wrapper(DBKey key,void * data,va_list ap)
  *------------------------------------------*/
 static int mob_ai_lazy(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
+	// [perf] Under mob_ai&0x20 the 100ms hard timer already drives every mob via
+	// the same map_foreachmob(mob_ai_sub_lazy_wrapper): populated maps run the
+	// hard AI, player-less maps run the lazy path rate-limited to 10*MIN_MOBTHINKTIME
+	// (1000ms) by last_thinktime. The lazy cadence is set by that gate, not by this
+	// timer's period, so this once-a-second pass would only be gated out - skip it.
+	if (battle_config.mob_ai&0x20)
+		return 0;
 	g_mob_ai_sub_lazy_tick = tick;
 	map_foreachmob(mob_ai_sub_lazy_wrapper,tick);	// mob-only index instead of full id_db scan [perf]
 	return 0;

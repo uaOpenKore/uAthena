@@ -18,7 +18,7 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/npc_chat.o obj/chat.o obj/path.o obj/itemdb.o obj/mob.o obj/script.o \
 	obj/storage.o obj/skill.o obj/atcommand.o obj/charcommand.o obj/battle.o \
 	obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/guild.o obj/pet.o \
-	obj/log.o obj/log_async.o obj/async_db.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o \
+	obj/log.o obj/log_async.o obj/async_db.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/livemob.o obj/mobgrid.o \
 	$(COMMON_OBJ)
 
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
@@ -62,3 +62,5 @@ sqlobj/charcommand.o: charcommand.c charcommand.h itemdb.h pc.h map.h skill.h cl
 sqlobj/date.o: date.c date.h $(COMMON_H)
 sqlobj/unit.o: unit.c unit.h $(COMMON_H)
 sqlobj/mercenary.o: mercenary.c mercenary.h $(COMMON_H)
+sqlobj/livemob.o: livemob.c livemob.h map.h $(COMMON_H)
+sqlobj/mobgrid.o: mobgrid.c mobgrid.h

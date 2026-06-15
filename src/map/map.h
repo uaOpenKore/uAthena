@@ -924,6 +924,7 @@ struct spawn_data {
 
 struct mob_data {
 	struct block_list bl;
+	int livemob_idx;	// slot in the flat live-mob index (livemob.c); -1 if not indexed [perf]
 	struct unit_data  ud;
 	struct view_data *vd;
 	struct status_data status, *base_status; //Second one is in case of leveling up mobs, or tiny/large mobs.
@@ -1069,6 +1070,7 @@ struct map_data {
 	struct block_list **block;
 	struct block_list **block_mob;
 	int *block_count,*block_mob_count;
+	int *block_pc_count;	// [perf] exact BL_PC|BL_HOM count per block (mobgrid)
 	int m;
 	short xs,ys;
 	short bxs,bys;
@@ -1382,6 +1384,7 @@ void map_deliddb(struct block_list *bl);
 struct map_session_data** map_getallusers(int *users);
 void map_foreachpc(int (*func)(DBKey,void*,va_list),...);
 void map_foreachmob(int (*func)(DBKey,void*,va_list),...);	// spawned mobs only (subset of id_db) [perf]
+int map_pc_near(int m, int x, int y, int range);	// [perf] cheap PC/HOM-in-range probe (mobgrid)
 int map_foreachiddb(int (*)(DBKey,void*,va_list),...);
 void map_addnickdb(struct map_session_data *);
 struct map_session_data * map_nick2sd(const char*);
