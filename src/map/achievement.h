@@ -25,6 +25,10 @@ int achievement_search_db(int achievement_id);
 int achievement_get_index(struct map_session_data *sd, int achievement_id);
 void achievement_progress(struct map_session_data *sd, int group, int target_id, int amount);
 void achievement_login(struct map_session_data *sd);
+int achievement_chat_list(struct map_session_data *sd);
+int achievement_title_list(struct map_session_data *sd);
+int achievement_set_title(struct map_session_data *sd, int achievement_id);
+const char* achievement_active_title(struct map_session_data *sd);
 void do_init_achievement(void);
 
 #endif /* _ACHIEVEMENT_H_ */

@@ -21,6 +21,7 @@
 #include "pc.h"
 #include "status.h"
 #include "skill.h"
+#include "achievement.h"
 #include "mob.h"
 #include "quest.h"
 #include "npc.h"
@@ -262,6 +263,8 @@ ACMD_FUNC(status); // status/cooldown chat UI
 ACMD_FUNC(whereis); // mob spawn/drop search
 ACMD_FUNC(market); // vendor/price search
 ACMD_FUNC(cooking); // chat cooking UI
+ACMD_FUNC(achievements); // achievements chat UI
+ACMD_FUNC(title); // active title
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -592,6 +595,9 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Market,             "@market",           1, atcommand_market }, // vendor/price search
 	{ AtCommand_Cooking,            "@cooking",          1, atcommand_cooking }, // chat cooking UI
 	{ AtCommand_Cook,               "@cook",             1, atcommand_cooking }, // alias
+	{ AtCommand_Achievements,       "@achievements",     1, atcommand_achievements }, // achievements UI
+	{ AtCommand_Ach,                "@ach",              1, atcommand_achievements }, // alias
+	{ AtCommand_Title,              "@title",            1, atcommand_title }, // active title
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -8750,6 +8756,45 @@ int atcommand_cooking(const int fd, struct map_session_data* sd, const char* com
 		case -2: clif_displaymessage(fd, "You lack the required Cookbook or ingredients."); break;
 		default: clif_displaymessage(fd, "Invalid dish number. Use @cooking to list."); break;
 	}
+	return 0;
+}
+
+/*==========================================
+ * @achievements / @title : achievement & title chat UI (PV7 has no window)
+ *------------------------------------------*/
+int atcommand_achievements(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+	achievement_chat_list(sd);
+	return 0;
+}
+
+int atcommand_title(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message )
+	{
+		const char* t;
+		achievement_title_list(sd);
+		t = achievement_active_title(sd);
+		if( t[0] )
+		{
+			snprintf(atcmd_output, sizeof(atcmd_output), "Active title: %s", t);
+			clif_displaymessage(fd, atcmd_output);
+		}
+		return 0;
+	}
+	if( strcmpi(message, "off") == 0 )
+	{
+		achievement_set_title(sd, 0);
+		clif_displaymessage(fd, "Title cleared.");
+		return 0;
+	}
+	if( achievement_set_title(sd, atoi(message)) )
+		clif_displaymessage(fd, "Title set.");
+	else
+		clif_displaymessage(fd, "You don't have that title. Use @title to list.");
 	return 0;
 }
 

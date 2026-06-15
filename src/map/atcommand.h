@@ -286,6 +286,9 @@ enum AtCommandType {
 	AtCommand_Market, // vendor/price search
 	AtCommand_Cooking, // chat cooking UI
 	AtCommand_Cook, // alias of @cooking
+	AtCommand_Achievements, // achievements chat UI
+	AtCommand_Ach, // alias of @achievements
+	AtCommand_Title, // active title
 	// end <- Ahem, guys, don't place AtCommands after AtCommand_Unknown! [Skotlex]
 	AtCommand_Unknown,
 	AtCommand_MAX

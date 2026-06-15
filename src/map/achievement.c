@@ -220,6 +220,116 @@ void achievement_login(struct map_session_data *sd)
 	achievement_progress(sd, AG_ZENY,      0, sd->status.zeny);
 }
 
+// [Backport] @achievements: refresh zeny (no live hook) then list every defined
+// achievement, completed first, with the player's progress. Returns total count.
+int achievement_chat_list(struct map_session_data *sd)
+{
+	int j, done = 0, total = 0;
+	char output[160];
+
+	nullpo_ret(sd);
+	achievement_progress(sd, AG_ZENY, 0, sd->status.zeny);
+
+	for( j = 0; j < achievement_db_count; j++ )
+	{
+		int li;
+		if( achievement_db[j].id <= 0 )
+			continue;
+		total++;
+		li = achievement_get_index(sd, achievement_db[j].id);
+		if( li >= 0 && sd->achievement_log[li].completed )
+			done++;
+	}
+	snprintf(output, sizeof(output), "Achievements: %d/%d completed.", done, total);
+	clif_displaymessage(sd->fd, output);
+
+	for( j = 0; j < achievement_db_count; j++ ) // completed
+	{
+		struct s_achievement_db *ad = &achievement_db[j];
+		int li;
+		if( ad->id <= 0 )
+			continue;
+		li = achievement_get_index(sd, ad->id);
+		if( li < 0 || !sd->achievement_log[li].completed )
+			continue;
+		snprintf(output, sizeof(output), "[%d] %s - DONE%s", ad->id, ad->name, ad->title[0] ? " (title)" : "");
+		clif_displaymessage(sd->fd, output);
+	}
+	for( j = 0; j < achievement_db_count; j++ ) // in progress / locked
+	{
+		struct s_achievement_db *ad = &achievement_db[j];
+		int li, cnt;
+		if( ad->id <= 0 )
+			continue;
+		li = achievement_get_index(sd, ad->id);
+		if( li >= 0 && sd->achievement_log[li].completed )
+			continue;
+		cnt = (li >= 0) ? sd->achievement_log[li].count : 0;
+		snprintf(output, sizeof(output), "[%d] %s - %d/%d", ad->id, ad->name, cnt, ad->target_count);
+		clif_displaymessage(sd->fd, output);
+	}
+	return total;
+}
+
+// List unlocked titles (completed achievements that grant one). Returns the count.
+int achievement_title_list(struct map_session_data *sd)
+{
+	int j, n = 0;
+	char output[160];
+
+	nullpo_ret(sd);
+	clif_displaymessage(sd->fd, "Titles from your completed achievements:");
+	for( j = 0; j < achievement_db_count; j++ )
+	{
+		struct s_achievement_db *ad = &achievement_db[j];
+		int li;
+		if( ad->id <= 0 || !ad->title[0] )
+			continue;
+		li = achievement_get_index(sd, ad->id);
+		if( li < 0 || !sd->achievement_log[li].completed )
+			continue;
+		snprintf(output, sizeof(output), "[%d] %s%s", ad->id, ad->title, (sd->active_title == ad->id) ? "  <-- active" : "");
+		clif_displaymessage(sd->fd, output);
+		n++;
+	}
+	if( !n )
+		clif_displaymessage(sd->fd, "  (none yet - complete achievements that grant a title)");
+	clif_displaymessage(sd->fd, "'@title <id>' to set, '@title off' to clear.");
+	return n;
+}
+
+// Set the active title to the given completed-and-titled achievement (0 = clear).
+// Returns 1 on success, 0 on failure.
+int achievement_set_title(struct map_session_data *sd, int achievement_id)
+{
+	int dbidx, li;
+
+	nullpo_ret(sd);
+	if( achievement_id == 0 )
+	{
+		sd->active_title = 0;
+		return 1;
+	}
+	dbidx = achievement_search_db(achievement_id);
+	if( dbidx < 0 || !achievement_db[dbidx].title[0] )
+		return 0;
+	li = achievement_get_index(sd, achievement_id);
+	if( li < 0 || !sd->achievement_log[li].completed )
+		return 0;
+	sd->active_title = achievement_id;
+	return 1;
+}
+
+// Returns the active title string ("" if none).
+const char* achievement_active_title(struct map_session_data *sd)
+{
+	int dbidx;
+	if( !sd || sd->active_title == 0 )
+		return "";
+	dbidx = achievement_search_db(sd->active_title);
+	return (dbidx >= 0) ? achievement_db[dbidx].title : "";
+}
+
 void do_init_achievement(void)
 {
 	achievement_read_db();
