@@ -202,6 +202,7 @@ int mob_parse_dataset(struct spawn_data *data)
 struct mob_data* mob_spawn_dataset(struct spawn_data *data)
 {
 	struct mob_data *md = aCalloc(1, sizeof(struct mob_data));
+	md->livemob_idx = -1;	// not in the live-mob index until map_addiddb() [perf]
 	md->bl.id= npc_get_new_npc_id();
 	md->bl.type = BL_MOB;
 	md->bl.subtype = MONS;
