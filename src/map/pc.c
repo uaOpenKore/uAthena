@@ -584,26 +584,38 @@ int pc_isequip(struct map_session_data *sd,int n)
 int pc_online_reward_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd((int)id);
+	int sec, need;
 
 	if( sd == NULL || sd->online_reward_tid != tid )
 		return 0; // player gone or stale timer
 
-	// anti-AFK: skip this interval if idle, unless configured to reward AFK
+	// only count active time toward the reward unless configured to reward AFK
 	if( !battle_config.online_reward_afk && pc_isidle(sd) )
 		return 0;
 
-	if( battle_config.online_reward_zeny > 0 )
-		pc_getzeny(sd, battle_config.online_reward_zeny);
-	if( battle_config.online_reward_exp > 0 )
-		pc_gainexp(sd, NULL, (unsigned int)battle_config.online_reward_exp, 0);
-	if( battle_config.online_reward_item > 0 ) {
-		struct item it;
-		memset(&it, 0, sizeof(it));
-		it.nameid = battle_config.online_reward_item;
-		it.identify = 1;
-		pc_additem(sd, &it, battle_config.online_reward_amount > 0 ? battle_config.online_reward_amount : 1);
+	need = battle_config.online_reward_interval * 60; // seconds of online time per reward
+	if( need <= 0 )
+		return 0;
+
+	// accumulate this 60s tick; the counter persists per-character (char registry)
+	sec = pc_readglobalreg(sd, "ONLINE_REWARD_SEC") + 60;
+	if( sec >= need )
+	{
+		sec -= need;
+		if( battle_config.online_reward_zeny > 0 )
+			pc_getzeny(sd, battle_config.online_reward_zeny);
+		if( battle_config.online_reward_exp > 0 )
+			pc_gainexp(sd, NULL, (unsigned int)battle_config.online_reward_exp, 0);
+		if( battle_config.online_reward_item > 0 ) {
+			struct item it;
+			memset(&it, 0, sizeof(it));
+			it.nameid = battle_config.online_reward_item;
+			it.identify = 1;
+			pc_additem(sd, &it, battle_config.online_reward_amount > 0 ? battle_config.online_reward_amount : 1);
+		}
+		clif_displaymessage(sd->fd, "You received your online play reward!");
 	}
-	clif_displaymessage(sd->fd, "You received your online play reward!");
+	pc_setglobalreg(sd, "ONLINE_REWARD_SEC", sec);
 	return 0;
 }
 
@@ -734,12 +746,11 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	// [Backport] Achievements
 	intif_request_achievements(sd);
 
-	// [Backport] start the online/playtime reward timer (if enabled)
+	// [Backport] start the online/playtime reward ticker (60s; accumulated time
+	// persists per-character, so relogging no longer resets progress)
 	sd->online_reward_tid = INVALID_TIMER;
-	if( battle_config.online_reward_interval > 0 ) {
-		int ivl = battle_config.online_reward_interval * 60 * 1000; // minutes -> ms
-		sd->online_reward_tid = add_timer_interval(gettick()+ivl, pc_online_reward_timer, sd->bl.id, 0, ivl);
-	}
+	if( battle_config.online_reward_interval > 0 )
+		sd->online_reward_tid = add_timer_interval(gettick()+60000, pc_online_reward_timer, sd->bl.id, 0, 60000);
 
 	clif_authok(sd);
 	map_addiddb(&sd->bl);
@@ -861,6 +872,7 @@ int pc_reg_received(struct map_session_data *sd)
 
 	sd->change_level = pc_readglobalreg(sd,"jobchange_level");
 	sd->die_counter = pc_readglobalreg(sd,"PC_DIE_COUNTER");
+	sd->active_title = pc_readglobalreg(sd,"ACH_TITLE"); // [Backport] persisted active title
 
 	if ((sd->class_&MAPID_BASEMASK)==MAPID_TAEKWON)
 	{	//Better check for class rather than skill to prevent "skill resets" from unsetting this

@@ -308,6 +308,7 @@ int achievement_set_title(struct map_session_data *sd, int achievement_id)
 	if( achievement_id == 0 )
 	{
 		sd->active_title = 0;
+		pc_setglobalreg(sd, "ACH_TITLE", 0); // persist across sessions
 		return 1;
 	}
 	dbidx = achievement_search_db(achievement_id);
@@ -317,6 +318,7 @@ int achievement_set_title(struct map_session_data *sd, int achievement_id)
 	if( li < 0 || !sd->achievement_log[li].completed )
 		return 0;
 	sd->active_title = achievement_id;
+	pc_setglobalreg(sd, "ACH_TITLE", achievement_id); // persist across sessions
 	return 1;
 }
 
