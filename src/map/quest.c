@@ -222,6 +222,35 @@ void quest_update_objective(TBL_PC * sd, int mob)
 				sd->quest_log[i].count[j]++;
 				sd->save_quest = true;
 				clif_quest_update_objective(sd,&sd->quest_log[i],sd->quest_index[i]);
+
+				if( battle_config.quest_progress_notify )
+				{
+					int qidx = sd->quest_index[i];
+					int reqd = quest_db[qidx].count[j];
+					int cur  = sd->quest_log[i].count[j];
+					struct mob_db *mb = mob_db(mob);
+					char buf[128];
+
+					if( battle_config.quest_progress_notify == 1 || cur >= reqd )
+					{
+						snprintf(buf, sizeof(buf), "[Quest] %s: %d/%d (%s)",
+							mb ? mb->jname : "?", cur, reqd,
+							quest_db[qidx].name[0] ? quest_db[qidx].name : "?");
+						clif_displaymessage(sd->fd, buf);
+					}
+					if( cur >= reqd )
+					{
+						int k, alldone = 1;
+						for( k = 0; k < quest_db[qidx].num_objectives; k++ )
+							if( sd->quest_log[i].count[k] < quest_db[qidx].count[k] ) { alldone = 0; break; }
+						if( alldone )
+						{
+							snprintf(buf, sizeof(buf), "[Quest] \"%s\" - all objectives complete!",
+								quest_db[qidx].name[0] ? quest_db[qidx].name : "?");
+							clif_displaymessage(sd->fd, buf);
+						}
+					}
+				}
 			}
 	}
 }
