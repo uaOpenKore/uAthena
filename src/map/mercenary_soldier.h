@@ -72,6 +72,8 @@ int mercenary_kills(struct mercenary_data *md);
 
 int mercenary_checkskill(struct mercenary_data *md, int skill_id);
 
+void mercenary_chat_status(struct map_session_data *sd);	// [Backport] @merc chat UI
+
 int do_init_mercenary(void);
 int do_final_mercenary(void);
 

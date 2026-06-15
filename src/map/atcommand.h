@@ -289,6 +289,7 @@ enum AtCommandType {
 	AtCommand_Achievements, // achievements chat UI
 	AtCommand_Ach, // alias of @achievements
 	AtCommand_Title, // active title
+	AtCommand_Merc, // mercenary status chat UI
 	// end <- Ahem, guys, don't place AtCommands after AtCommand_Unknown! [Skotlex]
 	AtCommand_Unknown,
 	AtCommand_MAX

@@ -568,6 +568,46 @@ static int read_mercenary_skilldb(void)
 	return 0;
 }
 
+// [Backport] @merc chat UI — PV7 has no mercenary status window, so dump the
+// mercenary's status to chat (mirrors @quests/@status/@achievements).
+void mercenary_chat_status(struct map_session_data *sd)
+{
+	struct mercenary_data *md;
+	char out[160];
+	int i, sec, n;
+
+	if( sd == NULL )
+		return;
+	if( (md = sd->md) == NULL )
+	{
+		clif_displaymessage(sd->fd, "You have no mercenary.");
+		return;
+	}
+
+	snprintf(out, sizeof(out), "--- Mercenary: %s (Lv %d) ---", md->db->name, md->db->lv);
+	clif_displaymessage(sd->fd, out);
+	snprintf(out, sizeof(out), "HP %d/%d   SP %d/%d", md->battle_status.hp, md->battle_status.max_hp, md->battle_status.sp, md->battle_status.max_sp);
+	clif_displaymessage(sd->fd, out);
+	sec = mercenary_get_lifetime(md) / 1000;
+	snprintf(out, sizeof(out), "Contract: %dm %ds left   Kills: %u", sec/60, sec%60, md->mercenary.kill_count);
+	clif_displaymessage(sd->fd, out);
+	snprintf(out, sizeof(out), "Loyalty: %d   Calls: %d", mercenary_get_faith(md), mercenary_get_calls(md));
+	clif_displaymessage(sd->fd, out);
+
+	n = 0;
+	for( i = 0; i < MAX_MERCSKILL; i++ )
+	{
+		if( md->db->skill[i].id == 0 )
+			continue;
+		snprintf(out, sizeof(out), "  Skill: %s Lv%d", skill_get_name(md->db->skill[i].id), md->db->skill[i].lv);
+		clif_displaymessage(sd->fd, out);
+		n++;
+	}
+	if( n == 0 )
+		clif_displaymessage(sd->fd, "  (no skills)");
+	clif_displaymessage(sd->fd, "(mercenary skills are not auto-cast yet under PV7)");
+}
+
 //=========================================================
 // [Backport] Custom Mercenary Soldier AI.
 // eAthena has no autonomous merc AI — the player drives it via the merc skill

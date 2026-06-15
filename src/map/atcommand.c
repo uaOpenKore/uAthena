@@ -27,6 +27,7 @@
 #include "npc.h"
 #include "pet.h"
 #include "mercenary.h" //[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (@merc)
 #include "battle.h"
 #include "party.h"
 #include "guild.h"
@@ -265,6 +266,7 @@ ACMD_FUNC(market); // vendor/price search
 ACMD_FUNC(cooking); // chat cooking UI
 ACMD_FUNC(achievements); // achievements chat UI
 ACMD_FUNC(title); // active title
+ACMD_FUNC(merc); // mercenary status chat UI
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -598,6 +600,8 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Achievements,       "@achievements",     1, atcommand_achievements }, // achievements UI
 	{ AtCommand_Ach,                "@ach",              1, atcommand_achievements }, // alias
 	{ AtCommand_Title,              "@title",            1, atcommand_title }, // active title
+	{ AtCommand_Merc,               "@merc",             1, atcommand_merc }, // mercenary status
+	{ AtCommand_Merc,               "@mercenary",        1, atcommand_merc }, // alias
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -8766,6 +8770,14 @@ int atcommand_achievements(const int fd, struct map_session_data* sd, const char
 {
 	nullpo_retr(-1, sd);
 	achievement_chat_list(sd);
+	return 0;
+}
+
+// [Backport] @merc / @mercenary — show the hired mercenary's status (PV7 has no window).
+int atcommand_merc(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+	mercenary_chat_status(sd);
 	return 0;
 }
 
