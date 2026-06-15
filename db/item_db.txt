@@ -3210,36 +3210,36 @@
 12150,Bullet_Case_Blood,Shell of Blood Casing,2,,1,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13202,500; },{},{}
 12151,Bullet_Case_Silver,Silver Bullet Casing,2,,1,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13201,500; },{},{}
 12152,Special_Present,Special Gift,2,,0,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12153,Merc_Archer_Scroll_Lv1,Archer Mercenary Summon Scroll Level 1,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12154,Merc_Archer_Scroll_Lv2,Archer Mercenary Summon Scroll Level 2,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12155,Merc_Archer_Scroll_Lv3,Archer Mercenary Summon Scroll Level 3,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12156,Merc_Archer_Scroll_Lv4,Archer Mercenary Summon Scroll Level 4,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12157,Merc_Archer_Scroll_Lv5,Archer Mercenary Summon Scroll Level 5,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12158,Merc_Archer_Scroll_Lv6,Archer Mercenary Summon Scroll Level 6,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12159,Merc_Archer_Scroll_Lv7,Archer Mercenary Summon Scroll Level 7,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12160,Merc_Archer_Scroll_Lv8,Archer Mercenary Summon Scroll Level 8,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12161,Merc_Archer_Scroll_Lv9,Archer Mercenary Summon Scroll Level 9,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12162,Merc_Archer_Scroll_Lv10,Archer Mercenary Summon Scroll Level 10,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12163,Merc_Sword_Scroll_Lv1,Swordsman Mercenary Summon Scroll Level 1,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12164,Merc_Sword_Scroll_Lv2,Swordsman Mercenary Summon Scroll Level 2,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12165,Merc_Sword_Scroll_Lv3,Swordsman Mercenary Summon Scroll Level 3,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12166,Merc_Sword_Scroll_Lv4,Swordsman Mercenary Summon Scroll Level 4,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12167,Merc_Sword_Scroll_Lv5,Swordsman Mercenary Summon Scroll Level 5,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12168,Merc_Sword_Scroll_Lv6,Swordsman Mercenary Summon Scroll Level 6,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12169,Merc_Sword_Scroll_Lv7,Swordsman Mercenary Summon Scroll Level 7,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12170,Merc_Sword_Scroll_Lv8,Swordsman Mercenary Summon Scroll Level 8,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12171,Merc_Sword_Scroll_Lv9,Swordsman Mercenary Summon Scroll Level 9,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12172,Merc_Sword_Scroll_Lv10,Swordsman Mercenary Summon Scroll Level 10,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12173,Merc_Spear_Scroll_Lv1,Spearman Mercenary Summon Scroll Level 1,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12174,Merc_Spear_Scroll_Lv2,Spearman Mercenary Summon Scroll Level 2,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12175,Merc_Spear_Scroll_Lv3,Spearman Mercenary Summon Scroll Level 3,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12176,Merc_Spear_Scroll_Lv4,Spearman Mercenary Summon Scroll Level 4,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12177,Merc_Spear_Scroll_Lv5,Spearman Mercenary Summon Scroll Level 5,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12178,Merc_Spear_Scroll_Lv6,Spearman Mercenary Summon Scroll Level 6,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12179,Merc_Spear_Scroll_Lv7,Spearman Mercenary Summon Scroll Level 7,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12180,Merc_Spear_Scroll_Lv8,Spearman Mercenary Summon Scroll Level 8,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12181,Merc_Spear_Scroll_Lv9,Spearman Mercenary Summon Scroll Level 9,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12182,Merc_Spear_Scroll_Lv10,Spearman Mercenary Summon Scroll Level 10,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12153,Merc_Archer_Scroll_Lv1,Archer Mercenary Summon Scroll Level 1,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6017,1800000; },{},{}
+12154,Merc_Archer_Scroll_Lv2,Archer Mercenary Summon Scroll Level 2,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6018,1800000; },{},{}
+12155,Merc_Archer_Scroll_Lv3,Archer Mercenary Summon Scroll Level 3,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6019,1800000; },{},{}
+12156,Merc_Archer_Scroll_Lv4,Archer Mercenary Summon Scroll Level 4,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6020,1800000; },{},{}
+12157,Merc_Archer_Scroll_Lv5,Archer Mercenary Summon Scroll Level 5,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6021,1800000; },{},{}
+12158,Merc_Archer_Scroll_Lv6,Archer Mercenary Summon Scroll Level 6,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6022,1800000; },{},{}
+12159,Merc_Archer_Scroll_Lv7,Archer Mercenary Summon Scroll Level 7,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6023,1800000; },{},{}
+12160,Merc_Archer_Scroll_Lv8,Archer Mercenary Summon Scroll Level 8,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6024,1800000; },{},{}
+12161,Merc_Archer_Scroll_Lv9,Archer Mercenary Summon Scroll Level 9,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6025,1800000; },{},{}
+12162,Merc_Archer_Scroll_Lv10,Archer Mercenary Summon Scroll Level 10,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6026,1800000; },{},{}
+12163,Merc_Sword_Scroll_Lv1,Swordsman Mercenary Summon Scroll Level 1,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6037,1800000; },{},{}
+12164,Merc_Sword_Scroll_Lv2,Swordsman Mercenary Summon Scroll Level 2,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6038,1800000; },{},{}
+12165,Merc_Sword_Scroll_Lv3,Swordsman Mercenary Summon Scroll Level 3,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6039,1800000; },{},{}
+12166,Merc_Sword_Scroll_Lv4,Swordsman Mercenary Summon Scroll Level 4,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6040,1800000; },{},{}
+12167,Merc_Sword_Scroll_Lv5,Swordsman Mercenary Summon Scroll Level 5,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6041,1800000; },{},{}
+12168,Merc_Sword_Scroll_Lv6,Swordsman Mercenary Summon Scroll Level 6,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6042,1800000; },{},{}
+12169,Merc_Sword_Scroll_Lv7,Swordsman Mercenary Summon Scroll Level 7,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6043,1800000; },{},{}
+12170,Merc_Sword_Scroll_Lv8,Swordsman Mercenary Summon Scroll Level 8,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6044,1800000; },{},{}
+12171,Merc_Sword_Scroll_Lv9,Swordsman Mercenary Summon Scroll Level 9,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6045,1800000; },{},{}
+12172,Merc_Sword_Scroll_Lv10,Swordsman Mercenary Summon Scroll Level 10,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6046,1800000; },{},{}
+12173,Merc_Spear_Scroll_Lv1,Spearman Mercenary Summon Scroll Level 1,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6027,1800000; },{},{}
+12174,Merc_Spear_Scroll_Lv2,Spearman Mercenary Summon Scroll Level 2,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6028,1800000; },{},{}
+12175,Merc_Spear_Scroll_Lv3,Spearman Mercenary Summon Scroll Level 3,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6029,1800000; },{},{}
+12176,Merc_Spear_Scroll_Lv4,Spearman Mercenary Summon Scroll Level 4,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6030,1800000; },{},{}
+12177,Merc_Spear_Scroll_Lv5,Spearman Mercenary Summon Scroll Level 5,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6031,1800000; },{},{}
+12178,Merc_Spear_Scroll_Lv6,Spearman Mercenary Summon Scroll Level 6,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6032,1800000; },{},{}
+12179,Merc_Spear_Scroll_Lv7,Spearman Mercenary Summon Scroll Level 7,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6033,1800000; },{},{}
+12180,Merc_Spear_Scroll_Lv8,Spearman Mercenary Summon Scroll Level 8,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6034,1800000; },{},{}
+12181,Merc_Spear_Scroll_Lv9,Spearman Mercenary Summon Scroll Level 9,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6035,1800000; },{},{}
+12182,Merc_Spear_Scroll_Lv10,Spearman Mercenary Summon Scroll Level 10,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6036,1800000; },{},{}
 12183,Holy_Arrow_Container,Holy Arrow Quiver,2,,1,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 1772,500; },{},{}
 12184,Red_Mercenary_Potion,Mercenary's Red Potion,2,500,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12185,Blue_Mercenary_Potion,Mercenary's Blue Potion,2,1000,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}

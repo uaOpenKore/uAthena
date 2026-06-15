@@ -3633,6 +3633,13 @@ BUILDIN_FUNC(strnpcinfo); // [Backport] NPC name/map introspection
 BUILDIN_FUNC(setnpcdisplay); // [Backport] change NPC sprite/name at runtime
 BUILDIN_FUNC(readbook); // [Backport] book-reading UI (no-op on PV7)
 BUILDIN_FUNC(progressbar); // [Backport] cast-progress bar (no-op on PV7)
+BUILDIN_FUNC(mercenary_create); // [Backport] hired mercenary soldier
+BUILDIN_FUNC(mercenary_heal);
+BUILDIN_FUNC(mercenary_sc_start);
+BUILDIN_FUNC(mercenary_get_calls);
+BUILDIN_FUNC(mercenary_set_calls);
+BUILDIN_FUNC(mercenary_get_faith);
+BUILDIN_FUNC(mercenary_set_faith);
 BUILDIN_FUNC(getequipid);
 BUILDIN_FUNC(getequipname);
 BUILDIN_FUNC(getbrokenid); // [Valaris]
@@ -3971,6 +3978,13 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(strnpcinfo,"i"),	// [Backport]
 	BUILDIN_DEF(setnpcdisplay,"sv??"),	// [Backport]
 	BUILDIN_DEF(readbook,"ii"),	// [Backport] no-op (no book UI on PV7)
+	BUILDIN_DEF(mercenary_create,"ii"),	// [Backport] hired mercenary soldier
+	BUILDIN_DEF(mercenary_heal,"ii"),
+	BUILDIN_DEF(mercenary_sc_start,"iii"),
+	BUILDIN_DEF(mercenary_get_calls,"i"),
+	BUILDIN_DEF(mercenary_set_calls,"ii"),
+	BUILDIN_DEF(mercenary_get_faith,"i"),
+	BUILDIN_DEF(mercenary_set_faith,"ii"),
 	BUILDIN_DEF(progressbar,"si"),	// [Backport] no-op (PV7 has no cast-bar packet)
 	BUILDIN_DEF(getequipid,"i"),
 	BUILDIN_DEF(getequipname,"i"),
@@ -6795,6 +6809,140 @@ BUILDIN_FUNC(readbook)
  *------------------------------------------*/
 BUILDIN_FUNC(progressbar)
 {
+	return 0;
+}
+
+// [Backport] Hired Mercenary Soldier script commands.
+BUILDIN_FUNC(mercenary_create)
+{
+	struct map_session_data *sd;
+	int class_, contract_time;
+
+	if( (sd = script_rid2sd(st)) == NULL || sd->md || sd->status.mer_id != 0 )
+		return 0;
+
+	class_ = script_getnum(st,2);
+	if( !merc_class(class_) )
+		return 0;
+
+	contract_time = script_getnum(st,3);
+	merc_create(sd, class_, contract_time);
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_heal)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int hp, sp;
+
+	if( sd == NULL || sd->md == NULL )
+		return 0;
+	hp = script_getnum(st,2);
+	sp = script_getnum(st,3);
+
+	status_heal(&sd->md->bl, hp, sp, 0);
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_sc_start)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int type, tick, val1;	// uAthena sc enum is anonymous -> int
+
+	if( sd == NULL || sd->md == NULL )
+		return 0;
+
+	type = script_getnum(st,2);
+	tick = script_getnum(st,3);
+	val1 = script_getnum(st,4);
+
+	status_change_start(&sd->md->bl, type, 10000, val1, 0, 0, 0, tick, 2);
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_get_calls)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int guild;
+
+	if( sd == NULL )
+		return 0;
+
+	guild = script_getnum(st,2);
+	switch( guild )
+	{
+		case ARCH_MERC_GUILD:  script_pushint(st,sd->status.arch_calls);  break;
+		case SPEAR_MERC_GUILD: script_pushint(st,sd->status.spear_calls); break;
+		case SWORD_MERC_GUILD: script_pushint(st,sd->status.sword_calls); break;
+		default:               script_pushint(st,0);                      break;
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_set_calls)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int guild, value, *calls;
+
+	if( sd == NULL )
+		return 0;
+
+	guild = script_getnum(st,2);
+	value = script_getnum(st,3);
+	switch( guild )
+	{
+		case ARCH_MERC_GUILD:  calls = &sd->status.arch_calls;  break;
+		case SPEAR_MERC_GUILD: calls = &sd->status.spear_calls; break;
+		case SWORD_MERC_GUILD: calls = &sd->status.sword_calls; break;
+		default: return 0; // Invalid Guild
+	}
+
+	*calls += value;
+	*calls = cap_value(*calls, 0, INT_MAX);
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_get_faith)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int guild;
+
+	if( sd == NULL )
+		return 0;
+
+	guild = script_getnum(st,2);
+	switch( guild )
+	{
+		case ARCH_MERC_GUILD:  script_pushint(st,sd->status.arch_faith);  break;
+		case SPEAR_MERC_GUILD: script_pushint(st,sd->status.spear_faith); break;
+		case SWORD_MERC_GUILD: script_pushint(st,sd->status.sword_faith); break;
+		default:               script_pushint(st,0);                      break;
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_set_faith)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int guild, value, *faith;
+
+	if( sd == NULL )
+		return 0;
+
+	guild = script_getnum(st,2);
+	value = script_getnum(st,3);
+	switch( guild )
+	{
+		case ARCH_MERC_GUILD:  faith = &sd->status.arch_faith;  break;
+		case SPEAR_MERC_GUILD: faith = &sd->status.spear_faith; break;
+		case SWORD_MERC_GUILD: faith = &sd->status.sword_faith; break;
+		default: return 0; // Invalid Guild
+	}
+
+	*faith += value;
+	*faith = cap_value(*faith, 0, INT_MAX);
+	if( sd->md && mercenary_get_guild(sd->md) == guild )
+		clif_mercenary_updatestatus(sd, SP_MERCFAITH);
 	return 0;
 }
 
