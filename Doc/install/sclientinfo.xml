@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="euc-kr" ?>
+<clientinfo>
+ <desc>uaRO</desc>
+ <servicetype>korea</servicetype>
+ <servertype>primary</servertype>
+  <connection>
+   <display>uaRO</display>
+   <address>play.uaro.kiev.ua</address>
+   <port>16900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+
+  <connection>
+   <display>c7x32 - LAN - 1.147</display>
+   <address>192.168.1.147</address>
+   <port>6900</port>
+   <version>19</version>
+   <langtype>14</langtype>
+   <registrationweb>https://uaro.kiev.ua/</registrationweb>
+  </connection>
+
