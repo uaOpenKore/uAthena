@@ -260,6 +260,7 @@ ACMD_FUNC(quests); // questlog chat UI
 ACMD_FUNC(quest);  // questlog chat UI
 ACMD_FUNC(status); // status/cooldown chat UI
 ACMD_FUNC(whereis); // mob spawn/drop search
+ACMD_FUNC(market); // vendor/price search
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -587,6 +588,7 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Status,             "@status",           1, atcommand_status }, // buffs+cooldowns
 	{ AtCommand_Status,             "@cd",               1, atcommand_status }, // alias
 	{ AtCommand_WhereIs,            "@whereis",          1, atcommand_whereis }, // mob spawn/drop
+	{ AtCommand_Market,             "@market",           1, atcommand_market }, // vendor/price search
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -8636,6 +8638,75 @@ int atcommand_quest(const int fd, struct map_session_data* sd, const char* comma
 		clif_displaymessage(fd, atcmd_output);
 	}
 	clif_displaymessage(fd, "@quest <N> cancel = drop this quest");
+	return 0;
+}
+
+/*==========================================
+ * @market : online vendors selling an item (PV7 client has no store search)
+ *------------------------------------------*/
+static int atcommand_market_sub(DBKey key, void* data, va_list ap)
+{
+	struct map_session_data* vsd = (struct map_session_data*)data;
+	int fd      = va_arg(ap, int);
+	int nameid  = va_arg(ap, int);
+	int* total  = va_arg(ap, int*);
+	int* printed = va_arg(ap, int*);
+	int i;
+	char out[200];
+
+	if( vsd->vender_id == 0 )
+		return 0;
+	for( i = 0; i < vsd->vend_num; i++ )
+	{
+		int slot = vsd->vending[i].index;
+		if( slot < 0 || slot >= MAX_CART )
+			continue;
+		if( vsd->status.cart[slot].nameid != nameid )
+			continue;
+		(*total)++;
+		if( *printed < 20 )
+		{
+			snprintf(out, sizeof(out), "  %s @ %s %d,%d: %uz x%u (\"%s\")",
+				vsd->status.name, map[vsd->bl.m].name, vsd->bl.x, vsd->bl.y,
+				vsd->vending[i].value, vsd->vending[i].amount, vsd->message);
+			clif_displaymessage(fd, out);
+			(*printed)++;
+		}
+	}
+	return 0;
+}
+
+int atcommand_market(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	struct item_data* id;
+	int total = 0, printed = 0;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message )
+	{
+		clif_displaymessage(fd, "Usage: @market <item name>");
+		return -1;
+	}
+	id = itemdb_searchname(message);
+	if( id == NULL )
+	{
+		snprintf(atcmd_output, sizeof(atcmd_output), "Item not found: %s", message);
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+
+	snprintf(atcmd_output, sizeof(atcmd_output), "Vendors selling %s:", id->jname);
+	clif_displaymessage(fd, atcmd_output);
+
+	map_foreachpc(atcommand_market_sub, fd, id->nameid, &total, &printed);
+
+	if( total == 0 )
+		clif_displaymessage(fd, "No vendors selling that.");
+	else if( total > printed )
+	{
+		snprintf(atcmd_output, sizeof(atcmd_output), "  ...(+%d more)", total - printed);
+		clif_displaymessage(fd, atcmd_output);
+	}
 	return 0;
 }
 
