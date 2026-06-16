@@ -19,7 +19,7 @@
 | Этап | Что | Флаг | Дефолт | Статус |
 |------|-----|------|--------|--------|
 | 0 | Харнесс: профайлер + рестарт-лимит + этот индекс | — | — | ✅ **СДЕЛАНО** (UA_PERF=1 в ua-start.sh; StartLimitIntervalSec=0 в .service; индекс — этот файл) |
-| 1a | `SO_SNDBUF` (kernel send-буфер, против EAGAIN на WoE-бурсте) | `socket_sndbuf_size` | 0 | план |
+| 1a | `SO_SNDBUF` (kernel send-буфер, против EAGAIN на WoE-бурсте) | `socket_sndbuf_size` | 0 | ✅ **СДЕЛАНО**: misc.conf `socket_sndbuf_size` (0=дефолт ОС; пробовать 131072–262144). Применяется на всех сокетах в setsocketopts. Замер: A/B 0 vs 262144 под WoE-бурстом (меньше EAGAIN-дрейнов в send-worker) |
 | 1b | path_search scratch без 12КБ memset/вызов | `path_scratch_reuse` | 1 | план |
 | 1c | `packet_db` hot/cold split + hoist len-лука | — | — | план |
 | 2 | **skill_unit AoE**: per-map список + presence-гейт + LoS-кеш (главный пропущенный хотспот) | `skill_unit_active_maps_only`/`skill_unit_skip_noplayer`/`skill_unit_los_cache` | 1 | план |

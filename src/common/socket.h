@@ -104,6 +104,7 @@ extern time_t stall_time;
 
 extern int socket_send_coalesce_ms; // [perf] send coalescing window (ms); 0 disables
 extern int socket_async_send;       // [perf] 1 = client send() runs on the send worker thread
+extern int socket_sndbuf_size;      // [perf] >0 = SO_SNDBUF bytes per socket (0 = kernel default)
 
 //////////////////////////////////
 // some checking on sockets

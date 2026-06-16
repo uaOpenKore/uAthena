@@ -3654,6 +3654,10 @@ int do_init(int argc, char *argv[])
 		ShowStatus("Async send worker enabled (client send() off the game loop).\n");
 	}
 
+	// [perf] Optional larger kernel send buffer per socket (SO_SNDBUF, applied in setsocketopts);
+	// 0 = leave the kernel default. Helps WoE bursts avoid EAGAIN that defeats send-coalescing.
+	socket_sndbuf_size = battle_config.socket_sndbuf_size;
+
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
 	livemob_init();	//Non-owning flat mob-only index for cheap lazy-AI iteration. [perf]

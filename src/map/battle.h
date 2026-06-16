@@ -388,6 +388,7 @@ extern struct Battle_Config {
 	unsigned short mob_ai_active_maps_only; // [perf] under mob_ai&0x20: iterate mobs only on maps with players (cost scales with active locations). 1=on(default)
 	unsigned short socket_async_send; // [perf] 1 = run client send() on a dedicated worker thread (off the game loop). 0=off(default)
 	int socket_send_coalesce_ms; // [perf] map-only send-coalescing window in ms; <=0 = off, >0 = flush window (int: lives in battle_data_int[])
+	int socket_sndbuf_size; // [perf] SO_SNDBUF bytes per socket; 0 = kernel default (int: lives in battle_data_int[])
 	unsigned short hom_setting; //Configures various homunc settings which make them behave unlike normal characters.. [Skotlex]
 	unsigned short dynamic_mobs; // Dynamic Mobs [Wizputer] - battle_athena flag implemented by [random]
 	unsigned short mob_remove_damaged; // Dynamic Mobs - Remove mobs even if damaged [Wizputer]

@@ -3706,6 +3706,7 @@ static const struct battle_data_int {
 	{ "online_reward_exp",                 &battle_config.online_reward_exp	},
 	{ "online_reward_afk",                 &battle_config.online_reward_afk	},
 	{ "socket_send_coalesce_ms",           &battle_config.socket_send_coalesce_ms	}, // [perf] map-only send-coalescing window ms (<=0 off)
+	{ "socket_sndbuf_size",                &battle_config.socket_sndbuf_size		}, // [perf] SO_SNDBUF bytes per socket (0 = kernel default)
 	{ "flooritem_lifetime",                &battle_config.flooritem_lifetime		},
 	{ "item_first_get_time",               &battle_config.item_first_get_time		},
 	{ "item_second_get_time",              &battle_config.item_second_get_time		},
@@ -4098,6 +4099,7 @@ void battle_set_defaults()
 	battle_config.mob_ai_active_maps_only = 1; // [perf] default on: under 0x20, iterate mobs only on maps with players
 	battle_config.socket_async_send = 0; // [perf] default off = inline send on the game loop
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
+	battle_config.socket_sndbuf_size = 0; // [perf] 0 = kernel default; >0 = SO_SNDBUF bytes per socket
 	battle_config.hom_setting = 0xFFFF;
 	battle_config.dynamic_mobs = 1; // use Dynamic Mobs [Wizputer]
 	battle_config.mob_remove_damaged = 1; // Dynamic Mobs - Remove mobs even if damaged [Wizputer]

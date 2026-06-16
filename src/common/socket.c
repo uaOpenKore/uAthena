@@ -78,6 +78,11 @@ int socket_send_coalesce_ms = 0;
 // 0 = inline (default, all servers). Set before accepting connections.
 int socket_async_send = 0;
 
+// [perf] When >0, set SO_SNDBUF (kernel send buffer) to this many bytes on each socket. A larger
+// send buffer lets WoE bursts queue in-kernel instead of hitting EAGAIN (which forces an immediate
+// flush + retry and defeats send-coalescing). 0 = leave the kernel default. Set from misc.conf.
+int socket_sndbuf_size = 0;
+
 struct socket_data* session[SOCKET_MAX];
 
 #ifdef SEND_SHORTLIST
@@ -153,7 +158,8 @@ void setsocketopts(int fd)
 	setsockopt(fd,SOL_SOCKET,SO_REUSEPORT,(char *)&yes,sizeof(yes));
 #endif
 	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&yes, sizeof(yes));
-//	setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *) &wfifo_size , sizeof(rfifo_size ));
+	if( socket_sndbuf_size > 0 ) // [perf] enlarge kernel send buffer (WoE bursts -> fewer EAGAIN); 0 = kernel default
+		setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&socket_sndbuf_size, sizeof(socket_sndbuf_size));
 //	setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *) &rfifo_size , sizeof(rfifo_size ));
 
 	// force the socket into no-wait, graceful-close mode (should be the default, but better make sure)
