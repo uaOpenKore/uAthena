@@ -1915,6 +1915,8 @@ int clif_selllist(struct map_session_data *sd)
 		if(sd->status.inventory[i].nameid > 0 && sd->inventory_data[i]) {
 			if (!itemdb_cansell(&sd->status.inventory[i], pc_isGM(sd)))
 				continue;
+			if (sd->status.inventory[i].expire_time) // [Backport] rentals can't be sold to NPC
+				continue;
 
 			val=sd->inventory_data[i]->value_sell;
 			if (val < 0)

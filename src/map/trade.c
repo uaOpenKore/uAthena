@@ -353,6 +353,12 @@ void trade_tradeadditem(struct map_session_data *sd, int index, int amount)
 		return;
 
 	item = &sd->status.inventory[index];
+	if( item->expire_time )
+	{ // [Backport] rental items can't be traded
+		clif_displaymessage (sd->fd, msg_txt(260));
+		clif_tradeitemok(sd, index+2, 1);
+		return;
+	}
 	trade_i = pc_isGM(sd); //Recycling the variables to check for trad restrict.
 	trade_weight = pc_isGM(target_sd);
 	if (!itemdb_cantrade(item, trade_i, trade_weight) &&	//Can't trade

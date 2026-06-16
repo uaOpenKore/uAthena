@@ -166,7 +166,8 @@ int compare_item(struct item *a, struct item *b)
 	if (a->nameid == b->nameid &&
 		a->identify == b->identify &&
 		a->refine == b->refine &&
-		a->attribute == b->attribute)
+		a->attribute == b->attribute &&
+		a->expire_time == b->expire_time) // [Backport] rentals never merge
 	{
 		int i;
 		for (i = 0; i < MAX_SLOTS && (a->card[i] == b->card[i]); i++);
@@ -190,6 +191,12 @@ static int storage_additem(struct map_session_data *sd,struct storage *stor,stru
 		return 1;
 
 	data = itemdb_search(item_data->nameid);
+
+	if (item_data->expire_time)
+	{	// [Backport] rental items can't be stored (would pause expiry while parked)
+		clif_displaymessage (sd->fd, msg_txt(264));
+		return 1;
+	}
 
 	if (!itemdb_canstore(item_data, pc_isGM(sd)))
 	{	//Check if item is storable. [Skotlex]
@@ -546,6 +553,12 @@ int guild_storage_additem(struct map_session_data *sd,struct guild_storage *stor
 
 	if(item_data->nameid <= 0 || amount <= 0)
 		return 1;
+
+	if (item_data->expire_time)
+	{	// [Backport] rental items can't be stored in guild storage
+		clif_displaymessage (sd->fd, msg_txt(264));
+		return 1;
+	}
 
 	if (!itemdb_canguildstore(item_data, pc_isGM(sd)))
 	{	//Check if item is storable. [Skotlex]
