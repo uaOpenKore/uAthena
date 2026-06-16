@@ -963,8 +963,8 @@
 1925,MORROC_SHADOW_SPIRIT,Morroc's Shadow,Morroc's Shadow,98,150000,0,0,0,1,7,10,18,54,1,1,1,1,6,30,10,12,1,6,68,0x37B5,400,1872,672,480,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 // ============================================================
-// [Merge 2026-06-16] Copied from mob_db2.txt (no ID overlap). mob_db2.txt is RETAINED
-// (kept for testers); the loader reads both and silently re-applies the identical entries.
+// [Merge 2026-06-16] Imported from mob_db2.txt. mob_db2.txt is now empty but kept in the
+// repo (clean override layer for testers; the loader still reads it as a no-op).
 // ============================================================
 // Monsters Additional Database
 //
