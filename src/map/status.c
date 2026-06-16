@@ -5293,6 +5293,9 @@ int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,in
 			if (val1 > 10) //For boss casted skills [Skotlex]
 				val2 += 20*(val1-10);
 			break;
+		case SC_MERC_QUICKEN: // [Backport] merc Two-Hand Quicken (flat +300 aspd)
+			val2 = 300;
+			break;
 		case SC_SPEARQUICKEN:
 			val2 = 200+10*val1;
 			break;

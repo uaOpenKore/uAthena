@@ -63,4 +63,30 @@ Runtime-проверка (нужен клиент + кластер) — на т�
 
 **Откат:** реверт коммита фазы.
 
-<!-- M7d-3 (бафы/тогглы/cure), M7d-4 (ловушки), M7d-5 (AI-каст) — далее. -->
+## Фаза M7d-3a — Боевые бафы/дебафы/тогглы (СДЕЛАНО)
+
+13 self-баф/дебаф merc-скиллов, которые реально кастует combat-AI, подключены к зеркальным
+player-обработчикам в `skill_castend_nodamage_id`.
+
+**Что изменилось (`src/map/skill.c`):**
+- Generic buff-блок (общее sc_start-тело): **MS_BERSERK** (=LK_BERSERK), **MER_QUICKEN**
+  (=KN_TWOHANDQUICKEN), **MS_REFLECTSHIELD** (=CR_REFLECTSHIELD), **MS_PARRYING** (=LK_PARRYING),
+  **MER_INCAGI** (=AL_INCAGI), **MER_BLESSING** (=AL_BLESSING).
+- **MER_SIGHT** (=MG_SIGHT), **MER_DECAGI** (=AL_DECAGI), **MER_LEXDIVINA** (=PR_LEXDIVINA toggle),
+  **MER_PROVOKE** (=SM_PROVOKE, с dstmd→mob_target), **MER_AUTOBERSERK** (=SM_AUTOBERSERK toggle),
+  **ML_DEFENDER/ML_AUTOGUARD** (=CR_DEFENDER/CR_AUTOGUARD on/off-toggle) + их turn-off-проверка в
+  `skill_check_condition`.
+- `src/map/status.c` — SC_MERC_QUICKEN `val2=300` (даёт +300 aspd-rate, как Two-Hand Quicken).
+
+**Решения:** undead-ветка MER_BLESSING/INCAGI (бьёт нежить) **пропущена** (refinement, не меняем
+AL_-поведение, нет зависимости от SC_CHANGEUNDEAD). MS_BERSERK = LK_BERSERk (HP-based berserk) как в
+eAthena. Все merc-case'ы садятся на sd-безопасные тела (нет деref-краша для не-игрока).
+
+**Отложено в M7d-5** (дормант под PV7 / edge): QUICKEN opt3-визуал + DECREASEAGI-конфликт +
+cancel-on-berserk/dontforgetme.
+
+**Верификация:** `make sql` EXIT=0, 0 новых ворнингов. Активируется, когда AI начнёт кастовать (M7d-5).
+
+**Откат:** реверт коммита фазы.
+
+<!-- M7d-3b (саппорт/cure/devotion на мастера), M7d-4 (ловушки), M7d-5 (AI-каст) — далее. -->

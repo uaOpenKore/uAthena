@@ -3715,6 +3715,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case AL_DECAGI:
+	case MER_DECAGI: // [Backport] merc
 		clif_skill_nodamage (src, bl, skillid, skilllv,
 			sc_start(bl, type,
 				(40 + skilllv * 2 + (status_get_lv(src) + sstatus->int_)/5),
@@ -3735,6 +3736,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case PR_LEXDIVINA:
+	case MER_LEXDIVINA: // [Backport] merc
 		if (tsc && tsc->count && tsc->data[type].timer != -1) {
 			status_change_end(bl,type, -1);
 			clif_skill_nodamage (src, bl, skillid, skilllv, 1);
@@ -3991,6 +3993,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case AL_INCAGI:
 	case AL_BLESSING:
+	case MER_INCAGI:       // [Backport] merc
+	case MER_BLESSING:     // [Backport] merc
+	case MS_BERSERK:       // [Backport] merc (shares LK_BERSERK body)
+	case MER_QUICKEN:      // [Backport] merc (shares KN_TWOHANDQUICKEN body)
+	case MS_REFLECTSHIELD: // [Backport] merc (shares CR_REFLECTSHIELD body)
+	case MS_PARRYING:      // [Backport] merc (shares LK_PARRYING body)
 	case PR_SLOWPOISON:
 	case PR_IMPOSITIO:
 	case PR_LEXAETERNA:
@@ -4039,6 +4047,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		break;
 	case MG_SIGHT:
+	case MER_SIGHT: // [Backport] merc
 	case AL_RUWACH:
 	case WZ_SIGHTBLASTER:
 	case NPC_WIDESIGHT:
@@ -4143,6 +4152,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case SM_PROVOKE:
+	case MER_PROVOKE: // [Backport] merc
 		if((tstatus->mode&MD_BOSS) || battle_check_undead(tstatus->race,tstatus->def_ele)) {
 			map_freeblock_unlock();
 			return 1;
@@ -4421,7 +4431,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case BS_MAXIMIZE:
 	case NV_TRICKDEAD:
 	case CR_DEFENDER:
+	case ML_DEFENDER:  // [Backport] merc
 	case CR_AUTOGUARD:
+	case ML_AUTOGUARD: // [Backport] merc
 	case TK_READYSTORM:
 	case TK_READYDOWN:
 	case TK_READYTURN:
@@ -4458,6 +4470,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid, skilllv)));
 		break;
 	case SM_AUTOBERSERK:	// Celest
+	case MER_AUTOBERSERK: // [Backport] merc
 		if (tsc && tsc->data[type].timer != -1)
 			i = status_change_end(bl, type, -1);				
 		else
@@ -8386,7 +8399,9 @@ int skill_check_condition (struct map_session_data *sd, int skill, int lv, int t
 	case TF_HIDING:
 	case AS_CLOAKING:
 	case CR_AUTOGUARD:
+	case ML_AUTOGUARD: // [Backport] merc
 	case CR_DEFENDER:
+	case ML_DEFENDER:  // [Backport] merc
 	case ST_CHASEWALK:
 	case PA_GOSPEL:
 	case CR_SHRINK:
