@@ -1323,6 +1323,21 @@ static int mob_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
  *------------------------------------------*/
 static unsigned int g_mob_ai_sub_lazy_tick = 0;
 
+// [perf] "Is a PC within this mob's view?" probe, cached per mob for MOB_PCNEAR_TTL ms.
+// The probe (map_pc_near -> mobgrid scan) is hot under mob_ai&0x20 (run for every
+// targetless mob); players move slowly, so a far mob's answer is stable for a few
+// ticks. Cost of the cache: a far mob notices an arriving PC up to TTL ms late.
+#define MOB_PCNEAR_TTL 250
+static int mob_pc_near_cached(struct mob_data *md, unsigned int tick)
+{
+	if( md->pcnear_tick == 0 || DIFF_TICK(tick, md->pcnear_tick) >= MOB_PCNEAR_TTL )
+	{
+		md->pcnear = map_pc_near(md->bl.m, md->bl.x, md->bl.y, md->db->range2) ? 1 : 0;
+		md->pcnear_tick = tick;
+	}
+	return md->pcnear;
+}
+
 static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 {
 	struct mob_data *md = (struct mob_data *)data;
@@ -1352,7 +1367,7 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 		// that has a PC in view). Default off preserves the original 0x20 behaviour.
 		if (!battle_config.mob_ai_hard_skip_noplayer ||
 			md->target_id || md->attacked_id ||
-			map_pc_near(md->bl.m, md->bl.x, md->bl.y, md->db->range2))
+			mob_pc_near_cached(md, g_mob_ai_sub_lazy_tick))
 			return mob_ai_sub_hard(&md->bl, ap);
 		// else: fall through to the rate-limited lazy path below
 	}
@@ -1411,6 +1426,15 @@ static int mob_ai_sub_lazy_wrapper(DBKey key,void * data,va_list ap)
 	return mob_ai_sub_lazy(key, data, ap);
 }
 
+// [perf] block_list-signature wrapper so map_foreachinmap() can drive the same
+// per-mob AI (used by the per-active-map iteration under mob_ai&0x20).
+static int mob_ai_sub_lazy_bl(struct block_list *bl,va_list ap)
+{
+	DBKey key;
+	key.i = bl->id;
+	return mob_ai_sub_lazy(key, bl, ap);
+}
+
 /*==========================================
  * Negligent processing for mob outside PC field of view   (interval timer function)
  *------------------------------------------*/
@@ -1436,7 +1460,18 @@ static int mob_ai_hard(int tid,unsigned int tick,intptr_t id,intptr_t data)
 
 	if (battle_config.mob_ai&0x20) {
 		g_mob_ai_sub_lazy_tick = tick;
-		map_foreachmob(mob_ai_sub_lazy_wrapper,tick);	// mob-only index instead of full id_db scan [perf]
+		if (battle_config.mob_ai_active_maps_only) {
+			// [perf] Iterate mobs only on maps that have players, so 0x20 cost
+			// scales with ACTIVE locations, not the total live-mob count (mobs on
+			// the other maps can't do anything a player would see this tick). The
+			// map_num scan is trivial; map_foreachinmap walks each populated map's
+			// per-block mob index (snapshot + freeblock_lock, free-safe).
+			int m;
+			for (m = 0; m < map_num; m++)
+				if (map[m].users > 0)
+					map_foreachinmap(mob_ai_sub_lazy_bl, m, BL_MOB, tick);
+		} else
+			map_foreachmob(mob_ai_sub_lazy_wrapper,tick);	// every live mob (flat index) [perf]
 	} else
 		clif_foreachclient(mob_ai_sub_foreachclient,tick);
 

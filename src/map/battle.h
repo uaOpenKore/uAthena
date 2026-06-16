@@ -384,6 +384,7 @@ extern struct Battle_Config {
 	unsigned short mob_ai; //Configures various mob_ai settings to make them smarter or dumber(official). [Skotlex]
 	unsigned short mob_ai_lazy_skip_emptymap; // [perf] skip lazy AI for mobs on player-less maps (cosmetic walk-to-spawn only). 0=off(default)
 	unsigned short mob_ai_hard_skip_noplayer; // [perf] under mob_ai&0x20: send targetless mobs with no PC in view to the cheap lazy path. 0=off(default)
+	unsigned short mob_ai_active_maps_only; // [perf] under mob_ai&0x20: iterate mobs only on maps with players (cost scales with active locations). 1=on(default)
 	unsigned short socket_async_send; // [perf] 1 = run client send() on a dedicated worker thread (off the game loop). 0=off(default)
 	int socket_send_coalesce_ms; // [perf] map-only send-coalescing window in ms; <=0 = off, >0 = flush window (int: lives in battle_data_int[])
 	unsigned short hom_setting; //Configures various homunc settings which make them behave unlike normal characters.. [Skotlex]

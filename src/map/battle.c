@@ -3622,6 +3622,7 @@ static const struct battle_data_short {
 	{ "monster_ai",                        &battle_config.mob_ai},
 	{ "mob_ai_lazy_skip_emptymap",         &battle_config.mob_ai_lazy_skip_emptymap},
 	{ "mob_ai_hard_skip_noplayer",         &battle_config.mob_ai_hard_skip_noplayer},
+	{ "mob_ai_active_maps_only",           &battle_config.mob_ai_active_maps_only},
 	{ "socket_async_send",                 &battle_config.socket_async_send},
 	{ "hom_setting",                        &battle_config.hom_setting},
 	{ "dynamic_mobs",                      &battle_config.dynamic_mobs},
@@ -4072,6 +4073,7 @@ void battle_set_defaults()
 	battle_config.mob_ai = 0;
 	battle_config.mob_ai_lazy_skip_emptymap = 0; // [perf] default off = original behaviour
 	battle_config.mob_ai_hard_skip_noplayer = 1; // [perf] default on: under 0x20, skip hard AI for mobs with no PC in view
+	battle_config.mob_ai_active_maps_only = 1; // [perf] default on: under 0x20, iterate mobs only on maps with players
 	battle_config.socket_async_send = 0; // [perf] default off = inline send on the game loop
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
 	battle_config.hom_setting = 0xFFFF;

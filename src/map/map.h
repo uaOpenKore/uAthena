@@ -942,6 +942,8 @@ struct spawn_data {
 struct mob_data {
 	struct block_list bl;
 	int livemob_idx;	// slot in the flat live-mob index (livemob.c); -1 if not indexed [perf]
+	unsigned int pcnear_tick;	// [perf] last tick the "PC in view" probe was refreshed (0=never)
+	unsigned char pcnear;		// [perf] cached result of that probe (mob_ai_hard_skip_noplayer)
 	struct unit_data  ud;
 	struct view_data *vd;
 	struct status_data status, *base_status; //Second one is in case of leveling up mobs, or tiny/large mobs.
