@@ -3929,7 +3929,8 @@
 5000,Kaho_Valk,Lord Kaho's Helm,5,20,,100,,5,,0,0xFFFFFFFF,7,2,256,,0,1,138,{ bonus bMdef,10; bonus bStr,5; bonus bAgi,10; bonus bVit,10; bonus bInt,5; bonus bLuk,20; },{},{}
 
 // ============================================================
-// [Merge 2026-06-16] Imported from item_db2.txt (no ID overlap; behaviour-preserving).
+// [Merge 2026-06-16] Copied from item_db2.txt (no ID overlap). item_db2.txt is RETAINED
+// (kept for testers); the loader reads both and silently re-applies the identical entries.
 // ============================================================
 // Items Additional Database - Custom Items go here
 //
