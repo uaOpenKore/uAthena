@@ -408,6 +408,37 @@ void initChangeTables(void)
 	set_sc(HAMI_DEFENCE, SC_DEFENCE, SI_BLANK, SCB_DEF);	//[orn]
 	set_sc(HAMI_BLOODLUST, SC_BLOODLUST, SI_BLANK, SCB_BATK|SCB_WATK);
 
+	// [Backport] Mercenary Soldier skill -> status-change mappings [M7d]. SI_ icons omitted
+	// (PV7-dormant cosmetic, default-blank). Player SCs reuse their existing status_calc/start/end.
+	add_sc( MER_CRASH            , SC_STUN          );
+	set_sc( MER_PROVOKE          , SC_PROVOKE       , SI_BLANK, SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
+	add_sc( MS_MAGNUM            , SC_WATK_ELEMENT  );
+	add_sc( MER_SIGHT            , SC_SIGHT         );
+	set_sc( MER_DECAGI           , SC_DECREASEAGI   , SI_BLANK, SCB_AGI|SCB_SPEED );
+	set_sc( MER_MAGNIFICAT       , SC_MAGNIFICAT    , SI_BLANK, SCB_REGEN );
+	add_sc( MER_LEXDIVINA        , SC_SILENCE       );
+	add_sc( MA_LANDMINE          , SC_STUN          );
+	add_sc( MA_SANDMAN           , SC_SLEEP         );
+	add_sc( MA_FREEZINGTRAP      , SC_FREEZE        );
+	set_sc( MER_AUTOBERSERK      , SC_AUTOBERSERK   , SI_BLANK, SCB_NONE );
+	set_sc( ML_AUTOGUARD         , SC_AUTOGUARD     , SI_BLANK, SCB_NONE );
+	set_sc( MS_REFLECTSHIELD     , SC_REFLECTSHIELD , SI_BLANK, SCB_NONE );
+	set_sc( ML_DEFENDER          , SC_DEFENDER      , SI_BLANK, SCB_SPEED|SCB_ASPD );
+	set_sc( MS_PARRYING          , SC_PARRYING      , SI_BLANK, SCB_NONE );
+	set_sc( MS_BERSERK           , SC_BERSERK       , SI_BLANK, SCB_DEF|SCB_DEF2|SCB_MDEF|SCB_MDEF2|SCB_FLEE|SCB_SPEED|SCB_ASPD|SCB_MAXHP|SCB_REGEN );
+	add_sc( ML_SPIRALPIERCE      , SC_STOP          );
+	set_sc( MER_QUICKEN          , SC_MERC_QUICKEN  , SI_BLANK, SCB_ASPD );
+	add_sc( ML_DEVOTION          , SC_DEVOTION      );
+	set_sc( MER_KYRIE            , SC_KYRIE         , SI_BLANK, SCB_NONE );
+	set_sc( MER_BLESSING         , SC_BLESSING      , SI_BLANK, SCB_STR|SCB_INT|SCB_DEX );
+	set_sc( MER_INCAGI           , SC_INCREASEAGI   , SI_BLANK, SCB_AGI|SCB_SPEED );
+	// kill-bonus stat buffs (granted by mercenary_killbonus; BL_MER-only gate in status_change_start)
+	StatusChangeFlagTable[SC_MERC_FLEEUP] |= SCB_FLEE;
+	StatusChangeFlagTable[SC_MERC_ATKUP]  |= SCB_WATK;
+	StatusChangeFlagTable[SC_MERC_HPUP]   |= SCB_MAXHP;
+	StatusChangeFlagTable[SC_MERC_SPUP]   |= SCB_MAXSP;
+	StatusChangeFlagTable[SC_MERC_HITUP]  |= SCB_HIT;
+
 	set_sc(GD_LEADERSHIP, SC_GUILDAURA, SI_BLANK, SCB_STR|SCB_AGI|SCB_VIT|SCB_DEX);
 	set_sc(GD_BATTLEORDER, SC_BATTLEORDERS, SI_BLANK, SCB_STR|SCB_INT|SCB_DEX);
 	set_sc(GD_REGENERATION, SC_REGENERATION, SI_BLANK, SCB_REGEN);
@@ -3496,6 +3527,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk -= watk * 25/100;
 	if(sc->data[SC_STRIPWEAPON].timer!=-1)
 		watk -= watk * sc->data[SC_STRIPWEAPON].val2/100;
+	if(sc->data[SC_MERC_ATKUP].timer!=-1) // [Backport] merc kill-bonus
+		watk += sc->data[SC_MERC_ATKUP].val2;
 
 	return cap_value(watk,0,USHRT_MAX);
 }
@@ -3560,7 +3593,9 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit -= 30;
 	if(sc->data[SC_INCREASING].timer!=-1)
 		hit += 20; // RockmanEXE; changed based on updated [Reddozen]
-	
+	if(sc->data[SC_MERC_HITUP].timer!=-1) // [Backport] merc kill-bonus
+		hit += sc->data[SC_MERC_HITUP].val2;
+
 	return cap_value(hit,1,SHRT_MAX);
 }
 
@@ -3600,6 +3635,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee -= sc->data[SC_GATLINGFEVER].val4;
 	if(sc->data[SC_SPEED].timer!=-1)
 		flee += 10 + sc->data[SC_SPEED].val1 * 10 ;
+	if(sc->data[SC_MERC_FLEEUP].timer!=-1) // [Backport] merc kill-bonus
+		flee += sc->data[SC_MERC_FLEEUP].val2;
 
 	return cap_value(flee,1,SHRT_MAX);
 }
@@ -3830,6 +3867,10 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 			max < sc->data[SC_ONEHAND].val2)
 			max = sc->data[SC_ONEHAND].val2;
 
+		if(sc->data[SC_MERC_QUICKEN].timer!=-1 && // [Backport] merc Two-Hand Quicken
+			max < sc->data[SC_MERC_QUICKEN].val2)
+			max = sc->data[SC_MERC_QUICKEN].val2;
+
 		if(sc->data[SC_ADRENALINE2].timer!=-1 &&
 			max < sc->data[SC_ADRENALINE2].val3)
 			max = sc->data[SC_ADRENALINE2].val3;
@@ -3937,6 +3978,8 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp += maxhp * sc->data[SC_DELUGE].val2/100;
 	if(sc->data[SC_BERSERK].timer!=-1)
 		maxhp += maxhp * 2;
+	if(sc->data[SC_MERC_HPUP].timer!=-1) // [Backport] merc kill-bonus
+		maxhp += maxhp * sc->data[SC_MERC_HPUP].val2/100;
 
 	return cap_value(maxhp,1,UINT_MAX);
 }
@@ -3950,6 +3993,8 @@ static unsigned int status_calc_maxsp(struct block_list *bl, struct status_chang
 		maxsp += maxsp * sc->data[SC_INCMSPRATE].val1/100;
 	if(sc->data[SC_SERVICE4U].timer!=-1)
 		maxsp += maxsp * sc->data[SC_SERVICE4U].val2/100;
+	if(sc->data[SC_MERC_SPUP].timer!=-1) // [Backport] merc kill-bonus
+		maxsp += maxsp * sc->data[SC_MERC_SPUP].val2/100;
 
 	return cap_value(maxsp,1,UINT_MAX);
 }
@@ -5013,6 +5058,14 @@ int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,in
 		if(sc->data[SC_ADJUSTMENT].timer!=-1)
 			status_change_end(bl,SC_ADJUSTMENT,-1);
 		break;
+	case SC_MERC_FLEEUP: // [Backport] merc kill-bonus buffs are BL_MER-only
+	case SC_MERC_ATKUP:
+	case SC_MERC_HPUP:
+	case SC_MERC_SPUP:
+	case SC_MERC_HITUP:
+		if( bl->type != BL_MER )
+			return 0;
+		break;
 	}
 	//Check for overlapping fails
 	if(sc->data[type].timer != -1){
@@ -5914,6 +5967,15 @@ int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,in
 			val2*=val1; //20% per level
 			val3*=val1;
 			break;
+		case SC_MERC_FLEEUP: // [Backport] merc kill-bonus: val1 = bonus tier (0-4)
+		case SC_MERC_ATKUP:
+		case SC_MERC_HITUP:
+			val2 = 15 * val1;
+			break;
+		case SC_MERC_HPUP:
+		case SC_MERC_SPUP:
+			val2 = 5 * val1;
+			break;
 		case SC_ARMOR_ELEMENT:
 			//Place here SCs that have no SCB_* data, no skill associated, no ICON
 			//associated, and yet are not wrong/unknown. [Skotlex]
@@ -6156,6 +6218,10 @@ int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,in
 		if (ud)
 			ud->state.running = unit_run(bl);
 	}
+	if (type==SC_MERC_HPUP) // [Backport] merc HP-up: recover full HP on grant
+		status_percent_heal(bl, 100, 0);
+	else if (type==SC_MERC_SPUP)
+		status_percent_heal(bl, 0, 100);
 	return 1;
 }
 /*==========================================
