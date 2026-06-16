@@ -35,6 +35,7 @@ static struct block_list **livemob_snap = NULL;
 static int livemob_snap_cap = 0;
 
 #define MOBIDX(bl) (((struct mob_data*)(bl))->livemob_idx)
+#define LIVEMOB_PREFETCH_AHEAD 4	// [perf] iterations to prefetch ahead in the AI scan
 
 void livemob_init(void)
 {
@@ -101,6 +102,11 @@ void livemob_foreach(int (*func)(DBKey, void*, va_list), va_list ap)
 	for (i = 0; i < n; i++) {
 		struct block_list *bl = livemob_snap[i];
 		DBKey key;
+		// [perf] Mobs are scattered heap allocations, so each MOBIDX()/AI deref is a
+		// cache miss. Prefetch a few entries ahead to overlap the miss with the
+		// current mob's AI work (memory-latency-bound under 20k mobs / mob_ai&0x20).
+		if (i + LIVEMOB_PREFETCH_AHEAD < n)
+			__builtin_prefetch(livemob_snap[i + LIVEMOB_PREFETCH_AHEAD], 0, 1);
 		if (MOBIDX(bl) < 0)             // removed from the index during this pass
 			continue;
 		key.i = bl->id;

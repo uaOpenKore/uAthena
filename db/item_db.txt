@@ -3241,8 +3241,8 @@
 12181,Merc_Spear_Scroll_Lv9,Spearman Mercenary Summon Scroll Level 9,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6035,1800000; },{},{}
 12182,Merc_Spear_Scroll_Lv10,Spearman Mercenary Summon Scroll Level 10,2,,1,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 6036,1800000; },{},{}
 12183,Holy_Arrow_Container,Holy Arrow Quiver,2,,1,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 1772,500; },{},{}
-12184,Red_Mercenary_Potion,Mercenary's Red Potion,2,500,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12185,Blue_Mercenary_Potion,Mercenary's Blue Potion,2,1000,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12184,Red_Mercenary_Potion,Mercenary's Red Potion,2,500,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_heal 1000,0; },{},{}
+12185,Blue_Mercenary_Potion,Mercenary's Blue Potion,2,1000,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_heal 0,100; },{},{}
 12186,Red_Box,Old Red Box,2,50000,,200,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12187,Green_Box,Old Green Box,2,50000,,200,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12188,Moon_Snack,Fantastic Moon Snack,2,,10,300,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 50,50; },{},{}
