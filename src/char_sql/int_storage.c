@@ -44,6 +44,7 @@ int storage_tosql(int account_id,struct storage *p){
 			mapitem[count].identify = p->storage_[i].identify;
 			mapitem[count].refine = p->storage_[i].refine;
 			mapitem[count].attribute = p->storage_[i].attribute;
+			mapitem[count].expire_time = p->storage_[i].expire_time; // [Backport] rental
 			for(j=0; j<MAX_SLOTS; j++)
 				mapitem[count].card[j] = p->storage_[i].card[j];
 			count++;
@@ -71,7 +72,9 @@ int storage_fromsql(int account_id, struct storage *p){
 	
 	for (j=0; j<MAX_SLOTS; j++)
 		str_p += sprintf(str_p, ", `card%d`", j);
-	
+
+	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
+
 	str_p += sprintf(str_p," FROM `%s` WHERE `account_id`='%d' ORDER BY `nameid`", storage_db, account_id);
 	
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
@@ -91,6 +94,7 @@ int storage_fromsql(int account_id, struct storage *p){
 			p->storage_[i].attribute= atoi(sql_row[6]);
 			for (j=0; j<MAX_SLOTS; j++)
 				p->storage_[i].card[j]= atoi(sql_row[7+j]);
+			p->storage_[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 			i++;
 		}
 		p->storage_amount = i;
@@ -118,6 +122,7 @@ int guild_storage_tosql(int guild_id, struct guild_storage *p){
 			mapitem[count].identify = p->storage_[i].identify;
 			mapitem[count].refine = p->storage_[i].refine;
 			mapitem[count].attribute = p->storage_[i].attribute;
+			mapitem[count].expire_time = p->storage_[i].expire_time; // [Backport] rental
 			for (j=0; j<MAX_SLOTS; j++)
 				mapitem[count].card[j] = p->storage_[i].card[j];
 			count++;
@@ -146,7 +151,9 @@ int guild_storage_fromsql(int guild_id, struct guild_storage *p){
 
 	for (j=0; j<MAX_SLOTS; j++)
 		str_p += sprintf(str_p, ", `card%d`",  j);
-	
+
+	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
+
 	str_p += sprintf(str_p," FROM `%s` WHERE `guild_id`='%d' ORDER BY `nameid`", guild_storage_db, guild_id);
 	
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
@@ -166,6 +173,7 @@ int guild_storage_fromsql(int guild_id, struct guild_storage *p){
 			p->storage_[i].attribute= atoi(sql_row[6]);
 			for (j=0; j<MAX_SLOTS; j++)
 				p->storage_[i].card[j] = atoi(sql_row[7+j]);
+			p->storage_[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 			i++;
 		}
 		p->storage_amount = i;

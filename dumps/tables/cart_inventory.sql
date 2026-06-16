@@ -35,6 +35,7 @@ CREATE TABLE `cart_inventory` (
   `card1` int(11) NOT NULL DEFAULT '0',
   `card2` int(11) NOT NULL DEFAULT '0',
   `card3` int(11) NOT NULL DEFAULT '0',
+  `expire_time` int(11) unsigned NOT NULL DEFAULT '0',
   `broken` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `char_id` (`char_id`)

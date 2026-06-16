@@ -425,7 +425,8 @@ int compare_item(struct item *a, struct item *b)
 		a->equip == b->equip &&
 		a->identify == b->identify &&
 		a->refine == b->refine &&
-		a->attribute == b->attribute)
+		a->attribute == b->attribute &&
+		a->expire_time == b->expire_time)
 	{
 		int i;
 		for (i=0; i<MAX_SLOTS && a->card[i]==b->card[i]; i++);
@@ -476,6 +477,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			mapitem[count].identify = p->inventory[i].identify;
 			mapitem[count].refine = p->inventory[i].refine;
 			mapitem[count].attribute = p->inventory[i].attribute;
+			mapitem[count].expire_time = p->inventory[i].expire_time; // [Backport] rental
 			for (j=0; j<MAX_SLOTS; j++)
 				mapitem[count].card[j] = p->inventory[i].card[j];
 			count++;
@@ -502,6 +504,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			mapitem[count].identify = p->cart[i].identify;
 			mapitem[count].refine = p->cart[i].refine;
 			mapitem[count].attribute = p->cart[i].attribute;
+			mapitem[count].expire_time = p->cart[i].expire_time; // [Backport] rental
 			for (j=0; j<MAX_SLOTS; j++)
 				mapitem[count].card[j] = p->cart[i].card[j];
 			count++;
@@ -793,6 +796,8 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 	for (j=0; j<MAX_SLOTS; j++)
 		str_p += sprintf(str_p, ", `card%d`", j);
 
+	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
+
 	str_p += sprintf(str_p, " FROM `%s` WHERE `%s`='%d'", tablename, selectoption, char_id);
 
 	if (mysql_query(&mysql_handle, tmp_sql)) {
@@ -819,7 +824,8 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 						mapitem[i].equip == atoi(sql_row[3]) &&
 						mapitem[i].identify == atoi(sql_row[4]) &&
 						mapitem[i].refine == atoi(sql_row[5]) &&
-						mapitem[i].attribute == atoi(sql_row[6]))
+						mapitem[i].attribute == atoi(sql_row[6]) &&
+						mapitem[i].expire_time == (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10))
 					{ //Do nothing.
 					} else
 //==============================================Memory data > SQL ===============================
@@ -842,7 +848,9 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 						
 						for(j=0; j<MAX_SLOTS; j++)
 							str_p += sprintf(str_p, ", `card%d`=%d", j, mapitem[i].card[j]);
-						
+
+						str_p += sprintf(str_p, ", `expire_time`='%u'", mapitem[i].expire_time); // [Backport] rental
+
 						str_p += sprintf(str_p,", `amount`='%d' WHERE `id`='%d' LIMIT 1",
 							mapitem[i].amount, id);
 						
@@ -875,14 +883,16 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 				tablename, selectoption);
 			for(j=0; j<MAX_SLOTS; j++)
 				str_p += sprintf(str_p,", `card%d`", j);
-			
+			str_p += sprintf(str_p,", `expire_time`"); // [Backport] rental
+
 			str_p += sprintf(str_p,") VALUES ( '%d','%d', '%d', '%d', '%d', '%d', '%d'",
 				char_id, mapitem[i].nameid, mapitem[i].amount, mapitem[i].equip, mapitem[i].identify, mapitem[i].refine,
 				mapitem[i].attribute);
-			
+
 			for(j=0; j<MAX_SLOTS; j++)
 				str_p +=sprintf(str_p,", '%d'",mapitem[i].card[j]);
-		
+			str_p +=sprintf(str_p,", '%u'",mapitem[i].expire_time); // [Backport] rental
+
 			strcat(tmp_sql, ")");
 			if(mysql_query(&mysql_handle, tmp_sql))
 			{
@@ -1014,6 +1024,8 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	for (j=0; j<MAX_SLOTS; j++)
 		str_p += sprintf(str_p, ", `card%d`", j);
 
+	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
+
 	str_p += sprintf(str_p, " FROM `%s` WHERE `char_id`='%d'", inventory_db, char_id);
 
 	if (mysql_query(&mysql_handle, tmp_sql)) {
@@ -1032,6 +1044,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 			p->inventory[i].attribute = atoi(sql_row[6]);
 			for (j=0; j<MAX_SLOTS; j++)
 				p->inventory[i].card[j] = atoi(sql_row[7+j]);
+			p->inventory[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 		}
 		mysql_free_result(sql_res);
 		strcat (t_msg, " inventory");
@@ -1042,6 +1055,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	str_p = tmp_sql;
 	str_p += sprintf(str_p, "SELECT `id`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`");
 	for (j = 0; j < MAX_SLOTS; j++) str_p += sprintf(str_p, ", `card%d`", j);
+	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
 	str_p += sprintf(str_p, " FROM `%s` WHERE `char_id`='%d'", cart_db, char_id);
 
 	if (mysql_query(&mysql_handle, tmp_sql)) {
@@ -1060,6 +1074,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 			p->cart[i].attribute = atoi(sql_row[6]);
 			for(j=0; j<MAX_SLOTS; j++)
 				p->cart[i].card[j] = atoi(sql_row[7+j]);
+			p->cart[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 		}
 		mysql_free_result(sql_res);
 		strcat (t_msg, " cart");

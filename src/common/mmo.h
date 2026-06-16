@@ -153,6 +153,7 @@ struct item {
 	char refine;
 	char attribute;
 	short card[MAX_SLOTS];
+	unsigned int expire_time; // [Backport] rental: absolute unix-time of expiry (0 = not a rental)
 };
 
 struct point{

@@ -34,6 +34,7 @@ struct itemtmp {
 	char refine;
 	char attribute;
 	short card[4];
+	unsigned int expire_time; // [Backport] rental expiry timestamp
 };
 enum {
 	TABLE_INVENTORY,
