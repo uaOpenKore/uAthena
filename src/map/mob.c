@@ -1342,8 +1342,20 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 	if (battle_config.mob_ai_lazy_skip_emptymap && map[md->bl.m].users <= 0)
 		return 0;
 
-	if (battle_config.mob_ai&0x20 && map[md->bl.m].users>0)
-		return mob_ai_sub_hard(&md->bl, ap);
+	if (battle_config.mob_ai&0x20 && map[md->bl.m].users>0) {
+		// [perf] Under 0x20 every mob on a populated map runs full hard AI. A mob
+		// with no target/aggressor and no PC within its view range can't acquire or
+		// chase anyone this tick — its only hard-AI action would be an idle random
+		// walk. Gated (mob_ai_hard_skip_noplayer): send such mobs to the cheap lazy
+		// path so 0x20 cost scales with PCs-nearby, not total mob count. map_pc_near
+		// is an UPPER-BOUND grid probe (never a false "no PC" -> never skips a mob
+		// that has a PC in view). Default off preserves the original 0x20 behaviour.
+		if (!battle_config.mob_ai_hard_skip_noplayer ||
+			md->target_id || md->attacked_id ||
+			map_pc_near(md->bl.m, md->bl.x, md->bl.y, md->db->range2))
+			return mob_ai_sub_hard(&md->bl, ap);
+		// else: fall through to the rate-limited lazy path below
+	}
 
 	tick = g_mob_ai_sub_lazy_tick;
 
