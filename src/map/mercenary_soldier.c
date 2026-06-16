@@ -671,6 +671,30 @@ static int merc_attack_skill(struct mercenary_data *md, struct block_list *targe
 	return unit_skilluse_id(&md->bl, target->id, md->db->skill[i].id, md->db->skill[i].lv);
 }
 
+// [M7d-5b] Keep the merc's self-buffs up. Casts ONE missing self-target buff (INF_SELF_SKILL)
+// per call (the cast time gates the next), skipping buffs whose status is already active.
+static int merc_use_self_buffs(struct mercenary_data *md)
+{
+	int i;
+
+	for( i = 0; i < MAX_MERCSKILL; i++ )
+	{
+		int id = md->db->skill[i].id, sct;
+		if( id == 0 )
+			continue;
+		if( !(skill_get_inf(id)&INF_SELF_SKILL) )
+			continue; // self-target buffs only (support-on-master is a later phase)
+		sct = SkillStatusChangeTable(id);
+		if( sct < 0 )
+			continue; // no trackable status -> skip (avoid re-cast every tick)
+		if( md->sc.data[sct].timer != -1 )
+			continue; // buff already active
+		if( unit_skilluse_id(&md->bl, md->bl.id, id, md->db->skill[i].lv) )
+			return 1;
+	}
+	return 0;
+}
+
 static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *sd, unsigned int tick)
 {
 	struct block_list *target = NULL;
@@ -715,11 +739,15 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 		map_foreachinrange(merc_ai_sub_hard_activesearch, &md->bl, md->db->range2, BL_CHAR, md, &target);
 
 	if( target == NULL )
-	{	// Nothing to fight: stay close to the master
+	{	// Nothing to fight: keep self-buffs up, then stay close to the master
 		if( md->ud.attacktimer != -1 || md->ud.walktimer != -1 )
 			return 0;
 		if( check_distance_bl(&sd->bl, &md->bl, MERC_FOLLOW_DISTANCE) )
-			return 0; // already next to him
+		{	// idle next to master -> top up a missing self-buff [M7d-5b]
+			if( battle_config.merc_skill_rate )
+				merc_use_self_buffs(md);
+			return 0;
+		}
 		unit_walktobl(&md->bl, &sd->bl, MERC_FOLLOW_DISTANCE, 0);
 		return 0;
 	}
