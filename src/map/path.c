@@ -21,8 +21,16 @@
 
 #define MAX_HEAP 150
 
-struct tmp_path { short x,y,dist,before,cost,flag;};
+struct tmp_path { short x,y,dist,before,cost,flag; unsigned int gen;}; // [perf] gen = A* search-generation stamp
 #define calc_index(x,y) (((x)+(y)*MAX_WALKPATH) & (MAX_WALKPATH*MAX_WALKPATH-1))
+
+// [perf] A* scratch made file-static + generation-stamped: instead of memset'ing the whole ~16KB
+// tp[] on every A* fallback, bump path_gen; a slot whose .gen != path_gen is treated as fresh
+// (add_path / the start cell reset it on first touch). The single-threaded map loop makes a static
+// safe (path_search_real never re-enters). Behaviour-identical to the memset version; the full
+// memset only runs once when the 32-bit generation counter wraps.
+static struct tmp_path path_tp[MAX_WALKPATH*MAX_WALKPATH];
+static unsigned int path_gen = 0;
 
 const char walk_choices [3][3] =
 {
@@ -122,6 +130,11 @@ static int add_path(int *heap,struct tmp_path *tp,int x,int y,int dist,int befor
 	int i;
 
 	i=calc_index(x,y);
+
+	if(tp[i].gen != path_gen){ // [perf] stale slot from a previous search -> reset to fully fresh (== memset)
+		tp[i].gen = path_gen;
+		tp[i].x = tp[i].y = tp[i].dist = tp[i].before = tp[i].cost = tp[i].flag = 0;
+	}
 
 	if(tp[i].x==x && tp[i].y==y){
 		if(tp[i].dist>dist){
@@ -308,7 +321,7 @@ int path_search_long_real(struct shootpath_data *spd,int m,int x0,int y0,int x1,
 int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int flag,cell_t flag2)
 {
 	int heap[MAX_HEAP+1];
-	struct tmp_path tp[MAX_WALKPATH*MAX_WALKPATH];
+	struct tmp_path *tp = path_tp; // [perf] file-static gen-stamped scratch (no per-call 12-16KB memset)
 	register int i,x,y,dx,dy;
 	int rp,xs,ys;
 	struct map_data *md;
@@ -367,7 +380,11 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 	if(flag&1)
 		return -1;
 
-	memset(tp,0,sizeof(tp));
+	// [perf] gen-stamp instead of a full memset; only clear everything when the counter wraps
+	if(++path_gen == 0){
+		memset(path_tp,0,sizeof(path_tp));
+		path_gen = 1;
+	}
 
 	i=calc_index(x0,y0);
 	tp[i].x=x0;
@@ -376,6 +393,7 @@ int path_search_real(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1
 	tp[i].before=0;
 	tp[i].cost=calc_cost(&tp[i],x1,y1);
 	tp[i].flag=0;
+	tp[i].gen=path_gen; // [perf] mark start cell current so add_path won't treat it as stale
 	heap[0]=0;
 	push_heap_path(heap,tp,calc_index(x0,y0));
 	xs = md->xs-1; // PZ
