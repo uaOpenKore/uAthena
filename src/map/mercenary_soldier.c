@@ -646,6 +646,31 @@ static int merc_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 	return 0;
 }
 
+// [M7d-5] Pick a random offensive skill the merc owns (from mercenary_skill_db) and cast it
+// at the target. Returns 1 if a cast was initiated, 0 otherwise (-> caller falls back to melee).
+// Merc skills are mob-like here: unit_skilluse_id's player condition/SP check is sd-only, so a
+// merc casts without consuming SP; the cast time + the AI think-gate keep it from spamming.
+static int merc_attack_skill(struct mercenary_data *md, struct block_list *target)
+{
+	int i, n = 0, idx[MAX_MERCSKILL];
+
+	for( i = 0; i < MAX_MERCSKILL; i++ )
+	{
+		int id = md->db->skill[i].id;
+		if( id == 0 )
+			continue;
+		if( !(skill_get_inf(id)&INF_ATTACK_SKILL) )
+			continue; // enemy-targeted attack skills only (buffs/support handled elsewhere)
+		idx[n++] = i;
+	}
+	if( n == 0 )
+		return 0;
+
+	i = idx[rnd()%n];
+	// unit_skilluse_id validates target/range/state and fails gracefully (then we melee)
+	return unit_skilluse_id(&md->bl, target->id, md->db->skill[i].id, md->db->skill[i].lv);
+}
+
 static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *sd, unsigned int tick)
 {
 	struct block_list *target = NULL;
@@ -709,6 +734,10 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 			md->ud.target = 0; // unreachable
 		return 0;
 	}
+	// [M7d-5] chance to cast an offensive skill from the merc's skill list instead of meleeing
+	if( battle_config.merc_skill_rate && rnd()%100 < battle_config.merc_skill_rate &&
+		merc_attack_skill(md, target) )
+		return 0; // skill cast initiated
 	unit_attack(&md->bl, target->id, 1); // continuous melee
 	return 0;
 }

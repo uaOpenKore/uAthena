@@ -149,6 +149,7 @@ extern struct Battle_Config {
 	unsigned short monster_damage_delay_rate;
 	unsigned short monster_loot_type;
 	unsigned short mob_skill_rate;	//[Skotlex]
+	unsigned short merc_skill_rate;	// [Backport] hired-merc AI offensive skill-cast chance % (0=disable)
 	unsigned short mob_skill_delay;	//[Skotlex]
 	unsigned short mob_count_rate;
 	unsigned short no_spawn_on_player; //[Skotlex]
