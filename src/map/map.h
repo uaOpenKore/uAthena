@@ -648,6 +648,7 @@ struct map_session_data {
 	int menuskill_id, menuskill_val;
 
 	int invincible_timer;
+	int rental_timer; // [Backport] rental-item expiry timer
 	unsigned int canlog_tick;
 	unsigned int canuseitem_tick;	// [Skotlex]
 	unsigned int cantalk_tick;

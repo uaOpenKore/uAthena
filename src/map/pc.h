@@ -155,6 +155,11 @@ int pc_additem(struct map_session_data*,struct item*,int);
 int pc_getzeny(struct map_session_data*,int);
 int pc_delitem(struct map_session_data*,int,int,int);
 
+// [Backport] rental items
+void pc_inventory_rentals(struct map_session_data *sd);
+int pc_inventory_rental_clear(struct map_session_data *sd);
+void pc_inventory_rental_add(struct map_session_data *sd, int seconds);
+
 int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount);
 int pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type);
 int pc_putitemtocart(struct map_session_data *sd,int idx,int amount);

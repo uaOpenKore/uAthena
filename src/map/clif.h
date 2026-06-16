@@ -385,6 +385,10 @@ int clif_hom_food(struct map_session_data *sd,int foodid,int fail);	//[orn]
 void clif_send_homdata(struct map_session_data *sd, int type, int param);	//[orn]
 int clif_hwalkok(struct homun_data *hd);	//[orn]
 
+// [Backport] rental items
+void clif_rental_time(int fd, int nameid, int seconds);
+void clif_rental_expired(int fd, int index, int nameid);
+
 // [Backport] hired mercenary soldier window (PV7-dormant)
 void clif_mercenary_info(struct map_session_data *sd);
 void clif_mercenary_updatestatus(struct map_session_data *sd, int type);

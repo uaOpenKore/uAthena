@@ -1467,6 +1467,28 @@ int clif_homskillinfoblock(struct map_session_data *sd)
 	return 0;
 }
 
+/// Notification about the remaining time of a rental item (ZC_CASH_TIME_COUNTER). [Backport]
+/// 0298 <name id>.W <seconds>.L
+void clif_rental_time(int fd, int nameid, int seconds)
+{ // '<ItemName>' item will disappear in <seconds/60> minutes.
+	WFIFOHEAD(fd,packet_len(0x298));
+	WFIFOW(fd,0) = 0x298;
+	WFIFOW(fd,2) = nameid;
+	WFIFOL(fd,4) = seconds;
+	WFIFOSET(fd,packet_len(0x298));
+}
+
+/// Deletes a rental item from client's inventory (ZC_CASH_ITEM_DELETE). [Backport]
+/// 0299 <index>.W <name id>.W
+void clif_rental_expired(int fd, int index, int nameid)
+{ // '<ItemName>' item has been deleted from the Inventory
+	WFIFOHEAD(fd,packet_len(0x299));
+	WFIFOW(fd,0) = 0x299;
+	WFIFOW(fd,2) = index+2;
+	WFIFOW(fd,4) = nameid;
+	WFIFOSET(fd,packet_len(0x299));
+}
+
 // [Backport] Mercenary Soldier status window. Client packets 0x29b/0x29d/0x2a2 are
 // PACKETVER >= 20080102; under uAthena's PV7 these are no-ops (no window) — the
 // mercenary still spawns/fights as a visible unit; status is exposed via @merc (MSP3).

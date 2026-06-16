@@ -620,6 +620,88 @@ int pc_online_reward_timer(int tid, unsigned int tick, intptr_t id, intptr_t dat
 	return 0;
 }
 
+/*==========================================
+ * Rental System [Backport]
+ *------------------------------------------*/
+static int pc_inventory_rental_end(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data *sd = map_id2sd((int)id);
+	if( sd == NULL )
+		return 0;
+	if( tid != sd->rental_timer )
+	{
+		ShowError("pc_inventory_rental_end: invalid timer id.\n");
+		return 0;
+	}
+
+	pc_inventory_rentals(sd);
+	return 1;
+}
+
+int pc_inventory_rental_clear(struct map_session_data *sd)
+{
+	if( sd->rental_timer != INVALID_TIMER )
+	{
+		delete_timer(sd->rental_timer, pc_inventory_rental_end);
+		sd->rental_timer = INVALID_TIMER;
+	}
+
+	return 1;
+}
+
+void pc_inventory_rentals(struct map_session_data *sd)
+{
+	int i, c = 0;
+	unsigned int expire_tick, next_tick = UINT_MAX;
+
+	for( i = 0; i < MAX_INVENTORY; i++ )
+	{ // Check for Rentals on Inventory
+		if( sd->status.inventory[i].nameid == 0 )
+			continue; // Nothing here
+		if( sd->status.inventory[i].expire_time == 0 )
+			continue;
+
+		if( sd->status.inventory[i].expire_time <= (unsigned int)time(NULL) )
+		{
+			clif_rental_expired(sd->fd, i, sd->status.inventory[i].nameid);
+			pc_delitem(sd, i, sd->status.inventory[i].amount, 1);
+		}
+		else
+		{
+			expire_tick = (unsigned int)(sd->status.inventory[i].expire_time - time(NULL)) * 1000;
+			clif_rental_time(sd->fd, sd->status.inventory[i].nameid, (int)(expire_tick / 1000));
+			next_tick = min(expire_tick, next_tick);
+			c++;
+		}
+	}
+
+	if( c > 0 ) // 1 hour cap per timer: keeps re-announcing to the owner; avoids overflow on rentals > ~15 days
+		sd->rental_timer = add_timer(gettick() + min(next_tick, 3600000), pc_inventory_rental_end, sd->bl.id, 0);
+	else
+		sd->rental_timer = INVALID_TIMER;
+}
+
+void pc_inventory_rental_add(struct map_session_data *sd, int seconds)
+{
+	const struct TimerData * td;
+	int tick = seconds * 1000;
+
+	if( sd == NULL )
+		return;
+
+	if( sd->rental_timer != INVALID_TIMER )
+	{
+		td = get_timer(sd->rental_timer);
+		if( DIFF_TICK(td->tick, gettick()) > tick )
+		{ // Update Timer as this one ends first than the current one
+			pc_inventory_rental_clear(sd);
+			sd->rental_timer = add_timer(gettick() + tick, pc_inventory_rental_end, sd->bl.id, 0);
+		}
+	}
+	else
+		sd->rental_timer = add_timer(gettick() + min(tick,3600000), pc_inventory_rental_end, sd->bl.id, 0);
+}
+
 int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time, struct mmo_charstatus *st)
 {
 	TBL_PC* old_sd;
@@ -668,6 +750,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	sd->invincible_timer = -1;
 	sd->npc_timer_id = -1;
 	sd->pvp_timer = -1;
+	sd->rental_timer = INVALID_TIMER; // [Backport] rental
 
 	sd->canuseitem_tick = tick;
 	sd->cantalk_tick = tick;
@@ -749,6 +832,9 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	intif_request_questlog(sd);
 	// [Backport] Achievements
 	intif_request_achievements(sd);
+
+	// [Backport] start rental-item expiry timers (announce remaining time, remove expired)
+	pc_inventory_rentals(sd);
 
 	// [Backport] start the online/playtime reward ticker (60s; accumulated time
 	// persists per-character, so relogging no longer resets progress)
@@ -3088,8 +3174,8 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 
 	i = MAX_INVENTORY;
 
-	if (itemdb_isstackable2(data))
-	{ //Stackable
+	if (itemdb_isstackable2(data) && item_data->expire_time == 0)
+	{ //Stackable (rentals never stack — own slot for independent expiry) [Backport]
 		for (i = 0; i < MAX_INVENTORY; i++)
 		{
 			if(sd->status.inventory[i].nameid == item_data->nameid &&
@@ -3378,12 +3464,17 @@ int pc_useitem(struct map_session_data *sd,int n)
 	if (sd->inventory_data[n]->flag.delay_consume)
 		clif_useitemack(sd,n,amount,1);
 	else {
-		clif_useitemack(sd,n,amount-1,1);
-		//Logs (C)onsumable items [Lupus]
-		if(log_config.enable_logs&0x100)
-			log_pick_pc(sd, "C", sd->status.inventory[n].nameid, -1, &sd->status.inventory[n]);
-		//Logs
-		pc_delitem(sd,n,1,1);
+		if( sd->status.inventory[n].expire_time == 0 )
+		{ // [Backport] rental usables apply their effect but are not consumed until expiry
+			clif_useitemack(sd,n,amount-1,1);
+			//Logs (C)onsumable items [Lupus]
+			if(log_config.enable_logs&0x100)
+				log_pick_pc(sd, "C", sd->status.inventory[n].nameid, -1, &sd->status.inventory[n]);
+			//Logs
+			pc_delitem(sd,n,1,1);
+		}
+		else
+			clif_useitemack(sd,n,0,0);
 	}
 	if(sd->status.inventory[n].card[0]==CARD0_CREATE &&
 		pc_famerank(MakeDWord(sd->status.inventory[n].card[2],sd->status.inventory[n].card[3]), MAPID_ALCHEMIST))
@@ -6168,6 +6259,8 @@ int pc_setriding(TBL_PC* sd, int flag)
 int pc_candrop(struct map_session_data *sd,struct item *item)
 {
 	int level = pc_isGM(sd);
+	if( item && item->expire_time ) // [Backport] rental items can't be dropped
+		return 0;
 	if ( pc_can_give_items(level) ) //check if this GM level can drop items
 		return 0;
 	return (itemdb_isdropable(item, level));
@@ -7892,6 +7985,7 @@ int do_init_pc(void)
 	add_timer_func_list(pc_spiritball_timer, "pc_spiritball_timer");
 	add_timer_func_list(pc_follow_timer, "pc_follow_timer");
 	add_timer_func_list(pc_endautobonus, "pc_endautobonus");
+	add_timer_func_list(pc_inventory_rental_end, "pc_inventory_rental_end"); // [Backport] rental
 
 	add_timer(gettick() + autosave_interval, pc_autosave, 0, 0);
 
