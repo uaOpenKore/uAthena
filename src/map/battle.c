@@ -933,6 +933,7 @@ static struct Damage battle_calc_weapon_attack(
 				break;
 
 			case KN_PIERCE:
+			case ML_PIERCE: // [Backport] merc
 				wd.div_= (wd.div_>0?tstatus->size+1:-(tstatus->size+1));
 				break;
 
@@ -944,6 +945,7 @@ static struct Damage battle_calc_weapon_attack(
 			case GS_GROUNDDRIFT:
 			case KN_SPEARSTAB:
 			case KN_BOWLINGBASH:
+			case MS_BOWLINGBASH: // [Backport] merc
 			case MO_BALKYOUNG:
 			case TK_TURNKICK:
 				wd.blewcount=0;
@@ -997,6 +999,7 @@ static struct Damage battle_calc_weapon_attack(
 		(!skill_num ||
 		skill_num == KN_AUTOCOUNTER ||
 		skill_num == SN_SHARPSHOOTING ||
+		skill_num == MA_SHARPSHOOTING || // [Backport] merc
 		skill_num == NJ_KIRIKAGE))
 	{
 		short cri = sstatus->cri;
@@ -1027,6 +1030,7 @@ static struct Damage battle_calc_weapon_attack(
 					cri <<= 1;
 				break;
 			case SN_SHARPSHOOTING:
+			case MA_SHARPSHOOTING: // [Backport] merc
 				cri += 200;
 				break;
 			case NJ_KIRIKAGE:
@@ -1105,9 +1109,11 @@ static struct Damage battle_calc_weapon_attack(
 		{	//Hit skill modifiers
 			//It is proven that bonus is applied on final hitrate, not hit.
 			case SM_BASH:
+			case MS_BASH: // [Backport] merc
 				hitrate += hitrate * 5 * skill_lv / 100;
 				break;
 			case SM_MAGNUM:
+			case MS_MAGNUM: // [Backport] merc
 				hitrate += hitrate * 10 * skill_lv / 100;
 				break;
 			case KN_AUTOCOUNTER:
@@ -1125,6 +1131,7 @@ static struct Damage battle_calc_weapon_attack(
 				hitrate += hitrate * 20 / 100;
 				break;
 			case KN_PIERCE:
+			case ML_PIERCE: // [Backport] merc
 				hitrate += hitrate * 5 * skill_lv / 100;
 				break;
 			case AS_SONICBLOW:
@@ -1178,6 +1185,7 @@ static struct Damage battle_calc_weapon_attack(
 				}
 				break;
 			case LK_SPIRALPIERCE:
+			case ML_SPIRALPIERCE: // [Backport] merc — non-player uses atk2 (else branch)
 				if (sd) {
 					short index = sd->equip_index[EQI_HAND_R];
 
@@ -1294,10 +1302,12 @@ static struct Damage battle_calc_weapon_attack(
 			switch( skill_num )
 			{
 				case SM_BASH:
+				case MS_BASH: // [Backport] merc
 					skillratio += 30*skill_lv;
 					break;
 				case SM_MAGNUM:
-					skillratio += 20*skill_lv; 
+				case MS_MAGNUM: // [Backport] merc
+					skillratio += 20*skill_lv;
 					break;
 				case MC_MAMMONITE:
 					skillratio += 50*skill_lv;
@@ -1306,18 +1316,25 @@ static struct Damage battle_calc_weapon_attack(
 					skillratio += -50+8*sstatus->str;
 					break;
 				case AC_DOUBLE:
+				case MA_DOUBLE: // [Backport] merc
 					skillratio += 10*(skill_lv-1);
 					break;
 				case AC_SHOWER:
+				case MA_SHOWER: // [Backport] merc
 					skillratio += 5*skill_lv-25;
 					break;
 				case AC_CHARGEARROW:
+				case MA_CHARGEARROW: // [Backport] merc
 					skillratio += 50;
 					break;
 				case HT_FREEZINGTRAP:
 					skillratio += -50+10*skill_lv;
 					break;
 				case KN_PIERCE:
+				case ML_PIERCE: // [Backport] merc
+					skillratio += 10*skill_lv;
+					break;
+				case MER_CRASH: // [Backport] merc — standalone +10*lv
 					skillratio += 10*skill_lv;
 					break;
 				case KN_SPEARSTAB:
@@ -1327,6 +1344,7 @@ static struct Damage battle_calc_weapon_attack(
 					skillratio += 50*skill_lv;
 					break;
 				case KN_BRANDISHSPEAR:
+				case ML_BRANDISH: // [Backport] merc
 				{
 					int ratio = 100+20*skill_lv;
 					skillratio += ratio-100;
@@ -1339,6 +1357,7 @@ static struct Damage battle_calc_weapon_attack(
 					break;
 				}
 				case KN_BOWLINGBASH:
+				case MS_BOWLINGBASH: // [Backport] merc
 					skillratio+= 40*skill_lv;
 					break;
 				case AS_GRIMTOOTH:
@@ -1461,6 +1480,7 @@ static struct Damage battle_calc_weapon_attack(
 					skillratio += 40*skill_lv-60;
 					break;
 				case SN_SHARPSHOOTING:
+				case MA_SHARPSHOOTING: // [Backport] merc (inherits uAthena's player formula)
 					skillratio += 50*skill_lv;
 					break;
 				case CG_ARROWVULCAN:
@@ -1739,7 +1759,7 @@ static struct Damage battle_calc_weapon_attack(
 		}
 
 		//Post skill/vit reduction damage increases
-		if (sc && skill_num != LK_SPIRALPIERCE)
+		if (sc && skill_num != LK_SPIRALPIERCE && skill_num != ML_SPIRALPIERCE) // [Backport] merc
 		{	//SC skill damages
 			if(sc->data[SC_AURABLADE].timer!=-1) 
 				ATK_ADD(20*sc->data[SC_AURABLADE].val1);

@@ -34,4 +34,33 @@ Runtime-проверка (нужен клиент + кластер) — на т�
 
 **Откат:** реверт коммита фазы.
 
-<!-- M7d-2 (офенс-урон), M7d-3 (бафы/тогглы/cure), M7d-4 (ловушки), M7d-5 (AI-каст) — далее. -->
+## Фаза M7d-2 — Офенсивный урон (СДЕЛАНО)
+
+Подключены 11 атакующих merc-скиллов — каждый сгруппирован рядом с зеркальным player-скиллом
+(общий обработчик), точно по эталону eAthena.
+
+**Что изменилось:**
+- `src/map/skill.c` `skill_castend_damage_id` — merc-метки добавлены к телам player-скиллов:
+  MS_BASH/MER_CRASH/MA_DOUBLE/ML_PIERCE/MA_CHARGEARROW/ML_SPIRALPIERCE (общее weapon-тело),
+  MS_MAGNUM/MA_SHOWER (splash-тело), MA_SHARPSHOOTING (line-attack), ML_BRANDISH, MS_BOWLINGBASH.
+  MS_MAGNUM теперь тоже даёт fire-element баф (расширен guard SC_WATK_ELEMENT). `skill_get_range2` —
+  MA_SHOWER/DOUBLE/CHARGEARROW получают range-бонус AC_VULTURE.
+- `src/map/battle.c` `battle_calc_weapon_attack` — урон/хит/крит merc-скиллов = как у зеркал:
+  hit (MS_BASH +5%·lv, MS_MAGNUM +10%·lv, ML_PIERCE +5%·lv), div_ (ML_PIERCE = size+1), blewcount=0
+  (MS_BOWLINGBASH), вес-урон (ML_SPIRALPIERCE → atk2 для не-игрока), крит (MA_SHARPSHOOTING +200),
+  skillratio (MS_BASH +30·lv, MS_MAGNUM +20·lv, MA_DOUBLE +10·(lv-1), MA_SHOWER +5·lv-25,
+  MA_CHARGEARROW +50, ML_PIERCE +10·lv, MER_CRASH +10·lv, ML_BRANDISH, MS_BOWLINGBASH +40·lv,
+  MA_SHARPSHOOTING). +SC-скип для ML_SPIRALPIERCE.
+
+**Решения (по флагам спеки):**
+- MS_MAGNUM merc-кулдаун НЕ портирован (uAthena `skill_blockmerc_start` — для homun, не для Mercenary
+  Soldier; eAthena к тому же привязывал его к цели — баг). Применён только fire-element баф.
+- MA_SHARPSHOOTING наследует **uAthena**-формулу skillratio (`50·lv`), а не eAthena (`100+50·lv`) —
+  для консистентности с уже существующим player-Снайпером (player-формулу НЕ трогаем).
+
+**Верификация (здесь):** `make sql` EXIT=0, 0 новых ворнингов. Урон merc-скиллов проверяется только
+в бою с клиентом → **на тестировщиках** (и активируется, когда AI начнёт кастовать — M7d-5).
+
+**Откат:** реверт коммита фазы.
+
+<!-- M7d-3 (бафы/тогглы/cure), M7d-4 (ловушки), M7d-5 (AI-каст) — далее. -->

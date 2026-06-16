@@ -831,6 +831,9 @@ int skill_get_range2 (struct block_list *bl, int id, int lv)
 	//TODO: Find a way better than hardcoding the list of skills affected by AC_VULTURE
 	switch (id) {
 	case AC_SHOWER:
+	case MA_SHOWER:      // [Backport] merc — AC_VULTURE range bonus
+	case MA_DOUBLE:      // [Backport] merc
+	case MA_CHARGEARROW: // [Backport] merc
 	case AC_DOUBLE:
 	case HT_BLITZBEAT:
 	case AC_CHARGEARROW:
@@ -2935,6 +2938,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	switch(skillid)
 	{
 	case SM_BASH:
+	case MS_BASH:         // [Backport] merc — shares the weapon-attack body
+	case MER_CRASH:       // [Backport] merc
+	case MA_DOUBLE:       // [Backport] merc
+	case ML_PIERCE:       // [Backport] merc
+	case MA_CHARGEARROW:  // [Backport] merc
+	case ML_SPIRALPIERCE: // [Backport] merc
 	case MC_MAMMONITE:
 	case TF_DOUBLE:
 	case AC_DOUBLE:
@@ -3065,6 +3074,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case SN_SHARPSHOOTING:
+	case MA_SHARPSHOOTING: // [Backport] merc
 	case NJ_KAMAITACHI:
 		//It won't shoot through walls since on castend there has to be a direct
 		//line of sight between caster and target.
@@ -3187,10 +3197,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AS_SPLASHER:
 	case AS_GRIMTOOTH:
 	case SM_MAGNUM:
+	case MS_MAGNUM: // [Backport] merc — shares the splash body
 	case HT_BLITZBEAT:
 	case MC_CARTREVOLUTION:
 	case NPC_SPLASHATTACK:
 	case AC_SHOWER:
+	case MA_SHOWER: // [Backport] merc
 	case MG_NAPALMBEAT:
 	case MG_FIREBALL:
 	case RG_RAID:
@@ -3229,7 +3241,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv,
 			tick, (skillid == AS_SPLASHER?0:skill_area_temp[0])|(flag&SD_LEVEL));
 
-		if (skillid == SM_MAGNUM) {
+		if (skillid == SM_MAGNUM || skillid == MS_MAGNUM) { // [Backport] merc magnum gets the fire-element buff too
 			//Initiate 10% of your damage becomes fire element.
 			sc_start4(src,SC_WATK_ELEMENT,100,3,20,0,0,skill_get_time2(skillid, skilllv));
 			if (sd) skill_blockpc_start (sd, skillid, skill_get_time(skillid, skilllv));
@@ -3237,6 +3249,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case KN_BRANDISHSPEAR:
+	case ML_BRANDISH: // [Backport] merc
 		//Coded apart for it needs the flag passed to the damage calculation.
 		if (skill_area_temp[1] != bl->id)
 			skill_attack(skill_get_type(skillid), src, src, bl,
@@ -3247,6 +3260,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case KN_BOWLINGBASH:
+	case MS_BOWLINGBASH: // [Backport] merc
 		if(flag&1){
 			if(bl->id==skill_area_temp[1])
 				break;
