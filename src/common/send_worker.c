@@ -94,7 +94,7 @@ static void chunk_free(struct sw_chunk *c)
 {
 	if( c == NULL )
 		return;
-	if( c->cap >= SW_SLAB ) {
+	if( c->cap == SW_SLAB ) {	// only recycle true slab buffers; oversized (coalesced) chunks are freed
 		pthread_mutex_lock(&g_pool_mtx);
 		if( sw_pool_enabled && g_pool_n < SW_FREELIST_MAX ) {
 			c->next = g_pool;
