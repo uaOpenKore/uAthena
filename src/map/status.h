@@ -15,6 +15,12 @@ struct status_change;
 //Use this to refer the max refinery level [Skotlex]
 #define MAX_REFINE 10
 #define MAX_REFINE_BONUS 5
+// GM-only experimental refine ceiling (PoC). Applies ONLY to the GM commands
+// @refine/@item; all normal refine paths (NPC, WS_WEAPONREFINE skill, the
+// percentrefinery success table, successrefitem/downrefitem) still cap at
+// MAX_REFINE. item.refine is char (max 127) and the DB column is tinyint
+// unsigned (max 255), so 99 is safely storable/transportable.
+#define MAX_REFINE_GM 99
 
 extern unsigned long StatusChangeFlagTable[];
 

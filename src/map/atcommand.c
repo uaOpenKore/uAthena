@@ -2576,8 +2576,10 @@ int atcommand_item2(const int fd, struct map_session_data* sd, const char* comma
 			}
 			if (item_data->type == 8)
 				refine = 0;
-			if (refine > 10)
-				refine = 10;
+			if (refine > MAX_REFINE_GM)	// GM-only experimental ceiling (PoC); was 10
+				refine = MAX_REFINE_GM;
+			else if (refine < 0)
+				refine = 0;
 		} else {
 			identify = 1;
 			refine = attr = 0;
@@ -3595,10 +3597,10 @@ int atcommand_refine(const int fd, struct map_session_data* sd, const char* comm
 		return -1;
 	}
 
-	if (refine < -MAX_REFINE)
-		refine = -MAX_REFINE;
-	else if (refine > MAX_REFINE)
-		refine = MAX_REFINE;
+	if (refine < -MAX_REFINE_GM)		// GM-only experimental ceiling (PoC); normal paths still use MAX_REFINE
+		refine = -MAX_REFINE_GM;
+	else if (refine > MAX_REFINE_GM)
+		refine = MAX_REFINE_GM;
 	else if (refine == 0)
 		refine = 1;
 
@@ -3617,8 +3619,8 @@ int atcommand_refine(const int fd, struct map_session_data* sd, const char* comm
 			continue;
 
 		final_refine = sd->status.inventory[i].refine + refine;
-		if (final_refine > MAX_REFINE)
-			final_refine = MAX_REFINE;
+		if (final_refine > MAX_REFINE_GM)	// GM-only experimental ceiling (PoC)
+			final_refine = MAX_REFINE_GM;
 		else if (final_refine < 0)
 			final_refine = 0;
 		if (sd->status.inventory[i].refine != final_refine) {
