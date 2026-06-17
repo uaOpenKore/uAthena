@@ -239,6 +239,7 @@ static int merc_contract_end(int tid, unsigned int tick, intptr_t id, intptr_t d
 	}
 
 	md->contract_timer = INVALID_TIMER;
+	ShowDebug("merc_contract_end: cid=%d FIRED (contract over -> merc removed)\n", sd->status.char_id);	// [M7d-diag]
 	merc_delete(md, 0); // Mercenary soldier's duty hour is over.
 
 	return 0;
@@ -343,6 +344,11 @@ int merc_data_received(struct s_mercenary *merc, bool flag)
 		clif_mercenary_info(sd);
 		clif_mercenary_skillblock(sd);
 	}
+
+	// [M7d-diag] UNCONDITIONAL lifecycle trace (summon + login-load)
+	ShowDebug("merc_data: cid=%d flag=%d mer_id=%d sd_onmap=%d md_onmap=%d life=%d m=%d\n",
+		merc->char_id, flag, sd->status.mer_id, (sd->bl.prev!=NULL), (md->bl.prev!=NULL),
+		merc->life_time, md->bl.m);
 
 	return 1;
 }
@@ -706,8 +712,7 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 		return 0;
 	md->last_thinktime = tick;
 
-	if( battle_config.error_log )
-	{	// [M7d-diag] throttled AI trace -> tells us if the AI fires and with what state
+	{	// [M7d-diag] throttled AI trace (UNCONDITIONAL) -> proves whether the AI fires + state
 		static unsigned int merc_dbg_last = 0;
 		if( DIFF_TICK(tick, merc_dbg_last) >= 2000 )
 		{

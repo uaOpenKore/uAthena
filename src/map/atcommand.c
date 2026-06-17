@@ -8776,9 +8776,30 @@ int atcommand_achievements(const int fd, struct map_session_data* sd, const char
 }
 
 // [Backport] @merc / @mercenary — show the hired mercenary's status (PV7 has no window).
+// @merc reset — wipe the mercenary (live unit + DB record + ownership link) so the player
+// can summon a brand-new one from scratch. Also recovers a stuck "you already own a merc"
+// state left by an inconsistent/orphaned record.
 int atcommand_merc(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	nullpo_retr(-1, sd);
+
+	if( message && *message && strcmpi(message, "reset") == 0 )
+	{
+		int had = (sd->md != NULL) || (sd->status.mer_id != 0);
+		if( sd->md )
+			merc_delete(sd->md, 0);			// life_time=0 -> unit_free: deletes instance row, clears mer_id, frees, NULLs sd->md
+		if( sd->status.mer_id != 0 )
+		{	// orphaned ownership (no live merc, e.g. a pre-fix record): drop the dangling instance + link
+			intif_mercenary_delete(sd->status.mer_id);
+			sd->status.mer_id = 0;
+		}
+		chrif_save(sd, 0);				// persist mer_id=0 to mercenary_owner now (don't wait for autosave)
+		clif_displaymessage(fd, had ?
+			"Mercenary removed. You can summon a new one." :
+			"No mercenary found; ownership link cleared anyway.");
+		return 0;
+	}
+
 	mercenary_chat_status(sd);
 	return 0;
 }

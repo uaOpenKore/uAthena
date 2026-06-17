@@ -8178,6 +8178,12 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 
 	// [Backport] hired mercenary soldier — re-add to the (new) map after warp, like pet/homun
+	if(sd->md) {	// [M7d-diag]
+		ShowDebug("merc_loadend: cid=%d md_onmap=%d -> %s\n", sd->status.char_id,
+			(sd->md->bl.prev!=NULL), (sd->md->bl.prev==NULL?"RE-ADD":"already-on-map"));
+	} else {
+		ShowDebug("merc_loadend: cid=%d sd->md=NULL (no merc attached at loadend)\n", sd->status.char_id);
+	}
 	if(sd->md && sd->md->bl.prev == NULL) {
 		map_addblock(&sd->md->bl);
 		clif_spawn(&sd->md->bl);
