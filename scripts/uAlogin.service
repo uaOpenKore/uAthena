@@ -28,6 +28,11 @@ Group=root
 
 OOMScoreAdjust=-500
 
+# Keep the (light) login server on the reserved system cores 2-3, off the map
+# game-loop cores (0-1, 4-5, ...). Assumes >=4 vCPUs (the multi-map layout); on a
+# smaller box remove this line.
+CPUAffinity=2 3
+
 LimitNOFILE=65536
 
 ExecStart=/opt/uathena/bin/ua-start.sh login sql

@@ -15,8 +15,9 @@ StartLimitIntervalSec=0
 Type=simple
 PIDFile=/opt/uathena/bin/PID-map.pid
 WorkingDirectory=/opt/uathena/bin/
-# append: (not a bare path or file:) so the console log PERSISTS across restarts
-# and crashes instead of being truncated/sent to the journal.
+# This is the SUPERVISOR's console log (ua-start.sh map). Each individual map
+# server writes its OWN game log to /opt/uathena/log/uAmapN.log (N = instance).
+# append: so it PERSISTS across restarts/crashes instead of going to the journal.
 StandardOutput=append:/opt/uathena/log/uAmap.log
 StandardError=append:/opt/uathena/log/uAmap.log
 
@@ -26,15 +27,18 @@ Group=root
 
 OOMScoreAdjust=-500
 
-# [perf] Pin the map server (game-loop thread + send worker) to CPUs 0-1, leaving
-# CPUs 2-3 for the NIC RX/TX softirq (see scripts/rc.local). This keeps network
-# interrupt processing off the cores running the tick and the send worker, so the
-# worker's send()s aren't delayed (the cause of movement rubber-banding). Assumes
-# a 4-vCPU VM with the layout from rc.local; adjust if your core count differs.
-CPUAffinity=0 1
+# NOTE: no CPUAffinity here. ua-start.sh runs a multi-map SUPERVISOR that pins
+# each map server to its own CPU pair with taskset (map#1 -> 0,1 ; map#N -> 2N,
+# 2N+1 ; CPUs 2-3 reserved for the NIC/system - see scripts/rc.local and
+# ua-mapcount.sh). A static CPUAffinity here would confine ALL instances to the
+# same cores, so it must NOT be set.
+
+# Stop only the supervisor (SIGTERM); it then stops its children gracefully
+# (do_final) and does NOT restart them. SIGKILL the whole group only on timeout.
+KillMode=mixed
 
 # Raise the open-file limit so the epoll/SOCKET_MAX connection headroom is
-# usable (the in-code setrlimit cannot exceed the systemd-imposed hard cap).
+# usable (per-process; each map instance gets its own limit).
 LimitNOFILE=65536
 
 ExecStart=/opt/uathena/bin/ua-start.sh map sql
