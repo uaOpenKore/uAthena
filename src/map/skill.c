@@ -10447,15 +10447,27 @@ int skill_unit_timer_sub (struct block_list *bl, va_list ap)
 	flag = skill_dance_switch(unit, group, 0);
 	if (unit->range>=0 && group->interval!=-1)
 	{
-		if (battle_config.skill_wall_check)
-			map_foreachinshootrange(skill_unit_timer_sub_onplace, bl, unit->range, group->bl_flag, bl,tick);
-		else
-			map_foreachinrange(skill_unit_timer_sub_onplace, bl, unit->range, group->bl_flag, bl,tick);
-		if (!unit->alive)
+		// [perf 2b] If this unit can ONLY hit player-side targets (PC/HOM/MER) and none are in
+		// range, the scan is provably empty this tick -> skip it. Units that can hit mobs
+		// (bl_flag has any non-PC/HOM/MER bit) are NOT gated (block_pc_count doesn't track mobs),
+		// so PvM AoE / mob-triggered traps are unaffected. Behaviour-identical otherwise.
+		int do_scan = 1;
+		if (battle_config.skill_unit_skip_noplayer
+			&& !(group->bl_flag & ~(BL_PC|BL_HOM|BL_MER))
+			&& !map_pc_near(bl->m, bl->x, bl->y, unit->range))
+			do_scan = 0;
+		if (do_scan)
 		{
-			if (flag)
-				skill_dance_switch(unit, group, 1);
-			return 0;
+			if (battle_config.skill_wall_check)
+				map_foreachinshootrange(skill_unit_timer_sub_onplace, bl, unit->range, group->bl_flag, bl,tick);
+			else
+				map_foreachinrange(skill_unit_timer_sub_onplace, bl, unit->range, group->bl_flag, bl,tick);
+			if (!unit->alive)
+			{
+				if (flag)
+					skill_dance_switch(unit, group, 1);
+				return 0;
+			}
 		}
 	}
 	if (flag)
