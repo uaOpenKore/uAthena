@@ -4133,7 +4133,7 @@ void battle_set_defaults()
 	battle_config.socket_send_pool = 1; // [perf 5a] default on = recycle send-worker buffers
 	battle_config.recv_parse_shortlist = 1; // [perf] default on = parse only fds with new data
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
-	battle_config.socket_sndbuf_size = 0; // [perf] 0 = kernel default; >0 = SO_SNDBUF bytes per socket
+	battle_config.socket_sndbuf_size = 131072; // [perf] SO_SNDBUF bytes per socket (0 = kernel default); pairs with send coalescing
 	battle_config.hom_setting = 0xFFFF;
 	battle_config.dynamic_mobs = 1; // use Dynamic Mobs [Wizputer]
 	battle_config.mob_remove_damaged = 1; // Dynamic Mobs - Remove mobs even if damaged [Wizputer]
