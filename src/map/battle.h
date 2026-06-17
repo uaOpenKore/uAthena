@@ -146,6 +146,7 @@ extern struct Battle_Config {
 	unsigned short wp_rate;
 	unsigned short pp_rate;
 	unsigned short monster_active_enable;
+	unsigned short mob_target_merc_first;	// [Backport] mobs/bosses pick mercs+homun over players for a NEW target
 	unsigned short monster_damage_delay_rate;
 	unsigned short monster_loot_type;
 	unsigned short mob_skill_rate;	//[Skotlex]

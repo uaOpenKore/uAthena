@@ -376,8 +376,8 @@ int map_addblock_sub (struct block_list *bl, int flag)
 		if (bl->next) bl->next->prev = bl;
 		map[m].block[pos] = bl;
 		map[m].block_count[pos]++;
-		if (bl->type == BL_PC || bl->type == BL_HOM)
-			mobgrid_inc(map[m].block_pc_count, pos);	// [perf] exact PC/HOM presence
+		if (bl->type == BL_PC || bl->type == BL_HOM || bl->type == BL_MER)
+			mobgrid_inc(map[m].block_pc_count, pos);	// [perf] exact PC/HOM/MER presence (mobs target mercs too)
 		if (bl->type == BL_PC && flag)
 		{
 			struct map_session_data* sd;
@@ -421,8 +421,8 @@ int map_delblock_sub (struct block_list *bl, int flag)
 	
 	b = bl->x/BLOCK_SIZE+(bl->y/BLOCK_SIZE)*map[bl->m].bxs;
 
-	if (bl->type == BL_PC || bl->type == BL_HOM)
-		mobgrid_dec(map[bl->m].block_pc_count, b);	// [perf] exact PC/HOM presence
+	if (bl->type == BL_PC || bl->type == BL_HOM || bl->type == BL_MER)
+		mobgrid_dec(map[bl->m].block_pc_count, b);	// [perf] exact PC/HOM/MER presence (mobs target mercs too)
 
 	if (bl->type == BL_PC && flag)
 		if (--map[bl->m].users == 0 && battle_config.dynamic_mobs)	//[Skotlex]

@@ -49,7 +49,7 @@
 #define RUDE_ATTACKED_COUNT 2	//After how many rude-attacks should the skill be used?
 
 //Used to determine default enemy type of mobs (for use in eachinrange calls)
-#define DEFAULT_ENEMY_TYPE(md) (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM)
+#define DEFAULT_ENEMY_TYPE(md) (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM|BL_MER)	// [Backport] mobs target hired mercs too
 
 //Dynamic mob database, allows saving of memory when there's big gaps in the mob_db [Skotlex]
 struct mob_db *mob_db_data[MAX_MOB_DB+1];
@@ -777,6 +777,27 @@ int mob_target(struct mob_data *md,struct block_list *bl,int dist)
 /*==========================================
  * The ?? routine of an active monster
  *------------------------------------------*/
+// [Backport] Decide whether candidate 'nbl' should replace the current best 'cbl' for a mob that is
+// picking a NEW target (cbl is the best found so far this scan, NULL if none yet). With
+// battle_config.mob_target_merc_first ON, summoned allies (merc/homun) outrank players: an ally is
+// taken over a non-ally regardless of distance, and a non-ally never displaces an ally. Within the
+// same rank — or when the flag is OFF — the closer one wins (vanilla behaviour). This only affects
+// NEW-target acquisition (activesearch runs only when the mob has no target), so a mob already
+// locked onto a player keeps that player.
+static int mob_newtarget_better(struct block_list *nbl, struct block_list *cbl, struct block_list *mbl, int dist)
+{
+	if( cbl == NULL )
+		return 1;
+	if( battle_config.mob_target_merc_first )
+	{
+		int n_ally = (nbl->type == BL_MER || nbl->type == BL_HOM);
+		int c_ally = (cbl->type == BL_MER || cbl->type == BL_HOM);
+		if( n_ally != c_ally )
+			return n_ally;	// ally beats non-ally regardless of distance; non-ally never replaces ally
+	}
+	return !check_distance_bl(mbl, cbl, dist);	// same rank (or flag off) -> closer wins
+}
+
 static int mob_ai_sub_hard_activesearch(struct block_list *bl,va_list ap)
 {
 	struct mob_data *md;
@@ -808,9 +829,9 @@ static int mob_ai_sub_hard_activesearch(struct block_list *bl,va_list ap)
 
 		dist = distance_bl(&md->bl, bl);
 		if(
-			((*target) == NULL || !check_distance_bl(&md->bl, *target, dist)) &&
-			battle_check_range(&md->bl,bl,md->db->range2)
-		) { //Pick closest target?
+			battle_check_range(&md->bl,bl,md->db->range2) &&
+			mob_newtarget_better(bl, *target, &md->bl, dist)	// [Backport] prefer merc/homun (gated)
+		) { //Pick best target (priority-then-closest)?
 			(*target) = bl;
 			md->target_id=bl->id;
 			md->min_chase= dist + md->db->range3;
@@ -1183,11 +1204,12 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			view_range, BL_ITEM, md, &tbl);
 	}
 
-	// [perf] The active/change-chase scans only seek BL_PC|BL_HOM (a normal mob's
+	// [perf] The active/change-chase scans only seek BL_PC|BL_HOM|BL_MER (a normal mob's
 	// DEFAULT_ENEMY_TYPE). If none is within view_range the scan is provably empty,
 	// so skip it: tbl stays NULL and the no-target idle path runs below, exactly as
-	// if the scan had found nothing. Summoned mobs (special_state.ai) target
-	// BL_CHAR incl. mobs, so they always scan.
+	// if the scan had found nothing. The block_pc_count grid is kept in lockstep
+	// (PC/HOM/MER). Summoned mobs (special_state.ai) target BL_CHAR incl. mobs, so
+	// they always scan.
 	{
 	int pc_near = md->special_state.ai || map_pc_near(md->bl.m, md->bl.x, md->bl.y, view_range);
 	if (pc_near && ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW))

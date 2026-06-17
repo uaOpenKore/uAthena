@@ -3426,6 +3426,7 @@ static const struct battle_data_short {
 	{ "weapon_produce_rate",               &battle_config.wp_rate					},
 	{ "potion_produce_rate",               &battle_config.pp_rate					},
 	{ "monster_active_enable",             &battle_config.monster_active_enable	},
+	{ "mob_target_merc_first",             &battle_config.mob_target_merc_first	},	// [Backport]
 	{ "monster_damage_delay_rate",         &battle_config.monster_damage_delay_rate},
 	{ "monster_loot_type",                 &battle_config.monster_loot_type		},
 //	{ "mob_skill_use",                     &battle_config.mob_skill_use			},	//Deprecated
@@ -3848,6 +3849,7 @@ void battle_set_defaults()
 	battle_config.wp_rate=100;
 	battle_config.pp_rate=100;
 	battle_config.monster_active_enable=1;
+	battle_config.mob_target_merc_first=1;	// [Backport] default ON: mobs/bosses prefer mercs+homun
 	battle_config.monster_damage_delay_rate=100;
 	battle_config.monster_loot_type=0;
 	battle_config.mob_skill_rate=100;
