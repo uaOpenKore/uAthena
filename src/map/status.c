@@ -2008,6 +2008,12 @@ int status_calc_pc(struct map_session_data* sd,int first)
 	sd->left_weapon.atkmods[1] = atkmods[1][sd->weapontype2];
 	sd->left_weapon.atkmods[2] = atkmods[2][sd->weapontype2];
 
+	// [perf 6] cache the weapon-type mastery bonus for each hand (read per-hit by
+	// battle_addmastery). Recomputed here so it stays in lock-step with weapon type,
+	// mastery skill level and riding state -- all of which trigger status_calc_pc.
+	sd->weapon_mastery[0] = battle_weapon_mastery(sd, sd->weapontype1);
+	sd->weapon_mastery[1] = battle_weapon_mastery(sd, sd->weapontype2);
+
 	if(pc_isriding(sd) &&
 		(sd->status.weapon==W_1HSPEAR || sd->status.weapon==W_2HSPEAR))
 	{	//When Riding with spear, damage modifier to mid-class becomes 

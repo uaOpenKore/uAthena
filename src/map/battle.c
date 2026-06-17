@@ -599,30 +599,14 @@ static int battle_calc_drain(int damage, int rate, int per)
 /*==========================================
  * ?C_??[W
  *------------------------------------------*/
-int battle_addmastery(struct map_session_data *sd,struct block_list *target,int dmg,int type)
+// [perf 6] Weapon-type mastery bonus: the part of battle_addmastery that depends ONLY on
+// the equipped weapon type + that mastery's skill level + riding state -- NOT on the target.
+// status_calc_pc caches this per hand in sd->weapon_mastery[]; battle_addmastery reads the
+// cache when weapon_mastery_cache is on. Behaviour-identical: every input here (weapon type,
+// mastery skill level, riding) triggers status_calc_pc when it changes (equip/skillup/mount).
+int battle_weapon_mastery(struct map_session_data *sd, int weapon)
 {
-	int damage,skill;
-	struct status_data *status = status_get_status_data(target);
-	int weapon;
-	damage = dmg;
-
-	nullpo_retr(0, sd);
-
-	if((skill = pc_checkskill(sd,AL_DEMONBANE)) > 0 &&
-		(battle_check_undead(status->race,status->def_ele) || status->race==RC_DEMON) )
-		damage += (skill*(int)(3+(sd->status.base_level+1)*0.05));	// submitted by orn
-		//damage += (skill * 3);
-
-	if((skill = pc_checkskill(sd,HT_BEASTBANE)) > 0 && (status->race==RC_BRUTE || status->race==RC_INSECT) ) {
-		damage += (skill * 4);
-		if (sd->sc.data[SC_SPIRIT].timer != -1 && sd->sc.data[SC_SPIRIT].val2 == SL_HUNTER)
-			damage += sd->status.str;
-	}
-
-	if(type == 0)
-		weapon = sd->weapontype1;
-	else
-		weapon = sd->weapontype2;
+	int skill, damage = 0;
 	switch(weapon)
 	{
 		case W_DAGGER:
@@ -677,6 +661,38 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 				damage += (skill * 3);
 			break;
 	}
+	return damage;
+}
+
+int battle_addmastery(struct map_session_data *sd,struct block_list *target,int dmg,int type)
+{
+	int damage,skill;
+	struct status_data *status = status_get_status_data(target);
+	int weapon;
+	damage = dmg;
+
+	nullpo_retr(0, sd);
+
+	if((skill = pc_checkskill(sd,AL_DEMONBANE)) > 0 &&
+		(battle_check_undead(status->race,status->def_ele) || status->race==RC_DEMON) )
+		damage += (skill*(int)(3+(sd->status.base_level+1)*0.05));	// submitted by orn
+		//damage += (skill * 3);
+
+	if((skill = pc_checkskill(sd,HT_BEASTBANE)) > 0 && (status->race==RC_BRUTE || status->race==RC_INSECT) ) {
+		damage += (skill * 4);
+		if (sd->sc.data[SC_SPIRIT].timer != -1 && sd->sc.data[SC_SPIRIT].val2 == SL_HUNTER)
+			damage += sd->status.str;
+	}
+
+	if(type == 0)
+		weapon = sd->weapontype1;
+	else
+		weapon = sd->weapontype2;
+	// [perf 6] weapon-type mastery: cached (recomputed in status_calc_pc) or computed live.
+	if( battle_config.weapon_mastery_cache )
+		damage += sd->weapon_mastery[type&1];
+	else
+		damage += battle_weapon_mastery(sd, weapon);
 
 	return damage;
 }
@@ -3568,6 +3584,7 @@ static const struct battle_data_short {
 	{ "skill_unit_skip_noplayer",          &battle_config.skill_unit_skip_noplayer },	// [perf]
 	{ "skill_unit_los_cache",              &battle_config.skill_unit_los_cache },	// [perf]
 	{ "clif_bcast_pc_grid",                &battle_config.clif_bcast_pc_grid   },	// [perf]
+	{ "weapon_mastery_cache",              &battle_config.weapon_mastery_cache },	// [perf 6]
 	{ "cell_stack_limit",                  &battle_config.cell_stack_limit     },
 // eAthena additions
 	{ "item_logarithmic_drops",            &battle_config.logarithmic_drops	},
@@ -4012,6 +4029,7 @@ void battle_set_defaults()
 	battle_config.skill_unit_skip_noplayer = 1;	// [perf] default ON: skip provably-empty player-only AoE scans
 	battle_config.skill_unit_los_cache = 1;	// [perf] default ON: memoize map-static LoS (behaviour-identical)
 	battle_config.clif_bcast_pc_grid = 1;	// [perf] default ON: AREA broadcast skips no-PC blocks (behaviour-identical)
+	battle_config.weapon_mastery_cache = 1;	// [perf 6] default ON: read cached weapon-mastery (behaviour-identical)
 	battle_config.cell_stack_limit = 1;
 	battle_config.bone_drop = 0;
 	battle_config.buyer_name = 1;

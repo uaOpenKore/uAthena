@@ -32,6 +32,7 @@ void battle_drain(struct map_session_data *sd, struct block_list *tbl, int rdama
 int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv);
 
 // _[WIvZ
+int battle_weapon_mastery(struct map_session_data *sd, int weapon);	// [perf 6] weapon-type mastery bonus (cached in status_calc_pc)
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
 int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
 
@@ -434,6 +435,7 @@ extern struct Battle_Config {
 	unsigned short skill_unit_skip_noplayer;	// [perf] skip a unit's AoE scan when it can only hit PC/HOM/MER and none are near
 	unsigned short skill_unit_los_cache;	// [perf] memoize LoS (path_search_long) — immutable per map, so cacheable
 	unsigned short clif_bcast_pc_grid;	// [perf] AREA broadcast skips blocks with no PC/HOM/MER (exact mobgrid count) — behaviour-identical
+	unsigned short weapon_mastery_cache;	// [perf 6] use the per-hand weapon-mastery bonus cached in status_calc_pc (behaviour-identical)
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]

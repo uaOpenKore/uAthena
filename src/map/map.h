@@ -655,6 +655,7 @@ struct map_session_data {
 	unsigned int cantalk_tick;
 
 	short weapontype1,weapontype2;
+	int weapon_mastery[2];	// [perf 6] cached weapon-type mastery bonus for weapontype1/2 (recomputed in status_calc_pc)
 	short disguise; // [Valaris]
 
 	struct weapon_data right_weapon, left_weapon;
