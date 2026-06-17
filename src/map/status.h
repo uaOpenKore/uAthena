@@ -682,6 +682,8 @@ int status_change_clear_buffs(struct block_list *bl, int type);
 void status_calc_bl(struct block_list *bl, unsigned long flag);
 int status_calc_pet(struct pet_data* pd, int first); // [Skotlex]
 int status_calc_pc(struct map_session_data* sd,int first);
+void status_calc_pc_defer(struct map_session_data *sd);	// [perf 7] coalesce equip-swap recompute to next tick
+void status_calc_pc_flush(struct map_session_data *sd);	// [perf 7] force any pending deferred recompute now
 int status_calc_mob(struct mob_data* md, int first); //[Skotlex]
 int status_calc_homunculus(struct homun_data *hd, int first);
 int status_calc_mercenary(struct mercenary_data *md, int first);	// [Backport]

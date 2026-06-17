@@ -157,6 +157,8 @@ int chrif_save(struct map_session_data *sd, int flag)
 {
 	nullpo_retr(-1, sd);
 
+	status_calc_pc_flush(sd);	// [perf 7] run any pending deferred equip-swap recompute before snapshotting
+
 	if (!flag) //The flag check is needed to prevent 'nosave' taking effect when a jailed player logs out.
 		pc_makesavestatus(sd);
 

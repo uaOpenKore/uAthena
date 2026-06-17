@@ -1618,6 +1618,45 @@ static unsigned int status_base_pc_maxsp(struct map_session_data* sd, struct sta
 
 //Calculates player data from scratch without counting SC adjustments.
 //Should be invoked whenever players raise stats, learn passive skills or change equipment.
+// [perf 7] Deferred/coalesced status_calc_pc for the equip-swap path. Multiple
+// pc_equipitem/pc_unequipitem in one tick (e.g. a script equipping a whole set)
+// otherwise trigger one full recompute each; this coalesces them into a single
+// recompute on the next timer tick. NOTE: NOT behaviour-identical -- code that runs
+// right after the equip (OnEquip/OnUnequip item scripts, the SignumCrucis check)
+// reads the not-yet-recomputed battle_status for up to ~1 tick. Gated by
+// battle_config.status_calc_defer; off = the original inline recompute.
+static int status_calc_pc_timer_cb(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data *sd = map_id2sd((int)id);
+	if( sd && sd->calc_pc_timer == tid ) {
+		sd->calc_pc_timer = -1;
+		status_calc_pc(sd, 0);
+	}
+	return 0;
+}
+
+void status_calc_pc_defer(struct map_session_data *sd)
+{
+	if( !battle_config.status_calc_defer ) {
+		status_calc_pc(sd, 0);
+		return;
+	}
+	if( sd->calc_pc_timer != -1 )
+		return;	// already pending this tick -- coalesced
+	sd->calc_pc_timer = add_timer(gettick()+1, status_calc_pc_timer_cb, sd->bl.id, 0);
+}
+
+// Force any pending deferred recompute to run now (before save / on logout / when
+// fresh stats are required synchronously). Safe no-op if nothing is pending.
+void status_calc_pc_flush(struct map_session_data *sd)
+{
+	if( sd->calc_pc_timer != -1 ) {
+		delete_timer(sd->calc_pc_timer, status_calc_pc_timer_cb);
+		sd->calc_pc_timer = -1;
+		status_calc_pc(sd, 0);
+	}
+}
+
 int status_calc_pc(struct map_session_data* sd,int first)
 {
 	static int calculating = 0; //Check for recursive call preemption. [Skotlex]
@@ -1634,6 +1673,14 @@ int status_calc_pc(struct map_session_data* sd,int first)
 
 	if (++calculating > 10) //Too many recursive calls!
 		return -1;
+
+	// [perf 7] a full recompute supersedes any pending deferred equip-swap recompute.
+	// (When called from the deferred timer/flush, calc_pc_timer is already -1, so this
+	// only cancels a still-armed timer when a synchronous recompute beats it to it.)
+	if( sd->calc_pc_timer != -1 ) {
+		delete_timer(sd->calc_pc_timer, status_calc_pc_timer_cb);
+		sd->calc_pc_timer = -1;
+	}
 
 	memcpy(&b_status, &sd->battle_status, sizeof(struct status_data));
 	memcpy(&b_lhw, &sd->battle_lhw, sizeof(struct weapon_atk));

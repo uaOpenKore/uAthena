@@ -3585,6 +3585,7 @@ static const struct battle_data_short {
 	{ "skill_unit_los_cache",              &battle_config.skill_unit_los_cache },	// [perf]
 	{ "clif_bcast_pc_grid",                &battle_config.clif_bcast_pc_grid   },	// [perf]
 	{ "weapon_mastery_cache",              &battle_config.weapon_mastery_cache },	// [perf 6]
+	{ "status_calc_defer",                 &battle_config.status_calc_defer    },	// [perf 7]
 	{ "cell_stack_limit",                  &battle_config.cell_stack_limit     },
 // eAthena additions
 	{ "item_logarithmic_drops",            &battle_config.logarithmic_drops	},
@@ -4030,6 +4031,7 @@ void battle_set_defaults()
 	battle_config.skill_unit_los_cache = 1;	// [perf] default ON: memoize map-static LoS (behaviour-identical)
 	battle_config.clif_bcast_pc_grid = 1;	// [perf] default ON: AREA broadcast skips no-PC blocks (behaviour-identical)
 	battle_config.weapon_mastery_cache = 1;	// [perf 6] default ON: read cached weapon-mastery (behaviour-identical)
+	battle_config.status_calc_defer = 1;	// [perf 7] default ON (per request): coalesce equip-swap recompute to next tick
 	battle_config.cell_stack_limit = 1;
 	battle_config.bone_drop = 0;
 	battle_config.buyer_name = 1;
