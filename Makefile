@@ -127,16 +127,19 @@ plugins addons: src/plugins/GNUmakefile common
 tools:
 	$(MAKE) -C src/tool $(MKDEF)
 	
-clean: src/common/GNUmakefile src/login_sql/GNUmakefile \
-	src/char_sql/GNUmakefile src/map/GNUmakefile \
-	src/ladmin/GNUmakefile src/plugins/GNUmakefile
+# Self-contained, exhaustive clean: nukes EVERY build artifact directly so the next `make`
+# always rebuilds from source (no stale .o / stale generated GNUmakefile can survive). It does
+# NOT depend on the per-subdir GNUmakefiles (avoids the regenerate-then-delete chicken-and-egg),
+# and it covers ALL subdirs incl. src/tool. Keep this in sync if a new src/<dir> is added.
+clean:
 	rm -f Makefile.cache
-	$(MAKE) -C src/common $@
-	$(MAKE) -C src/login_sql $@
-	$(MAKE) -C src/char_sql $@
-	$(MAKE) -C src/map $@
-	$(MAKE) -C src/ladmin $@
-	$(MAKE) -C src/plugins $@
+	rm -rf src/common/obj src/map/obj src/map/sqlobj
+	rm -f src/common/*.o src/login_sql/*.o src/char_sql/*.o src/map/*.o src/ladmin/*.o src/tool/*.o src/plugins/*.o
+	rm -f src/common/GNUmakefile src/login_sql/GNUmakefile src/char_sql/GNUmakefile \
+		src/map/GNUmakefile src/ladmin/GNUmakefile src/plugins/GNUmakefile
+	rm -f login-server login-server_sql char-server char-server_sql \
+		map-server map-server_sql ladmin
+	rm -f plugins/*.so tools/adduser tools/convert
 
 depend: src/common/GNUmakefile src/login_sql/GNUmakefile \
 	src/char_sql/GNUmakefile src/map/GNUmakefile \

@@ -28,7 +28,7 @@ sqlobj/%.o: %.c
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 clean:
-	rm -rf *.o ../../map-server_sql sqlobj GNUmakefile
+	rm -rf *.o obj sqlobj ../../map-server ../../map-server_sql GNUmakefile
 
 # DO NOT DELETE
 
