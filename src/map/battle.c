@@ -3566,6 +3566,7 @@ static const struct battle_data_short {
 	{ "skill_wall_check",                  &battle_config.skill_wall_check     },
 	{ "skill_unit_live_list",              &battle_config.skill_unit_live_list },	// [perf]
 	{ "skill_unit_skip_noplayer",          &battle_config.skill_unit_skip_noplayer },	// [perf]
+	{ "skill_unit_los_cache",              &battle_config.skill_unit_los_cache },	// [perf]
 	{ "cell_stack_limit",                  &battle_config.cell_stack_limit     },
 // eAthena additions
 	{ "item_logarithmic_drops",            &battle_config.logarithmic_drops	},
@@ -4006,6 +4007,7 @@ void battle_set_defaults()
 	battle_config.skill_wall_check = 1;
 	battle_config.skill_unit_live_list = 1;	// [perf] default ON: iterate live skill-unit index (behaviour-identical)
 	battle_config.skill_unit_skip_noplayer = 1;	// [perf] default ON: skip provably-empty player-only AoE scans
+	battle_config.skill_unit_los_cache = 1;	// [perf] default ON: memoize map-static LoS (behaviour-identical)
 	battle_config.cell_stack_limit = 1;
 	battle_config.bone_drop = 0;
 	battle_config.buyer_name = 1;

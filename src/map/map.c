@@ -677,6 +677,43 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list), struct block_lis
 	return returnCount;	//[Skotlex]
 }
 
+// [perf 2c] Line-of-sight memoization. path_search_long() uses CELL_CHKWALL == static map wall
+// (type==1); Ice Wall (CELL_ICEWALL) is explicitly NOT checked (see map_getcellp), so LoS between
+// two cells depends ONLY on immutable map geometry and never changes at runtime. We therefore
+// memoize it permanently (no invalidation): direct-mapped cache, 64-bit verified key
+// (m:16, x0:12, y0:12, x1:12, y1:12). Behaviour-identical (memoizing a pure function). The huge
+// win is under WoE, where the 100ms skill_unit_timer re-checks LoS for many AoE cells vs the same
+// (largely stationary) targets every tick. Gated by battle_config.skill_unit_los_cache.
+#define LOS_CACHE_BITS 16
+#define LOS_CACHE_SIZE (1<<LOS_CACHE_BITS)
+static struct { uint64 key; signed char los; } los_cache[LOS_CACHE_SIZE];
+static int los_cache_ready = 0;
+
+static int map_los_cached(int m, int x0, int y0, int x1, int y1)
+{
+	uint64 key;
+	unsigned int slot;
+
+	if (!battle_config.skill_unit_los_cache)
+		return path_search_long(NULL, m, x0, y0, x1, y1);
+
+	if (!los_cache_ready) {                 // lazy init: empty = sentinel key (won't match a real key)
+		memset(los_cache, 0xFF, sizeof(los_cache));
+		los_cache_ready = 1;
+	}
+
+	key = ((uint64)(m  & 0xFFFF) << 48) | ((uint64)(x0 & 0xFFF) << 36) | ((uint64)(y0 & 0xFFF) << 24)
+	    | ((uint64)(x1 & 0xFFF) << 12) |  (uint64)(y1 & 0xFFF);
+	slot = (unsigned int)((key * 0x9E3779B97F4A7C15ULL) >> (64 - LOS_CACHE_BITS));
+
+	if (los_cache[slot].key == key)         // hit (LoS is immutable per map, so always fresh)
+		return los_cache[slot].los;
+
+	los_cache[slot].los = (signed char)(path_search_long(NULL, m, x0, y0, x1, y1) ? 1 : 0);
+	los_cache[slot].key = key;
+	return los_cache[slot].los;
+}
+
 /*==========================================
  * Same as foreachinrange, but there must be a shoot-able range between center and target to be counted in. [Skotlex]
  *------------------------------------------*/
@@ -713,7 +750,7 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 #ifdef CIRCULAR_AREA
 						&& check_distance_bl(center, bl, range)
 #endif
-						&& path_search_long(NULL,center->m,center->x,center->y,bl->x,bl->y)
+						&& map_los_cached(center->m,center->x,center->y,bl->x,bl->y)
 						&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
 				}
@@ -730,7 +767,7 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 #ifdef CIRCULAR_AREA
 						&& check_distance_bl(center, bl, range)
 #endif
-						&& path_search_long(NULL,center->m,center->x,center->y,bl->x,bl->y)
+						&& map_los_cached(center->m,center->x,center->y,bl->x,bl->y)
 						&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
 				}
