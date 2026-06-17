@@ -699,6 +699,41 @@ static int merc_use_self_buffs(struct mercenary_data *md)
 	return 0;
 }
 
+// [M7d-5c] Support behaviour aimed at the MASTER: cure a status the master is suffering, or keep
+// Devotion linked to him. Casts ONE owned support skill per call (cast time gates the next). Only
+// fires a cure when the master actually has a matching status, so it isn't spammed.
+static int merc_support_master(struct mercenary_data *md, struct map_session_data *sd)
+{
+	struct status_change *msc = &sd->sc;	// master's status changes
+	int i;
+
+	for( i = 0; i < MAX_MERCSKILL; i++ )
+	{
+		int id = md->db->skill[i].id, lv = md->db->skill[i].lv, need = 0;
+		if( id == 0 )
+			continue;
+		switch( id )
+		{	// cures: only if the master currently has a status this skill clears
+			case MER_REGAIN:      need = (msc->data[SC_SLEEP].timer!=-1 || msc->data[SC_STUN].timer!=-1); break;
+			case MER_TENDER:      need = (msc->data[SC_FREEZE].timer!=-1 || msc->data[SC_STONE].timer!=-1); break;
+			case MER_BENEDICTION: need = (msc->data[SC_CURSE].timer!=-1 || msc->data[SC_BLIND].timer!=-1); break;
+			case MER_RECUPERATE:  need = (msc->data[SC_POISON].timer!=-1 || msc->data[SC_SILENCE].timer!=-1); break;
+			case MER_MENTALCURE:  need = (msc->data[SC_CONFUSION].timer!=-1); break;
+			case MER_COMPRESS:    need = (msc->data[SC_BLEEDING].timer!=-1); break;
+			case ML_DEVOTION:	// keep Devotion up; re-cast only if not already linked to THIS merc
+				need = !(msc->data[SC_DEVOTION].timer!=-1 && msc->data[SC_DEVOTION].val1==md->bl.id);
+				break;
+			default:
+				continue;	// MER_SCAPEGOAT is intentionally NOT auto-cast (it sacrifices the merc)
+		}
+		if( !need )
+			continue;
+		if( unit_skilluse_id(&md->bl, sd->bl.id, id, lv) )	// cast on the master
+			return 1;
+	}
+	return 0;
+}
+
 static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *sd, unsigned int tick)
 {
 	struct block_list *target = NULL;
@@ -747,9 +782,13 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 		if( md->ud.attacktimer != -1 || md->ud.walktimer != -1 )
 			return 0;
 		if( check_distance_bl(&sd->bl, &md->bl, MERC_FOLLOW_DISTANCE) )
-		{	// idle next to master -> top up a missing self-buff [M7d-5b]
+		{	// idle next to master -> support the master (cure/devotion), then top up own buffs [M7d-5b/5c]
 			if( battle_config.merc_skill_rate )
+			{
+				if( merc_support_master(md, sd) )
+					return 0;
 				merc_use_self_buffs(md);
+			}
 			return 0;
 		}
 		unit_walktobl(&md->bl, &sd->bl, MERC_FOLLOW_DISTANCE, 0);
