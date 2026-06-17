@@ -791,6 +791,16 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 static int merc_ai_sub_foreachclient(struct map_session_data *sd, va_list ap)
 {
 	unsigned int tick = va_arg(ap, unsigned int);
+	if( sd->md )
+	{	// [M7d-diag] AI loop reached a merc owner -> report bl.prev (throttled 3s).
+		// md_onmap=1 -> merc_ai runs (should follow/attack); md_onmap=0 -> orphaned (removed from map).
+		static unsigned int fc_dbg_last = 0;
+		if( DIFF_TICK(tick, fc_dbg_last) >= 3000 )
+		{
+			fc_dbg_last = tick;
+			ShowDebug("merc_fc: cid=%d md set md_onmap=%d\n", sd->status.char_id, (sd->md->bl.prev!=NULL));
+		}
+	}
 	if( sd->md && sd->md->bl.prev != NULL )
 		merc_ai_sub_hard(sd->md, sd, tick);
 	return 0;
@@ -798,6 +808,8 @@ static int merc_ai_sub_foreachclient(struct map_session_data *sd, va_list ap)
 
 static int merc_ai_hard(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
+	static int merc_tick_once = 0;	// [M7d-diag] prove the AI timer actually fires (logs once near boot)
+	if( !merc_tick_once ) { merc_tick_once = 1; ShowDebug("merc_tick: AI timer is firing (first tick)\n"); }
 	clif_foreachclient(merc_ai_sub_foreachclient, tick);
 	return 0;
 }
