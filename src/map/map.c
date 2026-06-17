@@ -867,6 +867,65 @@ int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, in
 }
 
 /*==========================================
+ * [perf] Specialised map_foreachinarea for AREA *broadcasts* (BL_PC targets only).
+ * Identical collection to map_foreachinarea(..., BL_PC, ...) EXCEPT it skips whole
+ * blocks whose exact PC/HOM/MER presence count (block_pc_count, kept in lock-step by
+ * map_addblock/map_delblock) is zero — such a block provably holds no BL_PC, so it
+ * would contribute nothing to the broadcast. The resulting bl_list is therefore
+ * byte-identical (same order) to the generic walk; this is a pure skip-the-empty
+ * optimisation, behaviour-identical. Gated at the call site by clif_bcast_pc_grid.
+ *------------------------------------------*/
+int map_foreachinareaPC(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, ...)
+{
+	va_list ap;
+	int bx,by;
+	int returnCount =0;
+	struct block_list *bl=NULL;
+	int blockcount=bl_list_count,i,c;
+
+	if (m < 0)
+		return 0;
+	va_start(ap,y1);
+	if (x1 < x0) { bx = x0; x0 = x1; x1 = bx; }
+	if (y1 < y0) { bx = y0; y0 = y1; y1 = bx; }
+	if (x0 < 0) x0 = 0;
+	if (y0 < 0) y0 = 0;
+	if (x1 >= map[m].xs) x1 = map[m].xs-1;
+	if (y1 >= map[m].ys) y1 = map[m].ys-1;
+
+	for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++) {
+		for(bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++) {
+			int pos = bx+by*map[m].bxs;
+			if (map[m].block_pc_count[pos] == 0)	// no PC/HOM/MER in this block -> nothing to broadcast to
+				continue;
+			bl = map[m].block[pos];
+			c = map[m].block_count[pos];
+			for(i=0;i<c && bl;i++,bl=bl->next){
+				if(bl && bl->type == BL_PC && bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1 && bl_list_count<BL_LIST_MAX)
+					bl_list[bl_list_count++]=bl;
+			}
+		}
+	}
+
+	if(bl_list_count>=BL_LIST_MAX) {
+		if(battle_config.error_log)
+			ShowWarning("map_foreachinareaPC: block count too many!\n");
+	}
+
+	map_freeblock_lock();
+
+	for(i=blockcount;i<bl_list_count;i++)
+		if(bl_list[i]->prev)
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
+
+	map_freeblock_unlock();
+
+	va_end(ap);
+	bl_list_count = blockcount;
+	return returnCount;
+}
+
+/*==========================================
  * `(x0,y0)-(x1,y1)(dx,dy)b
  * O(`L`)?obj
  * ?func

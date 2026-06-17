@@ -432,6 +432,7 @@ extern struct Battle_Config {
 	unsigned short skill_unit_live_list;	// [perf] skill_unit_timer iterates the live-unit index vs the global objects[] scan
 	unsigned short skill_unit_skip_noplayer;	// [perf] skip a unit's AoE scan when it can only hit PC/HOM/MER and none are near
 	unsigned short skill_unit_los_cache;	// [perf] memoize LoS (path_search_long) — immutable per map, so cacheable
+	unsigned short clif_bcast_pc_grid;	// [perf] AREA broadcast skips blocks with no PC/HOM/MER (exact mobgrid count) — behaviour-identical
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]
