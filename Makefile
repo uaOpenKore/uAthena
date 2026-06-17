@@ -178,6 +178,7 @@ install:
 		$(shell cp scripts/uA* /etc/systemd/system/)
 		$(shell systemctl daemon-reload)
 		$(shell cp scripts/ua-*.sh /opt/uathena/bin/)
+		$(shell cp -r scripts/cron /opt/uathena/bin/)
 
 uninstall:
 		$(shell rm -fr /opt/uathena/bin)
