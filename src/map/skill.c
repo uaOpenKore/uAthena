@@ -16,6 +16,7 @@
 #include "pet.h"
 #include "mercenary.h"	//[orn]
 #include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (struct mercenary_data)
+#include "liveskillunit.h"	// [perf] live skill-unit index for skill_unit_timer
 #include "mob.h"
 #include "npc.h"
 #include "battle.h"
@@ -10107,11 +10108,13 @@ void skill_stop_dancing (struct block_list *src)
 struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int x, int y, int val1, int val2)
 {
 	struct skill_unit *unit;
+	short was_alive;	// [perf] dead->alive transition gates the live-index add (avoid double-add on re-init)
 
 	nullpo_retr(NULL, group);
 	nullpo_retr(NULL, group->unit); // crash-protection against poor coding
 	nullpo_retr(NULL, unit=&group->unit[idx]);
 
+	was_alive = unit->alive;
 	if(!unit->alive)
 		group->alive_count++;
 
@@ -10126,6 +10129,9 @@ struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int 
 	unit->val2=val2;
 
 	map_addblock(&unit->bl);
+
+	if(!was_alive)	// [perf] register in the live skill-unit index that skill_unit_timer iterates
+		liveskillunit_add(&unit->bl);
 
 	switch (group->skill_id) {
 	case AL_PNEUMA:
@@ -10196,6 +10202,7 @@ int skill_delunit (struct skill_unit *unit, int flag)
 
 	unit->group=NULL;
 	unit->alive=0;
+	liveskillunit_remove(&unit->bl);	// [perf] drop from the live skill-unit index (lockstep with alive)
 	map_delobjectnofree(unit->bl.id);
 	if(--group->alive_count==0)
 		skill_delunitgroup(NULL, group, 0);
@@ -10521,7 +10528,13 @@ int skill_unit_timer (int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	map_freeblock_lock();
 
-	map_foreachobject( skill_unit_timer_sub, BL_SKILL, tick );
+	// [perf] iterate only the LIVE skill units instead of scanning the whole global
+	// objects[] array (floor items + units + ...) every 100ms. Behaviour-identical
+	// (same units, same order of processing); flag off = old map_foreachobject path.
+	if( battle_config.skill_unit_live_list )
+		liveskillunit_foreach( skill_unit_timer_sub, tick );
+	else
+		map_foreachobject( skill_unit_timer_sub, BL_SKILL, tick );
 
 	map_freeblock_unlock();
 
@@ -12084,6 +12097,8 @@ int do_init_skill (void)
 	skill_readdb();
 	skill_dance_switch_sub(NULL, NULL, 2); //Initialize Song/Dance overlap switch code.
 
+	liveskillunit_init();	// [perf] live skill-unit index (iterated by skill_unit_timer)
+
 	skill_unit_ers = ers_new(sizeof(struct skill_unit_group));
 	skill_timer_ers  = ers_new(sizeof(struct skill_timerskill));
 
@@ -12102,6 +12117,7 @@ int do_final_skill(void)
 {
 	ers_destroy(skill_unit_ers);
 	ers_destroy(skill_timer_ers);
+	liveskillunit_final();	// [perf] free the live skill-unit index
 	return 0;
 }
 

@@ -282,6 +282,7 @@ struct skill_unit {
 	int limit;
 	int val1,val2;
 	short alive,range;
+	int liveskillunit_idx;	// [perf] slot in the live skill-unit index (-1 = not indexed); see liveskillunit.c
 };
 
 struct skill_unit_group {

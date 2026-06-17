@@ -428,6 +428,7 @@ extern struct Battle_Config {
 	unsigned short allow_skill_without_day; // [Komurka]
 	unsigned short allow_es_magic_pc; // [Skotlex]
 	unsigned short skill_wall_check; // [Skotlex]
+	unsigned short skill_unit_live_list;	// [perf] skill_unit_timer iterates the live-unit index vs the global objects[] scan
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]
