@@ -15,6 +15,7 @@
 #include "status.h"
 #include "pet.h"
 #include "mercenary.h"	//[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (struct mercenary_data)
 #include "mob.h"
 #include "npc.h"
 #include "battle.h"
@@ -1223,6 +1224,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl,SC_BLIND,4*skilllv,skilllv,skill_get_time2(skillid,skilllv));
 		break;
 
+	case MA_FREEZINGTRAP:	// [Backport] merc trap shares HT_ effect
 	case HT_FREEZINGTRAP:
 		sc_start(bl,SC_FREEZE,(3*skilllv+35),skilllv,skill_get_time2(skillid,skilllv));
 		break;
@@ -1231,6 +1233,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl,SC_BLIND,(10*skilllv+30),skilllv,skill_get_time2(skillid,skilllv));
 		break;
 
+	case MA_LANDMINE:	// [Backport] merc trap shares HT_ effect
 	case HT_LANDMINE:
 		sc_start(bl,SC_STUN,(5*skilllv+30),skilllv,skill_get_time2(skillid,skilllv));
 		break;
@@ -1239,6 +1242,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		status_percent_damage(src, bl, 0, 15*skilllv+5);
 		break;
 
+	case MA_SANDMAN:	// [Backport] merc trap shares HT_ effect
 	case HT_SANDMAN:
 		sc_start(bl,SC_SLEEP,(10*skilllv+40),skilllv,skill_get_time2(skillid,skilllv));
 		break;
@@ -2403,6 +2407,10 @@ static int skill_check_unit_range_sub (struct block_list *bl, va_list ap)
 				return 0;
 			break;
 		case AL_WARP:
+		case MA_SKIDTRAP:	// [Backport] merc traps stack like HT_ traps
+		case MA_LANDMINE:
+		case MA_SANDMAN:
+		case MA_FREEZINGTRAP:
 		case HT_SKIDTRAP:
 		case HT_LANDMINE:
 		case HT_ANKLESNARE:
@@ -3526,8 +3534,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	struct status_change *tsc;
 	struct mob_data *md = NULL;
 	struct mob_data *dstmd = NULL;
+	struct mercenary_data *mer = NULL;	// [Backport] hired merc as caster (MAGNIFICAT/DEVOTION/SCAPEGOAT/ESTIMATION)
 	int i,type=-1;
-	
+
 	if(skillid > 0 && skilllv <= 0) return 0;	// celest
 
 	nullpo_retr(1, src);
@@ -3542,6 +3551,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		hd = (struct homun_data *)src;
 	} else if (src->type == BL_MOB) {
 		md = (struct mob_data *)src;
+	} else if (src->type == BL_MER) {	// [Backport] hired mercenary soldier
+		mer = (struct mercenary_data *)src;
 	}
 
 	if (bl->type == BL_PC){
@@ -4186,6 +4197,16 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case ML_DEVOTION:	// [Backport] a hired merc devotes ONLY its own master (SC_DEVOTION redirects
+				// the master's damage to the merc; cleared via mer->devotion_flag in merc_delete)
+		if( mer && dstsd && mer->master == dstsd )
+		{
+			clif_skill_nodamage(src, bl, skillid, skilllv,
+				sc_start4(bl, type, 100, src->id, 0, skill_get_range2(src,skillid,skilllv), skill_get_time2(skillid,skilllv), 1000));
+			mer->devotion_flag = 1;
+		}
+		break;
+
 	case CR_DEVOTION:
 		if(sd && dstsd)
 		{
@@ -4413,6 +4434,17 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case MER_MAGNIFICAT:	// [Backport] merc self-buff, shared to the master's party (or the master)
+		if( mer != NULL )
+		{
+			clif_skill_nodamage(bl, bl, skillid, skilllv, sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+			if( mer->master && mer->master->status.party_id != 0 && !(flag&1) )
+				party_foreachsamemap(skill_area_sub, mer->master, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+			else if( mer->master && !(flag&1) )
+				clif_skill_nodamage(src, &mer->master->bl, skillid, skilllv, sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+		}
+		break;
+
 	case BS_ADRENALINE:
 	case BS_ADRENALINE2:
 	case BS_WEAPONPERFECT:
@@ -4627,6 +4659,43 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		status_change_end(bl, SC_DPOISON	, -1 );
 		break;
 
+	// [Backport] hired mercenary cures (standalone; each clears specific status effects on the target)
+	case MER_REGAIN:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		status_change_end(bl, SC_SLEEP, -1);
+		status_change_end(bl, SC_STUN, -1);
+		break;
+	case MER_TENDER:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		status_change_end(bl, SC_FREEZE, -1);
+		status_change_end(bl, SC_STONE, -1);
+		break;
+	case MER_BENEDICTION:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		status_change_end(bl, SC_CURSE, -1);
+		status_change_end(bl, SC_BLIND, -1);
+		break;
+	case MER_RECUPERATE:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		status_change_end(bl, SC_POISON, -1);
+		status_change_end(bl, SC_SILENCE, -1);
+		break;
+	case MER_MENTALCURE:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		status_change_end(bl, SC_CONFUSION, -1);
+		break;
+	case MER_COMPRESS:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		status_change_end(bl, SC_BLEEDING, -1);
+		break;
+	case MER_SCAPEGOAT:	// [Backport] sacrifice the merc to fully heal its master
+		if( mer && mer->master )
+		{
+			status_heal(&mer->master->bl, mer->battle_status.hp, 0, 2);
+			status_damage(src, src, mer->battle_status.max_hp, 0, 0, 1);
+		}
+		break;
+
 	case PR_STRECOVERY:
 		if(status_isimmune(bl)) {
 			clif_skill_nodamage(src,bl,skillid,skilllv,0);
@@ -4651,10 +4720,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			mob_unlocktarget(dstmd,tick);
 		break;
 
+	case MER_ESTIMATION:	// [Backport] merc casts -> show the estimation window to its master
+		if( !mer )
+			break;
+		sd = mer->master;
 	case WZ_ESTIMATION:
 		if(sd) {
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			clif_skill_estimation((struct map_session_data *)src,bl);
+			clif_skill_estimation(sd,bl);	// was (TBL_PC*)src — use sd so a merc's MASTER gets the window
 		}
 		break;
 
@@ -5300,6 +5373,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case MA_REMOVETRAP:	// [Backport] merc removes any trap (BL_MER bypasses the owner check)
 	case HT_REMOVETRAP:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		{
@@ -5308,7 +5382,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			int flag;
 			if((bl->type==BL_SKILL) &&
 			   (su=(struct skill_unit *)bl) &&
-			   (su->group->src_id == src->id || map_flag_vs(bl->m)) &&
+			   (src->type==BL_MER || su->group->src_id == src->id || map_flag_vs(bl->m)) &&
 				(skill_get_inf2(su->group->skill_id) & INF2_TRAP))
 			{	
 				if(sd && !su->group->state.into_abyss)
@@ -6305,6 +6379,10 @@ int skill_castend_pos2 (struct block_list *src, int x, int y, int skillid, int s
 	case PR_MAGNUS:
 	case CR_GRANDCROSS:
 	case NPC_GRANDDARKNESS:
+	case MA_SKIDTRAP:	// [Backport] merc traps lay like HT_ traps
+	case MA_LANDMINE:
+	case MA_SANDMAN:
+	case MA_FREEZINGTRAP:
 	case HT_SKIDTRAP:
 	case HT_LANDMINE:
 	case HT_ANKLESNARE:
@@ -6899,6 +6977,10 @@ struct skill_unit_group *skill_unitsetting (struct block_list *src, int skillid,
 		break;
 	case HT_SHOCKWAVE:
 		val1=skilllv*15+10;
+	case MA_SKIDTRAP:	// [Backport] merc traps get the same WOE(x4)/vs-target treatment as HT_
+	case MA_LANDMINE:
+	case MA_SANDMAN:
+	case MA_FREEZINGTRAP:
 	case HT_SANDMAN:
 	case HT_CLAYMORETRAP:
 	case HT_SKIDTRAP:
