@@ -88,6 +88,21 @@ struct socket_data* session[SOCKET_MAX];
 #ifdef SEND_SHORTLIST
 int send_shortlist_array[SOCKET_MAX];// fd's that have data to send / need eof handling
 int send_shortlist_count = 0;// how many fd's are in the shortlist
+
+// [perf] recv parse shortlist: only fds that received data are parsed each tick (vs scanning all
+// fd_max sessions). Default ON; map.c may override from misc.conf. Mirrors the send shortlist.
+int recv_parse_shortlist = 1;
+int parse_shortlist_array[SOCKET_MAX];
+int parse_shortlist_count = 0;
+static void parse_shortlist_add_fd(int fd)
+{
+	if( !session_isValid(fd) )
+		return;
+	if( session[fd]->in_parselist )
+		return; // dedup
+	session[fd]->in_parselist = 1;
+	parse_shortlist_array[parse_shortlist_count++] = fd;
+}
 // dedup is tracked per-session via session[fd]->in_shortlist (an fd_set would
 // have re-imposed the FD_SETSIZE ceiling we are removing).
 #endif
@@ -216,6 +231,8 @@ int recv_to_fifo(int fd)
 
 	session[fd]->rdata_size += len;
 	session[fd]->rdata_tick = last_tick;
+	if( recv_parse_shortlist )
+		parse_shortlist_add_fd(fd);	// [perf] mark this fd for parsing this tick
 	return 0;
 }
 
@@ -590,27 +607,92 @@ int do_sendrecv(int next)
 int do_parsepacket(void)
 {
 	int i;
-	for(i = 1; i < fd_max; i++)
+
+	if( !recv_parse_shortlist )
+	{	// [perf] fallback / A/B: original brute-scan of every session each tick
+		for(i = 1; i < fd_max; i++)
+		{
+			if(!session[i])
+				continue;
+
+			if (session[i]->rdata_tick && DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time) {
+				ShowInfo ("Session #%d timed out\n", i);
+				set_eof(i);
+			}
+
+			session[i]->func_parse(i);
+
+			if(!session[i])
+				continue;
+
+			/* after parse, check client's RFIFO size to know if there is an invalid packet (too big and not parsed) */
+			if (session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size) {
+				set_eof(i);
+				continue;
+			}
+			RFIFOFLUSH(i);
+		}
+		return 0;
+	}
+
+	// [perf] Shortlist path: parse ONLY fds that received data (queued by recv_to_fifo via epoll),
+	// instead of indirect-calling func_parse + RFIFOFLUSH on every one of fd_max sessions each tick.
 	{
-		if(!session[i])
-			continue;
+		int n = 0;
+		while( n < parse_shortlist_count )
+		{
+			i = parse_shortlist_array[n];
+			if( !session[i] )
+			{	// session gone -> drop the slot (swap with last)
+				parse_shortlist_array[n] = parse_shortlist_array[--parse_shortlist_count];
+				continue;
+			}
 
-		if (session[i]->rdata_tick && DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time) {
-			ShowInfo ("Session #%d timed out\n", i);
-			set_eof(i);
+			session[i]->func_parse(i);
+
+			if( session[i] )
+			{
+				// invalid (oversized, unparseable) packet -> close
+				if( session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size )
+					set_eof(i);
+				else
+					RFIFOFLUSH(i);
+			}
+
+			// Keep the fd ONLY if it's still alive, not eof, and still holds unparsed data
+			// (a partial/incomplete packet awaiting more bytes). recv_to_fifo re-adds it when
+			// more data arrives, so removing a fully-drained fd never loses anything.
+			if( session[i] && !session[i]->eof && RFIFOREST(i) > 0 )
+			{
+				++n;
+			}
+			else
+			{
+				if( session[i] )
+					session[i]->in_parselist = 0;
+				parse_shortlist_array[n] = parse_shortlist_array[--parse_shortlist_count];
+			}
 		}
+	}
 
-		session[i]->func_parse(i);
-
-		if(!session[i])
-			continue;
-
-		/* after parse, check client's RFIFO size to know if there is an invalid packet (too big and not parsed) */
-		if (session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size) {
-			set_eof(i);
-			continue;
+	// [perf 3b] Stall/idle timeout: shortlisted fds are only the active ones, so the per-fd timeout
+	// can't live in the parse loop. Sweep ALL sessions on a ~1s throttle instead of every tick.
+	{
+		static unsigned int last_stall_sweep = 0;
+		unsigned int now = gettick();
+		if( DIFF_TICK(now, last_stall_sweep) >= 1000 )
+		{
+			last_stall_sweep = now;
+			for(i = 1; i < fd_max; i++)
+			{
+				if( session[i] && session[i]->rdata_tick
+					&& DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time )
+				{
+					ShowInfo("Session #%d timed out\n", i);
+					set_eof(i);
+				}
+			}
 		}
-		RFIFOFLUSH(i);
 	}
 	return 0;
 }

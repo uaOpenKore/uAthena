@@ -3699,6 +3699,10 @@ int do_init(int argc, char *argv[])
 	// 0 = leave the kernel default. Helps WoE bursts avoid EAGAIN that defeats send-coalescing.
 	socket_sndbuf_size = battle_config.socket_sndbuf_size;
 
+	// [perf] Parse only fds that received data this tick (recv parse-shortlist) instead of
+	// scanning all sessions. 1 = on (default), 0 = old brute-scan.
+	recv_parse_shortlist = battle_config.recv_parse_shortlist;
+
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
 	livemob_init();	//Non-owning flat mob-only index for cheap lazy-AI iteration. [perf]

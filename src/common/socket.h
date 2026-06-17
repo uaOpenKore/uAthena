@@ -89,6 +89,7 @@ struct socket_data {
 	SendFunc func_send;
 	ParseFunc func_parse;
 	unsigned char in_shortlist; // already queued in the send shortlist (dedup)
+	unsigned char in_parselist; // [perf] already queued in the recv parse shortlist (dedup)
 	unsigned int last_send_tick; // [perf] gettick() of last flush, for send coalescing
 };
 
@@ -105,6 +106,7 @@ extern time_t stall_time;
 extern int socket_send_coalesce_ms; // [perf] send coalescing window (ms); 0 disables
 extern int socket_async_send;       // [perf] 1 = client send() runs on the send worker thread
 extern int socket_sndbuf_size;      // [perf] >0 = SO_SNDBUF bytes per socket (0 = kernel default)
+extern int recv_parse_shortlist;    // [perf] 1 = parse only fds that received data (vs scan all fds)
 
 //////////////////////////////////
 // some checking on sockets
