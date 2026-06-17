@@ -7650,6 +7650,9 @@ int clif_charnameack (int fd, struct block_list *bl)
 	case BL_HOM:
 		memcpy(WBUFP(buf,6), ((TBL_HOM*)bl)->homunculus.name, NAME_LENGTH);
 		break;
+	case BL_MER:	// [Backport] hired mercenary soldier
+		memcpy(WBUFP(buf,6), ((TBL_MER*)bl)->db->name, NAME_LENGTH);
+		break;
 	case BL_PET:
 		memcpy(WBUFP(buf,6), ((TBL_PET*)bl)->pet.name, NAME_LENGTH);
 		break;

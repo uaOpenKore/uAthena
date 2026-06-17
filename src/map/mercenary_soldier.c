@@ -706,6 +706,19 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 		return 0;
 	md->last_thinktime = tick;
 
+	if( battle_config.error_log )
+	{	// [M7d-diag] throttled AI trace -> tells us if the AI fires and with what state
+		static unsigned int merc_dbg_last = 0;
+		if( DIFF_TICK(tick, merc_dbg_last) >= 2000 )
+		{
+			merc_dbg_last = tick;
+			ShowDebug("merc_ai: id=%d pos=%d,%d master=%d,%d dist=%d mode=%d spd=%d wt=%d at=%d st=%d tgt=%d\n",
+				md->bl.id, md->bl.x, md->bl.y, sd->bl.x, sd->bl.y,
+				distance_bl(&sd->bl, &md->bl), status_get_mode(&md->bl), status_get_speed(&md->bl),
+				md->ud.walktimer, md->ud.attacktimer, md->ud.skilltimer, md->ud.target);
+		}
+	}
+
 	if( md->ud.skilltimer != -1 )
 		return 0; // casting
 	if( md->bl.m != sd->bl.m )
