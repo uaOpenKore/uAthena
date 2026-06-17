@@ -650,6 +650,7 @@ struct map_session_data {
 
 	int invincible_timer;
 	int rental_timer; // [Backport] rental-item expiry timer
+	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
 	unsigned int canlog_tick;
 	unsigned int canuseitem_tick;	// [Skotlex]
 	unsigned int cantalk_tick;

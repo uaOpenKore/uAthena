@@ -751,6 +751,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	sd->npc_timer_id = -1;
 	sd->pvp_timer = -1;
 	sd->rental_timer = INVALID_TIMER; // [Backport] rental
+	sd->calc_pc_timer = -1; // [perf 7] no deferred status_calc_pc pending
 
 	sd->canuseitem_tick = tick;
 	sd->cantalk_tick = tick;
@@ -6858,7 +6859,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 	pc_checkallowskill(sd); //Check if status changes should be halted.
 
 
-	status_calc_pc(sd,0);
+	status_calc_pc_defer(sd);	// [perf 7] coalesce equip-swap recompute (flag off = inline)
 	if (flag) //Update skill data
 		clif_skillinfoblock(sd);
 
@@ -6958,7 +6959,7 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 
 	if(flag&1) {
 		pc_checkallowskill(sd);
-		status_calc_pc(sd,0);
+		status_calc_pc_defer(sd);	// [perf 7] coalesce equip-swap recompute (flag off = inline)
 	}
 
 	if(sd->sc.count && sd->sc.data[SC_SIGNUMCRUCIS].timer != -1 && !battle_check_undead(sd->battle_status.race,sd->battle_status.def_ele))

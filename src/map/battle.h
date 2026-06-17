@@ -436,6 +436,7 @@ extern struct Battle_Config {
 	unsigned short skill_unit_los_cache;	// [perf] memoize LoS (path_search_long) — immutable per map, so cacheable
 	unsigned short clif_bcast_pc_grid;	// [perf] AREA broadcast skips blocks with no PC/HOM/MER (exact mobgrid count) — behaviour-identical
 	unsigned short weapon_mastery_cache;	// [perf 6] use the per-hand weapon-mastery bonus cached in status_calc_pc (behaviour-identical)
+	unsigned short status_calc_defer;	// [perf 7] coalesce equip-swap status_calc_pc to next tick (NOT behaviour-identical: OnEquip/OnUnequip see stale stats)
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]
