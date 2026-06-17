@@ -239,7 +239,6 @@ static int merc_contract_end(int tid, unsigned int tick, intptr_t id, intptr_t d
 	}
 
 	md->contract_timer = INVALID_TIMER;
-	ShowDebug("merc_contract_end: cid=%d FIRED (contract over -> merc removed)\n", sd->status.char_id);	// [M7d-diag]
 	merc_delete(md, 0); // Mercenary soldier's duty hour is over.
 
 	return 0;
@@ -316,6 +315,10 @@ int merc_data_received(struct s_mercenary *merc, bool flag)
 		status_set_viewdata(&md->bl, md->mercenary.class_);
 		status_change_init(&md->bl);
 		unit_dataset(&md->bl);
+		md->last_thinktime = gettick();	// [FIX] mob (mob.c:654) & pet (pet.c:417) init this at creation.
+						// Without it last_thinktime stays 0 (aCalloc); since gettick() > 2^31 here,
+						// DIFF_TICK(tick,0) is NEGATIVE < MIN_MERCTHINKTIME, so the AI think-gate ALWAYS
+						// early-returns and last_thinktime never updates -> the merc never moves/attacks.
 		md->ud.dir = sd->ud.dir;
 
 		md->bl.m = sd->bl.m;
@@ -344,11 +347,6 @@ int merc_data_received(struct s_mercenary *merc, bool flag)
 		clif_mercenary_info(sd);
 		clif_mercenary_skillblock(sd);
 	}
-
-	// [M7d-diag] UNCONDITIONAL lifecycle trace (summon + login-load)
-	ShowDebug("merc_data: cid=%d flag=%d mer_id=%d sd_onmap=%d md_onmap=%d life=%d m=%d\n",
-		merc->char_id, flag, sd->status.mer_id, (sd->bl.prev!=NULL), (md->bl.prev!=NULL),
-		merc->life_time, md->bl.m);
 
 	return 1;
 }
@@ -712,18 +710,6 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 		return 0;
 	md->last_thinktime = tick;
 
-	{	// [M7d-diag] throttled AI trace (UNCONDITIONAL) -> proves whether the AI fires + state
-		static unsigned int merc_dbg_last = 0;
-		if( DIFF_TICK(tick, merc_dbg_last) >= 2000 )
-		{
-			merc_dbg_last = tick;
-			ShowDebug("merc_ai: id=%d pos=%d,%d master=%d,%d dist=%d mode=%d spd=%d wt=%d at=%d st=%d tgt=%d\n",
-				md->bl.id, md->bl.x, md->bl.y, sd->bl.x, sd->bl.y,
-				distance_bl(&sd->bl, &md->bl), status_get_mode(&md->bl), status_get_speed(&md->bl),
-				md->ud.walktimer, md->ud.attacktimer, md->ud.skilltimer, md->ud.target);
-		}
-	}
-
 	if( md->ud.skilltimer != -1 )
 		return 0; // casting
 	if( md->bl.m != sd->bl.m )
@@ -788,40 +774,17 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 	return 0;
 }
 
-static int merc_dbg_owners = 0;	// [M7d-diag] # of merc owners the AI loop reached this pass
-
 static int merc_ai_sub_foreachclient(struct map_session_data *sd, va_list ap)
 {
 	unsigned int tick = va_arg(ap, unsigned int);
-	if( sd->md )
-	{
-		merc_dbg_owners++;
-		{	// [M7d-diag] report whenever the loop reaches a merc owner (throttled 3s).
-			// md_onmap=1 -> merc_ai runs; md_onmap=0 -> merc off the map; auth/wdc = session state.
-			static unsigned int fc_dbg_last = 0;
-			if( DIFF_TICK(tick, fc_dbg_last) >= 3000 )
-			{
-				fc_dbg_last = tick;
-				ShowDebug("merc_fc: cid=%d md_onmap=%d auth=%d wdc=%d\n",
-					sd->status.char_id, (sd->md->bl.prev!=NULL), sd->state.auth, sd->state.waitingdisconnect);
-			}
-		}
-	}
 	if( sd->md && sd->md->bl.prev != NULL )
 		merc_ai_sub_hard(sd->md, sd, tick);
 	return 0;
 }
 
 static int merc_ai_hard(int tid, unsigned int tick, intptr_t id, intptr_t data)
-{	// [M7d-diag] periodic heartbeat (2s): proves the timer KEEPS firing + how many merc owners the loop reaches
-	static unsigned int tick_dbg_last = 0;
-	merc_dbg_owners = 0;
+{
 	clif_foreachclient(merc_ai_sub_foreachclient, tick);
-	if( DIFF_TICK(tick, tick_dbg_last) >= 2000 )
-	{
-		tick_dbg_last = tick;
-		ShowDebug("merc_tick: timer fired, merc_owners_seen=%d\n", merc_dbg_owners);
-	}
 	return 0;
 }
 
