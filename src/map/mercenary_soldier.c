@@ -788,17 +788,23 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 	return 0;
 }
 
+static int merc_dbg_owners = 0;	// [M7d-diag] # of merc owners the AI loop reached this pass
+
 static int merc_ai_sub_foreachclient(struct map_session_data *sd, va_list ap)
 {
 	unsigned int tick = va_arg(ap, unsigned int);
 	if( sd->md )
-	{	// [M7d-diag] AI loop reached a merc owner -> report bl.prev (throttled 3s).
-		// md_onmap=1 -> merc_ai runs (should follow/attack); md_onmap=0 -> orphaned (removed from map).
-		static unsigned int fc_dbg_last = 0;
-		if( DIFF_TICK(tick, fc_dbg_last) >= 3000 )
-		{
-			fc_dbg_last = tick;
-			ShowDebug("merc_fc: cid=%d md set md_onmap=%d\n", sd->status.char_id, (sd->md->bl.prev!=NULL));
+	{
+		merc_dbg_owners++;
+		{	// [M7d-diag] report whenever the loop reaches a merc owner (throttled 3s).
+			// md_onmap=1 -> merc_ai runs; md_onmap=0 -> merc off the map; auth/wdc = session state.
+			static unsigned int fc_dbg_last = 0;
+			if( DIFF_TICK(tick, fc_dbg_last) >= 3000 )
+			{
+				fc_dbg_last = tick;
+				ShowDebug("merc_fc: cid=%d md_onmap=%d auth=%d wdc=%d\n",
+					sd->status.char_id, (sd->md->bl.prev!=NULL), sd->state.auth, sd->state.waitingdisconnect);
+			}
 		}
 	}
 	if( sd->md && sd->md->bl.prev != NULL )
@@ -807,10 +813,15 @@ static int merc_ai_sub_foreachclient(struct map_session_data *sd, va_list ap)
 }
 
 static int merc_ai_hard(int tid, unsigned int tick, intptr_t id, intptr_t data)
-{
-	static int merc_tick_once = 0;	// [M7d-diag] prove the AI timer actually fires (logs once near boot)
-	if( !merc_tick_once ) { merc_tick_once = 1; ShowDebug("merc_tick: AI timer is firing (first tick)\n"); }
+{	// [M7d-diag] periodic heartbeat (2s): proves the timer KEEPS firing + how many merc owners the loop reaches
+	static unsigned int tick_dbg_last = 0;
+	merc_dbg_owners = 0;
 	clif_foreachclient(merc_ai_sub_foreachclient, tick);
+	if( DIFF_TICK(tick, tick_dbg_last) >= 2000 )
+	{
+		tick_dbg_last = tick;
+		ShowDebug("merc_tick: timer fired, merc_owners_seen=%d\n", merc_dbg_owners);
+	}
 	return 0;
 }
 
