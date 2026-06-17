@@ -27,6 +27,7 @@ static inline void sendworker_send(int fd, const unsigned char *buf, size_t len)
 static inline void sendworker_release(int fd) { (void)fd; }
 static inline void sendworker_reset(int fd) { (void)fd; }
 static inline void sendworker_set_coalesce(int ms) { (void)ms; }
+static inline void sendworker_set_pool(int on) { (void)on; }
 #else
 
 // Start/stop the worker thread. Idempotent. Call before accepting clients.
@@ -47,6 +48,10 @@ void sendworker_reset(int fd);
 // lone sub-segment dribble up to this long so the small packets that pile up go
 // out as one send(). Bulk (>= ~1 segment) and EAGAIN drains always flush at once.
 void sendworker_set_coalesce(int ms);
+
+// [perf 5a] Chunk recycling pool: 1 = recycle freed send buffers (default), 0 =
+// plain malloc/free per send. Behaviour-identical; for A/B and as a kill-switch.
+void sendworker_set_pool(int on);
 
 #endif /* MINICORE */
 #endif /* _SEND_WORKER_H_ */

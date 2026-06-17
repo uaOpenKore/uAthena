@@ -37,8 +37,88 @@ struct sw_chunk {
 	struct sw_chunk *next;
 	size_t off;   // bytes already sent from this chunk
 	size_t len;
+	size_t cap;   // [perf 5a] allocated capacity of data[] (for the recycling pool)
 	unsigned char data[];
 };
+
+// [perf 5a] Chunk recycling pool. The worker allocates one chunk per hand-off and
+// frees it after the send; at high send rates this is a malloc/free on every packet.
+// A small stack of recycled SW_SLAB-sized buffers serves the common (small) case
+// without touching the allocator. Chunks larger than a slab are never pooled (malloc
+// /free directly). The pool has its OWN lock so it never widens g_mtx contention, and
+// is touched by both the producer (sendworker_send) and the worker thread. Gated by
+// sw_pool_enabled so testers can A/B it (pool off == the original malloc/free path).
+#define SW_SLAB         4096    // pooled buffer size; covers a typical accumulated wdata flush
+#define SW_FREELIST_MAX 512     // cap idle pooled buffers (~2MB) — live chunks are unbounded
+static struct sw_chunk *g_pool = NULL;
+static int              g_pool_n = 0;
+static int              sw_pool_enabled = 1;   // 1 = recycle (default); 0 = plain malloc/free
+static pthread_mutex_t  g_pool_mtx = PTHREAD_MUTEX_INITIALIZER;
+
+void sendworker_set_pool(int on)
+{
+	pthread_mutex_lock(&g_pool_mtx);
+	sw_pool_enabled = on;
+	pthread_mutex_unlock(&g_pool_mtx);
+}
+
+// Allocate a chunk able to hold len data bytes. Caller sets next/off/len and fills
+// data[]. Returns NULL only on OOM. cap >= len always.
+static struct sw_chunk *chunk_alloc(size_t len)
+{
+	struct sw_chunk *c = NULL;
+	size_t cap;
+	int pool;
+
+	pthread_mutex_lock(&g_pool_mtx);
+	pool = sw_pool_enabled;
+	if( pool && len <= SW_SLAB && g_pool ) {
+		c = g_pool;
+		g_pool = c->next;
+		g_pool_n--;
+	}
+	pthread_mutex_unlock(&g_pool_mtx);
+	if( c )
+		return c;   // recycled (cap == SW_SLAB >= len)
+
+	cap = (pool && len <= SW_SLAB) ? SW_SLAB : len;   // pool off -> exact len (parity with old path)
+	c = (struct sw_chunk*)malloc(sizeof(struct sw_chunk) + cap);
+	if( c == NULL )
+		return NULL;
+	c->cap = cap;
+	return c;
+}
+
+// Return a chunk to the pool (if a slab and there's room) or to the allocator.
+static void chunk_free(struct sw_chunk *c)
+{
+	if( c == NULL )
+		return;
+	if( c->cap >= SW_SLAB ) {
+		pthread_mutex_lock(&g_pool_mtx);
+		if( sw_pool_enabled && g_pool_n < SW_FREELIST_MAX ) {
+			c->next = g_pool;
+			g_pool = c;
+			g_pool_n++;
+			pthread_mutex_unlock(&g_pool_mtx);
+			return;
+		}
+		pthread_mutex_unlock(&g_pool_mtx);
+	}
+	free(c);
+}
+
+// Free everything parked in the pool (shutdown / A/B-off drain).
+static void pool_drain(void)
+{
+	struct sw_chunk *c;
+	pthread_mutex_lock(&g_pool_mtx);
+	c = g_pool;
+	g_pool = NULL;
+	g_pool_n = 0;
+	pthread_mutex_unlock(&g_pool_mtx);
+	while( c ) { struct sw_chunk *d = c; c = c->next; free(d); }
+}
 
 struct sw_fd {
 	struct sw_chunk *head, *tail;   // pending FIFO
@@ -141,7 +221,7 @@ static void sched_fd(int fd)
 
 static void free_chain(struct sw_chunk *c)
 {
-	while( c ) { struct sw_chunk *d = c; c = c->next; free(d); }
+	while( c ) { struct sw_chunk *d = c; c = c->next; chunk_free(d); }
 }
 
 static void *sw_main(void *unused)
@@ -202,7 +282,7 @@ static void *sw_main(void *unused)
 				size_t total = 0;
 				struct sw_chunk *c, *big;
 				for( c = list; c; c = c->next ) total += c->len - c->off;
-				big = (struct sw_chunk*)malloc(sizeof(struct sw_chunk) + total);
+				big = chunk_alloc(total);
 				if( big ) {
 					size_t o = 0;
 					for( c = list; c; c = c->next ) {
@@ -230,7 +310,7 @@ static void *sw_main(void *unused)
 					break;
 				}
 				list = c->next;
-				free(c);
+				chunk_free(c);
 				if( dead ) { free_chain(list); list = NULL; break; }
 			}
 
@@ -267,7 +347,7 @@ void sendworker_send(int fd, const unsigned char *buf, size_t len)
 	struct sw_chunk *c;
 	if( fd <= 0 || fd >= SW_MAX || len == 0 )
 		return;
-	c = (struct sw_chunk*)malloc(sizeof(struct sw_chunk) + len);
+	c = chunk_alloc(len);
 	if( c == NULL )
 		return; // OOM: drop (parity with a failed send on a full buffer)
 	c->next = NULL;
@@ -278,7 +358,7 @@ void sendworker_send(int fd, const unsigned char *buf, size_t len)
 	pthread_mutex_lock(&g_mtx);
 	if( sw[fd].closing ) {            // being torn down: drop
 		pthread_mutex_unlock(&g_mtx);
-		free(c);
+		chunk_free(c);
 		return;
 	}
 	if( sw[fd].tail ) sw[fd].tail->next = c;
@@ -323,7 +403,7 @@ void sendworker_release(int fd)
 			ssize_t n = send(fd, d->data + d->off, d->len - d->off, MSG_NOSIGNAL);
 			if( n > 0 ) d->off += (size_t)n; else break;
 		}
-		free(d);
+		chunk_free(d);
 	}
 }
 
@@ -372,4 +452,5 @@ void sendworker_final(void)
 	}
 	g_ready_n = 0;
 	g_defer_n = 0;
+	pool_drain();   // [perf 5a] worker is joined; release recycled buffers
 }

@@ -3751,6 +3751,7 @@ int do_init(int argc, char *argv[])
 	socket_async_send = battle_config.socket_async_send;
 	if( socket_async_send ) {
 		sendworker_init();
+		sendworker_set_pool(battle_config.socket_send_pool);	// [perf 5a] recycle send buffers (default on)
 		ShowStatus("Async send worker enabled (client send() off the game loop).\n");
 	}
 

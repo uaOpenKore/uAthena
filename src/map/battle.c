@@ -3650,6 +3650,7 @@ static const struct battle_data_short {
 	{ "mob_ai_hard_skip_noplayer",         &battle_config.mob_ai_hard_skip_noplayer},
 	{ "mob_ai_active_maps_only",           &battle_config.mob_ai_active_maps_only},
 	{ "socket_async_send",                 &battle_config.socket_async_send},
+	{ "socket_send_pool",                  &battle_config.socket_send_pool},	// [perf 5a]
 	{ "recv_parse_shortlist",              &battle_config.recv_parse_shortlist},	// [perf]
 	{ "hom_setting",                        &battle_config.hom_setting},
 	{ "dynamic_mobs",                      &battle_config.dynamic_mobs},
@@ -4109,6 +4110,7 @@ void battle_set_defaults()
 	battle_config.mob_ai_hard_skip_noplayer = 1; // [perf] default on: under 0x20, skip hard AI for mobs with no PC in view
 	battle_config.mob_ai_active_maps_only = 1; // [perf] default on: under 0x20, iterate mobs only on maps with players
 	battle_config.socket_async_send = 0; // [perf] default off = inline send on the game loop
+	battle_config.socket_send_pool = 1; // [perf 5a] default on = recycle send-worker buffers
 	battle_config.recv_parse_shortlist = 1; // [perf] default on = parse only fds with new data
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
 	battle_config.socket_sndbuf_size = 0; // [perf] 0 = kernel default; >0 = SO_SNDBUF bytes per socket

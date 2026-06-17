@@ -180,6 +180,37 @@ static void t_window_bulk(void)
 	free(msg); free(rcv); close(sv[0]); close(sv[1]);
 }
 
+// Test 7 [perf 5a]: mixed small (pooled, <= SW_SLAB) and large (> SW_SLAB, never
+// pooled) chunks across many fds, under whatever pool mode is currently set. Every
+// byte must still arrive exactly once, in order — proves the recycling pool and the
+// large-chunk bypass both preserve integrity.
+static void t_pool_mix(const char *tag)
+{
+	enum { NF = 16 };
+	int sv[NF][2]; size_t tot[NF]; unsigned char *snt[NF]; int f,i; int ok=1;
+	for(f=0;f<NF;f++){
+		socketpair(AF_UNIX, SOCK_STREAM, 0, sv[f]);
+		set_nonblock(sv[f][0]);
+		snt[f]=malloc(2000000); tot[f]=0;
+	}
+	for(i=0;i<150;i++) for(f=0;f<NF;f++){
+		// every 10th is a large (> 4096B SW_SLAB) chunk -> malloc/free bypass; the
+		// rest are small -> recycling-pool path.
+		size_t len = (i%10==0) ? (5000 + ((size_t)(i*31+f)%4000)) : (1 + ((size_t)(i*17+f)%600));
+		pat(snt[f]+tot[f], len, (unsigned)(i*NF+f+1));
+		sendworker_send(sv[f][0], snt[f]+tot[f], len);
+		tot[f]+=len;
+	}
+	for(f=0;f<NF;f++){
+		unsigned char *r=malloc(tot[f]);
+		size_t got=read_n(sv[f][1], r, tot[f], 6000);
+		if(got!=tot[f] || memcmp(snt[f],r,tot[f])!=0) ok=0;
+		free(r); free(snt[f]); close(sv[f][0]); close(sv[f][1]);
+	}
+	printf("7. pool mix small+large [%-9s]      : %s\n", tag, ok?"ok":"FAIL");
+	fails += !ok;
+}
+
 int main(void)
 {
 	signal(SIGPIPE, SIG_IGN);  // a closed peer must not kill us (the server ignores it too)
@@ -198,6 +229,15 @@ int main(void)
 	printf("--- timing ---\n");
 	t_window();
 	t_window_bulk();
+
+	// [perf 5a] recycling pool A/B + the large-chunk bypass; also flip the pool mode
+	// across calls so chunks allocated in one mode are freed in the other (parity).
+	printf("--- pool A/B ---\n");
+	sendworker_set_coalesce(0);
+	sendworker_set_pool(1); t_pool_mix("pool on");
+	sendworker_set_pool(0); t_pool_mix("pool off");
+	sendworker_set_pool(1); t_order(); sendworker_set_pool(0); t_many();
+	sendworker_set_pool(1); t_pool_mix("toggled");
 
 	sendworker_final();
 	printf(fails ? "\nFAILED\n" : "\nALL PASSED\n");
