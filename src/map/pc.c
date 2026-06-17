@@ -824,9 +824,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	// Homunculus [albator]
 	if (sd->status.hom_id > 0)
 		intif_homunculus_requestload(sd->status.account_id, sd->status.hom_id);
-	// Hired Mercenary Soldier [Backport]
-	if (sd->status.mer_id > 0)
-		intif_mercenary_request(sd->status.mer_id, sd->status.char_id);
+	// Hired Mercenary Soldier [Backport]: requested in pc_reg_received (after state.auth=1) instead —
+	// merc_data_received's map_charid2sd needs state.auth, which isn't set yet here. See pc_reg_received.
 
 	// Questlog [Kevin] [Inkfish]
 	intif_request_questlog(sd);
@@ -1017,6 +1016,14 @@ int pc_reg_received(struct map_session_data *sd)
 	if (sd->state.auth)
 		return 0;
 	sd->state.auth = 1;
+
+	// [Backport] Request the hired mercenary HERE (after state.auth=1), NOT in pc_authok.
+	// merc_data_received resolves the owner with map_charid2sd, whose backing list
+	// (map_getallpc_sub) excludes sessions with !state.auth. pc_authok sends its requests
+	// while state.auth is still 0, so a fast inter-server reply would be dropped and the merc
+	// would never reload on relogin (and the dangling mer_id then blocks re-summon).
+	if (sd->status.mer_id > 0)
+		intif_mercenary_request(sd->status.mer_id, sd->status.char_id);
 
 	if (sd->status.party_id > 0 && party_search(sd->status.party_id) == NULL)
 		party_request_info(sd->status.party_id);
