@@ -3841,6 +3841,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 				}
 				if(merc_is_hom_active(sd->hd)) //Hom is auto-saved in chrif_save
 					unit_remove_map(&sd->hd->bl, clrtype);
+				if(sd->md) // [Backport] hired merc: saved+freed in unit_free; reloads on the new map-server
+					unit_remove_map(&sd->md->bl, clrtype);
 
 				chrif_save(sd,2);
 				chrif_changemapserver(sd, mapindex, x, y, ip, (short)port);
@@ -3875,6 +3877,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 			unit_remove_map(&sd->pd->bl, clrtype);
 		if(merc_is_hom_active(sd->hd))
 			unit_remove_map(&sd->hd->bl, clrtype);
+		if(sd->md) // [Backport] hired merc follows the master through warps (re-added in LoadEndAck)
+			unit_remove_map(&sd->md->bl, clrtype);
 		clif_changemap(sd,map[m].index,x,y); // [MouseJstr]
 	} else if(sd->state.auth)
 		//Tag player for rewarping after map-loading is done. [Skotlex]
@@ -3904,6 +3908,13 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 		sd->hd->bl.x = sd->hd->ud.to_x = x;
 		sd->hd->bl.y = sd->hd->ud.to_y = y;
 		sd->hd->ud.dir = sd->ud.dir;
+	}
+
+	if(sd->md) {	// [Backport] hired mercenary follows the master on map change
+		sd->md->bl.m = m;
+		sd->md->bl.x = sd->md->ud.to_x = x;
+		sd->md->bl.y = sd->md->ud.to_y = y;
+		sd->md->ud.dir = sd->ud.dir;
 	}
 
 	return 0;

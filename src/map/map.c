@@ -1668,6 +1668,7 @@ int map_quit(struct map_session_data *sd)
 		TBL_PC *sd2 = map_id2sd(sd->status.account_id);
 		if (sd->pd) unit_free(&sd->pd->bl,-1);
 		if (sd->hd) unit_free(&sd->hd->bl,-1);
+		if (sd->md) unit_free(&sd->md->bl,-1); // [Backport] hired merc
 		//Double login, let original do the cleanups below.
 		if (sd2 && sd2 != sd)
 			return 0;
@@ -1685,6 +1686,7 @@ int map_quit(struct map_session_data *sd)
 		sd->state.waitingdisconnect = 1;
 		if (sd->pd) unit_free(&sd->pd->bl,0);
 		if (sd->hd) unit_free(&sd->hd->bl,0);
+		if (sd->md) unit_free(&sd->md->bl,0); // [Backport] hired merc (saved in unit_free if lifetime>0)
 		unit_free(&sd->bl,3);
 		chrif_save(sd,1);
 	} else { //Try to free some data, without saving anything (this could be invoked on map server change. [Skotlex]
@@ -1694,6 +1696,8 @@ int map_quit(struct map_session_data *sd)
 			unit_remove_map(&sd->pd->bl, 0);
 		if (sd->hd && sd->hd->bl.prev != NULL)
 			unit_remove_map(&sd->hd->bl, 0);
+		if (sd->md && sd->md->bl.prev != NULL) // [Backport] hired merc
+			unit_remove_map(&sd->md->bl, 0);
 	}
 
 	//Do we really need to remove the name?

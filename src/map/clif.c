@@ -8174,6 +8174,14 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 //		skill_unit_move(&sd->pd->bl,gettick(),1);
 	}
 
+	// [Backport] hired mercenary soldier — re-add to the (new) map after warp, like pet/homun
+	if(sd->md && sd->md->bl.prev == NULL) {
+		map_addblock(&sd->md->bl);
+		clif_spawn(&sd->md->bl);
+		clif_mercenary_info(sd);
+		clif_mercenary_skillblock(sd);
+	}
+
 	//homunculus [blackhole89]
 	if(merc_is_hom_active(sd->hd)) {
 		map_addblock(&sd->hd->bl);
