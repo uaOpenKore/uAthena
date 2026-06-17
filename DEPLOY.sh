@@ -4,7 +4,9 @@ cd /GRF/data
 git pull
 
 cd /root/uAthena || exit 1
-make clean
+git clean -fd
+git reset --hard HEAD
+
 # Abort BEFORE touching the live server if the source/update or build fails — otherwise a failed
 # build would fall through to stop+install and silently redeploy a stale/partial binary.
 git pull || { echo "DEPLOY: 'git pull' failed (conflict/network) — aborting; server left untouched."; exit 1; }
