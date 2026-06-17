@@ -17,5 +17,11 @@
 # every hour (at :00): aggregate the last hour (avg + peak)
 0 * * * *    /opt/uathena/bin/cron/uamon-hour.sh    >> /opt/uathena/log/uamon.log 2>&1
 
-# monthly (1st, 04:00): purge stats past their retention window
-0 4 1 * *    /opt/uathena/bin/cron/uamon-cleanup.sh >> /opt/uathena/log/uamon.log 2>&1
+# --- monthly (1st of each month) -----------------------------------------
+# 01:00 - rebalance per-instance map lists (confN/maps_athena.conf) from peaks
+0 1 1 * *    /opt/uathena/bin/cron/uamon-autoconf.sh >> /opt/uathena/log/uamon.log 2>&1
+# 02:00 - restart the map-servers so the new map lists take effect
+#         (supervisor restarts every instance; replace with your own restart if any)
+0 2 1 * *    systemctl restart uAmap.service          >> /opt/uathena/log/uamon.log 2>&1
+# 04:00 - purge stats past their retention window
+0 4 1 * *    /opt/uathena/bin/cron/uamon-cleanup.sh   >> /opt/uathena/log/uamon.log 2>&1
