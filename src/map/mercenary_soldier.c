@@ -675,6 +675,28 @@ static int merc_attack_skill(struct mercenary_data *md, struct block_list *targe
 	return unit_skilluse_id(&md->bl, target->id, md->db->skill[i].id, md->db->skill[i].lv);
 }
 
+// [M7d-5d] Archer mercs lay one owned ground trap (MA_SKIDTRAP/LANDMINE/SANDMAN/FREEZINGTRAP) at the
+// target's cell. unit_skilluse_pos drives the _pos2 castend; the trap mechanics were ported in M7d-4.
+static int merc_lay_trap(struct mercenary_data *md, struct block_list *target)
+{
+	int i, n = 0, idx[MAX_MERCSKILL];
+
+	for( i = 0; i < MAX_MERCSKILL; i++ )
+	{
+		int id = md->db->skill[i].id;
+		if( id == 0 )
+			continue;
+		if( !(skill_get_inf(id)&INF_GROUND_SKILL) )
+			continue; // ground-placed (traps) only
+		idx[n++] = i;
+	}
+	if( n == 0 )
+		return 0;
+
+	i = idx[rnd()%n];
+	return unit_skilluse_pos(&md->bl, target->x, target->y, md->db->skill[i].id, md->db->skill[i].lv);
+}
+
 // [M7d-5b] Keep the merc's self-buffs up. Casts ONE missing self-target buff (INF_SELF_SKILL)
 // per call (the cast time gates the next), skipping buffs whose status is already active.
 static int merc_use_self_buffs(struct mercenary_data *md)
@@ -805,10 +827,10 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 			md->ud.target = 0; // unreachable
 		return 0;
 	}
-	// [M7d-5] chance to cast an offensive skill from the merc's skill list instead of meleeing
+	// [M7d-5/5d] chance to use a skill instead of meleeing: offensive skill first, else lay a trap
 	if( battle_config.merc_skill_rate && rnd()%100 < battle_config.merc_skill_rate &&
-		merc_attack_skill(md, target) )
-		return 0; // skill cast initiated
+		(merc_attack_skill(md, target) || merc_lay_trap(md, target)) )
+		return 0; // skill/trap cast initiated
 	unit_attack(&md->bl, target->id, 1); // continuous melee
 	return 0;
 }
