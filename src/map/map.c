@@ -1780,6 +1780,7 @@ int map_quit(struct map_session_data *sd)
 			npc_script_event(sd, NPCE_LOGOUT);
 
 		sd->state.waitingdisconnect = 1;
+		status_calc_pc_flush(sd);	// [perf 7] run any pending deferred recompute while sd is still intact (before unit_free teardown)
 		if (sd->pd) unit_free(&sd->pd->bl,0);
 		if (sd->hd) unit_free(&sd->hd->bl,0);
 		if (sd->md) unit_free(&sd->md->bl,0); // [Backport] hired merc (saved in unit_free if lifetime>0)
