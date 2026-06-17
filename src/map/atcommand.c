@@ -267,6 +267,7 @@ ACMD_FUNC(cooking); // chat cooking UI
 ACMD_FUNC(achievements); // achievements chat UI
 ACMD_FUNC(title); // active title
 ACMD_FUNC(merc); // mercenary status chat UI
+ACMD_FUNC(h3); // help page for our custom chat commands
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -602,6 +603,7 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Title,              "@title",            1, atcommand_title }, // active title
 	{ AtCommand_Merc,               "@merc",             1, atcommand_merc }, // mercenary status
 	{ AtCommand_Merc,               "@mercenary",        1, atcommand_merc }, // alias
+	{ AtCommand_H3,                 "@h3",               1, atcommand_h3 }, // help: our custom commands
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -8778,6 +8780,26 @@ int atcommand_merc(const int fd, struct map_session_data* sd, const char* comman
 {
 	nullpo_retr(-1, sd);
 	mercenary_chat_status(sd);
+	return 0;
+}
+
+/*==========================================
+ * @h3 : help page listing the custom chat commands added to this server.
+ * The PV7 client lacks journal/search/title windows, so these expose those
+ * features via chat. (Mercenary control is autonomous AI + @merc for status.)
+ *------------------------------------------*/
+int atcommand_h3(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+	clif_displaymessage(fd, "== Custom chat commands (this server) ==");
+	clif_displaymessage(fd, "@quests / @quest <N> [cancel] - quest journal: list / detail / cancel");
+	clif_displaymessage(fd, "@status (@cd) - your active status effects + skill cooldowns");
+	clif_displaymessage(fd, "@whereis <mob> - where a monster spawns (maps+count) and what it drops");
+	clif_displaymessage(fd, "@market <item> - search open vending shops for an item + price");
+	clif_displaymessage(fd, "@cooking (@cook) - cooking UI");
+	clif_displaymessage(fd, "@achievements (@ach) - your achievements + progress");
+	clif_displaymessage(fd, "@title <N> / @title off - set or clear an earned title");
+	clif_displaymessage(fd, "@merc (@mercenary) - your hired mercenary's status (HP/SP/loyalty/skills)");
 	return 0;
 }
 
