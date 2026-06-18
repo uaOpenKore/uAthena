@@ -7242,8 +7242,8 @@ BUILDIN_FUNC(getequippercentrefinery)
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
 	i=pc_checkequip(sd,equip[num-1]);
-	if(i >= 0 && sd->status.inventory[i].nameid && sd->status.inventory[i].refine < MAX_REFINE)
-		script_pushint(st,percentrefinery[itemdb_wlv(sd->status.inventory[i].nameid)][(int)sd->status.inventory[i].refine]);
+	if(i >= 0 && sd->status.inventory[i].nameid && sd->status.inventory[i].refine < MAX_REFINE_GM)
+		script_pushint(st,status_refine_chance(itemdb_wlv(sd->status.inventory[i].nameid), (int)sd->status.inventory[i].refine));	// [refine99] canon table 0..9, formula above
 	else
 		script_pushint(st,0);
 
@@ -7269,6 +7269,8 @@ BUILDIN_FUNC(successrefitem)
 			log_pick_pc(sd, "N", sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
 
 		sd->status.inventory[i].refine++;
+		if(sd->status.inventory[i].refine > MAX_REFINE_GM)	// [refine99] never exceed the hard ceiling
+			sd->status.inventory[i].refine = MAX_REFINE_GM;
 		pc_unequipitem(sd,i,2);
 
 		clif_refine(sd->fd,0,i,sd->status.inventory[i].refine);
@@ -7314,6 +7316,21 @@ BUILDIN_FUNC(failedrefitem)
 	sd=script_rid2sd(st);
 	i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0) {
+		// Over-refine (+11..+99) failure is configurable so a hard-won high refine isn't nuked:
+		// refine_over_fail 0 = destroy (classic), 1 = drop one level, 2 = keep as-is. [refine99]
+		if(sd->status.inventory[i].refine >= MAX_REFINE && battle_config.refine_over_fail != 0) {
+			int ep = sd->status.inventory[i].equip;
+			if(battle_config.refine_over_fail == 1 && sd->status.inventory[i].refine > 0)
+				sd->status.inventory[i].refine--;
+			pc_unequipitem(sd,i,2);
+			clif_refine(sd->fd,1,i,sd->status.inventory[i].refine);
+			clif_delitem(sd,i,1);
+			clif_additem(sd,i,1,0);
+			pc_equipitem(sd,i,ep);
+			clif_misceffect(&sd->bl,2);
+			return 0;
+		}
+
 		//Logs items, got from (N)PC scripts [Lupus]
 		if(log_config.enable_logs&0x40)
 			log_pick_pc(sd, "N", sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);

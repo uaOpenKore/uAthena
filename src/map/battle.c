@@ -3771,6 +3771,12 @@ static const struct battle_data_int {
 	{ "mob_remove_delay",                  &battle_config.mob_remove_delay	},
 	{ "sg_miracle_skill_duration",         &battle_config.sg_miracle_skill_duration },
 	{ "hvan_explosion_intimate",				&battle_config.hvan_explosion_intimate },	//[orn]
+	{ "refine_player_max",                 &battle_config.refine_player_max },		// [refine99] player/NPC refine ceiling (<=99); 10 = off
+	{ "refine_over_chance",                &battle_config.refine_over_chance },		// [refine99] +10->+11 success %
+	{ "refine_over_chance_step",           &battle_config.refine_over_chance_step },	// [refine99] -% per extra level
+	{ "refine_over_chance_min",            &battle_config.refine_over_chance_min },	// [refine99] success % floor
+	{ "refine_over_bonus_percent",         &battle_config.refine_over_bonus_percent },	// [refine99] above-+10 ATK/DEF as % of canon
+	{ "refine_over_fail",                  &battle_config.refine_over_fail },		// [refine99] 0=destroy 1=drop1 2=keep
 };
 
 int battle_set_value(const char* w1, const char* w2)
@@ -4131,6 +4137,15 @@ void battle_set_defaults()
 	battle_config.mob_ai_active_maps_only = 1; // [perf] default on: under 0x20, iterate mobs only on maps with players
 	battle_config.socket_async_send = 0; // [perf] default off = inline send on the game loop
 	battle_config.socket_send_pool = 1; // [perf 5a] default on = recycle send-worker buffers
+	// [refine99] over-refine (+11..+99) defaults. refine_player_max=99 turns it on for players via
+	// the refiner NPC; set 10 to restore vanilla. Bonus above +10 is curbed to 50% of the per-level
+	// canon, success decays 20% -> 5%, and a high-level fail drops one level instead of destroying.
+	battle_config.refine_player_max = 99;
+	battle_config.refine_over_chance = 20;
+	battle_config.refine_over_chance_step = 1;
+	battle_config.refine_over_chance_min = 5;
+	battle_config.refine_over_bonus_percent = 50;
+	battle_config.refine_over_fail = 1;
 	battle_config.recv_parse_shortlist = 1; // [perf] default on = parse only fds with new data
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
 	battle_config.socket_sndbuf_size = 131072; // [perf] SO_SNDBUF bytes per socket (0 = kernel default); pairs with send coalescing

@@ -360,7 +360,7 @@ CHECK2:
 	close;
 
 CHECK3:
-	if(getequiprefinerycnt(@part) < 10) goto REFINE0;
+	if(getequiprefinerycnt(@part) < getbattleflag("refine_player_max")) goto REFINE0;	// [refine99] config-driven ceiling
 	mes "[" + @name$ + "]";
 	if (#gl_lang == 1) { mes "÷€ збро€ вже на максимальному р≥вн≥ ≥ б≥льше не може бути покращена."; }
 	else { mes "This weapon is already at its maximum level and can no longer be refined."; }
@@ -534,7 +534,7 @@ Lnosafe:
 	input @refinecnt;
 	if (@refinecnt<1) goto Lcancel3;
 	set @refinecheck,@refinecnt + getequiprefinerycnt(@part);
-	if(@refinecheck > 10) goto Lcancel3;
+	if(@refinecheck > getbattleflag("refine_player_max")) goto Lcancel3;	// [refine99] config-driven ceiling
 	set @fullprice,@price * @refinecnt;
 	mes "[" + @name$ + "]";
 	if (#gl_lang == 1) { mes "÷е коштуватиме тоб≥ " + @refinecnt + " " + @matname$ + " та " + @fullprice + " «ени... «года?"; }

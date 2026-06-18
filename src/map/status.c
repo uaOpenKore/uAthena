@@ -1657,6 +1657,39 @@ void status_calc_pc_flush(struct map_session_data *sd)
 	}
 }
 
+// Curbed refine bonus: 0..MAX_REFINE is exactly the canonical per_level*refine; above +10 each
+// extra level adds only refine_over_bonus_percent% of per_level, so +99 stays finite and tunable
+// instead of ~10x the canon. refine 0..MAX_REFINE is byte-identical to the old code. [refine99]
+static int status_refine_bonus(int per_level, int refine)
+{
+	if (refine <= MAX_REFINE)
+		return refine * per_level;
+	return MAX_REFINE * per_level
+		+ (refine - MAX_REFINE) * (per_level * battle_config.refine_over_bonus_percent / 100);
+}
+
+// Success chance (%) to refine an item of weapon level wlv (0 = armor) FROM its current `refine`
+// to refine+1. 0..MAX_REFINE-1 use the authored percentrefinery table (canon, unchanged); the
+// over-levels use a compact decaying formula (config); the ceiling returns 0. [refine99]
+int status_refine_chance(int wlv, int refine)
+{
+	if (wlv < 0) wlv = 0;
+	if (wlv >= 5) wlv = 4;
+	if (refine < 0) refine = 0;
+	if (refine < MAX_REFINE)
+		return percentrefinery[wlv][refine];
+	if (refine >= battle_config.refine_player_max || refine >= MAX_REFINE_GM)
+		return 0;
+	{
+		int over = refine - MAX_REFINE + 1;	// 1 for the +10 -> +11 step
+		int c = battle_config.refine_over_chance - (over - 1) * battle_config.refine_over_chance_step;
+		if (c < battle_config.refine_over_chance_min)
+			c = battle_config.refine_over_chance_min;
+		if (c > 100) c = 100;
+		return c;
+	}
+}
+
 int status_calc_pc(struct map_session_data* sd,int first)
 {
 	static int calculating = 0; //Check for recursive call preemption. [Skotlex]
@@ -1916,9 +1949,15 @@ int status_calc_pc(struct map_session_data* sd,int first)
 				wa = &status->rhw;
 			}
 			wa->atk += sd->inventory_data[index]->atk;
-			wa->atk2 = (r=sd->status.inventory[index].refine)*refinebonus[wlv][0];
-			if((r-=refinebonus[wlv][2])>0) //Overrefine bonus.
-				wd->overrefine = r*refinebonus[wlv][1];
+			r = sd->status.inventory[index].refine;
+			wa->atk2 = status_refine_bonus(refinebonus[wlv][0], r);	// [refine99] curbed above +10
+			if(r > refinebonus[wlv][2]) { //Overrefine bonus.
+				if(r <= MAX_REFINE)
+					wd->overrefine = (r - refinebonus[wlv][2]) * refinebonus[wlv][1];
+				else
+					wd->overrefine = (MAX_REFINE - refinebonus[wlv][2]) * refinebonus[wlv][1]
+						+ (r - MAX_REFINE) * (refinebonus[wlv][1] * battle_config.refine_over_bonus_percent / 100);
+			}
 
 			wa->range += sd->inventory_data[index]->range;
 			if(sd->inventory_data[index]->script) {
@@ -1944,7 +1983,7 @@ int status_calc_pc(struct map_session_data* sd,int first)
 			}
 		}
 		else if(sd->inventory_data[index]->type == IT_ARMOR) {
-			refinedef += sd->status.inventory[index].refine*refinebonus[0][0];
+			refinedef += status_refine_bonus(refinebonus[0][0], sd->status.inventory[index].refine);	// [refine99] curbed above +10
 			if(sd->inventory_data[index]->script) {
 				run_script(sd->inventory_data[index]->script,0,sd->bl.id,0);
 				if (!calculating) //Abort, run_script retriggered this. [Skotlex]
