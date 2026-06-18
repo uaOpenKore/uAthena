@@ -10,7 +10,7 @@ deb https://ftp.debian.org/debian/ trixie-proposed-updates contrib main non-free
 
 apt update
 apt -y upgrade
-apt -y install git libncurses5-dev gcc make autoconf exuberant-ctags bc libssl-dev mc util-tools
+apt -y install git libncurses5-dev gcc make autoconf exuberant-ctags bc libssl-dev mc util-linux ethtool
 
 
 2.
@@ -30,7 +30,7 @@ reboot
 4.
 ~ Install libs for making uAthena
 
-apt -y install gcc make git gcc-multilib zlib1g zlib1g-dev libc6-dev libmariadb-dev libmariadb-dev-compat build-essential g++ ccache libpcre2-dev
+apt -y install zlib1g zlib1g-dev libc6-dev libmariadb-dev libmariadb-dev-compat ccache libpcre2-dev
 
 5.
 ~  Instal SQL server if it needed in VM guest
