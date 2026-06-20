@@ -1,0 +1,21 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../turbo_track.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Turbo Track
+//===== By: ==================================================
+//= Euphy
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Renewal duplicates.
+//===== Additional Comments: =================================
+//= 1.0 Split Mount Manager NPC.
+//============================================================
+
+//[BACKPORT-ORPHAN:MountManager_turbo] alde_gld,181,199,5	duplicate(MountManager_turbo)	Mount Manager	845

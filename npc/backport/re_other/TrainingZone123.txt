@@ -1,0 +1,285 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../TrainingZone123.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Training Zone
+//===== Description: =========================================
+//= NPCs related to the training zone.
+//===== Changelog: ===========================================
+//= 1.0 Initial Release [Atemo]
+//============================================================
+
+// Storage
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,204,110,2	script	Training Ground Warehouse Soldier#fild01_1	8W_SOLDIER,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Training Ground Warehouse Soldier]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Would you like to use the Storage? 1000 Zeny is required to use the training ground Storage. Please select the Storage you wish to use.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+	// switch( select( "¢º Storage 1", "¢º Storage 2", "¢º Storage 3", "¢º Guild Storage", "¢º Cancel" ) ) {
+//[BACKPORT-BOUNDARY:tra_fild01] 	switch( select( "¢º Storage 1", "", "", "¢º Guild Storage", "¢º Cancel" ) ) {
+//[BACKPORT-BOUNDARY:tra_fild01] 	case 1:
+//[BACKPORT-BOUNDARY:tra_fild01] 		set .@storage_num, 1;
+//[BACKPORT-BOUNDARY:tra_fild01] 		break;
+//[BACKPORT-BOUNDARY:tra_fild01] 	case 2:
+//[BACKPORT-BOUNDARY:tra_fild01] 		set .@storage_num, 2;
+//[BACKPORT-BOUNDARY:tra_fild01] 		break;
+//[BACKPORT-BOUNDARY:tra_fild01] 	case 3:
+//[BACKPORT-BOUNDARY:tra_fild01] 		set .@storage_num, 3;
+//[BACKPORT-BOUNDARY:tra_fild01] 		break;
+//[BACKPORT-BOUNDARY:tra_fild01] 	case 4:
+		// copied from npc/re/merchants/guild_warehouse.txt
+//[BACKPORT-BOUNDARY:tra_fild01] 		set .@guildid, getcharid( 2 );
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 		if( .@guildid == 0 ){
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "[Training Ground Warehouse Soldier]";
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "The guild storage is only available for guild members.";
+//[BACKPORT-BOUNDARY:tra_fild01] 			close;
+//[BACKPORT-BOUNDARY:tra_fild01] 		}
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 		if( getgdskilllv( .@guildid, "GD_GUILD_STORAGE" ) == 0 || !0 ){
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "[Training Ground Warehouse Soldier]";
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "It seems that it is not yet possible for your guild to use the guild warehouse or you do not have access permissions for the warehouse.";
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "Please come back after checking the guild skill and the permission to access the warehouse.";
+//[BACKPORT-BOUNDARY:tra_fild01] 			close;
+//[BACKPORT-BOUNDARY:tra_fild01] 		}
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 		if( Zeny < 1000 ){
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "[Training Ground Warehouse Soldier]";
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "I am afraid you do not have enough money to settle the fee.";
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "The fee is 1000 Zeny.";
+//[BACKPORT-BOUNDARY:tra_fild01] 			close;
+//[BACKPORT-BOUNDARY:tra_fild01] 		}
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "[Training Ground Warehouse Soldier]";
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "I will open the guild storage for you then. Have a memorable time!";
+//[BACKPORT-BOUNDARY:tra_fild01] 		close2;
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 		if( Zeny < 1000 ){
+			// Cheat prevention
+//[BACKPORT-BOUNDARY:tra_fild01] 			end;
+//[BACKPORT-BOUNDARY:tra_fild01] 		}
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 		if( guildopenstorage() == GSTORAGE_OPEN ){
+//[BACKPORT-BOUNDARY:tra_fild01] 			set Zeny, Zeny - 1000;
+//[BACKPORT-BOUNDARY:tra_fild01] 			end;
+//[BACKPORT-BOUNDARY:tra_fild01] 		}else{
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "[Training Ground Warehouse Soldier]";
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "I am afraid someone else is using the warehouse right now.";
+//[BACKPORT-BOUNDARY:tra_fild01] 			mes "Please try again after a while.";
+//[BACKPORT-BOUNDARY:tra_fild01] 			close;
+//[BACKPORT-BOUNDARY:tra_fild01] 		}
+//[BACKPORT-BOUNDARY:tra_fild01] 	case 5:
+//[BACKPORT-BOUNDARY:tra_fild01] 		end;
+//[BACKPORT-BOUNDARY:tra_fild01] 	}
+	// TODO (custom text)
+//[BACKPORT-BOUNDARY:tra_fild01] 	if (!callfunc("F_CanOpenStorage")) {
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "[Training Ground Warehouse Soldier]";
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "I'm sorry, but you";
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "need the Novice's";
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "Basic Skill Level 6 to";
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "use the Storage Service.";
+//[BACKPORT-BOUNDARY:tra_fild01] 		close2;
+//[BACKPORT-BOUNDARY:tra_fild01] 		cutin "",255;
+//[BACKPORT-BOUNDARY:tra_fild01] 		end;
+//[BACKPORT-BOUNDARY:tra_fild01] 	}
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 	if (Zeny < 1000) {
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "[Training Ground Warehouse Soldier]";
+//[BACKPORT-BOUNDARY:tra_fild01] 		mes "^4d4dff1000 Zeny is required to use the training grounds Storage.^000000";
+//[BACKPORT-BOUNDARY:tra_fild01] 		close;
+//[BACKPORT-BOUNDARY:tra_fild01] 	}
+//[BACKPORT-BOUNDARY:tra_fild01] 	set Zeny, Zeny - 1000;
+//[BACKPORT-BOUNDARY:tra_fild01] 	openstorage; // TODO: open correct storage 1-3
+//[BACKPORT-BOUNDARY:tra_fild01] 	end;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,15,110,6	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild01_2	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,113,32,0	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild01_3	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,111,100,4	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild01_4	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild02] tra_fild02,204,110,2	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild02_1	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild02] tra_fild02,15,110,6	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild02_2	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild02] tra_fild02,113,32,0	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild02_3	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild02] tra_fild02,111,100,4	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild02_4	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild03] tra_fild03,204,110,2	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild03_1	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild03] tra_fild03,15,110,6	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild03_2	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild03] tra_fild03,113,32,0	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild03_3	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild03] tra_fild03,111,100,4	duplicate(Training Ground Warehouse Soldier#fild01_1)	Training Ground Warehouse Soldier#fild03_4	8W_SOLDIER
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 
+// Misc NPCs
+//[BACKPORT-BOUNDARY:tra_fild01] 
+// Cleaner
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,142,113,6	script	Cleaning Robot#fild01	EP17_2_OMEGA_CLEANER,{
+//[BACKPORT-BOUNDARY:tra_fild01] OnStart:
+	//[BACKPORT-GAP:charat] .@num = atoi( charat(strnpcinfo(2), 5) );
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 	if (.is_moving[.@num])
+//[BACKPORT-BOUNDARY:tra_fild01] 		end;
+//[BACKPORT-BOUNDARY:tra_fild01] 	set .is_moving[.@num], true;
+//[BACKPORT-BOUNDARY:tra_fild01] 	stopnpctimer;
+//[BACKPORT-BOUNDARY:tra_fild01] 
+	//[BACKPORT-GAP:ET_SWEAT,ET_PROFUSELY_SWEAT,ET_HUNGRY,ET_OHNO] setarray .@emotions[0], ET_SWEAT, ET_PROFUSELY_SWEAT, ET_HUNGRY, ET_OHNO;
+//[BACKPORT-BOUNDARY:tra_fild01] 	set .@r, rand( getarraysize(.@emotions) );
+//[BACKPORT-BOUNDARY:tra_fild01] 	emotion .@emotions[.@r];
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 	setarray .@speed[0], 300, 400, 500, 600;
+//[BACKPORT-BOUNDARY:tra_fild01] 	set .@r, rand( getarraysize(.@speed) );
+//[BACKPORT-BOUNDARY:tra_fild01] 	npcspeed .@speed[.@r];
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 	getmapxy .@map$,.@x,.@y, BL_NPC;
+//[BACKPORT-BOUNDARY:tra_fild01] 	switch( .@num ) {
+//[BACKPORT-BOUNDARY:tra_fild01] 	case 1:
+//[BACKPORT-BOUNDARY:tra_fild01] 		if (.@x <= 126)
+//[BACKPORT-BOUNDARY:tra_fild01] 			set .sens[.@num], 1;
+//[BACKPORT-BOUNDARY:tra_fild01] 		else if (.@x >= 198)
+//[BACKPORT-BOUNDARY:tra_fild01] 			set .sens[.@num], -1;
+//[BACKPORT-BOUNDARY:tra_fild01] 		set .@x, .@x + 8 * .sens[.@num];
+//[BACKPORT-BOUNDARY:tra_fild01] 		break;
+//[BACKPORT-BOUNDARY:tra_fild01] 	case 2:
+//[BACKPORT-BOUNDARY:tra_fild01] 		if (.@x <= 21)
+//[BACKPORT-BOUNDARY:tra_fild01] 			set .sens[.@num], 1;
+//[BACKPORT-BOUNDARY:tra_fild01] 		else if (.@x >= 85)
+//[BACKPORT-BOUNDARY:tra_fild01] 			set .sens[.@num], -1;
+//[BACKPORT-BOUNDARY:tra_fild01] 		set .@x, .@x + 8 * .sens[.@num];
+//[BACKPORT-BOUNDARY:tra_fild01] 		break;
+//[BACKPORT-BOUNDARY:tra_fild01] 	case 3:
+//[BACKPORT-BOUNDARY:tra_fild01] 		if (.@y <= 33)
+//[BACKPORT-BOUNDARY:tra_fild01] 			set .sens[.@num], 1;
+//[BACKPORT-BOUNDARY:tra_fild01] 		else if (.@y >= 89)
+//[BACKPORT-BOUNDARY:tra_fild01] 			set .sens[.@num], -1;
+//[BACKPORT-BOUNDARY:tra_fild01] 		set .@y, .@y + 8 * .sens[.@num];
+//[BACKPORT-BOUNDARY:tra_fild01] 		break;
+//[BACKPORT-BOUNDARY:tra_fild01] 	}
+	//[BACKPORT-GAP:getnpcid] unitwalk getnpcid(0),.@x,.@y, strnpcinfo(0) + "::OnMoveEnd";
+//[BACKPORT-BOUNDARY:tra_fild01] 	end;
+//[BACKPORT-BOUNDARY:tra_fild01] OnMoveEnd:
+	//[BACKPORT-GAP:charat] .@num = atoi( charat(strnpcinfo(2), 5) );
+//[BACKPORT-BOUNDARY:tra_fild01] 	set .is_moving[.@num], false;
+//[BACKPORT-BOUNDARY:tra_fild01] 	initnpctimer;
+//[BACKPORT-BOUNDARY:tra_fild01] 	end;
+//[BACKPORT-BOUNDARY:tra_fild01] OnTimer30000:
+//[BACKPORT-BOUNDARY:tra_fild01] 	donpcevent strnpcinfo(0) + "::OnStart";
+//[BACKPORT-BOUNDARY:tra_fild01] 	end;
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] OnInit:
+	//[BACKPORT-GAP:charat] .@num = atoi( charat(strnpcinfo(2), 5) );
+//[BACKPORT-BOUNDARY:tra_fild01] 	set .sens[.@num], 1;
+//[BACKPORT-BOUNDARY:tra_fild01] 	initnpctimer;
+//[BACKPORT-BOUNDARY:tra_fild01] 	end;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild02] tra_fild02,53,113,2	duplicate(Cleaning Robot#fild01)	Cleaning Robot#fild02	EP17_2_OMEGA_CLEANER
+//[BACKPORT-BOUNDARY:tra_fild03] tra_fild03,110,57,4	duplicate(Cleaning Robot#fild01)	Cleaning Robot#fild03	EP17_2_OMEGA_CLEANER
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] 
+// Chitchat
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,122,75,6	script	Neighborhood Grandmother#npc02	4_F_JPNOBA,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Neighborhood Grandmother]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Hohoho- Seeing the young people sweating and working hard makes me feel a bit energized.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Neighborhood Grandmother]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Oh, by the way. Did you know that?";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Neighborhood Grandmother]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Dummies in the training grounds that are strong against physical attacks have a sword icon above their heads, and dummies that are strong against magic attacks have a staff icon above their heads.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Neighborhood Grandmother]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "If you know this, you'll be able to hit them harder, right?";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,34,102,3	script	Cat#npc03	4_CAT_REST,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	npctalk "Meow-", "", bc_self;
+//[BACKPORT-BOUNDARY:tra_fild01] 	end;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,34,120,3	script	Fress#npc05	4_M_SITDOWN,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Fress]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "If you want to go to Prontera, you can exit through the guards located throughout the area or through the warp portals at 3 and 9 o'clock. Seriously.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,128,142,7	script	Nine Oranges#npc04	4_F_ROGUE,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Nine Oranges]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Remember! Once you've chosen a name, it's hard to change, so choose wisely.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Nine Oranges]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "By the way, where's the Undead Dummy?";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Nine Oranges]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "My friend said it has a bone icon above its head...? You have to see it first.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild01,97,64,3	script	Village#npc01	4_M_CHN8GUEK,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Village ]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Hi! The weather is really nice, isn't it? I came to check out the new training grounds.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Village ]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "The old training grounds weren't bad, but they were actually renting space that beginners had been using for a long time, so there were some inconveniences.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Village ]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "But they're building such a spacious and nice new training ground. It seems like they're quite financially sound these days!";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild02,101,90,5	script	Jar Cat#npc09	4_CAT_SAILOR5,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Jar Cat]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Is this your first time at the training grounds? I'll explain myself, as a veteran.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Jar Cat]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "There are three training grounds: the basic training ground, the 1/10 training ground, and the 1/100 training ground. I'll leave the differences between each training ground for you to discover for yourself.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Jar Cat]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Oh, right! To move to another training ground, you can use the warp portals at 3 o'clock and 9 o'clock. Remember!";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild02,166,46,3	script	Little One#npc06	4_M_KID2,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Little One]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Dad told me! The Dummys with staff icons above their heads are strong against magic!";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Little One]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "So... if you can defeat those Dummys with magic, you're truly strong, right?!";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild02,129,93,6	script	Kekekekereurur#npc10	4_GEFFEN_02,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Kekekekereurur]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "They say training with the Dummys with cat icons above them will help you fight Doram in PvP.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Kekekekereurur]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "I'm definitely not practicing here after getting beat up by a passing Doram. Remember!";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild03,98,46,7	script	Lumberjack#npc13	4_M_NOV_HUNT,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Lumberjack]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Whoosh- Cha-Whoosh- Cha-";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild03,53,140,5	script	Dong#npc15	4_M_CACTUSMAN1,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Dong]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Aaaah- Stop! Stop! I'm not a monster. Don't attack me.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Dong]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "Whew- Thank you. Some people often mistake me for the monster Mukka, but I'm a cactus from a place called RockRidge.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	next;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Dong]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "If you visit RockRidge, you can meet our living, breathing Cacti, the Cactus. Come visit. Hahaha.";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild03,92,108,7	script	Cat#npc12	4_CAT_REST,{
+//[BACKPORT-BOUNDARY:tra_fild01] 	npctalk "Gororong-", "", bc_self;
+//[BACKPORT-BOUNDARY:tra_fild01] 	end;
+//[BACKPORT-BOUNDARY:tra_fild01] }
+//[BACKPORT-BOUNDARY:tra_fild01] 
+//[BACKPORT-BOUNDARY:tra_fild01] tra_fild03,180,102,4	script	Coco#npc14	4_COCO,{
+	//[BACKPORT-GAP:ET_QUESTION] emotion ET_QUESTION;
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "[Coco]";
+//[BACKPORT-BOUNDARY:tra_fild01] 	mes "?";
+//[BACKPORT-BOUNDARY:tra_fild01] 	close;
+//[BACKPORT-BOUNDARY:tra_fild01] }

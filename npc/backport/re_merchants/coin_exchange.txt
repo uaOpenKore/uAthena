@@ -576,263 +576,263 @@ function	script	F_mal_coin	{
 		}
 	}
 }
-//[BACKPORT-UNRESOLVED:multiline-select] malangdo,162,146,5	script	Wandering Merchant#mal	495,{
-//[BACKPORT-UNRESOLVED:multiline-select] 	callfunc "F_mal_coin",0,"[Wandering Merchant]",1;
-//[BACKPORT-UNRESOLVED:multiline-select] 	setarray .@items[1],
-//[BACKPORT-UNRESOLVED:multiline-select] 		16743,16747,16741,16745,16749,16751, // 1 hour items.
-//[BACKPORT-UNRESOLVED:multiline-select] 		16742,16744,16746,16748,16752,16750; // 7 day items.
-//[BACKPORT-UNRESOLVED:multiline-select] 	setarray .@names$[1],
-//[BACKPORT-UNRESOLVED:multiline-select] 		"Spearfish","Tuna","Hairtail","Saurel","Malang Snow Crab","Brindle Eel",
-//[BACKPORT-UNRESOLVED:multiline-select] 		"Hairtail (7Days)","Spearfish (7Days)","Saurel (7Days)","Tuna (7Days)","Brindle Eel (7Days)","Malang Snow Crab (7Days)";
-//[BACKPORT-UNRESOLVED:multiline-select] 	while(1) {
-//[BACKPORT-UNRESOLVED:multiline-select] 		.@i = select(
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Spearfish(1hr)] 8 E-Coins/50 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Tuna(1hr)] 8 E-Coins/50 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Hairtail(1hr)] 8 E-Coins/50 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Saurel(1hr)] 8 E-Coins/50 Can",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Malang Snow Crab(1hr)] 8 E-Coins/50 Can",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Brindle Eel(1hr)] 8 E-Coins/50 Can",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Hairtail(7Days)] 10 Silvervine Fruit",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Spearfish(7Days)] 10 Silvervine Fruit",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Saurel(7Days)] 10 Silvervine Fruit",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Tuna(7Days)] 10 Silvervine Fruit",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Brindle Eel(7Days)] 10 Silvervine Fruit",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Malang Snow Crab(7Days)] 10 Silvervine Fruit",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"End purchasing."
-//[BACKPORT-UNRESOLVED:multiline-select] 		);
-//[BACKPORT-UNRESOLVED:multiline-select] 		if (.@i == 13) {
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Well, then. I'll see you next time.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Goodbye.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			close;
-//[BACKPORT-UNRESOLVED:multiline-select] 		}
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "Are you interested in ^0000FF["+.@names$[.@i]+"]^000000?";
-//[BACKPORT-UNRESOLVED:multiline-select] 		switch(.@i) {
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 1: //Spearfish_Box1
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 8: //Spearfish_Box2
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is... a fish that moves according to the season, very tasty!";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "But this is only a food that I'm talking about, yummy~";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Of course, this is ^DC143CTwo-Handed Spear^000000.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It gives a high chance of";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "causing the Bleeding status";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "when you're using Pierce or Clashing Spiral~";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "More details are...";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Increase 100% of Clashing Spiral ATK and 50% of Inspiration ATK,";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "additional ATK + 30 when Base Lv. is over 100.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Base ATK is 220.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 2: //Tuna_Box1
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 10: //Tuna_Box2
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a very popular fish";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "which is used in various dishes.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Swordman, Merchant, and Acolyte classes can use it";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "as a ^DC143CMace^000000.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It gives a high chance of executing the Stun or Auto-Spell Bash";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "when using close-range physical attacks.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Base ATK is 180.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "More details are...";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "additional ATK + 20 when Base Lv. is over 100,";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "freeze self with low rate.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 3: //Hairtail_Box1
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 7: //Hairtail_Box2
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This fish looks like a long belt.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CTwo-Handed Sword^000000";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "which most swordmen can use.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It increases 50% of critical damage when attacking and CRI + 20.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Base ATK is 220.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "More details are...";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "additional ATK + 50 when Base Lv. is over 100.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 4: //Saurel_Box1
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 9: //Saurel_Box2
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CDagger^000000 which gives MATK + 100";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "and ATK + 30 for 7sec at a certain rate with physical attacks.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "More details are...";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "gives MATK + 20 for 7sec at a certain rate with magical attacks";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "and additional MATK + 10, ATK + 10 when Base Lv. is over 100.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Base ATK is 160.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 5: //Malang_Crab_Box1
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 12: //Malang_Crab_Box2
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CBow^000000 which increases LUK + 3 and 50% of critical damage,";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "and increases 20% of long rage physical ATK when Base Lv. is over 100.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Base ATK is 120.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "More details are...";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "can be used by Archer, Thief, and Rogue classes.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 6: //Brindle_Eel_Box1
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 11: //Brindle_Eel_Box2
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CBow^000000.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Because it has elastic force,";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "we started to use it as a Bow.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Base ATK is 180.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Wandering Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "More details are...";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "AGI + 3, and ASPD + 2 for 5sec at a certain rate with long range physical attacks.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Also gives additional 20% of long range physical ATK when Base Lv. is over 100.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Hunter, Bard, and Dancer classes can use it.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		}
-//[BACKPORT-UNRESOLVED:multiline-select] 		if (.@i < 7)
-//[BACKPORT-UNRESOLVED:multiline-select] 			setarray .@price[0],8,50,0; // 1 hour items cost 8 Egrade_Coin or 50 Malang_Sp_Can.
-//[BACKPORT-UNRESOLVED:multiline-select] 		else
-//[BACKPORT-UNRESOLVED:multiline-select] 			setarray .@price[0],0,0,10; // 7 day items cost 10 Silvervine.
-//[BACKPORT-UNRESOLVED:multiline-select] 		callfunc "F_mal_coin",1,"[Wandering Merchant]",.@names$[.@i],.@items[.@i],.@price[0],.@price[1],.@price[2];
-//[BACKPORT-UNRESOLVED:multiline-select] 		next;
-//[BACKPORT-UNRESOLVED:multiline-select] 	}
-//[BACKPORT-UNRESOLVED:multiline-select] }
+//[BACKPORT-UNRESOLVED:multiline-call] malangdo,162,146,5	script	Wandering Merchant#mal	495,{
+//[BACKPORT-UNRESOLVED:multiline-call] 	callfunc "F_mal_coin",0,"[Wandering Merchant]",1;
+//[BACKPORT-UNRESOLVED:multiline-call] 	setarray .@items[1],
+//[BACKPORT-UNRESOLVED:multiline-call] 		16743,16747,16741,16745,16749,16751, // 1 hour items.
+//[BACKPORT-UNRESOLVED:multiline-call] 		16742,16744,16746,16748,16752,16750; // 7 day items.
+//[BACKPORT-UNRESOLVED:multiline-call] 	setarray .@names$[1],
+//[BACKPORT-UNRESOLVED:multiline-call] 		"Spearfish","Tuna","Hairtail","Saurel","Malang Snow Crab","Brindle Eel",
+//[BACKPORT-UNRESOLVED:multiline-call] 		"Hairtail (7Days)","Spearfish (7Days)","Saurel (7Days)","Tuna (7Days)","Brindle Eel (7Days)","Malang Snow Crab (7Days)";
+//[BACKPORT-UNRESOLVED:multiline-call] 	while(1) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		.@i = select(
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Spearfish(1hr)] 8 E-Coins/50 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Tuna(1hr)] 8 E-Coins/50 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Hairtail(1hr)] 8 E-Coins/50 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Saurel(1hr)] 8 E-Coins/50 Can",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Malang Snow Crab(1hr)] 8 E-Coins/50 Can",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Brindle Eel(1hr)] 8 E-Coins/50 Can",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Hairtail(7Days)] 10 Silvervine Fruit",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Spearfish(7Days)] 10 Silvervine Fruit",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Saurel(7Days)] 10 Silvervine Fruit",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Tuna(7Days)] 10 Silvervine Fruit",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Brindle Eel(7Days)] 10 Silvervine Fruit",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Malang Snow Crab(7Days)] 10 Silvervine Fruit",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"End purchasing."
+//[BACKPORT-UNRESOLVED:multiline-call] 		);
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (.@i == 13) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Well, then. I'll see you next time.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Goodbye.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Are you interested in ^0000FF["+.@names$[.@i]+"]^000000?";
+//[BACKPORT-UNRESOLVED:multiline-call] 		switch(.@i) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 1: //Spearfish_Box1
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 8: //Spearfish_Box2
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is... a fish that moves according to the season, very tasty!";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "But this is only a food that I'm talking about, yummy~";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Of course, this is ^DC143CTwo-Handed Spear^000000.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It gives a high chance of";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "causing the Bleeding status";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "when you're using Pierce or Clashing Spiral~";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "More details are...";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Increase 100% of Clashing Spiral ATK and 50% of Inspiration ATK,";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "additional ATK + 30 when Base Lv. is over 100.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Base ATK is 220.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 2: //Tuna_Box1
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 10: //Tuna_Box2
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a very popular fish";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "which is used in various dishes.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Swordman, Merchant, and Acolyte classes can use it";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "as a ^DC143CMace^000000.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It gives a high chance of executing the Stun or Auto-Spell Bash";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "when using close-range physical attacks.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Base ATK is 180.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "More details are...";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "additional ATK + 20 when Base Lv. is over 100,";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "freeze self with low rate.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 3: //Hairtail_Box1
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 7: //Hairtail_Box2
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This fish looks like a long belt.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CTwo-Handed Sword^000000";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "which most swordmen can use.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It increases 50% of critical damage when attacking and CRI + 20.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Base ATK is 220.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "More details are...";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "additional ATK + 50 when Base Lv. is over 100.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 4: //Saurel_Box1
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 9: //Saurel_Box2
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CDagger^000000 which gives MATK + 100";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "and ATK + 30 for 7sec at a certain rate with physical attacks.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "More details are...";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "gives MATK + 20 for 7sec at a certain rate with magical attacks";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "and additional MATK + 10, ATK + 10 when Base Lv. is over 100.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Base ATK is 160.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 5: //Malang_Crab_Box1
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 12: //Malang_Crab_Box2
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CBow^000000 which increases LUK + 3 and 50% of critical damage,";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "and increases 20% of long rage physical ATK when Base Lv. is over 100.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Base ATK is 120.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "More details are...";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "can be used by Archer, Thief, and Rogue classes.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 6: //Brindle_Eel_Box1
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 11: //Brindle_Eel_Box2
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CBow^000000.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Because it has elastic force,";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "we started to use it as a Bow.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Base ATK is 180.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Wandering Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "More details are...";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "AGI + 3, and ASPD + 2 for 5sec at a certain rate with long range physical attacks.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Also gives additional 20% of long range physical ATK when Base Lv. is over 100.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Hunter, Bard, and Dancer classes can use it.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (.@i < 7)
+//[BACKPORT-UNRESOLVED:multiline-call] 			setarray .@price[0],8,50,0; // 1 hour items cost 8 Egrade_Coin or 50 Malang_Sp_Can.
+//[BACKPORT-UNRESOLVED:multiline-call] 		else
+//[BACKPORT-UNRESOLVED:multiline-call] 			setarray .@price[0],0,0,10; // 7 day items cost 10 Silvervine.
+//[BACKPORT-UNRESOLVED:multiline-call] 		callfunc "F_mal_coin",1,"[Wandering Merchant]",.@names$[.@i],.@items[.@i],.@price[0],.@price[1],.@price[2];
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] }
 
-//[BACKPORT-UNRESOLVED:multiline-select] malangdo,173,145,4	script	Stinky Merchant	496,{
-//[BACKPORT-UNRESOLVED:multiline-select] 	callfunc "F_mal_coin",0,"[Stinky Merchant]",2;
-//[BACKPORT-UNRESOLVED:multiline-select] 	setarray .@items[1],2873,16015;
-//[BACKPORT-UNRESOLVED:multiline-select] 	setarray .@names$[1],"Cat Paw Glove","Cat Club";
-//[BACKPORT-UNRESOLVED:multiline-select] 	while(1) {
-//[BACKPORT-UNRESOLVED:multiline-select] 		.@i = select(
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Cat Paw Glove] 32 E-Coins/200 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Cat Club] 32 E-Coins/200 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"End purchasing."
-//[BACKPORT-UNRESOLVED:multiline-select] 		);
-//[BACKPORT-UNRESOLVED:multiline-select] 		if (.@i == 3) {
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Stinky Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Well, then. I'll see you next time.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Goodbye.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			close;
-//[BACKPORT-UNRESOLVED:multiline-select] 		}
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Stinky Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "Are you interested in ^0000FF["+.@names$[.@i]+"]^000000?";
-//[BACKPORT-UNRESOLVED:multiline-select] 		switch(.@i) {
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 1: //Cat_Hand_Glove
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a glove which can give happiness";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "just by wearing it.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Stinky Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is an ^DC143CAccessory^000000";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "and its defense is 5.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It also gives";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "VIT + 1, AGI + 1, DEX + 1, LUK + 1.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Stinky Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "More details are...";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "SLOT : 1 / Refine : Unable / Destruction : Unable";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 2: //Cat_Club
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It looks like it wouldn't hurt, don't you think so?";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "But I'm telling you, it can hurt someone.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Stinky Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CMace^000000 that increases 15% of damage to the animal type of monster.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Base ATK is 88.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "The other details are";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Weapon Lv : 1 / SLOT : 3 / Refine : Able / Destruction : Unable";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		}
-//[BACKPORT-UNRESOLVED:multiline-select] 		callfunc "F_mal_coin",1,"[Stinky Merchant]",.@names$[.@i],.@items[.@i],32,200,0;
-//[BACKPORT-UNRESOLVED:multiline-select] 		next;
-//[BACKPORT-UNRESOLVED:multiline-select] 	}
-//[BACKPORT-UNRESOLVED:multiline-select] }
+//[BACKPORT-UNRESOLVED:multiline-call] malangdo,173,145,4	script	Stinky Merchant	496,{
+//[BACKPORT-UNRESOLVED:multiline-call] 	callfunc "F_mal_coin",0,"[Stinky Merchant]",2;
+//[BACKPORT-UNRESOLVED:multiline-call] 	setarray .@items[1],2873,16015;
+//[BACKPORT-UNRESOLVED:multiline-call] 	setarray .@names$[1],"Cat Paw Glove","Cat Club";
+//[BACKPORT-UNRESOLVED:multiline-call] 	while(1) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		.@i = select(
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Cat Paw Glove] 32 E-Coins/200 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Cat Club] 32 E-Coins/200 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"End purchasing."
+//[BACKPORT-UNRESOLVED:multiline-call] 		);
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (.@i == 3) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Stinky Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Well, then. I'll see you next time.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Goodbye.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Stinky Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Are you interested in ^0000FF["+.@names$[.@i]+"]^000000?";
+//[BACKPORT-UNRESOLVED:multiline-call] 		switch(.@i) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 1: //Cat_Hand_Glove
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a glove which can give happiness";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "just by wearing it.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Stinky Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is an ^DC143CAccessory^000000";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "and its defense is 5.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It also gives";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "VIT + 1, AGI + 1, DEX + 1, LUK + 1.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Stinky Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "More details are...";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "SLOT : 1 / Refine : Unable / Destruction : Unable";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 2: //Cat_Club
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It looks like it wouldn't hurt, don't you think so?";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "But I'm telling you, it can hurt someone.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Stinky Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CMace^000000 that increases 15% of damage to the animal type of monster.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Base ATK is 88.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "The other details are";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Weapon Lv : 1 / SLOT : 3 / Refine : Able / Destruction : Unable";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		callfunc "F_mal_coin",1,"[Stinky Merchant]",.@names$[.@i],.@items[.@i],32,200,0;
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] }
 
-//[BACKPORT-UNRESOLVED:multiline-select] malangdo,150,135,5	script	Roving Merchant	495,{
-//[BACKPORT-UNRESOLVED:multiline-select] 	callfunc "F_mal_coin",0,"[Roving Merchant]",3;
-//[BACKPORT-UNRESOLVED:multiline-select] 	setarray .@items[1],12639,12637,12638,12640;
-//[BACKPORT-UNRESOLVED:multiline-select] 	setarray .@names$[1],"Flying Fish","Sow Bug","Dried Squid","Starfish";
-//[BACKPORT-UNRESOLVED:multiline-select] 	while(1) {
-//[BACKPORT-UNRESOLVED:multiline-select] 		.@i = select(
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Flying Fish] 200 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Sow Bug] 200 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Dried Squid] 200 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"[Starfish] 200 Cans",
-//[BACKPORT-UNRESOLVED:multiline-select] 			"End purchasing."
-//[BACKPORT-UNRESOLVED:multiline-select] 		);
-//[BACKPORT-UNRESOLVED:multiline-select] 		if (.@i == 5) {
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Roving Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Well, then. I'll see you next time.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Goodbye.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			close;
-//[BACKPORT-UNRESOLVED:multiline-select] 		}
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Roving Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "Are you interested in ^0000FF["+.@names$[.@i]+"]^000000?";
-//[BACKPORT-UNRESOLVED:multiline-select] 		switch(.@i) {
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 1: //Flying_Fish_Box
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is the one that flies";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "with a big pectoral.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Roving Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CThrowing Weapon^000000.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Of course, it can give fatal wounds to the enemy";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "at a certain rate when attacking.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Roving Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "Its property is neutral and ATK is 50.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 2: //Gong_Bug_Pocket
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "In that case, I'll explain for you.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CBullet^000000 which stuns the enemy at a certain rate when attacking.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Roving Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "I feel somthing bad";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "is moving in my pocket but...";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "it is neutral property and its ATK is 50.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 3: //Dried_Squid_Box
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "I'll explain about this item.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CThrowing Weapon^000000 which causes darkness at a certain rate.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It's neutral property and its ATK is 50.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Roving Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It is compressed";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "and put into a very small box,";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "so be careful when you open it.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		case 4: //Starfish_Box
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "I'll explain about this item.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "This is a ^DC143CThrowing Weapon^000000 which stuns the enemy at a certain rate.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Roving Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It is perfectly organized and packed";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "so you can't even see inside.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "It is neutral property and its ATK is 110.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			next;
-//[BACKPORT-UNRESOLVED:multiline-select] 			break;
-//[BACKPORT-UNRESOLVED:multiline-select] 		}
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Roving Merchant]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "For your information,";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "one box contains";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "200 units.";
-//[BACKPORT-UNRESOLVED:multiline-select] 		next;
-//[BACKPORT-UNRESOLVED:multiline-select] 		callfunc "F_mal_coin",1,"[Roving Merchant]",.@names$[.@i],.@items[.@i],0,200,0;
-//[BACKPORT-UNRESOLVED:multiline-select] 		next;
-//[BACKPORT-UNRESOLVED:multiline-select] 	}
-//[BACKPORT-UNRESOLVED:multiline-select] }
+//[BACKPORT-UNRESOLVED:multiline-call] malangdo,150,135,5	script	Roving Merchant	495,{
+//[BACKPORT-UNRESOLVED:multiline-call] 	callfunc "F_mal_coin",0,"[Roving Merchant]",3;
+//[BACKPORT-UNRESOLVED:multiline-call] 	setarray .@items[1],12639,12637,12638,12640;
+//[BACKPORT-UNRESOLVED:multiline-call] 	setarray .@names$[1],"Flying Fish","Sow Bug","Dried Squid","Starfish";
+//[BACKPORT-UNRESOLVED:multiline-call] 	while(1) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		.@i = select(
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Flying Fish] 200 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Sow Bug] 200 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Dried Squid] 200 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"[Starfish] 200 Cans",
+//[BACKPORT-UNRESOLVED:multiline-call] 			"End purchasing."
+//[BACKPORT-UNRESOLVED:multiline-call] 		);
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (.@i == 5) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Roving Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Well, then. I'll see you next time.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Goodbye.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Roving Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Are you interested in ^0000FF["+.@names$[.@i]+"]^000000?";
+//[BACKPORT-UNRESOLVED:multiline-call] 		switch(.@i) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 1: //Flying_Fish_Box
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is the one that flies";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "with a big pectoral.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Roving Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CThrowing Weapon^000000.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Of course, it can give fatal wounds to the enemy";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "at a certain rate when attacking.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Roving Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Its property is neutral and ATK is 50.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 2: //Gong_Bug_Pocket
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "In that case, I'll explain for you.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CBullet^000000 which stuns the enemy at a certain rate when attacking.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Roving Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "I feel somthing bad";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "is moving in my pocket but...";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "it is neutral property and its ATK is 50.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 3: //Dried_Squid_Box
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "I'll explain about this item.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CThrowing Weapon^000000 which causes darkness at a certain rate.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It's neutral property and its ATK is 50.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Roving Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It is compressed";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "and put into a very small box,";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "so be careful when you open it.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 4: //Starfish_Box
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "I'll explain about this item.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "This is a ^DC143CThrowing Weapon^000000 which stuns the enemy at a certain rate.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Roving Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It is perfectly organized and packed";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "so you can't even see inside.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "It is neutral property and its ATK is 110.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Roving Merchant]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "For your information,";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "one box contains";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "200 units.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		callfunc "F_mal_coin",1,"[Roving Merchant]",.@names$[.@i],.@items[.@i],0,200,0;
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] }
 
 // Eclage
 //============================================================

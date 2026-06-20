@@ -1,0 +1,89 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../guides_dewata.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Dewata Guide
+//===== By: ================================================== 
+//= Muad_Dib
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Guide for the city of Dewata.
+//===== Additional Comments: ================================= 
+//= 1.0 First version. [Lemongrass]
+//= 1.1 Navigation system update. [Euphy]
+//============================================================ 
+
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] dewata,202,106,4	script	Dewata Guide#dewata01	4_M_DEWWOMAN,{
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "[Dewata Guide]";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "Welcome to ^8B4513Dewata Island^000000,";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "a place with dazzling waves and charming views it's a great place to relax.";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "If you have any questions, please ask me.";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	next;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "[Dewata Guide]";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "Where can I guide you?";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	F_Navi("[Dewata Guide]");
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	while (1) {
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		next;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		switch(select("[ Kafra Employee ]:[ Weapon Dealer ]:[ Armor Dealer ]:[ Tool Dealer ]:[ Restauranteur ]:[ Krakatau Gatekeeper ]:[ Alberta Sailor ]:Remove marks from Mini-Map:Cancel")) {
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 1:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			callsub L_Mark, "^0000FFKafra Employee^000000";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 1,202,184,0,0x000FFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			break;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 2:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			callsub L_Mark, F_Navi("Weapon Dealer","dewata,218,164","^008080");
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 1,218,163,1,0x008080;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			break;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 3:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			callsub L_Mark, F_Navi("Armor Dealer","dewata,158,182","^008080");
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 1,158,182,2,0x008080;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			break;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 4:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			callsub L_Mark, F_Navi("Tool Dealer","dewata,182,164","^FF1493");
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 1,182,164,3,0xFF1493;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			break;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 5:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			callsub L_Mark, F_Navi("Restauranteur","dewata,146,109","^FF1493");
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 1,146,109,4,0xFF1493;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			break;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 6:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			callsub L_Mark, F_Navi("Krakau Gatekeeper","dewata,235,56","^8A2BE2");
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 1,235,56,5,0x8A2BE2;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			break;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 7:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			callsub L_Mark, F_Navi("Alberta Sailor","dewata,229,49","^00BFFF");
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 1,229,49,6,0x00BFFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			break;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 8:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			mes "[Dewata Guide]";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			mes "I'll remove all marks from your mini-map.";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			mes "Is there anything else I can do for you?";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 2,202,184,0,0xFFFFFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 2,218,163,1,0xFFFFFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 2,158,182,2,0xFFFFFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 2,182,164,3,0xFFFFFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 2,232,59,4,0xFFFFFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 2,195,235,5,0xFFFFFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			viewpoint 2,230,52,6,0xFFFFFF;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			break;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		case 9:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			mes "[Dewata Guide]";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			mes "Enjoy your trip!!";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 			close;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 		}
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	}
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] L_Mark:
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "[Dewata Guide]";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "The "+getarg(0)+" is";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "marked on your mini-map.";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "Check your mini-map.";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	mes "Is there anything else I can do for you?";
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] 	return;
+//[BACKPORT-DEDUP:Dewata Guide#dewata01] }
+//[BACKPORT-DEDUP:Dewata Guide#dewata02] dewata,197,184,4	duplicate(Dewata Guide#dewata01)	Dewata Guide#dewata02	535

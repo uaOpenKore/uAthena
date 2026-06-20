@@ -502,73 +502,73 @@ OnTouch:
 	end;
 }
 
-//[BACKPORT-UNRESOLVED:multiline-select] lighthalzen,312,296,4	script	Bully#JCv2	4_M_LGTPOOR,{
-//[BACKPORT-UNRESOLVED:multiline-select] 	disable_items;
-//[BACKPORT-UNRESOLVED:multiline-select] 	mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 	mes "Hey, buddy. Do you have some remaining Energy pieces? I'll exchange them with something appropriate if you want.";
-//[BACKPORT-UNRESOLVED:multiline-select] 	next;
-//[BACKPORT-UNRESOLVED:multiline-select] 	.@s = select(
-//[BACKPORT-UNRESOLVED:multiline-select] 		"Listen to the story.",
-//[BACKPORT-UNRESOLVED:multiline-select] 		( countitem(25127) < 2000 ? "^777777" : "^000000" ) + "1 Energy Fragment (2000 Silent E Particles)",
-//[BACKPORT-UNRESOLVED:multiline-select] 		( countitem(25128) < 1000 ? "^777777" : "^000000" ) + "1 Energy Fragment (1000 Weak E Particles)",
-//[BACKPORT-UNRESOLVED:multiline-select] 		( countitem(25129) < 500 ? "^777777" : "^000000" ) + "1 Energy Fragment (500 Unstable E Particles)",
-//[BACKPORT-UNRESOLVED:multiline-select] 		( countitem(25130) < 500 ? "^777777" : "^000000" ) + "1 Energy Fragment (500 Sinister E Particles)",
-//[BACKPORT-UNRESOLVED:multiline-select] 		( countitem(25131) < 50 ? "^777777" : "^000000" ) + "1 Energy Fragment (50 Fallen E Particles)",
-//[BACKPORT-UNRESOLVED:multiline-select] 		( countitem(6820) < 50 ? "^777777" : "^000000" ) + "1 Sentimental Fragment (50 Energy Fragments)",
-//[BACKPORT-UNRESOLVED:multiline-select] 		( countitem(6820) < 666 ? "^777777" : "^000000" ) + "1 Cursed Fragment (666 Energy Fragments)"
-//[BACKPORT-UNRESOLVED:multiline-select] 	) - 2;
-//[BACKPORT-UNRESOLVED:multiline-select] 	if (.@s == -1) {
+//[BACKPORT-UNRESOLVED:multiline-call] lighthalzen,312,296,4	script	Bully#JCv2	4_M_LGTPOOR,{
+//[BACKPORT-UNRESOLVED:multiline-call] 	disable_items;
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "Hey, buddy. Do you have some remaining Energy pieces? I'll exchange them with something appropriate if you want.";
+//[BACKPORT-UNRESOLVED:multiline-call] 	next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	.@s = select(
+//[BACKPORT-UNRESOLVED:multiline-call] 		"Listen to the story.",
+//[BACKPORT-UNRESOLVED:multiline-call] 		( countitem(25127) < 2000 ? "^777777" : "^000000" ) + "1 Energy Fragment (2000 Silent E Particles)",
+//[BACKPORT-UNRESOLVED:multiline-call] 		( countitem(25128) < 1000 ? "^777777" : "^000000" ) + "1 Energy Fragment (1000 Weak E Particles)",
+//[BACKPORT-UNRESOLVED:multiline-call] 		( countitem(25129) < 500 ? "^777777" : "^000000" ) + "1 Energy Fragment (500 Unstable E Particles)",
+//[BACKPORT-UNRESOLVED:multiline-call] 		( countitem(25130) < 500 ? "^777777" : "^000000" ) + "1 Energy Fragment (500 Sinister E Particles)",
+//[BACKPORT-UNRESOLVED:multiline-call] 		( countitem(25131) < 50 ? "^777777" : "^000000" ) + "1 Energy Fragment (50 Fallen E Particles)",
+//[BACKPORT-UNRESOLVED:multiline-call] 		( countitem(6820) < 50 ? "^777777" : "^000000" ) + "1 Sentimental Fragment (50 Energy Fragments)",
+//[BACKPORT-UNRESOLVED:multiline-call] 		( countitem(6820) < 666 ? "^777777" : "^000000" ) + "1 Cursed Fragment (666 Energy Fragments)"
+//[BACKPORT-UNRESOLVED:multiline-call] 	) - 2;
+//[BACKPORT-UNRESOLVED:multiline-call] 	if (.@s == -1) {
 		//[BACKPORT-GAP:ET_THINK] emotion ET_THINK;
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes ". . . . . . .";
-//[BACKPORT-UNRESOLVED:multiline-select] 		next;
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "Hmm... this is quite unexpected.";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "Normally he ignores me and goes on to do his work.";
-//[BACKPORT-UNRESOLVED:multiline-select] 		next;
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "I'm sorry, but I've got nothing to say. I'm just doing this because I can earn lots of money.";
-//[BACKPORT-UNRESOLVED:multiline-select] 		close;
-//[BACKPORT-UNRESOLVED:multiline-select] 	}
-//[BACKPORT-UNRESOLVED:multiline-select] 	setarray .@exchange[0],
-//[BACKPORT-UNRESOLVED:multiline-select] 		6820, 25127,2000,	// Silent Energy Particle -> Energy Fragment
-//[BACKPORT-UNRESOLVED:multiline-select] 		6820, 25128,1000,	// Weak Energy Particles -> Energy Fragment
-//[BACKPORT-UNRESOLVED:multiline-select] 		6820, 25129,500,	// Unstable Energy Particle -> Energy Fragment
-//[BACKPORT-UNRESOLVED:multiline-select] 		6820, 25130,500,	// Sinister Energy Particle -> Energy Fragment
-//[BACKPORT-UNRESOLVED:multiline-select] 		6820, 25131,50,		// Fallen Energy Particle -> Energy Fragment
-//[BACKPORT-UNRESOLVED:multiline-select] 		22687, 6820,50,		// Energy Fragment -> Sentimental Fragment
-//[BACKPORT-UNRESOLVED:multiline-select] 		23016, 6820,666;	// Energy Fragment -> Cursed Fragment
-//[BACKPORT-UNRESOLVED:multiline-select] 	set .@index, .@s * 3;
-//[BACKPORT-UNRESOLVED:multiline-select] 	mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 	mes "Are you sure you want to exchange ^330066" + .@exchange[.@index+2] + " " + getitemname(.@exchange[.@index+1]) + "^000000 with ^CC33331 " + getitemname(.@exchange[.@index]) + "^000000?";
-//[BACKPORT-UNRESOLVED:multiline-select] 	next;
-//[BACKPORT-UNRESOLVED:multiline-select] 	if (select( "Exchange.", "Do not exchange." ) == 2) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes ". . . . . . .";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Hmm... this is quite unexpected.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Normally he ignores me and goes on to do his work.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "I'm sorry, but I've got nothing to say. I'm just doing this because I can earn lots of money.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		close;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] 	setarray .@exchange[0],
+//[BACKPORT-UNRESOLVED:multiline-call] 		6820, 25127,2000,	// Silent Energy Particle -> Energy Fragment
+//[BACKPORT-UNRESOLVED:multiline-call] 		6820, 25128,1000,	// Weak Energy Particles -> Energy Fragment
+//[BACKPORT-UNRESOLVED:multiline-call] 		6820, 25129,500,	// Unstable Energy Particle -> Energy Fragment
+//[BACKPORT-UNRESOLVED:multiline-call] 		6820, 25130,500,	// Sinister Energy Particle -> Energy Fragment
+//[BACKPORT-UNRESOLVED:multiline-call] 		6820, 25131,50,		// Fallen Energy Particle -> Energy Fragment
+//[BACKPORT-UNRESOLVED:multiline-call] 		22687, 6820,50,		// Energy Fragment -> Sentimental Fragment
+//[BACKPORT-UNRESOLVED:multiline-call] 		23016, 6820,666;	// Energy Fragment -> Cursed Fragment
+//[BACKPORT-UNRESOLVED:multiline-call] 	set .@index, .@s * 3;
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "Are you sure you want to exchange ^330066" + .@exchange[.@index+2] + " " + getitemname(.@exchange[.@index+1]) + "^000000 with ^CC33331 " + getitemname(.@exchange[.@index]) + "^000000?";
+//[BACKPORT-UNRESOLVED:multiline-call] 	next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	if (select( "Exchange.", "Do not exchange." ) == 2) {
 		//[BACKPORT-GAP:ET_HNG] emotion ET_HNG;
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "Well... if you don't like it, never mind.";
-//[BACKPORT-UNRESOLVED:multiline-select] 		close;
-//[BACKPORT-UNRESOLVED:multiline-select] 	}
-//[BACKPORT-UNRESOLVED:multiline-select] 	while(true) {
-//[BACKPORT-UNRESOLVED:multiline-select] 		if (countitem(.@exchange[.@index+1]) < .@exchange[.@index+2]) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Well... if you don't like it, never mind.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		close;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] 	while(true) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (countitem(.@exchange[.@index+1]) < .@exchange[.@index+2]) {
 			//[BACKPORT-GAP:ET_SCRATCH] emotion ET_SCRATCH;
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "No... No... you shouldn't do this.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "You told me you would exchange it with " + .@exchange[.@index+2] + " (item)s.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			close;
-//[BACKPORT-UNRESOLVED:multiline-select] 		}
-//[BACKPORT-UNRESOLVED:multiline-select] 		delitem .@exchange[.@index+1], .@exchange[.@index+2];
-//[BACKPORT-UNRESOLVED:multiline-select] 		getitem .@exchange[.@index], 1;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "No... No... you shouldn't do this.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "You told me you would exchange it with " + .@exchange[.@index+2] + " (item)s.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		delitem .@exchange[.@index+1], .@exchange[.@index+2];
+//[BACKPORT-UNRESOLVED:multiline-call] 		getitem .@exchange[.@index], 1;
 		//[BACKPORT-GAP:ET_SEXY] emotion ET_SEXY;
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 		mes "Oh thank you. Is there something else you want to exchange?";
-//[BACKPORT-UNRESOLVED:multiline-select] 		next;
-//[BACKPORT-UNRESOLVED:multiline-select] 		if (select( "Continue with the exchange.", "Stop the exchange." ) == 2) {
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "[Bully]";
-//[BACKPORT-UNRESOLVED:multiline-select] 			mes "When you have some energy piece left, come to me again.";
-//[BACKPORT-UNRESOLVED:multiline-select] 			close;
-//[BACKPORT-UNRESOLVED:multiline-select] 		}
-//[BACKPORT-UNRESOLVED:multiline-select] 	}
-//[BACKPORT-UNRESOLVED:multiline-select] }
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Oh thank you. Is there something else you want to exchange?";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (select( "Continue with the exchange.", "Stop the exchange." ) == 2) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Bully]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "When you have some energy piece left, come to me again.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] }
 
 // Enchants NPCs
 //[BACKPORT-BOUNDARY:lhz_dun_n] lhz_dun_n,145,265,4	script	Silent Mind#JCv2	4_CENERE,{

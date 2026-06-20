@@ -525,7 +525,7 @@ def block_filter(text):
                 # duplicate() instances orphan cleanly via the orphan pass.
                 for pat, label in ((r'\[[^\]]*(?:\+\+|--)', "incr-in-index"),
                                    (r'for\s*\([^;]*,[^;]*;', "malformed-for"),
-                                   (r'select\(\s*$', "multiline-select"),
+                                   (r'[A-Za-z_]\w*\(\s*$', "multiline-call"),
                                    (r'\([^()]*\?[^()]*\b[A-Za-z_]\w*\([^()]*\)[^()]*:', "ternary-funccall")):
                     if re.search(pat, code, re.M):
                         reason = ("UNRESOLVED", label); break

@@ -1,0 +1,79 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../item_merge.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Mergician
+//===== By: ==================================================
+//= Euphy
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= [Official Conversion]
+//= Merges items taking up multiple slots in a player's
+//= inventory.
+//===== Additional Comments: =================================
+//= 1.0 First version, currently useless/disabled.
+//= 1.1 Implemented the 'mergeitem' script command. [Cydh]
+//= 1.2 Updated and moved to Cash Mall [Lemongrass]
+//============================================================
+
+//prontera,146,95,3	script	Mergician#pron	1_M_WIZARD,{
+//[BACKPORT-UNRESOLVED:mergeitem] itemmall,35,75,3	script	Mergician#mall	1_M_WIZARD,{
+//[BACKPORT-UNRESOLVED:mergeitem] 	if (checkweight(1301,1) == 0) {
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "- Wait a second !! -";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "- You are carrying too many items -";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "- or too much weight to proceed. -";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "- Come back after -";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "- arranging your inventory. -";
+//[BACKPORT-UNRESOLVED:mergeitem] 		close;
+//[BACKPORT-UNRESOLVED:mergeitem] 	}
+//[BACKPORT-UNRESOLVED:mergeitem] 	mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 	mes "Do you believe in the miracle of Merge god?? If so, repeat my spell loudly as I pronounce it!!!";
+//[BACKPORT-UNRESOLVED:mergeitem] 	mes "Merge Merge, Merrrrge!!!";
+//[BACKPORT-UNRESOLVED:mergeitem] 	next;
+//[BACKPORT-UNRESOLVED:mergeitem] 	switch(select("Merrrrge!!!!:What is the miracle of Merge?:Abandon...")) {
+//[BACKPORT-UNRESOLVED:mergeitem] 	case 2:
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "There is an order which rules the world and keeps the world to go well.";
+//[BACKPORT-UNRESOLVED:mergeitem] 		next;
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "But there has been a bad factor which totally jeopardised this rule!!";
+//[BACKPORT-UNRESOLVED:mergeitem] 		next;
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "Those things which are separated even if they are composed by the same material!!";
+//[BACKPORT-UNRESOLVED:mergeitem] 		next;
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "Have you never experienced this bad incident??";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "The fact that I had ^3131FFthe same potion, but appearing more than twice in your inventory!!^000000 So unpleasant!!!";
+//[BACKPORT-UNRESOLVED:mergeitem] 		next;
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "Believe in Mergism. That is the truth.";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "Then I can help you be happy and content.";
+//[BACKPORT-UNRESOLVED:mergeitem] 		close;
+//[BACKPORT-UNRESOLVED:mergeitem] 	case 1:
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "This is the total holy ritual to pray to the Great God, Merge! and I am borrowing the power for a while!!";
+//[BACKPORT-UNRESOLVED:mergeitem] 		next;
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 		mes "And if you eagerly want to be blessed by Merge, be humble and shout out loud! Merge Merge, Merrrrge!!!";
+//[BACKPORT-UNRESOLVED:mergeitem] 		next;
+//[BACKPORT-UNRESOLVED:mergeitem] 		switch(select("Merrrrge!:Don't follow what he says.")) {
+//[BACKPORT-UNRESOLVED:mergeitem] 		case 1:
+			//[BACKPORT-GAP:mergeitem] mergeitem;
+//[BACKPORT-UNRESOLVED:mergeitem] 			mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 			mes "Merge just heard your wish and let it be realised!";
+//[BACKPORT-UNRESOLVED:mergeitem] 			mes "Open your inventory to check the miracle!";
+//[BACKPORT-UNRESOLVED:mergeitem] 			close;
+//[BACKPORT-UNRESOLVED:mergeitem] 		case 2:
+//[BACKPORT-UNRESOLVED:mergeitem] 			mes "[Mergician]";
+//[BACKPORT-UNRESOLVED:mergeitem] 			mes "You jerk!!! You just broke the whole rhythm! Why can't you get my flow and follow me?! Idiot!";
+//[BACKPORT-UNRESOLVED:mergeitem] 			close;
+//[BACKPORT-UNRESOLVED:mergeitem] 		}
+//[BACKPORT-UNRESOLVED:mergeitem] 	case 3:
+//[BACKPORT-UNRESOLVED:mergeitem] 		close;
+//[BACKPORT-UNRESOLVED:mergeitem] 	}
+//[BACKPORT-UNRESOLVED:mergeitem] }
