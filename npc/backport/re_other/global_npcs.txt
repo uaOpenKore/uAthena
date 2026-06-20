@@ -17,14 +17,14 @@
 	end;
 }
 
--	script(CLOAKED)	dummy_cloaked_npc	-1,{
+-	script	dummy_cloaked_npc	-1,{
 	end;
 }
 
--	script(DISABLED)	dummy_disabled_npc	-1,{
+-	script	dummy_disabled_npc	-1,{
 	end;
 }
 
--	script(HIDDEN)	dummy_hidden_npc	-1,{
+-	script	dummy_hidden_npc	-1,{
 	end;
 }

@@ -182,6 +182,14 @@ def adapt_text(text):
         if m_mv != line:
             line = m_mv
             events.append(("ADAPT", "movenpc-dropdir", stripped))
+        # NPC display-state header: rAthena 'script(CLOAKED|DISABLED|HIDDEN)' attaches a
+        # display state to the definition. uAthena's parser has no such state -> drop the
+        # '(STATE)' so the NPC (and its duplicates) load as a normal NPC. Renewal-only
+        # cosmetic; the dummy templates use sprite -1 (already invisible) anyway.
+        m_ss = re.sub(r'(\t)script\(\w+\)(\t)', r'\1script\2', line)
+        if m_ss != line:
+            line = m_ss
+            events.append(("ADAPT", "script-dropstate", stripped))
         # inline-if assignment: 'if (cond) var = val;' -> 'if (cond) set var, val;'
         mif = re.match(r'^(\s*if\s*\(.*?\)\s*)(' + VAR + r')\s*=\s*([^=].*?);(\s*//.*)?$', line)
         if mif:

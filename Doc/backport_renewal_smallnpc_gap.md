@@ -239,3 +239,8 @@
 - BOUNDARY [izlude_c] izlude_c,25,103,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_c	837
 - BOUNDARY [izlude_d] izlude_d,25,103,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_d	837
 - DEDUP [Bulletin Board#5] Bulletin Board#5
+
+## global_npcs.txt
+- ADAPT [script-dropstate] -	script(CLOAKED)	dummy_cloaked_npc	-1,{
+- ADAPT [script-dropstate] -	script(DISABLED)	dummy_disabled_npc	-1,{
+- ADAPT [script-dropstate] -	script(HIDDEN)	dummy_hidden_npc	-1,{
