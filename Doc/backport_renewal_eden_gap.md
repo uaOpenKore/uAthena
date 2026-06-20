@@ -173,8 +173,6 @@
 - UNRESOLVED [npcskill] Dispatched Instructor#05
 - UNRESOLVED [npcskill] Dispatched Instructor#07
 - UNRESOLVED [npcskill] Dispatched Instructor#08
-- UNRESOLVED [malformed-for] Blacksmith Thorn#2nd10
-- UNRESOLVED [malformed-for] Weapons Expert BK#2nd11
 
 ## eden_iro.txt
 - COMMENT [is_function] if (is_function("VIP_iRO_Acolyte"))
@@ -234,8 +232,6 @@
 - UNRESOLVED [vip_status] VIP_iRO_Acolyte
 - UNRESOLVED [vip_status] Primo d'Buffer
 - UNRESOLVED [vip_status] Clearchus
-- UNRESOLVED [malformed-for] Izaac#edco
-- UNRESOLVED [malformed-for] Eve Natalia
 - UNRESOLVED [consumeitem,delequip,implode,mail,openmail,sprintf,vip_status] Merry Badger#xch
 
 ## 11-25.txt
@@ -252,17 +248,12 @@
 - ADAPT [=->set] .@quest_id = getarg(0);
 - ADAPT [=->set] .@item_req = getarg(3,0);
 - ADAPT [=->set] .@req_amount = getarg(4,0);
-- UNRESOLVED [malformed-for] Mission [11 - 25]#Tuto
-- UNRESOLVED [malformed-for] Spike
 
 ## 26-40.txt
 - ADAPT [=->set] .@string$ = getarg(2);
 - COMMENT [ET_KIK] emotion ET_KIK;
 - ADAPT [=->set] .@quest_id = getarg(0);
 - COMMENT [ET_SMILE] emotion ET_SMILE;
-
-## 41-55.txt
-- UNRESOLVED [malformed-for] Mission [41 - 55]
 
 ## 56-70.txt
 - ADAPT [=->set] .@quest_id = getarg(0);
@@ -277,11 +268,9 @@
 
 ## 86-90.txt
 - ADAPT [=->set] .@cutin$ = getarg(3);
-- UNRESOLVED [malformed-for] 86-90 Mission Board
 
 ## 91-99.txt
 - ADAPT [=->set] .@cutin$ = getarg(3);
-- UNRESOLVED [malformed-for] 91-99 Mission Board
 
 ## eden_100_111.txt
 - COMMENT [ET_SMILE] emotion ET_SMILE;

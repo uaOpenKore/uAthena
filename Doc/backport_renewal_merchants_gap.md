@@ -413,7 +413,6 @@
 - ADAPT [=->set] .@check[.@i] = .@card[.@i];
 - COMMENT [delequip] delequip .@part;
 - ADAPT [inarray->-1] if (inarray(.@equip_id,getarg(0)) == -1) {
-- UNRESOLVED [malformed-for] Artifact Appraiser#pa0829_01
 - UNRESOLVED [delequip,explode] Artifact Enhancer#pa0829_01
 
 ## OldGlastHeim_merchants.txt
@@ -629,7 +628,7 @@
 - COMMENT [delequip] delequip .@part;
 - COMMENT [ET_OTL] emotion ET_OTL;
 - COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
-- UNRESOLVED [malformed-for] Weird old man#Bio4Reward
+- UNRESOLVED [multiline-call] Weird old man#Bio4Reward
 - UNRESOLVED [delequip] Sorcerer#Bio4Reward
 
 ## blessed_refiner.txt
@@ -642,13 +641,6 @@
 - ADAPT [=->set] .@equip_lv = getequipweaponlv( .@part );
 - ADAPT [=->set] .@type$ = "Weapon";
 - COMMENT [ET_ANGER,ET_HUK] emotion (!rand(5))?ET_ANGER:ET_HUK;
-- UNRESOLVED [malformed-for] BlacksmithDister
-- ORPHAN [BlacksmithDister] prt_in,52,56,3	duplicate(BlacksmithDister)	Blacksmith Dister#prt	826
-- ORPHAN [BlacksmithDister] payon,148,172,3	duplicate(BlacksmithDister)	Blacksmith Dister#pay	826
-- ORPHAN [BlacksmithDister] alberta_in,20,56,3	duplicate(BlacksmithDister)	Blacksmith Dister#alb	826
-- ORPHAN [BlacksmithDister] yuno_in01,175,18,3	duplicate(BlacksmithDister)	Blacksmith Dister#yuno	826
-- ORPHAN [BlacksmithDister] ein_in01,26,82,3	duplicate(BlacksmithDister)	Blacksmith Dister#ein	826
-- ORPHAN [BlacksmithDister] lhz_in02,280,15,3	duplicate(BlacksmithDister)	Blacksmith Dister#lhz	826
 
 ## card_exchange.txt
 - ADAPT [=->set] .@r = rand(1,34261);
@@ -782,14 +774,10 @@
 - COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
 - COMMENT [ET_THINK] emotion ET_THINK;
 - COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
-- UNRESOLVED [malformed-for] Coin Exchanger CX-1
 - UNRESOLVED [getargcount] Special Vending Machine
-- UNRESOLVED [malformed-for] Dark Merchant K
-- UNRESOLVED [malformed-for] Dark MachineTX100
 - UNRESOLVED [multiline-call] Wandering Merchant#mal
 - UNRESOLVED [multiline-call] Stinky Merchant
 - UNRESOLVED [multiline-call] Roving Merchant
-- UNRESOLVED [malformed-for] Replication Expert Paltu
 
 ## diamond.txt
 - COMMENT [ET_BLABLA] emotion ET_BLABLA;
@@ -1785,13 +1773,6 @@
 - ADAPT [=->set] .@toname$ = getarg(4);
 - BOUNDARY [te_prt_gld] te_prt_gld,107,155,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#7	2_VENDING_MACHINE1
 - BOUNDARY [te_alde_gld] te_alde_gld,180,163,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#8	2_VENDING_MACHINE1
-- UNRESOLVED [malformed-for] #GldDungeonReward
-- ORPHAN [#GldDungeonReward] alde_gld,180,163,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#1	2_VENDING_MACHINE1
-- ORPHAN [#GldDungeonReward] pay_gld,196,176,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#2	2_VENDING_MACHINE1
-- ORPHAN [#GldDungeonReward] gef_fild13,198,246,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#3	2_VENDING_MACHINE1
-- ORPHAN [#GldDungeonReward] sch_gld,266,119,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#4	2_VENDING_MACHINE1
-- ORPHAN [#GldDungeonReward] aru_gld,89,204,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#5	2_VENDING_MACHINE1
-- ORPHAN [#GldDungeonReward] prt_gld,107,155,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#6	2_VENDING_MACHINE1
 
 ## guild_warehouse.txt
 - ADAPT [=->set] .@guildid = getcharid( 2 );
@@ -1962,7 +1943,6 @@
 - COMMENT [delequip] delequip .@part;
 - ADAPT [=->set] .@card[0] = .@enchant;
 - ADAPT [=->set] .@card[0] = 0;
-- UNRESOLVED [malformed-for] Designer Heidam#eventhat
 - UNRESOLVED [delequip,sprintf] Aver De Dosh#cos_ect
 - UNRESOLVED [delequip,sprintf] Lace La Zard#cos_ect
 
@@ -2287,17 +2267,6 @@
 - ADAPT [=->set] .@size = getarraysize(.@list);
 - ADAPT [for/incr->set] for ( .@i = 0, .@i < .@size; .@i++ ) {
 - ADAPT [=->set] .@count = countitem(.@list[.@i]);	// note: maybe check if equipped items are skipped
-- UNRESOLVED [malformed-for] novice_vending_machine#main
-- ORPHAN [novice_vending_machine#main] izlude_in,69,177,5	duplicate(novice_vending_machine#main)	Vending Machine for Nov#iz	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] payon_in02,71,75,5	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pay	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] prt_church,187,27,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#prt	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] alberta_in,60,52,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#alb	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] geffen_in,158,107,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#gef	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] moc_para01,17,37,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#para	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] moc_prydb1,38,124,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pryd	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] payon_in01,59,20,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pay2	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] que_ng,28,73,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#que_ng1	2_VENDING_MACHINE1
-- ORPHAN [novice_vending_machine#main] que_ng,168,39,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#que_ng2	2_VENDING_MACHINE1
 
 ## pet_groomer.txt
 - ADAPT [callshop+flag] callshop "barter_Pet_Groomer";
@@ -2698,4 +2667,3 @@
 - COMMENT [ET_THINK] emotion ET_THINK;
 - COMMENT [ET_FRET] emotion ET_FRET;
 - COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
-- UNRESOLVED [malformed-for] Refine Master

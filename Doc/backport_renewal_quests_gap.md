@@ -967,7 +967,6 @@
 - UNRESOLVED [getnpcid] Biscuit#mal
 - UNRESOLVED [getnpcid] Star Candy#mal
 - UNRESOLVED [getnpcid] Patrol Leader#ml
-- UNRESOLVED [malformed-for] Beginning Compass#nya_02
 - UNRESOLVED [getnpcid] Noisy Machine#nya_13
 - UNRESOLVED [multiline-call] Box#nya01
 - UNRESOLVED [multiline-call] Book#nya02
@@ -975,10 +974,6 @@
 - UNRESOLVED [multiline-call] Seashell#nya04
 - UNRESOLVED [multiline-call] Ship Pillar#nya05
 - UNRESOLVED [multiline-call] Ventilation Window#nya06
-- UNRESOLVED [malformed-for] Ser#gamer
-- UNRESOLVED [malformed-for] Paa#gamer
-- UNRESOLVED [malformed-for] Kuka#gamer
-- UNRESOLVED [malformed-for] KungKung#gamer
 - UNRESOLVED [getnpcid,round] Leader#gamer
 - UNRESOLVED [delequip] Fallen Angel#mal
 - UNRESOLVED [showscript] F_Cat_Hard_Biscuit
@@ -1222,12 +1217,11 @@
 - UNRESOLVED [vip_status] Old Legend Teller#bako1
 - UNRESOLVED [vip_status] Village Chief#bako2
 - UNRESOLVED [vip_status] Young Fortune Teller
-- UNRESOLVED [malformed-for] Bakonawa Intro Helper
 - UNRESOLVED [vip_status] F_Malaya_Nurse
 - UNRESOLVED [getnpcid] Nurse#ma_n1
 - UNRESOLVED [replacestr] Suspicious Wooden Stick
 - UNRESOLVED [replacestr] Tent#ma
-- UNRESOLVED [malformed-for] Festival Helper Boy#pin
+- UNRESOLVED [multiline-call] Festival Helper Boy#pin
 - ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent1#ma	-1
 - ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent2#ma	-1
 - ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent3#ma	-1
@@ -2172,10 +2166,6 @@
 - UNRESOLVED [charat] #mora_bush_timer
 - UNRESOLVED [round] Tired-looking Fairy
 - UNRESOLVED [charat] #mora_puddle
-- UNRESOLVED [malformed-for] Hotcha#pa0829
-- UNRESOLVED [malformed-for] General Goods Dealer#pa0
-- UNRESOLVED [malformed-for] Commodities Dealer#pa08
-- UNRESOLVED [malformed-for] Soul Guide#pa0829
 - UNRESOLVED [freeloop] Initializing Mora Sanjo
 - BOUNDARY [1@mist] Tazaar's Remains#33
 - BOUNDARY [1@mist] Naizar's Remains#33
@@ -2248,5 +2238,3 @@
 - COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
 - COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
 - COMMENT [ET_HUK] emotion ET_HUK;
-- UNRESOLVED [malformed-for] Memo#dew_drink
-- UNRESOLVED [malformed-for] Lero#dew_drink

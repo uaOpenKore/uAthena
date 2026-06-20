@@ -56,64 +56,64 @@ Purchase:
 }
 
 // Equipment Shop
-//[BACKPORT-UNRESOLVED:malformed-for] cmd_fild07,57,275,5	script	Artifact Appraiser#pa0829_01	1_F_02,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (!checkweight(1201,1) || (MaxWeight - Weight) < 1000) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You can't proceed with the conversation because you have a large quantity of items.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Please organize your items and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@stone_id, 6905;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[ Artifact Appraiser ]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Choose the type of equipment that you want to purchase. You can purchase as many as you want, as long as you have " + getitemname(.@stone_id) + ".";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	switch (select("Cancel:Weapons:Armors")) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ Artifact Appraiser ]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Please come back whenever you want~";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 			setarray .@equip_id,1994,1938,13323,13126,28703,2024,16038,21014,28105,18128;
-//[BACKPORT-UNRESOLVED:malformed-for] 			set .@price, 50;
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		case 3:
-//[BACKPORT-UNRESOLVED:malformed-for] 			setarray .@equip_id,15141,22075,20779,19033;
-//[BACKPORT-UNRESOLVED:malformed-for] 			set .@price, 50;
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@menu$, "Cancel:";
-//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,0; .@i < getarraysize(.@equip_id); set .@i,.@i+1)
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@menu$, .@menu$ + getitemname(.@equip_id[.@i]) + ":";
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@s, select(.@menu$) - 1;
-//[BACKPORT-UNRESOLVED:malformed-for] 	switch (.@s) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		case 0:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ Artifact Appraiser ]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Please come back whenever you want~";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		default:
-//[BACKPORT-UNRESOLVED:malformed-for] 			set .@s,.@s-1;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ Artifact Appraiser ]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "You need ^0000FF" + .@price + "^000000 " + getitemname(.@stone_id) + " to purchase the " + getitemname(.@equip_id[.@s]) + "~";
-//[BACKPORT-UNRESOLVED:malformed-for] 			next;
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (select("Cancel:Purchase") == 1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ Artifact Appraiser ]";
-//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Please come back whenever you want~";
-//[BACKPORT-UNRESOLVED:malformed-for] 				close;
-//[BACKPORT-UNRESOLVED:malformed-for] 			}
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (countitem(.@stone_id) < .@price) {
-//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ Artifact Appraiser ]";
-//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You don't have enough " + getitemname(.@stone_id) + " to purchase this item.";
-//[BACKPORT-UNRESOLVED:malformed-for] 				close;
-//[BACKPORT-UNRESOLVED:malformed-for] 			}
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ Artifact Appraiser ]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Thank you for your trust. Please come back again next time.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			delitem .@stone_id,.@price;
-//[BACKPORT-UNRESOLVED:malformed-for] 			getitem .@equip_id[.@s],1;
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] }
+cmd_fild07,57,275,5	script	Artifact Appraiser#pa0829_01	1_F_02,{
+	if (!checkweight(1201,1) || (MaxWeight - Weight) < 1000) {
+		mes "You can't proceed with the conversation because you have a large quantity of items.";
+		mes "Please organize your items and try again.";
+		close;
+	}
+	set .@stone_id, 6905;
+	mes "[ Artifact Appraiser ]";
+	mes "Choose the type of equipment that you want to purchase. You can purchase as many as you want, as long as you have " + getitemname(.@stone_id) + ".";
+	next;
+	switch (select("Cancel:Weapons:Armors")) {
+		case 1:
+			mes "[ Artifact Appraiser ]";
+			mes "Please come back whenever you want~";
+			close;
+
+		case 2:
+			setarray .@equip_id,1994,1938,13323,13126,28703,2024,16038,21014,28105,18128;
+			set .@price, 50;
+			break;
+
+		case 3:
+			setarray .@equip_id,15141,22075,20779,19033;
+			set .@price, 50;
+			break;
+	}
+	set .@menu$, "Cancel:";
+	for (set .@i,0; .@i < getarraysize(.@equip_id); set .@i,.@i+1)
+		set .@menu$, .@menu$ + getitemname(.@equip_id[.@i]) + ":";
+	set .@s, select(.@menu$) - 1;
+	switch (.@s) {
+		case 0:
+			mes "[ Artifact Appraiser ]";
+			mes "Please come back whenever you want~";
+			close;
+
+		default:
+			set .@s,.@s-1;
+			mes "[ Artifact Appraiser ]";
+			mes "You need ^0000FF" + .@price + "^000000 " + getitemname(.@stone_id) + " to purchase the " + getitemname(.@equip_id[.@s]) + "~";
+			next;
+			if (select("Cancel:Purchase") == 1) {
+				mes "[ Artifact Appraiser ]";
+				mes "Please come back whenever you want~";
+				close;
+			}
+			if (countitem(.@stone_id) < .@price) {
+				mes "[ Artifact Appraiser ]";
+				mes "You don't have enough " + getitemname(.@stone_id) + " to purchase this item.";
+				close;
+			}
+			mes "[ Artifact Appraiser ]";
+			mes "Thank you for your trust. Please come back again next time.";
+			delitem .@stone_id,.@price;
+			getitem .@equip_id[.@s],1;
+			close;
+	}
+}
 
 // Equipment Enchanter
 //[BACKPORT-UNRESOLVED:delequip,explode] cmd_fild07,60,275,3	script	Artifact Enhancer#pa0829_01	4_F_JOB_BLACKSMITH,{

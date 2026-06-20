@@ -76,6 +76,31 @@ VERIFY OK (unresolved refs: none). boot parse-чист, 16546 NPC.
 обрезаются согласованно). Не parse-ошибка, boot не блокирует. Стратегия (engine ↑NAME_LENGTH
 рискованно для wire/DB / генератор-укорачивание / оставить+документировать) — решается отдельно.
 
+## 2d — simple quests (8 файлов)
+
+`npc/backport/re_simple/` (ninja_quests, cupet, cooking_quest, pile_bunker, mrsmile,
+monstertamers, the_sign_quest, quest_payon). 801 строк rAthena (многие — крошечные
+renewal duplicate-stub: base NPC живёт в episode/основных файлах → orphan-pass чистит
+отсутствующие базы). Генератор `dumps/forge/backport-renewal-simple.py` (клон collections,
+tail: OUT_DIR=re_simple, SIMPLE_FILES). Подключены в scripts_athena.conf «2d». VERIFY OK,
+boot parse-чист.
+
+## block_filter: 2 ЛОЖНЫХ BROKEN-паттерна исправлены (вскрыто 2d, выигрывают ВСЕ фазы)
+
+Оба паттерна ложно комментировали ВАЛИДНЫЙ uAthena-код целыми NPC-блоками:
+1. **`malformed-for`** `for\s*\([^;]*,[^;]*;` ловил ЛЮБУЮ запятую в for-init, включая
+   валидную `set .@a, 0` (запятая принадлежит set). uAthena поддерживает `for` (script.c
+   parse_syntax:1382) с set-формой init/incr. Закомментировано БЫЛО **19 файлов, тысячи
+   строк** (quests_malangdo 1472, eden_quests 594, ...). Фикс: ловить запятую только если
+   за ней `set ` или `var=` (multi-statement init): `for\s*\([^;]*,\s*(?:set\s|[\w.@#$]+\s*[-+*/]?=)`.
+   После фикса **0** malformed-for осталось — все были ложными.
+2. **`ternary-funccall`** `(...?...func(...)...:` ловил тернарник с вызовом функции в ветке
+   (`(.@x ? getitemname(.@y) : "")`). uAthena это поддерживает (эмпирически проверено
+   временным тест-NPC: грузится без ошибок). Затронут 1 файл (cupet `cute_pet_manager`).
+   Фикс: паттерн УДАЛЁН из BROKEN-списка.
+Исправлено в 6 генераторах, регенерированы все фазы (merchants/smallnpc/quests/eden/
+collections/simple). boot: 0 parse-ошибок, NPC 16546→16578, cupet/cute_pet_manager оживлён.
+
 ## Улучшения общего генератора (выигрывают все фазы; merchant/smallnpc re-gen)
 
 - **userfunc→callfunc** (quest gen): uAthena не поддерживает прямой paren-call к script-

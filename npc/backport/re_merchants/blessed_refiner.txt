@@ -19,178 +19,178 @@
 
 // Main NPC :: new_smelting612
 //============================================================
-//[BACKPORT-UNRESOLVED:malformed-for] -	script	::BlacksmithDister	-1,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	disable_items;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "In this highly competitive society, we must be different in order to survive!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I only refine equipment at the +6 ~ 12 levels.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I will need ^ff9999Blessed Oridecon^000000 for weapons, and ^ff9999Blessed Elunium^000000 for armors.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Failed refines ^FF0000will not break or reduce the refine level^000000.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "How about it? Do you want to refine?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@indices[1], EQI_HEAD_TOP, EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_MID, EQI_HEAD_LOW;
-//[BACKPORT-UNRESOLVED:malformed-for] 	for(set .@i,1; .@i<=10; set .@i,.@i+1)
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@menu$, .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) +"-[Unequipped]" ) +":";
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@part, .@indices[ select(.@menu$) ];
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (!getequipisequiped(.@part)) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		switch(.@part) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_HEAD_TOP:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "I'm a blacksmith, not a hairstylist.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_ARMOR:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "With my hammer, I will make you a star of the sky.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_HAND_L:
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_HAND_R:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Making artificial hands is not my specialty.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_GARMENT:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Bring out the item so I can refine it!";
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_SHOES:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Where is this weird smell coming from?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_ACC_L:
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_ACC_R:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Where is the accessory?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_HEAD_MID:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "What do you want me to refine?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case EQI_HEAD_LOW:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Huh? What do you want me to do?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (!getequipisenableref(.@part)) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "This item cannot be refined.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@equip_id, getequipid(.@part);
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@itemtype, getiteminfo( .@equip_id, ITEMINFO_TYPE );
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@equip_refine, getequiprefinerycnt(.@part);
-//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@equip_refine < 6 || .@equip_refine > 12) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "This equipment has refined to "+.@equip_refine+". I only handle items with refine levels from +6 to +12!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if( .@itemtype == IT_ARMOR ){
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@equip_lv, 1;
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@type$, "Armor";
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		switch(.@equip_lv) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@price,20000;
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@material,6439; //Unbreakable_Def
-//[BACKPORT-UNRESOLVED:malformed-for] 				break;
-//[BACKPORT-UNRESOLVED:malformed-for] 			default:
+-	script	::BlacksmithDister	-1,{
+	disable_items;
+	mes "[Blacksmith Dister]";
+	mes "In this highly competitive society, we must be different in order to survive!";
+	mes "I only refine equipment at the +6 ~ 12 levels.";
+	next;
+	mes "[Blacksmith Dister]";
+	mes "I will need ^ff9999Blessed Oridecon^000000 for weapons, and ^ff9999Blessed Elunium^000000 for armors.";
+	mes "Failed refines ^FF0000will not break or reduce the refine level^000000.";
+	next;
+	mes "[Blacksmith Dister]";
+	mes "How about it? Do you want to refine?";
+	next;
+	setarray .@indices[1], EQI_HEAD_TOP, EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_MID, EQI_HEAD_LOW;
+	for(set .@i,1; .@i<=10; set .@i,.@i+1)
+		set .@menu$, .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) +"-[Unequipped]" ) +":";
+	set .@part, .@indices[ select(.@menu$) ];
+	if (!getequipisequiped(.@part)) {
+		mes "[Blacksmith Dister]";
+		switch(.@part) {
+		case EQI_HEAD_TOP:
+			mes "I'm a blacksmith, not a hairstylist.";
+			break;
+		case EQI_ARMOR:
+			mes "With my hammer, I will make you a star of the sky.";
+			break;
+		case EQI_HAND_L:
+		case EQI_HAND_R:
+			mes "Making artificial hands is not my specialty.";
+			break;
+		case EQI_GARMENT:
+			mes "Bring out the item so I can refine it!";
+			break;
+		case EQI_SHOES:
+			mes "Where is this weird smell coming from?";
+			break;
+		case EQI_ACC_L:
+		case EQI_ACC_R:
+			mes "Where is the accessory?";
+			break;
+		case EQI_HEAD_MID:
+			mes "What do you want me to refine?";
+			break;
+		case EQI_HEAD_LOW:
+			mes "Huh? What do you want me to do?";
+			break;
+		}
+		close;
+	}
+	if (!getequipisenableref(.@part)) {
+		mes "[Blacksmith Dister]";
+		mes "This item cannot be refined.";
+		close;
+	}
+	set .@equip_id, getequipid(.@part);
+	set .@itemtype, getiteminfo( .@equip_id, ITEMINFO_TYPE );
+	set .@equip_refine, getequiprefinerycnt(.@part);
+	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+
+	if (.@equip_refine < 6 || .@equip_refine > 12) {
+		mes "[Blacksmith Dister]";
+		mes "This equipment has refined to "+.@equip_refine+". I only handle items with refine levels from +6 to +12!";
+		close;
+	}
+	if( .@itemtype == IT_ARMOR ){
+		set .@equip_lv, 1;
+		set .@type$, "Armor";
+
+		switch(.@equip_lv) {
+			case 1:
+				set .@price,20000;
+				set .@material,6439; //Unbreakable_Def
+				break;
+			default:
 				// TODO:
-//[BACKPORT-UNRESOLVED:malformed-for] 				close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 	}else if( .@itemtype == IT_WEAPON ){
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@equip_lv, getequipweaponlv( .@part );
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@type$, "Weapon";
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		switch( .@equip_lv ){
-//[BACKPORT-UNRESOLVED:malformed-for] 			case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@price,1000;
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@material,6438; //Unbreakable_Weap
-//[BACKPORT-UNRESOLVED:malformed-for] 				break;
-//[BACKPORT-UNRESOLVED:malformed-for] 			case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@price,2000;
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@material,6438; //Unbreakable_Weap
-//[BACKPORT-UNRESOLVED:malformed-for] 				break;
-//[BACKPORT-UNRESOLVED:malformed-for] 			case 3:
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@price,20000;
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@material,6438; //Unbreakable_Weap
-//[BACKPORT-UNRESOLVED:malformed-for] 				break;
-//[BACKPORT-UNRESOLVED:malformed-for] 			case 4:
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@price,40000;
-//[BACKPORT-UNRESOLVED:malformed-for] 				set .@material,6438; //Unbreakable_Weap
-//[BACKPORT-UNRESOLVED:malformed-for] 				break;
-//[BACKPORT-UNRESOLVED:malformed-for] 			default:
+				close;
+		}
+	}else if( .@itemtype == IT_WEAPON ){
+		set .@equip_lv, getequipweaponlv( .@part );
+		set .@type$, "Weapon";
+
+		switch( .@equip_lv ){
+			case 1:
+				set .@price,1000;
+				set .@material,6438; //Unbreakable_Weap
+				break;
+			case 2:
+				set .@price,2000;
+				set .@material,6438; //Unbreakable_Weap
+				break;
+			case 3:
+				set .@price,20000;
+				set .@material,6438; //Unbreakable_Weap
+				break;
+			case 4:
+				set .@price,40000;
+				set .@material,6438; //Unbreakable_Weap
+				break;
+			default:
 				// TODO:
-//[BACKPORT-UNRESOLVED:malformed-for] 				close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 	}else{
+				close;
+		}
+	}else{
 		// TODO:
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@ore$,"^ff9999Blessed "+.@type$+" Ore^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "This "+.@type$+" has been refined to "+.@equip_refine+". To refine it, I need "+.@ore$+" and a "+callfunc("F_InsertComma",.@price)+" zeny refining fee.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Do you want to proceed?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	if(select("Yes:No") == 2) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I am busy, don't joke with me!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (getequippercentrefinery(.@part) < 100) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "This "+.@type$+" has been refined many times. Although it will not disappear upon failure, the "+.@ore$+" will disappear!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Of course, the refining fee will not be returned! Do you want to continue?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		if(select("Yes:No") == 2) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Good. I'd be sad if it failed, too.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (countitem(.@material) == 0 || Zeny < .@price) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Materials insufficient.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "To refine a level "+.@equip_lv+" "+.@type$+", I need "+.@ore$+" and a "+callfunc("F_InsertComma",.@price)+" zeny refining fee.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	delitem .@material,1;
-//[BACKPORT-UNRESOLVED:malformed-for] 	set Zeny, Zeny-.@price;
-//[BACKPORT-UNRESOLVED:malformed-for] 
+		close;
+	}
+	set .@ore$,"^ff9999Blessed "+.@type$+" Ore^000000";
+	mes "[Blacksmith Dister]";
+	mes "This "+.@type$+" has been refined to "+.@equip_refine+". To refine it, I need "+.@ore$+" and a "+callfunc("F_InsertComma",.@price)+" zeny refining fee.";
+	mes "Do you want to proceed?";
+	next;
+	if(select("Yes:No") == 2) {
+		mes "[Blacksmith Dister]";
+		mes "I am busy, don't joke with me!";
+		close;
+	}
+	if (getequippercentrefinery(.@part) < 100) {
+		mes "[Blacksmith Dister]";
+		mes "This "+.@type$+" has been refined many times. Although it will not disappear upon failure, the "+.@ore$+" will disappear!";
+		next;
+		mes "[Blacksmith Dister]";
+		mes "Of course, the refining fee will not be returned! Do you want to continue?";
+		next;
+		if(select("Yes:No") == 2) {
+			mes "[Blacksmith Dister]";
+			mes "Good. I'd be sad if it failed, too.";
+			close;
+		}
+	}
+	if (countitem(.@material) == 0 || Zeny < .@price) {
+		mes "[Blacksmith Dister]";
+		mes "Materials insufficient.";
+		mes "To refine a level "+.@equip_lv+" "+.@type$+", I need "+.@ore$+" and a "+callfunc("F_InsertComma",.@price)+" zeny refining fee.";
+		close;
+	}
+	delitem .@material,1;
+	set Zeny, Zeny-.@price;
+
 	// anti-hack
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine))
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Tac! Tac! Tac!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (getequippercentrefinery(.@part, true) > rand(100)) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		specialeffect EF_BLESSING;
-//[BACKPORT-UNRESOLVED:malformed-for] 		successrefitem .@part;
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Hahahahahaha!!!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Refine was a huge success~ Hahaha!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	specialeffect EF_CURSEATTACK;
-//[BACKPORT-UNRESOLVED:malformed-for] 	specialeffect2 EF_SUI_EXPLOSION;
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+	if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine))
+		close;
+
+	mes "[Blacksmith Dister]";
+	mes "Tac! Tac! Tac!";
+	if (getequippercentrefinery(.@part, true) > rand(100)) {
+		specialeffect EF_BLESSING;
+		successrefitem .@part;
+		next;
+		mes "[Blacksmith Dister]";
+		mes "Hahahahahaha!!!";
+		next;
+		mes "[Blacksmith Dister]";
+		mes "Refine was a huge success~ Hahaha!";
+		close;
+	}
+	specialeffect EF_CURSEATTACK;
+	specialeffect2 EF_SUI_EXPLOSION;
+	next;
 	//[BACKPORT-GAP:ET_ANGER,ET_HUK] emotion (!rand(5))?ET_ANGER:ET_HUK;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Oh my goodness!!!!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Oh! Although it was blessed by "+.@ore$+" to retain the equipment...";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Blacksmith Dister]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "My mood is worse when I fail!!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	close;
-//[BACKPORT-UNRESOLVED:malformed-for] }
-//[BACKPORT-ORPHAN:BlacksmithDister] prt_in,52,56,3	duplicate(BlacksmithDister)	Blacksmith Dister#prt	826
-//[BACKPORT-ORPHAN:BlacksmithDister] payon,148,172,3	duplicate(BlacksmithDister)	Blacksmith Dister#pay	826
-//[BACKPORT-ORPHAN:BlacksmithDister] alberta_in,20,56,3	duplicate(BlacksmithDister)	Blacksmith Dister#alb	826
-//[BACKPORT-ORPHAN:BlacksmithDister] yuno_in01,175,18,3	duplicate(BlacksmithDister)	Blacksmith Dister#yuno	826
-//[BACKPORT-ORPHAN:BlacksmithDister] ein_in01,26,82,3	duplicate(BlacksmithDister)	Blacksmith Dister#ein	826
-//[BACKPORT-ORPHAN:BlacksmithDister] lhz_in02,280,15,3	duplicate(BlacksmithDister)	Blacksmith Dister#lhz	826
+	mes "[Blacksmith Dister]";
+	mes "Oh my goodness!!!!";
+	next;
+	mes "[Blacksmith Dister]";
+	mes "Oh! Although it was blessed by "+.@ore$+" to retain the equipment...";
+	next;
+	mes "[Blacksmith Dister]";
+	mes "My mood is worse when I fail!!";
+	close;
+}
+prt_in,52,56,3	duplicate(BlacksmithDister)	Blacksmith Dister#prt	826
+payon,148,172,3	duplicate(BlacksmithDister)	Blacksmith Dister#pay	826
+alberta_in,20,56,3	duplicate(BlacksmithDister)	Blacksmith Dister#alb	826
+yuno_in01,175,18,3	duplicate(BlacksmithDister)	Blacksmith Dister#yuno	826
+ein_in01,26,82,3	duplicate(BlacksmithDister)	Blacksmith Dister#ein	826
+lhz_in02,280,15,3	duplicate(BlacksmithDister)	Blacksmith Dister#lhz	826

@@ -635,10 +635,9 @@ def block_filter(text):
                 # (deep renewal expr / source typos). Comment the whole block so its
                 # duplicate() instances orphan cleanly via the orphan pass.
                 for pat, label in ((r'\[[^\]]*(?:\+\+|--)', "incr-in-index"),
-                                   (r'for\s*\([^;]*,[^;]*;', "malformed-for"),
+                                   (r'for\s*\([^;]*,\s*(?:set\s|[\w.@#$]+\s*[-+*/]?=)', "malformed-for"),
                                    (r'[A-Za-z_]\w*\(\s*$', "multiline-call"),
-                                   (r'\b\w+\([^()]*,\s*$', "multiline-args"),
-                                   (r'\([^()]*\?[^()]*\b[A-Za-z_]\w*\([^()]*\)[^()]*:', "ternary-funccall")):
+                                   (r'\b\w+\([^()]*,\s*$', "multiline-args")):
                     if re.search(pat, code, re.M):
                         reason = ("UNRESOLVED", label); break
         if reason:

@@ -6519,61 +6519,61 @@ OnTouch_:
 }
 
 // Original name: "Bakonawa Introduction Quest Helper#bako1"
-//[BACKPORT-UNRESOLVED:malformed-for] sec_in02,10,16,5	script	Bakonawa Intro Helper	543,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (callfunc("F_GM_NPC",1854,0) < 1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Seafood and Black Bean Sauce Noodle!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Briquet Scheme]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Just boldly tell me";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "what is it that you want!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	switch(select("Reset all quests:Just before the end of first quest:Reset secondary quest:Distribution of lost belongings:Just after hunting")) {
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Here you go!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set malaya_bakona1,0;
-//[BACKPORT-UNRESOLVED:malformed-for] 		set malaya_bakona2,0;
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,1174; .@i<=1193; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (checkquest(.@i) > -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 				erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Briquet Scheme]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Here you go!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set malaya_bakona1,6;
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,1174; .@i<=1178; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (checkquest(.@i) > -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 				erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 1179;
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 3:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Briquet Scheme]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Here you go!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set malaya_bakona2,0;
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,1180; .@i<=1193; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (checkquest(.@i) > -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 				erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 4:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Briquet Scheme]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Here you go!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		getitem 6520,17; //Lost_Belongings
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 5:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Briquet Scheme]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Here you go!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set malaya_bakona2,8;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 1187;
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,1178; .@i<=1193; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (checkquest(.@i) > -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 				erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] }
+sec_in02,10,16,5	script	Bakonawa Intro Helper	543,{
+	if (callfunc("F_GM_NPC",1854,0) < 1) {
+		mes "Seafood and Black Bean Sauce Noodle!";
+		close;
+	}
+	mes "[Briquet Scheme]";
+	mes "Just boldly tell me";
+	mes "what is it that you want!";
+	next;
+	switch(select("Reset all quests:Just before the end of first quest:Reset secondary quest:Distribution of lost belongings:Just after hunting")) {
+	case 1:
+		mes "Here you go!";
+		set malaya_bakona1,0;
+		set malaya_bakona2,0;
+		for(set .@i,1174; .@i<=1193; set .@i,.@i+1) {
+			if (checkquest(.@i) > -1)
+				erasequest .@i;
+		}
+		close;
+	case 2:
+		mes "[Briquet Scheme]";
+		mes "Here you go!";
+		set malaya_bakona1,6;
+		for(set .@i,1174; .@i<=1178; set .@i,.@i+1) {
+			if (checkquest(.@i) > -1)
+				erasequest .@i;
+		}
+		setquest 1179;
+		close;
+	case 3:
+		mes "[Briquet Scheme]";
+		mes "Here you go!";
+		set malaya_bakona2,0;
+		for(set .@i,1180; .@i<=1193; set .@i,.@i+1) {
+			if (checkquest(.@i) > -1)
+				erasequest .@i;
+		}
+		close;
+	case 4:
+		mes "[Briquet Scheme]";
+		mes "Here you go!";
+		getitem 6520,17; //Lost_Belongings
+		close;
+	case 5:
+		mes "[Briquet Scheme]";
+		mes "Here you go!";
+		set malaya_bakona2,8;
+		setquest 1187;
+		for(set .@i,1178; .@i<=1193; set .@i,.@i+1) {
+			if (checkquest(.@i) > -1)
+				erasequest .@i;
+		}
+		close;
+	}
+}
 
 // Nurse in Port Malaya :: malaya_bang
 //============================================================
@@ -8388,227 +8388,227 @@ OnDisableNPC:
 	end;
 }
 
-//[BACKPORT-UNRESOLVED:malformed-for] ma_fild01,179,260,2	script	Festival Helper Boy#pin	577,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkweight(1201,1) == 0 || MaxWeight - Weight < 1000) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Cannot proceed because you have too many items in your possession.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if ($malaya_pintados_00 == 0) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		if ($malaya_pintados_01 > 999 && $malaya_pintados_02 > 999 && $malaya_pintados_03 > 299) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			set $malaya_pintados_00,1;
-//[BACKPORT-UNRESOLVED:malformed-for] 			donpcevent "Pintados Manager#pin::OnEnable";
+//[BACKPORT-UNRESOLVED:multiline-call] ma_fild01,179,260,2	script	Festival Helper Boy#pin	577,{
+//[BACKPORT-UNRESOLVED:multiline-call] 	if (checkweight(1201,1) == 0 || MaxWeight - Weight < 1000) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Cannot proceed because you have too many items in your possession.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		close;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] 	if ($malaya_pintados_00 == 0) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		if ($malaya_pintados_01 > 999 && $malaya_pintados_02 > 999 && $malaya_pintados_03 > 299) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			set $malaya_pintados_00,1;
+//[BACKPORT-UNRESOLVED:multiline-call] 			donpcevent "Pintados Manager#pin::OnEnable";
 			//[BACKPORT-GAP:ET_THROB] emotion ET_THROB;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Many adventurers helped find festival items that I returned to the village.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Many adventurers helped find festival items that I returned to the village.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
 			//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "He he... Now we can hold the '^7A96E0Pintados Festival^000000'.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "He he... Now we can hold the '^7A96E0Pintados Festival^000000'.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
 		// fall through
-//[BACKPORT-UNRESOLVED:malformed-for] 	} else {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "He he... The fun '^7A96E0Pintados Festival^000000' is in full swing.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		if ($malaya_pintados_00 > 0 && $malaya_pintados_00 < 50) {
+//[BACKPORT-UNRESOLVED:multiline-call] 	} else {
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "He he... The fun '^7A96E0Pintados Festival^000000' is in full swing.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		if ($malaya_pintados_00 > 0 && $malaya_pintados_00 < 50) {
 			//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Today's the first day of the '^7A96E0Pintados Festival^000000'. The festival is held for 7 days, so have fun.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		} else if ($malaya_pintados_00 > 49 && $malaya_pintados_00 < 99) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Oh! Did you know?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Village tattooists draw tattoos only during the '^7A96E0Pintados Festival^000000'.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		} else if ($malaya_pintados_00 > 98 && $malaya_pintados_00 < 148) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Today's the third day of the '^7A96E0Pintados Festival^000000'.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			next;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Villagers say that an adventurer named "+$malaya_pintados_04$+" got a tattoo at the festival.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		} else if ($malaya_pintados_00 > 147 && $malaya_pintados_00 < 197) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Villagers say that an adventurer named "+$malaya_pintados_04$+" got a tattoo at the festival.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			next;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "The Tattooist is scary and doesn't draw tattoos for just anyone so the adventurer must be special.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		} else if ($malaya_pintados_00 > 196 && $malaya_pintados_00 < 246) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "An adventurer named "+$malaya_pintados_04$+" is famous in the village.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			next;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Have you every seen ^FF8440Bakonawa^000000, the monster known to swallow the moon? They say he is really ferocious.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		} else if ($malaya_pintados_00 > 245 && $malaya_pintados_00 < 295) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Today's the first day of the '^7A96E0Pintados Festival^000000'. The festival is held for 7 days, so have fun.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		} else if ($malaya_pintados_00 > 49 && $malaya_pintados_00 < 99) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Oh! Did you know?";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Village tattooists draw tattoos only during the '^7A96E0Pintados Festival^000000'.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		} else if ($malaya_pintados_00 > 98 && $malaya_pintados_00 < 148) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Today's the third day of the '^7A96E0Pintados Festival^000000'.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Villagers say that an adventurer named "+$malaya_pintados_04$+" got a tattoo at the festival.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		} else if ($malaya_pintados_00 > 147 && $malaya_pintados_00 < 197) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Villagers say that an adventurer named "+$malaya_pintados_04$+" got a tattoo at the festival.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "The Tattooist is scary and doesn't draw tattoos for just anyone so the adventurer must be special.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		} else if ($malaya_pintados_00 > 196 && $malaya_pintados_00 < 246) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "An adventurer named "+$malaya_pintados_04$+" is famous in the village.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Have you every seen ^FF8440Bakonawa^000000, the monster known to swallow the moon? They say he is really ferocious.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		} else if ($malaya_pintados_00 > 245 && $malaya_pintados_00 < 295) {
 			//[BACKPORT-GAP:ET_CRY] emotion ET_CRY;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "I'm so sad. Many adventurers helped to hold the '^7A96E0Pintados Festival^000000' and now only one day is left.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		} else {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "I'm so sad. Many adventurers helped to hold the '^7A96E0Pintados Festival^000000' and now only one day is left.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		} else {
 			//[BACKPORT-GAP:ET_CRY] emotion ET_CRY;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Oh gosh! It's already the last day of the '^7A96E0Pintados Festival^000000'. Can't believe there won't be more festivities.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Oh gosh! It's already the last day of the '^7A96E0Pintados Festival^000000'. Can't believe there won't be more festivities.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
 	//[BACKPORT-GAP:ET_CONFUSE] emotion ET_CONFUSE;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Oh no. What will we do with the festival coming to an end.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	switch(select("What is it?:How many did you collect?:Brought back a lost belonging.")) {
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "There is a traditional festival held since ancient times";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "in Baryo Mahiwaga called the '^7A96E0Pintados Festival^000000'.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "Oh no. What will we do with the festival coming to an end.";
+//[BACKPORT-UNRESOLVED:multiline-call] 	next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	switch(select("What is it?:How many did you collect?:Brought back a lost belonging.")) {
+//[BACKPORT-UNRESOLVED:multiline-call] 	case 1:
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "There is a traditional festival held since ancient times";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "in Baryo Mahiwaga called the '^7A96E0Pintados Festival^000000'.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
 		//[BACKPORT-GAP:ET_OTL] emotion ET_OTL;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I don't think I'll make it to the festival this time.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		select("Why?");
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I was going back to the village delivering 1000 Lesser Agimats, 1000 Silver Crosses, and 300 Dyestuffs as an errand from Port Malaya.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "But '^FF8440Bongisungisu^000000' appeared out of nowhere and took the items away from me.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		select("Are you hurt?");
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "I don't think I'll make it to the festival this time.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		select("Why?");
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "I was going back to the village delivering 1000 Lesser Agimats, 1000 Silver Crosses, and 300 Dyestuffs as an errand from Port Malaya.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "But '^FF8440Bongisungisu^000000' appeared out of nowhere and took the items away from me.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		select("Are you hurt?");
 		//[BACKPORT-GAP:ET_OHNO] emotion ET_OHNO;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Fortunately not.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "But I'm in deep trouble. The '^7A96E0Pintados Festival^000000' can't be held without those items. What should I do.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Many adventurers are helping out but only collected...";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Lesser Agimat "+$malaya_pintados_01+", Silver Cross "+$malaya_pintados_02+", Dyestuff "+$malaya_pintados_03+" so far.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Fortunately not.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "But I'm in deep trouble. The '^7A96E0Pintados Festival^000000' can't be held without those items. What should I do.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		close;
+//[BACKPORT-UNRESOLVED:multiline-call] 	case 2:
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Many adventurers are helping out but only collected...";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Lesser Agimat "+$malaya_pintados_01+", Silver Cross "+$malaya_pintados_02+", Dyestuff "+$malaya_pintados_03+" so far.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
 		//[BACKPORT-GAP:ET_OHNO] emotion ET_OHNO;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Sigh... We are still short of materials to start the '^7A96E0Pintados Festival^000000'.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 3:
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@str$, (Sex == SEX_MALE)?"Bro":"Sis";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Sigh... We are still short of materials to start the '^7A96E0Pintados Festival^000000'.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		close;
+//[BACKPORT-UNRESOLVED:multiline-call] 	case 3:
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@str$, (Sex == SEX_MALE)?"Bro":"Sis";
+//[BACKPORT-UNRESOLVED:multiline-call] 		break;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
 	//[BACKPORT-GAP:ET_THROB] emotion ET_THROB;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Oh~ Really? Wow!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Thanks! "+strcharinfo(0)+" "+.@str$+"!!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "He he. What did you bring?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@i, select(
-//[BACKPORT-UNRESOLVED:malformed-for] 		"Lesser Agimat (^FF0000"+(($malaya_pintados_01 > 999)?"Collection complete":(1000 - $malaya_pintados_01)+" short")+"^000000):"+
-//[BACKPORT-UNRESOLVED:malformed-for] 		"Silver Cross (^FF0000"+(($malaya_pintados_02 > 999)?"Collection complete":(1000 - $malaya_pintados_02)+" short")+"^000000):"+
-//[BACKPORT-UNRESOLVED:malformed-for] 		"Dyestuff (^FF0000"+(($malaya_pintados_03 > 299)?"Collection complete":(300 - $malaya_pintados_03)+" short")+"^000000)"
-//[BACKPORT-UNRESOLVED:malformed-for] 	);
-//[BACKPORT-UNRESOLVED:malformed-for] 	switch(.@i) {
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@item,6497; //Lesser_Agimat
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@name$,"Lesser Agimats";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@total,1000;
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@item,6502; //Silver_Cross
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@name$,"Silver Crosses";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@total,1000;
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 3:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setarray .@items[0],975,976,978,979,980,981,982,983;
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@name$,"Dyestuffs";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@total,300;
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Wow! "+.@str$+" You've brought "+.@name$+"!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Wait. One... two...";
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (getd("$malaya_pintados_0"+.@i) >= .@total) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Eh... oh? I already have all the "+.@name$+" I need. "+.@str$+"! But thank you for helping.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@i < 3) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I am "+(.@total - getd("$malaya_pintados_0"+.@i))+" short of "+.@name$+". How many did you bring?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		switch(select("One?!:Enter quantity.")) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 			set .@amount,1;
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "He he... You've brought back one.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			next;
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "He he... I'm slow with numbers. I get lost when it's over 50. How many will you give me?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			next;
-//[BACKPORT-UNRESOLVED:malformed-for] 			input .@amount;
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (.@amount < 1 || .@amount > 50) {
-//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Sigh~ I'm lost! I can't count if the numbers are weird.";
-//[BACKPORT-UNRESOLVED:malformed-for] 				close;
-//[BACKPORT-UNRESOLVED:malformed-for] 			}
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(.@item) < .@amount) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Sigh~ "+.@str$+"! Where is the "+getitemname(.@item)+"?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 	} else {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I am "+(.@total - getd("$malaya_pintados_0"+.@i))+" short of Dyestuffs. What kind of Dyestuff did you bring?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@j,0; .@j<getarraysize(.@items); set .@j,.@j+1)
-//[BACKPORT-UNRESOLVED:malformed-for] 			set .@menu$, .@menu$+getitemname(.@items[.@j])+" (^FF0000"+countitem(.@items[.@j])+"^000000):";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@item, .@items[select(.@menu$)-1];
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(.@item) == 0) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Sigh~ You don't have any "+getitemname(.@item)+".";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes .@str$+"! How many "+ getitemname(.@item) +" can you give me from the "+countitem(.@item)+" you have?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		switch(select("Enter Quantity:All")) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "He he... I'm slow with numbers. I get lost when it's over 50. How many will you give me?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			next;
-//[BACKPORT-UNRESOLVED:malformed-for] 			input .@amount;
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (.@amount < 1 || .@amount > 50) {
-//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Sigh~ I told you I'm not good with numbers.";
-//[BACKPORT-UNRESOLVED:malformed-for] 				close;
-//[BACKPORT-UNRESOLVED:malformed-for] 			}
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 			set .@amount, countitem(.@item);
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(.@item) < .@amount) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Sigh... I'm short of "+getitemname(.@item)+".";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	delitem .@item,.@amount;
-//[BACKPORT-UNRESOLVED:malformed-for] 	setd "$malaya_pintados_0"+.@i, getd("$malaya_pintados_0"+.@i)+.@amount;
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@amount_left, .@total - getd("$malaya_pintados_0"+.@i);
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Isco]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "He he... Thanks. "+.@str$+"!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@amount_left <= 0)
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Whoa! We've collected all the "+.@name$+" we need. Happy~!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	else
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I only need "+.@amount_left+" more "+.@name$+".";
-//[BACKPORT-UNRESOLVED:malformed-for] 	close;
-//[BACKPORT-UNRESOLVED:malformed-for] }
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "Oh~ Really? Wow!";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "Thanks! "+strcharinfo(0)+" "+.@str$+"!!";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "He he. What did you bring?";
+//[BACKPORT-UNRESOLVED:multiline-call] 	next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	set .@i, select(
+//[BACKPORT-UNRESOLVED:multiline-call] 		"Lesser Agimat (^FF0000"+(($malaya_pintados_01 > 999)?"Collection complete":(1000 - $malaya_pintados_01)+" short")+"^000000):"+
+//[BACKPORT-UNRESOLVED:multiline-call] 		"Silver Cross (^FF0000"+(($malaya_pintados_02 > 999)?"Collection complete":(1000 - $malaya_pintados_02)+" short")+"^000000):"+
+//[BACKPORT-UNRESOLVED:multiline-call] 		"Dyestuff (^FF0000"+(($malaya_pintados_03 > 299)?"Collection complete":(300 - $malaya_pintados_03)+" short")+"^000000)"
+//[BACKPORT-UNRESOLVED:multiline-call] 	);
+//[BACKPORT-UNRESOLVED:multiline-call] 	switch(.@i) {
+//[BACKPORT-UNRESOLVED:multiline-call] 	case 1:
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@item,6497; //Lesser_Agimat
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@name$,"Lesser Agimats";
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@total,1000;
+//[BACKPORT-UNRESOLVED:multiline-call] 		break;
+//[BACKPORT-UNRESOLVED:multiline-call] 	case 2:
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@item,6502; //Silver_Cross
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@name$,"Silver Crosses";
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@total,1000;
+//[BACKPORT-UNRESOLVED:multiline-call] 		break;
+//[BACKPORT-UNRESOLVED:multiline-call] 	case 3:
+//[BACKPORT-UNRESOLVED:multiline-call] 		setarray .@items[0],975,976,978,979,980,981,982,983;
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@name$,"Dyestuffs";
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@total,300;
+//[BACKPORT-UNRESOLVED:multiline-call] 		break;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "Wow! "+.@str$+" You've brought "+.@name$+"!";
+//[BACKPORT-UNRESOLVED:multiline-call] 	next;
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "Wait. One... two...";
+//[BACKPORT-UNRESOLVED:multiline-call] 	if (getd("$malaya_pintados_0"+.@i) >= .@total) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Eh... oh? I already have all the "+.@name$+" I need. "+.@str$+"! But thank you for helping.";
+//[BACKPORT-UNRESOLVED:multiline-call] 		close;
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] 	if (.@i < 3) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "I am "+(.@total - getd("$malaya_pintados_0"+.@i))+" short of "+.@name$+". How many did you bring?";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		switch(select("One?!:Enter quantity.")) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 1:
+//[BACKPORT-UNRESOLVED:multiline-call] 			set .@amount,1;
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "He he... You've brought back one.";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 2:
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "He he... I'm slow with numbers. I get lost when it's over 50. How many will you give me?";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			input .@amount;
+//[BACKPORT-UNRESOLVED:multiline-call] 			if (.@amount < 1 || .@amount > 50) {
+//[BACKPORT-UNRESOLVED:multiline-call] 				mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 				mes "Sigh~ I'm lost! I can't count if the numbers are weird.";
+//[BACKPORT-UNRESOLVED:multiline-call] 				close;
+//[BACKPORT-UNRESOLVED:multiline-call] 			}
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (countitem(.@item) < .@amount) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Sigh~ "+.@str$+"! Where is the "+getitemname(.@item)+"?";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 	} else {
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "I am "+(.@total - getd("$malaya_pintados_0"+.@i))+" short of Dyestuffs. What kind of Dyestuff did you bring?";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		for(set .@j,0; .@j<getarraysize(.@items); set .@j,.@j+1)
+//[BACKPORT-UNRESOLVED:multiline-call] 			set .@menu$, .@menu$+getitemname(.@items[.@j])+" (^FF0000"+countitem(.@items[.@j])+"^000000):";
+//[BACKPORT-UNRESOLVED:multiline-call] 		set .@item, .@items[select(.@menu$)-1];
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (countitem(.@item) == 0) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Sigh~ You don't have any "+getitemname(.@item)+".";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes .@str$+"! How many "+ getitemname(.@item) +" can you give me from the "+countitem(.@item)+" you have?";
+//[BACKPORT-UNRESOLVED:multiline-call] 		next;
+//[BACKPORT-UNRESOLVED:multiline-call] 		switch(select("Enter Quantity:All")) {
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 1:
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "He he... I'm slow with numbers. I get lost when it's over 50. How many will you give me?";
+//[BACKPORT-UNRESOLVED:multiline-call] 			next;
+//[BACKPORT-UNRESOLVED:multiline-call] 			input .@amount;
+//[BACKPORT-UNRESOLVED:multiline-call] 			if (.@amount < 1 || .@amount > 50) {
+//[BACKPORT-UNRESOLVED:multiline-call] 				mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 				mes "Sigh~ I told you I'm not good with numbers.";
+//[BACKPORT-UNRESOLVED:multiline-call] 				close;
+//[BACKPORT-UNRESOLVED:multiline-call] 			}
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		case 2:
+//[BACKPORT-UNRESOLVED:multiline-call] 			set .@amount, countitem(.@item);
+//[BACKPORT-UNRESOLVED:multiline-call] 			break;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 		if (countitem(.@item) < .@amount) {
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 			mes "Sigh... I'm short of "+getitemname(.@item)+".";
+//[BACKPORT-UNRESOLVED:multiline-call] 			close;
+//[BACKPORT-UNRESOLVED:multiline-call] 		}
+//[BACKPORT-UNRESOLVED:multiline-call] 	}
+//[BACKPORT-UNRESOLVED:multiline-call] 	delitem .@item,.@amount;
+//[BACKPORT-UNRESOLVED:multiline-call] 	setd "$malaya_pintados_0"+.@i, getd("$malaya_pintados_0"+.@i)+.@amount;
+//[BACKPORT-UNRESOLVED:multiline-call] 	set .@amount_left, .@total - getd("$malaya_pintados_0"+.@i);
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "[Isco]";
+//[BACKPORT-UNRESOLVED:multiline-call] 	mes "He he... Thanks. "+.@str$+"!";
+//[BACKPORT-UNRESOLVED:multiline-call] 	if (.@amount_left <= 0)
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "Whoa! We've collected all the "+.@name$+" we need. Happy~!";
+//[BACKPORT-UNRESOLVED:multiline-call] 	else
+//[BACKPORT-UNRESOLVED:multiline-call] 		mes "I only need "+.@amount_left+" more "+.@name$+".";
+//[BACKPORT-UNRESOLVED:multiline-call] 	close;
+//[BACKPORT-UNRESOLVED:multiline-call] }
 
 ma_fild01,172,223,6	script	Tattooist#pin	574,{
 	if (checkweight(1201,1) == 0 || MaxWeight - Weight < 1000) {

@@ -298,187 +298,187 @@ moc_para01,166,51,3	script	Phelix#edco	85,{
 	end;
 }
 
-//[BACKPORT-UNRESOLVED:malformed-for] moc_para01,163,51,7	script	Izaac#edco	86,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Good day!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Have you collected any weird stuff from monsters?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I want things like Jellopy, Fluff, Shell, Feather of Birds, Tree Root, Worm Peelings, and Chrysalis.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I need those for something.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Of course, I won't ask you to give me that stuff for free. What if I traded the following for ^CC00001 Red Potion^000000:";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^00CC005 Shell^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^0000CC10 Fluff^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^00CC0010 Jellopy^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^0000CC6 Tree Root^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^00CC001 Worm Peeling^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^0000CC7 Feather of Birds^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^00CC006 Chrysalis^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	switch(select("Sure!:I think it's a rip-off!:No, thanks.")) {
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "So which items do";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "you want to bring me?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		setarray .@items[0], 935, 914, 909, 902, 955, 916, 915;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setarray .@count[0],   5,  10,  10,   6,   1,   7,   6;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@size, getarraysize(.@items);
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,0; .@i<.@size; set .@i,.@i+1)
-//[BACKPORT-UNRESOLVED:malformed-for] 			set .@menu$, .@menu$+getitemname(.@items[.@i])+":";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@select, select(.@menu$+"Cancel")-1;
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (.@select == .@size) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Sure~";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "No problem.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@item, .@items[.@select];
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@item$, getitemname(.@item);
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@price, .@count[.@select];
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(.@item) < .@price) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Hey, where's all";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "that "+.@item$+" that";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "you promised me?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Give me "+.@item$+"!";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Okay, let me check";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "how much "+.@item$;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "you have on you.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Hmm...";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@amount, countitem(.@item) / .@price;
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@trade_amount, .@amount * .@price;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "a total of "+countitem(.@item)+" "+.@item$+"...";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "For all those, I can give you";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "a total of "+.@amount+" Red Potion(s).";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "What do you say?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Do we have a deal?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		if(select("Deal.:No deal.") == 2) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Huh~";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Alright.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Though are";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes .@item$ + " more useful";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "to an adventurer like you?";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (checkweight(501,.@amount) == 0) { //custom check
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "You are overweight.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		delitem .@item,.@trade_amount;
-//[BACKPORT-UNRESOLVED:malformed-for] 		getitem 501,.@amount; //Red_Potion
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "There you go!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Check how many "+.@item$;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I've given you, it should be good.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Thanks, that was a good deal~";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "A rip-off...?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "If you check the market value";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "of the items being traded, I'm actually the one getting";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "ripped off here.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 3:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Izaac]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Alright, No problem.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "But come back to me if you change your mind.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] }
+moc_para01,163,51,7	script	Izaac#edco	86,{
+	mes "[Izaac]";
+	mes "Good day!";
+	mes "Have you collected any weird stuff from monsters?";
+	mes "I want things like Jellopy, Fluff, Shell, Feather of Birds, Tree Root, Worm Peelings, and Chrysalis.";
+	mes "I need those for something.";
+	next;
+	mes "[Izaac]";
+	mes "Of course, I won't ask you to give me that stuff for free. What if I traded the following for ^CC00001 Red Potion^000000:";
+	mes "^00CC005 Shell^000000";
+	mes "^0000CC10 Fluff^000000";
+	mes "^00CC0010 Jellopy^000000";
+	mes "^0000CC6 Tree Root^000000";
+	mes "^00CC001 Worm Peeling^000000";
+	mes "^0000CC7 Feather of Birds^000000";
+	mes "^00CC006 Chrysalis^000000";
+	next;
+	switch(select("Sure!:I think it's a rip-off!:No, thanks.")) {
+	case 1:
+		mes "[Izaac]";
+		mes "So which items do";
+		mes "you want to bring me?";
+		next;
+
+		setarray .@items[0], 935, 914, 909, 902, 955, 916, 915;
+		setarray .@count[0],   5,  10,  10,   6,   1,   7,   6;
+
+		set .@size, getarraysize(.@items);
+		for(set .@i,0; .@i<.@size; set .@i,.@i+1)
+			set .@menu$, .@menu$+getitemname(.@items[.@i])+":";
+		set .@select, select(.@menu$+"Cancel")-1;
+		if (.@select == .@size) {
+			mes "[Izaac]";
+			mes "Sure~";
+			mes "No problem.";
+			close;
+		}
+		set .@item, .@items[.@select];
+		set .@item$, getitemname(.@item);
+		set .@price, .@count[.@select];
+
+		if (countitem(.@item) < .@price) {
+			mes "[Izaac]";
+			mes "Hey, where's all";
+			mes "that "+.@item$+" that";
+			mes "you promised me?";
+			mes "Give me "+.@item$+"!";
+			close;
+		}
+		mes "[Izaac]";
+		mes "Okay, let me check";
+		mes "how much "+.@item$;
+		mes "you have on you.";
+		mes "Hmm...";
+		next;
+		set .@amount, countitem(.@item) / .@price;
+		set .@trade_amount, .@amount * .@price;
+		mes "[Izaac]";
+		mes "You have";
+		mes "a total of "+countitem(.@item)+" "+.@item$+"...";
+		mes "For all those, I can give you";
+		mes "a total of "+.@amount+" Red Potion(s).";
+		next;
+		mes "[Izaac]";
+		mes "What do you say?";
+		mes "Do we have a deal?";
+		next;
+		if(select("Deal.:No deal.") == 2) {
+			mes "[Izaac]";
+			mes "Huh~";
+			mes "Alright.";
+			mes "Though are";
+			mes .@item$ + " more useful";
+			mes "to an adventurer like you?";
+			close;
+		}
+		if (checkweight(501,.@amount) == 0) { //custom check
+			mes "[Izaac]";
+			mes "You are overweight.";
+			close;
+		}
+		delitem .@item,.@trade_amount;
+		getitem 501,.@amount; //Red_Potion
+		mes "[Izaac]";
+		mes "There you go!";
+		mes "Check how many "+.@item$;
+		mes "I've given you, it should be good.";
+		mes "Thanks, that was a good deal~";
+		close;
+	case 2:
+		mes "[Izaac]";
+		mes "A rip-off...?";
+		mes "If you check the market value";
+		mes "of the items being traded, I'm actually the one getting";
+		mes "ripped off here.";
+		close;
+	case 3:
+		mes "[Izaac]";
+		mes "Alright, No problem.";
+		mes "But come back to me if you change your mind.";
+		close;
+	}
+}
 
 // Safe to 7 Certificate Exchanger
 //============================================================
-//[BACKPORT-UNRESOLVED:malformed-for] moc_para01,50,39,4	script	Eve Natalia	882,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "So I'm in town for a while to see if I can strike up some commerce with MVP hunters!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I'm willing to take some MVP gear and give you these upgrade Certificates I have in exchange;";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "if things go well enough I'll open up further business opportunities!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "So do you have any of the gears I'm looking for to get some random Safe to 7 Certificates?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	switch(select("What gear?:Yes I am!:Never mind.")) {
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Nidhoggur's Shadow Garb 4 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Valkyrja's Shield 4 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Valkyrian Armor 5 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Diabolus Robe 5 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Diabolus Armor 2 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Diabolus Boots 2 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Diabolus Manteau 4 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Twin Edge of Naght Sieger Blue 2 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Twin Edge of Naght Sieger Red 2 Random Safe to 7 Certificates";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I'm going to ask you which piece of gear you want to trade in, please verify that the 1st one in your inventory is one you want to give up.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^CC0000So if it is carded, upgraded, enchanted etc, you should put it in storage before we continue.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@i, select("Wait a minute:Nidhoggur's Shadow Garb 4:Valkyrja's Shield 4:Valkyrian Armor 5:Diabolus Robe 5:Diabolus Armor 2:Diabolus Boots 2:Diabolus Manteau 4:Twin Edge of Naght Sieger Blue 2:Twin Edge of Naght Sieger Red 2")-2;
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (.@i == -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 			break;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		setarray .@items[0],   2554, 2115, 2357, 2374, 2375, 2433, 2537, 13412, 13413;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setarray .@tickets[0],    4,    4,    5,    5,    2,    2,    4,     2,     2;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@item, .@items[.@i];
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@amount, .@tickets[.@i];
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I see you have "+countitem(.@item)+" "+getitemname(.@item)+".";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "So do you want to trade the 1st one in your inventory for ^00CC00"+.@amount+" Random Safe to 7 Certificates^000000?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Tell me '1' if you do, or '0' to cancel.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		input .@input;
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (.@input < 0 || .@input > 1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "It is a 0 or 1, it can't be that difficult.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		} else if (.@input == 0) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "It's best to be sure before trading, have a good day.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(.@item) == 0) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "You don't even have 1... stop wasting my time.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Oh perfect, you get ^CC0000" + .@amount + "^000000 Safe to 7 Certificates!";
-//[BACKPORT-UNRESOLVED:malformed-for] 		delitem .@item,1;
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,0; .@i<.@amount; set .@i,.@i+1) {
+moc_para01,50,39,4	script	Eve Natalia	882,{
+	mes "[Eve Natalia]";
+	mes "So I'm in town for a while to see if I can strike up some commerce with MVP hunters!";
+	mes "I'm willing to take some MVP gear and give you these upgrade Certificates I have in exchange;";
+	mes "if things go well enough I'll open up further business opportunities!";
+	next;
+	mes "[Eve Natalia]";
+	mes "So do you have any of the gears I'm looking for to get some random Safe to 7 Certificates?";
+	next;
+	switch(select("What gear?:Yes I am!:Never mind.")) {
+	case 1:
+		mes "[Eve Natalia]";
+		mes "Nidhoggur's Shadow Garb 4 Random Safe to 7 Certificates";
+		mes "Valkyrja's Shield 4 Random Safe to 7 Certificates";
+		mes "Valkyrian Armor 5 Random Safe to 7 Certificates";
+		mes "Diabolus Robe 5 Random Safe to 7 Certificates";
+		mes "Diabolus Armor 2 Random Safe to 7 Certificates";
+		mes "Diabolus Boots 2 Random Safe to 7 Certificates";
+		mes "Diabolus Manteau 4 Random Safe to 7 Certificates";
+		mes "Twin Edge of Naght Sieger Blue 2 Random Safe to 7 Certificates";
+		mes "Twin Edge of Naght Sieger Red 2 Random Safe to 7 Certificates";
+		close;
+	case 2:
+		mes "[Eve Natalia]";
+		mes "I'm going to ask you which piece of gear you want to trade in, please verify that the 1st one in your inventory is one you want to give up.";
+		mes "^CC0000So if it is carded, upgraded, enchanted etc, you should put it in storage before we continue.^000000";
+		next;
+		set .@i, select("Wait a minute:Nidhoggur's Shadow Garb 4:Valkyrja's Shield 4:Valkyrian Armor 5:Diabolus Robe 5:Diabolus Armor 2:Diabolus Boots 2:Diabolus Manteau 4:Twin Edge of Naght Sieger Blue 2:Twin Edge of Naght Sieger Red 2")-2;
+		if (.@i == -1)
+			break;
+
+		setarray .@items[0],   2554, 2115, 2357, 2374, 2375, 2433, 2537, 13412, 13413;
+		setarray .@tickets[0],    4,    4,    5,    5,    2,    2,    4,     2,     2;
+
+		set .@item, .@items[.@i];
+		set .@amount, .@tickets[.@i];
+
+		mes "[Eve Natalia]";
+		mes "I see you have "+countitem(.@item)+" "+getitemname(.@item)+".";
+		mes "So do you want to trade the 1st one in your inventory for ^00CC00"+.@amount+" Random Safe to 7 Certificates^000000?";
+		mes "Tell me '1' if you do, or '0' to cancel.";
+		next;
+		input .@input;
+		if (.@input < 0 || .@input > 1) {
+			mes "[Eve Natalia]";
+			mes "It is a 0 or 1, it can't be that difficult.";
+			close;
+		} else if (.@input == 0) {
+			mes "[Eve Natalia]";
+			mes "It's best to be sure before trading, have a good day.";
+			close;
+		}
+		if (countitem(.@item) == 0) {
+			mes "[Eve Natalia]";
+			mes "You don't even have 1... stop wasting my time.";
+			close;
+		}
+		mes "[Eve Natalia]";
+		mes "Oh perfect, you get ^CC0000" + .@amount + "^000000 Safe to 7 Certificates!";
+		delitem .@item,1;
+		for(set .@i,0; .@i<.@amount; set .@i,.@i+1) {
 			// Note: iRO lists item 6235 as "Safe to 7 Headgear Certificate", but it's Guarantee_Armor_6Up in our database.
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (rand(2))
-//[BACKPORT-UNRESOLVED:malformed-for] 				getitem 6230,1; //Guarantee_Weapon_7Up
-//[BACKPORT-UNRESOLVED:malformed-for] 			else
-//[BACKPORT-UNRESOLVED:malformed-for] 				getitem 6234,1; //Guarantee_Armor_7Up
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 3:
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Eve Natalia]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Fair enough, if you have business with me in the future don't be shy!";
-//[BACKPORT-UNRESOLVED:malformed-for] 	close;
-//[BACKPORT-UNRESOLVED:malformed-for] }
+			if (rand(2))
+				getitem 6230,1; //Guarantee_Weapon_7Up
+			else
+				getitem 6234,1; //Guarantee_Armor_7Up
+		}
+		close;
+	case 3:
+		break;
+	}
+	mes "[Eve Natalia]";
+	mes "Fair enough, if you have business with me in the future don't be shy!";
+	close;
+}
 
 // Bubble Gum & Battle Manual Exchanger
 //============================================================

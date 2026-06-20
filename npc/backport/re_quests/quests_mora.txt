@@ -4476,80 +4476,80 @@ mora,133,80,6	script	Elephantine#pa0829	509,{
 	close;
 }
 
-//[BACKPORT-UNRESOLVED:malformed-for] mora,115,98,8	script	Hotcha#pa0829	509,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkweight(1201,1) == 0) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have too many kinds of things with you to do that. Throw out some of them and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (MaxWeight - Weight < 1000) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You are carrying too much weight to do that. Reduce the weight and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (ep14_1_mistwoods < 10) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Hmm, you don't look reliable enough for Elephantine's tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (BaseLevel < 97) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "This place is like a paradise for adventurers. Not for weak ones like you, though.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@playtime, checkquest(12230,PLAYTIME);
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@playtime == -1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I see you haven't received";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "any tasks yet.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Go talk to Elephantine,";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "and Elephantine will give you";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "one of the countless tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	} else if (.@playtime == 2) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "The time is up to complete the existing tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "If you have any unfinished tasks in your quest log, they are considered 'failed' and removed from the log.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Once they are removed, go talk to Elephantine and you can receive new tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,12225; .@i<=12229; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (checkquest(.@i) > -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 				erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		erasequest 12230;
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Welcome.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "How may I help you?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	select("I have completed a task.");
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Oh.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Have you?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Please wait a minute while I check the documents.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 	for(set .@i,12225; .@i<=12229; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (checkquest(.@i,HUNTING) == 2) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Yes, I see you've completed the task. It has been confirmed as completed.";
-//[BACKPORT-UNRESOLVED:malformed-for] 			erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 			specialeffect2 EF_STEAL;
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (BaseLevel > 99 && JobLevel < 50)
-//[BACKPORT-UNRESOLVED:malformed-for] 				getexp 0, (JobLevel * JobLevel * (110/100) * 50);	// note 110/100 is from the original file
-//[BACKPORT-UNRESOLVED:malformed-for] 			else if (BaseLevel < 100 && JobLevel < 70)
-//[BACKPORT-UNRESOLVED:malformed-for] 				getexp 0, (JobLevel * JobLevel * (110/100) * 10);
-//[BACKPORT-UNRESOLVED:malformed-for] 			getitem 6380,3; //Mora_Coin
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Hotcha]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Hmm... "+strcharinfo(0)+".";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "It may be a documentation error, but according to the documents, you have nothing to do with the tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	close;
-//[BACKPORT-UNRESOLVED:malformed-for] }
+mora,115,98,8	script	Hotcha#pa0829	509,{
+	if (checkweight(1201,1) == 0) {
+		mes "You have too many kinds of things with you to do that. Throw out some of them and try again.";
+		close;
+	}
+	if (MaxWeight - Weight < 1000) {
+		mes "You are carrying too much weight to do that. Reduce the weight and try again.";
+		close;
+	}
+	if (ep14_1_mistwoods < 10) {
+		mes "[Hotcha]";
+		mes "Hmm, you don't look reliable enough for Elephantine's tasks.";
+		close;
+	}
+	if (BaseLevel < 97) {
+		mes "[Hotcha]";
+		mes "This place is like a paradise for adventurers. Not for weak ones like you, though.";
+		close;
+	}
+	set .@playtime, checkquest(12230,PLAYTIME);
+	if (.@playtime == -1) {
+		mes "[Hotcha]";
+		mes "I see you haven't received";
+		mes "any tasks yet.";
+		mes "Go talk to Elephantine,";
+		mes "and Elephantine will give you";
+		mes "one of the countless tasks.";
+		close;
+	} else if (.@playtime == 2) {
+		mes "[Hotcha]";
+		mes "The time is up to complete the existing tasks.";
+		next;
+		mes "[Hotcha]";
+		mes "If you have any unfinished tasks in your quest log, they are considered 'failed' and removed from the log.";
+		next;
+		mes "[Hotcha]";
+		mes "Once they are removed, go talk to Elephantine and you can receive new tasks.";
+		for(set .@i,12225; .@i<=12229; set .@i,.@i+1) {
+			if (checkquest(.@i) > -1)
+				erasequest .@i;
+		}
+		erasequest 12230;
+		close;
+	}
+	mes "[Hotcha]";
+	mes "Welcome.";
+	mes "How may I help you?";
+	next;
+	select("I have completed a task.");
+	mes "Oh.";
+	mes "Have you?";
+	mes "Please wait a minute while I check the documents.";
+	next;
+
+	for(set .@i,12225; .@i<=12229; set .@i,.@i+1) {
+		if (checkquest(.@i,HUNTING) == 2) {
+			mes "[Hotcha]";
+			mes "Yes, I see you've completed the task. It has been confirmed as completed.";
+			erasequest .@i;
+			specialeffect2 EF_STEAL;
+			if (BaseLevel > 99 && JobLevel < 50)
+				getexp 0, (JobLevel * JobLevel * (110/100) * 50);	// note 110/100 is from the original file
+			else if (BaseLevel < 100 && JobLevel < 70)
+				getexp 0, (JobLevel * JobLevel * (110/100) * 10);
+			getitem 6380,3; //Mora_Coin
+			close;
+		}
+	}
+
+	mes "[Hotcha]";
+	mes "Hmm... "+strcharinfo(0)+".";
+	mes "It may be a documentation error, but according to the documents, you have nothing to do with the tasks.";
+	close;
+}
 
 mora,119,103,4	script	Bow-wow#pa0829	513,{
 	if (checkweight(1201,1) == 0) {
@@ -4659,93 +4659,93 @@ mora,119,103,4	script	Bow-wow#pa0829	513,{
 	close;
 }
 
-//[BACKPORT-UNRESOLVED:malformed-for] mora,119,118,4	script	General Goods Dealer#pa0	516,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkweight(1201,1) == 0) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have too many kinds of things with you to do that. Throw out some of them and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (MaxWeight - Weight < 1000) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You are carrying too much weight to do that. Reduce the weight and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (ep14_1_mistwoods < 10) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Hmm, you don't look reliable enough for Bow-wow's tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (BaseLevel < 97) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "What could you do with that fragile body? Go get some exercise.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@playtime, checkquest(12241,PLAYTIME);
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@playtime == -1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I see you haven't received";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "any tasks yet.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Go talk to Bow-wow,";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "and Bow-wow will give you";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "one of the countless tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	} else if (.@playtime == 2) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "The time is up to complete the existing tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "If you have any unfinished tasks in your quest log, they are considered 'failed' and removed from the log.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Once they are removed, go talk to Bow-wow and you can receive new tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,12231; .@i<=12235; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (checkquest(.@i) > -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 				erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		erasequest 12241;
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Welcome.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "How may I help you?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	select("I have completed a task.");
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Oh.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Have you?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Please wait a minute while I check the documents.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12231,928,4; //Insect_Feeler
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12232,929,5; //Immortal_Heart
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12233,930,1; //Rotten_Bandage
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12234,931,3; //Orcish_Voucher
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12235,932,3; //Skel_Bone
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Hmm... "+strcharinfo(0)+".";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "It may be a documentation error, but according to the documents, you have nothing to do with the tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	close;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] L_CheckQuest:
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkquest(getarg(0)) > -1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(getarg(1)) < getarg(2)) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "The amount is not enough...";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[General Goods Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I've received the items all right. It will be some time before I have another task for you, so why don't you visit the hot spring and relax?";
-//[BACKPORT-UNRESOLVED:malformed-for] 		delitem getarg(1),getarg(2);
-//[BACKPORT-UNRESOLVED:malformed-for] 		erasequest getarg(0);
-//[BACKPORT-UNRESOLVED:malformed-for] 		specialeffect2 EF_STEAL;
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (BaseLevel > 99)
-//[BACKPORT-UNRESOLVED:malformed-for] 			getexp 0, ((JobLevel < 50)?JobLevel * JobLevel * (110/100) * 50:0);
-//[BACKPORT-UNRESOLVED:malformed-for] 		else
-//[BACKPORT-UNRESOLVED:malformed-for] 			getexp 0, ((JobLevel < 70)?JobLevel * JobLevel * (110/100) * 10:0);
-//[BACKPORT-UNRESOLVED:malformed-for] 		getitem 6380,1; //Mora_Coin
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	return;
-//[BACKPORT-UNRESOLVED:malformed-for] }
+mora,119,118,4	script	General Goods Dealer#pa0	516,{
+	if (checkweight(1201,1) == 0) {
+		mes "You have too many kinds of things with you to do that. Throw out some of them and try again.";
+		close;
+	}
+	if (MaxWeight - Weight < 1000) {
+		mes "You are carrying too much weight to do that. Reduce the weight and try again.";
+		close;
+	}
+	if (ep14_1_mistwoods < 10) {
+		mes "[General Goods Dealer]";
+		mes "Hmm, you don't look reliable enough for Bow-wow's tasks.";
+		close;
+	}
+	if (BaseLevel < 97) {
+		mes "[General Goods Dealer]";
+		mes "What could you do with that fragile body? Go get some exercise.";
+		close;
+	}
+	set .@playtime, checkquest(12241,PLAYTIME);
+	if (.@playtime == -1) {
+		mes "[General Goods Dealer]";
+		mes "I see you haven't received";
+		mes "any tasks yet.";
+		mes "Go talk to Bow-wow,";
+		mes "and Bow-wow will give you";
+		mes "one of the countless tasks.";
+		close;
+	} else if (.@playtime == 2) {
+		mes "[General Goods Dealer]";
+		mes "The time is up to complete the existing tasks.";
+		next;
+		mes "[General Goods Dealer]";
+		mes "If you have any unfinished tasks in your quest log, they are considered 'failed' and removed from the log.";
+		next;
+		mes "[General Goods Dealer]";
+		mes "Once they are removed, go talk to Bow-wow and you can receive new tasks.";
+		for(set .@i,12231; .@i<=12235; set .@i,.@i+1) {
+			if (checkquest(.@i) > -1)
+				erasequest .@i;
+		}
+		erasequest 12241;
+		close;
+	}
+	mes "[General Goods Dealer]";
+	mes "Welcome.";
+	mes "How may I help you?";
+	next;
+	select("I have completed a task.");
+	mes "[General Goods Dealer]";
+	mes "Oh.";
+	mes "Have you?";
+	mes "Please wait a minute while I check the documents.";
+	next;
+
+	callsub L_CheckQuest,12231,928,4; //Insect_Feeler
+	callsub L_CheckQuest,12232,929,5; //Immortal_Heart
+	callsub L_CheckQuest,12233,930,1; //Rotten_Bandage
+	callsub L_CheckQuest,12234,931,3; //Orcish_Voucher
+	callsub L_CheckQuest,12235,932,3; //Skel_Bone
+
+	mes "[General Goods Dealer]";
+	mes "Hmm... "+strcharinfo(0)+".";
+	mes "It may be a documentation error, but according to the documents, you have nothing to do with the tasks.";
+	close;
+
+L_CheckQuest:
+	if (checkquest(getarg(0)) > -1) {
+		if (countitem(getarg(1)) < getarg(2)) {
+			mes "[General Goods Dealer]";
+			mes "The amount is not enough...";
+			close;
+		}
+		mes "[General Goods Dealer]";
+		mes "I've received the items all right. It will be some time before I have another task for you, so why don't you visit the hot spring and relax?";
+		delitem getarg(1),getarg(2);
+		erasequest getarg(0);
+		specialeffect2 EF_STEAL;
+		if (BaseLevel > 99)
+			getexp 0, ((JobLevel < 50)?JobLevel * JobLevel * (110/100) * 50:0);
+		else
+			getexp 0, ((JobLevel < 70)?JobLevel * JobLevel * (110/100) * 10:0);
+		getitem 6380,1; //Mora_Coin
+		close;
+	}
+	return;
+}
 
 mora,124,108,7	script	Woof-grrr#pa0829	514,{
 	if (checkweight(1201,1) == 0) {
@@ -4855,218 +4855,218 @@ mora,124,108,7	script	Woof-grrr#pa0829	514,{
 	close;
 }
 
-//[BACKPORT-UNRESOLVED:malformed-for] mora,127,112,4	script	Commodities Dealer#pa08	518,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkweight(1201,1) == 0) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have too many kinds of things with you to do that. Throw out some of them and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (MaxWeight - Weight < 1000) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You are carrying too much weight to do that. Reduce the weight and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (ep14_1_mistwoods < 10) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Well, Woof-grrr can't have given a weakling like you tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (BaseLevel < 97) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Go away! I can't concentrate on cataloging with you hanging around like that...";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@playtime, checkquest(12242,PLAYTIME);
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@playtime == -1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I see you haven't received";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "any tasks yet.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Go talk to Woof-grrr,";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "and Woof-grrr will give you";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "one of the countless tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	} else if (.@playtime == 2) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "The time is up to complete the existing tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "If you have any unfinished tasks in your quest log, they are considered 'failed' and removed from the log.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Once they are removed, go talk to Woof-grrr and you can receive new tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,12236; .@i<=12240; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (checkquest(.@i) > -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 				erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		erasequest 12242;
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Welcome.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "How may I help you?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	select("I have completed a task.");
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Oh.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Have you?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Please wait a minute while I check the documents.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12236,934,2; //Mementos
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12237,935,3; //Shell
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12238,936,3; //Scales_Shell
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12239,937,2; //Posionous_Canine
-//[BACKPORT-UNRESOLVED:malformed-for] 	callsub L_CheckQuest,12240,938,5; //Sticky_Mucus
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Hmm... "+strcharinfo(0)+".";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "It may be a documentation error, but according to the documents, you have nothing to do with the tasks.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	close;
-//[BACKPORT-UNRESOLVED:malformed-for] 
-//[BACKPORT-UNRESOLVED:malformed-for] L_CheckQuest:
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkquest(getarg(0)) > -1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(getarg(1)) < getarg(2)) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 			mes "The amount is not enough...";
-//[BACKPORT-UNRESOLVED:malformed-for] 			close;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Commodities Dealer]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I've received the items all right. I look forward to working with you again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		delitem getarg(1),getarg(2);
-//[BACKPORT-UNRESOLVED:malformed-for] 		erasequest getarg(0);
-//[BACKPORT-UNRESOLVED:malformed-for] 		specialeffect2 EF_STEAL;
-//[BACKPORT-UNRESOLVED:malformed-for] 		if (BaseLevel > 99 && JobLevel < 50)
-//[BACKPORT-UNRESOLVED:malformed-for] 			getexp 0, JobLevel * JobLevel * (110/100) * 50;
-//[BACKPORT-UNRESOLVED:malformed-for] 		else if( BaseLevel < 99 && JobLevel < 70 )
-//[BACKPORT-UNRESOLVED:malformed-for] 			getexp 0, JobLevel * JobLevel * (110/100) * 10;
-//[BACKPORT-UNRESOLVED:malformed-for] 		getitem 6380,1; //Mora_Coin
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	return;
-//[BACKPORT-UNRESOLVED:malformed-for] }
+mora,127,112,4	script	Commodities Dealer#pa08	518,{
+	if (checkweight(1201,1) == 0) {
+		mes "You have too many kinds of things with you to do that. Throw out some of them and try again.";
+		close;
+	}
+	if (MaxWeight - Weight < 1000) {
+		mes "You are carrying too much weight to do that. Reduce the weight and try again.";
+		close;
+	}
+	if (ep14_1_mistwoods < 10) {
+		mes "[Commodities Dealer]";
+		mes "Well, Woof-grrr can't have given a weakling like you tasks.";
+		close;
+	}
+	if (BaseLevel < 97) {
+		mes "[Commodities Dealer]";
+		mes "Go away! I can't concentrate on cataloging with you hanging around like that...";
+		close;
+	}
+	set .@playtime, checkquest(12242,PLAYTIME);
+	if (.@playtime == -1) {
+		mes "[Commodities Dealer]";
+		mes "I see you haven't received";
+		mes "any tasks yet.";
+		mes "Go talk to Woof-grrr,";
+		mes "and Woof-grrr will give you";
+		mes "one of the countless tasks.";
+		close;
+	} else if (.@playtime == 2) {
+		mes "[Commodities Dealer]";
+		mes "The time is up to complete the existing tasks.";
+		next;
+		mes "[Commodities Dealer]";
+		mes "If you have any unfinished tasks in your quest log, they are considered 'failed' and removed from the log.";
+		next;
+		mes "[Commodities Dealer]";
+		mes "Once they are removed, go talk to Woof-grrr and you can receive new tasks.";
+		for(set .@i,12236; .@i<=12240; set .@i,.@i+1) {
+			if (checkquest(.@i) > -1)
+				erasequest .@i;
+		}
+		erasequest 12242;
+		close;
+	}
+	mes "[Commodities Dealer]";
+	mes "Welcome.";
+	mes "How may I help you?";
+	next;
+	select("I have completed a task.");
+	mes "[Commodities Dealer]";
+	mes "Oh.";
+	mes "Have you?";
+	mes "Please wait a minute while I check the documents.";
+	next;
 
-//[BACKPORT-UNRESOLVED:malformed-for] mora,170,101,4	script	Soul Guide#pa0829	515,{
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkweight(1201,1) == 0) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have too many kinds of things with you to do that. Throw out some of them and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (MaxWeight - Weight < 1000) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You are carrying too much weight to do that. Reduce the weight and try again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (ep14_1_mistwoods < 10) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Soul Guide]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Reliability is the primary quality needed in looking for lost souls. You don't look so reliable to me.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (BaseLevel < 97) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Soul Guide]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You need to have a strong spirit to do this task. I think you need a lot more discipline.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	set .@playtime, checkquest(12253,PLAYTIME);
-//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@playtime == 0 || .@playtime == 1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You still have marks of the haunting souls on your body.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You'll have to come back when the marks have disappeared.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	} else if (.@playtime == 2) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You feel your mind has calmed down once again. You now have enough energy to go look for other souls, so talk to the Guide again.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		for(set .@i,12243; .@i<=12252; set .@i,.@i+1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 			if (checkquest(.@i) > -1)
-//[BACKPORT-UNRESOLVED:malformed-for] 				erasequest .@i;
-//[BACKPORT-UNRESOLVED:malformed-for] 		}
-//[BACKPORT-UNRESOLVED:malformed-for] 		erasequest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Soul Guide]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Welcome.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Are you ready?";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	if(select("What kind of tasks do you have for me?:Tell me about today's task.") == 1) {
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Soul Guide]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "My job is to gather the remains of the souls haunting the forest and put them to rest.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Soul Guide]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "There are countless souls trapped in the Maze.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		next;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Soul Guide]";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Help them get their long-deserved rest.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		close;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Soul Guide]";
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I'll show you the details of one of the lost souls.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	switch(rand(1,10)) {
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 1:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12243;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age 32. Comes from Midgard. Has been missing for 3 months since he went to the Maze of the Hazy Forest in order to collect the native plants. Low chance of survival.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Tazar";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 2:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12244;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age 19. Adventurer who came from a far, unknown place by ship. Been missing for 2 months since he went to explore the Maze dressed in thin tights, despite dissuasion of all Mora residents.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Even if he's alive, he would cause trouble to the rescue team.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Niger";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 3:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12245;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age unknown. Has some mental illness. Went alone in order to purify the Maze of the Hazy forest. He insists that he has good ancestry but no one trusts him.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Disappearance period : 12 years. Not much chance of survival.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Messil";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 4:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12246;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age 51. Used to be a big thief who stole famous swords from all around the world.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Went missing in the Maze after being pursued for running an illegal casino house which caused massive casualties in his final years. Low chance of survival.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Noirit";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 5:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12247;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age 22. An apprentice of an airship pilot. He has gone missing while drinking in Mora town, where he went for a break.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Rumor has it that he fled after signing somewhere. Disappearance period : 4 months. Low chance of survival.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Pajama Sin";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 6:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12248;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age Unknown. A female with long hair, dressed in black. Went on an expedition to the forest of the Maze in search of eternal life. Disappearance period : 3 months. Low chance of survival.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Mendel";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 7:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12249;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age around 50. The current Mayor of the Mora village. He ran away to the Forest of Maze after being caught pocketing profits by cheating the residents. Survival uncertain.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Milebit";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 8:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12250;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age 29. A young man with an unknown background.";
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Fled to the forest of maze after scamming 1200 Mora coins from Mora residents while pretending to start a lot of business and adapting himself in Mora. Survival uncertain.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Kunmoon";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 9:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12251;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age 34. Flirted with several women in Mora. Fled from Mora villagers to the forest of maze. Survival uncertain.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Chaihokin";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	case 10:
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12252;
-//[BACKPORT-UNRESOLVED:malformed-for] 		setquest 12253;
-//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^660066Age Unknown. Disappered with coins which were joint controlled by the villagers. Low chance of survival.^000000";
-//[BACKPORT-UNRESOLVED:malformed-for] 		set .@n$,"Tual";
-//[BACKPORT-UNRESOLVED:malformed-for] 		break;
-//[BACKPORT-UNRESOLVED:malformed-for] 	}
-//[BACKPORT-UNRESOLVED:malformed-for] 	next;
-//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^990099Information on missing person "+.@n$+"^000000 has been found. Check your Quest Window for further information.";
-//[BACKPORT-UNRESOLVED:malformed-for] 	specialeffect2 EF_STEAL;
-//[BACKPORT-UNRESOLVED:malformed-for] 	close;
-//[BACKPORT-UNRESOLVED:malformed-for] }
+	callsub L_CheckQuest,12236,934,2; //Mementos
+	callsub L_CheckQuest,12237,935,3; //Shell
+	callsub L_CheckQuest,12238,936,3; //Scales_Shell
+	callsub L_CheckQuest,12239,937,2; //Posionous_Canine
+	callsub L_CheckQuest,12240,938,5; //Sticky_Mucus
+
+	mes "[Commodities Dealer]";
+	mes "Hmm... "+strcharinfo(0)+".";
+	mes "It may be a documentation error, but according to the documents, you have nothing to do with the tasks.";
+	close;
+
+L_CheckQuest:
+	if (checkquest(getarg(0)) > -1) {
+		if (countitem(getarg(1)) < getarg(2)) {
+			mes "[Commodities Dealer]";
+			mes "The amount is not enough...";
+			close;
+		}
+		mes "[Commodities Dealer]";
+		mes "I've received the items all right. I look forward to working with you again.";
+		delitem getarg(1),getarg(2);
+		erasequest getarg(0);
+		specialeffect2 EF_STEAL;
+		if (BaseLevel > 99 && JobLevel < 50)
+			getexp 0, JobLevel * JobLevel * (110/100) * 50;
+		else if( BaseLevel < 99 && JobLevel < 70 )
+			getexp 0, JobLevel * JobLevel * (110/100) * 10;
+		getitem 6380,1; //Mora_Coin
+		close;
+	}
+	return;
+}
+
+mora,170,101,4	script	Soul Guide#pa0829	515,{
+	if (checkweight(1201,1) == 0) {
+		mes "You have too many kinds of things with you to do that. Throw out some of them and try again.";
+		close;
+	}
+	if (MaxWeight - Weight < 1000) {
+		mes "You are carrying too much weight to do that. Reduce the weight and try again.";
+		close;
+	}
+	if (ep14_1_mistwoods < 10) {
+		mes "[Soul Guide]";
+		mes "Reliability is the primary quality needed in looking for lost souls. You don't look so reliable to me.";
+		close;
+	}
+	if (BaseLevel < 97) {
+		mes "[Soul Guide]";
+		mes "You need to have a strong spirit to do this task. I think you need a lot more discipline.";
+		close;
+	}
+	set .@playtime, checkquest(12253,PLAYTIME);
+	if (.@playtime == 0 || .@playtime == 1) {
+		mes "You still have marks of the haunting souls on your body.";
+		next;
+		mes "You'll have to come back when the marks have disappeared.";
+		close;
+	} else if (.@playtime == 2) {
+		mes "You feel your mind has calmed down once again. You now have enough energy to go look for other souls, so talk to the Guide again.";
+		for(set .@i,12243; .@i<=12252; set .@i,.@i+1) {
+			if (checkquest(.@i) > -1)
+				erasequest .@i;
+		}
+		erasequest 12253;
+		close;
+	}
+	mes "[Soul Guide]";
+	mes "Welcome.";
+	mes "Are you ready?";
+	next;
+	if(select("What kind of tasks do you have for me?:Tell me about today's task.") == 1) {
+		mes "[Soul Guide]";
+		mes "My job is to gather the remains of the souls haunting the forest and put them to rest.";
+		next;
+		mes "[Soul Guide]";
+		mes "There are countless souls trapped in the Maze.";
+		next;
+		mes "[Soul Guide]";
+		mes "Help them get their long-deserved rest.";
+		close;
+	}
+	mes "[Soul Guide]";
+	mes "I'll show you the details of one of the lost souls.";
+	next;
+	switch(rand(1,10)) {
+	case 1:
+		setquest 12243;
+		setquest 12253;
+		mes "^660066Age 32. Comes from Midgard. Has been missing for 3 months since he went to the Maze of the Hazy Forest in order to collect the native plants. Low chance of survival.^000000";
+		set .@n$,"Tazar";
+		break;
+	case 2:
+		setquest 12244;
+		setquest 12253;
+		mes "^660066Age 19. Adventurer who came from a far, unknown place by ship. Been missing for 2 months since he went to explore the Maze dressed in thin tights, despite dissuasion of all Mora residents.";
+		mes "Even if he's alive, he would cause trouble to the rescue team.^000000";
+		set .@n$,"Niger";
+		break;
+	case 3:
+		setquest 12245;
+		setquest 12253;
+		mes "^660066Age unknown. Has some mental illness. Went alone in order to purify the Maze of the Hazy forest. He insists that he has good ancestry but no one trusts him.";
+		mes "Disappearance period : 12 years. Not much chance of survival.^000000";
+		set .@n$,"Messil";
+		break;
+	case 4:
+		setquest 12246;
+		setquest 12253;
+		mes "^660066Age 51. Used to be a big thief who stole famous swords from all around the world.";
+		mes "Went missing in the Maze after being pursued for running an illegal casino house which caused massive casualties in his final years. Low chance of survival.^000000";
+		set .@n$,"Noirit";
+		break;
+	case 5:
+		setquest 12247;
+		setquest 12253;
+		mes "^660066Age 22. An apprentice of an airship pilot. He has gone missing while drinking in Mora town, where he went for a break.";
+		mes "Rumor has it that he fled after signing somewhere. Disappearance period : 4 months. Low chance of survival.^000000";
+		set .@n$,"Pajama Sin";
+		break;
+	case 6:
+		setquest 12248;
+		setquest 12253;
+		mes "^660066Age Unknown. A female with long hair, dressed in black. Went on an expedition to the forest of the Maze in search of eternal life. Disappearance period : 3 months. Low chance of survival.^000000";
+		set .@n$,"Mendel";
+		break;
+	case 7:
+		setquest 12249;
+		setquest 12253;
+		mes "^660066Age around 50. The current Mayor of the Mora village. He ran away to the Forest of Maze after being caught pocketing profits by cheating the residents. Survival uncertain.^000000";
+		set .@n$,"Milebit";
+		break;
+	case 8:
+		setquest 12250;
+		setquest 12253;
+		mes "^660066Age 29. A young man with an unknown background.";
+		mes "Fled to the forest of maze after scamming 1200 Mora coins from Mora residents while pretending to start a lot of business and adapting himself in Mora. Survival uncertain.^000000";
+		set .@n$,"Kunmoon";
+		break;
+	case 9:
+		setquest 12251;
+		setquest 12253;
+		mes "^660066Age 34. Flirted with several women in Mora. Fled from Mora villagers to the forest of maze. Survival uncertain.^000000";
+		set .@n$,"Chaihokin";
+		break;
+	case 10:
+		setquest 12252;
+		setquest 12253;
+		mes "^660066Age Unknown. Disappered with coins which were joint controlled by the villagers. Low chance of survival.^000000";
+		set .@n$,"Tual";
+		break;
+	}
+	next;
+	mes "^990099Information on missing person "+.@n$+"^000000 has been found. Check your Quest Window for further information.";
+	specialeffect2 EF_STEAL;
+	close;
+}
 
 mora,131,165,7	script	Wandering Customer#pa082	520,{
 	mes "[Wandering Customer]";
