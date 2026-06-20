@@ -1,0 +1,10 @@
+//===== uAthena backport (renewal warps, GENERATED) =========
+//= Additive renewal warps from rathena-ref (warp2->warp).
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-warps.py
+//= Source: npc/re/warps/fields/bif_fild.txt
+//============================================================
+bif_fild01,318,48,0	warp	bifrost_field0002	1,1,splendide,271,382
+mora,182,74,0	warp	bifrost_field0003	1,1,bif_fild02,286,327
+mora,20,159,0	warp	bifrost_field0004	1,1,bif_fild02,99,308
+mora,56,25,0	warp	bifrost_field0005	1,1,bif_fild02,176,162
+splendide,275,390,0	warp	bifrost_field0001	1,1,bif_fild01,316,50

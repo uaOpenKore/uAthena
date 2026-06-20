@@ -1,0 +1,8 @@
+//===== uAthena backport (renewal town-NPCs, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted/commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-town-npcs.py
+//= Source: npc/re/kafras/kafras.txt (scope, adapted to kaf_alberta)
+//============================================================
+dewata,202,184,6	duplicate(kaf_alberta)	Kafra Employee#kaf_dewata	4_F_KAFRA1
+malaya,71,79,4	duplicate(kaf_alberta)	Kafra Employee#kaf_malaya1	4_MAL_KAFRA
+malaya,234,204,4	duplicate(kaf_alberta)	Kafra Employee#kaf_malaya2	4_MAL_KAFRA
