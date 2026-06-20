@@ -1,0 +1,171 @@
+//===== uAthena backport (renewal Eden Group quests 2b, GENERATED) =====
+//= Eden quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-eden.py
+//= Source: npc/re/quests/eden/11-25.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Eden Group Quests - Mission [11 - 25]
+//===== By: ==================================================
+//= L0ne_W0lf
+//===== Current Version: =====================================
+//= 1.5
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= Repetable Quests for Players between Baselevel 11 - 25.
+//===== Additional Comments: =================================
+//= 1.0 First Version.
+//= 1.1 Some little optimization here and there. [Masao]
+//= 1.2 Optimized. [Euphy]
+//= 1.3 Bug fixes. [Capuche]
+//= 1.4 Added support to Para_Team_Mark_ in Eden Group. [Ragno]
+//= 1.5 Added use of F_HasEdenGroupMark function. [Ragno]
+//============================================================
+
+//[BACKPORT-UNRESOLVED:malformed-for] moc_para01,36,38,3	script	Mission [11 - 25]#Tuto	4_BOARD3,{
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (!callfunc("F_HasEdenGroupMark")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "- You need to have an -";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "- ^4d4dff'Eden Group Mark'^000000 -";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "- to receive these missions. -";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,11124; .@i < 11134; set .@i,.@i+1 )
+//[BACKPORT-UNRESOLVED:malformed-for] 		if (checkquest(.@i,PLAYTIME) == 2) erasequest .@i;
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,11114; .@i < 11124; set .@i,.@i+1 ) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		set .@j, checkquest(.@i,HUNTING);
+//[BACKPORT-UNRESOLVED:malformed-for] 		if (.@j == 2) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " - You must collect your - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " - reward before starting - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " - a new mission. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " - Manager : Spike - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 		else if (.@j >= 0) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " - You can only request - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " - one mission at a time. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " - Manager : Spike - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (BaseLevel < 11) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - There are no tasks - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - open for you right now. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (BaseLevel > 25) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - These missions are too - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - easy for your caliber - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - search for a more level - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - appropriate mission. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes " - Mission bulletin board -";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes " - for beginners. -";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes " ";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes " - Manager : Spike -";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	switch(select("Hornet Hunting:Condor Hunting:Grasshopper's Leg:Worm Tail Hunting:Spore Hunting:Pest Control:Muka Hunting:Familiar Hunting:Collect Feathers:Collect Poison Spores:Cancel")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 1: callsub L_Quest,11114,"Hornet Hunting"," - Hunt 10 ^4d4dff'Hornets'^000000 - "," - northwest of Prontera. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 2: callsub L_Quest,11115,"Condor Hunting"," - Hunt 20 ^4d4dff'Condors'^000000 - "," - south of Morocc. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 3: callsub L_Quest,11116,"Grasshopper's Leg"," - Hunt 10 ^4d4dff'Rockers'^000000 - "," - southwest of Prontera and - "," - bring 10 ^4d4dffGrasshopper's Legs^000000. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 4: callsub L_Quest,11117,"Worm Tail Hunting"," - Hunt 20 ^4d4dff'Worm Tails'^000000 - "," - southeast of Payon.- ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 5: callsub L_Quest,11118,"Spore Hunting"," - Hunt 30 ^4d4dff'Spores'^000000 - "," - around Payon. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 6: callsub L_Quest,11119,"Pest Control"," - Hunt 20 ^4d4dffThief Bug Eggs^000000 - "," - in the Prontera Culvert - "," - and bring 10 ^4d4dffChrysalis^000000. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 7: callsub L_Quest,11120,"Muka Hunting"," - Hunt 20 ^4d4dff'Muka'^000000 - "," - south of Prontera. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 8: callsub L_Quest,11121,"Familiar Hunting"," - Hunt 20 ^4d4dffFamiliar^000000 - "," - in the Culvert Sewers - "," - west of Prontera. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 9: callsub L_Quest,11122,"Collect Feathers"," - Hunt 30 ^4d4dff'Peco Pecos'^000000 - "," - south of Prontera. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 10: callsub L_Quest,11123,"Collect Poison Spores"," - Hunt 30 ^4d4dffPoison Spores^000000 - "," - inside the Geffen Tower and - "," - bring 5 ^4d4dffPoison Spores^000000. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 11:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes " - Stop reading the bulletin board. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] L_Quest:
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@quest_status, checkquest(getarg(0)+10,PLAYTIME);
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@quest_status == 0 || .@quest_status == 1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - Mission ^4d4dff"+ getarg(1) +"^000000 - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - is already finished for today. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - Manager : Spike - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes " - Mission '"+ getarg(1) +"' - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,2; getarg(.@i, "\x7F") != "\x7F"; set .@i,.@i+1 )
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes getarg(.@i);
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes " ";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes " - Manager : Spike - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (select("I will do this mission.:Look for other missions.") == 2) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - Let's search for -";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes " - other missions. - ";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,2; getarg(.@i, "\x7F") != "\x7F"; set .@i,.@i+1 )
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes getarg(.@i);
+//[BACKPORT-UNRESOLVED:malformed-for] 	setquest getarg(0);
+//[BACKPORT-UNRESOLVED:malformed-for] 	close;
+//[BACKPORT-UNRESOLVED:malformed-for] }
+
+//[BACKPORT-UNRESOLVED:malformed-for] moc_para01,32,30,6	script	Spike	4_F_CHILD,{
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,11114; .@i < 11124; set .@i,.@i+1 ) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		set .@j, checkquest(.@i,HUNTING);
+//[BACKPORT-UNRESOLVED:malformed-for] 		if (.@j == 2) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			switch(.@i) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11114: callsub L_Quest,.@i,"Hornet Hunting",900;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11115: callsub L_Quest,.@i,"Condor Hunting",1800;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11116: callsub L_Quest,.@i,"Grasshopper's Leg",1400,940,10;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11117: callsub L_Quest,.@i,"Worm Tail Hunting",2600;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11118: callsub L_Quest,.@i,"Spore Hunting",3900;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11119: callsub L_Quest,.@i,"Extirpate Insects",2900,915,10;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11120: callsub L_Quest,.@i,"Muka Hunting",3200;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11121: callsub L_Quest,.@i,"Familiar Hunting",3200;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11122: callsub L_Quest,.@i,"Collect Feathers",5400;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11123: callsub L_Quest,.@i,"Collect Poison Spores",6000,7033,5;
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 		else if (.@j >= 0) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Spike]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "You haven't finished your mission yet.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Keep up the good work. You are almost done.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Spike]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Are you looking for a job?";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "We always have lots of work to do.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Spike]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Why don't you look around and find some interesting tasks?";
+//[BACKPORT-UNRESOLVED:malformed-for] 	close;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] L_Quest:
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@quest_id, getarg(0);
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkquest(.@quest_id,HUNTING) == 2) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		set .@item_req, getarg(3,0);
+//[BACKPORT-UNRESOLVED:malformed-for] 		set .@req_amount, getarg(4,0);
+//[BACKPORT-UNRESOLVED:malformed-for] 		if (.@item_req) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			if (countitem(.@item_req) < .@req_amount) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Spike]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You don't have enough "+ getitemname(.@item_req) +".";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You need to bring "+ .@req_amount +" "+ getitemname(.@item_req) +".";
+//[BACKPORT-UNRESOLVED:malformed-for] 				close;
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Spike]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Hmm... let me see~";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have completed the '"+ getarg(1) +"' mission.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Spike]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Good work~!!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Our client is so happy with your work. He will appreciate what you have done.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Please help us again. Thanks!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		if (.@item_req)
+//[BACKPORT-UNRESOLVED:malformed-for] 			delitem .@item_req,.@req_amount;
+//[BACKPORT-UNRESOLVED:malformed-for] 		erasequest .@quest_id;
+//[BACKPORT-UNRESOLVED:malformed-for] 		setquest .@quest_id+10;
+//[BACKPORT-UNRESOLVED:malformed-for] 		getexp getarg(2),0;
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] }

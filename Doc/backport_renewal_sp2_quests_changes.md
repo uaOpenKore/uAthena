@@ -18,6 +18,43 @@
 `dumps/forge/backport-renewal-quests.py` (собран town adapt_text + merchant block_filter +
 quest tail). События: ADAPT 573, COMMENT 1034, BOUNDARY 307, DEDUP, UNRESOLVED 75, ORPHAN.
 
+## 2b — Eden Group quests (16 файлов)
+
+`npc/backport/re_eden/` (eden_common/service/tutorial/quests/iro + 11 board/level-файлов
+11-25..eden_131_140). Генератор `dumps/forge/backport-renewal-eden.py` (копия quests-генератора,
+сменён только tail: OUT_DIR=re_eden, file-list EDEN_FILES, HEADER, includes/maps/gap-имена).
+13501 строк rAthena → 16 файлов. События: ADAPT 240, COMMENT 98, UNRESOLVED 36, MANUAL 10,
+BOUNDARY 7, SITEFIX 3, DEDUP 2. Подключены в `npc/scripts_athena.conf` (блок «2b»). VERIFY OK,
+boot чист (0 ошибок по re_eden). `F_GM_NPC` (2 вызова в eden_quests) — informational runtime-ref
+(renewal Global_Function, как F_GM_NPC/F_Malaya_Nurse в 2a; не parse-ошибка).
+
+## ДВИЖКОВЫЙ ФИКС парсера комментариев (вскрыто на 2b, чинит ВСЕ фазы)
+
+`src/map/npc.c` `npc_parsesrcfile`: проверка строки-комментария `//` срабатывала только в
+колонке 0 (`line[0]=='/' && line[1]=='/'`). Сгенерированные закомментированные строки скрипта,
+сохраняющие ведущий отступ (`\t//[BACKPORT-GAP:...]`), парсились как NPC-определения → спам
+`Invalid map '//...'` (1956 ошибок по всем re_* фазам). Фикс: стрипнуть ведущие пробелы/табы
+перед проверкой `//` (рядом уже был такой whitespace-стрип для `/* */`). Нужен `make sql`.
+Результат: 1956 → 0 `Invalid map`. **Это вторая engine-правка серии** (после quest_db split) —
+bugfix парсера, не игровая механика.
+
+## ВАЖНО: критерий верификации расширен (находка 2b)
+
+Прошлые boot-проверки фаз грепали класс `script error`; класс `Invalid map`/`Could not parse`
+не проверялся → 1956 indented-comment ошибок (выше) и **9 реальных parse-ошибок в SP-3
+`global_npcs.txt`** жили незамеченными. Теперь критерий = `[Error]` минус известные не-parse
+классы (grfio `.gat`/`.rsw`, viewdata renewal-спрайтов, `bad duplicate ... #it01` itemmall
+deploy-артефакт, опциональный `PCLoginEvent.txt`, runtime OnInit). После всех фиксов финальный
+boot: 0 `Invalid map`/`Could not parse`/`unknown buildin`, 16541 NPC.
+
+## SP-3 доработка: NPC display-state `script(FLAG)` (вскрыто 2b-верификацией)
+
+`global_npcs.txt` (SP-3) содержал renewal-синтаксис `-\tscript(CLOAKED|DISABLED|HIDDEN)\t...`
+(display-state определения), которого нет в парсере uAthena → `Could not parse` (9 строк, ровно
+1 файл/1 паттерн на всю серию). Общее правило в adapt_text (town-npcs.py + smallnpc.py):
+`\tscript(\w+)\t` → `\tscript\t` (drop state; renewal-косметика, dummy-шаблоны и так sprite -1).
+SP-3 регенерирован (`backport-renewal-smallnpc.py`): diff = ровно 3 строки, +13 NPC ожили.
+
 ## Улучшения общего генератора (выигрывают все фазы; merchant/smallnpc re-gen)
 
 - **userfunc→callfunc** (quest gen): uAthena не поддерживает прямой paren-call к script-

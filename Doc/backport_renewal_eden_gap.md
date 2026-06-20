@@ -1,0 +1,428 @@
+# Renewal 2b Eden-quest gap-лог (адаптации/dedup/boundary/unresolved/orphan)
+
+
+## eden_common.txt
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- BOUNDARY [izlude_a] izlude_a,131,148,4	duplicate(eto)	Eden Teleport Officer#30::eto_iz_a	729
+- BOUNDARY [izlude_b] izlude_b,131,148,4	duplicate(eto)	Eden Teleport Officer#30::eto_iz_b	729
+- BOUNDARY [izlude_c] izlude_c,131,148,4	duplicate(eto)	Eden Teleport Officer#30::eto_iz_c	729
+- BOUNDARY [izlude_d] izlude_d,131,148,4	duplicate(eto)	Eden Teleport Officer#30::eto_iz_d	729
+- BOUNDARY [verus04] verus04,116,243,0	duplicate(eto)	Eden Teleport Officer#33	729
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [getnpcid,ET_HNG] emotion ET_HNG, getnpcid(0, "Secretary Lime Evenor");
+- COMMENT [ET_KEK] emotion ET_KEK;
+- UNRESOLVED [getnpcid] Office Assistant Neede
+
+## eden_tutorial.txt
+- MANUAL [getmercinfo] if (!getmercinfo(1)) {
+- UNRESOLVED [getmercinfo] Tutorial Instructor
+
+## eden_quests.txt
+- ADAPT [=->set] para_suv01 = 11;
+- ADAPT [=->set] para_suv01 = 11;
+- ADAPT [=->set] para_suv01 = 22;
+- ADAPT [=->set] para_suv01 = 22;
+- ADAPT [=->set] para_suv01 = 37;
+- ADAPT [=->set] para_suv01 = 37;
+- ADAPT [=->set] para_suv01 = 37;
+- ADAPT [=->set] para_suv01 = 1;
+- ADAPT [=->set] para_suv01 = 6;
+- ADAPT [=->set] para_suv01 = 13;
+- ADAPT [=->set] para_suv01 = 17;
+- ADAPT [=->set] para_suv01 = 24;
+- ADAPT [=->set] para_suv01 = 29;
+- ADAPT [=->set] para_suv01 = 33;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- COMMENT [npcskill] npcskill "AL_HEAL",11,99,60;
+- ADAPT [=->set] para_suv01 = 12;
+- ADAPT [=->set] para_suv02 = 1;
+- ADAPT [=->set] para_suv01 = 23;
+- ADAPT [=->set] para_suv02 = 2;
+- ADAPT [=->set] para_suv02 = 2;
+- ADAPT [=->set] para_suv01 = 38;
+- ADAPT [=->set] para_suv02 = 3;
+- ADAPT [=->set] para_suv02 = 3;
+- ADAPT [=->set] para_suv02 = 4;
+- ADAPT [=->set] .@total_arg = getargcount();
+- COMMENT [getargcount] .@total_arg = getargcount();
+- ADAPT [for/incr->set] for ( .@i = 1; .@i < .@total_arg; .@i += 5 ) {
+- ADAPT [=->set] .@i = 1;
+- ADAPT [=->set] .@i = (select(.@menu$) -1) *5 +1;
+- ADAPT [=->set] para_suv01 = 23;
+- ADAPT [=->set] para_suv01 = 38;
+- ADAPT [=->set] para_suv02 = 2;
+- ADAPT [=->set] para_suv02 = 3;
+- ADAPT [=->set] para_suv02 = 2;
+- ADAPT [=->set] para_suv02 = 3;
+- ADAPT [=->set] para_2nd01 = 1;
+- ADAPT [=->set] para_2nd01 = 7;
+- ADAPT [=->set] para_2nd01 = 12;
+- ADAPT [=->set] para_2nd01 = 6;
+- ADAPT [=->set] para_2nd02 = 1;
+- ADAPT [=->set] para_2nd01 = 7;
+- ADAPT [=->set] para_2nd01 = 11;// Report to Instructor Ur
+- ADAPT [=->set] para_2nd01 = 16;
+- ADAPT [=->set] para_2nd01 = 30;
+- ADAPT [=->set] para_2nd01 = 30;
+- ADAPT [=->set] para_2nd02 = 1;
+- ADAPT [=->set] para_2nd01 = 12;
+- ADAPT [=->set] para_2nd01 = 17;
+- ADAPT [=->set] para_2nd01 = 22;
+- ADAPT [=->set] para_2nd01 = 2;
+- ADAPT [=->set] para_2nd01 = 3;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 4;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 5;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 8;
+- ADAPT [=->set] para_2nd01 = 9;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 10;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 13;
+- ADAPT [=->set] para_2nd01 = 14;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 15;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 18;
+- ADAPT [=->set] para_2nd01 = 19;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 20;
+- ADAPT [=->set] para_2nd01 = 23;
+- ADAPT [=->set] para_2nd01 = 29;
+- ADAPT [=->set] para_2nd01 = 24;
+- ADAPT [=->set] para_2nd01 = 25;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] para_2nd01 = 26;
+- ADAPT [=->set] para_2nd01 = 27;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,60;
+- ADAPT [=->set] .@add = 1;
+- ADAPT [=->set] para_2nd04 = 1 + .@add;
+- ADAPT [=->set] .@string$ = "I asked you to get 20 Iron Ore, and 10 Iron.";
+- ADAPT [=->set] .@item[0] = 7319;
+- ADAPT [=->set] .@amount[0] = 20;
+- ADAPT [=->set] .@countitem[0] = countitem(7319);
+- ADAPT [=->set] .@add = 1;
+- ADAPT [=->set] .@string$ = "I asked you to get 20 Used Iron Plate.";
+- ADAPT [=->set] para_2nd04 = 3;
+- ADAPT [=->set] para_2nd04 = 0;
+- ADAPT [=->set] para_2nd02 = 2;
+- SITEFIX [.@i < getargcount] for ( .@i = 1; .@i < getargcount(); .@i += 3 ) {
+- ADAPT [for/incr->set] for ( .@i = 1; getarg(.@i, "\x7F") != "\x7F"; .@i += 3 ) {
+- ADAPT [=->set] .@i = (select(.@menu$) -1) *3 +1;
+- ADAPT [=->set] .@1st = .@bonus[ rand(1,12) ];
+- ADAPT [=->set] .@2nd = .@bonus[ rand(1,12) ];
+- ADAPT [=->set] para_2nd04 = 4;
+- ADAPT [=->set] .@wplist_size = getarraysize(.@wplist);
+- ADAPT [=->set] .@s = select(.@menu$) -1;
+- ADAPT [=->set] .@string$ = "Ok, you've chosen to raise physical attack.";
+- ADAPT [=->set] .@card = 4767;
+- ADAPT [=->set] .@string$ = "Ok, you've chosen to raise magical attack.";
+- ADAPT [=->set] .@card = 4806;
+- ADAPT [=->set] .@add = 1;
+- ADAPT [=->set] para_2nd03 = 1 + .@add;
+- ADAPT [=->set] para_2nd02 = 3;
+- ADAPT [=->set] .@type$ = "Brute";
+- ADAPT [=->set] .@type$ = "Plant";
+- ADAPT [=->set] .@type$ = "Insect";
+- ADAPT [=->set] .@type$ = "Fish";
+- ADAPT [=->set] .@type$ = "Dragon";
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@wplist_size; .@i++ ) {
+- ADAPT [=->set] para_2nd02 = 4;
+- ADAPT [=->set] para_2nd03 = .@arg[2];
+- ADAPT [=->set] para_2nd03 = .@arg[2] + 100;
+- ADAPT [=->set] .@s = select(.@menu$) -1;
+- ADAPT [=->set] para_2nd02 = 5;
+- UNRESOLVED [npcskill] Talking Dog#para03
+- UNRESOLVED [npcskill] Timid Cat#para04
+- UNRESOLVED [npcskill] Eden Member Karl#para05
+- DEDUP [Eden Member Cloud#para06] Eden Member Cloud#para06
+- UNRESOLVED [npcskill] Eden Member Hooksha
+- UNRESOLVED [npcskill] Eden Member Callandiva
+- UNRESOLVED [getargcount] Administrator Michael
+- DEDUP [Chef] Chef
+- UNRESOLVED [npcskill] Dispatched Instructor#02
+- UNRESOLVED [npcskill] Instructor Romeo#2nd02
+- UNRESOLVED [npcskill] Dispatched Instructor#03
+- UNRESOLVED [isbegin_quest,npcskill] Dispatched Instructor#04
+- UNRESOLVED [npcskill] Dispatched Instructor#05
+- UNRESOLVED [npcskill] Dispatched Instructor#07
+- UNRESOLVED [npcskill] Dispatched Instructor#08
+- UNRESOLVED [malformed-for] Blacksmith Thorn#2nd10
+- UNRESOLVED [malformed-for] Weapons Expert BK#2nd11
+
+## eden_iro.txt
+- COMMENT [is_function] if (is_function("VIP_iRO_Acolyte"))
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- MANUAL [vip_status] if (!vip_status(VIP_STATUS_ACTIVE)) {
+- MANUAL [vip_status] if (!vip_status(VIP_STATUS_ACTIVE)) {
+- MANUAL [vip_status] if (!vip_status(VIP_STATUS_ACTIVE)) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(62238) > 0)
+- ADAPT [=->set] .@menu$ = implode( .@menu_list$, ":" );
+- COMMENT [implode] .@menu$ = implode( .@menu_list$, ":" );
+- ADAPT [=->set] .@item_id = 22819;
+- COMMENT [consumeitem] consumeitem .@item_id;
+- ADAPT [=->set] .@item_id = 14645;
+- MANUAL [vip_status] if (vip_status(VIP_STATUS_ACTIVE) == false) {
+- ADAPT [=->set] .@date = gettime(DT_YYYYMMDD);
+- ADAPT [=->set] eden_iro_token_date = .@date;
+- ADAPT [=->set] .@item_req = 20717;// FaceWorm_Skin
+- ADAPT [=->set] .@item_name$ = "Giant Faceworm Snake Skin";
+- ADAPT [=->set] .@amount_reward = 5;
+- ADAPT [=->set] .@item_req = 20718;// FaceWorm_Skin_
+- ADAPT [=->set] .@item_name$ = "Giant Faceworm Snake Skin [1]";
+- ADAPT [=->set] .@amount_reward = 7;
+- COMMENT [vip_status] if (vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [op=->set] Zeny -= 1000000;
+- COMMENT [sprintf] mes sprintf("Ok, I can give you ^ff0000%s^000000 for ^0066CC%d of your Eden Merit Badge(s)^000000.",
+- MANUAL [mail] moc_para01,30,187,4	script	Mail Annex Station	888,{
+- BOUNDARY [auction_03] auction_03,152,16,0	warp	#mail_annex_warp	1,1,moc_para01,30,184
+- MANUAL [unregistered-map:auction_03] auction_03,152,42,4	script	Kafra Employee#annex	117,{
+- COMMENT [openmail] openmail;
+- BOUNDARY [auction_03] auction_03,145,47,2	shop	Tool Dealer#annex	83,611:-1,501:-1,502:-1,503:-1,506:-1,504:-1,645:-1,656:-1,657:-1,601:-1,602:-1,1065:-1,911:-1,910:-1,717:-1,1092:-1,1093:-1,713:400
+- ADAPT [=->set] .@refine = getequiprefinerycnt(EQI_GARMENT);
+- ADAPT [=->set] .@string$ = "Fighting Spirit stats will be given randomly by 3~5 (ATK+HIT) range.";
+- ADAPT [=->set] .@string$ = "Magic spell stats will be given randomly by 4~6 (MATK + Reduce change casting time).";
+- ADAPT [=->set] .@string$ = "Archery stats will be given randomly by 1~3 (Range atack rate).";
+- ADAPT [=->set] .@string$ = "Critical stats will be given randomly by 1~4 (Critical damage + CRI).";
+- ADAPT [=->set] .@string$ = "MHP stats will be given randomly by 1~3 (Increase MHP %).";
+- ADAPT [=->set] .@string$ = "SP stats will be given randomly by 25~75.";
+- ADAPT [=->set] .@string$ = "Atack delay stats will be given randomly by 1~3 (Reduce attack delay %).";
+- ADAPT [=->set] .@string$ = "STR stats will be given randomly by 3~5.";
+- ADAPT [=->set] .@string$ = "AGI stats will be given randomly by 2~4.";
+- ADAPT [=->set] .@string$ = "VIT stats will be given randomly by 3~5.";
+- ADAPT [=->set] .@string$ = "INT stats will be given randomly by 3~5.";
+- ADAPT [=->set] .@string$ = "DEX stats will be given randomly by 3~5.";
+- ADAPT [=->set] .@string$ = "LUK stats will be given randomly by 3~5.";
+- ADAPT [=->set] .@card[3] = .@enchants[ rand(3) ];
+- ADAPT [=->set] .@slot = 4;
+- ADAPT [=->set] .@card[2] = .@enchants[ rand(3) ];
+- ADAPT [=->set] .@slot = 3;
+- ADAPT [=->set] .@card[1] = .@enchants[ rand(4) ];
+- ADAPT [=->set] .@slot = 2;
+- COMMENT [delequip] delequip EQI_GARMENT;
+- ADAPT [=->set] .@refine = getequiprefinerycnt(EQI_GARMENT);
+- ADAPT [=->set] .@card[0] = getequipcardid(EQI_GARMENT,0);
+- COMMENT [delequip] delequip EQI_GARMENT;
+- ADAPT [op=->set] Zeny -= 1000000;
+- UNRESOLVED [is_function] Aperture#acolytewarp
+- UNRESOLVED [vip_status] VIP_iRO_Acolyte
+- UNRESOLVED [vip_status] Primo d'Buffer
+- UNRESOLVED [vip_status] Clearchus
+- UNRESOLVED [malformed-for] Izaac#edco
+- UNRESOLVED [malformed-for] Eve Natalia
+- UNRESOLVED [consumeitem,delequip,implode,mail,openmail,sprintf,vip_status] Merry Badger#xch
+
+## 11-25.txt
+- ADAPT [for/incr->set] for ( .@i = 11124; .@i < 11134; .@i++ )
+- ADAPT [for/incr->set] for( .@i = 11114; .@i < 11124; .@i++ ) {
+- ADAPT [=->set] .@j = checkquest(.@i,HUNTING);
+- ADAPT [=->set] .@quest_status = checkquest(getarg(0)+10,PLAYTIME);
+- SITEFIX [.@i < getargcount] for ( .@i = 2; .@i < getargcount(); .@i++ )
+- ADAPT [for/incr->set] for ( .@i = 2; getarg(.@i, "\x7F") != "\x7F"; .@i++ )
+- SITEFIX [.@i < getargcount] for ( .@i = 2; .@i < getargcount(); .@i++ )
+- ADAPT [for/incr->set] for ( .@i = 2; getarg(.@i, "\x7F") != "\x7F"; .@i++ )
+- ADAPT [for/incr->set] for( .@i = 11114; .@i < 11124; .@i++ ) {
+- ADAPT [=->set] .@j = checkquest(.@i,HUNTING);
+- ADAPT [=->set] .@quest_id = getarg(0);
+- ADAPT [=->set] .@item_req = getarg(3,0);
+- ADAPT [=->set] .@req_amount = getarg(4,0);
+- UNRESOLVED [malformed-for] Mission [11 - 25]#Tuto
+- UNRESOLVED [malformed-for] Spike
+
+## 26-40.txt
+- ADAPT [=->set] .@string$ = getarg(2);
+- COMMENT [ET_KIK] emotion ET_KIK;
+- ADAPT [=->set] .@quest_id = getarg(0);
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+
+## 41-55.txt
+- UNRESOLVED [malformed-for] Mission [41 - 55]
+
+## 56-70.txt
+- ADAPT [=->set] .@quest_id = getarg(0);
+- MANUAL [getargcount] if (getargcount() > 5) {
+- ADAPT [=->set] .@quest_id = getarg(0);
+- MANUAL [getargcount] if (getargcount() > 3) {
+- UNRESOLVED [getargcount] Mission [56 - 70]
+
+## 71-85.txt
+- MANUAL [getargcount] if (getargcount() == 1) {
+- UNRESOLVED [clear,getargcount] Mission [71 - 85]
+
+## 86-90.txt
+- ADAPT [=->set] .@cutin$ = getarg(3);
+- UNRESOLVED [malformed-for] 86-90 Mission Board
+
+## 91-99.txt
+- ADAPT [=->set] .@cutin$ = getarg(3);
+- UNRESOLVED [malformed-for] 91-99 Mission Board
+
+## eden_100_111.txt
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [=->set] para_100lv01 = 1;
+- ADAPT [op=->set] para_100lv02 += 1;
+- COMMENT [getnpcid,ET_HNG] emotion ET_HNG, getnpcid(0, "Rohtert#12");
+- ADAPT [=->set] para_100lv01 = 2;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- ADAPT [=->set] .@ran = rand(1,3);
+- ADAPT [=->set] .@ran = rand(1,3);
+- ADAPT [=->set] .@ran = rand(1,3);
+- ADAPT [=->set] para_100lv01 = 4;
+- ADAPT [=->set] para_100lv01 = 5;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- ADAPT [=->set] para_100lv01 = 6;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- ADAPT [=->set] .@amount = select( "Exchange kindness ^FF00001^000000 pass", "Exchange kindness ^FF000010^000000 pass" ) == 1 ? 1 : 10;
+- ADAPT [=->set] .@ran = rand(1,1000);
+- ADAPT [=->set] .@story = rand(1,3);
+- ADAPT [=->set] .@exp = 200000;
+- ADAPT [=->set] .@jexp = 148000;
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- ADAPT [=->set] .@exp = 180000;
+- ADAPT [=->set] .@jexp = 168000;
+- ADAPT [=->set] .@exp = 220000;
+- ADAPT [=->set] .@jexp = 128000;
+- ADAPT [=->set] .@jexp = 106000;
+- ADAPT [op=->set] para_100lv02 += 1;
+- ADAPT [=->set] .@story = rand(1,3);
+- COMMENT [ET_THROB] emotion ET_THROB;
+- ADAPT [=->set] .@exp = 550000;
+- ADAPT [=->set] .@jexp = 340000;
+- ADAPT [=->set] .@exp = 400000;
+- ADAPT [=->set] .@jexp = 240000;
+- ADAPT [=->set] .@exp = 550000;
+- ADAPT [=->set] .@jexp = 290000;
+- ADAPT [=->set] .@jexp = 206000;
+- ADAPT [op=->set] para_100lv02 += 1;
+- ADAPT [=->set] .@story = rand(1,2);
+- ADAPT [op=->set] para_100lv02 += 1;
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 15; .@i++ ) {
+- ADAPT [op=->set] para_100lv02 += 1;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(getarg(0)))
+- ADAPT [op=->set] para_100lv02 += 1;
+- ADAPT [=->set] para_100lv01 = 3;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- UNRESOLVED [getnpcid] Gelkah#1
+
+## eden_111_120.txt
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_OK] emotion ET_OK;
+- ADAPT [=->set] para_110lv01 = 1;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- ADAPT [=->set] para_110lv01 = 2;
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- ADAPT [=->set] para_110lv01 = 3;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- ADAPT [=->set] para_110lv01 = 4;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- ADAPT [=->set] para_110lv01 = 5;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13079) == 1) {
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13091) == 1) {
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13099) == 1) {
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- ADAPT [=->set] para_110lv01 = 6;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(getarg(0)))
+- ADAPT [=->set] .@total = getargcount();
+- COMMENT [getargcount] .@total = getargcount();
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@total; .@i += 3 ) {
+- ADAPT [=->set] .@quest_id = getarg(.@i);
+- ADAPT [=->set] .@quest_id = getarg(0);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@quest_id) > 0) {
+- ADAPT [=->set] .@count_item2 = countitem(getarg(5));
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(.@quest_id+1) > 0)
+- UNRESOLVED [getargcount] Mingmin#1
+
+## eden_121_130.txt
+- ADAPT [=->set] para_120lv01 = 2;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(getarg(0)))
+- ADAPT [=->set] .@total = getargcount();
+- COMMENT [getargcount] .@total = getargcount();
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@total; .@i += 2 ) {
+- ADAPT [=->set] .@quest_id = getarg(.@i);
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- ADAPT [=->set] para_120lv01 = 1;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13111) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13107) == 1)
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13112) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13108) == 1)
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13113) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13109) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13114) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13110) == 1) {
+- ADAPT [for/incr->set] for ( .@i = 13115; .@i <= 13118; .@i++ )
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@i)) erasequest .@i;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(getarg(0)))
+- ADAPT [=->set] .@total = getargcount();
+- COMMENT [getargcount] .@total = getargcount();
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@total; .@i += 2 ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(getarg(.@i))) {
+- ADAPT [=->set] .@total = getargcount();
+- COMMENT [getargcount] .@total = getargcount();
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@total; .@i += 4 ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(getarg(.@i))) {
+- ADAPT [=->set] .@quest = 13106 + atoi(strnpcinfo(2));
+- ADAPT [=->set] .@delay = 13110 + atoi(strnpcinfo(2));
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@quest) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13107) != 1)
+- UNRESOLVED [getargcount] Melody-Jack#1
+- UNRESOLVED [getargcount] Aigu#1
+
+## eden_131_140.txt
+- ADAPT [=->set] para_130lv01 = 1;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(getarg(0)))
+- ADAPT [=->set] .@total = getargcount();
+- COMMENT [getargcount] .@total = getargcount();
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@total; .@i += 3 ) {
+- ADAPT [=->set] .@quest_id = getarg(.@i);
+- UNRESOLVED [getargcount] Ragi#1
