@@ -1,0 +1,1560 @@
+//===== uAthena backport (renewal dungeon/collection quests 2c, GENERATED) =====
+//= dungeon/collection quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-collections.py
+//= Source: npc/re/quests/illusion_investigation.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Illusion Investigation
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//= NPCs that give hunting quests in Illusion dungeons in exchange for experience.
+//===== Changelog: ===========================================
+//= 1.0 First version. [Capuche]
+//============================================================
+
+//[BACKPORT-UNRESOLVED:questinfo] prt_in,136,34,3	script	Commander Joel#joel	1_M_ORIENT01,{
+//[BACKPORT-UNRESOLVED:questinfo] 	if (BaseLevel < 100) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Hello, what business are you here for?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "If you wish to join the Illusion Investigation Corps, you're lacking in skills yet.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Please visit again when you have reached a certain level.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "^4d4dff== You must be level 100 or higher to join. ==^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	if (0 == 0) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Hello, I'm Joel, the Commander of the Illusion Investigation Corps.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Have you ever heard of or experienced illusions?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Until now, illusions have been discovered all over the world and are somewhat known to the public.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It is also used as a hunting ground for many adventurers because it is easy to obtain rare materials.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Also, the monsters in Illusion are new monsters that have never been discovered before, and the monsters in Illusion are multiplying abnormally.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Despite many adventurers hunting the monsters that exist in Illusion to obtain materials, the reason for the very rapid recovery of the population has not been identified.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Our Illusion Investigation Team was organized to uncover the mystery of the Illusion, and first we decided to figure out the ecology of the monsters inside the Illusion.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "What we found was that all illusions are affected by dimensional rifts.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I've been speculating that it might be related to the dimensional rift for a long time, but with the results of this investigation, it's clear.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "There are still many adventurers visiting Illusion with a purpose, so the monster population is fortunately maintained.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "If no one sets foot there, it's very dangerous because the monsters can go beyond saturation and invade other areas.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "For that reason, the number of individuals is still being investigated, and one investigator is currently assigned to each illusion.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "And we're recruiting members with the ability to control the number of monsters inside Illusion.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "And if you're an adventurer, you seem to be strong enough for that role...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Would you like to join the Illusion Investigation Team and join us in investigating illusions?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		if (select( "I'm joining", "I'll think about it" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "It's very meaningful.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Please think about it before you tell me.";
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Okay, you're welcome!!";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "The procedure is simple, please fill out the pledge here...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Here... please sign this.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes ".";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "..";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Yes, with this you have become a member of the Illusionary Survey Corps, welcome again!";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "If you have time during your adventure, I would like you to stop by the Illusions located in various places and help me with the investigation.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "A dispatched investigator will guide you.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Then I hope you have a nice day";
+//[BACKPORT-UNRESOLVED:questinfo] 		close2;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3470;
+//[BACKPORT-UNRESOLVED:questinfo] 		completequest 3470;
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "I think the investigation will be much easier thanks to you, adventurer.";
+//[BACKPORT-UNRESOLVED:questinfo] 	next;
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "New illusions will appear again.";
+//[BACKPORT-UNRESOLVED:questinfo] 	next;
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "Every new discovery takes a lot of time for us to adapt to it";
+//[BACKPORT-UNRESOLVED:questinfo] 	next;
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "This investigation will at least help reduce that time.";
+//[BACKPORT-UNRESOLVED:questinfo] 	next;
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "[Commander Joel]";
+//[BACKPORT-UNRESOLVED:questinfo] 	mes "Thank you and look forward to many more activities in the future.";
+//[BACKPORT-UNRESOLVED:questinfo] 	close;
+//[BACKPORT-UNRESOLVED:questinfo] 
+//[BACKPORT-UNRESOLVED:questinfo] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(3470) == 0" );
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] }
+
+prt_in,136,29,3	script	Member Zenhi#zenhi	4_F_KHELLY,{
+	mes "[Member Zenhi]";
+	mes "Hello~~!!";
+	next;
+	mes "[Member Zenhi]";
+	mes "The Illusion Investigation Corps is getting bigger little by little.";
+	next;
+	mes "[Member Zenhi]";
+	mes "The more members, the more things we can do, right?";
+	close;
+}
+
+prt_in,121,36,6	script	Member Zenian#zenian	4_F_HUWOMAN,{
+	mes "[Member Zenian]";
+	mes "Hello, I'm Zenian, a new member of the team.";
+	next;
+	mes "[Member Zenian]";
+	mes "I've been paying attention to the phenomenon of dimensional rifts for a long time. Clearly, despite many subjugations, monsters are constantly appearing.";
+	next;
+	mes "[Member Zenian]";
+	mes "It has been proven that this phenomenon also occurs in illusions, so I decided to join the Illusion Investigation Team.";
+	next;
+	mes "[Member Zenian]";
+	mes "Good luck in the future!!";
+	close;
+}
+
+prt_in,124,21,1	script	 Member link#yeonsu	4_M_DEWWOMAN,{
+	mes "[Member link]";
+	mes "Nice to meet you, this is the Welcome Survey Team.";
+	next;
+	mes "[Member link]";
+	mes "Investigate the ecosystem of monsters in Illusion...";
+	next;
+	mes "[Member link]";
+	mes "Also... I thought it might have something to do with the dimensional rift.";
+	next;
+	mes "[Member link]";
+	mes "I hope that everyone who is working hard at this time will return safely without any incident.";
+	close;
+}
+
+//[BACKPORT-BOUNDARY:pay_d03_i] pay_d03_i,149,34,5	script	Girocker#ziroker	4_M_ORIENT02,{
+//[BACKPORT-BOUNDARY:pay_d03_i] 	if (BaseLevel < 100)
+//[BACKPORT-BOUNDARY:pay_d03_i] 		end;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Hello!!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "I am J-Girocker from the Illusion Investigation Corps.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Ugh... to really come to a place like this... I wish adventurers would help me too...";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "You haven't joined the investigation team yet.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Would you like to investigate the monsters here with me? It will definitely be meaningful!!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Please apply for membership to <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI>, the investigator in Prontera, and come!!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		close;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	}
+//[BACKPORT-BOUNDARY:pay_d03_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Hello!!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "I am J-Girocker from the Illusion Investigation Corps.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Ugh... To come to a place like this...";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "I usually pretended to be brave, but I think I was conscious of Elysia, the member I have a crush on.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Actually, I'm the one who's more timid than anyone else... heck";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Anyway... I'm in charge of investigating this place.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Have you heard about the investigation from Captain Joel? Adventurer, you have to completely hunt 100 monsters by yourself.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Would you like to participate in the investigation of this place?";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:pay_d03_i] 			mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 			mes "Then should I ask another adventurer...";
+//[BACKPORT-BOUNDARY:pay_d03_i] 			close;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		}
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "I like it!!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Just kill 100 monsters of any type here.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Then be careful!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		close2;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		setquest 3446;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		completequest 3446;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		setquest 3447;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		end;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	}
+//[BACKPORT-BOUNDARY:pay_d03_i] 	switch( checkquest(3448,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case -1:
+//[BACKPORT-BOUNDARY:pay_d03_i] 		break;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case 0:
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case 1:
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Ah, that's enough for today's investigation.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "It will be restored tomorrow, so if you can afford it, I would appreciate it if you could come and help me with the investigation!!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		close;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case 2:
+//[BACKPORT-BOUNDARY:pay_d03_i] 		erasequest 3448;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		break;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	}
+//[BACKPORT-BOUNDARY:pay_d03_i] 	switch( checkquest(3447,HUNTING) ) {
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case -1:
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Hello, are you here today to help with the investigation?";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "The content is the same as last time.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "If you kill 100 monsters of any type, would you like to participate?";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:pay_d03_i] 			mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 			mes "It would be nice if you could help me today...";
+//[BACKPORT-BOUNDARY:pay_d03_i] 			close;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		}
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "I like it!!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Just kill 100 monsters of any type here.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Then be careful!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		close2;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		setquest 3447;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		end;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case 0:
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case 1:
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		close;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case 2:
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "You're back safely!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Okay... Then hmm... I'll have to wait and see how much monsters spawn for a while.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[Girocker]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Leave the rest to me!! Thanks!!";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		close2;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		erasequest 3447;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		setquest 3448;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		getexp 2500000,2500000;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		end;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	}
+//[BACKPORT-BOUNDARY:pay_d03_i] 	end;
+//[BACKPORT-BOUNDARY:pay_d03_i] 
+//[BACKPORT-BOUNDARY:pay_d03_i] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 100 && isbegin_quest(3470) == 2 && isbegin_quest(3446) == 0" );
+//[BACKPORT-BOUNDARY:pay_d03_i] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3447,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3446) == 2 && checkquest(3448,PLAYTIME) == -1 && checkquest(3447,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3448,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:pay_d03_i] 	end;
+//[BACKPORT-BOUNDARY:pay_d03_i] }
+
+//[BACKPORT-UNRESOLVED:questinfo] ice_dun02,142,18,5	script	Elysia#elisia	4_F_OPERATION,{
+//[BACKPORT-UNRESOLVED:questinfo] 	if (BaseLevel < 120) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Oh, must you have a hard time enduring the cold here?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Come back when you're a little hotter.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "^4d4dff== This is a level 120 or higher quest. ==^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	if (0 == 0) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Hello~";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I'm Elysia from the Illusion Investigation Team~";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It's really cold here...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I'd like to ask the adventurer for help...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "You haven't joined the investigation team yet.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "If you don't mind, why don't you join the Illusionary Survey Corps? Then you can help me!!!";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Please apply for membership to <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI>, the Commander in Prontera, and come!!";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	if (0 == 0) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Hello~";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I'm Elysia from the Illusion Investigation Team~";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It's really cold here...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I never thought I would be sent to such a dangerous place alone... I wanted to come with Jirocker...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Well, even if there was a Jirocker, he's a coward, so I'd be in a position to protect him...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "You pretended to be brave... but I already noticed";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Is Jirocker doing his investigation safely in the abandoned village? I'm worried.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Hmm... Actually, now is not the time to worry about Jirocker, Adventurer. Can you help me?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Did you hear that this is an investigation into how the monster population is maintained? Many adventurers come here to hunt, but it's a bit lacking.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It's easy to figure out the number of monsters when you deal with them hotly. How about you? Would you like to participate in the investigation of this place?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Yeah, that's right...";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Then I'll be shivering a little longer...";
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Oh yes!! Thanks!!";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "After entering, kill 100 monsters of any type.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I look forward to your hot hunting skills~~!!";
+//[BACKPORT-UNRESOLVED:questinfo] 		close2;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3449;
+//[BACKPORT-UNRESOLVED:questinfo] 		completequest 3449;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3450;
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	switch( checkquest(3451,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 	case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 		break;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 	case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Ah, I think this should be enough for today!!";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "If you come after tomorrow, you'll have something else to do~";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 		erasequest 3451;
+//[BACKPORT-UNRESOLVED:questinfo] 		break;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	switch( checkquest(3450,HUNTING) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 	case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Ah, nice to meet you!! Are you here today to help with the investigation??";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Your help is the same as last time~";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "If you kill 100 monsters of any type, would you like to participate?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Okay... I'll keep shivering in the cold...";
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Thank you";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "After entering, kill 100 monsters of any type.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Then be careful!";
+//[BACKPORT-UNRESOLVED:questinfo] 		close2;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3450;
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 	case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Kill 100 monsters regardless of type.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Have you finished already? You've done it hotly as expected~";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Then I'll do the rest of the research for you~";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Elysia]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Thank you for your hard work. I hope we can meet again!!";
+//[BACKPORT-UNRESOLVED:questinfo] 		close2;
+//[BACKPORT-UNRESOLVED:questinfo] 		erasequest 3450;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3451;
+//[BACKPORT-UNRESOLVED:questinfo] 		getexp 6000000,6000000;
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] 
+//[BACKPORT-UNRESOLVED:questinfo] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 120 && isbegin_quest(3470) == 2 && isbegin_quest(3449) == 0" );
+//[BACKPORT-UNRESOLVED:questinfo] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3450,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3449) == 2 && checkquest(3451,PLAYTIME) == -1 && checkquest(3450,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3451,PLAYTIME) == 2" );
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] }
+
+//[BACKPORT-BOUNDARY:gef_d01_i] gef_d01_i,122,237,3	script	Radimir#ridimir	8_F,{
+//[BACKPORT-BOUNDARY:gef_d01_i] 	if (BaseLevel < 130)
+//[BACKPORT-BOUNDARY:gef_d01_i] 		end;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Hello, Adventurer";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "I am Radimir from the Illusion Investigation.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "I'm sent to such a dreary place, and honestly, I'm very afraid";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "I'd like you to conduct the investigation together, but... you haven't joined the investigation team yet.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Would you like to do something meaningful with me?";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "If you are interested, please meet <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI>, the Commander in Prontera, and join the Investigation Team and come back.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		close;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	}
+//[BACKPORT-BOUNDARY:gef_d01_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Hello, Adventurer";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "I am Radimir from the Illusion Investigation.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "I'm sent to such a dreary place, and honestly, I'm very afraid";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "But I've always been interested in the phenomenon of illusion, and when the investigation team was founded, I actively applied for membership.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Because nobody has figured it out yet";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "It's just the beginning of the current investigation, but it's sure to be a great first step";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Therefore, fear can be overcome by will.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Investigation preparations are complete, now I'm waiting for someone who can adjust the monsters' levels.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "How about you, why don't you participate in the investigation? You joined the investigation team for that, right?";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:gef_d01_i] 			mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 			mes "I'll stay here";
+//[BACKPORT-BOUNDARY:gef_d01_i] 			close;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		}
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Good.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Just kill 100 monsters of any type here.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "The sooner the better.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Then I'll be waiting for you.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		close2;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		setquest 3452;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		completequest 3452;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		setquest 3453;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		end;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	}
+//[BACKPORT-BOUNDARY:gef_d01_i] 	switch( checkquest(3454,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:gef_d01_i] 	case -1:
+//[BACKPORT-BOUNDARY:gef_d01_i] 		break;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	case 0:
+//[BACKPORT-BOUNDARY:gef_d01_i] 	case 1:
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "That's it for today.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "If the current trend, I think we can resume the investigation in a day or so. Please come then.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		close;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	case 2:
+//[BACKPORT-BOUNDARY:gef_d01_i] 		erasequest 3454;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		break;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	}
+//[BACKPORT-BOUNDARY:gef_d01_i] 	switch( checkquest(3453,HUNTING) ) {
+//[BACKPORT-BOUNDARY:gef_d01_i] 	case -1:
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Hello, are you here today to help with the investigation?";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Please execute the operation as it was then.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Would you like to participate in the task of killing 100 monsters of any type?";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:gef_d01_i] 			mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 			mes "You acted meaninglessly, I'm disappointed.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 			close;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		}
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Thank you";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Then I'll be waiting for you.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		close2;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		setquest 3453;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		end;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	case 0:
+//[BACKPORT-BOUNDARY:gef_d01_i] 	case 1:
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "Kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		close;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	case 2:
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "You came through quickly, thank you.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "That makes it easier to work out the numbers.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		next;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "[Radimir]";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		mes "I will finish the rest of the work soon and report it to the investigation team. Thank you for your hard work.";
+//[BACKPORT-BOUNDARY:gef_d01_i] 		close2;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		erasequest 3453;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		setquest 3454;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		getexp 10000000,10000000;
+//[BACKPORT-BOUNDARY:gef_d01_i] 		end;
+//[BACKPORT-BOUNDARY:gef_d01_i] 	}
+//[BACKPORT-BOUNDARY:gef_d01_i] 	end;
+//[BACKPORT-BOUNDARY:gef_d01_i] 
+//[BACKPORT-BOUNDARY:gef_d01_i] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 130 && isbegin_quest(3470) == 2 && isbegin_quest(3452) == 0" );
+//[BACKPORT-BOUNDARY:gef_d01_i] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3453,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3452) == 2 && checkquest(3454,PLAYTIME) == -1 && checkquest(3453,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3454,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:gef_d01_i] 	end;
+//[BACKPORT-BOUNDARY:gef_d01_i] }
+
+//[BACKPORT-BOUNDARY:ein_d02_i] ein_d02_i,161,180,5	script	Machoko#machoco	8_F_GIRL,{
+//[BACKPORT-BOUNDARY:ein_d02_i] 	if (BaseLevel < 150)
+//[BACKPORT-BOUNDARY:ein_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Hello!!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I'm Machoko from the Illusion Investigation Team~";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I really wanted to be dispatched to this place, but I was lucky.";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "These damn teddy bears~~ The teddy bears...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "But it's impossible for me... I don't have enough strength... But you haven't joined the investigation team yet...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "You can sign up by going to <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI>, the Commander in Prontera. Sign up and come here~";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	}
+//[BACKPORT-BOUNDARY:ein_d02_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Hello!!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I'm Machoko from the Illusion Investigation Team~";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I really wanted to be dispatched to this place, but I was lucky.";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "These damn teddy bears~~ The teddy bears...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "But it's impossible for me... I don't have enough strength... He looks easy... but he's so strong...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I thought I could do it all by myself... I took it too lightly... Huh...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I unknowingly and vigorously attacked and came back with a lot of beating... I almost died...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I barely recovered... I think it's possible to investigate, but you look a little strong?";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Then help me... I need someone to take control of those vicious teddy bears...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "How about it? Do you want to join the investigation??";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:ein_d02_i] 			mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 			mes "Yes... I'm about to collapse after I've been here... Like a man without blood or tears...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 			close;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		}
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Okay! Let's go!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Go and beat up about 100 of them, and come, it doesn't matter what type, blow them up as you see them!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I... can't even move... Here... I'll wait...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		setquest 3455;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		completequest 3455;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		setquest 3456;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	}
+//[BACKPORT-BOUNDARY:ein_d02_i] 	switch( checkquest(3457,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case -1:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		break;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 0:
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 1:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Well, no more today";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Come back after a day!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 2:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		erasequest 3457;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		break;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	}
+//[BACKPORT-BOUNDARY:ein_d02_i] 	switch( checkquest(3456,HUNTING) ) {
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case -1:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Oh, nice to meet you! Welcome back!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "You must have come here because your body itches.";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Would you like to participate in the investigation work here again today??";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:ein_d02_i] 			mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 			mes "What...then why did you come??";
+//[BACKPORT-BOUNDARY:ein_d02_i] 			close;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		}
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Sure, that's how it should be";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Regardless of the type, just beat 100 of them and bring them back.";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I'll be waiting for you, so hurry up!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		setquest 3456;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 0:
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 1:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Go and beat up about 100 of them, and come, it doesn't matter what type, blow them up as you see them!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 2:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I've been waiting for you... finish quickly and come back...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Um...but that's about it... um...yeah!! good!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Leave the rest to me!! I'll report the results to the investigation team, now you can go and rest.";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Machoko]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Thank you~~";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		erasequest 3456;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		setquest 3457;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		getexp 17500000,12500000;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	}
+//[BACKPORT-BOUNDARY:ein_d02_i] 	end;
+//[BACKPORT-BOUNDARY:ein_d02_i] 
+//[BACKPORT-BOUNDARY:ein_d02_i] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 150 && isbegin_quest(3470) == 2 && isbegin_quest(3455) == 0" );
+//[BACKPORT-BOUNDARY:ein_d02_i] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3456,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3455) == 2 && checkquest(3457,PLAYTIME) == -1 && checkquest(3456,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3457,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:ein_d02_i] 	end;
+//[BACKPORT-BOUNDARY:ein_d02_i] }
+
+//[BACKPORT-BOUNDARY:tur_d03_i] tur_d03_i,125,186,5	script	Orian#orian	4_M_LGTPOOR,{
+//[BACKPORT-BOUNDARY:tur_d03_i] 	if (BaseLevel < 150)
+//[BACKPORT-BOUNDARY:tur_d03_i] 		end;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Hello!";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "I'm Orian, a contract worker in the Illusion Investigation Corps.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Actually, it's not something I'm keen on...but I need the money...";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "It would be nice if you could help me... is that possible?";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Uh, but you haven't joined the investigation team yet.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Please apply for membership to <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI>, the Commander in Prontera, and come!!";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		close;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	}
+//[BACKPORT-BOUNDARY:tur_d03_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Hello!";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "I'm Orian, a contract worker in the Illusion Investigation Corps.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "The Illumination Investigation Team is a newly formed organization, so it must have been a little understaffed. I saw an announcement that they would hire part-time contract workers.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Actually, I'm not interested in illusions... I'm busy making a living.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Huh... It's all about money, I'm going to buy a new set of clothes when I get paid.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "But even that isn't easy... I've been waiting for an investigator like you to come because I think it's going to be very difficult on my own.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "It would be nice if you could help me... is that possible?";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Would you like to participate in this Illusion Investigation?";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:tur_d03_i] 			mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 			mes "Ah... I finally found an investigator... Ah... I want money...";
+//[BACKPORT-BOUNDARY:tur_d03_i] 			close;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		}
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Oh, thank you";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Please go up one floor from here and go to the bleak Guyang Palace.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "And please kill 100 monsters there, regardless of type.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "I'll be waiting for you here. Have a safe trip!!";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		close2;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		setquest 3458;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		completequest 3458;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		setquest 3459;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		end;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	}
+//[BACKPORT-BOUNDARY:tur_d03_i] 	switch( checkquest(3460,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:tur_d03_i] 	case -1:
+//[BACKPORT-BOUNDARY:tur_d03_i] 		break;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	case 0:
+//[BACKPORT-BOUNDARY:tur_d03_i] 	case 1:
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "You're not fit to do research right now.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "I think it will be fine by tomorrow, can you come back after tomorrow?";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		close;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	case 2:
+//[BACKPORT-BOUNDARY:tur_d03_i] 		erasequest 3460;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		break;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	}
+//[BACKPORT-BOUNDARY:tur_d03_i] 	switch( checkquest(3459,HUNTING) ) {
+//[BACKPORT-BOUNDARY:tur_d03_i] 	case -1:
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Hello, you are the only one who can help me...";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "What we need to do is the same as last time...";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Are you going to help me with the illusion investigation again?";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:tur_d03_i] 			mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 			mes "Aigoo...";
+//[BACKPORT-BOUNDARY:tur_d03_i] 			next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 			mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 			mes "Sob.....";
+//[BACKPORT-BOUNDARY:tur_d03_i] 			close;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		}
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Oops... Thank you...";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Go to the bleak archery and kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Then be careful...";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		close2;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		setquest 3459;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		end;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	case 0:
+//[BACKPORT-BOUNDARY:tur_d03_i] 	case 1:
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Destroy 100 monsters of any type in the bleak Archery.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		close;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	case 2:
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "You came home safely.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Uh... You took it down a lot faster than I expected.. You... you were a master??";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "That should make the rest of the work easier.";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		next;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "[Orian]";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		mes "Thank you~ Thank you for your hard work!!";
+//[BACKPORT-BOUNDARY:tur_d03_i] 		close2;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		erasequest 3459;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		setquest 3460;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		getexp 22500000,16000000;
+//[BACKPORT-BOUNDARY:tur_d03_i] 		end;
+//[BACKPORT-BOUNDARY:tur_d03_i] 	}
+//[BACKPORT-BOUNDARY:tur_d03_i] 	end;
+//[BACKPORT-BOUNDARY:tur_d03_i] 
+//[BACKPORT-BOUNDARY:tur_d03_i] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 150 && isbegin_quest(3470) == 2 && isbegin_quest(3458) == 0" );
+//[BACKPORT-BOUNDARY:tur_d03_i] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3459,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3458) == 2 && checkquest(3460,PLAYTIME) == -1 && checkquest(3459,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3460,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:tur_d03_i] 	end;
+//[BACKPORT-BOUNDARY:tur_d03_i] }
+
+//[BACKPORT-BOUNDARY:ant_d02_i] ant_d02_i,167,184,5	script	Sheshin#sesin	1_M_MOC_LORD,{
+//[BACKPORT-BOUNDARY:ant_d02_i] 	if (BaseLevel < 160)
+//[BACKPORT-BOUNDARY:ant_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Nice to meet you.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I am Sheshin belonging to the Illusion Investigation Corps.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I thought my fighting power would be enough to investigate here... but I guess I made a mistake.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "The monsters here are much stronger than I expected.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Ah... I'm really proud of myself... but I need help... Hmm...";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Adventurer hasn't joined the Illusion Investigation Team yet.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Would you like to join the Illusionary Investigation Team? Wouldn't it be exciting to explore unknown phenomena?";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "If you would like to sign up, please go see Commander <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI> in Prontera.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	}
+//[BACKPORT-BOUNDARY:ant_d02_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Nice to meet you.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I am Sheshin belonging to the Illusion Investigation Corps.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I was active as a member of the Continental Guard in the past. At that time, I was tasked with exploring the dimensional rift created by the power of the demon king Morocc.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I was guessing to some extent that the illusions appearing everywhere had something to do with the power of the dimensional rift.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "It has been officially announced by Commander Joel that the Illusion is a phenomenon caused by a dimensional rift.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "And soon a new illusion was discovered, yes... right here";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I joined the Illusion Investigation Team because I wanted to see it with my own eyes, and now I am here.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "But I ran into a little problem...";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I thought my fighting power would be enough to investigate here... but I guess I made a mistake.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "The monsters here are much stronger than I expected.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Ah... I really hurt my pride... but I need help...";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Hmm... I think it's possible enough for you as an adventurer...";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I feel that you have much more power than me.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Would you like to help me investigate the illusions in this sector?";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:ant_d02_i] 			mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 			mes "This must be a good opportunity for adventurers...";
+//[BACKPORT-BOUNDARY:ant_d02_i] 			close;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		}
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Good.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Please kill 100 monsters of any type located inside here.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Then, please travel carefully without getting hurt.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		setquest 3507;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		completequest 3507;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		setquest 3508;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	}
+//[BACKPORT-BOUNDARY:ant_d02_i] 	switch( checkquest(3509,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:ant_d02_i] 	case -1:
+//[BACKPORT-BOUNDARY:ant_d02_i] 		break;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	case 0:
+//[BACKPORT-BOUNDARY:ant_d02_i] 	case 1:
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "You don't have to do any more research today.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Can you come back tomorrow if you want?";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	case 2:
+//[BACKPORT-BOUNDARY:ant_d02_i] 		erasequest 3509;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		break;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	}
+//[BACKPORT-BOUNDARY:ant_d02_i] 	switch( checkquest(3508,HUNTING) ) {
+//[BACKPORT-BOUNDARY:ant_d02_i] 	case -1:
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Welcome, you're here to help investigate the illusion, right?";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "You can do the same thing as last time.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "If you kill 100 monsters of any type, would you like to participate?";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:ant_d02_i] 			mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 			mes "It's a pity, it's sad that I still lack strength.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 			close;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		}
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Good.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Then, please travel carefully without getting hurt.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		setquest 3508;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	case 0:
+//[BACKPORT-BOUNDARY:ant_d02_i] 	case 1:
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	case 2:
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I see... you finished quickly and came back.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I need to investigate further to see if the phenomenon here is also affected by the dimensional rift.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "I'll do the work myself from now on.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "[Sheshin]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "Thank you so much for your help";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		erasequest 3508;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		setquest 3509;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		getexp 27000000,18000000;
+//[BACKPORT-BOUNDARY:ant_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	}
+//[BACKPORT-BOUNDARY:ant_d02_i] 	end;
+//[BACKPORT-BOUNDARY:ant_d02_i] 
+//[BACKPORT-BOUNDARY:ant_d02_i] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 160 && isbegin_quest(3470) == 2 && isbegin_quest(3507) == 0" );
+//[BACKPORT-BOUNDARY:ant_d02_i] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3508,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3507) == 2 && checkquest(3509,PLAYTIME) == -1 && checkquest(3508,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3509,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:ant_d02_i] 	end;
+//[BACKPORT-BOUNDARY:ant_d02_i] }
+
+//[BACKPORT-BOUNDARY:com_d02_i] com_d02_i,253,232,3	script	Cassis#kesis	4_M_KHBOY,{
+//[BACKPORT-BOUNDARY:com_d02_i] 	if (BaseLevel < 160)
+//[BACKPORT-BOUNDARY:com_d02_i] 		end;
+//[BACKPORT-BOUNDARY:com_d02_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Hello.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "This is Cassis of the Illusion Investigation Corps.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Although this place is full of monsters, I still feel comfortable here.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "I heard that one of the investigators is coming to help... is that you?";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Oh, that's not true. You're not a member of the investigation team... Hmm.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Would you like to join the Illusionary Investigation Team too? Would you like to investigate strange phenomena?";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "If you don't mind, please apply for membership with the Commander <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI> in Prontera and come!";
+//[BACKPORT-BOUNDARY:com_d02_i] 		close;
+//[BACKPORT-BOUNDARY:com_d02_i] 	}
+//[BACKPORT-BOUNDARY:com_d02_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Hello";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "This is Cassis of the Illusion Investigation Corps.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Although this place is full of monsters, I still feel comfortable here.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "I don't like to get involved with people. Before I joined the investigation team, I ran a shop in Prontera...";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "I don't like the feeling of being crowded, so it was hard to bear... I guess meeting a lot of people was stressful for my personality.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Although this place is full of monsters, I still feel comfortable here, at least the monsters don't talk to me.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Ummm, by the way, I heard that one of the investigators is coming to help... I guess that's you?";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Have you heard the general information from Captain Joel? You just need to display your fighting power without hesitation!!";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Would you like to participate in the investigation of this place?";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:com_d02_i] 			mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 			mes "Uh, then who the hell is the investigative team coming...?";
+//[BACKPORT-BOUNDARY:com_d02_i] 			close;
+//[BACKPORT-BOUNDARY:com_d02_i] 		}
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Okay, thank you";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Just kill 100 monsters of any type that exist here.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Then good luck.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:com_d02_i] 		setquest 3461;
+//[BACKPORT-BOUNDARY:com_d02_i] 		completequest 3461;
+//[BACKPORT-BOUNDARY:com_d02_i] 		setquest 3462;
+//[BACKPORT-BOUNDARY:com_d02_i] 		end;
+//[BACKPORT-BOUNDARY:com_d02_i] 	}
+//[BACKPORT-BOUNDARY:com_d02_i] 	switch( checkquest(3463,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:com_d02_i] 	case -1:
+//[BACKPORT-BOUNDARY:com_d02_i] 		break;
+//[BACKPORT-BOUNDARY:com_d02_i] 	case 0:
+//[BACKPORT-BOUNDARY:com_d02_i] 	case 1:
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Today's investigation is complete.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "It would be nice if you could come tomorrow too... Please stop by if you have time.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		close;
+//[BACKPORT-BOUNDARY:com_d02_i] 	case 2:
+//[BACKPORT-BOUNDARY:com_d02_i] 		erasequest 3463;
+//[BACKPORT-BOUNDARY:com_d02_i] 		break;
+//[BACKPORT-BOUNDARY:com_d02_i] 	}
+//[BACKPORT-BOUNDARY:com_d02_i] 	switch( checkquest(3462,HUNTING) ) {
+//[BACKPORT-BOUNDARY:com_d02_i] 	case -1:
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Hello, are you here today to help with the investigation?";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "The content is the same as last time.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "If you kill 100 monsters of any type, would you like to participate";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:com_d02_i] 			mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 			mes "It would be nice if you could help me today...";
+//[BACKPORT-BOUNDARY:com_d02_i] 			close;
+//[BACKPORT-BOUNDARY:com_d02_i] 		}
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "I like it!!";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "After entering, kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Then be careful!";
+//[BACKPORT-BOUNDARY:com_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:com_d02_i] 		setquest 3462;
+//[BACKPORT-BOUNDARY:com_d02_i] 		end;
+//[BACKPORT-BOUNDARY:com_d02_i] 	case 0:
+//[BACKPORT-BOUNDARY:com_d02_i] 	case 1:
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		close;
+//[BACKPORT-BOUNDARY:com_d02_i] 	case 2:
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Welcome, you're done!!";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "You've worked really hard. Are there any injuries anywhere?";
+//[BACKPORT-BOUNDARY:com_d02_i] 		next;
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Cassis]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Leave the rest to me. Thanks";
+//[BACKPORT-BOUNDARY:com_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:com_d02_i] 		erasequest 3462;
+//[BACKPORT-BOUNDARY:com_d02_i] 		setquest 3463;
+//[BACKPORT-BOUNDARY:com_d02_i] 		getexp 29000000,19600000;
+//[BACKPORT-BOUNDARY:com_d02_i] 		end;
+//[BACKPORT-BOUNDARY:com_d02_i] 	}
+//[BACKPORT-BOUNDARY:com_d02_i] 	end;
+//[BACKPORT-BOUNDARY:com_d02_i] 
+//[BACKPORT-BOUNDARY:com_d02_i] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 160 && isbegin_quest(3470) == 2 && isbegin_quest(3461) == 0" );
+//[BACKPORT-BOUNDARY:com_d02_i] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3462,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3461) == 2 && checkquest(3463,PLAYTIME) == -1 && checkquest(3462,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3463,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:com_d02_i] 	end;
+//[BACKPORT-BOUNDARY:com_d02_i] }
+
+/*
+//[BACKPORT-UNRESOLVED:questinfo] prt_fild01,131,364,5	script	Terrian#terian	4W_M_02,{
+//[BACKPORT-UNRESOLVED:questinfo] 	if (BaseLevel < 170) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It's nice weather.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "The weather is nice, but your level is low.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "^4d4dff== This is a level 170 or higher quest. ==^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	if (0 == 0) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "The weather is nice";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I'm a Terrian from the Illusion Investigation Corps.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "What do you think about the theory of reincarnation, adventurer?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It seems that a phenomenon very close to the theory of reincarnation I believe is appearing in illusions.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "To investigate it, I became a member of the Illusion Investigation Team.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Would you like to join me too, adventurer? Uh... but you're not yet a member of the Illusion Investigation Corps.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "If you don't mind, please apply for membership with the Commander <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI> in Prontera.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	if (0 == 0) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "The weather is nice";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I'm a Terrian from the Illusion Investigation Corps.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "What do you think about the theory of reincarnation, adventurer?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It seems that a phenomenon very close to the theory of reincarnation I believe is appearing in illusions.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "To investigate it, I became a member of the Illusion Investigation Team.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "After the flowers wither in winter, they will bloom again in spring. They always bloom in the place where the flowers withered and fell off.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It's the same with animals, the appearance of each of which varies innumerable, but for hundreds of years it has been discovered that there has always been a completely identical appearance";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "This is the core of the theory of reincarnation, and it takes a very long time to observe and investigate it.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "But in places like Illusion, monsters are multiplying at an abnormal rate.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "No, to be precise, when the number of monsters in Illusion decreases, the number of monsters recovers very quickly.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Because the speed at which monster objects recover is very fast, it is a good opportunity for me to check the 'object persistence' required by the Illusion Investigation Team and whether or not they are reincarnated.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Would you like to join us in this meaningful investigation?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "We'll just have to wait for the other investigators to come...";
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Thank you";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "In order to determine the individual recovery rate, we need to reduce the number of monsters as quickly as possible.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Please return after defeating 100 monsters of any type in the Twisted Labyrinth Forest Dungeon accessible through the entrance in front of here.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Then I'll be waiting for you.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close2;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3464;
+//[BACKPORT-UNRESOLVED:questinfo] 		completequest 3464;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3465;
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	switch( checkquest(3466,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 	case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 		break;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 	case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "This is enough for today's investigation.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "The population will be fully recovered tomorrow, so if you can afford it, I'd appreciate it if you could come and help me with the investigation.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 		erasequest 3466;
+//[BACKPORT-UNRESOLVED:questinfo] 		break;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	switch( checkquest(3465,HUNTING) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 	case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Hello, are you here today to help with your investigation?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "The contents to be executed are the same as last time.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "If you kill 100 monsters of any type, would you like to participate?";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Sorry, maybe I should ask someone else for help...";
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Thank you";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "In order to determine the individual recovery rate, we need to reduce the number of monsters as quickly as possible.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Please return after defeating 100 monsters of any type in the Twisted Labyrinth Forest Dungeon accessible through the entrance in front of here.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close2;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3465;
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 	case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Kill 100 monsters of any type.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Thank you for coming back so quickly.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Thanks to your work, data collection has never been easier.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Terrian]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I'll send the results to the investigation team soon, thank you!!";
+//[BACKPORT-UNRESOLVED:questinfo] 		close2;
+//[BACKPORT-UNRESOLVED:questinfo] 		erasequest 3465;
+//[BACKPORT-UNRESOLVED:questinfo] 		setquest 3466;
+//[BACKPORT-UNRESOLVED:questinfo] 		getexp 35000000,22750000;
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] 
+//[BACKPORT-UNRESOLVED:questinfo] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 170 && isbegin_quest(3470) == 2 && isbegin_quest(3464) == 0" );
+//[BACKPORT-UNRESOLVED:questinfo] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3465,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3464) == 2 && checkquest(3466,PLAYTIME) == -1 && checkquest(3465,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3466,PLAYTIME) == 2" );
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] }
+*/
+
+//[BACKPORT-BOUNDARY:iz_d04_i] iz_d04_i,127,224,5	script	Lister#ristar	4_F_01,{
+//[BACKPORT-BOUNDARY:iz_d04_i] 	if (BaseLevel < 180) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Hello";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I need help with my research work, so I'm looking for a suitable helper.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "You're not the right person yet, sorry.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "^4d4dff== This is a level 180 or higher quest. ==^000000";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	}
+//[BACKPORT-BOUNDARY:iz_d04_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Hello~";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I am Lista who is active in the Illusion Investigation Team.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "It's been a while since I came down to the deep sea with Master.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I'm always working hard, but I don't think Master still approves of me.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Just in time, the Illusion Investigation Team said they needed to investigate the deep sea here, so I quickly applied.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I'm sure Master would be happy if we could get even a little bit more information about the deep sea here as part of the investigation team!!!";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Would you like to come with me?";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Uh, but you haven't joined the investigation team yet.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Please apply for membership to <NAVI>[Joel]<INFO>prt_in,136,34,</INFO></NAVI>, the Commander in Prontera, and come!!";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	}
+//[BACKPORT-BOUNDARY:iz_d04_i] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Hello~";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I am Lista who is active in the Illusion Investigation Team.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "It's been a while since I came down to the deep sea with Master.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I'm always working hard, but I don't think Master still approves of me.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Just in time, the Illusion Investigation Team said they needed to investigate the deep sea here, so I quickly applied.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I'm sure Master would be happy if we could get even a little bit more information about the deep sea here as part of the investigation team!!!";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I was anxiously waiting for a member to help me with the investigation, and it went really well~";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Would you like to participate in this deep sea investigation?";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 			mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 			mes "I'm neglected like this... It's wrong to be acknowledged by Master...";
+//[BACKPORT-BOUNDARY:iz_d04_i] 			close;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		}
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Oh, thank you!";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Go down to the lower level dungeon of the Abyssal Undersea Cave and defeat 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Then be careful!";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close2;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		setquest 3467;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		completequest 3467;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		setquest 3468;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		end;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	}
+//[BACKPORT-BOUNDARY:iz_d04_i] 	switch( checkquest(3469,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 	case -1:
+//[BACKPORT-BOUNDARY:iz_d04_i] 		break;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	case 0:
+//[BACKPORT-BOUNDARY:iz_d04_i] 	case 1:
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Let's finish here for today.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I should be able to get back to work tomorrow, could you talk to me again then??";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	case 2:
+//[BACKPORT-BOUNDARY:iz_d04_i] 		erasequest 3469;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		break;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	}
+//[BACKPORT-BOUNDARY:iz_d04_i] 	switch( checkquest(3468,HUNTING) ) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 	case -1:
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Hello, would you like to do some research with me today??";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Just do what you did last time!";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "If you kill 100 monsters of any type, would you like to participate?";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		if (select( "Participate", "Do not participate" ) == 2) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 			mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 			mes "Today... I... incompetent... disciple...";
+//[BACKPORT-BOUNDARY:iz_d04_i] 			close;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		}
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Good! Got it";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Go down to the lower level of the Abyssal Undersea Cave and kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Then be careful!";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close2;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		setquest 3468;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		end;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	case 0:
+//[BACKPORT-BOUNDARY:iz_d04_i] 	case 1:
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Kill 100 monsters of any type.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	case 2:
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "How was it? Are the monsters on the lower levels really strong??";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "You worked hard... Then I'll have to go down carefully.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Lister]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "I'll do the rest, thank you so much!!";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close2;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		erasequest 3468;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		setquest 3469;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		getexp 65000000,45000000;
+//[BACKPORT-BOUNDARY:iz_d04_i] 		end;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	}
+//[BACKPORT-BOUNDARY:iz_d04_i] 	end;
+//[BACKPORT-BOUNDARY:iz_d04_i] 
+//[BACKPORT-BOUNDARY:iz_d04_i] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 180 && isbegin_quest(3470) == 2 && isbegin_quest(3467) == 0" );
+//[BACKPORT-BOUNDARY:iz_d04_i] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3468,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3467) == 2 && checkquest(3469,PLAYTIME) == -1 && checkquest(3468,HUNTING) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3469,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:iz_d04_i] 	end;
+//[BACKPORT-BOUNDARY:iz_d04_i] }

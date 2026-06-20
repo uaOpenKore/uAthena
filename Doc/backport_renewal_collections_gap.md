@@ -1,0 +1,2223 @@
+# Renewal 2c dungeon/collection gap-лог (адаптации/dedup/boundary/unresolved/orphan)
+
+
+## magic_books.txt
+- ADAPT [op=->set] Zeny -= 100000;
+- ADAPT [op=->set] Zeny -= 500000;
+- ADAPT [=->set] .@item_req = getarg(1);
+- ADAPT [=->set] .@req_amount = getarg(2);
+
+## homun_s.txt
+- MANUAL [unregistered-map:job3_gen01] job3_gen01,12,44,3	script	Viorel#job3_gen01	542,{
+- COMMENT [morphembryo] morphembryo;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- MANUAL [gethominfo] if (gethominfo(6) >= 99 && (gethominfo(1) >= 6009 && gethominfo(1) <= 6016)) { // Level 99+ evolved Homunculus
+- MANUAL [gethominfo] } else if (gethominfo(6) >= 99 && (gethominfo(1) >= 6048 && gethominfo(1) <= 6052)) { // Level 99+ mutated Homunculus-S
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_AHA] emotion ET_AHA;
+- COMMENT [playbgm] playbgm "30.mp3"; // One Step Closer
+- COMMENT [playbgm] playbgm "08.mp3"; // Theme of Prontera
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- MANUAL [gethominfo] if (gethominfo(1) >= 6009) { // Evolved Homunculus
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- MANUAL [gethominfo] if (gethominfo(6) < 99 || (gethominfo(1) < 6009 || gethominfo(1) > 6016)) { // Not level 99+ evolved Homunculus
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- MANUAL [unregistered-map:que_house_s] que_house_s,24,47,3	script	Viorel#homun_s	542,{
+- COMMENT [ET_HUM] emotion ET_HUM;
+- COMMENT [playbgm] playbgm "33.mp3"; // Yuna Song
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [playbgm] playbgm "33.mp3"; // Yuna Song
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [playbgm] playbgm "19.mp3"; // Under the Ground
+- COMMENT [playbgm] playbgm "33.mp3"; // Yuna Song
+- COMMENT [hommutate] hommutate .@Homunculus;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [playbgm] playbgm "33.mp3"; // Yuna Song
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [hommutate] hommutate;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [playbgm] playbgm "64.mp3"; // One Fine Day
+- MANUAL [unregistered-map:que_house_s] que_house_s,80,42,3	script	Jeyna#homun_s	558,{
+- COMMENT [playbgm] playbgm "28.mp3"; // You're in Ruins
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "Magic Board#homun_s");
+- COMMENT [ET_AHA] emotion ET_AHA;
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "Magic Board#homun_s");
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "Magic Board#homun_s");
+- COMMENT [playbgm] playbgm "28.mp3"; // You're in Ruins
+- MANUAL [checkhomcall] if (checkhomcall() == 1) {
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [playbgm] playbgm "01.mp3"; // Title
+- COMMENT [morphembryo] morphembryo;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [playbgm] playbgm "28.mp3"; // You're in Ruins
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [playbgm] playbgm "28.mp3"; // You're in Ruins
+- MANUAL [gethominfo] if (gethominfo(6) < 99 || (gethominfo(1) < 6009 || gethominfo(1) > 6016)) { // Not level 99+ evolved Homunculus
+- MANUAL [unregistered-map:que_house_s] que_house_s,83,47,3	script	Magic Board#homun_s	857,{
+- COMMENT [playbgm] playbgm "26.mp3"; // Everlasting Wanderers
+- ADAPT [=->set] .@npc_name$ = getarg(0);
+- MANUAL [unregistered-map:que_house_s] que_house_s,13,52,3	script	Open Book#01homun_s	111,{
+- MANUAL [unregistered-map:que_house_s] que_house_s,16,52,3	script	Open Book#02homun_s	111,{
+- MANUAL [unregistered-map:que_house_s] que_house_s,11,52,3	script	#03homun_s	111,{
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "#04homun_s");
+- MANUAL [unregistered-map:que_house_s] que_house_s,14,52,3	script	#04homun_s	111,{
+- MANUAL [unregistered-map:que_house_s] que_house_s,24,46,3	script	Jonathan#homun_s	6002,{
+- MANUAL [unregistered-map:que_house_s] que_house_s,23,46,3	script	#05homun_s	111,{
+- COMMENT [getnpcid,ET_STARE_ABOUT] emotion ET_STARE_ABOUT, getnpcid(0, "Jonathan#homun_s");
+- MANUAL [gethominfo] if (gethominfo(1) < 6048 || gethominfo(1) > 6052) { // Not mutated Homunculus-S
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "Jonathan#homun_s");
+- BOUNDARY [job3_gen01] Viorel#job3_gen01
+- BOUNDARY [que_house_s] Viorel#homun_s
+- BOUNDARY [que_house_s] Jeyna#homun_s
+- BOUNDARY [que_house_s] Magic Board#homun_s
+- BOUNDARY [que_house_s] Open Book#01homun_s
+- BOUNDARY [que_house_s] Open Book#02homun_s
+- BOUNDARY [que_house_s] #03homun_s
+- BOUNDARY [que_house_s] #04homun_s
+- BOUNDARY [que_house_s] Jonathan#homun_s
+- BOUNDARY [que_house_s] #05homun_s
+
+## illusion_investigation.txt
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(3470) == 0" );
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,149,34,5	script	Girocker#ziroker	4_M_ORIENT02,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3446) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 100 && isbegin_quest(3470) == 2 && isbegin_quest(3446) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3447,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3446) == 2 && checkquest(3448,PLAYTIME) == -1 && checkquest(3447,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3448,PLAYTIME) == 2" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3449) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 120 && isbegin_quest(3470) == 2 && isbegin_quest(3449) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3450,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3449) == 2 && checkquest(3451,PLAYTIME) == -1 && checkquest(3450,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3451,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,122,237,3	script	Radimir#ridimir	8_F,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3452) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 130 && isbegin_quest(3470) == 2 && isbegin_quest(3452) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3453,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3452) == 2 && checkquest(3454,PLAYTIME) == -1 && checkquest(3453,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3454,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,161,180,5	script	Machoko#machoco	8_F_GIRL,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3455) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 150 && isbegin_quest(3470) == 2 && isbegin_quest(3455) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3456,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3455) == 2 && checkquest(3457,PLAYTIME) == -1 && checkquest(3456,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3457,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,125,186,5	script	Orian#orian	4_M_LGTPOOR,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3458) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 150 && isbegin_quest(3470) == 2 && isbegin_quest(3458) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3459,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3458) == 2 && checkquest(3460,PLAYTIME) == -1 && checkquest(3459,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3460,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,167,184,5	script	Sheshin#sesin	1_M_MOC_LORD,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3507) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 160 && isbegin_quest(3470) == 2 && isbegin_quest(3507) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3508,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3507) == 2 && checkquest(3509,PLAYTIME) == -1 && checkquest(3508,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3509,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,253,232,3	script	Cassis#kesis	4_M_KHBOY,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3461) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 160 && isbegin_quest(3470) == 2 && isbegin_quest(3461) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3462,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3461) == 2 && checkquest(3463,PLAYTIME) == -1 && checkquest(3462,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3463,PLAYTIME) == 2" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3467) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 170 && isbegin_quest(3470) == 2 && isbegin_quest(3464) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3465,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3464) == 2 && checkquest(3466,PLAYTIME) == -1 && checkquest(3465,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3466,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,127,224,5	script	Lister#ristar	4_F_01,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3470) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3467) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 180 && isbegin_quest(3470) == 2 && isbegin_quest(3467) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3468,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3467) == 2 && checkquest(3469,PLAYTIME) == -1 && checkquest(3468,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3469,PLAYTIME) == 2" );
+- UNRESOLVED [questinfo] Commander Joel#joel
+- BOUNDARY [pay_d03_i] Girocker#ziroker
+- UNRESOLVED [questinfo] Elysia#elisia
+- BOUNDARY [gef_d01_i] Radimir#ridimir
+- BOUNDARY [ein_d02_i] Machoko#machoco
+- BOUNDARY [tur_d03_i] Orian#orian
+- BOUNDARY [ant_d02_i] Sheshin#sesin
+- BOUNDARY [com_d02_i] Cassis#kesis
+- UNRESOLVED [questinfo] Terrian#terian
+- BOUNDARY [iz_d04_i] Lister#ristar
+
+## quests_illusion_dungeons.txt
+- ADAPT [=->set] illusion_moonlight = 1;
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"BaseLevel >= 100 && illusion_moonlight < 1";
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Payon Soldier#ill_moon_arch" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Muyeon#ill_moon_arch" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Payon Soldier#ill_moon_arch" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Muyeon#ill_moon_arch" );
+- ADAPT [=->set] illusion_moonlight = 2;
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 1";
+- ADAPT [=->set] .@elder$ = "Jagyeom#ill_moon_pin";
+- ADAPT [=->set] .@scholar$ = "Young Scholar#ill_moon_pin";
+- COMMENT [setpcblock] setpcblock PCBLOCK_ALL,true;
+- ADAPT [=->set] illusion_moonlight = 3;
+- COMMENT [setpcblock] setpcblock PCBLOCK_ALL,false;
+- ADAPT [=->set] illusion_moonlight = 4;
+- COMMENT [setpcblock] setpcblock PCBLOCK_ALL,true;
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Nine Tail Spirit#ill_moon_" + .@i );
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++)
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- ADAPT [=->set] illusion_moonlight = 5;
+- COMMENT [setpcblock] setpcblock PCBLOCK_ALL,false;
+- ADAPT [=->set] illusion_moonlight = 9;
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 2";
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 3";
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 4";
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 8";
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Young Scholar#ill_moon_pdun" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Junghee#ill_moon_pdun" );
+- ADAPT [=->set] illusion_moonlight = 6;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Young Scholar#ill_moon_pdun" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Junghee#ill_moon_pdun" );
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 5";
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,140,46,0	script	Shimmering Portal#ill_moon_out	4_ENERGY_BLUE,{
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,149,45,4	script	Scholar Chunghae#ill_moon_ind	4_F_03,{
+- ADAPT [=->set] illusion_moonlight = 7;
+- ADAPT [=->set] illusion_moonlight = 8;
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 6";
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 7 && checkquest(7782,HUNTING) == -1";
+- COMMENT [questinfo] questinfo QTYPE_QUEST,QMARK_YELLOW,"illusion_moonlight == 7 && checkquest(7782,HUNTING) == 2";
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"iillusion_moonlight > 7 && checkquest(7783,PLAYTIME) == 2";
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"iillusion_moonlight > 7 && checkquest(7782,HUNTING) == 2";
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"iillusion_moonlight > 7 && checkquest(7783,PLAYTIME) == -1 && checkquest(7782,HUNTING) == -1";
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,152,45,4	script	Soldier Junghee#ill_moon_ind	4_M_PAY_SOLDIER,{
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"illusion_moonlight > 6 && checkquest(7785,PLAYTIME) == -1 && checkquest(7784,HUNTING) == -1";
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"illusion_moonlight > 6 && checkquest(7787,PLAYTIME) == -1 && checkquest(7786,HUNTING) == -1";
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"illusion_moonlight > 6 && checkquest(7785,PLAYTIME) == 2";
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"illusion_moonlight > 6 && checkquest(7787,PLAYTIME) == 2";
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"illusion_moonlight > 6 && checkquest(7784,HUNTING) == 2";
+- COMMENT [questinfo] questinfo QTYPE_DAILYQUEST,QMARK_YELLOW,"illusion_moonlight > 6 && checkquest(7786,HUNTING) == 2";
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,43,150,5	script	Villager#ill_moon_0	1_F_ORIENT_01,{
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,82,237,3	script	Villager#ilp17	1_F_ORIENT_01,5,5,{
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,254,206,3	script	Villager#ilp18	4_F_01,5,5,{
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,81,136,3	script	Villager#ill_moon_3	1_M_ORIENT01,{
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,160,260,3	script	Villager#ill_moon_4	1_M_ORIENT01,{
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [=->set] .@main_completed$ = "isbegin_quest(14666) == 2";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14680,PLAYTIME) == -1 && checkquest(14679,HUNTING) == -1") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14679,HUNTING) == 2 && countitem(25266) > 9 && countitem(25267) > 9") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14680,PLAYTIME) == 2") );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Mojo#ilgf" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Mojo#ilgf01" );
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Mojo#ilgf01");
+- COMMENT [cloakonnpcself] cloakonnpcself( "Mojo#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Mojo#ilgf02" );
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Mojo#ilgf02");
+- COMMENT [cloakonnpcself] cloakonnpcself( "Mojo#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Mojo#ilgf03" );
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Mojo#ilgf03");
+- COMMENT [cloakonnpcself] cloakonnpcself( "Mojo#ilgf03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Mojo#ilgf" );
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "Mojo#ilgf");
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [=->set] ill_vampire = 1;	// the variable must be updated here to use setquest to update questinfo
+- COMMENT [questinfo] ill_vampire = 1;	// the variable must be updated here to use setquest to update questinfo
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_OK] emotion ET_OK, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_OK] emotion ET_OK, getnpcid(0, "Mojo#ilgf");
+- ADAPT [=->set] ill_vampire = 2;
+- ADAPT [=->set] ill_vampire = 3;
+- COMMENT [getnpcid,ET_OK] emotion ET_OK, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Mojo#ilgf");
+- ADAPT [=->set] ill_vampire = 4;
+- ADAPT [=->set] ill_vampire = 5;
+- COMMENT [getnpcid,ET_MERONG] emotion ET_MERONG, getnpcid(0, "Mojo#ilgf");
+- COMMENT [getnpcid,ET_SPARK] emotion ET_SPARK, getnpcid(0, "Mojo#ilgf");
+- ADAPT [=->set] ill_vampire = 16;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_vampire == 0 && BaseLevel >= 130" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(14666) == 1" );
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,94,133,0	script	#illcon01	HIDDEN_WARP_NPC,5,5,{
+- ADAPT [=->set] .@char_id = getcharid(0);
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Priest#ilgf01" );
+- ADAPT [for/incr->set] for ( .@i = 3; .@i < 10; ++.@i )
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Marina#ilgf0" + .@i );
+- ADAPT [=->set] .@char_id = getcharid(0);
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf06" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf06" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf07" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf08" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Nameless Catacomb#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf09" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf10" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf11" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf12" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf13" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Nameless Catacomb#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf14" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf15" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Nameless Catacomb#ilgf03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf16" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf17" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf18" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Someone's Dream#ilgf18" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf19" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf20" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf05" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf04" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf21" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf22" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf23" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Fast Undead#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf24" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Shining Mushroom#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf25" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf26" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf27" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf28" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf02" );
+- ADAPT [=->set] .@char_id = getcharid(0);
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Gem#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Marina#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Antoine#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Jojo#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf02" );
+- BOUNDARY [gef_d01_i] gef_d01_i,114,216,0	duplicate(#illcon01)	#ilgf01	HIDDEN_WARP_NPC,3,0
+- BOUNDARY [gef_d01_i] gef_d01_i,81,135,0	duplicate(#illcon01)	#illcon02	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,86,113,0	duplicate(#illcon01)	#illcon03	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,95,121,0	duplicate(#illcon01)	#illcon04	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,148,56,0	duplicate(#illcon01)	#illcon05	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,188,97,0	duplicate(#illcon01)	#illcon06	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,209,94,0	duplicate(#illcon01)	#illcon07	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,205,117,0	duplicate(#illcon01)	#illcon08	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,183,82,0	duplicate(#illcon01)	#illcon09	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,197,80,0	duplicate(#illcon01)	#illcon10	HIDDEN_WARP_NPC,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,172,86,0	duplicate(#illcon01)	#illcon11	HIDDEN_WARP_NPC,5,5
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,112,228,5	script	Marina#ilgf01	4_F_MONK,{
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,116,228,3	script	Antoine#ilgf01	4_GEFFEN_01,{
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- ADAPT [=->set] .@main_completed$ = "isbegin_quest(14666) == 2";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14670,PLAYTIME) == -1 && checkquest(14669,HUNTING) == -1") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14669,HUNTING) == 2 && countitem(25270) > 19") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14670,PLAYTIME) == 2") );
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,113,230,5	script	Gem#ilgf01	1_F_PRIEST,{
+- COMMENT [npcskill] npcskill "AL_INCAGI",10,0,0;
+- COMMENT [npcskill] npcskill "AL_BLESSING",10,0,0;
+- ADAPT [=->set] ill_vampire = 6;
+- ADAPT [=->set] .@char_id = getcharid(0);
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Priest#ilgf01" );
+- ADAPT [for/incr->set] for ( .@i = 3; .@i < 10; ++.@i )
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Marina#ilgf0" + .@i );
+- ADAPT [=->set] .@char_id = getcharid(0);
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Priest#ilgf01" );
+- ADAPT [for/incr->set] for ( .@i = 3; .@i < 10; ++.@i )
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Marina#ilgf0" + .@i );
+- COMMENT [getnpcid,ET_STARE] emotion ET_STARE, getnpcid(0, "Marina#ilgf01");
+- COMMENT [getnpcid,ET_OK] emotion ET_OK, getnpcid(0, "Antoine#ilgf01");
+- ADAPT [=->set] ill_vampire = 15;
+- ADAPT [=->set] .@main_completed$ = "isbegin_quest(14666) == 2";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(14656) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(14665) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14668,PLAYTIME) == -1 && checkquest(14667,HUNTING) == -1") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14667,HUNTING) == 2") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14668,PLAYTIME) == 2") );
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,93,178,5	script(CLOAKED)	Marina#ilgf03	4_F_MONK,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- ADAPT [=->set] .@num = atoi( replacestr( strnpcinfo(2), "ilgf0", "" ) );
+- COMMENT [replacestr] .@num = atoi( replacestr( strnpcinfo(2), "ilgf0", "" ) );
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- BOUNDARY [gef_d01_i] gef_d01_i,127,153,5	duplicate(Marina#ilgf03)	Marina#ilgf04	4_F_MONK,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,213,237,5	duplicate(Marina#ilgf03)	Marina#ilgf05	4_F_MONK,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,150,224,5	duplicate(Marina#ilgf03)	Marina#ilgf06	4_F_MONK,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,208,144,5	duplicate(Marina#ilgf03)	Marina#ilgf07	4_F_MONK,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,250,130,5	duplicate(Marina#ilgf03)	Marina#ilgf08	4_F_MONK,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,255,202,5	duplicate(Marina#ilgf03)	Marina#ilgf09	4_F_MONK,5,5
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,250,164,0	script	#ilgf06	HIDDEN_WARP_NPC,3,5,{
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Priest#ilgf01" );
+- BOUNDARY [gef_d01_i] gef_d01_i,254,162,1	duplicate(dummy_cloaked_npc)	Undead#ilgf08	ILL_ZOMBIE
+- BOUNDARY [gef_d01_i] gef_d01_i,252,160,1	duplicate(dummy_cloaked_npc)	Undead#ilgf09	ILL_ZOMBIE
+- BOUNDARY [gef_d01_i] gef_d01_i,253,165,3	duplicate(dummy_cloaked_npc)	Marina#ilgf10	4_F_MONK
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,250,164,5	script(CLOAKED)	Priest#ilgf01	4_M_MINISTER,5,5,{
+- ADAPT [=->set] .@char_id = .@char_id;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf08" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf09" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Marina#ilgf10" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Undead#ilgf08" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Undead#ilgf09" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Marina#ilgf10" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Priest#ilgf01" );
+- ADAPT [=->set] ill_vampire = 7;
+- ADAPT [for/incr->set] for ( .@i = 3; .@i < 10; ++.@i )
+- COMMENT [cloakonnpcself] cloakonnpcself( "Marina#ilgf0" + .@i );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf06" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf06" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf07" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf08" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Nameless Catacomb#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf09" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf10" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf11" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf12" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf13" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Nameless Catacomb#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf14" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf15" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Nameless Catacomb#ilgf03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf16" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf17" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf18" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Someone's Dream#ilgf18" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf19" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf20" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf05" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf04" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf21" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf22" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf23" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Fast Undead#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf24" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Shining Mushroom#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf25" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf26" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Undead#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf27" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf28" );
+- BOUNDARY [gef_d01_i] gef_d01_i,131,155,3	duplicate(dummy_npc)	Wizard#ilgf03	4_F_BOMI,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,129,154,7	duplicate(dummy_npc)	Wizard#ilgf04	4_GEFFEN_05
+- BOUNDARY [gef_d01_i] gef_d01_i,113,97,7	duplicate(dummy_npc)	Wizard#ilgf05	2_M_SAGE_B,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,116,96,1	duplicate(dummy_npc)	Undead#ilgf07	GHOUL
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,49,113,3	script(CLOAKED)	Wizard#ilgf06	4_GEFFEN_01,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Undead#ilgf06" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf06" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf07" );
+- BOUNDARY [gef_d01_i] gef_d01_i,46,112,5	duplicate(dummy_cloaked_npc)	Wizard#ilgf07	4_M_ARUNA_NFM1
+- BOUNDARY [gef_d01_i] gef_d01_i,47,110,7	duplicate(dummy_cloaked_npc)	Undead#ilgf06	GHOUL
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,137,60,3	script(CLOAKED)	Wizard#ilgf08	1_M_WIZARD,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf08" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Nameless Catacomb#ilgf01" );
+- BOUNDARY [gef_d01_i] gef_d01_i,136,58,5	duplicate(dummy_cloaked_npc)	Nameless Catacomb#ilgf01	4_SOIL
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,67,85,5	script(CLOAKED)	Wizard#ilgf09	4_M_JOB_WIZARD,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf09" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf10" );
+- BOUNDARY [gef_d01_i] gef_d01_i,67,83,1	duplicate(dummy_cloaked_npc)	Wizard#ilgf10	4_GEFFEN_05
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,156,234,3	script(CLOAKED)	Wizard#ilgf11	4_M_SIT_NOVICE,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf11" );
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,48,255,5	script(CLOAKED)	Wizard#ilgf12	1_M_WIZARD,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "Nameless Catacomb#ilgf02");
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf13" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Nameless Catacomb#ilgf02" );
+- BOUNDARY [gef_d01_i] gef_d01_i,50,257,5	duplicate(dummy_cloaked_npc)	Wizard#ilgf13	2_F_MAGICMASTER
+- BOUNDARY [gef_d01_i] gef_d01_i,50,254,5	duplicate(dummy_cloaked_npc)	Nameless Catacomb#ilgf02	4_SOIL
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,112,267,3	script(CLOAKED)	Wizard#ilgf14	4_M_JOB_WIZARD,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf14" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf15" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Nameless Catacomb#ilgf03" );
+- BOUNDARY [gef_d01_i] gef_d01_i,110,266,5	duplicate(dummy_cloaked_npc)	Wizard#ilgf15	4_M_ARUNA_NFM1
+- BOUNDARY [gef_d01_i] gef_d01_i,111,264,5	duplicate(dummy_cloaked_npc)	Nameless Catacomb#ilgf03	4_SOIL
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,55,167,3	script(CLOAKED)	Wizard#ilgf16	4_M_ARUNA_NFM1,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf16" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf17" );
+- BOUNDARY [gef_d01_i] gef_d01_i,53,166,7	duplicate(dummy_cloaked_npc)	Wizard#ilgf17	2_F_MAGICMASTER
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,236,235,1	script(CLOAKED)	Wizard#ilgf18	1_M_WIZARD,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf18" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Someone's Dream#ilgf18" );
+- BOUNDARY [gef_d01_i] gef_d01_i,233,237,5	duplicate(dummy_cloaked_npc)	Someone's Dream#ilgf18	NIGHTMARE
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,255,201,5	script(CLOAKED)	Wizard#ilgf19	4_GEFFEN_05,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf19" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf20" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Undead#ilgf05" );
+- BOUNDARY [gef_d01_i] gef_d01_i,254,200,5	duplicate(dummy_cloaked_npc)	Wizard#ilgf20	2_F_MAGICMASTER
+- BOUNDARY [gef_d01_i] gef_d01_i,256,198,1	duplicate(dummy_cloaked_npc)	Undead#ilgf05	GHOUL
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,204,146,1	script(CLOAKED)	Wizard#ilgf21	4_GEFFEN_05,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [getnpcid,ET_HELP] emotion ET_HELP, getnpcid(0, "Wizard#ilgf22");
+- COMMENT [cloakonnpcself] cloakonnpcself( "Undead#ilgf02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Undead#ilgf03" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Undead#ilgf04" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf21" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf22" );
+- BOUNDARY [gef_d01_i] gef_d01_i,202,149,5	duplicate(dummy_cloaked_npc)	Wizard#ilgf22	4_M_ARUNA_NFM1
+- BOUNDARY [gef_d01_i] gef_d01_i,202,152,5	duplicate(dummy_cloaked_npc)	Undead#ilgf02	GHOUL
+- BOUNDARY [gef_d01_i] gef_d01_i,200,151,5	duplicate(dummy_cloaked_npc)	Undead#ilgf03	ZOMBIE
+- BOUNDARY [gef_d01_i] gef_d01_i,204,151,3	duplicate(dummy_cloaked_npc)	Undead#ilgf04	GHOUL
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,257,110,1	script(CLOAKED)	Wizard#ilgf23	4_F_BOMI,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf23" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Fast Undead#ilgf01" );
+- BOUNDARY [gef_d01_i] gef_d01_i,253,112,5	duplicate(dummy_cloaked_npc)	Fast Undead#ilgf01	GHOUL
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,230,76,3	script(CLOAKED)	Wizard#ilgf24	4_M_BIBI,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf24" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Shining Mushroom#ilgf01" );
+- BOUNDARY [gef_d01_i] gef_d01_i,228,75,3	duplicate(dummy_cloaked_npc)	Shining Mushroom#ilgf01	ILL_BLACK_MUSHROOM
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,93,34,1	script(CLOAKED)	Wizard#ilgf25	4_F_BOMI,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf25" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf26" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Undead#ilgf01" );
+- BOUNDARY [gef_d01_i] gef_d01_i,94,37,3	duplicate(dummy_cloaked_npc)	Wizard#ilgf26	1_M_WIZARD
+- BOUNDARY [gef_d01_i] gef_d01_i,91,35,5	duplicate(dummy_cloaked_npc)	Undead#ilgf01	GHOUL
+- BOUNDARY [gef_d01_i] gef_d01_i,101,124,3	duplicate(dummy_cloaked_npc)	Wizard#ilgf27	4_F_BOMI
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,99,122,7	script(CLOAKED)	Wizard#ilgf28	4_F_BOMI,5,5,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf27" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wizard#ilgf28" );
+- BOUNDARY [gef_d01_i] gef_d01_i,80,139,5	duplicate(dummy_cloaked_npc)	Gem#ilgf02	1_F_PRIEST,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,86,133,1	duplicate(dummy_cloaked_npc)	Marina#ilgf02	4_F_MONK,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,85,139,3	duplicate(dummy_cloaked_npc)	Antoine#ilgf02	4_GEFFEN_01,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,84,135,3	duplicate(dummy_cloaked_npc)	Dracula#ilgf03	4_DRACULA,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,87,137,3	duplicate(dummy_cloaked_npc)	King#ilgf02	4_NFBAT,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,80,132,7	duplicate(dummy_cloaked_npc)	Jojo#ilgf01	4_M_JOB_WIZARD,5,5
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,81,135,5	script	Wizard#ilgf01	4_F_BOMI,5,5,{
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- ADAPT [=->set] ill_vampire = 8;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf01" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Dracula#ilgf01" );
+- COMMENT [ET_SWEAT] emotion ET_SWEAT, playerattached();
+- ADAPT [=->set] ill_vampire = 9;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf02" );
+- ADAPT [=->set] ill_vampire = 10;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Gem#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Marina#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Antoine#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf02" );
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "King#ilgf02");
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "King#ilgf02");
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Jojo#ilgf01" );
+- COMMENT [getnpcid,ET_CONFUSE] emotion ET_CONFUSE, getnpcid(0, "Jojo#ilgf01");
+- ADAPT [=->set] ill_vampire = 13;
+- COMMENT [getnpcid,ET_GO] emotion ET_GO, getnpcid(0, "King#ilgf02");
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "King#ilgf02");
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "King#ilgf02");
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "King#ilgf02");
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf02" );
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "King#ilgf02");
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "King#ilgf02");
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Gem#ilgf02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Marina#ilgf02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Antoine#ilgf02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "King#ilgf02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Jojo#ilgf01" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Dracula#ilgf03" );
+- ADAPT [=->set] ill_vampire = 14;
+- ADAPT [=->set] .@npc_name$ = "Bomi";
+- ADAPT [=->set] .@npc_name$ = "Bomi's Note";
+- ADAPT [=->set] .bomi_count = 0;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Gem#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Marina#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Antoine#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Jojo#ilgf01" );
+- ADAPT [=->set] .@main_completed$ = "isbegin_quest(14666) == 2";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14674,PLAYTIME) == -1 && checkquest(14671,HUNTING) == -1") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14671,HUNTING) == 2 && countitem(25268) > 9 && countitem(25269) > 9") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14674,PLAYTIME) == 2") );
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- BOUNDARY [gef_d01_i] gef_d01_i,81,135,3	duplicate(Wizard#ilgf01)	Wizard#ilgf001	4_NFCOFFIN,5,5
+- BOUNDARY [gef_d01_i] gef_d01_i,82,132,3	duplicate(dummy_npc)	Mushroom#ilgf01	ILL_BLACK_MUSHROOM
+- BOUNDARY [gef_d01_i] gef_d01_i,86,133,1	duplicate(dummy_cloaked_npc)	Dracula#ilgf01	4_DRACULA
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,1,1,5	script	ill_vampire_spawn_bomi	-1,{
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,1,1,5	script	ill_vampire_spawn_dracula	-1,{
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,185,97,5	script	King#ilgf01	4_NFBAT,{
+- COMMENT [ET_GO] emotion ET_GO;
+- ADAPT [=->set] ill_vampire = 12;
+- COMMENT [getnpcid,ET_SWEAT] emotion ET_SWEAT, getnpcid(0, "Wizard#ilgf02");
+- COMMENT [cloakonnpc] cloakonnpc();
+- ADAPT [=->set] .@main_completed$ = "isbegin_quest(14666) == 2";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14676,PLAYTIME) == -1 && checkquest(14675,HUNTING) == -1") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14675,HUNTING) == 2 && countitem(25263) > 19") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14676,PLAYTIME) == 2") );
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,191,96,3	script	Wizard#ilgf02	4_M_JOB_WIZARD,5,5,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(14677) ) {
+- ADAPT [isbegin_quest->0] if (ill_vampire == 16 && isbegin_quest(14677) == 0)
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wizard#ilgf02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dracula#ilgf02" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- ADAPT [=->set] .@main_completed$ = "isbegin_quest(14666) == 2";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14678,PLAYTIME) == -1 && isbegin_quest(14677) == 0") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && isbegin_quest(14677) == 1 && countitem(25264) > 9 && countitem(25265) > 9") );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, (.@main_completed$ + " && checkquest(14678,PLAYTIME) == 2") );
+- MANUAL [unregistered-map:gef_d01_i] gef_d01_i,189,98,3	script(CLOAKED)	Dracula#ilgf02	4_DRACULA,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [getnpcid,ET_SWEAT] emotion ET_SWEAT, getnpcid(0, "Wizard#ilgf02");
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "King#ilgf01");
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf01" );
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Wizard#ilgf02");
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf01" );
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Wizard#ilgf02");
+- COMMENT [getnpcid,ET_OHNO] emotion ET_OHNO, getnpcid(0, "King#ilgf01");
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "King#ilgf01" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "King#ilgf01");
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "King#ilgf01");
+- ADAPT [=->set] ill_vampire = 11;
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,126,126,3	script	Orb of Seal#frozen1	CLEAR_NPC,{
+- ADAPT [=->set] .@i = atoi( charat(strnpcinfo(2), 6) );
+- COMMENT [charat] .@i = atoi( charat(strnpcinfo(2), 6) );
+- ADAPT [=->set] .timer[.@i] = 30;
+- ADAPT [=->set] .ill_frozen_boss_timer = gettimetick(2) + 86400;// respawn timer (seems to be one day)
+- ADAPT [=->set] .@i = atoi( charat(strnpcinfo(2), 6) );
+- COMMENT [charat] .@i = atoi( charat(strnpcinfo(2), 6) );
+- BOUNDARY [ice_d03_i] ice_d03_i,172,126,3	duplicate(Orb of Seal#frozen1)	Orb of Seal#frozen2	CLEAR_NPC
+- BOUNDARY [ice_d03_i] ice_d03_i,172,173,3	duplicate(Orb of Seal#frozen1)	Orb of Seal#frozen3	CLEAR_NPC
+- BOUNDARY [ice_d03_i] ice_d03_i,127,172,3	duplicate(Orb of Seal#frozen1)	Orb of Seal#frozen4	CLEAR_NPC
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,149,112,0	script	bosseff#frozen	HIDDEN_WARP_NPC,{
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,149,19,1	script	#fromfrozen	4_PURPLE_WARP,2,2,{
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,149,24,0	script	dream#frozen	HIDDEN_WARP_NPC,1,1,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(15116) == 0) {
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,152,43,0	script	cine1#frozen	HIDDEN_WARP_NPC,13,13,{
+- ADAPT [=->set] illusion_frozen = 0;	// reset the variable for daily quests
+- ADAPT [=->set] .@char_id = getcharid(0);
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Zeith#frozen01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Vrid#frozen01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Vrid#frozen01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Zeith#frozen02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Zeith#frozen02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Vrid#frozen02" );
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,155,43,3	script(CLOAKED)	Zeith#frozen01	4_M_FROZEN_GC,{
+- ADAPT [=->set] .@quest_15116 = isbegin_quest(15116);
+- ADAPT [isbegin_quest->0] .@quest_15116 = isbegin_quest(15116);
+- ADAPT [=->set] illusion_frozen = 1;
+- ADAPT [=->set] .@pc_name$ = strcharinfo(0);
+- ADAPT [=->set] .@quest_id = .@list[ rand(getarraysize(.@list)) ];
+- ADAPT [=->set] illusion_frozen = 2;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(15111))	// Hunt Furious Ice Titans
+- ADAPT [=->set] .@quest_id = 15111;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(15117))	// Hunt Furious Gazetis
+- ADAPT [=->set] .@quest_id = 15117;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(15118))	// Hunt Furious Snowiers
+- ADAPT [=->set] .@quest_id = 15118;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(15119))	// Hunt Hard Icicles
+- ADAPT [=->set] .@quest_id = 15119;
+- ADAPT [=->set] .@menu$ = "I already know what the story is. I should just... skip it.";
+- ADAPT [=->set] .@s = select( "- What stupid story?", .@menu$ );
+- ADAPT [=->set] illusion_frozen = 3;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Zeith#frozen01" );
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,155,43,3	script(CLOAKED)	Zeith#frozen02	4_M_GUILLOTINE,{
+- ADAPT [=->set] illusion_frozen = 4;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Vrid#frozen01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Vrid#frozen02" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(15116) == 2)
+- ADAPT [=->set] .@r = rand(3);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(15116) == 0) {
+- COMMENT [clear] setquest 15116;// Clear the Illusion of the Frozen
+- ADAPT [=->set] illusion_frozen = 5;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Vrid#frozen02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Zeith#frozen02" );
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,150,43,5	script(CLOAKED)	Vrid#frozen01	4_M_FROZEN_KN,{
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Zeith#frozen02" );
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,150,43,5	script(CLOAKED)	Vrid#frozen02	4_M_KNIGHT_BLACK,{
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- MANUAL [unregistered-map:ice_d03_i] ice_d03_i,137,38,3	script	Heap of Dry Soil#frozen1	4_SOIL,{
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- BOUNDARY [ice_d03_i] ice_d03_i,111,45,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen2	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,65,70,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen3	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,86,87,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen4	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,70,113,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen5	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,46,206,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen6	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,64,231,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen7	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,84,208,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen8	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,100,246,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen9	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,196,246,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen10	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,238,231,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen11	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,252,206,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen12	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,238,64,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen13	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,186,44,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen14	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,160,48,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen15	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,126,73,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen16	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,70,184,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen17	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,214,208,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen18	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,228,184,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen19	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,230,111,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen20	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,219,90,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen21	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,171,72,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen22	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,112,111,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen23	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,112,188,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen24	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,186,188,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen25	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,189,112,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen26	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,150,104,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen27	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,110,150,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen28	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,150,187,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen29	4_SOIL
+- BOUNDARY [ice_d03_i] ice_d03_i,187,149,3	duplicate(Heap of Dry Soil#frozen1)	Heap of Dry Soil#frozen30	4_SOIL
+- ADAPT [=->set] .@account_id = getcharid(3);
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, .@account_id;
+- COMMENT [ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT;
+- COMMENT [ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- ADAPT [=->set] ill_turtle = 1;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- ADAPT [=->set] ill_turtle = 12;
+- ADAPT [=->set] ill_turtle = 12;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 0 && BaseLevel > 149" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 11" );
+- BOUNDARY [tur_d03_i] tur_d03_i,217,73,0	warp	illtur03_04	 2,2,tur_d04_i,99,186
+- BOUNDARY [tur_d04_i] tur_d04_i,99,191,0	warp	illtur04_03	 2,2,tur_d03_i,217,82
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,132,194,3	script	Portal#illtur02	4_ENERGY_RED,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16115) == 0) {
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,139,186,3	script	Girl#illtur01	4_F_NARIN,{
+- ADAPT [=->set] .@account_id = getcharid(3);
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT, .@account_id;
+- ADAPT [=->set] ill_turtle = 2;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Archeologist Leiphen#illtur01" );
+- COMMENT [getnpcid,ET_SWEAT] emotion ET_SWEAT, getnpcid(0,"Archeologist Leiphen#illtur01");
+- COMMENT [getnpcid,ET_HNG] emotion ET_HNG, getnpcid(0,"Archeologist Leiphen#illtur01");
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, .@account_id;
+- COMMENT [ET_THINK] emotion ET_THINK, .@account_id;
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0,"Archeologist Leiphen#illtur01");
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Archeologist Leiphen#illtur01" );
+- COMMENT [ET_OHNO] emotion ET_OHNO, .@account_id;
+- ADAPT [=->set] ill_turtle = 9;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Archeologist Leiphen#illtur01" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_OK] emotion ET_OK, .@account_id;
+- ADAPT [=->set] ill_turtle = 10;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Archeologist Leiphen#illtur01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Archeologist Leiphen#illtur01" );
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0,"Archeologist Leiphen#illtur01");
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE, .@account_id;
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0,"Archeologist Leiphen#illtur01");
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_OK] emotion ET_OK;
+- ADAPT [=->set] ill_turtle = 11;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Archeologist Leiphen#illtur01" );
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(16106) ) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Archeologist Leiphen#illtur01" );
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Archeologist Leiphen#illtur01" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 8" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 9" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 10" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16105,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16108,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && isbegin_quest(16106) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && isbegin_quest(16106) == 0 && checkquest(16105,PLAYTIME) == -1 && checkquest(16108,PLAYTIME) == -1" );
+- BOUNDARY [tur_d03_i] tur_d03_i,136,187,5	duplicate(dummy_cloaked_npc)	Archeologist Leiphen#illtur01	2_M_ALCHE
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,80,180,1	script	Impatient Man#illtur	4_M_URGENT_MAN,{
+- ADAPT [=->set] .@account_id = getcharid(3);
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- ADAPT [=->set] ill_turtle = 3;
+- COMMENT [questinfo_refresh] questinfo_refresh();
+- ADAPT [=->set] .talk = 1;
+- ADAPT [=->set] .talk = 0;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 2" );
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,235,187,7	script	Susceptible Soldier#	4_M_KEEN_SOLDIER,{
+- ADAPT [=->set] .@account_id = getcharid(3);
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- ADAPT [=->set] ill_turtle = 4;
+- COMMENT [questinfo_refresh] questinfo_refresh();
+- ADAPT [=->set] .@quest_16109 = checkquest(16109,HUNTING);
+- ADAPT [=->set] .@state = -1;
+- ADAPT [=->set] .@state = 2;
+- ADAPT [=->set] .talk = 1;
+- ADAPT [=->set] .talk = 0;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 3" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16105,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16110,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16105,PLAYTIME) == -1 && checkquest(16110,PLAYTIME) == -1 && checkquest(16109,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16109,HUNTING) == 2 && countitem(25316) > 4" );
+- MANUAL [unregistered-map:tur_d04_i] tur_d04_i,96,112,1	script	Fragile Woman#illtur	4_F_SLOPPY_WOMAN,{
+- ADAPT [=->set] .@char_id = getcharid(0);
+- ADAPT [=->set] .@account_id = getcharid(3);
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- ADAPT [=->set] ill_turtle = 5;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Archeologist Leiphen#illtur03" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Fragile Woman#illtur" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rancorous Ghost#illtur01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rancorous Ghost#illtur02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rancorous Ghost#illtur03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rancorous Ghost#illtur04" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rancorous Ghost#illtur05" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rancorous Ghost#illtur06" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rancorous Ghost#illtur07" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Girl#illtur02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rancorous Ghost#illtur03" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rancorous Ghost#illtur07" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rancorous Ghost#illtur04" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rancorous Ghost#illtur05" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Girl#illtur02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rancorous Ghost#illtur02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Fragile Woman#illtur" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rancorous Ghost#illtur01" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rancorous Ghost#illtur06" );
+- ADAPT [=->set] ill_turtle = 8;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Archeologist Leiphen#illtur03" );
+- ADAPT [=->set] .@quest_16111 = checkquest(16111,HUNTING);
+- ADAPT [=->set] .@quest_16112 = checkquest(16112,HUNTING);
+- ADAPT [=->set] .@state = -1;
+- ADAPT [=->set] .@state = 2;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- ADAPT [=->set] .talk = 1;
+- ADAPT [=->set] .talk = 0;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 4" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 7" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16111,HUNTING) == 2 && checkquest(16112,HUNTING) == 2 && countitem(7564) > 9" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16105,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16113,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle > 10 && checkquest(16105,PLAYTIME) == -1 && checkquest(16113,PLAYTIME) == -1 && isbegin_quest(16111) == 0" );
+- BOUNDARY [tur_d04_i] tur_d04_i,100,112,3	duplicate(dummy_cloaked_npc)	Girl#illtur02	4_F_NARIN
+- BOUNDARY [tur_d04_i] tur_d04_i,101,110,3	duplicate(dummy_cloaked_npc)	Archeologist Leiphen#illtur03	2_M_ALCHE
+- BOUNDARY [tur_d04_i] tur_d04_i,96,112,5	duplicate(dummy_cloaked_npc)	Rancorous Ghost#illtur02	4_F_NFDEADMGCIAN
+- BOUNDARY [tur_d04_i] tur_d04_i,94,108,7	duplicate(dummy_cloaked_npc)	Rancorous Ghost#illtur03	4_M_NFDEADSWDMAN
+- BOUNDARY [tur_d04_i] tur_d04_i,91,111,5	duplicate(dummy_cloaked_npc)	Rancorous Ghost#illtur04	4_F_NFDEADMGCIAN
+- BOUNDARY [tur_d04_i] tur_d04_i,97,104,7	duplicate(dummy_cloaked_npc)	Rancorous Ghost#illtur05	4_F_NFDEADMGCIAN
+- BOUNDARY [tur_d04_i] tur_d04_i,107,109,3	duplicate(dummy_cloaked_npc)	Rancorous Ghost#illtur06	4_F_NFDEADMGCIAN
+- BOUNDARY [tur_d04_i] tur_d04_i,104,112,3	duplicate(dummy_cloaked_npc)	Rancorous Ghost#illtur07	4_M_NFDEADSWDMAN
+- BOUNDARY [tur_d04_i] tur_d04_i,102,102,1	duplicate(dummy_cloaked_npc)	Rancorous Ghost#illtur01	4_M_NFDEADSWDMAN
+- MANUAL [unregistered-map:tur_d04_i] tur_d04_i,26,167,0	script	#illtur01	HIDDEN_WARP_NPC,15,15,{
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Archeologist Leiphen#illtur02" );
+- MANUAL [unregistered-map:tur_d04_i] tur_d04_i,26,167,5	script	Archeologist Leiphen#illtur02	2_M_ALCHE,{
+- ADAPT [=->set] .@account_id = getcharid(3);
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE, .@account_id;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, .@account_id;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_FRET] emotion ET_FRET, .@account_id;
+- ADAPT [=->set] ill_turtle = 6;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH, .@account_id;
+- ADAPT [=->set] ill_turtle = 7;
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(16106) ) {
+- COMMENT [ET_SWEAT] emotion ET_SWEAT, .@account_id;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT, .@account_id;
+- COMMENT [cloakonnpc] cloakonnpc();
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 5" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_turtle == 6 && checkquest(16101,HUNTING) == 2 && checkquest(16102,HUNTING) == 2 && countitem(7564) > 9" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(16106) == 1" );
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,147,170,7	script	#illturg11	CLEAR_NPC,{
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,137,170,0	script	#illturgg11	HIDDEN_WARP_NPC,5,5,{
+- ADAPT [=->set] .@num = atoi( replacestr( strnpcinfo(2), "illturgg", "" ) );
+- COMMENT [replacestr] .@num = atoi( replacestr( strnpcinfo(2), "illturgg", "" ) );
+- ADAPT [=->set] .talk[.@num] = 1;
+- ADAPT [=->set] .talk[.@num] = 0;
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,142,229,1	script	#illturg12	CLEAR_NPC,{
+- BOUNDARY [tur_d03_i] tur_d03_i,146,223,0	duplicate(#illturgg11)	#illturgg12	HIDDEN_WARP_NPC,5,5
+- MANUAL [unregistered-map:tur_d03_i] tur_d03_i,214,105,7	script	#illturg13	CLEAR_NPC,{
+- BOUNDARY [tur_d03_i] tur_d03_i,207,104,0	duplicate(#illturgg11)	#illturgg13	HIDDEN_WARP_NPC,5,5
+- MANUAL [unregistered-map:tur_d04_i] tur_d04_i,99,153,7	script	#illturg21	CLEAR_NPC,{
+- BOUNDARY [tur_d04_i] tur_d04_i,99,160,0	duplicate(#illturgg11)	#illturgg21	HIDDEN_WARP_NPC,3,3
+- MANUAL [unregistered-map:tur_d04_i] tur_d04_i,37,137,7	script	#illturg22	CLEAR_NPC,{
+- BOUNDARY [tur_d04_i] tur_d04_i,45,137,0	duplicate(#illturgg11)	#illturgg22	HIDDEN_WARP_NPC,3,3
+- MANUAL [unregistered-map:tur_d04_i] tur_d04_i,76,35,7	script	#illturg23	CLEAR_NPC,{
+- BOUNDARY [tur_d04_i] tur_d04_i,69,31,0	duplicate(#illturgg11)	#illturgg23	HIDDEN_WARP_NPC,3,3
+- MANUAL [unregistered-map:tur_d04_i] tur_d04_i,135,133,1	script	#illturg24	CLEAR_NPC,{
+- BOUNDARY [tur_d04_i] tur_d04_i,137,126,0	duplicate(#illturgg11)	#illturgg24	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [com_d02_i] com_d02_i,254,243,0	warp2	IL_Luanda#Luanda	1,1,beach_dun2,249,243
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,241,255,4	script	Defense Manager Luanda#Lu	4_M_THAIONGBAK,{
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- ADAPT [=->set] ill_luanda = 1;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- ADAPT [=->set] ill_luanda = 3;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- ADAPT [=->set] ill_luanda = 6;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [=->set] ill_luanda = 8;
+- ADAPT [=->set] ill_luanda = 10;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- ADAPT [=->set] ill_luanda = 12;
+- ADAPT [=->set] ill_luanda = 14;
+- ADAPT [=->set] ill_luanda = 16;
+- ADAPT [=->set] ill_luanda = 18;
+- ADAPT [=->set] ill_luanda = 20;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- ADAPT [=->set] ill_luanda = 22;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(5848) == 1 && countitem(25638) > 2) {
+- ADAPT [=->set] .@amount = 1;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(5850) == 1 && countitem(25633) > 2) {
+- ADAPT [op=->set] .@amount += 1;
+- ADAPT [op=->set] .@amount += 1;
+- ADAPT [op=->set] .@amount += 1;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(5847) == 1" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,1,1,1	script	com_d02_i_init_shadow_npc	-1,{
+- ADAPT [=->set] .@today = gettime(DT_DAYOFWEEK);
+- ADAPT [=->set] .@today = (.@today == 0 ? 7 : .@today);	// SUNDAY - 0
+- ADAPT [for/incr->set] for ( .@i = 1; .@i < 6; ++.@i )
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,153,33,1	script	Shimmer#Lu01	1_SHADOW_NPC,7,7,{
+- ADAPT [=->set] ill_luanda = 2;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "First Young#LuE01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Second Young#LuE01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Third Young#LuE01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Second Young#LuE01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Chief#LuE06" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Villager#LuE061" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Villager#LuE062" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Villager#LuE063" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,152,40,6	script(CLOAKED)	Second Young#LuE01	4_M_THAIONGBAK,{
+- COMMENT [cloakonnpcself] cloakonnpcself( "First Young#LuE01" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Third Young#LuE01" );
+- ADAPT [=->set] ill_luanda = 4;
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_luanda = 5;
+- BOUNDARY [com_d02_i] com_d02_i,154,41,4	duplicate(dummy_cloaked_npc)	First Young#LuE01	4_M_THAIONGBAK
+- BOUNDARY [com_d02_i] com_d02_i,156,39,4	duplicate(dummy_cloaked_npc)	Third Young#LuE01	4_M_THAIONGBAK
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,118,100,1	script	Shimmer#Lu02	1_SHADOW_NPC,7,7,{
+- ADAPT [=->set] ill_luanda = 2;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Karu#LuE02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Asudem#LuE02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Karu#LuE08" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Asudem#LuE08" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,121,95,4	script(CLOAKED)	Karu#LuE02	4_M_THAIONGBAK,{
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpcself] cloakonnpcself( "Asudem#LuE02" );
+- ADAPT [=->set] ill_luanda = 7;
+- BOUNDARY [com_d02_i] com_d02_i,120,95,6	duplicate(dummy_cloaked_npc)	Asudem#LuE02	4_F_01
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,193,267,1	script	Shimmer#Lu03	1_SHADOW_NPC,7,7,{
+- ADAPT [=->set] ill_luanda = 2;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Young#LuE03" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,191,271,8	script(CLOAKED)	Young#LuE03	4_M_THAIONGBAK,{
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_luanda = 9;
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,228,91,1	script	Shimmer#Lu04	1_SHADOW_NPC,7,7,{
+- ADAPT [=->set] ill_luanda = 2;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Young#LuE04" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,228,95,4	script(CLOAKED)	Young#LuE04	4_M_THAIONGBAK,{
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_luanda = 11;
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,208,130,1	script	Shimmer#Lu05	1_SHADOW_NPC,7,7,{
+- ADAPT [=->set] ill_luanda = 2;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Young#LuE05" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,210,134,6	script(CLOAKED)	Young#LuE05	4_M_THAIONGBAK,{
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_luanda = 13;
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,157,28,4	script(CLOAKED)	Chief#LuE06	4_M_JPNOJI2,{
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpcself] cloakonnpcself( "Villager#LuE061" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Villager#LuE062" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Villager#LuE063" );
+- ADAPT [=->set] ill_luanda = 15;
+- BOUNDARY [com_d02_i] com_d02_i,155,29,6	duplicate(dummy_cloaked_npc)	Villager#LuE061	4_M_ALCHE_A
+- BOUNDARY [com_d02_i] com_d02_i,153,28,6	duplicate(dummy_cloaked_npc)	Villager#LuE062	4_M_03
+- BOUNDARY [com_d02_i] com_d02_i,154,26,6	duplicate(dummy_cloaked_npc)	Villager#LuE063	4_M_02
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,42,215,1	script	Shimmer#Lu06	1_SHADOW_NPC,7,7,{
+- ADAPT [=->set] ill_luanda = 2;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "First Young#LuE07" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Second Young#LuE07" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Third Young#LuE07" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,43,219,4	script(CLOAKED)	Third Young#LuE07	4_M_THAIONGBAK,{
+- COMMENT [cloakonnpcself] cloakonnpcself( "First Young#LuE07" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Second Young#LuE07" );
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_luanda = 17;
+- BOUNDARY [com_d02_i] com_d02_i,39,219,6	duplicate(dummy_cloaked_npc)	First Young#LuE07	4_M_THAIONGBAK
+- BOUNDARY [com_d02_i] com_d02_i,41,220,4	duplicate(dummy_cloaked_npc)	Second Young#LuE07	4_M_THAIONGBAK
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,116,94,6	script(CLOAKED)	Karu#LuE08	4_M_THAIONGBAK,{
+- COMMENT [cloakonnpcself] cloakonnpcself( "Asudem#LuE08" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Medusa#LuE08" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Medusa#LuE08" );
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_luanda = 19;
+- BOUNDARY [com_d02_i] com_d02_i,117,94,4	duplicate(dummy_cloaked_npc)	Asudem#LuE08	4_F_01
+- BOUNDARY [com_d02_i] com_d02_i,117,94,4	duplicate(dummy_cloaked_npc)	Medusa#LuE08	MEDUSA
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,263,72,1	script	Shimmer#Lu07	1_SHADOW_NPC,7,7,{
+- ADAPT [=->set] ill_luanda = 2;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Silhouette#LuE091" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Silhouette#LuE092" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,268,75,4	script(CLOAKED)	Silhouette#LuE091	4_GHOST_STAND,{
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpcself] cloakonnpcself( "Silhouette#LuE092" );
+- ADAPT [=->set] ill_luanda = 21;
+- BOUNDARY [com_d02_i] com_d02_i,266,76,6	duplicate(dummy_cloaked_npc)	Silhouette#LuE092	4_GHOST_STAND
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,238,266,4	script	Request Board#Lu	4_BOARD3,{
+- ADAPT [=->set] .@quest_menu$[0] = callsub( S_MenuGather, 5848,5849, "Evidence of eradication of Megaliths" );
+- ADAPT [=->set] .@quest_menu$[1] = callsub( S_MenuGather, 5850,5851, "Evidence of eradication of Wootan" );
+- ADAPT [=->set] .@quest_menu$[2] = callsub( S_MenuHunt, 5852,5853, "Operation to eradicate Megaliths" );
+- ADAPT [=->set] .@quest_menu$[3] = callsub( S_MenuHunt, 5854,5855, "Operation to eradicate Wootan" );
+- ADAPT [=->set] .@playtime_5849 = checkquest(5849,PLAYTIME);
+- ADAPT [=->set] .@playtime_5851 = checkquest(5851,PLAYTIME);
+- ADAPT [=->set] .@playtime_5853 = checkquest(5853,PLAYTIME);
+- ADAPT [=->set] .@playtime_5855 = checkquest(5855,PLAYTIME);
+- ADAPT [=->set] .@quest_menu$[4] = "^777777[Waiting] Receive all quests^000000";
+- ADAPT [=->set] .@all_quests = 0;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(5848) > 0 || isbegin_quest(5850) > 0 || isbegin_quest(5852) > 0 || isbegin_quest(5854) > 0) {	// at least one of the quests is in progress
+- ADAPT [=->set] .@quest_menu$[4] = "^777777[Progress] Receive all quests^000000";
+- ADAPT [=->set] .@all_quests = 1;
+- ADAPT [=->set] .@quest_menu$[4] = "[Daily] Accept all quests";
+- ADAPT [=->set] .@all_quests = 2;
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(5848) ) {
+- COMMENT [open_quest_ui] open_quest_ui(5848);
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(5850) ) {
+- COMMENT [open_quest_ui] open_quest_ui(5850);
+- COMMENT [open_quest_ui] open_quest_ui(5852);
+- COMMENT [open_quest_ui] open_quest_ui(5854);
+- ADAPT [=->set] .@string$ = getarg(2);
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(getarg(0)) ) {
+- ADAPT [=->set] .@menu$ = "[Daily] " + .@string$;
+- ADAPT [=->set] .@menu$ = "^777777[Progress] " + .@string$ + "^000000";
+- ADAPT [=->set] .@menu$ = "^777777[Waiting]" + .@string$ + "^000000";
+- ADAPT [=->set] .@menu$ = "[Daily]" + .@string$;
+- ADAPT [=->set] .@string$ = getarg(2);
+- ADAPT [=->set] .@menu$ = "[Daily] " + .@string$;
+- ADAPT [=->set] .@menu$ = "^777777[Progress] " + .@string$ + "^000000";
+- ADAPT [=->set] .@menu$ = "^777777[Reward] " + .@string$ + "^000000";
+- ADAPT [=->set] .@menu$ = "^777777[Waiting] " + .@string$ + "^000000";
+- ADAPT [=->set] .@menu$ = "[Daily] " + .@string$;
+- MANUAL [unregistered-map:prt_elib] prt_elib,57,18,4	script	Jerrymon#jerry	1_M_01,{
+- ADAPT [=->set] ill_underwater = 2;
+- ADAPT [=->set] ill_underwater = 4;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(3408) == 1" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Jerrymon#jerry2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Sirood#SRD2" );
+- ADAPT [=->set] ill_underwater = 1;
+- ADAPT [=->set] ill_underwater = 3;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_underwater == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "ill_underwater == 2" );
+- ADAPT [=->set] ill_underwater = 5;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(3409) == 1" );
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,127,228,4	script	Jerrymon#jerry3	1_M_01,{
+- ADAPT [=->set] ill_underwater = 6;
+- ADAPT [=->set] ill_underwater = 7;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(3410) == 1)
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(3413) ) {
+- ADAPT [=->set] .@menu$[0] = "Collect " + getitemname(25899) + "";
+- ADAPT [=->set] .@menu$[0] = "Collecting " + getitemname(25899) + " - In Progress";
+- ADAPT [=->set] .@menu$[0] = "Collect " + getitemname(25899) + " - Done";
+- ADAPT [=->set] .@menu$[0] = "^999999" + getitemname(25899) + " Collection - Pending^000000";
+- ADAPT [=->set] .@menu$[0] = "Collect " + getitemname(25899) + "";
+- ADAPT [=->set] .@menu$[1] = "Kill Deep Sea Creatures";
+- ADAPT [=->set] .@menu$[1] = "Kill sea creatures - In Progress";
+- ADAPT [=->set] .@menu$[1] = "Kill Deep Sea Creatures - Done";
+- ADAPT [=->set] .@menu$[1] = "^999999Deep Sea Creatures Killed - Pending^000000";
+- ADAPT [=->set] .@menu$[1] = "Kill Deep Sea Creatures";
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(3413) ) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_underwater == 5 && checkquest(3411,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "ill_underwater == 5 && checkquest(3411,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(3412) == 1 && countitem(25899) >= 10" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "ill_underwater == 7 && checkquest(3414,PLAYTIME) == -1 && isbegin_quest(3413) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(3413) == 1 && countitem(25899) >= 10" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3414,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "ill_underwater == 7 && checkquest(3416,PLAYTIME) == -1 && checkquest(3415,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3415,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3416,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,134,223,4	script	Jane#Jane01	1_F_01,{
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,142,216,4	script	Sunrin#Sun01	4_F_03,{
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,125,226,0	script	Sirood#SRD3	HIDDEN_WARP_NPC,4,4,{
+- ADAPT [isbegin_quest->0] if (ill_underwater < 7 && isbegin_quest(3410) == 0)
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Sirood#SRD4" );
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,125,226,5	script(CLOAKED)	Sirood#SRD4	1_M_04,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(3410) ) {
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,146,226,4	script	Nick#Nick01	2_M_SAGE_B,{
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,129,232,5	script	Gatekeeper#guard1	4_M_KY_SOLD,{
+- MANUAL [unregistered-map:iz_d05_i] iz_d05_i,141,188,5	script	Guardian#guard2	4_M_KY_SOLD,{
+- MANUAL [unregistered-map:iz_d05_i] iz_d05_i,138,186,5	script	Kena#Kena	4_M_02,{
+- ADAPT [=->set] .@menu$[0] = callsub( S_Quest, "Kill Deep Sea Creatures", 3418,3417 );
+- ADAPT [=->set] .@menu$[1] = callsub( S_Quest, "Destroy the Deep Sea Fishmen", 3420,3419 );
+- ADAPT [=->set] .@string$ = getarg(0);
+- ADAPT [=->set] .@string$ = getarg(0) + " - In Progress";
+- ADAPT [=->set] .@string$ = getarg(0) + " - Done";
+- ADAPT [=->set] .@string$ = "^999999" + getarg(0) + " - Pending^000000";
+- ADAPT [=->set] .@string$ = getarg(0);
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3418,PLAYTIME) == -1 && checkquest(3417,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3417,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3418,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3420,PLAYTIME) == -1 && checkquest(3419,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3419,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(3420,PLAYTIME) == 2" );
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0,"Mirko#1F");
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- ADAPT [=->set] ill_anthell = 1;
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0,"Mirko#1F");
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0,"Mirko#1F");
+- ADAPT [=->set] ill_anthell = 2;
+- ADAPT [=->set] ill_anthell = 8;
+- COMMENT [open_quest_ui] open_quest_ui(8729);
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 12;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 9;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HEADTOP, 1501;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_anthell == 0" );	// note: some dialogs are similiar to the sage npc but only this questinfo is displayed for this npc
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0,"Yolanda#1F");
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0,"Yolanda#1F");
+- ADAPT [=->set] ill_anthell = 1;
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0,"Mirko#1F");
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0,"Mirko#1F");
+- ADAPT [=->set] ill_anthell = 2;
+- ADAPT [=->set] ill_anthell = 3;
+- ADAPT [=->set] ill_anthell = 5;
+- ADAPT [=->set] ill_anthell = 8;
+- COMMENT [open_quest_ui] open_quest_ui(8729);
+- ADAPT [=->set] ill_anthell = 10;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8731) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8733) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8737) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_anthell == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8719) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8720) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8722) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8728) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8730) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8730) == 2 && isbegin_quest(8731) == 1 && countitem(1000504) >= 20" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8730) == 2 && isbegin_quest(8733) == 1 && countitem(1000505) >= 20" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8730) == 2 && isbegin_quest(8737) == 1 && countitem(1000506) >= 20" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8735,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8732,PLAYTIME) == -1 && isbegin_quest(8731) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8732,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8734,PLAYTIME) == -1 && isbegin_quest(8733) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8734,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8736,PLAYTIME) == -1 && checkquest(8735,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8736,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8738,PLAYTIME) == -1 && isbegin_quest(8737) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8730) == 2 && checkquest(8738,PLAYTIME) == 2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Gona#ant2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Julio#ant2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Briashen#ant2" );
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4068;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_SEX, SEX_MALE;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 13;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 5;
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4070;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_SEX, SEX_MALE;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 12;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 3;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HEADMIDDLE, 65;
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4056;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLOTHCOLOR, 1;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 13;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 7;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HEADTOP, 1523;
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,177,181,5	script	Gona#iltw	HIDDEN_NPC,{
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4068;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_SEX, SEX_MALE;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 13;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 5;
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,171,179,3	script	Mick#iltw	HIDDEN_NPC,{
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4055;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 28;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 2;
+- BOUNDARY [ant_d02_i] ant_d02_i,170,190,0	warp2	antd02i_anthell02	1,1,anthell02,172,185
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,44,258,0	script	#il_tw1	HIDDEN_WARP_NPC,3,3,{
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Briashen#part1" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rwella#part2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Khahris#part3" );
+- BOUNDARY [ant_d02_i] ant_d02_i,65,246,0	duplicate(#il_tw1)	#ep18w02_1	HIDDEN_WARP_NPC,3,3
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,44,258,6	script(CLOAKED)	Briashen#part1	HIDDEN_NPC,{
+- ADAPT [=->set] ill_anthell = 4;
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_anthell = 6;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rwella#part2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Khahris#part3" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Khahris#part4" );
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4056;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLOTHCOLOR, 1;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 13;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 7;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HEADTOP, 1523;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8721) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8723) == 1" );
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,86,189,0	script	#il_tw2	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [isbegin_quest->0] if (ill_anthell == 6 && isbegin_quest(8725) == 0)
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rwella#part2" );
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,86,189,2	script(CLOAKED)	Rwella#part2	HIDDEN_NPC,{
+- ADAPT [isbegin_quest->0] if (ill_anthell == 6 && isbegin_quest(8725) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8725) != 1 || isbegin_quest(8726) != 1 || isbegin_quest(8727) != 1) {
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_anthell = 7;
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rwella#part5" );
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4056;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLOTHCOLOR, 1;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 13;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 7;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HEADTOP, 1523;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8724) == 1 && isbegin_quest(8725) == 0" );
+- BOUNDARY [ant_d02_i] ant_d02_i,86,189,2	duplicate(dummy_cloaked_npc)	Rwella#part5	ILL_VITATA
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,258,42,0	script	#il_tw3	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [isbegin_quest->0] if (ill_anthell == 6 && isbegin_quest(8726) == 0)
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Khahris#part3" );
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,258,42,2	script(CLOAKED)	Khahris#part3	HIDDEN_NPC,{
+- ADAPT [isbegin_quest->0] if (ill_anthell == 6 && isbegin_quest(8726) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8725) != 1 || isbegin_quest(8726) != 1 || isbegin_quest(8727) != 1) {
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_anthell = 7;
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Khahris#part6" );
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4056;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLOTHCOLOR, 1;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 13;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 7;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HEADTOP, 1523;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8724) == 1 && isbegin_quest(8726) == 0" );
+- BOUNDARY [ant_d02_i] ant_d02_i,258,42,2	duplicate(dummy_cloaked_npc)	Khahris#part6	ILL_VITATA
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,259,147,0	script	#il_tw4	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [isbegin_quest->0] if (ill_anthell == 6 && isbegin_quest(8727) == 0)
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Khahris#part4" );
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,259,147,7	script(CLOAKED)	Khahris#part4	HIDDEN_NPC,{
+- ADAPT [isbegin_quest->0] if (ill_anthell == 6 && isbegin_quest(8727) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8725) != 1 || isbegin_quest(8726) != 1 || isbegin_quest(8727) != 1) {
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] ill_anthell = 7;
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Khahris#part7" );
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 24;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLOTHCOLOR, 3;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 13;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 7;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HEADTOP, 1523;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8724) == 1 && isbegin_quest(8727) == 0" );
+- BOUNDARY [ant_d02_i] ant_d02_i,259,147,7	duplicate(dummy_cloaked_npc)	Khahris#part7	ILL_VITATA
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,130,73,0	script	#il_tw5	HIDDEN_WARP_NPC,3,3,{
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Briashen#part8" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Vitata#part9" );
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,130,73,2	script(CLOAKED)	Briashen#part8	HIDDEN_NPC,{
+- COMMENT [cloakonnpcself] cloakonnpcself( "Vitata#part9" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Quiet Maya#part10" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Vitata#part11" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Vitata#part11" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Quiet Maya#part10" );
+- ADAPT [=->set] ill_anthell = 9;
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4056;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLOTHCOLOR, 1;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 13;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 7;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HEADTOP, 1523;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(8729) == 1" );
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,125,73,6	script(CLOAKED)	Vitata#part9	ILL_VITATA,{
+- BOUNDARY [ant_d02_i] ant_d02_i,128,73,6	duplicate(dummy_cloaked_npc)	Quiet Maya#part10	ILL_MAYA
+- BOUNDARY [ant_d02_i] ant_d02_i,129,73,2	duplicate(dummy_cloaked_npc)	Vitata#part11	ILL_VITATA
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,161,189,3	script	Exit#IBTin	4_ENERGY_BLUE,{
+- ADAPT [=->set] ill_teddy = 1;
+- ADAPT [=->set] ill_teddy = 6;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 150 && ill_teddy == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(11560) == 1" );
+- ADAPT [=->set] ill_teddy = 2;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(11556) == 1" );
+- ADAPT [=->set] ill_teddy = 3;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(11557) == 1" );
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,170,193,5	script	Steven#IBT	4W_M_02,3,3,{
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "White Teddy Bear#IBT" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Teddy Bear#IBT" );
+- ADAPT [=->set] ill_teddy = 4;
+- COMMENT [cloakonnpcself] cloakonnpcself( "White Teddy Bear#IBT" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Teddy Bear#IBT" );
+- ADAPT [=->set] ill_teddy = 5;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Acid#IBT_inN01" );
+- ADAPT [=->set] ill_teddy = 7;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Acid#IBT_inN01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Acid#IBT_inN01" );
+- ADAPT [=->set] ill_teddy = 9;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Acid#IBT_inN01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "White Teddy Bear#IBT" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Teddy Bear#IBT" );
+- ADAPT [=->set] ill_teddy = 4;
+- COMMENT [cloakonnpcself] cloakonnpcself( "White Teddy Bear#IBT" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Teddy Bear#IBT" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(11558) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(11559) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(11561) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(11563,HUNTING) == 2 && checkquest(11564,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_teddy == 9 && checkquest(11565,HUNTING) == -1 && checkquest(11566,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(11565,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(11566,PLAYTIME) == 2" );
+- BOUNDARY [ein_d02_i] ein_d02_i,135,229,1	duplicate(dummy_cloaked_npc)	Acid#IBT_inN	4_M_NFMAN
+- BOUNDARY [ein_d02_i] ein_d02_i,169,193,5	duplicate(dummy_cloaked_npc)	White Teddy Bear#IBT	4_TEDDY_BEAR_W
+- BOUNDARY [ein_d02_i] ein_d02_i,171,193,3	duplicate(dummy_cloaked_npc)	Teddy Bear#IBT	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,172,192,1	duplicate(dummy_cloaked_npc)	Acid#IBT_inN01	4_M_NFMAN
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,132,233,0	script	#ITBSuspicious place	HIDDEN_WARP_NPC,3,3,{
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB02_1" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB04" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB05" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB06" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB07" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB08" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB09" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB10" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB11" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB12" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB13" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB15" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB16" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB17" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB18" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB19" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB20" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB21" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB22" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB02_1" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "??????#IBT_inB02_2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Steven#IBT_inN" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Acid#IBT_inN" );
+- ADAPT [=->set] ill_teddy = 8;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Steven#IBT_inN" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Acid#IBT_inN" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB01" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB02_2" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB03" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB04" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB05" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB06" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB07" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB08" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB09" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB10" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB11" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB12" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB13" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB15" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB16" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB17" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB18" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB19" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB20" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB21" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "??????#IBT_inB22" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(11562) == 1" );
+- BOUNDARY [ein_d02_i] ein_d02_i,142,244,3	duplicate(dummy_cloaked_npc)	??????#IBT_inB01	4_NASARIAN_EM
+- BOUNDARY [ein_d02_i] ein_d02_i,141,244,5	duplicate(dummy_cloaked_npc)	??????#IBT_inB02_1	4_TEDDY_BEAR_B_L
+- BOUNDARY [ein_d02_i] ein_d02_i,141,244,5	duplicate(dummy_cloaked_npc)	??????#IBT_inB02_2	4_TEDDY_BEAR_B
+- BOUNDARY [ein_d02_i] ein_d02_i,140,244,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB03	4_TEDDY_BEAR_W
+- BOUNDARY [ein_d02_i] ein_d02_i,141,240,5	duplicate(dummy_cloaked_npc)	??????#IBT_inB04	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,139,240,5	duplicate(dummy_cloaked_npc)	??????#IBT_inB05	4_TEDDY_BEAR_W
+- BOUNDARY [ein_d02_i] ein_d02_i,140,238,5	duplicate(dummy_cloaked_npc)	??????#IBT_inB06	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,136,240,5	duplicate(dummy_cloaked_npc)	??????#IBT_inB07	4_TEDDY_BEAR_W
+- BOUNDARY [ein_d02_i] ein_d02_i,133,240,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB08	4_TEDDY_BEAR_B
+- BOUNDARY [ein_d02_i] ein_d02_i,142,237,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB09	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,140,236,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB10	4_TEDDY_BEAR_W
+- BOUNDARY [ein_d02_i] ein_d02_i,142,243,1	duplicate(dummy_cloaked_npc)	??????#IBT_inB11	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,144,242,3	duplicate(dummy_cloaked_npc)	??????#IBT_inB12	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,144,240,1	duplicate(dummy_cloaked_npc)	??????#IBT_inB13	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,141,246,5	duplicate(dummy_cloaked_npc)	??????#IBT_inB14	4_TEDDY_BEAR_W
+- BOUNDARY [ein_d02_i] ein_d02_i,141,237,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB15	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,141,242,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB16	4_TEDDY_BEAR_B
+- BOUNDARY [ein_d02_i] ein_d02_i,137,240,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB17	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,136,238,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB18	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,138,238,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB19	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,141,241,7	duplicate(dummy_cloaked_npc)	??????#IBT_inB20	4_TEDDY_BEAR_B
+- BOUNDARY [ein_d02_i] ein_d02_i,145,241,1	duplicate(dummy_cloaked_npc)	??????#IBT_inB21	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,140,243,5	duplicate(dummy_cloaked_npc)	??????#IBT_inB22	4_NASARIAN
+- BOUNDARY [ein_d02_i] ein_d02_i,133,233,7	duplicate(dummy_cloaked_npc)	Steven#IBT_inN	4W_M_02
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,168,206,5	script	Gloomy Teddy Bear#ITB	4_TEDDY_BEAR_B_L,{
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_teddy == 9 && checkquest(11569,PLAYTIME) == -1 && checkquest(11567,HUNTING) == -1 && checkquest(11568,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(11569,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(11567,HUNTING) == 2 && checkquest(11568,HUNTING) == 2" );
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,191,192,3	script	Porcelain Doll Craftsman#ITB	4_F_HUWOMAN,{
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "ill_teddy == 9 && checkquest(11571,PLAYTIME) == -1 && checkquest(11570,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(11571,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(11570,HUNTING) == 2" );
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,169,244,1	script	White Bear#ITBz01	4_TEDDY_BEAR_W,3,3,{
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,169,244,1	script	Sirumsireum Teddy Bear#ITBz02	4_TEDDY_BEAR_B_L,{
+- UNRESOLVED [questinfo] Elder Sanyul#illusion_moonlight
+- UNRESOLVED [cloakoffnpcself,cloakonnpcself,questinfo] Young Scholar#ill_moon_arch
+- UNRESOLVED [cloakoffnpcself,questinfo,setpcblock] Muyeon#ill_moon_pin
+- UNRESOLVED [cloakoffnpcself,cloakonnpcself,questinfo,setpcblock] Shimmering Portal#ill_moon_in
+- BOUNDARY [pay_d03_i] Shimmering Portal#ill_moon_out
+- BOUNDARY [pay_d03_i] Scholar Chunghae#ill_moon_ind
+- BOUNDARY [pay_d03_i] Soldier Junghee#ill_moon_ind
+- BOUNDARY [pay_d03_i] Villager#ill_moon_0
+- BOUNDARY [pay_d03_i] Villager#ilp17
+- BOUNDARY [pay_d03_i] Villager#ilp18
+- BOUNDARY [pay_d03_i] Villager#ill_moon_3
+- BOUNDARY [pay_d03_i] Villager#ill_moon_4
+- UNRESOLVED [questinfo] Mojo#ilgf
+- UNRESOLVED [cloakoffnpcself,cloakonnpcself,getnpcid,questinfo] Grimm#ilgf
+- BOUNDARY [gef_d01_i] #illcon01
+- BOUNDARY [gef_d01_i] Marina#ilgf01
+- BOUNDARY [gef_d01_i] Antoine#ilgf01
+- BOUNDARY [gef_d01_i] Gem#ilgf01
+- BOUNDARY [gef_d01_i] Marina#ilgf03
+- BOUNDARY [gef_d01_i] #ilgf06
+- BOUNDARY [gef_d01_i] Priest#ilgf01
+- BOUNDARY [gef_d01_i] Wizard#ilgf06
+- BOUNDARY [gef_d01_i] Wizard#ilgf08
+- BOUNDARY [gef_d01_i] Wizard#ilgf09
+- BOUNDARY [gef_d01_i] Wizard#ilgf11
+- BOUNDARY [gef_d01_i] Wizard#ilgf12
+- BOUNDARY [gef_d01_i] Wizard#ilgf14
+- BOUNDARY [gef_d01_i] Wizard#ilgf16
+- BOUNDARY [gef_d01_i] Wizard#ilgf18
+- BOUNDARY [gef_d01_i] Wizard#ilgf19
+- BOUNDARY [gef_d01_i] Wizard#ilgf21
+- BOUNDARY [gef_d01_i] Wizard#ilgf23
+- BOUNDARY [gef_d01_i] Wizard#ilgf24
+- BOUNDARY [gef_d01_i] Wizard#ilgf25
+- BOUNDARY [gef_d01_i] Wizard#ilgf28
+- BOUNDARY [gef_d01_i] Wizard#ilgf01
+- ORPHAN [dummy_cloaked_npc] pay_arche,44,133,7	duplicate(dummy_cloaked_npc)	Payon Soldier#ill_moon_arch	4_M_PAY_SOLDIER
+- ORPHAN [dummy_cloaked_npc] pay_arche,46,135,5	duplicate(dummy_cloaked_npc)	Muyeon#ill_moon_arch	4_F_TAEKWON
+- ORPHAN [dummy_cloaked_npc] payon_in03,30,96,5	duplicate(dummy_cloaked_npc)	Nine Tail Spirit#ill_moon_0	NINE_TAIL
+- ORPHAN [dummy_cloaked_npc] payon_in03,35,96,3	duplicate(dummy_cloaked_npc)	Nine Tail Spirit#ill_moon_1	NINE_TAIL
+- ORPHAN [dummy_cloaked_npc] payon_in03,30,93,7	duplicate(dummy_cloaked_npc)	Nine Tail Spirit#ill_moon_2	NINE_TAIL
+- ORPHAN [dummy_cloaked_npc] payon_in03,35,93,1	duplicate(dummy_cloaked_npc)	Nine Tail Spirit#ill_moon_3	NINE_TAIL
+- ORPHAN [dummy_cloaked_npc] pay_dun03,143,45,4	duplicate(dummy_cloaked_npc)	Junghee#ill_moon_pdun	4_M_PAY_SOLDIER
+- ORPHAN [dummy_cloaked_npc] pay_dun03,138,43,7	duplicate(dummy_cloaked_npc)	Young Scholar#ill_moon_pdun	4_F_03
+- ORPHAN [dummy_cloaked_npc] gef_dun01,133,221,1	duplicate(dummy_cloaked_npc)	Mojo#ilgf01	2_F_MAGICMASTER
+- ORPHAN [dummy_cloaked_npc] gef_dun01,130,222,5	duplicate(dummy_cloaked_npc)	Mojo#ilgf02	2_F_MAGICMASTER
+- ORPHAN [dummy_cloaked_npc] gef_dun01,130,224,5	duplicate(dummy_cloaked_npc)	Mojo#ilgf03	2_F_MAGICMASTER
+
+## juno_monster_society.txt
+- MARKETSHOP [market_soda] -	marketshop	market_soda	-1,1000374:50000:-1
+- ITEMFILTER [1000374] -	marketshop	market_soda	-1,1000374:50000:-1
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [callshop+flag] callshop "market_soda";
+- ADAPT [=->set] .@count = getargcount();
+- COMMENT [getargcount] .@count = getargcount();
+- ADAPT [=->set] .@cancel_index = .@count / 5;
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@count; .@i += 5 )
+- ADAPT [op=->set] .@menu$ += "[" + getarg(.@i) + "] " + getarg(.@i+1) + ":";
+- ADAPT [op=->set] .@menu$ += "Cancel";
+- ADAPT [=->set] .@s = select(.@menu$) - 1;
+- ADAPT [=->set] .@s = .@s * 5;
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16547) == 0) {
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16547) == 0) {
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16547) == 0) {
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16547) == 0) {
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16547) == 0) {
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16547) == 0) {
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16547) == 0) {
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16547) == 0) {
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [mesitemlink] mes "Can I move it to Einbroch? Give me one " + mesitemlink( 1000374 ) + " and I can teleport you.";
+- COMMENT [mesitemlink] mes "Can I move it to Einbroch? Give me one " + mesitemlink( 1000374 ) + " and I can teleport you.";
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "(checkquest(5917,PLAYTIME) == 0 || checkquest(5917,PLAYTIME) == 1) && countitem(1000374) > 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 70 && checkquest(5916,HUNTING) == -1 && checkquest(5917,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(5916,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(5917,PLAYTIME) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [mesitemlink] mes "Give me 1 " + mesitemlink( 1000374 ) + " and I can teleport you to Geffen.";
+- COMMENT [mesitemlink] mes "Give me 1 " + mesitemlink( 1000374 ) + " and I can teleport you to Geffen.";
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "(checkquest(5921,PLAYTIME) == 0 || checkquest(5921,PLAYTIME) == 1) && countitem(1000374) > 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 71 && checkquest(5920,HUNTING) == -1 && checkquest(5921,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(5920,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(5921,PLAYTIME) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [mesitemlink] mes "If it's a nearby city, it's Lighthalzen. Give me one " + mesitemlink( 1000374 ) + " and I can teleport you.";
+- COMMENT [mesitemlink] mes "If it's a nearby city, it's Lighthalzen. Give me one " + mesitemlink( 1000374 ) + " and I can teleport you.";
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "(checkquest(5919,PLAYTIME) == 0 || checkquest(5919,PLAYTIME) == 1) && countitem(1000374) > 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 71 && checkquest(5920,HUNTING) == -1 && checkquest(5921,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(5918,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(5919,PLAYTIME) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "(checkquest(5927,PLAYTIME) == 0 || checkquest(5927,PLAYTIME) == 1) && countitem(1000374) > 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 75 && checkquest(5926,HUNTING) == -1 && checkquest(5927,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(5926,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(5927,PLAYTIME) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [mesitemlink] mes "Are you going home? Hugel is the nearest city. I need 1 piece of " + mesitemlink( 1000374 ) + ".";
+- COMMENT [mesitemlink] mes "Are you going home? Hugel is the nearest city. I need 1 piece of " + mesitemlink( 1000374 ) + ".";
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "(checkquest(5925,PLAYTIME) == 0 || checkquest(5925,PLAYTIME) == 1) && countitem(1000374) > 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 75 && checkquest(5924,HUNTING) == -1 && checkquest(5925,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(5924,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(5925,PLAYTIME) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [mesitemlink] mes "Give me one " + mesitemlink( 1000374 ) + " and I can teleport you to Alberta.";
+- COMMENT [mesitemlink] mes "Give me one " + mesitemlink( 1000374 ) + " and I can teleport you to Alberta.";
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "(checkquest(5925,PLAYTIME) == 0 || checkquest(5925,PLAYTIME) == 1) && countitem(1000374) > 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 75 && checkquest(5922,HUNTING) == -1 && checkquest(5923,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(5922,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(5923,PLAYTIME) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 76 && checkquest(3471,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3471,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 77 && checkquest(3473,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3473,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [mesitemlink] mes "If you give me one " + mesitemlink( 1000374 ) + ", I can teleport you to the nearby city, Alberta.";
+- COMMENT [mesitemlink] mes "If you give me one " + mesitemlink( 1000374 ) + ", I can teleport you to the nearby city, Alberta.";
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "(checkquest(5929,PLAYTIME) == 0 || checkquest(5929,PLAYTIME) == 1) && countitem(1000374) > 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 80 && checkquest(5928,HUNTING) == -1 && checkquest(5929,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(5929,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(5928,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [mesitemlink] mes "Alberta Express 1 " + mesitemlink( 1000374 ) + ", left immediately.";
+- COMMENT [mesitemlink] mes "Alberta Express 1 " + mesitemlink( 1000374 ) + ", left immediately.";
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "(checkquest(5931,PLAYTIME) == 0 || checkquest(5931,PLAYTIME) == 1) && countitem(1000374) > 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 80 && checkquest(5930,HUNTING) == -1 && checkquest(5931,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(5931,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(5930,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 80 && checkquest(3475,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3475,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 85 && checkquest(3483,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3483,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 85 && checkquest(3479,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3479,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [=->set] .@skip = true;
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 86 && checkquest(8668,HUNTING) == -1 && checkquest(8667,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8667,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8668,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 86 && checkquest(3477,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3477,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [=->set] .@skip = true;
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 86 && checkquest(8665,HUNTING) == -1 && checkquest(8664,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8664,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8665,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [=->set] .@skip = true;
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 87 && checkquest(8671,HUNTING) == -1 && checkquest(8670,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8670,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8671,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [=->set] .@skip = true;
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 88 && checkquest(8662,HUNTING) == -1 && checkquest(8661,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8661,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8662,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 90 && checkquest(3481,HUNTING) == -1 && checkquest(3482,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(3482,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(3481,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8675) < 2) {
+- ADAPT [=->set] .@quest_id = getarg(0);
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 90 && checkquest(8675,HUNTING) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8675) == 2 && checkquest(8677,HUNTING) == -1 && checkquest(8676,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8676,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8675,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8677,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [=->set] .@skip = true;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8672) == 2)
+- ADAPT [=->set] .@quest_id = 8674;
+- ADAPT [=->set] .@quest_id = 8672;
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 93 && checkquest(8672,HUNTING) == -1 && checkquest(8673,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8672) == 2 && checkquest(8674,HUNTING) == -1 && checkquest(8673,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8673,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8672,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8674,HUNTING) == 2" );
+- ADAPT [=->set] .@npc_name$ = "[" + strnpcinfo(1) + "]";
+- ADAPT [=->set] .@item_name$ = getitemname(1000374);
+- ADAPT [=->set] .@skip = true;
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Juno Monster Society>";
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 95 && checkquest(8680,HUNTING) == -1 && checkquest(8679,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8679,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8680,HUNTING) == 2" );
+- UNRESOLVED [getargcount] F_Brilliant_Soda
+- UNRESOLVED [getnpcid,setunittitle] Assistant Mumuz#ra
+- UNRESOLVED [getnpcid,setunittitle] Assistant Dunea#alb
+- UNRESOLVED [getnpcid,setunittitle] Assistant Remain#ein
+- UNRESOLVED [getnpcid,setunittitle] Assistant Kihana#gef
+- UNRESOLVED [getnpcid,setunittitle] Assistant Avery#yu
+- UNRESOLVED [getnpcid,setunittitle] Assistant Eureka#ve
+- UNRESOLVED [getnpcid,setunittitle] Assistant Staff#lig
+- UNRESOLVED [getnpcid,setunittitle] Assistant Alonzo#prt
+- UNRESOLVED [getnpcid,mesitemlink,questinfo,setunittitle] Map Examiner Bast#yma
+- UNRESOLVED [getnpcid,mesitemlink,questinfo,setunittitle] Map Examiner Gefil#yma
+- UNRESOLVED [getnpcid,mesitemlink,questinfo,setunittitle] Map Examiner Lipiri#yma
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Mother One#yma
+- UNRESOLVED [getnpcid,mesitemlink,questinfo,setunittitle] Map Examiner Huf#yma
+- UNRESOLVED [getnpcid,mesitemlink,questinfo,setunittitle] Map Examiner Tural#yma
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Tailing#tailing
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Modaka#madaka
+- UNRESOLVED [getnpcid,mesitemlink,questinfo,setunittitle] Map Examiner Tidun#yma
+- UNRESOLVED [getnpcid,mesitemlink,questinfo,setunittitle] Map Examiner Tsensor#yma
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Chakari#chakari
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Dove#dove123
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Lucia#rsia
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Sukumari#85
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Shevko#chevco
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Lauren#85
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Valenzela#85
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Ciara#85
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Yirun Seo#suiroon
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Rana#85
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Kantu#85
+- UNRESOLVED [getnpcid,questinfo,setunittitle] Map Examiner Dew#85
+
+## garden_of_time.txt
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 250 && isbegin_quest(12592) == 0" );
+- MANUAL [unregistered-map:t_garden] t_garden,111,36,2	script	Dimensional Barrier#got2	GATE_SKYBLUE,2,2,{
+- MANUAL [unregistered-map:t_garden] t_garden,118,66,0	script	#wp01_t_garden	HIDDEN_WARP_NPC,3,1,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- MANUAL [unregistered-map:t_garden] t_garden,118,72,0	script	#wp02_t_garden	HIDDEN_WARP_NPC,3,1,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- MANUAL [unregistered-map:t_garden] t_garden,116,47,0	script	#life_wp11	HIDDEN_WARP_NPC,2,2,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12592) == 0) {
+- COMMENT [removespecialeffect] removespecialeffect 1145, AREA, "Oscar#life";
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Oscar#life" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Leticia#life" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rigel#life" );
+- MANUAL [unregistered-map:t_garden] t_garden,114,49,6	script(CLOAKED)	Leticia#life	4_4JOB_LETICIA,{
+- MANUAL [unregistered-map:t_garden] t_garden,118,49,3	script(CLOAKED)	Rigel#life	4_CS_RIGEL,{
+- MANUAL [unregistered-map:t_garden] t_garden,119,46,2	script(CLOAKED)	Oscar#life	4_ED_OSCAR,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12592) == 0) {
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Oscar#life" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Leticia#life" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rigel#life" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 250 && isbegin_quest(12592) == 0" );
+- MANUAL [unregistered-map:t_garden] t_garden,118,91,0	script	#wp01_t_garden_1	HIDDEN_WARP_NPC,2,2,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12592) == 2) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Leticia#life2" );	// note: always uncloaked at this point
+- MANUAL [unregistered-map:t_garden] t_garden,118,91,6	script(CLOAKED)	Leticia#life2	4_4JOB_LETICIA,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12593) == 1) {
+- COMMENT [close3] close3;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12595) == 1 || isbegin_quest(12596) == 1) {
+- COMMENT [close3] close3;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) == 0) {
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12593) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12620) == 0 && isbegin_quest(12595) == 2 && isbegin_quest(12596) == 2" );
+- MANUAL [unregistered-map:t_garden] t_garden,82,92,0	script	#life_wp2	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(12595) ) {
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Passage of Time#1" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12596) == 1) {
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Passage of Time#1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12595) == 1" );
+- MANUAL [unregistered-map:t_garden] t_garden,78,92,2	script(CLOAKED)	Passage of Time#1	GATE_SKYBLUE,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12595) != 2)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12596) != 2) {
+- COMMENT [close3] close3;
+- MANUAL [unregistered-map:t_garden] t_garden,151,92,0	script	#life_wp3	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(12596) ) {
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Passage of Time#2" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12595) == 1) {
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Passage of Time#2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12596) == 1" );
+- MANUAL [unregistered-map:t_garden] t_garden,157,92,2	script(CLOAKED)	Passage of Time#2	GATE_SKYBLUE,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12596) != 2)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12595) != 2) {
+- COMMENT [close3] close3;
+- MANUAL [unregistered-map:for_dun01] for_dun01,100,146,2	script	Spatial coordinate probe#1	4_SYSTEM_BOX,{
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "isbegin_quest(12595) == 2" );
+- BOUNDARY [for_dun01] for_dun01,128,282,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#2	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,55,142,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#3	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,262,167,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#4	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,204,67,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#5	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,57,270,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#6	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,65,34,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#7	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,146,27,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#8	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,154,139,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#9	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,124,203,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#10	4_SYSTEM_BOX
+- BOUNDARY [for_dun01] for_dun01,267,265,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#11	4_SYSTEM_BOX
+- MANUAL [unregistered-map:for_dun02] for_dun02,190,147,2	script	Spatial coordinate probe#12	4_SYSTEM_BOX,{
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "isbegin_quest(12596) == 2" );
+- BOUNDARY [for_dun02] for_dun02,143,149,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#13	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,276,29,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#14	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,106,34,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#15	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,216,271,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#16	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,64,268,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#17	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,18,170,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#18	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,16,92,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#19	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,29,52,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#20	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,276,255,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#21	4_SYSTEM_BOX
+- BOUNDARY [for_dun02] for_dun02,283,197,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#22	4_SYSTEM_BOX
+- MANUAL [unregistered-map:t_garden] t_garden,118,141,0	script	#life_wp4	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12618) == 1) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Oscar#life2" );
+- MANUAL [unregistered-map:t_garden] t_garden,118,142,3	script(CLOAKED)	Oscar#life2	4_ED_OSCAR,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12618) == 1) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Leticia#life3" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Oscar#life2" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Leticia#life3" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12618) == 1" );
+- BOUNDARY [t_garden] t_garden,115,139,7	duplicate(dummy_cloaked_npc)	Leticia#life3	4_4JOB_LETICIA
+- MANUAL [unregistered-map:t_garden] t_garden,166,217,0	script	#wp11_t_garden	HIDDEN_WARP_NPC,2,2,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12594) == 1) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Rigel#life2" );
+- MANUAL [unregistered-map:t_garden] t_garden,166,217,3	script(CLOAKED)	Rigel#life2	4_CS_RIGEL,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12594) == 1) {
+- COMMENT [close3] close3;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12594) == 1" );
+- MANUAL [unregistered-map:t_garden] t_garden,166,235,0	script	#wp12_t_garden	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(12597) ) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Sealing Spirit Stone#life2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Sealing Spirit Stone#life2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dimensional Prison#1" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dimensional Prison#2" );
+- MANUAL [unregistered-map:t_garden] t_garden,166,235,3	script(CLOAKED)	Sealing Spirit Stone#life2	HEROS_OUT_ORB,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(12597) ) {
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dimension Prison#1" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Dimension Prison#2" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Rigel#life2" );
+- COMMENT [mesitemlink] mes "Only accessible while holding " + mesitemlink(1001415) + ".";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12597) == 1" );
+- MANUAL [unregistered-map:t_garden] t_garden,158,235,2	script(CLOAKED)	Dimension Prison#1	GATE_SKYBLUE,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12597) != 2)
+- MANUAL [unregistered-map:t_garden] t_garden,173,235,2	script(CLOAKED)	Dimension Prison#2	GATE_SKYBLUE,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12597) != 2)
+- MANUAL [unregistered-map:t_garden] t_garden,105,118,0	script	#wp01_t_garden_2	HIDDEN_WARP_NPC,6,5,{
+- ADAPT [=->set] .@state = isbegin_quest(12620);
+- ADAPT [isbegin_quest->0] .@state = isbegin_quest(12620);
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Ardor#life2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Diluvio#life2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Procella#life2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Terremotus#life2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Serpens#life2" );
+- COMMENT [navigateto] navigateto("t_garden",126,117);
+- MANUAL [unregistered-map:t_garden] t_garden,97,114,5	script(CLOAKED)	Diluvio#life2	4_EM_DILUVIO,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- ADAPT [=->set] .@quest_id[0] = rand(12633,12634);
+- ADAPT [=->set] .@quest_id[1] = rand(12635,12636);
+- COMMENT [open_quest_ui] open_quest_ui(.@quest_id[0]);
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12598,PLAYTIME) == -1 || checkquest(12598,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12633,12634,12635,12636 ) == 0" );
+- MANUAL [unregistered-map:t_garden] t_garden,100,117,5	script(CLOAKED)	Terremotus#life2	4_EM_TERREMOTUS,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- ADAPT [=->set] .@quest_id[0] = rand(12621,12622);
+- ADAPT [=->set] .@quest_id[1] = rand(12623,12624);
+- COMMENT [open_quest_ui] open_quest_ui(.@quest_id[0]);
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12599,PLAYTIME) == -1 || checkquest(12599,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12621,12622,12623,12624 ) == 0" );
+- MANUAL [unregistered-map:t_garden] t_garden,103,120,5	script(CLOAKED)	Serpens#life2	4_EM_SERPENS,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- ADAPT [=->set] .@quest_id[0] = rand(12637,12638);
+- ADAPT [=->set] .@quest_id[1] = rand(12639,12643);
+- COMMENT [open_quest_ui] open_quest_ui(.@quest_id[0]);
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12600,PLAYTIME) == -1 || checkquest(12600,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12637,12638,12639,12640,12641,12642,12643 ) == 0" );
+- MANUAL [unregistered-map:t_garden] t_garden,106,123,5	script(CLOAKED)	Procella#life2	4_EM_PROCELLA,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- ADAPT [=->set] .@quest_id[0] = rand(12629,12630);
+- ADAPT [=->set] .@quest_id[1] = rand(12631,12632);
+- COMMENT [open_quest_ui] open_quest_ui(.@quest_id[0]);
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12601,PLAYTIME) == -1 || checkquest(12601,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12629,12630,12631,12632 ) == 0" );
+- MANUAL [unregistered-map:t_garden] t_garden,109,126,5	script(CLOAKED)	Ardor#life2	4_EM_ARDOR,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- ADAPT [=->set] .@quest_id[0] = rand(12625,12626);
+- ADAPT [=->set] .@quest_id[1] = rand(12627,12628);
+- COMMENT [open_quest_ui] open_quest_ui(.@quest_id[0]);
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12602,PLAYTIME) == -1 || checkquest(12602,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12625,12626,12627,12628 ) == 0" );
+- MANUAL [unregistered-map:t_garden] t_garden,126,123,0	script	#v_wp01	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Subspace vending machine#1" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Subspace vending machine#2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Subspace vending machine#3" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Spirit Complaint Terminal#1" );
+- BOUNDARY [t_garden] t_garden,130,119,0	duplicate(#v_wp01)	#v_wp02	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [t_garden] t_garden,134,115,0	duplicate(#v_wp01)	#v_wp03	HIDDEN_WARP_NPC,4,4
+- MANUAL [unregistered-map:t_garden] t_garden,126,126,2	script(CLOAKED)	Spirit Complaint Terminal#1	4_VENDING_MACHINE2,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12622, "Terremotus' Request 2", 1001464, 13890900,0 );	// Energy_Of_Ground
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12623, "Terremotus' Request 3", 1001464, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12624, "Terremotus' Request 4", 1001464, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12625, "Ardor's Request 1", 1001461, 13890900,0 );	// Energy_Of_Flame
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12626, "Ardor's Request 2", 1001461, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12627, "Ardor's Request 3", 1001461, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12628, "Ardor's Request 4", 1001461, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12629, "Procella's Request 1", 1001463, 13890900,0 );	// Energy_Of_Wind
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12630, "Procella's Request 2", 1001463, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12631, "Procella's Request 3", 1001463, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12632, "Procella's Request 4", 1001463, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12633, "Diluvio's Request 1", 1001462, 13890900,0 );	// Energy_Of_Water
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12634, "Diluvio's Request 2", 1001462, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12635, "Diluvio's Request 3", 1001462, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12636, "Diluvio's Request 4", 1001462, 13890900,0 );
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12637, "Serpens's Request 1", 1001465, 27176580,0 );	// Grace_Of_Spirit
+- ADAPT [op=->set] .@count += callsub( S_Hunt, 12638, "Serpens's Request 2", 1001465, 27176580,0 );
+- ADAPT [op=->set] .@count += callsub( S_Gathering, 12640, "Serpens's Request 4", 1001434,10, 1001462, 27176580,0 );
+- ADAPT [op=->set] .@count += callsub( S_Gathering, 12641, "Serpens's Request 5", 1001435,10, 1001463, 27176580,0 );
+- ADAPT [op=->set] .@count += callsub( S_Gathering, 12642, "Serpens's Request 6", 1001436,10, 1001464, 27176580,0 );
+- ADAPT [op=->set] .@count += callsub( S_Gathering, 12643, "Serpens's Request 7", 1001432,20, 1001465, 27176580,0 );
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 10; ++.@i )
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 10; ++.@i )
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "<Elemental Latest Model>" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12621,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12622,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12623,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12624,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12625,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12626,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12627,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12628,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12629,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12630,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12631,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12632,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12633,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12634,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12635,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12636,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12637,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12638,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12639) == 1 && countitem(1001433) >= 10" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12640) == 1 && countitem(1001434) >= 10" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12641) == 1 && countitem(1001435) >= 10" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12642) == 1 && countitem(1001436) >= 10" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12643) == 1 && countitem(1001432) >= 20" );
+- MANUAL [unregistered-map:t_garden] t_garden,129,123,2	script(CLOAKED)	Subspace vending machine#1	HEROS_IN_ORB_1,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- ADAPT [callshop+flag] callshop( "barter_t_garden_1" );
+- ADAPT [callshop+flag] callshop( "barter_t_garden_2" );
+- ADAPT [callshop+flag] callshop( "barter_t_garden_3" );
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "<Welcome to various goods trading>" );
+- MANUAL [unregistered-map:t_garden] t_garden,132,120,2	script(CLOAKED)	Subspace vending machine#2	HEROS_IN_ORB_2,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- ADAPT [callshop+flag] callshop( "barter_t_garden_4" );
+- ADAPT [callshop+flag] callshop( "barter_t_garden_5" );
+- COMMENT [item_reform] item_reform("Season_H_Upgrade");
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "<Clothing Upgrade Specialist>" );
+- MANUAL [unregistered-map:t_garden] t_garden,135,117,2	script(CLOAKED)	Subspace vending machine#3	HEROS_IN_ORB_3,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- COMMENT [item_enchant] item_enchant(117);
+- COMMENT [item_enchant] item_enchant(119);
+- COMMENT [item_enchant] item_enchant(121);
+- COMMENT [item_enchant] item_enchant(123);
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "<Divine Cloak Enchantment>" );
+- MANUAL [unregistered-map:t_garden] t_garden,138,114,2	script(CLOAKED)	Subspace vending machine#4	HEROS_IN_ORB_4,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12620) != 2)
+- COMMENT [item_enchant] item_enchant(142);
+- COMMENT [item_enchant] item_enchant(118);
+- COMMENT [item_enchant] item_enchant(120);
+- COMMENT [item_enchant] item_enchant(122);
+- COMMENT [item_enchant] item_enchant(124);
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "<Circle of Life Ingent>" );
+- MANUAL [unregistered-map:t_garden] t_garden,156,222,2	script	Functional Vending Machine#1	4_VENDING_MACHINE2,{
+- ADAPT [=->set] .@storage_num = 1;
+- ADAPT [=->set] .@storage_num = 2;
+- ADAPT [=->set] .@storage_num = 3;
+- ADAPT [=->set] .@num = atoi( strnpcinfo(2) );
+- ADAPT [op=->set] Zeny -= 100;
+- COMMENT [questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "isbegin_quest(12592) == 2" );
+- BOUNDARY [t_garden] t_garden,97,138,6	duplicate(Functional Vending Machine#1)	Functional Vending Machine#2	4_VENDING_MACHINE2
+- BOUNDARY [t_garden] t_garden,91,116,2	duplicate(Functional Vending Machine#1)	Functional Vending Machine#3	4_VENDING_MACHINE2
+- BOUNDARY [t_garden] t_garden,144,116,2	duplicate(Functional Vending Machine#1)	Functional Vending Machine#4	4_VENDING_MACHINE2
+- UNRESOLVED [questinfo] Dimensional barrier#got1
+- BOUNDARY [t_garden] Dimensional Barrier#got2
+- BOUNDARY [t_garden] #wp01_t_garden
+- BOUNDARY [t_garden] #wp02_t_garden
+- BOUNDARY [t_garden] #life_wp11
+- BOUNDARY [t_garden] Leticia#life
+- BOUNDARY [t_garden] Rigel#life
+- BOUNDARY [t_garden] Oscar#life
+- BOUNDARY [t_garden] #wp01_t_garden_1
+- BOUNDARY [t_garden] Leticia#life2
+- BOUNDARY [t_garden] #life_wp2
+- BOUNDARY [t_garden] Passage of Time#1
+- BOUNDARY [t_garden] #life_wp3
+- BOUNDARY [t_garden] Passage of Time#2
+- BOUNDARY [for_dun01] Spatial coordinate probe#1
+- BOUNDARY [for_dun02] Spatial coordinate probe#12
+- BOUNDARY [t_garden] #life_wp4
+- BOUNDARY [t_garden] Oscar#life2
+- BOUNDARY [t_garden] #wp11_t_garden
+- BOUNDARY [t_garden] Rigel#life2
+- BOUNDARY [t_garden] #wp12_t_garden
+- BOUNDARY [t_garden] Sealing Spirit Stone#life2
+- BOUNDARY [t_garden] Dimension Prison#1
+- BOUNDARY [t_garden] Dimension Prison#2
+- BOUNDARY [t_garden] #wp01_t_garden_2
+- BOUNDARY [t_garden] Diluvio#life2
+- BOUNDARY [t_garden] Terremotus#life2
+- BOUNDARY [t_garden] Serpens#life2
+- BOUNDARY [t_garden] Procella#life2
+- BOUNDARY [t_garden] Ardor#life2
+- BOUNDARY [t_garden] #v_wp01
+- BOUNDARY [t_garden] Spirit Complaint Terminal#1
+- BOUNDARY [t_garden] Subspace vending machine#1
+- BOUNDARY [t_garden] Subspace vending machine#2
+- BOUNDARY [t_garden] Subspace vending machine#3
+- BOUNDARY [t_garden] Subspace vending machine#4
+- BOUNDARY [t_garden] Functional Vending Machine#1
+
+## quests_dungeons_200.txt
+- MANUAL [unregistered-map:pub_cat] pub_cat,94,43,5	script	Yulma#rudus4	4_F_ANYA,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(16521) ) {
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [navigateto] navigateto("sp_rudus3",380,42);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16522) == 1) {
+- COMMENT [ET_KEK] emotion ET_KEK;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT;
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(16528) ) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16524,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16526,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(16528) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16523,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16525,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16527,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (checkquest(16524,HUNTING) == -1 && checkquest(16523,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (checkquest(16526,HUNTING) == -1 && checkquest(16525,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (isbegin_quest(16528) == 0 && checkquest(16527,PLAYTIME) == -1)" );
+- MANUAL [unregistered-map:sp_rudus3] sp_rudus3,380,42,3	script	Pion#rudus4	4_M_REBELLION3,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(16521) ) {
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(16521) == 1" );
+- MANUAL [unregistered-map:sp_rudus4] sp_rudus4,192,204,3	script	Secret Wing Researcher#rudu	4_SOIL,{
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16528) == 1) {
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(16528) == 1" );
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8640) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8639) == 0) {
+- ADAPT [=->set] .@s = select( "Listen to the request", "Suspicious..." );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "BaseLevel >= 200 && isbegin_quest(8639) == 0 && isbegin_quest(8640) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8640) == 1" );
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8640) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8639) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8647) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8650) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8653) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8656) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8658) == 0 || isbegin_quest(8659) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8639) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8641,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8644,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8647) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8650,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8652,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8653,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8655,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8656) == 1 && isbegin_quest(8658) == 1 && isbegin_quest(8659) == 1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8642,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8645,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8648,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8651,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8654,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8657,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (checkquest(8641,HUNTING) == -1 && checkquest(8642,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (checkquest(8644,HUNTING) == -1 && checkquest(8645,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (isbegin_quest(8647) == 0 && checkquest(8648,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && (checkquest(8650,HUNTING) == -1 && checkquest(8651,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && isbegin_quest(8650) == 2 && checkquest(8652,HUNTING) == -1 && checkquest(8651,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && (checkquest(8653,HUNTING) == -1 && checkquest(8654,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && isbegin_quest(8653) == 2 && checkquest(8655,HUNTING) == -1 && checkquest(8654,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && (isbegin_quest(8656) == 0 && checkquest(8657,PLAYTIME) == -1)" );
+- MANUAL [unregistered-map:nif_dun01] nif_dun01,140,202,3	script	Piano#lv200	CLEAR_NPC,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8647) == 1) {
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8647) == 1" );
+- BOUNDARY [nif_dun01] nif_dun01,133,198,3	duplicate(dummy_npc)	Exciting Cello#lv200	CLEAR_NPC
+- BOUNDARY [nif_dun01] nif_dun01,138,195,3	duplicate(dummy_npc)	Dancing Cello#lv200	CLEAR_NPC
+- BOUNDARY [nif_dun01] nif_dun01,153,195,3	duplicate(dummy_npc)	Quiet Cello#lv200	CLEAR_NPC
+- BOUNDARY [nif_dun01] nif_dun01,152,198,3	duplicate(dummy_npc)	Stranger Cello#lv200	CLEAR_NPC
+- BOUNDARY [nif_dun01] nif_dun01,157,198,3	duplicate(dummy_npc)	Happy Cello#lv200	CLEAR_NPC
+- BOUNDARY [nif_dun01] nif_dun01,156,202,3	duplicate(dummy_npc)	Serious Contrabass#lv2	CLEAR_NPC
+- BOUNDARY [nif_dun01] nif_dun01,133,201,3	duplicate(dummy_npc)	Sleek Harp#lv200	CLEAR_NPC
+- MANUAL [unregistered-map:nif_dun01] nif_dun01,148,43,3	script	Helpful Gatekeeper#240	DISGUISER,{
+- MANUAL [unregistered-map:nif_dun01] nif_dun01,143,43,7	script	Silent Gatekeeper#240	GROTE,{
+- MANUAL [unregistered-map:nif_dun02] nif_dun02,37,221,3	script	Sleep Talking Ghost#lv240	CLEAR_NPC,3,3,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8656) == 1) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8659) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8658) == 1)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8659) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8656) == 1 && isbegin_quest(8659) == 0" );
+- MANUAL [unregistered-map:nif_dun02] nif_dun02,249,221,3	script	Snoring Ghost#lv240	CLEAR_NPC,3,3,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8656) == 1) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(8658) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8659) == 1)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(8658) == 0)
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8656) == 1 && isbegin_quest(8658) == 0" );
+- MANUAL [unregistered-map:pub_cat] pub_cat,86,33,5	script	Ansuriya#ami	4_F_REBELLION2,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16529) == 0) {
+- COMMENT [getnpcid,ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT, getnpcid(0,"Gerbena#ami");
+- COMMENT [getnpcid,ET_SWEAT] emotion ET_SWEAT, getnpcid(0,"Gerbena#ami");
+- COMMENT [getnpcid,ET_AHA] emotion ET_AHA, getnpcid(0,"Gerbena#ami");
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(16535) ) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16531,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16533,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(16535) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16530,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16532,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16534,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 215 && (checkquest(16531,HUNTING) == -1 && checkquest(16530,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 215 && (checkquest(16533,HUNTING) == -1 && checkquest(16532,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 215 && (isbegin_quest(16535) == 0 && checkquest(16534,PLAYTIME) == -1)" );
+- MANUAL [unregistered-map:amicitia1] amicitia1,57,242,3	script	Something#ami1	4_GC109,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16535) == 1) {
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- BOUNDARY [amicitia1] amicitia1,152,159,3	duplicate(Something#ami1)	Something#ami2	4_GC109
+- BOUNDARY [amicitia1] amicitia1,262,139,3	duplicate(Something#ami1)	Something#ami3	4_GC109
+- BOUNDARY [amicitia1] amicitia1,36,106,3	duplicate(Something#ami1)	Something#ami4	4_GC109
+- BOUNDARY [amicitia1] amicitia1,244,49,3	duplicate(Something#ami1)	Something#ami5	4_GC109
+- MANUAL [unregistered-map:pub_cat] pub_cat,89,32,3	script	Gerbena#ami	4_M_REBELLION2,{
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16537,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16539,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16536,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16538,PLAYTIME) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 230 && (checkquest(16537,HUNTING) == -1 && checkquest(16536,PLAYTIME) == -1)" );
+- COMMENT [questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 230 && (checkquest(16539,HUNTING) == -1 && checkquest(16538,PLAYTIME) == -1)" );
+- BOUNDARY [pub_cat] Yulma#rudus4
+- BOUNDARY [sp_rudus3] Pion#rudus4
+- BOUNDARY [sp_rudus4] Secret Wing Researcher#rudu
+- UNRESOLVED [questinfo] Old scholar#lv200
+- UNRESOLVED [questinfo] Tired looking dead#lv20
+- BOUNDARY [nif_dun01] Piano#lv200
+- BOUNDARY [nif_dun01] Helpful Gatekeeper#240
+- BOUNDARY [nif_dun01] Silent Gatekeeper#240
+- BOUNDARY [nif_dun02] Sleep Talking Ghost#lv240
+- BOUNDARY [nif_dun02] Snoring Ghost#lv240
+- BOUNDARY [pub_cat] Ansuriya#ami
+- BOUNDARY [amicitia1] Something#ami1
+- BOUNDARY [pub_cat] Gerbena#ami
+- ORPHAN [dummy_npc] niflheim,160,106,3	duplicate(dummy_npc)	#lv200althema	CLEAR_NPC
+- ORPHAN [dummy_npc] niflheim,165,105,3	duplicate(dummy_npc)	#lv200althema2	CLEAR_NPC
+
+## HelpMeShorty.txt
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14688) == 0 && BaseLevel < 31) {
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakoffnpcself] cloakoffnpcself("Mysterious Creature#fgtg01" );
+- COMMENT [cloakonnpcself] cloakonnpcself("Mysterious Creature#fgtg01" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14688) == 0 && BaseLevel < 31)
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(14688) == 0 && BaseLevel < 31" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14688) == 0 && BaseLevel < 31)
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Black Shadow#fgtg01" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14693) == 1) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Shorty#fgtg004" );
+- COMMENT [cloakonnpcself] cloakonnpcself("Shorty#fgtg004");
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14694) == 1)
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Salty#fgtg01" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14694) == 1) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Shorty#fgtg005" );
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpcself] cloakonnpcself( "Shorty#fgtg005" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14695) > 0)
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(14694) == 1" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14689) == 0) {
+- ADAPT [=->set] .@state = isbegin_quest(14693);
+- ADAPT [isbegin_quest->0] .@state = isbegin_quest(14693);
+- ADAPT [=->set] .@state = ((.@state == 2 && isbegin_quest(14694) == 1) ? 1 : .@state);
+- ADAPT [isbegin_quest->0] .@state = ((.@state == 2 && isbegin_quest(14694) == 1) ? 1 : .@state);
+- COMMENT [npcskill] npcskill "AL_INCAGI",10,99,60;
+- COMMENT [npcskill] npcskill "AL_BLESSING",10,99,60;
+- COMMENT [npcskill] npcskill "AL_INCAGI",10,99,60;
+- COMMENT [npcskill] npcskill "AL_BLESSING",10,99,60;
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(14693) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14694) > 0)
+- UNRESOLVED [cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] Black Shadow#fgtg01
+- UNRESOLVED [cloakoffnpcself] #fgtg01
+- UNRESOLVED [cloakoffnpcself,cloakonnpcself] Chanmo#fgtg01
+- UNRESOLVED [cloakoffnpcself] #salt01
+- UNRESOLVED [cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] Salty#fgtg01
+- UNRESOLVED [npcskill] Shorty#fgtg01
+- ORPHAN [#fgtg01] izlude,194,209,0	duplicate(#fgtg01)	#fgtg02	HIDDEN_WARP_NPC,3,5
+- ORPHAN [#fgtg01] izlude,173,210,0	duplicate(#fgtg01)	#fgtg03	HIDDEN_WARP_NPC,3,5
+- ORPHAN [#salt01] prt_fild10,262,39,0	duplicate(#salt01)	#salt02	HIDDEN_WARP_NPC,3,5
+- ORPHAN [#salt01] prt_fild10,332,128,0	duplicate(#salt01)	#salt03	HIDDEN_WARP_NPC,3,5
+- ORPHAN [#salt01] prt_fild10,222,293,0	duplicate(#salt01)	#salt04	HIDDEN_WARP_NPC,3,5
+- ORPHAN [#salt01] prt_fild10,26,196,0	duplicate(#salt01)	#salt06	HIDDEN_WARP_NPC,3,5
+- ORPHAN [#salt01] prt_fild10,311,167,0	duplicate(#salt01)	#salt07	HIDDEN_WARP_NPC,3,5
+- ORPHAN [#salt01] prt_fild10,298,212,0	duplicate(#salt01)	#salt08	HIDDEN_WARP_NPC,3,5
+- ORPHAN [dummy_cloaked_npc] izlude,173,210,3	duplicate(dummy_cloaked_npc)	Mysterious Creature#fgtg01	4_GALAPAGO
+- ORPHAN [dummy_cloaked_npc] payon_in01,190,24,5	duplicate(dummy_cloaked_npc)	Shorty#fgtg004	4_GALAPAGO
+- ORPHAN [dummy_cloaked_npc] prt_fild10,315,189,7	duplicate(dummy_cloaked_npc)	Shorty#fgtg005	4_GALAPAGO

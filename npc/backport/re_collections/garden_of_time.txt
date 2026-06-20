@@ -1,0 +1,1600 @@
+//===== uAthena backport (renewal dungeon/collection quests 2c, GENERATED) =====
+//= dungeon/collection quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-collections.py
+//= Source: npc/re/quests/garden_of_time.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Hall of Life
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//= Quest NPCs - Hall of Life
+//===== Changelog: ===========================================
+//= 1.0 Initial release [Atemo]
+//============================================================
+
+function	script	F_mesnavi	{
+	return "<NAVI>[" + getarg(0) + "]<INFO>" + getarg(1) + "," + getarg(2) + "," + getarg(3) + ",0,101,0</INFO></NAVI>";
+}
+
+// Warps
+//[BACKPORT-UNRESOLVED:questinfo] xmas_fild01,158,246,2	script	Dimensional barrier#got1	GATE_SKYBLUE,2,2,{
+	// Fallthrough
+//[BACKPORT-UNRESOLVED:questinfo] OnTouch:
+//[BACKPORT-UNRESOLVED:questinfo] 	warp "t_garden",116,47;
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] 
+//[BACKPORT-UNRESOLVED:questinfo] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 250 && isbegin_quest(12592) == 0" );
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,111,36,2	script	Dimensional Barrier#got2	GATE_SKYBLUE,2,2,{
+	// Fallthrough
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	warp "xmas_fild01",150,240;
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+// t_garden,118,66,0	script	#wp01	HIDDEN_WARP_NPC,3,1,{	// (NPC name is not unique)
+//[BACKPORT-BOUNDARY:t_garden] t_garden,118,66,0	script	#wp01_t_garden	HIDDEN_WARP_NPC,3,1,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	specialeffect2 EF_FLOWERCAST;
+	//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, true;
+//[BACKPORT-BOUNDARY:t_garden] 	sleep2 500;
+	//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, false;
+//[BACKPORT-BOUNDARY:t_garden] 	if (BaseLevel < 250)
+//[BACKPORT-BOUNDARY:t_garden] 		warp "xmas_fild01",150,240;
+//[BACKPORT-BOUNDARY:t_garden] 	else
+//[BACKPORT-BOUNDARY:t_garden] 		warp "t_garden",118,79;
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+// t_garden,118,72,0	script	#wp02	HIDDEN_WARP_NPC,3,1,{	// (NPC name is not unique)
+//[BACKPORT-BOUNDARY:t_garden] t_garden,118,72,0	script	#wp02_t_garden	HIDDEN_WARP_NPC,3,1,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	specialeffect2 EF_FLOWERCAST;
+	//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, true;
+//[BACKPORT-BOUNDARY:t_garden] 	sleep2 500;
+	//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, false;
+//[BACKPORT-BOUNDARY:t_garden] 	if (BaseLevel < 250)
+//[BACKPORT-BOUNDARY:t_garden] 		warp "xmas_fild01",150,240;
+//[BACKPORT-BOUNDARY:t_garden] 	else
+//[BACKPORT-BOUNDARY:t_garden] 		warp "t_garden",118,61;
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+// Quest starter
+//[BACKPORT-BOUNDARY:t_garden] t_garden,116,47,0	script	#life_wp11	HIDDEN_WARP_NPC,2,2,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	if (BaseLevel < 250)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 0) {
+		//[BACKPORT-GAP:removespecialeffect] removespecialeffect 1145, AREA, "Oscar#life";
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Oscar#life" );
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Leticia#life" );
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Rigel#life" );
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect 1145, AREA, "Oscar#life";
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+	
+//[BACKPORT-BOUNDARY:t_garden] t_garden,114,49,6	script(CLOAKED)	Leticia#life	4_4JOB_LETICIA,{
+//[BACKPORT-BOUNDARY:t_garden] 	mes "^0000ffShe is not paying attention to you because she is explaining something to Oscar.^000007";
+//[BACKPORT-BOUNDARY:t_garden] 	close;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,118,49,3	script(CLOAKED)	Rigel#life	4_CS_RIGEL,{
+//[BACKPORT-BOUNDARY:t_garden] 	mes "^0000ffIt seems like they are focusing on the story of Oscar and Leticia.^000007";
+//[BACKPORT-BOUNDARY:t_garden] 	close;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,119,46,2	script(CLOAKED)	Oscar#life	4_ED_OSCAR,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (BaseLevel < 250)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 0) {
+		//[BACKPORT-GAP:ET_THROB] emotion ET_THROB;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffOscar appears to be talking to someone.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		if (select( "Quit and step away", "Eavesdrop from the side." ) == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 			mes "^0000ffOf course, eavesdropping is a bit like that.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 			close;
+//[BACKPORT-BOUNDARY:t_garden] 		}
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR03.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "So, is your claim that I happened to find a crack near Lutie and came in and found this garden?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "That's right!";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR03.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Why did you do that, Leticia?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Why! Doesn't this place look really useful? A nice garden and an unidentifiable mansion! This is perfect, Oscar!";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR03.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "You don't understand, Leticia. You found a crack, but I'm asking why you called me here without extinguishing it.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Well... that's right, it would be a waste to destroy it.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR03.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "You didn't destroy it because it was a waste~ and what?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Oscar, you've been wandering around without a proper place to live. No matter how good a person you are, you shouldn't just volunteer like this!";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR09.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Huh?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Leticia is begging you to stop acting like a homeless person, buy a decent house, and live like a constellation. It's not good to keep ignoring what others say.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR07.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Homeless..., am I not that bad? Are you looking at me like that, Leticia?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Even Betelgeuse, who came to this continent a long time ago, already has a decent home of his own! I think it's unreasonable for Oscar to wander around like this without a place to live!";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR04.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Okay, I understand your intentions. I still have to think about how to handle this in the right way...";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "From what I've looked at, there are a few unstable dimensional passages, but they don't seem to be very dangerous. Leticia has a point.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I think I and Leticia could find an appropriate use for the unstable dimensional passages. What do you think, Leticia?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I agree, Rigel! I think the unstable area near the center of the garden can be stabilized by imposing restrictions in the form of a dungeon. I'll take care of that!";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "The flower garden to the north of the garden is unstable and connected to another dimension. I'll do some work there.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR05.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Wow, I didn't know these two would get along so well. It's not like they planned it in advance or anything, right?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "That's not important, Oscar. Do you feel anything about the central mansion?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR01.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Oh, you mean 'that'? I feel it very well.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It seems like it's an issue involving ^0000fftime^000000, so I don't think Leticia or me can do anything about it. Oscar, you can do it, right?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR07.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Ugh... that's my responsibility, so it's right for me to go regardless of whether it works or not.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Then, let's go do some garden maintenance first. There's an adventurer who's eavesdropping nearby, so it would be perfect if we go together!";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Yes? Me too?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "You're saying the obvious. If you've heard the story up to this point, you probably already know what's going on. Don't talk nonsense and just follow me into the garden.";
+//[BACKPORT-BOUNDARY:t_garden] 		setquest 12592;
+//[BACKPORT-BOUNDARY:t_garden] 		completequest 12592;
+//[BACKPORT-BOUNDARY:t_garden] 		setquest 12593;
+//[BACKPORT-BOUNDARY:t_garden] 		setquest 12594;
+//[BACKPORT-BOUNDARY:t_garden] 		setquest 12618;
+//[BACKPORT-BOUNDARY:t_garden] 		close2;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "",255;
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself( "Oscar#life" );
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself( "Leticia#life" );
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself( "Rigel#life" );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 250 && isbegin_quest(12592) == 0" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+// A. Quests to access dungeons
+// t_garden,118,91,0	script	#wp01	HIDDEN_WARP_NPC,2,2,{	// (NPC name is not unique)
+//[BACKPORT-BOUNDARY:t_garden] t_garden,118,91,0	script	#wp01_t_garden_1	HIDDEN_WARP_NPC,2,2,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 2) {
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Leticia#life2" );	// note: always uncloaked at this point
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,118,91,6	script(CLOAKED)	Leticia#life2	4_4JOB_LETICIA,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "The flow of time inside that mansion is different from our current time. So, we don't know when Oscar will fully restore the mansion.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "But we can't just bite our fingers. Moreover, from what the spirits who came here say, it seems like there is something else we need to do.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "And I heard that the spirits that originally guarded this space were driven out by their compatriots who became fierce for some reason.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Perhaps due to the unstable energy flow, the attributes of nature were twisted and transformed and the spirits became fierce. They were told to rest for a while in the northwest of the garden.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "According to their words, it seems that the cause is foreign spirits from the dimension connected to this place, so it would be better to reduce the number of those foreign things.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I'm going to need your help here. I need to gather energy flows to the east and west to create a gate, so let's move.";
+//[BACKPORT-BOUNDARY:t_garden] 		completequest 12593;
+//[BACKPORT-BOUNDARY:t_garden] 		setquest 12595;
+//[BACKPORT-BOUNDARY:t_garden] 		setquest 12596;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 1 || 0 == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Not all exits are activated. Activate both the east and west exits and then come find me.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, true;
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 500;
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, false;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "We gathered all the spirits that were asking for help around here and concentrated them in the northwest of the central square. They are really noisy.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_03.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "They're probably just waiting for you to arrive. It's up to you whether you help them or not, but it wouldn't be a loss to help the spirits. I recommend going at least once.";
+//[BACKPORT-BOUNDARY:t_garden] 		setquest 12620;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "Have you tried talking to the spirits? There won't be any harm in becoming friends with them.";
+	//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12593) == 1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12620) == 0 && isbegin_quest(12595) == 2 && isbegin_quest(12596) == 2" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,82,92,0	script	#life_wp2	HIDDEN_WARP_NPC,3,3,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	switch( 0 ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Okay, that's enough. It will open a passage to the place where the unholy energy is on the time seal seen there.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Are you ready? Then extend your hand forward and keep your eyes on the seal as if you are focusing the power I'm giving you onto the seal.";
+		// close2;
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Reach out hand and watch the seal" );
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, true;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "",255;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect2 EF_BEGINSPELL_N3;
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 2500;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_LORD, AREA, "Passage of Time#1";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 1500;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_BAKU, AREA, "Passage of Time#1";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 1000;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_THUNDERSTORM2, AREA, "Passage of Time#1";
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Passage of Time#1" );
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 1000;
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, false;
+//[BACKPORT-BOUNDARY:t_garden] 		if (0 == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 			cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Now then, let's open the other one as well. Move to the site opposite this gate.";
+//[BACKPORT-BOUNDARY:t_garden] 			completequest 12595;
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 		}
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It's simpler than you think, isn't it?. With this, we'll be able to stop strange guys from flooding the garden until Oscar completes the mansion, so it's a relief.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "And since you've already helped me, from now on you'll have to work with me every day. It's no big deal. Reduce the number of unholy things in the dungeon under the passage created here.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "I think I've heard this before" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_03.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Why are you muttering? Do you have any complaints?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "No." );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I think it's finished. Let's come to the central square for a moment and talk about the next thing.";
+//[BACKPORT-BOUNDARY:t_garden] 		completequest 12595;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Passage of Time#1" );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12595) == 1" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+// t_garden,78,92,2	script(CLOAKED)	Passage of Time#1	GATE_SKYBLUE,2,2,{	// unknown OnTouch effect (NPC unreachable)
+//[BACKPORT-BOUNDARY:t_garden] t_garden,78,92,2	script(CLOAKED)	Passage of Time#1	GATE_SKYBLUE,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2) {
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Not all exits are activated. Activate both the east and west exits and then come find me.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	switch( select( "Forgotten memories, Zone 1, 6 o'clock", "Forgotten memories, Zone 1, Center", "Forgotten memories, Zone 1, 10 o'clock" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		warp "for_dun01",159,35;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		warp "for_dun01",101,136;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 3:
+//[BACKPORT-BOUNDARY:t_garden] 		warp "for_dun01",62,266;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,151,92,0	script	#life_wp3	HIDDEN_WARP_NPC,3,3,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	switch( 0 ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Okay, that's enough. It will open a passage to the place where the unholy energy is on the time seal seen there.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Are you ready? Then extend your hand forward and keep your eyes on the seal as if you are focusing the power I'm giving you onto the seal.";
+		// close2;
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Reach out hand and watch the seal" );
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, true;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "",255;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect2 EF_BEGINSPELL_N3;
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 2000;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_LORD, AREA, "Passage of Time#2";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 2000;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_BAKU, AREA, "Passage of Time#2";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 1000;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_THUNDERSTORM2, AREA, "Passage of Time#2";
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Passage of Time#2" );
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 1000;
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, false;
+//[BACKPORT-BOUNDARY:t_garden] 		if (0 == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 			cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Now then, let's open the other one as well. Move to the site opposite this gate.";
+//[BACKPORT-BOUNDARY:t_garden] 			completequest 12596;
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 		}
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It's simpler than you think, isn't it?. With this, we'll be able to stop strange guys from flooding the garden until Oscar completes the mansion, so it's a relief.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "And since you've already helped me, from now on you'll have to work with me every day. It's no big deal. Reduce the number of unholy things in the dungeon under the passage created here.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "I think I've heard this before" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_03.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Why are you muttering? Do you have any complaints?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "No." );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I think it's finished. Let's come to the central square for a moment and talk about the next thing.";
+//[BACKPORT-BOUNDARY:t_garden] 		completequest 12596;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Passage of Time#2" );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12596) == 1" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+// t_garden,157,92,2	script(CLOAKED)	Passage of Time#2	GATE_SKYBLUE,2,2,{	// unknown OnTouch effect (NPC unreachable)
+//[BACKPORT-BOUNDARY:t_garden] t_garden,157,92,2	script(CLOAKED)	Passage of Time#2	GATE_SKYBLUE,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2) {
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Not all exits are activated. Activate both the east and west exits and then come find me.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	switch( select( "Forgotten Memories, Zone 2, 7 o'clock", "Forgotten Memories, Zone 2, 1 o'clock", "Forgotten Memories, Zone 2, 5 o'clock" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		warp "for_dun02",33,55;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		warp "for_dun02",211,269;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 3:
+//[BACKPORT-BOUNDARY:t_garden] 		warp "for_dun02",271,38;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,100,146,2	script	Spatial coordinate probe#1	4_SYSTEM_BOX,{
+//[BACKPORT-BOUNDARY:for_dun01] 	mes "Would you like to go back to the Garden of Time?";
+//[BACKPORT-BOUNDARY:for_dun01] 	next;
+//[BACKPORT-BOUNDARY:for_dun01] 	if (select( "Cancel", "Return" ) == 1)
+//[BACKPORT-BOUNDARY:for_dun01] 		end;
+//[BACKPORT-BOUNDARY:for_dun01] 	warp "t_garden",83,92;
+//[BACKPORT-BOUNDARY:for_dun01] 	end;
+//[BACKPORT-BOUNDARY:for_dun01] 
+//[BACKPORT-BOUNDARY:for_dun01] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "isbegin_quest(12595) == 2" );
+//[BACKPORT-BOUNDARY:for_dun01] 	end;
+//[BACKPORT-BOUNDARY:for_dun01] }
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,128,282,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#2	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,55,142,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#3	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,262,167,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#4	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,204,67,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#5	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,57,270,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#6	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,65,34,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#7	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,146,27,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#8	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,154,139,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#9	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,124,203,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#10	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun01] for_dun01,267,265,2	duplicate(Spatial coordinate probe#1)	Spatial coordinate probe#11	4_SYSTEM_BOX
+
+
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,190,147,2	script	Spatial coordinate probe#12	4_SYSTEM_BOX,{
+//[BACKPORT-BOUNDARY:for_dun02] 	mes "Would you like to go back to the Garden of Time?";
+//[BACKPORT-BOUNDARY:for_dun02] 	next;
+//[BACKPORT-BOUNDARY:for_dun02] 	if (select( "Cancel", "Return" ) == 1)
+//[BACKPORT-BOUNDARY:for_dun02] 		end;
+//[BACKPORT-BOUNDARY:for_dun02] 	warp "t_garden",152,92;
+//[BACKPORT-BOUNDARY:for_dun02] 	end;
+//[BACKPORT-BOUNDARY:for_dun02] 
+//[BACKPORT-BOUNDARY:for_dun02] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "isbegin_quest(12596) == 2" );
+//[BACKPORT-BOUNDARY:for_dun02] 	end;
+//[BACKPORT-BOUNDARY:for_dun02] }
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,143,149,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#13	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,276,29,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#14	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,106,34,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#15	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,216,271,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#16	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,64,268,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#17	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,18,170,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#18	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,16,92,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#19	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,29,52,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#20	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,276,255,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#21	4_SYSTEM_BOX
+//[BACKPORT-BOUNDARY:for_dun02] for_dun02,283,197,2	duplicate(Spatial coordinate probe#12)	Spatial coordinate probe#22	4_SYSTEM_BOX
+
+
+// B. Event with Oscar
+//[BACKPORT-BOUNDARY:t_garden] t_garden,118,141,0	script	#life_wp4	HIDDEN_WARP_NPC,3,3,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 1) {
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Oscar#life2" );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+// t_garden,118,142,3	script(CLOAKED)	Oscar#life2	4_ED_OSCAR,2,2,{	// unknown OnTouch effect
+//[BACKPORT-BOUNDARY:t_garden] t_garden,118,142,3	script(CLOAKED)	Oscar#life2	4_ED_OSCAR,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR01.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Ah " + strcharinfo(0) + ".";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR09.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "This is true. I'm really sorry for unintentionally getting you involved in our work.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Are you going into the mansion?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR01.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I guess that's the way it is. This mansion is a space where multiple timelines are intricately intertwined, so I don't think anyone else can touch it.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Is there anything I can do to help in the mansion?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR05.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "" + strcharinfo(0) + " I've worked with you many times, so I'd like to ask you to come with me, but I don't think I can do that this time.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR09.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It seems like the speed of time inside this mansion is very different from the outside world. My guess is about... 1/1000? Maybe even more.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "That means..." );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR07.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "This means that even if you only spend a few days inside the mansion, years or even decades may pass by in the outside world. It will probably be difficult for a human like " + strcharinfo(0) + " to endure it";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR01.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "There is a high probability that quite a long time will pass by the time the interior of the mansion is cleaned up. It must end quickly...";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Leticia#life3" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Oh, are you going in now?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR01.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Yes, I have to go in. Leticia, I hope you don't cause any trouble and take good care of the garden until I come out after cleaning up the mansion.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_05.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Oh, don't worry about that. I'll make sure you're isolated from the real world.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR01.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Okay. Then, please take care of me. Oh, and " + strcharinfo(0) + ", if you have the time, I would appreciate it if you could help Leticia. She's so lazy...";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_04.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I'll take care of the adventurer here, so let's leave it at that and go in.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "OSCAR03.bmp",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Oscar]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Okay, I'll finish the work and come out as soon as possible. See you then.";
+//[BACKPORT-BOUNDARY:t_garden] 		close2;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "",255;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_BEGINSPELL_N4;
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, true;
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 2000;
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself( "Oscar#life2" );
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, false;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "4job_leticia_02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Leticia]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Well, I'm sure Oscar will take care of it... Don't just stand there and help out with Rigel and my work.";
+//[BACKPORT-BOUNDARY:t_garden] 		close2;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "",255;
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself( "Leticia#life3" );
+//[BACKPORT-BOUNDARY:t_garden] 		completequest 12618;
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12618) == 1" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,115,139,7	duplicate(dummy_cloaked_npc)	Leticia#life3	4_4JOB_LETICIA
+
+
+// C. Instances
+// t_garden,166,217,0	script	#wp11	HIDDEN_WARP_NPC,2,2,{	// (NPC name is not unique)
+//[BACKPORT-BOUNDARY:t_garden] t_garden,166,217,0	script	#wp11_t_garden	HIDDEN_WARP_NPC,2,2,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 1) {
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Rigel#life2" );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,166,217,3	script(CLOAKED)	Rigel#life2	4_CS_RIGEL,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "You're here " + strcharinfo(0) + ".";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It would be very appropriate to be this far away from the mansion without disturbing Oscar, right?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "What are you going to do here?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "From now on, we will build a prison. A prison to hold very dangerous and unstable prisoners.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "You're making a prison in the flower garden?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Anyway, this place will only serve as a passage, and the prison itself is connected to another dimension. I will leave them. I have no intention of ruining the flower garden.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "We have created a prison access list a little further north. Only those registered on the list can enter the prison, so let's go and register first.";
+//[BACKPORT-BOUNDARY:t_garden] 		close2;
+//[BACKPORT-BOUNDARY:t_garden] 		completequest 12594;
+//[BACKPORT-BOUNDARY:t_garden] 		setquest 12597;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "",255;
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	cutin "rigel01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "Let's start by looking for the sealing spirit stone I installed a little further north.";
+	//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12594) == 1" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+// t_garden,162,222,5	script	#lank_board	4_4JOB_PHANTOMBOOK1,{
+	// mes "--- Strategy ranking ---";
+	// mes "1st place - none";
+	// mes "2nd place - none";
+	// mes "3rd place - none";
+	// mes "4th place - none";
+	// mes "5th place - none";
+	// mes "-----------------";
+	// mes "¡Ø The strategy record is updated every 5 minutes.";
+	// mes "If recording does not occur immediately, please wait for a while and check.";
+	// close;
+// }
+
+// t_garden,166,235,0	script	#wp12	HIDDEN_WARP_NPC,3,3,{	// (NPC name is not unique)
+//[BACKPORT-BOUNDARY:t_garden] t_garden,166,235,0	script	#wp12_t_garden	HIDDEN_WARP_NPC,3,3,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	switch( 0 ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Sealing Spirit Stone#life2" );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Sealing Spirit Stone#life2" );
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Dimensional Prison#1" );
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Dimensional Prison#2" );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,166,235,3	script(CLOAKED)	Sealing Spirit Stone#life2	HEROS_OUT_ORB,{
+//[BACKPORT-BOUNDARY:t_garden] 	switch( 0 ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Sealing Spirit Stone]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^ff0000Unauthenticated user.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Don't just stare blankly, extend your hand.";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Focus your mind by placing your thumb on the bottom right of the unfolded spirit stone and the rest of your fingers on top. ";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Put your hand on the guide." );
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, true;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "",255;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect2 EF_BEGINSPELL_N5;
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 2000;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_LORD, AREA, "Dimension Prison#1";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 500;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_LORD, AREA, "Dimension Prison#2";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 1500;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_BAKU, AREA, "Dimension Prison#1";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 500;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_BAKU, AREA, "Dimension Prison#2";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 500;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_THUNDERSTORM2, AREA, "Dimension Prison#1";
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 500;
+		//[BACKPORT-GAP:setpcblock] setpcblock PCBLOCK_NPC, false;
+//[BACKPORT-BOUNDARY:t_garden] 		specialeffect EF_THUNDERSTORM2, AREA, "Dimension Prison#2";
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Dimension Prison#1" );
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Dimension Prison#2" );
+//[BACKPORT-BOUNDARY:t_garden] 		sleep2 1500;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It looks like it's registered well. Now you've completed the basic preparations to recognize the prison and enter and exit it. For any further questions, please refer to this guide.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Who are you going to put in that prison?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_annoying01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^bb0000Doppelganger.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Well, you might think it's just a doppelganger and a fuss, but the one you'll be imprisoning here is on a different level than the doppelganger you think of.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It's the worst kind of being that doesn't just mimic abilities or appearances, but devours the soul of the target being and turns into that being itself.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Whose image do it take on now?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_annoying01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It's me.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "What does that mean?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "This prisoner swallowed me, Rigel, from the 326th dimension and became a being that called itself the Constellation of Life.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "When I ran to save myself there, it was already too late. I knew as soon as I saw the unconscious person who looked exactly like me. This wasn't me.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_annoying01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Although we succeeded in sealing the guy who couldn't use it power properly. It might succeed in breaking the seal someday.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Why don't you take down the criminal yourself?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I don't know what the error is, but the world recognizes it as another constellation of life. If a constellation attacks the same constellation, it violates the rules of the dimension and immediately loses it powers.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "And, if by any chance it takes over my existence, then it will be in an irreversible situation.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Is there any possibility that the prisoner will take over our bodies?" );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_close02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "This is truly one of the funniest jokes I've heard in hundreds of years.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes02.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Would you ever abandon the immortal body you worked so hard to occupy and return to your mortal body?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "Maybe if your life is threatened." );
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_halfeyes01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Well, I don't agree with that opinion at all, but I'll ease your worries. It's surrounded by layers of seals I've placed on it.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Even if it wanted to take over your and it friends' bodies, it wouldn't be able to exert that kind of power.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "rigel_close01.png",2;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It's a long story. Prison information will be posted separately at the prison entrance, so check it regularly.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Rigel]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I look forward to seeing you and your colleagues do a great job here.";
+//[BACKPORT-BOUNDARY:t_garden] 		close2;
+//[BACKPORT-BOUNDARY:t_garden] 		cutin "",255;
+//[BACKPORT-BOUNDARY:t_garden] 		completequest 12597;
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself( "Rigel#life2" );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Sealing Spirit Stone]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "Guidelines for correct prison management. What would you like to see?";
+//[BACKPORT-BOUNDARY:t_garden] 	next;
+//[BACKPORT-BOUNDARY:t_garden] 	while(1) {
+//[BACKPORT-BOUNDARY:t_garden] 		switch( select( "Stop viewing", "Reissue of the Constellation's protection", "Information on imprisoned prisoners", "Information on prison entry", "Information on barriers", "Information on traps", "Information on sanctuaries ", "Information on the underworld", "Information on dangerous omens", "Information on the resilience of prisoners" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 		case 1:
+//[BACKPORT-BOUNDARY:t_garden] 			end;
+//[BACKPORT-BOUNDARY:t_garden] 		case 2:
+//[BACKPORT-BOUNDARY:t_garden] 			if (countitem(420231) - isequippedcnt(420231) < 1) {
+//[BACKPORT-BOUNDARY:t_garden] 				mes "[Sealing Spirit Stone]";
+//[BACKPORT-BOUNDARY:t_garden] 				mes "Please check again whether it is registered in ^ff0000equipment set setting^000000 and whether it is already installed.";
+//[BACKPORT-BOUNDARY:t_garden] 				mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 				mes "Even if you have two or more blessings, the record engraved in the adventurer's ^ff0000soul takes priority^000000, so we recommend that you dispose of any excess blessings at the store.";
+//[BACKPORT-BOUNDARY:t_garden] 				next;
+//[BACKPORT-BOUNDARY:t_garden] 				if (select( "Cancel", "Reissue" ) == 1)
+//[BACKPORT-BOUNDARY:t_garden] 					continue;
+//[BACKPORT-BOUNDARY:t_garden] 				mes "[Sealing Spirit Stone]";
+//[BACKPORT-BOUNDARY:t_garden] 				mes "Based on the records engraved in the adventurer's soul";
+//[BACKPORT-BOUNDARY:t_garden] 				mes "We have reissued a protection engraved with a barrier ^0000fflevel 1^000000.";
+//[BACKPORT-BOUNDARY:t_garden] 				getitem2 420231,1,1,0,0,0,0,0,312453;	// MD_Hol_Protection
+//[BACKPORT-BOUNDARY:t_garden] 				close;
+//[BACKPORT-BOUNDARY:t_garden] 			}
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Sealing Spirit Stone]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "You have the protection issued in your inventory. Re-issuing it is only possible if you do not have the constellation's protection in your inventory.";
+//[BACKPORT-BOUNDARY:t_garden] 			close;
+//[BACKPORT-BOUNDARY:t_garden] 		case 3:
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Prisoner Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Based on this book, on the left is a lava lake where the guards who managed dimensional criminals are imprisoned. On the right is the Hall of Life where dimensional managers are imprisoned.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The guards were originally meant to monitor dimensional criminals, but at some point, they showed an intention to protect the dimensional criminals.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Prisoner Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Accordingly, the Constellation of Life imprisoned the 4 divine prisoners, who were guards, in a dimension completely separate from the dimensional criminals.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The main prisoner, a dimensional criminal, is a doppelganger-type monster who stole the appearance and abilities of the 326th dimension's constellation of life. Currently, its level of danger has never been measured, so it is not recorded.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Prisoner Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "One thing is certain: the dimensional criminals have hijacked the bodies and powers of the dimensional life constellations.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Due to this series of events, not only the Constellation of Life but also the 4 Divine Beasts are vacant in the 326th dimension. Therefore, the user must manage this prison with two main goals.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "-First-";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "You must attack dimension criminals periodically to prevent them from hoarding power.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Even now, it is accumulating vast amounts of life energy, which could pose a serious danger to the dimensional world.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "-Second-";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The level of power that dimensional criminals exert must be measured and recorded.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Relatedly, when entering a prison, you can equip yourself with the protection touched by the constellation and measure and record the level of risk based on the level of the barrier attached to it.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "-Third-";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "It may be of lesser importance, but it is necessary to visit the jailers' prisons periodically to weaken their power.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The currently imprisoned guards are a dangerous force potentially sympathizing with the escape of dimensional criminals. Periodically suppress them by force and confiscate the prison keys they are managing/producing.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Prisoner Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "This is information about prisoners held in prison. Do you need any additional information?";
+//[BACKPORT-BOUNDARY:t_garden] 			break;
+//[BACKPORT-BOUNDARY:t_garden] 		case 4:
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Access information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The prison is divided into an area where the guards are confined and an area where the dimension criminals are confined.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "First, you can enter the lava lake where the guards are imprisoned once a day. There is no additional seal, so as long as you stick to the once a day time, there will be no particular restrictions on entry.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Access information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The Hall of Life where dimensional criminals are imprisoned";
+			//[BACKPORT-GAP:mesitemlink] mes "Only accessible while holding " + mesitemlink(1001415) + ".";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Remember that, with the exception of the one-hour dungeon time limit, you can enter as many times as you want as long as you have the key.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Access information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "However, if you receive the reward once, you will not be able to receive the reward again in the Hall of Life for ^ff0000one week.^000000 Of course, even in that case, entry is free.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Do you need any additional information?";
+//[BACKPORT-BOUNDARY:t_garden] 			break;
+//[BACKPORT-BOUNDARY:t_garden] 		case 5:
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Barrier information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The power of dimensional criminals is sealed by a barrier tightly bound by Rigel, the constellation of life.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Therefore, when you enter to manage the prison, the first dimensional criminal you encounter is the barrier adjusted so that only the lowest level of strength is exerted.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Barrier information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "However, if you apply appropriate corrections to the dimensional criminal and make him submit, you will either receive appropriate ^ff0000compensation,^000000, or delay the reward and get a chance to unlock the next ^ff0000barrier ^000000level.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Barrier information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "If you want a higher reward level, remember that it is advantageous to level up quickly by clearing barriers rather than selecting rewards.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Barrier information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "However, it is not advantageous to simply raise the level of the barrier.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "If you fail to correct a dimensional criminal, the level of barrier you can handle will be lowered by 1 level the next time you enter prison.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Barrier information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "I recommend that you do not pay undue attention to barriers that you cannot handle and that you strive for stable correction.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Do you need any additional information?";
+//[BACKPORT-BOUNDARY:t_garden] 			break;
+//[BACKPORT-BOUNDARY:t_garden] 		case 6:
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Trap Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The dimensional criminal used his power to cause time-moving traps to appear in his space to prevent outside intruders.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The danger of this trap varies depending on the level of the barrier, and its destructive power becomes more powerful the further away you are from the center of the prison.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Trap Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Additionally, ^ff0000each time you or an ally is damaged by a trap, the Warp Criminal's attack power will become more powerful.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Trap Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "If the prison is full of traps, you can reset the traps using the other side of the world. Please refer to the information on the other side of the world for this part.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Do you need any additional information?";
+//[BACKPORT-BOUNDARY:t_garden] 			break;
+//[BACKPORT-BOUNDARY:t_garden] 		case 7:
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Sanctuary Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Dimensional criminals can periodically establish a sanctuary around themselves that makes them immune to physical and magical attacks.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "This appears to be a duplicate of an ability available to high-ranking constellations and cannot be disarmed by any means.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Sanctuary Information Guide]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "However, if you pull a dimensional criminal who has declared sanctuary out of the sanctuary, the sanctuary will be canceled. If the dimensional criminal uses the sanctuary to go on a rampage, pull him out of the sanctuary.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Do you need any additional information?";
+//[BACKPORT-BOUNDARY:t_garden] 			break;
+//[BACKPORT-BOUNDARY:t_garden] 		case 8:
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Information Guide to the Secret World]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "When the number of traps in the prison exceeds a certain number, a portal to the other world will be created on the north side of the prison.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "In the underworld, there are imperfect illusions of dimensional criminals, and those illusions are imperfectly connected to the dimensional criminals.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Information Guide to the Secret World]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The moment all the illusions of the other world are defeated, the dimensional criminals of the original world will receive a strong blow and fall into a groggy state for a certain period of time.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "At this moment, traps within the prison are reset, all attack power built up by the warp criminal is returned to its original state, and all defenses of the warp criminal are drastically lowered for a brief period of time.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Information Guide to the Secret World]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "However, the portal to the underworld should not be used by too many people.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "This is because each time a person passes through the portal, the dimensional criminal's recovery per second increases by a certain amount, and if this number overlaps, he or she can recover health in an instant.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Information Guide to the Secret World]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Remember that in order to kill the illusions of the other world, it is advisable to have a small number of party members with strong attack power and mobility.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Do you need any additional information?";
+//[BACKPORT-BOUNDARY:t_garden] 			break;
+//[BACKPORT-BOUNDARY:t_garden] 		case 9:
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Guide to dangerous omens]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "If you see any unusual effects on the ground while correcting dimensional criminals, quickly leave the area.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "This effect is a precursor to the dimensional offender's widespread and powerful influence.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Guide to dangerous omens]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The influence of a dimensional criminal can result in confinement effects, serious lacerations and frostbite, and sometimes even death.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Do not take your eyes off the ground even for a moment and be alert in all directions.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Do you need any additional information?";
+//[BACKPORT-BOUNDARY:t_garden] 			break;
+//[BACKPORT-BOUNDARY:t_garden] 		case 10:
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Recovery information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Dimensional criminals have the ability to regenerate health in real time. Therefore, normal correction may not be possible unless a blow exceeds this recovery ability.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "The moment the inner world is purified, the recovery rate decreases sharply during the time the dimensional criminal is in a groggy state.";
+//[BACKPORT-BOUNDARY:t_garden] 			next;
+//[BACKPORT-BOUNDARY:t_garden] 			mes "[Recovery information information]";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "However, do not forget that ^ff0000recovery also increases in proportion to the number of people who use the portal^000000 to purify the Underworld.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "If too many portal users occur, normal correction may fail due to a rapid increase in resilience.";
+//[BACKPORT-BOUNDARY:t_garden] 			mes " ";
+//[BACKPORT-BOUNDARY:t_garden] 			mes "Do you need any additional information?";
+//[BACKPORT-BOUNDARY:t_garden] 			break;
+//[BACKPORT-BOUNDARY:t_garden] 		}
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(12597) == 1" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+// t_garden,158,235,2	script(CLOAKED)	Dimension Prison#1	GATE_SKYBLUE,2,2,{	// unknown OnTouch effect
+//[BACKPORT-BOUNDARY:t_garden] t_garden,158,235,2	script(CLOAKED)	Dimension Prison#1	GATE_SKYBLUE,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^ff0000It seems that there are too many types and weights of items. Please organize your inventory.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (getcharid(1) < 1) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffPlease organize a party of at least one person and proceed.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+	// ...
+//[BACKPORT-BOUNDARY:t_garden] 			end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+
+// t_garden,173,235,2	script(CLOAKED)	Dimension Prison#2	GATE_SKYBLUE,2,2,{	// unknown OnTouch effect
+//[BACKPORT-BOUNDARY:t_garden] t_garden,173,235,2	script(CLOAKED)	Dimension Prison#2	GATE_SKYBLUE,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^ff0000It seems that there are too many types and weights of items. Please organize your inventory.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+	// ...
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+
+// Daily Quests
+// t_garden,105,118,0	script	#wp01	HIDDEN_WARP_NPC,6,5,{	// (NPC name is not unique)
+//[BACKPORT-BOUNDARY:t_garden] t_garden,105,118,0	script	#wp01_t_garden_2	HIDDEN_WARP_NPC,6,5,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	set .@state, 0;
+//[BACKPORT-BOUNDARY:t_garden] 	if (.@state == 0)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Ardor#life2" );
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Diluvio#life2" );
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Procella#life2" );
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Terremotus#life2" );
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Serpens#life2" );
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 	if (.@state == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Terremotus]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^777700Oh, the adventurer Leticia sent has finally arrived.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Ardor]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^aa0000Adventurer! Are you willing to fight? We don't need a weakling!";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Diluvio]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffArdor! Have you forgotten what Leticia told you to be at least polite?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Procella]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^00cc00Diluvio is right. It would be good to show some courtesy to the humans who come to help us.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "I'm fine, please tell me what to do" );
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Serpens]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^aa00aaWe are ancient spirits from a world connected to this garden. It is an instinct engraved in our spirit bodies to help each natural element remain harmonious.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Serpens]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^aa00aaHowever, after being swept away by a strange dimensional storm, the elements of the world connected to this garden began to run wild, and eventually began to turn into spirits.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Terremotus]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^777700If the elements continue to become elementals, eventually the material world that makes up this world will collapse. That must be prevented.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Diluvio]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffAdventurer, you must no longer allow the elements to turn into spirits. Use your power to send them back to nature.";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Terremotus]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^777700This is not an act of destroying nature. It is a matter of returning the disappearing elements that have been transformed into spirits back to their original positions. Will you listen to our request?";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		select( "I will." );
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Ardor]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^aa0000You're a good communicator! Okay then, I'll tell you what to do every day!^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Ardor]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^aa0000Let's place the sacred items prepared by the constellations across from us. In human language, it's called a vending machine.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Ardor]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^aa0000The reward for helping us and the constellations' work here will be received through that sacred item.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		next;
+//[BACKPORT-BOUNDARY:t_garden] 		completequest 12620;
+		//[BACKPORT-GAP:navigateto] navigateto("t_garden",126,117);
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,97,114,5	script(CLOAKED)	Diluvio#life2	4_EM_DILUVIO,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {	// Useless check ?
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I am unable to communicate with spirits because I have too many items or weights.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	switch( checkquest(12598,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case -1:
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^ff0000Today's request has already been received. You can't receive any more.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		erasequest 12598;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (F_queststatus( HAVEQUEST,12633,12634,12635,12636 ) == -1) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffThere are still uncompleted quests. You cannot receive additional requests or reset until all requests are completed at the " + callfunc("F_mesnavi","Spirit Vending Machine", "t_garden",128,122) + ".^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Diluvio]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "My goal is to return the water spirits, who are gradually materializing within forgotten memories, back to their elements. I would like your help.";
+//[BACKPORT-BOUNDARY:t_garden] 	next;
+//[BACKPORT-BOUNDARY:t_garden] 	if (select( "I will help you next time.", "I will help you" ) == 1)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Diluvio]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "This is a list of requests for you. Thank you very much.";
+//[BACKPORT-BOUNDARY:t_garden] 	close2;
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[0], rand(12633,12634);
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[1], rand(12635,12636);
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[0];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[1];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest 12598;
+	//[BACKPORT-GAP:open_quest_ui] open_quest_ui(.@quest_id[0]);
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12598,PLAYTIME) == -1 || checkquest(12598,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12633,12634,12635,12636 ) == 0" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,100,117,5	script(CLOAKED)	Terremotus#life2	4_EM_TERREMOTUS,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I am unable to communicate with spirits because I have too many items or weights.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	switch( checkquest(12599,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case -1:
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^ff0000Today's request has already been received. You can't receive any more.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		erasequest 12599;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (F_queststatus( HAVEQUEST,12621,12622,12623,12624 ) == -1) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffThere are still uncompleted quests. You cannot receive additional requests or reset until all requests are completed at the " + callfunc("F_mesnavi","Spirit Vending Machine", "t_garden",128,122) + ".^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Terremotus]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "The elements of the earth must remain in their elemental state. If they continue to become elementals, eventually there will not be a single ounce of dirt left. Will you help me?";
+//[BACKPORT-BOUNDARY:t_garden] 	next;
+//[BACKPORT-BOUNDARY:t_garden] 	if (select( "I will help you next time.", "I will help you" ) == 1)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Terremotus]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "That's all I ask of you today. Take your time and take a look.";
+//[BACKPORT-BOUNDARY:t_garden] 	close2;
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[0], rand(12621,12622);
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[1], rand(12623,12624);
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[0];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[1];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest 12599;
+	//[BACKPORT-GAP:open_quest_ui] open_quest_ui(.@quest_id[0]);
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12599,PLAYTIME) == -1 || checkquest(12599,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12621,12622,12623,12624 ) == 0" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,103,120,5	script(CLOAKED)	Serpens#life2	4_EM_SERPENS,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I am unable to communicate with spirits because I have too many items or weights.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	switch( checkquest(12600,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case -1:
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^ff0000Today's request has already been received. You can't receive any more.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		erasequest 12600;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (F_queststatus( HAVEQUEST,12637,12638,12639,12640,12641,12642,12643 ) == -1) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffThere are still uncompleted quests. You cannot receive additional requests or reset until all requests are completed at the " + callfunc("F_mesnavi","Spirit Vending Machine", "t_garden",128,122) + ".^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Serpens]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "I can't stand to see healthy elements becoming corrupted as I can't turn them into spirits. I need your power to prevent them from falling into anger and becoming polluted.";
+//[BACKPORT-BOUNDARY:t_garden] 	next;
+//[BACKPORT-BOUNDARY:t_garden] 	if (select( "I will help you next time.", "I will help you" ) == 1)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Serpens]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "I'm sorry to ask you this kind of favor again today. Thank you very much.";
+//[BACKPORT-BOUNDARY:t_garden] 	close2;
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[0], rand(12637,12638);
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[1], rand(12639,12643);
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[0];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[1];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest 12600;
+	//[BACKPORT-GAP:open_quest_ui] open_quest_ui(.@quest_id[0]);
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12600,PLAYTIME) == -1 || checkquest(12600,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12637,12638,12639,12640,12641,12642,12643 ) == 0" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,106,123,5	script(CLOAKED)	Procella#life2	4_EM_PROCELLA,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I am unable to communicate with spirits because I have too many items or weights.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	switch( checkquest(12601,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case -1:
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^ff0000Today's request has already been received. You can't receive any more.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		erasequest 12601;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (F_queststatus( HAVEQUEST,12629,12630,12631,12632 ) == -1) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffThere are still uncompleted quests. You cannot receive additional requests or reset until all requests are completed at the " + callfunc("F_mesnavi","Spirit Vending Machine", "t_garden",128,122) + ".^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Procella]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "Wind means the source of life, the atmosphere. If the elements of wind continue to turn into spirits, all living things in this dimension will eventually die. I need someone's help.";
+//[BACKPORT-BOUNDARY:t_garden] 	next;
+//[BACKPORT-BOUNDARY:t_garden] 	if (select( "I will help you next time.", "I will help you" ) == 1)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Procella]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "I'm glad there is someone who can solve this problem. Please solve my request well.";
+//[BACKPORT-BOUNDARY:t_garden] 	close2;
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[0], rand(12629,12630);
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[1], rand(12631,12632);
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[0];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[1];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest 12601;
+	//[BACKPORT-GAP:open_quest_ui] open_quest_ui(.@quest_id[0]);
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12601,PLAYTIME) == -1 || checkquest(12601,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12629,12630,12631,12632 ) == 0" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,109,126,5	script(CLOAKED)	Ardor#life2	4_EM_ARDOR,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I am unable to communicate with spirits because I have too many items or weights.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	switch( checkquest(12602,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case -1:
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 0:
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^ff0000Today's request has already been received. You can't receive any more.^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		erasequest 12602;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (F_queststatus( HAVEQUEST,12625,12626,12627,12628 ) == -1) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ffThere are still uncompleted quests. You cannot receive additional requests or reset until all requests are completed at the " + callfunc("F_mesnavi","Spirit Vending Machine", "t_garden",128,122) + ".^000000";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Ardor]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "Flame that has become a spirit and moves and thinks on its own is dangerous in itself. Don't you think it's too dangerous to just sit there like this? I don't ask you any favors. Follow my instructions.";
+//[BACKPORT-BOUNDARY:t_garden] 	next;
+//[BACKPORT-BOUNDARY:t_garden] 	if (select( "I will help you next time.", "I will help you" ) == 1)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Ardor]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "It's something you have to do. You'd better do it as quickly as possible.";
+//[BACKPORT-BOUNDARY:t_garden] 	close2;
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[0], rand(12625,12626);
+//[BACKPORT-BOUNDARY:t_garden] 	set .@quest_id[1], rand(12627,12628);
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[0];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest .@quest_id[1];
+//[BACKPORT-BOUNDARY:t_garden] 	setquest 12602;
+	//[BACKPORT-GAP:open_quest_ui] open_quest_ui(.@quest_id[0]);
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(12620) == 2 && (checkquest(12602,PLAYTIME) == -1 || checkquest(12602,PLAYTIME) == 2) && F_queststatus( HAVEQUEST,12625,12626,12627,12628 ) == 0" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+// Uncloak quest NPC rewards and exchange/enchants NPCs
+//[BACKPORT-BOUNDARY:t_garden] t_garden,126,123,0	script	#v_wp01	HIDDEN_WARP_NPC,3,3,{
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] OnTouch:
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Subspace vending machine#1" );
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Subspace vending machine#2" );
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Subspace vending machine#3" );
+	//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Spirit Complaint Terminal#1" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+//[BACKPORT-BOUNDARY:t_garden] t_garden,130,119,0	duplicate(#v_wp01)	#v_wp02	HIDDEN_WARP_NPC,3,3
+//[BACKPORT-BOUNDARY:t_garden] t_garden,134,115,0	duplicate(#v_wp01)	#v_wp03	HIDDEN_WARP_NPC,4,4
+
+
+// Quest rewards
+//[BACKPORT-BOUNDARY:t_garden] t_garden,126,126,2	script(CLOAKED)	Spirit Complaint Terminal#1	4_VENDING_MACHINE2,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I cannot communicate with the barrier because I have too many types or weights of items.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Spirit Complaint Terminal]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "Conversation between spirits and humans. Seamless communication. We will listen to the voices of our customers. This is Kiosk 5000, a comprehensive information terminal that processes spirit complaints and compensation at the same time. How can we help you?";
+//[BACKPORT-BOUNDARY:t_garden] 	next;
+//[BACKPORT-BOUNDARY:t_garden] 	if (select( "Exit menu", "Spirit complaint processing" ) == 1) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "[Spirit Complaint Terminal]";
+//[BACKPORT-BOUNDARY:t_garden] 		mes "Goodbye.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Spirit Complaint Terminal]";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "We will automatically process all completed spirit requests that you have.";
+//[BACKPORT-BOUNDARY:t_garden] 	next;
+//[BACKPORT-BOUNDARY:t_garden] 	mes "[Spirit Complaint Terminal]";
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 	.@count += callsub( S_Hunt,
+//[BACKPORT-BOUNDARY:t_garden] 		12621,				// Quest ID
+//[BACKPORT-BOUNDARY:t_garden] 		"Terremotus' Request 1",	// Quest name
+//[BACKPORT-BOUNDARY:t_garden] 		1001464,			// Reward item ID
+//[BACKPORT-BOUNDARY:t_garden] 		13890900,			// Base exp
+//[BACKPORT-BOUNDARY:t_garden] 		0					// Job exp (unknown)
+//[BACKPORT-BOUNDARY:t_garden] 	);
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12622, "Terremotus' Request 2", 1001464, 13890900,0 );	// Energy_Of_Ground
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12623, "Terremotus' Request 3", 1001464, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12624, "Terremotus' Request 4", 1001464, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12625, "Ardor's Request 1", 1001461, 13890900,0 );	// Energy_Of_Flame
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12626, "Ardor's Request 2", 1001461, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12627, "Ardor's Request 3", 1001461, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12628, "Ardor's Request 4", 1001461, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12629, "Procella's Request 1", 1001463, 13890900,0 );	// Energy_Of_Wind
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12630, "Procella's Request 2", 1001463, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12631, "Procella's Request 3", 1001463, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12632, "Procella's Request 4", 1001463, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12633, "Diluvio's Request 1", 1001462, 13890900,0 );	// Energy_Of_Water
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12634, "Diluvio's Request 2", 1001462, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12635, "Diluvio's Request 3", 1001462, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12636, "Diluvio's Request 4", 1001462, 13890900,0 );
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12637, "Serpens's Request 1", 1001465, 27176580,0 );	// Grace_Of_Spirit
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Hunt, 12638, "Serpens's Request 2", 1001465, 27176580,0 );
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 	.@count += callsub( S_Gathering,
+//[BACKPORT-BOUNDARY:t_garden] 		12639,				// Quest ID
+//[BACKPORT-BOUNDARY:t_garden] 		"Serpens's Request 3",	// Quest name
+//[BACKPORT-BOUNDARY:t_garden] 		1001433,			// Required item ID
+//[BACKPORT-BOUNDARY:t_garden] 		10,					// Required amount
+//[BACKPORT-BOUNDARY:t_garden] 		1001461,			// Reward item ID
+//[BACKPORT-BOUNDARY:t_garden] 		27176580,			// Base exp
+//[BACKPORT-BOUNDARY:t_garden] 		0					// Job exp (unknown)
+//[BACKPORT-BOUNDARY:t_garden] 	);
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Gathering, 12640, "Serpens's Request 4", 1001434,10, 1001462, 27176580,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Gathering, 12641, "Serpens's Request 5", 1001435,10, 1001463, 27176580,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Gathering, 12642, "Serpens's Request 6", 1001436,10, 1001464, 27176580,0 );
+//[BACKPORT-BOUNDARY:t_garden] 	set .@count, .@count + callsub( S_Gathering, 12643, "Serpens's Request 7", 1001432,20, 1001465, 27176580,0 );
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 	if (.@count == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "It appears that no special complaints have been handled. If you have handled a complaint related to spirits, please come back at any time. Thank you.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	mes "------------";
+//[BACKPORT-BOUNDARY:t_garden] 	mes "The above " + .@count + " complaints have been processed.";
+//[BACKPORT-BOUNDARY:t_garden] 	close;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] S_Hunt:
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkquest(getarg(0),HUNTING) == 2) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ff" + getarg(1) + " Completed^000000 - Compensation paid.";
+//[BACKPORT-BOUNDARY:t_garden] 		erasequest getarg(0);
+//[BACKPORT-BOUNDARY:t_garden] 		getitem getarg(2),1;
+//[BACKPORT-BOUNDARY:t_garden] 		for (set .@i,0; .@i < 10; set .@i,.@i+1 )
+//[BACKPORT-BOUNDARY:t_garden] 			getexp getarg(3), getarg(4);
+//[BACKPORT-BOUNDARY:t_garden] 		return 1;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	return 0;
+//[BACKPORT-BOUNDARY:t_garden] 	
+//[BACKPORT-BOUNDARY:t_garden] S_Gathering:
+//[BACKPORT-BOUNDARY:t_garden] 	if (countitem(getarg(2)) >= getarg(3)) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "^0000ff" + getarg(1) + " Completed^000000 - Compensation paid.";
+//[BACKPORT-BOUNDARY:t_garden] 		erasequest getarg(0);
+//[BACKPORT-BOUNDARY:t_garden] 		delitem getarg(2),getarg(3);
+//[BACKPORT-BOUNDARY:t_garden] 		getitem getarg(4),1;
+//[BACKPORT-BOUNDARY:t_garden] 		for (set .@i,0; .@i < 10; set .@i,.@i+1 )
+//[BACKPORT-BOUNDARY:t_garden] 			getexp getarg(5), getarg(6);
+//[BACKPORT-BOUNDARY:t_garden] 		return 1;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	return 0;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "<Elemental Latest Model>" );
+//[BACKPORT-BOUNDARY:t_garden] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12621,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12622,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12623,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12624,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12625,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12626,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12627,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12628,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12629,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12630,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12631,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12632,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12633,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12634,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12635,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12636,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12637,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(12638,HUNTING) == 2" );
+//[BACKPORT-BOUNDARY:t_garden] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12639) == 1 && countitem(1001433) >= 10" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12640) == 1 && countitem(1001434) >= 10" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12641) == 1 && countitem(1001435) >= 10" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12642) == 1 && countitem(1001436) >= 10" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(12643) == 1 && countitem(1001432) >= 20" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+// Exchange and enchants
+//[BACKPORT-BOUNDARY:t_garden] t_garden,129,123,2	script(CLOAKED)	Subspace vending machine#1	HEROS_IN_ORB_1,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I cannot communicate with the barrier because I have too many types or weights of objects.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	npctalk "Everything you want is here. What deal do you want?", "", bc_self;
+//[BACKPORT-BOUNDARY:t_garden] 	switch( select( "Cancel", "Energy transaction by attribute", "Energy transaction by season", "Various consumable transaction" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		callshop "barter_t_garden_1",1;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 3:
+//[BACKPORT-BOUNDARY:t_garden] 		callshop "barter_t_garden_2",1;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 4:
+//[BACKPORT-BOUNDARY:t_garden] 		callshop "barter_t_garden_3",1;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "<Welcome to various goods trading>" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,132,120,2	script(CLOAKED)	Subspace vending machine#2	HEROS_IN_ORB_2,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I cannot communicate with the barrier because I have too many types or weights of objects.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	npctalk "This place specializes in equipment. What kind of deal do you want?", "", bc_self;
+//[BACKPORT-BOUNDARY:t_garden] 	switch( select( "Cancel", "Purchase Circulation of Life Accessories", "Purchase Divine Beast's Cloak", "Upgrade Divine Beast's Cloak" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		callshop "barter_t_garden_4",1;
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 3:
+//[BACKPORT-BOUNDARY:t_garden] 		callshop "barter_t_garden_5",1;
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 4:
+		//[BACKPORT-GAP:item_reform] item_reform("Season_H_Upgrade");
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "<Clothing Upgrade Specialist>" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,135,117,2	script(CLOAKED)	Subspace vending machine#3	HEROS_IN_ORB_3,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I cannot communicate with the barrier because I have too many types or weights of objects.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	npctalk "We carefully enchant the equipment obtained from the Lake of Fire. Is there a menu you would like?", "", bc_self;
+//[BACKPORT-BOUNDARY:t_garden] 	switch( select( "Divine Beast's Cloak - Spring", "Divine Beast's Cloak - Summer", "Divine Beast's Cloak - Fall", "Divine Beast's Cloak - Winter" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+		//[BACKPORT-GAP:item_enchant] item_enchant(117);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+		//[BACKPORT-GAP:item_enchant] item_enchant(119);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 3:
+		//[BACKPORT-GAP:item_enchant] item_enchant(121);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 4:
+		//[BACKPORT-GAP:item_enchant] item_enchant(123);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "<Divine Cloak Enchantment>" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,138,114,2	script(CLOAKED)	Subspace vending machine#4	HEROS_IN_ORB_4,{
+//[BACKPORT-BOUNDARY:t_garden] 	if (0 != 2)
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-BOUNDARY:t_garden] 		mes "I cannot communicate with the barrier because I have too many types or weights of objects.";
+//[BACKPORT-BOUNDARY:t_garden] 		close;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	npctalk "We put great effort into enchanting circulating equipment. Is there a menu you would like?", "", bc_self;
+//[BACKPORT-BOUNDARY:t_garden] 	switch( select( "Circle of Life Accessories", "Circle of Life-Spring", "Circle of Life-Summer", "Circle of Life-Autumn", "Circle of Life-Winter" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+		//[BACKPORT-GAP:item_enchant] item_enchant(142);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+		//[BACKPORT-GAP:item_enchant] item_enchant(118);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 3:
+		//[BACKPORT-GAP:item_enchant] item_enchant(120);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 4:
+		//[BACKPORT-GAP:item_enchant] item_enchant(122);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 5:
+		//[BACKPORT-GAP:item_enchant] item_enchant(124);
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "<Circle of Life Ingent>" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+
+
+// Storages
+-	shop	t_garden_shop	-1,501:-1
+
+//[BACKPORT-BOUNDARY:t_garden] t_garden,156,222,2	script	Functional Vending Machine#1	4_VENDING_MACHINE2,{
+	// switch( select( "Tool Dealer", "Storage 1 (100z)", "Storage 2 (100z)", "Storage 3 (100z)", "Use savepoint service" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	switch( select( "Tool Dealer", "Storage 1 (100z)", "", "", "Use savepoint service" ) ) {
+//[BACKPORT-BOUNDARY:t_garden] 	case 1:
+//[BACKPORT-BOUNDARY:t_garden] 		callshop( "t_garden_shop", 2 );
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	case 2:
+//[BACKPORT-BOUNDARY:t_garden] 		set .@storage_num, 1;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 3:
+//[BACKPORT-BOUNDARY:t_garden] 		set .@storage_num, 2;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 4:
+//[BACKPORT-BOUNDARY:t_garden] 		set .@storage_num, 3;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	case 5:
+//[BACKPORT-BOUNDARY:t_garden] 		npctalk "" + strcharinfo(0) + " your location has been safely saved.", "", bc_self;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] 		set .@num, atoi( strnpcinfo(2) );
+//[BACKPORT-BOUNDARY:t_garden] 		if (.@num == 1)
+//[BACKPORT-BOUNDARY:t_garden] 			savepoint "t_garden",156,220;
+//[BACKPORT-BOUNDARY:t_garden] 		else if (.@num == 2)
+//[BACKPORT-BOUNDARY:t_garden] 			savepoint "t_garden",97,135;
+//[BACKPORT-BOUNDARY:t_garden] 		else if (.@num == 3)
+//[BACKPORT-BOUNDARY:t_garden] 			savepoint "t_garden",90,115;
+//[BACKPORT-BOUNDARY:t_garden] 		else if (.@num == 4)
+//[BACKPORT-BOUNDARY:t_garden] 			savepoint "t_garden",137,106;
+//[BACKPORT-BOUNDARY:t_garden] 		break;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	if (Zeny < 100) {
+//[BACKPORT-BOUNDARY:t_garden] 		npctalk "To use the Storage, please insert 100 zeny.", "", bc_self;
+//[BACKPORT-BOUNDARY:t_garden] 		end;
+//[BACKPORT-BOUNDARY:t_garden] 	}
+//[BACKPORT-BOUNDARY:t_garden] 	set Zeny, Zeny - 100;
+//[BACKPORT-BOUNDARY:t_garden] 	npctalk "I will open storage number " + .@storage_num + ". Thank you for using it.", "", bc_self;
+//[BACKPORT-BOUNDARY:t_garden] 	openstorage;
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] 
+//[BACKPORT-BOUNDARY:t_garden] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_CLICKME, QMARK_YELLOW, "isbegin_quest(12592) == 2" );
+//[BACKPORT-BOUNDARY:t_garden] 	end;
+//[BACKPORT-BOUNDARY:t_garden] }
+//[BACKPORT-BOUNDARY:t_garden] t_garden,97,138,6	duplicate(Functional Vending Machine#1)	Functional Vending Machine#2	4_VENDING_MACHINE2
+//[BACKPORT-BOUNDARY:t_garden] t_garden,91,116,2	duplicate(Functional Vending Machine#1)	Functional Vending Machine#3	4_VENDING_MACHINE2
+//[BACKPORT-BOUNDARY:t_garden] t_garden,144,116,2	duplicate(Functional Vending Machine#1)	Functional Vending Machine#4	4_VENDING_MACHINE2

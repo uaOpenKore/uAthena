@@ -1,0 +1,1222 @@
+//===== uAthena backport (renewal dungeon/collection quests 2c, GENERATED) =====
+//= dungeon/collection quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-collections.py
+//= Source: npc/re/quests/HelpMeShorty.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Dynamic NPC: HelpMeShorty.
+//===== Description: =========================================
+//- [Walkthrough conversion]
+//= Short quest to allow the player to summon, via an item, a dynamic NPC that gives basic game information.
+//= After level 30, the player can get a costume in exchange for the item.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [Capuche]
+//============================================================
+
+// Starter
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] izlude,173,210,3	script	Black Shadow#fgtg01	4_CENERE,5,5,{
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	if (0 == 0 && BaseLevel < 31) {
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Black Shadow]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Take me! You have to take responsibility for me for making eye contact!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Black Shadow]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "If you take me, ^0000cdI'll help too^000000. I'll really help you in many ways! I'll teach you ^0000cda lot of things^000000!!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty Notice]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "^EE0000If you choose to accompany Shorty, the item ^0000cd<Help Me Shorty>^EE0000 will be automatically placed in your inventory.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty Notice]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "If you use the <Help Me Shorty> item in your ^EE0000inventory, you can summon Shorty and get ^0000cdhelp and advice^EE0000 from it.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty Notice]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "^EE0000When you reach level 31 or higher, you can receive a quest that takes you to Shorty. Completing this quest will send you away and receive a reward at the same time.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty Notice]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "^EE0000Before reaching level 31, you can send Shorty away at any time via the ^0000cd<Let's Break Up>^EE0000 menu, but you will never be able to make Shorty your ally again after that.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		if (select( "Well, let's go together.", "I don't want to go together." ) == 2) {
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 			mes "[Black Shadow]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 			mes "Can you do this without my help? You will surely not be able to walk ten steps and think of me. Isn't life about helping each other? It can't be like this.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 			close;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		}
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Black Shadow]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Phew- I'm glad. Are we friends now?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Black Shadow]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "By the way, what's with those eyes...? Are you afraid of me? I was doing this to stand out, wait a minute...";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself();
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself("Mysterious Creature#fgtg01" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Black Shadow]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Is this enough?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "My name is Shorty!!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "What is your name?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		select( "My name is " + strcharinfo(0) + "." );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "It's an easy name to say. Do you have a bag? That's the one you wear around your waist. It's just the right size for me to fit in.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		select( "You want to go in the bag?" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "I can fit in your bag. What are you so surprised about? It won't be long. I'll be leaving soon.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Press ^0000cdALT+E^000000 to see the inside of the bag, press the consumption tab and I will be right there.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "When you want to call me, press ^0000cd<Help Me Shorty>^000000 twice quickly and I'll come out of your bag and help you. How about it? Isn't it great?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "If you don't like me in the bag, take me to ^0000cdSalty^000000. That's my destination, so when the time comes, I will leave ^0000cdyour bag^000000.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		select( "Where is that person?" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "I'll tell you later. I want to rest for now.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Good luck in the future!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		setquest 14688;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		completequest 14688;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		getitem 23278,1;	// HelpmeShorty
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself("Mysterious Creature#fgtg01" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		close;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	}
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] OnTouch:
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	if (0 == 0 && BaseLevel < 31)
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		npctalk "Save me! Hug me quickly! Save me!", "", bc_self;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(14688) == 0 && BaseLevel < 31" );
+	//[BACKPORT-GAP:cloakonnpc] cloakonnpc();
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] }
+
+//izlude,173,210,3	script	Mysterious Creature#fgtg01	4_GALAPAGO,5,5,{	// unknown OnTouch effect
+//[BACKPORT-ORPHAN:dummy_cloaked_npc] izlude,173,210,3	duplicate(dummy_cloaked_npc)	Mysterious Creature#fgtg01	4_GALAPAGO
+
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] izlude,161,199,0	script	#fgtg01	HIDDEN_WARP_NPC,3,5,{
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] OnTouch:
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] 	if (0 == 0 && BaseLevel < 31)
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Black Shadow#fgtg01" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] }
+//[BACKPORT-ORPHAN:#fgtg01] izlude,194,209,0	duplicate(#fgtg01)	#fgtg02	HIDDEN_WARP_NPC,3,5
+//[BACKPORT-ORPHAN:#fgtg01] izlude,173,210,0	duplicate(#fgtg01)	#fgtg03	HIDDEN_WARP_NPC,3,5
+
+
+// Exchange npc. Step 1 of 2
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] payon_in01,193,23,3	script	Chanmo#fgtg01	1_F_ORIENT_01,{
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 	if (0 == 1) {
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Shorty#fgtg004" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Salty! Salty~ I'm here~ Did you wait? Did you wait a long time?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[In the inn]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "......";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Salty, Salty? Salty? Where have you been Salty?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Chanmo]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Who are you talking about?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "I came to find Salty.. I came, but there is no Salty.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Chanmo]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Salty? Ah, you're talking about the woman who is staying in the room. I sent her on an errand.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Errands? Why?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Chanmo]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "I'm bored. I sent her to get some jelly and acorns.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Hey! Where are you coming from? We came to see Salty, why did you send Salty away~";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Chanmo]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "I didn't force anyone to come, and I pulled Zug's head and rolled it over. So I sent him out.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Then can I wait here?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Chanmo]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "If you're in a hurry, you can help. You can find the";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "<NAVI>[Coco's nest]<INFO>prt_fild10,318,191,0,101,0</INFO></NAVI> in the south-southwest of Prontera. You can get a bunch of acorns from Coco.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Hm.. Alright. Master, let's go too. To the Coco's nest.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		select("Are you here?");
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "I miss Salty. Let's go see Salty.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		select("Okay then.");
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		mes "Well then, let's go!!!";
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself("Shorty#fgtg004");
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		completequest 14693;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		setquest 14694;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 		close;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 	}
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 	mes "[Chanmo]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 	mes "I need to pick some acorn and jelly today.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] 	close;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpcself] }
+
+//[BACKPORT-ORPHAN:dummy_cloaked_npc] payon_in01,190,24,5	duplicate(dummy_cloaked_npc)	Shorty#fgtg004	4_GALAPAGO
+
+
+// Exchange npc. Step 2 of 2
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] prt_fild10,318,191,0	script	#salt01	HIDDEN_WARP_NPC,3,5,{
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] OnTouch:
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] 	if (0 == 1)
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Salty#fgtg01" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself] }
+//[BACKPORT-ORPHAN:#salt01] prt_fild10,262,39,0	duplicate(#salt01)	#salt02	HIDDEN_WARP_NPC,3,5
+//[BACKPORT-ORPHAN:#salt01] prt_fild10,332,128,0	duplicate(#salt01)	#salt03	HIDDEN_WARP_NPC,3,5
+//[BACKPORT-ORPHAN:#salt01] prt_fild10,222,293,0	duplicate(#salt01)	#salt04	HIDDEN_WARP_NPC,3,5
+// 5?
+//[BACKPORT-ORPHAN:#salt01] prt_fild10,26,196,0	duplicate(#salt01)	#salt06	HIDDEN_WARP_NPC,3,5
+//[BACKPORT-ORPHAN:#salt01] prt_fild10,311,167,0	duplicate(#salt01)	#salt07	HIDDEN_WARP_NPC,3,5
+//[BACKPORT-ORPHAN:#salt01] prt_fild10,298,212,0	duplicate(#salt01)	#salt08	HIDDEN_WARP_NPC,3,5
+
+
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] prt_fild10,318,191,3	script	Salty#fgtg01	4_F_ALCHE_A,{
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	if (0 == 1) {
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Alas! Acorns! Muk-muk, acorn jelly! What do you do with acorns? You eat acorn jelly~";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+		//[BACKPORT-GAP:cloakoffnpcself] cloakoffnpcself( "Shorty#fgtg005" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "You look excited, Salty. Were you happy without me?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Huh? Uh-huh??? Shorty!!!!!!!!!!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Did you have fun without me? Did you have fun without me...";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Shorty, why are you here? One day I received a letter saying you were leaving!!!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "There are a number of circumstances. This situation will be explained by my master here.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "What? You kidnapped our Shorty??";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		select( "No, that's not it..." );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Oh yeah? But Shorty! What's going on here?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "I went to Payon and came here because the grandmother who cooks muk said you went here.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Okay! I'm on the verge of going too, but let's stop at Prontera for a while and then go to Payon. Let's go pack up some stuff and travel the continent!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Yeah! Master, the adventures we had together were fun!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "I have to say thank you. It looks like you were carrying Shorty in that little bag.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Master, thank you so much.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		select( "Are you leaving?" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Our relationship will not end here. Remember that you met me. Salty, is there anything else? Something to remember.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Uh-huh, something like that.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Is this all? Penguin? Penguin? Do you like penguins better than me?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "No, it's not... Originally I bought it in Paros to remember you, but now that I think about it, you're not a penguin, so I just kept it. Isn't it cute?";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Cute.";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Salty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "I'll give this to you. Thanks for taking care of Shorty! Shorty, let's go!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		next;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		specialeffect EF_TELEPORTATION2;
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself();
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		mes "Master, even if a lot of time passes, don't forget me and become a great adventurer who makes a name for yourself on the continent!";
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		specialeffect EF_TELEPORTATION2, AREA, "Shorty#fgtg005";
+		//[BACKPORT-GAP:cloakonnpcself] cloakonnpcself( "Shorty#fgtg005" );
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		erasequest 14694;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		if (0 > 0)
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 			erasequest 14695;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		delitem 23278,1;	// HelpmeShorty
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		getitem 20267,1;	// C_Penguin_Cap
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		getexp 4000,1000;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 		close;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	}
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(14694) == 1" );
+	//[BACKPORT-GAP:cloakonnpc] cloakonnpc();
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] 	end;
+//[BACKPORT-UNRESOLVED:cloakoffnpcself,cloakonnpc,cloakonnpcself,questinfo] }
+
+//[BACKPORT-ORPHAN:dummy_cloaked_npc] prt_fild10,315,189,7	duplicate(dummy_cloaked_npc)	Shorty#fgtg005	4_GALAPAGO
+
+
+// Base for the dynamic npc
+//[BACKPORT-UNRESOLVED:npcskill] izlude,1,1,0	script	Shorty#fgtg01	4_GALAPAGO,{
+//[BACKPORT-UNRESOLVED:npcskill] 	if (0 == 0) {
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Good job. If you need my help in the future, you can call me like this.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		select( "How can you help me?" );
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "After arriving here for the first time you didn't know anything, right? I'll teach you everything I know. ^0000cdAsk me anything!^000000";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "And I'll provide you with various good ^0000cdservices^000000 to help you with hunting.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "The only thing I can do is ^0000cdincrease agility^000000 to move quickly, and ^0000cdblessing^000000 to increase strength, dexterity and intelligence, but it will definitely help, right?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Yeah! If you call me and don't say anything for a minute, I'll go back into the bag.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "And when the business is over, just leave me be. I'll look around for you and go in the bag. I follow along very well.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		select( "When are you going to find someone named Salty?" );
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Not now, master. This Shorty, from the Galapagos knows grace. When you can take off your starter tee and start the adventure on your own, Shorty then goes away.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "At that time, even if you hold on to me and cry, I will leave you. Before that, you have to increase your level to about ^0000cdlevel 31^000000. Until then, let's do our best in the future.";
+//[BACKPORT-UNRESOLVED:npcskill] 		setquest 14689;
+//[BACKPORT-UNRESOLVED:npcskill] 		completequest 14689;
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 	}
+//[BACKPORT-UNRESOLVED:npcskill] 	set .@state, 0;
+//[BACKPORT-UNRESOLVED:npcskill] 	set .@state, ((.@state == 2 && 0 == 1) ? 1 : .@state);
+//[BACKPORT-UNRESOLVED:npcskill] 
+//[BACKPORT-UNRESOLVED:npcskill] 	switch( .@state ) {
+//[BACKPORT-UNRESOLVED:npcskill] 	case 0:
+//[BACKPORT-UNRESOLVED:npcskill] 		if (BaseLevel < 31)
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "You has grown wonderfully. So now I want to meet Salty. She'll be worried about me.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		select( "Now did you get that idea?" );
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "The last letter from Salty said it was from ^0000cdPayon's inn^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Let's go";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "find the <NAVI>[Inn]<INFO>payon_in01,193,23,0,101,0</INFO></NAVI> in Payon.";
+//[BACKPORT-UNRESOLVED:npcskill] 		setquest 14693;
+//[BACKPORT-UNRESOLVED:npcskill] 		close;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 		break;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Who are you? Who are you talking to me? I don't like people I don't know talking to or touching me.";
+//[BACKPORT-UNRESOLVED:npcskill] 		close;
+//[BACKPORT-UNRESOLVED:npcskill] 	}
+//[BACKPORT-UNRESOLVED:npcskill] 	if (BaseLevel < 31) {
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( rand(4) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case 0:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Open the item window and you will see ^0000cdfour tabs^000000. Can you see it?";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "If you drag and drop items that are not used frequently or should not be sold to NPCs, put them in the ^0000cd<Personal tab>, and press the trade lock button^000000 at the bottom, you will not accidentally sell these items.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master, have you ever pressed the ^0000cdF12 key^000000? Small white squares will float around.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Drag the skill icon or item there. If you release it, you can use skills and icons quickly and easily by simply pressing the ^0000cdshortcut button^000000. It's really convenient.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "He said that if you don't need the hats or clothes you got at the academy, you can exchange them for useful stuff at the ^0000cdvending machine at the job change office for each job^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Salty also used it very well. I would like clams if possible.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Let's leave after checking where the hunt was. There may be monster cards left.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "This is a valuable tip that Salty taught me~ Do you have a monster card?";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		setarray .@menu$[0], "Give me strength!", "Where should I go?", "Isn't there anything good?", "How do I take skills and stats?", "Tell me how to operate." ;
+//[BACKPORT-UNRESOLVED:npcskill] 	}
+//[BACKPORT-UNRESOLVED:npcskill] 	else {
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( rand(4) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case 0:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master, did you know that besides the Midgard continent known to us, you can go to new and mysterious places by boat? Mainly Al... Al... Allegro?";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "^0000cdAh! You can go by boat from Alberta^000000! Let's go later! Master! It's a new adventure!";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "I heard that there are quite a few dungeons that even a young adventurer like yourself can go too.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			select( "Why am I so stupid!" );
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master, what you're saying? Anyway, underground waterways, Payon's caves, ant dungeons, and shipwrecks. Don't you want to become the ruler of the dungeon, master?";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			select( "If you fight for me." );
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master, you should save your body because you only have one life.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Is master ready? I really want to go!";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			select( "What is it? Where is it?" );
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "You don't know Ohiso, Boiso, Saiso, ^0000cdParamarket^000000? What would master do without me, really?";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Paramarket is a place that sells items that are hard to find in the market or street stalls in limited quantities and for a limited time. It is a very good place to do business.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			select( "How do I get there?" );
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Talk to the Paramarket Windman in ^0000cdParadise Corridor^000000 and he will send you there.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master, sometimes when you want to buy something from a street vendor, you may wonder if they are selling it now and who is selling it.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			select( "That's right. I can't even look through all the stalls." );
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "In that case, you can use the ^0000cdcatalog^000000. Currently, it is said that ^0000cdvending machines in Paradise or Alberta's merchant^000000 are selling it.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "I want to go shopping today too.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		setarray .@menu$[5], "Anything good?";
+//[BACKPORT-UNRESOLVED:npcskill] 	}
+//[BACKPORT-UNRESOLVED:npcskill] 	next;
+//[BACKPORT-UNRESOLVED:npcskill] 	mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 	mes "Do you need more help from me?";
+//[BACKPORT-UNRESOLVED:npcskill] 	next;
+//[BACKPORT-UNRESOLVED:npcskill] 	switch( select( .@menu$[0], .@menu$[1], .@menu$[2], .@menu$[3], .@menu$[4], .@menu$[5 ], "Information guide", "I'm curious about what you're talking about.", "Break up now." ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 	case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( checkquest(14695,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case -1:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master, I'll give you the help I promised you before. Increased agility and blessing.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "But I learned this over the shoulder, and once I do it, my soul gets tired, so I can't give it indefinitely. Although it can take me half an hour to refresh myself.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "If you want to know when you can get it again, open the quest window with ALT+U and check the time displayed at the bottom.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Go! Master!!";
+			//[BACKPORT-GAP:npcskill] npcskill "AL_INCAGI",10,99,60;
+			//[BACKPORT-GAP:npcskill] npcskill "AL_BLESSING",10,99,60;
+//[BACKPORT-UNRESOLVED:npcskill] 			setquest 14695;
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 0:
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master, it hasn't even been 30 minutes yet. I'm still struggling. I'll give you more strength if you get up, so please wait.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Go! Master!!";
+			//[BACKPORT-GAP:npcskill] npcskill "AL_INCAGI",10,99,60;
+			//[BACKPORT-GAP:npcskill] npcskill "AL_BLESSING",10,99,60;
+//[BACKPORT-UNRESOLVED:npcskill] 			erasequest 14695;
+//[BACKPORT-UNRESOLVED:npcskill] 			setquest 14695;
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		end;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "What would you like to learn about master?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( select( "The path of a novice adventurer!", "I want to help people around me.", "I don't like the set path.", "There is no place I want to go." ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "I think I saw one ^0000cd<Thinking Archer>^000000 teacher near the entrance to Izlude, but he seemed to have a lot of thoughts. Why don't you go and ask what's going on? Let's go, let's go~";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Why don't you meet Paul and Anne at the outside ^0000cdProntera's West Gate ^000000? As I was passing by, I heard that they needed help.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Or why not listen to the anxious middle-aged man in ^0000cdPayon^000000?";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Pressing ^0000cdCtrl+`^000000 will open the map.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Do you see a box for selecting a region in the upper left corner?";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "After selecting the area you want to see, check the ^0000cdmonster tab^000000 in the upper right corner or press the ^0000cdTab key^000000, you will see the name and level of the monster most distributed in that area.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "It would be better to go on an adventure to a place that matches the level of master. If there is ^0000cda lot of level difference with monsters^000000, you can't get 100% of the experience. You have to calculate the level difference as well, right?";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "If you press the town you want to go to, the navigation menu will appear. Press the ^0000cd<Guide to the target> button at the bottom^000000 and exit the map to get guidance.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master, are you bored? Then you can chat with the people around you.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Other than that, it would be okay to try ^0000cdParadise's quest^000000. Do you want to go to Paradise? They say they will give you a weapon if you go.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Where do you want to go? Write ^0000cd/place^000000 in the chat window and compare your current location with the map that appears by pressing the ^0000cdCtrl+` keys^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			switch( select( "Prontera", "Geffen", "Payon", "Morroc", "Alberta", "Done" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 			case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Click on <NAVI>[Prontera]<INFO>prontera,124,76,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 				break;
+//[BACKPORT-UNRESOLVED:npcskill] 			case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Click on <NAVI>[Geffen]<INFO>geffen,132,66,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 				break;
+//[BACKPORT-UNRESOLVED:npcskill] 			case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Click on <NAVI>[Payon]<INFO>payon,177,111,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 				break;
+//[BACKPORT-UNRESOLVED:npcskill] 			case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Click on <NAVI>[Morroc: Paradise Space Traveler]<INFO>morocc,161,97,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Morroc is where Paradise is, so wouldn't it be ok to walk around?";
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Go to <NAVI>[Morroc Paradise]<INFO>morocc,206,285,0,101,0</INFO></NAVI>.";
+//[BACKPORT-UNRESOLVED:npcskill] 				break;
+//[BACKPORT-UNRESOLVED:npcskill] 			case 5:
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Click on <NAVI>[Alberta]<INFO>alberta,124,67,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 				break;
+//[BACKPORT-UNRESOLVED:npcskill] 			case 6:
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Okay? Then I'll look around a bit and get back into the bag.";
+//[BACKPORT-UNRESOLVED:npcskill] 				close;
+//[BACKPORT-UNRESOLVED:npcskill] 			}
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Go and register with Lime Ivenor first, then check the bulletin board next to it.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "It would be nice to go around towns and fields to find and help people in need. Those who need help will find it easier to find with a <!> sign above their heads.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		end;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "You didn't join the Paradise Club?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Do you want to go to ^0000cdParadise^000000? They say that if you go to Paradise, they will give you weapons.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Where do you want to go? Write /place in the chat window and compare your current location with the map that appears by pressing the ^0000cdCtrl+` keys^^000000. Where is the nearest?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( select( "Prontera", "Geffen", "Payon", "Morroc", "Alberta", "Done" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Click on <NAVI>[Prontera]<INFO>prontera,124,76,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Click on <NAVI>[Geffen]<INFO>geffen,132,66,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Click on <NAVI>[Payon]<INFO>payon,177,111,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Click on <NAVI>[Morroc: Paradise Space Traveler]<INFO>morocc,161,97,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Morroc is where Paradise is, so wouldn't it be ok to walk around?";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Go to <NAVI>[Morroc Paradise]<INFO>morocc,206,285,0,101,0</INFO></NAVI>.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 5:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Click on <NAVI>[Alberta]<INFO>alberta,124,67,0,101,0</INFO></NAVI> to find it.";
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 6:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Okay? Then I'll look around a bit and get back into the bag.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "^0000cdGo and register with Lime Ivenor first^000000, and then talk to the Boyana Ur and Paradise Logistics staff on either side.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "After some quests and training, they gave me equipment.";
+//[BACKPORT-UNRESOLVED:npcskill] 		close;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "What are you curious about with status and skills?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( select( "I'm curious about skills.", "I'm curious about statuses.", "I'm not interested anymore." ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Press the ^0000cdAlt+S keys^000000 to bring up the skill list window.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "If you check the item ^0000cd<View skill description> in the upper right corner^000000, you can view the description of the skill when you hover the mouse over the skill icon.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "You can learn this skill by consuming ^0000cd<Skill Points>^000000 that can be obtained whenever your job level increases. You can check the skill points you have in the lower left corner of this window.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Master currently has " + SkillPoint + " skill point " + (SkillPoint > 1 ? "s" : "") + ".";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Does master know about the skill tree? If master hovers the mouse over the skill they want to learn, the skills and skill levels to learn first will appear.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "That's the skill tree. However, the skill points consumed when learning a skill are limited, so you can't learn all the skills.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "There are a total of 49 skill points that can be used for learning before master changes to a higher job. This condition is called stagnation.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "^0000cdIf your job level is 40 you can change your job to a secondary job^000000, but it is recommended that you change jobs when you reach level 50.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Because it simplifies the transfer process. What greater reason could there be than this?";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Don't worry too much if you think you've raised your skills incorrectly.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "You can reset it at any time until master changes to a higher job.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Go to <NAVI>[Izlude: The Hypnotist]<INFO>izlude,127,175,0,101,0</INFO></NAVI> for guidance.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Let's see, master...";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "I heard that for Taekwon, you should raise mainly Str, Agi, and Dex. For more information,";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "please visit <NAVI>[Payon: Ahri]<INFO>payon,245,295,0,101,0</INFO></NAVI>.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Don't worry too much if you think you've raised your status incorrectly.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "You can reset it at any time until master changes to a higher job.";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Go to <NAVI>[Izlude: The Hypnotist]<INFO>izlude,127,175,0,101,0</INFO></NAVI> for guidance.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Call me anytime if you have any questions. I'll look around a bit and get back into the bag.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		end;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 5:
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( select( "Basic Operation", "Shortcut Guide", "Cancel" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			while(1) {
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "What are you curious about?";
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 				switch( select( "Move and Attack", "Talk with NPC", "Check Quest", "Check Status and Skills", "Unequip Equipment", "Trade" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 				case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cd<Move>^000000 - Click the place you want to go ^0000cdwith the mouse^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cd<Attack>^000000 - Click the target ^0000cdto attack with the mouse^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "How is it? Simple, right? You can also move the viewpoint by holding down the right mouse button and rotating it.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<Conversation> - Click the target ^0000cdto chat with the mouse^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Sometimes you have to get close to talk to someone.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Click the ^0000cdquest icon in the main menu located in the upper left corner.";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Shortcut: ^0000cdAlt+U^000000";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "When master receives a quest, the quest information is briefly displayed on the right side of the screen, so you can check it.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If there is a quest you do not want to see in the list of quests, place the mouse pointer over the title and press the right mouse button to send it to the pending tab.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<Check status> - Click the ^0000cdstatus icon in the main menu located at the top left corner^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Shortcut: ^0000cdAlt+A^000000";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<Check skill> - Click the ^0000cdskill icon in the main menu located at the top left corner^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Shortcut: ^0000cdAlt+S^000000";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Don't forget! The skill has to be activated by double clicking the icon you want to use and is casted by pressing the left mouse button once!";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 5:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<Equip and unequip equipment> - Click the ^0000cdequipment icon in the main menu located at the top left corner^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Shortcut: ^0000cdAlt+Q^000000";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Usually, you can equip and disarm by double-clicking the left mouse button in the inventory or equipment window.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Arrows and bullets can only be equipped by dragging them from the inventory to the character in the equipment window.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If master becomes a Merchant, you can pull a cart, which can be borrowed from the Kafra Staff in each town.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 6:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<Store Trade> - Click on the merchant NPC ^0000cdto trade^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<User Transaction> - Right-click the player you want to trade with and select ^0000cdTrade^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<Buy and sell stalls> - Click the mouse on the stalls window.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				}
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 			}
+//[BACKPORT-UNRESOLVED:npcskill] 			end;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			while(1) {
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "What are you curious about?";
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 				switch( select( "Tip of the Day", "Command List", "Skills and Items Shortcut Window", "Shortcut Key List and Registration", "Command List", "Emotion List" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 				case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Type ^0000cd/tip^000000 in the chat window.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "A lot of life information is contained in this. Whenever I'm bored, I read these.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Type ^0000cd/h^000000 in the chat window.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "You can see the necessary information for Novice adventurers.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Press the ^0000cdF12 key^000000 to register consumption items, skills, and equipment by dragging them to the shortcut window.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Did you know that quick item use and equipment replacement are essential for effective combat?";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Press the ^0000cdAlt+M keys^000000 to register frequently used shortcut commands~";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "I use this function to register frequently used commands.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 5:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Press the ^0000cdAlt+Y keys^000000 to check the command list and turn it ON/OFF.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "You can check and turn on/off various options by master's choice.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 6:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Press the ^0000cdAlt+L keys^000000 to view and use the list of emotions and shortcut commands.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Master, do you know that conversation isn't just about words? Appropriate use of emotion makes the conversation richer.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				}
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 			}
+//[BACKPORT-UNRESOLVED:npcskill] 			end;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Yes. Call me again if you need me.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		end;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 6:
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Master doesn't want to succeed? Salty says she's training hard because she wants to succeed.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "The tradition is ^0000cdbeing born again in Valhalla and returning to Novice^000000. But it's not a normal Novice, it's called a High Novice.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "In other words, it's evolution. People who have passed down say that there are many advantages to getting the job of the past again.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "There are many statuses, and above all, if you have a secondary job, you can increase your ^0000cdjob level to 70^000000. You will be able to use more skills.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "If you want to succeed, find a person named";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "<NAVI>[Metheus Sylph]<INFO>yuno_in02,88,164,0,101,0</INFO></NAVI> ^0000cdat Sage Academy in Yuno^000000, and he will guide you.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "If you're not interested in transcending, you can just change jobs. But he said that it's better to pass it on when you think about the future.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "If you are not interested in changing jobs or transcending...";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "The continent is full of festivals all year round. How about participating in the festival when master is also free?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Now...";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "I heard that there will be a winter hunting contest hosted by the royal family at the royal palace! I want to do a hunting contest! I want to do it! Fight monsters!!! Let's go to Prontera!!!!";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "I'll definitely take you with me, okay?";
+//[BACKPORT-UNRESOLVED:npcskill] 		close;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 7:
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Master, I'll tell you the basics, but literally just the basics.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "For more information";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "try using";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "<URL>[Rune Midgarts Library]<INFO>http://ro.gnjoy.com/guide/runemidgarts/,1024,768</INFO></URL>";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "What information are you curious about?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( select("Location Information", "Quest Information", "Hunting Field Information", "System Information", "Cancel" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			while(1) {
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Where are you curious?";
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 				switch( select( "Midgard Continent", "Far-Star Continent", "Malangdo", "Local Area", "Otherworld", "I'm not interested" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 				case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdMidgard Continent^000000 is said to have the greatest influence of the three kingdoms of Arunafelts, Schwaldzwald, and Rune-Midgarts. Each continent has an airship you can readily use.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdRune-Midgarts^000000. A kingdom ruled by seven royal families and the power of magic prevails.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "The capital is Prontera, the satellite city of Izlude, Geffen where wizards gather, Payon to the east, Alberta where you can go travel to different regions, Aldebaran with the clock tower, and Morroc.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "We met at Izlude in Rune-Midgarts Kingdom. Remember? Also Payon with Salty, and Paros from where I left. They're all in Rune-Midgats.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdArunafelz^000000. This is a church that worships a goddess. So, there is a Pope. Of course, you can't meet anyone, but is it possible? Maybe we can meet at least once.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Arunafelz has a temple capital, Rachel, and a canyon town, Veins.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdSchwaldzwald^000000 Republic. As the name suggests, there is a president. The capital city, Yuno, is floating in the air, so it's worth a visit. It must be spectacular.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "And there is Lighthalzen, where the headquarters of Rekenberg is located, there is the mining town of Einbroch, the mines of Einbech, and there is also the rural village of Hugel.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "There are other Utan villages such as Umbala, or Niflheim, the land of the dead. It's a place I've always wanted to visit!";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Many people thought that there was only the continent of Midgard on this land, but one day, people appeared in the form of ^0000cdcats^000000. No one knew where they came from.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "These people, called Doram, are from a place far across the sea, the ^0000cdFar-Star Continent^000000. They said that the road was opened for them only recently.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "In the Far-Star Continent, the port city ^0000cdLasagna^000000 is the most famous. I want to go there too.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "To get here, take the boat from Malangdo or Izlude. Do you remember where we got off?";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "You've seen people in the form of cats, called Dorams, who come and go. They haven't had their first contact with this Midgard continent, but now they have taken root and established themselves everywhere.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "It turns out that while sailing in a faraway place called the Far-Star continent, they met a storm and fell to a place called Malangdo. Literally, the ship fell from the sky.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Dorams have a lot of magical talents, so if you go to ^0000cdMalangdo^000000 you will have a good time.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdYou can take the boat^000000 from Izlude. If you have Canned Malangdo that can be obtained in a special way, you can use it to travel to there.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If you want to feel the atmosphere of a foreign country, you should go to that ^0000cdlocal region^000000. ^0000cdIf you go to Alberta's dock^000000, you can meet the sailors who send people to each local region.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Amatsu, Kunlun, Moscovia, Brasilis, Ayothaya, Dewata, Port Malaya, Rock Ridge, etc. The unknown world is waiting for you.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Doesn't it make your heart flutter just by hearing the words? See you later, master.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 5:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Uh, I know, here. If you go through the eastern part of Morroc or talk to Agent Catson in Paradise, they'll send you there.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "You can meet people you've never seen before.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "From the base of the Expeditionary Forces of the Three Kingdoms, you can go to Splendid, Eclage, Manuk or El Dicastes.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 6:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Okay? Then I'll look around a bit and get back into the bag.";
+//[BACKPORT-UNRESOLVED:npcskill] 					close;
+//[BACKPORT-UNRESOLVED:npcskill] 				}
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 			}
+//[BACKPORT-UNRESOLVED:npcskill] 			end;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			while(1) {
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "What quest are you curious about?";
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 				switch( select( "General Quest", "Monthly Event", "Paradise", "I'm not interested" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 				case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdWhy don't you meet Paul and Anne at^000000 the outside Prontera's West Gate? As I was passing by, I heard that they needed help.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Or why not listen to the anxious middle-aged man from ^0000cdPayon^000000?";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "For more information on quests";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "see also";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<URL>[Rune Midgarts Library]<INFO>http://ro.gnjoy.com/guide/runemidgarts/questlist.asp,1024,768</INFO></URL>";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "You will be able to learn about the flow of this world and know what major events are happening.";
+//[BACKPORT-UNRESOLVED:npcskill] 					close;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "The continent is full of festivals all year round. How about participating in the festival when master is also free?";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Now...";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "I heard that there will be a winter hunting contest hosted by the royal family at the royal palace! want to do a hunting contest! I want to do it! Fight monsters!!! Let's go to Prontera!!!!";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "I'll definitely take you with me, okay?";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdHave you been to Paradise^000000?";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "There are many quests waiting for master. Besides, they also provide equipment for beginners.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Of course, it's not free, but you have to solve a simple quest from Paradise. Besides, they also rent out shadow equipment.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If you have any questions, go to the Paradise Office.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Okay? Then I'll look around a bit and get back into the bag.";
+//[BACKPORT-UNRESOLVED:npcskill] 					close;
+//[BACKPORT-UNRESOLVED:npcskill] 				}
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 			}
+//[BACKPORT-UNRESOLVED:npcskill] 			end;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 			while(1) {
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "I wonder where..";
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 				switch( select( "Field Hunting Guide", "Dungeon Guide", "Other Dungeon Guide", "Enough" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 				case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Press the ^0000cdCtrl+` keys^000000 to open a map.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Do you see a box for selecting an area at the top left? After selecting the area you want to see, check the ^0000cdmonster tab^000000 in the upper right corner or press the ^0000cdTab key^000000, you will see the name and level of the monster most distributed in that area.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "It would be better to go on an adventure to a place that matches the level of master. ^0000cdIf there is a lot of level difference with monsters, you can't get 100% of the experience^000000. You have to calculate the level difference as well, right?";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If you press the town you want to go to, the navigation menu will appear. Press the ^0000cd<Guide to the target> button at the bottom^000000 and exit the map to get guidance.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Press the ^0000cdCtrl+` keys^000000 to open a map.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdDo you see a box where you can select an area^000000 in the upper left? If you select an area you want to check out then you will see it marked with a red box the map with ^0000cdthe name of the main dungeon^000000 written on it." ;
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Then check the ^0000cdmonster tab in the upper right corner or press the Tab key^000000 to display the level of the dungeon.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Sometimes, some dungeons can only be entered through special quests, so you need to gather information as well, alright?";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Why don't you try the underground waterway first? The Swordsman Guild is always recruiting, but I heard it's good for beginner adventurers to gain experience.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "There are a lot of memorial dungeons, nightmare dungeons, illusion dungeons...etc.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdMemorial Dungeon^000000";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "In addition to the regular dungeons, there are also special dungeons. Usually, they say that it is a special place created by an unknown power in this world.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "A lot of experienced adventurers usually go, but they say there are a few low-level places that can be reached with a little training. Either in Orc Village or Rachel...";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "It is said to be located in villages and general fields, and there are many places called Dimensional Rifts.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdNightmare Dungeon^000000";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "It is said that it is a dungeon that is much more difficult of a challenge than a normal dungeon. Even the monsters are not like the monsters we know of. When you find the dungeon, if someone suspicious tells you that it will send you to a more difficult place, try it out." ;
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdIllusion Dungeon^000000";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "No one knows what kind of dungeon these dungeons are. I guess it's something like a dream or a fantasy. There is a special stone that only comes from here, and everyone says that they aim for the stone and fight for it. They say that the stone can be exchanged for powerful weapons. ";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Okay? Then I'll look around a bit and get back into the bag.";
+//[BACKPORT-UNRESOLVED:npcskill] 					close;
+//[BACKPORT-UNRESOLVED:npcskill] 				}
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 			}
+//[BACKPORT-UNRESOLVED:npcskill] 			end;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 			while(1) {
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "So, what basic info do you want to know?";
+//[BACKPORT-UNRESOLVED:npcskill] 				mes "Refer to <URL>[guide]<INFO>http://ro.gnjoy.com/guide/systeminfo/,1024,768</INFO></URL> for the Basic.";
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 				switch( select( "Party", "Guilds and Clans", "Smelt", "Enchant", "Family", "Chat" ) ) {
+//[BACKPORT-UNRESOLVED:npcskill] 				case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Sometimes you would like to be with your friends, if they fight in dungeons, enjoy adventures together, or sometimes just sit and chat.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "In that case, make a party and do it together.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "The party window can be easily opened and with the ^0000cdAlt+Z keys^000000. When evenly distributing experience for hunting, the difference of ^0000cdlevel between party members^000000 can be equal to or less than 15.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If you click the circle on the left in the chat window at the bottom, you can designate a chat partner, and you can send a message only to party members there, so it's useful.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Sometimes you will want to belong somewhere and feel a bond with someone. In that case, you just need to belong to a ^0000cdguild or clan^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "The biggest characteristic of a guild is a battle over a hideout. It is also called a siege.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "You can enter a guild that has already been formed by invitation, or you can buy Empelium sold at the office to create a guild.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "In addition to the sense of belonging, the guild can enjoy various benefits such as the guild's own skills and dedicated warehouse.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "For details";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "refer to <URL>[Guild Guide]<INFO>http://ro.gnjoy.com/guide/systeminfo/systemGuild1.asp,1024,768</INFO></URL>";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If joining a guild is burdensome, then a ^0000cdclan^000000 would be good. It may be difficult to feel as close to others like in a guild, but the clan also has various benefits.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdThe building in the lower left corner of Prontera Central Fountain^000000 is the Clan Headquarters, so take a look.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 3:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Do you want to make the equipment you have stronger? In that case, you can find the ^0000cdsmelter^000000 in each town.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Smelting requires special items and zeny. It depends on the type and level of the equipment.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "One thing to be aware of is that there is a safe refinement level in smelting, and if you proceed with refining above a certain level, the equipment has a chance to be destroyed. You must have good luck.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Oh, besides the smelter in each town, I heard that the^0000cd<Item Mall>^000000 offers a higher success chance of smelting.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If you are curious, go to ^0000cd<cash sales guide>^000000 in each town. They will guide you there.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 4:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If you want to make your equipment stronger or give it a special ability, why not try to ^0000cdenchant^000000 it?";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cd<Malangdo>, <Item Mall>^000000, or ^0000cd<Seyablem> and <Leyablem>^000000 which can be found in major towns, are mainly doing this.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Equipment obtained from a specific dungeon or a specific area can only be ^0000cdenchanted^000000 from in that area.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "However, not all equipment can be enchanted, so you should check the conditions carefully.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 5:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Are you sure you want to be with another person for the rest of your life? Then you can start a ^0000cdfamily^000000.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "^0000cdYou can marry the person you like^000000, or you can adopt a ^0000cdchild^000000. It is also possible for you to be adopted as the child of another couple.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "They say that you can gain special marriage skills to use as a family.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If you are interested in getting married, go to the Church of Prontera or the Wedding Hall of Lasagna. You will need some supplies before you can marry. The Church of Prontera can only marry humans.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Adoption requires a wedded couple's level to be 70 or higher and the child to be adopted is a Novice or a first class.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "The Family Division of the Prontera District Office says that you can purchase items necessary for a wedding or check with family-related matters, so if you need it, go check it out.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "You can refer to";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "<URL>[Family]<INFO>http://ro.gnjoy.com/guide/systeminfo/systemLovers1.asp,1024,768</INFO></URL> for more details.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				case 6:
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "Can you see the message window at the bottom? You can chat with other people by entering your message there or you can also send other message types there as well.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "If you want to chat with a small number of people who are neither party nor guild members, you can open a chat window.";
+//[BACKPORT-UNRESOLVED:npcskill] 					next;
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 					mes "You can simply open the chat window with the ^0000cdAlt+C keys^000000. You can also set the maximum number of participants and and a password.";
+//[BACKPORT-UNRESOLVED:npcskill] 					break;
+//[BACKPORT-UNRESOLVED:npcskill] 				}
+//[BACKPORT-UNRESOLVED:npcskill] 				next;
+//[BACKPORT-UNRESOLVED:npcskill] 			}
+//[BACKPORT-UNRESOLVED:npcskill] 			end;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 5:
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Okay? Then I'll look around a bit and get back into the bag.";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		end;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 8:
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Aww!!! I'm Shorty! What's my master's name?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		select( "Master?" );
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "The first person you meet should be called Master.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		select( "Are you talking about a teacher?" );
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Yeah. That's it. I'm Galapago Shorty, I'm a good talker.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		select("Why are you here?" );
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Salty! Salty is my friend. I'm here to meet Salty. So you must take me to Salty.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Well then, let's go!";
+//[BACKPORT-UNRESOLVED:npcskill] 		close;
+//[BACKPORT-UNRESOLVED:npcskill] 	case 9:
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "What...? Master...? What? Let's break up? Here? Now? Are you serious?";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Is there anything you didn't like? Was I not quiet in my bag? Oh, that's what you didn't like, yes... Then there's nothing I can do.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Then you won't take me to ^0000cdSalty^000000? Salty will be grateful of you for taking me there. I'll pay thanks because Salty knows grace.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		if (select( "Let's go our separate ways.", "Let's go together until then." ) == 2) {
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Okay. Well said, master. Even if I get stuck in the bag, I'll get out of it quickly.";
+//[BACKPORT-UNRESOLVED:npcskill] 			next;
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 			mes "Let's help each other a little bit more. Okay?";
+//[BACKPORT-UNRESOLVED:npcskill] 			close;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Yes. Master has a stone cold heart. Then there is nothing that can be done. I think our relationship ends here.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "I don't know how it was with you, but I enjoyed our time together.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Stay healthy and I bid you well. I hope master will not forget that Galapago was there.";
+//[BACKPORT-UNRESOLVED:npcskill] 		next;
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "[Shorty]";
+//[BACKPORT-UNRESOLVED:npcskill] 		mes "Well then, master, goodbye. Goodbye!";
+//[BACKPORT-UNRESOLVED:npcskill] 		switch( 0 ) {
+//[BACKPORT-UNRESOLVED:npcskill] 		case 0:
+//[BACKPORT-UNRESOLVED:npcskill] 			setquest 14693;
+//[BACKPORT-UNRESOLVED:npcskill] 			completequest 14693;
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 1:
+//[BACKPORT-UNRESOLVED:npcskill] 			completequest 14693;
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		case 2:
+//[BACKPORT-UNRESOLVED:npcskill] 			break;
+//[BACKPORT-UNRESOLVED:npcskill] 		}
+//[BACKPORT-UNRESOLVED:npcskill] 		if (0 > 0)
+//[BACKPORT-UNRESOLVED:npcskill] 			erasequest 14694;
+//[BACKPORT-UNRESOLVED:npcskill] 		delitem 23278,1;	// HelpmeShorty
+//[BACKPORT-UNRESOLVED:npcskill] 		close;
+//[BACKPORT-UNRESOLVED:npcskill] 	}
+//[BACKPORT-UNRESOLVED:npcskill] }

@@ -1,0 +1,1369 @@
+//===== uAthena backport (renewal dungeon/collection quests 2c, GENERATED) =====
+//= dungeon/collection quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-collections.py
+//= Source: npc/re/quests/homun_s.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Homunculus S Mutation Quest
+//===== By: ================================================== 
+//= Euphy
+//===== Current Version: ===================================== 
+//= 1.2
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Genetic quest to mutate a level 99 evolved Homunculus
+//= into a Homunculus S.
+//===== Additional Comments: ================================= 
+//= 1.0 First Version, entirely custom. [Masao]
+//= 1.1 Cleaning. [Euphy]
+//= 1.2 Replaced with official script. [Euphy]
+//= 1.3 Fixed Job Class for after Genetic. [Mazvi & Lemongrass]
+//============================================================ 
+
+// Main NPCs :: Homun_S
+//============================================================
+//[BACKPORT-BOUNDARY:job3_gen01] job3_gen01,12,44,3	script	Viorel#job3_gen01	542,{
+//[BACKPORT-BOUNDARY:job3_gen01] 	if (countitem(6415)) {
+//[BACKPORT-BOUNDARY:job3_gen01] 		if ((eaclass()&EAJ_THIRDMASK)==EAJ_GENETIC) {
+//[BACKPORT-BOUNDARY:job3_gen01] 			disable_items;
+//[BACKPORT-BOUNDARY:job3_gen01] 			if (checkquest(4159) == -1 && checkquest(4160) == -1) {
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Why are you here?";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Shouldn't you be at ^005DFFJeyna^000000's house?";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close2;
+//[BACKPORT-BOUNDARY:job3_gen01] 				for(set .@i,4154; .@i<=4160; set .@i,.@i+1) {
+//[BACKPORT-BOUNDARY:job3_gen01] 					if (checkquest(.@i) > -1)
+//[BACKPORT-BOUNDARY:job3_gen01] 						erasequest .@i;
+//[BACKPORT-BOUNDARY:job3_gen01] 				}
+//[BACKPORT-BOUNDARY:job3_gen01] 				setquest 4154;
+//[BACKPORT-BOUNDARY:job3_gen01] 				setquest 4159;
+				//[BACKPORT-GAP:morphembryo] morphembryo;
+//[BACKPORT-BOUNDARY:job3_gen01] 				if (countitem(6415) == 0)
+//[BACKPORT-BOUNDARY:job3_gen01] 					getitem 6415,1; //Strange_Embryo
+//[BACKPORT-BOUNDARY:job3_gen01] 				else if (countitem(6415) > 1)
+//[BACKPORT-BOUNDARY:job3_gen01] 					delitem 6415, (countitem(6415) - 1); //Strange_Embryo
+//[BACKPORT-BOUNDARY:job3_gen01] 				warp "que_house_s",63,41;
+//[BACKPORT-BOUNDARY:job3_gen01] 				end;
+//[BACKPORT-BOUNDARY:job3_gen01] 			}
+//[BACKPORT-BOUNDARY:job3_gen01] 			enable_items;
+//[BACKPORT-BOUNDARY:job3_gen01] 		} else if (Class == Job_Novice_High || Class == Job_Merchant_High || Class == Job_Alchemist || Class == Job_Creator) {
+			//[BACKPORT-GAP:ET_QUESTION] emotion ET_QUESTION;
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "I don't know what's going on, but the way I remember it you were supposed to be qualified to research ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Whatever the reason, you're not able to continue the research on ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Come back after you become a ^005DFFGenetic^000000 and have obtained a ^0000FFBioethics^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			close;
+//[BACKPORT-BOUNDARY:job3_gen01] 		} else {
+//[BACKPORT-BOUNDARY:job3_gen01] 			delitem 6415, countitem(6415); //Strange_Embryo
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Wait, that embryo you have seems a little strange.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Unless you have a job researching ^FF4800Homunculus^000000....";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "It will be of no help to you what so ever.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "I'm in charge of managing ^0000FFStrange Embryo^000000 so I'll take care of that for you.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "No offense, and I'm not doing anything bad here.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			close;
+//[BACKPORT-BOUNDARY:job3_gen01] 		}
+//[BACKPORT-BOUNDARY:job3_gen01] 	}
+//[BACKPORT-BOUNDARY:job3_gen01] 	if (((eaclass()&EAJ_THIRDMASK)==EAJ_GENETIC) && (checkquest(4154) > -1)) {
+//[BACKPORT-BOUNDARY:job3_gen01] 		if ((checkquest(4155) > -1) || (checkquest(4160) > -1)) {
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Weather's great.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			callsub L_CheckHomunculus;
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Ready to go to my house?";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			switch(select("Go to ^005DFFViorel^000000's house.:Don't go.")) {
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 1:
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Good choice.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Now, close your eyes for a second...";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close2;
+//[BACKPORT-BOUNDARY:job3_gen01] 				warp "que_house_s",19,42;
+//[BACKPORT-BOUNDARY:job3_gen01] 				end;
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 2:
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Come back when you're ready.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "You must come with the ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close;
+//[BACKPORT-BOUNDARY:job3_gen01] 			}
+//[BACKPORT-BOUNDARY:job3_gen01] 		} else {
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Why are you here?";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Shouldn't you be at ^005DFFJeyna^000000's house?";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			callsub L_CheckHomunculus;
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Now, ready to go to ^005DFFJeyna^000000?";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			switch(select("Go to ^005DFFJeyna^000000's room.:Don't go.")) {
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 1:
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Good choice.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Now, close your eyes for a second...";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close2;
+//[BACKPORT-BOUNDARY:job3_gen01] 				warp "que_house_s",63,41;
+//[BACKPORT-BOUNDARY:job3_gen01] 				end;
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 2:
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Come back when you're ready.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "You must come with the ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close;
+//[BACKPORT-BOUNDARY:job3_gen01] 			}
+//[BACKPORT-BOUNDARY:job3_gen01] 		}
+//[BACKPORT-BOUNDARY:job3_gen01] 	}
+//[BACKPORT-BOUNDARY:job3_gen01] 	if (BaseJob == Job_Merchant) {
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "I used to be a merchant once, just like you.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "I'm researching on ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		next;
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "If you're interested in ^FF4800Homunculus^000000, become an ^005DFFAlchemist^000000 or a ^005DFFCreator^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		close;
+//[BACKPORT-BOUNDARY:job3_gen01]  	} else if (BaseJob == Job_Alchemist && Class < Job_Genetic) {
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "I've spent lots of time and energy on Homunculus.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "If you feel like you're at a dead end, come back next time with a ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		next;
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "Oh. Of course you need to have the suitable potentials. You could probably prove yourself once you become a ^FF4800Genetic^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		close;
+//[BACKPORT-BOUNDARY:job3_gen01] 	} else if ((eaclass()&EAJ_THIRDMASK)==EAJ_GENETIC) {
+//[BACKPORT-BOUNDARY:job3_gen01] 		if (gethominfo(6) >= 99 && (gethominfo(1) >= 6009 && gethominfo(1) <= 6016)) { // Level 99+ evolved Homunculus
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Oh, great~!";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "You have a ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "With passion invested in its research we can make them better.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "I must speak to you in private. Would you mind going to my house with me?";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			switch(select("Go to ^005DFFViorel^000000's home.:Stay here.")) {
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 1:
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Good choice.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Now, close your eyes for a second...";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close2;
+//[BACKPORT-BOUNDARY:job3_gen01] 				setquest 4154;
+//[BACKPORT-BOUNDARY:job3_gen01] 				setquest 4155;
+//[BACKPORT-BOUNDARY:job3_gen01] 				warp "que_house_s",19,42;
+//[BACKPORT-BOUNDARY:job3_gen01] 				end;
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 2:
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "If you feel like you're at a dead end, come back next time with a ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close;
+//[BACKPORT-BOUNDARY:job3_gen01] 			}
+//[BACKPORT-BOUNDARY:job3_gen01] 		} else if (gethominfo(6) >= 99 && (gethominfo(1) >= 6048 && gethominfo(1) <= 6052)) { // Level 99+ mutated Homunculus-S
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Hello again.";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "Perhaps you may be interested";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "in the newly created ^FF4800Homunculus^000000,";
+//[BACKPORT-BOUNDARY:job3_gen01] 			mes "born from the new ^006400Homunculus Mutation System^000000?";
+//[BACKPORT-BOUNDARY:job3_gen01] 			next;
+//[BACKPORT-BOUNDARY:job3_gen01] 			switch(select("Nope. Good bye.:Please, I'm busy.:That's exactly what I wanted to hear.:Why are you always standing there?")) {
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 1:
+				//[BACKPORT-GAP:ET_SMILE] emotion ET_SMILE;
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Okay.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Good seeing you.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Good bye then~!";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close;
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 2:
+				//[BACKPORT-GAP:ET_HUK] emotion ET_HUK;
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "!!!!";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "I... I see.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "I thought you were here to see me.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close;
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 3:
+				//[BACKPORT-GAP:ET_AHA] emotion ET_AHA;
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Just as I thought.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Let's have a look at the notes my dear friend Jeyna left.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				next;
+				//[BACKPORT-GAP:playbgm] playbgm "30.mp3"; // One Step Closer
+//[BACKPORT-BOUNDARY:job3_gen01] 				callfunc "F_HomMutateInfo","[Memo Pad Notes]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Hmm.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Well, that's all there is to it.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "It's up to you to find out more.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close2;
+				//[BACKPORT-GAP:playbgm] playbgm "08.mp3"; // Theme of Prontera
+//[BACKPORT-BOUNDARY:job3_gen01] 				end;
+//[BACKPORT-BOUNDARY:job3_gen01] 			case 4:
+				//[BACKPORT-GAP:ET_SWEAT] emotion ET_SWEAT;
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "No, I do not stand here every day.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "But why do YOU stand there every day?";
+//[BACKPORT-BOUNDARY:job3_gen01] 				next;
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "What?";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "No, the way I see it";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "you seem to be here every time I'm here.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close;
+//[BACKPORT-BOUNDARY:job3_gen01] 			}
+//[BACKPORT-BOUNDARY:job3_gen01] 		} else {
+//[BACKPORT-BOUNDARY:job3_gen01] 			if (gethominfo(1) >= 6009) { // Evolved Homunculus
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Hmm, you seem to have a special bond with your ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				next;
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Come back to me when that ^FF4800Homunculus^000000 reaches ^0000FFlevel 99^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close;
+//[BACKPORT-BOUNDARY:job3_gen01] 			} else {
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "You do not yet possess an evolved ^FF4800Homunculus^000000...";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "As you may well know about evolution:";
+//[BACKPORT-BOUNDARY:job3_gen01] 				next;
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 				mes "Using the ^0000FFStone of Sage^000000 when intimacy level is above ^006400Intimate^000000, the ^FF4800Homunculus^000000 goes through ^006400Evolution^000000.";
+//[BACKPORT-BOUNDARY:job3_gen01] 				close;
+//[BACKPORT-BOUNDARY:job3_gen01] 			}
+//[BACKPORT-BOUNDARY:job3_gen01] 		}
+//[BACKPORT-BOUNDARY:job3_gen01] 	}
+//[BACKPORT-BOUNDARY:job3_gen01] 	mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 	mes "^FF4800Homunculus^000000 research requires a lot of time and funding.";
+//[BACKPORT-BOUNDARY:job3_gen01] 	mes "However, I believe passion is the most important factor.";
+//[BACKPORT-BOUNDARY:job3_gen01] 	next;
+//[BACKPORT-BOUNDARY:job3_gen01] 	switch(select("End conversation.:What are you talking about?:Why are you always standing there?")) {
+//[BACKPORT-BOUNDARY:job3_gen01] 	case 1:
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "So long~!";
+//[BACKPORT-BOUNDARY:job3_gen01] 		close;
+//[BACKPORT-BOUNDARY:job3_gen01] 	case 2:
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "You see, ^006400Alchemists^000000 have an inquisitive nature.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "People like me, especially, even think of creating life itself.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		next;
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "You'd have to research ^FF4800Homunculus^000000 to understand.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "Now, if you'll excuse me~!";
+//[BACKPORT-BOUNDARY:job3_gen01] 		close;
+//[BACKPORT-BOUNDARY:job3_gen01] 	case 3:
+		//[BACKPORT-GAP:ET_SWEAT] emotion ET_SWEAT;
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "What, is it so strange to see an Alchemist in their own lab?";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "How so?";
+//[BACKPORT-BOUNDARY:job3_gen01] 		close;
+//[BACKPORT-BOUNDARY:job3_gen01] 	}
+//[BACKPORT-BOUNDARY:job3_gen01] 	end;
+//[BACKPORT-BOUNDARY:job3_gen01] L_CheckHomunculus:
+//[BACKPORT-BOUNDARY:job3_gen01] 	if (gethominfo(6) < 99 || (gethominfo(1) < 6009 || gethominfo(1) > 6016)) { // Not level 99+ evolved Homunculus
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "Huh?";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "Where's the ^FF4800Homunculus^000000 you used to have?";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "Perhaps I've mistaken it for something else...";
+//[BACKPORT-BOUNDARY:job3_gen01] 		next;
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes ".......";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes " ";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "(Seems to be thinking about something.)";
+//[BACKPORT-BOUNDARY:job3_gen01] 		next;
+		//[BACKPORT-GAP:ET_SMILE] emotion ET_SMILE;
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "Ha ha~";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "I think I've mistaken you for someone else.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		mes "If you'll excuse me.";
+//[BACKPORT-BOUNDARY:job3_gen01] 		close;
+//[BACKPORT-BOUNDARY:job3_gen01] 	}
+//[BACKPORT-BOUNDARY:job3_gen01] 	return;
+//[BACKPORT-BOUNDARY:job3_gen01] }
+
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,24,47,3	script	Viorel#homun_s	542,{
+//[BACKPORT-BOUNDARY:que_house_s] 	if (checkquest(4155) > -1) {
+		//[BACKPORT-GAP:ET_HUM] emotion ET_HUM;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Good.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I see that you mean business.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+		//[BACKPORT-GAP:playbgm] playbgm "33.mp3"; // Yuna Song
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Maybe you'll agree.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Currently, your ^FF4800Homunculus^000000 is not in its perfect state.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "These days, studies on the growth of the ^FF4800Homunculus^000000 are actively taking place.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "But, I do believe that I have found something special.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "In order to break the current limitations of the ^FF4800Homunculus^000000, mutations need to happen.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		switch(select("Like, biological experiments...?!:Well, yeah, naturally.:I don't want to hurt my Homunculus!")) {
+//[BACKPORT-BOUNDARY:que_house_s] 		case 1:
+			//[BACKPORT-GAP:ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Don't look so surprised.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Ethics in biology are kind of blurry right now, right?";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I mean...";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "It's my duty to study the true potential of the ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "So far, Homunculus haven't demonstrated their full potential, but I know that I am close to a breakthrough.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			break;
+//[BACKPORT-BOUNDARY:que_house_s] 		case 2:
+			//[BACKPORT-GAP:ET_OHNO] emotion ET_OHNO;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Yes.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I'm glad you're not upset.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Mutation,";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "a word that sparks evil in the minds of the ordinary,";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "which made my research very difficult to proceed with.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Do you remember?";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "^005DFFKellasus^000000 of ^8B4513Lighthalzen^000000, the pioneer of ^FF4800Homunculus^000000 research.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I believe that this research fulfills the promise made with ^005DFFKellasus^000000, the giver of knowledge and belief.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			break;
+//[BACKPORT-BOUNDARY:que_house_s] 		case 3:
+			//[BACKPORT-GAP:ET_SWEAT] emotion ET_SWEAT;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I understand your concern.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "But I want to assure you that this Mutation does not harm or hurt your ^FF4800Homunculus^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "On the contrary, the ^FF4800Homunculus^000000 of today are in pain from imperfection, unable to live up to their supposed potentials.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Moreover, those ^FF4800Homunculus^000000 were often abandoned.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Don't get me wrong, I study the ^FF4800Homunculus^000000 because I love them.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			break;
+//[BACKPORT-BOUNDARY:que_house_s] 		}
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Well, by the way...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I have found this new mutation to be quite stable.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^006400The technology exists,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and they will likely have new";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "skills when mutated...^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The minor side effect...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^006400Their appearance will change^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "But I think you'll find that pretty satisfying.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I quote from ^005DFFKassibian^000000, an expert in ^FF4800Homunculus^000000 techniques,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^006400The truth is not in a single form~!^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Ha ha.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+		//[BACKPORT-GAP:ET_SPARK] emotion ET_SPARK;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I know it's a little abrupt, but...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "How about changing your ^FF4800Homunculus^000000 into something incredible with my marvelous achievement, the ^006400Homunculus Mutation System^000000?";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		switch(select("Explore the ^006400Homunculus Mutation System^000000.:Cancel.")) {
+//[BACKPORT-BOUNDARY:que_house_s] 		case 1:
+			//[BACKPORT-GAP:ET_BEST] emotion ET_BEST;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Good choice.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Success lurks outside the box of conventional thinking, right?";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "The first person to help with the research is ^005DFFJeyna^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I'll send you to ^005DFFJeyna^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "There, you'll learn more about the new ^0000FFHomunculus^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			close2;
+//[BACKPORT-BOUNDARY:que_house_s] 			setquest 4156;
+//[BACKPORT-BOUNDARY:que_house_s] 			erasequest 4155;
+//[BACKPORT-BOUNDARY:que_house_s] 			warp "que_house_s",63,41;
+//[BACKPORT-BOUNDARY:que_house_s] 			end;
+//[BACKPORT-BOUNDARY:que_house_s] 		case 2:
+			//[BACKPORT-GAP:ET_THINK] emotion ET_THINK;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I don't see why you hesitate.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I am not trying to deceive you.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Maybe you need some time to think about it?";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			switch(select("Think about it.:I'm just going to walk away.")) {
+//[BACKPORT-BOUNDARY:que_house_s] 			case 1:
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "We'll talk in a bit then.";
+//[BACKPORT-BOUNDARY:que_house_s] 				close;
+//[BACKPORT-BOUNDARY:que_house_s] 			case 2:
+				//[BACKPORT-GAP:ET_OTL] emotion ET_OTL;
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "Shame.";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "However, I respect your opinion.";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "I'll send you back to the ^8B4513Laboratory^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 				close2;
+//[BACKPORT-BOUNDARY:que_house_s] 				erasequest 4154;
+//[BACKPORT-BOUNDARY:que_house_s] 				erasequest 4155;
+//[BACKPORT-BOUNDARY:que_house_s] 				warp "job3_gen01",12,47;
+//[BACKPORT-BOUNDARY:que_house_s] 				end;
+//[BACKPORT-BOUNDARY:que_house_s] 			}
+//[BACKPORT-BOUNDARY:que_house_s] 		}
+//[BACKPORT-BOUNDARY:que_house_s] 	} else if (checkquest(4160) > -1) {
+		//[BACKPORT-GAP:playbgm] playbgm "33.mp3"; // Yuna Song
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The ^FF4800Homunculus^000000 I saw before has returned to its ^0000FFembryo^000000 state.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "A little strange, but...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "You don't have to worry about it.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "By the way...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I forgot to tell you something.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "In order to stabilize the Mutation process, I need some materials first.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Fortunately, you don't have to find them yourself because I have them here already..";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "But, I'll need ^FF000050,000 zeny^000000, you know, as a service fee.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I wish that I could do it for free but I'm not exactly made of money, you know.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "That and I lack any investors to support my research at the moment.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "In fact, if I had enough zeny to continue my research, then I could solve a lot of my problems...";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Anyways, you can try to do this with or without the stabilization process. It's all up to you.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "If you choose the unstable";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "mutation, I can't guarentee what kind of Homunculus you're going to get.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Anyways, it's up to you.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		switch(select("Mutation stabilization (50,000 zeny):Unstable mutation")) {
+//[BACKPORT-BOUNDARY:que_house_s] 		case 1:
+//[BACKPORT-BOUNDARY:que_house_s] 			if (Zeny < 50000) {
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "I don't think you have ^FF000050 thousand Zeny^000000 with you right now.";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "Please bring enough Zeny.";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "I'll be waiting.";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "Want me to send you back to the ^8B4513Laboratory^000000?";
+//[BACKPORT-BOUNDARY:que_house_s] 				next;
+//[BACKPORT-BOUNDARY:que_house_s] 				switch(select("No thanks.:Yes. Send me back to the Lab.")) {
+//[BACKPORT-BOUNDARY:que_house_s] 				case 1:
+//[BACKPORT-BOUNDARY:que_house_s] 					mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 					mes "Alright.";
+//[BACKPORT-BOUNDARY:que_house_s] 					mes "I'll see you in a bit.";
+//[BACKPORT-BOUNDARY:que_house_s] 					close;
+//[BACKPORT-BOUNDARY:que_house_s] 				case 2:
+//[BACKPORT-BOUNDARY:que_house_s] 					mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 					mes "Alright.";
+//[BACKPORT-BOUNDARY:que_house_s] 					mes "I'll be waiting at the ^8B4513Laboratory^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 					close2;
+//[BACKPORT-BOUNDARY:que_house_s] 					warp "job3_gen01",12,47;
+//[BACKPORT-BOUNDARY:que_house_s] 					end;
+//[BACKPORT-BOUNDARY:que_house_s] 				}
+//[BACKPORT-BOUNDARY:que_house_s] 			}
+			//[BACKPORT-GAP:ET_BEST] emotion ET_BEST;
+			//[BACKPORT-GAP:playbgm] playbgm "19.mp3"; // Under the Ground
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Good choice.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Choose from the different types of ^0000FFHomunculus^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			switch(select("Eira:Sera:Dieter:Bayeri:Eleanor")) {
+//[BACKPORT-BOUNDARY:que_house_s] 			case 1:
+//[BACKPORT-BOUNDARY:que_house_s] 				cutin "Mer_Eira_Card",3;
+//[BACKPORT-BOUNDARY:que_house_s] 				set .@Homunculus,6048; //MER_EIRA
+//[BACKPORT-BOUNDARY:que_house_s] 				break;
+//[BACKPORT-BOUNDARY:que_house_s] 			case 2:
+//[BACKPORT-BOUNDARY:que_house_s] 				cutin "Mer_Sera_Card",3;
+//[BACKPORT-BOUNDARY:que_house_s] 				set .@Homunculus,6050; //MER_SERA
+//[BACKPORT-BOUNDARY:que_house_s] 				break;
+//[BACKPORT-BOUNDARY:que_house_s] 			case 3:
+//[BACKPORT-BOUNDARY:que_house_s] 				cutin "Mer_Dieter_Card",3;
+//[BACKPORT-BOUNDARY:que_house_s] 				set .@Homunculus,6051; //MER_DIETER
+//[BACKPORT-BOUNDARY:que_house_s] 				break;
+//[BACKPORT-BOUNDARY:que_house_s] 			case 4:
+//[BACKPORT-BOUNDARY:que_house_s] 				cutin "Mer_Bayeri_Card",3;
+//[BACKPORT-BOUNDARY:que_house_s] 				set .@Homunculus,6049; //MER_BAYERI
+//[BACKPORT-BOUNDARY:que_house_s] 				break;
+//[BACKPORT-BOUNDARY:que_house_s] 			case 5:
+//[BACKPORT-BOUNDARY:que_house_s] 				cutin "Mer_Eleanor_Card",3;
+//[BACKPORT-BOUNDARY:que_house_s] 				set .@Homunculus,6052; //MER_ELEANOR
+//[BACKPORT-BOUNDARY:que_house_s] 				break;
+//[BACKPORT-BOUNDARY:que_house_s] 			}
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Are you sure?";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			if(select("Yes.:No.") == 2) {
+//[BACKPORT-BOUNDARY:que_house_s] 				cutin "",255;
+				//[BACKPORT-GAP:playbgm] playbgm "33.mp3"; // Yuna Song
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "I see.";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "Give it more time to think.";
+//[BACKPORT-BOUNDARY:que_house_s] 				close;
+//[BACKPORT-BOUNDARY:que_house_s] 			}
+//[BACKPORT-BOUNDARY:que_house_s] 			cutin "",255;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Excellent!";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Let's get on with it.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_BASH;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Now focus~!";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "You... need...";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "... concentration.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_PROVIDENCE;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Good. Almost done!";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_SUI_EXPLOSION;
+//[BACKPORT-BOUNDARY:que_house_s] 			set Zeny, Zeny - 50000;
+			//[BACKPORT-GAP:hommutate] hommutate .@Homunculus;
+//[BACKPORT-BOUNDARY:que_house_s] 			break;
+//[BACKPORT-BOUNDARY:que_house_s] 		case 2:
+			//[BACKPORT-GAP:ET_SCRATCH] emotion ET_SCRATCH;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "So, your choice is the Unstable Mutation Process.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "You believe in destiny?";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Seriously...";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Do you really wish to proceed";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "with the process of random outcome?";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			if(select("Go ahead. (Random Mutation):Cancel.") == 2) {
+				//[BACKPORT-GAP:playbgm] playbgm "33.mp3"; // Yuna Song
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "I see.";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "Give it more time to think.";
+//[BACKPORT-BOUNDARY:que_house_s] 				close;
+//[BACKPORT-BOUNDARY:que_house_s] 			}
+			//[BACKPORT-GAP:ET_THINK] emotion ET_THINK;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Hmm...";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "The exploration of knowledge";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "is full of surprises.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes ".......";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+			//[BACKPORT-GAP:ET_SMILE] emotion ET_SMILE;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Ha ha.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Hey, I feel like a Blacksmith!";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Now let's get on with it.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_BASH;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Now focus~!";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "You... need...";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "... concentration.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_PRESSURE;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Concentrate a little more!";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_PROVIDENCE;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Good. Almost done!";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_SUI_EXPLOSION;
+			//[BACKPORT-GAP:hommutate] hommutate;
+//[BACKPORT-BOUNDARY:que_house_s] 			break;
+//[BACKPORT-BOUNDARY:que_house_s] 		}
+//[BACKPORT-BOUNDARY:que_house_s] 		erasequest 4160;
+//[BACKPORT-BOUNDARY:que_house_s] 		erasequest 4154;
+		//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
+		//[BACKPORT-GAP:playbgm] playbgm "64.mp3"; // One Fine Day
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Okay, Mutation Complete.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Phew... Didn't skip a heartbeat, did you?";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Remember what ^005DFFKellasus^000000 said?";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "To the doorstep of the truth...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "We must see for ourselves";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "the path that leads to it.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^0000FF" + strcharinfo(0) + "^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I haven't known you";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "for a very long time,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "but I get the feeling that";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "you'll achieve great things.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Good luck on you adventures.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I hope that your new ^FF4800Homunculus^000000 will excel under your care.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "And don't you forget.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Our research";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "has only just begun~!";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	} else {
+//[BACKPORT-BOUNDARY:que_house_s] 		for(set .@i,4154; .@i<=4160; set .@i,.@i+1) {
+//[BACKPORT-BOUNDARY:que_house_s] 			if (checkquest(.@i) > -1)
+//[BACKPORT-BOUNDARY:que_house_s] 				erasequest .@i;
+//[BACKPORT-BOUNDARY:que_house_s] 		}
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Viorel]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Now that all the work is done, I ask you to take your leave.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I need to recuperate.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close2;
+//[BACKPORT-BOUNDARY:que_house_s] 		warp "job3_gen01",12,47;
+//[BACKPORT-BOUNDARY:que_house_s] 		end;
+//[BACKPORT-BOUNDARY:que_house_s] 	}
+//[BACKPORT-BOUNDARY:que_house_s] }
+
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,80,42,3	script	Jeyna#homun_s	558,{
+//[BACKPORT-BOUNDARY:que_house_s] 	if (checkquest(4156) > -1) {
+		//[BACKPORT-GAP:playbgm] playbgm "28.mp3"; // You're in Ruins
+		//[BACKPORT-GAP:ET_SURPRISE] emotion ET_SURPRISE;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Welcome.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I just got word from ^005DFFViorel^000000 that you were coming.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+		//[BACKPORT-GAP:ET_SCRATCH] emotion ET_SCRATCH;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "By the way...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Did he convince you to do something...?";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "He does have a way with words.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "He needs them because Alchemists are such awkward people.";
+		//[BACKPORT-GAP:ET_OHNO] emotion ET_OHNO;
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Anyways~";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^0000FF"+strcharinfo(0)+"^000000 and ^005DFFViorel^000000 seem like two peas in a pod.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+		//[BACKPORT-GAP:ET_SMILE] emotion ET_SMILE;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Hahaha~ No offense.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I think it's a good thing.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Oh, yes.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "You're here for the ^FF4800Homunculus^000000 Mutation.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "While I do some preparation,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "why don't you take a look at that board?";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The ^006400Homunculus Mutation System^000000 has ^0000FF5 different types^000000 of new mutations.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+		//[BACKPORT-GAP:getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "Magic Board#homun_s");
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Your ^FF4800Homunculus^000000 can mutate into any of the 5 different forms.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+		//[BACKPORT-GAP:ET_AHA] emotion ET_AHA;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Let's see...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The ^006400Homunculus Mutation System^000000 includes new evolutions of the normal ^0000FFHomunculus^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "After they mutate, all previously learned skills will also remain.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "In other words...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Even if you change the magic wielder ^FF4800Vanilmirth^000000 to a fighter type,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "skills such as Caprice will be";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^006400retained and usable even after Mutation^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+		//[BACKPORT-GAP:getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "Magic Board#homun_s");
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Take a look at the Magic Board behind me and decide for yourself.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close2;
+//[BACKPORT-BOUNDARY:que_house_s] 		setquest 4157;
+//[BACKPORT-BOUNDARY:que_house_s] 		erasequest 4156;
+//[BACKPORT-BOUNDARY:que_house_s] 		end;
+//[BACKPORT-BOUNDARY:que_house_s] 	} else if (checkquest(4157) > -1) {
+		//[BACKPORT-GAP:ET_QUESTION] emotion ET_QUESTION;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Take a look at the board behind me, on the right.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close2;
+		//[BACKPORT-GAP:getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "Magic Board#homun_s");
+//[BACKPORT-BOUNDARY:que_house_s] 		end;
+//[BACKPORT-BOUNDARY:que_house_s] 	} else if (checkquest(4158) > -1) {
+		//[BACKPORT-GAP:playbgm] playbgm "28.mp3"; // You're in Ruins
+//[BACKPORT-BOUNDARY:que_house_s] 		disable_items;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Okay, I'm ready too.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "In order to revert the process now, I need the Homunculus in its embryo form.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		callsub L_CheckHomunculus;
+//[BACKPORT-BOUNDARY:que_house_s] 		if (checkweight(6415,1) == 0) {
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "But,";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "You don't have enough space to carry an ^0000FFembryo^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Please come back with enough space in your bag.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Please return to the ^8B4513Laboratory^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "You can find ^005DFFViorel^000000 at the ^8B4513Laboratory^000000 once you empty your bag.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "When you're done with emptying your bag, ask ^005DFFViorel^000000 to send you back here.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Go on and empty your bag~!";
+//[BACKPORT-BOUNDARY:que_house_s] 			close2;
+//[BACKPORT-BOUNDARY:que_house_s] 			warp "job3_gen01",12,47;
+//[BACKPORT-BOUNDARY:que_house_s] 			end;
+//[BACKPORT-BOUNDARY:que_house_s] 		}
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Now's about time for a decision.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "To go through the Mutation to the new ^0000FFHomunculus^000000 with the Homunculus Mutation System,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "you need to go through the process of regression to turn the Homunculus back to its ^0000FFembryo^000000 state.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "And...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^006400You cannot use the ability Call Homunculus until the process is complete.^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It won't take long, so don't wander off.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "So, please decide.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Do you want to proceed with the new ^0000FFHomunculus Mutation System^000000?";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		switch(select("Yes, I do.:I need to think more.")) {
+//[BACKPORT-BOUNDARY:que_house_s] 		case 1:
+//[BACKPORT-BOUNDARY:que_house_s] 			if (checkhomcall() == 1) {
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "Oh, wait a minute.";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "To proceed with the Mutation, you need to wake up the Homunculus from the state of Vaporization.";
+//[BACKPORT-BOUNDARY:que_house_s] 				next;
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 				mes "Come back after you've done that.";
+//[BACKPORT-BOUNDARY:que_house_s] 				close;
+//[BACKPORT-BOUNDARY:que_house_s] 			}
+			//[BACKPORT-GAP:ET_BEST] emotion ET_BEST;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Good thinking.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "It is unacceptable for Alchemists like us to fear challenge.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+			//[BACKPORT-GAP:playbgm] playbgm "01.mp3"; // Title
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Now I need you to focus.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_ABSORBSPIRITS;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "We need to...";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Stabilize a little more.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes ".......";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_CURE;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "In a few moments, the ^FF4800Homunculus^000000 will return to its embryo state.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_HOLYHIT;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Into a special embryo...";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			callsub L_CheckHomunculus;
+//[BACKPORT-BOUNDARY:que_house_s] 			specialeffect2 EF_BLESSING;
+			//[BACKPORT-GAP:morphembryo] morphembryo;
+//[BACKPORT-BOUNDARY:que_house_s] 			setquest 4159;
+//[BACKPORT-BOUNDARY:que_house_s] 			erasequest 4158;
+			//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Phew~ All done.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Hmm, its state is a little strange.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+			//[BACKPORT-GAP:ET_SMILE] emotion ET_SMILE;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I guess it'll be just fine.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Don't lose that ^0000FFStrange Embryo^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Also...";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Don't do anything like changing jobs or anything like that before the process is over.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "If so, you, ^0000FF"+strcharinfo(0)+"^000000 might lose all the abilities you have over the Homunculus.";
+//[BACKPORT-BOUNDARY:que_house_s] 			next;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "All that concentration made me tired.";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "I'll just take a glass of water.";
+//[BACKPORT-BOUNDARY:que_house_s] 			close;
+//[BACKPORT-BOUNDARY:que_house_s] 		case 2:
+			//[BACKPORT-GAP:playbgm] playbgm "28.mp3"; // You're in Ruins
+			//[BACKPORT-GAP:ET_OHNO] emotion ET_OHNO;
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 			mes "Maybe I shouldn't have asked in the first place.";
+//[BACKPORT-BOUNDARY:que_house_s] 			close;
+//[BACKPORT-BOUNDARY:que_house_s] 		}
+//[BACKPORT-BOUNDARY:que_house_s] 	} else if (checkquest(4159) > -1 || checkquest(4160) > -1) {
+		//[BACKPORT-GAP:playbgm] playbgm "28.mp3"; // You're in Ruins
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^005DFFViorel^000000 will finish the mutation process.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Now it's my time to say good bye.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It was short, but it was nice to meet you.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "We'll see each other again some time.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Best of luck~!";
+//[BACKPORT-BOUNDARY:que_house_s] 		close2;
+//[BACKPORT-BOUNDARY:que_house_s] 		setquest 4160;
+//[BACKPORT-BOUNDARY:que_house_s] 		erasequest 4159;
+//[BACKPORT-BOUNDARY:que_house_s] 		warp "que_house_s",19,42;
+//[BACKPORT-BOUNDARY:que_house_s] 		end;
+//[BACKPORT-BOUNDARY:que_house_s] 	} else {
+//[BACKPORT-BOUNDARY:que_house_s] 		if (checkquest(4154) > -1)
+//[BACKPORT-BOUNDARY:que_house_s] 			erasequest 4154;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Hey, how did you get in here?";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Please get out. I'm changing~!";
+//[BACKPORT-BOUNDARY:que_house_s] 		close2;
+//[BACKPORT-BOUNDARY:que_house_s] 		warp "job3_gen01",12,47;
+//[BACKPORT-BOUNDARY:que_house_s] 		end;
+//[BACKPORT-BOUNDARY:que_house_s] 	}
+//[BACKPORT-BOUNDARY:que_house_s] 	end;
+//[BACKPORT-BOUNDARY:que_house_s] L_CheckHomunculus:
+//[BACKPORT-BOUNDARY:que_house_s] 	if (gethominfo(6) < 99 || (gethominfo(1) < 6009 || gethominfo(1) > 6016)) { // Not level 99+ evolved Homunculus
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Hey, wait.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The condition of the ^FF4800Homunculus^000000 is not suitable.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "That was close.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "To use the Homunculus Mutation System";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "to change to the new";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^FF4800Homunculus^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "the ^006400Homunculus must be above level 99 and evolved^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jeyna]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Come back to ^005DFFViorel^000000 when you're ready.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I'll see you later then~!";
+//[BACKPORT-BOUNDARY:que_house_s] 		close2;
+//[BACKPORT-BOUNDARY:que_house_s] 		erasequest 4154;
+//[BACKPORT-BOUNDARY:que_house_s] 		erasequest 4158;
+//[BACKPORT-BOUNDARY:que_house_s] 		warp "job3_gen01",12,47;
+//[BACKPORT-BOUNDARY:que_house_s] 		end;
+//[BACKPORT-BOUNDARY:que_house_s] 	}
+//[BACKPORT-BOUNDARY:que_house_s] 	return;
+//[BACKPORT-BOUNDARY:que_house_s] }
+
+// Magic Board
+//============================================================
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,83,47,3	script	Magic Board#homun_s	857,{
+	//[BACKPORT-GAP:playbgm] playbgm "26.mp3"; // Everlasting Wanderers
+//[BACKPORT-BOUNDARY:que_house_s] 	callfunc "F_HomMutateInfo","[Magic Board Posts]";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes "[Magic Board Posts]";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes ":: ^0000FFHomunculus^000000 research is";
+//[BACKPORT-BOUNDARY:que_house_s]  	mes ":: so much fun.";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes ":: Be an Alchemist";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes ":: who always enjoys";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes ":: one's research.";
+//[BACKPORT-BOUNDARY:que_house_s] 	next;
+//[BACKPORT-BOUNDARY:que_house_s] 	mes "[Magic Board Posts]";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes ":: Oh, and Viorel...";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes ":: About what you said";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes "::  yesterday...";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes "::";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes "::";
+//[BACKPORT-BOUNDARY:que_house_s] 	next;
+//[BACKPORT-BOUNDARY:que_house_s] 	mes "--------------------------";
+//[BACKPORT-BOUNDARY:que_house_s] 	mes "The rest is sealed because it seems to be a private message.";
+//[BACKPORT-BOUNDARY:que_house_s] 	close2;
+//[BACKPORT-BOUNDARY:que_house_s] 	if (checkquest(4157) > -1) {
+//[BACKPORT-BOUNDARY:que_house_s] 		setquest 4158;
+//[BACKPORT-BOUNDARY:que_house_s] 		erasequest 4157;
+//[BACKPORT-BOUNDARY:que_house_s] 	}
+//[BACKPORT-BOUNDARY:que_house_s] 	end;
+//[BACKPORT-BOUNDARY:que_house_s] }
+
+function	script	F_HomMutateInfo	{
+	set .@npc_name$, getarg(0);
+	mes .@npc_name$;
+	mes ":: The ability of the mutated";
+	mes ":: ^0000FFHomunculus^000000 clearly goes";
+	mes ":: beyond the previous state.";
+	mes ":: In addition, its appearance";
+	mes ":: will evolve as well.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^0000FFHomunculus^000000 appearances of the";
+	mes ":: new types can be classified";
+	mes ":: based on different species.";
+	mes ":: Creatures of the same species";
+	mes ":: generally have a similar";
+	mes ":: appearance.";
+	next;
+	mes .@npc_name$;
+	mes ":: The category, appearance and";
+	mes ":: ability of the ^0000FFHomunculus^000000";
+	mes ":: via the Homunculus Mutation";
+	mes ":: System are as follows:";
+	next;
+	cutin "Mer_Eira_Card",3;
+	mes .@npc_name$;
+	mes ":: The first of the five";
+	mes ":: is called ^FF4800Eira^000000.";
+	mes ":: Beautiful and graceful.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Eira^000000 uses";
+	mes ":: ^006400Wind Element^000000 Magic Attacks and";
+	mes ":: Support Skills.";
+	mes ":: It even has the ability";
+	mes ":: to revive its";
+	mes ":: fallen master.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Eira^000000 eats";
+	mes ":: ^0000FFSmall Snow Flower^000000.";
+	mes ":: Surprising how it survives on";
+	mes ":: such a small amount.";
+	mes ":: ^0000FFSmall Snow Flower^000000 can be bought";
+	mes ":: from ^005DFFTaming Merchants^000000.";
+	next;
+	cutin "",255;
+	cutin "Mer_Sera_Card",3;
+	mes .@npc_name$;
+	mes ":: The second of the five";
+	mes ":: is known as ^FF4800Sera^000000.";
+	mes ":: It looks just like ^FF0000Mistress^000000 but";
+	mes ":: it doesn't run away.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Sera^000000";
+	mes ":: specializes in ^006400Poison Attacks^000000.";
+	mes ":: Also, it uses distinct";
+	mes ":: Support Skills using poisons.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Sera^000000 eats";
+	mes ":: ^0000FFApple Pudding^000000.";
+	mes ":: It prefers sweet food.";
+	mes ":: ^0000FFApple Pudding^000000 can be bought";
+	mes ":: from ^005DFFTaming Merchants^000000.";
+	next;
+	cutin "",255;
+	cutin "Mer_Dieter_Card",3;
+	mes .@npc_name$;
+	mes ":: The third of the five";
+	mes ":: is ^FF4800Dieter^000000.";
+	mes ":: It looks unusual but it";
+	mes ":: has a good demeanor.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Dieter^000000 uses";
+	mes ":: ^FF0000Fire^000000 based Attacks and";
+	mes ":: Support Skills.";
+	mes ":: It is just as fragile...";
+	mes ":: ah, reliable, as it looks.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Dieter^000000 eats";
+	mes ":: ^0000FFBig Cell^000000.";
+	mes ":: ^0000FFBig Cell^000000 can be bought";
+	mes ":: from ^005DFFTaming Merchants^000000.";
+	next;
+	cutin "",255;
+	cutin "Mer_Bayeri_Card",3;
+	mes .@npc_name$;
+	mes ":: The fourth of the five";
+	mes ":: is ^FF4800Bayeri^000000.";
+	mes ":: Bayeri has the form of a";
+	mes ":: unicorn.";
+	next;
+	mes .@npc_name$;
+	mes ":: It has a powerful dash skill";
+	mes ":: and uses ^006400Holy Element^000000 magic.";
+	mes ":: Unfortunately,";
+	mes ":: they won't let you ride them.";
+	mes ":: Not all four-legged creatures";
+	mes ":: can be ridden.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Bayeri^000000 eats";
+	mes ":: ^0000FFFresh Plant^000000.";
+	mes ":: No matter how hungry it";
+	mes ":: never feeds on rotten greens.";
+	mes ":: ^0000FFFresh Plant^000000 can be bought";
+	mes ":: from ^005DFFTaming Merchants^000000.";
+	next;
+	cutin "",255;
+	cutin "Mer_Eleanor_Card",3;
+	mes .@npc_name$;
+	mes ":: The last of the five";
+	mes ":: is ^FF4800Eleanor^000000.";
+	mes ":: It has a feminine appearance";
+	mes ":: and outstanding physical skill.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Eleanor^000000";
+	mes ":: uses ^006400Strike or Grapple Attacks^000000";
+	mes ":: sequentially in battle.";
+	mes ":: Absolutely stunning.";
+	next;
+	mes .@npc_name$;
+	mes ":: ^FF4800Eleanor^000000 eats";
+	mes ":: ^0000FFKid's Dumpling^000000.";
+	mes ":: Don't confuse it with a normal";
+	mes ":: dumpling.";
+	mes ":: ^0000FFKid's Dumpling^000000 can be bought";
+	mes ":: from ^005DFFTaming Merchants^000000.";
+	next;
+	cutin "",255;
+	return;
+}
+
+// Books
+//============================================================
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,13,52,3	script	Open Book#01homun_s	111,{
+//[BACKPORT-BOUNDARY:que_house_s] 	switch(rand(1,7)) {
+//[BACKPORT-BOUNDARY:que_house_s] 	case 1:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Insanity and Genius are the same in concept in that they are both abnormal phenomenon.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Observing the chemist ^005DFFMorgenstein^000000 of ^8B4513Geffen^000000, I consider them equal.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Once I had to visit...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "the strange ^005DFFMorgenstein^000000 for research purposes.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I had a meat stew before I met ^005DFFMorgenstein^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "surprisingly enough, he muttered that he smelled meat even before I was close.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I never thought that chemists had a great sense of smell.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The next time I give";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^005DFFMorgenstein^000000 a visit,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I'll eat some other meal.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 2:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^005DFFDe Bris^000000 thinks the enthusiasm of Alchemists has lately dropped <Dramatically>...";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "He especially didn't like the fact that I was bound tightly to ^FF4800Homunculus^000000 research.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "He didn't say such a thing when we studied together in ^8B4513Rune-Midgarts^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "One day, I'll show ^005DFFDe Bris^000000 my ^FF4800Homunculus^000000 research data.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I love watching him jump out of his skin.... I look forward to the day.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 3:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^005DFFDe Bris^000000' passion for the ^57007FGenetic^000000 arts is amazing.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Recently, the Alchemist Union offered me the chance to join the ^57007FGenetic^000000 through a letter.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I wonder what ^005DFFDe Bris^000000 said to the union...";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Well, I appreciate it...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "However, for me right now";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "my research is of utmost priority.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 4:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "There's something funny ^005DFFDarcia^000000 said to me.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It was about when ^005DFFJeyna^000000 first came to learn about potion combination......";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "She did good up to the stage of pouring water into the mixture.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "She just had to put it into an empty bottle...";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^005DFFDarcia^000000 watched what she would do with the last stage,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and the confused ^005DFFJeyna^000000 drank the mixture out of the bowl and told her that it healed well.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "To think that even ^005DFFJeyna^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "now a master of potion combination,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "had her rookie mistakes";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "shows how hard it is to imagine";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and forecast one's past and future.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 5:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^005DFFVincent^000000, I think I did it.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I will never forget your words of courage ";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and I am grateful that I now get to pay you back.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It was indeed a long process.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "When many of the union";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "considered my research insignificant";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "... Though I did not lose my belief";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "it did heart deep inside.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The few friends who believed me";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "especially ^005DFFJeyna^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and you ^005DFFVincent^000000 ...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I am sincerely thankful with all my soul.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "They say that,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "the end justifies the means.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "At first,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I did not know what it meant...";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Now I know.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I know how important it is";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "to follow one's heart.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I'll drop by very soon.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Be well until then.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 6:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "A game called ^0000FFThe Epic Battle 2^000000, similar to chess, was intriguing.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Some time ago, I met a ^0000FFFruit Seller^000000 who excelled in The Epic Battle 2.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "He even overcame the infamous ^006400Grizzly Shockwave Strategy^000000 and ^006400God of Death Terror^000000 with ease.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "To overcome those in the early stages of the battle of the ^0000FFPriest Faction^000000...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It is difficult for me, since I need to combine the pieces and use some luring skills.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I wonder when I'll become a 3 Carat Diamond level player.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 7:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "There are many Alchemists who like the ^FF4800Vanilmirth^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "But I prefer the ^FF4800Amistr^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It's cute when it wags its tale with those shiny eyes.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "My Amistr Jonathan is clever and mellow, making it ever so lovable.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "We're good friends, aren't we Jonathan?";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	}
+//[BACKPORT-BOUNDARY:que_house_s] }
+
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,16,52,3	script	Open Book#02homun_s	111,{
+//[BACKPORT-BOUNDARY:que_house_s] 	switch(rand(1,8)) {
+//[BACKPORT-BOUNDARY:que_house_s] 	case 1:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "What should I write to ^005DFFDe Bris^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: To my noted ";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: Genetic friend De Bris.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: How's Lighthalzen?";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: Do they have enough of those";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: cookies you oh so love?";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: I'll drop by soon";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: with some cookies.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: When we meet,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: I'll introduce you to my";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: ^006400New Homunculus^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: No need to be alert.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: Unlike you,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: they aren't interested in ";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: what others have to eat.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: I'll see you soon~!";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: Dare close the door on me.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 2:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The last time I visited the Alchemist Union, there was an interesting debate on the table.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I think it was something to do with ^006400Negligence of Homunculus in public places^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "While the master dozed off,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "one of the ^FF4800Homunculus^000000 off its leash";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "caused some sort of problem.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I will make sure that my Homunculus Jonathan...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "is trained well not to cause trouble around other people.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 3:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "There's a new toy me and ^005DFFJeyna^000000 have grown fond of.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It's relatively new,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "called... ^0000FF'Helo'^000000, I think?";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "There was a related song to it, sung by some ^57007FMinstrel^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The lyrics were something like ^006400'Ahhh~Ahh~Ahhhhhhhh'^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The entertainment itself is fun,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "but the music is also excellent,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and when I listen to it";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "it feels like my SP is restored significantly.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I must say,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "entertainment is crucial when resting";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "to boost morale for research.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^006400For Homunculus~!^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 4:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "From what I heard from the union member";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^005DFFParmy^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^005DFFRaspuchin^000000 is still his own weird self.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It may not be such a good idea";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "to drive those energetic souls";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "coming to change jobs";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "with such enthusiasm.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 5:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "A friend of mine who was into painting,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "suggested making a <Graphic Novel> called";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^0000FFMUTATIONER^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "after he heard about my research";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and my works.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The story begins...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "With an alien";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^FF4800Homunculus^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "visiting our world.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The visiting alien";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^FF4800Homunculus^000000 can survive";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "without a master";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and it could change into";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "various creatures that";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "roam our world.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "These alien^FF4800Homunculus^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "have two opposing factions";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "divided by political differences.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "In our world, we call them";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^006400Aut-homun^000000 and ";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^006400Decept-homun^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The ^006400Aut-homun^000000 are our friends.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Their leader,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "called ^005DFFOptimus Poring^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "is built and so cool";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "for a poring,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and it summons a cart at will!";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The opposing side, the ^006400Decept-homun^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "is led by ^005DFFMegatroll^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and they use all means ";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "to destroy our world.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The hero of this story";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "is one from ^8B4513Alberta^000000 called ^005DFFJam Wicky^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "who meets ^005DFFOptimus Poring^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "while shopping for a cart,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "as if it was his destiny.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "And so thus";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "unfolds an epic battle";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "in the ^8B4513Moroc Desert^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "where the fate of our world";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "lies in his hands...";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Enough of that~!";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The rest of the story can be";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "checked in the published copy.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "^0000FFMUTATIONER^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It's going to be awesome~!";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 6:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The Union sent a special gift to its members.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It's called a ^0000FFHigh Clip 4^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "It is originally used as a tool to allow easy whispering between members, but it also has other useful functions.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "A guild invented this. I recall that their emblem had an image of an apple.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 7:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Homunculus is indeed worthy.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "However, like everyone else, I sometimes question its meaning and future.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "I believe that life given by nature was supposed to be used for oneself.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "However...";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "The research to give the Homunculus life is, in reality, for the benefit of man.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Perhaps mankind is not ready ethically to create life.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	case 8:
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Some time ago, ^005DFFJeyna^000000 introduced me to someone.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "She is from ^8B4513Geffen^000000,";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and she introduced herself as a ^005DFFChicken Researcher^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "She is an expert on something called the ^006400Legendary Bijofnil^000000.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "She finds it offensive that people think that the Bijofnil is a hawk.";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Bookcase Notes]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "She said something about somewhere in ^8B4513Hvergilmir's Fountain^000000";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "there exists a ^005DFFtalking chicken^000000 and other stories...";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Well, it went on like that";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "and it was interesting.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	}
+//[BACKPORT-BOUNDARY:que_house_s] }
+
+// Notifiers
+//============================================================
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,11,52,3	script	#03homun_s	111,{
+//[BACKPORT-BOUNDARY:que_house_s] 	end;
+//[BACKPORT-BOUNDARY:que_house_s] OnInit:
+//[BACKPORT-BOUNDARY:que_house_s] 	initnpctimer;
+//[BACKPORT-BOUNDARY:que_house_s] 	end;
+//[BACKPORT-BOUNDARY:que_house_s] OnTimer6000:
+	//[BACKPORT-GAP:ET_SURPRISE] emotion ET_SURPRISE;
+//[BACKPORT-BOUNDARY:que_house_s] 	end;
+//[BACKPORT-BOUNDARY:que_house_s] OnTimer7000:
+	//[BACKPORT-GAP:getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "#04homun_s");
+//[BACKPORT-BOUNDARY:que_house_s] 	stopnpctimer;
+//[BACKPORT-BOUNDARY:que_house_s] 	initnpctimer;
+//[BACKPORT-BOUNDARY:que_house_s] 	end;
+//[BACKPORT-BOUNDARY:que_house_s] }
+
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,14,52,3	script	#04homun_s	111,{
+//[BACKPORT-BOUNDARY:que_house_s] 	end;
+//[BACKPORT-BOUNDARY:que_house_s] }
+
+// Researcher's Pet
+//============================================================
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,24,46,3	script	Jonathan#homun_s	6002,{
+//[BACKPORT-BOUNDARY:que_house_s] 	end;
+//[BACKPORT-BOUNDARY:que_house_s] }
+
+//[BACKPORT-BOUNDARY:que_house_s] que_house_s,23,46,3	script	#05homun_s	111,{
+	//[BACKPORT-GAP:getnpcid,ET_STARE_ABOUT] emotion ET_STARE_ABOUT, getnpcid(0, "Jonathan#homun_s");
+//[BACKPORT-BOUNDARY:que_house_s] 	if (gethominfo(1) < 6048 || gethominfo(1) > 6052) { // Not mutated Homunculus-S
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jonathan]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Hwang~ Hwang!";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: It seems to be Viorel's";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: Homunculus.";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: It is wearing a small necklace";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: with the name Jonathan engraved";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: on it.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	} else {
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jonathan]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "Hwang~?!";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+		//[BACKPORT-GAP:getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "Jonathan#homun_s");
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "[Jonathan]";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes "*Sniff* ...";
+//[BACKPORT-BOUNDARY:que_house_s] 		next;
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: This Amistr";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: called Jonathan";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: seems to be surprised by my";
+//[BACKPORT-BOUNDARY:que_house_s] 		mes ":: new Homunculus.";
+//[BACKPORT-BOUNDARY:que_house_s] 		close;
+//[BACKPORT-BOUNDARY:que_house_s] 	}
+//[BACKPORT-BOUNDARY:que_house_s] }

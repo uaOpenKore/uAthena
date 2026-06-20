@@ -1,0 +1,1936 @@
+//===== uAthena backport (renewal dungeon/collection quests 2c, GENERATED) =====
+//= dungeon/collection quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-collections.py
+//= Source: npc/re/quests/quests_dungeons_200.txt
+//============================================================
+//===== rAthena Script =======================================
+//= New dungeons
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//===== Changelog: ===========================================
+//= 1.0 Added sp_rudus4 quests. [Capuche]
+//= 1.1 Added nif_dun01 and nif_dun02 quests. [Capuche]
+//= 1.2 Added amicitia1 and amicitia2 quests. [Capuche]
+//============================================================
+
+// sp_rudus4
+//[BACKPORT-BOUNDARY:pub_cat] pub_cat,94,43,5	script	Yulma#rudus4	4_F_ANYA,{
+//[BACKPORT-BOUNDARY:pub_cat] 	if (BaseLevel < 200) {
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Uh... who are you?";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Sorry, I'm not good at remembering people's faces! But I think you are not good enough to ask about my work here.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes " - This is a quest that can be performed at level 200 or higher - ";
+//[BACKPORT-BOUNDARY:pub_cat] 		close;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	switch( 0 ) {
+//[BACKPORT-BOUNDARY:pub_cat] 	case 0:
+		//[BACKPORT-GAP:ET_SMILE] emotion ET_SMILE;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oh, " + strcharinfo(0) + ". Are you here for a drink?";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "I just had a business, and it went well.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		select( "What is it for?" );
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "You know that Secret Wing and our rebellion have been tracking the traces of Illusion's illegal experiments, right?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "In the meantime, I found a way to the 4th floor of Rudus.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( select( "Well, I know.", "Where was Rudus?" ) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+			//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Hehe, it's good to have a good conversation with " + strcharinfo(0) + ".";
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+			//[BACKPORT-GAP:ET_SURPRISE] emotion ET_SURPRISE;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "What, how many times did you forget?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It was the place where Illusion abandoned the failed works that were created after the experiment.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Remember Morning? Where the little boy stays.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "He is on the first floor, and Rudus itself exists on the second and third floors.";
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "By the way, the 4th floor of Rudus is quite amazing...";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Somehow, among the test subjects abandoned in Rudus, only particularly strong ones seem to be gathered.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Researchers of the Secret Wing say that after fierce competition among the subjects, the strongest subjects seem to have settled there.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Well, actually, I'm not sure how complicated it is!";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It seems that the Secret Wing researchers need to study the entities there.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "So I was looking for someone to help me.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "To be precise you, " + strcharinfo(0) + "!";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Do you need a job? I know everything~";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "If you have an idea, go to the 3rd floor of Rudus.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "<NAVI>[Pion]<INFO>sp_rudus3,380,42,0,101,0</INFO></NAVI> is in control of the path leading down to the fourth floor.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Go and tell him I sent you, and find out if it's worth it to come!";
+//[BACKPORT-BOUNDARY:pub_cat] 		setquest 16521;
+//[BACKPORT-BOUNDARY:pub_cat] 		close2;
+		//[BACKPORT-GAP:navigateto] navigateto("sp_rudus3",380,42);
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Do you need a job? I know everything~";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "If you have an idea, go to the 3rd floor of Rudus.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "<NAVI>[Pion]<INFO>sp_rudus3,380,42,0,101,0</INFO></NAVI> is in control of the path leading down to the fourth floor.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Go and tell him I sent you, and find out if it's worth it to come!";
+//[BACKPORT-BOUNDARY:pub_cat] 		close;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 		break;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oh, you went down to the 4th floor of Rudus. How was it?";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Is Pian doing well? Did the subjects feel a bit worthy of a fight?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Then help me study the people from the Secret Wing.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "I was looking for someone to hunt them, because I was not enough to catch and research monsters myself.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		select( "Ask if I can just hunt" );
+		//[BACKPORT-GAP:ET_KEK] emotion ET_KEK;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oh, I almost forgot.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "If you attach this chip somewhere on your body and hunt them, researchers can receive data.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "New material, eco-friendly, non-toxic, safe material, so you don't have to worry about it.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Where would you like to hang it?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		select( "Earlobe", "Back neck", "Back of hand", "Forehead" );
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Okay, I'll attach it well so it doesn't bother you.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Okay, that's it then...";
+//[BACKPORT-BOUNDARY:pub_cat] 		completequest 16522;
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "Please take good care of me today!";
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "So, what kind of research would you like to help with today?";
+//[BACKPORT-BOUNDARY:pub_cat] 	next;
+//[BACKPORT-BOUNDARY:pub_cat] 	switch( select("Abyssal Solitude", "Transformation and Evolution", "Data Backup", "Don't help" ) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 	case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16523,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Secret Wing researchers are resting.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "So, " + strcharinfo(0) + ", how about coming back after a little rest?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "The 4th floor of Rudus is not a comfortable place to go in and out easily.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Let's get some rest and work fully prepared!";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16523;
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16524,HUNTING) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "A place where only strong individuals survive and bite weaker ones...";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Like a deep, dark pit of solitude.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+			//[BACKPORT-GAP:ET_SWEAT] emotion ET_SWEAT;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Well, I don't know about that!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "My job is to deliver the requests of researchers.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Researchers want to know how the subjects of Rudus differ from those distributed on the 4th floor.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+			//[BACKPORT-GAP:ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "How much more has it lost it's original form, and whether it has changed itself after the experiment.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "<FONT SIZE = 9>Um... these researchers look a little dangerous too? I think that's how all researchers are, to a person like me.</FONT>";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Anyway, you want to collect <FONT COLOR = 0000CD>Dolorian, Plagarion, and Deadre</FONT> data.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "What if we hunt 10 individuals each?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			if (select( "I'll come hunting", "I refuse" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "We're already comrades on the same boat~?";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Isn't that right, comrade? Think again!";
+//[BACKPORT-BOUNDARY:pub_cat] 				close;
+//[BACKPORT-BOUNDARY:pub_cat] 			}
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Okay, if you go hunting and from hunting, data will be gathered.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "And my allowance will be accumulating!";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16524;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Secret Wing researchers want to collect <FONT COLOR = 0000CD>Dolorian, Plagarion, and Deadre</FONT> data.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "What if we hunt 10 individuals each?";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Today's hunting seems to be successful!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "How did you know, " + strcharinfo(0) + ", the chip I put on you worked today.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+			//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I see it every time, but every time it's amazing, how the chip works.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Well, I should pay you for the work you did today.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Here you are!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Then since you've finished your work, take a good rest. Please take care of me tomorrow as well~";
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16524;
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16523;
+//[BACKPORT-BOUNDARY:pub_cat] 			getexp 15915940,11141160;	// TODO: the amount has been changed with the monster update
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16525,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Secret Wing researchers left work already.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "So, " + strcharinfo(0) + ", how about coming back after a little rest?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "The 4th floor of Rudus is not a comfortable place to go in and out easily.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "You too, get a good rest, and let's work fully prepared!";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16525;
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16526,HUNTING) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "The 4th-floor entities Giant Caput and Venedi are greatly altered from the other-floor entities";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "to become gigantic, or to harbor more venom...";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+			//[BACKPORT-GAP:ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Researchers seem to be very interested in these guys.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "That's why I ask you to hunt them.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "<FONT SIZE = 9>Um...why don't we do it? There must be something complicated at the upper level. I don't know.</FONT>";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Can you hunt 15 <FONT COLOR = 0000CD>Giant Caput and Venedi</FONT> each?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Data will be collected automatically, so you just need to focus on hunting.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			if (select( "I'll hunt them", "I refuse" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "We're already comrades on the same boat~?";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Isn't that right, comrade? Think again!";
+//[BACKPORT-BOUNDARY:pub_cat] 				close;
+//[BACKPORT-BOUNDARY:pub_cat] 			}
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Okay, go and hunt hard!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "My bonus depends on your performance!";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16526;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Can you hunt 15 <FONT COLOR = 0000CD>Giant Caput and Venedi</FONT> each?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Data will be collected automatically, so you just need to focus on hunting.";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Have you been well? You came back from hunting safely.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Please tell me that the researchers worked hard today.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Looks like good data has been gathered.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Then I should pay you for the work you did today.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Here you are!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "You worked hard today, so get a good rest and come back. Let's work hard tomorrow!";
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16526;
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16525;
+//[BACKPORT-BOUNDARY:pub_cat] 			getexp 15176970,11001900;	// TODO: the amount has been changed with the monster update
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 3:
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16527,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "The researcher said he's withdrawn now. Chip maintenance is enough once a day!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "So, " + strcharinfo(0) + ", how about coming back after a little rest?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "The 4th floor of Rudus is not a comfortable place to go in and out easily.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Let's get some rest and work fully prepared!";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16527;
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( 0 ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Oh, by the way, are the chips sticking well?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It doesn't last that long...";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "And I have to back up and format the data I have collected so that I can receive new data, but I don't have the talent to do that...";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I'll introduce you to a researcher who is currently in the field, would you like to go directly?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "He is probably disguised to observe monsters, but I'll give you the location, so go check it out!";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			if (select( "Look for him", "Don't look for him" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Isn't it frustrating to only work with me?";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "It wouldn't be a bad idea to meet the researchers working in the field...";
+//[BACKPORT-BOUNDARY:pub_cat] 				close;
+//[BACKPORT-BOUNDARY:pub_cat] 			}
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Yeah! Isn't it frustrating to only meet with me to get work delivered?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I'm on my way to see him, so if you have any questions, you can ask him directly!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I heard that <NAVI>[Researcher]<INFO>sp_rudus4,192,204,0,101,0</INFO></NAVI> mostly burrows around the center of the 4th floor of Rudus.";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16528;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I'm on my way to meet the Secret Wing researcher, so if you have any questions, you can ask him directly!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I heard that <NAVI>[Researcher]<INFO>sp_rudus4,192,204,0,101,0</INFO></NAVI> mostly burrows around the center of the 4th floor of Rudus.";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Have you been there? Did you talk a bit?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Is the researcher hiding well?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "He's known for hiding very well, even though he doesn't have the skills to hide.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "That's why you're out in the field.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Because this is also a job... Since I safely replaced him, the superiors asked me to take care of the allowance.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Well, it's good that you came back to me too!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Then have a good day and see you tomorrow!";
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16528;
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16540;
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16527;
+//[BACKPORT-BOUNDARY:pub_cat] 			getexp 15000000,11000000;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 4:
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Yulma]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Eh, won't you?";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "I was eagerly waiting for " + strcharinfo(0) + "!";
+//[BACKPORT-BOUNDARY:pub_cat] 		close;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	end;
+//[BACKPORT-BOUNDARY:pub_cat] 
+//[BACKPORT-BOUNDARY:pub_cat] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16524,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16526,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(16528) == 2" );
+//[BACKPORT-BOUNDARY:pub_cat] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16523,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16525,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16527,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:pub_cat] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (checkquest(16524,HUNTING) == -1 && checkquest(16523,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (checkquest(16526,HUNTING) == -1 && checkquest(16525,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (isbegin_quest(16528) == 0 && checkquest(16527,PLAYTIME) == -1)" );
+//[BACKPORT-BOUNDARY:pub_cat] 	end;
+//[BACKPORT-BOUNDARY:pub_cat] }
+
+//[BACKPORT-BOUNDARY:sp_rudus3] sp_rudus3,380,42,3	script	Pion#rudus4	4_M_REBELLION3,{
+//[BACKPORT-BOUNDARY:sp_rudus3] 	switch( 0 ) {
+//[BACKPORT-BOUNDARY:sp_rudus3] 	case 0:
+		//[BACKPORT-GAP:ET_SLEEPY] emotion ET_SLEEPY;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Zzz... Whoa!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Excuse me, sir! No more work!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Seup, Ha-am... Down this slope is an access control area.";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "People are not allowed to enter.";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		select("I'm not an ordinary person." );
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Yes? Ah... ah no! " + strcharinfo(0) + " !";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "That... Still, I can't let you in on my own.";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		close;
+//[BACKPORT-BOUNDARY:sp_rudus3] 	case 1:
+		//[BACKPORT-GAP:ET_SLEEPY] emotion ET_SLEEPY;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Zzz... Whoa!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Excuse me! No more work!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Oops... ah, this is definitely not saliva";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "It is a drop of sweat that shines with passion and effort.";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Hmm, hmmm. The entrance down this slope is now restricted...";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "What's going on?";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		if (select( "I want to go to the 4th floor of Rudus.", "Point out the working attitude." ) == 2) {
+//[BACKPORT-BOUNDARY:sp_rudus3] 			mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 			mes "Oh, there's a problem with your working attitude?";
+//[BACKPORT-BOUNDARY:sp_rudus3] 			mes "Sa, some people might sleep!!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 			next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 			mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 			mes "I only slept a little!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 			mes "Really!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 			close;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		}
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Fourth floor? I'm in control right there...";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Ah, did you come to see Yulma from Bullet Meow?";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "Then you should pass it.";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "If you want to look at the specimens on the 4th floor and help with a research request, go back to <NAVI>[Yulma]<INFO>pub_cat,94,43,0,101,0</INFO></NAVI> and ask.";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "I'll move you to the 4th floor.";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		close2;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		completequest 16521;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		setquest 16522;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		warp "sp_rudus4",370,156;
+//[BACKPORT-BOUNDARY:sp_rudus3] 		end;
+//[BACKPORT-BOUNDARY:sp_rudus3] 	case 2:
+//[BACKPORT-BOUNDARY:sp_rudus3] 		break;
+//[BACKPORT-BOUNDARY:sp_rudus3] 	}
+	//[BACKPORT-GAP:ET_SLEEPY] emotion ET_SLEEPY;
+//[BACKPORT-BOUNDARY:sp_rudus3] 	mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 	mes "Zzz... Huh! Shi, excuse me!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 	mes "Are you sure you want to go down to the 4th floor of Rudus?";
+//[BACKPORT-BOUNDARY:sp_rudus3] 	next;
+//[BACKPORT-BOUNDARY:sp_rudus3] 	if (select( "Move", "Do not move" ) == 2) {
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		mes "I see. Ha-am....";
+//[BACKPORT-BOUNDARY:sp_rudus3] 		close;
+//[BACKPORT-BOUNDARY:sp_rudus3] 	}
+//[BACKPORT-BOUNDARY:sp_rudus3] 	mes "[Pion]";
+//[BACKPORT-BOUNDARY:sp_rudus3] 	mes "I'll move you. Take care!";
+//[BACKPORT-BOUNDARY:sp_rudus3] 	close2;
+//[BACKPORT-BOUNDARY:sp_rudus3] 	warp "sp_rudus4",370,156;
+//[BACKPORT-BOUNDARY:sp_rudus3] 	end;
+//[BACKPORT-BOUNDARY:sp_rudus3] 
+//[BACKPORT-BOUNDARY:sp_rudus3] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(16521) == 1" );
+//[BACKPORT-BOUNDARY:sp_rudus3] 	end;
+//[BACKPORT-BOUNDARY:sp_rudus3] }
+
+//[BACKPORT-BOUNDARY:sp_rudus4] sp_rudus4,192,204,3	script	Secret Wing Researcher#rudu	4_SOIL,{
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "[Secret Wing Researcher]";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "Good. Field work.";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "You have to watch a lot of monsters.";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	next;
+	//[BACKPORT-GAP:ET_HUK] emotion ET_HUK;
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "[Secret Wing Researcher]";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "...huh!";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "How did you recognize me?";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	next;
+//[BACKPORT-BOUNDARY:sp_rudus4] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "[Secret Wing Researcher]";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "Oh, look again, " + strcharinfo(0) + ".";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "I got a call. Are you here to renew the chip?";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "[Secret Wing Researcher]";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "Let's see... Let's get some chips.";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "Hmmmm... Connect with my machine... Empty data...";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		next;
+		//[BACKPORT-GAP:ET_BEST] emotion ET_BEST;
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "[Secret Wing Researcher]";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "Okay, that's it! The data is clean and very nice. I'll paste it again.";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		next;
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "[Secret Wing Researcher]";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "Because this is also a job, <NAVI>[Yulma]<INFO>pub_cat,94,43,0,101,0</INFO></NAVI> will give you a small allowance when you return.";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		mes "I am always indebted to you. Good job!";
+//[BACKPORT-BOUNDARY:sp_rudus4] 		completequest 16528;
+//[BACKPORT-BOUNDARY:sp_rudus4] 		setquest 16540;
+//[BACKPORT-BOUNDARY:sp_rudus4] 		close;
+//[BACKPORT-BOUNDARY:sp_rudus4] 	}
+	//[BACKPORT-GAP:ET_KEK] emotion ET_KEK;
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "[Secret Wing Researcher]";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "Evil! If you pretend to know, monsters will come!";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	mes "Go away!";
+//[BACKPORT-BOUNDARY:sp_rudus4] 	close;
+//[BACKPORT-BOUNDARY:sp_rudus4] 
+//[BACKPORT-BOUNDARY:sp_rudus4] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(16528) == 1" );
+//[BACKPORT-BOUNDARY:sp_rudus4] 	end;
+//[BACKPORT-BOUNDARY:sp_rudus4] }
+
+
+// nif_dun
+//[BACKPORT-UNRESOLVED:questinfo] moc_para01,14,19,7	script	Old scholar#lv200	2_M_SAGE_OLD,{
+//[BACKPORT-UNRESOLVED:questinfo] 	if (BaseLevel < 200) {
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I would like to do more research, but if my life is really in danger...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I have no choice but to hire a strong and sincere adventurer. Hmm...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I think level 200 would be enough... It's easy to say, but that is not the type of person who can be easily found.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	switch( 0 ) {
+//[BACKPORT-UNRESOLVED:questinfo] 	case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 		if (0 == 0) {
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Oh, oh my, my gosh. The strong and sincere adventurer I've been looking for has appeared here.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Would you like to help me with my research?";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			set .@s, select( "Listen to the request", "Suspicious..." );
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Even if I look at you with my eyes I recognize your skills at a glance, please do something...!";
+//[BACKPORT-UNRESOLVED:questinfo] 			if (.@s == 2)
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "...?";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "What? Will you help me?";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "No, that's it... Everyone refused, so the hanging words got stuck in my mouth.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Thank you for your cooperation.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			select( "You're still cooperating..." );
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Come on, that's it. Of course someone as talented as you can go to Niflheim.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Of course I don't have many days left and it's not the right time for me to go and I can't come back in time.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "According to recent sources... Deep in the darkness of Niflheim, the dead hold a banquet,";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "in a form we cannot imagine.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "But there is nowhere to hear more about it.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "You'll find out soon anyway, but I'm curious now.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Can you take a look? I'll give you plenty of examples.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			if (select( "That's enough. Can I come back?", "What if I can't come back?" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Old scholar]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "You wouldn't even think that you wouldn't be able to come back at your level...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "If you're still that careful, okay. Come back when you're ready.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			setquest 8639;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Garim Springfield]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Thank you. Turns out I forgot to introduce myself.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "My name is Garim Springfield.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "I worked at Sage Castle for a long time... Now that I'm retired, I want to spend some leisure time here and also put in requests...";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[" + strcharinfo(0) + "]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Relax...";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Garim Springfield]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Okay. It's worth it.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Grant an idle old man a wish.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Then I'll wait for the good news.";
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Garim Springfield]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "What are you doing? Go fast.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Garim Springfield]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Huh? Did you really visit the banquet hall deep in Niflheim?";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "You came back alive?";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Okay then, tell me your story.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Garim Springfield]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Hmm hmm... I see!";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I am prepared like this, so I won't be afraid if I go later!";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Garim Springfield]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "The research will last forever...!";
+//[BACKPORT-UNRESOLVED:questinfo] 		completequest 8640;
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Garim Springfield]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I felt like I could do research even after dying, so I felt better.";
+//[BACKPORT-UNRESOLVED:questinfo] 		close;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] 
+//[BACKPORT-UNRESOLVED:questinfo] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "BaseLevel >= 200 && isbegin_quest(8639) == 0 && isbegin_quest(8640) == 0" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8640) == 1" );
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] }
+
+//[BACKPORT-UNRESOLVED:questinfo] niflheim,164,102,3	script	Tired looking dead#lv20	4_F_NFDEADMGCIAN,{
+//[BACKPORT-UNRESOLVED:questinfo] 	switch( 0 ) {
+//[BACKPORT-UNRESOLVED:questinfo] 	case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 		switch( 0 ) {
+//[BACKPORT-UNRESOLVED:questinfo] 		case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Ha-am...";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "I can't sleep";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "What's the fuss that you can't sleep even after you're dead?";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Let's get some sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "I'm going to die because of the noise.";
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Ha-am...";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Huh? What? I don't deal with peddlers.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			if (select( "You have a bad complexion", "Go back quietly" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Oh, I did mean to ask you if you had sleeping pills... But I'm dead... You won't hear me... Hmm.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Uh, how did you know?";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "My complexion must look real bad...";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Do you have a sleeping pill?";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			select("I'm not a junkie" );
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Ah... I'm sorry. I misunderstood. All the people who have come this far were weird kids or people who sold drugs, so I kicked them out.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "By the way... how did you know that I am tired? Does my complexion look that bad?";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Actually, I've been dead for a while, but I've only recently come to Niflheim. So I decided to sleep here in this house...";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "I can't sleep at night because it's so noisy next door.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "No, it's the pain of not being able to sleep because the next door is noisy even though I'm already dead..";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Oh, not next door. They all ran away.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "There's a reason why it is so cheap...";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Yes, <NAVI>[there]<INFO>niflheim,148,124,0,101,0</INFO></NAVI>";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "The crazy villagers over there... they have a banquet every day.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "I'm in there every day, every day!!";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Ha... I know, even if it's every day, there's a set time.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "By the way... If you were a drinker, who would have gone home on time, while you were alive, would you do that even in death?";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "I'm... dead, so I just want to sleep peacefully...";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "I hope they return to their senses after the banquet is over.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			select( "Banquet is..." );
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Tired looking dead]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Yeah... you look pretty strong and there's alcohol... they are dead, so it's magic.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "If you can silence those who are drunk with magical powers all night long, I will reward you.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Yes, of course every day.";
+//[BACKPORT-UNRESOLVED:questinfo] 			next;
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "I am Milla. I am now a resident of Niflheim.";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Please help me sleep, my dear.";
+//[BACKPORT-UNRESOLVED:questinfo] 			erasequest 8639;
+//[BACKPORT-UNRESOLVED:questinfo] 			setquest 8640;
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 			end;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 	case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Yes, thank you for coming back.";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Ha-am...";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "For me and my neighbors... for a good night's sleep.";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		if (select( "Listen to the request.", "Reject." ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "You can't do this if you're busy...";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Ah, after all, the living do not hear that sound. This is my agony only known to the dead...";
+//[BACKPORT-UNRESOLVED:questinfo] 			npctalk "Another Dead: Noisy! Get some sleep!", "#lv200althema", bc_self;
+//[BACKPORT-UNRESOLVED:questinfo] 			npctalk "Another Dead: He really can't sleep!", "#lv200althema2", bc_self;
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "Beloved living, thank you for your mercy.";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "It's a luxurious facility with a banquet hall and an Opera House, but each one is a little different.";
+//[BACKPORT-UNRESOLVED:questinfo] 		mes "I'll ask for that kind of skill based on your kindness...";
+//[BACKPORT-UNRESOLVED:questinfo] 		next;
+//[BACKPORT-UNRESOLVED:questinfo] 		switch( select( "He looks cute", "That's not an instrument", "Playing the piano", "Guys with messy hair", "The ones with dolls", "Wake them up", "Stop" ) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 		case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( checkquest(8642,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think they've had enough today.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I hope you can help me tomorrow if you have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8642;
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( checkquest(8641,HUNTING) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "They look cute... but they're terribly noisy.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "^0000FF" + getmonsterinfo("GHOST_CUBE", MOB_NAME) + "^000000,";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "^0000FF" + getmonsterinfo("LUDE_GAL", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I wish you could beat 15 " + getmonsterinfo("GHOST_CUBE", MOB_NAME) + "";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and 15 of their mate " + getmonsterinfo("LUDE_GAL", MOB_NAME) + ", who haunted the banquet hall of the dead,";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and make them holy for a day.";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				if (select( "I accept", "I'm busy today" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Ummm...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Yeah... Well, I won't die just because I can't sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I'm already dead";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Thank you for your kind heart.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Blessed be the mercy of the living!";
+//[BACKPORT-UNRESOLVED:questinfo] 				setquest 8641;
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I wish you could beat 15 " + getmonsterinfo("GHOST_CUBE", MOB_NAME) + "";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and 15 of their mate " + getmonsterinfo("LUDE_GAL", MOB_NAME) + ", who haunted the banquet hall of the dead,";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and make them holy for a day.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Kya, did you hear them scream all the way here?";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think I can sleep a little deeper today thanks to you...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I have to make it through this commotion again tomorrow.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Thank you.";
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8641;
+//[BACKPORT-UNRESOLVED:questinfo] 				setquest 8642;
+				// getexp 15642570,10949790;	// pre-rebalance
+//[BACKPORT-UNRESOLVED:questinfo] 				getexp 20300909,14210636;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			end;
+//[BACKPORT-UNRESOLVED:questinfo] 		case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( checkquest(8645,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think they've had enough today.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I hope you can help me tomorrow if you have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8645;
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( checkquest(8644,HUNTING) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "It's called ^0000FF" + getmonsterinfo("BRUTAL_MURDERER", MOB_NAME) + "^000000.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "They have knives in their hands... ";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "It's too loud to knock anywhere!";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I wish you could beat 10 " + getmonsterinfo("BRUTAL_MURDERER", MOB_NAME) + "";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and 10 of their mate " + getmonsterinfo("GAN_CEANN", MOB_NAME) + ", who haunted the banquet hall of the dead,";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and make them holy for a day.";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				if (select( "I accept", "I'm busy today" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Ummm...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Yeah... Well, I won't die just because I can't sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I'm already dead.";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Thank you for your kind heart.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Blessed be the mercy of the living!";
+//[BACKPORT-UNRESOLVED:questinfo] 				setquest 8644;
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I wish you could beat 10 " + getmonsterinfo("BRUTAL_MURDERER", MOB_NAME) + "";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and 10 of their mate " + getmonsterinfo("GAN_CEANN", MOB_NAME) + ", who haunted the banquet hall of the dead,";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and make them holy for a day.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Kya, did you hear the sound of their cleavers and their helmets flying all the way up to here?";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think I can sleep a little deeper today thanks to you...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Thank you.";
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8644;
+//[BACKPORT-UNRESOLVED:questinfo] 				setquest 8645;
+				// getexp 10756120,7541880;	// pre-rebalance
+//[BACKPORT-UNRESOLVED:questinfo] 				getexp 14106860,9874802;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			end;
+//[BACKPORT-UNRESOLVED:questinfo] 		case 3:
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( checkquest(8648,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think they've had enough today.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I hope you can help me tomorrow if you have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8648;
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( 0 ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "If you go into the banquet hall of the dead there, there will be a piano.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "It actually screams when a living person knocks on it.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Would it be fun?";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Play the <NAVI>[piano]<INFO>nif_dun01,140,202,0,101,0</INFO></NAVI>";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "of the banquet hall of the dead.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "There is no such thing as a song request.";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				if (select( "I accept", "I'm busy today" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Ummm...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Yeah... Well, I won't die just because I can't sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I'm already dead";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Thank you for your kind heart.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Blessed be the mercy of the living!";
+//[BACKPORT-UNRESOLVED:questinfo] 				setquest 8647;
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Play the <NAVI>[piano]<INFO>nif_dun01,140,202,0,101,0</INFO></NAVI>";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "of the banquet hall of the dead.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "There is no such thing as a song request.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Hahaha, did you hear that? It's like alcohol... No, it's like that if you drink magic and act like a hawk.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think I can sleep a little deeper today thanks to you...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Thank you.";
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8647;
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8649;
+//[BACKPORT-UNRESOLVED:questinfo] 				setquest 8648;
+//[BACKPORT-UNRESOLVED:questinfo] 				getexp 10000000,7500000;
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			end;
+//[BACKPORT-UNRESOLVED:questinfo] 		case 4:
+//[BACKPORT-UNRESOLVED:questinfo] 			if (BaseLevel < 240) {
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Hmm... no.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "It's still too early to leave it to you...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I'll wait until you reach level 240.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( checkquest(8651,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think they've had enough today.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I hope you can help me tomorrow if you have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8651;
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( 0 ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				switch( checkquest(8650,HUNTING) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 				case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I mean, there are kids called ^0000FF" + getmonsterinfo("DISGUISER", MOB_NAME) + "^000000. ";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "They've got their hair as if a bomb hit, and they look so excited.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "^0000FF" + getmonsterinfo("BLUEMOON_LOLI_RURI", MOB_NAME) + "^000000, it can't be that loud when you get together with guys with broom hair.";
+//[BACKPORT-UNRESOLVED:questinfo] 					next;
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I hope you show the hot taste to";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "the 15 ^0000FF" + getmonsterinfo("DISGUISER", MOB_NAME) + "^000000 and the 15 ^0000FF" + getmonsterinfo("BLUEMOON_LOLI_RURI", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "that haunt the collapsed Opera House.";
+//[BACKPORT-UNRESOLVED:questinfo] 					next;
+//[BACKPORT-UNRESOLVED:questinfo] 					if (select( "I accept", "I'm busy today" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "Ummm...";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "Yeah... Well, I won't die just because I can't sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "I'm already dead";
+//[BACKPORT-UNRESOLVED:questinfo] 						close;
+//[BACKPORT-UNRESOLVED:questinfo] 					}
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thank you for your kind heart.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Blessed be the mercy of the living!";
+//[BACKPORT-UNRESOLVED:questinfo] 					setquest 8650;
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 				case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I hope you show the hot taste to";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "the 15 ^0000FF" + getmonsterinfo("DISGUISER", MOB_NAME) + "^000000 and the 15 ^0000FF" + getmonsterinfo("BLUEMOON_LOLI_RURI", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "that haunt the collapsed Opera House.";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Huh, huh, I can hear the bomb head dusting all the way up to here.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thanks to you, I will sleep well today.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thank you. See you again tomorrow.";
+//[BACKPORT-UNRESOLVED:questinfo] 					completequest 8650;
+//[BACKPORT-UNRESOLVED:questinfo] 					setquest 8651;
+//[BACKPORT-UNRESOLVED:questinfo] 					getexp 44984725,31489308;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				end;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				switch( checkquest(8652,HUNTING) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 				case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I hope you show the hot taste to";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "the 15 ^0000FF" + getmonsterinfo("DISGUISER", MOB_NAME) + "^000000 and the 15 ^0000FF" + getmonsterinfo("BLUEMOON_LOLI_RURI", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "that haunt the collapsed Opera House.";
+//[BACKPORT-UNRESOLVED:questinfo] 					next;
+//[BACKPORT-UNRESOLVED:questinfo] 					if (select( "I accept", "I'm busy today" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "Ummm...";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "Yeah... Well, I won't die just because I can't sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "I'm already dead";
+//[BACKPORT-UNRESOLVED:questinfo] 						close;
+//[BACKPORT-UNRESOLVED:questinfo] 					}
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thank you for your kind heart.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Blessed be the mercy of the living!";
+//[BACKPORT-UNRESOLVED:questinfo] 					setquest 8652;
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 				case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I hope you show the hot taste to";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "the 15 ^0000FF" + getmonsterinfo("DISGUISER", MOB_NAME) + "^000000 and the 15 ^0000FF" + getmonsterinfo("BLUEMOON_LOLI_RURI", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "that haunt the collapsed Opera House.";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Huh, huh, I can hear the bomb head dusting all the way up to here.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thanks to you, I will sleep well today.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thank you. See you again tomorrow.";
+//[BACKPORT-UNRESOLVED:questinfo] 					erasequest 8652;
+//[BACKPORT-UNRESOLVED:questinfo] 					setquest 8651;
+//[BACKPORT-UNRESOLVED:questinfo] 					getexp 44984725,31489308;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				end;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			end;
+//[BACKPORT-UNRESOLVED:questinfo] 		case 5:
+//[BACKPORT-UNRESOLVED:questinfo] 			if (BaseLevel < 240) {
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Hmm... no.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "It's still too early to leave it to you...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I'll wait until you reach level 240.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( checkquest(8654,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think they've had enough today.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I hope you can help me tomorrow if you have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8654;
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( 0 ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				switch( checkquest(8653,HUNTING) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 				case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "If you look at the collapsed Opera House there,";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "you'll see the ones with dolls. There's " + getmonsterinfo("GROTE", MOB_NAME) + " and " + getmonsterinfo("PIERROTZOIST", MOB_NAME) + "^000000...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "All the ones with dolls are so noisy.";
+//[BACKPORT-UNRESOLVED:questinfo] 					next;
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I hope you show the hot taste to";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "the 10 ^0000FF" + getmonsterinfo("GROTE", MOB_NAME) + "^000000 and the 10 ^0000FF" + getmonsterinfo("PIERROTZOIST", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "that haunt the collapsed Opera House.";
+//[BACKPORT-UNRESOLVED:questinfo] 					next;
+//[BACKPORT-UNRESOLVED:questinfo] 					if (select( "I accept", "I'm busy today" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "Ummm...";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "Yeah... Well, I won't die just because I can't sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "I'm already dead";
+//[BACKPORT-UNRESOLVED:questinfo] 						close;
+//[BACKPORT-UNRESOLVED:questinfo] 					}
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thank you for your kind heart.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Blessed be the mercy of the living!";
+//[BACKPORT-UNRESOLVED:questinfo] 					setquest 8653;
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 				case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I hope you show the hot taste to";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "the 10 ^0000FF" + getmonsterinfo("GROTE", MOB_NAME) + "^000000 and the 10 ^0000FF" + getmonsterinfo("PIERROTZOIST", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "that haunt the collapsed Opera House.";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Kyak-kyak-kyak-kyak-kyak-kyak-kyak, what did you really do?";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "A while ago, " + getmonsterinfo("GROTE", MOB_NAME) + " and " + getmonsterinfo("PIERROTZOIST", MOB_NAME) + " went home saying they wouldn't make a noise again.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Of course not. They will come again tomorrow.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thank you. See you tomorrow.";
+//[BACKPORT-UNRESOLVED:questinfo] 					completequest 8653;
+//[BACKPORT-UNRESOLVED:questinfo] 					setquest 8654;
+//[BACKPORT-UNRESOLVED:questinfo] 					getexp 29944101,20960871;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				end;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				switch( checkquest(8655,HUNTING) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 				case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I hope you show the hot taste to";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "the 10 ^0000FF" + getmonsterinfo("GROTE", MOB_NAME) + "^000000 and the 10 ^0000FF" + getmonsterinfo("PIERROTZOIST", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "that haunt the collapsed Opera House.";
+//[BACKPORT-UNRESOLVED:questinfo] 					next;
+//[BACKPORT-UNRESOLVED:questinfo] 					if (select( "I accept", "I'm busy today" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "Ummm...";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "Yeah... Well, I won't die just because I can't sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 						mes "I'm already dead";
+//[BACKPORT-UNRESOLVED:questinfo] 						close;
+//[BACKPORT-UNRESOLVED:questinfo] 					}
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thank you for your kind heart.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Blessed be the mercy of the living!";
+//[BACKPORT-UNRESOLVED:questinfo] 					setquest 8655;
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 				case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I hope you show the hot taste to";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "the 10 ^0000FF" + getmonsterinfo("GROTE", MOB_NAME) + "^000000 and the 10 ^0000FF" + getmonsterinfo("PIERROTZOIST", MOB_NAME) + "^000000";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "that haunt the collapsed Opera House.";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Kyak-kyak-kyak-kyak-kyak-kyak-kyak, what did you really do?";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "A while ago, " + getmonsterinfo("GROTE", MOB_NAME) + " and " + getmonsterinfo("PIERROTZOIST", MOB_NAME) + " went home saying they wouldn't make a noise again.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Of course not. They will come again tomorrow.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Thank you. See you tomorrow.";
+//[BACKPORT-UNRESOLVED:questinfo] 					erasequest 8655;
+//[BACKPORT-UNRESOLVED:questinfo] 					setquest 8654;
+//[BACKPORT-UNRESOLVED:questinfo] 					getexp 29944101,20960871;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				end;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			end;
+//[BACKPORT-UNRESOLVED:questinfo] 		case 6:
+//[BACKPORT-UNRESOLVED:questinfo] 			if (BaseLevel < 240) {
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Hmm... no.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "It's still too early to leave it to you...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I'll wait until you reach level 240.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( checkquest(8657,PLAYTIME) ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case -1:
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I think they've had enough today.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "I hope you can help me tomorrow if you have time.";
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8657;
+//[BACKPORT-UNRESOLVED:questinfo] 				break;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			switch( 0 ) {
+//[BACKPORT-UNRESOLVED:questinfo] 			case 0:
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "The smashed... no, don't say that.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "If you go to the collapsed Opera House, you will find ghosts in the frames.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "But they don't even have a body...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Snoring, my dear.";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "A <NAVI>[ghost talking]<INFO>nif_dun02,37,221,0,101,0</INFO></NAVI>";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "and <NAVI>[snoring]<INFO>nif_dun02,249,221,0,101,0</INFO></NAVI>";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "inside the banquet hall of the dead, twist your nose.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "You need to calm them down.";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				if (select( "I accept", "I'm busy today" ) == 2) {
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Ummm...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "Yeah... Well, I won't die just because I can't sleep...";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "I'm already dead";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Thank you for your kind heart.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Blessed be the mercy of the living!";
+//[BACKPORT-UNRESOLVED:questinfo] 				setquest 8656;
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 1:
+//[BACKPORT-UNRESOLVED:questinfo] 				if (0 == 0 || 0 == 0) {
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "A <NAVI>[ghost talking]<INFO>nif_dun02,37,221,0,101,0</INFO></NAVI>";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "and <NAVI>[snoring]<INFO>nif_dun02,249,221,0,101,0</INFO></NAVI>";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "inside the banquet hall of the dead, twist your nose.";
+//[BACKPORT-UNRESOLVED:questinfo] 					mes "You need to calm them down.";
+//[BACKPORT-UNRESOLVED:questinfo] 					close;
+//[BACKPORT-UNRESOLVED:questinfo] 				}
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "...I can't eat any more...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "...hick.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Oh, have you been there? I fell asleep without realizing it.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "It's really annoying to hear that snoring all the way...";
+//[BACKPORT-UNRESOLVED:questinfo] 				next;
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "It seems that the living do not hear well.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Anyway, thank you for today.";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Sleep is precious...";
+//[BACKPORT-UNRESOLVED:questinfo] 				mes "Sleep enough while you're alive.";
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8656;
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8658;
+//[BACKPORT-UNRESOLVED:questinfo] 				erasequest 8659;
+//[BACKPORT-UNRESOLVED:questinfo] 				setquest 8657;
+//[BACKPORT-UNRESOLVED:questinfo] 				getexp 13000000,9100000;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-UNRESOLVED:questinfo] 				close;
+//[BACKPORT-UNRESOLVED:questinfo] 			case 2:
+//[BACKPORT-UNRESOLVED:questinfo] 				end;
+//[BACKPORT-UNRESOLVED:questinfo] 			}
+//[BACKPORT-UNRESOLVED:questinfo] 			end;
+//[BACKPORT-UNRESOLVED:questinfo] 		case 7:
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "[Milla]";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "You can't do this if you're busy...";
+//[BACKPORT-UNRESOLVED:questinfo] 			mes "Ah, after all, the living do not hear that sound. This is my agony only known to the dead...";
+//[BACKPORT-UNRESOLVED:questinfo] 			npctalk "Another Dead: Noisy! Get some sleep!", "#lv200althema", bc_self;
+//[BACKPORT-UNRESOLVED:questinfo] 			npctalk "Another Dead: He really can't sleep!", "#lv200althema2", bc_self;
+//[BACKPORT-UNRESOLVED:questinfo] 			close;
+//[BACKPORT-UNRESOLVED:questinfo] 		}
+//[BACKPORT-UNRESOLVED:questinfo] 		end;
+//[BACKPORT-UNRESOLVED:questinfo] 	}
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] 
+//[BACKPORT-UNRESOLVED:questinfo] OnInit:
+	// prerequisite
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8639) == 1" );
+//[BACKPORT-UNRESOLVED:questinfo] 
+	// daily
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8641,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8644,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8647) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8650,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8652,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8653,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(8655,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(8656) == 1 && isbegin_quest(8658) == 1 && isbegin_quest(8659) == 1" );
+//[BACKPORT-UNRESOLVED:questinfo] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8642,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8645,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8648,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8651,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8654,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(8657,PLAYTIME) == 2" );
+//[BACKPORT-UNRESOLVED:questinfo] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (checkquest(8641,HUNTING) == -1 && checkquest(8642,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (checkquest(8644,HUNTING) == -1 && checkquest(8645,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 200 && (isbegin_quest(8647) == 0 && checkquest(8648,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && (checkquest(8650,HUNTING) == -1 && checkquest(8651,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && isbegin_quest(8650) == 2 && checkquest(8652,HUNTING) == -1 && checkquest(8651,PLAYTIME) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && (checkquest(8653,HUNTING) == -1 && checkquest(8654,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && isbegin_quest(8653) == 2 && checkquest(8655,HUNTING) == -1 && checkquest(8654,PLAYTIME) == -1" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 240 && (isbegin_quest(8656) == 0 && checkquest(8657,PLAYTIME) == -1)" );
+//[BACKPORT-UNRESOLVED:questinfo] 	end;
+//[BACKPORT-UNRESOLVED:questinfo] }
+
+//[BACKPORT-ORPHAN:dummy_npc] niflheim,160,106,3	duplicate(dummy_npc)	#lv200althema	CLEAR_NPC
+//[BACKPORT-ORPHAN:dummy_npc] niflheim,165,105,3	duplicate(dummy_npc)	#lv200althema2	CLEAR_NPC
+
+
+niflheim,143,125,6	script	Funny Gatekeeper's Friend#lv20	LUDE_GAL,{
+	npctalk "Funny Gatekeeper's Friend: Sing~ All night~ or forever~", "", bc_self;
+	end;
+}
+
+niflheim,145,126,6	script	Angry Gatekeeper#lv200	GHOST_CUBE,{
+	npctalk "Angry Gatekeeper: Kye-Look! Living! Play! No need to go!", "", bc_self;
+	npctalk "Funny Gatekeeper's Friend: No need to leave! Play with us!", "Funny Gatekeeper's Friend#lv20", bc_self;
+	end;
+}
+
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,140,202,3	script	Piano#lv200	CLEAR_NPC,{
+//[BACKPORT-BOUNDARY:nif_dun01] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:nif_dun01] 		mes "I couldn't hear anything, but the dead around me seem to be in an uproar.";
+//[BACKPORT-BOUNDARY:nif_dun01] 		mes "Let's report to Milla.";
+//[BACKPORT-BOUNDARY:nif_dun01] 		completequest 8647;
+//[BACKPORT-BOUNDARY:nif_dun01] 		setquest 8649;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "Clink clink... Crackle!", "Piano#lv200", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "Sleep alive! Kyaaak!", "Exciting Cello#lv200", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "The living man plays the piano!", "Dancing Cello#lv200", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "Oh my God, he can't really play...", "Quiet Cello#lv200", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "How could that be...", "Stranger Cello#lv200", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "You ruined the atmosphere!", "Happy Cello#lv200", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "Piano Ooo!!!", "Serious Contrabass#lv2", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "The piano is stunned...", "Sleek Harp#lv200", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		close;
+//[BACKPORT-BOUNDARY:nif_dun01] 	}
+	// note: no text
+//[BACKPORT-BOUNDARY:nif_dun01] 	end;
+//[BACKPORT-BOUNDARY:nif_dun01] 
+//[BACKPORT-BOUNDARY:nif_dun01] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8647) == 1" );
+//[BACKPORT-BOUNDARY:nif_dun01] 	end;
+//[BACKPORT-BOUNDARY:nif_dun01] }
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,133,198,3	duplicate(dummy_npc)	Exciting Cello#lv200	CLEAR_NPC
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,138,195,3	duplicate(dummy_npc)	Dancing Cello#lv200	CLEAR_NPC
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,153,195,3	duplicate(dummy_npc)	Quiet Cello#lv200	CLEAR_NPC
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,152,198,3	duplicate(dummy_npc)	Stranger Cello#lv200	CLEAR_NPC
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,157,198,3	duplicate(dummy_npc)	Happy Cello#lv200	CLEAR_NPC
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,156,202,3	duplicate(dummy_npc)	Serious Contrabass#lv2	CLEAR_NPC
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,133,201,3	duplicate(dummy_npc)	Sleek Harp#lv200	CLEAR_NPC
+
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,148,43,3	script	Helpful Gatekeeper#240	DISGUISER,{
+//[BACKPORT-BOUNDARY:nif_dun01] 	if (BaseLevel < 240) {
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "Helpful Gatekeeper: Uh-huh-huh. You don't have enough grooming to get through here.", "", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		npctalk "Silent Gatekeeper: ...means you are under-leveled.", "Silent Gatekeeper#240", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 		end;
+//[BACKPORT-BOUNDARY:nif_dun01] 	}
+//[BACKPORT-BOUNDARY:nif_dun01] 	npctalk "Helpful Gatekeeper: Uh-huh-huh. Mountain, go up. Can't come down.", "", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 	npctalk "Silent Gatekeeper: ...means welcome.", "Silent Gatekeeper#240", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 	end;
+//[BACKPORT-BOUNDARY:nif_dun01] }
+
+//[BACKPORT-BOUNDARY:nif_dun01] nif_dun01,143,43,7	script	Silent Gatekeeper#240	GROTE,{
+//[BACKPORT-BOUNDARY:nif_dun01] 	npctalk "Silent Gatekeeper: ...", "", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun01] 	end;
+//[BACKPORT-BOUNDARY:nif_dun01] }
+
+//[BACKPORT-BOUNDARY:nif_dun02] nif_dun02,37,221,3	script	Sleep Talking Ghost#lv240	CLEAR_NPC,3,3,{
+//[BACKPORT-BOUNDARY:nif_dun02] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:nif_dun02] 		switch( 0 ) {
+//[BACKPORT-BOUNDARY:nif_dun02] 		case 0:
+//[BACKPORT-BOUNDARY:nif_dun02] 			setquest 8659;
+//[BACKPORT-BOUNDARY:nif_dun02] 			mes "I twisted the nose of the ghost in the frame.";
+//[BACKPORT-BOUNDARY:nif_dun02] 			mes "There was no touch, but the ghost stopped talking.";
+//[BACKPORT-BOUNDARY:nif_dun02] 			npctalk "????????!", "", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun02] 			if (0 == 1)
+//[BACKPORT-BOUNDARY:nif_dun02] 				mes "Let's go report to Milla.";
+//[BACKPORT-BOUNDARY:nif_dun02] 			close;
+//[BACKPORT-BOUNDARY:nif_dun02] 		case 1:
+//[BACKPORT-BOUNDARY:nif_dun02] 			mes "The ghost that was talking about is not seen, and another ghost is sleeping.";
+//[BACKPORT-BOUNDARY:nif_dun02] 			close;
+//[BACKPORT-BOUNDARY:nif_dun02] 		default:
+//[BACKPORT-BOUNDARY:nif_dun02] 			end;
+//[BACKPORT-BOUNDARY:nif_dun02] 		}
+//[BACKPORT-BOUNDARY:nif_dun02] 	}
+//[BACKPORT-BOUNDARY:nif_dun02] 	end;
+//[BACKPORT-BOUNDARY:nif_dun02] 
+//[BACKPORT-BOUNDARY:nif_dun02] OnTouch:
+//[BACKPORT-BOUNDARY:nif_dun02] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:nif_dun02] 		npctalk "I want to eat it too... it looks delicious...", "", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun02] 		end;
+//[BACKPORT-BOUNDARY:nif_dun02] 	}
+//[BACKPORT-BOUNDARY:nif_dun02] 	end;
+//[BACKPORT-BOUNDARY:nif_dun02] 
+//[BACKPORT-BOUNDARY:nif_dun02] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8656) == 1 && isbegin_quest(8659) == 0" );
+//[BACKPORT-BOUNDARY:nif_dun02] 	end;
+//[BACKPORT-BOUNDARY:nif_dun02] }
+
+//[BACKPORT-BOUNDARY:nif_dun02] nif_dun02,249,221,3	script	Snoring Ghost#lv240	CLEAR_NPC,3,3,{
+//[BACKPORT-BOUNDARY:nif_dun02] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:nif_dun02] 		switch( 0 ) {
+//[BACKPORT-BOUNDARY:nif_dun02] 		case 0:
+//[BACKPORT-BOUNDARY:nif_dun02] 			setquest 8658;
+//[BACKPORT-BOUNDARY:nif_dun02] 			mes "I twisted the nose of the ghost in the frame.";
+//[BACKPORT-BOUNDARY:nif_dun02] 			mes "There was no touch, but the ghost stopped snoring.";
+//[BACKPORT-BOUNDARY:nif_dun02] 			npctalk "Nang!", "", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun02] 			if (0 == 1)
+//[BACKPORT-BOUNDARY:nif_dun02] 				mes "Let's go report to Milla.";
+//[BACKPORT-BOUNDARY:nif_dun02] 			close;
+//[BACKPORT-BOUNDARY:nif_dun02] 		case 1:
+//[BACKPORT-BOUNDARY:nif_dun02] 			mes "The snoring ghost is nowhere to be seen, and another ghost is sleeping.";
+//[BACKPORT-BOUNDARY:nif_dun02] 			close;
+//[BACKPORT-BOUNDARY:nif_dun02] 		default:
+//[BACKPORT-BOUNDARY:nif_dun02] 			end;
+//[BACKPORT-BOUNDARY:nif_dun02] 		}
+//[BACKPORT-BOUNDARY:nif_dun02] 	}
+//[BACKPORT-BOUNDARY:nif_dun02] 	end;
+//[BACKPORT-BOUNDARY:nif_dun02] 
+//[BACKPORT-BOUNDARY:nif_dun02] OnTouch:
+//[BACKPORT-BOUNDARY:nif_dun02] 	if (0 == 0)
+//[BACKPORT-BOUNDARY:nif_dun02] 		npctalk "Dorolong Dorolong...", "", bc_self;
+//[BACKPORT-BOUNDARY:nif_dun02] 	end;
+//[BACKPORT-BOUNDARY:nif_dun02] 
+//[BACKPORT-BOUNDARY:nif_dun02] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "isbegin_quest(8656) == 1 && isbegin_quest(8658) == 0" );
+//[BACKPORT-BOUNDARY:nif_dun02] 	end;
+//[BACKPORT-BOUNDARY:nif_dun02] }
+
+
+// amicitia1
+ein_fild08,158,96,3	script	Lana#ami	4_M_ILYA,{
+	if (BaseLevel < 215) {
+		mes "[Lana]";
+		mes "Beyond this it is dangerous, so access is restricted except for adventurers above a certain level.";
+		next;
+		mes " - This area can be accessed from level 215 or higher -";
+		close;
+	}
+	mes "[Lana]";
+	mes "Would you like to go to the first floor of the Amicitia General Lab?";
+	next;
+	if (select( "Go", "Stay" ) == 2) {
+		mes "[Lana]";
+		mes "Okay. Have a nice adventure then.";
+		close;
+	}
+	mes "[Lana]";
+	mes "Okay. I will transfer you to the Amicitia General Lab.";
+	close2;
+	warp "amicitia1",242,244;
+	end;
+}
+
+//[BACKPORT-BOUNDARY:pub_cat] pub_cat,86,33,5	script	Ansuriya#ami	4_F_REBELLION2,{
+//[BACKPORT-BOUNDARY:pub_cat] 	if (BaseLevel < 215) {
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oh, you are the hero of the last operation.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It's an honor to meet you in a place like this. May I buy you a drink?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes " - This is a quest that can be performed at level 215 or higher - ";
+//[BACKPORT-BOUNDARY:pub_cat] 		close;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	if (0 == 0) {
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oh, you are the hero of the last operation.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It's an honor to meet you in a place like this. May I buy you a drink?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Wow, " + strcharinfo(0) + "! Can I get an autograph?";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It's an honor! Hehe~";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Here, a glass of Tropical Sograt, please!";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oh, are you okay with Tropical Sograt?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "I like chocolate milk.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "You buy it with your money.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "By the way Gerbena, how is the Amicitia team?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+		//[BACKPORT-GAP:getnpcid,ET_PROFUSELY_SWAT] emotion ET_PROFUSELY_SWAT, getnpcid(0,"Gerbena#ami");
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Well, that's... I've finished organizing for now.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "However, it is true that the number of rebellions to be deployed is a bit short since the total number of members is small.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Hmm, what should I do? Gerbena. Do you want to go?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+		//[BACKPORT-GAP:getnpcid,ET_SWEAT] emotion ET_SWEAT, getnpcid(0,"Gerbena#ami");
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Ah, take a look. My head is falling out just with all the staff.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "What should I do? We need two teams per floor...";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+		//[BACKPORT-GAP:getnpcid,ET_AHA] emotion ET_AHA, getnpcid(0,"Gerbena#ami");
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "You're a hero.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Can you help us?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+		//[BACKPORT-GAP:ET_QUESTION] emotion ET_QUESTION;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Gerbena, what are you talking about all of a sudden!";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "No, the hero was assigned a mission in association with Rebellion in the last operation.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "So I was wondering if you could apply for me again this time...";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+		//[BACKPORT-GAP:ET_SURPRISE] emotion ET_SURPRISE;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Uh! yes.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Adventurer. What do you think?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		select( "Listen to what's going on..." );
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oh, yes. That's the order.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Nothing else, we have discovered a new laboratory around Einbroch.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "The name is <FONT COLOR = 0000CD>Amicitia General Lab</FONT>. According to the data provided by Rekenber, it is said to be a sister laboratory of the Werner Institute.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It seems that it did not conduct very illegal experiments and focused on the study of culturing chimeras as homunculus, but it is said that it was abandoned after an explosion at an underground magical power plant.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It came under investigation because one of the administrators of that abandoned lab was Werner.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "As a result of the investigation, the chimeras that were being cultivated ran out of control due to an explosion accident and turned into monsters and were left unattended.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "I couldn't tell if it was just neglected or intentionally.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It's not far from the city, so Rebellion took care of organizing it for safety reasons... As you've heard, we're having trouble with the lack of staff.";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "With your help, we can make the cleanup easier!";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Okay. Could you help me with the subjugation?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		if (select( "Help", "Don't help" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Ah... Excuse me.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It's our job and we're just looking for help.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "You must have your own things to do!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "We will try to solve this by ourselves.";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It is an honor to work with you!";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Thank you for your cooperation!";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Let's organize the group again...";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Are you comfortable taking the mission alone or with the Rebellion's mission team?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		select( "I'm comfortable alone" );
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "If so, let's combine the Rebellion mission groups into one, and the hero's solo mission... mumble mumble.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oh, why am I the only one thinking. Gerbena, help me!";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Oops, yes!";
+//[BACKPORT-BOUNDARY:pub_cat] 		setquest 16529;
+//[BACKPORT-BOUNDARY:pub_cat] 		completequest 16529;
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "Hero, these are the things we would like to ask of you from Amicitia.";
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "Which of these would you like to help with?";
+//[BACKPORT-BOUNDARY:pub_cat] 	next;
+//[BACKPORT-BOUNDARY:pub_cat] 	switch( select( "Earth and Fire", "Water and Wind", "Traces of Werner", "Don't help" ) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 	case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16530,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Now, the Rebellion unit is in the process of following up.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It's okay, hero, to rest a little longer.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thank you for being so active with us.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Can you come back after dawn?";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16530;
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16531,HUNTING) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I would like to ask you to hunt <FONT COLOR = 0000CD>" + getmonsterinfo("CHIMERA_AMITERA", MOB_NAME) + " and " + getmonsterinfo("CHIMERA_FILLIA", MOB_NAME) + "</FONT> among the chimeras in culture.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "You will be able to recognize them right away as the attribute characteristics of earth and fire appear much stronger than those of existing entities.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Actually, it's more like a monster than a homunculus...";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Despite the destruction of the culture facility, the number of individuals continues to increase, so I would like to ask you to hunt about 15 specimens of each!";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			if (select( "Hunt", "Do not hunt" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Hmm? Have you changed your mind?";
+//[BACKPORT-BOUNDARY:pub_cat] 				next;
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Well, then! We have to re-organize! Ugh.";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Hero, why don't you reconsider calmly?";
+//[BACKPORT-BOUNDARY:pub_cat] 				close;
+//[BACKPORT-BOUNDARY:pub_cat] 			}
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thank you very much for your support. The two types of chimeras will probably be roaming the ground floor of the closed lab Amicitia.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Please don't let the chimeras leave the lab.";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16531;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "<FONT COLOR = 0000CD>" + getmonsterinfo("CHIMERA_AMITERA", MOB_NAME) + " and " + getmonsterinfo("CHIMERA_FILLIA", MOB_NAME) + "</FONT> will be roaming the first floor of the closed lab Amicitia.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Please hunt 15 of each.";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Have you been there? You have completed all the tasks I mentioned.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Rebellion units are also on duty.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thanks to the hero who organized it one step ahead, it seems to have made it easier to enter.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "As expected from a hero. It is rare to find someone outside of the Rebellions who works with such sincerity and cleanliness.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I would be grateful if you could join the mission tomorrow as well.";
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16531;
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16530;
+//[BACKPORT-BOUNDARY:pub_cat] 			getexp 17726670,12408690;	// TODO: the amount has been changed with the monster update
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16532,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Now, the Rebellion unit is in the process of following up.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It's okay, hero, to rest a little longer.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thank you for being so active with us.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Can you come back after dawn?";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16532;
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16533,HUNTING) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I would like to ask you to hunt <FONT COLOR = 0000CD>" + getmonsterinfo("CHIMERA_LITUS", MOB_NAME) + " and " + getmonsterinfo("CHIMERA_VANILAQUS", MOB_NAME) + "</FONT> among the chimeras that were being cultured.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It's not difficult to tell them apart because they've mutated into an appearance that clearly reveals the attributes of wind and water.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "The number of individuals continues to increase without the help of a culture facility, so please hunt 15 of each.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			if (select( "Hunt", "Do not hunt" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Hmm? Have you changed your mind?";
+//[BACKPORT-BOUNDARY:pub_cat] 				next;
+				//[BACKPORT-GAP:ET_KEK] emotion ET_KEK;
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Well, then! we have to re-organize! Ugh.";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Hero, why don't you reconsider calmly?";
+//[BACKPORT-BOUNDARY:pub_cat] 				close;
+//[BACKPORT-BOUNDARY:pub_cat] 			}
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thank you very much for your support. The two types of chimeras are staying on the first floor of the closed lab Amicitia.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Please don't let the chimeras leave the lab.";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16533;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "<FONT COLOR = 0000CD>" + getmonsterinfo("CHIMERA_LITUS", MOB_NAME) + " and " + getmonsterinfo("CHIMERA_VANILAQUS", MOB_NAME) + "</FONT> are staying on the first floor of the closed lab Amicitia.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Please hunt 15 of each.";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Mission completed, confirmed.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Now deploy the rebellion troops.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thanks to the hero who organized it one step ahead, we will be able to enter easily..";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thank you very much.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Working with someone outside of Rebellion, this is the first time I've felt such a good fit.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Hero, would you like to join the mission tomorrow as well?";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16532;
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16533;
+//[BACKPORT-BOUNDARY:pub_cat] 			getexp 17724090,12406890;	// TODO: the amount has been changed with the monster update
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 3:
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16534,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Now, the Rebellion unit is in the process of following up.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It's okay, hero, to rest a little longer.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thank you for being so active with us.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Can you come back after dawn?";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16534;
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( 0 ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "This is a high-security job, so I only want to ask the hero a favor.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "I didn't want to go through the mouths of as many people as possible, so the Rebellion units were excluded from this job.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Nothing else, but to find <FONT COLOR = 0000CD>Traces of Werner</FONT> on the 1st floor of the abandoned lab Amicitia.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "What part of Amicitia was managed by Werner, what kind of experiments he conducted, etc...";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "If anything has had an impact on the Institute, please come to me.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Documents, files, data! Anything is fine.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Would you like to go for me?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			if (select( "I will go", "I will not go" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "That's alright. But it's also annoying...";
+//[BACKPORT-BOUNDARY:pub_cat] 				next;
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "I would appreciate it if you could keep this request a secret.";
+//[BACKPORT-BOUNDARY:pub_cat] 				close;
+//[BACKPORT-BOUNDARY:pub_cat] 			}
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Okay. It won't be easy to find... Any traces, so please come back to me with just one.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Then, I would like to thank you.";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16535;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It won't be easy to find... Any traces, so please come back to me with just one.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Then, I would like to thank you.";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Did you find any traces?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "You've come to the right place. This note is in Werner's handwriting.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thank you. We will hand this over to the secret wing agents for investigation.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Then you should be rewarded for your hard work.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thank you for coming back tomorrow and working with me.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Because I can't just leave this to anyone.";
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16535;
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16545;
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16534;
+//[BACKPORT-BOUNDARY:pub_cat] 			getexp 17000000,12000000;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 4:
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Hmm? Have you changed your mind?";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Well, then! We have to re-organize! Ugh.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Hero, why don't you reconsider calmly?";
+//[BACKPORT-BOUNDARY:pub_cat] 		close;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	close;
+//[BACKPORT-BOUNDARY:pub_cat] 
+//[BACKPORT-BOUNDARY:pub_cat] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16531,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16533,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "isbegin_quest(16535) == 2" );
+//[BACKPORT-BOUNDARY:pub_cat] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16530,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16532,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16534,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:pub_cat] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 215 && (checkquest(16531,HUNTING) == -1 && checkquest(16530,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 215 && (checkquest(16533,HUNTING) == -1 && checkquest(16532,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 215 && (isbegin_quest(16535) == 0 && checkquest(16534,PLAYTIME) == -1)" );
+//[BACKPORT-BOUNDARY:pub_cat] 	end;
+//[BACKPORT-BOUNDARY:pub_cat] }
+
+//[BACKPORT-BOUNDARY:amicitia1] amicitia1,57,242,3	script	Something#ami1	4_GC109,{
+//[BACKPORT-BOUNDARY:amicitia1] 	if (0 == 1) {
+//[BACKPORT-BOUNDARY:amicitia1] 		mes "[Something]";
+//[BACKPORT-BOUNDARY:amicitia1] 		mes "There is something on the floor. Shall we take a closer look?";
+//[BACKPORT-BOUNDARY:amicitia1] 		next;
+//[BACKPORT-BOUNDARY:amicitia1] 		mes "[Something]";
+//[BACKPORT-BOUNDARY:amicitia1] 		mes "Research memo in neat handwriting. Werner's handwriting is exactly like this.";
+//[BACKPORT-BOUNDARY:amicitia1] 		next;
+//[BACKPORT-BOUNDARY:amicitia1] 		mes "[Something]";
+//[BACKPORT-BOUNDARY:amicitia1] 		mes "Let's take it and check it out.";
+//[BACKPORT-BOUNDARY:amicitia1] 		setquest 16545;
+//[BACKPORT-BOUNDARY:amicitia1] 		completequest 16535;
+//[BACKPORT-BOUNDARY:amicitia1] 		close2;
+//[BACKPORT-BOUNDARY:amicitia1] 		initnpctimer;
+//[BACKPORT-BOUNDARY:amicitia1] 		disablenpc strnpcinfo(0);
+//[BACKPORT-BOUNDARY:amicitia1] 		end;
+//[BACKPORT-BOUNDARY:amicitia1] 	}
+//[BACKPORT-BOUNDARY:amicitia1] 	mes "[Something]";
+//[BACKPORT-BOUNDARY:amicitia1] 	mes "Something is off the floor.";
+//[BACKPORT-BOUNDARY:amicitia1] 	mes "It looks like it's just garbage.";
+//[BACKPORT-BOUNDARY:amicitia1] 	close;
+//[BACKPORT-BOUNDARY:amicitia1] 
+//[BACKPORT-BOUNDARY:amicitia1] OnTimer300000:	// unknown timer
+//[BACKPORT-BOUNDARY:amicitia1] 	stopnpctimer;
+//[BACKPORT-BOUNDARY:amicitia1] 	enablenpc strnpcinfo(0);
+//[BACKPORT-BOUNDARY:amicitia1] 	end;
+//[BACKPORT-BOUNDARY:amicitia1] }
+//[BACKPORT-BOUNDARY:amicitia1] amicitia1,152,159,3	duplicate(Something#ami1)	Something#ami2	4_GC109
+//[BACKPORT-BOUNDARY:amicitia1] amicitia1,262,139,3	duplicate(Something#ami1)	Something#ami3	4_GC109
+//[BACKPORT-BOUNDARY:amicitia1] amicitia1,36,106,3	duplicate(Something#ami1)	Something#ami4	4_GC109
+//[BACKPORT-BOUNDARY:amicitia1] amicitia1,244,49,3	duplicate(Something#ami1)	Something#ami5	4_GC109
+
+
+// amicitia2
+//[BACKPORT-BOUNDARY:pub_cat] pub_cat,89,32,3	script	Gerbena#ami	4_M_REBELLION2,{
+//[BACKPORT-BOUNDARY:pub_cat] 	if (BaseLevel < 230) {
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Wow, " + strcharinfo(0) + "! Can I get an autograph?";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "It's an honor! Hehe~";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes " - This is a quest that can be performed at level 230 or higher - ";
+//[BACKPORT-BOUNDARY:pub_cat] 		close;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "Hero, there was a homunculus intensive culture room on the second floor of the Amicitia lab.";
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "They were creating more powerful mutated chimeras.";
+//[BACKPORT-BOUNDARY:pub_cat] 	next;
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "It's pitiful, but if they are released from the lab, they will do more damage than you can imagine.";
+//[BACKPORT-BOUNDARY:pub_cat] 	mes "Can you help me clean up these chimeras?";
+//[BACKPORT-BOUNDARY:pub_cat] 	next;
+//[BACKPORT-BOUNDARY:pub_cat] 	switch( select( "Imitation and Real", "Natural change", "Don't help" ) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 	case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16536,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Have you already been there today? If so, how about taking a break?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "If you overwork your body, you may not do well.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Come back after dawn and work with us!";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16536;
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16537,HUNTING) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Some of the work they were doing in the incubator was mass production of mutated chimeras.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "They re-mutated the mutated homunculus and further strengthened their aggression.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Please hunt 15 <FONT COLOR = 0000CD>" + getmonsterinfo("CHIMERA_NAPEO", MOB_NAME) + " and " + getmonsterinfo("CHIMERA_GALENSIS", MOB_NAME) + "</FONT> each.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Both are creatures that imitate human form, but add a powerful transformation of the chimera properties to it.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It's been quite some time since the lab was closed and left unattended.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "A quick hunt would make me feel more comfortable.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			if (select( "Help hunting", "Do not hunt" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Ah, you changed your words!";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Gerbena is heartbroken!";
+//[BACKPORT-BOUNDARY:pub_cat] 				next;
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "But it was our one-sided request.";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Even if you refuse, we can't help it...";
+//[BACKPORT-BOUNDARY:pub_cat] 				close;
+//[BACKPORT-BOUNDARY:pub_cat] 			}
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It's an honor that you help us!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Can I participate with you hero?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "He doesn't like it. He is more comfortable doing it alone, calm down, Gerbena.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Ugh! Please take care of it for me!!";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16537;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Please hunt 15 <FONT COLOR = 0000CD>" + getmonsterinfo("CHIMERA_NAPEO", MOB_NAME) + " and " + getmonsterinfo("CHIMERA_GALENSIS", MOB_NAME) + "</FONT> each.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Both are creatures that imitate human form, but add a powerful transformation of the chimera properties to it.";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Now the Illusion Forces are deployed and continue their mission.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thanks to the hero, it's easy to enter and subdue the Chimera.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Ugh, I also wanted to see the hero's wonderful battle in person...";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Maybe someday I'll have a chance to see you?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "If it's okay with you, why don't you come back tomorrow and work with us?";
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16537;
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16536;
+//[BACKPORT-BOUNDARY:pub_cat] 			getexp 37253672,26077570;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16538,PLAYTIME) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Have you already been there today? If so, how about taking a break?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "If you overwork your body, you may not do well.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Come back after dawn and work with us!";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16538;
+//[BACKPORT-BOUNDARY:pub_cat] 			break;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		switch( checkquest(16539,HUNTING) ) {
+//[BACKPORT-BOUNDARY:pub_cat] 		case -1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Among the homunculus in the intensive culture chamber, there are Mutant Chimera Lavaeter and Mutant Chimera Fulgor.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It looks similar to the existing Homunculus Dieter and Homunculus Bayeri, but they are very different.";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It is different from a homunculus in that it reproduces itself and it decides without an owner.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "You can't rescue them or do anything. All, every single one of them has to be killed.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "So, hero, would you like to help us hunt 15 <FONT COLOR = 0000CD>" + getmonsterinfo("CHIMERA_LAVA", MOB_NAME) + " and " + getmonsterinfo("CHIMERA_FULGOR", MOB_NAME) + "</FONT> each?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			if (select( "Help hunting", "Do not hunt" ) == 2) {
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Ah, you changed your words!";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Gerbena is heartbroken!";
+//[BACKPORT-BOUNDARY:pub_cat] 				next;
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "But it was our one-sided request.";
+//[BACKPORT-BOUNDARY:pub_cat] 				mes "Even if you refuse, we can't help it...";
+//[BACKPORT-BOUNDARY:pub_cat] 				close;
+//[BACKPORT-BOUNDARY:pub_cat] 			}
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "It's an honor that you help us!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Can I participate with you hero?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Ansuriya]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "He said he doesn't like it. He is more comfortable doing it alone, calm down, Gerbena.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Ugh! Please take care of it for me!!";
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16539;
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 0:
+//[BACKPORT-BOUNDARY:pub_cat] 		case 1:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Hero, can you hunt 15 <FONT COLOR = 0000CD>" + getmonsterinfo("CHIMERA_LAVA", MOB_NAME) + " and " + getmonsterinfo("CHIMERA_FULGOR", MOB_NAME) + "</FONT> each?";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "You can't rescue them or do anything. All, every single one of them has to be killed.";
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		case 2:
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Yes! Mission completed, confirmed. Now, Illusion troops are in!";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Thanks to you, they will be able to easily enter and subdue the Chimera.";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Ugh, I also wanted to see the hero's beautiful battle in person...";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "Maybe someday I'll have a chance to see you?";
+//[BACKPORT-BOUNDARY:pub_cat] 			next;
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 			mes "If it's okay with you, why don't you come back tomorrow and work with us?";
+//[BACKPORT-BOUNDARY:pub_cat] 			erasequest 16539;
+//[BACKPORT-BOUNDARY:pub_cat] 			setquest 16538;
+//[BACKPORT-BOUNDARY:pub_cat] 			getexp 37325968,26128177;	// rebalance (unknown jexp, 70% of baseexp)
+//[BACKPORT-BOUNDARY:pub_cat] 			close;
+//[BACKPORT-BOUNDARY:pub_cat] 		}
+//[BACKPORT-BOUNDARY:pub_cat] 		end;
+//[BACKPORT-BOUNDARY:pub_cat] 	case 3:
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Ah, you changed your words!";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Gerbena is heartbroken!";
+//[BACKPORT-BOUNDARY:pub_cat] 		next;
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "[Gerbena]";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "But it was our one-sided request.";
+//[BACKPORT-BOUNDARY:pub_cat] 		mes "Even if you refuse, we can't help it...";
+//[BACKPORT-BOUNDARY:pub_cat] 		close;
+//[BACKPORT-BOUNDARY:pub_cat] 	}
+//[BACKPORT-BOUNDARY:pub_cat] 	end;
+//[BACKPORT-BOUNDARY:pub_cat] 
+//[BACKPORT-BOUNDARY:pub_cat] OnInit:
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16537,HUNTING) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_QUEST2, QMARK_YELLOW, "checkquest(16539,HUNTING) == 2" );
+//[BACKPORT-BOUNDARY:pub_cat] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16536,PLAYTIME) == 2" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "checkquest(16538,PLAYTIME) == 2" );
+//[BACKPORT-BOUNDARY:pub_cat] 
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 230 && (checkquest(16537,HUNTING) == -1 && checkquest(16536,PLAYTIME) == -1)" );
+	//[BACKPORT-GAP:questinfo] questinfo( QTYPE_DAILYQUEST, QMARK_YELLOW, "BaseLevel >= 230 && (checkquest(16539,HUNTING) == -1 && checkquest(16538,PLAYTIME) == -1)" );
+//[BACKPORT-BOUNDARY:pub_cat] 	end;
+//[BACKPORT-BOUNDARY:pub_cat] }

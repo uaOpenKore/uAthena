@@ -55,6 +55,27 @@ boot: 0 `Invalid map`/`Could not parse`/`unknown buildin`, 16541 NPC.
 `\tscript(\w+)\t` → `\tscript\t` (drop state; renewal-косметика, dummy-шаблоны и так sprite -1).
 SP-3 регенерирован (`backport-renewal-smallnpc.py`): diff = ровно 3 строки, +13 NPC ожили.
 
+## 2c — dungeon/collection quests (8 файлов)
+
+`npc/backport/re_collections/` (magic_books, homun_s, illusion_investigation,
+quests_illusion_dungeons, juno_monster_society, garden_of_time, quests_dungeons_200,
+HelpMeShorty). ~25K строк rAthena. Генератор `dumps/forge/backport-renewal-collections.py`
+(клон eden-генератора, сменён только tail: OUT_DIR=re_collections, COLLECTION_FILES,
+`npc/re/quests/{n}` без eden/, selftest==8). Подключены в scripts_athena.conf «2c».
+VERIFY OK (unresolved refs: none). boot parse-чист, 16546 NPC.
+События: ADAPT 525, COMMENT 1143, BOUNDARY 282, UNRESOLVED 49, ORPHAN 24, MANUAL 180.
+
+## НАХОДКА: NAME_LENGTH=24 ломает duplicate с длинным base-именем (кросс-фазное)
+
+`src/common/mmo.h NAME_LENGTH 24` (23 символа + null). NPC-имя длиннее обрезается при
+регистрации, а `duplicate(полное_имя)` ищет необрезанное → `bad duplicate name (not exist)`.
+Реально ломает (полный boot): `Carbonated Water Vending Machine#ra` (juno, ×6 городов-duplicate)
++ `Equipment Reform PR Agent#it01` (re_merchants, ×1) = **7 NPC**. ВАЖНО: ранее `#it01`
+списывался на «itemmall deploy-артефакт» — НЕВЕРНО, это NAME_LENGTH-обрезка, на проде та же.
+Большинство длинных имён (167 ≥24) РАБОТАЮТ (single-NPC обрезается лишь в display; duplicate-пары
+обрезаются согласованно). Не parse-ошибка, boot не блокирует. Стратегия (engine ↑NAME_LENGTH
+рискованно для wire/DB / генератор-укорачивание / оставить+документировать) — решается отдельно.
+
 ## Улучшения общего генератора (выигрывают все фазы; merchant/smallnpc re-gen)
 
 - **userfunc→callfunc** (quest gen): uAthena не поддерживает прямой paren-call к script-
