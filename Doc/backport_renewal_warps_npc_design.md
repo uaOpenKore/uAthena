@@ -79,6 +79,39 @@ uAthena buildins = 330, rAthena = 671. **Command-gap (parse-fatal) = 15 buildins
 backport-renewal-cards.py), применяет дефолтную стратегию группы, логирует в
 gap-лог; человек ревьюит лог и переопределяет при необходимости.
 
+### Синтаксис-классы (boot-parse, НЕ ловятся токен-санитайзером)
+
+Токен-gap по buildins НЕ покрывает **операторные/синтаксические** различия
+rAthena→uAthena — их выявил только локальный boot-parse (поэтому он обязателен,
+не опционален). Генератор адаптирует их обобщёнными трансформами:
+- **A `=`-присваивание**: uAthena-парсер не знает `.@x = expr;` → `set .@x, expr;`
+  (свой код uAthena использует `set`, в т.ч. строковые `.@s$`).
+- **B пустые `()` self-target**: `enablenpc()`/`disablenpc()`/`hideon|hideoffnpc()`
+  (uAthena сигнатура `"s"`) → `enablenpc strnpcinfo(0)`.
+- **C string-literal guard**: gap-токен ВНУТРИ `mes "..."`/`select` — это проза,
+  не команда (детекция по code-only, маскируя строки; иначе `cooking`/`clear` в
+  диалоге ложно комментировались).
+- **D for-init `=` и `++`/`--`**: uAthena `for(set .@i,0; …; set .@i,.@i+1)`,
+  нет `=`-init и постфикс-инкремента → конверсия (`.@var` перед `++/--` обяз. —
+  отсеивает `mes "Snort--"`).
+- **Точечные SITEFIX** (не обобщаемо): `getargcount()`→`getarg(n,sentinel)`-цикл
+  (jeepney Malaya); `charat(strnpcinfo(2),9)`→`compare()`-индекс (Small Hole Mora).
+- **BOUNDARY** (NPC-аналог warp-boundary): NPC на карте ВНЕ map_index (напр.
+  `Odgnalam#iz_*` на `izlude_*` academy-картах) → закомментирован + лог.
+- **Byte-preservation**: town-файлы содержат 8-битные (EUC-KR) байты в диалогах
+  → NPC-файлы пишутся latin-1 (byte-identical), НЕ UTF-8 (иначе удвоение байт).
+
+### Загрузка карт: `conf/maps_athena.conf` (третья точка wiring)
+
+Сервер грузит карты из `conf/maps_athena.conf` (список `map: <имя>`), **НЕ из
+map_index** (тот лишь назначает ID для резолва варпов). Renewal-карты были в
+map_index, но НЕ в maps_athena.conf → NPC/варпы на них молча не материализуются
+(0 ошибок парса, но 0 NPC). **R3 добавляет 43 scope-карты в maps_athena.conf**
+(append-only, генерируется `collect_used_scope_maps`). Карте также нужен `.gat`
+в GRF на деплое: без него сервер логирует `Removing map [...]` и отбрасывает её
+(на dev-боксе renewal-`.gat` нет → town-NPC локально не материализуются — это
+deploy/tester-задача, как `.gat` pre-renewal-варпов; парс-чистота достигается).
+
 ### Локации (фаза R1) — проверено: 0 добора
 
 Все endpoint-карты scope-варпов и все 6 зон **уже присутствуют** в uAthena

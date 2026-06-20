@@ -407,10 +407,15 @@ def read(p):
     with open(p, encoding="latin-1") as f:
         return f.read()
 
-def write(p, s):
+def write(p, s):                        # UTF-8: gap/changes docs carry Cyrillic
     os.makedirs(os.path.dirname(p), exist_ok=True)
     with open(p, "w", encoding="utf-8") as f:
         f.write(s)
+
+def write_raw(p, s):                     # latin-1: byte-preserving for NPC scripts whose
+    os.makedirs(os.path.dirname(p), exist_ok=True)   # dialogue carries 8-bit (EUC-KR) bytes;
+    with open(p, "w", encoding="latin-1") as f:      # the server reads scripts as raw bytes,
+        f.write(s)                                   # so re-encoding to UTF-8 would corrupt them
 
 # ---- uAthena known-token sets (for dynamic gap) -------------------------------
 def load_consts():
@@ -434,7 +439,37 @@ RA_BUILTINS = load_buildins(os.path.join(RA_ROOT, "src", "map", "script.cpp"))
 # 'duplicate' is an engine NPC construct (npc.c), not a script buildin -> never a gap.
 GAP_BUILTINS = (RA_BUILTINS - UA_BUILTINS) - {"DUPLICATE"}
 
+# Site-specific fixes for non-generalizable rAthena-only TRANSPORT patterns. Applied
+# verbatim (substring replace) after consumeitem, before generic gap-commenting; each
+# logged as SITEFIX. Keeps regeneration deterministic (vs hand-editing generated files).
+SITE_FIXES = [
+    # F_Malaya_Jeepney loop: getargcount() (absent in uAthena) -> getarg sentinel.
+    # uAthena getarg is "i?": getarg(n, default) returns default when arg n is absent.
+    ('.@i < getargcount()', 'getarg(.@i, "\\x7F") != "\\x7F"'),
+    # Small Hole (bifrost_field0000) Mora<->Bifrost transport: charat()/strnpcinfo
+    # index (uAthena has no charat) -> compare()-based index from unique-name suffix.
+    ('switch(atoi(charat(strnpcinfo(2),9))) {',
+     'set .@holeIdx, compare(strnpcinfo(2),"mora1")?1:'
+     'compare(strnpcinfo(2),"mora2")?2:compare(strnpcinfo(2),"mora3")?3:0;\n'
+     '\t\tswitch(.@holeIdx) {'),
+]
+
+def load_mapindex():
+    s = set()
+    for ln in read(os.path.join(UA_ROOT, "db", "map_index.txt")).splitlines():
+        t = ln.strip()
+        if t and not t.startswith("//"):
+            s.add(t.split()[0])
+    return s
+
+UA_MAPS = load_mapindex()  # for boundary-skip of NPCs on out-of-scope unregistered maps
+
 # ---- adaptation ---------------------------------------------------------------
+def code_only(line):
+    """Strip string literals so gap detection ignores dialogue text & skill-name
+    args: a gap WORD inside mes "...cooking..." is prose, not the cooking buildin."""
+    return re.sub(r'"[^"]*"', ' ', line)
+
 def adapt_text(text):
     """Return (new_text, events). events = list of (kind, token, line) for the gap log."""
     events = []
@@ -444,16 +479,59 @@ def adapt_text(text):
         stripped = line.strip()
         if stripped.startswith("//"):
             out.append(line); continue
+        # NPC placed on a map absent from map_index (out-of-scope, e.g. izlude_* academy
+        # duplicates of an in-scope base) -> comment + log (mirrors warp boundary-skip).
+        df = re.match(r'^([A-Za-z0-9_]+),\d+,\d+', line)
+        if df and df.group(1) not in UA_MAPS:
+            indent = line[:len(line) - len(line.lstrip())]
+            if "{" in line:                       # multi-line script on unregistered map
+                events.append(("MANUAL", "unregistered-map:" + df.group(1), stripped))
+                out.append(line)
+            else:                                 # single-line (duplicate/shop) -> comment
+                out.append(f"{indent}//[BACKPORT-BOUNDARY:{df.group(1)}] {stripped}")
+                events.append(("BOUNDARY", df.group(1), stripped))
+            continue
         # group B: consumeitem <id>; -> delitem <id>,1;
         m = re.search(r'\bconsumeitem\s+(\d+)\s*;', line)
         if m:
             line = re.sub(r'\bconsumeitem\s+(\d+)\s*;', r'delitem \1,1;', line)
             events.append(("ADAPT", "consumeitem->delitem", stripped))
             out.append(line); continue
-        # detect remaining gap buildins + ET_* emotion consts in this line
-        idents = set(t.upper() for t in re.findall(r'[A-Za-z_]\w*', line))
+        # site-specific transport fixes (non-generalizable). Modify in place (no continue)
+        # so the line still flows through the generic CLASS B/D/A syntax transforms below
+        # (e.g. the jeepney loop needs both the getargcount site-fix AND CLASS D for/++).
+        for old, new in SITE_FIXES:
+            if old in line:
+                line = line.replace(old, new)
+                events.append(("SITEFIX", old.split("(")[0].strip(), stripped))
+        # CLASS B: rAthena self-target empty-paren (en|dis)ablenpc()/(hideon|hideoff)npc()
+        # — uAthena needs the NPC name "s" -> ...npc strnpcinfo(0)
+        if re.search(r'\b(enable|disable|hideon|hideoff)npc\(\)', line):
+            line = re.sub(r'\b(enable|disable|hideon|hideoff)npc\(\)',
+                          r'\1npc strnpcinfo(0)', line)
+            events.append(("ADAPT", "npc()->npc strnpcinfo(0)", stripped))
+        # CLASS D: rAthena for-init '=' and '++/--' increments (uAthena for uses the
+        # 'set var,N' / 'set var,var+1' idiom; the parser has no '=' init or '++'). The
+        # required '.@var' anchor before ++/-- skips prose like mes "Snort--" / "--- ".
+        before_d = line
+        line = re.sub(r'for\s*\(\s*(\.@\w+)\s*=\s*([^;]+);', r'for (set \1,\2;', line)
+        line = re.sub(r'(\.@\w+)\+\+', r'set \1,\1+1', line)
+        line = re.sub(r'(\.@\w+)--', r'set \1,\1-1', line)
+        if line != before_d:
+            events.append(("ADAPT", "for/incr->set", before_d.strip()))
+        # CLASS A: rAthena '=' assignment -> uAthena 'set var, expr' (old parser has no
+        # '=' assignment). Single '=' only (the [^=] guard skips ==, the \.@? anchor and
+        # leading-var match skip +=,<=,>=,!= and mid-expression equals).
+        ma = re.match(r'^(\s*)(\.@?\w+\$?(?:\[[^\]]*\])?)\s*=\s*([^=].*?);\s*$', line)
+        if ma:
+            line = f'{ma.group(1)}set {ma.group(2)}, {ma.group(3)};'
+            events.append(("ADAPT", "=->set", stripped))
+        # detect remaining gap buildins + ET_* emotion consts (over code only, NOT
+        # inside string literals: a gap word in mes/dialogue text is prose, not a call)
+        code = code_only(line)
+        idents = set(t.upper() for t in re.findall(r'[A-Za-z_]\w*', code))
         gap_hit = sorted((idents & GAP_BUILTINS))
-        et_hit = re.findall(r'\bET_[A-Z_]+\b', line)
+        et_hit = re.findall(r'\bET_[A-Z_]+\b', code)
         if gap_hit or et_hit:
             tok = ",".join([g.lower() for g in gap_hit] + et_hit)
             if "{" in line or "}" in line:
@@ -526,6 +604,32 @@ def scope_warp_files():
                 out.append(p)
     return out
 
+def collect_used_scope_maps():
+    """Scope maps actually referenced by the backport warps (src+dst) and town-NPC
+    placements. These must be in conf/maps_athena.conf for the server to LOAD the map
+    (map_index only assigns the ID; the load-list is maps_athena.conf). Maps still need
+    a .gat in the GRF at deploy time, else the server drops them ('Removing map')."""
+    scope_mi = {m for m in UA_MAPS if m.startswith(SCOPE_MAP_PREFIXES)}
+    used = set()
+    for p in glob.glob(os.path.join(UA_ROOT, "npc", "warps", "backport", "re", "**", "*.txt"),
+                       recursive=True):
+        for ln in read(p).splitlines():
+            if ln.startswith("//") or "\twarp\t" not in ln:
+                continue
+            c = ln.split("\t"); used.add(c[0].split(",")[0])
+            rhs = c[3].split(",")
+            if len(rhs) >= 3:
+                used.add(rhs[2])
+    for p in glob.glob(os.path.join(UA_ROOT, OUT_DIR, "*.txt")):
+        for ln in read(p).splitlines():
+            s = ln.strip()
+            if not s or s.startswith("//") or s.startswith("function"):
+                continue
+            c = ln.split("\t")
+            if "," in c[0] and not c[0].startswith("-"):
+                used.add(c[0].split(",")[0])
+    return sorted(used & scope_mi)
+
 def gen():
     gap_buf = ["# Renewal town-NPC gap-лог (адаптации/комментирования)\n\n",
                "Тестировщики: проверьте COMMENT/MANUAL — потерянная функция или ручная правка.\n",
@@ -558,8 +662,8 @@ def gen():
         body = "\n".join(parts)
         new_body, events = adapt_text(body)
         out_path = os.path.join(UA_ROOT, OUT_DIR, zone + ".txt")
-        write(out_path, HEADER.format(src=", ".join(srcs)) + new_body +
-              ("" if new_body.endswith("\n") else "\n"))
+        write_raw(out_path, HEADER.format(src=", ".join(srcs)) + new_body +
+                  ("" if new_body.endswith("\n") else "\n"))
         includes.append(f"npc: npc/backport/re_cities/{zone}.txt")
         gap_buf.append(f"\n## {zone}\n")
         for kind, tok, ln in events:
@@ -568,15 +672,19 @@ def gen():
     # kafras (all scope zones) -> one file
     kaf = kafra_lines()
     if kaf:
-        write(os.path.join(UA_ROOT, OUT_DIR, "kafras.txt"),
-              HEADER.format(src="npc/re/kafras/kafras.txt (scope, adapted to " + KAFRA_BASE + ")")
-              + "\n".join(kaf) + "\n")
+        write_raw(os.path.join(UA_ROOT, OUT_DIR, "kafras.txt"),
+                  HEADER.format(src="npc/re/kafras/kafras.txt (scope, adapted to " + KAFRA_BASE + ")")
+                  + "\n".join(kaf) + "\n")
         includes.append("npc: npc/backport/re_cities/kafras.txt")
     write(os.path.join(UA_ROOT, "Doc", "backport_renewal_npc_gap.md"), "".join(gap_buf))
     write(os.path.join(UA_ROOT, "dumps", "forge", "backport-renewal-npc-includes.txt"),
           "\n".join(includes) + "\n")
+    used_maps = collect_used_scope_maps()
+    write(os.path.join(UA_ROOT, "dumps", "forge", "backport-renewal-maps-athena.txt"),
+          "\n".join("map: " + m for m in used_maps) + "\n")
     print(f"zones: {len(ZONES)} | kafra duplicates: {len(kaf)} | "
-          f"gap events: {dict(total_ev)} | gap buildins known: {len(GAP_BUILTINS)}")
+          f"gap events: {dict(total_ev)} | gap buildins known: {len(GAP_BUILTINS)} | "
+          f"maps_athena.conf additions: {len(used_maps)}")
 
 # ---- verify -------------------------------------------------------------------
 def backport_files():
@@ -629,11 +737,12 @@ def verify():
     bp_names = Counter()
     for p in backport_files():
         t = read(p)
-        # any still-live gap buildin (not commented) is a fatal miss
+        # any still-live gap buildin (not commented) is a fatal miss (code only,
+        # ignore string literals so dialogue prose isn't flagged as a live command)
         for ln in t.splitlines():
             if ln.strip().startswith("//"):
                 continue
-            idents = set(x.upper() for x in re.findall(r'[A-Za-z_]\w*', ln))
+            idents = set(x.upper() for x in re.findall(r'[A-Za-z_]\w*', code_only(ln)))
             miss_cmd |= (idents & GAP_BUILTINS)
         if t.count("{") != t.count("}"):
             brace_bad.append(os.path.relpath(p, UA_ROOT))
@@ -674,6 +783,43 @@ def selftest():
     t4, ev4 = adapt_text('\tif (vip_status(1)) { mes "hi"; }\n')
     assert any(k == "MANUAL" for k, *_ in ev4), ev4
     assert "{" in t4 and "}" in t4, t4
+    # gap WORD inside mes dialogue must NOT be commented (string-literal guard)
+    t5, ev5 = adapt_text('\tmes "leftovers used for fuel in cooking or heating";\n')
+    assert not ev5 and "//[BACKPORT-GAP" not in t5, (t5, ev5)
+    # site-fix: jeepney getargcount() loop -> getarg sentinel (no getargcount left)
+    t6, ev6 = adapt_text('\tfor (.@i = 5; .@i < getargcount(); .@i++) {\n')
+    assert "getargcount" not in t6 and 'getarg(.@i' in t6, t6
+    assert any(k == "SITEFIX" for k, *_ in ev6), ev6
+    # site-fix: Small Hole charat switch -> compare-based index (no charat left)
+    t7, ev7 = adapt_text('\t\tswitch(atoi(charat(strnpcinfo(2),9))) {\n')
+    assert "charat" not in t7 and 'compare(strnpcinfo(2),"mora1")' in t7, t7
+    # boundary: NPC on a map absent from map_index -> commented (izlude_a not registered)
+    t8, ev8 = adapt_text("izlude_a,182,218,4\tduplicate(Odgnalam)\tOdgnalam#iz_a\t554\n")
+    assert t8.strip().startswith("//[BACKPORT-BOUNDARY:izlude_a]"), t8
+    assert any(k == "BOUNDARY" for k, *_ in ev8), ev8
+    # NPC on an in-scope registered map is NOT boundary
+    t9, ev9 = adapt_text("dewata,100,100,4\tduplicate(X)\tY#z\t554\n")
+    assert "BOUNDARY" not in t9 and not any(k == "BOUNDARY" for k, *_ in ev9), (t9, ev9)
+    # CLASS A: '=' assignment -> set (incl. space-padded), but NOT '==' comparison
+    tA, evA = adapt_text("\t.@mapName$        = getarg(0);\n")
+    assert "set .@mapName$, getarg(0);" in tA and "=" not in tA.split("set",1)[1], tA
+    assert any(t == "=->set" for _, t, _ in evA), evA
+    tA2, _ = adapt_text("\tif (.@x == 5) end;\n")
+    assert "set " not in tA2, tA2
+    # CLASS B: self-target enablenpc()/disablenpc() -> ...npc strnpcinfo(0)
+    tB, evB = adapt_text("\tenablenpc();\n")
+    assert "enablenpc strnpcinfo(0);" in tB, tB
+    assert any(t == "npc()->npc strnpcinfo(0)" for _, t, _ in evB), evB
+    # CLASS D: for-init '=' and '++' -> uAthena set idiom
+    tD, evD = adapt_text("\tfor (.@i = 5; .@i < 9; .@i++) end;\n")
+    assert "for (set .@i,5;" in tD and "set .@i,.@i+1" in tD and "++" not in tD, tD
+    # CLASS D guard: '--' inside a string literal must NOT be touched (no .@ anchor)
+    tD2, _ = adapt_text('\tmes "Snort--";\n')
+    assert 'mes "Snort--";' in tD2, tD2
+    # combined: jeepney loop = site-fix (getargcount) + CLASS D (init/++) -> fully valid
+    tJ, _ = adapt_text('\tfor (.@i = 5; .@i < getargcount(); .@i++) {\n')
+    assert ("getargcount" not in tJ and "for (set .@i,5;" in tJ
+            and "set .@i,.@i+1" in tJ), tJ
     # 'duplicate' is NOT a gap
     assert "DUPLICATE" not in GAP_BUILTINS
     # non_warp keeps script, drops warp defs
@@ -746,21 +892,44 @@ Expected: `VERIFY OK` — `live gap commands: none`, `NPC name collisions: none`
 If `live gap commands` is non-empty: a gap buildin slipped through `adapt_text` (likely brace-line MANUAL). Resolve in the generated file or extend the adapter, re-run.
 If `unresolved refs` lists a name: a `duplicate(...)`/`callfunc` base is missing — confirm it's defined within the same output file; if it's an external rAthena util, port or stub it.
 
-- [ ] **Step 4: Wire the include block (append-only)**
+- [ ] **Step 4: Wire the NPC include block (append-only)**
 
 ```bash
 cd /root/uAthena && { echo ""; echo "// ===== Backport renewal town-NPCs (GENERATED) ====="; cat dumps/forge/backport-renewal-npc-includes.txt; } >> npc/scripts_athena.conf
 ```
-Verify: `tail -15 npc/scripts_athena.conf` shows the block.
+Verify: `tail -15 npc/scripts_athena.conf` shows the block (kaf_alberta base at line ~162 precedes our duplicates, so `duplicate(kaf_alberta)` resolves).
 
-- [ ] **Step 5: Boot-parse verification (both servers)**
+- [ ] **Step 4b: Wire the map load-list (append-only) — REQUIRED for materialization**
 
-Boot char + map locally (local-cluster-boot-test method). Grep for script errors on the new NPC files:
+The server loads maps from `conf/maps_athena.conf` (a `map: <name>` list), NOT from
+`map_index.txt` (which only assigns warp IDs). Renewal maps are absent from the load-list,
+so NPCs/warps placed on them silently do not materialize (0 parse errors, 0 NPCs). Append
+the 43 scope maps the generator collected:
 ```bash
-cd /root/uAthena && set +e; ./map-server_sql 2>&1 | tee /tmp/r3_boot.log | grep -iE "script error|error.*backport/re_cities|conflicting coordinates"; set -e
-grep -iE "Server is ready" /tmp/r3_boot.log && echo "BOOT OK"
+cd /root/uAthena && { echo ""; echo "// ===== Backport renewal maps (GENERATED) ====="; cat dumps/forge/backport-renewal-maps-athena.txt; } >> conf/maps_athena.conf
 ```
-Expected: 0 script errors referencing `backport/re_cities`; `BOOT OK`. NPC count in the log increases by ~189 + kafras. (`.gat not found` is expected/unrelated.)
+Verify: `grep -cE '^map: ' conf/maps_athena.conf` rose by 43. (Each map still needs a
+`.gat` in the GRF at deploy time; without it the server logs `Removing map [...]` and drops
+it — a tester/deploy concern, same as pre-renewal warps.)
+
+- [ ] **Step 5: Boot-parse verification (`--run_once`)**
+
+`--run_once` parses all NPC then exits (no hang on the char link). MariaDB must be up.
+```bash
+cd /root/uAthena && set +e
+timeout 120 ./map-server_sql --run_once > /tmp/r3_boot.log 2>&1
+echo "exit: $?  | script errors: $(grep -icE 'script error' /tmp/r3_boot.log)"
+grep -nE "script error on npc/backport/re_cities" /tmp/r3_boot.log    # MUST be empty
+grep -oE "Removing map \[ (dewata|mora|malaya|dicastes0[12]|eclage|malangdo) \]" /tmp/r3_boot.log | head
+grep -iE "Server is 'ready'" /tmp/r3_boot.log
+set -e
+```
+Expected: `exit: 0`, **0 script errors** on `backport/re_cities`, `Server is 'ready'`.
+Iterate parse fixes until 0 errors (this is where CLASS A/B/C/D, SITEFIX, BOUNDARY and
+byte-preservation were discovered — boot-parse is the only thing that surfaces operator/
+syntax gaps the token sanitizer misses). On the dev box the scope maps appear in
+`Removing map [...]` (no renewal `.gat`) so town-NPCs do not materialize locally — expected;
+materialization + walkthrough is the tester phase (needs a client + GRF with renewal maps).
 
 - [ ] **Step 6: Write the change summary**
 
