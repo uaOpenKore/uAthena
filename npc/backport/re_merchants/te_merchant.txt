@@ -1,0 +1,149 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/te_merchant.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Merchant WoE TE
+//===== Description: =========================================
+//= [Official Conversion]
+//= Merchants and Rental merchant template for WoE TE
+//	(duplicates in re/woe_te/<castle file>).
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [Capuche]
+//============================================================
+
+//[BACKPORT-BOUNDARY:te_prt_gld] te_prt_gld,114,153,4	shop	TE Potion Merchant#prt	4_M_TELEPORTER,11557:-1,11558:-1
+//[BACKPORT-BOUNDARY:te_alde_gld] te_alde_gld,215,184,4	duplicate(TE Potion Merchant#prt)	TE Potion Merchant#alde	4_M_TELEPORTER
+
+// Rental Items manager
+//=======================================
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] -	script	rental_woe_TE	-1,{
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	mes "[Rental Items Manager]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	if (1 == 1) {
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		set .@list01$, "[Shield] [Armor] [Garment]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		set .@list02$, "[Helmet] [Accessory] [Shoes]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		set .@list03$, "[Sword] [Spear] [Axe] [Katar]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		set .@list04$, "[Mace] [Staff] [Fist] [Book]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		set .@list05$, "[Bow] [Gun] [Musical Instrument] [Whip]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "^4d4dffWe offer various battlegears that you can use in the regions of Gloria and Kafragarten based on the rules of Siege Battle TE.^000000";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		next;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "[Rental Items Manager]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "^4d4dffWe provide 1-day rental periods for free.^000000";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "However, the provided rental items ^4d4dffwill not be effective outside the Siege Battle TE area.^000000";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		next;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "[Rental Items Manager]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "^4d4dffYou have to be Lv 40 or higher in order to rent an item.^000000";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "Select the desired equipment.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		next;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		while(1) {
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			switch( select( "View rental equipments", .@list01$, .@list02$, .@list03$, .@list04$, .@list05$, "Leave" ) ) {
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			case 1:
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				mes "[Rental Items Manager]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				mes "Here is a list of rental items and descriptions.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				close2;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				readbook 11059,1;// WoE_TE_Rental_List
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				end;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			case 2:
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				callsub( S_Rent, "shields, armors, and garments",
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					 2178,"TE Siege Buckler",		// TE_Woe_Buckler
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					 2179,"TE Siege Shield",		// TE_Woe_Shield
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					 2180,"TE Siege Magic Guard",	// TE_Woe_Magic_Guard
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					15062,"TE Siege Long Coat",		// TE_Woe_Coat
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					15063,"TE Siege Mail",			// TE_Woe_Chain_Mail
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					15064,"TE Siege Magic Coat",	// TE_Woe_Mage_Coat
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					20702,"TE Siege Muffler",		// TE_Woe_Muffler
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					20703,"TE Siege Cape",			// TE_Woe_Manteau
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					20704,"TE Siege Magic Cape" );	// TE_Woe_Magic_Manteau
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				break;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			case 3:
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				callsub( S_Rent, "helmets, accessories, and shoes",
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					2496,"TE Siege Shoes",			// TE_Woe_Shoes
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					2497,"TE Siege Boots",			// TE_Woe_Boots
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					2498,"TE Siege Magic Sandals",	// TE_Woe_Magic_Sandal
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					2944,"TE Guardian Ring",		// TE_Ring_Of_Protection
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					2945,"TE Ring of Wrath",		// TE_Ring_Of_Rage
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					2946,"TE Ring of Rebellion",	// TE_Ring_Of_Defiance
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					18732,"TE Siege Cap",			// TE_Woe_Cap
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					18733,"TE Siege Bone Helm",		// TE_Woe_Bone_Helm
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					18734,"TE Siege Magic Eyes" );	// TE_Woe_Magic_Eyes
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				break;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			case 4:
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				callsub( S_Rent, "swords, spears, axes, and katars",
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1299,"TE Siege Katar",				// TE_Woe_Katar
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1399,"TE Siege Two-Handed Axe",		// TE_Woe_Two_Handed_Axe
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1495,"TE Siege Lance",				// TE_Woe_Lance
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					13317,"TE Siege Magic Shuriken",	// TE_Woe_Huuma
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					21006,"TE Siege Two-Handed Sword",	// TE_Woe_Two_Hand_Sword
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1319,"TE Siege Axe",				// TE_Woe_Axe
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1437,"TE Siege Pike",				// TE_Woe_Pike
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					13083,"TE Siege Knife",				// TE_Woe_Knife
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					13439,"TE Siege Sword" );			// TE_Woe_Sword
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				break;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			case 5:
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				callsub( S_Rent, "staves, maces, books, and fists",
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					2019,"TE Siege Two-Handed Staff",// TE_Woe_Two_Hand_Staff
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1591,"TE Siege Book",			// TE_Woe_Book
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1667,"TE Siege Staff",			// TE_Woe_Staff
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1834,"TE Siege Fist",			// TE_Woe_Fist
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					16025,"TE Siege Mace" );		// TE_Woe_Mace
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				break;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			case 6:
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				callsub( S_Rent, "bows, guns, musical instruments, and whips",
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					18118,"TE Siege Bow",			// TE_Woe_Bow
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					13117,"TE Siege Pistol",		// TE_Woe_Pistol
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					13184,"TE Siege Rifle",			// TE_Woe_Rifle
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					13185,"TE Siege Gatling Gun",	// TE_Woe_Gatling
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					13186,"TE Siege Shotgun",		// TE_Woe_Shotgun
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					13187,"TE Siege Grenade Gun",	// TE_Woe_Grenade
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1932,"TE Siege Guitar",			// TE_Woe_Guitar
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 					1987,"TE Siege Rope" );			// TE_Woe_Rope
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				break;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			case 7:
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				mes "[Rental Items Manager]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				mes "Come back anytime then.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 				close;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			}
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		}
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	}
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	mes "We offer various battlegears that you can use in the regions of Gloria and Kafragarten based on the rules of Siege Battle TE.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	next;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	mes "[Rental Items Manager]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	mes "I'm sorry but your job class is not allowed to participate in Siege Battles TE.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	mes "I'm afraid I can't offer any items to you.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	close;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] S_Rent:
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	mes "[Rental Items Manager]";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	if (checkweight(1304,3) == 0) {
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "You already have too many items to receive a new rental equipment.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "Please organize your items and try again.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		close;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	}
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	mes "We have "+ getarg(0) +" ready for you.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	mes "Select the desired item.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	next;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	for (set .@i,1; getarg(.@i, "\x7F") != "\x7F"; set .@i,.@i + 2 ) {
+		//[BACKPORT-GAP:rentalcountitem] if (rentalcountitem(getarg(.@i)) > isequippedcnt(getarg(.@i)))// don't count item equipped
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			set .@menu$, .@menu$ + "^4d4dff"+ getarg(.@i+1) +" - Checked out^000000:";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		else
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			set .@menu$, .@menu$ + getarg(.@i+1) + ":";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	}
+	//[BACKPORT-GAP:getargcount] .@total_item = (getargcount() -1) /2;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	set .@s, select( .@menu$ + ":View other items" ) -1;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	if (.@s <= .@total_item) {
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		set .@index, .@s *2 +1;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "[Rental Items Manager]";
+		//[BACKPORT-GAP:rentalcountitem] if (rentalcountitem(getarg(.@index)) > isequippedcnt(getarg(.@index)))
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			mes "You already have "+ getarg(.@index+1) +".";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		else {
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			mes "Here is "+ getarg(.@index+1) +".";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			mes "^4d4dffThis item is effective for the next 24 hours^000000 and after that it expires.";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 			rentitem getarg(.@index),86400;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		}
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		mes "Do you need anything else?";
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 		next;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	}
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] 	return;
+//[BACKPORT-UNRESOLVED:getargcount,rentalcountitem] }

@@ -1,0 +1,36 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/other/Global_Functions.txt (F_getpositionname, F_IsCharm)
+//============================================================
+function	script	F_getpositionname	{
+	switch( getarg(0,999) ) {
+		case EQI_ACC_L:		return "Accessory 1";
+		case EQI_ACC_R:		return "Accessory 2";
+		case EQI_SHOES:		return "Shoes";
+		case EQI_GARMENT:	return "Robe";
+		case EQI_HEAD_LOW:	return "Head 3";
+		case EQI_HEAD_MID:	return "Head 2";
+		case EQI_HEAD_TOP:	return "Head";
+		case EQI_ARMOR:		return "Body";
+		case EQI_HAND_L:	return "Left hand";
+		case EQI_HAND_R:	return "Right hand";
+		case EQI_COSTUME_HEAD_TOP:	return "Upper Costume Headgear";
+		case EQI_COSTUME_HEAD_MID:	return "Middle Costume Headgear";
+		case EQI_COSTUME_HEAD_LOW:	return "Lower Costume Headgear";
+		case EQI_COSTUME_GARMENT:	return "Costume Garment";
+		case EQI_AMMO:			return "Arrow/Ammunition";
+		case EQI_SHADOW_ARMOR:	return "Shadow Armor";
+		case EQI_SHADOW_WEAPON:	return "Shadow Weapon";
+		case EQI_SHADOW_SHIELD:	return "Shadow Shield";
+		case EQI_SHADOW_SHOES:	return "Shadow Shoes";
+		case EQI_SHADOW_ACC_R:	return "Shadow Accessory 2";
+		case EQI_SHADOW_ACC_L:	return "Shadow Accessory 1";
+		default:
+			return "Unknown";
+	}
+}
+function	script	F_IsCharm	{
+	set .@id, getarg(0);
+	return ((.@id >= 4700 && .@id <= 4999) || (.@id >= 29000 && .@id <= 29689) || (.@id >= 310000 && .@id <= 311091 ));
+}

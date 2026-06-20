@@ -1,0 +1,47 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/Emperium_Seller.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Emperium Seller
+//===== By: ================================================== 
+//= Pokye
+//===== Current Version: ===================================== 
+//= 1.0
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= Sell Emperium
+//===== Additional Comments: ================================= 
+//= 1.0 Special thanks for Balfear and Everade
+//============================================================ 
+
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] prt_in,212,169,3	script	Guild Clerk	4_M_04,{
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	if (gettime(DT_DAYOFWEEK) >= 1 && gettime(DT_DAYOFWEEK) <= 6 && gettime(DT_HOUR) >= 18 && gettime(DT_HOUR) <= 23) {
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 		mes "[Guild Clerk]";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 		mes "The Emperium to be distributed to the guild office today has arrived. If you want to purchase, please put as many as you want~";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 		next;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 		mes "[Guild Clerk]";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 		mes "It seems that many people are looking for Emperium today. It's just a personal feeling.";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 		close2;                                                                                                         
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 		callshop "emp_seller#slo",1;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 		end;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	}
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "[Guild Clerk]";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "Our guild office actively supports the smooth gathering of adventurers.";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	next;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "[Guild Clerk]";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "As part of that,";
+	//[BACKPORT-GAP:mesitemlink] mes "we are selling a limited quantity of 100 " + mesitemlink( 714, false ) + " every day";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "from ^0000ff18:00 to 23:59^000000 from ^0000ffMonday to Saturday^000000.";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	next;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "[Guild Clerk]";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "Please note that our guild office does not sell all the time because we have to run around to supply Emperium outside of the hours.";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	close;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] OnHour00:
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "emp_seller#slo",714,0,100;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	end;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] }
+-	shop	emp_seller#slo	FAKE_NPC,714:1000000

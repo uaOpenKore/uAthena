@@ -1,0 +1,37 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/Slot_Move_Card_Sales.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Slot Move Card Sales
+//===== By: ================================================== 
+//= Pokye
+//===== Current Version: ===================================== 
+//= 1.0
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= Character Position Change Coupon seller.
+//===== Additional Comments: ================================= 
+//= 1.0 Special thanks for Balfear and Everade
+//============================================================ 
+
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] prt_in,211,173,3	script	Slot Move Card Sales#slo	4_F_01,{
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "[Salesman]";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "Howdy.";
+	//[BACKPORT-GAP:mesitemlink] mes "I'm selling " + mesitemlink( 12786 ) + ".";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "You can ^4d4dffchange the slot position of a character using the card^000000.";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	next;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "[Salesman]";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "I sell it in a limited quantity every week, so if you don't see anything,";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	mes "it means all of the items are sold out, so please come back next time.";
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	close2;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	callshop "change_slot#slo",1;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	end;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] OnMon0000:
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "change_slot#slo",12786,0,9999;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] 	end;
+//[BACKPORT-UNRESOLVED:mesitemlink,npcshopupdate] }
+-	shop	change_slot#slo	FAKE_NPC,12786:100000

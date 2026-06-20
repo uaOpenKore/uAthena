@@ -1,0 +1,237 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/ticket_refiner.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Ticket Refiner
+//===== By: ==================================================
+//= Euphy
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= [Official Conversion]
+//= Refiner that uses +5~9/+11 refine tickets to refine
+//= equipment with no chance of failure.
+//= NOTE: This NPC is currently disabled on official servers.
+//===== Additional Comments: =================================
+//= 1.0 First version. [Euphy]
+//= 1.1 Do not refine above ticket level. [Euphy]
+//============================================================
+
+// Main NPC :: safety_Ref_NPC
+//============================================================
+//[BACKPORT-UNRESOLVED:malformed-for] prontera,184,177,6	script	Refine Master	851,{
+//[BACKPORT-UNRESOLVED:malformed-for] 	disable_items;
+//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@cert_weapon[0],
+//[BACKPORT-UNRESOLVED:malformed-for] 		6864,	// Guarantee_Weapon_19Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6875,	// Guarantee_Weapon_18Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6874,	// Guarantee_Weapon_17Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6873,	// Guarantee_Weapon_16Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6872,	// Guarantee_Weapon_15Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6871,	// Guarantee_Weapon_14Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6870,	// Guarantee_Weapon_13Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6584,	// Guarantee_Weapon_12Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6238,	// Guarantee_Weapon_11Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6228,	// Guarantee_Weapon_9Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6229,	// Guarantee_Weapon_8Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6230,	// Guarantee_Weapon_7Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6231,	// Guarantee_Weapon_6Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6456;	// Guarantee_Weapon_5Up
+//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@cert_armor[0],
+//[BACKPORT-UNRESOLVED:malformed-for] 		6865,	// Guarantee_Armor_19Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6881,	// Guarantee_Armor_18Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6880,	// Guarantee_Armor_17Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6879,	// Guarantee_Armor_16Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6878,	// Guarantee_Armor_15Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6877,	// Guarantee_Armor_14Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6876,	// Guarantee_Armor_13Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6585,	// Guarantee_Armor_12Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6239,	// Guarantee_Armor_11Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6232,	// Guarantee_Armor_9Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6233,	// Guarantee_Armor_8Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6234,	// Guarantee_Armor_7Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6235,	// Guarantee_Armor_6Up
+//[BACKPORT-UNRESOLVED:malformed-for] 		6457;	// Guarantee_Armor_5Up
+//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@cert_level[0],19,18,17,16,15,14,13,12,11,9,8,7,6,5;
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@size_cert, getarraysize(.@cert_weapon);
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,0; .@i < .@size_cert; set .@i,.@i+1 ) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(.@cert_weapon[.@i]) > 0 || countitem(.@cert_armor[.@i]) > 0) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			set .@check, 1;
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@check == 0) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Hello!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "What's up?";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I'm a specialist";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "for refining items,";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "but I don't work anymore.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		switch(select("I'll go on my way.:Hmm... this makes me curious.")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Take care, adventurer.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Actually, I sometimes provide refine services for adventurers with a ^006400Refine Ticket^000000...";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Bye bye~!";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+	//[BACKPORT-GAP:ET_SURPRISE] emotion ET_SURPRISE;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Greetings!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I can refine an item up to the ^006400same level as your ticket^000000.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "You don't have to worry! There's no chance of breaking your item.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	if(select("I'll come back later.:Refine item with ticket.") == 1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Okay.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You can come again later.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Which equipment would you like to refine?";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@position$[1],"Head upper","Armor","Left hand","Right hand","Robe","Shoes","Accessory 1","Accessory 2","Head middle","Head lower";
+//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@indices[1], EQI_HEAD_TOP, EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_MID, EQI_HEAD_LOW;
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,1; .@i <= 10; set .@i,.@i+1 )
+//[BACKPORT-UNRESOLVED:malformed-for] 		set .@menu$, .@menu$ + (getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : .@position$[.@i] + "- [Empty]") + ":";
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@part, .@indices[ select(.@menu$) ];
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (!getequipisequiped(.@part)) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have to equip the item you want to refine.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (!getequipisenableref(.@part)) {
+		//[BACKPORT-GAP:ET_OTL] emotion ET_OTL;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Oh, I'm sorry.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "This item is impossible to refine.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@refineitemid, getequipid(.@part); // save id of the item
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@refinerycnt, getequiprefinerycnt(.@part); //save refinery count
+//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@itemtype, getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+//[BACKPORT-UNRESOLVED:malformed-for] 	if( .@itemtype == IT_WEAPON ){
+//[BACKPORT-UNRESOLVED:malformed-for] 		switch( getequipweaponlv( .@part ) ){
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 				copyarray .@tickets[0], .@cert_weapon[0], .@size_cert;
+//[BACKPORT-UNRESOLVED:malformed-for] 				set .@type$, "Weapon";
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 			default:
+				// TODO:
+//[BACKPORT-UNRESOLVED:malformed-for] 				close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}else if( .@itemtype == IT_ARMOR ){
+//[BACKPORT-UNRESOLVED:malformed-for] 		switch( 1 ){
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 				copyarray .@tickets[0], .@cert_armor[0], .@size_cert;
+//[BACKPORT-UNRESOLVED:malformed-for] 				set .@type$, "Armor";
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 			default:
+				// TODO:
+//[BACKPORT-UNRESOLVED:malformed-for] 				close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}else{
+		// TODO:
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@check, 0;
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,0; .@i < .@size_cert; set .@i,.@i+1 ) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		if (countitem(.@tickets[.@i]) > 0) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			set .@check, 1;
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (.@check == 0) {
+		//[BACKPORT-GAP:ET_THINK] emotion ET_THINK;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "If you want to refine this ^006400"+.@type$+"^000000, please come along with ^006400"+.@type$+" Refine Ticket^000000.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "See you later!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Please choose which ^006400"+.@type$+" Refine Ticket^000000 you want to use.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@menu$, "";
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,0; .@i < .@size_cert; set .@i,.@i+1 )
+//[BACKPORT-UNRESOLVED:malformed-for] 		set .@menu$, .@menu$ + getitemname(.@tickets[.@i]) + ":";
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@select, select(.@menu$)-1;
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@ticket_lv, .@cert_level[.@select];
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@ticket_id, .@tickets[.@select];
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (countitem(.@ticket_id) == 0) {
+		//[BACKPORT-GAP:ET_QUESTION] emotion ET_QUESTION;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes getitemname(.@ticket_id)+" is not in your inventory. Did you put it in your storage?";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Please check again.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "See you later!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (getequiprefinerycnt(.@part) >= .@ticket_lv) {
+		//[BACKPORT-GAP:ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^8B4513This item is already refined as much as your deed.^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Please come along with an item refined less than your ticket.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I'm going to refine ^006400"+getequipname(.@part)+"^8B4513 up to the +"+.@ticket_lv+" level^000000 with ^006400"+getitemname(.@ticket_id)+"^000000.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "May I proceed?";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	if(select("No.:Yes.") == 1) {
+		//[BACKPORT-GAP:ET_THINK] emotion ET_THINK;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Oh, you changed your mind.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Ok.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You can come back later.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Great.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "As you wish!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I have my own special way to refine...";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes ".......ka boom!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	specialeffect EF_SUI_EXPLOSION;
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (countitem(.@ticket_id) < 1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Error!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Please report this.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	delitem .@ticket_id,1;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+	// anti-hack
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (callfunc("F_IsEquipIDHack", .@part, .@refineitemid) ||
+//[BACKPORT-UNRESOLVED:malformed-for] 		callfunc("F_IsEquipRefineHack", .@part, .@refinerycnt) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3])) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Refine Master]";
+		//[BACKPORT-GAP:ET_FRET] emotion ET_FRET;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Wait a second...";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Do you think I'm stupid?!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You switched the item while I wasn't looking! Get out of here!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	successrefitem .@part, .@ticket_lv - getequiprefinerycnt(.@part);
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+	//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Refine Master]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Alright, here it is~";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Well, ^0000FF"+strcharinfo(0)+"^000000!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Congratulations on your shining "+.@type$+".";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "You look GREAT!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Farewell~!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	close;
+//[BACKPORT-UNRESOLVED:malformed-for] }

@@ -1,0 +1,2701 @@
+# Renewal merchants gap-лог (адаптации/marketshop/item-filter/boundary)
+
+
+## 3rd_trader.txt
+- BOUNDARY [job3_guil01] job3_guil01,79,96,3	duplicate(phs)	Poison Herb Merchant	4_F_YUNYANG
+- BOUNDARY [job3_rune01] job3_rune01,90,62,3	duplicate(runesale)	Rune Merchant#job3	4W_M_01
+- MANUAL [unregistered-map:job3_guil01] job3_guil01,91,93,3	script	Rare Herb Collector	1_M_03,{
+- ADAPT [=->set] .@i = select("How can I buy them?:Exchange it for Animal Blood:Exchange it for a Bitter Herb:Exchange it for a Deadly Noxious Herb:Exchange it for a Frozen Rose:Exchange it for Ment:Exchange it for Hinalle")-2;
+- ADAPT [=->set] .@item = .@exchange[.@i];
+- ADAPT [=->set] .@price = 10000;
+- ADAPT [=->set] .@total = .@amount * .@price;
+- ADAPT [=->set] Zeny = Zeny - .@total;
+- BOUNDARY [izlude_a] izlude_a,138,163,5	duplicate(pss)	Point Merchant#Izlude_a	8_F_GIRL
+- BOUNDARY [izlude_b] izlude_b,138,163,5	duplicate(pss)	Point Merchant#Izlude_b	8_F_GIRL
+- BOUNDARY [izlude_c] izlude_c,138,163,5	duplicate(pss)	Point Merchant#Izlude_c	8_F_GIRL
+- BOUNDARY [izlude_d] izlude_d,138,163,5	duplicate(pss)	Point Merchant#Izlude_d	8_F_GIRL
+- BOUNDARY [job3_guil01] Rare Herb Collector
+
+## Dealer_Update.txt
+- COMMENT [unloadnpc] unloadnpc "Trap Specialist#lhz";
+- COMMENT [unloadnpc] unloadnpc "Trap Specialist#mid";
+- COMMENT [unloadnpc] unloadnpc "Trap Specialist#pay";
+- COMMENT [unloadnpc] unloadnpc "Trap Specialist#prt";
+- COMMENT [unloadnpc] unloadnpc "Trap Specialist#ra";
+- COMMENT [unloadnpc] unloadnpc "Black Marketeer#ein";
+- COMMENT [unloadnpc] unloadnpc "Black Marketeer#lhz";
+- COMMENT [unloadnpc] unloadnpc "Black Marketeer#mid";
+- COMMENT [unloadnpc] unloadnpc "Black Marketeer#prt";
+- COMMENT [unloadnpc] unloadnpc "Black Marketeer#ra";
+- COMMENT [unloadnpc] unloadnpc "Johnny Waiker";
+- COMMENT [unloadnpc] unloadnpc "Rebellion Accessories";
+- COMMENT [unloadnpc] unloadnpc "Rebellion Weapons";
+- COMMENT [unloadnpc] unloadnpc "Inventor Jaax";
+- COMMENT [unloadnpc] unloadnpc "Magazine Dealer Kenny#iz";
+- COMMENT [unloadnpc] unloadnpc "Magazine Dealer Kenny#al";
+- COMMENT [unloadnpc] unloadnpc "Prop Vending Machine";
+- ADAPT [movenpc-dropdir] movenpc "Trading Merchant#iz", 72,110,3;
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#alb";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#alb2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#alde";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#ama";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#ayo";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#bra";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#cmd";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#cmd2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#ein";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#gef";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#gef2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#gon";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#hu";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#hu2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#yuno";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#yuno1";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#yuno2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#lhz";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#lhz2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#lou";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#xmas";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#mosk";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#pay";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#pay2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#prt";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#prt1";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#ra";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#tu";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#um";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#ve";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#moc1";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#moc2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#moc3";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#moc4";
+- COMMENT [unloadnpc] unloadnpc "#over_arrow";
+- COMMENT [unloadnpc] unloadnpc "#over_bullet";
+- COMMENT [unloadnpc] unloadnpc "#over_kunai";
+- COMMENT [unloadnpc] unloadnpc "#over_madogear";
+- COMMENT [unloadnpc] unloadnpc "#over_talisman";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Alb";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Alb2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Alde";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Ama";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Ayo";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Bra";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Cmd";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Cmd2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Ein";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Gef";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Gef2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Gon";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Hu2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Yuno";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Yuno1";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Yuno2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Lhz";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Lhz2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Lou";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Xmas";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Mosk";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Pay";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Pay2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Prt";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Prt1";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Ra";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Tu";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Um";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Ve";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Moc1";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Moc2";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Moc3";
+- COMMENT [unloadnpc] unloadnpc "Tool Dealer#Extended_Moc4";
+- UNRESOLVED [unloadnpc] Barter_Init
+- DEDUP [Tool Dealer#Extended_Alb] Tool Dealer#Extended_Alb
+- DEDUP [Tool Dealer#Extended_Alb2] Tool Dealer#Extended_Alb2
+- DEDUP [Tool Dealer#Extended_Alde] Tool Dealer#Extended_Alde
+- DEDUP [Tool Dealer#Extended_Ama] Tool Dealer#Extended_Ama
+- DEDUP [Tool Dealer#Extended_Ayo] Tool Dealer#Extended_Ayo
+- DEDUP [Tool Dealer#Extended_Bra] Tool Dealer#Extended_Bra
+- DEDUP [Tool Dealer#Extended_Cmd] Tool Dealer#Extended_Cmd
+- DEDUP [Tool Dealer#Extended_Cmd2] Tool Dealer#Extended_Cmd2
+- DEDUP [Tool Dealer#Extended_Ein] Tool Dealer#Extended_Ein
+- DEDUP [Tool Dealer#Extended_Gef] Tool Dealer#Extended_Gef
+- DEDUP [Tool Dealer#Extended_Gef2] Tool Dealer#Extended_Gef2
+- DEDUP [Tool Dealer#Extended_Gon] Tool Dealer#Extended_Gon
+- DEDUP [Tool Dealer#Extended_Hu2] Tool Dealer#Extended_Hu2
+- DEDUP [Tool Dealer#Extended_Yuno] Tool Dealer#Extended_Yuno
+- DEDUP [Tool Dealer#Extended_Yuno1] Tool Dealer#Extended_Yuno1
+- DEDUP [Tool Dealer#Extended_Yuno2] Tool Dealer#Extended_Yuno2
+- DEDUP [Tool Dealer#Extended_Lhz] Tool Dealer#Extended_Lhz
+- DEDUP [Tool Dealer#Extended_Lhz2] Tool Dealer#Extended_Lhz2
+- DEDUP [Tool Dealer#Extended_Lou] Tool Dealer#Extended_Lou
+- DEDUP [Tool Dealer#Extended_Xmas] Tool Dealer#Extended_Xmas
+- DEDUP [Tool Dealer#Extended_Pay] Tool Dealer#Extended_Pay
+- DEDUP [Tool Dealer#Extended_Pay2] Tool Dealer#Extended_Pay2
+- DEDUP [Tool Dealer#Extended_Prt] Tool Dealer#Extended_Prt
+- DEDUP [Tool Dealer#Extended_Prt1] Tool Dealer#Extended_Prt1
+- DEDUP [Tool Dealer#Extended_Ra] Tool Dealer#Extended_Ra
+- DEDUP [Tool Dealer#Extended_Tu] Tool Dealer#Extended_Tu
+- DEDUP [Tool Dealer#Extended_Um] Tool Dealer#Extended_Um
+- DEDUP [Tool Dealer#Extended_Ve] Tool Dealer#Extended_Ve
+
+## Emperium_Seller.txt
+- MARKETSHOP [emp_seller#slo] -	marketshop	emp_seller#slo	FAKE_NPC,714:1000000:100
+- ADAPT [callshop+flag] callshop "emp_seller#slo";
+- COMMENT [mesitemlink] mes "we are selling a limited quantity of 100 " + mesitemlink( 714, false ) + " every day";
+- COMMENT [npcshopupdate] npcshopupdate "emp_seller#slo",714,0,100;
+- UNRESOLVED [mesitemlink,npcshopupdate] Guild Clerk
+
+## Extended_Ammunition.txt
+- MARKETSHOP [Arrow_Archer] -	marketshop	Arrow_Archer	HIDDEN_NPC,1750:-1:-1,1770:-1:-1,1751:-1:-1,1752:-1:-1,1754:-1:-1,1755:-1:-1,1756:-1:-1,1757:-1:-1,1767:-1:-1,1762:-1:-1,1065:-1:-1,7940:-1:-1
+- MARKETSHOP [Ammunition_Gunslinger] -	marketshop	Ammunition_Gunslinger	HIDDEN_NPC,13200:-1:-1,13221:-1:-1,13228:-1:-1,13229:-1:-1,13230:-1:-1,13231:-1:-1,13232:-1:-1,13222:-1:-1,13215:-1:-1,13216:-1:-1,13217:-1:-1,13218:-1:-1,13219:-1:-1,13220:-1:-1,7663:-1:-1,7665:15:-1,7664:-1:-1,25187:-1:-1,1000564:-1:-1
+- MARKETSHOP [Weapons_Ninja] -	marketshop	Weapons_Ninja	HIDDEN_NPC,1220001:-1:-1,1220002:-1:-1,1220003:30:-1,1220004:-1:-1,13258:-1:-1,13257:-1:-1,13255:-1:-1,13256:-1:-1,13259:-1:-1,13294:-1:-1,6512:-1:-1,6515:-1:-1,6513:-1:-1,6514:-1:-1,13250:-1:-1,13251:-1:-1,13252:-1:-1,13253:-1:-1,13254:-1:-1,7521:-1:-1,7522:-1:-1,7523:-1:-1,7524:-1:-1,1000565:-1:-1,1000566:-1:-1,1000567:-1:-1,1000568:-1:-1,1000569:-1:-1
+- MARKETSHOP [Ammunition_Mechanic] -	marketshop	Ammunition_Mechanic	HIDDEN_NPC,18000:-1:-1,18003:-1:-1,18001:-1:-1,18002:-1:-1,18004:-1:-1,18005:-1:-1,18006:-1:-1,18007:-1:-1,18008:-1:-1,6145:-1:-1,6146:-1:-1,12394:-1:-1,12393:-1:-1,12392:-1:-1,6147:-1:-1,23277:-1:-1,100158:-1:-1,2804:-1:-1,2809:-1:-1,2810:-1:-1
+- MARKETSHOP [Talisman_Merchant] -	marketshop	Talisman_Merchant	HIDDEN_NPC,1000563:30:-1,101117:15000:-1
+- COMMENT [getnpcid,setunitdata] setunitdata getnpcid(0),UNPC_GROUP_ID,7;
+- COMMENT [getnpcid,setunitdata] setunitdata getnpcid(0),UNPC_GROUP_ID,13;
+- COMMENT [getnpcid,setunitdata] setunitdata getnpcid(0),UNPC_GROUP_ID,14;
+- COMMENT [getnpcid,setunitdata] setunitdata getnpcid(0),UNPC_GROUP_ID,11;
+- COMMENT [getnpcid,setunitdata] setunitdata getnpcid(0),UNPC_GROUP_ID,12;
+- BOUNDARY [har_in01] har_in01,32,81,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_24	4_M_ARCHER
+- BOUNDARY [har_in01] har_in01,32,77,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_24	4_F_GUNSLINGER
+- BOUNDARY [har_in01] har_in01,32,79,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_24	4_M_NINJA_RED
+- BOUNDARY [har_in01] har_in01,32,83,2	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_24	4_TOWER_17
+- BOUNDARY [har_in01] har_in01,30,84,2	duplicate(#over_talisman)	Talisman Merchant#over_talisman_24	4_M_POORSCHOLAR
+- BOUNDARY [job_gun] job_gun,220,138,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_26	4_F_GUNSLINGER
+- UNRESOLVED [getnpcid,setunitdata] #over_arrow
+- UNRESOLVED [getnpcid,setunitdata] #over_bullet
+- UNRESOLVED [getnpcid,setunitdata] #over_kunai
+- UNRESOLVED [getnpcid,setunitdata] #over_madogear
+- UNRESOLVED [getnpcid,setunitdata] #over_talisman
+- DEDUP [Ammunition Merchant#over_bullet_25] Ammunition Merchant#over_bullet_25
+- ORPHAN [#over_arrow] prt_in,162,135,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_0	4_M_ARCHER
+- ORPHAN [#over_bullet] prt_in,162,137,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_0	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] prt_in,162,139,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_0	4_M_NINJA_RED
+- ORPHAN [#over_madogear] prt_in,162,141,5	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_0	4_TOWER_17
+- ORPHAN [#over_talisman] prt_in,162,133,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_0	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] izlude_in,73,103,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_1	4_M_ARCHER
+- ORPHAN [#over_bullet] izlude_in,73,105,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_1	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] izlude_in,73,101,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_1	4_M_NINJA_RED
+- ORPHAN [#over_madogear] izlude_in,73,99,3	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_1	4_TOWER_17
+- ORPHAN [#over_talisman] izlude_in,72,106,3	duplicate(#over_talisman)	Talisman Merchant#over_talisman_1	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] morocc_in,128,66,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_2	4_M_ARCHER
+- ORPHAN [#over_bullet] morocc_in,128,68,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_2	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] morocc_in,128,70,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_2	4_M_NINJA_RED
+- ORPHAN [#over_madogear] morocc_in,128,72,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_2	4_TOWER_17
+- ORPHAN [#over_talisman] morocc_in,128,64,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_2	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] geffen_in,22,167,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_3	4_M_ARCHER
+- ORPHAN [#over_bullet] geffen_in,22,169,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_3	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] geffen_in,22,165,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_3	4_M_NINJA_RED
+- ORPHAN [#over_madogear] geffen_in,22,163,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_3	4_TOWER_17
+- ORPHAN [#over_talisman] geffen_in,22,161,6	duplicate(#over_talisman)	Talisman Merchant#over_talisman_3	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] alberta_in,177,23,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_4	4_M_ARCHER
+- ORPHAN [#over_bullet] alberta_in,177,25,7	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_4	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] alberta_in,177,27,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_4	4_M_NINJA_RED
+- ORPHAN [#over_madogear] alberta_in,177,29,5	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_4	4_TOWER_17
+- ORPHAN [#over_talisman] alberta_in,177,21,5	duplicate(#over_talisman)	Talisman Merchant#over_talisman_4	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] payon_in01,8,132,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_5	4_M_ARCHER
+- ORPHAN [#over_bullet] payon_in01,10,132,7	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_5	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] payon_in01,12,132,6	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_5	4_M_NINJA_RED
+- ORPHAN [#over_madogear] payon_in01,14,132,5	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_5	4_TOWER_17
+- ORPHAN [#over_talisman] payon_in01,6,132,6	duplicate(#over_talisman)	Talisman Merchant#over_talisman_5	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] aldeba_in,37,47,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_6	4_M_ARCHER
+- ORPHAN [#over_bullet] aldeba_in,37,49,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_6	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] aldeba_in,37,45,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_6	4_M_NINJA_RED
+- ORPHAN [#over_madogear] aldeba_in,37,43,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_6	4_TOWER_17
+- ORPHAN [#over_talisman] aldeba_in,35,50,2	duplicate(#over_talisman)	Talisman Merchant#over_talisman_6	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] xmas_in,169,93,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_7	4_M_ARCHER
+- ORPHAN [#over_bullet] xmas_in,171,93,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_7	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] xmas_in,173,93,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_7	4_M_NINJA_RED
+- ORPHAN [#over_madogear] xmas_in,175,93,5	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_7	4_TOWER_17
+- ORPHAN [#over_talisman] xmas_in,167,93,5	duplicate(#over_talisman)	Talisman Merchant#over_talisman_7	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] cmd_in01,117,173,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_8	4_M_ARCHER
+- ORPHAN [#over_bullet] cmd_in01,119,173,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_8	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] cmd_in01,115,173,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_8	4_M_NINJA_RED
+- ORPHAN [#over_madogear] cmd_in01,113,173,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_8	4_TOWER_17
+- ORPHAN [#over_talisman] cmd_in01,112,174,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_8	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] um_in,158,127,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_9	4_M_ARCHER
+- ORPHAN [#over_bullet] um_in,156,127,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_9	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] um_in,154,127,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_9	4_M_NINJA_RED
+- ORPHAN [#over_madogear] um_in,152,127,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_9	4_TOWER_17
+- ORPHAN [#over_talisman] um_in,150,127,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_9	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] yuno_in01,99,26,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_10	4_M_ARCHER
+- ORPHAN [#over_bullet] yuno_in01,99,24,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_10	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] yuno_in01,99,22,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_10	4_M_NINJA_RED
+- ORPHAN [#over_madogear] yuno_in01,99,20,2	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_10	4_TOWER_17
+- ORPHAN [#over_talisman] yuno_in01,99,18,2	duplicate(#over_talisman)	Talisman Merchant#over_talisman_10	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] hu_in01,99,383,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_11	4_M_ARCHER
+- ORPHAN [#over_bullet] hu_in01,95,383,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_11	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] hu_in01,93,383,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_11	4_M_NINJA_RED
+- ORPHAN [#over_madogear] hu_in01,101,383,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_11	4_TOWER_17
+- ORPHAN [#over_talisman] hu_in01,91,383,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_11	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] lhz_in02,268,92,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_12	4_M_ARCHER
+- ORPHAN [#over_bullet] lhz_in02,266,92,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_12	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] lhz_in02,264,92,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_12	4_M_NINJA_RED
+- ORPHAN [#over_madogear] lhz_in02,262,92,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_12	4_TOWER_17
+- ORPHAN [#over_talisman] lhz_in02,270,92,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_12	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] ein_in01,95,22,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_13	4_M_ARCHER
+- ORPHAN [#over_bullet] ein_in01,95,24,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_13	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] ein_in01,95,20,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_13	4_M_NINJA_RED
+- ORPHAN [#over_madogear] ein_in01,95,18,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_13	4_TOWER_17
+- ORPHAN [#over_talisman] ein_in01,95,26,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_13	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] ra_in01,169,363,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_14	4_M_ARCHER
+- ORPHAN [#over_bullet] ra_in01,169,365,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_14	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] ra_in01,169,367,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_14	4_M_NINJA_RED
+- ORPHAN [#over_madogear] ra_in01,169,361,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_14	4_TOWER_17
+- ORPHAN [#over_talisman] ra_in01,169,359,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_14	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] ve_in,349,243,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_15	4_M_ARCHER
+- ORPHAN [#over_bullet] ve_in,351,243,5	duplicate(#over_bullet)	Arrow Merchant#over_bullet_15	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] ve_in,353,243,5	duplicate(#over_kunai)	Arrow Merchant#over_kunai_15	4_M_NINJA_RED
+- ORPHAN [#over_madogear] ve_in,355,243,4	duplicate(#over_madogear)	Arrow Merchant#over_madogear_15	4_TOWER_17
+- ORPHAN [#over_talisman] ve_in,347,243,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_15	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] ama_in01,100,17,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_16	4_M_ARCHER
+- ORPHAN [#over_bullet] ama_in01,100,19,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_16	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] ama_in01,100,21,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_16	4_M_NINJA_RED
+- ORPHAN [#over_madogear] ama_in01,100,23,2	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_16	4_TOWER_17
+- ORPHAN [#over_talisman] ama_in01,100,25,2	duplicate(#over_talisman)	Talisman Merchant#over_talisman_16	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] gonryun,175,95,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_17	4_M_ARCHER
+- ORPHAN [#over_bullet] gonryun,175,97,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_17	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] gonryun,175,99,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_17	4_M_NINJA_RED
+- ORPHAN [#over_madogear] gonryun,175,93,3	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_17	4_TOWER_17
+- ORPHAN [#over_talisman] gonryun,175,91,3	duplicate(#over_talisman)	Talisman Merchant#over_talisman_17	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] lou_in02,134,176,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_18	4_M_ARCHER
+- ORPHAN [#over_bullet] lou_in02,134,178,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_18	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] lou_in02,134,180,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_18	4_M_NINJA_RED
+- ORPHAN [#over_madogear] lou_in02,134,174,2	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_18	4_TOWER_17
+- ORPHAN [#over_talisman] lou_in02,134,172,2	duplicate(#over_talisman)	Talisman Merchant#over_talisman_18	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] ayo_in01,77,161,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_19	4_M_ARCHER
+- ORPHAN [#over_bullet] ayo_in01,77,163,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_19	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] ayo_in01,77,165,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_19	4_M_NINJA_RED
+- ORPHAN [#over_madogear] ayo_in01,77,159,5	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_19	4_TOWER_17
+- ORPHAN [#over_talisman] ayo_in01,77,157,3	duplicate(#over_talisman)	Talisman Merchant#over_talisman_19	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] brasilis,252,247,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_20	4_M_ARCHER
+- ORPHAN [#over_bullet] brasilis,252,249,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_20	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] brasilis,252,251,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_20	4_M_NINJA_RED
+- ORPHAN [#over_madogear] brasilis,252,253,3	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_20	4_TOWER_17
+- ORPHAN [#over_talisman] brasilis,252,245,3	duplicate(#over_talisman)	Talisman Merchant#over_talisman_20	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] ma_in01,69,21,5	duplicate(#over_arrow)	Arrow Merchant#over_arrow_21	4_M_ARCHER
+- ORPHAN [#over_bullet] ma_in01,67,21,5	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_21	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] ma_in01,65,21,5	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_21	4_M_NINJA_RED
+- ORPHAN [#over_madogear] ma_in01,71,21,4	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_21	4_TOWER_17
+- ORPHAN [#over_talisman] ma_in01,63,19,4	duplicate(#over_talisman)	Talisman Merchant#over_talisman_21	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] dewata,223,167,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_22	4_M_ARCHER
+- ORPHAN [#over_bullet] dewata,223,169,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_22	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] dewata,223,171,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_22	4_M_NINJA_RED
+- ORPHAN [#over_madogear] dewata,223,173,2	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_22	4_TOWER_17
+- ORPHAN [#over_talisman] dewata,223,165,2	duplicate(#over_talisman)	Talisman Merchant#over_talisman_22	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] mosk_in,24,173,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_23	4_M_ARCHER
+- ORPHAN [#over_bullet] mosk_in,26,174,3	duplicate(#over_bullet)	Ammunition Merchant#over_bullet_23	4_F_GUNSLINGER
+- ORPHAN [#over_kunai] mosk_in,22,172,3	duplicate(#over_kunai)	Ninja Tool Merchant#over_kunai_23	4_M_NINJA_RED
+- ORPHAN [#over_madogear] mosk_in,20,172,2	duplicate(#over_madogear)	Mado Gear Merchant#over_madogear_23	4_TOWER_17
+- ORPHAN [#over_talisman] mosk_in,18,174,2	duplicate(#over_talisman)	Talisman Merchant#over_talisman_23	4_M_POORSCHOLAR
+- ORPHAN [#over_arrow] in_hunter,104,108,3	duplicate(#over_arrow)	Arrow Merchant#over_arrow_25	4_M_ARCHER
+
+## Extended_Stylist.txt
+- COMMENT [openstylist] openstylist();
+- COMMENT [openstylist] openstylist();
+- COMMENT [openstylist] openstylist();
+- MANUAL [unregistered-map:lasagna] lasagna,134,113,3	script	Stylist#lasagna	4_DR_F_02,{
+- COMMENT [openstylist] openstylist();
+- COMMENT [openstylist] openstylist();
+- COMMENT [openstylist] openstylist();
+- DEDUP [Stylist#alberta] Stylist#alberta
+- DEDUP [Stylist#prontera] Stylist#prontera
+- UNRESOLVED [openstylist] Stylist#lhz
+- BOUNDARY [lasagna] Stylist#lasagna
+- UNRESOLVED [openstylist] Stylist#rachel
+- UNRESOLVED [openstylist] Stylist#yuno
+
+## Gemstone_Bagger.txt
+- ADAPT [callshop+flag] callshop "Gemstone_Bagger";
+
+## HorrorToyFactory_merchants.txt
+- ADAPT [=->set] .@s = ( select( "Cancel", "Closed Mind Box (100 Coins)", "Lush Rose (500 Coins)", "C Lush Rose (1000 Coins)", "C Santa Hairband (500 Coins)", "C Red Bonnet (500 Coins)", "Old Parasol (1000 Coins)", "Hot Tea (7 Coins)", "Sweet Canape (5 Coins)", "Holy Water (1 Coin)", "Water Of Darkness (1 Coin)" ) -2 ) * 2;
+- ADAPT [=->set] .@s = select( "Nothing that I want.", "I want Celine's Ribbon.", "I'm seeking Noble Cross.", "I'd like to get Evilspirit Gloves." );
+- ADAPT [=->set] .@string$[0] = "Ho~ You are looking for a very unique headgear, my friend. You have great discernment.";
+- ADAPT [=->set] .@string$[1] = "I need ^0000ff1000 ^000000Bloody Coins and ^0000ff+9 or greater Lush Rose^000000 for ^0000ffCeline's Ribbon^000000. Do you have enough materials?";
+- ADAPT [=->set] .@string$[2] = "You should prepare ^0000ff1000 ^000000Bloody Coins and one ^0000ff +9 or greater Lush Rose^000000 for ^0000ffCeline's Ribbon^000000. Don't forget!";
+- ADAPT [=->set] .@string$[3] = "Are you really going to trade them? ^ff0000The refine levels, effects, and card of the item will disappear and you cannot get a refund^000000. Please consider it!";
+- ADAPT [=->set] .@string$[0] = "Ho~ You are looking for a very precious weapon, my friend. You have great discernment.";
+- ADAPT [=->set] .@string$[1] = "I need ^0000ff2000 ^000000Bloody Coins and one ^0000ffGrand Cross (slot)^000000 for ^0000ffNoble Cross^000000. Do you have enough materials?";
+- ADAPT [=->set] .@string$[2] = "You should prepare ^0000ff 2000 ^000000Bloody Coins and one ^0000ff Grand Cross (slot)^000000 for ^0000ffNoble Cross^000000. Don't forget!";
+- ADAPT [=->set] .@string$[3] = "Are you really going to trade them? ^ff0000The refine levels, effects, and card of the item will disappear and you cannot get a refund^000000. Please consider it!";
+- ADAPT [=->set] .@string$[0] = "Ho~ You are looking for a very rare accessory, my friend. You have great discernment.";
+- ADAPT [=->set] .@string$[1] = "I need ^0000ff1000 ^000000Bloody Coins, one ^0000ffHurt Mind, Kind Heart, and Red Lantern ^000000each for ^0000ffEvilspirit Gloves^000000. Do you have enough materials?";
+- ADAPT [=->set] .@string$[2] = "You should prepare ^0000ff1000 ^000000Bloody Coins, one ^0000ffHurt Mind, Kind Heart, and Red Lantern ^000000each for ^0000ffEvilspirit Gloves^000000. Don't forget!";
+- ADAPT [=->set] .@string$[3] = "Are you really going to trade them? ^ff0000The effects, and card of the item will disappear and you cannot get a refund^000000. Besides, if you have the same sort of things, I don't know which one will be chosen. Think about that.";
+- COMMENT [delequip] delequip EQI_HEAD_TOP;
+- COMMENT [delequip] delequip EQI_HAND_R;
+- ADAPT [=->set] .@eq_num = EQI_ACC_R;
+- ADAPT [=->set] .@eq_num = EQI_HAND_R;
+- ADAPT [=->set] .@eq_num = EQI_HEAD_TOP;
+- ADAPT [=->set] .@eq_num = EQI_SHOES;
+- ADAPT [=->set] .@item_id = getequipid(.@eq_num);
+- ADAPT [=->set] .@refine = getequiprefinerycnt(.@eq_num);
+- ADAPT [=->set] .@sc_type = 1;// acc
+- ADAPT [=->set] .@sc_type = 2;// armor
+- ADAPT [=->set] .@sc_type = 3;// weapon
+- ADAPT [=->set] .@enchant_type = select( "Quit", "A random stat one among STR/AGI/DEX", "A random stat among INT/VIT/DEX" ) - 1;// enchant_type [1-2]
+- ADAPT [=->set] .@slot_num = 3;
+- ADAPT [=->set] .@string$ = "You blow hot and cold, this fickle friend.!";
+- ADAPT [=->set] .@slot_num = 2;
+- ADAPT [=->set] .@string$ = "You blow hot and cold, this fickle friend.!";
+- ADAPT [=->set] .@slot_num = 1;
+- ADAPT [=->set] .@string$ = "Wise! The third enchantment is too greedy.";// custom translation
+- ADAPT [=->set] .@enchant_type = 3;
+- ADAPT [=->set] .@slot_num = 3;
+- ADAPT [=->set] .@string$ = "You blow hot and cold, this fickle friend.!";
+- ADAPT [=->set] .@slot_num = 3;
+- ADAPT [=->set] .@enchant_type = 4;
+- ADAPT [=->set] .@slot_num = 2;
+- ADAPT [=->set] .@enchant_type = 5;
+- ADAPT [=->set] .@string$ = "You blow hot and cold, this fickle friend.!";
+- ADAPT [=->set] .@enchant = 9;
+- ADAPT [=->set] .@r = rand(.@range[0],.@range[1]);
+- ADAPT [if-=->set] if (.@r < 601)  .@enchant = 0;
+- ADAPT [=->set] .@r = rand(.@range[0],.@range[1]);
+- ADAPT [if-=->set] if (.@r < 601)  .@enchant = 0;
+- ADAPT [=->set] .@r = rand(1,2555);
+- ADAPT [if-=->set] if (.@r < 301)  .@enchant = 4820;	// Fighting_Spirit5
+- ADAPT [=->set] .@r = rand(1,1950);
+- ADAPT [if-=->set] if (.@r < 301)  .@enchant = 4810;	// Fighting_Spirit2
+- ADAPT [=->set] .@r = rand(1,1970);
+- ADAPT [if-=->set] if (.@r < 301)  .@enchant = 4700;	// Strength1
+- ADAPT [=->set] .@index_slot = 3;
+- ADAPT [=->set] .@index_slot = 2;
+- ADAPT [=->set] .@index_slot = 1;
+- COMMENT [delequip] delequip .@eq_num;
+- ADAPT [=->set] .@card[ .@index_slot ] = .@enchant;
+- UNRESOLVED [delequip] Vagrant Cain#1
+- UNRESOLVED [delequip] Black Beard Joe#pa0829
+
+## InfiniteSpace_merchants.txt
+- ADAPT [op=->set] Zeny -= 20000;
+- ADAPT [=->set] .@stone_id = 6905;
+- ADAPT [=->set] .@price = 50;
+- ADAPT [=->set] .@price = 50;
+- ADAPT [=->set] .@menu$ = "Cancel:";
+- ADAPT [for/incr->set] for (.@i = 0; .@i < getarraysize(.@equip_id); .@i++)
+- ADAPT [op=->set] .@menu$ += getitemname(.@equip_id[.@i]) + ":";
+- ADAPT [=->set] .@s = select(.@menu$) - 1;
+- ADAPT [for/incr->set] .@s--;
+- ADAPT [=->set] .@stone_id = 6905;
+- ADAPT [=->set] .@stone_id = 6905;
+- ADAPT [=->set] .@fee = 20;
+- ADAPT [=->set] .@part = EQI_HAND_R;
+- ADAPT [=->set] .@part = EQI_ARMOR;
+- ADAPT [=->set] .@part = EQI_SHOES;
+- ADAPT [=->set] .@part = EQI_GARMENT;
+- ADAPT [=->set] .@part = EQI_HEAD_TOP;
+- ADAPT [=->set] .@equip_id = getequipid(.@part);
+- ADAPT [=->set] .@refine = getequiprefinerycnt(.@part);
+- ADAPT [for/incr->set] for (.@i = 0;.@i < 4;.@i++) {
+- ADAPT [=->set] .@card[.@i] = getequipcardid(.@part,.@i);
+- ADAPT [=->set] .@check[.@i] = getequipcardid(.@part,.@i);
+- ADAPT [=->set] .@slot = (.@card[3] > 0 ? 2 : 3);
+- ADAPT [=->set] .@index = (.@slot == 3 ? 0 : 1);
+- ADAPT [=->set] .@type = select("Quit:Physical:Magical:Range") - 2;
+- COMMENT [explode] explode(.@T$,.@enchant$[.@index],":");
+- COMMENT [explode] explode(.@TT$,.@T$[.@type],",");
+- ADAPT [=->set] .@enchant = atoi(.@TT$[rand(getarraysize(.@TT$))]);
+- ADAPT [=->set] .@card[.@slot] = .@enchant;
+- COMMENT [delequip] delequip .@part;
+- ADAPT [=->set] .@stone_id = 6905;
+- ADAPT [=->set] .@fee = 30;
+- ADAPT [=->set] .@break_chance = 30;
+- ADAPT [=->set] .@part = EQI_HAND_R;
+- ADAPT [=->set] .@part = EQI_ARMOR;
+- ADAPT [=->set] .@part = EQI_SHOES;
+- ADAPT [=->set] .@part = EQI_GARMENT;
+- ADAPT [=->set] .@part = EQI_HEAD_TOP;
+- ADAPT [=->set] .@equip_id = getequipid(.@part);
+- ADAPT [=->set] .@refine = getequiprefinerycnt(.@part);
+- ADAPT [for/incr->set] for (.@i = 0; .@i < 4; .@i++) {
+- ADAPT [=->set] .@card[.@i] = getequipcardid(.@part,.@i);
+- ADAPT [=->set] .@check[.@i] = .@card[.@i];
+- COMMENT [delequip] delequip .@part;
+- ADAPT [inarray->-1] if (inarray(.@equip_id,getarg(0)) == -1) {
+- UNRESOLVED [malformed-for] Artifact Appraiser#pa0829_01
+- UNRESOLVED [delequip,explode] Artifact Enhancer#pa0829_01
+
+## OldGlastHeim_merchants.txt
+- ADAPT [=->set] .@s = select( "Cancel", "Str Boots", "Int Boots", "Agi Boots", "Vit Boots", "Dex Boots", "Luk Boots" ) - 2;
+- COMMENT [delequip] delequip EQI_SHOES;
+- ADAPT [=->set] .@equip_id = getequipid(EQI_SHOES);
+- ADAPT [=->set] .@equip_name$ = getequipname(EQI_SHOES);
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(EQI_SHOES);
+- ADAPT [=->set] .@cost = .@enchant_cost[0];
+- ADAPT [=->set] .@s = select( "Quit", "Fighting Spirit", "Archery", "Spell", "Vitality", "Attack Speed", "Lucky" ) - 2;
+- ADAPT [=->set] .@card[3] = .@enchant_1[.@s];
+- ADAPT [=->set] .@string$ = "enchant number ^6300001^000000.";
+- ADAPT [for/incr->set] for ( .@enchant_num = 1; .@enchant_num < 5; .@enchant_num++ ) {
+- ADAPT [for/incr->set] for ( .@enchant_type = 0; .@enchant_type < 6 && .@card[3] != getd( ".@enchant_" + .@enchant_num + "[" + .@enchant_type + "]" ); .@enchant_type++ )
+- ADAPT [=->set] .@cost = .@enchant_cost[.@enchant_num];
+- ADAPT [=->set] .@card[2] = callfunc("F_Rand",4875,4876,4877,4878,4879,4880);// Bear's_Power, Runaway_Magic, Speed_Of_Light, Muscle_Fool, Hawkeye, Lucky_Day
+- ADAPT [=->set] .@string$ = "^990000Bonus effect ^000000 upgrade.";
+- ADAPT [=->set] .@number = .@enchant_num + 1;
+- ADAPT [=->set] .@card[3] = getd( ".@enchant_" + (.@enchant_num+1) + "[" + .@enchant_type + "]" );
+- ADAPT [=->set] .@string$ = "enchant number ^630000" + .@number + "^000000.";
+- COMMENT [delequip] delequip EQI_SHOES;
+- ADAPT [=->set] .@equip_id = getequipid(EQI_SHOES);
+- ADAPT [=->set] .@equip_id = getequipid(EQI_SHOES);
+- COMMENT [delequip] delequip EQI_SHOES;
+- ADAPT [=->set] .@coagulated_id = 6608;// Coagulated_Spell
+- ADAPT [=->set] .@polluted_id = 6755;// Polluted_Spell
+- ADAPT [=->set] .@cost_zeny = 100000;
+- ADAPT [=->set] .@equip_id = getequipid(EQI_SHOES);
+- ADAPT [=->set] .@equip_name$ = getequipname(EQI_SHOES);
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(EQI_SHOES);
+- ADAPT [=->set] .@amount_coag = .@en_amount_coag[0];
+- ADAPT [=->set] .@amount_poll = .@en_amount_polluted[0];
+- ADAPT [=->set] .@s = select( "Quit", "Fighting Spirit", "Archery", "Spell", "Vitality", "Attack Speed", "Lucky" ) - 2;
+- ADAPT [=->set] .@card[3] = .@enchant_1[.@s];
+- ADAPT [=->set] .@string$ = "enchant number ^6300001^000000.";
+- ADAPT [=->set] .@num = 0;
+- ADAPT [for/incr->set] for ( .@num = 1; .@num < 5; .@num++ ) {
+- ADAPT [for/incr->set] for ( .@type = 0; .@type < 6 && .@card[3] != getd( ".@enchant_" + .@num + "[" + .@type + "]" ); .@type++ )
+- ADAPT [=->set] .@amount_coag = .@en_amount_coag[.@num];
+- ADAPT [=->set] .@amount_poll = .@en_amount_polluted[.@num];
+- ADAPT [=->set] .@card[2] = callfunc("F_Rand",4875,4876,4877,4878,4879,4880);// Bear's_Power, Runaway_Magic, Speed_Of_Light, Muscle_Fool, Hawkeye, Lucky_Day
+- ADAPT [=->set] .@string$ = "^990000 Bonus effect ^000000 upgrade.";
+- ADAPT [=->set] .@level = .@num + 1;
+- ADAPT [=->set] .@card[3] = getd( ".@enchant_" + (.@num+1) + "[" + .@type + "]" );
+- ADAPT [=->set] .@string$ = "enchant number ^990000" + .@level + "^000000.";
+- ADAPT [op=->set] Zeny -= .@cost_zeny;
+- COMMENT [delequip] delequip EQI_SHOES;
+- ADAPT [=->set] .@coagulated_id = 6608;		// Coagulated_Spell
+- ADAPT [=->set] .@polluted_id = 6755;		// Polluted_Spell
+- ADAPT [=->set] .@white_card = 4608;		// White_Knightage_Card
+- ADAPT [=->set] .@khalitzburg_card = 4609;	// Khaliz_Knightage_Card
+- ADAPT [=->set] .@reward_id = .@white_card;
+- ADAPT [=->set] .@amount_coag = 3000;
+- ADAPT [=->set] .@amount_polluted = 70;
+- ADAPT [=->set] .@reward_id = .@khalitzburg_card;
+- ADAPT [=->set] .@amount_coag = 5000;
+- ADAPT [=->set] .@amount_polluted = 100;
+- ADAPT [=->set] .@color$[0] = "^666666";
+- ADAPT [=->set] .@color$[1] = "^666666";
+- MANUAL [sprintf] switch( select( "Cancel", sprintf("%s%s %s^000000", .@color$[0], callfunc("F_InsertComma",.@amount_coag), getitemname(.@coagulated_id)), sprintf("%s%s %s^000000", .@color$[1], callfunc("F_InsertComma",.@amount_polluted), getitemname(.@polluted_id)) ) ) {
+- ADAPT [=->set] .@id = .@coagulated_id;
+- ADAPT [=->set] .@amount = .@amount_coag;
+- ADAPT [=->set] .@id = .@polluted_id;
+- ADAPT [=->set] .@amount = .@amount_polluted;
+- UNRESOLVED [delequip] Hugin's Butler#pa0829
+- UNRESOLVED [delequip] Hugin's Magician#pa0829
+- UNRESOLVED [delequip] Hugin's Craftsman#pa0829
+- UNRESOLVED [delequip] Dark magic master#pa082
+- UNRESOLVED [sprintf] Portrait collector#0002
+
+## Slot_Move_Card_Sales.txt
+- MARKETSHOP [change_slot#slo] -	marketshop	change_slot#slo	FAKE_NPC,12786:100000:9999
+- COMMENT [mesitemlink] mes "I'm selling " + mesitemlink( 12786 ) + ".";
+- ADAPT [callshop+flag] callshop "change_slot#slo";
+- COMMENT [npcshopupdate] npcshopupdate "change_slot#slo",12786,0,9999;
+- UNRESOLVED [mesitemlink,npcshopupdate] Slot Move Card Sales#slo
+
+## advanced_refiner.txt
+- ADAPT [=->set] .@refineitemid = getequipid(.@part); // save id of the item
+- ADAPT [=->set] .@itemtype = getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+- ADAPT [=->set] .@refinerycnt = getequiprefinerycnt(.@part); //save refinery count
+- ADAPT [=->set] .@material = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+- COMMENT [getequiprefinecost] .@material = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+- ADAPT [=->set] .@equip_lv = getequiparmorlv( .@part );
+- ADAPT [getequiparmorlv->1] .@equip_lv = getequiparmorlv( .@part );
+- ADAPT [=->set] .@type$ = "armor";
+- ADAPT [=->set] .@price = 15000;
+- ADAPT [=->set] .@equip_lv = getequipweaponlv( .@part );
+- ADAPT [=->set] .@type$ = "weapon";
+- ADAPT [=->set] .@price = 500;
+- ADAPT [=->set] .@price = 2000;
+- ADAPT [=->set] .@price = 20000;
+- ADAPT [=->set] .@price = 50000;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_CHUP] emotion ET_CHUP;
+- COMMENT [ET_CRY] case 1: emotion ET_CRY; break;
+- COMMENT [ET_PROFUSELY_SWEAT] case 2: emotion ET_PROFUSELY_SWEAT; break;
+- COMMENT [ET_KEK] case 3: emotion ET_KEK; break;
+- COMMENT [ET_SCRATCH] case 4: emotion ET_SCRATCH; break;
+- COMMENT [ET_BIGTHROB] case 5: emotion ET_BIGTHROB; break;
+- UNRESOLVED [getequiprefinecost] Holink#mal_cash
+
+## ammo_boxes.txt
+- ADAPT [=->set] .@bullet_id = getarg(0);
+- ADAPT [=->set] .@pack_id = getarg(1);
+- ADAPT [=->set] .@bullet_str$ = getitemname(.@bullet_id);
+- ADAPT [=->set] .@pack_str$ = getitemname(.@pack_id);
+- ADAPT [=->set] .@bullet_count = countitem(.@bullet_id);
+- ADAPT [=->set] .@pack_count = .@bullet_count / 500;
+- ADAPT [op=->set] Zeny -= .@pack_count * 500;
+- ADAPT [op=->set] Zeny -= 500;
+- ADAPT [=->set] .@old_id = getarg(0);
+- ADAPT [=->set] .@new_id = getarg(1);
+- ADAPT [=->set] .@old_str$ = getitemname(.@old_id);
+- ADAPT [=->set] .@new_str$ = getitemname(.@new_id);
+- ADAPT [=->set] .@old_count = countitem(.@old_id);
+- ADAPT [=->set] .@new_count = .@old_count / 10;
+- ADAPT [=->set] .@old_id = getarg(0);
+- ADAPT [=->set] .@new_id = getarg(1);
+- ADAPT [=->set] .@old_str$ = getitemname(.@old_id);
+- ADAPT [=->set] .@new_str$ = getitemname(.@new_id);
+- ADAPT [=->set] .@old_count = countitem(.@old_id);
+- ADAPT [=->set] .@slug_id = getarg(0);
+- ADAPT [=->set] .@req_count = getarg(1);
+- ADAPT [=->set] .@slug_str$ = getitemname(.@slug_id);
+- ADAPT [=->set] .@new_slug_str$ = getitemname(25187);
+- ADAPT [=->set] .@count = countitem(.@slug_id);
+- ADAPT [=->set] .@new_count = .@count / .@req_count;
+- DEDUP [Magazine Dealer Kenny] Magazine Dealer Kenny
+- ORPHAN [mdk] alberta,118,157,3	duplicate(mdk)	Magazine Dealer Kenny#al	4_M_01
+- ORPHAN [mdk] izlude_in,74,104,5	duplicate(mdk)	Magazine Dealer Kenny#iz	4_M_01
+
+## bio4_reward.txt
+- ADAPT [for/incr->set] for(.@i = 1; .@i < 8; .@i++) {
+- ADAPT [=->set] .@armor$[.@i] = "^0000FF";
+- ADAPT [=->set] .@armor$[.@i] = "^FF0000";
+- ADAPT [=->set] .@break = 1;
+- ADAPT [=->set] .@break = 0;
+- ADAPT [for/incr->set] for(.@i = 1; .@i < 15; .@i++) {
+- ADAPT [=->set] .@weapon$[.@i] = "^0000FF";
+- ADAPT [=->set] .@weapon$[.@i] = "^FF0000";
+- ADAPT [=->set] .@break = 1;
+- ADAPT [=->set] .@break = 0;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- ADAPT [for/incr->set] for(.@i = 0; .@i < 7; .@i++) {
+- ADAPT [=->set] .@equipped$[.@i] = "^999999Armor-[Not equipped]^000000";
+- ADAPT [=->set] .@equipped$[.@i] = "^999999Left Hand-[Not equipped]^000000";
+- ADAPT [=->set] .@equipped$[.@i] = "^999999Right Hand-[Not equipped]^000000";
+- ADAPT [=->set] .@equipped$[.@i] = "^999999Garment-[Not equipped]^000000";
+- ADAPT [=->set] .@equipped$[.@i] = "^999999Accessory-[Not equipped]^000000";
+- ADAPT [=->set] .@equipped$[.@i] = "^999999Accessory-[Not equipped]^000000";
+- ADAPT [=->set] .@equipped$[.@i] = "^999999Helm-[Not equipped]^000000";
+- ADAPT [=->set] .@equipped$[.@i] = getequipname(.@parts[.@i]);
+- ADAPT [=->set] .@part = EQI_ARMOR;
+- ADAPT [=->set] .@part = EQI_HAND_L;
+- ADAPT [=->set] .@part = EQI_HAND_R;
+- ADAPT [=->set] .@part = EQI_GARMENT;
+- ADAPT [=->set] .@part = EQI_ACC_L;
+- ADAPT [=->set] .@part = EQI_ACC_R;
+- ADAPT [=->set] .@part = EQI_HEAD_TOP;
+- ADAPT [=->set] .@refine_count = getequiprefinerycnt(.@part);
+- ADAPT [=->set] .@equip_item = getequipid(.@part);
+- ADAPT [=->set] .@lhz_max_num = 4000;
+- ADAPT [=->set] .@type = 1;
+- ADAPT [=->set] .@lhz_max_num = 4200;
+- ADAPT [=->set] .@type = 2;
+- ADAPT [=->set] .@type = 3;
+- ADAPT [=->set] .@type = 4;
+- ADAPT [=->set] .@lhz_max_num = 4200;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- ADAPT [=->set] .@menu_in$[1] = "Dwell the power of '^F2766EWill of Warrior^000000'";
+- ADAPT [=->set] .@menu_in$[1] = "Not enough ^999999'Will of Warrior'^000000";
+- ADAPT [=->set] .@menu_in$[2] = "Dwell the power of '^952420Thirst for Blood^000000'";
+- ADAPT [=->set] .@menu_in$[2] = "Not enough ^999999'Thirst for Blood'^000000";
+- ADAPT [=->set] .@menu_in$[3] = "Consume the '^88C6F7Chill of the Dead^000000'";
+- ADAPT [=->set] .@menu_in$[3] = "Not enough ^999999'Chill of the Dead'^000000";
+- ADAPT [=->set] .@socket_type = 4;
+- ADAPT [=->set] .@socket_type = 3;
+- ADAPT [=->set] .@menu_clear$[1] = "^999999Not enough 'Chill of the Dead'^000000";
+- ADAPT [=->set] .@menu_clear$[2] = "^999999Not enough 'Chill of the Dead'^000000";
+- ADAPT [=->set] .@4thzptsodyd = 1;
+- ADAPT [=->set] .@3thzptsodyd = 1;
+- ADAPT [=->set] .@menu_clear$[1] = "Remove the power of '^F2766EWill of Warrior^000000'";
+- ADAPT [=->set] .@menu_clear$[1] = "^999999There's no power to remove^000000";
+- ADAPT [=->set] .@4thzptsodyd = 1;
+- ADAPT [=->set] .@menu_clear$[2] = "Remove the power of '^952420Thirst for Blood^000000'";
+- ADAPT [=->set] .@menu_clear$[2] = "^999999There's no power to remove^000000";
+- ADAPT [=->set] .@3thzptsodyd = 1;
+- ADAPT [=->set] .@menu = select("No, I don't wanna remove any.", .@menu_clear$[1], .@menu_clear$[2]);
+- ADAPT [=->set] .@equip_card[3] = 0;
+- ADAPT [=->set] .@equip_card[2] = 0;
+- COMMENT [delequip] delequip .@part;
+- ADAPT [=->set] .@r = rand(1, .@lhz_max_num);
+- ADAPT [if-=->set] if      (.@r < 401)  .@enchant = 4700; //Strength1
+- ADAPT [=->set] .@r = rand(1, .@lhz_max_num);
+- ADAPT [if-=->set] if      (.@r < 191)  .@enchant = 4700; //Strength1
+- ADAPT [=->set] .@r = rand(1, .@lhz_max_num);
+- ADAPT [if-=->set] if      (.@r < 301)  .@enchant = 4700; //Strength1
+- ADAPT [=->set] .@r = rand(1, .@lhz_max_num);
+- ADAPT [if-=->set] if      (.@r < 301)  .@enchant = 4700; //Strength1
+- ADAPT [=->set] .@equip_card[(.@socket_type-1)] = .@enchant;
+- COMMENT [delequip] delequip .@part;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- UNRESOLVED [malformed-for] Weird old man#Bio4Reward
+- UNRESOLVED [delequip] Sorcerer#Bio4Reward
+
+## blessed_refiner.txt
+- ADAPT [=->set] .@equip_id = getequipid(.@part);
+- ADAPT [=->set] .@itemtype = getiteminfo( .@equip_id, ITEMINFO_TYPE );
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(.@part);
+- ADAPT [=->set] .@equip_lv = getequiparmorlv( .@part );
+- ADAPT [getequiparmorlv->1] .@equip_lv = getequiparmorlv( .@part );
+- ADAPT [=->set] .@type$ = "Armor";
+- ADAPT [=->set] .@equip_lv = getequipweaponlv( .@part );
+- ADAPT [=->set] .@type$ = "Weapon";
+- COMMENT [ET_ANGER,ET_HUK] emotion (!rand(5))?ET_ANGER:ET_HUK;
+- UNRESOLVED [malformed-for] BlacksmithDister
+- ORPHAN [BlacksmithDister] prt_in,52,56,3	duplicate(BlacksmithDister)	Blacksmith Dister#prt	826
+- ORPHAN [BlacksmithDister] payon,148,172,3	duplicate(BlacksmithDister)	Blacksmith Dister#pay	826
+- ORPHAN [BlacksmithDister] alberta_in,20,56,3	duplicate(BlacksmithDister)	Blacksmith Dister#alb	826
+- ORPHAN [BlacksmithDister] yuno_in01,175,18,3	duplicate(BlacksmithDister)	Blacksmith Dister#yuno	826
+- ORPHAN [BlacksmithDister] ein_in01,26,82,3	duplicate(BlacksmithDister)	Blacksmith Dister#ein	826
+- ORPHAN [BlacksmithDister] lhz_in02,280,15,3	duplicate(BlacksmithDister)	Blacksmith Dister#lhz	826
+
+## card_exchange.txt
+- ADAPT [=->set] .@r = rand(1,34261);
+- COMMENT [freeloop] freeloop(1);
+- ADAPT [=->set] .@args = getargcount();
+- COMMENT [getargcount] .@args = getargcount();
+- ADAPT [for/incr->set] for (.@i = 0; .@i < .@args; .@i++) {
+- COMMENT [freeloop] freeloop(0);
+- UNRESOLVED [freeloop,getargcount] Card Vendor Machine#pa08
+
+## card_separation.txt
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < MAX_SLOTS; .@i++ ) {
+- ADAPT [=->set] .@equip_card[.@i] = 0;// Armor Enchant System
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < MAX_SLOTS; .@i++ ) {
+- ADAPT [=->set] .@menu$ = .@menu$ + "Socket " + (.@i+1) + " - " + getitemname(.@equip_card[.@i])+":";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^777777Socket " + (.@i+1) + " - No card^000000:";
+- COMMENT [delequip] delequip .@equip_num;
+- UNRESOLVED [delequip] CardSeparation_mal
+- ORPHAN [CardSeparation_mal] malangdo,215,166,4	duplicate(CardSeparation_mal)	Jeremy#pa0829	553	// Armors :: mal_yong
+- ORPHAN [CardSeparation_mal] malangdo,208,166,6	duplicate(CardSeparation_mal)	Richard#pa0829	559	// Weapons :: soc_weapon
+
+## catalog.txt
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+
+## coin_exchange.txt
+- ADAPT [=->set] .@menu$ = "Stop:";
+- ADAPT [for/incr->set] for(.@i = 1; .@i<=6; .@i++) {
+- ADAPT [=->set] .@menu$ = .@menu$ + getitemname(.@coins[.@i]) + ":";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^aaaaaa"+getitemname(.@coins[.@i])+" (None)^000000:";
+- ADAPT [=->set] .@i = select(.@menu$);
+- ADAPT [=->set] .@coin = .@coins[.@i-1];
+- ADAPT [=->set] .@coin_select = .@i-1;
+- ADAPT [if-=->set] if (.@exchange_id[0] == .@coins[1]) .@exchange_id[0] = 0; // Cannot exchange for Silvervine.
+- ADAPT [=->set] .@menu$ = "Stop:";
+- ADAPT [for/incr->set] for(.@i = 0; .@i<2; .@i++) {
+- ADAPT [=->set] .@menu$ = .@menu$ + "^ff3333Unavailable exchange to "+.@exchange_name$[.@i]+" coin^000000:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^aaaaaaExchange to "+.@exchange_name$[.@i]+" coin (null)^000000:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "Exchange to "+.@exchange_name$[.@i]+" coin - "+getitemname(.@coin)+" ("+.@exchange_rate[.@i]+" needed):";
+- ADAPT [=->set] .@i = select(.@menu$)-2;
+- ADAPT [=->set] .@exchange_total = .@exchange_rate[(!.@i)] - .@exchange_loss[(!.@i)];
+- ADAPT [=->set] .@menu$ = "Explanation:";
+- ADAPT [for/incr->set] for(.@i = 0; .@i<getargcount(); .@i += 3)
+- COMMENT [getargcount] for(.@i = 0; .@i<getargcount(); .@i += 3)
+- ADAPT [=->set] .@menu$ = .@menu$ + getarg(.@i)+":";
+- ADAPT [=->set] .@i = select(.@menu$)-2;
+- ADAPT [=->set] .@cost = getarg(.@i*3+2);
+- ADAPT [=->set] .@ven_menu$ = "^999999Silvervine Fruit (missing "+(.@cost - countitem(6417))+")^000000";
+- ADAPT [=->set] .@ven_menu$ = "Purchase - Silvervine Fruit (have "+countitem(6417)+")";
+- ADAPT [=->set] .@menu$ = "";
+- ADAPT [for/incr->set] for(.@i = 0; .@i<getarraysize(.@coin_amount); .@i++) {
+- ADAPT [=->set] .@menu$ = .@menu$ + "Exchange "+(.@coin_amount[.@i]/10)+" Mora Coin:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^aaaaaaExchange "+(.@coin_amount[.@i]/10)+" Mora Coin (Not Enough)^000000:";
+- ADAPT [=->set] .@i = select(.@menu$+"Quit")-1;
+- ADAPT [=->set] .@menu$ = "Quit:";
+- ADAPT [for/incr->set] for(.@i = 1; .@i<=6; .@i++) {
+- ADAPT [=->set] .@menu$ = .@menu$ + getitemname(.@coins[.@i])+" (have "+countitem(.@coins[.@i])+"):";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^aaaaaa"+getitemname(.@coins[.@i])+" (None)^000000:";
+- ADAPT [=->set] .@i = select(.@menu$)-1;
+- ADAPT [=->set] .@coin = .@coins[.@i];
+- ADAPT [if-=->set] if (.@exchange_id[0] == .@coins[1]) .@exchange_id[0] = 0; // Cannot exchange for Silvervine.
+- ADAPT [=->set] .@menu$ = "Quit:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^ff3333Cannot exchange to higher level coin^000000:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "Exchange 99 "+getitemname(.@coin)+" into higher level coin:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^aaaaaaExchange to higher level coin (Not enough)^000000:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^ff3333Cannot exchange to lower level coin^000000:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "Exchange 500 "+getitemname(.@coin)+" into lower level coin:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "Exchange "+countitem(.@coin)+" "+getitemname(.@coin)+" into lower level coin:";
+- ADAPT [=->set] .@menu$ = .@menu$ + "^aaaaaaExchange to lower level coin (Not enough)^000000:";
+- ADAPT [=->set] .@i = select(.@menu$)-2;
+- ADAPT [=->set] .@payment_amount = 99;
+- ADAPT [=->set] .@reward_amount = .@payment_amount/3;
+- ADAPT [=->set] .@coin_text$ = "High";
+- ADAPT [=->set] .@payment_amount = (((countitem(.@coin) > 500))?500:countitem(.@coin));
+- ADAPT [=->set] .@reward_amount = .@payment_amount*3;
+- ADAPT [=->set] .@coin_text$ = "Low";
+- ADAPT [=->set] .@fee = rand(1,3);
+- ADAPT [=->set] .@check = 1;
+- ADAPT [=->set] .@count = 1;
+- ADAPT [=->set] .@check = 10;
+- ADAPT [=->set] .@count = 10;
+- ADAPT [=->set] .@check = 100;
+- ADAPT [=->set] .@count = 100;
+- ADAPT [=->set] .@check = 1;
+- ADAPT [=->set] .@count = countitem(12633);
+- ADAPT [=->set] .@npc_name$ = getarg(1);
+- ADAPT [=->set] .@type = 1;
+- ADAPT [=->set] .@menu$ = "Yes.:No, I'll purchase with cans.:I don't want to purchase any.";
+- ADAPT [=->set] .@type = 2;
+- ADAPT [=->set] .@menu$ = "Yes.::No.";
+- ADAPT [=->set] .@type = 3;
+- ADAPT [=->set] .@menu$ = "Yes.::I don't want to purchase any.";
+- ADAPT [=->set] .@type = 2;
+- ADAPT [=->set] .@item = 6422; //Egrade_Coin
+- ADAPT [=->set] .@amount = getarg(4);
+- ADAPT [=->set] .@str$ = "coins";
+- ADAPT [=->set] .@item = 12636; //Malang_Sp_Can
+- ADAPT [=->set] .@amount = getarg(5);
+- ADAPT [=->set] .@str$ = "cans";
+- ADAPT [=->set] .@item = 6417; //Silvervine
+- ADAPT [=->set] .@amount = getarg(6);
+- ADAPT [=->set] .@str$ = "Silvervine Fruit";
+- ADAPT [=->set] .@choice = select("Str Glove:Int Glove:Agi Glove:Vit Glove:Dex Glove:Luk Glove") -1;
+- ADAPT [=->set] .@choice = select("Str Glove:Int Glove:Ag Glove:Vit Glove:Dex Glove:Luk Glove");
+- ADAPT [op=->set] .@choice += 2916;
+- ADAPT [=->set] .@luckyday = rand(1,100);
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- ADAPT [=->set] .@item = select("Snow Flip:Peony Mommy:Slapping Herb:Yggdrasil Dust:End conversation")-1;
+- ADAPT [=->set] .@buy = select("Buy 1.:Buy 10.:Don't buy.");
+- ADAPT [=->set] .@buy = 10;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_STARE_ABOUT] emotion ET_STARE_ABOUT;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- ADAPT [=->set] .@item_check =1;
+- ADAPT [for/incr->set] for(.@i = 0; .@i<getarraysize(.@items); .@i++) {
+- ADAPT [=->set] .@menu$ = .@menu$+getitemname(.@items[.@i])+" (^2502FDAble to Replicate^000000):";
+- ADAPT [=->set] .@menu$ = .@menu$+getitemname(.@items[.@i])+" (^777777Insufficient ingredients^000000):";
+- ADAPT [=->set] .@i = select(.@menu$)-1;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- UNRESOLVED [malformed-for] Coin Exchanger CX-1
+- UNRESOLVED [getargcount] Special Vending Machine
+- UNRESOLVED [malformed-for] Dark Merchant K
+- UNRESOLVED [malformed-for] Dark MachineTX100
+- UNRESOLVED [multiline-select] Wandering Merchant#mal
+- UNRESOLVED [multiline-select] Stinky Merchant
+- UNRESOLVED [multiline-select] Roving Merchant
+- UNRESOLVED [malformed-for] Replication Expert Paltu
+
+## diamond.txt
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+
+## eden_market.txt
+- MARKETSHOP [para_coin10] -	marketshop	para_coin10	FAKE_NPC,6304:500000:10,6080:100000:10,6081:300000:10,6380:1000000:1000,6004:100000:1
+- MARKETSHOP [para_hei10] -	marketshop	para_hei10	FAKE_NPC,6608:150000:1,6607:20000:1,6755:200000:1,7642:10000:1,22687:200000:1,23016:1000000:1
+- MARKETSHOP [para_key10] -	marketshop	para_key10	FAKE_NPC,7026:100000:10,7027:100000:10 // todo
+- MARKETSHOP [para_wp00] -	marketshop	para_wp00	FAKE_NPC,1181:10000000:1
+- MARKETSHOP [para_arm10] -	marketshop	para_arm10	FAKE_NPC,5007:2000000:1
+- MARKETSHOP [para_ptn00] -	marketshop	para_ptn00	FAKE_NPC,678:80000:999,12016:50000:9999,525:100000:1000,12422:40000:100,12423:50000:100,12425:40000:100,12426:50000:100
+- MARKETSHOP [para_ptn10] -	marketshop	para_ptn10	FAKE_NPC,505:40000:100,12679:100000:500,12676:30000:500,12680:50000:100
+- MARKETSHOP [para_itm00] -	marketshop	para_itm00	FAKE_NPC,12106:1500000:100,12107:500000:100,616:2500000:100,12194:200000:100
+- MARKETSHOP [para_itm10] -	marketshop	para_itm10	FAKE_NPC,12008:5000:99999,12009:5000:99999,12012:5000:100,12010:5000:100,12011:5000:100,12013:20000:100,12014:80000:100,7931:5000:100
+- MARKETSHOP [para_seed10] -	marketshop	para_seed10	FAKE_NPC,12290:5000:100,12376:5000:100,12291:10000:100,12377:10000:100,576:2000:100,587:2000:100,526:10000:100,607:70000:20,608:50000:20
+- MARKETSHOP [para_mora10] -	marketshop	para_mora10	FAKE_NPC,11526:5000:100,11525:5000:1000,11520:50000:100,12574:20000:100
+- MARKETSHOP [para_ref10] -	marketshop	para_ref10	FAKE_NPC,998:10000:500,1003:10000:500,1002:10000:500,999:10000:500
+- MARKETSHOP [para_ref20] -	marketshop	para_ref20	FAKE_NPC,984:200000:10,985:200000:100,987:240000:1,988:600000:1,989:1200000:1
+- MARKETSHOP [para_jew10] -	marketshop	para_jew10	FAKE_NPC,969:1000000:20,7289:500000:20,7290:500000:20,7291:500000:20,7292:500000:20,7293:500000:20,7294:500000:20,7295:500000:20,7296:500000:20,7297:500000:20
+- MARKETSHOP [para_alc10] -	marketshop	para_alc10	FAKE_NPC,971:20000:20,972:12000:20,970:12000:20:7136:7000:20,7135:18000:20
+- MARKETSHOP [para_alc20] -	marketshop	para_alc20	FAKE_NPC,1061:3000:1000,905:1000:1000,1059:1000:1000,7033:1000:1000,929:4000:1000
+- MARKETSHOP [para_alc30] -	marketshop	para_alc30	FAKE_NPC,1000:10000:100,1001:10000:100,990:10000:100,991:10000:100,992:10000:100,993:10000:100
+- MARKETSHOP [para_fod10] -	marketshop	para_fod10	FAKE_NPC,6252:40000:100,6253:8000:100,6254:30000:100,6256:15000:100,6257:15000:100,6259:15000:100,6260:10000:100,22658:80000:50,22659:100000:50
+- MARKETSHOP [para_mag10] -	marketshop	para_mag10	FAKE_NPC,12108:20000:99999,717:1500:99999,715:4500:99999,716:4500:99999,14512:100000:100,14513:100000:100,14514:100000:100,12737:500:99999,12734:1500:99999,12738:2000:100,12735:3000:50,12736:10000:10,6360:200:99999,6363:200:99999,6361:200:99999,6362:200:99999
+- MARKETSHOP [para_mag11] -	marketshop	para_mag11	FAKE_NPC,717:1500:99999,12737:500:99999,12734:1500:99999,6360:200:99999,6363:200:99999,6361:200:99999,6362:200:99999
+- MARKETSHOP [para_mag20] -	marketshop	para_mag20	FAKE_NPC,12119:8000:100,12121:8000:100,12120:5000:100,12118:15000:100
+- MARKETSHOP [para_plt01] -	marketshop	para_plt01	FAKE_NPC,709:10000:50,7932:4000:99999,7933:4000:99999,7934:4000:99999,7935:4000:99999,7936:4000:99999,7937:4000:99999
+- ADAPT [=->set] @cd_marketshop = gettimetick(2);
+- COMMENT [npcshopupdate] npcshopupdate "para_coin10",6304,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_coin10",6080,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_coin10",6081,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_coin10",6380,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_coin10",6004,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_hei10",6608,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_hei10",6607,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_hei10",6755,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_hei10",7642,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_hei10",22687,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_hei10",23016,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_key10",7026,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "para_key10",7027,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "para_wp00",1181,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_arm10",5007,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn00",678,0,999;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn00",12016,0,9999;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn00",525,0,1000;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn00",12422,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn00",12423,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn00",12425,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn00",12426,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn10",505,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn10",12679,0,500;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn10",12676,0,500;
+- COMMENT [npcshopupdate] npcshopupdate "para_ptn10",12680,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm00",12106,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm00",12107,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm00",616,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm00",12194,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm10",12008,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm10",12009,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm10",12012,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm10",12010,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm10",12011,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm10",12013,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm10",12014,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_itm10",7931,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",12290,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",12376,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",12291,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",12377,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",576,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",587,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",526,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",607,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_seed10",608,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_mora10",11526,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mora10",11525,0,1000;
+- COMMENT [npcshopupdate] npcshopupdate "para_mora10",11520,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mora10",12574,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref10",998,0,500;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref10",1003,0,500;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref10",1002,0,500;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref10",999,0,500;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref20",984,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref20",985,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref20",987,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref20",988,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_ref20",989,0,1;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",969,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7289,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7290,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7291,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7292,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7293,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7294,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7295,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7296,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_jew10",7297,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc10",971,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc10",972,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc10",970,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc10",7136,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc10",7135,0,20;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc20",1061,0,1000;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc20",905,0,1000;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc20",1059,0,1000;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc20",7033,0,1000;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc20",929,0,1000;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc30",1000,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc30",1001,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc30",990,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc30",991,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc30",992,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_alc30",993,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",6252,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",6253,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",6254,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",6256,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",6257,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",6259,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",6260,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",22658,0,50;
+- COMMENT [npcshopupdate] npcshopupdate "para_fod10",22659,0,50;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",12108,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",717,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",715,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",716,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",14512,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",14513,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",14514,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",12737,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",12734,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",12738,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",12735,0,50;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",12736,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",6360,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",6363,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",6361,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag10",6362,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag11",717,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag11",12737,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag11",12734,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag11",6360,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag11",6363,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag11",6361,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag11",6362,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag20",12119,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag20",12121,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag20",12120,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_mag20",12118,0,100;
+- COMMENT [npcshopupdate] npcshopupdate "para_plt01",709,0,50;
+- COMMENT [npcshopupdate] npcshopupdate "para_plt01",7932,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_plt01",7933,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_plt01",7934,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_plt01",7935,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_plt01",7936,0,99999;
+- COMMENT [npcshopupdate] npcshopupdate "para_plt01",7937,0,99999;
+- ADAPT [=->set] $event_paramk = 0;
+- ADAPT [=->set] $event_paramk = 2;
+- ADAPT [=->set] $event_paramk = 4;
+- ADAPT [=->set] $event_paramk = 3;
+- ADAPT [=->set] $event_paramk = 1;
+- ADAPT [=->set] $event_paramk = 4;
+- COMMENT [mesitemlink] mes "I have even seen an " + mesitemlink( 709, false ) + " being sold~";
+- MANUAL [unregistered-map:paramk] paramk,101,22,3	script	Market Group Guide#info	4_F_ZONDAGIRL,{
+- MANUAL [unregistered-map:paramk] paramk,103,17,3	script	Market Guard#1	4_M_YOUNGKNIGHT,{
+- BOUNDARY [paramk] paramk,92,17,6	duplicate(Market Guard#1)	Market Guard#2	4_M_YOUNGKNIGHT
+- BOUNDARY [paramk] paramk,53,47,3	duplicate(Market Guard#1)	Market Guard#3	4_M_YOUNGKNIGHT
+- BOUNDARY [paramk] paramk,142,48,3	duplicate(Market Guard#1)	Market Guard#4	4_M_YOUNGKNIGHT
+- BOUNDARY [paramk] paramk,142,67,3	duplicate(Market Guard#1)	Market Guard#5	4_M_YOUNGKNIGHT
+- BOUNDARY [paramk] paramk,53,67,3	duplicate(Market Guard#1)	Market Guard#6	4_M_YOUNGKNIGHT
+- MANUAL [unregistered-map:paramk] paramk,78,44,3	script	A wise customer#gst01	4_TOWER_14,6,6,{
+- MANUAL [unregistered-map:paramk] paramk,119,80,3	script	A dining customer#gst02	4_M_CHN8GUEK,6,6,{
+- MANUAL [unregistered-map:paramk] paramk,106,61,3	script	Customer#gst03	4_TOWER_04,6,6,{
+- MANUAL [unregistered-map:paramk] paramk,77,60,3	script	Window-shopper#gst04	4_TOWER_02,6,6,{
+- MANUAL [unregistered-map:paramk] paramk,113,56,3	script	Cassie#gst05	1_F_PUBGIRL,6,6,{
+- ADAPT [=->set] .@item = 12112;
+- ADAPT [=->set] .@item = 12113;
+- ADAPT [op=->set] Zeny -= 800;
+- MANUAL [unregistered-map:paramk] paramk,74,15,0	script	Leria#coin	4_M_BIBI,{
+- ADAPT [callshop+flag] callshop "para_coin10";
+- MANUAL [unregistered-map:paramk] paramk,71,15,3	script	Heimhunter#hei	4_GEFFEN_11,{
+- ADAPT [callshop+flag] callshop "para_hei10";
+- MANUAL [unregistered-map:paramk] paramk,68,15,0	script	Zephet#key	4_M_HUMERCHANT,{
+- ADAPT [callshop+flag] callshop "para_key10";
+- MANUAL [unregistered-map:paramk] paramk,72,33,0	script	[Strong Friends]#wp00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,65,30,3	script	Miffy#wp01	4_F_LGTGIRL,{
+- ADAPT [callshop+flag] callshop "para_wp00";
+- MANUAL [unregistered-map:paramk] paramk,70,31,3	script	Nelsha#wp02	4_M_SITDOWN,{
+- ADAPT [=->set] .@s = select("Maces, Rods, Knuckles:One-Handed Swords, Two-Handed Sword:Bows, Innstruments, Whips:Daggers, Katars:Axes, Spears:Cancel") - 1;
+- MANUAL [unregistered-map:paramk] paramk,72,33,3	script	[Reliable Friends]#arm00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,78,31,3	script	Coco#arm01	4_F_SITDOWN,{
+- MANUAL [unregistered-map:paramk] paramk,84,33,3	script	[Handsome Friends]#cst00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,90,31,3	script	Minho Doh#cst01	4W_M_01,{
+- ADAPT [callshop+flag] callshop "para_arm10";
+- MANUAL [unregistered-map:paramk] paramk,94,32,3	script	Lapelt#hat01	4_M_LGTMAN,{
+- MANUAL [unregistered-map:paramk] paramk,96,33,3	script	[Meds for Pharma]#ptn00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,100,30,3	script	Head Pharmacist#ptn01	4_F_SCIENCE,{
+- ADAPT [callshop+flag] callshop "para_ptn00";
+- MANUAL [unregistered-map:paramk] paramk,106,32,3	script	Johanna#ptn02	4_M_BRZ_JACI,{
+- MANUAL [unregistered-map:paramk] paramk,106,27,3	script	Brewer Wyn#ptn03	4_M_ALCHE_A,{
+- ADAPT [callshop+flag] callshop "para_ptn10";
+- MANUAL [unregistered-map:paramk] paramk,108,33,3	script	[WeHaveEverything]#itm00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,114,30,3	script	Lucky Day Napeed#itm01	4_F_03,{
+- ADAPT [callshop+flag] callshop "para_itm00";
+- MANUAL [unregistered-map:paramk] paramk,118,31,3	script	Manager Parayo#itm02	4_F_KHELLISIA,{
+- ADAPT [callshop+flag] callshop "para_itm10";
+- MANUAL [unregistered-map:paramk] paramk,122,33,3	script	[Malangdonya]#seed00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,126,34,3	script	Whiteberry#seed01	4_CAT_SAILOR1,{
+- MANUAL [unregistered-map:paramk] paramk,129,33,3	script	Blackphone#seed02	4_M_MERCAT2,{
+- ADAPT [callshop+flag] callshop "para_seed10";
+- MANUAL [unregistered-map:paramk] paramk,144,13,3	script	Jeffrey#food00	1_M_MERCHANT,{
+- MANUAL [unregistered-map:paramk] paramk,140,18,3	script	Vincent#food01	4_TOWER_15,{
+- MANUAL [unregistered-map:paramk] paramk,138,19,3	script	Panel#food02	4_TOWER_14,{
+- MANUAL [unregistered-map:paramk] paramk,136,20,3	script	Matina#food03	4_TOWER_05,{
+- MANUAL [unregistered-map:paramk] paramk,134,21,3	script	Lucy#food04	4_TOWER_10,{
+- MANUAL [unregistered-map:paramk] paramk,136,16,3	script	Mara#food05	4_TOWER_02,{
+- MANUAL [unregistered-map:paramk] paramk,133,16,3	script	Lana#food06	4_TOWER_04,{
+- MANUAL [unregistered-map:paramk] paramk,127,16,3	script	Rahoul#food07	4_TOWER_12,{
+- MANUAL [unregistered-map:paramk] paramk,124,20,3	script	Drunk#food08	4_TOWER_06,{
+- MANUAL [unregistered-map:paramk] paramk,127,10,3	script	Annoyed Customer#food09	4_TOWER_07,{
+- MANUAL [unregistered-map:paramk] paramk,124,11,3	script	Kalin#food10	4_F_01,{
+- MANUAL [unregistered-map:paramk] paramk,121,11,3	script	Thrann#food11	4_F_02,{
+- MANUAL [unregistered-map:paramk] paramk,127,88,3	script	Sobok the Cook#fd01	4_M_CHNCOOK,{
+- ADAPT [=->set] .@hp = 100;
+- ADAPT [=->set] .@sp = 0;
+- ADAPT [=->set] .@zeny = 3000;
+- ADAPT [=->set] .@talk$ = "Goose Soup shall detoxify and heal you.";
+- ADAPT [=->set] .@hp = 0;
+- ADAPT [=->set] .@sp = 100;
+- ADAPT [=->set] .@zeny = 3000;
+- ADAPT [=->set] .@talk$ = "Maccaroni Noodles shall refresh your spirit.";
+- ADAPT [=->set] .@hp = 100;
+- ADAPT [=->set] .@sp = 100;
+- ADAPT [=->set] .@zeny = 5000;
+- ADAPT [=->set] .@talk$ = "Ultimate combination for body and mind.";
+- ADAPT [op=->set] Zeny -= .@zeny;
+- MANUAL [unregistered-map:paramk] paramk,75,86,3	script	Pomegranate#mora01	4_F_RAFLE_PK,{
+- MANUAL [unregistered-map:paramk] paramk,65,86,3	script	Cocktail Master#mora01	4_M_RAFLE_VI,{
+- ADAPT [callshop+flag] callshop "para_mora10";
+- MANUAL [unregistered-map:paramk] paramk,49,103,3	script	Hans #ref01	1_M_SIGNMCNT,{
+- ADAPT [callshop+flag] callshop "para_ref10";
+- MANUAL [unregistered-map:paramk] paramk,53,104,3	script	Dus the Smith#ref02	2_M_OLDBLSMITH,{
+- ADAPT [callshop+flag] callshop "para_ref20";
+- MANUAL [unregistered-map:paramk] paramk,63,98,3	script	[Rain-of-Gems]#jw	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,69,102,3	script	Aurora#jew01	4_F_02,{
+- ADAPT [callshop+flag] callshop "para_jew10";
+- MANUAL [unregistered-map:paramk] paramk,73,98,3	script	[Alchemical Cat]#alc00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,75,102,3	script	Dye the Alchemist#alc01	4_M_ALCHE_C,{
+- ADAPT [callshop+flag] callshop "para_alc10";
+- MANUAL [unregistered-map:paramk] paramk,80,104,3	script	Earl the Alchemist#alc02	4_TOWER_16,{
+- ADAPT [callshop+flag] callshop "para_alc20";
+- ADAPT [callshop+flag] callshop "para_alc30";
+- MANUAL [unregistered-map:paramk] paramk,83,98,3	script	[Manbok Groceries]#fod00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,87,101,3	script	Manbok#fod01	1_M_03,{
+- ADAPT [callshop+flag] callshop "para_fod10";
+- MANUAL [unregistered-map:paramk] paramk,93,98,3	script	Ma-Ma-Ma-Ma#mag	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,95,102,3	script	Madoha#mag01	4_M_SAGE_A,{
+- ADAPT [callshop+flag] callshop "para_mag10";
+- ADAPT [callshop+flag] callshop "para_mag11";
+- MANUAL [unregistered-map:paramk] paramk,100,102,3	script	Magiha#mag02	4_M_SAGE_C,{
+- ADAPT [callshop+flag] callshop "para_mag20";
+- MANUAL [unregistered-map:paramk] paramk,103,98,3	script	[Yggdrasil Blessing]#00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,113,98,3	script	[Exotic Plants]#plt	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,116,100,3	script	Hwaran#plt01	4_F_RUSGREEN,{
+- ADAPT [callshop+flag] callshop "para_plt01";
+- MANUAL [unregistered-map:paramk] paramk,133,98,3	script	[You and Me]#unm00	HIDDEN_NPC,{
+- MANUAL [unregistered-map:paramk] paramk,124,97,3	script	Gecko the Trainer#unm01	4_M_DESERT,{
+- ADAPT [checkdragon->0] } else if (checkriding() || checkdragon()) {
+- ADAPT [ismounting->0] } else if (ismounting()) {
+- COMMENT [setdragon] setdragon;
+- ADAPT [ismounting->0] if (ismounting()) {
+- MANUAL [unregistered-map:paramk] paramk,126,100,3	script	Tamer Tete#unm02	4_M_DST_CHILD,{
+- MANUAL [unregistered-map:paramk] paramk,130,98,3	script	Mist the Hunter#unm03	4_M_JOB_HUNTER,{
+- ADAPT [if-=->set] if (Upper == 0) .@price = 2500; // Normal Falcon - default price
+- ADAPT [if-=->set] if (Upper == 1) .@price = 2500; // Scarf Falcon
+- ADAPT [if-=->set] if (Upper == 2) .@price = 2500; // Baby Falcon
+- ADAPT [checkwug->0] if (checkwug()) {
+- ADAPT [op=->set] Zeny -= .@price;
+- ADAPT [=->set] .@price = 10000;
+- ADAPT [=->set] .@price = 12500;
+- ADAPT [op=->set] Zeny -= .@price;
+- BOUNDARY [paramk] paramk,97,5,0	warp	paramk#ex	1,1,moc_para01,106,35
+- UNRESOLVED [npcshopupdate] Update_Shop
+- UNRESOLVED [mesitemlink] Market Group Hustler#ent
+- BOUNDARY [paramk] Market Group Guide#info
+- BOUNDARY [paramk] Market Guard#1
+- BOUNDARY [paramk] A wise customer#gst01
+- BOUNDARY [paramk] A dining customer#gst02
+- BOUNDARY [paramk] Customer#gst03
+- BOUNDARY [paramk] Window-shopper#gst04
+- BOUNDARY [paramk] Cassie#gst05
+- BOUNDARY [paramk] Leria#coin
+- BOUNDARY [paramk] Heimhunter#hei
+- BOUNDARY [paramk] Zephet#key
+- BOUNDARY [paramk] [Strong Friends]#wp00
+- BOUNDARY [paramk] Miffy#wp01
+- BOUNDARY [paramk] Nelsha#wp02
+- BOUNDARY [paramk] [Reliable Friends]#arm00
+- BOUNDARY [paramk] Coco#arm01
+- BOUNDARY [paramk] [Handsome Friends]#cst00
+- BOUNDARY [paramk] Minho Doh#cst01
+- BOUNDARY [paramk] Lapelt#hat01
+- BOUNDARY [paramk] [Meds for Pharma]#ptn00
+- BOUNDARY [paramk] Head Pharmacist#ptn01
+- BOUNDARY [paramk] Johanna#ptn02
+- BOUNDARY [paramk] Brewer Wyn#ptn03
+- BOUNDARY [paramk] [WeHaveEverything]#itm00
+- BOUNDARY [paramk] Lucky Day Napeed#itm01
+- BOUNDARY [paramk] Manager Parayo#itm02
+- BOUNDARY [paramk] [Malangdonya]#seed00
+- BOUNDARY [paramk] Whiteberry#seed01
+- BOUNDARY [paramk] Blackphone#seed02
+- BOUNDARY [paramk] Jeffrey#food00
+- BOUNDARY [paramk] Vincent#food01
+- BOUNDARY [paramk] Panel#food02
+- BOUNDARY [paramk] Matina#food03
+- BOUNDARY [paramk] Lucy#food04
+- BOUNDARY [paramk] Mara#food05
+- BOUNDARY [paramk] Lana#food06
+- BOUNDARY [paramk] Rahoul#food07
+- BOUNDARY [paramk] Drunk#food08
+- BOUNDARY [paramk] Annoyed Customer#food09
+- BOUNDARY [paramk] Kalin#food10
+- BOUNDARY [paramk] Thrann#food11
+- BOUNDARY [paramk] Sobok the Cook#fd01
+- BOUNDARY [paramk] Pomegranate#mora01
+- BOUNDARY [paramk] Cocktail Master#mora01
+- BOUNDARY [paramk] Hans #ref01
+- BOUNDARY [paramk] Dus the Smith#ref02
+- BOUNDARY [paramk] [Rain-of-Gems]#jw
+- BOUNDARY [paramk] Aurora#jew01
+- BOUNDARY [paramk] [Alchemical Cat]#alc00
+- BOUNDARY [paramk] Dye the Alchemist#alc01
+- BOUNDARY [paramk] Earl the Alchemist#alc02
+- BOUNDARY [paramk] [Manbok Groceries]#fod00
+- BOUNDARY [paramk] Manbok#fod01
+- BOUNDARY [paramk] Ma-Ma-Ma-Ma#mag
+- BOUNDARY [paramk] Madoha#mag01
+- BOUNDARY [paramk] Magiha#mag02
+- BOUNDARY [paramk] [Yggdrasil Blessing]#00
+- BOUNDARY [paramk] [Exotic Plants]#plt
+- BOUNDARY [paramk] Hwaran#plt01
+- BOUNDARY [paramk] [You and Me]#unm00
+- BOUNDARY [paramk] Gecko the Trainer#unm01
+
+## enchan_edda_half_moon.txt
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- ADAPT [=->set] .@part = EQI_ACC_L;
+- ADAPT [=->set] .@part = EQI_ACC_R;
+- ADAPT [=->set] .@itemid = getequipid(.@part);
+- COMMENT [mesitemlink] mes "Uh, wait! That's not the ^0000cd" + mesitemlink(28387, false) + "^000000, is it? Can you check it again?";
+- ADAPT [=->set] .@card = getequipcardid(.@part,3);
+- ADAPT [=->set] .@s = select( .@enhance_n$[0], .@enhance_n$[1], .@enhance_n$[2], "Cancel" ) -1;
+- COMMENT [mesitemlink] mes "" + mesitemlink(.@enhance_a[.@s], false) + "";
+- COMMENT [mesitemlink] mes "" + mesitemlink(.@enhance_s[.@s], false) + "";
+- ADAPT [=->set] .@enchant = .@enhance_a[.@s];
+- ADAPT [=->set] .@cost = 100;
+- ADAPT [=->set] .@class = 1;
+- ADAPT [=->set] .@enchant = .@enhance_s[.@s];
+- ADAPT [=->set] .@cost = 1000;
+- ADAPT [=->set] .@class = 2;
+- COMMENT [mesitemlink] mes "The necklace will be enchanted with the " + mesitemlink(.@enchant, false) + "";
+- ADAPT [=->set] .@card = getequipcardid(.@part,3);	// re-defined
+- COMMENT [mesitemlink] mes "You aren't wearing the " + mesitemlink(28387, false) + "...!";
+- COMMENT [mesitemlink] mes "Your " + mesitemlink(28387, false) + " already has an enchant.";
+- COMMENT [mesitemlink] mes "You didn't bring enough " + mesitemlink(25088, false) + "!";
+- COMMENT [mesitemlink] mes "You need to have your necklace enchanted with " + mesitemlink(.@enhance_a[.@s], false) + " first.";
+- COMMENT [delequip] delequip .@part;
+- UNRESOLVED [delequip,mesitemlink] Temple Item Manager#0hmoon
+
+## enchan_illusion_dungeons.txt
+- MARKETSHOP [market_resonance_stone] -	marketshop	market_resonance_stone	-1,100003:2000000:99999,100004:2000000:99999
+- MANUAL [unregistered-map:pay_d03_i] pay_d03_i,160,45,3	script	Gemcutter#ilp20	4_TOWER_17,3,3,{
+- ADAPT [callshop+flag] callshop( "barter_ill_moonlight" );
+- COMMENT [ET_BEST] emotion ET_BEST;
+- ADAPT [callshop+flag] callshop( "barter_ill_vampire" );
+- ADAPT [callshop+flag] callshop( "barter_ill_frozen" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12415) == 0) {
+- ADAPT [=->set] .@reset = false;
+- ADAPT [=->set] .@reset = true;
+- ADAPT [=->set] .@s = select( "Right-handed Weapon", "Armor", "Shoes", "Garment", "Right Accessory", "Left accessory", "Helm (Upper)", "Left-handed Weapon/Shield" ) - 1;
+- ADAPT [=->set] .@loc = .@location[.@s];
+- ADAPT [=->set] .@eq_id = getequipid(.@loc);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < MAX_ITEM_RDM_OPT-1; ++.@i ) {
+- ADAPT [getequiprandomoption->0] if (getequiprandomoption(.@loc, .@i, ROA_ID) > 0) {
+- ADAPT [=->set] .@weapon_lvl = getequipweaponlv(.@loc);
+- ADAPT [=->set] .@loc_enchant = .@loc;	// variable for enhancing function
+- ADAPT [=->set] .@loc_enchant = EQI_HAND_R;	// the equipment is a weapon so the enchantments must be for weapons
+- ADAPT [=->set] .@refine = getequiprefinerycnt(.@loc);
+- ADAPT [=->set] .@card[0] = getequipcardid(.@loc,0);
+- ADAPT [=->set] .@card[1] = getequipcardid(.@loc,1);
+- ADAPT [=->set] .@card[2] = getequipcardid(.@loc,2);
+- ADAPT [=->set] .@card[3] = getequipcardid(.@loc,3);
+- ADAPT [=->set] .@item_req = 25271;	// IllusionStone
+- ADAPT [=->set] .@item_req_count = 5;
+- ADAPT [=->set] .@weapon_enchant_type = select( "Melee", "Ranged", "Magic" );
+- ADAPT [=->set] .@slot = 2;
+- ADAPT [=->set] .@string$ = "second";
+- ADAPT [=->set] .@slot = 3;
+- ADAPT [=->set] .@string$ = "first";
+- ADAPT [=->set] .@card[.@slot] = callsub( S_Enchant, .@loc_enchant, .@slot, .@weapon_enchant_type );
+- COMMENT [delequip] delequip .@loc;
+- ADAPT [=->set] .@s = select( "I'll come back later.", "100,000 Zeny (50%)", "200,000 Zeny (60%)", "300,000 Zeny (70%)", "400,000 Zeny (80%)", "500,000 Zeny (90%)" ) - 1;
+- ADAPT [=->set] .@cost = 100000 * .@s;
+- ADAPT [=->set] .@rate = 40 + 10 * .@s;
+- ADAPT [op=->set] Zeny -= .@cost;
+- COMMENT [delequip] delequip .@loc;
+- ADAPT [=->set] .@slot = getarg(1);
+- ADAPT [=->set] .@size = getarraysize(.@item);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i += 2 )
+- ADAPT [op=->set] .@total_rate += .@item[.@i+1];
+- ADAPT [=->set] .@r = rand(.@total_rate);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i += 2 ) {
+- ADAPT [op=->set] .@rate_tmp += .@item[.@i+1];
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12415) == 0)
+- ADAPT [=->set] .@illusion_stone_name$ = getitemname(25271);
+- ADAPT [callshop+flag] callshop( "barter_ill_turtle" );
+- MANUAL [unregistered-map:com_d02_i] com_d02_i,234,266,6	script	Village Soap#Lu	4_M_ORIENT01,{
+- ADAPT [callshop+flag] callshop( "barter_ill_luanda" );
+- MANUAL [unregistered-map:iz_d04_i] iz_d04_i,134,228,4	script	Horen#Horen	4_M_BIBI,{
+- ADAPT [callshop+flag] callshop( "barter_ill_underwater" );
+- MANUAL [unregistered-map:ant_d02_i] ant_d02_i,175,186,3	script	From#iltw	HIDDEN_NPC,{
+- ADAPT [callshop+flag] callshop( "barter_ill_twins" );
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4058;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_SEX, SEX_MALE;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_CLOTHCOLOR, 1;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 11;
+- COMMENT [setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 6;
+- ADAPT [callshop+flag] callshop "market_resonance_stone";
+- ADAPT [callshop+flag] callshop "resonance_stone_barter";
+- ADAPT [=->set] .@npc_id = getnpcid(0);
+- COMMENT [getnpcid] .@npc_id = getnpcid(0);
+- COMMENT [setunitdata] setunitdata .@npc_id,UNPC_CLASS, JOB_MAGE_HIGH;
+- COMMENT [setunitdata] setunitdata .@npc_id,UNPC_SEX,SEX_FEMALE;
+- COMMENT [setunitdata] setunitdata .@npc_id,UNPC_HEADTOP,142;
+- COMMENT [setunitdata] setunitdata .@npc_id,UNPC_HEADMIDDLE,92;
+- COMMENT [setunitdata] setunitdata .@npc_id,UNPC_HAIRSTYLE,2;
+- COMMENT [setunitdata] setunitdata .@npc_id,UNPC_HAIRCOLOR,2;
+- COMMENT [npcshopupdate] npcshopupdate "market_resonance_stone",100003,2000000,99999;
+- COMMENT [npcshopupdate] npcshopupdate "market_resonance_stone",100004,2000000,99999;
+- MANUAL [unregistered-map:ein_d02_i] ein_d02_i,177,158,3	script	Bear Wanting Illusion Stone#ITB	4_NASARIAN,{
+- ADAPT [=->set] .@item_name$ = getitemname(25271); // IllusionStone
+- ADAPT [callshop+flag] callshop( "barter_ill_teddy" );
+- BOUNDARY [pay_d03_i] Gemcutter#ilp20
+- UNRESOLVED [delequip] Illusion Enchanter#0
+- BOUNDARY [com_d02_i] Village Soap#Lu
+- BOUNDARY [iz_d04_i] Horen#Horen
+- BOUNDARY [ant_d02_i] From#iltw
+- UNRESOLVED [getnpcid,npcshopupdate,setunitdata] Illusion Merchant#0829
+- BOUNDARY [ein_d02_i] Bear Wanting Illusion Stone#ITB
+
+## enchan_ko.txt
+- COMMENT [delequip] delequip .@part;
+- COMMENT [delequip] delequip .@part;
+- UNRESOLVED [delequip] Artisan Tene#ko
+
+## enchan_mal.txt
+- ADAPT [=->set] @mal_enchant_select = 1;
+- ADAPT [=->set] @mal_enchant_select = 2;
+- ADAPT [=->set] @mal_enchant_select = 0;
+- ADAPT [=->set] @mal_equip_id = getequipid(EQI_HAND_R);
+- ADAPT [=->set] .@equip_type = getiteminfo(@mal_equip_id, ITEMINFO_VIEW);
+- ADAPT [=->set] @mal_equip_id = 0;
+- ADAPT [=->set] @mal_enchant_select = 0;
+- ADAPT [=->set] .@select = @mal_enchant_select;
+- ADAPT [=->set] .@equip_id = @mal_equip_id;
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(EQI_HAND_R);
+- ADAPT [=->set] .@equip_name$ = getitemname(.@equip_id) + ( getitemslots(.@equip_id) ? "[" + getitemslots(.@equip_id) + "]" : "" );
+- ADAPT [=->set] @mal_equip_id = 0;
+- ADAPT [=->set] @mal_enchant_select = 0;
+- ADAPT [=->set] .@enccost = getarg(0);
+- ADAPT [=->set] .@enclimit = getarg(1);
+- ADAPT [=->set] .@menu$ = "Stop:";
+- ADAPT [=->set] .@size_coin = getarraysize(.@coin);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size_coin; ++.@i) {
+- ADAPT [=->set] .@count[.@i] = countitem(.@coin[.@i]);
+- ADAPT [=->set] .@total[.@i] = .@enccost * .@cost[.@i];
+- ADAPT [op=->set] .@menu$ += "^999999" + getitemname(.@coin[.@i]) + " (missing " + (.@total[.@i]-.@count[.@i]) + ")^000000:";
+- ADAPT [op=->set] .@menu$ += getitemname(.@coin[.@i]) + " (have " + .@count[.@i] + ", need " + .@total[.@i] + "):";
+- ADAPT [=->set] .@coin_select = select(.@menu$) - 2;
+- ADAPT [=->set] .@enchant_type = 10;
+- ADAPT [=->set] .@enchant_type = 9;
+- ADAPT [=->set] .@enchant_type = 8;
+- ADAPT [=->set] .@enchant_type = 7;
+- ADAPT [=->set] .@enchant_type = ((.@coin_select == 4) ? 4 : 1);
+- ADAPT [=->set] .@enchant_type = ((.@coin_select == 4) ? 5 : 2);
+- ADAPT [=->set] .@enchant_type = ((.@coin_select == 4) ? 6 : 3);
+- ADAPT [=->set] .@socket = 4;
+- ADAPT [=->set] .@str$ = "1st";
+- ADAPT [=->set] .@socket = 3;
+- ADAPT [=->set] .@str$ = "2nd";
+- ADAPT [=->set] .@i = rand(1,531);
+- ADAPT [if-=->set] if (.@i < 101) .@enchant = 4787;	// Mdef4
+- ADAPT [=->set] .@i = rand(1,531);
+- ADAPT [if-=->set] if (.@i < 101) .@enchant = 4795;	// HP100
+- ADAPT [=->set] .@i = rand(1,531);
+- ADAPT [if-=->set] if (.@i < 101) .@enchant = 4720;	// Dexterity1
+- ADAPT [=->set] .@i = rand(1,531);
+- ADAPT [if-=->set] if (.@i < 101) .@enchant = 4700;	// Strength1
+- ADAPT [=->set] .@i = rand(1,555);
+- ADAPT [if-=->set] if (.@i < 81)  .@enchant = 4711;	// Inteligence2
+- ADAPT [=->set] .@i = rand(1,555);
+- ADAPT [if-=->set] if (.@i < 81)  .@enchant = 4731;	// Agility2
+- ADAPT [=->set] .@i = rand(1,555);
+- ADAPT [if-=->set] if (.@i < 81)  .@enchant = 4731;	// Agility2
+- ADAPT [=->set] .@i = rand(1,555);
+- ADAPT [if-=->set] if (.@i < 81)  .@enchant = 4712;	// Inteligence3
+- ADAPT [=->set] .@i = rand(1,555);
+- ADAPT [if-=->set] if (.@i < 81)  .@enchant = 4732;	// Agility3
+- ADAPT [=->set] .@i = rand(1,555);
+- ADAPT [if-=->set] if (.@i < 81)  .@enchant = 4732;	// Agility3
+- ADAPT [if-=->set] if (.@equip_card[3] == 0 && .@enclimit < 4) .@equip_card[3] = .@enchant;
+- COMMENT [delequip] delequip EQI_HAND_R;
+- COMMENT [delequip] delequip EQI_HAND_R;
+- COMMENT [delequip] delequip EQI_HAND_R;
+- ADAPT [for/incr->set] for ( .@i = getiteminfo(.@equip_id, ITEMINFO_SLOT); .@i < MAX_SLOTS; .@i++ ) {
+- ADAPT [=->set] .@equip_card[.@i] = 0;// Armor Enchant System
+- UNRESOLVED [delequip] Mayomayo#mal
+
+## enchan_mora.txt
+- ADAPT [=->set] .@bonus_enchant = getarg(1);
+- ADAPT [=->set] .@allowed_slot = getarg(2);
+- COMMENT [delequip] delequip .@part;
+- COMMENT [delequip] delequip .@part;
+- ADAPT [for/incr->set] for ( .@i = getiteminfo(.@equip_id, ITEMINFO_SLOT); .@i < MAX_SLOTS; .@i++ ) {
+- ADAPT [=->set] .@equip_card[.@i] = 0;// Armor Enchant System
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_GOODBOY] emotion ET_GOODBOY;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(EQI_HAND_R);
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [delequip] delequip EQI_HAND_R;
+- UNRESOLVED [delequip] Artifact Researcher#new
+- UNRESOLVED [delequip] Artifact Collector#blan
+
+## enchan_rockridge.txt
+- MARKETSHOP [armor_rockridge_1] -	marketshop	armor_rockridge_1	-1,2247:500000:10,2248:500000:10,5018:700000:10
+- MARKETSHOP [armor_rockridge_2] -	marketshop	armor_rockridge_2	-1,5067:700000:10,5071:700000:10,5075:700000:10
+- MARKETSHOP [armor_rockridge_3] -	marketshop	armor_rockridge_3	-1,2267:100000:10,2268:500000:10,2241:5000:10
+- MARKETSHOP [armor_rockridge_4] -	marketshop	armor_rockridge_4	-1,5067:700000:10,5071:700000:10,5075:700000:10,31144:1500000:3
+- MANUAL [unregistered-map:har_in01] har_in01,17,74,7	script	Contraband Processor#pa	4_DR_SOLDIER,{
+- ADAPT [=->set] .@reset = select( "Make them better? How?", "Enchant contraband items.", "Reset contraband item Enchantment level." ) - 2;
+- ADAPT [=->set] .@part = EQI_ARMOR;
+- ADAPT [=->set] .@part = EQI_GARMENT;
+- ADAPT [=->set] .@part = EQI_ACC_R;
+- ADAPT [=->set] .@equip_id = getequipid(.@part);
+- ADAPT [=->set] .@refine = getequiprefinerycnt(.@part);
+- ADAPT [=->set] .@chance_of_breaking_on_reset = 45;
+- ADAPT [=->set] .@chance_of_breaking_on_reset = 30;
+- ADAPT [=->set] .@card[1] = .@card[2] = .@card[3] = 0;
+- ADAPT [=->set] .@enchant_slot = 3;
+- ADAPT [=->set] .@enchant_slot = 2;
+- ADAPT [=->set] .@enchant_slot = 1;
+- ADAPT [=->set] .@r = rand(1,215);
+- ADAPT [if-=->set] if (.@r < 16) .@card[.@enchant_slot] = getiteminfo("Agility2", ITEMINFO_ID);
+- ADAPT [=->set] .@r = rand(1,206);
+- ADAPT [if-=->set] if (.@r < 14) .@card[.@enchant_slot] = getiteminfo("Agility1", ITEMINFO_ID);
+- ADAPT [=->set] .@enchant_slot = 3;
+- ADAPT [=->set] .@enchant_slot = 2;
+- ADAPT [=->set] .@r = rand(1,236);
+- ADAPT [if-=->set] if (.@r < 16) .@card[.@enchant_slot] = getiteminfo("Agility1", ITEMINFO_ID);
+- COMMENT [delequip] delequip .@part;
+- MANUAL [unregistered-map:har_in01] har_in01,24,69,3	script	Affable Lady#rockridge0	1_F_MERCHANT_02,{
+- ADAPT [=->set] .@cost = 3000000;
+- ADAPT [=->set] .@s = select( "Elemental Cape", "Golden Scarf", "Mine Worker Backpack", "I have no idea what you're talking about." ) - 1;
+- ADAPT [=->set] .@cost = 1500000;
+- ADAPT [=->set] .@s = select( "Vigilante Badge", "Hippie Feather", "I have no idea what you're talking about." ) - 1;
+- COMMENT [mesitemlink] mes "[" + mesitemlink( .@item_id[.@s], false, .@item_name$[.@s] ) + "].";
+- ADAPT [=->set] Zeny = Zeny - .@cost;
+- MANUAL [unregistered-map:har_in01] har_in01,34,81,5	script	Howard#rr	4_M_TATIO,{
+- ADAPT [=->set] .@size = getarraysize(.@data$);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i += 3 )
+- ADAPT [op=->set] .@menu$ += .@data$[.@i+2] + ":";
+- ADAPT [=->set] .@s = ( select(.@menu$) - 1 ) * 3;
+- COMMENT [mesitemlink] mes mesitemlink( atoi( .@data$[.@s+1] ), false, .@data$[.@s+2] ) + ", got it.";
+- MANUAL [unregistered-map:har_in01] har_in01,19,86,4	script	Weapon Dealer#rockridge01	1_F_02,{
+- MANUAL [unregistered-map:har_in01] har_in01,16,86,4	script	Armor Dealer#rockridge02	1_M_04,{
+- ADAPT [=->set] .@day = gettime(DT_DAYOFWEEK);
+- ADAPT [=->set] .@string$ = "Romantic Gents, Western Graces, and Feather Bonnet";
+- ADAPT [=->set] .@string$ = "Sombreros, Indian Headbands, and Cowboy Hats";
+- ADAPT [=->set] .@string$ = "Cigarettes, Pipes, and Grampa Beards";
+- ADAPT [=->set] .@string$ = "Romantic Gents, Western Graces, and Feather Bonnet";
+- ADAPT [=->set] .@string$ = "Sombreros, Indian Headbands, Cowboy Hats, and Indian Feather Headbands, the last of the rare costumes that are available in limited quantities every week,";
+- ADAPT [=->set] .@string$ = "Cigarettes, Pipes, and Grampa Beards";
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_1",2247,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_1",2248,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_1",5018,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_2",5067,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_2",5071,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_2",5075,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_3",2267,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_3",2268,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_3",2241,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_4",5067,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_4",5071,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_4",5075,0,10;
+- COMMENT [npcshopupdate] npcshopupdate "armor_rockridge_4",31144,0,3;
+- BOUNDARY [har_in01] har_in01,34,84,3	shop	Tool Dealer#rockridge00	1_F_03,611:-1,645:-1,656:-1,601:-1,602:-1,1065:-1,610:-1
+- BOUNDARY [har_in01] Contraband Processor#pa
+- BOUNDARY [har_in01] Affable Lady#rockridge0
+- BOUNDARY [har_in01] Howard#rr
+- BOUNDARY [har_in01] Weapon Dealer#rockridge01
+- BOUNDARY [har_in01] Armor Dealer#rockridge02
+
+## enchan_sage_legacy_17_2.txt
+- MARKETSHOP [ep172littlemanager00] -	marketshop	ep172littlemanager00	-1,1000227:172:999999
+- MARKETSHOP [ep172cubeshop00] -	marketshop	ep172cubeshop00	-1,100251:10000000:-1,100252:30000000:-1
+- MANUAL [unregistered-map:ba_in01] ba_in01,87,370,3	script	Lisa#ep172_merchant	20698,{
+- ADAPT [=->set] .@part = EQI_GARMENT;
+- ADAPT [=->set] .@part = EQI_ARMOR;
+- ADAPT [=->set] .@part = EQI_SHOES;
+- ADAPT [=->set] .@part = EQI_ACC_R;
+- ADAPT [=->set] .@part = EQI_ACC_L;
+- ADAPT [=->set] .@equip_id = getequipid(.@part);
+- ADAPT [=->set] .@equip_name$ = getequipname(.@part);
+- ADAPT [=->set] .@refine = getequiprefinerycnt(.@part);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 4; ++.@i )
+- ADAPT [=->set] .@card[.@i] = getequipcardid(.@part,.@i);
+- ADAPT [=->set] .@size = getarraysize(.@module_etc);
+- ADAPT [=->set] .@menu$ = "Cancel:";
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; ++.@i ) {
+- ADAPT [op=->set] .@menu$ += "^808080(Module Amount 0)^000000" + ":";
+- ADAPT [=->set] .@item_name$ = getitemname(.@module_etc[.@i]);
+- ADAPT [=->set] .@item_name$ = replacestr(.@item_name$, "Automatic Modification Module(", "");
+- COMMENT [replacestr] .@item_name$ = replacestr(.@item_name$, "Automatic Modification Module(", "");
+- ADAPT [=->set] .@item_name$ = replacestr(.@item_name$, ")", "");
+- COMMENT [replacestr] .@item_name$ = replacestr(.@item_name$, ")", "");
+- ADAPT [op=->set] .@menu$ += .@item_name$ + ":";
+- ADAPT [=->set] .@s = select(.@menu$) - 2;
+- ADAPT [=->set] .@module_id = .@module_etc[.@s];
+- ADAPT [=->set] .@size = getarraysize(.@module_etc_data);
+- ADAPT [for/incr->set] for (.@i = 1000152; .@i < 1000203; .@i++) {
+- ADAPT [op=->set] .@size += 2;
+- ADAPT [=->set] .@data_index = inarray(.@module_etc_data, .@module_id);
+- ADAPT [inarray->-1] .@data_index = inarray(.@module_etc_data, .@module_id);
+- ADAPT [=->set] .@max_module = .@module_etc_data[.@data_index+1];
+- ADAPT [for/incr->set] for ( .@i = 1000105; .@i < 1000203; ++.@i ) {
+- ADAPT [=->set] .@auto_module[.@i] = 310082 + .@size_auto_module;
+- ADAPT [for/incr->set] .@size_auto_module++;
+- ADAPT [=->set] .@auto_module[1000207] = 310178;
+- ADAPT [=->set] .@auto_module[1000208] = 310179;
+- ADAPT [=->set] .@enchant_id = .@auto_module[.@module_id];
+- ADAPT [countinarray->0] if (countinarray(.@card[0], .@enchant_id) >= .@max_module) {
+- ADAPT [for/incr->set] for ( .@i = 3; .@i > 0; .@i--) {
+- ADAPT [=->set] .@card[.@i] = .@enchant_id;
+- COMMENT [delequip] delequip .@part;
+- MANUAL [unregistered-map:ba_in01] ba_in01,87,386,3	script	Child Manager ©¬#ep172_pet	EP17_2_CHILD_ADMIN1,{
+- ADAPT [callshop+flag] callshop "ep172littlemanager00";
+- ADAPT [callshop+flag] callshop "barter_Ep_17_2_C_Admin_Acc";
+- MANUAL [unregistered-map:ba_in01] ba_in01,87,376,3	script	Cube Lane#ep172cube	4_EP17_GUARD_B,{
+- ADAPT [callshop+flag] callshop "ep172cubeshop00";
+- MANUAL [unregistered-map:ba_in01] ba_in01,87,373,3	script	Spiera#ep172_soapstone	MD_ASSISTANT,{
+- ADAPT [callshop+flag] callshop "barter_EP17_2_EP";
+- MANUAL [unregistered-map:ba_in01] ba_in01,87,383,3	script	Yeoncheong#equipment_exchange	4_EP17_CLEANER_W,{
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@shop$ = "barter_auto_equip_1";
+- ADAPT [=->set] .@shop$ = "barter_auto_equip_2";
+- COMMENT [close3] close3;
+- ADAPT [callshop+flag] callshop .@shop$;
+- MANUAL [unregistered-map:ba_in01] ba_in01,87,380,3	script	Yecheon#ep172module_trader	4_EP17_CLEANER_W,{
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@price = 90;
+- COMMENT [mesitemlink] mes "I will exchange 1 random Automatic Module excluding the epic grade modules for " + .@price + " " + mesitemlink(1000103) + ".";
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@price = 45;
+- ADAPT [=->set] .@zeny = 1500000;
+- COMMENT [mesitemlink] mes "I will exchange ^FF00001 Physical Automatic Improvement Device^000000 for " + .@price + " " + mesitemlink(1000103) + " or " + .@zeny + " Zeny.";
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [op=->set] Zeny -= .@zeny;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand(100);
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@price = 45;
+- ADAPT [=->set] .@zeny = 1500000;
+- COMMENT [mesitemlink] mes "I will exchange ^FF00001 Magical Automatic Improvement Device^000000 for " + .@price + " " + mesitemlink(1000103) + " or " + .@zeny + " Zeny.";
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [op=->set] Zeny -= .@zeny;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand(100);
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- MANUAL [unregistered-map:ba_in01] ba_in01,87,389,2	script	Butterfly Merchant#ba_in01	4_EP17_MASTER_A,{
+- ADAPT [callshop+flag] callshop "barter_Teleport_Ep17_02";
+- BOUNDARY [ba_in01] Lisa#ep172_merchant
+- BOUNDARY [ba_in01] Child Manager ©¬#ep172_pet
+- BOUNDARY [ba_in01] Cube Lane#ep172cube
+- BOUNDARY [ba_in01] Spiera#ep172_soapstone
+- BOUNDARY [ba_in01] Yeoncheong#equipment_exchange
+- BOUNDARY [ba_in01] Yecheon#ep172module_trader
+- BOUNDARY [ba_in01] Butterfly Merchant#ba_in01
+
+## enchan_upg.txt
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(.@part);
+- COMMENT [delequip] delequip .@part;
+- COMMENT [delequip] delequip .@part;
+- UNRESOLVED [delequip] Devil Enchant Master#prq
+
+## enchan_verus.txt
+- MANUAL [unregistered-map:verus04] verus04,69,108,5	script	Mass Charleston#1	4_F_CHARLESTON01,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13186) == 0) {
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@s = select( "Quit.", "Exchange Reinforced parts", "Exchange Supplementary device" ) - 2;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@index = select( "Quit.", getitemname(.@item[0]) + " (garment)", getitemname(.@item[1]) + " (Shoes)", getitemname(.@item[2]) + " (Accessory)" ) - 2;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- MANUAL [unregistered-map:verus04] verus04,71,106,5	script	Mass Charleston#2	4_F_CHARLESTON01,{
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@type_action = 1;
+- ADAPT [=->set] .@string$ = "Upgrading";
+- ADAPT [=->set] .@type_action = 2;
+- ADAPT [=->set] .@string$ = "Resetting";
+- COMMENT [strtolower] mes "" + .@string$ + " a Charleston product costs 1 Charleston Component and 100,000 zeny. Please know that all the expenses go into " + strtolower(.@string$) + " your product.";
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@s = select( "Let me go equip it.", "Footgear", "Garment", "Clothes", "Accessory" ) - 2;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@part = .@eq_num[.@s];
+- ADAPT [=->set] .@item_id = getequipid(.@part);
+- ADAPT [=->set] .@refine = getequiprefinerycnt(.@part);
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@en_type = 3;
+- ADAPT [=->set] .@en_type_9 = 1;
+- ADAPT [=->set] .@max_slot = 1;
+- ADAPT [=->set] .@en_type = 4;
+- ADAPT [=->set] .@en_type_9 = 5;
+- ADAPT [=->set] .@max_slot = 1;
+- ADAPT [=->set] .@en_type = 6;
+- ADAPT [=->set] .@en_type_9 = 7;
+- ADAPT [=->set] .@max_slot = 1;
+- ADAPT [=->set] .@en_type = 8;
+- ADAPT [=->set] .@en_type_9 = 8;
+- ADAPT [=->set] .@max_slot = 2;
+- ADAPT [=->set] .@en_type = 3;
+- ADAPT [=->set] .@en_type_9 = 2;
+- ADAPT [=->set] .@max_slot = 1;
+- ADAPT [=->set] .@en_type = 4;
+- ADAPT [=->set] .@en_type_9 = 5;
+- ADAPT [=->set] .@max_slot = 1;
+- ADAPT [=->set] .@en_type = 6;
+- ADAPT [=->set] .@en_type_9 = 7;
+- ADAPT [=->set] .@max_slot = 1;
+- ADAPT [=->set] .@en_type = 8;
+- ADAPT [=->set] .@en_type_9 = 8;
+- ADAPT [=->set] .@max_slot = 2;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@en_type = .@en_type_9;
+- ADAPT [=->set] .@slot = 4;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@slot = 3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@slot = 2;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@slot = 1;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 100;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 200;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 300;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand( .@en_brk1, .@en_brk2 );
+- ADAPT [if-=->set] if (.@r < 11) .@en_name = 4700;	// Strength1
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 100;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 200;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 310;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand( .@en_brk1, .@en_brk2 );
+- ADAPT [if-=->set] if (.@r < 11) .@en_name = 4740;	// Vitality1
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 100;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 200;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 310;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand( .@en_brk1, .@en_brk2 );
+- ADAPT [if-=->set] if (.@r < 11) .@en_name = 4860;	// Evasion3
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 100;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 200;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 310;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand( .@en_brk1, .@en_brk2 );
+- ADAPT [if-=->set] if (.@r < 8) .@en_name = 4700;	// Strength1
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 100;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 200;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 310;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand( .@en_brk1, .@en_brk2 );
+- ADAPT [if-=->set] if (.@r < 9) .@en_name = 4701;	// Strength2
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 100;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 200;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 310;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand( .@en_brk1, .@en_brk2 );
+- ADAPT [if-=->set] if (.@r < 11) .@en_name = 4700;	// Strength1
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 100;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 200;
+- ADAPT [=->set] .@en_brk1 = 101;
+- ADAPT [=->set] .@en_brk2 = 310;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand( .@en_brk1, .@en_brk2 );
+- ADAPT [if-=->set] if (.@r < 11) .@en_name = 4702;	// Strength3
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 100;
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 111;
+- ADAPT [=->set] .@en_brk1 = 1;
+- ADAPT [=->set] .@en_brk2 = 111;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@r = rand( .@en_brk1, .@en_brk2 );
+- ADAPT [if-=->set] if (.@r < 11) .@en_name = 4700;	// Strength1
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@card[.@slot-1] = .@en_name;
+- ADAPT [op=->set] Zeny -= 100000;
+- COMMENT [delequip] delequip .@part;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [if-=->set] if (getiteminfo(.@card[0], ITEMINFO_SUBTYPE) == CARD_ENCHANT) .@card[0] = 0;
+- ADAPT [if-=->set] if (getiteminfo(.@card[1], ITEMINFO_SUBTYPE) == CARD_ENCHANT) .@card[1] = 0;
+- ADAPT [if-=->set] if (getiteminfo(.@card[2], ITEMINFO_SUBTYPE) == CARD_ENCHANT) .@card[2] = 0;
+- ADAPT [if-=->set] if (getiteminfo(.@card[3], ITEMINFO_SUBTYPE) == CARD_ENCHANT) .@card[3] = 0;
+- ADAPT [op=->set] Zeny -= 100000;
+- COMMENT [delequip] delequip .@part;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- MANUAL [unregistered-map:verus04] verus04,63,112,4	script	Mass Charleston#3	4_F_CHARLESTON01,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13186) == 0) {
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@item_id = 16030;	// Pilebuncker_S
+- ADAPT [=->set] .@item_id = 16031;	// Pilebuncker_P
+- ADAPT [=->set] .@item_id = 16032;	// Pilebuncker_T
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@item_id = getarg(0);
+- COMMENT [close3] close3;
+- ADAPT [op=->set] Zeny -= 3999999;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- MANUAL [unregistered-map:verus04] verus04,161,222,4	script	Grandpa picking up scrap iron	1_M_HOF,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(12368) ) {
+- MANUAL [unregistered-map:verus04] verus04,163,219,4	script	PLUTO_09#pa0829	4_SCR_AT_ROBOTS,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12368) < 2) {
+- ADAPT [=->set] .@item_id = .@id[0];
+- ADAPT [=->set] .@item_id = .@id[1];
+- ADAPT [=->set] .@string$ = "^aaaaaaInsufficient fuel for making design drawings.^000000";
+- ADAPT [=->set] .@string$ = "Production design (^ff0000 success rate 30%^000000)";
+- ADAPT [=->set] .@fail = false;
+- ADAPT [=->set] .@reac_rnd = rand(1,10000);
+- ADAPT [if-=->set] if (.@reac_rnd < 26)		.@en_name = 6977;	// Reactor_A_STR_
+- ADAPT [=->set] .@fail = true;
+- ADAPT [=->set] .@reac_rnd2 = rand(1,13000);
+- ADAPT [=->set] .@en_name = 969;	// Gold
+- ADAPT [=->set] .@en_name = 999;	// Steel
+- ADAPT [=->set] .@en_name = 998;	// Iron
+- ADAPT [=->set] .@en_name = 1002;	// Iron_Ore
+- ADAPT [=->set] .@en_name = 7054;	// Brigan
+- MANUAL [unregistered-map:verus04] verus04,165,217,4	script	MARS_01#pa0829	4_SCR_MT_ROBOTS,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(12368) ) {
+- ADAPT [=->set] .@part = EQI_GARMENT;
+- ADAPT [=->set] .@part = EQI_ARMOR;
+- ADAPT [=->set] .@size = getarraysize(.@list);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i += 5 ) {
+- ADAPT [op=->set] .@menu$ += sprintf( "^aaaaaa%s (Missing)^000000:", getitemname(.@list[.@i]) );
+- COMMENT [sprintf] .@menu$ += sprintf( "^aaaaaa%s (Missing)^000000:", getitemname(.@list[.@i]) );
+- ADAPT [op=->set] .@menu$ += sprintf( "%s:", getitemname(.@list[.@i]) );
+- COMMENT [sprintf] .@menu$ += sprintf( "%s:", getitemname(.@list[.@i]) );
+- ADAPT [=->set] .@s = select("Quit.:" + .@menu$) - 2;
+- ADAPT [op=->set] .@s *= 5;
+- ADAPT [=->set] .@item_req = .@list[.@s];
+- ADAPT [=->set] .@item_enchant_id = .@list[.@s+1];
+- ADAPT [=->set] .@first_slot_only = .@list[.@s+4];
+- ADAPT [=->set] .@equip_id = getequipid(.@part);
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(.@part);
+- ADAPT [=->set] .@max_num_enchant = .@list[.@s+2];
+- ADAPT [=->set] .@max_num_enchant = .@list[.@s+3];
+- ADAPT [for/incr->set] if (.@card[0] > 0 && .@item_enchant_id == .@card[0]) { .@slot_sum++; }
+- ADAPT [for/incr->set] if (.@card[1] > 0 && .@item_enchant_id == .@card[1]) { .@slot_sum++; }
+- ADAPT [for/incr->set] if (.@card[2] > 0 && .@item_enchant_id == .@card[2]) { .@slot_sum++; }
+- ADAPT [for/incr->set] if (.@card[3] > 0 && .@item_enchant_id == .@card[3]) { .@slot_sum++; }
+- ADAPT [=->set] .@enchant_count = 1;
+- ADAPT [=->set] .@card[3] = .@item_enchant_id;
+- ADAPT [=->set] .@enchant_count = 2;
+- ADAPT [=->set] .@card[2] = .@item_enchant_id;
+- ADAPT [=->set] .@enchant_count = 3;
+- ADAPT [=->set] .@card[1] = .@item_enchant_id;
+- COMMENT [delequip] delequip .@part;
+- BOUNDARY [verus04] Mass Charleston#1
+- BOUNDARY [verus04] Mass Charleston#2
+- BOUNDARY [verus04] Mass Charleston#3
+
+## enchantgrade.txt
+- MANUAL [unregistered-map:grademk] grademk,34,184,4	script	Sratos#sratos	4_JP_GARM_H,{
+- COMMENT [enchantgradeui] enchantgradeui();
+- ADAPT [callshop+flag] callshop "EnchantGradeExchange";
+- COMMENT [getnpcid,setunittitle] setunittitle(getnpcid(0), "<Grade Enhancer>");
+- MANUAL [unregistered-map:paramk] paramk,34,184,4	script	Suribell#suribell	4_F_FRUIT,{
+- COMMENT [enchantgradeui] enchantgradeui();
+- ADAPT [callshop+flag] callshop "EnchantGradeExchange";
+- COMMENT [getnpcid,setunittitle] setunittitle(getnpcid(0), "<Grade Enhancer>");
+- BOUNDARY [grademk] grademk,9,172,0	warp	Grademk_Out	1,1,prontera,50,290
+- BOUNDARY [paramk] paramk,8,171,0	warp	grade_in	1,1,paramk,141,64
+- BOUNDARY [paramk] paramk,145,64,0	warp	grade_out	1,1,paramk,11,171
+- BOUNDARY [grademk] Sratos#sratos
+- BOUNDARY [paramk] Suribell#suribell
+
+## ghost_palace_exchange.txt
+- MANUAL [unregistered-map:dali02] dali02,51,130,4	script	Dimension Traveler	4_F_SHABBY,{
+- ADAPT [=->set] .@item_name_req$ = getitemname(6672);// Gray_Shard
+- COMMENT [mesitemlink] mes "Adventurer friend, " + mesitemlink( 6672 ) + " is what I need. How about exchanging it with something I have?";
+- ADAPT [=->set] .@type = select( "Show me your weapon.", "Show me your armor.", "Anything special?", "I do not need." ) - 1;
+- COMMENT [mesitemlink] mes "Ah! The number that is written beside " + mesitemlink( 6672 ) + " will be needed.";
+- ADAPT [=->set] .@size = getarraysize(.@items);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i += 2 )
+- ADAPT [op=->set] .@menu$ += getitemname(.@items[.@i]) + " - " + .@items[.@i+1] + ":";
+- ADAPT [=->set] .@s = (select(.@menu$) - 1) * 2;
+- COMMENT [mesitemlink] mes "Do you mean " + mesitemlink( .@items[.@s] ) + "?";
+- BOUNDARY [dali02] Dimension Traveler
+
+## gld_mission_exchange.txt
+- ADAPT [=->set] .@size = getarraysize(.@status$);
+- ADAPT [for/incr->set] for(.@i = 0; .@i < .@size; ++.@i) {
+- ADAPT [=->set] .@itemid = getarg(1);
+- ADAPT [=->set] .@price = getarg(2);
+- ADAPT [=->set] .@fromid = getarg(1);
+- ADAPT [=->set] .@fromname$ = getarg(2);
+- ADAPT [=->set] .@toid = getarg(3);
+- ADAPT [=->set] .@toname$ = getarg(4);
+- BOUNDARY [te_prt_gld] te_prt_gld,107,155,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#7	2_VENDING_MACHINE1
+- BOUNDARY [te_alde_gld] te_alde_gld,180,163,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#8	2_VENDING_MACHINE1
+- UNRESOLVED [malformed-for] #GldDungeonReward
+- ORPHAN [#GldDungeonReward] alde_gld,180,163,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#1	2_VENDING_MACHINE1
+- ORPHAN [#GldDungeonReward] pay_gld,196,176,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#2	2_VENDING_MACHINE1
+- ORPHAN [#GldDungeonReward] gef_fild13,198,246,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#3	2_VENDING_MACHINE1
+- ORPHAN [#GldDungeonReward] sch_gld,266,119,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#4	2_VENDING_MACHINE1
+- ORPHAN [#GldDungeonReward] aru_gld,89,204,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#5	2_VENDING_MACHINE1
+- ORPHAN [#GldDungeonReward] prt_gld,107,155,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#6	2_VENDING_MACHINE1
+
+## guild_warehouse.txt
+- ADAPT [=->set] .@guildid = getcharid( 2 );
+- ADAPT [guild_has_permission->0] if( getgdskilllv( .@guildid, "GD_GUILD_STORAGE" ) == 0 || !guild_has_permission( GUILD_PERM_STORAGE ) ){
+- ADAPT [op=->set] Zeny -= 1000;
+- ADAPT [=->set] .@guildid = getcharid( 2 );
+- ADAPT [guild_has_permission->0] if( getgdskilllv( .@guildid, "GD_GUILD_STORAGE" ) == 0 || !guild_has_permission( GUILD_PERM_STORAGE ) ){
+- COMMENT [guildopenstorage_log] guildopenstorage_log();
+- BOUNDARY [harboro1] harboro1,288,212,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#harboro1	896
+- UNRESOLVED [guildopenstorage_log] GuildWarehouse
+- ORPHAN [GuildWarehouse] alberta,114,65,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#alberta	896
+- ORPHAN [GuildWarehouse] aldebaran,146,122,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#aldebaran	896
+- ORPHAN [GuildWarehouse] amatsu,100,156,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#amatsu	896
+- ORPHAN [GuildWarehouse] ayothaya,203,173,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#ayothaya	896
+- ORPHAN [GuildWarehouse] brasilis,204,227,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#brasilis	896
+- ORPHAN [GuildWarehouse] comodo,204,153,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#comodo	896
+- ORPHAN [GuildWarehouse] dewata,196,193,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#dewata	896
+- ORPHAN [GuildWarehouse] einbech,182,124,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#einbech	896
+- ORPHAN [GuildWarehouse] einbroch,238,203,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#einbroch	896
+- ORPHAN [GuildWarehouse] geffen,128,68,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#geffen	896
+- ORPHAN [GuildWarehouse] gonryun,164,127,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#gonryun	896
+- ORPHAN [GuildWarehouse] hugel,91,158,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#hugel	896
+- ORPHAN [GuildWarehouse] izlude,133,149,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#izlude	896
+- ORPHAN [GuildWarehouse] lighthalzen,162,102,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#lighthalzen	896
+- ORPHAN [GuildWarehouse] louyang,210,111,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#louyang	896
+- ORPHAN [GuildWarehouse] malaya,238,206,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#malaya	896
+- ORPHAN [GuildWarehouse] morocc,168,107,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#morocc	896
+- ORPHAN [GuildWarehouse] moscovia,211,200,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#moscovia	896
+- ORPHAN [GuildWarehouse] niflheim,200,184,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#niflheim	896
+- ORPHAN [GuildWarehouse] payon,180,106,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#payon	896
+- ORPHAN [GuildWarehouse] prontera,150,191,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#prontera	896
+- ORPHAN [GuildWarehouse] rachel,123,145,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#rachel	896
+- ORPHAN [GuildWarehouse] umbala,106,160,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#umbala	896
+- ORPHAN [GuildWarehouse] veins,205,130,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#veins	896
+- ORPHAN [GuildWarehouse] xmas,155,140,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#xmas	896
+- ORPHAN [GuildWarehouse] yuno,176,187,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#yuno	896
+
+## hd_refiner.txt
+- ADAPT [for/incr->set] for ( .@i = 1; .@i <= 10; ++.@i )
+- ADAPT [=->set] .@menu$ = .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) + "-[Not equipped]" ) + ":";
+- ADAPT [=->set] .@part = .@indices[ select(.@menu$) ];
+- ADAPT [=->set] .@blacksmith_blessing_count = 1;
+- ADAPT [=->set] .@blacksmith_blessing_count = 2;
+- ADAPT [=->set] .@blacksmith_blessing_count = 4;
+- ADAPT [=->set] .@refineitemid = getequipid(.@part); // save id of the item
+- ADAPT [=->set] .@itemtype = getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+- ADAPT [=->set] .@refinerycnt = getequiprefinerycnt(.@part); //save refinery count
+- ADAPT [=->set] .@price = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_ZENY_COST);
+- COMMENT [getequiprefinecost] .@price = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_ZENY_COST);
+- ADAPT [=->set] .@material = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_MATERIAL_ID);
+- COMMENT [getequiprefinecost] .@material = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_MATERIAL_ID);
+- ADAPT [=->set] .@bless_who = 1;
+- ADAPT [=->set] Zeny = Zeny - .@price;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [downrefitem] downrefitem .@part;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [for/incr->set] for ( .@i = 1; .@i <= 10; ++.@i )
+- ADAPT [=->set] .@menu$ = .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) + "-[Unequipped]" ) + ":";
+- ADAPT [=->set] .@part = .@indices[ select(.@menu$) ];
+- ADAPT [=->set] .@refine_count = getequiprefinerycnt(.@part);
+- ADAPT [=->set] .@blacksmith_blessing_count = 7;
+- ADAPT [=->set] .@blacksmith_blessing_count = 11;
+- ADAPT [=->set] .@refineitemid = getequipid(.@part); // save id of the item
+- ADAPT [=->set] .@itemtype = getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+- ADAPT [=->set] .@refinerycnt = getequiprefinerycnt(.@part); //save refinery count
+- ADAPT [=->set] .@price = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_ZENY_COST);
+- COMMENT [getequiprefinecost] .@price = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_ZENY_COST);
+- ADAPT [=->set] .@material = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_MATERIAL_ID);
+- COMMENT [getequiprefinecost] .@material = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_MATERIAL_ID);
+- ADAPT [=->set] .@type$ = "armor";
+- ADAPT [=->set] .@type$ = "weapon";
+- ADAPT [=->set] .@bless_who = 1;
+- ADAPT [=->set] Zeny = Zeny - .@price;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_MONEY,ET_HUK] emotion (!rand(5))?ET_MONEY:ET_HUK;
+- COMMENT [downrefitem] downrefitem .@part;
+- COMMENT [ET_MONEY,ET_HUK] emotion (!rand(5))?ET_MONEY:ET_HUK;
+- COMMENT [unloadnpc] unloadnpc "Basta";
+- COMMENT [unloadnpc] unloadnpc "MightyHammer";
+- UNRESOLVED [downrefitem,getequiprefinecost] MightyHammer
+- UNRESOLVED [downrefitem,getequiprefinecost] Basta
+- UNRESOLVED [unloadnpc] RefineUI_Init
+- ORPHAN [MightyHammer] prt_in,59,54,3	duplicate(MightyHammer)	Mighty Hammer#prt	4_M_DWARF
+- ORPHAN [MightyHammer] morocc_in,65,30,3	duplicate(MightyHammer)	Mighty Hammer#morocc	4_M_DWARF
+- ORPHAN [MightyHammer] payon,148,176,3	duplicate(MightyHammer)	Mighty Hammer#pay	4_M_DWARF
+- ORPHAN [MightyHammer] alberta_in,16,56,3	duplicate(MightyHammer)	Mighty Hammer#alb	4_M_DWARF
+- ORPHAN [MightyHammer] yuno_in01,171,18,3	duplicate(MightyHammer)	Mighty Hammer#yuno	4_M_DWARF
+- ORPHAN [MightyHammer] ein_in01,22,82,3	duplicate(MightyHammer)	Mighty Hammer#ein	4_M_DWARF
+- ORPHAN [MightyHammer] lhz_in02,280,19,3	duplicate(MightyHammer)	Mighty Hammer#lhz	4_M_DWARF
+- ORPHAN [Basta] prt_in,57,54,3	duplicate(Basta)	Basta#prt	4_M_DWARF
+- ORPHAN [Basta] morocc_in,68,30,3	duplicate(Basta)	Basta#morocc	4_M_DWARF
+- ORPHAN [Basta] payon,148,174,3	duplicate(Basta)	Basta#payon	4_M_DWARF
+- ORPHAN [Basta] alberta_in,18,56,3	duplicate(Basta)	Basta#alberta	4_M_DWARF
+- ORPHAN [Basta] yuno_in01,173,18,3	duplicate(Basta)	Basta#yuno	4_M_DWARF
+- ORPHAN [Basta] ein_in01,24,82,3	duplicate(Basta)	Basta#einbroch	4_M_DWARF
+- ORPHAN [Basta] lhz_in02,280,17,3	duplicate(Basta)	Basta#lighthalzen	4_M_DWARF
+
+## malangdo_costume.txt
+- ADAPT [=->set] .@box_list[0] = 22826;		// Enchant_Stone_Box4
+- ADAPT [=->set] .@box_list[1] = 22868;		// Enchant_Stone_Box5
+- ADAPT [=->set] .@box_list[2] = 22905;		// Enchant_Stone_Box6
+- ADAPT [=->set] .@box_list[3] = 22953;		// Enchant_Stone_Box7
+- ADAPT [=->set] .@box_list[4] = 23001;		// Enchant_Stone_Box8
+- ADAPT [=->set] .@box_list[5] = 23058;		// Enchant_Stone_Box9
+- ADAPT [=->set] .@box_list[6] = 23086;		// Enchant_Stone_Box10
+- ADAPT [=->set] .@box_list[7] = 23174;		// Enchant_Stone_Box11
+- ADAPT [=->set] .@box_list[8] = 23299;		// Enchant_Stone_Box12
+- ADAPT [=->set] .@box_list[9] = 23524;		// Enchant_Stone_Box13
+- ADAPT [=->set] .@box_list[10] = 23629;		// Enchant_Stone_Box14
+- ADAPT [=->set] .@box_list[11] = 23682;		// Enchant_Stone_Box15
+- ADAPT [=->set] .@box_list[12] = 23770;		// Enchant_Stone_Box16
+- ADAPT [=->set] .@box_list[13] = 9510;		// Enchant_Stone_Box17
+- ADAPT [=->set] .@box_list[14] = 100019;		// Enchant_Stone_Box18
+- ADAPT [=->set] .@box_list[15] = 100052;		// Enchant_Stone_Box19
+- ADAPT [=->set] .@box_list[16] = 100202;		// Enchant_Stone_Box20
+- ADAPT [=->set] .@box_list[17] = 100314;		// Enchant_Stone_Box21
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 18; ++.@i ) {
+- ADAPT [=->set] .@size = getarraysize( getd(".@item_list_" + .@i) );
+- ADAPT [for/incr->set] for ( .@h = 0; .@h < .@size; ++.@h ) {
+- ADAPT [=->set] .@id = getd( ".@item_list_" + .@i + "[" + .@h + "]" );
+- ADAPT [=->set] .@eq_top = getequipid(EQI_COSTUME_HEAD_TOP);
+- ADAPT [=->set] .@eq_mid = getequipid(EQI_COSTUME_HEAD_MID);
+- ADAPT [=->set] .@eq_low = getequipid(EQI_COSTUME_HEAD_LOW);
+- ADAPT [=->set] .@part = EQI_COSTUME_HEAD_TOP;
+- ADAPT [=->set] .@equip_id = .@eq_top;
+- ADAPT [=->set] .@part = EQI_COSTUME_HEAD_MID;
+- ADAPT [=->set] .@equip_id = .@eq_mid;
+- ADAPT [=->set] .@part = EQI_COSTUME_HEAD_LOW;
+- ADAPT [=->set] .@equip_id = .@eq_low;
+- ADAPT [=->set] .@location = getiteminfo(.@equip_id, ITEMINFO_LOCATIONS);
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(.@part);
+- ADAPT [=->set] .@slot = select( "Upper", "Middle", "Lower", "Cancel" ) - 1;	// the slot enchanted changes according to the location
+- ADAPT [=->set] .@slot = select( "", "Middle", "Lower", "Cancel" ) - 1;
+- ADAPT [=->set] .@slot = 2;
+- ADAPT [=->set] .@size = getarraysize(.@stone_id);
+- ADAPT [=->set] .@max_menu_size = 2047;	// temporary fix the menu length until new data
+- ADAPT [=->set] .@i = 0;
+- ADAPT [=->set] .@menu$ = "";
+- ADAPT [op=->set] .@offset += .@i;
+- ADAPT [for/incr->set] for ( .@i = .@offset; .@i < .@size; .@i += 2 ) {
+- ADAPT [=->set] .@str$ = sprintf( "%d. %s [%d] left:", (.@i/2)+1, getitemname(.@stone_id[.@i]), countitem(.@stone_id[.@i]) );
+- COMMENT [sprintf] .@str$ = sprintf( "%d. %s [%d] left:", (.@i/2)+1, getitemname(.@stone_id[.@i]), countitem(.@stone_id[.@i]) );
+- ADAPT [op=->set] .@menu$ += "^0000ffNext^000000:";
+- ADAPT [op=->set] .@menu$ += .@str$;
+- ADAPT [=->set] .@s = (select(.@menu$) - 1) * 2;
+- ADAPT [op=->set] .@s += .@offset;
+- ADAPT [=->set] .@stone = .@stone_id[.@s];
+- ADAPT [=->set] .@enchant = .@stone_id[.@s+1];
+- COMMENT [delequip] delequip .@part;
+- ADAPT [=->set] .@card[.@slot] = .@enchant;
+- ADAPT [=->set] .@card[.@slot] = 0;
+- ADAPT [=->set] .@part = EQI_COSTUME_GARMENT;
+- ADAPT [=->set] .@equip_id = getequipid(.@part);
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(.@part);
+- ADAPT [=->set] .@size = getarraysize(.@data$);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i += 3 ) {
+- ADAPT [=->set] .@id = atoi(.@data$[.@i]);
+- ADAPT [op=->set] .@menu$ += sprintf( "%d. %s (%d) left:", (.@j+1), getitemname(.@id), countitem(.@id) );
+- COMMENT [sprintf] .@menu$ += sprintf( "%d. %s (%d) left:", (.@j+1), getitemname(.@id), countitem(.@id) );
+- ADAPT [for/incr->set] .@j++;
+- ADAPT [op=->set] .@menu$ += "End Conversation.";
+- ADAPT [=->set] .@s = (select(.@menu$) - 1) * 3;
+- ADAPT [=->set] .@id = atoi(.@data$[.@s]);
+- ADAPT [=->set] .@enchant = atoi(.@data$[.@s+1]);
+- COMMENT [delequip] delequip .@part;
+- ADAPT [=->set] .@card[0] = .@enchant;
+- ADAPT [=->set] .@card[0] = 0;
+- UNRESOLVED [malformed-for] Designer Heidam#eventhat
+- UNRESOLVED [delequip,sprintf] Aver De Dosh#cos_ect
+- UNRESOLVED [delequip,sprintf] Lace La Zard#cos_ect
+
+## moro_cav_exchange.txt
+- MANUAL [unregistered-map:moro_cav] moro_cav,32,73,5	script	Hero Token Exchanger#1	4_F_SHADOWCHASER,{
+- MANUAL [unregistered-map:moro_cav] moro_cav,34,65,5	script	Expert Enchanter Byrnes	1_M_03,{
+- ADAPT [=->set] .@s = select( "Left", "Right" ) - 1;
+- ADAPT [=->set] .@slot = 4;
+- ADAPT [=->set] .@slot = 3;
+- ADAPT [=->set] .@slot = 2;
+- ADAPT [=->set] .@slot = 1;
+- ADAPT [=->set] .@enchant_list_size = getarraysize(.@enchant_list$);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@enchant_list_size; ++.@i )
+- ADAPT [op=->set] .@menu$ += .@enchant_list$[.@i] + ":";
+- ADAPT [=->set] .@type = select(.@menu$) - 1;
+- COMMENT [max] case 0:	// Max HP
+- COMMENT [max] default:	// Max SP
+- ADAPT [=->set] .@bonus_size = getarraysize(.@bonus);
+- ADAPT [=->set] .@card[.@slot-1] = .@bonus[ rand(.@bonus_size) ];	// unknown rates
+- COMMENT [delequip] delequip .@eqi_slot[.@s];
+- ADAPT [=->set] .@s = select( "Left", "Right" ) - 1;
+- COMMENT [delequip] delequip .@eqi_slot[.@s];
+- BOUNDARY [moro_cav] Hero Token Exchanger#1
+- BOUNDARY [moro_cav] Expert Enchanter Byrnes
+
+## new_insurance.txt
+- ADAPT [=->set] .@old_item = 12209;
+- ADAPT [=->set] .@new_item = 6413;
+- ADAPT [=->set] .@old_item_name$ = getitemname(.@old_item);
+- ADAPT [=->set] .@new_item_name$ = getitemname(.@new_item);
+- COMMENT [mesitemlink] mes "Do you have any " + mesitemlink( .@old_item ) + " in your storage?";
+- COMMENT [mesitemlink] mes "If you bring me a " + .@old_item_name$ + ", I'll exchange it to " + mesitemlink( .@new_item ) + ". What do you think? Do you have any idea what this item is?";
+- COMMENT [mesitemlink] mes "Have you ever thought about replacing your " + mesitemlink( .@old_item ) + " to something better? For example... " + mesitemlink( .@new_item ) + ". What do you think?";
+- COMMENT [mesitemlink] mes mesitemlink( .@old_item ) + " is an item that prevents you from losing experience on death once within the 30 minutes duration after use.";
+- COMMENT [mesitemlink] mes "But a lot of people are sad about the time limit, right? So I looked into it and prepared the " + mesitemlink( .@new_item ) + ".";
+- COMMENT [mesitemlink] mes mesitemlink( .@new_item ) + " is an item that will prevent the loss of experience on death once by just having it ^EE0000regardless of the duration^000000. Of course, after death, the "+.@new_item_name$+" is consumed.";
+- COMMENT [mesitemlink] mes "The exchange rate is 5 " + mesitemlink( .@old_item ) + " for 1 " + mesitemlink( .@new_item ) + ". Do you have any questions?";
+- COMMENT [mesitemlink] mes "Um, excuse me but... you don't have enough " +.@old_item_name$+ ", no? It's 5 " + mesitemlink( .@old_item ) + " for 1 " + mesitemlink( .@new_item ) + ". Please check the quantity.";
+- UNRESOLVED [mesitemlink] Heart Merchant#life01
+
+## nightmare_biolab.txt
+- ADAPT [=->set] .@r = rand(1,23);
+- ADAPT [=->set] .@r = rand(1,12);
+- COMMENT [showscript] showscript "I will never forgive you...!";
+- COMMENT [showscript] showscript "Somebody please help me...";
+- COMMENT [showscript] showscript "Stop it... It hurts...";
+- COMMENT [showscript] showscript "It's so cold in here...";
+- COMMENT [showscript] showscript "Please... Stay with me...";
+- COMMENT [showscript] showscript "Stay... here with me...";
+- COMMENT [showscript] showscript "You shouldn't have come here...";
+- COMMENT [showscript] showscript "Hello... Is anyone there...?";
+- COMMENT [showscript] showscript "I am so scared....scared....";
+- COMMENT [showscript] showscript "Dear Odin...";
+- COMMENT [showscript] showscript "Wake up!";
+- COMMENT [showscript] showscript "I am sorry... I will leave now... thank you...";
+- ADAPT [=->set] .@r = rand(1,10);
+- ADAPT [op=->set] Zeny -= 100000;
+- ADAPT [=->set] Zeny = Zeny - 150000;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14683) > 0)
+- ADAPT [=->set] Zeny = Zeny - 2000000;
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,96,203,3	script	Dungeon gateway#1	4_CRACK,{
+- ADAPT [=->set] .@color$[0] = countitem(6820) < 200 ? "^777777" : "^000000";
+- ADAPT [=->set] .@color$[1] = countitem(6820) < 300 ? "^777777" : "^000000";
+- ADAPT [=->set] .@s = select( "Listen to the story.", .@color$[0] + "1 Will of Warrior (200 Energy pieces)", .@color$[0] + "1 Blood Thirst (200 energy pieces)", .@color$[1] + "1 Ghost Chill (300 energy pieces)^000000" ) - 2;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- ADAPT [op=->set] .@s *= 2;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- ADAPT [=->set] .@r = rand(4);
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- ADAPT [=->set] .@index = .@s * 3;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,145,265,4	script	Silent Mind#JCv2	4_CENERE,{
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 6; ++.@i ) {
+- ADAPT [op=->set] .@menu$ += "^777777Not enough " + getitemname(.@item[.@i]) + ".^000000:";
+- ADAPT [op=->set] .@menu$ += "Hand over 3 " + getitemname(.@item[.@i]) + ".:";
+- ADAPT [=->set] .@s = select(.@menu$) - 1;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_HUNGRY] emotion ET_HUNGRY;
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,134,265,2	script	Wandering Mind#JCv2	4_CENERE,{
+- ADAPT [=->set] .@equip_id = getequipid(EQI_HEAD_TOP);
+- ADAPT [=->set] .@requirement = 10;	// 10 Cursed Fragments by default
+- ADAPT [=->set] .@refine = getequiprefinerycnt(EQI_HEAD_TOP);
+- ADAPT [=->set] .@slot = 3;
+- ADAPT [=->set] .@slot = 2;
+- ADAPT [=->set] .@slot = 1;
+- ADAPT [=->set] .@requirement = 20;
+- ADAPT [=->set] .@enchant_level = 1;
+- ADAPT [=->set] .@enchant_rate = 70;
+- ADAPT [=->set] .@requirement = 40;
+- ADAPT [=->set] .@enchant_level = 2;
+- ADAPT [=->set] .@enchant_rate = 50;
+- ADAPT [=->set] .@requirement = 50;
+- ADAPT [=->set] .@enchant_level = 3;
+- ADAPT [=->set] .@enchant_rate = 35;
+- ADAPT [=->set] .@requirement = 70;
+- ADAPT [=->set] .@enchant_level = 4;
+- ADAPT [=->set] .@enchant_rate = 25;
+- ADAPT [=->set] .@requirement = 100;
+- ADAPT [=->set] .@enchant_level = 5;
+- ADAPT [=->set] .@enchant_rate = 18;
+- ADAPT [=->set] .@requirement = 150;
+- ADAPT [=->set] .@enchant_level = 6;
+- ADAPT [=->set] .@enchant_rate = 13;
+- ADAPT [=->set] .@requirement = 250;
+- ADAPT [=->set] .@enchant_level = 7;
+- ADAPT [=->set] .@enchant_rate = 9;
+- ADAPT [=->set] .@requirement = 500;
+- ADAPT [=->set] .@enchant_level = 8;
+- ADAPT [=->set] .@enchant_rate = 6;
+- ADAPT [=->set] .@requirement = 1000;
+- ADAPT [=->set] .@enchant_level = 9;
+- ADAPT [=->set] .@enchant_rate = 4;
+- ADAPT [=->set] .@slot = 999;
+- ADAPT [=->set] .@card[.@slot] = .@enchant[ rand( getarraysize(.@enchant) ) ];	// unknown rates
+- ADAPT [=->set] .@card[1] = .@enchant[ rand( getarraysize(.@enchant) ) ];	// unknown rates
+- ADAPT [=->set] .@level_dt = 1;
+- ADAPT [=->set] .@level_dt = -1;
+- ADAPT [op=->set] .@enchant_level += .@level_dt;
+- ADAPT [op=->set] .@card[1] += .@level_dt;
+- COMMENT [delequip] delequip EQI_HEAD_TOP;
+- ADAPT [=->set] .@equip_id = getequipid(EQI_HEAD_TOP);
+- ADAPT [=->set] .@refine = getequiprefinerycnt(EQI_HEAD_TOP);
+- COMMENT [delequip] delequip EQI_HEAD_TOP;
+- ADAPT [for/incr->set] for ( .@i = 18971; .@i <= 18984; ++.@i ) {
+- ADAPT [op=->set] .@string$[0] += getitemname(.@i) + ", ";
+- ADAPT [op=->set] .@string$[1] += getitemname(.@i) + ", ";
+- ADAPT [=->set] .@string$[2] = getitemname(.@i);
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,143,269,4	script	Victimized Soul's Mind#1	4_M_DEATH2,{
+- ADAPT [=->set] .@r = rand(5);
+- ADAPT [=->set] .@size = getargcount();
+- COMMENT [getargcount] .@size = getargcount();
+- ADAPT [=->set] .@menu$ = "Go back to previous menu.:";
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i++ ) {
+- ADAPT [op=->set] .@menu$ += "^999999Not enough " + getitemname(getarg(.@i)) + ".^000000:";
+- ADAPT [op=->set] .@menu$ += "You have " + getitemname(getarg(.@i)) + ".:";
+- ADAPT [=->set] .@s = select(.@menu$) - 2;
+- ADAPT [=->set] .@r = rand(100);
+- ADAPT [=->set] .@amount = 1;
+- ADAPT [=->set] .@amount = 2;
+- ADAPT [=->set] .@amount = 3;
+- COMMENT [progressbar_npc] progressbar_npc "000000",5;
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,136,269,6	script	Sorrowful Soul's Mind#1	4_M_DEATH,{
+- ADAPT [=->set] .@r = rand(5);
+- ADAPT [=->set] .@reward_id = getarg(0);
+- ADAPT [=->set] .@equipment_req = getarg(1);
+- ADAPT [=->set] .@item_misc_req = getarg(2);
+- ADAPT [=->set] .@rate = 1;
+- ADAPT [=->set] .@rate = 5;
+- BOUNDARY [lhz_d_n2] lhz_d_n2,53,49,4	duplicate(Silent Mind#JCv2)	Silent Mind#JCv2C	4_CENERE
+- BOUNDARY [lhz_d_n2] lhz_d_n2,42,49,2	duplicate(Wandering Mind#JCv2)	Wandering Mind#JCv2C	4_CENERE
+- BOUNDARY [lhz_d_n2] lhz_d_n2,51,53,4	duplicate(Victimized Soul's Mind#1)	Victimized Soul's Mind#1C	4_M_DEATH2
+- BOUNDARY [lhz_d_n2] lhz_d_n2,44,53,6	duplicate(Sorrowful Soul's Mind#1)	Sorrowful Soul's Mind#1C	4_M_DEATH
+- MANUAL [unregistered-map:lhz_d_n2] lhz_d_n2,34,45,3	script	#lhzdw	1_SHADOW_NPC,{
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,167,259,2	script	A Questionable Device#l	4_SYSTEM_BOX,3,3,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14683) == 1) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(14683) == 1" );
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,75,121,0	script	#Alphoccio_Basil_A1	HIDDEN_WARP_NPC,3,3,{
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [=->set] .@npc_name$ = strnpcinfo(0);
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A24";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A5";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A6";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A17";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A18";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A19";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A20";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A7";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A8";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A15";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A16";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A21";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A22";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A9";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A10";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A3";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A4";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A13";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A14";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A1";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A2";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A11";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A12";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A25";
+- ADAPT [=->set] .@talker_name$ = "#lhz_dun_talk_A26";
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- BOUNDARY [lhz_dun_n] lhz_dun_n,92,102,0	duplicate(#Alphoccio_Basil_A1)	#Alphoccio_Basil_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,150,74,0	duplicate(#Alphoccio_Basil_A1)	#Catherine Cheiron_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,174,98,0	duplicate(#Alphoccio_Basil_A1)	#Katrinn Chiron_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,25,65,0	duplicate(#Alphoccio_Basil_A1)	#Celia_Alde_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,60,102,0	duplicate(#Alphoccio_Basil_A1)	#Celia_Alde_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,194,188,0	duplicate(#Alphoccio_Basil_A1)	#Chen_Liu_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,255,206,0	duplicate(#Alphoccio_Basil_A1)	#Chen_Liu_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,81,184,0	duplicate(#Alphoccio_Basil_A1)	#Eremes_Guille_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,113,191,0	duplicate(#Alphoccio_Basil_A1)	#Eremes_Guille_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,84,87,0	duplicate(#Alphoccio_Basil_A1)	#Flamel_Emule_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,39,55,0	duplicate(#Alphoccio_Basil_A1)	#Flamel_Emule_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,232,198,0	duplicate(#Alphoccio_Basil_A1)	#Gertie_Wie_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,130,148,0	duplicate(#Alphoccio_Basil_A1)	#Gertie_Wie_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,119,195,0	duplicate(#Alphoccio_Basil_A1)	#Harword Alt-Eisen_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,158,210,0	duplicate(#Alphoccio_Basil_A1)	#Harword Alt-Eisen_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,159,122,0	duplicate(#Alphoccio_Basil_A1)	#Magaleta_Sorin_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,133,39,0	duplicate(#Alphoccio_Basil_A1)	#Magaleta_Sorin_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,168,193,0	duplicate(#Alphoccio_Basil_A1)	#Randel_Lawrence_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,188,188,0	duplicate(#Alphoccio_Basil_A1)	#Randel_Lawrence_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,44,155,0	duplicate(#Alphoccio_Basil_A1)	#Seyren Windsor_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,54,221,0	duplicate(#Alphoccio_Basil_A1)	#Seyren Windsor_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,249,66,0	duplicate(#Alphoccio_Basil_A1)	#Shecil_Damon_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,213,97,0	duplicate(#Alphoccio_Basil_A1)	#Shecil_Damon_A2	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,191,129,0	duplicate(#Alphoccio_Basil_A1)	#Trentini_A1	HIDDEN_WARP_NPC,3,3
+- BOUNDARY [lhz_dun_n] lhz_dun_n,259,132,0	duplicate(#Alphoccio_Basil_A1)	#Trentini_A2	HIDDEN_WARP_NPC,3,3
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,44,155,6	script	#lhz_dun_talk_A1	CLEAR_NPC,{ end; }
+- BOUNDARY [lhz_dun_n] lhz_dun_n,54,221,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A2	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,159,122,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A3	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,133,39,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A4	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,150,74,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A5	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,174,98,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A6	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,81,184,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A7	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,113,191,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A8	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,119,195,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A9	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,158,210,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A10	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,249,66,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A11	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,213,97,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A12	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,168,193,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A13	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,188,188,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A14	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,84,87,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A15	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,39,55,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A16	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,25,65,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A17	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,60,102,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A18	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,194,188,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A19	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,255,206,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A20	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,232,198,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A21	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,130,148,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A22	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,75,121,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A23	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,92,102,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A24	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,191,129,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A25	CLEAR_NPC
+- BOUNDARY [lhz_dun_n] lhz_dun_n,259,132,6	duplicate(#lhz_dun_talk_A1)	#lhz_dun_talk_A26	CLEAR_NPC
+- MANUAL [unregistered-map:lhz_dun_n] lhz_dun_n,132,61,2	script	A Questionable Device#14684	4_SYSTEM_BOX,5,5,{
+- ADAPT [=->set] .@quest_id = atoi(strnpcinfo(2));
+- ADAPT [=->set] .@condition$ = "!isbegin_quest(" + strnpcinfo(2) + ")";
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, .@condition$ );
+- BOUNDARY [lhz_dun_n] lhz_dun_n,53,127,2	duplicate(A Questionable Device#14684)	A Questionable Device#14685	4_SYSTEM_BOX,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,214,127,2	duplicate(A Questionable Device#14684)	A Questionable Device#14686	4_SYSTEM_BOX,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,148,148,2	duplicate(A Questionable Device#14684)	A Questionable Device#14687	4_SYSTEM_BOX,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,130,204,2	script	Dead Man#lhzd01	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,78,133,2	script	Dead Man#lhzd02	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,47,65,2	script	Dead Man#lhzd03	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,141,39,2	script	Dead Man#lhzd04	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,123,85,2	script	Dead Man#lhzd05	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,212,71,2	script	Dead Man#lhzd06	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,213,109,2	script	Dead Man#lhzd07	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,145,179,2	script	Dead Man#lhzd08	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,233,135,2	script	Dead Man#lhzd09	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,241,201,2	script	Dead Man#lhzd10	4_TOWER_06,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,150,211,2	script	Dead Man#lhzd11	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,69,144,2	script	Dead Man#lhzd12	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,113,81,2	script	Dead Man#lhzd13	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,144,64,2	script	Dead Man#lhzd14	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,157,93,2	script	Dead Man#lhzd15	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,231,69,2	script	Dead Man#lhzd16	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,179,107,2	script	Dead Man#lhzd17	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,172,175,2	script	Dead Man#lhzd18	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,228,149,2	script	Dead Man#lhzd19	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,248,218,2	script	Dead Man#lhzd20	4_TOWER_03,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,139,233,2	script	Dead Man#lhzd21	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,69,110,2	script	Dead Man#lhzd22	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,100,109,2	script	Dead Man#lhzd23	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,137,72,2	script	Dead Man#lhzd24	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,169,85,2	script	Dead Man#lhzd25	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,245,63,2	script	Dead Man#lhzd26	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,182,126,2	script	Dead Man#lhzd27	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,182,154,2	script	Dead Man#lhzd28	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,246,141,2	script	Dead Man#lhzd29	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,236,226,2	script	Dead Man#lhzd30	4_TOWER_08,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,38,200,2	script	Dead Man#lhzd31	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,95,86,2	script	Dead Man#lhzd32	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,98,138,2	script	Dead Man#lhzd33	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,145,89,2	script	Dead Man#lhzd34	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,186,92,2	script	Dead Man#lhzd35	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,181,148,2	script	Dead Man#lhzd36	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,181,148,2	script	Dead Man#lhzd37	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,203,144,2	script	Dead Man#lhzd38	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,240,134,2	script	Dead Man#lhzd39	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,141,129,2	script	Dead Man#lhzd40	4_TOWER_11,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,81,160,2	script	Dead Man#lhzd41	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,41,77,2	script	Dead Man#lhzd42	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,99,162,2	script	Dead Man#lhzd43	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,136,95,2	script	Dead Man#lhzd44	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,184,80,2	script	Dead Man#lhzd45	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,202,102,2	script	Dead Man#lhzd46	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,157,143,2	script	Dead Man#lhzd47	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,202,133,2	script	Dead Man#lhzd48	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,220,178,2	script	Dead Man#lhzd49	4_TOWER_13,5,5
+- BOUNDARY [lhz_dun_n] lhz_dun_n,131,148,2	script	Dead Man#lhzd50	4_TOWER_13,5,5
+- UNRESOLVED [showscript] F_Cursed_Fragment
+- BOUNDARY [lhz_dun_n] Dungeon gateway#1
+- UNRESOLVED [multiline-select] Bully#JCv2
+- BOUNDARY [lhz_dun_n] Silent Mind#JCv2
+- BOUNDARY [lhz_dun_n] Wandering Mind#JCv2
+- BOUNDARY [lhz_dun_n] Victimized Soul's Mind#1
+- BOUNDARY [lhz_dun_n] Sorrowful Soul's Mind#1
+- BOUNDARY [lhz_d_n2] #lhzdw
+- BOUNDARY [lhz_dun_n] A Questionable Device#l
+- BOUNDARY [lhz_dun_n] #Alphoccio_Basil_A1
+- BOUNDARY [lhz_dun_n] #lhz_dun_talk_A1
+- BOUNDARY [lhz_dun_n] A Questionable Device#14684
+
+## novice_vending_machine.txt
+- ADAPT [=->set] .@storage_ticket = 7059;	// Cargo_Free_Ticket
+- ADAPT [=->set] .@storage_ticket_name$ = getitemname(.@storage_ticket);
+- ADAPT [=->set] .@size = getarraysize(.@exchange);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i += 2 ) {
+- ADAPT [op=->set] .@menu$ += .@exchange[.@i+1] + " ";
+- ADAPT [op=->set] .@menu$ += getitemname(.@exchange[.@i]) + ":";
+- ADAPT [=->set] .@s = (select(.@menu$) - 1) * 2;
+- ADAPT [=->set] .@amount$ = .@exchange[.@s+1] + " ";
+- ADAPT [=->set] .@size = getarraysize(.@list);
+- ADAPT [for/incr->set] for ( .@i = 0, .@i < .@size; .@i++ ) {
+- ADAPT [=->set] .@count = countitem(.@list[.@i]);	// note: maybe check if equipped items are skipped
+- UNRESOLVED [malformed-for] novice_vending_machine#main
+- ORPHAN [novice_vending_machine#main] izlude_in,69,177,5	duplicate(novice_vending_machine#main)	Vending Machine for Nov#iz	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] payon_in02,71,75,5	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pay	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] prt_church,187,27,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#prt	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] alberta_in,60,52,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#alb	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] geffen_in,158,107,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#gef	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] moc_para01,17,37,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#para	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] moc_prydb1,38,124,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pryd	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] payon_in01,59,20,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pay2	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] que_ng,28,73,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#que_ng1	2_VENDING_MACHINE1
+- ORPHAN [novice_vending_machine#main] que_ng,168,39,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#que_ng2	2_VENDING_MACHINE1
+
+## pet_groomer.txt
+- ADAPT [callshop+flag] callshop "barter_Pet_Groomer";
+- BOUNDARY [lasagna] lasagna,179,176,6	duplicate(#PetGroomer)	Pet Groomer#las	4_M_TELEPORTER
+- DEDUP [Pet Groomer#prt] Pet Groomer#prt
+- DEDUP [Pet Groomer#moc] Pet Groomer#moc
+- DEDUP [Pet Groomer#gef] Pet Groomer#gef
+- DEDUP [Pet Groomer#pay] Pet Groomer#pay
+- DEDUP [Pet Groomer#iz] Pet Groomer#iz
+- DEDUP [Pet Groomer#yuno] Pet Groomer#yuno
+- DEDUP [Pet Groomer#lhz] Pet Groomer#lhz
+- DEDUP [Pet Groomer#bra] Pet Groomer#bra
+
+## pet_trader.txt
+- ADAPT [for/incr->set] for (.@i = 0; .@i < getarraysize(.@tickets); .@i++) {
+- ADAPT [op=->set] .@menu$ += getitemname(.@tickets[.@i]) + ":";
+- ADAPT [=->set] .@ticketIndices[.@count++] = .@i;
+- ADAPT [=->set] .@index = .@ticketIndices[select(.@menu$) - 1];
+- UNRESOLVED [incr-in-index] Pet Trader#1
+- ORPHAN [Pet Trader#1] alberta,179,141,5	duplicate(Pet Trader#1)	Pet Trader#2	4_M_JPNOJI
+
+## quests_exp_175.txt
+- COMMENT [mesitemlink] mes "" + mesitemlink(25814) + " Refined Ore.";
+- COMMENT [mesitemlink] mes "" + mesitemlink(25809) + " ^777777(currently " + countitem(25809) + ")^000000";
+- COMMENT [mesitemlink] mes "" + mesitemlink(25810) + " ^777777(currently " + countitem(25810) + ")^000000";
+- COMMENT [mesitemlink] mes "" + mesitemlink(25811) + " ^777777(currently " + countitem(25811) + ")^000000";
+- COMMENT [mesitemlink] mes "" + mesitemlink(25812) + " ^777777(currently " + countitem(25812) + ")^000000";
+- COMMENT [mesitemlink] mes "" + mesitemlink(25813) + " ^777777(currently " + countitem(25813) + ")^000000";
+- COMMENT [progressbar_npc] progressbar_npc "FFFF00",1;
+- ADAPT [callshop+flag] callshop "barter_ein_dun03";
+- COMMENT [getgroupitem] getgroupitem(IG_EIN_1HITEMBOX);
+- UNRESOLVED [getgroupitem,mesitemlink,progressbar_npc] Site manager Elmen#extdq0
+
+## quivers.txt
+- MARKETSHOP [Catch_Arrows] -	marketshop	Catch_Arrows	HIDDEN_NPC,1773:5:-1,1774:5:-1
+- ADAPT [=->set] .@menu$ = "I want arrows";
+- ADAPT [=->set] .@item_req = getarg(0);
+- ADAPT [=->set] .@req_amount = getarg(1);
+
+## refine.txt
+- MARKETSHOP [market_refine_prt_in] -	marketshop	market_refine_prt_in	-1,1010:-1:999999,1011:-1:999999
+- MARKETSHOP [market_refine_payon] -	marketshop	market_refine_payon	-1,1010:-1:999999,1011:-1:999999
+- MARKETSHOP [market_refine_morocc_in] -	marketshop	market_refine_morocc_in	-1,1010:-1:999999,1011:-1:999999
+- MARKETSHOP [market_refine_alberta_in] -	marketshop	market_refine_alberta_in	-1,1010:-1:999999,1011:-1:999999
+- MARKETSHOP [market_refine_yuno_in01] -	marketshop	market_refine_yuno_in01	-1,1010:-1:999999,1011:-1:999999
+- MARKETSHOP [market_refine_ein_in01] -	marketshop	market_refine_ein_in01	-1,1010:-1:999999,1011:-1:999999
+- MARKETSHOP [market_refine_lhz_in02] -	marketshop	market_refine_lhz_in02	-1,1010:-1:999999,1011:-1:999999
+- COMMENT [refineui] refineui();
+- ADAPT [=->set] .@npc_name$ = getarg(0);
+- ADAPT [for/incr->set] for(.@i = 1; .@i<=10; ++.@i) {
+- ADAPT [=->set] .@menu$ = .@menu$ + F_getpositionname(.@indices[.@i]) + "-[" + getequipname(.@indices[.@i]) + "]";
+- ADAPT [=->set] .@equipped = 1;
+- ADAPT [=->set] .@menu$ = .@menu$ + ":";
+- ADAPT [=->set] .@part = .@indices[ select(.@menu$) ];
+- COMMENT [ET_FRET] emotion ET_FRET;
+- ADAPT [=->set] .@refinerycnt = getequiprefinerycnt(.@part); //save refinery count
+- ADAPT [=->set] .@refineitemid = getequipid(.@part); // save id of the item
+- ADAPT [=->set] .@price = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_ZENY_COST);
+- COMMENT [getequiprefinecost] .@price = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_ZENY_COST);
+- ADAPT [=->set] .@material = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+- COMMENT [getequiprefinecost] .@material = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+- ADAPT [=->set] .@safe = 10;
+- ADAPT [=->set] .@itemtype = getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+- ADAPT [=->set] .@article$ = "a";
+- ADAPT [=->set] .@type$ = "weapon";
+- ADAPT [=->set] .@article$ = "an";
+- ADAPT [=->set] .@type$ = "armor";
+- ADAPT [=->set] Zeny = Zeny - .@price;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [downrefitem] downrefitem .@part,3; // Failed refine attempts decrease the item's refine level by 3
+- COMMENT [ET_MONEY,ET_HUK] emotion (!rand(5))?ET_MONEY:ET_HUK;
+- COMMENT [ET_MONEY,ET_HUK] emotion (!rand(5))?ET_MONEY:ET_HUK;
+- ADAPT [=->set] .@menu2 = select("To the safe limit, please.","I'll decide how many times.","I've changed my mind...");
+- ADAPT [=->set] .@menu2 = 2;
+- ADAPT [=->set] .@refinecnt = .@safe - .@refinerycnt;
+- ADAPT [=->set] .@refinecheck = .@refinecnt + .@refinerycnt;
+- ADAPT [=->set] .@refinecheck = .@refinecheck - .@safe;
+- ADAPT [=->set] .@fullprice = .@price * .@refinecnt;
+- ADAPT [=->set] Zeny = Zeny - .@fullprice;
+- ADAPT [=->set] .@refinecnt = .@refinecnt - 1;
+- COMMENT [downrefitem] downrefitem .@part,3; // Failed refine attempts decrease the item's refine level by 3
+- COMMENT [ET_MONEY,ET_HUK] emotion (!rand(5))?ET_MONEY:ET_HUK;
+- COMMENT [ET_MONEY,ET_HUK] emotion (!rand(5))?ET_MONEY:ET_HUK;
+- ADAPT [=->set] .@refinerycnt = getequiprefinerycnt(.@part);
+- COMMENT [ET_BEST] emotion ET_BEST;
+- ADAPT [=->set] Zeny = Zeny - 50000;
+- ADAPT [for/incr->set] for(.@i = 1; .@i<=10; set .@i,.@i+1)
+- ADAPT [=->set] .@menu$ = .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) +"-[Empty]" ) +":";
+- ADAPT [=->set] .@part = .@indices[ select(.@menu$) ];
+- ADAPT [=->set] .@refinerycnt = getequiprefinerycnt(.@part); //save refinery count
+- ADAPT [=->set] .@refineitemid = getequipid(.@part); // save id of the item
+- ADAPT [=->set] .@price = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_ZENY_COST);
+- COMMENT [getequiprefinecost] .@price = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_ZENY_COST);
+- ADAPT [=->set] .@material = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+- COMMENT [getequiprefinecost] .@material = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+- ADAPT [=->set] .@itemtype = getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+- ADAPT [getequiparmorlv->1] switch( getequiparmorlv( .@part ) ){
+- ADAPT [=->set] .@type$ = "armor";
+- ADAPT [=->set] .@type$ = "weapon";
+- ADAPT [=->set] .@type$ = "weapon";
+- ADAPT [=->set] .@type$ = "weapon";
+- ADAPT [=->set] .@type$ = "weapon";
+- ADAPT [=->set] Zeny = Zeny-.@price;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_CRY] case 1: emotion ET_CRY; break;
+- COMMENT [ET_PROFUSELY_SWEAT] case 2: emotion ET_PROFUSELY_SWEAT; break;
+- COMMENT [ET_KEK] case 3: emotion ET_KEK; break;
+- COMMENT [ET_SCRATCH] case 4: emotion ET_SCRATCH; break;
+- COMMENT [ET_BIGTHROB] case 5: emotion ET_BIGTHROB; break;
+- COMMENT [ET_CHUP] emotion ET_CHUP;
+- COMMENT [unloadnpc] unloadnpc "Vurewell";
+- COMMENT [unloadnpc] unloadnpc "Begnahd";
+- COMMENT [unloadnpc] unloadnpc "Sade";
+- COMMENT [unloadnpc] unloadnpc "Kahlamanlith";
+- COMMENT [unloadnpc] unloadnpc "Dilemma";
+- COMMENT [unloadnpc] unloadnpc "Tirehaus";
+- COMMENT [unloadnpc] unloadnpc "Krugg";
+- COMMENT [unloadnpc] unloadnpc "Dietrich";
+- COMMENT [unloadnpc] unloadnpc "Hakhim";
+- COMMENT [unloadnpc] unloadnpc "Abdula";
+- COMMENT [unloadnpc] unloadnpc "Xenophon";
+- COMMENT [unloadnpc] unloadnpc "Delight";
+- COMMENT [unloadnpc] unloadnpc "Matestein";
+- COMMENT [unloadnpc] unloadnpc "Fruel";
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_prt_in",1010,200,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_payon",1010,200,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_morocc_in",1010,200,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_alberta_in",1010,200,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_yuno_in01",1010,200,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_ein_in01",1010,200,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_lhz_in02",1010,200,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_prt_in",1011,1000,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_payon",1011,1000,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_morocc_in",1011,1000,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_alberta_in",1011,1000,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_yuno_in01",1011,1000,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_ein_in01",1011,1000,999999;
+- COMMENT [npcshopupdate] npcshopupdate "market_refine_lhz_in02",1011,1000,999999;
+- COMMENT [unloadnpc] unloadnpc "market_refine_prt_in";
+- COMMENT [unloadnpc] unloadnpc "market_refine_payon";
+- COMMENT [unloadnpc] unloadnpc "market_refine_morocc_in";
+- COMMENT [unloadnpc] unloadnpc "market_refine_alberta_in";
+- COMMENT [unloadnpc] unloadnpc "market_refine_yuno_in01";
+- COMMENT [unloadnpc] unloadnpc "market_refine_ein_in01";
+- COMMENT [unloadnpc] unloadnpc "market_refine_lhz_in02";
+- COMMENT [unloadnpc] unloadnpc "Dietrich#ns_prt";
+- COMMENT [unloadnpc] unloadnpc "Pauline";
+- ADAPT [callshop+flag] callshop "market_refine_" + strnpcinfo(4);
+- ADAPT [callshop+flag] callshop "barter_refine_1";
+- ADAPT [callshop+flag] callshop "barter_refine_2";
+- COMMENT [getnpcid,setunittitle] setunittitle getnpcid(0), "<Responsible for smelting products>";
+- COMMENT [mesitemlink] mes "Do you have " + mesitemlink( 25728 ) + " or " + mesitemlink( 25730 ) + "?";
+- ADAPT [callshop+flag] callshop "barter_refine_3";
+- UNRESOLVED [refineui] Vestri#prt
+- UNRESOLVED [downrefitem,getequiprefinecost] refinenew
+- UNRESOLVED [getequiprefinecost] Clink#mal_normal
+- UNRESOLVED [npcshopupdate,unloadnpc] refine_barter_init
+- DEDUP [Dietrich#ns_prt] Dietrich#ns_prt
+- DEDUP [Hakhim#2] Hakhim#2
+- DEDUP [Abdula#2] Abdula#2
+- DEDUP [Xenophon#ns_albe] Xenophon#ns_albe
+- DEDUP [Matestein#2] Matestein#2
+- DEDUP [Fruel#2] Fruel#2
+- UNRESOLVED [mesitemlink] Pauline
+- ORPHAN [Vestri#prt] morocc_in,64,41,5	duplicate(Vestri#prt)	Vestri#moc	4_M_DWARF
+- ORPHAN [Vestri#prt] payon_in01,18,132,3	duplicate(Vestri#prt)	Vestri#pay	4_M_DWARF
+- ORPHAN [Dietrich#ns_prt] yuno_in01,164,27,4	duplicate(Dietrich#ns_prt)	Delight#2	4_M_ORIENT01
+- ORPHAN [Pauline] payon,142,179,3	duplicate(Pauline)	Jihu	4_M_ORIENT01
+- ORPHAN [Pauline] morocc_in,64,37,3	duplicate(Pauline)	Marik	4W_M_03
+- ORPHAN [Pauline] alberta_in,24,63,5	duplicate(Pauline)	Satana	4_M_02
+- ORPHAN [Pauline] yuno_in01,164,31,6	duplicate(Pauline)	Dimir	4_M_ORIENT01
+- ORPHAN [Pauline] lhz_in02,275,23,5	duplicate(Pauline)	Nemil	4_M_02
+- ORPHAN [Pauline] ein_in01,30,88,5	duplicate(Pauline)	Galan	4_M_02
+
+## renters.txt
+- MANUAL [unregistered-map:job3_rune01] job3_rune01,88,62,5	script	Dragon Breeder	105,{
+- ADAPT [checkdragon->0] else if (checkdragon()) {
+- ADAPT [ismounting->0] else if (ismounting()) {
+- COMMENT [setdragon] setdragon;
+- ADAPT [checkdragon->0] else if (checkdragon()) {
+- ADAPT [ismounting->0] else if (ismounting()) {
+- COMMENT [setdragon] setdragon;
+- ADAPT [ismounting->0] else if (ismounting()) {
+- ADAPT [checkmadogear->0] if (checkmadogear()) {
+- ADAPT [ismounting->0] else if(ismounting()) {
+- COMMENT [setmadogear] setmadogear;
+- ADAPT [op=->set] Zeny -= 1000000;
+- ADAPT [=->set] .@itemid = 2804;
+- ADAPT [=->set] .@cost = 2000000;
+- ADAPT [=->set] .@itemid = 2809;
+- ADAPT [=->set] .@cost = 4000000;
+- ADAPT [op=->set] Zeny -= .@cost;
+- BOUNDARY [job3_rune01] Dragon Breeder
+
+## rgsr_in.txt
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,112,167,7	script	Enchant Researcher#rg02-1	MD_ED_M_SCIENCE,{
+- COMMENT [item_enchant] item_enchant(33);
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,115,169,5	script	Weapon Researcher#rg02	MD_ED_M_SCIENCE,{
+- COMMENT [item_reform] item_reform("Thanos_W_Reform_1");
+- COMMENT [item_reform] item_reform("Thanos_W_Reform_2");
+- COMMENT [item_reform] item_reform("OS_Weapon_Reform");
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad");
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,115,180,5	script	Armor Researcher#rg02	MD_ED_M_SCIENCE,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Fresa" );
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,135,186, 7	script	Assistant#rg02	4_M_ALCHE_D,{
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,135,189,5	script	Assistant#rg03	4_M_REPAIR,{
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,137,187,3	script	Assistant#rg04	4_F_HUWOMAN,{
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,146,169,3	script	Assistant#rg05	4_M_REPAIR,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Licht");
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,146,167,3	script	Assistant#rg06	4_M_REPAIR,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Licht");
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,144,170,5	script	Assistant#rg07	4_M_REPAIR,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Licht");
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,106,167,5	script	Assistant#rg11	4_M_REPAIR,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,109,167,3	script	Assistant#rg10	4_M_REPAIR,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,146,178,3	script	Assistant#rg20	4_M_REPAIR,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,143,180,5	script	Assistant#rg21	4_M_REPAIR,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,131,187,5	script	Ore Researcher#rg02	MD_ED_M_SCIENCE,{
+- ADAPT [callshop+flag] callshop("barter_rgsr_in_1");
+- ADAPT [callshop+flag] callshop("barter_rgsr_in_2");
+- ADAPT [callshop+flag] callshop("barter_rgsr_in_3");
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,137,178,3	script	Accessories Researcher#rg02	MD_ED_M_SCIENCE,{
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Zerter");
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,136,171,5	script	Special Equipment Researcher#rg02	MD_ED_M_SCIENCE,{
+- COMMENT [item_reform] item_reform("C_Armor_Reform_1");
+- COMMENT [item_reform] item_reform("C_Armor_Reform_2");
+- COMMENT [item_reform] item_reform("C_Armor_Reform_3");
+- COMMENT [item_reform] item_reform("C_Weapon_Reform_1");
+- COMMENT [item_reform] item_reform("C_Weapon_Reform_2");
+- COMMENT [item_reform] item_reform("C_Weapon_Reform_3");
+- COMMENT [getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Licht");
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,128,174,5	script	Director#rg02	1_M_LIBRARYMASTER,{
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,122,160,5	script	Exit Guard#rg01	4_M_LGTGUARD,{
+- MANUAL [unregistered-map:rgsr_in] rgsr_in,129,160,3	script	Exit Guard#rg02	4_M_LGTGUARD,{
+- BOUNDARY [rgsr_in] Enchant Researcher#rg02-1
+- BOUNDARY [rgsr_in] Weapon Researcher#rg02
+- BOUNDARY [rgsr_in] Armor Researcher#rg02
+- BOUNDARY [rgsr_in] Assistant#rg02
+- BOUNDARY [rgsr_in] Assistant#rg03
+- BOUNDARY [rgsr_in] Assistant#rg04
+- BOUNDARY [rgsr_in] Assistant#rg05
+- BOUNDARY [rgsr_in] Assistant#rg06
+- BOUNDARY [rgsr_in] Assistant#rg07
+- BOUNDARY [rgsr_in] Assistant#rg11
+- BOUNDARY [rgsr_in] Assistant#rg10
+- BOUNDARY [rgsr_in] Assistant#rg20
+- BOUNDARY [rgsr_in] Assistant#rg21
+- BOUNDARY [rgsr_in] Ore Researcher#rg02
+- BOUNDARY [rgsr_in] Accessories Researcher#rg02
+- BOUNDARY [rgsr_in] Special Equipment Researcher#rg02
+- BOUNDARY [rgsr_in] Director#rg02
+- BOUNDARY [rgsr_in] Exit Guard#rg01
+- BOUNDARY [rgsr_in] Exit Guard#rg02
+
+## shadow_refiner.txt
+- ADAPT [=->set] .@zeny_cost = 200000; // Zeny cost is 200,000 according to official script [Secret]
+- ADAPT [=->set] .@indlen = getarraysize(.@indices) - 1;
+- ADAPT [for/incr->set] for(.@i = 1; .@i <= .@indlen; .@i++)
+- ADAPT [=->set] .@menu$ = .@menu$ + (getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) +"-[Not equipped]") +":";
+- ADAPT [=->set] .@menu$ = .@menu$ + "Refine info";
+- ADAPT [=->set] .@choice = select(.@menu$);
+- ADAPT [=->set] .@part = .@indices[.@choice];
+- ADAPT [=->set] .@equip_id = getequipid(.@part);
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(.@part);
+- ADAPT [=->set] .@material[0] = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+- COMMENT [getequiprefinecost] .@material[0] = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+- ADAPT [=->set] .@material[1] = getequiprefinecost(.@part, REFINE_COST_ENRICHED, REFINE_MATERIAL_ID);
+- COMMENT [getequiprefinecost] .@material[1] = getequiprefinecost(.@part, REFINE_COST_ENRICHED, REFINE_MATERIAL_ID);
+- ADAPT [=->set] .@material[2] = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_MATERIAL_ID);
+- COMMENT [getequiprefinecost] .@material[2] = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_MATERIAL_ID);
+- ADAPT [=->set] .@is_enriched = false;
+- ADAPT [=->set] .@mate$[0] = getitemname(.@material[0]);
+- ADAPT [=->set] .@mate$[0] = "^8C8C8C"+ getitemname(.@material[0]) +"^000000";
+- ADAPT [=->set] .@mate$[1] = getitemname(.@material[1]);
+- ADAPT [=->set] .@mate$[1] = "^8C8C8C"+ getitemname(.@material[1]) +"^000000";
+- ADAPT [=->set] .@mate$[2] = getitemname(.@material[2]);
+- ADAPT [=->set] .@mate$[2] = "^8C8C8C"+ getitemname(.@material[2]) +"^000000";
+- ADAPT [=->set] .@choose = .@material[0];
+- ADAPT [=->set] .@is_enriched = true;
+- ADAPT [=->set] .@choose = .@material[1];
+- ADAPT [=->set] .@hoihoi = 1;
+- ADAPT [=->set] .@choose = .@material[2];
+- ADAPT [op=->set] Zeny -= .@zeny_cost;
+- COMMENT [downrefitem] downrefitem .@part;
+- UNRESOLVED [downrefitem,getequiprefinecost] ShadowBlacksmith
+- ORPHAN [ShadowBlacksmith] itemmall,31,76,3	duplicate(ShadowBlacksmith)	Shadow Blacksmith#itemmall	4_F_JOB_BLACKSMITH
+
+## shopping_boards.txt
+- COMMENT [searchstores] searchstores 1, SEARCHSTORE_EFFECT_REMOTE;
+- UNRESOLVED [searchstores] Shopping Board
+- ORPHAN [Shopping Board] alberta,119,65,3	duplicate(Shopping Board)	Shopping Board#alb	4_BOARD3
+- ORPHAN [Shopping Board] aldebaran,146,120,3	duplicate(Shopping Board)	Shopping Board#alde	4_BOARD3
+- ORPHAN [Shopping Board] comodo,206,153,3	duplicate(Shopping Board)	Shopping Board#cmd	4_BOARD3
+- ORPHAN [Shopping Board] geffen,130,68,3	duplicate(Shopping Board)	Shopping Board#gef	4_BOARD3
+- ORPHAN [Shopping Board] izlude,127,116,3	duplicate(Shopping Board)	Shopping Board#izl	4_BOARD3
+- ORPHAN [Shopping Board] morocc,166,109,3	duplicate(Shopping Board)	Shopping Board#moc	4_BOARD3
+- ORPHAN [Shopping Board] payon,183,103,3	duplicate(Shopping Board)	Shopping Board#pay	4_BOARD3
+- ORPHAN [Shopping Board] prontera,159,193,3	duplicate(Shopping Board)	Shopping Board#prt1	4_BOARD3
+- ORPHAN [Shopping Board] prontera,182,214,3	duplicate(Shopping Board)	Shopping Board#prt2	4_BOARD3
+- ORPHAN [Shopping Board] prontera,130,215,3	duplicate(Shopping Board)	Shopping Board#prt3	4_BOARD3
+- ORPHAN [Shopping Board] prontera,146,85,3	duplicate(Shopping Board)	Shopping Board#prt4	4_BOARD3
+- ORPHAN [Shopping Board] xmas,155,144,3	duplicate(Shopping Board)	Shopping Board#xmas	4_BOARD3
+- ORPHAN [Shopping Board] yuno,146,187,3	duplicate(Shopping Board)	Shopping Board#yuno	4_BOARD3
+
+## shops.txt
+- BOUNDARY [izlude_a] izlude_a,124,165,4	duplicate(Fruit Gardener#iz)	Fruit Gardener#iz_a	53
+- BOUNDARY [izlude_b] izlude_b,124,165,4	duplicate(Fruit Gardener#iz)	Fruit Gardener#iz_b	53
+- BOUNDARY [izlude_c] izlude_c,124,165,4	duplicate(Fruit Gardener#iz)	Fruit Gardener#iz_c	53
+- BOUNDARY [izlude_d] izlude_d,124,165,4	duplicate(Fruit Gardener#iz)	Fruit Gardener#iz_d	53
+- BOUNDARY [izlude_a] izlude_a,160,186,0	duplicate(Butcher#iz)	Butcher#iz_a	54
+- BOUNDARY [izlude_b] izlude_b,160,186,0	duplicate(Butcher#iz)	Butcher#iz_b	54
+- BOUNDARY [izlude_c] izlude_c,160,186,0	duplicate(Butcher#iz)	Butcher#iz_c	54
+- BOUNDARY [izlude_d] izlude_d,160,186,0	duplicate(Butcher#iz)	Butcher#iz_d	54
+- BOUNDARY [izlude_a] izlude_a,128,158,7	duplicate(Vendor from Milk Ranch#i)	Vendor from Milk Ranch#a	90
+- BOUNDARY [izlude_b] izlude_b,128,158,7	duplicate(Vendor from Milk Ranch#i)	Vendor from Milk Ranch#b	90
+- BOUNDARY [izlude_c] izlude_c,128,158,7	duplicate(Vendor from Milk Ranch#i)	Vendor from Milk Ranch#c	90
+- BOUNDARY [izlude_d] izlude_d,128,158,7	duplicate(Vendor from Milk Ranch#i)	Vendor from Milk Ranch#d	90
+- BOUNDARY [s_atelier] s_atelier,114,117,1	shop	Part-Timer#sc_yuno	92,6123:-1,6120:-1
+- BOUNDARY [s_atelier] s_atelier,15,65,5	shop	Part-Timer#sc_lgt	89,6123:-1,6120:-1
+- BOUNDARY [s_atelier] s_atelier,17,110,1	shop	Part-Timer#sc_prt	67,6123:-1,6120:-1
+- BOUNDARY [s_atelier] s_atelier,137,60,3	shop	Part-Timer#sc_ra	70,6123:-1,6120:-1
+- DEDUP [Material Seller#alche] Material Seller#alche
+- DEDUP [Weapon Dealer] Weapon Dealer
+- DEDUP [Tool Dealer] Tool Dealer
+- DEDUP [Armor Dealer] Armor Dealer
+- DEDUP [Johnny Waiker] Johnny Waiker
+- DEDUP [Butcher#iz] Butcher#iz
+- DEDUP [Vendor from Milk Ranch#i] Vendor from Milk Ranch#i
+- DEDUP [Tool Dealer#iz] Tool Dealer#iz
+- DEDUP [Jeweler#lhz] Jeweler#lhz
+- DEDUP [Tool Dealer#moc2] Tool Dealer#moc2
+- DEDUP [Jeweler#moc2] Jeweler#moc2
+- DEDUP [Boonji#nin] Boonji#nin
+- DEDUP [Boonray#nin] Boonray#nin
+- DEDUP [Chef Assistant#prt] Chef Assistant#prt
+- DEDUP [Chef Assistant#moc] Chef Assistant#moc
+- DEDUP [Chef Assistant#gef] Chef Assistant#gef
+- DEDUP [Chef Assistant#alb] Chef Assistant#alb
+- DEDUP [Chef Assistant#pay] Chef Assistant#pay
+
+## socket_enchant2.txt
+- ORPHAN [SocketEnchant2] morocc,270,159,3	duplicate(SocketEnchant2)	Leablem#moc	86
+
+## te_merchant.txt
+- BOUNDARY [te_prt_gld] te_prt_gld,114,153,4	shop	TE Potion Merchant#prt	4_M_TELEPORTER,11557:-1,11558:-1
+- BOUNDARY [te_alde_gld] te_alde_gld,215,184,4	duplicate(TE Potion Merchant#prt)	TE Potion Merchant#alde	4_M_TELEPORTER
+- ADAPT [jobcanentermap->1] if (jobcanentermap("te_prtcas01") == 1) {
+- ADAPT [=->set] .@list01$ = "[Shield] [Armor] [Garment]";
+- ADAPT [=->set] .@list02$ = "[Helmet] [Accessory] [Shoes]";
+- ADAPT [=->set] .@list03$ = "[Sword] [Spear] [Axe] [Katar]";
+- ADAPT [=->set] .@list04$ = "[Mace] [Staff] [Fist] [Book]";
+- ADAPT [=->set] .@list05$ = "[Bow] [Gun] [Musical Instrument] [Whip]";
+- SITEFIX [.@i < getargcount] for ( .@i = 1; .@i < getargcount(); .@i += 2 ) {
+- ADAPT [for/incr->set] for ( .@i = 1; getarg(.@i, "\x7F") != "\x7F"; .@i += 2 ) {
+- COMMENT [rentalcountitem] if (rentalcountitem(getarg(.@i)) > isequippedcnt(getarg(.@i)))// don't count item equipped
+- ADAPT [=->set] .@menu$ = .@menu$ + "^4d4dff"+ getarg(.@i+1) +" - Checked out^000000:";
+- ADAPT [=->set] .@menu$ = .@menu$ + getarg(.@i+1) + ":";
+- ADAPT [=->set] .@total_item = (getargcount() -1) /2;
+- COMMENT [getargcount] .@total_item = (getargcount() -1) /2;
+- ADAPT [=->set] .@s = select( .@menu$ + ":View other items" ) -1;
+- ADAPT [=->set] .@index = .@s *2 +1;
+- COMMENT [rentalcountitem] if (rentalcountitem(getarg(.@index)) > isequippedcnt(getarg(.@index)))
+- UNRESOLVED [getargcount,rentalcountitem] rental_woe_TE
+
+## ticket_refiner.txt
+- ADAPT [=->set] .@size_cert = getarraysize(.@cert_weapon);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size_cert; ++.@i ) {
+- ADAPT [=->set] .@check = 1;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- ADAPT [for/incr->set] for ( .@i = 1; .@i <= 10; ++.@i )
+- ADAPT [op=->set] .@menu$ += (getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : .@position$[.@i] + "- [Empty]") + ":";
+- ADAPT [=->set] .@part = .@indices[ select(.@menu$) ];
+- COMMENT [ET_OTL] emotion ET_OTL;
+- ADAPT [=->set] .@refineitemid = getequipid(.@part); // save id of the item
+- ADAPT [=->set] .@refinerycnt = getequiprefinerycnt(.@part); //save refinery count
+- ADAPT [=->set] .@itemtype = getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+- ADAPT [=->set] .@type$ = "Weapon";
+- ADAPT [getequiparmorlv->1] switch( getequiparmorlv( .@part ) ){
+- ADAPT [=->set] .@type$ = "Armor";
+- ADAPT [=->set] .@check = 0;
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size_cert; ++.@i ) {
+- ADAPT [=->set] .@check = 1;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- ADAPT [=->set] .@menu$ = "";
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size_cert; ++.@i )
+- ADAPT [op=->set] .@menu$ += getitemname(.@tickets[.@i]) + ":";
+- ADAPT [=->set] .@select = select(.@menu$)-1;
+- ADAPT [=->set] .@ticket_lv = .@cert_level[.@select];
+- ADAPT [=->set] .@ticket_id = .@tickets[.@select];
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- UNRESOLVED [malformed-for] Refine Master

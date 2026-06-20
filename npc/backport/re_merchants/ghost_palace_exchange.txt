@@ -1,0 +1,125 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/ghost_palace_exchange.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Ghost Palace Exchange NPC.
+//===== Description: =========================================
+//= Walkthrough Conversion.
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [Capuche]
+//============================================================
+
+//[BACKPORT-BOUNDARY:dali02] dali02,51,130,4	script	Dimension Traveler	4_F_SHABBY,{
+//[BACKPORT-BOUNDARY:dali02] 	if (checkweight(28100,1) == 0) {// Thanos Axe
+//[BACKPORT-BOUNDARY:dali02] 		mes "- You cannot proceed because you have too many items with you. -";
+//[BACKPORT-BOUNDARY:dali02] 		close;
+//[BACKPORT-BOUNDARY:dali02] 	}
+//[BACKPORT-BOUNDARY:dali02] 	set .@item_name_req$, getitemname(6672);// Gray_Shard
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Dimension Traveler]";
+	//[BACKPORT-GAP:mesitemlink] mes "Adventurer friend, " + mesitemlink( 6672 ) + " is what I need. How about exchanging it with something I have?";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	set .@type, select( "Show me your weapon.", "Show me your armor.", "Anything special?", "I do not need." ) - 1;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Dimension Traveler]";
+//[BACKPORT-BOUNDARY:dali02] 	switch(.@type) {
+//[BACKPORT-BOUNDARY:dali02] 	case 0:
+//[BACKPORT-BOUNDARY:dali02] 		mes "Oh! Are you interested in weapons? We have all the weapons we can get from the Ghost Palace. Why don't you choose one?";
+//[BACKPORT-BOUNDARY:dali02] 		break;
+//[BACKPORT-BOUNDARY:dali02] 	case 1:
+//[BACKPORT-BOUNDARY:dali02] 		mes "Armor? We have all the armors we can get from the Ghost Palace. Why don't you choose one?";
+//[BACKPORT-BOUNDARY:dali02] 		break;
+//[BACKPORT-BOUNDARY:dali02] 	case 2:
+//[BACKPORT-BOUNDARY:dali02] 		mes "Huhh! It seems like many of them already heard that I have the best stuff. Feel free to check out my collections.";
+//[BACKPORT-BOUNDARY:dali02] 		break;
+//[BACKPORT-BOUNDARY:dali02] 	case 3:
+//[BACKPORT-BOUNDARY:dali02] 		mes "Goodbye friend~ Come again!";
+//[BACKPORT-BOUNDARY:dali02] 		close;
+//[BACKPORT-BOUNDARY:dali02] 	}
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Dimension Traveler]";
+	//[BACKPORT-GAP:mesitemlink] mes "Ah! The number that is written beside " + mesitemlink( 6672 ) + " will be needed.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Please keep that in mind.";
+//[BACKPORT-BOUNDARY:dali02] 
+//[BACKPORT-BOUNDARY:dali02] 	switch(.@type) {
+//[BACKPORT-BOUNDARY:dali02] 	case 0:
+//[BACKPORT-BOUNDARY:dali02] 		setarray .@items[0],
+//[BACKPORT-BOUNDARY:dali02] 			13441, 200,		// Thanos Sword
+//[BACKPORT-BOUNDARY:dali02] 			21009, 200, 	// Thanos Great Sword
+//[BACKPORT-BOUNDARY:dali02] 			1438,  200,		// Thanos Spear
+//[BACKPORT-BOUNDARY:dali02] 			1496,  200,		// Thanos Long Spear
+//[BACKPORT-BOUNDARY:dali02] 			1669,  200,		// Thanos Staff
+//[BACKPORT-BOUNDARY:dali02] 			2023,  200,		// Thanos Rod
+//[BACKPORT-BOUNDARY:dali02] 			18119, 200,		// Thanos Bow
+//[BACKPORT-BOUNDARY:dali02] 			13093, 200,		// Thanos Dagger
+//[BACKPORT-BOUNDARY:dali02] 			28000, 200,		// Thanos Katar
+//[BACKPORT-BOUNDARY:dali02] 			1836,  200,		// Thanos Knuckle
+//[BACKPORT-BOUNDARY:dali02] 			16028, 200,		// Thanos Hammer
+//[BACKPORT-BOUNDARY:dali02] 			28100, 200,		// Thanos Axe
+//[BACKPORT-BOUNDARY:dali02] 			1933,  200,		// Thanos Violin
+//[BACKPORT-BOUNDARY:dali02] 			1988,  200;		// Thanos Whip
+//[BACKPORT-BOUNDARY:dali02] 		break;
+//[BACKPORT-BOUNDARY:dali02] 	case 1:
+//[BACKPORT-BOUNDARY:dali02] 		setarray .@items[0],
+//[BACKPORT-BOUNDARY:dali02] 			2187,  100,		// Shield Of Gray
+//[BACKPORT-BOUNDARY:dali02] 			15090, 100, 	// Armor Of Gray
+//[BACKPORT-BOUNDARY:dali02] 			15091, 100,		// Gray Robe
+//[BACKPORT-BOUNDARY:dali02] 			20721, 100,		// Cloak Of Gray
+//[BACKPORT-BOUNDARY:dali02] 			22033, 100,		// Boots Of Gray
+//[BACKPORT-BOUNDARY:dali02] 			18820, 100;		// Gray Helmet
+//[BACKPORT-BOUNDARY:dali02] 		break;
+//[BACKPORT-BOUNDARY:dali02] 	case 2:
+//[BACKPORT-BOUNDARY:dali02] 		setarray .@items[0],
+//[BACKPORT-BOUNDARY:dali02] 			27184, 10000,		// Knight Sakray Card
+//[BACKPORT-BOUNDARY:dali02] 			23676, 50, 			// Gray Charcoal Melee (Melee)
+//[BACKPORT-BOUNDARY:dali02] 			23677, 50,			// Gray Charcoal Magic (Magic)
+//[BACKPORT-BOUNDARY:dali02] 			23678, 50;			// Gray Charcoal Range (Range)
+//[BACKPORT-BOUNDARY:dali02] 		break;
+//[BACKPORT-BOUNDARY:dali02] 	}
+//[BACKPORT-BOUNDARY:dali02] 	set .@size, getarraysize(.@items);
+//[BACKPORT-BOUNDARY:dali02] 	for (set .@i,0; .@i < .@size; set .@i,.@i + 2 )
+//[BACKPORT-BOUNDARY:dali02] 		set .@menu$, .@menu$ + getitemname(.@items[.@i]) + " - " + .@items[.@i+1] + ":";
+//[BACKPORT-BOUNDARY:dali02] 
+//[BACKPORT-BOUNDARY:dali02] 	while(true) {
+//[BACKPORT-BOUNDARY:dali02] 		next;
+//[BACKPORT-BOUNDARY:dali02] 		set .@s, (select(.@menu$) - 1) * 2;
+//[BACKPORT-BOUNDARY:dali02] 		mes "[Dimension Traveler]";
+//[BACKPORT-BOUNDARY:dali02] 		if (.@type != 1)	// armor type doesn't display item info
+			//[BACKPORT-GAP:mesitemlink] mes "Do you mean " + mesitemlink( .@items[.@s] ) + "?";
+//[BACKPORT-BOUNDARY:dali02] 		mes "" + .@items[.@s+1] + " ^006400" + .@item_name_req$ + "^000000 are required in exchange.";
+//[BACKPORT-BOUNDARY:dali02] 		next;
+//[BACKPORT-BOUNDARY:dali02] 		switch( select( "Let's exchange.", "Let me see other stuff.", "I will come back later." ) ) {
+//[BACKPORT-BOUNDARY:dali02] 		case 1:
+//[BACKPORT-BOUNDARY:dali02] 			break;
+//[BACKPORT-BOUNDARY:dali02] 		case 2:
+//[BACKPORT-BOUNDARY:dali02] 			mes "[Dimension Traveler]";
+//[BACKPORT-BOUNDARY:dali02] 			switch(.@type) {
+//[BACKPORT-BOUNDARY:dali02] 			case 0:
+//[BACKPORT-BOUNDARY:dali02] 				mes "I have more than enough weapons.";
+//[BACKPORT-BOUNDARY:dali02] 				break;
+//[BACKPORT-BOUNDARY:dali02] 			case 1:
+//[BACKPORT-BOUNDARY:dali02] 				mes "We have many armors for you. Why don't you pick one?";
+//[BACKPORT-BOUNDARY:dali02] 				break;
+//[BACKPORT-BOUNDARY:dali02] 			case 2:
+//[BACKPORT-BOUNDARY:dali02] 				mes "If you bring me " + .@item_name_req$ + ", I will trade it with anything you want.";
+//[BACKPORT-BOUNDARY:dali02] 				break;
+//[BACKPORT-BOUNDARY:dali02] 			}
+//[BACKPORT-BOUNDARY:dali02] 			continue;
+//[BACKPORT-BOUNDARY:dali02] 		case 3:
+//[BACKPORT-BOUNDARY:dali02] 			mes "[Dimension Traveler]";
+//[BACKPORT-BOUNDARY:dali02] 			mes "Take care friend~ See you next time!";
+//[BACKPORT-BOUNDARY:dali02] 			close;
+//[BACKPORT-BOUNDARY:dali02] 		}
+//[BACKPORT-BOUNDARY:dali02] 		if (countitem(6672) < .@items[.@s+1]) {
+//[BACKPORT-BOUNDARY:dali02] 			mes "[Dimension Traveler]";
+//[BACKPORT-BOUNDARY:dali02] 			mes "You put me in a difficult situation, friend.";
+//[BACKPORT-BOUNDARY:dali02] 			mes "I am in need of " + .@item_name_req$ + ". I will exchange it for ^006400" + .@items[.@s+1] + " " + .@item_name_req$ + "^000000.";
+//[BACKPORT-BOUNDARY:dali02] 			close;
+//[BACKPORT-BOUNDARY:dali02] 		}
+//[BACKPORT-BOUNDARY:dali02] 		mes "[Dimension Traveler]";
+//[BACKPORT-BOUNDARY:dali02] 		mes "Thank you. Come back if you need anything else.";
+//[BACKPORT-BOUNDARY:dali02] 		delitem 6672, .@items[.@s+1];
+//[BACKPORT-BOUNDARY:dali02] 		getitem .@items[.@s], 1;
+//[BACKPORT-BOUNDARY:dali02] 		close;
+//[BACKPORT-BOUNDARY:dali02] 	}
+//[BACKPORT-BOUNDARY:dali02] }

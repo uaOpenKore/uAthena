@@ -1,0 +1,279 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/renters.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Renters
+//===== Description: =========================================
+//= [Official Conversion]
+//= Renewal-specific breeder NPCs.
+//===== Changelogs: ==========================================
+//= 2.1 Moved some renters to a separate renewal file. [Daegaladh]
+//= 2.2 Updated to match the official scripts. [Euphy]
+//= 2.3 Added fourth class support. [Emistry]
+//============================================================
+
+// Dragon Breeder :: dragon
+//============================================================
+//[BACKPORT-BOUNDARY:job3_rune01] job3_rune01,88,62,5	script	Dragon Breeder	105,{
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "[Dragon Breeder]";
+//[BACKPORT-BOUNDARY:job3_rune01] 	if ((eaclass()&EAJ_THIRDMASK)==EAJ_RUNE_KNIGHT) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "Welcome. Would you like to rent a Dragon?";
+//[BACKPORT-BOUNDARY:job3_rune01] 		next;
+//[BACKPORT-BOUNDARY:job3_rune01] 		switch(select("Yes:No")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 1:
+			//if (!getskilllv("RK_DRAGONTRAINING")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (!getskilllv("KN_RIDING")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Dragon Breeder]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Please learn how to ride a Dragon first.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			else if (0) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Dragon Breeder]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "You already have a Dragon.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			else if (0) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Dragon Breeder]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Please remove your cash mount.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+			//[BACKPORT-GAP:setdragon] setdragon;
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 2:
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Dragon Breeder]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "I see. Then have a great day.";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		}
+//[BACKPORT-BOUNDARY:job3_rune01] 	}
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "What are you doing here?";
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "Only Rune Knights can rent a Dragon.";
+//[BACKPORT-BOUNDARY:job3_rune01] 	close;
+//[BACKPORT-BOUNDARY:job3_rune01] }
+//[BACKPORT-BOUNDARY:job3_rune01] 
+// Dragon/Gryphon Master :: dragon
+//============================================================
+//[BACKPORT-BOUNDARY:job3_rune01] prontera,130,213,5	script	Riding Creature Master	105,{
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 	if ((eaclass()&EAJ_THIRDMASK)==EAJ_RUNE_KNIGHT) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "Welcome. Would you like to rent a Dragon?";
+//[BACKPORT-BOUNDARY:job3_rune01] 		next;
+//[BACKPORT-BOUNDARY:job3_rune01] 		switch(select("Yes:No")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 1:
+			//if (!getskilllv("RK_DRAGONTRAINING")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (!getskilllv("KN_RIDING")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Please learn how to ride a Dragon first.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			else if (0) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "You already have a Dragon.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			else if (0) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Please remove your cash mount.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+			//[BACKPORT-GAP:setdragon] setdragon;
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 2:
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "I see. Then have a great day.";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		}
+//[BACKPORT-BOUNDARY:job3_rune01] 	}
+//[BACKPORT-BOUNDARY:job3_rune01] 	if ((eaclass()&EAJ_THIRDMASK)==EAJ_ROYAL_GUARD) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "Welcome. Would you like to rent a Gryphon?";
+//[BACKPORT-BOUNDARY:job3_rune01] 		next;
+//[BACKPORT-BOUNDARY:job3_rune01] 		switch(select("Yes:No")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 1:
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (!getskilllv("KN_RIDING")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Please learn how to ride a Gryphon first.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			else if (checkriding()) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "You already have a Gryphon.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			else if (0) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Please remove your cash mount.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			setriding;
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 2:
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Riding Creature Master]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "I see. Then have a great day.";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		}
+//[BACKPORT-BOUNDARY:job3_rune01] 	}
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "I'm here to provide Rune Knights and Royal Guards with riding creatures.";
+//[BACKPORT-BOUNDARY:job3_rune01] 	close;
+//[BACKPORT-BOUNDARY:job3_rune01] }
+//[BACKPORT-BOUNDARY:job3_rune01] geffen,100,55,3	duplicate(Riding Creature Master)	Riding Creature Master#2	105
+//[BACKPORT-BOUNDARY:job3_rune01] payon,166,102,5	duplicate(Riding Creature Master)	Riding Creature Master#3	105
+//[BACKPORT-BOUNDARY:job3_rune01] aldebaran,133,109,5	duplicate(Riding Creature Master)	Riding Creature Master#4	105
+//[BACKPORT-BOUNDARY:job3_rune01] yuno,171,187,3	duplicate(Riding Creature Master)	Riding Creature Master#5	105
+//[BACKPORT-BOUNDARY:job3_rune01] rachel,106,130,5	duplicate(Riding Creature Master)	Riding Creature Master#6	105
+//[BACKPORT-BOUNDARY:job3_rune01] 
+// Peco removing NPC :: dragon
+//============================================================
+//[BACKPORT-BOUNDARY:job3_rune01] prontera,125,208,5	script	Peco Peco Remover	105,{
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "[Soldier]";
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "If you're unable to dismount from a Peco Peco";
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "for some unknown reason,";
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "please feel free to use my services.";
+//[BACKPORT-BOUNDARY:job3_rune01] 	if (checkriding()) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		next;
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "[Soldier]";
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "You're riding a Peco Peco.";
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "Would you like to dismount?";
+//[BACKPORT-BOUNDARY:job3_rune01] 		next;
+//[BACKPORT-BOUNDARY:job3_rune01] 		switch(select("Yes:No")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 1:
+//[BACKPORT-BOUNDARY:job3_rune01] 			setriding 0;
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Soldier]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "Say, how does it feel to";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "step on the ground on your own";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "feet again?";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 2:
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Soldier]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "I see. Please feel free to ask me";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "if you change your mind.";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		}
+//[BACKPORT-BOUNDARY:job3_rune01] 	}
+//[BACKPORT-BOUNDARY:job3_rune01] 	close;
+//[BACKPORT-BOUNDARY:job3_rune01] }
+//[BACKPORT-BOUNDARY:job3_rune01] 
+// Mado Gear Renter :: madogear
+//============================================================
+//[BACKPORT-BOUNDARY:job3_rune01] -	script	::mgm	-1,{
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 	if ((eaclass()&EAJ_THIRDMASK)==EAJ_MECHANIC) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "Welcome, Mechanic.";
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "Would you like to rent a Pushcart or";
+//[BACKPORT-BOUNDARY:job3_rune01] 		mes "ride a Mado Gear?";
+//[BACKPORT-BOUNDARY:job3_rune01] 		next;
+//[BACKPORT-BOUNDARY:job3_rune01] 		switch(select("Rent a Pushcart:Ride a Mado Gear:Buy Emergency Mado Gear:Upgrade Cooling Device:Cancel")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 1:
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (checkcart()) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "I'm sorry, but you already";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "have a Pushcart.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			setcart;
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "There you go!";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 2:
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (0) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "I'm sorry, but you're already";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "riding a Mado Gear.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			else if (!getskilllv("NC_MADOLICENCE")) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Please learn the skill to get the Mado Gear License first.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			else if(0) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Please remove your cash mount.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+			//[BACKPORT-GAP:setmadogear] setmadogear;
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "Have fun, and please come again!";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 3:
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "Emergency Mado Gear is really useful for emergency situations and it is sold at 1,000,000 Zeny.";
+//[BACKPORT-BOUNDARY:job3_rune01] 			next;
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (select("Purchase:Cancel") == 2) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "I see. Please feel free to ask me";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "if you change your mind.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (countitem(23277) > 0) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "I'm sorry, but you already have an Emergency Mado Gear.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (Zeny < 1000000) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "I'm sorry, but you don't have enough Zeny to purchase the Emergency Mado Gear.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			set Zeny, Zeny - 1000000;
+//[BACKPORT-BOUNDARY:job3_rune01] 			getitem 23277,1; //Mado_Box
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "There you go!";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 4:
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "Which device do you want to upgrade?";
+//[BACKPORT-BOUNDARY:job3_rune01] 			next;
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (select("Cooling Device:High Quality Cooler") == 1) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Upgrading Cooling Device to High Quality Cooler needs 1 Cooling Device and 2,000,000 Zeny.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				next;
+//[BACKPORT-BOUNDARY:job3_rune01] 				set .@itemid, 2804;
+//[BACKPORT-BOUNDARY:job3_rune01] 				set .@cost, 2000000;
+//[BACKPORT-BOUNDARY:job3_rune01] 			} else {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "Upgrading High Quality Cooler to Special Cooler needs 1 High Quality Cooler and 4,000,000 Zeny.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				next;
+//[BACKPORT-BOUNDARY:job3_rune01] 				set .@itemid, 2809;
+//[BACKPORT-BOUNDARY:job3_rune01] 				set .@cost, 4000000;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (select("Upgrade:Cancel") == 2) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "I see. Please feel free to ask me";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "if you change your mind.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (!countitem(.@itemid)) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "I'm sorry, but you don't have the " + getitemname(.@itemid) + ".";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			if (Zeny < .@cost) {
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 				mes "I'm sorry, but you don't have enough Zeny to upgrade the device.";
+//[BACKPORT-BOUNDARY:job3_rune01] 				close;
+//[BACKPORT-BOUNDARY:job3_rune01] 			}
+//[BACKPORT-BOUNDARY:job3_rune01] 			set Zeny, Zeny - .@cost;
+//[BACKPORT-BOUNDARY:job3_rune01] 			delitem .@itemid,1;
+//[BACKPORT-BOUNDARY:job3_rune01] 			getitem (.@itemid == 2804 ? 2809 : 2810),1; //High_Quality_Cooler,Special_Cooler
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "[Mado Gear Armorer]";
+//[BACKPORT-BOUNDARY:job3_rune01] 			mes "Here you are! Your very own " + getitemname(.@itemid) + ".";
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		case 5:
+//[BACKPORT-BOUNDARY:job3_rune01] 			close;
+//[BACKPORT-BOUNDARY:job3_rune01] 		}
+//[BACKPORT-BOUNDARY:job3_rune01] 	}
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "How may I help you?";
+//[BACKPORT-BOUNDARY:job3_rune01] 	mes "Mado Gears are only available for Mechanics.";
+//[BACKPORT-BOUNDARY:job3_rune01] 	close;
+//[BACKPORT-BOUNDARY:job3_rune01] }
+//[BACKPORT-BOUNDARY:job3_rune01] prontera,163,178,3	duplicate(mgm)	Mado Gear Armorer#prt	105
+//[BACKPORT-BOUNDARY:job3_rune01] geffen,103,55,5	duplicate(mgm)	Mado Gear Armorer#gef	105
+//[BACKPORT-BOUNDARY:job3_rune01] payon,166,106,5	duplicate(mgm)	Mado Gear Armorer#pay	105
+//[BACKPORT-BOUNDARY:job3_rune01] aldebaran,133,112,5	duplicate(mgm)	Mado Gear Armorer#alde	105
+//[BACKPORT-BOUNDARY:job3_rune01] yuno,167,187,3	duplicate(mgm)	Mado Gear Armorer#yuno	105
+//[BACKPORT-BOUNDARY:job3_rune01] rachel,106,134,5	duplicate(mgm)	Mado Gear Armorer#ra	105
+//[BACKPORT-BOUNDARY:job3_rune01] dicastes01,187,207,3	duplicate(mgm)	Mado Gear Armorer#dic	105
+//[BACKPORT-BOUNDARY:job3_rune01] manuk,273,212,5	duplicate(mgm)	Mado Gear Armorer#man	105
+//[BACKPORT-BOUNDARY:job3_rune01] splendide,180,174,5	duplicate(mgm)	Mado Gear Armorer#spl	105
+//[BACKPORT-BOUNDARY:job3_rune01] mid_camp,242,243,3	duplicate(mgm)	Mado Gear Armorer#mid	105

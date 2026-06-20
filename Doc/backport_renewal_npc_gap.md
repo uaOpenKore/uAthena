@@ -88,6 +88,7 @@
 - COMMENT [ET_THINK] emotion ET_THINK, playerattached();
 
 ## eclage
+- ADAPT [=->set] Zeny = Zeny - 5000;
 
 ## malangdo
 - BOUNDARY [izlude_a] izlude_a,182,218,4	duplicate(Odgnalam)	Odgnalam#iz_a	554
@@ -110,7 +111,7 @@
 - ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
 - ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
 - ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
-- COMMENT [is_party_leader] if (is_party_leader() == true)
+- ADAPT [is_party_leader->0] if (is_party_leader() == true)
 - COMMENT [ET_HUK] emotion ET_HUK;
 - COMMENT [ET_HUK] emotion ET_HUK;
 - COMMENT [ET_OHNO] emotion ET_OHNO;

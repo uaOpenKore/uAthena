@@ -1,0 +1,691 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/enchan_mal.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Malangdo Enchants
+//===== By: ================================================== 
+//= Muad_Dib
+//===== Current Version: ===================================== 
+//= 1.0.3
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Adds enchantments to many high level weapons in exchange
+//= for Malangdo coins.
+//===== Additional Comments: ================================= 
+//= 1.0 First Version. [Euphy]
+//= 1.0.1 Added 'delequip' command. [Euphy]
+//= 1.0.2 Remove redundant usage of 'getarg' [Cydh]
+//= 1.0.3 Fixed typo in 1.0.2 [Dastgir]
+//============================================================ 
+
+// Enchanter NPC :: mal_yong
+//============================================================
+//[BACKPORT-UNRESOLVED:delequip] malangdo,213,167,4	script	Mayomayo#mal	555,{
+//[BACKPORT-UNRESOLVED:delequip] 	disable_items;
+//[BACKPORT-UNRESOLVED:delequip] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "You have too many kinds of objects. Let's try to continue after reducing those objects.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	if (MaxWeight - Weight < 10000) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Can't continue because you have too many heavy objects. Let's try to continue after reducing the weight.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "Wow welcome. It is new Mayomayo refinement store~ I enchant some luxury weapons including level 4 weapons.";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	switch( select( "Any store policy changes?", "Enchant High Ranked Weapon", "Initialize Enchant (Need Silvervine Fruit)" ) ) {
+//[BACKPORT-UNRESOLVED:delequip] 	case 1:
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "When I enchant weapons, the slotted cards or refined level are dissipated sometimes. I hated it. However, one day I found how to do it without any extinction.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Have you ever seen a building of person of reinforcement capacity association?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		if (select( "I've seen it before.", "I haven't seen it before." ) == 2) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "That builiding is located to the southeast of where I am. Why don't you go on a field trip there?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "If you go to the place, there is someone who enchants the Archangel Wing. At that time that was amazing, because that was impossible ability by my own skill.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Every night I became his butler and did odd jobs. That is how I learned to enchant.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Several rules are changed. Well, you better have experience.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		set @mal_enchant_select, 1;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 3:
+//[BACKPORT-UNRESOLVED:delequip] 		set @mal_enchant_select, 2;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	if (!getequipisequiped(EQI_HAND_R)) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Did you take off your equipment?";
+//[BACKPORT-UNRESOLVED:delequip] 		set @mal_enchant_select, 0;
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	set @mal_equip_id, getequipid(EQI_HAND_R);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@equip_type, getiteminfo(@mal_equip_id, ITEMINFO_VIEW);
+//[BACKPORT-UNRESOLVED:delequip] 
+	// callsub L_Socket,<cost multiplier>,<4-x enchants possible>;
+//[BACKPORT-UNRESOLVED:delequip] 	switch(.@equip_type) {	//  Check weapon type first to speed up the checks.
+//[BACKPORT-UNRESOLVED:delequip] 	case 1:	// Daggers
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1224: callsub L_Socket,1,2;	// Sword_Breaker
+//[BACKPORT-UNRESOLVED:delequip] 			case 1225: callsub L_Socket,1,2;	// Mail_Breaker
+//[BACKPORT-UNRESOLVED:delequip] 			case 1227: callsub L_Socket,1,2;	// Weeder_Knife
+//[BACKPORT-UNRESOLVED:delequip] 			case 1229: callsub L_Socket,1,2;	// Mama's_Knife
+//[BACKPORT-UNRESOLVED:delequip] 			case 1232: callsub L_Socket,1,2;	// Assasin_Dagger
+//[BACKPORT-UNRESOLVED:delequip] 			case 1233: callsub L_Socket,1,2;	// Exercise
+//[BACKPORT-UNRESOLVED:delequip] 			case 1235: callsub L_Socket,1,2;	// Azoth
+//[BACKPORT-UNRESOLVED:delequip] 			case 1236: callsub L_Socket,1,2;	// Sucsamad
+//[BACKPORT-UNRESOLVED:delequip] 			case 1237: callsub L_Socket,1,2;	// Grimtooth_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1240: callsub L_Socket,1,2;	// Princess_Knife
+//[BACKPORT-UNRESOLVED:delequip] 			case 1241: callsub L_Socket,1,2;	// Cursed_Dagger
+//[BACKPORT-UNRESOLVED:delequip] 			case 1242: callsub L_Socket,1,2;	// Counter_Dagger
+//[BACKPORT-UNRESOLVED:delequip] 			case 1244: callsub L_Socket,1,2;	// Holy_Dagger
+//[BACKPORT-UNRESOLVED:delequip] 			case 13046: callsub L_Socket,1,3;	// Krieg
+//[BACKPORT-UNRESOLVED:delequip] 			case 13047: callsub L_Socket,1,2;	// Weihna
+//[BACKPORT-UNRESOLVED:delequip] 			case 13061: callsub L_Socket,1,2;	// Black_Wing
+//[BACKPORT-UNRESOLVED:delequip] 			case 1223: callsub L_Socket,2,2;	// Forturn_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 1228: callsub L_Socket,2,2;	// Combat_Knife
+//[BACKPORT-UNRESOLVED:delequip] 			case 1234: callsub L_Socket,2,2;	// Moonlight_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 1230: callsub L_Socket,4,2;	// House_Auger
+//[BACKPORT-UNRESOLVED:delequip] 			case 1231: callsub L_Socket,4,2;	// Bazerald
+//[BACKPORT-UNRESOLVED:delequip] 			case 13062: callsub L_Socket,4,2;	// Ancient_Dagger
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 16:	// Katars
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1271: callsub L_Socket,1,2;	// Blood_Tears
+//[BACKPORT-UNRESOLVED:delequip] 			case 1263: callsub L_Socket,1,2;	// Unholy_Touch
+//[BACKPORT-UNRESOLVED:delequip] 			case 1270: callsub L_Socket,1,2;	// Drill_Katar
+//[BACKPORT-UNRESOLVED:delequip] 			case 1284: callsub L_Socket,1,2;	// Krishna
+//[BACKPORT-UNRESOLVED:delequip] 			case 1285: callsub L_Socket,1,2;	// Cakram
+//[BACKPORT-UNRESOLVED:delequip] 			case 1268: callsub L_Socket,2,2;	// Wild_Beast_Claw
+//[BACKPORT-UNRESOLVED:delequip] 			case 1269: callsub L_Socket,2,2;	// Inverse_Scale
+//[BACKPORT-UNRESOLVED:delequip] 			case 1265: callsub L_Socket,2,2;	// Bloody_Roar
+//[BACKPORT-UNRESOLVED:delequip] 			case 1261: callsub L_Socket,4,2;	// Infiltrator
+//[BACKPORT-UNRESOLVED:delequip] 			case 1266: callsub L_Socket,4,2;	// Infiltrator_
+//[BACKPORT-UNRESOLVED:delequip] 			case 28010: callsub L_Socket,4,2;	// Juliette_D._Rachel
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 6:	// 1-H Axes
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1305: callsub L_Socket,1,2;	// Cleaver
+//[BACKPORT-UNRESOLVED:delequip] 			case 1311: callsub L_Socket,1,2;	// Vecer_Axe
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 7:	// 2-H Axes
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1364: callsub L_Socket,1,2;	// Great_Axe
+//[BACKPORT-UNRESOLVED:delequip] 			case 1365: callsub L_Socket,1,2;	// Sabbath
+//[BACKPORT-UNRESOLVED:delequip] 			case 1385: callsub L_Socket,1,2;	// Bradium_Stonehammer
+//[BACKPORT-UNRESOLVED:delequip] 			case 1367: callsub L_Socket,1,2;	// Slaughter
+//[BACKPORT-UNRESOLVED:delequip] 			case 1368: callsub L_Socket,1,2;	// Tomahawk
+//[BACKPORT-UNRESOLVED:delequip] 			case 1387: callsub L_Socket,2,2;	// Giant_Axe
+//[BACKPORT-UNRESOLVED:delequip] 			case 1369: callsub L_Socket,2,2;	// Guillotine
+//[BACKPORT-UNRESOLVED:delequip] 			case 1363: callsub L_Socket,2,2;	// Brood_Axe
+//[BACKPORT-UNRESOLVED:delequip] 			case 1376: callsub L_Socket,4,2;	// Heart_Breaker
+//[BACKPORT-UNRESOLVED:delequip] 			case 1377: callsub L_Socket,4,2;	// Hurricane_Fury
+//[BACKPORT-UNRESOLVED:delequip] 			case 1366: callsub L_Socket,4,2;	// Right_Epsilon
+//[BACKPORT-UNRESOLVED:delequip] 			case 1370: callsub L_Socket,4,2;	// Doom_Slayer
+//[BACKPORT-UNRESOLVED:delequip] 			case 1371: callsub L_Socket,4,2;	// Doom_Slayer_
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 2:	// 1-H Swords
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1131: callsub L_Socket,1,2;	// Ice_Falchon
+//[BACKPORT-UNRESOLVED:delequip] 			case 1133: callsub L_Socket,1,2;	// Fire_Brand
+//[BACKPORT-UNRESOLVED:delequip] 			case 1134: callsub L_Socket,1,2;	// Scissores_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 1135: callsub L_Socket,1,2;	// Cutlas
+//[BACKPORT-UNRESOLVED:delequip] 			case 13400: callsub L_Socket,1,2;	// Cutlas_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1136: callsub L_Socket,1,2;	// Solar_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 1138: callsub L_Socket,1,2;	// Mysteltainn_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1139: callsub L_Socket,1,2;	// Tale_Fing_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1140: callsub L_Socket,1,2;	// Byeorrun_Gum
+//[BACKPORT-UNRESOLVED:delequip] 			case 1141: callsub L_Socket,1,2;	// Immaterial_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 1148: callsub L_Socket,1,2;	// Star_Dust_Blade
+//[BACKPORT-UNRESOLVED:delequip] 			case 13421: callsub L_Socket,1,2;	// Ruber
+//[BACKPORT-UNRESOLVED:delequip] 			case 13431: callsub L_Socket,2,2;	// Chrome_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 1137: callsub L_Socket,2,2;	// Excalibur
+//[BACKPORT-UNRESOLVED:delequip] 			case 1130: callsub L_Socket,2,2;	// Nagan
+//[BACKPORT-UNRESOLVED:delequip] 			case 1132: callsub L_Socket,4,2;	// Edge
+			// case 13460: callsub L_Socket,?,2;	// Sealed_Magic_Sword
+			// case 13461: callsub L_Socket,?,2;	// Sealed_Evil_Sword
+			// case 13462: callsub L_Socket,?,2;	// Sealed_Maximum_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 13412: callsub L_Socket,1,3;	// Twin_Edge_B
+//[BACKPORT-UNRESOLVED:delequip] 			case 13413: callsub L_Socket,1,3;	// Twin_Edge_R
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 3:	// 2-H Swords
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1164: callsub L_Socket,1,2;	// Muramasa
+//[BACKPORT-UNRESOLVED:delequip] 			case 1166: callsub L_Socket,1,2;	// Dragon_Slayer
+//[BACKPORT-UNRESOLVED:delequip] 			case 1167: callsub L_Socket,1,2;	// Schweizersabel
+//[BACKPORT-UNRESOLVED:delequip] 			case 1168: callsub L_Socket,1,2;	// Zweihander
+//[BACKPORT-UNRESOLVED:delequip] 			case 1170: callsub L_Socket,1,2;	// Katzbalger
+//[BACKPORT-UNRESOLVED:delequip] 			case 1171: callsub L_Socket,1,2;	// Zweihander_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1176: callsub L_Socket,1,2;	// Muscle_Cutter
+//[BACKPORT-UNRESOLVED:delequip] 			case 1178: callsub L_Socket,1,2;	// Schweizersabel_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1180: callsub L_Socket,1,2;	// Dragon_Slayer_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1181: callsub L_Socket,1,2;	// Tae_Goo_Lyeon
+//[BACKPORT-UNRESOLVED:delequip] 			case 1182: callsub L_Socket,1,2;	// Bloody_Eater
+//[BACKPORT-UNRESOLVED:delequip] 			case 1188: callsub L_Socket,1,2;	// Veteran_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 1189: callsub L_Socket,1,3;	// Krasnaya
+//[BACKPORT-UNRESOLVED:delequip] 			case 1196: callsub L_Socket,2,2;	// Chrome_Twohand_Sword
+//[BACKPORT-UNRESOLVED:delequip] 			case 1165: callsub L_Socket,2,2;	// Masamune
+//[BACKPORT-UNRESOLVED:delequip] 			case 1169: callsub L_Socket,2,2;	// Executioner_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1179: callsub L_Socket,2,2;	// Executioner__
+//[BACKPORT-UNRESOLVED:delequip] 			case 1175: callsub L_Socket,2,2;	// Altas_Weapon
+//[BACKPORT-UNRESOLVED:delequip] 			case 1185: callsub L_Socket,4,2;	// Violet_Fear
+//[BACKPORT-UNRESOLVED:delequip] 			case 1186: callsub L_Socket,4,2;	// Death_Guidance
+//[BACKPORT-UNRESOLVED:delequip] 			case 21018: callsub L_Socket,4,2;	// Lindy_Hop
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 4:	// 1-H Spears
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1420: callsub L_Socket,1,2;	// Long_Horn
+//[BACKPORT-UNRESOLVED:delequip] 			case 1413: callsub L_Socket,1,2;	// Gungnir
+//[BACKPORT-UNRESOLVED:delequip] 			case 1414: callsub L_Socket,1,2;	// Gelerdria
+//[BACKPORT-UNRESOLVED:delequip] 			case 1416: callsub L_Socket,1,2;	// Tjungkuletti
+//[BACKPORT-UNRESOLVED:delequip] 			case 1418: callsub L_Socket,1,2;	// Gungnir_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1433: callsub L_Socket,2,2;	// Imperial_Spear
+//[BACKPORT-UNRESOLVED:delequip] 			case 1415: callsub L_Socket,2,2;	// Skewer
+//[BACKPORT-UNRESOLVED:delequip] 			case 1421: callsub L_Socket,2,2;	// Battle_Hook
+//[BACKPORT-UNRESOLVED:delequip] 			case 1422: callsub L_Socket,4,2;	// Hunting_Spear
+			// case 1447: callsub L_Socket,?,3;	// Poison_Forged_Spear
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 5:	// 2-H Spears
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1466: callsub L_Socket,1,2;	// Crescent_Scythe
+//[BACKPORT-UNRESOLVED:delequip] 			case 1467: callsub L_Socket,1,2;	// Bill_Guisarme
+//[BACKPORT-UNRESOLVED:delequip] 			case 1468: callsub L_Socket,1,2;	// Zephyrus
+//[BACKPORT-UNRESOLVED:delequip] 			case 1469: callsub L_Socket,1,2;	// Longinus's_Spear
+//[BACKPORT-UNRESOLVED:delequip] 			case 1470: callsub L_Socket,1,2;	// Brionac
+//[BACKPORT-UNRESOLVED:delequip] 			case 1471: callsub L_Socket,1,2;	// Hell_Fire
+//[BACKPORT-UNRESOLVED:delequip] 			case 1474: callsub L_Socket,1,2;	// Gae_Bolg
+//[BACKPORT-UNRESOLVED:delequip] 			case 1476: callsub L_Socket,1,2;	// Crescent_Scythe_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1477: callsub L_Socket,1,2;	// Spectral_Spear
+//[BACKPORT-UNRESOLVED:delequip] 			case 1478: callsub L_Socket,1,2;	// Ahlspiess
+//[BACKPORT-UNRESOLVED:delequip] 			case 1479: callsub L_Socket,1,2;	// Spectral_Spear_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1480: callsub L_Socket,1,2;	// Gae_Bolg_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1481: callsub L_Socket,1,3;	// Zephyrus_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1484: callsub L_Socket,2,2;	// Cardo
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 10:	// Staves
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1616: callsub L_Socket,1,2;	// Staff_Of_Wing
+//[BACKPORT-UNRESOLVED:delequip] 			case 1629: callsub L_Socket,1,2;	// Walking_Stick
+//[BACKPORT-UNRESOLVED:delequip] 			case 1631: callsub L_Socket,1,2;	// Holy_Stick
+//[BACKPORT-UNRESOLVED:delequip] 			case 1643: callsub L_Socket,1,2;	// Dead_Tree_Cane
+//[BACKPORT-UNRESOLVED:delequip] 			case 1654: callsub L_Socket,1,2;	// Mental_Stick
+//[BACKPORT-UNRESOLVED:delequip] 			case 1636: callsub L_Socket,2,2;	// Thorn_Staff
+//[BACKPORT-UNRESOLVED:delequip] 			case 1637: callsub L_Socket,2,2;	// Eraser
+			// case 1697: callsub L_Socket,?,2;	// Exquisite_Yellow_Foxtail_Model
+			// case 1693: callsub L_Socket,?,2;	// Magical_Yellow_Foxtail_Staff
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 23:	// New 2-H Staves
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1473: callsub L_Socket,1,2;	// Wizardy_Staff
+//[BACKPORT-UNRESOLVED:delequip] 			case 2004: callsub L_Socket,1,2;	// Kronos
+//[BACKPORT-UNRESOLVED:delequip] 			case 2005: callsub L_Socket,1,2;	// Dea_Staff
+//[BACKPORT-UNRESOLVED:delequip] 			case 2001: callsub L_Socket,2,2;	// Divine_Cross
+//[BACKPORT-UNRESOLVED:delequip] 			case 2000: callsub L_Socket,4,2;	// Destruction_Rod
+			// case 2027: callsub L_Socket,4,?;	// Sunflower_Kid
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 8:	// Maces
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1524: callsub L_Socket,1,2;	// Golden_Mace
+//[BACKPORT-UNRESOLVED:delequip] 			case 1525: callsub L_Socket,1,2;	// Long_Mace
+//[BACKPORT-UNRESOLVED:delequip] 			case 1527: callsub L_Socket,1,2;	// Quadrille
+//[BACKPORT-UNRESOLVED:delequip] 			case 1539: callsub L_Socket,1,2;	// Golden_Mace_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1541: callsub L_Socket,1,2;	// Nemesis
+//[BACKPORT-UNRESOLVED:delequip] 			case 16000: callsub L_Socket,1,2;	// Erde
+//[BACKPORT-UNRESOLVED:delequip] 			case 16001: callsub L_Socket,1,2;	// Red_Square_Bag
+//[BACKPORT-UNRESOLVED:delequip] 			case 16010: callsub L_Socket,1,2;	// Red_Ether_Bag
+//[BACKPORT-UNRESOLVED:delequip] 			case 1523: callsub L_Socket,2,2;	// Spike
+//[BACKPORT-UNRESOLVED:delequip] 			case 1538: callsub L_Socket,2,2;	// Spike_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1526: callsub L_Socket,2,2;	// Slash
+//[BACKPORT-UNRESOLVED:delequip] 			case 1528: callsub L_Socket,4,2;	// Grand_Cross
+//[BACKPORT-UNRESOLVED:delequip] 			case 1540: callsub L_Socket,4,2;	// Grand_Cross_
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 15:	// Books
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1557: callsub L_Socket,1,2;	// Book_Of_The_Apocalypse
+//[BACKPORT-UNRESOLVED:delequip] 			case 1558: callsub L_Socket,1,2;	// Girl's_Diary
+//[BACKPORT-UNRESOLVED:delequip] 			case 1559: callsub L_Socket,1,2;	// Legacy_Of_Dragon
+//[BACKPORT-UNRESOLVED:delequip] 			case 1561: callsub L_Socket,1,2;	// Hardback
+//[BACKPORT-UNRESOLVED:delequip] 			case 1562: callsub L_Socket,1,2;	// Bible_Of_Battlefield
+//[BACKPORT-UNRESOLVED:delequip] 			case 1565: callsub L_Socket,4,2;	// Death_Note
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 12:	// Knuckles
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1813: callsub L_Socket,1,2;	// Kaiser_Knuckle
+//[BACKPORT-UNRESOLVED:delequip] 			case 1814: callsub L_Socket,1,2;	// Berserk
+//[BACKPORT-UNRESOLVED:delequip] 			case 1815: callsub L_Socket,1,2;	// Claw_Of_Garm
+//[BACKPORT-UNRESOLVED:delequip] 			case 1816: callsub L_Socket,1,2;	// Berserk_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1830: callsub L_Socket,2,2;	// Sura_Rampage
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 11:	// Bows
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1719: callsub L_Socket,1,2;	// Bow_Of_Roguemaster
+//[BACKPORT-UNRESOLVED:delequip] 			case 1722: callsub L_Socket,1,2;	// Balistar
+//[BACKPORT-UNRESOLVED:delequip] 			case 1724: callsub L_Socket,1,2;	// Dragon_Wing
+//[BACKPORT-UNRESOLVED:delequip] 			case 1725: callsub L_Socket,1,2;	// Bow_Of_Minstrel
+//[BACKPORT-UNRESOLVED:delequip] 			case 1727: callsub L_Socket,1,2;	// Balistar_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1737: callsub L_Socket,1,2;	// Ixion_Wing
+//[BACKPORT-UNRESOLVED:delequip] 			case 1740: callsub L_Socket,1,2;	// Nepenthes_Bow
+//[BACKPORT-UNRESOLVED:delequip] 			case 1741: callsub L_Socket,1,2;	// Cursed_Lyre
+//[BACKPORT-UNRESOLVED:delequip] 			case 1745: callsub L_Socket,1,2;	// Falken_Blitz
+//[BACKPORT-UNRESOLVED:delequip] 			case 18103: callsub L_Socket,1,2;	// Mystic_Bow
+//[BACKPORT-UNRESOLVED:delequip] 			case 1720: callsub L_Socket,2,2;	// Bow_Of_Rudra
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 13:	// Musical Instruments
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1913: callsub L_Socket,1,2;	// Electronic_Guitar
+//[BACKPORT-UNRESOLVED:delequip] 			case 1918: callsub L_Socket,1,2;	// Oriental_Lute
+//[BACKPORT-UNRESOLVED:delequip] 			case 1920: callsub L_Socket,1,2;	// Berserk_Guitar
+//[BACKPORT-UNRESOLVED:delequip] 			case 1922: callsub L_Socket,1,2;	// Oriental_Lute_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1926: callsub L_Socket,1,2;	// Harp_Of_Nepenthes
+//[BACKPORT-UNRESOLVED:delequip] 			case 1930: callsub L_Socket,2,2;	// Green_Whistle
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 14:	// Whips
+//[BACKPORT-UNRESOLVED:delequip] 		switch(@mal_equip_id) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1962: callsub L_Socket,1,2;	// Lariat
+//[BACKPORT-UNRESOLVED:delequip] 			case 1963: callsub L_Socket,1,2;	// Rapture_Rose
+//[BACKPORT-UNRESOLVED:delequip] 			case 1964: callsub L_Socket,1,2;	// Chemeti
+//[BACKPORT-UNRESOLVED:delequip] 			case 1969: callsub L_Socket,1,2;	// Bladed_Whip
+//[BACKPORT-UNRESOLVED:delequip] 			case 1970: callsub L_Socket,1,2;	// Queen's_Whip
+//[BACKPORT-UNRESOLVED:delequip] 			case 1972: callsub L_Socket,1,2;	// Electric_Eel
+//[BACKPORT-UNRESOLVED:delequip] 			case 1973: callsub L_Socket,1,2;	// Sea_Witch_Foot
+//[BACKPORT-UNRESOLVED:delequip] 			case 1974: callsub L_Socket,1,2;	// Carrot_Whip
+//[BACKPORT-UNRESOLVED:delequip] 			case 1976: callsub L_Socket,1,2;	// Queen's_Whip_
+//[BACKPORT-UNRESOLVED:delequip] 			case 1979: callsub L_Socket,1,2;	// Stem_Of_Nepenthes
+//[BACKPORT-UNRESOLVED:delequip] 			case 1984: callsub L_Socket,2,2;	// Stem_Whip
+//[BACKPORT-UNRESOLVED:delequip] 			case 1985: callsub L_Socket,4,2;	// Rosebine
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 17:	// Revolvers
+//[BACKPORT-UNRESOLVED:delequip] 	case 18:	// Rifles
+//[BACKPORT-UNRESOLVED:delequip] 	case 19:	// Gatling guns
+//[BACKPORT-UNRESOLVED:delequip] 	case 20:	// Shotguns
+//[BACKPORT-UNRESOLVED:delequip] 	case 21:	// Grenade launchers
+		// switch(@mal_equip_id) {
+		// 	case 13138: callsub L_Socket,4,2;	// Dark_Rose
+		// 	case 28223: callsub L_Socket,4,2;	// Finisher
+		// 	case 28224: callsub L_Socket,4,2;	// Dustfire
+		// 	case 28225: callsub L_Socket,4,2;	// Burning_Rose
+		// 	case 28226: callsub L_Socket,4,2;	// Avenger
+		// }
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 	if (@mal_enchant_select == 1)
+//[BACKPORT-UNRESOLVED:delequip] 		mes "This is not a suitable equipment for the enchant. Don't forget we only take care of high class weapons, including level 4 weapons~";
+//[BACKPORT-UNRESOLVED:delequip] 	else
+//[BACKPORT-UNRESOLVED:delequip] 		mes "This equipment can not be initialized. Don't forget we only handle some luxury weapons, including level 4 weapons~";
+//[BACKPORT-UNRESOLVED:delequip] 	set @mal_equip_id, 0;
+//[BACKPORT-UNRESOLVED:delequip] 	set @mal_enchant_select, 0;
+//[BACKPORT-UNRESOLVED:delequip] 	close;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] L_Socket:
+//[BACKPORT-UNRESOLVED:delequip] 	set .@select, @mal_enchant_select;
+//[BACKPORT-UNRESOLVED:delequip] 	set .@equip_id, @mal_equip_id;
+//[BACKPORT-UNRESOLVED:delequip] 	set .@equip_refine, getequiprefinerycnt(EQI_HAND_R);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@equip_name$, getitemname(.@equip_id) + ( getitemslots(.@equip_id) ? "[" + getitemslots(.@equip_id) + "]" : "" );
+//[BACKPORT-UNRESOLVED:delequip] 	setarray .@equip_card[0], getequipcardid(EQI_HAND_R,0), getequipcardid(EQI_HAND_R,1), getequipcardid(EQI_HAND_R,2), getequipcardid(EQI_HAND_R,3);
+//[BACKPORT-UNRESOLVED:delequip] 	set @mal_equip_id, 0;
+//[BACKPORT-UNRESOLVED:delequip] 	set @mal_enchant_select, 0;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	if (.@select == 1) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "^0000ff" + .@equip_name$ + "^000000! Do you want to enchant this equipment? How will you pay for this?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		set .@enccost, getarg(0);
+//[BACKPORT-UNRESOLVED:delequip] 		set .@enclimit, getarg(1);
+//[BACKPORT-UNRESOLVED:delequip] 		setarray .@coin[0],6422,6421,6420,6419,6418,6423;	//  Payment ID
+//[BACKPORT-UNRESOLVED:delequip] 		setarray .@cost[0],  15,  10,   6,   3,   2,   1;	//  Payment multiplier
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		set .@menu$, "Stop:";
+//[BACKPORT-UNRESOLVED:delequip] 		set .@size_coin, getarraysize(.@coin);
+//[BACKPORT-UNRESOLVED:delequip] 		for (set .@i,0; .@i < .@size_coin; set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@count[.@i], countitem(.@coin[.@i]);
+//[BACKPORT-UNRESOLVED:delequip] 			set .@total[.@i], .@enccost * .@cost[.@i];
+//[BACKPORT-UNRESOLVED:delequip] 			if (.@count[.@i] < .@total[.@i])
+//[BACKPORT-UNRESOLVED:delequip] 				set .@menu$, .@menu$ + "^999999" + getitemname(.@coin[.@i]) + " (missing " + (.@total[.@i]-.@count[.@i]) + ")^000000:";
+//[BACKPORT-UNRESOLVED:delequip] 			else
+//[BACKPORT-UNRESOLVED:delequip] 				set .@menu$, .@menu$ + getitemname(.@coin[.@i]) + " (have " + .@count[.@i] + ", need " + .@total[.@i] + "):";
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@coin_select, select(.@menu$) - 2;
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@coin_select == -1) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Come back again if you change your mind.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		} else if (.@count[.@coin_select] < .@total[.@coin_select]) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "You don't have enough coins. Do you want to check again?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		switch(.@coin_select) {
+//[BACKPORT-UNRESOLVED:delequip] 		case 0:	// Egrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 			set .@enchant_type, 10;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 1:	// Dgrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 			set .@enchant_type, 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 2:	// Cgrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 			set .@enchant_type, 8;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 3:	// Bgrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 			set .@enchant_type, 7;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 4:	// Agrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 		case 5:	// Anger_Seagod
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "When you use the " + getitemname(.@coin[.@coin_select]) + ", you can choose the enchant type.";
+//[BACKPORT-UNRESOLVED:delequip] 			next;
+//[BACKPORT-UNRESOLVED:delequip] 			switch( select( "Stop", "Short Range Type", "Long Range Type", "Caster Type") ) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1:
+//[BACKPORT-UNRESOLVED:delequip] 				mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Ok. If you change your mind, let me know.";
+//[BACKPORT-UNRESOLVED:delequip] 				close;
+//[BACKPORT-UNRESOLVED:delequip] 			case 2:
+//[BACKPORT-UNRESOLVED:delequip] 				set .@enchant_type, ((.@coin_select == 4) ? 4 : 1);
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			case 3:
+//[BACKPORT-UNRESOLVED:delequip] 				set .@enchant_type, ((.@coin_select == 4) ? 5 : 2);
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			case 4:
+//[BACKPORT-UNRESOLVED:delequip] 				set .@enchant_type, ((.@coin_select == 4) ? 6 : 3);
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@equip_card[3] == 0 && .@enclimit < 4) {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@socket, 4;
+//[BACKPORT-UNRESOLVED:delequip] 			set .@str$, "1st";
+//[BACKPORT-UNRESOLVED:delequip] 		} else if (.@equip_card[2] == 0 && .@enclimit < 3) {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@socket, 3;
+//[BACKPORT-UNRESOLVED:delequip] 			set .@str$, "2nd";
+//[BACKPORT-UNRESOLVED:delequip] 		} else {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment is at the end of enchant. Please initialize the enchant and you will be able to enchant it again, or bring another weapon.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I'm trying for the " + .@str$ + " enchant. ^ff0000It will not touch previous refinement and cards. Also, the equipment will not be destroyed.^000000 Can I continue?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		if (select( "I'll come back later.", "Please, continue." ) == 1) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Ok. If you change your mind, come back again.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		switch(.@enchant_type) {
+//[BACKPORT-UNRESOLVED:delequip] 		case 10:	// Egrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,531);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 101) set .@enchant, 4787;	// Mdef4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 201) .@enchant = 4792;	// Def6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 301) .@enchant = 4801;	// SP100
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 351) .@enchant = 4795;	// HP100
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 401) .@enchant = 4796;	// HP200
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 451) .@enchant = 4819;	// Atk1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4720;	// Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 501) .@enchant = 4740;	// Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4750;	// Luck1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 528) .@enchant = 4700;	// Strength1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 530) .@enchant = 4730;	// Agility1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 532) .@enchant = 4710;	// Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 9:	// Dgrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,531);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 101) set .@enchant, 4795;	// HP100
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 201) .@enchant = 4796;	// HP200
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 301) .@enchant = 4819;	// Atk1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 351) .@enchant = 4720;	// Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 401) .@enchant = 4740;	// Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 451) .@enchant = 4750;	// Luck1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4700;	// Strength1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 501) .@enchant = 4730;	// Agility1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4710;	// Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 528) .@enchant = 4701;	// Strength2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 530) .@enchant = 4731;	// Agility2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 532) .@enchant = 4711;	// Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 8:	// Cgrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,531);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 101) set .@enchant, 4720;	// Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 201) .@enchant = 4740;	// Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 301) .@enchant = 4750;	// Luck1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 351) .@enchant = 4700;	// Strength1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 401) .@enchant = 4730;	// Agility1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 451) .@enchant = 4710;	// Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4701;	// Strength2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 501) .@enchant = 4731;	// Agility2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4711;	// Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 528) .@enchant = 4702;	// Strength3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 530) .@enchant = 4732;	// Agility3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 532) .@enchant = 4712;	// Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 7:	// Bgrade_Coin
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,531);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 101) set .@enchant, 4700;	// Strength1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 201) .@enchant = 4730;	// Agility1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 301) .@enchant = 4710;	// Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 351) .@enchant = 4701;	// Strength2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 401) .@enchant = 4731;	// Agility2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 451) .@enchant = 4711;	// Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4702;	// Strength3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 501) .@enchant = 4732;	// Agility3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4712;	// Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 528) .@enchant = 4703;	// Strength4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 530) .@enchant = 4733;	// Agility4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 532) .@enchant = 4713;	// Inteligence4
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 6:	// Agrade_Coin - Caster
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,555);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 81)  set .@enchant, 4711;	// Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 161) .@enchant = 4721;	// Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 241) .@enchant = 4814;	// Spell2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 311) .@enchant = 4712;	// Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 371) .@enchant = 4722;	// Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 431) .@enchant = 4813;	// Spell3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4713;	// Inteligence4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 516) .@enchant = 4812;	// Spell4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4760;	// Matk1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 546) .@enchant = 4714;	// Inteligence5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 551) .@enchant = 4826;	// Spell5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 556) .@enchant = 4761;	// Matk2
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 5:	// Agrade_Coin - Long Range
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,555);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 81)  set .@enchant, 4731;	// Agility2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 161) .@enchant = 4833;	// Expert_Archer2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 241) .@enchant = 4817;	// Sharp2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 311) .@enchant = 4732;	// Agility3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 371) .@enchant = 4834;	// Expert_Archer3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 431) .@enchant = 4816;	// Sharp3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4733;	// Agility4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 516) .@enchant = 4835;	// Expert_Archer4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4807;	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 546) .@enchant = 4734;	// Agility5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 551) .@enchant = 4836;	// Expert_Archer5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 556) .@enchant = 4807;	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 4:	// Agrade_Coin - Short Range
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,555);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 81)  set .@enchant, 4731;	// Agility2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 161) .@enchant = 4808;	// Fighting_Spirit4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 241) .@enchant = 4817;	// Sharp2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 311) .@enchant = 4732;	// Agility3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 371) .@enchant = 4820;	// Fighting_Spirit5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 431) .@enchant = 4816;	// Sharp3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4733;	// Agility4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 516) .@enchant = 4821;	// Fighting_Spirit6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4807;	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 546) .@enchant = 4734;	// Agility5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 551) .@enchant = 4822;	// Fighting_Spirit7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 556) .@enchant = 4807;	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 3:	// Anger_Seagod - Caster
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,555);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 81)  set .@enchant, 4712;	// Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 161) .@enchant = 4722;	// Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 241) .@enchant = 4813;	// Spell3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 311) .@enchant = 4713;	// Inteligence4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 371) .@enchant = 4812;	// Spell4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 431) .@enchant = 4760;	// Matk1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4714;	// Inteligence5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 516) .@enchant = 4826;	// Spell5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4761;	// Matk2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 546) .@enchant = 4715;	// Inteligence6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 551) .@enchant = 4827;	// Spell6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 556) .@enchant = 4761;	// Matk2
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 2:	// Anger_Seagod - Long Range
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,555);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 81)  set .@enchant, 4732;	// Agility3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 161) .@enchant = 4834;	// Expert_Archer3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 241) .@enchant = 4843;	// Sharp4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 311) .@enchant = 4733;	// Agility4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 371) .@enchant = 4835;	// Expert_Archer4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 431) .@enchant = 4844;	// Sharp5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4734;	// Agility5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 516) .@enchant = 4836;	// Expert_Archer5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4807;	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 546) .@enchant = 4735;	// Agility6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 551) .@enchant = 4837;	// Expert_Archer6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 556) .@enchant = 4807;	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 1:	// Anger_Seagod - Short Range
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,555);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 81)  set .@enchant, 4732;	// Agility3
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 161) .@enchant = 4820;	// Fighting_Spirit5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 241) .@enchant = 4843;	// Sharp4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 311) .@enchant = 4733;	// Agility4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 371) .@enchant = 4821;	// Fighting_Spirit6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 431) .@enchant = 4844;	// Sharp5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476) .@enchant = 4734;	// Agility5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 516) .@enchant = 4822;	// Fighting_Spirit7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 526) .@enchant = 4807;	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 546) .@enchant = 4735;	// Agility6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 551) .@enchant = 4823;	// Fighting_Spirit8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 556) .@enchant = 4807;	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 			else .@enchant = 9;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		default:
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "There is something wrong. Please try again.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 
+		// anti-hack
+//[BACKPORT-UNRESOLVED:delequip] 		if (callfunc("F_IsEquipIDHack", EQI_HAND_R, .@equip_id) || callfunc("F_IsEquipRefineHack", EQI_HAND_R, .@equip_refine) || 
+//[BACKPORT-UNRESOLVED:delequip] 		    callfunc("F_IsEquipCardHack", EQI_HAND_R, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3]))
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		     if (.@equip_card[3] == 0 && .@enclimit < 4) set .@equip_card[3], .@enchant;
+//[BACKPORT-UNRESOLVED:delequip] 		else if (.@equip_card[2] == 0 && .@enclimit < 3) .@equip_card[2] = .@enchant;
+//[BACKPORT-UNRESOLVED:delequip] 		else if (.@equip_card[1] == 0 && .@enclimit < 2) .@equip_card[1] = .@enchant;
+//[BACKPORT-UNRESOLVED:delequip] 		else if (.@equip_card[0] == 0 && .@enclimit < 1) .@equip_card[0] = .@enchant;
+//[BACKPORT-UNRESOLVED:delequip] 		else {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment is at the end of enchant. I provide enchant for two times maximum.";
+//[BACKPORT-UNRESOLVED:delequip] 			next;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Surely I don't enchant at card socket, therefore weapons that have 3 slots can be enchanted only 1 time. Don't forget this~";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@enchant == 9) {	//  Should never happen.
+//[BACKPORT-UNRESOLVED:delequip] 			specialeffect2 EF_SUI_EXPLOSION;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Oh my god!";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment is destroyed because it could not endure powerful ability. I'm so sorry.";
+//[BACKPORT-UNRESOLVED:delequip] 			delitem .@coin[.@coin_select],.@total[.@coin_select];
+			//[BACKPORT-GAP:delequip] delequip EQI_HAND_R;
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I have enchanted ^990000slot " + .@socket + "^000000 of this equipment.";
+//[BACKPORT-UNRESOLVED:delequip] 		delitem .@coin[.@coin_select], .@total[.@coin_select];
+		//[BACKPORT-GAP:delequip] delequip EQI_HAND_R;
+//[BACKPORT-UNRESOLVED:delequip] 
+		// GetNonSlotItemSock2 .@equip_refine .@equip_id .@equip_card[0] .@equip_card[1] .@equip_card[2] .@equip_card[3]
+//[BACKPORT-UNRESOLVED:delequip] 		getitem2 .@equip_id,1,1,.@equip_refine,0,.@equip_card[0],.@equip_card[1],.@equip_card[2],.@equip_card[3];
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	} else if (.@select == 2) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I will only initialize the enchant effect without touching previous refined level and cards.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		if (select( "Stop", "Continue" ) == 1) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "If you change your mind, come back anytime.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (countitem(6417) == 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "I'm sorry. You don't have Silvervine Fruit. Please check your inventory again?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(EQI_HAND_R)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Did you take off the equipment?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@equip_card[3] == 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment has nothing to initialize. Please check again.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Mayomayo]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Initialize the enchant effect from the equipment.";
+//[BACKPORT-UNRESOLVED:delequip] 		delitem 6417,1;	// Silvervine
+//[BACKPORT-UNRESOLVED:delequip] 
+		// anti-hack
+//[BACKPORT-UNRESOLVED:delequip] 		if (callfunc("F_IsEquipIDHack", EQI_HAND_R, .@equip_id) || callfunc("F_IsEquipRefineHack", EQI_HAND_R, .@equip_refine) || 
+//[BACKPORT-UNRESOLVED:delequip] 		    callfunc("F_IsEquipCardHack", EQI_HAND_R, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3]))
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 
+		//[BACKPORT-GAP:delequip] delequip EQI_HAND_R;
+//[BACKPORT-UNRESOLVED:delequip] 
+		// GetNonSlotItemSock2 .@equip_refine .@equip_id .@equip_card[0] .@equip_card[1] .@equip_card[2] .@equip_card[3]
+//[BACKPORT-UNRESOLVED:delequip] 		for (set .@i,getiteminfo(.@equip_id, ITEMINFO_SLOT); .@i < MAX_SLOTS; set .@i,.@i+1 ) {
+//[BACKPORT-UNRESOLVED:delequip] 			if (getiteminfo(.@equip_card[.@i], ITEMINFO_SUBTYPE) == CARD_ENCHANT)
+//[BACKPORT-UNRESOLVED:delequip] 				set .@equip_card[.@i], 0;// Armor Enchant System
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		getitem2 .@equip_id,1,1,.@equip_refine,0,.@equip_card[0],.@equip_card[1],.@equip_card[2],.@equip_card[3];
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] }

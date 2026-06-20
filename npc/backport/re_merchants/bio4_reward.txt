@@ -1,0 +1,998 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/bio4_reward.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Lighthalzen rewards NPCs
+//===== Description: =========================================
+//= Enchant and reward NPCs from Bio instance/dungeon item drop.
+//===== Changelogs: ==========================================
+//= 1.0 Moved the NPCs from WolfchevLaboratory.txt. [Capuche]
+//============================================================
+
+// Weird Old Man (Rewards)
+//============================================================
+//[BACKPORT-UNRESOLVED:malformed-for] lighthalzen,342,291,4	script	Weird old man#Bio4Reward	4_M_EINOLD,{
+//[BACKPORT-UNRESOLVED:malformed-for] 	if ((MaxWeight - Weight) < 2800 || !checkweight(1201, 1)) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "^FF0000 Check up your inventory. You got too many items to carry out the quest. ^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Phew, those young people nowadays, are so rude and have no manners.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (select("Ignore him", "Talk with him") == 1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You, very bad young man!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "["+ strcharinfo(0) +"]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Sir, are you alright??";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "....?? You are not like other young people. You have good manners! You know what happened to me..?";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	switch(rand(1,2)) {
+//[BACKPORT-UNRESOLVED:malformed-for] 	case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I was on the way to visit my son who lives in Rune-Midgarts. It's really far away, so I took the airplane, and..";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "those young people...so noisy.... I was standing but none of them offered me a seat..and they were just talking loudly which bothered everyone.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I could lecture them if I were 10 years younger..";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Pffff.. Never liked the passing of time....";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "So, you... what would you do??";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "In an open, public place, you are supposed to stay quiet to the destination and offer your seat to the elderly and the infirm.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		break;
+//[BACKPORT-UNRESOLVED:malformed-for] 	case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I was on the way to visit my son who lives in Rune-Midgarts. It's really far away, so I took the airplane, and..";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "those young people...so noisy.... I was standing but none of them offered me a seat..and they were just talking loudly which bothered everyone.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "I could lecture them if I were 10 years younger..";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Pffff.. Never liked the passing of time....";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "So, you... what would you do??";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "In an open, public place, you are supposed to stay quiet to the destination and offer your seat to the elderly and the infirm. Right?";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Isn't that right?!";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		switch(rand(1,2)) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Oh, and then you know what...?";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Once I was walking in the town and some boys were spitting on the street and were bothering girls who were passing by...tut tut!";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "The world is going to the dogs.. How will it be?? It was even day time when they were doing it..tut tut.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			switch(rand(1,2)) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Oh, and then you know what...?";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Oh, and then you know what...?";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Lately young people are not so patient!!!!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "So often they say they will quit.. they say they can't do more. How will they live life with that kind of mentality..tut tut.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "It's not easy to find a job. It is very difficult to be hired but then they even cannot stand a week there and leave the work place.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "How impatient and irresponsible!!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Oh, and then you know what...?";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Oh, and then you know what...?";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "^E7A43DThe old man talked over and over again.^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Hm......You are not like common young people, you seem pretty patient too. I like that!!!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Now I am just an weak old man but when I was young I was a famous merchant in the town.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "It's been a while since I stopped the business,";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "but a former client of mine contacted me and asked me";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "If I could get him some unknown objects named 'Will of Warrior', 'Thirst for Blood', and 'Chill of the Dead'.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "I like your politeness which most young people don't have, so if you get me those, I will give you some stuff that I consider as my treasure.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	while(1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		switch(select("When I gather them, I will come back", "Show me the armors", "Show me the weapons")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "OK, young man. See you later.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "So, you are interested in armors.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "These are the armors I have.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			for (set .@i,1; .@i < 8; set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				if (((.@i == 1 || .@i == 5) && (countitem(6469) >= 100) && (countitem(6470) >= 50) && (countitem(6471) >= 35)) || 
+//[BACKPORT-UNRESOLVED:malformed-for] 				    ((.@i == 2 || .@i == 3) && (countitem(6469) >= 100) && (countitem(6470) >= 50) && (countitem(6471) >= 22)) ||
+//[BACKPORT-UNRESOLVED:malformed-for] 				    ((.@i == 4 || .@i == 7) && (countitem(6469) >= 300) && (countitem(6470) >= 300) && (countitem(6471) >= 400)) ||
+//[BACKPORT-UNRESOLVED:malformed-for] 				    ((.@i == 6) && (countitem(6469) >= 100) && (countitem(6470) >= 50) && (countitem(6471) >= 30))) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					set .@armor$[.@i], "^0000FF";
+//[BACKPORT-UNRESOLVED:malformed-for] 				} else {
+//[BACKPORT-UNRESOLVED:malformed-for] 					set .@armor$[.@i], "^FF0000";
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 			while(1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				switch(select(
+//[BACKPORT-UNRESOLVED:malformed-for] 					"Show me other items.",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@armor$[1]+"Giant Shield^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@armor$[2]+"Ancient Book of Geffenia-Water^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@armor$[3]+"Bible of Promise(2nd Vol.)^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@armor$[4]+"Salvage Cape^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@armor$[5]+"Assassin's Handcuffs^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@armor$[6]+"Green Operating Gown^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@armor$[7]+"Ancient Gold Decoration^000000"
+//[BACKPORT-UNRESOLVED:malformed-for] 				)) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Have a look.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					next;
+//[BACKPORT-UNRESOLVED:malformed-for] 					set .@break, 1;
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Giant Shield[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Decrease 5% of Damage from Large Monsters, if Refine Lv is 9, decrease 5% more of the Damage.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Shield / Def 130 / Weight 280 / Required Lv 100 / Socket 1 / for 3rd Swordman Classes";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 2160, 100, 50, 35; //Giant_Shield
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Ancient Book of Geffenia-Water[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "INT + 1, MDEF + 2. If Original INT point is 120, MATK + 10, MHP + 800.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "When equipping with Lacryma Stick, the casting % from Storm Gust, Frost Misty and Jack frost will discount equivalent to 4 times Refine Lv.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Shield / Def 30 / Weight 100 / Required Lv 100 / Socket 1 / for Warlock";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 2161, 100, 50, 22; //Geffenia_Book_Water
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Bible of Promise(2nd Vol.)[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "MDEF + 5, Allow to use 'Odin's Power'(Lv 2). Increase 5% more for Heal skill.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Shield / Def 20 / Weight 50 / Required Lv 140 / Socket 1 / for Archbishop";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 2162, 100, 50, 22; //Bible_Of_Promise2
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 5:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Salvage Cape[0]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Allow to use 'Cicada Skin Shed'(Lv 1). Cool down time for this skill will be 30 seconds. When equipping it, SP consumption for using any skill will be doubled, When taking it off, SP - 1200.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Garment / Def 1 / Weight 40 / Required Lv 130 / Socket 0 / for Archbishop";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 2582, 300, 300, 400; //Salvage_Cape
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 6:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Assassin's Handcuffs[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "MSP + 20, CRI + 3. When equipping with Krishna, ATK + 50, ATK power from 'Sonic Blow' 50% increased, FLEE - 30. When equipping with Cakram CRI + 4, Critical ATK power 40% increased, MHP - 10%.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Accessory / Def 3 / Weight 40 / Required Lv 100 / Socket 1 / for Guillotine Cross";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 2892, 100, 50, 35; //Assassin_Handcuffs
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 7:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Green Operating Gown[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "DEX + 1, MSP + 30. Equipping with Scalpel will let to drop 'Immortal Heart', 'Alcohol' with a certain chance when hunting Human, Animal type monsters. Refine Lv affects the drop rate.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Armor / Def 66 / Weight 66 / Required Lv 100 / Socket 1 / for Generic";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 15044, 100, 50, 30; //Green_Operation_Coat
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 8:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Ancient Gold Decoration[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "If the base lv is 150, All State + 2. for Swordman, Merchant, Thief Classes ATK + 8%, for Magician, Acolyte classes MATK + 8%, Heal Power + 7%, for Archer classes DEX + 3, Long Distance ATK power + 10%.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Helm / Def 7 / Location - Upper / Weight 40 / Required Lv 100 / Socket 1 / for 3rd Job Classes";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 18570, 300, 300, 400; //Ancient_Gold_Deco
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 				if (.@break) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					set .@break, 0;
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "So, you are interested in weapons.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "These are the weapons I've got.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			for (set .@i,1; .@i < 15; set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				if (((.@i == 1) && (countitem(6469) >= 50) && (countitem(6470) >= 100) && (countitem(6471) >= 10)) ||
+//[BACKPORT-UNRESOLVED:malformed-for] 				((.@i == 2) && (countitem(6469) >= 50) && (countitem(6470) >= 100) && (countitem(6471) >= 85)) ||
+//[BACKPORT-UNRESOLVED:malformed-for] 				((.@i == 3 || .@i == 4 || (.@i >= 8 && .@i < 11) || .@i >= 12) && (countitem(6469) >= 50) && (countitem(6470) >= 100) && (countitem(6471) >= 35)) ||
+//[BACKPORT-UNRESOLVED:malformed-for] 				((.@i == 5 || .@i == 7 || .@i == 11) && (countitem(6469) >= 50) && (countitem(6470) >= 100) && (countitem(6471) >= 40)) ||
+//[BACKPORT-UNRESOLVED:malformed-for] 				((.@i == 6) && (countitem(6469) >= 300) && (countitem(6470) >= 300) && (countitem(6471) >= 400))) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					set .@weapon$[.@i], "^0000FF";
+//[BACKPORT-UNRESOLVED:malformed-for] 				} else {
+//[BACKPORT-UNRESOLVED:malformed-for] 					set .@weapon$[.@i], "^FF0000";
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 			while(1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				switch(select(
+//[BACKPORT-UNRESOLVED:malformed-for] 					"Show me other items.",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[1]+"Agent Katar^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[2]+"Guillotine Katar^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[3]+"Ygnus Stale^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[4]+"End Sektura^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[5]+"Cannon Spear^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[6]+"Giant Lance^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[7]+"Chilly Spell Book^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[8]+"Recovery Light^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[9]+"Aztoe Nail^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[10]+"Scarletto Nail^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[11]+"Bloody Cross^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[12]+"Catapult^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[13]+"Big CrossBow^000000",
+//[BACKPORT-UNRESOLVED:malformed-for] 					""+.@weapon$[14]+"Creeper Bow^000000"
+//[BACKPORT-UNRESOLVED:malformed-for] 				)) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Have a look.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					next;
+//[BACKPORT-UNRESOLVED:malformed-for] 					set .@break, 1;
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Agent Katar[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Every 2 Original LUK points gets additional 1 HIT point";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Katar / ATK 170 / Weight 120 / Weapon Lv 3 / Required Lv 100 / Socket 1 / for Guillotine Cross";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 1290, 50, 100, 10; //Agent_Katar
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Guillotine Katar[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "DEX + 2. FLEE - 30. 50% more damage to Human monsters. Add 30% more damage for Cross Impact skill.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Katar / ATK 200 / Weight 150 / Weapon Lv 4 / Required Lv 140 / Socket 1 / for Guillotine Cross";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 1291, 50, 100, 85; //Guillotine_Katar
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Ygnus Stale[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "When doing short distance attack, cast Burn status to the player and to the enemy with a certain chance.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Two-Handed Axe / ATK 250 / Weight 190 / Fire Property / Weapon Lv 4 / Required Lv 95 / Socket 1 / for High Swordman/Merchant Classes";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 1392, 50, 100, 35; //Ygnus_Stale
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 5:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<End Sektura[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "When doing short distance attack, cast Freezing to the player and to the enemy with a certain chance.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Two-Handed Axe / ATK 250 / Weight 190 / Water Property / Weapon Lv 4 / Required Lv 95 / Socket 1 / for High Swordman/Merchant Classes";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 1393, 50, 100, 35; //End_Sektura
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 6:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Cannon Spear[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "MSP - 100, Increases 10% of Damage impacted with Cannon Spear, Additional ATK power of Cannon Spear equivalent to 3 times Refine Lv.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "One-Handed Spear / ATK 180 / Weight 160 / Weapon Lv 4 / Required Lv 100 / Socket 1 / for Royal Guard";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 1435, 50, 100, 40; //Cannon_Spear
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 7:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Giant Lance[0]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "ASPD - 10, When it's taken off, the character gets SP - 600. 20 more seconds of Delay time exists before using back the Clashing Spiral. If the original STR points are 120, + ATK 300.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Two-Handed Lance / ATK 20 / Weight 2000 / Weapon Lv 4 / Required Lv 140 / Socket 0 / for Rune Knight";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 1490, 300, 300, 400; //Giant_Lance
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 8:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Chilly Spell Book[2]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "MATK + 160, DEX + 1. Increases ATK % of Cold Bolt, Diamond Dust equivalent to 3 times Refine Lv, also SP consumption from those skills increased equivalent to 5 times Refine Lv. Undestroyable.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Book / ATK 100 / Weight 100 / Water Property / Weapon Lv 4 / Required Lv 100 / Socket 2 / for Sorcerer";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 1584, 50, 100, 40; //Chilly_Spell_Book
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 9:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Recovery Light[1]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "MATK + 160. Depending on its Refine Lv, Heal Ability and SP consumption for the skill increased. Indestructible.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "One-Handed Staff / ATK 30 / Weight 40 / Saint Property / Weapon Lv 4 / Required Lv 110 / Socket 1 / for Archbishop.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 1659, 50, 100, 35; //Recovery_Light
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 10:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Aztoe Nail[0]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "MATK + 80. For Physical Melee Attack, cast Freezing to the target with a certain chance. The chance is affected by Refine Lv.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Dagger / ATK 160 / Weight 50 / Wind Property / Weapon Lv 4 / Required Lv 110 / Socket 0 / for High Swordman/Merchant/Thief Classes";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 13069, 50, 100, 35; //Aztoe_Nail
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 11:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Scarletto Nail[0]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "MATK + 80. For Physical Melee Attack, cast Stone curse to the target with a certain chance. The chance is affected by Refine Lv.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Dagger / ATK 160 / Weight 50 / Fire Property / Weapon Lv 4 / Required Lv 110 / Socket 0 / for High Swordman/Merchant/Thief Classes";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 13070, 50, 100, 35; //Scarletto_Nail
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 12:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Bloody Cross[0]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "For Physical Melee Attack, autocast 'Hell Inferno'(Lv 1) with a certain chance. The chance is affected by Refine Lv.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Mace / ATK 170 / Weight 150 / Darkness Property / Weapon Lv 4 / Required Lv 100 / Socket 0 / for High Acolyte Classes";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 16017, 50, 100, 40; //Bloody_Cross
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 13:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Catapult[2]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Increases ATK % of 'Triangle Shot' equivalent to 2 times Refine Lv, Also SP consumption from the skill increased.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Bow / ATK 150 / Weight 110 / Weapon Lv 4 / Required Lv 100 / Socket 2 / for Shadow Chaser";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 18109, 50, 100, 35; //Catapult
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 14:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Big CrossBow[2]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Increases ATK % of 'Arrow Storm' equivalent to 5 times Refine Lv. Also SP consumption from the skill increased, If the Original AGI points are 120, ASPD + 1.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Bow / ATK 160 / Weight 90 / Weapon Lv 4 / Required Lv 110 / Socket 2 / for Ranger";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 18110, 50, 100, 35; //Big_CrossBow
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				case 15:
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "<<Creeper Bow[2]>>";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "DEX + 1, For Physical Attack, auto-cast 'Fiber Lock'(Lv 1) with a certain chance.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "Bow / ATK 150 / Weight 150 / Weapon Lv 3 / Required Lv 120 / Socket 2 / for 3rd Archer Classes";
+//[BACKPORT-UNRESOLVED:malformed-for] 					callsub L_Reward, 18111, 50, 100, 35; //Creeper_Bow
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 				if (.@break) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					set .@break, 0;
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	close;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] L_Reward:
+//[BACKPORT-UNRESOLVED:malformed-for] 	setarray .@amount[0], getarg(1), getarg(2), getarg(3);
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes ""+ .@amount[0] +" Will of Warrior, "+ .@amount[1] +" Thirst for Blood, "+ .@amount[2] +" Chill of the Dead are needed for the exchange.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (countitem(6469) >= .@amount[0] && countitem(6470) >= .@amount[1] && countitem(6471) >= .@amount[2]) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		if (select("Don't exchange", "Exchange") == 1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Okay..";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+		//[BACKPORT-GAP:ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+//[BACKPORT-UNRESOLVED:malformed-for] 		progressbar "FF00FF", 2;
+//[BACKPORT-UNRESOLVED:malformed-for] 		delitem 6469, .@amount[0]; //Will_Of_Warrior
+//[BACKPORT-UNRESOLVED:malformed-for] 		delitem 6470, .@amount[1]; //Blood_Thirst
+//[BACKPORT-UNRESOLVED:malformed-for] 		delitem 6471, .@amount[2]; //Goast_Chill
+//[BACKPORT-UNRESOLVED:malformed-for] 		getitem getarg(0), 1;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[Weird old man]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "There you go. Visit me sometimes and we could talk.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	return;
+//[BACKPORT-UNRESOLVED:malformed-for] }
+
+// Sorcerer (Rewards)
+//============================================================
+//[BACKPORT-UNRESOLVED:delequip] lhz_cube,233,24,4	script	Sorcerer#Bio4Reward	4_M_UMDANCEKID,{
+//[BACKPORT-UNRESOLVED:delequip] 	if ((MaxWeight - Weight) < 1200 || !checkweight(1201, 1)) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "^FF0000 Check up your inventory. You got too many items to carry out the quest. ^000000";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	disable_items;
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "... .... ...";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	switch(select("Umba umba humbaa", "What are you doing here?", "Which are the equipments found so far?", "Here you are, sir.")) {
+//[BACKPORT-UNRESOLVED:delequip] 	case 1:
+		//[BACKPORT-GAP:ET_FRET] emotion ET_FRET;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Hey, excuse me, but I'm not from Umbala! You are so rude.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "As you can see I'm a training Sorcerer, and my name is Pudding.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		select("....?");
+		//[BACKPORT-GAP:ET_FRET] emotion ET_FRET;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "... What's that face? I'm starting to feel unpleasant..";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+		//[BACKPORT-GAP:ET_OK] emotion ET_OK;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "A couple of days ago while I was undergoing discipline, I felt a strange, bizarre tinge. So I followed that and it brought me here.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		select("I see.");
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "OK, let me continue. I become bothered if you disturb me while I'm talking.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "And I entered to the laboratory here in order to investigate and oh gosh! I found those monsters which were like doppelgangers from 'Geffen Dungeon'. It was full of them.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "From those monsters, I could find rare items like '^F2766EWill of Warrior^000000', '^952420Thirst for Blood^000000', and '^88C6F7Chill of the Dead^000000' which you cannot find in any other place.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+		//[BACKPORT-GAP:ET_QUESTION] emotion ET_QUESTION;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "And after many hours of research on my own, I finally figured out a way to use those items. Do you wanna know?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		switch(select("Oh....pardon?!", "Of course, I really wanna know.")) {
+//[BACKPORT-UNRESOLVED:delequip] 		case 1:
+			//[BACKPORT-GAP:ET_HUK] emotion ET_HUK, playerattached();
+			//[BACKPORT-GAP:ET_FRET] emotion ET_FRET;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Oh my! You fell asleep after you asked me something? Well, anyway I feel lazy to explain again so I will just continue.";
+//[BACKPORT-UNRESOLVED:delequip] 			next;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 2:
+			//[BACKPORT-GAP:ET_SMILE] emotion ET_SMILE;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Good, I am content that you are listening to my story carefully. Then I will keep explaining.";
+//[BACKPORT-UNRESOLVED:delequip] 			next;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Those '^F2766EWill of Warrior^000000' and '^952420Thirst for Blood^000000'..... are aggressive but warm materials.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "So '^F2766EWill of Warrior^000000' can dwell a special power to the 4th slot of an equipment,";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "and '^952420Thirst for Blood^000000' can dwell a special power to the 3rd slot.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Whereas!!!";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "'^88C6F7Chill of the Dead^000000' is a cold type material";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "which allows the return of power from '^F2766EWill of Warrior^000000' or '^952420Thirst for Blood^000000' so makes the equipment no longer enchanted.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "What do you say? Doesn't it sound interesting? But, there's a problem...";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Since those materials can only be found from the monsters in the Lab., the special power also can be dwelt into certain equipments which can be obtained from the Lab.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		select("So what's the conclusion?");
+		//[BACKPORT-GAP:ET_QUESTION] emotion ET_QUESTION, playerattached();
+		//[BACKPORT-GAP:ET_FRET] emotion ET_FRET;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Gee.. I told you not to cut while I talk, didn't I? Well, I will answer that because that's important.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "If you bring me 10 '^F2766EWill of Warrior^000000' or 10 '^952420Thirst for Blood^000000', I will dwell some power to certain equipments that you can find in the Lab..";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "And if you are not satisfied with the power you got, bring me 10 '^88C6F7Chill of the Dead^000000', and I will take off that power.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "What do you say? Having both options.....quite nice, huh?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "If you obtain '^F2766EWill of Warrior^000000' or '^952420Thirst for Blood^000000', and obtain also equipment which is capable to accept their power, bring them to me. I will be waiting.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	case 3:
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Hm.... Equipment which are discovered so far are....";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "- checking -";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Pudding takes some paper out from a pocket.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Let me see.. the equipments discovered until now are....";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "7 Armors, 14 Weapons.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		while(1) {
+//[BACKPORT-UNRESOLVED:delequip] 			switch(select("Ok, I don't have to know more.", "7 Armors", "14 Weapons")) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 1:
+//[BACKPORT-UNRESOLVED:delequip] 				mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "If you obtain '^F2766EWill of Warrior^000000' or '^952420Thirst for Blood^000000', and obtain also equipment which is capable to accept their power, bring them to me. I will be waiting.";
+//[BACKPORT-UNRESOLVED:delequip] 				close;
+//[BACKPORT-UNRESOLVED:delequip] 			case 2:
+//[BACKPORT-UNRESOLVED:delequip] 				mes "< Armor List >";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Giant Shield[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Ancient Book of Geffenia-Water[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Bible of Promise(2nd Vol.)[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Salvage Cape[0]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Assassin's Handcuffs[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Green Operating Gown[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Ancient Gold Decoration[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				next;
+//[BACKPORT-UNRESOLVED:delequip] 				mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "So far these are the Armors discovered. Do you wanna see other things?";
+//[BACKPORT-UNRESOLVED:delequip] 				next;
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			case 3:
+//[BACKPORT-UNRESOLVED:delequip] 				mes "< Weapon List >";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Agent Katar[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Guillotine Katar[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Ygnus Stale[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "End Sektura[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Cannon Spear[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Giant Lance[0]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Chilly Spell Book[2]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Recovery Light[1]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Aztoe Nail[0]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Scarletto Nail[0]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Bloody Cross[0]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Catapult[2]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Big CrossBow[2]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Creeper Bow[2]";
+//[BACKPORT-UNRESOLVED:delequip] 				next;
+//[BACKPORT-UNRESOLVED:delequip] 				mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "So far these are the Weapons discovered. Do you wanna see other things?";
+//[BACKPORT-UNRESOLVED:delequip] 				next;
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	case 4:
+		//[BACKPORT-GAP:ET_SPARK] emotion ET_SPARK;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Ohhhhh Have you brought them?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "OKAY! In which equipment you want to dwell the power?";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	setarray .@parts[0], EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_TOP;
+//[BACKPORT-UNRESOLVED:delequip] 	for (set .@i,0; .@i < 7; set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(.@parts[.@i])) {
+//[BACKPORT-UNRESOLVED:delequip] 			switch(.@i) {
+//[BACKPORT-UNRESOLVED:delequip] 				case 0:
+//[BACKPORT-UNRESOLVED:delequip] 					set .@equipped$[.@i], "^999999Armor-[Not equipped]^000000";
+//[BACKPORT-UNRESOLVED:delequip] 					break;
+//[BACKPORT-UNRESOLVED:delequip] 				case 1:
+//[BACKPORT-UNRESOLVED:delequip] 					set .@equipped$[.@i], "^999999Left Hand-[Not equipped]^000000";
+//[BACKPORT-UNRESOLVED:delequip] 					break;
+//[BACKPORT-UNRESOLVED:delequip] 				case 2:
+//[BACKPORT-UNRESOLVED:delequip] 					set .@equipped$[.@i], "^999999Right Hand-[Not equipped]^000000";
+//[BACKPORT-UNRESOLVED:delequip] 					break;
+//[BACKPORT-UNRESOLVED:delequip] 				case 3:
+//[BACKPORT-UNRESOLVED:delequip] 					set .@equipped$[.@i], "^999999Garment-[Not equipped]^000000";
+//[BACKPORT-UNRESOLVED:delequip] 					break;
+//[BACKPORT-UNRESOLVED:delequip] 				case 4:
+//[BACKPORT-UNRESOLVED:delequip] 					set .@equipped$[.@i], "^999999Accessory-[Not equipped]^000000";
+//[BACKPORT-UNRESOLVED:delequip] 					break;
+//[BACKPORT-UNRESOLVED:delequip] 				case 5:
+//[BACKPORT-UNRESOLVED:delequip] 					set .@equipped$[.@i], "^999999Accessory-[Not equipped]^000000";
+//[BACKPORT-UNRESOLVED:delequip] 					break;
+//[BACKPORT-UNRESOLVED:delequip] 				case 6:
+//[BACKPORT-UNRESOLVED:delequip] 					set .@equipped$[.@i], "^999999Helm-[Not equipped]^000000";
+//[BACKPORT-UNRESOLVED:delequip] 					break;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 		} else {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@equipped$[.@i], getequipname(.@parts[.@i]);
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	switch(select("I changed my mind.", .@equipped$[0], .@equipped$[1], .@equipped$[2], .@equipped$[3], .@equipped$[4], 
+//[BACKPORT-UNRESOLVED:delequip] 	.@equipped$[5], .@equipped$[6])) {
+//[BACKPORT-UNRESOLVED:delequip] 	case 1:
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Well, I was looking forward to doing it, but I cannot help then.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(EQI_ARMOR)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Hey..Where is the armor?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@part, EQI_ARMOR;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 3:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(EQI_HAND_L)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Well.. You have nothing equipped on the left hand.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@part, EQI_HAND_L;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 4:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(EQI_HAND_R)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Well.. You have nothing equipped on the right hand.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@part, EQI_HAND_R;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 5:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(EQI_GARMENT)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Um.... Where's your robe?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@part, EQI_GARMENT;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 6:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(EQI_ACC_L)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes ".....Where's the accessory?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@part, EQI_ACC_L;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 7:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(EQI_ACC_R)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes ".....Where's the accessory?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@part, EQI_ACC_R;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 8:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(EQI_HEAD_TOP)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Hey.. Are you not wearing any helm?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@part, EQI_HEAD_TOP;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	set .@refine_count, getequiprefinerycnt(.@part);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@equip_item, getequipid(.@part);
+//[BACKPORT-UNRESOLVED:delequip] 	setarray .@equip_card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@lhz_max_num, 4000;
+//[BACKPORT-UNRESOLVED:delequip] 	if (.@equip_item == 13069 || .@equip_item == 1291 || .@equip_item == 1392 ||
+//[BACKPORT-UNRESOLVED:delequip] 	    .@equip_item == 1393 || .@equip_item == 1435 || .@equip_item == 1490 ||
+//[BACKPORT-UNRESOLVED:delequip] 	    .@equip_item == 13070 || .@equip_item == 16017) {
+//[BACKPORT-UNRESOLVED:delequip] 		set .@type, 1;
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@equip_item == 1490)
+//[BACKPORT-UNRESOLVED:delequip] 			set .@lhz_max_num, 4200;
+//[BACKPORT-UNRESOLVED:delequip] 	} else if (.@equip_item == 18109 || .@equip_item == 18110 || .@equip_item == 18111) {
+//[BACKPORT-UNRESOLVED:delequip] 		set .@type, 2;
+//[BACKPORT-UNRESOLVED:delequip] 	} else if (.@equip_item == 1584 || .@equip_item == 1659) {
+//[BACKPORT-UNRESOLVED:delequip] 		set .@type, 3;
+//[BACKPORT-UNRESOLVED:delequip] 	} else if (.@equip_item == 2160 || .@equip_item == 2161 || .@equip_item == 2162 ||
+//[BACKPORT-UNRESOLVED:delequip] 	           .@equip_item == 2582 || .@equip_item == 2892 || .@equip_item == 15044 || 
+//[BACKPORT-UNRESOLVED:delequip] 	           .@equip_item == 18570) {
+//[BACKPORT-UNRESOLVED:delequip] 		set .@type, 4;
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@equip_item == 2582 || .@equip_item == 18570)
+//[BACKPORT-UNRESOLVED:delequip] 			set .@lhz_max_num, 4200;
+//[BACKPORT-UNRESOLVED:delequip] 	} else {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "First! I need to check if this equipment can accept the power.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		specialeffect2 EF_SPHERE;
+//[BACKPORT-UNRESOLVED:delequip] 		progressbar "ffff00", 2;
+//[BACKPORT-UNRESOLVED:delequip] 		specialeffect2 EF_SUI_EXPLOSION;
+		//[BACKPORT-GAP:ET_CRY] emotion ET_CRY;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Hm.... This equipment cannot accept the power of '^F2766EWill of Warrior^000000' or '^952420Thirst for Blood^000000'.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+	//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "OHHH.. This equipment could accept the power of '^F2766EWill of Warrior^000000' or '^952420Thirst for Blood^000000'.";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	if (countitem(6469) >= 10)
+//[BACKPORT-UNRESOLVED:delequip] 		set .@menu_in$[1], "Dwell the power of '^F2766EWill of Warrior^000000'";
+//[BACKPORT-UNRESOLVED:delequip] 	else
+//[BACKPORT-UNRESOLVED:delequip] 		set .@menu_in$[1], "Not enough ^999999'Will of Warrior'^000000";
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	if (countitem(6470) >= 10)
+//[BACKPORT-UNRESOLVED:delequip] 		set .@menu_in$[2], "Dwell the power of '^952420Thirst for Blood^000000'";
+//[BACKPORT-UNRESOLVED:delequip] 	else
+//[BACKPORT-UNRESOLVED:delequip] 		set .@menu_in$[2], "Not enough ^999999'Thirst for Blood'^000000";
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	if (countitem(6471) >= 10)
+//[BACKPORT-UNRESOLVED:delequip] 		set .@menu_in$[3], "Consume the '^88C6F7Chill of the Dead^000000'";
+//[BACKPORT-UNRESOLVED:delequip] 	else
+//[BACKPORT-UNRESOLVED:delequip] 		set .@menu_in$[3], "Not enough ^999999'Chill of the Dead'^000000";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "OK! Which power do you want to dwell into your equipment?";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	switch(select("I say no! I don't need that!!", .@menu_in$[1], .@menu_in$[2], .@menu_in$[3])) {
+//[BACKPORT-UNRESOLVED:delequip] 	case 1:
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Ohhh.. I was looking forward to doing it, but it's all up to you......";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		if (countitem(6469) < 10) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Not enough '^F2766EWill of Warrior^000000'. You need to bring 10 '^F2766EWill of Warrior^000000'";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		else if (.@equip_card[3] > 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment already has the power of '^F2766EWill of Warrior^000000'.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		} else {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@socket_type, 4;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 3:
+//[BACKPORT-UNRESOLVED:delequip] 		if (countitem(6470) < 10) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Not enough '^952420Thirst for Blood^000000'. You need to bring 10 '^952420Thirst for Blood^000000'";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		else if (.@equip_card[2] > 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment already has the power of '^952420Thirst for Blood^000000'.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		} else {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@socket_type, 3;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 4:
+		// Enchant Removal
+//[BACKPORT-UNRESOLVED:delequip] 		if (countitem(6471) < 10) {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@menu_clear$[1], "^999999Not enough 'Chill of the Dead'^000000";
+//[BACKPORT-UNRESOLVED:delequip] 			set .@menu_clear$[2], "^999999Not enough 'Chill of the Dead'^000000";
+//[BACKPORT-UNRESOLVED:delequip] 			set .@4thzptsodyd, 1;
+//[BACKPORT-UNRESOLVED:delequip] 			set .@3thzptsodyd, 1;
+//[BACKPORT-UNRESOLVED:delequip] 		} else {
+//[BACKPORT-UNRESOLVED:delequip] 			if (.@equip_card[3] > 0) {
+//[BACKPORT-UNRESOLVED:delequip] 				set .@menu_clear$[1], "Remove the power of '^F2766EWill of Warrior^000000'";
+//[BACKPORT-UNRESOLVED:delequip] 			} else {
+//[BACKPORT-UNRESOLVED:delequip] 				set .@menu_clear$[1], "^999999There's no power to remove^000000";
+//[BACKPORT-UNRESOLVED:delequip] 				set .@4thzptsodyd, 1;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 			if (.@equip_card[2] > 0) {
+//[BACKPORT-UNRESOLVED:delequip] 				set .@menu_clear$[2], "Remove the power of '^952420Thirst for Blood^000000'";
+//[BACKPORT-UNRESOLVED:delequip] 			} else {
+//[BACKPORT-UNRESOLVED:delequip] 				set .@menu_clear$[2], "^999999There's no power to remove^000000";
+//[BACKPORT-UNRESOLVED:delequip] 				set .@3thzptsodyd, 1;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Alright, which power do you want to remove?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		set .@menu, select("No, I don't wanna remove any.", .@menu_clear$[1], .@menu_clear$[2]);
+//[BACKPORT-UNRESOLVED:delequip] 		switch(.@menu){
+//[BACKPORT-UNRESOLVED:delequip] 		case 1:
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Really? Ok. I got it..";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		case 3:
+//[BACKPORT-UNRESOLVED:delequip] 			if (countitem(6471) < 10) {
+//[BACKPORT-UNRESOLVED:delequip] 				mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "Not enough '^88C6F7Chill of the Dead^000000'. You need to bring 10 '^88C6F7Chill of the Dead^000000'";
+//[BACKPORT-UNRESOLVED:delequip] 				close;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 			if ( (.@menu==3 && .@3thzptsodyd == 1) || (.@menu==2 && .@4thzptsodyd == 1) ) {
+//[BACKPORT-UNRESOLVED:delequip] 				mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 				mes "This equipment didn't get any special power.";
+//[BACKPORT-UNRESOLVED:delequip] 				close;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 			specialeffect EF_BEGINSPELL2;
+//[BACKPORT-UNRESOLVED:delequip] 			progressbar "ffff00", 2;
+//[BACKPORT-UNRESOLVED:delequip] 			specialeffect2 EF_FROSTWEAPON;
+//[BACKPORT-UNRESOLVED:delequip] 			delitem 6471, 10; //Goast_Chill
+//[BACKPORT-UNRESOLVED:delequip] 
+			// anti-hack
+//[BACKPORT-UNRESOLVED:delequip] 			if (callfunc("F_IsEquipIDHack", .@part, .@equip_item) || callfunc("F_IsEquipCardHack", .@part, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3]) || callfunc("F_IsEquipRefineHack", .@part, .@refine_count))
+//[BACKPORT-UNRESOLVED:delequip] 				close;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 			if (.@menu == 2)
+//[BACKPORT-UNRESOLVED:delequip] 				set .@equip_card[3], 0;
+//[BACKPORT-UNRESOLVED:delequip] 			else
+//[BACKPORT-UNRESOLVED:delequip] 				set .@equip_card[2], 0;
+			//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-UNRESOLVED:delequip] 			getitem2 .@equip_item, 1, 1, .@refine_count, 0, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3];
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			if (.@menu == 3)
+//[BACKPORT-UNRESOLVED:delequip] 				mes "The power of '^952420Thirst for Blood^000000' has been perfectly removed.";
+//[BACKPORT-UNRESOLVED:delequip] 			else
+//[BACKPORT-UNRESOLVED:delequip] 				mes "The power of '^F2766EWill of Warrior^000000' has been perfectly removed.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "Before I dwell the power, let me caution you.";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "While I dwell the power of '^F2766EWill of Warrior^000000' or '^952420Thirst for Blood^000000', the equipment could be not capable of accepting it and will be destroyed as a result..";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "^9D2628If the equipment is destroyed, you will also lose the cards you inserted in it, and the refine Lv will be removed too.^000000";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "Alright. Do you really wish to dwell the power into the equipment?";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	if (select("Wait, I will think again.", "Sure, carry on.") == 1) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "OK. I hope to see you again.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "I hope you made the correct decision...";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	if (.@socket_type >= 3) {
+//[BACKPORT-UNRESOLVED:delequip] 		switch(.@type){
+//[BACKPORT-UNRESOLVED:delequip] 			case 1:	// Short Distance
+//[BACKPORT-UNRESOLVED:delequip] 				set .@r, rand(1, .@lhz_max_num);
+//[BACKPORT-UNRESOLVED:delequip] 				if      (.@r < 401)  set .@enchant, 4700; //Strength1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 441)  .@enchant = 4701; //Strength2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 445)  .@enchant = 4702; //Strength3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 845)  .@enchant = 4730; //Agility1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 885)  .@enchant = 4731; //Agility2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 889)  .@enchant = 4732; //Agility3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1289) .@enchant = 4740; //Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1329) .@enchant = 4741; //Vitality2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1333) .@enchant = 4742; //Vitality3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1523) .@enchant = 4710; //Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1542) .@enchant = 4711; //Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1544) .@enchant = 4712; //Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1844) .@enchant = 4720; //Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1874) .@enchant = 4721; //Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1877) .@enchant = 4722; //Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2067) .@enchant = 4750; //Luck1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2086) .@enchant = 4751; //Luck2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2088) .@enchant = 4752; //Luck3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2491) .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2891) .@enchant = 4811; //Fighting_Spirit1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2931) .@enchant = 4810; //Fighting_Spirit2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2935) .@enchant = 4809; //Fighting_Spirit3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3125) .@enchant = 4815; //Spell1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3144) .@enchant = 4814; //Spell2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3146) .@enchant = 4813; //Spell3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3148) .@enchant = 4807; //Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3348) .@enchant = 4818; //Sharp1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3368) .@enchant = 4817; //Sharp2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3370) .@enchant = 4816; //Sharp3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3560) .@enchant = 4832; //Expert_Archer1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3579) .@enchant = 4833; //Expert_Archer2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3581) .@enchant = 4834; //Expert_Archer3
+//[BACKPORT-UNRESOLVED:delequip] 				else                 .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			case 2:	// Long Distance
+//[BACKPORT-UNRESOLVED:delequip] 				set .@r, rand(1, .@lhz_max_num);
+//[BACKPORT-UNRESOLVED:delequip] 				if      (.@r < 191)  set .@enchant, 4700; //Strength1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 210)  .@enchant = 4701; //Strength2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 212)  .@enchant = 4702; //Strength3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 612)  .@enchant = 4730; //Agility1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 652)  .@enchant = 4731; //Agility2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 656)  .@enchant = 4732; //Agility3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 846)  .@enchant = 4740; //Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 865)  .@enchant = 4741; //Vitality2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 867)  .@enchant = 4742; //Vitality3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1167) .@enchant = 4710; //Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1197) .@enchant = 4711; //Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1200) .@enchant = 4712; //Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1600) .@enchant = 4720; //Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1640) .@enchant = 4721; //Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1644) .@enchant = 4722; //Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1834) .@enchant = 4750; //Luck1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1853) .@enchant = 4751; //Luck2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1855) .@enchant = 4752; //Luck3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2258) .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2448) .@enchant = 4811; //Fighting_Spirit1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2467) .@enchant = 4810; //Fighting_Spirit2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2469) .@enchant = 4809; //Fighting_Spirit3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2669) .@enchant = 4815; //Spell1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2689) .@enchant = 4814; //Spell2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2691) .@enchant = 4813; //Spell3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2693) .@enchant = 4807; //Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3093) .@enchant = 4818; //Sharp1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3133) .@enchant = 4817; //Sharp2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3137) .@enchant = 4816; //Sharp3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3537) .@enchant = 4832; //Expert_Archer1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3577) .@enchant = 4833; //Expert_Archer2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3581) .@enchant = 4834; //Expert_Archer3
+//[BACKPORT-UNRESOLVED:delequip] 				else                 .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			case 3:
+//[BACKPORT-UNRESOLVED:delequip] 				set .@r, rand(1, .@lhz_max_num);
+//[BACKPORT-UNRESOLVED:delequip] 				if      (.@r < 301)  set .@enchant, 4700; //Strength1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 331)  .@enchant = 4701; //Strength2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 334)  .@enchant = 4702; //Strength3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 534)  .@enchant = 4730; //Agility1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 554)  .@enchant = 4731; //Agility2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 556)  .@enchant = 4732; //Agility3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 956)  .@enchant = 4740; //Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 996)  .@enchant = 4741; //Vitality2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1000) .@enchant = 4742; //Vitality3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1400) .@enchant = 4710; //Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1440) .@enchant = 4711; //Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1444) .@enchant = 4712; //Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1844) .@enchant = 4720; //Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1884) .@enchant = 4721; //Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1888) .@enchant = 4722; //Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2078) .@enchant = 4750; //Luck1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2097) .@enchant = 4751; //Luck2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2099) .@enchant = 4752; //Luck3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2502) .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2692) .@enchant = 4811; //Fighting_Spirit1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2711) .@enchant = 4810; //Fighting_Spirit2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2713) .@enchant = 4809; //Fighting_Spirit3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3113) .@enchant = 4815; //Spell1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3153) .@enchant = 4814; //Spell2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3157) .@enchant = 4813; //Spell3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3159) .@enchant = 4807; //Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3349) .@enchant = 4818; //Sharp1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3368) .@enchant = 4817; //Sharp2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3370) .@enchant = 4816; //Sharp3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3560) .@enchant = 4832; //Expert_Archer1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3579) .@enchant = 4833; //Expert_Archer2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3581) .@enchant = 4834; //Expert_Archer3
+//[BACKPORT-UNRESOLVED:delequip] 				else                 .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			case 4:	// Armor
+//[BACKPORT-UNRESOLVED:delequip] 				set .@r, rand(1, .@lhz_max_num);
+//[BACKPORT-UNRESOLVED:delequip] 				if      (.@r < 301)  set .@enchant, 4700; //Strength1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 331)  .@enchant = 4701; //Strength2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 334)  .@enchant = 4702; //Strength3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 634)  .@enchant = 4730; //Agility1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 664)  .@enchant = 4731; //Agility2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 667)  .@enchant = 4732; //Agility3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 967)  .@enchant = 4740; //Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 997)  .@enchant = 4741; //Vitality2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1000) .@enchant = 4742; //Vitality3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1300) .@enchant = 4710; //Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1330) .@enchant = 4711; //Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1333) .@enchant = 4712; //Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1633) .@enchant = 4720; //Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1663) .@enchant = 4721; //Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1666) .@enchant = 4722; //Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1966) .@enchant = 4750; //Luck1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1996) .@enchant = 4751; //Luck2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 1999) .@enchant = 4752; //Luck3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2399) .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2549) .@enchant = 4786; //Mdef2
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2599) .@enchant = 4787; //Mdef4
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2609) .@enchant = 4788; //Mdef6
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2614) .@enchant = 4789; //Mdef8
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2616) .@enchant = 4790; //Mdef10
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2766) .@enchant = 4791; //Def3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2866) .@enchant = 4792; //Def6
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2876) .@enchant = 4793; //Def9
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 2878) .@enchant = 4794; //Def12
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3278) .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3428) .@enchant = 4859; //Evasion1
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3478) .@enchant = 4860; //Evasion3
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3488) .@enchant = 4762; //Evasion6
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3498) .@enchant = 4800; //SP50
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3734) .@enchant = 4795; //HP100
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3834) .@enchant = 4796; //HP200
+//[BACKPORT-UNRESOLVED:delequip] 				else if (.@r < 3884) .@enchant = 4797; //HP300
+//[BACKPORT-UNRESOLVED:delequip] 				else                 .@enchant = 0;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		specialeffect EF_BEGINSPELL3;
+//[BACKPORT-UNRESOLVED:delequip] 		progressbar "ffff00", 2;
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@socket_type == 3)
+//[BACKPORT-UNRESOLVED:delequip] 			delitem 6470, 10; //Blood_Thirst
+//[BACKPORT-UNRESOLVED:delequip] 		else
+//[BACKPORT-UNRESOLVED:delequip] 			delitem 6469, 10; //Will_Of_Warrior
+//[BACKPORT-UNRESOLVED:delequip] 
+		// anti-hack
+//[BACKPORT-UNRESOLVED:delequip] 		if (callfunc("F_IsEquipIDHack", .@part, .@equip_item) || callfunc("F_IsEquipCardHack", .@part, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3]) || callfunc("F_IsEquipRefineHack", .@part, .@refine_count))
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		set .@equip_card[(.@socket_type-1)], .@enchant;
+		//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-UNRESOLVED:delequip] 		
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@enchant == 0){
+//[BACKPORT-UNRESOLVED:delequip] 			specialeffect2 EF_SUI_EXPLOSION;
+			//[BACKPORT-GAP:ET_OTL] emotion ET_OTL;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "...Well....the equipment could not accept the power of "+((.@socket_type==3)?"'^952420Thirst for Blood^000000'":"'^F2766EWill of Warrior^000000'")+" and it got destroyed.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		} else {
+//[BACKPORT-UNRESOLVED:delequip] 			specialeffect2 EF_FIREHIT;
+//[BACKPORT-UNRESOLVED:delequip] 			getitem2 .@equip_item, 1, 1, .@refine_count, 0, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3];
+			//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Pudding]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Fortunately, the power of "+((.@socket_type==3)?"'^952420Thirst for Blood^000000'":"'^F2766EWill of Warrior^000000'")+" has been dwelt well into your equipment...";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	end;
+//[BACKPORT-UNRESOLVED:delequip] }
