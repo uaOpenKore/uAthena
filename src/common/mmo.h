@@ -69,7 +69,8 @@
 
 #define MAX_STATUS_TYPE 5
 
-#define MAX_QUEST_DB 2000 //Max quests that the server will load
+#define MAX_QUEST_DB 3000 //Max quest DEFINITIONS the server loads (global quest_db[])
+#define MAX_PC_QUESTS 500 //Max ACTIVE quests a single character can hold (per-char quest_log[])
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a single quest
 
 #define WEDDING_RING_M 2634
