@@ -786,9 +786,9 @@
 - UNRESOLVED [getargcount] Special Vending Machine
 - UNRESOLVED [malformed-for] Dark Merchant K
 - UNRESOLVED [malformed-for] Dark MachineTX100
-- UNRESOLVED [multiline-select] Wandering Merchant#mal
-- UNRESOLVED [multiline-select] Stinky Merchant
-- UNRESOLVED [multiline-select] Roving Merchant
+- UNRESOLVED [multiline-call] Wandering Merchant#mal
+- UNRESOLVED [multiline-call] Stinky Merchant
+- UNRESOLVED [multiline-call] Roving Merchant
 - UNRESOLVED [malformed-for] Replication Expert Paltu
 
 ## diamond.txt
@@ -2264,7 +2264,7 @@
 - BOUNDARY [lhz_dun_n] lhz_dun_n,131,148,2	script	Dead Man#lhzd50	4_TOWER_13,5,5
 - UNRESOLVED [showscript] F_Cursed_Fragment
 - BOUNDARY [lhz_dun_n] Dungeon gateway#1
-- UNRESOLVED [multiline-select] Bully#JCv2
+- UNRESOLVED [multiline-call] Bully#JCv2
 - BOUNDARY [lhz_dun_n] Silent Mind#JCv2
 - BOUNDARY [lhz_dun_n] Wandering Mind#JCv2
 - BOUNDARY [lhz_dun_n] Victimized Soul's Mind#1
