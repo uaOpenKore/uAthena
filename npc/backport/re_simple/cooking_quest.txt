@@ -1,0 +1,20 @@
+//===== uAthena backport (renewal simple quests 2d, GENERATED) =====
+//= simple/misc quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-simple.py
+//= Source: npc/re/quests/cooking_quest.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Cooking Quest
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Official Cooking Quest (10.3)
+//===== Changelogs: ==========================================
+//= 1.0 Location changed in ep16.1 [Capuche]
+//============================================================
+
+//[BACKPORT-BOUNDARY:prt_cas] prt_cas,324,200,5	duplicate(Charles Orleans#cook_)	Charles Orleans#cook	4_M_OILMAN
+//[BACKPORT-BOUNDARY:prt_cas] prt_cas,329,206,3	duplicate(Madeleine Chu#cook_)	Madeleine Chu#cook	4_COOK
+//[BACKPORT-BOUNDARY:prt_cas] prt_cas,329,194,3	duplicate(Child with Cat#cook_)	Child with Cat#cook	4_F_YUNYANG
+
+// inaccurate
+//[BACKPORT-BOUNDARY:prt_cas] prt_cas,329,192,3	duplicate(Wickebine#cook_)	Wickebine#cook	4_F_JOB_ASSASSIN
