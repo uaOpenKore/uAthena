@@ -560,8 +560,10 @@ def existing_npc_index():
     shop (refine/shops/refiners) -> skip (mirrors the warp merge-rule)."""
     names, tiles = set(), set()
     for p in glob.glob(os.path.join(UA_ROOT, "npc", "**", "*.txt"), recursive=True):
-        if "/backport/re_merchants/" in p.replace("\\", "/"):
-            continue
+        if "/backport/re_" in p.replace("\\", "/"):   # skip ALL renewal phases (re_merchants/
+            continue                                   # re_cities/re_other/re_quests) -> dedup
+                                                       # only vs core uAthena + pre-renewal backport
+        t = read(p)
         t = read(p)
         for n in npc_names(t):
             names.add(n)
@@ -645,6 +647,7 @@ def block_filter(text):
                 for pat, label in ((r'\[[^\]]*(?:\+\+|--)', "incr-in-index"),
                                    (r'for\s*\([^;]*,[^;]*;', "malformed-for"),
                                    (r'[A-Za-z_]\w*\(\s*$', "multiline-call"),
+                                   (r'\b\w+\([^()]*,\s*$', "multiline-args"),
                                    (r'\([^()]*\?[^()]*\b[A-Za-z_]\w*\([^()]*\)[^()]*:', "ternary-funccall")):
                     if re.search(pat, code, re.M):
                         reason = ("UNRESOLVED", label); break

@@ -18,208 +18,208 @@
 //= 1.1 Navigation system update. [Euphy]
 //============================================================ 
 
-//[BACKPORT-DEDUP:Raffle Guide#north] mora,25,158,5	script	Raffle Guide#north	516,{
-//[BACKPORT-DEDUP:Raffle Guide#north] 	mes "[Raffoh]";
-//[BACKPORT-DEDUP:Raffle Guide#north] 	mes "Laoh~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 	mes "Welcome to the Village of Mora.";
-//[BACKPORT-DEDUP:Raffle Guide#north] 	mes "I can tell you whatever you want to know about the village~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 	F_Navi("[Raffoh]");
-//[BACKPORT-DEDUP:Raffle Guide#north] 	next;
-//[BACKPORT-DEDUP:Raffle Guide#north] 	switch(select("[ Inn ]:[ Residences ]:[ Stores ]:[ Warehouse ]:Remove markers from the mini-map:Quit")) {
-//[BACKPORT-DEDUP:Raffle Guide#north] 	case 1:
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "[Raffoh]";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "Laoh~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "We have an "+F_Navi("Inn","mora,44,138")+" but we can't make travelers sleep like Raffles...";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "Get some rest!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		viewpoint 1,44,134,0,0x0A82FF;
-//[BACKPORT-DEDUP:Raffle Guide#north] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#north] 	case 2:
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "[Raffoh]";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "Laoh~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes F_Navi("This","mora,119,170")+" is where Raffles' houses are...";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "But keep the noise down because people are asleep~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		viewpoint 1,119,170,1,0xAAFF00;
-//[BACKPORT-DEDUP:Raffle Guide#north] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#north] 	case 3:
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "[Raffoh]";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "Laoh~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "If you are looking for souvenirs, you can buy some in this "+F_Navi("district","mora,112,110")+".";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		viewpoint 1,112,110,2,0xDA70D6;
-//[BACKPORT-DEDUP:Raffle Guide#north] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#north] 	case 4:
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "[Raffoh]";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "Laoh~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes F_Navi("This","mora,182,161")+" is where they keep all kinds of packages and groceries.";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "There are many things that don't belong to the Raffles, so be careful!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		viewpoint 1,182,161,3,0xFF1493;
-//[BACKPORT-DEDUP:Raffle Guide#north] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#north] 	case 5:
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "[Raffoh]";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "Laoh~! I'm removing them all~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		viewpoint 2,1,1,0,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#north] 		viewpoint 2,1,1,1,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#north] 		viewpoint 2,1,1,2,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#north] 		viewpoint 2,1,1,3,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#north] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#north] 	case 6:
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "[Raffoh]";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "Laoh~!";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		mes "What kinds of sports are popular in your homeland?";
-//[BACKPORT-DEDUP:Raffle Guide#north] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#north] 	}
-//[BACKPORT-DEDUP:Raffle Guide#north] }
+mora,25,158,5	script	Raffle Guide#north	516,{
+	mes "[Raffoh]";
+	mes "Laoh~!";
+	mes "Welcome to the Village of Mora.";
+	mes "I can tell you whatever you want to know about the village~!";
+	F_Navi("[Raffoh]");
+	next;
+	switch(select("[ Inn ]:[ Residences ]:[ Stores ]:[ Warehouse ]:Remove markers from the mini-map:Quit")) {
+	case 1:
+		mes "[Raffoh]";
+		mes "Laoh~!";
+		mes "We have an "+F_Navi("Inn","mora,44,138")+" but we can't make travelers sleep like Raffles...";
+		mes "Get some rest!";
+		viewpoint 1,44,134,0,0x0A82FF;
+		close;
+	case 2:
+		mes "[Raffoh]";
+		mes "Laoh~!";
+		mes F_Navi("This","mora,119,170")+" is where Raffles' houses are...";
+		mes "But keep the noise down because people are asleep~!";
+		viewpoint 1,119,170,1,0xAAFF00;
+		close;
+	case 3:
+		mes "[Raffoh]";
+		mes "Laoh~!";
+		mes "If you are looking for souvenirs, you can buy some in this "+F_Navi("district","mora,112,110")+".";
+		viewpoint 1,112,110,2,0xDA70D6;
+		close;
+	case 4:
+		mes "[Raffoh]";
+		mes "Laoh~!";
+		mes F_Navi("This","mora,182,161")+" is where they keep all kinds of packages and groceries.";
+		mes "There are many things that don't belong to the Raffles, so be careful!";
+		viewpoint 1,182,161,3,0xFF1493;
+		close;
+	case 5:
+		mes "[Raffoh]";
+		mes "Laoh~! I'm removing them all~!";
+		viewpoint 2,1,1,0,0xFFFF00;
+		viewpoint 2,1,1,1,0xFFFF00;
+		viewpoint 2,1,1,2,0xFFFF00;
+		viewpoint 2,1,1,3,0xFFFF00;
+		close;
+	case 6:
+		mes "[Raffoh]";
+		mes "Laoh~!";
+		mes "What kinds of sports are popular in your homeland?";
+		close;
+	}
+}
 
-//[BACKPORT-DEDUP:Raffle Guide#east] mora,167,76,3	script	Raffle Guide#east	522,{
-//[BACKPORT-DEDUP:Raffle Guide#east] 	mes "[Raffuh]";
-//[BACKPORT-DEDUP:Raffle Guide#east] 	mes "Uh...";
-//[BACKPORT-DEDUP:Raffle Guide#east] 	mes "This, this is the Village of Mora.";
-//[BACKPORT-DEDUP:Raffle Guide#east] 	mes "Uh... which place do you want to know about?";
-//[BACKPORT-DEDUP:Raffle Guide#east] 	F_Navi("[Raffuh]");
-//[BACKPORT-DEDUP:Raffle Guide#east] 	next;
-//[BACKPORT-DEDUP:Raffle Guide#east] 	switch(select("[ Inn ]:[ Residences ]:[ Stores ]:[ Warehouse ]:Remove markers from the mini-map:Quit")) {
-//[BACKPORT-DEDUP:Raffle Guide#east] 	case 1:
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "[Raffuh]";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Uh...";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Are, are you sleepy?";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "You can sleep "+F_Navi("here","mora,44,138")+" uh!! Put your stuff down uh! And-- and---";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		viewpoint 1,44,134,0,0x0A82FF;
-//[BACKPORT-DEDUP:Raffle Guide#east] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#east] 	case 2:
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "[Raffuh]";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Uh...";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Why are you trying to find out "+F_Navi("where","mora,119,170")+" I live--?";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Uh, no... I'd like to live with my friends--";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		viewpoint 1,119,170,1,0xAAFF00;
-//[BACKPORT-DEDUP:Raffle Guide#east] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#east] 	case 3:
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "[Raffuh]";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Uh...";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "There are a lot of things in those "+F_Navi("stores","mora,112,110")+"-- oh, there is a hot spring also uh!";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		viewpoint 1,112,110,2,0xDA70D6;
-//[BACKPORT-DEDUP:Raffle Guide#east] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#east] 	case 4:
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "[Raffuh]";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Uh...";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "You can't just march into the "+F_Navi("warehouse","mora,182,161")+", or you'll be in trouble--";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Many of the things there are from outside the village-- Raffuh has been in trouble several times--";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		viewpoint 1,182,161,3,0xFF1493;
-//[BACKPORT-DEDUP:Raffle Guide#east] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#east] 	case 5:
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "[Raffuh]";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Are you sure you want them removed?";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		viewpoint 2,1,1,0,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#east] 		viewpoint 2,1,1,1,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#east] 		viewpoint 2,1,1,2,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#east] 		viewpoint 2,1,1,3,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#east] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#east] 	case 6:
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "[Raffuh]";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Uh...";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		mes "Being a guide doesn't help much with my social phobia--";
-//[BACKPORT-DEDUP:Raffle Guide#east] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#east] 	}
-//[BACKPORT-DEDUP:Raffle Guide#east] }
+mora,167,76,3	script	Raffle Guide#east	522,{
+	mes "[Raffuh]";
+	mes "Uh...";
+	mes "This, this is the Village of Mora.";
+	mes "Uh... which place do you want to know about?";
+	F_Navi("[Raffuh]");
+	next;
+	switch(select("[ Inn ]:[ Residences ]:[ Stores ]:[ Warehouse ]:Remove markers from the mini-map:Quit")) {
+	case 1:
+		mes "[Raffuh]";
+		mes "Uh...";
+		mes "Are, are you sleepy?";
+		mes "You can sleep "+F_Navi("here","mora,44,138")+" uh!! Put your stuff down uh! And-- and---";
+		viewpoint 1,44,134,0,0x0A82FF;
+		close;
+	case 2:
+		mes "[Raffuh]";
+		mes "Uh...";
+		mes "Why are you trying to find out "+F_Navi("where","mora,119,170")+" I live--?";
+		mes "Uh, no... I'd like to live with my friends--";
+		viewpoint 1,119,170,1,0xAAFF00;
+		close;
+	case 3:
+		mes "[Raffuh]";
+		mes "Uh...";
+		mes "There are a lot of things in those "+F_Navi("stores","mora,112,110")+"-- oh, there is a hot spring also uh!";
+		viewpoint 1,112,110,2,0xDA70D6;
+		close;
+	case 4:
+		mes "[Raffuh]";
+		mes "Uh...";
+		mes "You can't just march into the "+F_Navi("warehouse","mora,182,161")+", or you'll be in trouble--";
+		mes "Many of the things there are from outside the village-- Raffuh has been in trouble several times--";
+		viewpoint 1,182,161,3,0xFF1493;
+		close;
+	case 5:
+		mes "[Raffuh]";
+		mes "Are you sure you want them removed?";
+		viewpoint 2,1,1,0,0xFFFF00;
+		viewpoint 2,1,1,1,0xFFFF00;
+		viewpoint 2,1,1,2,0xFFFF00;
+		viewpoint 2,1,1,3,0xFFFF00;
+		close;
+	case 6:
+		mes "[Raffuh]";
+		mes "Uh...";
+		mes "Being a guide doesn't help much with my social phobia--";
+		close;
+	}
+}
 
-//[BACKPORT-DEDUP:Raffle Guide#center] mora,115,138,5	script	Raffle Guide#center	524,{
-//[BACKPORT-DEDUP:Raffle Guide#center] 	mes "[Raffla]";
-//[BACKPORT-DEDUP:Raffle Guide#center] 	mes "Lala!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 	mes "Welcome to the Village of Mora la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 	mes "If you need to know anything about the village, just ask me la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 	F_Navi("[Raffla]");
-//[BACKPORT-DEDUP:Raffle Guide#center] 	next;
-//[BACKPORT-DEDUP:Raffle Guide#center] 	switch(select("[ Inn ]:[ Residences ]:[ Stores ]:[ Warehouse ]:Remove markers from the mini-map:Quit.")) {
-//[BACKPORT-DEDUP:Raffle Guide#center] 	case 1:
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "[Raffla]";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "Lala!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes F_Navi("This","mora,44,138")+" is where travelers can rest la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "The innkeeper is very kind, so try to talk to him a lot la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		viewpoint 1,44,134,0,0x0A82FF;
-//[BACKPORT-DEDUP:Raffle Guide#center] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#center] 	case 2:
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "[Raffla]";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "Lala!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes F_Navi("This","mora,119,170")+" is where Raffles live la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "Head over there la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		viewpoint 1,119,170,1,0xAAFF00;
-//[BACKPORT-DEDUP:Raffle Guide#center] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#center] 	case 3:
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "[Raffla]";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "Lala!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "So you want to buy something la?";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "There are a lot of "+F_Navi("stores and cafes","mora,112,110")+", so check them out la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		viewpoint 1,112,110,2,0xDA70D6;
-//[BACKPORT-DEDUP:Raffle Guide#center] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#center] 	case 4:
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "[Raffla]";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "Lala!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "The "+F_Navi("Warehouse","mora,182,161")+" is where you keep your valuables la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "Be careful so you don't get robbed la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		viewpoint 1,182,161,3,0xFF1493;
-//[BACKPORT-DEDUP:Raffle Guide#center] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#center] 	case 5:
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "[Raffla]";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "Okay, I'll remove all the markers from the map la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		viewpoint 2,1,1,0,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#center] 		viewpoint 2,1,1,1,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#center] 		viewpoint 2,1,1,2,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#center] 		viewpoint 2,1,1,3,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#center] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#center] 	case 6:
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "[Raffla]";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "Lala!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		mes "I really don't know how my family ends up doing these things la!";
-//[BACKPORT-DEDUP:Raffle Guide#center] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#center] 	}
-//[BACKPORT-DEDUP:Raffle Guide#center] }
+mora,115,138,5	script	Raffle Guide#center	524,{
+	mes "[Raffla]";
+	mes "Lala!";
+	mes "Welcome to the Village of Mora la!";
+	mes "If you need to know anything about the village, just ask me la!";
+	F_Navi("[Raffla]");
+	next;
+	switch(select("[ Inn ]:[ Residences ]:[ Stores ]:[ Warehouse ]:Remove markers from the mini-map:Quit.")) {
+	case 1:
+		mes "[Raffla]";
+		mes "Lala!";
+		mes F_Navi("This","mora,44,138")+" is where travelers can rest la!";
+		mes "The innkeeper is very kind, so try to talk to him a lot la!";
+		viewpoint 1,44,134,0,0x0A82FF;
+		close;
+	case 2:
+		mes "[Raffla]";
+		mes "Lala!";
+		mes F_Navi("This","mora,119,170")+" is where Raffles live la!";
+		mes "Head over there la!";
+		viewpoint 1,119,170,1,0xAAFF00;
+		close;
+	case 3:
+		mes "[Raffla]";
+		mes "Lala!";
+		mes "So you want to buy something la?";
+		mes "There are a lot of "+F_Navi("stores and cafes","mora,112,110")+", so check them out la!";
+		viewpoint 1,112,110,2,0xDA70D6;
+		close;
+	case 4:
+		mes "[Raffla]";
+		mes "Lala!";
+		mes "The "+F_Navi("Warehouse","mora,182,161")+" is where you keep your valuables la!";
+		mes "Be careful so you don't get robbed la!";
+		viewpoint 1,182,161,3,0xFF1493;
+		close;
+	case 5:
+		mes "[Raffla]";
+		mes "Okay, I'll remove all the markers from the map la!";
+		viewpoint 2,1,1,0,0xFFFF00;
+		viewpoint 2,1,1,1,0xFFFF00;
+		viewpoint 2,1,1,2,0xFFFF00;
+		viewpoint 2,1,1,3,0xFFFF00;
+		close;
+	case 6:
+		mes "[Raffla]";
+		mes "Lala!";
+		mes "I really don't know how my family ends up doing these things la!";
+		close;
+	}
+}
 
-//[BACKPORT-DEDUP:Raffle Guide#south] mora,72,51,3	script	Raffle Guide#south	518,{
-//[BACKPORT-DEDUP:Raffle Guide#south] 	mes "[Raffli]";
-//[BACKPORT-DEDUP:Raffle Guide#south] 	mes "Lali?";
-//[BACKPORT-DEDUP:Raffle Guide#south] 	mes "Welcome to the Village of Mora.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 	mes "If you need to know anything about the village, just ask me.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 	F_Navi("[Raffli]");
-//[BACKPORT-DEDUP:Raffle Guide#south] 	next;
-//[BACKPORT-DEDUP:Raffle Guide#south] 	switch(select("[ Inn ]:[ Residences ]:[ Stores ]:[ Warehouse ]:Remove markers from the mini-map:Quit")) {
-//[BACKPORT-DEDUP:Raffle Guide#south] 	case 1:
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "[Raffli]";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "Lali?";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes F_Navi("This","mora,44,138")+" is where travelers can rest.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "The innkeeper is very kind, so get to know him.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		viewpoint 1,44,134,0,0x0A82FF;
-//[BACKPORT-DEDUP:Raffle Guide#south] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#south] 	case 2:
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "[Raffli]";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "Lali?";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes F_Navi("This","mora,119,170")+" is where Raffles live.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "Are you coming to Raffli's house li? I'm so happy.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		viewpoint 1,119,170,1,0xAAFF00;
-//[BACKPORT-DEDUP:Raffle Guide#south] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#south] 	case 3:
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "[Raffli]";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "Lali?";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "There are a lot of things I want to buy.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "You can find tons of "+F_Navi("places","mora,112,110")+" to eat and shop, and tons of things to buy.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		viewpoint 1,112,110,2,0xDA70D6;
-//[BACKPORT-DEDUP:Raffle Guide#south] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#south] 	case 4:
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "[Raffli]";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "Lali?";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "The "+F_Navi("Warehouse","mora,182,161")+" is where you keep your valuables.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "But don't get robbed.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		viewpoint 1,182,161,3,0xFF1493;
-//[BACKPORT-DEDUP:Raffle Guide#south] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#south] 	case 5:
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "[Raffli]";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "I'll remove all the markers.";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		viewpoint 2,1,1,0,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#south] 		viewpoint 2,1,1,1,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#south] 		viewpoint 2,1,1,2,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#south] 		viewpoint 2,1,1,3,0xFFFF00;
-//[BACKPORT-DEDUP:Raffle Guide#south] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#south] 	case 6:
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "[Raffli]";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "Lali?";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		mes "Brother seems to be upset today li. Did I do anything wrong?";
-//[BACKPORT-DEDUP:Raffle Guide#south] 		close;
-//[BACKPORT-DEDUP:Raffle Guide#south] 	}
-//[BACKPORT-DEDUP:Raffle Guide#south] }
+mora,72,51,3	script	Raffle Guide#south	518,{
+	mes "[Raffli]";
+	mes "Lali?";
+	mes "Welcome to the Village of Mora.";
+	mes "If you need to know anything about the village, just ask me.";
+	F_Navi("[Raffli]");
+	next;
+	switch(select("[ Inn ]:[ Residences ]:[ Stores ]:[ Warehouse ]:Remove markers from the mini-map:Quit")) {
+	case 1:
+		mes "[Raffli]";
+		mes "Lali?";
+		mes F_Navi("This","mora,44,138")+" is where travelers can rest.";
+		mes "The innkeeper is very kind, so get to know him.";
+		viewpoint 1,44,134,0,0x0A82FF;
+		close;
+	case 2:
+		mes "[Raffli]";
+		mes "Lali?";
+		mes F_Navi("This","mora,119,170")+" is where Raffles live.";
+		mes "Are you coming to Raffli's house li? I'm so happy.";
+		viewpoint 1,119,170,1,0xAAFF00;
+		close;
+	case 3:
+		mes "[Raffli]";
+		mes "Lali?";
+		mes "There are a lot of things I want to buy.";
+		mes "You can find tons of "+F_Navi("places","mora,112,110")+" to eat and shop, and tons of things to buy.";
+		viewpoint 1,112,110,2,0xDA70D6;
+		close;
+	case 4:
+		mes "[Raffli]";
+		mes "Lali?";
+		mes "The "+F_Navi("Warehouse","mora,182,161")+" is where you keep your valuables.";
+		mes "But don't get robbed.";
+		viewpoint 1,182,161,3,0xFF1493;
+		close;
+	case 5:
+		mes "[Raffli]";
+		mes "I'll remove all the markers.";
+		viewpoint 2,1,1,0,0xFFFF00;
+		viewpoint 2,1,1,1,0xFFFF00;
+		viewpoint 2,1,1,2,0xFFFF00;
+		viewpoint 2,1,1,3,0xFFFF00;
+		close;
+	case 6:
+		mes "[Raffli]";
+		mes "Lali?";
+		mes "Brother seems to be upset today li. Did I do anything wrong?";
+		close;
+	}
+}

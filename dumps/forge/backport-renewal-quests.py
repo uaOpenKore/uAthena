@@ -707,27 +707,19 @@ def port_global_functions():
     return body
 
 
-# ---- SP-3 small-NPC specifics ----
-OUT_DIR = os.path.join("npc", "backport", "re_other")
-GUIDES = ["dewata", "dicastes", "eclage", "malangdo", "malaya", "mora", "rockridge"]
-OTHER_IN = ["TrainingZone123", "adven_boards", "dimensional_gap", "item_merge", "kachua_key",
-            "mail", "pvp", "resetskill", "stone_change", "turbo_track", "bulletin_boards",
-            "global_npcs"]
-HEADER = ("//===== uAthena backport (renewal small-NPC, GENERATED) ======\n"
-          "//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.\n"
-          "//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py\n"
+# ---- SP-2 2a zone-quest specifics ----
+OUT_DIR = os.path.join("npc", "backport", "re_quests")
+ZONE_2A = ["eclage", "malangdo", "malaya", "dicastes", "rockridge", "mora", "dewata"]
+HEADER = ("//===== uAthena backport (renewal quests 2a, GENERATED) =====\n"
+          "//= zone-quests from rathena-ref; tokens adapted, renewal-feature blocks commented.\n"
+          "//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-quests.py\n"
           "//= Source: {src}\n"
           "//============================================================\n")
 
-def smallnpc_sources():
-    out = [f"npc/re/guides/guides_{g}.txt" for g in GUIDES]
-    out += [f"npc/re/other/{o}.txt" for o in OTHER_IN]
-    out += ["npc/re/jobs/taekwon.txt"]
-    return out
+def quest_sources():
+    return [f"npc/re/quests/quests_{z}.txt" for z in ZONE_2A]
 
 def defined_in(body):
-    """Names + ::labels of non-commented base NPCs in a body (for orphan detection).
-    Merchant's gen() had this nested; define it module-level here for reuse."""
     s = set()
     for ln in body.split("\n"):
         if ln.strip().startswith("//"):
@@ -741,13 +733,26 @@ def defined_in(body):
     return s
 
 def gen():
-    gap_buf = ["# Renewal small-NPC gap-лог (адаптации/dedup/boundary/unresolved/orphan)\n\n"]
+    gap_buf = ["# Renewal 2a zone-quest gap-лог (адаптации/dedup/boundary/unresolved/orphan)\n\n"]
     includes = []; total = Counter()
     bodies = {}; all_events = {}
-    for rel in smallnpc_sources():
-        body, events = adapt_merchant_text(ra_show(rel))   # ra_show is defined in merchant reuse
+    for rel in quest_sources():
+        body, events = adapt_merchant_text(ra_show(rel))
         name = os.path.basename(rel)
         bodies[name] = body; all_events[name] = events
+    # uAthena has no direct paren-call to script functions (only buildins / callfunc()).
+    # Rewrite Name(args) -> callfunc("Name",args) for every user-function (function script
+    # Name) defined across the bodies. Empty-paren Name() -> callfunc("Name").
+    userfuncs = set()
+    for body in bodies.values():
+        for m in re.finditer(r'^function\tscript\t(\w+)\t', body, re.M):
+            userfuncs.add(m.group(1))
+    for nm in bodies:
+        body = bodies[nm]
+        for fn in userfuncs:
+            body = re.sub(r'(?<![."\w])' + re.escape(fn) + r'\s*\(\s*\)', f'callfunc("{fn}")', body)
+            body = re.sub(r'(?<![."\w])' + re.escape(fn) + r'\s*\(', f'callfunc("{fn}",', body)
+        bodies[nm] = body
     live = set(EXIST_NAMES)
     for body in bodies.values():
         live |= defined_in(body)
@@ -764,9 +769,9 @@ def gen():
                 out2.append(ln)
         body = "\n".join(out2)
         write_raw(os.path.join(UA_ROOT, OUT_DIR, name),
-                  HEADER.format(src="npc/re/.../" + name) + body +
+                  HEADER.format(src="npc/re/quests/" + name) + body +
                   ("" if body.endswith("\n") else "\n"))
-        includes.append(f"npc: npc/backport/re_other/{name}")
+        includes.append(f"npc: npc/backport/re_quests/{name}")
         if ev:
             gap_buf.append(f"\n## {name}\n")
             for kind, tok, ln in ev:
@@ -782,10 +787,10 @@ def gen():
             if "," in c[0] and not c[0].startswith("-"):
                 used.add(c[0].split(",")[0])
     scope_maps = sorted(m for m in used if m in UA_MAPS)
-    write(os.path.join(UA_ROOT, "dumps", "forge", "backport-renewal-smallnpc-maps.txt"),
+    write(os.path.join(UA_ROOT, "dumps", "forge", "backport-renewal-quests-maps.txt"),
           "\n".join("map: " + m for m in scope_maps) + "\n")
-    write(os.path.join(UA_ROOT, "Doc", "backport_renewal_smallnpc_gap.md"), "".join(gap_buf))
-    write(os.path.join(UA_ROOT, "dumps", "forge", "backport-renewal-smallnpc-includes.txt"),
+    write(os.path.join(UA_ROOT, "Doc", "backport_renewal_quests_gap.md"), "".join(gap_buf))
+    write(os.path.join(UA_ROOT, "dumps", "forge", "backport-renewal-quests-includes.txt"),
           "\n".join(includes) + "\n")
     print(f"files: {len(includes)} | events: {dict(total)}")
 
@@ -826,9 +831,7 @@ def verify():
 
 def main():
     if "--selftest" in sys.argv:
-        # smoke: sources resolvable + adapt pipeline importable
-        srcs = smallnpc_sources()
-        assert len(srcs) == 20, srcs            # 7 guides + 12 other + 1 taekwon
+        assert len(quest_sources()) == 7, quest_sources()
         assert "DUPLICATE" not in GAP_BUILTINS
         print("SELFTEST OK"); return
     if "--verify" in sys.argv:

@@ -1,30 +1,8 @@
 # Renewal small-NPC gap-лог (адаптации/dedup/boundary/unresolved/orphan)
 
 
-## guides_dewata.txt
-- DEDUP [Dewata Guide#dewata01] Dewata Guide#dewata01
-- DEDUP [Dewata Guide#dewata02] Dewata Guide#dewata02
-
 ## guides_dicastes.txt
 - COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
-- DEDUP [Traveler Ichack#info] Traveler Ichack#info
-
-## guides_eclage.txt
-- DEDUP [Eclage Guard#obb] Eclage Guard#obb
-
-## guides_malangdo.txt
-- DEDUP [Malangdo Guide#Malangdo] Malangdo Guide#Malangdo
-
-## guides_malaya.txt
-- DEDUP [Port Malaya Guide#01] Port Malaya Guide#01
-- DEDUP [Port Malaya Guide#02] Port Malaya Guide#02
-- DEDUP [Port Malaya Guide#03] Port Malaya Guide#03
-
-## guides_mora.txt
-- DEDUP [Raffle Guide#north] Raffle Guide#north
-- DEDUP [Raffle Guide#east] Raffle Guide#east
-- DEDUP [Raffle Guide#center] Raffle Guide#center
-- DEDUP [Raffle Guide#south] Raffle Guide#south
 
 ## guides_rockridge.txt
 - MANUAL [unregistered-map:harboro1] harboro1,356,211,5	script	Guide#rockridge01	4_F_ANYA,{
@@ -100,54 +78,54 @@
 - COMMENT [charat] mes "[Geffenia Section "+ charat( strnpcinfo(2),8 ) +"]";
 - COMMENT [ET_HUK] emotion ET_HUK;
 - UNRESOLVED [getargcount] F_AvenBoard
-- DEDUP [Signpost#Ant Hell 1] Signpost#Ant Hell 1
-- DEDUP [Signposts#Ant Hell2] Signposts#Ant Hell2
+- UNRESOLVED [multiline-args] Signpost#Ant Hell 1
 - DEDUP [Signposts#Geffen Dungeon] Signposts#Geffen Dungeon
-- DEDUP [Signposts#Glastheim] Signposts#Glastheim
+- UNRESOLVED [multiline-args] Signposts#Glastheim
 - DEDUP [Signposts#Nogg Road] Signposts#Nogg Road
 - DEDUP [Signposts#Mjolnir Dead] Signposts#Mjolnir Dead
-- DEDUP [Signposts#Prontera_Laby] Signposts#Prontera_Laby
-- DEDUP [Signposts#Alde_Laby] Signposts#Alde_Laby
+- UNRESOLVED [multiline-args] Signposts#Prontera_Laby
+- UNRESOLVED [multiline-args] Signposts#Alde_Laby
 - DEDUP [Signposts#Sphinx] Signposts#Sphinx
 - DEDUP [Signposts#Clock Tower] Signposts#Clock Tower
 - DEDUP [Signposts#Orc Dungeon] Signposts#Orc Dungeon
-- DEDUP [Signposts#Juperos Ruins] Signposts#Juperos Ruins
-- DEDUP [Signposts#Izlude] Signposts#Izlude
+- UNRESOLVED [multiline-args] Signposts#Juperos Ruins
+- UNRESOLVED [multiline-args] Signposts#Izlude
 - DEDUP [Signposts#Toy Factory] Signposts#Toy Factory
-- DEDUP [Signposts#Sunken Ship] Signposts#Sunken Ship
-- DEDUP [Signposts#Comodo East] Signposts#Comodo East
-- DEDUP [Signposts#Comodo West] Signposts#Comodo West
-- DEDUP [Signposts#Comodo North] Signposts#Comodo North
-- DEDUP [Signposts#Payon Cave] Signposts#Payon Cave
+- UNRESOLVED [multiline-args] Signposts#Sunken Ship
+- UNRESOLVED [multiline-args] Signposts#Comodo East
+- UNRESOLVED [multiline-args] Signposts#Comodo West
+- UNRESOLVED [multiline-args] Signposts#Comodo North
+- UNRESOLVED [multiline-args] Signposts#Payon Cave
 - DEDUP [Signposts#Pyramid] Signposts#Pyramid
-- DEDUP [Signpost#Abyss Lake] Signpost#Abyss Lake
-- DEDUP [Signpost#Einbech Dungeon] Signpost#Einbech Dungeon
-- DEDUP [Signpost#Ice Cave] Signpost#Ice Cave
-- DEDUP [Signpost#Thor Volcano] Signpost#Thor Volcano
-- DEDUP [Signpost#Odin Temple] Signpost#Odin Temple
-- DEDUP [Signpost#Starlight Reef] Signpost#Starlight Reef
+- UNRESOLVED [multiline-args] Signpost#Abyss Lake
+- UNRESOLVED [multiline-args] Signpost#Einbech Dungeon
+- UNRESOLVED [multiline-args] Signpost#Ice Cave
+- UNRESOLVED [multiline-args] Signpost#Thor Volcano
+- UNRESOLVED [multiline-args] Signpost#Odin Temple
+- UNRESOLVED [multiline-args] Signpost#Starlight Reef
 - UNRESOLVED [charat] Signpost#Geffenia1
-- DEDUP [Signpost#Nameless Island] Signpost#Nameless Island
-- DEDUP [Signpost#Somatology] Signpost#Somatology
-- DEDUP [Signpost#Holy Ground] Signpost#Holy Ground
-- DEDUP [Signpost#Robot Factory] Signpost#Robot Factory
-- DEDUP [Guide#Thanatos1] Guide#Thanatos1
-- DEDUP [Guide#Thanatos2] Guide#Thanatos2
+- UNRESOLVED [multiline-args] Signpost#Nameless Island
+- UNRESOLVED [multiline-args] Signpost#Somatology
+- UNRESOLVED [multiline-args] Signpost#Holy Ground
+- UNRESOLVED [multiline-args] Signpost#Robot Factory
+- UNRESOLVED [multiline-args] Guide#Thanatos1
 - DEDUP [Signpost#Culvert] Signpost#Culvert
-- DEDUP [Signpost#Turtle Island] Signpost#Turtle Island
-- DEDUP [Signpost#Amatsu Dungeon] Signpost#Amatsu Dungeon
-- DEDUP [Signpost#Kunlun Dungeon] Signpost#Kunlun Dungeon
-- DEDUP [Signpost#Luoyang Dungeon] Signpost#Luoyang Dungeon
-- DEDUP [Signpost#Ayothaya] Signpost#Ayothaya
-- DEDUP [Signpost#Moscovia] Signpost#Moscovia
-- DEDUP [Signpost#Brasilis] Signpost#Brasilis
-- DEDUP [Signpost#Dewata_Krakatau] Signpost#Dewata_Krakatau
-- DEDUP [Signpost#Dewata_Istana] Signpost#Dewata_Istana
-- DEDUP [Signpost#Kamidal] Signpost#Kamidal
-- DEDUP [Signpost#Kamidal Exit] Signpost#Kamidal Exit
+- UNRESOLVED [multiline-args] Signpost#Turtle Island
+- UNRESOLVED [multiline-args] Signpost#Amatsu Dungeon
+- UNRESOLVED [multiline-args] Signpost#Kunlun Dungeon
+- UNRESOLVED [multiline-args] Signpost#Luoyang Dungeon
+- UNRESOLVED [multiline-args] Signpost#Ayothaya
+- UNRESOLVED [multiline-args] Signpost#Moscovia
+- UNRESOLVED [multiline-args] Signpost#Brasilis
+- UNRESOLVED [multiline-args] Signpost#Dewata_Krakatau
+- UNRESOLVED [multiline-args] Signpost#Dewata_Istana
+- UNRESOLVED [multiline-args] Signpost#Kamidal
+- ORPHAN [Signpost#Ant Hell 1] cmd_fild08,341,84,0	duplicate(Signpost#Ant Hell 1)	Signposts#Ant Hell2	2_BULLETIN_BOARD
 - ORPHAN [Signpost#Geffenia1] gefenia02,120,108,0	duplicate(Signpost#Geffenia1)	Signpost#Geffenia2	2_BULLETIN_BOARD
 - ORPHAN [Signpost#Geffenia1] gefenia03,131,201,0	duplicate(Signpost#Geffenia1)	Signpost#Geffenia3	2_BULLETIN_BOARD
 - ORPHAN [Signpost#Geffenia1] gefenia04,130,95,0	duplicate(Signpost#Geffenia1)	Signpost#Geffenia4	2_BULLETIN_BOARD
+- ORPHAN [Guide#Thanatos1] tha_t01,156,78,0	duplicate(Guide#Thanatos1)	Guide#Thanatos2	CLEAR_NPC
+- ORPHAN [Signpost#Kamidal] dic_fild01,27,83,0	duplicate(Signpost#Kamidal)	Signpost#Kamidal Exit	2_BULLETIN_BOARD
 
 ## dimensional_gap.txt
 - MANUAL [unregistered-map:dali] dali,137,87,4	script	Allied Forces Soldier	4_M_MOCASS1,{
@@ -190,14 +168,6 @@
 - MANUAL [unregistered-map:dali02] dali02,68,117,5	script	Guide#ra	4_M_RAFLE_GR,{
 - MANUAL [unregistered-map:dali02] dali02,65,119,5	script	Tourist#ra	4_M_RAFLE_GR,{
 - MANUAL [unregistered-map:dali02] dali02,69,122,5	script	Traveller#ra	4_M_RAFLE_GR,{
-- DEDUP [Expedition Guide#01] Expedition Guide#01
-- DEDUP [Expedition Guide#02] Expedition Guide#02
-- DEDUP [Expedition Guide#03] Expedition Guide#03
-- DEDUP [Expedition Guide#04] Expedition Guide#04
-- DEDUP [Expedition Guide#05] Expedition Guide#05
-- DEDUP [Expedition Guide#06] Expedition Guide#06
-- DEDUP [Expedition Guide#07] Expedition Guide#07
-- DEDUP [Expedition Guide#08] Expedition Guide#08
 - BOUNDARY [dali] Allied Forces Soldier
 - BOUNDARY [dali] Morocc Soldier
 - BOUNDARY [dali] Spledide Soldier
@@ -249,25 +219,16 @@
 - BOUNDARY [izlude_c] izlude_c,136,94,0	duplicate(MailBox)	Mailbox#iz_c	888
 - BOUNDARY [izlude_d] izlude_d,136,94,0	duplicate(MailBox)	Mailbox#iz_d	888
 
-## pvp.txt
-- DEDUP [Fight Square Reception#1] Fight Square Reception#1
-- DEDUP [Fight Square Reception#2] Fight Square Reception#2
-- DEDUP [Fight Square Reception#3] Fight Square Reception#3
-- DEDUP [Fight Square Reception#8] Fight Square Reception#8
-- DEDUP [Fight Square Reception#4] Fight Square Reception#4
-
 ## resetskill.txt
 - BOUNDARY [izlude_a] izlude_a,127,175,3	duplicate(Hypnotist#novice)	Hypnotist#novice_a	124
 - BOUNDARY [izlude_b] izlude_b,127,175,3	duplicate(Hypnotist#novice)	Hypnotist#novice_b	124
 - BOUNDARY [izlude_c] izlude_c,127,175,3	duplicate(Hypnotist#novice)	Hypnotist#novice_c	124
 - BOUNDARY [izlude_d] izlude_d,127,175,3	duplicate(Hypnotist#novice)	Hypnotist#novice_d	124
-- DEDUP [Hypnotist#novice] Hypnotist#novice
 
 ## stone_change.txt
 - ADAPT [=->set] .@i = select("Steel, please.:Iron, please.:Iron Ore, please.:Rough Oridecon, please.:No, thanks.");
 - ADAPT [=->set] .@item = .@ores[.@i-1];
 - ADAPT [=->set] .@count = countitem(.@item);
-- DEDUP [Ore Tester#sorty] Ore Tester#sorty
 
 ## turbo_track.txt
 - ORPHAN [MountManager_turbo] alde_gld,181,199,5	duplicate(MountManager_turbo)	Mount Manager	845

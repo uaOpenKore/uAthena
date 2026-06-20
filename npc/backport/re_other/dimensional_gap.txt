@@ -11,46 +11,46 @@
 //= 1.0 First Version. [Nova]
 //============================================================
 
-//[BACKPORT-DEDUP:Expedition Guide#01] mid_camp,207,290,6	script	Expedition Guide#01	4_M_EIN_SOLDIER,{
-//[BACKPORT-DEDUP:Expedition Guide#01] 	mes "[Expedition Guide]";
-//[BACKPORT-DEDUP:Expedition Guide#01] 	mes "Are you going to enter the ^0000FFDimensional Gap^000000?  Please use this Transport Device you see here.";
-//[BACKPORT-DEDUP:Expedition Guide#01] 	next;
-//[BACKPORT-DEDUP:Expedition Guide#01] 	switch(select("What is the Dimensional Gap?:End Conversation.")) {
-//[BACKPORT-DEDUP:Expedition Guide#01] 	case 1:
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "As you know we've already entered through the Dimensional Rift to get to Ash Vacuum right?  The Dimensional Gap is an expansion of that initial discovery.";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		next;
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "A member of the Expedition team found these backdoor passages to get through the Dimensional Rifts.";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		next;
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "This is like a Midgard Alliance version of the Bifrost bridge so it can connect us to different parts of the New World.";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		next;
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "Time and space is distorted in the Dimensional Gap.  Not all passageways have been discovered so please be sure to use caution when entering an unverified area.";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		next;
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "Anyone who has become lost here has yet to return.";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		close;
-//[BACKPORT-DEDUP:Expedition Guide#01] 	case 2:
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "Take care.";
-//[BACKPORT-DEDUP:Expedition Guide#01] 		close;
-//[BACKPORT-DEDUP:Expedition Guide#01] 	}
-//[BACKPORT-DEDUP:Expedition Guide#01] }
+mid_camp,207,290,6	script	Expedition Guide#01	4_M_EIN_SOLDIER,{
+	mes "[Expedition Guide]";
+	mes "Are you going to enter the ^0000FFDimensional Gap^000000?  Please use this Transport Device you see here.";
+	next;
+	switch(select("What is the Dimensional Gap?:End Conversation.")) {
+	case 1:
+		mes "[Expedition Guide]";
+		mes "As you know we've already entered through the Dimensional Rift to get to Ash Vacuum right?  The Dimensional Gap is an expansion of that initial discovery.";
+		next;
+		mes "[Expedition Guide]";
+		mes "A member of the Expedition team found these backdoor passages to get through the Dimensional Rifts.";
+		next;
+		mes "[Expedition Guide]";
+		mes "This is like a Midgard Alliance version of the Bifrost bridge so it can connect us to different parts of the New World.";
+		next;
+		mes "[Expedition Guide]";
+		mes "Time and space is distorted in the Dimensional Gap.  Not all passageways have been discovered so please be sure to use caution when entering an unverified area.";
+		next;
+		mes "[Expedition Guide]";
+		mes "Anyone who has become lost here has yet to return.";
+		close;
+	case 2:
+		mes "[Expedition Guide]";
+		mes "Take care.";
+		close;
+	}
+}
 
-//[BACKPORT-DEDUP:Expedition Guide#02] mid_camp,212,290,4	script	Expedition Guide#02	4_M_EIN_SOLDIER,{
-//[BACKPORT-DEDUP:Expedition Guide#02] 	mes "[Expedition Guide]";
-//[BACKPORT-DEDUP:Expedition Guide#02] 	mes "Please use a ^0000FFTransport Device^000000 if you wish to travel through the dimensional rift.  The insides have not been fully explored yet so please be careful in there.";
-//[BACKPORT-DEDUP:Expedition Guide#02] 	close;
-//[BACKPORT-DEDUP:Expedition Guide#02] }
+mid_camp,212,290,4	script	Expedition Guide#02	4_M_EIN_SOLDIER,{
+	mes "[Expedition Guide]";
+	mes "Please use a ^0000FFTransport Device^000000 if you wish to travel through the dimensional rift.  The insides have not been fully explored yet so please be careful in there.";
+	close;
+}
 
-//[BACKPORT-DEDUP:Expedition Guide#03] moc_fild22b,225,198,6	duplicate(Expedition Guide#01)	Expedition Guide#03	4_M_MOC_SOLDIER
-//[BACKPORT-DEDUP:Expedition Guide#04] moc_fild22b,223,203,4	duplicate(Expedition Guide#02)	Expedition Guide#04	4_M_MOC_SOLDIER
-//[BACKPORT-DEDUP:Expedition Guide#05] bif_fild01,314,155,6	duplicate(Expedition Guide#01)	Expedition Guide#05	4_M_EIN_SOLDIER
-//[BACKPORT-DEDUP:Expedition Guide#06] bif_fild01,320,154,4	duplicate(Expedition Guide#02)	Expedition Guide#06	4_M_EIN_SOLDIER
-//[BACKPORT-DEDUP:Expedition Guide#07] dic_fild02,236,33,6	duplicate(Expedition Guide#01)	Expedition Guide#07	4_M_EIN_SOLDIER
-//[BACKPORT-DEDUP:Expedition Guide#08] dic_fild02,239,36,4	duplicate(Expedition Guide#02)	Expedition Guide#08	4_M_EIN_SOLDIER
+moc_fild22b,225,198,6	duplicate(Expedition Guide#01)	Expedition Guide#03	4_M_MOC_SOLDIER
+moc_fild22b,223,203,4	duplicate(Expedition Guide#02)	Expedition Guide#04	4_M_MOC_SOLDIER
+bif_fild01,314,155,6	duplicate(Expedition Guide#01)	Expedition Guide#05	4_M_EIN_SOLDIER
+bif_fild01,320,154,4	duplicate(Expedition Guide#02)	Expedition Guide#06	4_M_EIN_SOLDIER
+dic_fild02,236,33,6	duplicate(Expedition Guide#01)	Expedition Guide#07	4_M_EIN_SOLDIER
+dic_fild02,239,36,4	duplicate(Expedition Guide#02)	Expedition Guide#08	4_M_EIN_SOLDIER
 
 //[BACKPORT-BOUNDARY:dali] dali,137,87,4	script	Allied Forces Soldier	4_M_MOCASS1,{
 //[BACKPORT-BOUNDARY:dali] 	mes "[Allied Forces Soldier]";
