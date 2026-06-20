@@ -1,0 +1,474 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/gld_mission_exchange.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Guild Dungeon Daily Quest Coin Exchange
+//===== Description: =========================================
+//= [Official Conversion]
+//= NPCs reward from Guild Dungeon's Daily Missions.
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [Cydh]
+//= 1.1 Minified the script. [Secretdataz]
+//= 1.2 Script cleanup. [aleos]
+//= 1.3 Minified Kvasir's ring part. [Lemongrass]
+//============================================================
+
+// Templates
+//[BACKPORT-UNRESOLVED:malformed-for] -	script	#GldDungeonReward	-1,{
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (checkweight(1304,3) == 0) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have too many items to proceed with the quest.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Please lighten your load and try again.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "It's a machine that exchanges Commemorative Siege Guild Coins for special items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Select the desired item and insert as many coins as necessary.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	while(1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		switch(select("View exchangeable items","Trade for Investment Certificates","Trade for Good Medicines","Trade for Gifts","Kvasir's Ring","Leave")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Thank you for choosing ClickClick MeowMeow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Here is a list of items you can purchase with Commemorative Siege Guild Coins.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "= Blood of Frost Giant =";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "New medicine developed by the joint effort of Alchemy Union of 3 countries. Gives the user supernatural powers for a short period of time.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "^4d4dffDrains 3000 HP, but increases physical and magical damage to the user's counterpart players by 100% for 10 seconds.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Required Level: 80 or higher^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "= Core of Golem =";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "New medicine developed by the joint effort of Alchemy Union of 3 countries. Gives the user supernatural powers for a short period of time.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "^4d4dffDrains 300 SP, but decreases the damage taken from the user's counterpart players by 50% for 10 seconds.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Required Level: 80 or higher^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				setarray .@status$, "Stun", "Petrify", "Frozen", "Sleep", "Curse", "Silence", "Blind";
+//[BACKPORT-UNRESOLVED:malformed-for] 				set .@size, getarraysize(.@status$);
+//[BACKPORT-UNRESOLVED:malformed-for] 				for (set .@i,0; .@i < .@size; set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "= Fairy's Tear (" + .@status$[.@i] + ") =";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "A potion developed by Vicent, a pharmaceutical genius. Gives the user supernatural powers for a short period of time.";
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "^4d4dffDrains 3000 HP, but allows the user to become immune to " + (.@i == 1 ? "Petrification" : .@status$[.@i]) + " status for 10 seconds.^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 					next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "= Feather Beret[1] =";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "A comfortable, sky blue-colored hat decorated with feathers.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "^4d4dffMDEF + 1, Decreases the damage taken from the user's counterpart players by 10%.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Card Slot [1], available to all job classes except for Novices.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "= Feather Beret Costume =";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "A comfortable, sky blue-colored hat decorated with feathers.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "^4d4dffCostume Equipment, available to all job classes.^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "This is the end of the list.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "We exchange the ^4d4dff1Investment Certificate^000000 of Cat's Paw Merchant Group for ^4d4dff10Commemorative Coins!^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Do you want to exchange?";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				switch(select("Yes.","View other items.")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						if (countitem(6615) > 9) {
+//[BACKPORT-UNRESOLVED:malformed-for] 							mes "Thank you for using our service, meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 							delitem 6615,10; // Siege_Guild_Coin
+//[BACKPORT-UNRESOLVED:malformed-for] 							getitem 6489,1; // Cats_Invest_Certif
+//[BACKPORT-UNRESOLVED:malformed-for] 						} else {
+//[BACKPORT-UNRESOLVED:malformed-for] 							mes "You don't have enough coins for Investment Certificates.";
+//[BACKPORT-UNRESOLVED:malformed-for] 							mes "1 Investment Certificate is worth 10 coins.";
+//[BACKPORT-UNRESOLVED:malformed-for] 						}
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You have selected a list of good medicines!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "All items listed below are worth ^4d4dff300 coins each^000000, meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				switch(select("Blood of Frost Giants", "Core of Golem", "Fairy's Tear (Stun)", "Fairy's Tear (Frozen)", "Fairy's Tear (Sleep)", "Fairy's Tear (Curse)", "Fairy's Tear (Petrify)", "Fairy's Tear (Silence)", "Fairy's Tear (Blind)", "View other items.")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Blood of Frost Giant", 12874;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Core of Golem", 12875;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Fairy's Tear(Stun)", 12876;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Fairy's Tear(Frozen)", 12878;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 5:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Fairy's Tear(Sleep)", 12879;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 6:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Fairy's Tear(Curse)", 12880;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 7:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Fairy's Tear(Petrify)", 12877;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 8:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Fairy's Tear(Silence)", 12881;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 9:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseMedicine, "Fairy's Tear(Blind)", 12882;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 10:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You have selected a list of good gifts!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "The price for each item is listed separately, meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				switch(select("Old Card Album -500 Coins", "Old Purple Box -300 Coins", "Old Blue Box -100 Coins", "Jewelry Box -500 Coins", "Wrapped Mask -500 Coins", "Feather Beret","Leave")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseGift, "Old Card Album", 616, 500;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseGift, "Old Purple box", 617, 300;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseGift, "Old Blue Box", 603, 100;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseGift, "Jewelry Box", 12106, 500;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 5:
+//[BACKPORT-UNRESOLVED:malformed-for] 						callsub S_PurchaseGift, "Wrapped Mask", 12107, 500;
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 6:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "You have selected a nice beret decorated with feathers!";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "We have Feather Berets and Feather Beret Costumes to which you can install cards, meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						switch(select("Feather Beret[1] -1500 Coins","Feather Beret Costume -800 Coins","Purchase a Beret","View other items.")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "It's a feather beret to which you can install cards!";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "It is worth 1500 Commemorative Coins. Do you want to purchase it?";
+//[BACKPORT-UNRESOLVED:malformed-for] 								next;
+//[BACKPORT-UNRESOLVED:malformed-for] 								switch(select("Yes!","No!")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 									case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 										mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 										if (countitem(6615) > 1499) {
+//[BACKPORT-UNRESOLVED:malformed-for] 											mes "Thank you for using our service, meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 											delitem 6615,1500; // Siege_Guild_Coin
+//[BACKPORT-UNRESOLVED:malformed-for] 											getitem 18755,1; // Feather_Beret_
+//[BACKPORT-UNRESOLVED:malformed-for] 										} else {
+//[BACKPORT-UNRESOLVED:malformed-for] 											mes "You need 1500 Commemorative Coins in order to purchase the selected item.";
+//[BACKPORT-UNRESOLVED:malformed-for] 											mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 										}
+//[BACKPORT-UNRESOLVED:malformed-for] 										break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 									case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 										mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 										mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 										break;
+//[BACKPORT-UNRESOLVED:malformed-for] 								}
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "It's a feather beret costume!";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "It is worth 800 Commemorative Coins. Do you want to purchase it?";
+//[BACKPORT-UNRESOLVED:malformed-for] 								next;
+//[BACKPORT-UNRESOLVED:malformed-for] 								switch(select("Yes!","No!")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 									case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 										mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 										if (countitem(6615) > 799) {
+//[BACKPORT-UNRESOLVED:malformed-for] 											mes "Thank you for using our service, meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 											delitem 6615,800; // Siege_Guild_Coin
+//[BACKPORT-UNRESOLVED:malformed-for] 											getitem 19585,1; // C_Feather_Beret
+//[BACKPORT-UNRESOLVED:malformed-for] 										} else {
+//[BACKPORT-UNRESOLVED:malformed-for] 											mes "You need 800 Commemorative Coins in order to purchase the selected item.";
+//[BACKPORT-UNRESOLVED:malformed-for] 											mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 										}
+//[BACKPORT-UNRESOLVED:malformed-for] 										break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 									case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 										mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 										mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 										break;
+//[BACKPORT-UNRESOLVED:malformed-for] 								}
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "The preparations for changing the color of feather beret costumes are under way.";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "Please come back later!";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "Let me show you other items!";
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 						}
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 7:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Do not use the exchange machine.";
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 5:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "This is the category of Kvasir's Rings.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You can view the description for each ring and purchase one here.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				next;
+//[BACKPORT-UNRESOLVED:malformed-for] 				switch(select("Trade for Kvasir's Ring (Blue)", "Trade for Kvasir's Ring (Red)", "Trade for Kvasir's Ring (Green)", "Trade for Kvasir's Ring (Brown)", "Leave")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "= Kvasir's Ring (Blue) =";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "A ring that is rumored to be filled with the power of Kvasir, a sage god. ";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "^4d4dffMSP + 30. 'Snow Flip' 1Lv available^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Accessory. Available to all job classes. Required Level: 1";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Kvasir's Ring (Blue) can be purchased with ^4d4dff20Blood of Frost Giant and 20 Core of Golem^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "or ^4d4dff1Kvasir's Ring in different color and 10 Commemorative Coins!^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Do you want to purchase it?";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						switch(select("Pay with Blood and Core","Pay with Kvasir's Ring (Red)","Pay with Kvasir's Ring (Green)","Pay with Kvasir's Ring (Brown)","Leave")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								if ((countitem(12874) > 19) & (countitem(12875) > 19)) {
+//[BACKPORT-UNRESOLVED:malformed-for] 									mes "Kvasir's Ring (Blue) has been purchased.";
+//[BACKPORT-UNRESOLVED:malformed-for] 									delitem 12874,20; // Frost_Giant_Blood
+//[BACKPORT-UNRESOLVED:malformed-for] 									delitem 12875,20; // Golem_Stone
+//[BACKPORT-UNRESOLVED:malformed-for] 									getitem 2951,1; // Kvasir_Ring_Blue
+//[BACKPORT-UNRESOLVED:malformed-for] 								} else {
+//[BACKPORT-UNRESOLVED:malformed-for] 									mes "Looks like Kvasir's Ring (Blue) can be purchased with ^4d4dff20Blood of Frost Giant and 20 Core of Golem.^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 									mes "You don't have enough items to complete the purchase. View other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 								}
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Red)", 2952, "Kvasir's Ring (Blue)", 2951;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Green)", 2953, "Kvasir's Ring (Blue)", 2951;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Brown)", 2954, "Kvasir's Ring (Blue)", 2951;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 5:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 						}
+//[BACKPORT-UNRESOLVED:malformed-for] 					break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "= Kvasir's Ring (Red) =";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "A ring that is rumored to be filled with the power of Kvasir, a sage god. ";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "^4d4dffMSP + 30. 'Peony Mamy' 1Lv available^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Accessory. Available to all job classes. Required Level: 1";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Kvasir's Ring (Red) can be purchased with ^4d4dff1Kvasir's Ring and 10 Commemorative Coins.^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Which of the followings do you want to trade for Kvasir's Ring (Red)?";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						switch(select("Kvasir's Ring (Blue)","Kvasir's Ring (Green)","Kvasir's Ring (Brown)","Leave")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Blue)", 2951, "Kvasir's Ring (Red)", 2952;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Green)", 2953, "Kvasir's Ring (Red)", 2952;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Brown)", 2954, "Kvasir's Ring (Red)", 2952;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 						}
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "= Kvasir's Ring (Green) =";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "A ring that is rumored to be filled with the power of Kvasir, a sage god. ";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "^4d4dffMSP + 100. 'Sada Ear' 1Lv available^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Accessory. Available to all job classes. Required Level: 1";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Kvasir's Ring (Green) can be purchased with ^4d4dff1Kvasir's Ring and 10 Commemorative Coins.^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Which of the followings do you want to trade for Kvasir's Ring (Red)?";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						switch(select("Kvasir's Ring (Blue)","Kvasir's Ring (Red)","Kvasir's Ring (Brown)","Leave")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Blue)", 2951, "Kvasir's Ring (Green)", 2953;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Red)", 2952, "Kvasir's Ring (Green)", 2953;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Brown)", 2954, "Kvasir's Ring (Green)", 2953;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 						}
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "= Kvasir Ring Brown =";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "A ring that is rumored to be filled with the power of Kvasir, a sage god. ";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "^4d4dffMSP + 100. 'Dust of Galaxy' 1Lv available^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Accessory. Available to all job classes. Required Level: 1";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Kvasir's Ring (Brown) can be purchased with ^4d4dff1Kvasir's Ring and 10 Commemorative Coins.^000000";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "Which of the followings do you want to trade for Kvasir's Ring (Red)?";
+//[BACKPORT-UNRESOLVED:malformed-for] 						next;
+//[BACKPORT-UNRESOLVED:malformed-for] 						switch(select("Kvasir's Ring (Blue)","Kvasir's Ring (Red)","Kvasir's Ring (Green)","Leave")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Blue)", 2951, "Kvasir's Ring (Brown)", 2954;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Red)", 2952, "Kvasir's Ring (Brown)", 2954;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 								callsub S_Kvasir, "Kvasir's Ring (Green)", 2953, "Kvasir's Ring (Brown)", 2954;
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 							case 4:
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 								mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 								break;
+//[BACKPORT-UNRESOLVED:malformed-for] 						}
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 					case 5:
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 						mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 						break;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 6:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Do not use the exchange machine.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	close;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] S_PurchaseMedicine:
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "You're purchasing 1 " + getarg(0) + ", meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Are you sure?";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	switch(select("Yes!","No!")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			if (countitem(6615) > 299) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Thank you for using our service, meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				delitem 6615,300; // Siege_Guild_Coin
+//[BACKPORT-UNRESOLVED:malformed-for] 				getitem getarg(1),1;
+//[BACKPORT-UNRESOLVED:malformed-for] 			} else
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "One good medicine is worth 300 commemorative coins that you've raked and scraped...";
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	return;
+//[BACKPORT-UNRESOLVED:malformed-for] 	
+//[BACKPORT-UNRESOLVED:malformed-for] S_PurchaseGift:
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@itemid, getarg(1);
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@price, getarg(2);
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "You're purchasing 1 " + getarg(0) + ", meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Are you sure?";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	switch(select("Yes!","No!")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			if (countitem(6615) >= .@price) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Thank you for using our service, meow!";
+//[BACKPORT-UNRESOLVED:malformed-for] 				delitem 6615,.@price; // Siege_Guild_Coin
+//[BACKPORT-UNRESOLVED:malformed-for] 				getitem .@itemid,1;
+//[BACKPORT-UNRESOLVED:malformed-for] 			} else {
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You need " + .@price + " Commemorative Coins in order to purchase the selected item.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	return;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] S_Kvasir:
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@fromid, getarg(1);
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@fromname$, getarg(2);
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@toid, getarg(3);
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@toname$, getarg(4);
+//[BACKPORT-UNRESOLVED:malformed-for] 	
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[ClickClick MeowMeow-GX]";
+	// One of Kvasir's Rings and 10 Siege_Guild_Coin
+//[BACKPORT-UNRESOLVED:malformed-for] 	if( countitem( .@fromid ) > 0 && countitem( 6615 ) > 9 ){
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You have " + .@fromname$ + ".";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Do you want to trade this in for " + .@toname$ + "?";
+//[BACKPORT-UNRESOLVED:malformed-for] 		next;
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "[ClickClick MeowMeow-GX]";
+//[BACKPORT-UNRESOLVED:malformed-for] 		switch( select( "Yes!:Leave" ) ){
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 1:
+				// Recheck the items once more
+//[BACKPORT-UNRESOLVED:malformed-for] 				if( countitem( .@fromid ) > 0 && countitem( 6615 ) > 9 ){
+//[BACKPORT-UNRESOLVED:malformed-for] 					mes "You have traded " + .@fromname$ + " for " + .@toname$ + ".";
+//[BACKPORT-UNRESOLVED:malformed-for] 					delitem .@fromid, 1;
+//[BACKPORT-UNRESOLVED:malformed-for] 					delitem 6615, 10; // Siege_Guild_Coin
+//[BACKPORT-UNRESOLVED:malformed-for] 					getitem .@toid, 1;
+//[BACKPORT-UNRESOLVED:malformed-for] 					close;
+//[BACKPORT-UNRESOLVED:malformed-for] 				}
+//[BACKPORT-UNRESOLVED:malformed-for] 				break;
+//[BACKPORT-UNRESOLVED:malformed-for] 			case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You've decided to view other items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				return;
+//[BACKPORT-UNRESOLVED:malformed-for] 		}
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "You need 1 " + .@fromname$ + " and 10 Commemorative Coins in order to complete the purchase.";
+//[BACKPORT-UNRESOLVED:malformed-for] 	return;
+//[BACKPORT-UNRESOLVED:malformed-for] }
+
+// Main NPCs
+//[BACKPORT-ORPHAN:#GldDungeonReward] alde_gld,180,163,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#1	2_VENDING_MACHINE1
+//[BACKPORT-ORPHAN:#GldDungeonReward] pay_gld,196,176,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#2	2_VENDING_MACHINE1
+//[BACKPORT-ORPHAN:#GldDungeonReward] gef_fild13,198,246,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#3	2_VENDING_MACHINE1
+//[BACKPORT-ORPHAN:#GldDungeonReward] sch_gld,266,119,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#4	2_VENDING_MACHINE1
+//[BACKPORT-ORPHAN:#GldDungeonReward] aru_gld,89,204,5	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#5	2_VENDING_MACHINE1
+//[BACKPORT-ORPHAN:#GldDungeonReward] prt_gld,107,155,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#6	2_VENDING_MACHINE1
+//[BACKPORT-BOUNDARY:te_prt_gld] te_prt_gld,107,155,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#7	2_VENDING_MACHINE1
+//[BACKPORT-BOUNDARY:te_alde_gld] te_alde_gld,180,163,3	duplicate(#GldDungeonReward)	ClickClick MeowMeow-GX#8	2_VENDING_MACHINE1

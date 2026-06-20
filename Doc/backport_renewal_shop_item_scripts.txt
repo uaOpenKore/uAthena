@@ -1,0 +1,16 @@
+# Dropped renewal shop-item scripts (manual port). id<TAB>aegis<TAB>orig
+12786	Change_Slot_Card	CharMoves++;
+12849	Combination_Kit	if (BaseLevel < 20) cooking 30; else cooking 11;
+13120	H_FEATHER_H_FIRE	bonus2 bSkillAtk,"GS_DESPERADO",20; bonus2 bAddEff,Eff_Burning,200;
+22658	BraisedShortRibs	specialeffect2 EF_ENHANCE; sc_start SC_BEEF_RIB_STEW,180000,0;
+22659	BraisedSpareribs	specialeffect2 EF_ENHANCE; sc_start SC_PORK_RIB_STEW,180000,0;
+22687	Pieces_Of_Sentiment	callfunc("F_Pieces_Of_Sentiment");
+23016	Pieces_Of_Grudge	callfunc("F_Cursed_Fragment");
+23277	Mado_Box	specialeffect2 EF_CLAYMORE; setmadogear true;
+28201	Southern_Cross_R	bonus2 bAddEff,Eff_Curse,300; bonus4 bAutoSpell,"KO_JYUMONJIKIRI",1,100,1;
+100003	ILL_Piece_A	laphine_upgrade();
+100004	ILL_Piece_B	laphine_upgrade();
+100158	Mado_Box02	specialeffect2 EF_CLAYMORE; setmadogear true,MADO_SUIT;
+100251	Illu_Enhance_Cube	laphine_upgrade();
+100252	Auto_Enhance_Cube	laphine_upgrade();
+101117	Soa_Charm_Bundle	getgroupitem(IG_SOA_CHARM_BUNDLE);

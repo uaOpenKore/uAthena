@@ -1,0 +1,72 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../stone_change.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Stone Changer
+//===== By: ================================================== 
+//= Euphy
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Organizes ores in a player's inventory.
+//===== Additional Comments: ================================= 
+//= 1.0 First version.
+//= 1.1 Clean-up. [Capuche]
+//============================================================ 
+
+// Main NPC :: stonechange
+//============================================================
+//[BACKPORT-DEDUP:Ore Tester#sorty] geffen_in,99,174,5	script	Ore Tester#sorty	8_F_GIRL,{
+//[BACKPORT-DEDUP:Ore Tester#sorty] 	mes "[Ore Tester Sorty]";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 	mes "Do you have ^3131FFany same type of ores in your inventories^000000 which take many spaces?";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 	mes "I can distinguish your ores and organize them right away~!";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 	next;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 	switch(select("Refine my Ore.:Cancel.")) {
+//[BACKPORT-DEDUP:Ore Tester#sorty] 	case 1:
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "[Ore Tester Sorty]";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "At the moment I can only distinguish ^FF0000Steel^000000, ^FF0000Iron^000000, ^FF0000Iron Ore^000000, and ^FF0000Rough Oridecon^000000 and organize them.";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "Please note that ^3131FFother items are unable^000000!";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		next;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "[Ore Tester Sorty]";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "So, would you like me to organize your ores?";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		next;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		set .@i, select("Steel, please.:Iron, please.:Iron Ore, please.:Rough Oridecon, please.:No, thanks.");
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		if (.@i == 5) {
+//[BACKPORT-DEDUP:Ore Tester#sorty] 			mes "[Ore Tester Sorty]";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 			mes "Huh, I really hate messy people!";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 			close;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		}
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		setarray .@ores[0],999,998,1002,756;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		set .@item, .@ores[.@i-1];
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		if (countitem(.@item) == 0) {
+//[BACKPORT-DEDUP:Ore Tester#sorty] 			mes "[Ore Tester Sorty]";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 			mes "You don't have any "+getitemname(.@item)+"...";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 			close;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		}
+		// while(1) {
+			// if (countitem(.@item)) {
+				// set .@count, countitem(.@item);
+				// set .@total, .@total + .@count;
+				// delitem .@item, .@count;
+			// } else {
+				// getitem .@item, .@total;
+				// break;
+			// }
+		// }
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		set .@count, countitem(.@item);
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		delitem .@item, .@count;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		getitem .@item, .@count;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "[Ore Tester Sorty]";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "It's done. Looks great! Don't you think so?";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		close;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 	case 2:
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "[Ore Tester Sorty]";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		mes "It seems that your bag is clean? Huhu! You might be the master of cleaning!";
+//[BACKPORT-DEDUP:Ore Tester#sorty] 		close;
+//[BACKPORT-DEDUP:Ore Tester#sorty] 	}
+//[BACKPORT-DEDUP:Ore Tester#sorty] }

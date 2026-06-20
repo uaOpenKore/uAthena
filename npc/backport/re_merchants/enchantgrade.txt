@@ -1,0 +1,136 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/enchantgrade.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Enchant Grade
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [JohnnyPlayy]
+//= 1.1 Fixed small issues. [Lemongrass]
+//= 1.2 Added translation. [Asheraf]
+//= 1.3 Added paramarket NPC and warps. [Balfear]
+//= 1.4 Translated paramarket NPC. [Lemongrass]
+//============================================================
+
+//[BACKPORT-BOUNDARY:grademk] grademk,34,184,4	script	Sratos#sratos	4_JP_GARM_H,{
+//[BACKPORT-BOUNDARY:grademk] 	mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 	mes "Hello, dear customer who walked in, let's hope for a miracle today.";
+//[BACKPORT-BOUNDARY:grademk] 	mes "How can I help you?";
+//[BACKPORT-BOUNDARY:grademk] 	next;
+//[BACKPORT-BOUNDARY:grademk] 	switch( select( "Enhance the equipment's grade.", "Exchange Etel items", "What is Grade Enhancement?" ) ){
+//[BACKPORT-BOUNDARY:grademk] 		case 1:
+//[BACKPORT-BOUNDARY:grademk] 			mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 			mes "Our customer. You want to enhance the grade of equipment.";
+//[BACKPORT-BOUNDARY:grademk] 			mes "It is not easy to move the magical power of jewels.";
+//[BACKPORT-BOUNDARY:grademk] 			next;
+//[BACKPORT-BOUNDARY:grademk] 			mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 			mes "Magical power can explode on the spot.";
+//[BACKPORT-BOUNDARY:grademk] 			mes "Then the weapon that will inherit the magical power also explodes!";
+//[BACKPORT-BOUNDARY:grademk] 			next;
+//[BACKPORT-BOUNDARY:grademk] 			switch( select( "I'll still do it!", "I'll think about it." ) ){
+//[BACKPORT-BOUNDARY:grademk] 				case 1:
+//[BACKPORT-BOUNDARY:grademk] 					mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 					mes "I wish good luck to our courageous customers!";
+//[BACKPORT-BOUNDARY:grademk] 					close2;
+					//[BACKPORT-GAP:enchantgradeui] enchantgradeui();
+//[BACKPORT-BOUNDARY:grademk] 					end;
+//[BACKPORT-BOUNDARY:grademk] 				case 2:
+//[BACKPORT-BOUNDARY:grademk] 					mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 					mes "Whenever you have the courage to challenge, please come back.";
+//[BACKPORT-BOUNDARY:grademk] 					close;
+//[BACKPORT-BOUNDARY:grademk] 			}
+//[BACKPORT-BOUNDARY:grademk] 		case 2:
+//[BACKPORT-BOUNDARY:grademk] 			mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 			mes "These are jewels used to enhance grades.";
+//[BACKPORT-BOUNDARY:grademk] 			mes "Etel Dust, the jewels that will be the base, and if you give me a small fee I'll exchange it for Etel jewels.";
+//[BACKPORT-BOUNDARY:grademk] 			close2;
+//[BACKPORT-BOUNDARY:grademk] 			callshop "EnchantGradeExchange",1;
+//[BACKPORT-BOUNDARY:grademk] 			end;
+//[BACKPORT-BOUNDARY:grademk] 
+//[BACKPORT-BOUNDARY:grademk] 		case 3:
+//[BACKPORT-BOUNDARY:grademk] 			mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 			mes "Occasionally, unstable jewels with a lot of pure magical power are found.";
+//[BACKPORT-BOUNDARY:grademk] 			mes "We call these etheric gems, right?";
+//[BACKPORT-BOUNDARY:grademk] 			next;
+//[BACKPORT-BOUNDARY:grademk] 			mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 			mes "You can transfer the magical power of the etheric gem to other weapons, but of course there is some risk.";
+//[BACKPORT-BOUNDARY:grademk] 			mes "It's delicate, so if you aren't careful, pop! It will explode.";
+//[BACKPORT-BOUNDARY:grademk] 			next;
+//[BACKPORT-BOUNDARY:grademk] 			mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 			mes "Anyway, if you use this etheric gem, you can enhance the weapon you are using.";
+//[BACKPORT-BOUNDARY:grademk] 			mes "Performance gets better. We call this grade enhancement.";
+//[BACKPORT-BOUNDARY:grademk] 			next;
+//[BACKPORT-BOUNDARY:grademk] 			mes "[Sratos]";
+//[BACKPORT-BOUNDARY:grademk] 			mes "You too, wouldn't you be happy if the weapons you love grow one step further?";
+//[BACKPORT-BOUNDARY:grademk] 			mes "We are the people who assist it. It's a bit risky, though. ahahaha.";
+//[BACKPORT-BOUNDARY:grademk] 			close;
+//[BACKPORT-BOUNDARY:grademk] 	}
+//[BACKPORT-BOUNDARY:grademk] 
+//[BACKPORT-BOUNDARY:grademk] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle(getnpcid(0), "<Grade Enhancer>");
+//[BACKPORT-BOUNDARY:grademk] 	end;
+//[BACKPORT-BOUNDARY:grademk] }
+
+//[BACKPORT-BOUNDARY:paramk] paramk,34,184,4	script	Suribell#suribell	4_F_FRUIT,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "May good luck always be with you!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Welcome to Paramarket's Grade Enhancement Center~";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch( select( "Enhance the equipment's grade.", "Exchange Etel items", "What is Grade Enhancement?" )) {
+//[BACKPORT-BOUNDARY:paramk] 		case 1:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Do you want to unlock the potential of your favorite equipment?";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Explosions may also occur in the process of dealing with magical powers.";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Still, if you're trying to enhance your grade... !";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I, Suribell, will do my best!";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			switch( select( "I'll still do it!", "I'll think about it." ) ){
+//[BACKPORT-BOUNDARY:paramk] 				case 1:
+//[BACKPORT-BOUNDARY:paramk] 					mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 					mes "Let's hold hands and have faith! Try clenching your teeth!";
+//[BACKPORT-BOUNDARY:paramk] 					close2;
+					//[BACKPORT-GAP:enchantgradeui] enchantgradeui();
+//[BACKPORT-BOUNDARY:paramk] 					end;
+//[BACKPORT-BOUNDARY:paramk] 				case 2:
+//[BACKPORT-BOUNDARY:paramk] 					mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 					mes "Okay! Let's drink a glass of cold water!";
+//[BACKPORT-BOUNDARY:paramk] 					close;
+//[BACKPORT-BOUNDARY:paramk] 			}
+//[BACKPORT-BOUNDARY:paramk] 		case 2:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "You need etheric gems to enhance grades!";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If you combine Etel Dust and jewels to make it, it is fine! An Etel jewel for adventurers is complete!";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Would you like to combine jewels and Etel Dust?";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "EnchantGradeExchange",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 3:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Occasionally, unstable jewels with a lot of pure magical power are found.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I decided to call such gems etheric gems.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Who? I am Suribell!";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "The magical power of etheric gems sometimes awakens the hidden potential of equipment.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We call it grade enhancement because it goes up one tier!";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Suribell]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "The adventurer may have a potential that is unknown to him.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "There is a risk that it can be destroyed if done wrong, but try it with faith!";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle(getnpcid(0), "<Grade Enhancer>");
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// = Portals
+//============================================================
+prontera,50,293,0	warp	Grademk_Int	1,1,grademk,13,172
+//[BACKPORT-BOUNDARY:grademk] grademk,9,172,0	warp	Grademk_Out	1,1,prontera,50,290
+//[BACKPORT-BOUNDARY:paramk] paramk,8,171,0	warp	grade_in	1,1,paramk,141,64
+//[BACKPORT-BOUNDARY:paramk] paramk,145,64,0	warp	grade_out	1,1,paramk,11,171

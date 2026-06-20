@@ -1,0 +1,174 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/pet_trader.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Pet Trader NPC
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//= Exchanges Cute Pet Tickets for Pet Eggs.
+//===== Additional Comments: =================================
+//= 1.0 First version [Latiosu]
+//============================================================
+
+//[BACKPORT-UNRESOLVED:incr-in-index] prontera,210,209,5	script	Pet Trader#1	4_M_JPNOJI,{
+//[BACKPORT-UNRESOLVED:incr-in-index] 	disable_items;
+//[BACKPORT-UNRESOLVED:incr-in-index] 	mes "[Pet Trader]";
+//[BACKPORT-UNRESOLVED:incr-in-index] 	mes "Making a living through business ain't easy.";
+//[BACKPORT-UNRESOLVED:incr-in-index] 	mes "I get real bad motion sickness, yet today I got caught up in a storm on my way here.";
+//[BACKPORT-UNRESOLVED:incr-in-index] 	next;
+//[BACKPORT-UNRESOLVED:incr-in-index] 	mes "[Pet Trader]";
+//[BACKPORT-UNRESOLVED:incr-in-index] 	mes "It was such a horrible experience. Thanks to that, I don't feel so good. Ughh...";
+//[BACKPORT-UNRESOLVED:incr-in-index] 	next;
+//[BACKPORT-UNRESOLVED:incr-in-index] 	mes "[Pet Trader]";
+//[BACKPORT-UNRESOLVED:incr-in-index] 	mes "Anyway, did you come here looking for a Cute Pet?";
+//[BACKPORT-UNRESOLVED:incr-in-index] 	mes "You've brought a ticket with you, right?";
+//[BACKPORT-UNRESOLVED:incr-in-index] 	next;
+//[BACKPORT-UNRESOLVED:incr-in-index] 	switch (select("Examine your tickets:Cancel")) {
+//[BACKPORT-UNRESOLVED:incr-in-index] 	case 1:
+//[BACKPORT-UNRESOLVED:incr-in-index] 		setarray .@tickets,
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6116, //Succu_Pet_Coupon
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6117, //Imp_Pet_Coupon
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6118, //Chung_E_Pet_Coupon
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6129, //Ticket_Nightmare
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6130, //Ticket_Loli_Ruri
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6131, //Ticket_Goblin_Leader
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6132, //Ticket_Incubus
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6133, //Ticket_Miyabi_Ningyo
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6134, //Ticket_Whisper
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6135, //Ticket_Wicked_Nymph
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6136, //Ticket_Medusa
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6137, //Ticket_Stoneshooter
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6138, //Ticket_Marionette
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6139, //Ticket_Leafcat
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6140, //Ticket_Dullahan
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6141, //Ticket_Shinobi
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6142, //Ticket_Golem
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6143, //Ticket_Civil_Servant
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6157, //Poring_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6158, //Drops_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6159, //Poporing_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6160, //Lunatic_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6161, //Picky_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6162, //Pecopeco_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6163, //Savage_Baby_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6164, //Spore_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6165, //Poison_Spore_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6166, //Chonchon_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6167, //Steel_Chonchon_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6168, //Petit_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6169, //Deviruchi_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6170, //Isis_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6171, //Smokie_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6172, //Dokebi_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6173, //Desert_Wolf_B_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6174, //Yoyo_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6175, //Sohee_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6176, //Rocker_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6177, //Hunter_Fly_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6178, //Orc_Warrior_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6179, //Bapho_Jr_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6180, //Munak_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6181, //Bongun_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6182, //Goblin_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6183, //Hardtack_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6184, //Zherlthsh_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6185, //Alice_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6883, //Pet_Snow_Bunny_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 			6884; //Pet_Tikbalang_Ticket
+//[BACKPORT-UNRESOLVED:incr-in-index] 		setarray .@eggs,
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9055, //Succubus_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9056, //Imp_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9030, //Chung_E_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9054, //Nightmare_Terror_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9042, //Loli_Ruri_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9046, //Goblin_Leader_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9052, //Incubus_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9048, //Miyabi_Ningyo_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9045, //Whisper_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9047, //Wicked_Nymph_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9050, //Medusa_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9051, //Stone_Shooter_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9043, //Marionette_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9041, //Leaf_Cat_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9049, //Dullahan_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9044, //Shinobi_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9053, //Golem_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9040, //Civil_Servant_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9001, //Poring_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9002, //Drops_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9003, //Poporing_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9004, //Lunatic_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9005, //Picky_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9014, //PecoPeco_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9009, //Savage_Bebe_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9012, //Spore_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9013, //Poison_Spore_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9006, //Chonchon_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9007, //Steel_Chonchon_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9022, //Green_Petite_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9023, //Deviruchi_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9021, //Isis_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9015, //Smokie_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9019, //Dokkaebi_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9010, //Baby_Desert_Wolf_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9016, //Yoyo_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9020, //Sohee_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9011, //Rocker_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9008, //Hunter_Fly_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9017, //Orc_Warrior_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9024, //Bapho_Jr
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9018, //Munak_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9025, //Bongun_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9029, //Santa_Goblin_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9028, //Rice_Cake_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9026, //Zherlthsh_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9027, //Alice_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9058, //Snow_Rabbit_Egg
+//[BACKPORT-UNRESOLVED:incr-in-index] 			9059; //Tikbalang_Pet
+//[BACKPORT-UNRESOLVED:incr-in-index] 		for (set .@i,0; .@i < getarraysize(.@tickets); set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:incr-in-index] 			if (countitem(.@tickets[.@i]) > 0) {
+//[BACKPORT-UNRESOLVED:incr-in-index] 				set .@menu$, .@menu$ + getitemname(.@tickets[.@i]) + ":";
+//[BACKPORT-UNRESOLVED:incr-in-index] 				set .@ticketIndices[.@count++], .@i;
+//[BACKPORT-UNRESOLVED:incr-in-index] 			}
+//[BACKPORT-UNRESOLVED:incr-in-index] 		}
+//[BACKPORT-UNRESOLVED:incr-in-index] 
+//[BACKPORT-UNRESOLVED:incr-in-index] 		if (.@count == 0) {
+//[BACKPORT-UNRESOLVED:incr-in-index] 			mes "[Pet Trader]";
+//[BACKPORT-UNRESOLVED:incr-in-index] 			mes "I don't think you've got the stuff I want.";
+//[BACKPORT-UNRESOLVED:incr-in-index] 			close;
+//[BACKPORT-UNRESOLVED:incr-in-index] 		}
+//[BACKPORT-UNRESOLVED:incr-in-index] 
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "[Pet Trader]";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "Which ticket do you want to exchange?";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		next;
+//[BACKPORT-UNRESOLVED:incr-in-index] 		set .@index, .@ticketIndices[select(.@menu$) - 1];
+//[BACKPORT-UNRESOLVED:incr-in-index] 
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "[Pet Trader]";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "Great!";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "^0000FF"+ getitemname(.@eggs[.@index]) +"^000000";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "Are you sure you want this pet?";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		next;
+//[BACKPORT-UNRESOLVED:incr-in-index] 		if (select("Yes:No") == 2) close;
+//[BACKPORT-UNRESOLVED:incr-in-index] 		if (!checkweight(.@eggs[.@index], 1)) {
+//[BACKPORT-UNRESOLVED:incr-in-index] 			mes "You're carrying too much stuff!";
+//[BACKPORT-UNRESOLVED:incr-in-index] 			mes "Come back when you've made some space.";
+//[BACKPORT-UNRESOLVED:incr-in-index] 			close;
+//[BACKPORT-UNRESOLVED:incr-in-index] 		}
+//[BACKPORT-UNRESOLVED:incr-in-index] 
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "[Pet Trader]";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "Here's your pet~";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		delitem .@tickets[.@index], 1;
+//[BACKPORT-UNRESOLVED:incr-in-index] 		getitem .@eggs[.@index], 1;
+//[BACKPORT-UNRESOLVED:incr-in-index] 		close;
+//[BACKPORT-UNRESOLVED:incr-in-index] 	case 2:
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "[Pet Trader]";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		mes "So you want hear about the land across the sea, but I ain't feeling so well today.";
+//[BACKPORT-UNRESOLVED:incr-in-index] 		close;
+//[BACKPORT-UNRESOLVED:incr-in-index] 	}
+//[BACKPORT-UNRESOLVED:incr-in-index] 	end;
+//[BACKPORT-UNRESOLVED:incr-in-index] }
+
+// Duplicate NPCs
+//[BACKPORT-ORPHAN:Pet Trader#1] alberta,179,141,5	duplicate(Pet Trader#1)	Pet Trader#2	4_M_JPNOJI

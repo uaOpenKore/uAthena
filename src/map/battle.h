@@ -437,6 +437,13 @@ extern struct Battle_Config {
 	unsigned short clif_bcast_pc_grid;	// [perf] AREA broadcast skips blocks with no PC/HOM/MER (exact mobgrid count) — behaviour-identical
 	unsigned short weapon_mastery_cache;	// [perf 6] use the per-hand weapon-mastery bonus cached in status_calc_pc (behaviour-identical)
 	unsigned short status_calc_defer;	// [perf 7] coalesce equip-swap status_calc_pc to next tick (NOT behaviour-identical: OnEquip/OnUnequip see stale stats)
+	// --- over-refine (+11..+99) tunables [refine99] ---
+	int refine_player_max;          // player/NPC refine ceiling (<= MAX_REFINE_GM=99); 10 = vanilla (feature off)
+	int refine_over_chance;         // success % for the +10 -> +11 step
+	int refine_over_chance_step;    // % subtracted per extra level above +10
+	int refine_over_chance_min;     // success % floor at high levels
+	int refine_over_bonus_percent;  // ATK/DEF per extra level above +10, as % of the canon per-level bonus
+	int refine_over_fail;           // fail above +10: 0 = destroy (classic), 1 = drop one level, 2 = keep
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]

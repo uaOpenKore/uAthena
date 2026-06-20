@@ -1,0 +1,573 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../dimensional_gap.txt
+//============================================================
+//===== rAthena Script ======================================
+//= Dimensional Gap NPCs
+//===== Description: =========================================
+//= NPC script for Dimensional Gap
+//===== Additional Comments: =================================
+//= 1.0 First Version. [Nova]
+//============================================================
+
+//[BACKPORT-DEDUP:Expedition Guide#01] mid_camp,207,290,6	script	Expedition Guide#01	4_M_EIN_SOLDIER,{
+//[BACKPORT-DEDUP:Expedition Guide#01] 	mes "[Expedition Guide]";
+//[BACKPORT-DEDUP:Expedition Guide#01] 	mes "Are you going to enter the ^0000FFDimensional Gap^000000?  Please use this Transport Device you see here.";
+//[BACKPORT-DEDUP:Expedition Guide#01] 	next;
+//[BACKPORT-DEDUP:Expedition Guide#01] 	switch(select("What is the Dimensional Gap?:End Conversation.")) {
+//[BACKPORT-DEDUP:Expedition Guide#01] 	case 1:
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "As you know we've already entered through the Dimensional Rift to get to Ash Vacuum right?  The Dimensional Gap is an expansion of that initial discovery.";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		next;
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "A member of the Expedition team found these backdoor passages to get through the Dimensional Rifts.";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		next;
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "This is like a Midgard Alliance version of the Bifrost bridge so it can connect us to different parts of the New World.";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		next;
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "Time and space is distorted in the Dimensional Gap.  Not all passageways have been discovered so please be sure to use caution when entering an unverified area.";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		next;
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "Anyone who has become lost here has yet to return.";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		close;
+//[BACKPORT-DEDUP:Expedition Guide#01] 	case 2:
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "[Expedition Guide]";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		mes "Take care.";
+//[BACKPORT-DEDUP:Expedition Guide#01] 		close;
+//[BACKPORT-DEDUP:Expedition Guide#01] 	}
+//[BACKPORT-DEDUP:Expedition Guide#01] }
+
+//[BACKPORT-DEDUP:Expedition Guide#02] mid_camp,212,290,4	script	Expedition Guide#02	4_M_EIN_SOLDIER,{
+//[BACKPORT-DEDUP:Expedition Guide#02] 	mes "[Expedition Guide]";
+//[BACKPORT-DEDUP:Expedition Guide#02] 	mes "Please use a ^0000FFTransport Device^000000 if you wish to travel through the dimensional rift.  The insides have not been fully explored yet so please be careful in there.";
+//[BACKPORT-DEDUP:Expedition Guide#02] 	close;
+//[BACKPORT-DEDUP:Expedition Guide#02] }
+
+//[BACKPORT-DEDUP:Expedition Guide#03] moc_fild22b,225,198,6	duplicate(Expedition Guide#01)	Expedition Guide#03	4_M_MOC_SOLDIER
+//[BACKPORT-DEDUP:Expedition Guide#04] moc_fild22b,223,203,4	duplicate(Expedition Guide#02)	Expedition Guide#04	4_M_MOC_SOLDIER
+//[BACKPORT-DEDUP:Expedition Guide#05] bif_fild01,314,155,6	duplicate(Expedition Guide#01)	Expedition Guide#05	4_M_EIN_SOLDIER
+//[BACKPORT-DEDUP:Expedition Guide#06] bif_fild01,320,154,4	duplicate(Expedition Guide#02)	Expedition Guide#06	4_M_EIN_SOLDIER
+//[BACKPORT-DEDUP:Expedition Guide#07] dic_fild02,236,33,6	duplicate(Expedition Guide#01)	Expedition Guide#07	4_M_EIN_SOLDIER
+//[BACKPORT-DEDUP:Expedition Guide#08] dic_fild02,239,36,4	duplicate(Expedition Guide#02)	Expedition Guide#08	4_M_EIN_SOLDIER
+
+//[BACKPORT-BOUNDARY:dali] dali,137,87,4	script	Allied Forces Soldier	4_M_MOCASS1,{
+//[BACKPORT-BOUNDARY:dali] 	mes "[Allied Forces Soldier]";
+//[BACKPORT-BOUNDARY:dali] 	mes "This dimensional rift is connected to the Allied Forces ^0000FFExpedition Camp^000000 in Jotunheim.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Allied Forces Soldier]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Do not worry, it has been set up after testing hundreds of experiments for safe teleportation.";
+//[BACKPORT-BOUNDARY:dali] 	close;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,122,60,4	script	Morocc Soldier	4_M_MOC_SOLDIER,{
+//[BACKPORT-BOUNDARY:dali] 	mes "[Morocc Soldier]";
+//[BACKPORT-BOUNDARY:dali] 	mes "This dimensional rift is connected to ^0000FFMorocc^000000 back in Midgard.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Morocc Soldier]";
+//[BACKPORT-BOUNDARY:dali] 	mes "This is the fastest gateway back to our world.  The area is still destroyed but restoration efforts will soon be on the way.";
+//[BACKPORT-BOUNDARY:dali] 	close;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,51,104,6	script	Spledide Soldier	4_M_FAIRYSOLDIER2,{
+//[BACKPORT-BOUNDARY:dali] 	mes "[Spledide Soldier]";
+//[BACKPORT-BOUNDARY:dali] 	mes "This dimensional rift is connected to the south of ^0000FFBifrost^000000.  It enables quick travel to the Splendide frontline.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Spledide Soldier]";
+//[BACKPORT-BOUNDARY:dali] 	mes "If we use it properly, it enables us to advance more easily to the capital of the Sapha.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Spledide Soldier]";
+//[BACKPORT-BOUNDARY:dali] 	mes "The Mayor has asked us to cooperate as best we can instead of fighting, so I'm under orders not to do anything.  Since we have a common enemy we won't fight the Sapha... for now...";
+//[BACKPORT-BOUNDARY:dali] 	close;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,56,126,4	script	Dispatched Sapha	4_MAN_BENKUNI,{
+//[BACKPORT-BOUNDARY:dali] 	mes "[Dispatched Sapha]";
+//[BACKPORT-BOUNDARY:dali] 	mes "This dimensional rift is connected to the southern area of the ^0000FFKamidal Mountains^000000 in El Dicastes.  I just dropped by for my research, but it is incredible.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Dispatched Sapha]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Moreover it is next to the Laphine capital..... Hmm... Do not worry, I do not want to fight in such a place.";
+//[BACKPORT-BOUNDARY:dali] 	close;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,109,94,4	shop	Sundries Merchant	4_M_MERCAT2,611:-1,1750:-1,1065:-1
+
+//[BACKPORT-BOUNDARY:dali] dali,112,95,4	script	Logistics Manager	4_M_MERCAT2,{
+//[BACKPORT-BOUNDARY:dali] 	mes "[Logistics Manager]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Welcome.  I am in charge of logistics to take care of your items in this weird place.  Do you need to access your storage?";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	switch(select("Open Storage 200 Zeny.:No Thanks.")) {
+//[BACKPORT-BOUNDARY:dali] 	case 1:
+//[BACKPORT-BOUNDARY:dali] 		if (Zeny > 199) {
+//[BACKPORT-BOUNDARY:dali] 			if(!callfunc("F_CanOpenStorage")){
+//[BACKPORT-BOUNDARY:dali] 				mes "[Logistics Manager]";
+//[BACKPORT-BOUNDARY:dali] 				mes "You are not yet qualified to use the Storage.";
+//[BACKPORT-BOUNDARY:dali] 			}
+//[BACKPORT-BOUNDARY:dali] 			else {
+//[BACKPORT-BOUNDARY:dali] 				set Zeny, Zeny - 200;
+//[BACKPORT-BOUNDARY:dali] 				openstorage;
+//[BACKPORT-BOUNDARY:dali] 			}
+//[BACKPORT-BOUNDARY:dali] 		}
+//[BACKPORT-BOUNDARY:dali] 		else {
+//[BACKPORT-BOUNDARY:dali] 			mes "[Logistics Manager]";
+//[BACKPORT-BOUNDARY:dali] 			mes "You need at least 200 zeny to use the Storage.";
+//[BACKPORT-BOUNDARY:dali] 		}
+//[BACKPORT-BOUNDARY:dali] 		break;
+//[BACKPORT-BOUNDARY:dali] 	case 2:
+//[BACKPORT-BOUNDARY:dali] 		mes "[Logistics Manager]";
+//[BACKPORT-BOUNDARY:dali] 		mes "Let me know if you change your mind.";
+//[BACKPORT-BOUNDARY:dali] 	}
+//[BACKPORT-BOUNDARY:dali] 	close;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,115,85,5	script	Party Leader#dali	2_M_SWORDMASTER,{
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Party Leader#dali";
+//[BACKPORT-BOUNDARY:dali] 	hideoffnpc "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	donpcevent "#dalichat::OnEnable";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,115,85,0	script	#dalichat	-1,{
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnInit:
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	disablenpc "#dalichat";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnEnable:
+//[BACKPORT-BOUNDARY:dali] 	enablenpc "#dalichat";
+//[BACKPORT-BOUNDARY:dali] 	initnpctimer;
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer1000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Attention!!!", "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer2000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Here, here. Everybody be quiet and line up!", "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer3000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "We have now entered the inside of the Dimensional Crack. Where should be go first?", "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer4000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Anyone have an opinion?", "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer6000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "I heard rumors about some magic swordman. Let's go find him.", "Party Member#MONK";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer7500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "We heard about a magic competition being held here!", "Party Member#WANDERER";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer9000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Where is it?!", "Party Member#MONK";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer10500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Uh, I'm a little bit hungry... I wonder if anybody is selling some warm sweet potatoes or even dumplings...", "Party Member#CRU";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer12000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "You want to eat again?", "Party Member#GUILL";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer13500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "I am just wondering about the tournament..", "Party Member#WANDERER";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer15000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "I need to eat something before doing anything.", "Party Member#CRU";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer16500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "By the way, I also heard about something called the Devil's Tower.", "Party Member#MONK";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer18000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "I just saw a street trader passing by... Where is he?", "Party Member#GUILL";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer19500:
+	//[BACKPORT-GAP:getnpcid,ET_SLEEPY] emotion ET_SLEEPY, getnpcid(0, "Party Member#SURA");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Huh? What is this? You still haven't entered?", "Party Member#SURA";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer20000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "I am curious about the Faceworms I heard about from a Laphine.", "Party Member#MONK";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer21000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Can I come back after having a meal?", "Party Member#CRU";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer22500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Can you even catch that?", "Party Member#WANDERER";
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Are you awake?", "Party Member#SHADOW";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer24000:
+	//[BACKPORT-GAP:getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "Party Member#SURA");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Why are you still here?", "Party Member#SURA";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer24500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Hang on a bit. The merchant is going to pass by soon.", "Party Member#GUILL";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer25500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "That is your wish....", "Party Member#MONK";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer27000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "I want to buy cold grape juice~", "Party Member#CRU";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer28500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "I have no idea. There might be an accident up front.", "Party Member#SHADOW";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer30000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "What? How dare you?!", "Party Member#WANDERER";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer31500:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Give me a sip of juice.", "Party Member#GUILL";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer32000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Cough~ Cough~", "Party Member#EINOLD";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer33000:
+	//[BACKPORT-GAP:getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "Party Member#SURA");
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer34000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Damn! I am pissed off! I came here because I heard only a party is allowed to get in!", "Party Member#SURA";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer36000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Are you going to hit me? Do it!", "Party Member#MONK";
+	//[BACKPORT-GAP:getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "Party Member#MONK");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "You pay for your food.", "Party Member#CRU";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer37500:
+	//[BACKPORT-GAP:getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "Party Member#SURA");
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer39000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Whatever, I'm not eating.", "Party Member#WANDERER";
+//[BACKPORT-BOUNDARY:dali] 	npctalk "So mean.. I won't eat then.", "Party Member#GUILL";
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Right.. I should have entered with another group!", "Party Member#SHADOW";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer40500:
+	//[BACKPORT-GAP:getnpcid,ET_KIK] emotion ET_KIK, getnpcid(0, "Party Member#CRU");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Hey. Are you pissed off?", "Party Member#CRU";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer42000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Not at all.", "Party Member#GUILL";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer43500:
+	//[BACKPORT-GAP:getnpcid,ET_KIK] emotion ET_KIK, getnpcid(0, "Party Member#MONK");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Look at him snoozing. Hehe.", "Party Member#MONK";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer45000:
+	//[BACKPORT-GAP:getnpcid,ET_SLEEPY] emotion ET_SLEEPY, getnpcid(0, "Party Member#SURA");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Bah, I don't care. I'm gonna take a nap, so wake me up when we're ready.";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer46500:
+	//[BACKPORT-GAP:getnpcid,ET_KIK] emotion ET_KIK, getnpcid(0, "Party Member#CRU");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "You are upset!!", "Party Member#CRU";
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Can I get back before I die...", "Party Member#WANDERER";
+//[BACKPORT-BOUNDARY:dali] 	npctalk "What? You, we gotta talk! I've been too nice to you!", "Party Member#EINOLD";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer48000:
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Excuse me..... everyone.............?", "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer49500:
+	//[BACKPORT-GAP:getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "Party Member#GUILL");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "No!!!!!!!!!", "Party Member#GUILL";
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Whatever~", "Party Member#MONK";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer51000:
+	//[BACKPORT-GAP:getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Party Leader#dali2");
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Please listen to me....", "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	npctalk "He's angry all right....", "Party Member#WANDERER";
+//[BACKPORT-BOUNDARY:dali] 	npctalk "Take a nap. I am sleepy too, so we'll take shifts.", "Party Member#SHADOW";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTimer52500:
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Party Leader#dali2";
+//[BACKPORT-BOUNDARY:dali] 	hideoffnpc "Party Leader#dali";
+//[BACKPORT-BOUNDARY:dali] 	stopnpctimer;
+//[BACKPORT-BOUNDARY:dali] 	disablenpc "#dalichat";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,115,85,3	script	Party Leader#dali2	2_M_SWORDMASTER,{}
+//[BACKPORT-BOUNDARY:dali] dali,117,81,7	script	Party Member#WANDERER	4_F_WANDERER,{}
+//[BACKPORT-BOUNDARY:dali] dali,117,79,5	script	Party Member#CRU	4_F_CRU,{}
+//[BACKPORT-BOUNDARY:dali] dali,118,83,3	script	Party Member#MONK	4_F_MONK,{}
+//[BACKPORT-BOUNDARY:dali] dali,119,76,7	script	Party Member#SHADOW	4_F_SHADOWCHASER,{}
+//[BACKPORT-BOUNDARY:dali] dali,119,78,2	script	Party Member#GUILL	4_M_JPNOJI,{}
+//[BACKPORT-BOUNDARY:dali] dali,120,77,4	script	Party Member#SURA	4_F_SURA,{}
+//[BACKPORT-BOUNDARY:dali] dali,120,81,3	script	Party Member#EINOLD	4_M_EINOLD,{}
+
+//[BACKPORT-BOUNDARY:dali] dali,102,83,5	script	Merchant Prince#HUMERC	4_M_HUMERCHANT,2,2,{
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Who're you?";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "What do you want?";
+//[BACKPORT-BOUNDARY:dali] 	mes "You looking something in";
+//[BACKPORT-BOUNDARY:dali] 	mes "particular?";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "So some enforcers have been";
+//[BACKPORT-BOUNDARY:dali] 	mes "cracking down on merchants lately.";
+//[BACKPORT-BOUNDARY:dali] 	mes "I can not sell anything.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Come here...";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Jumpy Knight]";
+//[BACKPORT-BOUNDARY:dali] 	mes "I knew you would be here!!";
+//[BACKPORT-BOUNDARY:dali] 	mes "No illegal trading is allowed";
+//[BACKPORT-BOUNDARY:dali] 	mes "here!";
+//[BACKPORT-BOUNDARY:dali] 	mes "Don't you know?";
+//[BACKPORT-BOUNDARY:dali] 	hideoffnpc "Jumpy Knight#JP_RUN";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Says who?";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Jumpy Knight]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Ok, then show me your permit.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Permit?";
+//[BACKPORT-BOUNDARY:dali] 	mes "No one's in charge here!";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "You! If you need anything come to";
+//[BACKPORT-BOUNDARY:dali] 	mes "me ok?";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Jumpy Knight]";
+//[BACKPORT-BOUNDARY:dali] 	mes "I will catch you!";
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Merchant Prince#HUMERC";
+//[BACKPORT-BOUNDARY:dali] 	close2;
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Jumpy Knight#JP_RUN";
+//[BACKPORT-BOUNDARY:dali] 	enablenpc "Merchant Prince#HUMERC2";
+//[BACKPORT-BOUNDARY:dali] 	hideoffnpc "Merchant Prince#HUMERC2";
+//[BACKPORT-BOUNDARY:dali] 	disablenpc "Merchant Prince#HUMERC";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTouch:
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Cold juice!";
+//[BACKPORT-BOUNDARY:dali] 	mes "Apple, grape, orange~";
+//[BACKPORT-BOUNDARY:dali] 	mes "Anything you want!";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Sweet potato, dumpling~";
+//[BACKPORT-BOUNDARY:dali] 	mes "Here we have delicious desserts~";
+//[BACKPORT-BOUNDARY:dali] 	close;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,105,82,1	script	Jumpy Knight#JP_RUN	4_M_JP_RUN,{
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnInit:
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Jumpy Knight#JP_RUN";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,63,112,7	script	Merchant Prince#HUMERC2	4_M_HUMERCHANT,2,2,{
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "You need to pay a toll to get past here.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	switch(select("What toll?"))
+//[BACKPORT-BOUNDARY:dali] 	{
+//[BACKPORT-BOUNDARY:dali] 		case 1:
+//[BACKPORT-BOUNDARY:dali] 			mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 			mes "You did not know?";
+//[BACKPORT-BOUNDARY:dali] 			mes "500 zeny";
+//[BACKPORT-BOUNDARY:dali] 			next;
+//[BACKPORT-BOUNDARY:dali] 			mes "[Jumpy Knight]";
+//[BACKPORT-BOUNDARY:dali] 			mes "You there!";
+//[BACKPORT-BOUNDARY:dali] 			mes "Stop right there!";
+//[BACKPORT-BOUNDARY:dali] 			hideoffnpc "Jumpy Knight#JP_RUN2";
+//[BACKPORT-BOUNDARY:dali] 			next;
+//[BACKPORT-BOUNDARY:dali] 			mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 			mes "Ugh! How are you always following me?";
+//[BACKPORT-BOUNDARY:dali] 			mes "Got some kind of crush on me or something? I don't think you and I make a good match...";
+//[BACKPORT-BOUNDARY:dali] 			next;
+//[BACKPORT-BOUNDARY:dali] 			mes "[Jumpy Knight]";
+//[BACKPORT-BOUNDARY:dali] 			mes "Why don't we find out then?";
+//[BACKPORT-BOUNDARY:dali] 			next;
+//[BACKPORT-BOUNDARY:dali] 			mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 			mes "That's it no more talking.";
+//[BACKPORT-BOUNDARY:dali] 			mes "I'm outta here~";
+//[BACKPORT-BOUNDARY:dali] 			next;
+//[BACKPORT-BOUNDARY:dali] 			mes "[Jumpy Knight]";
+//[BACKPORT-BOUNDARY:dali] 			mes "Keep running you sneaky coward!";
+//[BACKPORT-BOUNDARY:dali] 			hideonnpc "Merchant Prince#HUMERC2";
+//[BACKPORT-BOUNDARY:dali] 			close2;
+//[BACKPORT-BOUNDARY:dali] 			hideonnpc "Jumpy Knight#JP_RUN2";
+//[BACKPORT-BOUNDARY:dali] 			hideoffnpc "Merchant Prince#HUMERC3";
+//[BACKPORT-BOUNDARY:dali] 			disablenpc "Merchant Prince#HUMERC2";
+//[BACKPORT-BOUNDARY:dali] 			end;
+//[BACKPORT-BOUNDARY:dali] 	}
+//[BACKPORT-BOUNDARY:dali] OnInit:
+//[BACKPORT-BOUNDARY:dali] 	disablenpc "Merchant Prince#HUMERC2";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnTouch:
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "500 zeny";
+//[BACKPORT-BOUNDARY:dali] 	close;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,67,113,3	script	Jumpy Knight#JP_RUN2	4_M_JP_RUN,{
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnInit:
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Jumpy Knight#JP_RUN2";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,89,97,3	script	Merchant Prince#HUMERC3	4_M_HUMERCHANT,{
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "You are lucky that you have met up";
+//[BACKPORT-BOUNDARY:dali] 	mes "with me.";
+//[BACKPORT-BOUNDARY:dali] 	mes "Who am I?";
+//[BACKPORT-BOUNDARY:dali] 	mes "I'm here to become a merchant";
+//[BACKPORT-BOUNDARY:dali] 	mes "King.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "I might be working a street stall";
+//[BACKPORT-BOUNDARY:dali] 	mes "now but I'll have an actual shop";
+//[BACKPORT-BOUNDARY:dali] 	mes "some day.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "It's my first day so I'm having a";
+//[BACKPORT-BOUNDARY:dali] 	mes "major sale.";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Let's see I've got a...";
+//[BACKPORT-BOUNDARY:dali] 	mes "Ring of something!";
+//[BACKPORT-BOUNDARY:dali] 	mes "Sword of stuff!";
+//[BACKPORT-BOUNDARY:dali] 	mes "A backpack of some sort!";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Tell me if you need anything,";
+//[BACKPORT-BOUNDARY:dali] 	hideoffnpc "Jumpy Knight#JP_RUN3";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "What are you doing here?";
+//[BACKPORT-BOUNDARY:dali] 	mes "This is my spot for a shop";
+//[BACKPORT-BOUNDARY:dali] 	mes "Get outta my turf!";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Jumpy Knight]";
+//[BACKPORT-BOUNDARY:dali] 	mes "Bah!!";
+//[BACKPORT-BOUNDARY:dali] 	mes "You're gonna regret those words!";
+//[BACKPORT-BOUNDARY:dali] 	next;
+//[BACKPORT-BOUNDARY:dali] 	mes "[Prince Canet]";
+//[BACKPORT-BOUNDARY:dali] 	mes "I'm shaking...";
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Merchant Prince#HUMERC3";
+//[BACKPORT-BOUNDARY:dali] 	close2;
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Jumpy Knight#JP_RUN3";
+//[BACKPORT-BOUNDARY:dali] 	enablenpc "Merchant Prince#HUMERC";
+//[BACKPORT-BOUNDARY:dali] 	hideoffnpc "Merchant Prince#HUMERC";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnInit:
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Merchant Prince#HUMERC3";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] }
+
+//[BACKPORT-BOUNDARY:dali] dali,89,94,7	script	Jumpy Knight#JP_RUN3	4_M_JP_RUN,{
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] OnInit:
+//[BACKPORT-BOUNDARY:dali] 	hideonnpc "Jumpy Knight#JP_RUN3";
+//[BACKPORT-BOUNDARY:dali] 	end;
+//[BACKPORT-BOUNDARY:dali] }
+
+
+//[BACKPORT-BOUNDARY:dali02] dali02,58,123,3	script	Curious Knight#KY_KNT	4_M_KY_KNT,{
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Curious Knight]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "The Royal Guard in here";
+//[BACKPORT-BOUNDARY:dali02] 	mes "was desperate for help.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "We entered through a secret place";
+//[BACKPORT-BOUNDARY:dali02] 	mes "in the palace.";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Curious Knight]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "We were whisked away here...";
+//[BACKPORT-BOUNDARY:dali02] 	mes "No idea where I am but I have to";
+//[BACKPORT-BOUNDARY:dali02] 	mes "establish a base here for the";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Knighthood.";
+//[BACKPORT-BOUNDARY:dali02] 	close;
+//[BACKPORT-BOUNDARY:dali02] }
+//[BACKPORT-BOUNDARY:dali02] dali02,51,112,5	script	Confused Thief#DST_SOL	4_DST_SOLDIER,{
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Confused Thief]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "One minute I'm in a bar...";
+//[BACKPORT-BOUNDARY:dali02] 	mes "The next minute I'm here...";
+//[BACKPORT-BOUNDARY:dali02] 	mes "What is this place?";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Confused Thief]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "There's no night or day in here.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Hmm, something has to be valuable";
+//[BACKPORT-BOUNDARY:dali02] 	mes "in this place...";
+//[BACKPORT-BOUNDARY:dali02] 	close;
+//[BACKPORT-BOUNDARY:dali02] }
+//[BACKPORT-BOUNDARY:dali02] dali02,65,115,5	script	Adventurous Rafflesia#ra	4_M_RAFLE_GR,{
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Adventurous Rafflesia]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "No no this has to be Thanatos";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Tower...";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I sense dark magic here.";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Guide]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Oh, we're back here again.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I cannot find a way out!";
+//[BACKPORT-BOUNDARY:dali02] 	mes "We are trapped in this maze!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Tourist]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Is this place the famous Prontera?";
+//[BACKPORT-BOUNDARY:dali02] 	mes "It is dark just like a big city!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Traveller]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I hear a ticking clock.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "This place must be Geffen!";
+//[BACKPORT-BOUNDARY:dali02] 	close;
+//[BACKPORT-BOUNDARY:dali02] }
+
+//[BACKPORT-BOUNDARY:dali02] dali02,68,117,5	script	Guide#ra	4_M_RAFLE_GR,{
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Guide]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Oh, we're back here again.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I cannot find a way out!";
+//[BACKPORT-BOUNDARY:dali02] 	mes "We are trapped in this maze!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Tourist]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Is this place the famous Prontera?";
+//[BACKPORT-BOUNDARY:dali02] 	mes "It is dark just like a big city!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Traveller]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I hear a ticking clock.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "This place must be Geffen!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Adventurous Rafflesia]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "No no this has to be Thanatos";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Tower...";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I sense dark magic here.";
+//[BACKPORT-BOUNDARY:dali02] 	close;
+//[BACKPORT-BOUNDARY:dali02] }
+
+//[BACKPORT-BOUNDARY:dali02] dali02,65,119,5	script	Tourist#ra	4_M_RAFLE_GR,{
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Tourist]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Is this place the famous Prontera?";
+//[BACKPORT-BOUNDARY:dali02] 	mes "It is dark just like a big city!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Adventurous Rafflesia]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "No no this has to be Thanatos";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Tower...";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I sense dark magic here.";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Guide]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Oh, we're back here again.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I cannot find a way out!";
+//[BACKPORT-BOUNDARY:dali02] 	mes "We are trapped in this maze!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Traveller]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I hear a ticking clock.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "This place must be Geffen!";
+//[BACKPORT-BOUNDARY:dali02] 	close;
+//[BACKPORT-BOUNDARY:dali02] }
+
+//[BACKPORT-BOUNDARY:dali02] dali02,69,122,5	script	Traveller#ra	4_M_RAFLE_GR,{
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Traveller]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I hear a ticking clock.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "This place must be Geffen!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Guide]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Oh, we're back here again.";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I cannot find a way out!";
+//[BACKPORT-BOUNDARY:dali02] 	mes "We are trapped in this maze!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Tourist]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Is this place the famous Prontera?";
+//[BACKPORT-BOUNDARY:dali02] 	mes "It is dark just like a big city!";
+//[BACKPORT-BOUNDARY:dali02] 	next;
+//[BACKPORT-BOUNDARY:dali02] 	mes "[Adventurous Rafflesia]";
+//[BACKPORT-BOUNDARY:dali02] 	mes "No no this has to be Thanatos";
+//[BACKPORT-BOUNDARY:dali02] 	mes "Tower...";
+//[BACKPORT-BOUNDARY:dali02] 	mes "I sense dark magic here.";
+//[BACKPORT-BOUNDARY:dali02] 	close;
+//[BACKPORT-BOUNDARY:dali02] }

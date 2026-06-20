@@ -1,0 +1,342 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/InfiniteSpace_merchants.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Infinite Space
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//= Infinite Space related merchants and enchanter
+//===== Changelogs: ==========================================
+//= 1.0 Initial release [crazyarashi]
+//= 1.1 Removed unecessary use of functions [Everade]
+//= 1.2 Added warp scroll merchant [Everade]
+//============================================================
+
+// Food Merchant
+-	shop	inf_ration	-1,512:-1,513:-1,515:-1,516:-1
+
+cmd_fild07,63,268,1	script	Emergency Food Merchant#pa0829_01	4_M_BIBI,{
+	mes "[Emergency Food Merchant]";
+	mes "I have a lot of stuff over here, of course, not for free.";
+	close2;
+	callshop "inf_ration",1;
+	end;
+}
+
+// Warp Scroll Seller
+cmd_fild07,375,167,1	script	Ruins Black Trader#pa0829_01	4_F_JOB_HUNTER,{
+	mes "[Ruins Black Trader]";
+	mes "Hey, isn't it hard to walk in and out of here every time? For just ^0000ff20,000^000000 Zeny, you can have a scroll that will take you directly to the entrance of the ruins, what do you think?";
+Purchase:
+	next;
+	switch( select( "Give me one", "I don't think so" )) {
+		case 1:
+			if (!checkweight(22980,1) || (MaxWeight - Weight) < 1000) {
+				mes "You can't proceed with the conversation because you have a large quantity of items.";
+				mes "Please organize your items and try again.";
+				close;
+			}
+			else if (Zeny < 20000) {
+				mes "[Ruins Black Trader]";
+				mes "You don't seem to have any more money. A scroll costs 20,000 Zeny.";
+				close;
+			}
+			set Zeny, Zeny - 20000;
+			getitem 22980,1;
+			mes "[Ruins Black Trader]";
+			mes "It was a good deal. Need more?";
+			goto Purchase;
+		case 2:
+			mes "[Ruins Black Trader]";
+			mes "Come back anytime";
+			close;
+	}
+}
+
+// Equipment Shop
+//[BACKPORT-UNRESOLVED:malformed-for] cmd_fild07,57,275,5	script	Artifact Appraiser#pa0829_01	1_F_02,{
+//[BACKPORT-UNRESOLVED:malformed-for] 	if (!checkweight(1201,1) || (MaxWeight - Weight) < 1000) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "You can't proceed with the conversation because you have a large quantity of items.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		mes "Please organize your items and try again.";
+//[BACKPORT-UNRESOLVED:malformed-for] 		close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@stone_id, 6905;
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "[ Artifact Appraiser ]";
+//[BACKPORT-UNRESOLVED:malformed-for] 	mes "Choose the type of equipment that you want to purchase. You can purchase as many as you want, as long as you have " + getitemname(.@stone_id) + ".";
+//[BACKPORT-UNRESOLVED:malformed-for] 	next;
+//[BACKPORT-UNRESOLVED:malformed-for] 	switch (select("Cancel:Weapons:Armors")) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 1:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ Artifact Appraiser ]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Please come back whenever you want~";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 2:
+//[BACKPORT-UNRESOLVED:malformed-for] 			setarray .@equip_id,1994,1938,13323,13126,28703,2024,16038,21014,28105,18128;
+//[BACKPORT-UNRESOLVED:malformed-for] 			set .@price, 50;
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 3:
+//[BACKPORT-UNRESOLVED:malformed-for] 			setarray .@equip_id,15141,22075,20779,19033;
+//[BACKPORT-UNRESOLVED:malformed-for] 			set .@price, 50;
+//[BACKPORT-UNRESOLVED:malformed-for] 			break;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@menu$, "Cancel:";
+//[BACKPORT-UNRESOLVED:malformed-for] 	for (set .@i,0; .@i < getarraysize(.@equip_id); set .@i,.@i+1)
+//[BACKPORT-UNRESOLVED:malformed-for] 		set .@menu$, .@menu$ + getitemname(.@equip_id[.@i]) + ":";
+//[BACKPORT-UNRESOLVED:malformed-for] 	set .@s, select(.@menu$) - 1;
+//[BACKPORT-UNRESOLVED:malformed-for] 	switch (.@s) {
+//[BACKPORT-UNRESOLVED:malformed-for] 		case 0:
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ Artifact Appraiser ]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Please come back whenever you want~";
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 
+//[BACKPORT-UNRESOLVED:malformed-for] 		default:
+//[BACKPORT-UNRESOLVED:malformed-for] 			set .@s,.@s-1;
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ Artifact Appraiser ]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "You need ^0000FF" + .@price + "^000000 " + getitemname(.@stone_id) + " to purchase the " + getitemname(.@equip_id[.@s]) + "~";
+//[BACKPORT-UNRESOLVED:malformed-for] 			next;
+//[BACKPORT-UNRESOLVED:malformed-for] 			if (select("Cancel:Purchase") == 1) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ Artifact Appraiser ]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "Please come back whenever you want~";
+//[BACKPORT-UNRESOLVED:malformed-for] 				close;
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 			if (countitem(.@stone_id) < .@price) {
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "[ Artifact Appraiser ]";
+//[BACKPORT-UNRESOLVED:malformed-for] 				mes "You don't have enough " + getitemname(.@stone_id) + " to purchase this item.";
+//[BACKPORT-UNRESOLVED:malformed-for] 				close;
+//[BACKPORT-UNRESOLVED:malformed-for] 			}
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "[ Artifact Appraiser ]";
+//[BACKPORT-UNRESOLVED:malformed-for] 			mes "Thank you for your trust. Please come back again next time.";
+//[BACKPORT-UNRESOLVED:malformed-for] 			delitem .@stone_id,.@price;
+//[BACKPORT-UNRESOLVED:malformed-for] 			getitem .@equip_id[.@s],1;
+//[BACKPORT-UNRESOLVED:malformed-for] 			close;
+//[BACKPORT-UNRESOLVED:malformed-for] 	}
+//[BACKPORT-UNRESOLVED:malformed-for] }
+
+// Equipment Enchanter
+//[BACKPORT-UNRESOLVED:delequip,explode] cmd_fild07,60,275,3	script	Artifact Enhancer#pa0829_01	4_F_JOB_BLACKSMITH,{
+//[BACKPORT-UNRESOLVED:delequip,explode] 	if (!checkweight(1201,1) || (MaxWeight - Weight) < 1000) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 		mes "You can't proceed with the conversation because you have a large quantity of items.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 		mes "Please organize your items and try again.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 		close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 	}
+//[BACKPORT-UNRESOLVED:delequip,explode] 	disable_items;
+//[BACKPORT-UNRESOLVED:delequip,explode] 	set .@stone_id, 6905;
+//[BACKPORT-UNRESOLVED:delequip,explode] 	function equip_check;
+//[BACKPORT-UNRESOLVED:delequip,explode] 	mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 	mes "If you're looking to strengthen the equipment that you've obtained in the Infinite Space, you have come to the right place.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 	mes "Do you have any " + getitemname(.@stone_id) + "?";
+//[BACKPORT-UNRESOLVED:delequip,explode] 	next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 	switch (select("How do I enchant my equipment?:Enchant equipment.:Initialize equipment's enchant.")) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 		case 1:
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "You'll be able to obtain " + getitemname(.@stone_id) + ", if you explore the space under the Paros Lighthouse.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "For that material, I can reinforce the equipment that you got from the Infinite Space.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "I can only enchant the 3rd and the 4th slot.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "There is no chance of the equipment being destroyed during the enchanting process, but there's a high probability that it will be destroyed when initializing the enchants.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "Then come visit me when you want to enchant the equipment.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 		case 2:
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@stone_id, 6905;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@fee, 20;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "Please select the equipment that you want to enchant.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			switch (select("Cancel:Weapon:Armor:Shoes:Garment:Helm")) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 1:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 					mes "Then come visit me when you want to enchant the equipment.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 					close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 2:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_HAND_R;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 3:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_ARMOR;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 4:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_SHOES;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 5:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_GARMENT;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 6:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_HEAD_TOP;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@equip_id, getequipid(.@part);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@refine, getequiprefinerycnt(.@part);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			equip_check(.@equip_id);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			for (set .@i,0;.@i < 4;set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				set .@card[.@i], getequipcardid(.@part,.@i);
+//[BACKPORT-UNRESOLVED:delequip,explode] 				set .@check[.@i], getequipcardid(.@part,.@i);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (.@card[2] > 0) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "I can only enchant up to the third slot. Your equipment can't be further enchanted.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			switch (.@part) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case EQI_HAND_R:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					setarray .@enchant$,
+//[BACKPORT-UNRESOLVED:delequip,explode] 					"4700,4701:4710,4711:4720,4721",
+//[BACKPORT-UNRESOLVED:delequip,explode] 					"4811,4810,4809,4808,4820,4821,4822,4823:4815,4814,4813,4812,4826,4827,4828,4829:4832,4833,4834,4835,4836,4837,4838,4839";
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case EQI_ARMOR:
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case EQI_SHOES:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					setarray .@enchant$,
+//[BACKPORT-UNRESOLVED:delequip,explode] 					"4700,4701,4702,4703:4710,4711,4712,4713:4720,4721,4722,4723",
+//[BACKPORT-UNRESOLVED:delequip,explode] 					"4795,4796,4797:4870,4871,4800:4870,4871,4800";
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case EQI_GARMENT:
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case EQI_HEAD_TOP:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					setarray .@enchant$,
+//[BACKPORT-UNRESOLVED:delequip,explode] 					"4700,4701,4702,4703:4710,4711,4712,4713:4720,4721,4722,4723",
+//[BACKPORT-UNRESOLVED:delequip,explode] 					"4861,4862,4867,4868,4900:4861,4862,4867,4868,4900:4861,4862,4867,4868,4900";
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@slot, (.@card[3] > 0 ? 2 : 3);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@index, (.@slot == 3 ? 0 : 1);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "You can choose 3 types of enchant, and the enchant fee is " + .@fee + " " + getitemname(.@stone_id) + ".";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "I'll make sure it gets enchanted without a problem.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@type, select("Quit:Physical:Magical:Range") - 2;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (.@slot == 3)
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "Okay, let's begin the first enchantment.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			else
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "Okay, let's proceed with the second enchantment.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (select("I'll return later.:Please proceed.") == 1) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "If you change your mind, just return to me.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (countitem(.@stone_id) < .@fee) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "Hm. By the way, I don't think you were listening, you don't have enough " + getitemname(.@stone_id) + ".";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+			//[BACKPORT-GAP:explode] explode(.@T$,.@enchant$[.@index],":");
+			//[BACKPORT-GAP:explode] explode(.@TT$,.@T$[.@type],",");
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@enchant, atoi(.@TT$[rand(getarraysize(.@TT$))]);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@card[.@slot], .@enchant;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			delitem .@stone_id,.@fee;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipRefineHack", .@part, .@refine) || callfunc("F_IsEquipCardHack", .@part, .@check[0], .@check[1], .@check[2], .@check[3]))
+//[BACKPORT-UNRESOLVED:delequip,explode] 				close;
+			//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			getitem2 .@equip_id,1,1,.@refine,0,.@card[0],.@card[1],.@card[2],.@card[3];
+//[BACKPORT-UNRESOLVED:delequip,explode] 			specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "Hm. It was well done. Check your equipment at once.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 		
+//[BACKPORT-UNRESOLVED:delequip,explode] 		case 3:
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@stone_id, 6905;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@fee, 30;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@break_chance, 30;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "Please select the equipment that you want to enchant.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			switch (select("Cancel:Weapon:Armor:Shoes:Garment:Helm")) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 1:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 					mes "Then come visit me when you want to enchant the equipment.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 					close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 2:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_HAND_R;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 3:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_ARMOR;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 4:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_SHOES;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 5:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_GARMENT;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 				case 6:
+//[BACKPORT-UNRESOLVED:delequip,explode] 					set .@part, EQI_HEAD_TOP;
+//[BACKPORT-UNRESOLVED:delequip,explode] 					break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@equip_id, getequipid(.@part);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			set .@refine, getequiprefinerycnt(.@part);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			equip_check(.@equip_id);
+//[BACKPORT-UNRESOLVED:delequip,explode] 			for (set .@i,0; .@i < 4; set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				set .@card[.@i], getequipcardid(.@part,.@i);
+//[BACKPORT-UNRESOLVED:delequip,explode] 				set .@check[.@i], .@card[.@i];
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (.@card[3] == 0) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "Your equipment doesn't have any enchant on it.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "There is a chance that your infinite space equipment will be destroyed on the initializion process. Are you still willing to proceed?";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			next;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (select("Quit:Proceed") == 1) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "If you change your mind, just return to me.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (countitem(.@stone_id) < .@fee) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "Hm. By the way, I don't think you were listening, you don't have enough " + getitemname(.@stone_id) + ".";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			delitem .@stone_id,.@fee;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipRefineHack", .@part, .@refine) || callfunc("F_IsEquipCardHack", .@part, .@check[0], .@check[1], .@check[2], .@check[3]))
+//[BACKPORT-UNRESOLVED:delequip,explode] 				close;
+			//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-UNRESOLVED:delequip,explode] 			if (rand(1,100) > .@chance) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				getitem2 .@equip_id,1,1,.@refine,0,.@card[0],.@card[1],0,0;
+//[BACKPORT-UNRESOLVED:delequip,explode] 				specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "Hm. It was well done. Check your equipment at once.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			} else {
+//[BACKPORT-UNRESOLVED:delequip,explode] 				specialeffect2 EF_REFINEFAIL;
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 				mes "Well, I did warn you. You aren't lucky, eh?";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			}
+//[BACKPORT-UNRESOLVED:delequip,explode] 			break;
+//[BACKPORT-UNRESOLVED:delequip,explode] 	}
+//[BACKPORT-UNRESOLVED:delequip,explode] 	close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 
+//[BACKPORT-UNRESOLVED:delequip,explode] 	function	equip_check	{
+//[BACKPORT-UNRESOLVED:delequip,explode] 		setarray .@equip_id,1994,1938,13323,13126,28703,2024,16038,21014,28105,18128,15141,22075,20779,19033;
+//[BACKPORT-UNRESOLVED:delequip,explode] 		if (!getarg(0)) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "Did you take off your equipment?";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 		}
+//[BACKPORT-UNRESOLVED:delequip,explode] 		if (-1 == -1) {
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "[ Artifact Enhancer ]";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			mes "This equipment is not suitable for enchanting. Don't forget that only the infinite equipment series can be enchanted.";
+//[BACKPORT-UNRESOLVED:delequip,explode] 			close;
+//[BACKPORT-UNRESOLVED:delequip,explode] 		}
+//[BACKPORT-UNRESOLVED:delequip,explode] 		return;
+//[BACKPORT-UNRESOLVED:delequip,explode] 	}
+//[BACKPORT-UNRESOLVED:delequip,explode] }

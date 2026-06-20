@@ -15,12 +15,15 @@ struct status_change;
 //Use this to refer the max refinery level [Skotlex]
 #define MAX_REFINE 10
 #define MAX_REFINE_BONUS 5
-// GM-only experimental refine ceiling (PoC). Applies ONLY to the GM commands
-// @refine/@item; all normal refine paths (NPC, WS_WEAPONREFINE skill, the
-// percentrefinery success table, successrefitem/downrefitem) still cap at
-// MAX_REFINE. item.refine is char (max 127) and the DB column is tinyint
-// unsigned (max 255), so 99 is safely storable/transportable.
+// Absolute hard ceiling for item.refine (the over-refine range +11..+99). item.refine is char
+// (max 127) and the DB column is tinyint unsigned (max 255), so 99 is safely stored/transported.
+// The canon success table (percentrefinery) and bonus arrays stay sized by MAX_REFINE; the
+// over-range is driven by formulas (status_refine_chance / status_refine_bonus) gated by the
+// battle_config.refine_* knobs. Used by @refine/@item AND the refiner NPC (player path). The
+// WS_WEAPONREFINE blacksmith skill stays capped at MAX_REFINE by design. [refine99]
 #define MAX_REFINE_GM 99
+// success % to refine wlv (0=armor) from `refine` to refine+1 (canon table 0..9, formula above)
+int status_refine_chance(int wlv, int refine);
 
 extern unsigned long StatusChangeFlagTable[];
 

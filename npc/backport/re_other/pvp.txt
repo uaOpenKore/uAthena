@@ -1,0 +1,98 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../pvp.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= PvP NPCs
+//===== By: ==================================================
+//= Euphy
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= PvP NPCs that are found in the Inns in major cities.
+//= Includes Yoyo Mode, Nightmare Mode, and Event Mode.
+//===== Additional Comments: ================================= 
+//= 1.0 First version, Renewal.
+//============================================================
+
+// PVP Warpers
+//============================================================ 
+//[BACKPORT-DEDUP:Fight Square Reception#1] pvp_y_room,30,85,4	script	Fight Square Reception#1	105,{ //5,5
+//[BACKPORT-DEDUP:Fight Square Reception#1] 	callfunc "F_PVP_FSRS",50,69;
+//[BACKPORT-DEDUP:Fight Square Reception#1] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#1] 
+//[BACKPORT-DEDUP:Fight Square Reception#1] OnInit:
+//[BACKPORT-DEDUP:Fight Square Reception#1] 	waitingroom "LV 50 ~ LV 69",0;
+//[BACKPORT-DEDUP:Fight Square Reception#1] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#1] }
+
+//[BACKPORT-DEDUP:Fight Square Reception#2] pvp_y_room,38,85,4	script	Fight Square Reception#2	105,{ //5,5
+//[BACKPORT-DEDUP:Fight Square Reception#2] 	callfunc "F_PVP_FSRS",70,89;
+//[BACKPORT-DEDUP:Fight Square Reception#2] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#2] 
+//[BACKPORT-DEDUP:Fight Square Reception#2] OnInit:
+//[BACKPORT-DEDUP:Fight Square Reception#2] 	waitingroom "LV 70 ~ LV 89",0;
+//[BACKPORT-DEDUP:Fight Square Reception#2] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#2] }
+
+//[BACKPORT-DEDUP:Fight Square Reception#3] pvp_y_room,46,85,4	script	Fight Square Reception#3	105,{ //5,5
+//[BACKPORT-DEDUP:Fight Square Reception#3] 	callfunc "F_PVP_FSRS",90,99;
+//[BACKPORT-DEDUP:Fight Square Reception#3] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#3] 
+//[BACKPORT-DEDUP:Fight Square Reception#3] OnInit:
+//[BACKPORT-DEDUP:Fight Square Reception#3] 	waitingroom "LV 90 ~ LV 99",0;
+//[BACKPORT-DEDUP:Fight Square Reception#3] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#3] }
+
+//[BACKPORT-DEDUP:Fight Square Reception#8] pvp_y_room,54,85,4	script	Fight Square Reception#8	105,{
+//[BACKPORT-DEDUP:Fight Square Reception#8] 	callfunc "F_PVP_FSRS";
+//[BACKPORT-DEDUP:Fight Square Reception#8] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#8] 
+//[BACKPORT-DEDUP:Fight Square Reception#8] OnInit:
+//[BACKPORT-DEDUP:Fight Square Reception#8] 	waitingroom "Free for all",0;
+//[BACKPORT-DEDUP:Fight Square Reception#8] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#8] }
+
+//[BACKPORT-DEDUP:Fight Square Reception#4] pvp_y_room,62,85,4	script	Fight Square Reception#4	105,{
+	//if (ADVJOB > 0) {
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	if (Upper == 1) {
+//[BACKPORT-DEDUP:Fight Square Reception#4] 		mes "[PVP Fight Square Reception Staff]";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 		mes "You have been transcended.";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 		mes "You are not allowed to enter.";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 		close;
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	}
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	callfunc "F_PVP_FSRS";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#4] 
+//[BACKPORT-DEDUP:Fight Square Reception#4] OnInit:
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	waitingroom "Normal Jobs Only",0;
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#4] }
+//[BACKPORT-DEDUP:Fight Square Reception#4] 
+//[BACKPORT-DEDUP:Fight Square Reception#4] pvp_y_room,70,85,4	script	Fight Square Reception#5	105,{
+	//if (ADVJOB == 0) {
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	if (Upper != 1) {
+//[BACKPORT-DEDUP:Fight Square Reception#4] 		mes "[PVP Fight Square Reception Staff]";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 		mes "You have not transcended.";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 		mes "You are not allowed to enter.";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 		close;
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	}
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	callfunc "F_PVP_FSRS";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#4] 
+//[BACKPORT-DEDUP:Fight Square Reception#4] OnInit:
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	waitingroom "Trans Jobs Only",0;
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#4] }
+//[BACKPORT-DEDUP:Fight Square Reception#4] 
+//[BACKPORT-DEDUP:Fight Square Reception#4] pvp_n_room,86,85,4	script	Fight Square Reception#n	105,{
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	callfunc "F_PVP_FSRS";
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#4] 
+//[BACKPORT-DEDUP:Fight Square Reception#4] OnInit:
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	waitingroom "Free for all",0;
+//[BACKPORT-DEDUP:Fight Square Reception#4] 	end;
+//[BACKPORT-DEDUP:Fight Square Reception#4] }

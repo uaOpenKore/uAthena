@@ -1,0 +1,227 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/advanced_refiner.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Advanced Refiner
+//===== Description: =========================================
+//= [Official Conversion]
+//= Refiner that uses Enriched ores to increase upgrade success.
+//===== Changelog: ===========================================
+//= 1.0 Added Malangdo Refiner "Holink". [Euphy]
+//= 1.1 Removed re-roll behavior. [Secret]
+//= 1.2 Added db-based material ID [Secret]
+//============================================================
+
+// Main NPC :: mal_jerun
+//============================================================
+//[BACKPORT-UNRESOLVED:getequiprefinecost] malangdo,221,174,6	script	Holink#mal_cash	559,{
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	disable_items;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "I am the meow~ Blacksmith Holink~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "Master of refining, Holink~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "I am the special cat Holink who learned from Morocc~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "My daughter is so proud of me, Holink~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "What should Holink~ refine today?";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	setarray .@indices[1], EQI_HEAD_TOP, EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_MID, EQI_HEAD_LOW;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	for (set .@i,1; .@i<=10; set .@i,.@i+1)
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		set .@menu$, .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) +"-[Empty]" ) +":";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	set .@part, .@indices[ select(.@menu$) ];
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if (!getequipisequiped(.@part)) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		switch(.@part) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_HEAD_TOP:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "My teacher Aragam said meow~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "There's no cure for stupidity...";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_ARMOR:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "There's nothing to see here, meow!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_HAND_L:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "Meow? What do you want me to do with this left hand...?";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_HAND_R:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "Meow? What do you want me to do with this right hand...?";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_GARMENT:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "Meow? You don't have anything on.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_SHOES:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "Kyang~! Do not mess with my sensitive olfactory, meow~.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_ACC_L:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_ACC_R:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "Meow? Where is the accessory?";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_HEAD_MID:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		case EQI_HEAD_LOW:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "Meow? You talking about the other head parts, meow?~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if (!getequipisenableref(.@part)) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Even Aragam can't refine such a thing, meow.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if (getequiprefinerycnt(.@part) >= 10) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Meow~ Perfect refining. Did Aragam do this, meow?~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	set .@refineitemid, getequipid(.@part); // save id of the item
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	set .@itemtype, getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	set .@refinerycnt, getequiprefinerycnt(.@part); //save refinery count
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+// Holink has different hardcoded prices
+//	.@price = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_ZENY_COST);
+	//[BACKPORT-GAP:getequiprefinecost] .@material = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if( .@itemtype == IT_ARMOR ){
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		set .@equip_lv, 1;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		set .@type$, "armor";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "You have chosen an armor, meow~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		switch(.@equip_lv) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			case 1:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				set .@price, 15000;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			default:
+				// TODO:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}else if( .@itemtype == IT_WEAPON ){
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		set .@equip_lv, getequipweaponlv( .@part );
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		set .@type$, "weapon";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		switch( .@equip_lv ){
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			case 1: // Level 1 Weapon
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				set .@price, 500;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				mes "A level 1 weapon...?";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			case 2: // Level 2 Weapon
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				set .@price, 2000;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				mes "Meow, a level 2 weapon...?";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			case 3: // Level 3 Weapon
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				set .@price, 20000;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				mes "Meow Meow~~ A level 3 weapon~~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			case 4: // Level 4 Weapon
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				set .@price, 50000;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				mes "Me-Meow!... A level 4 weapon...!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				mes "I've only seen it twice while";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				mes "learning from Aragam... Me-Meow!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			default:
+				// TODO:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 				close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}else{
+		// TODO:
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "You need ^ff9999"+getitemname(.@material)+"^000000 and ^ff9999"+.@price+"^000000 Zeny for this refine, meow~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "Want to continue, meow?~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if(select("Yes!!:No!!") == 2) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Kyack!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "You don't believe in refine master Holink, meow?~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if (getequippercentrefinery(.@part, true) < 100) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Meow!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		if (.@type$ == "armor")
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "This armor was already refined so many times, meow.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		else {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "Danger. Danger~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "This weapon was refined a lot, meow~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			next;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "You might break it if you continue";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "to try refining this item further, meow.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		next;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Once the "+.@type$+" is broken, you can";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "never use it again, meow. Not to mention... all current";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "^ff0000cards and enchantments will vanish for sure^000000.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "You still want to try, meow~?";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		next;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		if(select("Yes, I do!!:Forget about it!!") == 2) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "Meow! Wise choice, meow.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "But!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			mes "I am not happy to see you doubting the refine master Holink, meow~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 			close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if (countitem(.@material) == 0 || Zeny < .@price) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "You don't have the ingredients.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "You need ^ff9999"+getitemname(.@material)+"^000000 and ^ff9999"+.@price+"^000000 Zeny, meow~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Go get it, meow~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	delitem .@material,1;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	set Zeny, Zeny-.@price;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 
+	// anti-hack
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if (callfunc("F_IsEquipIDHack", .@part, .@refineitemid) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) ||
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		callfunc("F_IsEquipRefineHack", .@part, .@refinerycnt)) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+		//[BACKPORT-GAP:ET_FRET] emotion ET_FRET;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Wait a second...";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Do you think I'm stupid?!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "You switched the item while I wasn't looking! Get out of here!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	if (getequippercentrefinery(.@part, true) > rand(100)) {
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		successrefitem .@part;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Me~ Me~ Meow! Fun fun refining~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		next;
+		//[BACKPORT-GAP:ET_CHUP] emotion ET_CHUP;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Perfect!! Perfect, meow!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "I am the disciple of the refining wizard Aragam~";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Holink!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		mes "Another day of successful refining, meow!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	failedrefitem .@part;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "Meo~ Meow~ Kyaaak!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	switch(rand(1,5)) {
+		//[BACKPORT-GAP:ET_CRY] case 1: emotion ET_CRY; break;
+		//[BACKPORT-GAP:ET_PROFUSELY_SWEAT] case 2: emotion ET_PROFUSELY_SWEAT; break;
+		//[BACKPORT-GAP:ET_KEK] case 3: emotion ET_KEK; break;
+		//[BACKPORT-GAP:ET_SCRATCH] case 4: emotion ET_SCRATCH; break;
+		//[BACKPORT-GAP:ET_BIGTHROB] case 5: emotion ET_BIGTHROB; break;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "Meow!! Aaaaakk~~!!!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "Kyaaak!! I have failed, meow!!";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "......";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "......";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "All~ Everything~ Broken, meow...";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "[Holink]";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "Meow.... Master Aragam once said,";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "learn from your failures...";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	mes "Human, this one failure will be the beginning of your success in the future.";
+//[BACKPORT-UNRESOLVED:getequiprefinecost] 	close;
+//[BACKPORT-UNRESOLVED:getequiprefinecost] }

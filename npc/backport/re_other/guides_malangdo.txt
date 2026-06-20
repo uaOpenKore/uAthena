@@ -1,0 +1,140 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../guides_malangdo.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Malangdo Guide
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [JohnnyPlayy]
+//============================================================
+
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] malangdo,218,101,3	script	Malangdo Guide#Malangdo	4_CAT_SAILOR3,{
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	mes "[Malangdo Guide]";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	mes "Nice to meet you, welcome to ^8C4210Malangdo^000000. The island of cat paw!";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	mes "Need some guidance?";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	F_Navi("[Malangdo Guide]");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	while(1) {
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 		next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 		switch(select("[ Major Facilities ]:[ Trader & Assistant ]:Clear Mini-Map:Cancel")) {
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 		case 1:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			set .@loop,1;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			while (.@loop) {
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				switch(select("[ Cat Gamers Director ]:[ Special Vending Machine ]:[ Coin Exchanger ]:[ Starry Coral ]:Previous Menu")) {
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 1:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Cat Gamers Director","malangdo,119,137","FF0000");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,119,137,0,0xFF0000;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 2:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Special Vending Machine","malangdo,216,165","FF4500");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,216,165,1,0xFF4500;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 3:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Coin Exchanger","malangdo,216,165","DAA520");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,216,165,2,0xDAA520;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 4:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Starry Coral","malangdo,73,238","7B68EE");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,73,238,3,0x7B68EE;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 5:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					set .@loop,0;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				}
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			}
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 		case 2:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			set .@loop,1;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			while (.@loop) {
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				switch(select("[ Chief Thomas ]:[ Stinky Merchant ]:[ Wandering Merchant ]:[ Inn Owner ]:[ Storekeeper ]:[ Tool Dealer ]:[ Portali ]:[ Clink ]:[ Holink ]:[ Roving Merchant ]:Previous Menu")) {
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 1:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Chief Thomas","malangdo,164,163","0A9696");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,164,163,4,0x0A9696;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 2:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Stinky Merchant","malangdo,173,145","4B0082");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,173,145,5,0x4B0082;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 3:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Wandering Merchant","malangdo,162,145","FF4500");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,162,145,6,0x7B68EE;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 4:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Inn Owner","malangdo,147,120","FF6A00");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,147,120,7,FF6A00;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 5:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Storekeeper","malangdo,184,138","7F3300");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,184,138,8,0x7F3300;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 6:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Tool Dealer","malangdo,232,160","7B68EE");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,232,160,9,0x7B68EE;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 7:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Portali","malangdo,190,167","FF4500");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,190,167,10,0x7B68EE;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 8:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Clink","malangdo,225,174","0A9696");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,225,174,11,0x0A9696;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 9:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Holink","malangdo,221,176","DA70D6");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,221,176,12,0xDA70D6;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 10:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					callsub L_Mark, F_Navi("Roving Merchant","malangdo,150,132","3131FF");
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					viewpoint 1,150,132,13,0x3131FF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					next;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				case 11:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					set .@loop,0;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 					break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 				}
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			}
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 		case 3:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			mes "[Malangdo Guide]";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			mes "I will remove all marks from your Mini-Map.";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			mes "Need more help?";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,0,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,1,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,2,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,3,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,4,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,5,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,6,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,7,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,8,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,9,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,10,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,11,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,12,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			viewpoint 2,1,1,13,0xFFFFFF;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			break;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 		case 4:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			mes "[Malangdo Guide]";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			mes "I wish you a pleasant trip.";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 			close;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 		}
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	}
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] L_Mark:
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	mes "[Malangdo Guide]";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	mes "I will show you the location of the " + getarg(0);
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	mes "Do you need other information?";
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] 	return;
+//[BACKPORT-DEDUP:Malangdo Guide#Malangdo] }

@@ -1,0 +1,116 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/guild_warehouse.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Guild Warehouse Manager
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//= Gives players access to their guild storage and log.
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [Lemongrass]
+//============================================================
+
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] -	script	GuildWarehouse	-1,{
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	mes "How are you? We are specialized in guild warehouses. This is our ^0000cdstory^000000:";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	mes "Why can't guild members share a storage? We started off with that simple question.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	next;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	mes "You can open the warehouse for 1000 Zeny or look up the usage history of the guild.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	mes "How can I help you?";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	next;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	if( select( "Open guild warehouse:View warehouse usage history" ) == 1 ){
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		set .@guildid, getcharid( 2 );
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		if( .@guildid == 0 ){
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "The guild storage is only available for guild members.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			close;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		}
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		if( getgdskilllv( .@guildid, "GD_GUILD_STORAGE" ) == 0 || !0 ){
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "It seems that it is not yet possible for your guild to use the guild warehouse or you do not have access permissions for the warehouse.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "Please come back after checking the guild skill and the permission to access the warehouse.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			close;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		}
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		if( Zeny < 1000 ){
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "I am afraid you do not have enough money to settle the fee.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "The fee is 1000 Zeny.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			close;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		}
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		mes "I will open the guild storage for you then. Have a memorable time!";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		close2;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		if( Zeny < 1000 ){
+			// Cheat prevention
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			end;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		}
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		if( guildopenstorage() == GSTORAGE_OPEN ){
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			set Zeny, Zeny - 1000;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			end;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		}else{
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "I am afraid someone else is using the warehouse right now.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "Please try again after a while.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			close;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		}
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	}else{
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		set .@guildid, getcharid( 2 );
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		if( .@guildid == 0 ){
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "The guild storage is only available for guild members.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			close;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		}
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		if( getgdskilllv( .@guildid, "GD_GUILD_STORAGE" ) == 0 || !0 ){
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "It seems that it is not yet possible for your guild to use the guild warehouse or you do not have access permissions for the warehouse.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			mes "Please come back after checking the guild skill and the permission to access the warehouse.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 			close;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		}
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		mes "[Warehouse Manager]";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		mes "I will show you the usage history of the warehouse. Usage history will be retained for up to 3 months.";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		mes "Have a memorable time!";
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		close2;
+		//[BACKPORT-GAP:guildopenstorage_log] guildopenstorage_log();
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 		end;
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] 	}
+//[BACKPORT-UNRESOLVED:guildopenstorage_log] }
+
+//[BACKPORT-ORPHAN:GuildWarehouse] alberta,114,65,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#alberta	896
+//[BACKPORT-ORPHAN:GuildWarehouse] aldebaran,146,122,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#aldebaran	896
+//[BACKPORT-ORPHAN:GuildWarehouse] amatsu,100,156,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#amatsu	896
+//[BACKPORT-ORPHAN:GuildWarehouse] ayothaya,203,173,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#ayothaya	896
+//[BACKPORT-ORPHAN:GuildWarehouse] brasilis,204,227,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#brasilis	896
+//[BACKPORT-ORPHAN:GuildWarehouse] comodo,204,153,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#comodo	896
+//[BACKPORT-ORPHAN:GuildWarehouse] dewata,196,193,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#dewata	896
+//[BACKPORT-ORPHAN:GuildWarehouse] einbech,182,124,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#einbech	896
+//[BACKPORT-ORPHAN:GuildWarehouse] einbroch,238,203,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#einbroch	896
+//[BACKPORT-ORPHAN:GuildWarehouse] geffen,128,68,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#geffen	896
+//[BACKPORT-ORPHAN:GuildWarehouse] gonryun,164,127,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#gonryun	896
+//[BACKPORT-BOUNDARY:harboro1] harboro1,288,212,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#harboro1	896
+//[BACKPORT-ORPHAN:GuildWarehouse] hugel,91,158,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#hugel	896
+//[BACKPORT-ORPHAN:GuildWarehouse] izlude,133,149,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#izlude	896
+//[BACKPORT-ORPHAN:GuildWarehouse] lighthalzen,162,102,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#lighthalzen	896
+//[BACKPORT-ORPHAN:GuildWarehouse] louyang,210,111,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#louyang	896
+//[BACKPORT-ORPHAN:GuildWarehouse] malaya,238,206,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#malaya	896
+//[BACKPORT-ORPHAN:GuildWarehouse] morocc,168,107,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#morocc	896
+//[BACKPORT-ORPHAN:GuildWarehouse] moscovia,211,200,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#moscovia	896
+//[BACKPORT-ORPHAN:GuildWarehouse] niflheim,200,184,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#niflheim	896
+//[BACKPORT-ORPHAN:GuildWarehouse] payon,180,106,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#payon	896
+//[BACKPORT-ORPHAN:GuildWarehouse] prontera,150,191,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#prontera	896
+//[BACKPORT-ORPHAN:GuildWarehouse] rachel,123,145,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#rachel	896
+//[BACKPORT-ORPHAN:GuildWarehouse] umbala,106,160,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#umbala	896
+//[BACKPORT-ORPHAN:GuildWarehouse] veins,205,130,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#veins	896
+//[BACKPORT-ORPHAN:GuildWarehouse] xmas,155,140,5	duplicate(GuildWarehouse)	Guild Warehouse Manager#xmas	896
+//[BACKPORT-ORPHAN:GuildWarehouse] yuno,176,187,3	duplicate(GuildWarehouse)	Guild Warehouse Manager#yuno	896

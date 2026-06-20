@@ -1,0 +1,156 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../resetskill.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Hypnotist
+//===== By: ==================================================
+//= Euphy
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= [Official Conversion]
+//= Stat and skill resetter for expanded first class under
+//= base level 50 and normal first class.
+//===== Additional Comments: =================================
+//= 1.0 First version, Renewal script.
+//= 1.1 Added Izlude duplicates. [Euphy]
+//============================================================
+
+// Main NPC :: resetskill_novice
+//============================================================
+//[BACKPORT-DEDUP:Hypnotist#novice] izlude,127,175,3	script	Hypnotist#novice	124,{
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Greetings, adventurer.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "I'm a member of the Hypnotist";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Academy sent here to Izlude";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "to provide Skill Reset services";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "to certain First Class characters for a really good price: free!";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	next;
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Although I offer unlimited";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "stat/skill resets for now, I have";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "two conditions that must be";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "fulfilled. First, you must be";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "lower than ^FF0000Base Level 50^000000.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	next;
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Second, you must be a";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "^FF0000Swordman, Acolyte, Mage,";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Thief, Archer, Merchant,";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Taekwon Boy, or Taekwon Girl,";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Gunslinger and Ninja^000000";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Job character to qualify.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	mes "Now, do you have any questions?";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	next;
+//[BACKPORT-DEDUP:Hypnotist#novice] 	switch(select("^FF0000Stat/Skill Reset?:Reset stats:Reset skills^000000:Cancel")) {
+//[BACKPORT-DEDUP:Hypnotist#novice] 	case 1:
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Stat/Skill Resets allow adventuers";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "to redistribute their Skill";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Points if they are unhappy";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "with their current skills.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		next;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Before proceeding with";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "a Stat/Skill Reset, you must";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "reduce all of the weight";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "of all carried items on your";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "character to 0. You can put";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "extra items in Kafra Storage.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		next;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Ah, it's also important";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "to remove your ^FF0000Pushcart^000000";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "if you have one equipped.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Otherwise, hypnosis won't";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "work, or will backfire...";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		close;
+//[BACKPORT-DEDUP:Hypnotist#novice] 	case 2:
+//[BACKPORT-DEDUP:Hypnotist#novice] 		set .@str$,"Stat";
+//[BACKPORT-DEDUP:Hypnotist#novice] 	case 3:
+//[BACKPORT-DEDUP:Hypnotist#novice] 		if (.@str$ == "")
+//[BACKPORT-DEDUP:Hypnotist#novice] 			set .@str$,"Skill";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Are you sure that you";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "want to proceed with";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "my ^FF0000"+.@str$+" Reset^000000 service?";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		next;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		if(select("Yes:Cancel") == 1)
+//[BACKPORT-DEDUP:Hypnotist#novice] 			break;
+//[BACKPORT-DEDUP:Hypnotist#novice] 	case 4:
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Thank you, and good";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "luck on your adventures.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Please travel in safety~";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		close;
+//[BACKPORT-DEDUP:Hypnotist#novice] 	}
+//[BACKPORT-DEDUP:Hypnotist#novice] 	if ((Class >= Job_Swordman && Class <= Job_Thief) || Class == Job_Taekwon || Class == Job_Gunslinger || Class == Job_Ninja) {
+//[BACKPORT-DEDUP:Hypnotist#novice] 		if (checkcart()) {
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "Oh! Please remove your";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "Pushcart before proceeding";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "with the "+.@str$+" Reset service.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "Thanks for cooperating~";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			close;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		}
+//[BACKPORT-DEDUP:Hypnotist#novice] 		if (Weight != 0) {
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "If you're here for my "+.@str$;
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "Reset service, please";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "remember that you can't";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "reset your "+.@str$+"s until the";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "^FF0000weight of your carried items in";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "your Inventory is reduced to 0^000000.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			next;
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "Why don't you place your";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "things into the Kafra Storage";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "for now? That way, you can";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "safely keep all of your goods.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			close;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		}
+//[BACKPORT-DEDUP:Hypnotist#novice] 		if (BaseLevel >= 50 && (Class == Job_Taekwon || Class == Job_Gunslinger || Class == Job_Ninja)) {
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "I'm sorry, but characters";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "with Base Levels higher";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes "than 50 are ineligible for the";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			mes .@str$+" Reset service I provide.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 			close;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		}
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Thank you for using";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "my "+.@str$+" Redistribution";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "services. Oh, and best";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "of luck to you on your";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "travels, adventurer.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		if (.@str$ == "Stat")
+//[BACKPORT-DEDUP:Hypnotist#novice] 			resetstatus;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		else
+//[BACKPORT-DEDUP:Hypnotist#novice] 			resetskill;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		close;
+//[BACKPORT-DEDUP:Hypnotist#novice] 	} else {
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "I'm sorry, but your";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Job Class doesn't qualify";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "for the "+.@str$+" Reset service";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "that I provide. I can only";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "offer "+.@str$+" Resets to the";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "following Jobs...";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		next;
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "[Hypnotist]";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "^FF0000Swordman, Acolyte,";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Mage, Thief, Archer,";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Merchant, Taekwon";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Boy, Taekwon Girl,";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		mes "Gunslinder and Ninja^000000.";
+//[BACKPORT-DEDUP:Hypnotist#novice] 		close;
+//[BACKPORT-DEDUP:Hypnotist#novice] 	}
+//[BACKPORT-DEDUP:Hypnotist#novice] }
+//[BACKPORT-BOUNDARY:izlude_a] izlude_a,127,175,3	duplicate(Hypnotist#novice)	Hypnotist#novice_a	124
+//[BACKPORT-BOUNDARY:izlude_b] izlude_b,127,175,3	duplicate(Hypnotist#novice)	Hypnotist#novice_b	124
+//[BACKPORT-BOUNDARY:izlude_c] izlude_c,127,175,3	duplicate(Hypnotist#novice)	Hypnotist#novice_c	124
+//[BACKPORT-BOUNDARY:izlude_d] izlude_d,127,175,3	duplicate(Hypnotist#novice)	Hypnotist#novice_d	124

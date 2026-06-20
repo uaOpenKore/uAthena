@@ -22,3 +22,32 @@ ALTER TABLE `mob_db`
   MODIFY `INT` smallint(6) unsigned NOT NULL default '0',
   MODIFY `DEX` smallint(6) unsigned NOT NULL default '0',
   MODIFY `LUK` smallint(6) unsigned NOT NULL default '0';
+
+--
+-- Widen mob_db drop/MVP item-id columns so renewal item ids import faithfully.
+--
+-- The renewal-mob backport (db/mob_db2.txt, see Doc/backport_renewal_mobs.md) drops
+-- renewal items/cards whose ids exceed the original `smallint(9) unsigned` (max 65535):
+-- backported cards reach ~700000 and lv4 weapons in item_db2 reach 840026. That
+-- overflowed the *id columns on import. The server keeps item ids in `int`
+-- (struct item_data, src/map/itemdb.h), so the columns are widened to
+-- `mediumint(8) unsigned` (max 16,777,215), which covers every current item id.
+-- Only the *id columns need it; the *per (rate) columns stay <= 10000.
+--
+-- Idempotent; runs after 1-mob_db.sql and before A-mob_db.sql, same as above.
+--
+
+ALTER TABLE `mob_db`
+  MODIFY `MVP1id`    mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `MVP2id`    mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `MVP3id`    mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop1id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop2id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop3id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop4id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop5id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop6id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop7id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop8id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `Drop9id`   mediumint(8) unsigned NOT NULL default '0',
+  MODIFY `DropCardid` mediumint(8) unsigned NOT NULL default '0';

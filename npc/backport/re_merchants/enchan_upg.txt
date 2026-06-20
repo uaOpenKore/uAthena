@@ -1,0 +1,286 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/enchan_upg.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Upgrade Weapon Enchants
+//===== By: ==================================================
+//= Skorm
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= [Official Conversion]
+//= Adds enchantments to Upgrade weapons.
+//===== Additional Comments: =================================
+//= 1.0 First version.
+//= 1.1 Standardizing, grammar and bug fixes. [Euphy]
+//= 1.2 Moved to Cash Mall [Lemongrass]
+//============================================================
+
+// Main NPC :: 201105_luk_enc
+//============================================================
+//[BACKPORT-UNRESOLVED:delequip] itemmall,29,71,3	script	Devil Enchant Master#prq	63,{
+//[BACKPORT-UNRESOLVED:delequip] 	disable_items;
+//[BACKPORT-UNRESOLVED:delequip] 	if (checkweight(1201,1) == 0) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "You are carrying too many items, please reduce it and come back again!";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	if (MaxWeight - Weight < 10000) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "You are over the weight limit, please reduce it and come back again!";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "Yes?";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "You are looking for me?";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	switch(select("This is the first time seeing you!:I heard that you are the best!:Please initialize the enchant.")) {
+//[BACKPORT-UNRESOLVED:delequip] 	case 1:
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Ha ha ha~ Of course, I am not the kind of person that simply deals with people.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Including you! Even if you offer me plenty of money, I will not simply enchant for you!!";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Have you seen my title? Very few people have this title for a reason!";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I will only enchant if you bring an ^0000ffEnchant Book^000000 along!";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Else, I will not enchant for you....";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!countitem(6484)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Are you listening to me? I will only do for you if you bring the Enchant Book!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@select,1;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 3:
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 		if (Zeny < 100000) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Initializing will cost 100,000 zeny. It seems you do not have enough zeny...";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Initializing will cost 100,000 zeny and confirming whether the weapon is enchanted!";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		if (select("Let me think about it.:Initialize it now!") == 1) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Come back after you have confirmed!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@select,2;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	set .@part, EQI_HAND_R;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 	if (!getequipisequiped(.@part)) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Are you trying to remove the enchanted equipment?";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	setarray .@equip_card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+	// if (!getequipisequiped(.@part)) {
+	// 	mes "It is dangerous to remove equipment during enchant process!";
+	// 	close;
+	// }
+//[BACKPORT-UNRESOLVED:delequip] 	set .@equip_id, getequipid(.@part);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@equip_refine, getequiprefinerycnt(.@part);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@item$, "|1292|1394|1491|1585|2015|13071|13115|16019|18112|21000|";
+//[BACKPORT-UNRESOLVED:delequip] 	if (!compare(.@item$,"|"+.@equip_id+"|")) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I don't want to touch your equipment now!";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	if (.@select == 1) {
+//[BACKPORT-UNRESOLVED:delequip] 		if (!countitem(6484)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Are you listening to me? I will only do for you if you bring the Enchant Book!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Which type of effect do you want to enchant?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		switch(select("Let me think about it.:Physical Series:Magical Series")) {
+//[BACKPORT-UNRESOLVED:delequip] 		case 1:
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Come back again after you change your mind!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		case 2:
+//[BACKPORT-UNRESOLVED:delequip] 			set .@enc_type,1;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 3:
+//[BACKPORT-UNRESOLVED:delequip] 			set .@enc_type,2;
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@equip_card[3]) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment has been enchanted! You need to initialize first before you want to enchant it again.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "The enchant process might fail, and ^ff0000it will reduce partial refine level^000000, but the slotted card and weapon will not be broken! Are you sure you want to continue?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		if (select("Next time!:Start now!") == 1) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Come back again after you have decided!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@equip_card[3]) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "It seems there's a problem, let me take a look.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@enc_type == 1) { // Physical Series
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,1300);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 51)    set .@enchant,4734; //Agility5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 76)    set .@enchant,4735; //Agility6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 88)    set .@enchant,4736; //Agility7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 93)    set .@enchant,4737; //Agility8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 95)    set .@enchant,4738; //Agility9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 96)    set .@enchant,4739; //Agility10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 146)   set .@enchant,4724; //Dexterity5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 171)   set .@enchant,4725; //Dexterity6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 183)   set .@enchant,4726; //Dexterity7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 188)   set .@enchant,4727; //Dexterity8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 190)   set .@enchant,4728; //Dexterity9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 191)   set .@enchant,4729; //Dexterity10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 291)   set .@enchant,4704; //Strength5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 341)   set .@enchant,4705; //Strength6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 366)   set .@enchant,4706; //Strength7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 378)   set .@enchant,4707; //Strength8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 383)   set .@enchant,4708; //Strength9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 384)   set .@enchant,4709; //Strength10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 434)   set .@enchant,4754; //Luck5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 459)   set .@enchant,4755; //Luck6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 471)   set .@enchant,4756; //Luck7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 476)   set .@enchant,4757; //Luck8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 478)   set .@enchant,4758; //Luck9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 479)   set .@enchant,4759; //Luck10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 679)   set .@enchant,4744; //Vitality5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 779)   set .@enchant,4745; //Vitality6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 829)   set .@enchant,4746; //Vitality7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 854)   set .@enchant,4747; //Vitality8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 866)   set .@enchant,4748; //Vitality9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 867)   set .@enchant,4749; //Vitality10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 967)   set .@enchant,4808; //Fighting_Spirit4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 992)   set .@enchant,4820; //Fighting_Spirit5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 1092)  set .@enchant,4835; //Expert_Archer4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 1117)  set .@enchant,4836; //Expert_Archer5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 1217)  set .@enchant,4835; //Expert_Archer4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 1242)  set .@enchant,4836; //Expert_Archer5
+//[BACKPORT-UNRESOLVED:delequip] 			else set .@enchant,0;
+//[BACKPORT-UNRESOLVED:delequip] 		} else if (.@enc_type == 2) { // Magical Series
+//[BACKPORT-UNRESOLVED:delequip] 			set .@i, rand(1,1200);
+//[BACKPORT-UNRESOLVED:delequip] 			     if (.@i < 51)    set .@enchant,4714; //Inteligence5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 76)    set .@enchant,4715; //Inteligence6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 88)    set .@enchant,4716; //Inteligence7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 93)    set .@enchant,4717; //Inteligence8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 95)    set .@enchant,4718; //Inteligence9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 96)    set .@enchant,4719; //Inteligence10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 146)   set .@enchant,4724; //Dexterity5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 171)   set .@enchant,4725; //Dexterity6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 183)   set .@enchant,4726; //Dexterity7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 188)   set .@enchant,4727; //Dexterity8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 190)   set .@enchant,4728; //Dexterity9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 191)   set .@enchant,4729; //Dexterity10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 291)   set .@enchant,4734; //Agility5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 341)   set .@enchant,4735; //Agility6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 366)   set .@enchant,4736; //Agility7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 378)   set .@enchant,4737; //Agility8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 383)   set .@enchant,4738; //Agility9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 384)   set .@enchant,4739; //Agility10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 484)   set .@enchant,4754; //Luck5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 534)   set .@enchant,4755; //Luck6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 559)   set .@enchant,4756; //Luck7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 571)   set .@enchant,4757; //Luck8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 576)   set .@enchant,4758; //Luck9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 577)   set .@enchant,4759; //Luck10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 777)   set .@enchant,4744; //Vitality5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 877)   set .@enchant,4745; //Vitality6
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 927)   set .@enchant,4746; //Vitality7
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 952)   set .@enchant,4747; //Vitality8
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 964)   set .@enchant,4748; //Vitality9
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 969)   set .@enchant,4749; //Vitality10
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 1069)  set .@enchant,4812; //Spell4
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 1094)  set .@enchant,4826; //Spell5
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 1119)  set .@enchant,4761; //Matk2
+//[BACKPORT-UNRESOLVED:delequip] 			else if (.@i < 1124)  set .@enchant,4806; //Matk3
+//[BACKPORT-UNRESOLVED:delequip] 			else set .@enchant,0;
+//[BACKPORT-UNRESOLVED:delequip] 		} else {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Hmm! This item is having a problem, please check it again!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@equip_card[3]) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This item has been enchanted!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (!countitem(6484)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Are you listening to me? I will only do for you if you bring the Enchant Book!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@enchant == 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			specialeffect EF_SHIELDCHARGE;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Oh! Unbelievable!! It failed!! Please come again!";
+//[BACKPORT-UNRESOLVED:delequip] 			set .@lost_refine, rand(0,.@equip_refine);
+//[BACKPORT-UNRESOLVED:delequip] 			set .@equip_refine, .@equip_refine - .@lost_refine;
+//[BACKPORT-UNRESOLVED:delequip] 		} else {
+//[BACKPORT-UNRESOLVED:delequip] 			specialeffect EF_REPAIRWEAPON;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "The slot ^9900004^000000 has been enchanted!";
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		delitem 6484,1; //Enchant_Book
+//[BACKPORT-UNRESOLVED:delequip] 
+		// anti-hack
+//[BACKPORT-UNRESOLVED:delequip] 		if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine) || 
+//[BACKPORT-UNRESOLVED:delequip] 		    callfunc("F_IsEquipCardHack", .@part, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3]))
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 
+		//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-UNRESOLVED:delequip] 
+//		GetNonSlotItemSock2 .@equip_refine .@equip_id .@equip_card[0] .@equip_card[1] .@equip_card[2] .@enchant
+//[BACKPORT-UNRESOLVED:delequip] 		getitem2 .@equip_id,1,1,.@equip_refine,0,.@equip_card[0],.@equip_card[1],.@equip_card[2],.@enchant;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@lost_refine) {
+//[BACKPORT-UNRESOLVED:delequip] 			next;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Devil Enchant Master]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "The failure has reduced the refine by "+callfunc("F_InsertPlural",.@lost_refine,"level")+"! Don't be depressed!";
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	} else if (.@select == 2) {
+//[BACKPORT-UNRESOLVED:delequip] 		if (Zeny < 100000) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "You need to bring some money to initialize!!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (getiteminfo(.@equip_card[3], ITEMINFO_SUBTYPE) != CARD_ENCHANT) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This item is not enchanted!";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (!getequipisequiped(.@part)) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Are you unequipping now?";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		specialeffect EF_REPAIRWEAPON;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I initialized the enchant effects.";
+//[BACKPORT-UNRESOLVED:delequip] 		set Zeny, Zeny - 100000;
+//[BACKPORT-UNRESOLVED:delequip] 
+		// anti-hack
+//[BACKPORT-UNRESOLVED:delequip] 		if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine) || 
+//[BACKPORT-UNRESOLVED:delequip] 		    callfunc("F_IsEquipCardHack", .@part, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3]))
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 
+		//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-UNRESOLVED:delequip] 
+//		GetNonSlotItemSock2 .@equip_refine .@equip_id .@equip_card[0] .@equip_card[1] .@equip_card[2] 0
+//[BACKPORT-UNRESOLVED:delequip] 		getitem2 .@equip_id,1,1,.@equip_refine,0,.@equip_card[0],.@equip_card[1],.@equip_card[2],0;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	} else {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "It seems you have chosen the wrong job??";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] }

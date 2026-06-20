@@ -1,0 +1,95 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/quests_exp_175.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Merchants from new dungeons for Level 175
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//--- Merchants related to new dungeons.
+//===== Changelog: ===========================================
+//= 1.0 Initial release of Einbech Dungeon 3 merchants. [Capuche]
+//============================================================
+
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] einbech,149,257,4	script	Site manager Elmen#extdq0	4_TOWER_16,{
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	if (checkweight(25814,100) == 0 || checkweight(1201,1) == 0 || (MaxWeight - Weight) < 10000) {
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "- You cannot proceed because you have too many items. -";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		close;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	}
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	mes "Hello. Adventurer.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	mes "If you're here to purchase Dynite mining equipment or refine ore into Dynite, you've come to the right place.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	next;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	switch( select( "Dynite Refinement", "Dynite Shop", "Dynite Equipment Exchange" ) ) {
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	case 1:
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		npctalk "Elmen: You can refine up to 100 Dynite at a time. The machine is small.", "", bc_self;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "[Elmen]";
+		//[BACKPORT-GAP:mesitemlink] mes "" + mesitemlink(25814) + " Refined Ore.";
+		//[BACKPORT-GAP:mesitemlink] mes "" + mesitemlink(25809) + " ^777777(currently " + countitem(25809) + ")^000000";
+		//[BACKPORT-GAP:mesitemlink] mes "" + mesitemlink(25810) + " ^777777(currently " + countitem(25810) + ")^000000";
+		//[BACKPORT-GAP:mesitemlink] mes "" + mesitemlink(25811) + " ^777777(currently " + countitem(25811) + ")^000000";
+		//[BACKPORT-GAP:mesitemlink] mes "" + mesitemlink(25812) + " ^777777(currently " + countitem(25812) + ")^000000";
+		//[BACKPORT-GAP:mesitemlink] mes "" + mesitemlink(25813) + " ^777777(currently " + countitem(25813) + ")^000000";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "You need one each of the five types of ore.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		next;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		input .@val;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		if (.@val > 100) {
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "I'm sorry. Adventurer.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "Dynite Refinement can only be refined up to 100 at a time? The machine is small, so there is no help. Please understand.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			close;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		}
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		if (.@val == 0) {
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "Cancel?";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "If you need refinement of the Dynite, please find it anytime. There is no one who can do it without me.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			close;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		}
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		if (countitem(25809) < .@val || countitem(25810) < .@val || countitem(25811) < .@val || countitem(25812) < .@val || countitem(25813) < .@val) {
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "Hey! This makes it difficult for each other, don't you run out of materials needed for refining? The materials!";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			close;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		}
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		specialeffect EF_REPAIRWEAPON;
+		//[BACKPORT-GAP:progressbar_npc] progressbar_npc "FFFF00",1;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		delitem 25809,.@val;	// Ein_REDIUM
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		delitem 25810,.@val;	// Ein_RINDIUM
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		delitem 25811,.@val;	// Ein_ODIUM
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		delitem 25812,.@val;	// Ein_PURDIUM
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		delitem 25813,.@val;	// Ein_WHIDIUM
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		getitem 25814,.@val;	// Ein_DYNITE
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "" + .@val + " Dynite have been refined. It's perfect today!";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		close;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	case 2:
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "There are various accessories and modification permits. Look carefully at what you want before buying.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		close2;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		callshop "barter_ein_dun03",1;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		end;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	case 3:
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "I can exchange the equipment with the Dynite, but it's already in a tightly sealed box.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "Give me 50 ^4d4dffDynites^000000 and I will open a ^4d4dffweapon box^000000 for you.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		next;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		mes "I don't know what will come out, but the quality is good. Would you like to open it?";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		next;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		if (select( "Close your eyes and exchange.", "Do not exchange." ) == 2) {
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "Kee, this is a waste, it was a good deal.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			close;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		}
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		if (countitem(25814) < 50) {
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "[Elmen]";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "You don't have enough Dynite friends.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			mes "I don't know what's going to come out, so it's hard to go anywhere and get this kind of equipment at this price.";
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 			close;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		}
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		delitem 25814,50;
+		// unknown text
+		//[BACKPORT-GAP:getgroupitem] getgroupitem(IG_EIN_1HITEMBOX);
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 		end;
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] 	}
+//[BACKPORT-UNRESOLVED:getgroupitem,mesitemlink,progressbar_npc] }

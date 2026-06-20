@@ -1,0 +1,7 @@
+npc: npc/backport/re_cities/dewata.txt
+npc: npc/backport/re_cities/dicastes.txt
+npc: npc/backport/re_cities/eclage.txt
+npc: npc/backport/re_cities/malangdo.txt
+npc: npc/backport/re_cities/malaya.txt
+npc: npc/backport/re_cities/mora.txt
+npc: npc/backport/re_cities/kafras.txt
