@@ -35,6 +35,7 @@ CREATE TABLE `guild_storage` (
   `card1` smallint(11) NOT NULL DEFAULT '0',
   `card2` smallint(11) NOT NULL DEFAULT '0',
   `card3` smallint(11) NOT NULL DEFAULT '0',
+  `expire_time` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `guild_id` (`guild_id`),
   CONSTRAINT `guild_storage_ibfk_1` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE

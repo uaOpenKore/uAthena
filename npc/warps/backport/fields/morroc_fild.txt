@@ -1,0 +1,7 @@
+//===== uAthena backport (GENERATED) =========================
+//= Additive pre-renewal warps from eathena-ref.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-warps.py
+//= Source: npc/warps/fields/morroc_fild.txt
+//============================================================
+moc_fild21,26,196,0	warp	mocf020	1,1,moc_fild20,349,179
+moc_fild22,32,196,0	warp	mocf021	1,1,moc_fild20,349,179

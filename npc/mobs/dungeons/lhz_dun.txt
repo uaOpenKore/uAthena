@@ -129,7 +129,7 @@ lhz_dun03,140,192,66,21	monster	Kathryne Keyron	1639,3,120000,60000,0
 lhz_dun03,89,164,4,8	monster	Kathryne Keyron	1639,1,120000,60000,0
 lhz_dun03,89,164,4,8	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,107,167,4,5	monster	Kathryne Keyron	1639,1,120000,60000,0
-lhz_dun03,107,167,4,5	monster	Cecil Damon	1638,,120000,60000,0
+lhz_dun03,107,167,4,5	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,171,167,4,5	monster	Kathryne Keyron	1639,1,120000,60000,0
 lhz_dun03,171,167,4,5	monster	Cecil Damon	1638,1,120000,60000,0
 lhz_dun03,189,164,4,8	monster	Kathryne Keyron	1639,1,120000,60000,0

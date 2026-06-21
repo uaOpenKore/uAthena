@@ -20,6 +20,7 @@ struct chat_data;
 struct flooritem_data;
 struct skill_unit;
 struct vending;
+struct quest;
 struct party;
 struct party_data;
 struct guild;
@@ -384,10 +385,28 @@ int clif_hom_food(struct map_session_data *sd,int foodid,int fail);	//[orn]
 void clif_send_homdata(struct map_session_data *sd, int type, int param);	//[orn]
 int clif_hwalkok(struct homun_data *hd);	//[orn]
 
+// [Backport] rental items
+void clif_rental_time(int fd, int nameid, int seconds);
+void clif_rental_expired(int fd, int index, int nameid);
+
+// [Backport] hired mercenary soldier window (PV7-dormant)
+void clif_mercenary_info(struct map_session_data *sd);
+void clif_mercenary_updatestatus(struct map_session_data *sd, int type);
+void clif_mercenary_skillblock(struct map_session_data *sd);
+void clif_mercenary_message(struct map_session_data* sd, int message);
+
 int clif_foreachclient(int (*)(struct map_session_data*,va_list),...);
 int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type);
 int do_final_clif(void);
 int do_init_clif(void);
+
+// Questlog window (dormant unless PACKETVER >= 20080000)
+void clif_quest_send_list(struct map_session_data *sd);
+void clif_quest_send_mission(struct map_session_data *sd);
+void clif_quest_add(struct map_session_data *sd, struct quest *qd, int index);
+void clif_quest_delete(struct map_session_data *sd, int quest_id);
+void clif_quest_update_objective(struct map_session_data *sd, struct quest *qd, int index);
+void clif_quest_update_status(struct map_session_data *sd, int quest_id, bool active);
 
 
 #endif /* _CLIF_H_ */

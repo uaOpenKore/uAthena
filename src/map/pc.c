@@ -15,10 +15,12 @@
 #include "clif.h"
 #include "date.h" // is_day_of_*()
 #include "intif.h"
+#include "achievement.h"
 #include "itemdb.h"
 #include "log.h"
 #include "map.h"
 #include "mercenary.h" // merc_is_hom_active()
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "mob.h" // MAX_MOB_RACE_DB
 #include "npc.h" // fake_nd
 #include "pet.h" // pet_unlocktarget()
@@ -378,6 +380,7 @@ int pc_setnewpc(struct map_session_data *sd, int account_id, int char_id, int lo
 	sd->client_tick  = client_tick;
 	sd->state.auth   = 0;
 	sd->bl.type      = BL_PC;
+	sd->calc_pc_timer = INVALID_TIMER;	// [perf 7] no deferred recompute pending (set at creation: 0 is a valid tid)
 	sd->canlog_tick  = gettick();
 	sd->state.waitingdisconnect = 0;
 	//Required to prevent homunculus copuing a base speed of 0.
@@ -576,7 +579,131 @@ int pc_isequip(struct map_session_data *sd,int n)
  * session id
  * charIXe?^X
  *------------------------------------------*/
-int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_time, struct mmo_charstatus *st)
+/*==========================================
+ * [Backport] Online/playtime reward timer (recurring; fires every
+ * online_reward_interval minutes while the player is online).
+ *------------------------------------------*/
+int pc_online_reward_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data *sd = map_id2sd((int)id);
+	int sec, need;
+
+	if( sd == NULL || sd->online_reward_tid != tid )
+		return 0; // player gone or stale timer
+
+	// only count active time toward the reward unless configured to reward AFK
+	if( !battle_config.online_reward_afk && pc_isidle(sd) )
+		return 0;
+
+	need = battle_config.online_reward_interval * 60; // seconds of online time per reward
+	if( need <= 0 )
+		return 0;
+
+	// accumulate this 60s tick; the counter persists per-character (char registry)
+	sec = pc_readglobalreg(sd, "ONLINE_REWARD_SEC") + 60;
+	if( sec >= need )
+	{
+		sec -= need;
+		if( battle_config.online_reward_zeny > 0 )
+			pc_getzeny(sd, battle_config.online_reward_zeny);
+		if( battle_config.online_reward_exp > 0 )
+			pc_gainexp(sd, NULL, (unsigned int)battle_config.online_reward_exp, 0);
+		if( battle_config.online_reward_item > 0 ) {
+			struct item it;
+			memset(&it, 0, sizeof(it));
+			it.nameid = battle_config.online_reward_item;
+			it.identify = 1;
+			pc_additem(sd, &it, battle_config.online_reward_amount > 0 ? battle_config.online_reward_amount : 1);
+		}
+		clif_displaymessage(sd->fd, "You received your online play reward!");
+	}
+	pc_setglobalreg(sd, "ONLINE_REWARD_SEC", sec);
+	return 0;
+}
+
+/*==========================================
+ * Rental System [Backport]
+ *------------------------------------------*/
+static int pc_inventory_rental_end(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data *sd = map_id2sd((int)id);
+	if( sd == NULL )
+		return 0;
+	if( tid != sd->rental_timer )
+	{
+		ShowError("pc_inventory_rental_end: invalid timer id.\n");
+		return 0;
+	}
+
+	pc_inventory_rentals(sd);
+	return 1;
+}
+
+int pc_inventory_rental_clear(struct map_session_data *sd)
+{
+	if( sd->rental_timer != INVALID_TIMER )
+	{
+		delete_timer(sd->rental_timer, pc_inventory_rental_end);
+		sd->rental_timer = INVALID_TIMER;
+	}
+
+	return 1;
+}
+
+void pc_inventory_rentals(struct map_session_data *sd)
+{
+	int i, c = 0;
+	unsigned int expire_tick, next_tick = UINT_MAX;
+
+	for( i = 0; i < MAX_INVENTORY; i++ )
+	{ // Check for Rentals on Inventory
+		if( sd->status.inventory[i].nameid == 0 )
+			continue; // Nothing here
+		if( sd->status.inventory[i].expire_time == 0 )
+			continue;
+
+		if( sd->status.inventory[i].expire_time <= (unsigned int)time(NULL) )
+		{
+			clif_rental_expired(sd->fd, i, sd->status.inventory[i].nameid);
+			pc_delitem(sd, i, sd->status.inventory[i].amount, 1);
+		}
+		else
+		{
+			expire_tick = (unsigned int)(sd->status.inventory[i].expire_time - time(NULL)) * 1000;
+			clif_rental_time(sd->fd, sd->status.inventory[i].nameid, (int)(expire_tick / 1000));
+			next_tick = min(expire_tick, next_tick);
+			c++;
+		}
+	}
+
+	if( c > 0 ) // 1 hour cap per timer: keeps re-announcing to the owner; avoids overflow on rentals > ~15 days
+		sd->rental_timer = add_timer(gettick() + min(next_tick, 3600000), pc_inventory_rental_end, sd->bl.id, 0);
+	else
+		sd->rental_timer = INVALID_TIMER;
+}
+
+void pc_inventory_rental_add(struct map_session_data *sd, int seconds)
+{
+	const struct TimerData * td;
+	int tick = seconds * 1000;
+
+	if( sd == NULL )
+		return;
+
+	if( sd->rental_timer != INVALID_TIMER )
+	{
+		td = get_timer(sd->rental_timer);
+		if( DIFF_TICK(td->tick, gettick()) > tick )
+		{ // Update Timer as this one ends first than the current one
+			pc_inventory_rental_clear(sd);
+			sd->rental_timer = add_timer(gettick() + tick, pc_inventory_rental_end, sd->bl.id, 0);
+		}
+	}
+	else
+		sd->rental_timer = add_timer(gettick() + min(tick,3600000), pc_inventory_rental_end, sd->bl.id, 0);
+}
+
+int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time, struct mmo_charstatus *st)
 {
 	TBL_PC* old_sd;
 	int i;
@@ -624,12 +751,20 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	sd->invincible_timer = -1;
 	sd->npc_timer_id = -1;
 	sd->pvp_timer = -1;
+	sd->rental_timer = INVALID_TIMER; // [Backport] rental
+	sd->calc_pc_timer = -1; // [perf 7] no deferred status_calc_pc pending
 
 	sd->canuseitem_tick = tick;
 	sd->cantalk_tick = tick;
 
 	for(i = 0; i < MAX_SKILL_LEVEL; i++)
 		sd->spirit_timer[i] = -1;
+	for(i = 0; i < ARRAYLENGTH(sd->autobonus); i++)
+		sd->autobonus[i].active = INVALID_TIMER;
+	for(i = 0; i < ARRAYLENGTH(sd->autobonus2); i++)
+		sd->autobonus2[i].active = INVALID_TIMER;
+	for(i = 0; i < ARRAYLENGTH(sd->autobonus3); i++)
+		sd->autobonus3[i].active = INVALID_TIMER;
 
 	if (battle_config.item_auto_get)
 		sd->state.autoloot = 10000;
@@ -691,6 +826,22 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	// Homunculus [albator]
 	if (sd->status.hom_id > 0)
 		intif_homunculus_requestload(sd->status.account_id, sd->status.hom_id);
+	// Hired Mercenary Soldier [Backport]: requested in pc_reg_received (after state.auth=1) instead —
+	// merc_data_received's map_charid2sd needs state.auth, which isn't set yet here. See pc_reg_received.
+
+	// Questlog [Kevin] [Inkfish]
+	intif_request_questlog(sd);
+	// [Backport] Achievements
+	intif_request_achievements(sd);
+
+	// [Backport] start rental-item expiry timers (announce remaining time, remove expired)
+	pc_inventory_rentals(sd);
+
+	// [Backport] start the online/playtime reward ticker (60s; accumulated time
+	// persists per-character, so relogging no longer resets progress)
+	sd->online_reward_tid = INVALID_TIMER;
+	if( battle_config.online_reward_interval > 0 )
+		sd->online_reward_tid = add_timer_interval(gettick()+60000, pc_online_reward_timer, sd->bl.id, 0, 60000);
 
 	clif_authok(sd);
 	map_addiddb(&sd->bl);
@@ -732,7 +883,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	}
 
 	// Message of the Day [Valaris]
-	for(i=0; motd_text[i][0] && i < MOTD_LINE_SIZE; i++) {
+	for(i=0; i < MOTD_LINE_SIZE && motd_text[i][0]; i++) {
 		if (battle_config.motd_type)
 			clif_disp_onlyself(sd,motd_text[i],strlen(motd_text[i]));
 		else
@@ -745,7 +896,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, time_t connect_until_t
 	// message of the limited time of the account
 	if (connect_until_time != 0) { // don't display if it's unlimited or unknow value
 		char tmpstr[1024];
-		strftime(tmpstr, sizeof(tmpstr) - 1, msg_txt(501), localtime(&connect_until_time)); // "Your account time limit is: %d-%m-%Y %H:%M:%S."
+		time_t exp_time = (time_t)connect_until_time; // widen: localtime needs a real time_t, not a casted int (x64)
+		strftime(tmpstr, sizeof(tmpstr) - 1, msg_txt(501), localtime(&exp_time)); // "Your account time limit is: %d-%m-%Y %H:%M:%S."
 		clif_wis_message(sd->fd, wisp_server_name, tmpstr, strlen(tmpstr)+1);
 	}
 
@@ -811,6 +963,7 @@ int pc_reg_received(struct map_session_data *sd)
 
 	sd->change_level = pc_readglobalreg(sd,"jobchange_level");
 	sd->die_counter = pc_readglobalreg(sd,"PC_DIE_COUNTER");
+	sd->active_title = pc_readglobalreg(sd,"ACH_TITLE"); // [Backport] persisted active title
 
 	if ((sd->class_&MAPID_BASEMASK)==MAPID_TAEKWON)
 	{	//Better check for class rather than skill to prevent "skill resets" from unsetting this
@@ -865,6 +1018,14 @@ int pc_reg_received(struct map_session_data *sd)
 	if (sd->state.auth)
 		return 0;
 	sd->state.auth = 1;
+
+	// [Backport] Request the hired mercenary HERE (after state.auth=1), NOT in pc_authok.
+	// merc_data_received resolves the owner with map_charid2sd, whose backing list
+	// (map_getallpc_sub) excludes sessions with !state.auth. pc_authok sends its requests
+	// while state.auth is still 0, so a fast inter-server reply would be dropped and the merc
+	// would never reload on relogin (and the dangling mer_id then blocks re-summon).
+	if (sd->status.mer_id > 0)
+		intif_mercenary_request(sd->status.mer_id, sd->status.char_id);
 
 	if (sd->status.party_id > 0 && party_search(sd->status.party_id) == NULL)
 		party_request_info(sd->status.party_id);
@@ -1244,6 +1405,49 @@ static int pc_bonus_autospell_del(struct s_autospell *spell, int max, short id, 
 	return rate;
 }
 
+// addeff3: register an "inflict status <id> when USING skill <skill>" entry (bonus3 bAddEffOnSkill). [on-skill]
+static int pc_bonus_addeff_onskill(struct s_addeffectonskill* effect, int max, short id, short rate, short skill, unsigned char target)
+{
+	int i;
+	for( i = 0; i < max && effect[i].skill; i++ )
+	{
+		if( effect[i].id == id && effect[i].skill == skill && effect[i].target == target )
+		{
+			effect[i].rate += rate;
+			return 1;
+		}
+	}
+	if( i == max ) {
+		ShowWarning("pc_bonus: Reached max (%d) number of add effects on skill per character!\n", max);
+		return 0;
+	}
+	effect[i].id = id;
+	effect[i].rate = rate;
+	effect[i].skill = skill;
+	effect[i].target = target;
+	return 1;
+}
+
+// autospell3: register a "cast skill <id> when USING source skill <src_skill>" entry (bonus4 bAutoSpellOnSkill). [on-skill]
+static int pc_bonus_autospell_onskill(struct s_autospell *spell, int max, short src_skill, short id, short lv, short rate, short card_id)
+{
+	int i;
+	if( !rate )
+		return 0;
+	ARR_FIND(0, max, i, spell[i].id == 0);
+	if( i == max )
+	{
+		ShowWarning("pc_bonus: Reached max (%d) number of autospells per character!\n", max);
+		return 0;
+	}
+	spell[i].flag = src_skill;
+	spell[i].id = id;
+	spell[i].lv = lv;
+	spell[i].rate = rate;
+	spell[i].card_id = card_id;
+	return 1;
+}
+
 static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, short lv, short rate, short flag, short card_id)
 {
 	int i;
@@ -1357,6 +1561,108 @@ static int pc_bonus_item_drop(struct s_add_drop *drop, short *count, short id, s
 /*==========================================
  * ? i\{?iX
  *------------------------------------------*/
+/*==========================================
+ * Auto-bonus: chance-on-attack temporary bonus (ported from eAthena pre-renewal).
+ * The malloc'd scripts live OUTSIDE the status_calc_pc memset (see map.h); the temp
+ * bonus is applied by re-running bonus_script during status_calc_pc while the
+ * equip-location bit is set in sd->state.autobonus, and removed when the timer fires.
+ *------------------------------------------*/
+int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short flag,const char *other_script,unsigned short pos,bool onskill)
+{
+	int i;
+	ARR_FIND(0, max, i, bonus[i].rate == 0);
+	if( i == max )
+	{
+		ShowWarning("pc_addautobonus: Reached max (%d) number of autobonus per character!\n", max);
+		return 0;
+	}
+	if( !onskill )
+	{
+		if( !(flag&BF_RANGEMASK) )
+			flag|=BF_SHORT|BF_LONG; //No range defined? Use both.
+		if( !(flag&BF_WEAPONMASK) )
+			flag|=BF_WEAPON; //No attack type defined? Use weapon.
+		if( !(flag&BF_SKILLMASK) )
+		{
+			if( flag&(BF_MAGIC|BF_MISC) )
+				flag|=BF_SKILL; //These two would never trigger without BF_SKILL
+			if( flag&BF_WEAPON )
+				flag|=BF_NORMAL|BF_SKILL;
+		}
+	}
+	bonus[i].rate = rate;
+	bonus[i].duration = dur;
+	bonus[i].active = INVALID_TIMER;
+	bonus[i].atk_type = flag;
+	bonus[i].pos = pos;
+	bonus[i].bonus_script = aStrdup(script);
+	bonus[i].other_script = other_script?aStrdup(other_script):NULL;
+	return 1;
+}
+
+int pc_endautobonus(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data *sd = map_id2sd((int)id);
+	struct s_autobonus *autobonus = (struct s_autobonus *)data;
+	nullpo_retr(0, sd);
+	nullpo_retr(0, autobonus);
+	autobonus->active = INVALID_TIMER;
+	sd->state.autobonus &= ~autobonus->pos;
+	status_calc_pc(sd,0);
+	return 0;
+}
+
+int pc_exeautobonus(struct map_session_data *sd,struct s_autobonus *autobonus)
+{
+	nullpo_retr(0, sd);
+	nullpo_retr(0, autobonus);
+	if( autobonus->other_script )
+	{
+		int j;
+		ARR_FIND( 0, EQI_MAX-1, j, sd->equip_index[j] >= 0 && sd->status.inventory[sd->equip_index[j]].equip == autobonus->pos );
+		if( j < EQI_MAX-1 )
+			script_run_autobonus(autobonus->other_script,sd->bl.id,sd->equip_index[j]);
+	}
+	autobonus->active = add_timer(gettick()+autobonus->duration, pc_endautobonus, sd->bl.id, (intptr_t)autobonus);
+	sd->state.autobonus |= autobonus->pos;
+	status_calc_pc(sd,0);
+	return 0;
+}
+
+int pc_delautobonus(struct map_session_data* sd, struct s_autobonus *autobonus,char max,bool restore)
+{
+	int i;
+	nullpo_retr(0, sd);
+	for( i = 0; i < max; i++ )
+	{
+		if( autobonus[i].active != INVALID_TIMER )
+		{
+			if( restore && sd->state.autobonus&autobonus[i].pos )
+			{	// still equipped + active: re-apply the bonus for the remaining duration
+				if( autobonus[i].bonus_script )
+				{
+					int j;
+					ARR_FIND( 0, EQI_MAX-1, j, sd->equip_index[j] >= 0 && sd->status.inventory[sd->equip_index[j]].equip == autobonus[i].pos );
+					if( j < EQI_MAX-1 )
+						script_run_autobonus(autobonus[i].bonus_script,sd->bl.id,sd->equip_index[j]);
+				}
+				continue;
+			}
+			else
+			{	// logout / unequipped while active
+				delete_timer(autobonus[i].active,pc_endautobonus);
+				autobonus[i].active = INVALID_TIMER;
+			}
+		}
+		if( autobonus[i].bonus_script ) aFree(autobonus[i].bonus_script);
+		if( autobonus[i].other_script ) aFree(autobonus[i].other_script);
+		autobonus[i].bonus_script = autobonus[i].other_script = NULL;
+		autobonus[i].rate = autobonus[i].atk_type = autobonus[i].duration = autobonus[i].pos = 0;
+		autobonus[i].active = INVALID_TIMER;
+	}
+	return 0;
+}
+
 int pc_bonus(struct map_session_data *sd,int type,int val)
 {
 	struct status_data *status;
@@ -1641,6 +1947,18 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(sd->state.lr_flag != 2)
 			sd->ignore_mdef_race |= 1<<val;
 		break;
+	case SP_IGNORE_MDEF_RATE:	// bonus bIgnoreMdefRate,n -- ignore n% of every target's MDEF on magic
+		if(sd->state.lr_flag != 2) {
+			sd->ignore_mdef[RC_NONBOSS] += val;
+			sd->ignore_mdef[RC_BOSS] += val;
+		}
+		break;
+	case SP_IGNORE_DEF_RATE:	// bonus bIgnoreDefRate,n -- ignore n% of every target's physical DEF
+		if(sd->state.lr_flag != 2) {
+			sd->ignore_def[RC_NONBOSS] += val;
+			sd->ignore_def[RC_BOSS] += val;
+		}
+		break;
 	case SP_PERFECT_HIT_RATE:
 		if(sd->state.lr_flag != 2 && sd->perfect_hit < val)
 			sd->perfect_hit = val;
@@ -1895,6 +2213,22 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(!sd->state.lr_flag)
 			sd->hp_gain_value += val;
 		break;
+	case SP_MAGIC_HP_GAIN_VALUE:	// bonus bMagicHPGainValue,n -- +n HP on a magic killing blow
+		if(!sd->state.lr_flag)
+			sd->magic_hp_gain_value += val;
+		break;
+	case SP_MAGIC_SP_GAIN_VALUE:	// bonus bMagicSPGainValue,n -- +n SP on a magic killing blow
+		if(!sd->state.lr_flag)
+			sd->magic_sp_gain_value += val;
+		break;
+	case SP_ADD_HEAL_RATE:	// bonus bHealPower,n -- +n% heal/healing-skill output (caster), gated by battle_config.skill_add_heal_rate
+		if(sd->state.lr_flag != 2)
+			sd->add_heal_rate += val;
+		break;
+	case SP_ADD_HEAL2_RATE:	// bonus bHealpower2,n -- +n% healing received (target side)
+		if(sd->state.lr_flag != 2)
+			sd->add_heal2_rate += val;
+		break;
 	default:
 		if(battle_config.error_log)
 			ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);
@@ -1954,6 +2288,14 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	case SP_SUBRACE:
 		if(sd->state.lr_flag != 2)
 			sd->subrace[type2]+=val;
+		break;
+	case SP_IGNORE_MDEF_RATE:	// bonus2 bIgnoreMdefRate,race,n -- ignore n% MDEF of that race on magic
+		if(sd->state.lr_flag != 2)
+			sd->ignore_mdef[type2]+=val;
+		break;
+	case SP_IGNORE_DEF_RATE:	// bonus2 bIgnoreDefRate,race,n -- ignore n% physical DEF of that race
+		if(sd->state.lr_flag != 2)
+			sd->ignore_def[type2]+=val;
 		break;
 	case SP_ADDEFF:
 		if (type2 > SC_MAX) {
@@ -2202,13 +2544,29 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			pc_bonus_addeff(sd->addeff2, MAX_PC_BONUS, type2, val, 0,
 				ATF_SHORT|ATF_TARGET);
 		break;
+	case SP_CASTRATE:	// bonus2 bCastRate,skill,% -- per-skill variable cast time (neg = faster)
+		if(sd->state.lr_flag == 2)
+			break;
+		for (i = 0; i < ARRAYLENGTH(sd->skillcast) && sd->skillcast[i].id != 0 && sd->skillcast[i].id != type2; i++);
+		if (i == ARRAYLENGTH(sd->skillcast))
+		{	//Mention this so the array length can be updated. [Skotlex]
+			ShowDebug("run_script: bonus2 bCastRate reached its limit (%d skills per character), bonus skill %d (%+d%%) lost.\n", (int)ARRAYLENGTH(sd->skillcast), type2, val);
+			break;
+		}
+		if (sd->skillcast[i].id == type2)
+			sd->skillcast[i].val += val;
+		else {
+			sd->skillcast[i].id = type2;
+			sd->skillcast[i].val = val;
+		}
+		break;
 	case SP_SKILL_ATK:
 		if(sd->state.lr_flag == 2)
 			break;
 		for (i = 0; i < ARRAYLENGTH(sd->skillatk) && sd->skillatk[i].id != 0 && sd->skillatk[i].id != type2; i++);
 		if (i == ARRAYLENGTH(sd->skillatk))
 		{	//Better mention this so the array length can be updated. [Skotlex]
-			ShowDebug("run_script: bonus2 bSkillAtk reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->skillatk), type2, val);
+			ShowDebug("run_script: bonus2 bSkillAtk reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", (int)ARRAYLENGTH(sd->skillatk), type2, val);
 			break;
 		}
 		if (sd->skillatk[i].id == type2)
@@ -2224,7 +2582,7 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		for (i = 0; i < ARRAYLENGTH(sd->skillheal) && sd->skillheal[i].id != 0 && sd->skillheal[i].id != type2; i++);
 		if (i == ARRAYLENGTH(sd->skillheal))
 		{	//Better mention this so the array length can be updated. [Skotlex]
-			ShowDebug("run_script: bonus2 bSkillHeal reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->skillheal), type2, val);
+			ShowDebug("run_script: bonus2 bSkillHeal reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", (int)ARRAYLENGTH(sd->skillheal), type2, val);
 			break;
 		}
 		if (sd->skillheal[i].id == type2)
@@ -2232,6 +2590,22 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		else {
 			sd->skillheal[i].id = type2;
 			sd->skillheal[i].val = val;
+		}
+		break;
+	case SP_SKILL_HEAL2:	// bonus2 bSkillHeal2,skill,n -- +n% to that skill's heal RECEIVED (target side)
+		if(sd->state.lr_flag == 2)
+			break;
+		for (i = 0; i < ARRAYLENGTH(sd->skillheal2) && sd->skillheal2[i].id != 0 && sd->skillheal2[i].id != type2; i++);
+		if (i == ARRAYLENGTH(sd->skillheal2))
+		{
+			ShowDebug("run_script: bonus2 bSkillHeal2 reached its limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", (int)ARRAYLENGTH(sd->skillheal2), type2, val);
+			break;
+		}
+		if (sd->skillheal2[i].id == type2)
+			sd->skillheal2[i].val += val;
+		else {
+			sd->skillheal2[i].id = type2;
+			sd->skillheal2[i].val = val;
 		}
 		break;
 	case SP_ADD_SKILL_BLOW:
@@ -2269,6 +2643,18 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		if(sd->state.lr_flag != 2) {
 			sd->hp_loss_value = type2;
 			sd->hp_loss_rate = val;
+		}
+		break;
+	case SP_HP_REGEN_RATE:	// bonus2 bHPRegenRate,value,interval_ms -- gain value HP every interval (mirror of HP Loss)
+		if(sd->state.lr_flag != 2) {
+			sd->hp_regen_value = type2;
+			sd->hp_regen_rate = val;
+		}
+		break;
+	case SP_SP_REGEN_RATE:	// bonus2 bSPRegenRate,value,interval_ms
+		if(sd->state.lr_flag != 2) {
+			sd->sp_regen_value = type2;
+			sd->sp_regen_rate = val;
 		}
 		break;
 	case SP_ADDRACE2:
@@ -2359,6 +2745,10 @@ int pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 		if(sd->state.lr_flag != 2)
 			pc_bonus_item_drop(sd->add_drop, &sd->add_drop_count, type2, 0, 1<<type3, val);
 		break;
+	case SP_ADDCLASSDROPITEM:	// bonus3 bAddClassDropItem,item,mobclass,rate -- drop <item> from a specific mob class (id), encoded as a negative race
+		if(sd->state.lr_flag != 2)
+			pc_bonus_item_drop(sd->add_drop, &sd->add_drop_count, type2, 0, -type3, val);
+		break;
 	case SP_AUTOSPELL:
 		if(sd->state.lr_flag != 2)
 			pc_bonus_autospell(sd->autospell, MAX_PC_BONUS, type2, type3, val, 0, current_equip_card_id);
@@ -2438,6 +2828,14 @@ int pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 				ATF_SHORT|ATF_LONG|(val?ATF_TARGET:ATF_SELF)|(val==2?ATF_SELF:0));
 		break;
 
+	case SP_ADDEFF_ONSKILL:	// bonus3 bAddEffOnSkill,<skill>,<eff>,<rate> -- chance to inflict <eff> on the target when using <skill>
+		if( type3 > SC_MAX ) {
+			ShowWarning("pc_bonus3 (Add Effect on skill): %d is not supported.\n", type3);
+			break;
+		}
+		if( sd->state.lr_flag != 2 )
+			pc_bonus_addeff_onskill(sd->addeff3, MAX_PC_BONUS, type3, val, type2, ATF_TARGET);
+		break;
 	default:
 		if(battle_config.error_log)
 			ShowWarning("pc_bonus3: unknown type %d %d %d %d!\n",type,type2,type3,val);
@@ -2460,6 +2858,14 @@ int pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type4
 	case SP_AUTOSPELL_WHENHIT:
 		if(sd->state.lr_flag != 2)
 			pc_bonus_autospell(sd->autospell2, MAX_PC_BONUS, (val&1?type2:-type2), (val&2?-type3:type3), type4, 0, current_equip_card_id);
+		break;
+	case SP_AUTOSPELL_ONSKILL:	// bonus4 bAutoSpellOnSkill,<src skill>,<cast skill>,<lv>,<rate> -- cast <cast skill> when using <src skill>
+		if(sd->state.lr_flag != 2)
+		{
+			int target = skill_get_inf(type2); //Support or Self (non-auto-target) skills should pick self.
+			target = target&INF_SUPPORT_SKILL || (target&INF_SELF_SKILL && !(skill_get_inf2(type2)&INF2_NO_TARGET_SELF));
+			pc_bonus_autospell_onskill(sd->autospell3, MAX_PC_BONUS, type2, target?-type3:type3, type4, val, current_equip_card_id);
+		}
 		break;
 	default:
 		if(battle_config.error_log)
@@ -2777,8 +3183,8 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 
 	i = MAX_INVENTORY;
 
-	if (itemdb_isstackable2(data))
-	{ //Stackable
+	if (itemdb_isstackable2(data) && item_data->expire_time == 0)
+	{ //Stackable (rentals never stack — own slot for independent expiry) [Backport]
 		for (i = 0; i < MAX_INVENTORY; i++)
 		{
 			if(sd->status.inventory[i].nameid == item_data->nameid &&
@@ -3067,12 +3473,17 @@ int pc_useitem(struct map_session_data *sd,int n)
 	if (sd->inventory_data[n]->flag.delay_consume)
 		clif_useitemack(sd,n,amount,1);
 	else {
-		clif_useitemack(sd,n,amount-1,1);
-		//Logs (C)onsumable items [Lupus]
-		if(log_config.enable_logs&0x100)
-			log_pick_pc(sd, "C", sd->status.inventory[n].nameid, -1, &sd->status.inventory[n]);
-		//Logs
-		pc_delitem(sd,n,1,1);
+		if( sd->status.inventory[n].expire_time == 0 )
+		{ // [Backport] rental usables apply their effect but are not consumed until expiry
+			clif_useitemack(sd,n,amount-1,1);
+			//Logs (C)onsumable items [Lupus]
+			if(log_config.enable_logs&0x100)
+				log_pick_pc(sd, "C", sd->status.inventory[n].nameid, -1, &sd->status.inventory[n]);
+			//Logs
+			pc_delitem(sd,n,1,1);
+		}
+		else
+			clif_useitemack(sd,n,0,0);
 	}
 	if(sd->status.inventory[n].card[0]==CARD0_CREATE &&
 		pc_famerank(MakeDWord(sd->status.inventory[n].card[2],sd->status.inventory[n].card[3]), MAPID_ALCHEMIST))
@@ -3304,7 +3715,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 		itemid = md->db->dropitem[i].nameid;
 		if(itemid <= 0)
 			continue;
-		if(rand() % 10000 < md->db->dropitem[i].p*rate/100)
+		if(rnd() % 10000 < md->db->dropitem[i].p*rate/100)
 			break;
 	}
 	if (i == MAX_STEAL_DROP)
@@ -3363,8 +3774,8 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
 
 	skill = pc_checkskill(sd,RG_STEALCOIN)*10;
 	rate = skill + (sd->status.base_level - md->level)*3 + sd->battle_status.dex*2 + sd->battle_status.luk*2;
-	if(rand()%1000 < rate) {
-		pc_getzeny(sd,md->level*10 + rand()%100);
+	if(rnd()%1000 < rate) {
+		pc_getzeny(sd,md->level*10 + rnd()%100);
 		md->state.steal_coin_flag = 1;
 		return 1;
 	}
@@ -3439,6 +3850,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 				}
 				if(merc_is_hom_active(sd->hd)) //Hom is auto-saved in chrif_save
 					unit_remove_map(&sd->hd->bl, clrtype);
+				if(sd->md) // [Backport] hired merc: saved+freed in unit_free; reloads on the new map-server
+					unit_remove_map(&sd->md->bl, clrtype);
 
 				chrif_save(sd,2);
 				chrif_changemapserver(sd, mapindex, x, y, ip, (short)port);
@@ -3462,8 +3875,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 				ShowError("pc_setpos: attempt to place player %s (%d:%d) on non-walkable tile (%s-%d,%d)\n", sd->status.name, sd->status.account_id, sd->status.char_id, mapindex_id2name(mapindex),x,y);
 		}
 		do {
-			x=rand()%(map[m].xs-2)+1;
-			y=rand()%(map[m].ys-2)+1;
+			x=rnd()%(map[m].xs-2)+1;
+			y=rnd()%(map[m].ys-2)+1;
 		} while(map_getcell(m,x,y,CELL_CHKNOPASS));
 	}
 
@@ -3473,6 +3886,8 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 			unit_remove_map(&sd->pd->bl, clrtype);
 		if(merc_is_hom_active(sd->hd))
 			unit_remove_map(&sd->hd->bl, clrtype);
+		if(sd->md) // [Backport] hired merc follows the master through warps (re-added in LoadEndAck)
+			unit_remove_map(&sd->md->bl, clrtype);
 		clif_changemap(sd,map[m].index,x,y); // [MouseJstr]
 	} else if(sd->state.auth)
 		//Tag player for rewarping after map-loading is done. [Skotlex]
@@ -3504,6 +3919,13 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 		sd->hd->ud.dir = sd->ud.dir;
 	}
 
+	if(sd->md) {	// [Backport] hired mercenary follows the master on map change
+		sd->md->bl.m = m;
+		sd->md->bl.x = sd->md->ud.to_x = x;
+		sd->md->bl.y = sd->md->ud.to_y = y;
+		sd->md->ud.dir = sd->ud.dir;
+	}
+
 	return 0;
 }
 
@@ -3523,8 +3945,8 @@ int pc_randomwarp(struct map_session_data *sd, int type)
 		return 0;
 
 	do{
-		x=rand()%(map[m].xs-2)+1;
-		y=rand()%(map[m].ys-2)+1;
+		x=rnd()%(map[m].xs-2)+1;
+		y=rnd()%(map[m].ys-2)+1;
 	}while(map_getcell(m,x,y,CELL_CHKNOPASS) && (i++)<1000 );
 
 	if (i < 1000)
@@ -3599,6 +4021,9 @@ int pc_checkskill(struct map_session_data *sd,int skill_id)
 			return guild_checkskill(g,skill_id);
 		return 0;
 	}
+
+	if( skill_id < 0 || skill_id >= MAX_SKILL )
+		return 0;
 
 	if(sd->status.skill[skill_id].id == skill_id)
 		return (sd->status.skill[skill_id].lv);
@@ -4082,6 +4507,7 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	clif_updatestatus(sd,SP_BASELEVEL);
 	clif_updatestatus(sd,SP_NEXTBASEEXP);
 	status_calc_pc(sd,0);
+	achievement_progress(sd, AG_BASELEVEL, 0, sd->status.base_level);
 	status_percent_heal(&sd->bl,100,100);
 
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
@@ -4130,6 +4556,7 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 
 	clif_updatestatus(sd,SP_JOBLEVEL);
 	clif_updatestatus(sd,SP_NEXTJOBEXP);
+	achievement_progress(sd, AG_JOBLEVEL, 0, sd->status.job_level);
 	clif_updatestatus(sd,SP_SKILLPOINT);
 	status_calc_pc(sd,0);
 	clif_misceffect(&sd->bl,1);
@@ -4170,7 +4597,11 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 
 	if (battle_config.pk_mode && 
 		(int)(status_get_lv(src) - sd->status.base_level) >= 20)
-		bonus += 15; // pk_mode additional exp if monster >20 levels [Valaris]	
+		bonus += 15; // pk_mode additional exp if monster >20 levels [Valaris]
+
+	// Battle/Field Manual (SC_EXPBOOST): +val1% base & job exp [eAthena]
+	if (sd->sc.data[SC_EXPBOOST].timer != -1)
+		bonus += sd->sc.data[SC_EXPBOOST].val1;
 
 	if (!bonus)
 		return;
@@ -4564,8 +4995,8 @@ int pc_resetlvl(struct map_session_data* sd,int type)
 	sd->status.skill_point=0;
 	sd->status.base_level=1;
 	sd->status.job_level=1;
-	sd->status.base_exp=sd->status.base_exp=0;
-	sd->status.job_exp=sd->status.job_exp=0;
+	sd->status.base_exp=0;
+	sd->status.job_exp=0;
 	if(sd->sc.option !=0)
 		sd->sc.option = 0;
 
@@ -4577,9 +5008,10 @@ int pc_resetlvl(struct map_session_data* sd,int type)
 	sd->status.luk=1;
 	if(sd->status.class_ == JOB_NOVICE_HIGH)
 		sd->status.status_point=100;	// not 88 [celest]
-		// give platinum skills upon changing
-		pc_skill(sd,142,1,0);
-		pc_skill(sd,143,1,0);
+
+	// give platinum skills upon changing
+	pc_skill(sd,142,1,0);
+	pc_skill(sd,143,1,0);
 	}
 
 	if(type == 2){
@@ -4818,13 +5250,43 @@ int pc_skillatk_bonus(struct map_session_data *sd, int skill_num)
 
 int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
 {
-	int i;
+	int i, bonus = sd->add_heal_rate;	// bHealPower: flat +% to healing output (gated per-skill below)
+
+	if( bonus )
+	{
+		switch( skill_num )
+		{
+		case AL_HEAL:           if( !(battle_config.skill_add_heal_rate&1) ) bonus = 0; break;
+		case PR_SANCTUARY:      if( !(battle_config.skill_add_heal_rate&2) ) bonus = 0; break;
+		case AM_POTIONPITCHER:  if( !(battle_config.skill_add_heal_rate&4) ) bonus = 0; break;
+		case CR_SLIMPITCHER:    if( !(battle_config.skill_add_heal_rate&8) ) bonus = 0; break;
+		case BA_APPLEIDUN:      if( !(battle_config.skill_add_heal_rate&16) ) bonus = 0; break;
+		}
+	}
+
 	for (i = 0; i < ARRAYLENGTH(sd->skillheal) && sd->skillheal[i].id; i++)
 	{
-		if (sd->skillheal[i].id == skill_num)
-			return sd->skillheal[i].val;
+		if (sd->skillheal[i].id == skill_num) {
+			bonus += sd->skillheal[i].val;	// bSkillHeal: per-skill heal +%
+			break;
+		}
 	}
-	return 0;
+	return bonus;
+}
+
+// Heal-received bonus on the TARGET: flat add_heal2_rate (bHealpower2) + per-skill skillheal2 (bSkillHeal2).
+int pc_skillheal2_bonus(struct map_session_data *sd, int skill_num)
+{
+	int i, bonus = sd->add_heal2_rate;
+
+	for (i = 0; i < ARRAYLENGTH(sd->skillheal2) && sd->skillheal2[i].id; i++)
+	{
+		if (sd->skillheal2[i].id == skill_num) {
+			bonus += sd->skillheal2[i].val;
+			break;
+		}
+	}
+	return bonus;
 }
 
 static int pc_respawn(int tid,unsigned int tick,intptr_t id,intptr_t data)
@@ -5004,8 +5466,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			eq_num++;
 		}
 		if(eq_num > 0){
-			int n = eq_n[rand()%eq_num];
-			if(rand()%10000 < sd->status.karma){
+			int n = eq_n[rnd()%eq_num];
+			if(rnd()%10000 < sd->status.karma){
 				if(sd->status.inventory[n].equip)
 					pc_unequipitem(sd,n,0);
 				pc_dropitem(sd,n,1);
@@ -5117,8 +5579,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 					}
 				}
 				if(eq_num > 0){
-					int n = eq_n[rand()%eq_num];
-					if(rand()%10000 < per){
+					int n = eq_n[rnd()%eq_num];
+					if(rnd()%10000 < per){
 						if(sd->status.inventory[n].equip)
 							pc_unequipitem(sd,n,3);
 						pc_dropitem(sd,n,1);
@@ -5128,7 +5590,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			else if(id > 0){
 				for(i=0;i<MAX_INVENTORY;i++){
 					if(sd->status.inventory[i].nameid == id
-						&& rand()%10000 < per
+						&& rnd()%10000 < per
 						&& ((type == 1 && !sd->status.inventory[i].equip)
 							|| (type == 2 && sd->status.inventory[i].equip)
 							|| type == 3) ){
@@ -5536,6 +5998,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	clif_updatestatus(sd,SP_JOBLEVEL);
 	clif_updatestatus(sd,SP_JOBEXP);
 	clif_updatestatus(sd,SP_NEXTJOBEXP);
+	achievement_progress(sd, AG_JOBCHANGE, job, 1);
 
 	for(i=0;i<EQI_MAX;i++) {
 		if(sd->equip_index[i] >= 0)
@@ -5816,6 +6279,8 @@ int pc_setriding(TBL_PC* sd, int flag)
 int pc_candrop(struct map_session_data *sd,struct item *item)
 {
 	int level = pc_isGM(sd);
+	if( item && item->expire_time ) // [Backport] rental items can't be dropped
+		return 0;
 	if ( pc_can_give_items(level) ) //check if this GM level can drop items
 		return 0;
 	return (itemdb_isdropable(item, level));
@@ -6395,7 +6860,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 	pc_checkallowskill(sd); //Check if status changes should be halted.
 
 
-	status_calc_pc(sd,0);
+	status_calc_pc_defer(sd);	// [perf 7] coalesce equip-swap recompute (flag off = inline)
 	if (flag) //Update skill data
 		clif_skillinfoblock(sd);
 
@@ -6431,6 +6896,9 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 {
 	int i;
 	nullpo_retr(0, sd);
+
+	if (n < 0 || n >= MAX_INVENTORY) //guard all callers, not just the packet handler
+		return 0;
 
 // -- moonsoul	(if player is berserk then cannot unequip)
 //
@@ -6485,11 +6953,14 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		sd->weapontype1 == 0 && sd->weapontype2 == 0)
 		skill_enchant_elemental_end(&sd->bl,-1);
 
+	if( sd->state.autobonus&sd->status.inventory[n].equip )
+		sd->state.autobonus &= ~sd->status.inventory[n].equip; //Check for activated autobonus [Inkfish]
+
 	sd->status.inventory[n].equip=0;
 
 	if(flag&1) {
 		pc_checkallowskill(sd);
-		status_calc_pc(sd,0);
+		status_calc_pc_defer(sd);	// [perf 7] coalesce equip-swap recompute (flag off = inline)
 	}
 
 	if(sd->sc.count && sd->sc.data[SC_SIGNUMCRUCIS].timer != -1 && !battle_check_undead(sd->battle_status.race,sd->battle_status.def_ele))
@@ -6852,6 +7323,39 @@ void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick)
 }
 
 /*==========================================
+ * Item-granted HP/SP regen (bonus2 bHPRegenRate/bSPRegenRate): the opposite of
+ * HP/SP Loss -- gain `value` HP/SP every `rate` ms. Ticks unconditionally (eAthena
+ * pre-renewal long-standing behaviour: r13... "make regen work always, like Hp/Sp
+ * Loss"), no heal popup. status_heal flag 0 -> Berserk still suppresses HP regen.
+ * rate>0 is required so a malformed item (rate 0) cannot spin the while-loops.
+ *------------------------------------------*/
+void pc_regen (struct map_session_data *sd, unsigned int diff_tick)
+{
+	int hp = 0, sp = 0;
+
+	if (sd->hp_regen_value > 0 && sd->hp_regen_rate > 0) {
+		sd->hp_regen_tick += diff_tick;
+		while (sd->hp_regen_tick >= sd->hp_regen_rate) {
+			hp += sd->hp_regen_value;
+			sd->hp_regen_tick -= sd->hp_regen_rate;
+		}
+	}
+
+	if (sd->sp_regen_value > 0 && sd->sp_regen_rate > 0) {
+		sd->sp_regen_tick += diff_tick;
+		while (sd->sp_regen_tick >= sd->sp_regen_rate) {
+			sp += sd->sp_regen_value;
+			sd->sp_regen_tick -= sd->sp_regen_rate;
+		}
+	}
+
+	if (hp > 0 || sp > 0)
+		status_heal(&sd->bl, hp, sp, 0);
+
+	return;
+}
+
+/*==========================================
  * Z?u|Cg
  *------------------------------------------*/
 int pc_setsavepoint(struct map_session_data *sd, short mapindex,int x,int y)
@@ -7003,6 +7507,9 @@ void pc_setstand(struct map_session_data *sd){
 /*==========================================
  * Duel organizing functions [LuzZza]
  *------------------------------------------*/
+struct duel_data duel_list[MAX_DUEL];	// real definitions (declared extern in map.h)
+int duel_count = 0;
+
 void duel_savetime(struct map_session_data* sd)
 {
 	time_t timer;
@@ -7068,7 +7575,7 @@ int duel_create(struct map_session_data* sd, const unsigned int maxpl)
 	int i=1;
 	char output[256];
 
-	while(duel_list[i].members_count > 0 && i < MAX_DUEL) i++;
+	while(i < MAX_DUEL && duel_list[i].members_count > 0) i++;
 	if(i == MAX_DUEL) return 0;
 
 	duel_count++;
@@ -7497,6 +8004,8 @@ int do_init_pc(void)
 	add_timer_func_list(pc_autosave, "pc_autosave");
 	add_timer_func_list(pc_spiritball_timer, "pc_spiritball_timer");
 	add_timer_func_list(pc_follow_timer, "pc_follow_timer");
+	add_timer_func_list(pc_endautobonus, "pc_endautobonus");
+	add_timer_func_list(pc_inventory_rental_end, "pc_inventory_rental_end"); // [Backport] rental
 
 	add_timer(gettick() + autosave_interval, pc_autosave, 0, 0);
 

@@ -147,7 +147,7 @@ alb2trea,59,69,1	script	Kafra::kaf_alb2trea	117,{
 
 
 // Glastheim ----------------------------------------------------------------
-glast_01,202,82,4	script	Kafra	155,{
+glast_01,202,82,4	script	Kafra	115,{
     mes "[Kafra]";
     mes "Welcome to Kafra Service!";
     mes "Would you like to go back to the world of the living?";

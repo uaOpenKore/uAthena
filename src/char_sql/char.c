@@ -12,6 +12,8 @@
 #include "inter.h"
 #include "int_guild.h"
 #include "int_homun.h"
+#include "int_mercenary.h"	// [Backport] hired mercenary soldier
+#include "int_storage.h"
 #include "itemdb.h"
 #include "char.h"
 
@@ -42,6 +44,7 @@ char interlog_db[256] = "interlog";
 char reg_db[256] = "global_reg_value";
 char skill_db[256] = "skill";
 char memo_db[256] = "memo";
+char quest_db[256] = "quest";
 char guild_db[256] = "guild";
 char guild_alliance_db[256] = "guild_alliance";
 char guild_castle_db[256] = "guild_castle";
@@ -129,7 +132,7 @@ struct char_session_data{
 	int account_id, login_id1, login_id2, sex;
 	int found_char[MAX_CHARS];
 	char email[40]; // e-mail (default: a@a.com) by [Yor]
-	time_t connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
+	int connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
 };
 
 #define AUTH_FIFO_SIZE 256
@@ -138,7 +141,7 @@ struct {
 	uint32 ip;
 	int delflag;
 	int sex;
-	time_t connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
+	int connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
 } auth_fifo[AUTH_FIFO_SIZE];
 int auth_fifo_pos = 0;
 
@@ -304,7 +307,7 @@ void set_char_offline(int char_id, int account_id)
 static int char_db_setoffline(DBKey key, void* data, va_list ap)
 {
 	struct online_char_data* character = (struct online_char_data*)data;
-	int server = va_arg(ap, int);
+	int server = (int)va_arg(ap, intptr_t);
 	if (server == -1) {
 		character->char_id = -1;
 		character->server = -1;
@@ -320,7 +323,7 @@ static int char_db_setoffline(DBKey key, void* data, va_list ap)
 static int char_db_kickoffline(DBKey key, void* data, va_list ap)
 {
 	struct online_char_data* character = (struct online_char_data*)data;
-	int server = va_arg(ap, int);
+	int server = (int)va_arg(ap, intptr_t);
 
 	if (server > -1 && character->server != server)
 		return 0;
@@ -422,7 +425,8 @@ int compare_item(struct item *a, struct item *b)
 		a->equip == b->equip &&
 		a->identify == b->identify &&
 		a->refine == b->refine &&
-		a->attribute == b->attribute)
+		a->attribute == b->attribute &&
+		a->expire_time == b->expire_time)
 	{
 		int i;
 		for (i=0; i<MAX_SLOTS && a->card[i]==b->card[i]; i++);
@@ -473,6 +477,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			mapitem[count].identify = p->inventory[i].identify;
 			mapitem[count].refine = p->inventory[i].refine;
 			mapitem[count].attribute = p->inventory[i].attribute;
+			mapitem[count].expire_time = p->inventory[i].expire_time; // [Backport] rental
 			for (j=0; j<MAX_SLOTS; j++)
 				mapitem[count].card[j] = p->inventory[i].card[j];
 			count++;
@@ -499,6 +504,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			mapitem[count].identify = p->cart[i].identify;
 			mapitem[count].refine = p->cart[i].refine;
 			mapitem[count].attribute = p->cart[i].attribute;
+			mapitem[count].expire_time = p->cart[i].expire_time; // [Backport] rental
 			for (j=0; j<MAX_SLOTS; j++)
 				mapitem[count].card[j] = p->cart[i].card[j];
 			count++;
@@ -750,6 +756,11 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		}
 	}
 #endif
+
+	// [Backport] hired mercenary soldier owner data (mer_id, loyalty, calls)
+	if( mercenary_owner_tosql(char_id, p) )
+		strcat(save_status, " mercenary");
+
 	if (save_status[0]!='\0' && save_log)
 		ShowInfo("Saved char %d - %s:%s.\n", char_id, p->name, save_status);
 #ifndef TXT_SQL_CONVERT
@@ -785,6 +796,8 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 	for (j=0; j<MAX_SLOTS; j++)
 		str_p += sprintf(str_p, ", `card%d`", j);
 
+	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
+
 	str_p += sprintf(str_p, " FROM `%s` WHERE `%s`='%d'", tablename, selectoption, char_id);
 
 	if (mysql_query(&mysql_handle, tmp_sql)) {
@@ -811,7 +824,8 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 						mapitem[i].equip == atoi(sql_row[3]) &&
 						mapitem[i].identify == atoi(sql_row[4]) &&
 						mapitem[i].refine == atoi(sql_row[5]) &&
-						mapitem[i].attribute == atoi(sql_row[6]))
+						mapitem[i].attribute == atoi(sql_row[6]) &&
+						mapitem[i].expire_time == (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10))
 					{ //Do nothing.
 					} else
 //==============================================Memory data > SQL ===============================
@@ -834,7 +848,9 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 						
 						for(j=0; j<MAX_SLOTS; j++)
 							str_p += sprintf(str_p, ", `card%d`=%d", j, mapitem[i].card[j]);
-						
+
+						str_p += sprintf(str_p, ", `expire_time`='%u'", mapitem[i].expire_time); // [Backport] rental
+
 						str_p += sprintf(str_p,", `amount`='%d' WHERE `id`='%d' LIMIT 1",
 							mapitem[i].amount, id);
 						
@@ -867,14 +883,16 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 				tablename, selectoption);
 			for(j=0; j<MAX_SLOTS; j++)
 				str_p += sprintf(str_p,", `card%d`", j);
-			
+			str_p += sprintf(str_p,", `expire_time`"); // [Backport] rental
+
 			str_p += sprintf(str_p,") VALUES ( '%d','%d', '%d', '%d', '%d', '%d', '%d'",
 				char_id, mapitem[i].nameid, mapitem[i].amount, mapitem[i].equip, mapitem[i].identify, mapitem[i].refine,
 				mapitem[i].attribute);
-			
+
 			for(j=0; j<MAX_SLOTS; j++)
 				str_p +=sprintf(str_p,", '%d'",mapitem[i].card[j]);
-		
+			str_p +=sprintf(str_p,", '%u'",mapitem[i].expire_time); // [Backport] rental
+
 			strcat(tmp_sql, ")");
 			if(mysql_query(&mysql_handle, tmp_sql))
 			{
@@ -1006,6 +1024,8 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	for (j=0; j<MAX_SLOTS; j++)
 		str_p += sprintf(str_p, ", `card%d`", j);
 
+	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
+
 	str_p += sprintf(str_p, " FROM `%s` WHERE `char_id`='%d'", inventory_db, char_id);
 
 	if (mysql_query(&mysql_handle, tmp_sql)) {
@@ -1024,6 +1044,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 			p->inventory[i].attribute = atoi(sql_row[6]);
 			for (j=0; j<MAX_SLOTS; j++)
 				p->inventory[i].card[j] = atoi(sql_row[7+j]);
+			p->inventory[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 		}
 		mysql_free_result(sql_res);
 		strcat (t_msg, " inventory");
@@ -1034,6 +1055,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	str_p = tmp_sql;
 	str_p += sprintf(str_p, "SELECT `id`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`");
 	for (j = 0; j < MAX_SLOTS; j++) str_p += sprintf(str_p, ", `card%d`", j);
+	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
 	str_p += sprintf(str_p, " FROM `%s` WHERE `char_id`='%d'", cart_db, char_id);
 
 	if (mysql_query(&mysql_handle, tmp_sql)) {
@@ -1052,6 +1074,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 			p->cart[i].attribute = atoi(sql_row[6]);
 			for(j=0; j<MAX_SLOTS; j++)
 				p->cart[i].card[j] = atoi(sql_row[7+j]);
+			p->cart[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 		}
 		mysql_free_result(sql_res);
 		strcat (t_msg, " cart");
@@ -1123,6 +1146,10 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 		strcat (t_msg, " hotkeys");
 	}
 #endif
+
+	// [Backport] hired mercenary soldier owner data (mer_id, loyalty, calls)
+	mercenary_owner_fromsql(char_id, p);
+	strcat(t_msg, " mercenary");
 
 	if (save_log) ShowInfo("Loaded char (%d - %s): %s\n", char_id, p->name, t_msg);	//ok. all data load successfuly!
 
@@ -1474,6 +1501,9 @@ int delete_char_sql(int char_id, int partner_id)
 	if (hom_id)
 		inter_delete_homunculus(hom_id);
 
+	/* remove hired mercenary soldier data [Backport] */
+	mercenary_owner_delete(char_id);
+
 	/* delete char's friends list */
 	sprintf(tmp_sql, "DELETE FROM `%s` WHERE `char_id` = '%d'",friend_db, char_id);
 	if(mysql_query(&mysql_handle, tmp_sql)) {
@@ -1625,9 +1655,9 @@ int mmo_char_tobuf(uint8* buf, struct mmo_charstatus* p)
 		return 0;
 
 	WBUFL(buf,0) = p->char_id;
-	WBUFL(buf,4) = min(p->base_exp, LONG_MAX);
+	WBUFL(buf,4) = p->base_exp;
 	WBUFL(buf,8) = p->zeny;
-	WBUFL(buf,12) = min(p->job_exp, LONG_MAX);
+	WBUFL(buf,12) = p->job_exp;
 	WBUFL(buf,16) = p->job_level;
 	WBUFL(buf,20) = 0; // probably opt1
 	WBUFL(buf,24) = 0; // probably opt2
@@ -1830,7 +1860,7 @@ int parse_fromlogin(int fd)
 					WFIFOSET(i,3);
 				} else {
 					memcpy(sd->email, RFIFOP(fd, 7), 40);
-					sd->connect_until_time = (time_t)RFIFOL(fd,47);
+					sd->connect_until_time = RFIFOL(fd,47);
 					char_auth_ok(i, sd);
 				}
 			}
@@ -1844,7 +1874,7 @@ int parse_fromlogin(int fd)
 				if (session[i] && (sd = (struct char_session_data*)session[i]->session_data)) {
 					if (sd->account_id == RFIFOL(fd,2)) {
 						memcpy(sd->email, RFIFOP(fd,6), 40);
-						sd->connect_until_time = (time_t)RFIFOL(fd,46);
+						sd->connect_until_time = RFIFOL(fd,46);
 						break;
 					}
 				}
@@ -2396,6 +2426,7 @@ int parse_frommap(int fd)
 			}
 			server_fd[id] = -1;
 			online_char_db->foreach(online_char_db,char_db_setoffline,id); //Tag relevant chars as 'in disconnected' server.
+			inter_storage_guildlock_release(fd); //free any guild-storage locks this map-server held
 		}
 		do_close(fd);
 		return 0;
@@ -2428,7 +2459,7 @@ int parse_frommap(int fd)
 
 			memset(server[id].map, 0, sizeof(server[id].map));
 			j = 0;
-			for(i = 4; i < RFIFOW(fd,2); i += 4) {
+			for(i = 4; i < RFIFOW(fd,2) && j < MAX_MAP_PER_SERVER; i += 4) {
 				server[id].map[j] = RFIFOW(fd,i);
 				j++;
 			}
@@ -2670,7 +2701,7 @@ int parse_frommap(int fd)
 				WFIFOL(map_fd,4) = RFIFOL(fd,2); //Account ID
 				WFIFOL(map_fd,8) = RFIFOL(fd,6); //Login1
 				WFIFOL(map_fd,16) = RFIFOL(fd,10); //Login2
-				WFIFOL(map_fd,12) = (unsigned long)0; //TODO: connect_until_time, how do I figure it out right now?
+				WFIFOL(map_fd,12) = 0; //TODO: connect_until_time, how do I figure it out right now?
 				memcpy(WFIFOP(map_fd,20), char_data, sizeof(struct mmo_charstatus));
 				WFIFOSET(map_fd, WFIFOW(map_fd,2));
 				data = idb_ensure(online_char_db, RFIFOL(fd, 2), create_online_char_data);
@@ -3093,9 +3124,9 @@ int parse_char(int fd)
 		{
 
 		case 0x65: // request to connect
-			ShowInfo("request connect - account_id:%d/login_id1:%d/login_id2:%d\n", RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10));
 			if (RFIFOREST(fd) < 17)
 				return 0;
+			ShowInfo("request connect - account_id:%d/login_id1:%d/login_id2:%d\n", RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10));
 		{
 			if (sd) {
 				//Received again auth packet for already authentified account?? Discard it.
@@ -3277,7 +3308,7 @@ int parse_char(int fd)
 			WFIFOL(map_fd,4) = auth_fifo[auth_fifo_pos].account_id;
 			WFIFOL(map_fd,8) = auth_fifo[auth_fifo_pos].login_id1;
 			WFIFOL(map_fd,16) = auth_fifo[auth_fifo_pos].login_id2;
-			WFIFOL(map_fd,12) = (unsigned long)auth_fifo[auth_fifo_pos].connect_until_time;
+			WFIFOL(map_fd,12) = auth_fifo[auth_fifo_pos].connect_until_time;
 			memcpy(WFIFOP(map_fd,20), &char_dat, sizeof(struct mmo_charstatus));
 			WFIFOSET(map_fd, WFIFOW(map_fd,2));
 
@@ -3335,6 +3366,7 @@ int parse_char(int fd)
 
 			ShowInfo(CL_RED"Request Char Deletion: "CL_GREEN"%d (%d)"CL_RESET"\n", sd->account_id, cid);
 			memcpy(email, RFIFOP(fd,6), 40);
+			email[sizeof(email)-1] = '\0'; //packet field may not be NUL-terminated; strcmpi below would over-read
 			RFIFOSKIP(fd,RFIFOREST(fd)); // hack to make the other deletion packet work
 
 			// Check if e-mail is correct
@@ -3607,8 +3639,8 @@ int send_users_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data)
 static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
 {
 	struct online_char_data* character = (struct online_char_data*)data;
-	int *i = va_arg(ap, int*);
-	int count = va_arg(ap, int);
+	int *i = (int *)va_arg(ap, intptr_t);
+	int count = (int)va_arg(ap, intptr_t);
 	if ((*i) >= count)
 		return 0; //This is an error that shouldn't happen....
 	if(character->server > -1) {
@@ -4014,7 +4046,7 @@ void do_final(void)
 
 	mapindex_final();
 
-	sprintf(tmp_sql,"DELETE FROM `ragsrvinfo");
+	sprintf(tmp_sql,"DELETE FROM `ragsrvinfo`");
 	if (mysql_query(&mysql_handle, tmp_sql))
 	{
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));

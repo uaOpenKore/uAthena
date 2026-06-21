@@ -45,7 +45,10 @@ int lock_fclose (FILE *fp, const char* filename, int *info) {
 		// ���̃^�C�~���O�ŗ�����ƍň��B
 		if ((ret = rename(newfile,filename)) != 0) {	// rename our temporary file to its correct name
 			char ebuf[255];
-			ShowError("%s - '"CL_WHITE"%s"CL_RESET"'\n", strerror_r(errno, ebuf, sizeof(ebuf)), newfile);
+			ebuf[0] = '\0';
+			if (strerror_r(errno, ebuf, sizeof(ebuf)) != 0 || ebuf[0] == '\0')
+				snprintf(ebuf, sizeof(ebuf), "errno %d", errno);
+			ShowError("%s - '"CL_WHITE"%s"CL_RESET"'\n", ebuf, newfile);
 		}
 	}
 

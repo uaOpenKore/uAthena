@@ -11,6 +11,7 @@
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
 #include "../common/version.h"
+#include "../common/random.h"
 #include "../common/md5calc.h"
 #include "login.h"
 
@@ -683,8 +684,14 @@ int mmo_auth(struct mmo_account* account, int fd)
 		}
 	}
 
-	account->login_id1 = rand();
-	account->login_id2 = rand();
+	// Session auth tokens must be unpredictable (a guessed pair lets an attacker
+	// hijack the char/map handoff) - draw from the kernel CSPRNG, not rand().
+	{
+		uint32 sid[2];
+		if (!rnd_secure_fill(sid, sizeof(sid))) { sid[0] = rnd_u32(); sid[1] = rnd_u32(); }
+		account->login_id1 = (int)(sid[0] & 0x7FFFFFFF);
+		account->login_id2 = (int)(sid[1] & 0x7FFFFFFF);
+	}
 
 	if (account->sex != 2 && account->account_id < START_ACCOUNT_NUM)
 		ShowWarning("Account %s has account id %d! Account IDs must be over %d to work properly!\n", account->userid, account->account_id, START_ACCOUNT_NUM);
@@ -701,7 +708,7 @@ int mmo_auth(struct mmo_account* account, int fd)
 static int online_db_setoffline(DBKey key, void* data, va_list ap)
 {
 	struct online_login_data *p = (struct online_login_data *)data;
-	int server = va_arg(ap, int);
+	int server = (int)va_arg(ap, intptr_t);
 	if (server == -1) {
 		p->char_server = -1;
 		if (p->waiting_disconnect != -1)
@@ -801,8 +808,10 @@ int parse_fromchar(int fd)
 				sql_res = mysql_store_result(&mysql_handle) ;
 				if (sql_res) {
 					sql_row = mysql_fetch_row(sql_res);
-					connect_until_time = atol(sql_row[1]);
-					strncpy(email, sql_row[0], 40); email[39] = 0;
+					if (sql_row) {
+						connect_until_time = atol(sql_row[1]);
+						strncpy(email, sql_row[0], 40); email[39] = 0;
+					}
 					mysql_free_result(sql_res);
 				}
 				WFIFOHEAD(fd,51);
@@ -865,8 +874,10 @@ int parse_fromchar(int fd)
 			sql_res = mysql_store_result(&mysql_handle) ;
 			if (sql_res) {
 				sql_row = mysql_fetch_row(sql_res);
-				connect_until_time = atol(sql_row[1]);
-				strcpy(email, sql_row[0]);
+				if (sql_row) {
+					connect_until_time = atol(sql_row[1]);
+					strncpy(email, sql_row[0], 40); email[39] = 0;
+				}
 			}
 			mysql_free_result(sql_res);
 			//printf("parse_fromchar: E-mail/limited time request from '%s' server (concerned account: %d)\n", server[id].name, RFIFOL(fd,2));
@@ -927,7 +938,7 @@ int parse_fromchar(int fd)
 				if (sql_res) {
 					sql_row = mysql_fetch_row(sql_res);	//row fetching
 
-					if (strcmpi(sql_row[1], actual_email) == 0) {
+					if (sql_row && strcmpi(sql_row[1], actual_email) == 0) {
 						sprintf(tmpsql, "UPDATE `%s` SET `email` = '%s' WHERE `%s` = '%d'", login_db, new_email, login_db_account_id, acc);
 						// query
 						if (mysql_query(&mysql_handle, tmpsql)) {
@@ -937,6 +948,7 @@ int parse_fromchar(int fd)
 						ShowInfo("Char-server '%s': Modify an e-mail on an account (@email GM command) (account: %d (%s), new e-mail: %s, ip: %s)." RETCODE,
 							server[id].name, acc, sql_row[0], actual_email, ip);
 					}
+					mysql_free_result(sql_res);
 				}
 
 			}
@@ -958,10 +970,8 @@ int parse_fromchar(int fd)
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
 			}
 			sql_res = mysql_store_result(&mysql_handle);
-			if (sql_res) {
-				sql_row = mysql_fetch_row(sql_res); // row fetching
-			}
-			if (atoi(sql_row[0]) != statut && statut != 0) {
+			sql_row = sql_res ? mysql_fetch_row(sql_res) : NULL;
+			if (sql_row && atoi(sql_row[0]) != statut && statut != 0) {
 				unsigned char buf[16];
 				WBUFW(buf,0) = 0x2731;
 				WBUFL(buf,2) = acc;
@@ -969,6 +979,8 @@ int parse_fromchar(int fd)
 				WBUFL(buf,7) = statut; // status or final date of a banishment
 				charif_sendallwos(-1, buf, 11);
 			}
+			if (sql_res)
+				mysql_free_result(sql_res);
 			sprintf(tmpsql,"UPDATE `%s` SET `state` = '%d' WHERE `%s` = '%d'", login_db, statut,login_db_account_id,acc);
 			//query
 			if(mysql_query(&mysql_handle, tmpsql)) {
@@ -994,10 +1006,10 @@ int parse_fromchar(int fd)
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
 			}
 			sql_res = mysql_store_result(&mysql_handle);
-			if (sql_res) {
-				sql_row = mysql_fetch_row(sql_res); // row fetching
-			}
-			tmptime = atol(sql_row[0]);
+			sql_row = sql_res ? mysql_fetch_row(sql_res) : NULL;
+			tmptime = sql_row ? atol(sql_row[0]) : 0;
+			if (sql_res)
+				mysql_free_result(sql_res);
 			if (tmptime == 0 || tmptime < time(NULL))
 				timestamp = time(NULL);
 			else
@@ -1052,19 +1064,18 @@ int parse_fromchar(int fd)
 			}
 
 			sql_res = mysql_store_result(&mysql_handle) ;
-
-			if (sql_res)	{
-				if (mysql_num_rows(sql_res) == 0) {
+			sql_row = sql_res ? mysql_fetch_row(sql_res) : NULL;
+			if (sql_row == NULL) {
+				if (sql_res)
 					mysql_free_result(sql_res);
-					return 0;
-				}
-				sql_row = mysql_fetch_row(sql_res);	//row fetching
+				return 0;
 			}
 
 			if (strcmpi(sql_row[0], "M") == 0)
 				sex = 0; //Change to female
 			else
 				sex = 1; //Change to make
+			mysql_free_result(sql_res);
 			sprintf(tmpsql,"UPDATE `%s` SET `sex` = '%c' WHERE `%s` = '%d'", login_db, (sex?'M':'F'), login_db_account_id, acc);
 			//query
 			if(mysql_query(&mysql_handle, tmpsql)) {
@@ -1556,9 +1567,10 @@ int parse_login(int fd)
 
 			// Creation of the coding key
 			memset(ld->md5key, '\0', sizeof(ld->md5key));
-			ld->md5keylen = (uint16)(12 + rand() % 4);
+			ld->md5keylen = (uint16)(12 + rnd() % 4); // length 12-15 (not secret)
+			rnd_secure_fill(ld->md5key, ld->md5keylen); // the challenge key must be unpredictable
 			for(i = 0; i < ld->md5keylen; i++)
-				ld->md5key[i] = (char)(1 + rand() % 255);
+				ld->md5key[i] = (char)(1 + ((unsigned char)ld->md5key[i] % 255)); // [1,255], no NUL byte
 
 			WFIFOHEAD(fd,4 + ld->md5keylen);
 			WFIFOW(fd,0) = 0x01dc;
@@ -1990,7 +2002,7 @@ int do_init(int argc, char** argv)
 	sql_config_read(SQL_CONF_NAME);
 	login_lan_config_read((argc > 2) ? argv[2] : LAN_CONF_NAME);
 
-	srand((unsigned int)time(NULL));
+	rnd_init(); // seed the game PRNG; auth tokens/keys use the CSPRNG (rnd_secure_fill) directly
 
 	for(i=0;i<AUTH_FIFO_SIZE;i++)
 		auth_fifo[i].delflag=1;

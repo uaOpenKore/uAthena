@@ -9,11 +9,21 @@ struct block_list;
 struct mob_data;
 struct pet_data;
 struct homun_data;
+struct mercenary_data;	// [Backport]
 struct status_change;
 
 //Use this to refer the max refinery level [Skotlex]
 #define MAX_REFINE 10
 #define MAX_REFINE_BONUS 5
+// Absolute hard ceiling for item.refine (the over-refine range +11..+99). item.refine is char
+// (max 127) and the DB column is tinyint unsigned (max 255), so 99 is safely stored/transported.
+// The canon success table (percentrefinery) and bonus arrays stay sized by MAX_REFINE; the
+// over-range is driven by formulas (status_refine_chance / status_refine_bonus) gated by the
+// battle_config.refine_* knobs. Used by @refine/@item AND the refiner NPC (player path). The
+// WS_WEAPONREFINE blacksmith skill stays capped at MAX_REFINE by design. [refine99]
+#define MAX_REFINE_GM 99
+// success % to refine wlv (0=armor) from `refine` to refine+1 (canon table 0..9, formula above)
+int status_refine_chance(int wlv, int refine);
 
 extern unsigned long StatusChangeFlagTable[];
 
@@ -269,6 +279,24 @@ enum {
 	SC_CRITICALWOUND,
 	SC_MAGICMIRROR,
 	SC_SLOWCAST,
+	SC_SUMMER,	//256 (placeholder to keep enum aligned with const.txt)
+	SC_EXPBOOST,	//257 - Battle/Field Manual exp boost
+	SC_ITEMBOOST,	//258 - Bubble Gum drop boost
+	SC_FOOD_STR_CASH,	//259 - cash-shop stat food, distinct from normal food
+	SC_FOOD_AGI_CASH,	//260
+	SC_FOOD_VIT_CASH,	//261
+	SC_FOOD_INT_CASH,	//262
+	SC_FOOD_DEX_CASH,	//263
+	SC_FOOD_LUK_CASH,	//264
+
+	// Mercenary Only Bonus Effects [Backport]
+	SC_MERC_FLEEUP,
+	SC_MERC_ATKUP,
+	SC_MERC_HPUP,
+	SC_MERC_SPUP,
+	SC_MERC_HITUP,
+	SC_MERC_QUICKEN,
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };
 int SkillStatusChangeTable(int skill);
@@ -561,7 +589,7 @@ enum {
 //Define to determine who gets HP/SP consumed on doing skills/etc. [Skotlex]
 #define BL_CONSUME (BL_PC|BL_HOM)
 //Define to determine who has regen
-#define BL_REGEN (BL_PC|BL_HOM)
+#define BL_REGEN (BL_PC|BL_HOM|BL_MER)
 
 int status_damage(struct block_list *src,struct block_list *target,int hp,int sp, int walkdelay, int flag);
 //Define for standard HP damage attacks.
@@ -652,7 +680,7 @@ int status_get_sc_def(struct block_list *bl, int type, int rate, int tick, int f
 #define sc_start2(bl, type, rate, val1, val2, tick) status_change_start(bl,type,100*(rate),val1,val2,0,0,tick,0)
 #define sc_start4(bl, type, rate, val1, val2, val3, val4, tick) status_change_start(bl,type,100*(rate),val1,val2,val3,val4,tick,0)
 
-int status_change_start(struct block_list *bl,int type,int rate,int val1,int val2,int val3,int val4,int tick,int flag);
+int status_change_start(struct block_list *bl,int type,int rate,intptr_t val1,intptr_t val2,intptr_t val3,intptr_t val4,int tick,int flag);
 int status_change_end( struct block_list* bl , int type,int tid );
 int kaahi_heal_timer(int tid, unsigned int tick, intptr_t id, intptr_t data);
 int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data);
@@ -663,8 +691,11 @@ int status_change_clear_buffs(struct block_list *bl, int type);
 void status_calc_bl(struct block_list *bl, unsigned long flag);
 int status_calc_pet(struct pet_data* pd, int first); // [Skotlex]
 int status_calc_pc(struct map_session_data* sd,int first);
+void status_calc_pc_defer(struct map_session_data *sd);	// [perf 7] coalesce equip-swap recompute to next tick
+void status_calc_pc_flush(struct map_session_data *sd);	// [perf 7] force any pending deferred recompute now
 int status_calc_mob(struct mob_data* md, int first); //[Skotlex]
 int status_calc_homunculus(struct homun_data *hd, int first);
+int status_calc_mercenary(struct mercenary_data *md, int first);	// [Backport]
 void status_calc_misc(struct block_list *bl, struct status_data *status, int level);
 void status_calc_regen(struct block_list *bl, struct status_data *status, struct regen_data *regen);
 void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, struct status_change *sc);

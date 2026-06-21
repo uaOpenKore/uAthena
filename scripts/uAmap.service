@@ -6,18 +6,40 @@ Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.t
 PartOf=uAthena.target
 ReloadPropagatedFrom=uAthena.target
 
+# Disable systemd's start-rate limiter: a crash-loop must keep restarting (and
+# keep producing crash dumps for later analysis) instead of latching into
+# 'failed'. StartLimitIntervalSec lives in [Unit] since systemd 230+.
+StartLimitIntervalSec=0
+
 [Service]
 Type=simple
 PIDFile=/opt/uathena/bin/PID-map.pid
 WorkingDirectory=/opt/uathena/bin/
-StandardOutput=/opt/uathena/log/uAmap.log
-StandardError=/opt/uathena/log/uAmap.log
+# This is the SUPERVISOR's console log (ua-start.sh map). Each individual map
+# server writes its OWN game log to /opt/uathena/log/uAmapN.log (N = instance).
+# append: so it PERSISTS across restarts/crashes instead of going to the journal.
+StandardOutput=append:/opt/uathena/log/uAmap.log
+StandardError=append:/opt/uathena/log/uAmap.log
 
 
 User=root
 Group=root
 
 OOMScoreAdjust=-500
+
+# NOTE: no CPUAffinity here. ua-start.sh runs a multi-map SUPERVISOR that pins
+# each map server to its own CPU pair with taskset (map#1 -> 0,1 ; map#N -> 2N,
+# 2N+1 ; CPUs 2-3 reserved for the NIC/system - see scripts/rc.local and
+# ua-mapcount.sh). A static CPUAffinity here would confine ALL instances to the
+# same cores, so it must NOT be set.
+
+# Stop only the supervisor (SIGTERM); it then stops its children gracefully
+# (do_final) and does NOT restart them. SIGKILL the whole group only on timeout.
+KillMode=mixed
+
+# Raise the open-file limit so the epoll/SOCKET_MAX connection headroom is
+# usable (per-process; each map instance gets its own limit).
+LimitNOFILE=65536
 
 ExecStart=/opt/uathena/bin/ua-start.sh map sql
 ExecStop=/opt/uathena/bin/ua-stop.sh map

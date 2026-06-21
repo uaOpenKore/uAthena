@@ -1,0 +1,63 @@
+1.
+https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.5.0-amd64-netinst.iso
+
+vi /etc/apt/sources.list
+deb http://deb.debian.org/debian/ trixie main non-free-firmware contrib
+deb http://security.debian.org/debian-security trixie-security main non-free-firmware
+deb http://deb.debian.org/debian/ trixie-updates main non-free-firmware
+deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware
+deb https://ftp.debian.org/debian/ trixie-proposed-updates contrib main non-free non-free-firmware
+
+apt update
+apt -y upgrade
+apt -y install git libncurses5-dev gcc make autoconf exuberant-ctags bc libssl-dev mc util-linux ethtool
+
+
+2.
+~ Сorrect creation of swap:
+dd if=/dev/zero of=/swapfile bs=1MB count=4096
+chmod 600 /swapfile
+/usr/sbin/mkswap /swapfile
+/usr/sbin/swapon /swapfile
+echo "/swapfile swap swap defaults 0 0" >>/etc/fstab
+echo "vm.swappiness = 15" >>/etc/sysctl.conf
+
+3.
+~ New kernel backport
+apt -y install -t trixie-backports linux-image-amd64 linux-headers-amd64 linux-perf
+reboot
+
+4.
+~ Install libs for making uAthena
+
+apt -y install zlib1g zlib1g-dev libc6-dev libmariadb-dev libmariadb-dev-compat ccache libpcre2-dev
+
+5.
+~  Instal SQL server if it needed in VM guest
+
+apt -y install mariadb-server
+systemctl start mariadb
+systemctl enable mariadb
+
+6.
+~ Install uAthena
+mkdir -p /GRF/data
+cd /GRF
+git clone git@github.com:uaOpenKore/uGATs.git data
+
+cd ~
+git clone git@github.com:uaOpenKore/uAthena.git
+
+cd ~/uAthena
+
+make
+make install
+
+cd dumps
+./dumps.sh create
+./dumps.sh install
+./dumps.sh update
+cd ..
+
+
+

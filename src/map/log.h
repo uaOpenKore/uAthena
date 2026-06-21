@@ -26,6 +26,11 @@ int log_mvpdrop(struct map_session_data *sd, int monster_id, int *log_mvp);
 
 int log_config_read(char *cfgName);
 
+//Asynchronous SQL log writer (log_async.c)
+int log_async_init(void);
+void log_async_final(void);
+int log_async_query(const char* sql);
+
 int should_log_item(int filter, int nameid, int amount); //log filter check
 
 enum log_what {

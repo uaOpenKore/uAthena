@@ -26,7 +26,9 @@
 #include "npc.h"
 #include "pet.h"
 #include "mercenary.h"	//[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "intif.h"
+#include "quest.h"
 #include "skill.h"
 #include "chat.h"
 #include "battle.h"
@@ -169,12 +171,17 @@ int str_hash[SCRIPT_HASH_SIZE];
 
 static struct dbt *mapreg_db=NULL;
 static struct dbt *mapregstr_db=NULL;
+static struct dbt *mapreg_dirty_db=NULL; // map registers changed since the last flush (a key-set)
 static int mapreg_dirty=-1;
 char mapreg_txt[256]="save/mapreg.txt";
-#define MAPREG_AUTOSAVE_INTERVAL	(300*1000)
+// Map registers are persisted off the game loop: per-event writes only touch
+// memory and mark the key dirty; this timer flushes the dirty set to the DB via
+// the async writer. 20s coalesces hot counters into one DB write per key.
+#define MAPREG_AUTOSAVE_INTERVAL	(20*1000)
 
 static struct dbt *scriptlabel_db=NULL;
 static struct dbt *userfunc_db=NULL;
+static struct dbt *autobonus_db=NULL; // const char* (script source) -> struct script_code* (parsed bytecode); parse-once cache [autobonus]
 static int parse_options=0;
 struct dbt* script_get_label_db(){ return scriptlabel_db; }
 struct dbt* script_get_userfunc_db(){ return userfunc_db; }
@@ -228,7 +235,8 @@ char mapregsql_db[32] = "mapreg";
 char mapregsql_db_varname[32] = "varname";
 char mapregsql_db_index[32] = "index";
 char mapregsql_db_value[32] = "value";
-char tmp_sql[65535];
+// tmp_sql is defined once in map.c (extern in map.h) — was redundantly
+// re-defined here, which breaks -fno-common.
 // --------------------------------------------------------
 #endif
 
@@ -250,7 +258,7 @@ static struct linkdb_node *sleep_db;
  * [Jvg^Cv (Kv)
  *------------------------------------------*/
 const char* parse_subexpr(const char* p,int limit);
-void push_val(struct script_stack *stack,int type,int val);
+void push_val(struct script_stack *stack,int type,intptr_t val);
 int run_func(struct script_state *st);
 
 int mapreg_setreg(int num,int val);
@@ -435,7 +443,7 @@ static void script_reportdata(struct script_data* data)
 		ShowDebug("Data: nothing (nil)\n");
 		break;
 	case C_INT:// number
-		ShowDebug("Data: number value=%d\n", data->u.num);
+		ShowDebug("Data: number value=%d\n", (int)data->u.num);
 		break;
 	case C_STR:
 	case C_CONSTSTR:// string
@@ -464,7 +472,7 @@ static void script_reportdata(struct script_data* data)
 		}
 		break;
 	case C_POS:// label
-		ShowDebug("Data: label pos=%d\n", data->u.num);
+		ShowDebug("Data: label pos=%d\n", (int)data->u.num);
 		break;
 	default:
 		ShowDebug("Data: %s\n", script_op2name(data->type));
@@ -740,7 +748,7 @@ const char* skip_space(const char* p)
 			{
 				if( *p == '\0' )
 					disp_error_message("script:skip_space: end of file while parsing block comment. expected "CL_BOLD"*/"CL_NORM, p);
-				if( *p == '*' || p[1] == '/' )
+				if( *p == '*' && p[1] == '/' )
 				{// end of block comment
 					p += 2;
 					break;
@@ -1487,7 +1495,7 @@ const char* parse_syntax(const char* p)
 					str_data[l].type = C_USERFUNC;
 				set_label(l, script_pos, p);
 				if( parse_options&SCRIPT_USE_LABEL_DB )
-					strdb_put(scriptlabel_db, GETSTRING(str_data[l].str), (void*)script_pos);
+					strdb_put(scriptlabel_db, GETSTRING(str_data[l].str), (void*)(intptr_t)script_pos);
 				return skip_space(p);
 			}
 		}
@@ -1949,7 +1957,7 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 			i=add_word(p);
 			set_label(i,script_pos,p);
 			if( parse_options&SCRIPT_USE_LABEL_DB )
-				strdb_put(scriptlabel_db, GETSTRING(str_data[i].str), (void*)script_pos);
+				strdb_put(scriptlabel_db, GETSTRING(str_data[i].str), (void*)(intptr_t)script_pos);
 			p=tmpp+1;
 			continue;
 		}
@@ -2287,7 +2295,7 @@ const char* conv_str(struct script_state* st, struct script_data* data)
 	else if( data_isint(data) )
 	{// int -> string
 		CREATE(p, char, ITEM_NAME_LENGTH);
-		snprintf(p, ITEM_NAME_LENGTH, "%d", data->u.num);
+		snprintf(p, ITEM_NAME_LENGTH, "%d", (int)data->u.num);
 		p[ITEM_NAME_LENGTH-1] = '\0';
 		data->type = C_STR;
 		data->u.str = p;
@@ -2383,7 +2391,7 @@ void stack_expand(struct script_stack* stack)
 #define push_val(stack,type,val) push_val2(stack, type, val, NULL)
 
 /// Pushes a value into the stack (with reference)
-void push_val2(struct script_stack* stack, int type, int val, struct linkdb_node** ref)
+void push_val2(struct script_stack* stack, int type, intptr_t val, struct linkdb_node** ref)
 {
 	if( stack->sp >= stack->sp_max )
 		stack_expand(stack);
@@ -3198,40 +3206,38 @@ void run_script_main(struct script_state *st)
 /*==========================================
  * }bvX
  *------------------------------------------*/
+// Submit a mapreg persistence statement: hand it to the async writer if the
+// worker is up, otherwise fall back to a synchronous query so nothing is lost.
+static void mapreg_submit(const char* sql)
+{
+	if(map_async_db)
+		async_db_submit(map_async_db, sql);
+	else if(mysql_query(&mmysql_handle, sql)){
+		ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,sql);
+	}
+}
+
+// Mark a map register changed so the next flush persists it. $@temp globals are
+// never written to the DB, so they are not tracked.
+static void mapreg_mark_dirty(int num)
+{
+	const char* name = str_buf+str_data[num&0x00ffffff].str;
+	if(name[1] == '@')
+		return;
+	if(mapreg_dirty_db)
+		idb_put(mapreg_dirty_db, num, (void*)(intptr_t)1);
+	mapreg_dirty = 1;
+}
+
 int mapreg_setreg(int num,int val)
 {
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-	int i=num>>24;
-	char *name=str_buf+str_data[num&0x00ffffff].str;
-	char tmp_str[64];
-#endif
-
-	if(val!=0) {
-		if(idb_put(mapreg_db,num,(void*)val))
-			;
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-		else if(name[1] != '@') {
-			sprintf(tmp_sql,"INSERT INTO `%s`(`%s`,`%s`,`%s`) VALUES ('%s','%d','%d')",mapregsql_db,mapregsql_db_varname,mapregsql_db_index,mapregsql_db_value,jstrescapecpy(tmp_str,name),i,val);
-			if(mysql_query(&mmysql_handle,tmp_sql)){
-				ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-		}
-#endif
-	} else { // [zBuffer]
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-		if(name[1] != '@') { // Remove from database because it is unused.
-			sprintf(tmp_sql,"DELETE FROM `%s` WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_varname,name,mapregsql_db_index,i);
-			if(mysql_query(&mmysql_handle,tmp_sql)){
-				ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-		}
-#endif
+	if(val!=0)
+		idb_put(mapreg_db,num,(void*)(intptr_t)val);
+	else
 		idb_remove(mapreg_db,num);
-	}
 
-	mapreg_dirty=1;
+	mapreg_mark_dirty(num); // persisted off the loop by the 20s flush
 	return 1;
 }
 /*==========================================
@@ -3240,43 +3246,17 @@ int mapreg_setreg(int num,int val)
 int mapreg_setregstr(int num,const char *str)
 {
 	char *p;
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-	char tmp_str[64];
-	char tmp_str2[512];
-	int i=num>>24; // [zBuffer]
-	char *name=str_buf+str_data[num&0x00ffffff].str;
-#endif
 
 	if( str==NULL || *str==0 ){
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-		if(name[1] != '@') {
-			sprintf(tmp_sql,"DELETE FROM `%s` WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_varname,name,mapregsql_db_index,i);
-			if(mysql_query(&mmysql_handle,tmp_sql)){
-				ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-		}
-#endif
 		idb_remove(mapregstr_db,num);
-		mapreg_dirty=1;
+		mapreg_mark_dirty(num);
 		return 1;
 	}
 	p=(char *)aMallocA((strlen(str)+1)*sizeof(char));
 	strcpy(p,str);
+	idb_put(mapregstr_db,num,p); // DB_OPT_RELEASE_DATA frees any previous string
 
-	if (idb_put(mapregstr_db,num,p))
-		;
-#if !defined(TXT_ONLY) && defined(MAPREGSQL)
-	else if(name[1] != '@'){ //put returned null, so we must insert.
-		// Someone is causing a database size infinite increase here without name[1] != '@' [Lance]
-		sprintf(tmp_sql,"INSERT INTO `%s`(`%s`,`%s`,`%s`) VALUES ('%s','%d','%s')",mapregsql_db,mapregsql_db_varname,mapregsql_db_index,mapregsql_db_value,jstrescapecpy(tmp_str,name),i,jstrescapecpy(tmp_str2,p));
-		if(mysql_query(&mmysql_handle,tmp_sql)){
-			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-		}
-	}
-#endif
-	mapreg_dirty=1;
+	mapreg_mark_dirty(num); // persisted off the loop by the 20s flush
 	return 1;
 }
 
@@ -3285,42 +3265,6 @@ int mapreg_setregstr(int num,const char *str)
  *------------------------------------------*/
 static int script_load_mapreg(void)
 {
-#if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp;
-	char line[1024];
-
-	if( (fp=fopen(mapreg_txt,"rt"))==NULL )
-		return -1;
-
-	while(fgets(line,sizeof(line),fp))
-	{
-		char buf1[256],buf2[1024],*p;
-		int n,v,s,i;
-		if( sscanf(line,"%255[^,],%d\t%n",buf1,&i,&n)!=2 &&
-			(i=0,sscanf(line,"%[^\t]\t%n",buf1,&n)!=1) )
-			continue;
-		if( buf1[strlen(buf1)-1]=='$' ){
-			if( sscanf(line+n,"%[^\n\r]",buf2)!=1 ){
-				ShowError("%s: %s broken data !\n",mapreg_txt,buf1);
-				continue;
-			}
-			p=(char *)aMallocA((strlen(buf2) + 1)*sizeof(char));
-			strcpy(p,buf2);
-			s= add_str(buf1);
-			idb_put(mapregstr_db,(i<<24)|s,p);
-		}else{
-			if( sscanf(line+n,"%d",&v)!=1 ){
-				ShowError("%s: %s broken data !\n",mapreg_txt,buf1);
-				continue;
-			}
-			s= add_str(buf1);
-			idb_put(mapreg_db,(i<<24)|s,(void*)v);
-		}
-	}
-	fclose(fp);
-	mapreg_dirty=0;
-	return 0;
-#else
 	// SQL mapreg code start [zBuffer]
 	/*
 	     0       1       2
@@ -3363,86 +3307,55 @@ static int script_load_mapreg(void)
 	perfomance = (((unsigned int)time(NULL)) - perfomance);
 	ShowInfo("SQL Mapreg Loading Completed Under %d Seconds.\n",perfomance);
 	return 0;
-#endif /* TXT_ONLY */
 }
 /*==========================================
  * iI}bv
  *------------------------------------------*/
-static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
+// Flush one dirty map register. With no UNIQUE(varname,index) key we cannot
+// UPSERT, so DELETE then INSERT the current value (this also self-heals any
+// duplicate rows). FIFO ordering in the async queue keeps writes consistent.
+static int mapreg_flush_sub(DBKey key,void *data,va_list ap)
 {
-#if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp=va_arg(ap,FILE*);
-	int num=key.i&0x00ffffff, i=key.i>>24;
-	char *name=str_buf+str_data[num].str;
-	if( name[1]!='@' ){
-		if(i==0)
-			fprintf(fp,"%s\t%d\n", name, (int)data);
-		else
-			fprintf(fp,"%s,%d\t%d\n", name, i, (int)data);
+	int num = key.i;
+	int idx = num>>24;
+	char *name = str_buf+str_data[num&0x00ffffff].str;
+	int *count = va_arg(ap, int *);
+	char esc_name[2*32+1];
+	void *v;
+
+	if(name[1] == '@') // never persisted
+		return 0;
+
+	jstrescapecpy(esc_name, name);
+	sprintf(tmp_sql,"DELETE FROM `%s` WHERE `%s`='%s' AND `%s`='%d'",
+		mapregsql_db,mapregsql_db_varname,esc_name,mapregsql_db_index,idx);
+	mapreg_submit(tmp_sql);
+
+	if((v = idb_get(mapreg_db,num)) != NULL){
+		sprintf(tmp_sql,"INSERT INTO `%s`(`%s`,`%s`,`%s`) VALUES ('%s','%d','%d')",
+			mapregsql_db,mapregsql_db_varname,mapregsql_db_index,mapregsql_db_value,
+			esc_name,idx,(int)(intptr_t)v);
+		mapreg_submit(tmp_sql);
+	} else if((v = idb_get(mapregstr_db,num)) != NULL){
+		char esc_val[2*255+1];
+		jstrescapecpy(esc_val,(char *)v);
+		sprintf(tmp_sql,"INSERT INTO `%s`(`%s`,`%s`,`%s`) VALUES ('%s','%d','%s')",
+			mapregsql_db,mapregsql_db_varname,mapregsql_db_index,mapregsql_db_value,
+			esc_name,idx,esc_val);
+		mapreg_submit(tmp_sql);
 	}
+	// else: the register was deleted - the DELETE above is the whole job
+	(*count)++;
 	return 0;
-#else
-	int num=key.i&0x00ffffff, i=key.i>>24; // [zBuffer]
-	char *name=str_buf+str_data[num].str;
-	if ( name[1] != '@') {
-		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%d' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,(intptr_t)data,mapregsql_db_varname,name,mapregsql_db_index,i);
-		if(mysql_query(&mmysql_handle, tmp_sql) ) {
-			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-		}
-	}
-	return 0;
-#endif
-}
-static int script_save_mapreg_strsub(DBKey key,void *data,va_list ap)
-{
-#if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp=va_arg(ap,FILE*);
-	int num=key.i&0x00ffffff, i=key.i>>24;
-	char *name=str_buf+str_data[num].str;
-	if( name[1]!='@' ){
-		if(i==0)
-			fprintf(fp,"%s\t%s\n", name, (char *)data);
-		else
-			fprintf(fp,"%s,%d\t%s\n", name, i, (char *)data);
-	}
-	return 0;
-#else
-	char tmp_str2[512];
-	int num=key.i&0x00ffffff, i=key.i>>24;
-	char *name=str_buf+str_data[num].str;
-	if ( name[1] != '@') {
-		sprintf(tmp_sql,"UPDATE `%s` SET `%s`='%s' WHERE `%s`='%s' AND `%s`='%d'",mapregsql_db,mapregsql_db_value,jstrescapecpy(tmp_str2,(char *)data),mapregsql_db_varname,name,mapregsql_db_index,i);
-		if(mysql_query(&mmysql_handle, tmp_sql) ) {
-			ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
-			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-		}
-	}
-	return 0;
-#endif
 }
 static int script_save_mapreg(void)
 {
-#if defined(TXT_ONLY) || !defined(MAPREGSQL)
-	FILE *fp;
-	int lock;
-
-	if( (fp=lock_fopen(mapreg_txt,&lock))==NULL ) {
-		ShowError("script_save_mapreg: Unable to lock-open file [%s]\n",mapreg_txt);
-		return -1;
+	int count = 0;
+	if(mapreg_dirty_db){
+		mapreg_dirty_db->foreach(mapreg_dirty_db,mapreg_flush_sub, &count);
+		mapreg_dirty_db->clear(mapreg_dirty_db, NULL);
 	}
-	mapreg_db->foreach(mapreg_db,script_save_mapreg_intsub,fp);
-	mapregstr_db->foreach(mapregstr_db,script_save_mapreg_strsub,fp);
-	lock_fclose(fp,mapreg_txt,&lock);
-#else
-	unsigned int perfomance = (unsigned int)time(NULL);
-	mapreg_db->foreach(mapreg_db,script_save_mapreg_intsub);  // [zBuffer]
-	mapregstr_db->foreach(mapregstr_db,script_save_mapreg_strsub);
-	perfomance = ((unsigned int)time(NULL) - perfomance);
-	if(perfomance > 2)
-		ShowWarning("Slow Query: MapregSQL Saving @ %d second(s).\n", perfomance);
-#endif
-	mapreg_dirty=0;
+	mapreg_dirty = 0;
 	return 0;
 }
 static int script_autosave_mapreg(int tid,unsigned int tick,intptr_t id,intptr_t data)
@@ -3494,42 +3407,42 @@ int script_config_read_sub(char *cfgName)
 		else if(strcmpi(w1,"die_event_name")==0) {
 			strncpy(script_config.die_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.die_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.die_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.die_event_name);
 		}
 		else if(strcmpi(w1,"kill_pc_event_name")==0) {
 			strncpy(script_config.kill_pc_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.kill_pc_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.kill_pc_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.kill_pc_event_name);
 		}
 		else if(strcmpi(w1,"kill_mob_event_name")==0) {
 			strncpy(script_config.kill_mob_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.kill_mob_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.kill_mob_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.kill_mob_event_name);
 		}
 		else if(strcmpi(w1,"login_event_name")==0) {
 			strncpy(script_config.login_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.login_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.login_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.login_event_name);
 		}
 		else if(strcmpi(w1,"logout_event_name")==0) {
 			strncpy(script_config.logout_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.logout_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.logout_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.logout_event_name);
 		}
 		else if(strcmpi(w1,"loadmap_event_name")==0) {
 			strncpy(script_config.loadmap_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.loadmap_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.loadmap_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.loadmap_event_name);
 		}
 		else if(strcmpi(w1,"baselvup_event_name")==0) {
 			strncpy(script_config.baselvup_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.baselvup_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.baselvup_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.baselvup_event_name);
 		}
 		else if(strcmpi(w1,"joblvup_event_name")==0) {
 			strncpy(script_config.joblvup_event_name, w2, NAME_LENGTH-1);
 			if (strlen(script_config.joblvup_event_name) != strlen(w2))
-				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %d\n", script_config.joblvup_event_name);
+				ShowWarning("script_config_read: Event label truncated (max length is 23 chars): %s\n", script_config.joblvup_event_name);
 		}
 		else if(strcmpi(w1,"import")==0){
 			script_config_read_sub(w2);
@@ -3566,6 +3479,16 @@ static int do_final_userfunc_sub (DBKey key,void *data,va_list ap)
 	return 0;
 }
 
+static int do_final_autobonus_sub (DBKey key,void *data,va_list ap)
+{
+	struct script_code *script = (struct script_code *)data;
+
+	if( script )
+		script_free_code(script);
+
+	return 0;
+}
+
 /*==========================================
  * I
  *------------------------------------------*/
@@ -3576,8 +3499,10 @@ int do_final_script()
 
 	mapreg_db->destroy(mapreg_db,NULL);
 	mapregstr_db->destroy(mapregstr_db,NULL);
+	mapreg_dirty_db->destroy(mapreg_dirty_db,NULL);
 	scriptlabel_db->destroy(scriptlabel_db,NULL);
 	userfunc_db->destroy(userfunc_db,do_final_userfunc_sub);
+	autobonus_db->destroy(autobonus_db,do_final_autobonus_sub);
 	if(sleep_db) {
 		struct linkdb_node *n = (struct linkdb_node *)sleep_db;
 		while(n) {
@@ -3603,8 +3528,10 @@ int do_init_script()
 {
 	mapreg_db= db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	mapregstr_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	mapreg_dirty_db=db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	userfunc_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_RELEASE_BOTH,50);
 	scriptlabel_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY|DB_OPT_ALLOW_NULL_DATA,50);
+	autobonus_db=db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY,0); // parse-once cache for autobonus scripts [autobonus]
 
 	script_load_mapreg();
 
@@ -3622,6 +3549,7 @@ int script_reload()
 
 	mapreg_db->clear(mapreg_db, NULL);
 	mapregstr_db->clear(mapregstr_db, NULL);
+	mapreg_dirty_db->clear(mapreg_dirty_db, NULL);
 	userfunc_db->clear(userfunc_db,do_final_userfunc_sub);
 	scriptlabel_db->clear(scriptlabel_db, NULL);
 
@@ -3680,6 +3608,7 @@ BUILDIN_FUNC(getarraysize);
 BUILDIN_FUNC(deletearray);
 BUILDIN_FUNC(getelementofarray);
 BUILDIN_FUNC(getitem);
+BUILDIN_FUNC(rentitem);
 BUILDIN_FUNC(getitem2);
 BUILDIN_FUNC(getnameditem);
 BUILDIN_FUNC(grouprandomitem);
@@ -3701,6 +3630,17 @@ BUILDIN_FUNC(getguildname);
 BUILDIN_FUNC(getguildmaster);
 BUILDIN_FUNC(getguildmasterid);
 BUILDIN_FUNC(strcharinfo);
+BUILDIN_FUNC(strnpcinfo); // [Backport] NPC name/map introspection
+BUILDIN_FUNC(setnpcdisplay); // [Backport] change NPC sprite/name at runtime
+BUILDIN_FUNC(readbook); // [Backport] book-reading UI (no-op on PV7)
+BUILDIN_FUNC(progressbar); // [Backport] cast-progress bar (no-op on PV7)
+BUILDIN_FUNC(mercenary_create); // [Backport] hired mercenary soldier
+BUILDIN_FUNC(mercenary_heal);
+BUILDIN_FUNC(mercenary_sc_start);
+BUILDIN_FUNC(mercenary_get_calls);
+BUILDIN_FUNC(mercenary_set_calls);
+BUILDIN_FUNC(mercenary_get_faith);
+BUILDIN_FUNC(mercenary_set_faith);
 BUILDIN_FUNC(getequipid);
 BUILDIN_FUNC(getequipname);
 BUILDIN_FUNC(getbrokenid); // [Valaris]
@@ -3717,6 +3657,9 @@ BUILDIN_FUNC(cutin);
 BUILDIN_FUNC(statusup);
 BUILDIN_FUNC(statusup2);
 BUILDIN_FUNC(bonus);
+BUILDIN_FUNC(autobonus);
+BUILDIN_FUNC(autobonus2);
+BUILDIN_FUNC(autobonus3);
 BUILDIN_FUNC(bonus2);
 BUILDIN_FUNC(bonus3);
 BUILDIN_FUNC(bonus4);
@@ -3968,6 +3911,13 @@ BUILDIN_FUNC(deactivatepset); // MouseJstr
 BUILDIN_FUNC(deletepset); // MouseJstr
 #endif
 
+// Questlog system [Kevin] [Inkfish]
+BUILDIN_FUNC(setquest);
+BUILDIN_FUNC(erasequest);
+BUILDIN_FUNC(completequest);
+BUILDIN_FUNC(changequest);
+BUILDIN_FUNC(checkquest);
+
 struct script_function buildin_func[] = {
 	// NPC interaction
 	BUILDIN_DEF(mes,"s"),
@@ -3985,7 +3935,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getarg,"i?"),
 	BUILDIN_DEF(jobchange,"i*"),
 	BUILDIN_DEF(jobname,"i"),
-	BUILDIN_DEF(input,"v"),
+	BUILDIN_DEF(input,"v??"),
 	BUILDIN_DEF(warp,"sii"),
 	BUILDIN_DEF(areawarp,"siiiisii"),
 	BUILDIN_DEF(warpchar,"siii"), // [LuzZza]
@@ -4000,6 +3950,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(deletearray,"r?"),
 	BUILDIN_DEF(getelementofarray,"ri"),
 	BUILDIN_DEF(getitem,"vi?"),
+	BUILDIN_DEF(rentitem,"vi"),
 	BUILDIN_DEF(getitem2,"iiiiiiiii*"),
 	BUILDIN_DEF(getnameditem,"is"),
 	BUILDIN_DEF2(grouprandomitem,"groupranditem","i"),
@@ -4026,6 +3977,17 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getguildmaster,"i"),
 	BUILDIN_DEF(getguildmasterid,"i"),
 	BUILDIN_DEF(strcharinfo,"i"),
+	BUILDIN_DEF(strnpcinfo,"i"),	// [Backport]
+	BUILDIN_DEF(setnpcdisplay,"sv??"),	// [Backport]
+	BUILDIN_DEF(readbook,"ii"),	// [Backport] no-op (no book UI on PV7)
+	BUILDIN_DEF(mercenary_create,"ii"),	// [Backport] hired mercenary soldier
+	BUILDIN_DEF(mercenary_heal,"ii"),
+	BUILDIN_DEF(mercenary_sc_start,"iii"),
+	BUILDIN_DEF(mercenary_get_calls,"i"),
+	BUILDIN_DEF(mercenary_set_calls,"ii"),
+	BUILDIN_DEF(mercenary_get_faith,"i"),
+	BUILDIN_DEF(mercenary_set_faith,"ii"),
+	BUILDIN_DEF(progressbar,"si"),	// [Backport] no-op (PV7 has no cast-bar packet)
 	BUILDIN_DEF(getequipid,"i"),
 	BUILDIN_DEF(getequipname,"i"),
 	BUILDIN_DEF(getbrokenid,"i"), // [Valaris]
@@ -4045,6 +4007,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(bonus,"bonus3","iiii"),
 	BUILDIN_DEF2(bonus,"bonus4","iiiii"),
 	BUILDIN_DEF2(bonus,"bonus5","iiiiii"),
+	BUILDIN_DEF(autobonus,"sii??"),
+	BUILDIN_DEF(autobonus2,"sii??"),
+	BUILDIN_DEF(autobonus3,"siiv?"),
 	BUILDIN_DEF(skill,"ii?"),
 	BUILDIN_DEF(addtoskill,"ii?"), // [Valaris]
 	BUILDIN_DEF(guildskill,"ii"),
@@ -4289,8 +4254,60 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(roclass,"i*"),	//[Skotlex]
 	BUILDIN_DEF(checkvending,"*"),
 	BUILDIN_DEF(checkchatting,"*"),
+	// Questlog system [Kevin] [Inkfish]
+	BUILDIN_DEF(setquest,"i"),
+	BUILDIN_DEF(erasequest,"i"),
+	BUILDIN_DEF(completequest,"i"),
+	BUILDIN_DEF(changequest,"ii"),
+	BUILDIN_DEF(checkquest,"i?"),
 	{NULL,NULL,NULL},
 };
+
+/////////////////////////////////////////////////////////////////////
+// Questlog system [Kevin] [Inkfish]
+//
+BUILDIN_FUNC(setquest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	nullpo_retr(0, sd);
+	quest_add(sd, script_getnum(st, 2));
+	return 0;
+}
+
+BUILDIN_FUNC(erasequest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	nullpo_retr(0, sd);
+	quest_delete(sd, script_getnum(st, 2));
+	return 0;
+}
+
+BUILDIN_FUNC(completequest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	nullpo_retr(0, sd);
+	quest_update_status(sd, script_getnum(st, 2), Q_COMPLETE);
+	return 0;
+}
+
+BUILDIN_FUNC(changequest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	nullpo_retr(0, sd);
+	quest_change(sd, script_getnum(st, 2), script_getnum(st, 3));
+	return 0;
+}
+
+BUILDIN_FUNC(checkquest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	quest_check_type type = HAVEQUEST;
+	nullpo_retr(0, sd);
+	if( script_hasdata(st, 3) )
+		type = (quest_check_type)script_getnum(st, 3);
+	script_pushint(st, quest_check(sd, script_getnum(st, 2), type));
+	return 0;
+}
 
 /////////////////////////////////////////////////////////////////////
 // NPC interaction
@@ -4366,7 +4383,7 @@ BUILDIN_FUNC(close2)
 static int menu_countoptions(const char* str, int max_count, int* total)
 {
 	int count = 0;
-	int bogus_total;
+	int bogus_total = 0;
 
 	if( total == NULL )
 		total = &bogus_total;
@@ -4818,8 +4835,8 @@ BUILDIN_FUNC(return)
 /// Returns a random number from 0 to <range>-1.
 /// Or returns a random number from <min> to <max>.
 /// If <min> is greater than <max>, their numbers are switched.
-/// rand(<range>) -> <int>
-/// rand(<min>,<max>) -> <int>
+/// rnd(<range>) -> <int>
+/// rnd(<min>,<max>) -> <int>
 BUILDIN_FUNC(rand)
 {
 	int range;
@@ -4842,7 +4859,7 @@ BUILDIN_FUNC(rand)
 	if( range <= 1 )
 		script_pushint(st, min);
 	else
-		script_pushint(st, rand()%range + min);
+		script_pushint(st, rnd()%range + min);
 
 	return 0;
 }
@@ -4878,9 +4895,9 @@ static int buildin_areawarp_sub(struct block_list *bl,va_list ap)
 {
 	int x,y;
 	unsigned int map;
-	map=va_arg(ap, unsigned int);
-	x=va_arg(ap,int);
-	y=va_arg(ap,int);
+	map=(unsigned int)va_arg(ap, intptr_t);
+	x=(int)va_arg(ap, intptr_t);
+	y=(int)va_arg(ap, intptr_t);
 	if(map == 0)
 		pc_randomwarp((TBL_PC *)bl,3);
 	else
@@ -5241,6 +5258,7 @@ BUILDIN_FUNC(input)
 	int num = data->u.num;
 	char *name=str_buf+str_data[num&0x00ffffff].str;
 	char postfix = name[strlen(name)-1];
+	int min, max; // [Backport] optional input range
 
 	if (!sd) return 1;
 
@@ -5249,6 +5267,11 @@ BUILDIN_FUNC(input)
 		script_reportdata(data);
 		return 1;
 	}
+
+	// [Backport] optional range: input <var>{,<min>{,<max>}} (eAthena form);
+	// defaults match uAthena's prior cap (min 0, max vending_max_value).
+	min = (script_hasdata(st,3) ? script_getnum(st,3) : 0);
+	max = (script_hasdata(st,4) ? script_getnum(st,4) : battle_config.vending_max_value);
 
 	if(sd->state.menu_or_input){
 		sd->state.menu_or_input=0;
@@ -5260,7 +5283,7 @@ BUILDIN_FUNC(input)
 		}
 		// Yor, Lupus & Fritz have messed with this.
 		// Basicly it prevents negative input since most scripts do not account for them.
-		sd->npc_amount = cap_value(sd->npc_amount, 0, battle_config.vending_max_value);
+		sd->npc_amount = cap_value(sd->npc_amount, min, max);
 
 		set_reg(st,sd,num,name,(void*)sd->npc_amount,
 			script_getref(st,2));
@@ -5968,6 +5991,71 @@ BUILDIN_FUNC(getitem)
 }
 
 /*==========================================
+ * rentitem <item id>,<seconds>
+ * rentitem "<item name>",<seconds>
+ *------------------------------------------*/
+BUILDIN_FUNC(rentitem)
+{
+	struct map_session_data *sd;
+	struct script_data *data;
+	struct item it;
+	int seconds;
+	int nameid = 0, flag;
+
+	data = script_getdata(st,2);
+	get_val(st,data);
+
+	if( (sd = script_rid2sd(st)) == NULL )
+		return 0;
+
+	if( data_isstring(data) )
+	{
+		const char *name = conv_str(st,data);
+		struct item_data *itd = itemdb_searchname(name);
+		if( itd == NULL )
+		{
+			ShowError("buildin_rentitem: Nonexistant item %s requested.\n", name);
+			return 1;
+		}
+		nameid = itd->nameid;
+	}
+	else if( data_isint(data) )
+	{
+		nameid = conv_num(st,data);
+		if( nameid <= 0 || !itemdb_exists(nameid) )
+		{
+			ShowError("buildin_rentitem: Nonexistant item %d requested.\n", nameid);
+			return 1;
+		}
+	}
+	else
+	{
+		ShowError("buildin_rentitem: invalid data type for argument #1 (%d).\n", data->type);
+		return 1;
+	}
+
+	seconds = script_getnum(st,3);
+	memset(&it, 0, sizeof(it));
+	it.nameid = nameid;
+	it.identify = 1;
+	it.expire_time = (unsigned int)(time(NULL) + seconds);
+
+	if( (flag = pc_additem(sd, &it, 1)) )
+	{
+		clif_additem(sd, 0, 0, flag);
+		return 1;
+	}
+
+	clif_rental_time(sd->fd, nameid, seconds);
+	pc_inventory_rental_add(sd, seconds);
+
+	if( log_config.enable_logs&LOG_SCRIPT_TRANSACTIONS )
+		log_pick_pc(sd, "N", nameid, 1, NULL);
+
+	return 0;
+}
+
+/*==========================================
  *
  *------------------------------------------*/
 BUILDIN_FUNC(getitem2)
@@ -6669,6 +6757,262 @@ BUILDIN_FUNC(strcharinfo)
 	return 0;
 }
 
+/*==========================================
+ * strnpcinfo(<type>) - info about the attached NPC. [Backport]
+ * 0:display name  1:visible part (before '#')  2:hidden part (after '#')
+ * 3:unique name (exname)  4:map name
+ *------------------------------------------*/
+BUILDIN_FUNC(strnpcinfo)
+{
+	struct npc_data *nd;
+	int num;
+	char *buf, *name = NULL;
+
+	nd = (struct npc_data *)map_id2bl(st->oid);
+	if( !nd ) {
+		script_pushconststr(st, "");
+		return 0;
+	}
+
+	num = script_getnum(st,2);
+	switch( num ) {
+		case 0: // display name
+			name = aStrdup(nd->name);
+			break;
+		case 1: // visible part of display name (before '#')
+			if( (buf = strchr(nd->name,'#')) != NULL ) {
+				name = aStrdup(nd->name);
+				name[buf - nd->name] = 0;
+			} else
+				name = aStrdup(nd->name);
+			break;
+		case 2: // hidden part of display name (after '#')
+			if( (buf = strchr(nd->name,'#')) != NULL )
+				name = aStrdup(buf+1);
+			break;
+		case 3: // unique name
+			name = aStrdup(nd->exname);
+			break;
+		case 4: // map name
+			name = aStrdup(map[nd->bl.m].name);
+			break;
+	}
+
+	if( name )
+		script_pushstr(st, name);
+	else
+		script_pushconststr(st, "");
+
+	return 0;
+}
+
+/*==========================================
+ * setnpcdisplay("<name>", <newname>|<class>{,<class>{,<size>}}) [Backport]
+ * Change an NPC's display name and/or sprite at runtime. uAthena NPCs have no
+ * per-NPC size field, so the size arg is accepted but ignored. Returns 1 if the
+ * NPC was not found, else 0.
+ *------------------------------------------*/
+BUILDIN_FUNC(setnpcdisplay)
+{
+	const char* name;
+	const char* newname = NULL;
+	int class_ = -1;
+	struct script_data* data;
+	struct npc_data* nd;
+
+	name = script_getstr(st,2);
+	data = script_getdata(st,3);
+
+	if( script_hasdata(st,4) )
+		class_ = script_getnum(st,4);
+	// arg 5 (size) accepted but ignored: uAthena npc_data has no size field.
+
+	get_val(st, data);
+	if( data_isstring(data) )
+		newname = conv_str(st,data);
+	else if( data_isint(data) )
+		class_ = conv_num(st,data);
+	else {
+		ShowError("script:setnpcdisplay: expected a string or number\n");
+		script_reportdata(data);
+		return 1;
+	}
+
+	nd = npc_name2id(name);
+	if( nd == NULL ) { // not found
+		script_pushint(st,1);
+		return 0;
+	}
+
+	if( newname )
+		safestrncpy(nd->name, newname, sizeof(nd->name));
+
+	if( class_ != -1 && nd->class_ != class_ )
+		nd->class_ = class_;
+
+	// refresh: clear the unit out of sight then respawn so clients see the change
+	clif_clearunit_area(&nd->bl, 0);
+	clif_spawn(&nd->bl);
+
+	script_pushint(st,0);
+	return 0;
+}
+
+/*==========================================
+ * readbook(<book id>,<page>) [Backport]
+ * The 2007 client has no book-reading window; accept the args and do nothing so
+ * quests that show a book before granting an item still load and progress.
+ *------------------------------------------*/
+BUILDIN_FUNC(readbook)
+{
+	return 0;
+}
+
+/*==========================================
+ * progressbar("<color>",<seconds>) [Backport]
+ * The cast-progress packet is PACKETVER >= 20080318; on the 2007 client (PV7)
+ * eAthena itself compiles this out to a no-op, so we do the same: accept the
+ * args and continue immediately (no bar, no wait).
+ *------------------------------------------*/
+BUILDIN_FUNC(progressbar)
+{
+	return 0;
+}
+
+// [Backport] Hired Mercenary Soldier script commands.
+BUILDIN_FUNC(mercenary_create)
+{
+	struct map_session_data *sd;
+	int class_, contract_time;
+
+	if( (sd = script_rid2sd(st)) == NULL || sd->md || sd->status.mer_id != 0 )
+		return 0;
+
+	class_ = script_getnum(st,2);
+	if( !merc_class(class_) )
+		return 0;
+
+	contract_time = script_getnum(st,3);
+	merc_create(sd, class_, contract_time);
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_heal)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int hp, sp;
+
+	if( sd == NULL || sd->md == NULL )
+		return 0;
+	hp = script_getnum(st,2);
+	sp = script_getnum(st,3);
+
+	status_heal(&sd->md->bl, hp, sp, 0);
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_sc_start)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int type, tick, val1;	// uAthena sc enum is anonymous -> int
+
+	if( sd == NULL || sd->md == NULL )
+		return 0;
+
+	type = script_getnum(st,2);
+	tick = script_getnum(st,3);
+	val1 = script_getnum(st,4);
+
+	status_change_start(&sd->md->bl, type, 10000, val1, 0, 0, 0, tick, 2);
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_get_calls)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int guild;
+
+	if( sd == NULL )
+		return 0;
+
+	guild = script_getnum(st,2);
+	switch( guild )
+	{
+		case ARCH_MERC_GUILD:  script_pushint(st,sd->status.arch_calls);  break;
+		case SPEAR_MERC_GUILD: script_pushint(st,sd->status.spear_calls); break;
+		case SWORD_MERC_GUILD: script_pushint(st,sd->status.sword_calls); break;
+		default:               script_pushint(st,0);                      break;
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_set_calls)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int guild, value, *calls;
+
+	if( sd == NULL )
+		return 0;
+
+	guild = script_getnum(st,2);
+	value = script_getnum(st,3);
+	switch( guild )
+	{
+		case ARCH_MERC_GUILD:  calls = &sd->status.arch_calls;  break;
+		case SPEAR_MERC_GUILD: calls = &sd->status.spear_calls; break;
+		case SWORD_MERC_GUILD: calls = &sd->status.sword_calls; break;
+		default: return 0; // Invalid Guild
+	}
+
+	*calls += value;
+	*calls = cap_value(*calls, 0, INT_MAX);
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_get_faith)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int guild;
+
+	if( sd == NULL )
+		return 0;
+
+	guild = script_getnum(st,2);
+	switch( guild )
+	{
+		case ARCH_MERC_GUILD:  script_pushint(st,sd->status.arch_faith);  break;
+		case SPEAR_MERC_GUILD: script_pushint(st,sd->status.spear_faith); break;
+		case SWORD_MERC_GUILD: script_pushint(st,sd->status.sword_faith); break;
+		default:               script_pushint(st,0);                      break;
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(mercenary_set_faith)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int guild, value, *faith;
+
+	if( sd == NULL )
+		return 0;
+
+	guild = script_getnum(st,2);
+	value = script_getnum(st,3);
+	switch( guild )
+	{
+		case ARCH_MERC_GUILD:  faith = &sd->status.arch_faith;  break;
+		case SPEAR_MERC_GUILD: faith = &sd->status.spear_faith; break;
+		case SWORD_MERC_GUILD: faith = &sd->status.sword_faith; break;
+		default: return 0; // Invalid Guild
+	}
+
+	*faith += value;
+	*faith = cap_value(*faith, 0, INT_MAX);
+	if( sd->md && mercenary_get_guild(sd->md) == guild )
+		clif_mercenary_updatestatus(sd, SP_MERCFAITH);
+	return 0;
+}
+
 unsigned int equip[10]={EQP_HEAD_TOP,EQP_ARMOR,EQP_HAND_L,EQP_HAND_R,EQP_GARMENT,EQP_SHOES,EQP_ACC_L,EQP_ACC_R,EQP_HEAD_MID,EQP_HEAD_LOW};
 
 /*==========================================
@@ -6898,8 +7242,8 @@ BUILDIN_FUNC(getequippercentrefinery)
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
 	i=pc_checkequip(sd,equip[num-1]);
-	if(i >= 0 && sd->status.inventory[i].nameid && sd->status.inventory[i].refine < MAX_REFINE)
-		script_pushint(st,percentrefinery[itemdb_wlv(sd->status.inventory[i].nameid)][(int)sd->status.inventory[i].refine]);
+	if(i >= 0 && sd->status.inventory[i].nameid && sd->status.inventory[i].refine < MAX_REFINE_GM)
+		script_pushint(st,status_refine_chance(itemdb_wlv(sd->status.inventory[i].nameid), (int)sd->status.inventory[i].refine));	// [refine99] canon table 0..9, formula above
 	else
 		script_pushint(st,0);
 
@@ -6925,6 +7269,8 @@ BUILDIN_FUNC(successrefitem)
 			log_pick_pc(sd, "N", sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
 
 		sd->status.inventory[i].refine++;
+		if(sd->status.inventory[i].refine > MAX_REFINE_GM)	// [refine99] never exceed the hard ceiling
+			sd->status.inventory[i].refine = MAX_REFINE_GM;
 		pc_unequipitem(sd,i,2);
 
 		clif_refine(sd->fd,0,i,sd->status.inventory[i].refine);
@@ -6970,6 +7316,21 @@ BUILDIN_FUNC(failedrefitem)
 	sd=script_rid2sd(st);
 	i=pc_checkequip(sd,equip[num-1]);
 	if(i >= 0) {
+		// Over-refine (+11..+99) failure is configurable so a hard-won high refine isn't nuked:
+		// refine_over_fail 0 = destroy (classic), 1 = drop one level, 2 = keep as-is. [refine99]
+		if(sd->status.inventory[i].refine >= MAX_REFINE && battle_config.refine_over_fail != 0) {
+			int ep = sd->status.inventory[i].equip;
+			if(battle_config.refine_over_fail == 1 && sd->status.inventory[i].refine > 0)
+				sd->status.inventory[i].refine--;
+			pc_unequipitem(sd,i,2);
+			clif_refine(sd->fd,1,i,sd->status.inventory[i].refine);
+			clif_delitem(sd,i,1);
+			clif_additem(sd,i,1,0);
+			pc_equipitem(sd,i,ep);
+			clif_misceffect(&sd->bl,2);
+			return 0;
+		}
+
 		//Logs items, got from (N)PC scripts [Lupus]
 		if(log_config.enable_logs&0x40)
 			log_pick_pc(sd, "N", sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
@@ -7024,6 +7385,132 @@ BUILDIN_FUNC(statusup2)
 /// bonus3 <bonus type>,<val1>,<val2>,<val3>;
 /// bonus4 <bonus type>,<val1>,<val2>,<val3>,<val4>;
 /// bonus5 <bonus type>,<val1>,<val2>,<val3>,<val4>,<val5>;
+/// Looks up the cached bytecode for an autobonus script source and runs it in
+/// the equip context (current_equip_item_index = equipment index). [autobonus]
+void script_run_autobonus(const char *autobonus, int id, int pos)
+{
+	struct script_code *script = (struct script_code *)strdb_get(autobonus_db, autobonus);
+
+	if( script )
+	{
+		current_equip_item_index = pos;
+		run_script(script,0,id,0);
+	}
+}
+
+/// Parses an autobonus script source once and caches the bytecode keyed by the
+/// source string, so repeated status_calc_pc re-applications reuse it. [autobonus]
+static void script_add_autobonus(const char *autobonus)
+{
+	if( strdb_get(autobonus_db, autobonus) == NULL )
+	{
+		struct script_code *script = parse_script(autobonus, "autobonus", 0, 0);
+
+		if( script )
+			strdb_put(autobonus_db, autobonus, script);
+	}
+}
+
+BUILDIN_FUNC(autobonus)
+{
+	unsigned int dur;
+	short rate;
+	short atk_type = 0;
+	TBL_PC* sd;
+	const char *bonus_script, *other_script = NULL;
+
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0; // no player attached
+	if( sd->state.autobonus&sd->status.inventory[current_equip_item_index].equip )
+		return 0;
+
+	rate = script_getnum(st,3);
+	dur = script_getnum(st,4);
+	bonus_script = script_getstr(st,2);
+	if( !rate || !dur || !bonus_script )
+		return 0;
+	if( script_hasdata(st,5) )
+		atk_type = script_getnum(st,5);
+	if( script_hasdata(st,6) )
+		other_script = script_getstr(st,6);
+
+	if( pc_addautobonus(sd->autobonus,ARRAYLENGTH(sd->autobonus),
+		bonus_script,rate,dur,atk_type,other_script,sd->status.inventory[current_equip_item_index].equip,false) )
+	{
+		script_add_autobonus(bonus_script);
+		if( other_script )
+			script_add_autobonus(other_script);
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(autobonus2)
+{
+	unsigned int dur;
+	short rate;
+	short atk_type = 0;
+	TBL_PC* sd;
+	const char *bonus_script, *other_script = NULL;
+
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0;
+	if( sd->state.autobonus&sd->status.inventory[current_equip_item_index].equip )
+		return 0;
+
+	rate = script_getnum(st,3);
+	dur = script_getnum(st,4);
+	bonus_script = script_getstr(st,2);
+	if( !rate || !dur || !bonus_script )
+		return 0;
+	if( script_hasdata(st,5) )
+		atk_type = script_getnum(st,5);
+	if( script_hasdata(st,6) )
+		other_script = script_getstr(st,6);
+
+	if( pc_addautobonus(sd->autobonus2,ARRAYLENGTH(sd->autobonus2),
+		bonus_script,rate,dur,atk_type,other_script,sd->status.inventory[current_equip_item_index].equip,false) )
+	{
+		script_add_autobonus(bonus_script);
+		if( other_script )
+			script_add_autobonus(other_script);
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(autobonus3)
+{
+	unsigned int dur;
+	short rate,atk_type;
+	TBL_PC* sd;
+	const char *bonus_script, *other_script = NULL;
+
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0;
+	if( sd->state.autobonus&sd->status.inventory[current_equip_item_index].equip )
+		return 0;
+
+	rate = script_getnum(st,3);
+	dur = script_getnum(st,4);
+	atk_type = ( data_isstring(script_getdata(st,5)) ? skill_name2id(script_getstr(st,5)) : script_getnum(st,5) );
+	bonus_script = script_getstr(st,2);
+	if( !rate || !dur || !atk_type || !bonus_script )
+		return 0;
+	if( script_hasdata(st,6) )
+		other_script = script_getstr(st,6);
+
+	if( pc_addautobonus(sd->autobonus3,ARRAYLENGTH(sd->autobonus3),
+		bonus_script,rate,dur,atk_type,other_script,sd->status.inventory[current_equip_item_index].equip,true) )
+	{
+		script_add_autobonus(bonus_script);
+		if( other_script )
+			script_add_autobonus(other_script);
+	}
+	return 0;
+}
+
 BUILDIN_FUNC(bonus)
 {
 	int type;
@@ -7050,14 +7537,14 @@ BUILDIN_FUNC(bonus)
 		pc_bonus2(sd, type, type2, val);
 		break;
 	case 5:
-		type2 = script_getnum(st,3);
+		type2 = data_isstring(script_getdata(st,3)) ? skill_name2id(script_getstr(st,3)) : script_getnum(st,3); // skill name allowed (bAddEffOnSkill)
 		type3 = script_getnum(st,4);
 		val   = script_getnum(st,5);
 		pc_bonus3(sd, type, type2, type3, val);
 		break;
 	case 6:
-		type2 = script_getnum(st,3);
-		type3 = script_getnum(st,4);
+		type2 = data_isstring(script_getdata(st,3)) ? skill_name2id(script_getstr(st,3)) : script_getnum(st,3); // skill name allowed (bAutoSpellOnSkill)
+		type3 = data_isstring(script_getdata(st,4)) ? skill_name2id(script_getstr(st,4)) : script_getnum(st,4);
 		type4 = script_getnum(st,5);
 		val   = script_getnum(st,6);
 		pc_bonus4(sd, type, type2, type3, type4, val);
@@ -7772,8 +8259,8 @@ BUILDIN_FUNC(areamonster)
 static int buildin_killmonster_sub(struct block_list *bl,va_list ap)
 {
 	TBL_MOB* md = (TBL_MOB*)bl;
-	char *event=va_arg(ap,char *);
-	int allflag=va_arg(ap,int);
+	char *event=(char*)va_arg(ap, intptr_t);
+	int allflag=(int)va_arg(ap, intptr_t);
 
 	if(!allflag){
 		if(strcmp(event,md->npc_event)==0)
@@ -8184,10 +8671,10 @@ static int buildin_mapannounce_sub(struct block_list *bl,va_list ap)
 {
 	char *str, *color;
 	int len,flag;
-	str=va_arg(ap,char *);
-	len=va_arg(ap,int);
-	flag=va_arg(ap,int);
-	color=va_arg(ap,char *);
+	str=(char*)va_arg(ap, intptr_t);
+	len=(int)va_arg(ap, intptr_t);
+	flag=(int)va_arg(ap, intptr_t);
+	color=(char*)va_arg(ap, intptr_t);
 	if (color)
 		clif_announce(bl,str,len, strtol(color, (char **)NULL, 0), flag|3);
 	else
@@ -8327,7 +8814,7 @@ BUILDIN_FUNC(getmapusers)
  *------------------------------------------*/
 static int buildin_getareausers_sub(struct block_list *bl,va_list ap)
 {
-	int *users=va_arg(ap,int *);
+	int *users=(int*)va_arg(ap, intptr_t);
 	(*users)++;
 	return 0;
 }
@@ -8355,8 +8842,8 @@ BUILDIN_FUNC(getareausers)
  *------------------------------------------*/
 static int buildin_getareadropitem_sub(struct block_list *bl,va_list ap)
 {
-	int item=va_arg(ap,int);
-	int *amount=va_arg(ap,int *);
+	int item=(int)va_arg(ap, intptr_t);
+	int *amount=(int*)va_arg(ap, intptr_t);
 	struct flooritem_data *drop=(struct flooritem_data *)bl;
 
 	if(drop->item_data.nameid==item)
@@ -9389,9 +9876,9 @@ BUILDIN_FUNC(emotion)
 
 static int buildin_maprespawnguildid_sub_pc(DBKey key, void *data, va_list ap)
 {
-	int m=va_arg(ap,int);
-	int g_id=va_arg(ap,int);
-	int flag=va_arg(ap,int);
+	int m=(int)va_arg(ap, intptr_t);
+	int g_id=(int)va_arg(ap, intptr_t);
+	int flag=(int)va_arg(ap, intptr_t);
 	TBL_PC *sd = (TBL_PC*)data;
 
 	if(!sd || sd->bl.m != m)
@@ -9899,7 +10386,7 @@ BUILDIN_FUNC(stoptimer)	// Added by RoVeRT
 
 static int buildin_mobcount_sub(struct block_list *bl,va_list ap)	// Added by RoVeRT
 {
-	char *event=va_arg(ap,char *);
+	char *event=(char*)va_arg(ap, intptr_t);
 	if(strcmp(event,((struct mob_data *)bl)->npc_event)==0)
 		return 1;
 	return 0;
@@ -10538,8 +11025,8 @@ BUILDIN_FUNC(soundeffect)
 
 int soundeffect_sub(struct block_list* bl,va_list ap)
 {
-	char* name = va_arg(ap,char*);
-	int type = va_arg(ap,int);
+	char* name = (char*)va_arg(ap, intptr_t);
+	int type = (int)va_arg(ap, intptr_t);
 
 	clif_soundeffect((TBL_PC *)bl, bl, name, type);
 
@@ -11935,7 +12422,6 @@ BUILDIN_FUNC(setd)
 
 BUILDIN_FUNC(query_sql)
 {
-#ifndef TXT_ONLY
 	char *name = NULL;
 	const char *query;
 	int num, i = 0,j, nb_rows;
@@ -12006,10 +12492,6 @@ BUILDIN_FUNC(query_sql)
 		mysql_free_result(sql_res);
 	}
 	script_pushint(st,i);
-#else
-	//for TXT version, we always return -1
-	script_pushint(st,-1);
-#endif
 	return 0;
 }
 
@@ -12170,7 +12652,7 @@ BUILDIN_FUNC(npcshopadditem)
 		return 0;
 	}
 	amount = ((st->end-2)/2)+1;
-	while (nd->u.shop_item[n].nameid && n < MAX_SHOPITEM)
+	while (n < MAX_SHOPITEM && nd->u.shop_item[n].nameid)
 		n++;
 
 
@@ -12216,7 +12698,7 @@ BUILDIN_FUNC(npcshopdelitem)
 		size++;
 
 	while (script_hasdata(st,i)) {
-		for(n=0;nd->u.shop_item[n].nameid && n < MAX_SHOPITEM;n++) {
+		for(n=0;n < MAX_SHOPITEM && nd->u.shop_item[n].nameid;n++) {
 			if (nd->u.shop_item[n].nameid == script_getnum(st,i)) {
 				// We're moving 1 extra empty block. Junk data is eliminated later.
 				memmove(&nd->u.shop_item[n], &nd->u.shop_item[n+1], sizeof(nd->u.shop_item[0])*(size-n));
@@ -12472,6 +12954,7 @@ BUILDIN_FUNC(rid2name)
 			case BL_NPC: script_pushconststr(st,((TBL_NPC*)bl)->exname); break;
 			case BL_PET: script_pushconststr(st,((TBL_PET*)bl)->pet.name); break;
 			case BL_HOM: script_pushconststr(st,((TBL_HOM*)bl)->homunculus.name); break;
+			case BL_MER: script_pushconststr(st,((TBL_MER*)bl)->db->name); break;	// [Backport]
 			default:
 				ShowError("buildin_rid2name: BL type unknown.\n");
 				script_pushconststr(st,"");

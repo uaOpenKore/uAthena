@@ -8,5 +8,6 @@ CREATE TABLE `mail` (
   `read_flag` tinyint(1) NOT NULL default '0',
   `priority` tinyint(1) NOT NULL default '0',
   `check_flag` tinyint(1) NOT NULL default '0',
-  PRIMARY KEY  (`message_id`)
-) TYPE=MyISAM;
+  PRIMARY KEY  (`message_id`),
+  KEY `to_account_id` (`to_account_id`)
+) ;

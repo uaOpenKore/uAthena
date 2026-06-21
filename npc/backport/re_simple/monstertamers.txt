@@ -1,0 +1,20 @@
+//===== uAthena backport (renewal simple quests 2d, GENERATED) =====
+//= simple/misc quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-simple.py
+//= Source: npc/re/quests/monstertamers.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Monster Tamers
+//===== By: ==================================================
+//= Euphy
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= Cute pet quest items
+//===== Additional Comments: =================================
+//= 1.0 Moved Izlude NPC to pre-re/re paths.
+//============================================================
+
+//[BACKPORT-ORPHAN:MonsterTamer_izlude] izlude_in,55,105,4	duplicate(MonsterTamer_izlude)	Monster Tamer#izu	125

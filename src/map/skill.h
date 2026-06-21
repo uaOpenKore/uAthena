@@ -148,6 +148,7 @@ int do_final_skill(void);
 //Returns the cast type of the skill: ground cast, castend damage, castend no damage
 enum { CAST_GROUND, CAST_DAMAGE, CAST_NODAMAGE };
 int skill_get_casttype(int id); //[Skotlex]
+int skill_name2id(const char* name); // skill search-name -> id, 0 if unknown [autobonus]
 // XLf?^x?XANZT
 //
 int	skill_get_type( int id );
@@ -198,6 +199,7 @@ int skill_addtimerskill(struct block_list *src,unsigned int tick,int target,int 
 // ?
 int skill_additional_effect( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int attack_type,unsigned int tick);
 int skill_counter_additional_effect( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int attack_type,unsigned int tick);
+int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int skillid, unsigned int tick);
 int skill_blown(struct block_list* src, struct block_list* target, int count, int direction, int flag);
 int skill_break_equip(struct block_list *bl, unsigned short where, int rate, int flag);
 int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int lv, int time);
@@ -243,7 +245,7 @@ void skill_identify(struct map_session_data *sd,int idx);
 void skill_weaponrefine(struct map_session_data *sd,int idx); // [Celest]
 int skill_autospell(struct map_session_data *md,int skillid);
 
-int skill_calc_heal(struct block_list *src, struct block_list *target, int skill_lv);
+int skill_calc_heal(struct block_list *src, struct block_list *target, int skill_id, int skill_lv);
 
 int skill_check_cloaking(struct block_list *bl, struct status_change *sc);
 
@@ -257,6 +259,9 @@ int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap);	//[orn]
 int skill_can_produce_mix( struct map_session_data *sd, int nameid, int trigger, int qty);
 int skill_produce_mix( struct map_session_data *sd,
 	int skill_id, int nameid, int slot1, int slot2, int slot3, int qty );
+int skill_cooking_nameid(int index); // [Backport] @cooking chat UI
+int skill_cooking_list(struct map_session_data *sd, int show_all); // [Backport] @cooking chat UI
+int skill_cooking_make(struct map_session_data *sd, int index); // [Backport] @cooking chat UI
 
 int skill_arrow_create( struct map_session_data *sd,int nameid);
 
@@ -919,6 +924,49 @@ enum _skill {
 	HVAN_CHAOTIC,
 	HVAN_INSTRUCT,
 	HVAN_EXPLOSION,
+
+	// Mercenary Soldier skills [Backport] (MC_SKILLBASE 8201)
+	MS_BASH = 8201,
+	MS_MAGNUM,
+	MS_BOWLINGBASH,
+	MS_PARRYING,
+	MS_REFLECTSHIELD,
+	MS_BERSERK,
+	MA_DOUBLE,
+	MA_SHOWER,
+	MA_SKIDTRAP,
+	MA_LANDMINE,
+	MA_SANDMAN,
+	MA_FREEZINGTRAP,
+	MA_REMOVETRAP,
+	MA_CHARGEARROW,
+	MA_SHARPSHOOTING,
+	ML_PIERCE,
+	ML_BRANDISH,
+	ML_SPIRALPIERCE,
+	ML_DEFENDER,
+	ML_AUTOGUARD,
+	ML_DEVOTION,
+	// [Backport] Mercenary support skills (8222-8240) [M7d]
+	MER_MAGNIFICAT,
+	MER_QUICKEN,
+	MER_SIGHT,
+	MER_CRASH,
+	MER_REGAIN,
+	MER_TENDER,
+	MER_BENEDICTION,
+	MER_RECUPERATE,
+	MER_MENTALCURE,
+	MER_COMPRESS,
+	MER_PROVOKE,
+	MER_AUTOBERSERK,
+	MER_DECAGI,
+	MER_SCAPEGOAT,
+	MER_LEXDIVINA,
+	MER_ESTIMATION,
+	MER_KYRIE,
+	MER_BLESSING,
+	MER_INCAGI,
 };
 
 enum {

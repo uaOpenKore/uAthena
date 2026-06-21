@@ -1,0 +1,122 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/Extended_Stylist.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Stylist Extension - (Style UI)
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [JohnnyPlayy]
+//===== Description: ========================================= 
+// Texts from this script were translated according to KRO
+//============================================================
+//= Stylist of Alberta
+//===================================================
+
+//[BACKPORT-DEDUP:Stylist#alberta] alberta_in,55,142,7	script	Stylist#alberta	4_F_02,{
+//[BACKPORT-DEDUP:Stylist#alberta] 	mes "[Sweet Veronica]";
+//[BACKPORT-DEDUP:Stylist#alberta] 	mes "Welcome to Veronica Beauty Salon, reborn as a world-class stylist. Hhhi.";
+//[BACKPORT-DEDUP:Stylist#alberta] 	next;
+//[BACKPORT-DEDUP:Stylist#alberta] 	switch(select("Change your style:End conversation")) {
+//[BACKPORT-DEDUP:Stylist#alberta] 	case 1:
+//[BACKPORT-DEDUP:Stylist#alberta] 		close2;
+		//[BACKPORT-GAP:openstylist] openstylist();
+//[BACKPORT-DEDUP:Stylist#alberta] 		end;
+//[BACKPORT-DEDUP:Stylist#alberta] 	case 2:
+//[BACKPORT-DEDUP:Stylist#alberta] 		next;
+//[BACKPORT-DEDUP:Stylist#alberta] 		mes "[Sweet Veronica]";
+//[BACKPORT-DEDUP:Stylist#alberta] 		mes "Everyone has the right to be beautiful... I hope you find a style that suits you.";
+//[BACKPORT-DEDUP:Stylist#alberta] 		close;
+//[BACKPORT-DEDUP:Stylist#alberta] 	}
+//[BACKPORT-DEDUP:Stylist#alberta] }
+
+//= Stylist of Prontera
+//===================================================
+//[BACKPORT-DEDUP:Stylist#prontera] prt_in,243,168,4	script	Stylist#prontera	4_F_02,{
+//[BACKPORT-DEDUP:Stylist#prontera] 	mes "[Jovovich]";
+//[BACKPORT-DEDUP:Stylist#prontera] 	mes "Welcome. I'm Jovovich, a famous stylist from Prontera. How can I help you?";
+//[BACKPORT-DEDUP:Stylist#prontera] 	next;
+//[BACKPORT-DEDUP:Stylist#prontera] 	switch(select("Change your style:End conversation")) {
+//[BACKPORT-DEDUP:Stylist#prontera] 	case 1:
+//[BACKPORT-DEDUP:Stylist#prontera] 		close2;
+		//[BACKPORT-GAP:openstylist] openstylist();
+//[BACKPORT-DEDUP:Stylist#prontera] 		end;
+//[BACKPORT-DEDUP:Stylist#prontera] 	case 2:
+//[BACKPORT-DEDUP:Stylist#prontera] 		mes "[Jovovich]";
+//[BACKPORT-DEDUP:Stylist#prontera] 		mes "Please visit us again~";
+//[BACKPORT-DEDUP:Stylist#prontera] 		close;
+//[BACKPORT-DEDUP:Stylist#prontera] 	}
+//[BACKPORT-DEDUP:Stylist#prontera] }
+
+//= Stylist of Lighthalzen
+//===================================================
+//[BACKPORT-UNRESOLVED:openstylist] lhz_in02,100,143,4	script	Stylist#lhz	2_M_DYEINGER,{
+//[BACKPORT-UNRESOLVED:openstylist] 	mes "[Prince Shami]";
+//[BACKPORT-UNRESOLVED:openstylist] 	mes "I'm back as one of the greatest stylists in the world. I'm Prince Shami and a professional stylist and I have to say I've been blessed by this great talent! <3";
+//[BACKPORT-UNRESOLVED:openstylist] 	next;
+//[BACKPORT-UNRESOLVED:openstylist] 	switch(select("Change your style:End conversation")) {
+//[BACKPORT-UNRESOLVED:openstylist] 	case 1:
+//[BACKPORT-UNRESOLVED:openstylist] 		close2;
+		//[BACKPORT-GAP:openstylist] openstylist();
+//[BACKPORT-UNRESOLVED:openstylist] 		end;
+//[BACKPORT-UNRESOLVED:openstylist] 	case 2:
+//[BACKPORT-UNRESOLVED:openstylist] 		mes "[Prince Shami]";
+//[BACKPORT-UNRESOLVED:openstylist] 		mes "Are you saying you don't like this stylish? How is this possible!";
+//[BACKPORT-UNRESOLVED:openstylist] 		close;
+//[BACKPORT-UNRESOLVED:openstylist] 	}
+//[BACKPORT-UNRESOLVED:openstylist] }
+
+//= Stylist of Lasagna
+//===================================================
+//[BACKPORT-BOUNDARY:lasagna] lasagna,134,113,3	script	Stylist#lasagna	4_DR_F_02,{
+//[BACKPORT-BOUNDARY:lasagna] 	mes "[Lonza]";
+//[BACKPORT-BOUNDARY:lasagna] 	mes "If you're a Doram who lives and dies for fashion, trust me. To the beat of the music~";
+//[BACKPORT-BOUNDARY:lasagna] 	next;
+//[BACKPORT-BOUNDARY:lasagna] 	switch(select("Change your style:End conversation")) {
+//[BACKPORT-BOUNDARY:lasagna] 	case 1:
+//[BACKPORT-BOUNDARY:lasagna] 		close2;
+		//[BACKPORT-GAP:openstylist] openstylist();
+//[BACKPORT-BOUNDARY:lasagna] 		end;
+//[BACKPORT-BOUNDARY:lasagna] 	case 2:
+//[BACKPORT-BOUNDARY:lasagna] 		mes "[Lonza]";
+//[BACKPORT-BOUNDARY:lasagna] 		mes "There is no such thing as bad weather, right? One day I want you to trust me.";
+//[BACKPORT-BOUNDARY:lasagna] 		mes "I'm Lonza and I can give you an amazing change that will make you stylish, so come and visit me anytime.";
+//[BACKPORT-BOUNDARY:lasagna] 		close;
+//[BACKPORT-BOUNDARY:lasagna] 	}
+//[BACKPORT-BOUNDARY:lasagna] }
+
+//= Stylist of Rachel
+//===================================================
+//[BACKPORT-UNRESOLVED:openstylist] ra_in01,186,148,5	script	Stylist#rachel	4_F_MASK1,{
+//[BACKPORT-UNRESOLVED:openstylist] 	mes "[Isop]";
+//[BACKPORT-UNRESOLVED:openstylist] 	mes "Hehe, Welcome. I'm Isop, the stylist of the <Shook Shook-Store>.";
+//[BACKPORT-UNRESOLVED:openstylist] 	next;
+//[BACKPORT-UNRESOLVED:openstylist] 	switch(select("Change your style:End conversation")) {
+//[BACKPORT-UNRESOLVED:openstylist] 	case 1:
+//[BACKPORT-UNRESOLVED:openstylist] 		close2;
+		//[BACKPORT-GAP:openstylist] openstylist();
+//[BACKPORT-UNRESOLVED:openstylist] 		end;
+//[BACKPORT-UNRESOLVED:openstylist] 	case 2:
+//[BACKPORT-UNRESOLVED:openstylist] 		mes "[Isop]";
+//[BACKPORT-UNRESOLVED:openstylist] 		mes "Anything you want to cut?";
+//[BACKPORT-UNRESOLVED:openstylist] 		close;
+//[BACKPORT-UNRESOLVED:openstylist] 	}
+//[BACKPORT-UNRESOLVED:openstylist] }
+
+//= Stylist of Yuno
+//===================================================
+//[BACKPORT-UNRESOLVED:openstylist] yuno_in04,186,21,1	script	Stylist#yuno	4_M_BARBER,{
+//[BACKPORT-UNRESOLVED:openstylist] 	mes "[Maxi]";
+//[BACKPORT-UNRESOLVED:openstylist] 	mes "Nice to meet you my guest. Would you like to leave your transformation to Maxi, the best stylist in Schwarzwald?";
+//[BACKPORT-UNRESOLVED:openstylist] 	next;
+//[BACKPORT-UNRESOLVED:openstylist] 	switch(select("Change your style:End conversation")) {
+//[BACKPORT-UNRESOLVED:openstylist] 	case 1:
+//[BACKPORT-UNRESOLVED:openstylist] 		close2;
+		//[BACKPORT-GAP:openstylist] openstylist();
+//[BACKPORT-UNRESOLVED:openstylist] 		end;
+//[BACKPORT-UNRESOLVED:openstylist] 	case 2:
+//[BACKPORT-UNRESOLVED:openstylist] 		mes "[Maxi]";
+//[BACKPORT-UNRESOLVED:openstylist] 		mes "Come back anytime.";
+//[BACKPORT-UNRESOLVED:openstylist] 		close;
+//[BACKPORT-UNRESOLVED:openstylist] 	}
+//[BACKPORT-UNRESOLVED:openstylist] }

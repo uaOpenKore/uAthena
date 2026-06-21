@@ -157,6 +157,8 @@ int chrif_save(struct map_session_data *sd, int flag)
 {
 	nullpo_retr(-1, sd);
 
+	status_calc_pc_flush(sd);	// [perf 7] run any pending deferred equip-swap recompute before snapshotting
+
 	if (!flag) //The flag check is needed to prevent 'nosave' taking effect when a jailed player logs out.
 		pc_makesavestatus(sd);
 
@@ -195,6 +197,12 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if (sd->hd && merc_is_hom_active(sd->hd))
 		merc_save(sd->hd);
 
+	if (sd->save_quest)
+		intif_quest_save(sd);
+
+	if (sd->save_achievement)
+		intif_achievement_save(sd);
+
 	if (flag)
 		sd->state.finalsave = 1; //Mark the last save as done.
 	return 0;
@@ -203,7 +211,7 @@ int chrif_save(struct map_session_data *sd, int flag)
 // connects to char-server (plaintext)
 int chrif_connect(int fd)
 {
-	ShowStatus("Logging in to char server...\n", char_fd);
+	ShowStatus("Logging in to char server...\n");
 	WFIFOHEAD(fd,60);
 	WFIFOW(fd,0) = 0x2af8;
 	memcpy(WFIFOP(fd,2), userid, NAME_LENGTH);

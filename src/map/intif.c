@@ -12,12 +12,15 @@
 #include "clif.h"
 #include "pc.h"
 #include "intif.h"
+#include "quest.h"
+#include "achievement.h"
 #include "storage.h"
 #include "party.h"
 #include "guild.h"
 #include "pet.h"
 #include "atcommand.h"
 #include "mercenary.h" //albator
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 
 #include <sys/types.h>
 #include <stdio.h>
@@ -29,13 +32,13 @@
 
 static const int packet_len_table[]={
 	-1,-1,27,-1, -1, 0,37, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3800-0x380f
-	-1, 7, 0, 0,  0, 0, 0, 0, -1,11, 0, 0,  0, 0,  0, 0, //0x3810
+	-1, 7, 0, 0,  0, 0, 0, 0, -1,11,10, 0,  0, 0,  0, 0, //0x3810
 	39,-1,15,15, 14,19, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
 	10,-1,15, 0, 79,19, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
 	 9, 9,-1,14,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3840
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
+	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850
+	-1, 7,-1, 7,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin][Inkfish] + Achievements [Backport]
+	-1, 3, 3, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3870  Mercenary Soldier [Backport]
 	11,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3880
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
 };
@@ -376,6 +379,29 @@ int intif_send_guild_storage(int account_id,struct guild_storage *gstor)
 	WFIFOL(inter_fd,8) = gstor->guild_id;
 	memcpy( WFIFOP(inter_fd,12),gstor, sizeof(struct guild_storage) );
 	WFIFOSET(inter_fd,WFIFOW(inter_fd,2));
+	return 0;
+}
+
+// Ask the char-server to release this map-server's lock on a guild's storage.
+// Sent on every guild-storage close; the char-server no-ops it unless the
+// cross-server lock is enabled (idempotent: release only if we are the owner).
+int intif_guild_storage_unlock(int guild_id)
+{
+	if (CheckForCharServer())
+		return 0;
+	WFIFOHEAD(inter_fd,6);
+	WFIFOW(inter_fd,0) = 0x301a;
+	WFIFOL(inter_fd,2) = guild_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+}
+
+// Char-server denied a guild-storage open (it is held by another map-server).
+int intif_parse_GuildStorageBusy(int fd)
+{
+	struct map_session_data *sd = map_id2sd(RFIFOL(fd,2)); // account_id (== bl.id for a player)
+	if(sd)
+		clif_displaymessage(sd->fd, "The guild storage is in use on another server.");
 	return 0;
 }
 
@@ -919,6 +945,8 @@ int mapif_parse_WisToGM(int fd)
 	char *message;
 
 	mes_len =  RFIFOW(fd,2) - 30;
+	if (mes_len < 1)
+		return 0; //malformed packet: avoid negative-length memcpy and message[-1] write
 	message = (char *) (mes_len >= 255 ? (char *) aMallocA(mes_len) : mbuf);
 
 	min_gm_level = (int)RFIFOW(fd,28);
@@ -1462,6 +1490,251 @@ int intif_parse_DeleteHomunculusOk(int fd)
 // inter serverM
 // G[0(false)
 // pPbg1,pPbg2
+/***************************************
+ QUESTLOG SYSTEM FUNCTIONS (ported from eAthena)
+***************************************/
+
+int intif_request_questlog(TBL_PC *sd)
+{
+	WFIFOHEAD(inter_fd,6);
+	WFIFOW(inter_fd,0) = 0x3060;
+	WFIFOL(inter_fd,2) = sd->status.char_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+}
+
+int intif_parse_questlog(int fd)
+{
+	int char_id = RFIFOL(fd, 4);
+	int i;
+	TBL_PC * sd = map_charid2sd(char_id);
+
+	//User not online anymore
+	if(!sd)
+		return -1;
+
+	sd->avail_quests = sd->num_quests = (RFIFOW(fd, 2)-8)/sizeof(struct quest);
+
+	memset(&sd->quest_log, 0, sizeof(sd->quest_log));
+
+	for( i = 0; i < sd->num_quests; i++ )
+	{
+		memcpy(&sd->quest_log[i], RFIFOP(fd, i*sizeof(struct quest)+8), sizeof(struct quest));
+
+		sd->quest_index[i] = quest_search_db(sd->quest_log[i].quest_id);
+
+		if( sd->quest_index[i] < 0 )
+		{
+			ShowError("intif_parse_questlog: quest %d not found in DB.\n",sd->quest_log[i].quest_id);
+			sd->avail_quests--;
+			sd->num_quests--;
+			i--;
+			continue;
+		}
+
+		if( sd->quest_log[i].state == Q_COMPLETE )
+			sd->avail_quests--;
+	}
+
+	quest_pc_login(sd);
+
+	return 0;
+}
+
+int intif_parse_questsave(int fd)
+{
+	int cid = RFIFOL(fd, 2);
+	TBL_PC *sd = map_id2sd(cid);
+
+	if( !RFIFOB(fd, 6) )
+		ShowError("intif_parse_questsave: Failed to save quest(s) for character %d!\n", cid);
+	else if( sd )
+		sd->save_quest = false;
+
+	return 0;
+}
+
+int intif_quest_save(TBL_PC *sd)
+{
+	int len;
+
+	if(CheckForCharServer())
+		return 0;
+
+	len = sizeof(struct quest)*sd->num_quests + 8;
+
+	WFIFOHEAD(inter_fd, len);
+	WFIFOW(inter_fd,0) = 0x3061;
+	WFIFOW(inter_fd,2) = len;
+	WFIFOL(inter_fd,4) = sd->status.char_id;
+	if( sd->num_quests )
+		memcpy(WFIFOP(inter_fd,8), &sd->quest_log, sizeof(struct quest)*sd->num_quests);
+	WFIFOSET(inter_fd,  len);
+
+	return 0;
+}
+
+// [Backport] Achievements - request the log from the char-server on login.
+int intif_request_achievements(TBL_PC *sd)
+{
+	WFIFOHEAD(inter_fd,6);
+	WFIFOW(inter_fd,0) = 0x3062;
+	WFIFOL(inter_fd,2) = sd->status.char_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+}
+
+int intif_parse_achievements(int fd)
+{
+	int char_id = RFIFOL(fd, 4);
+	int i;
+	TBL_PC * sd = map_charid2sd(char_id);
+
+	if( !sd ) //User not online anymore
+		return -1;
+
+	sd->num_achievements = (RFIFOW(fd, 2)-8)/sizeof(struct achievement);
+	memset(&sd->achievement_log, 0, sizeof(sd->achievement_log));
+
+	for( i = 0; i < sd->num_achievements; i++ )
+	{
+		memcpy(&sd->achievement_log[i], RFIFOP(fd, i*sizeof(struct achievement)+8), sizeof(struct achievement));
+		sd->achievement_index[i] = achievement_search_db(sd->achievement_log[i].achievement_id);
+		if( sd->achievement_index[i] < 0 )
+		{
+			ShowError("intif_parse_achievements: achievement %d not found in DB.\n", sd->achievement_log[i].achievement_id);
+			sd->num_achievements--;
+			i--;
+			continue;
+		}
+	}
+
+	achievement_login(sd);
+
+	return 0;
+}
+
+int intif_parse_achievementsave(int fd)
+{
+	int cid = RFIFOL(fd, 2);
+	TBL_PC *sd = map_id2sd(cid);
+
+	if( !RFIFOB(fd, 6) )
+		ShowError("intif_parse_achievementsave: Failed to save achievement(s) for character %d!\n", cid);
+	else if( sd )
+		sd->save_achievement = false;
+
+	return 0;
+}
+
+int intif_achievement_save(TBL_PC *sd)
+{
+	int len;
+
+	if(CheckForCharServer())
+		return 0;
+
+	len = sizeof(struct achievement)*sd->num_achievements + 8;
+
+	WFIFOHEAD(inter_fd, len);
+	WFIFOW(inter_fd,0) = 0x3063;
+	WFIFOW(inter_fd,2) = len;
+	WFIFOL(inter_fd,4) = sd->status.char_id;
+	if( sd->num_achievements )
+		memcpy(WFIFOP(inter_fd,8), &sd->achievement_log, sizeof(struct achievement)*sd->num_achievements);
+	WFIFOSET(inter_fd, len);
+
+	return 0;
+}
+
+//=========================================================
+// [Backport] Hired Mercenary Soldier inter packets (0x3070-3 <-> 0x3870-2)
+//=========================================================
+int intif_mercenary_create(struct s_mercenary *merc)
+{
+	int size = sizeof(struct s_mercenary) + 4;
+
+	if( CheckForCharServer() )
+		return 0;
+
+	WFIFOHEAD(inter_fd,size);
+	WFIFOW(inter_fd,0) = 0x3070;
+	WFIFOW(inter_fd,2) = size;
+	memcpy(WFIFOP(inter_fd,4), merc, sizeof(struct s_mercenary));
+	WFIFOSET(inter_fd,size);
+	return 0;
+}
+
+int intif_mercenary_request(int merc_id, int char_id)
+{
+	if( CheckForCharServer() )
+		return 0;
+
+	WFIFOHEAD(inter_fd,10);
+	WFIFOW(inter_fd,0) = 0x3071;
+	WFIFOL(inter_fd,2) = merc_id;
+	WFIFOL(inter_fd,6) = char_id;
+	WFIFOSET(inter_fd,10);
+	return 0;
+}
+
+int intif_mercenary_delete(int merc_id)
+{
+	if( CheckForCharServer() )
+		return 0;
+
+	WFIFOHEAD(inter_fd,6);
+	WFIFOW(inter_fd,0) = 0x3072;
+	WFIFOL(inter_fd,2) = merc_id;
+	WFIFOSET(inter_fd,6);
+	return 0;
+}
+
+int intif_mercenary_save(struct s_mercenary *merc)
+{
+	int size = sizeof(struct s_mercenary) + 4;
+
+	if( CheckForCharServer() )
+		return 0;
+
+	WFIFOHEAD(inter_fd,size);
+	WFIFOW(inter_fd,0) = 0x3073;
+	WFIFOW(inter_fd,2) = size;
+	memcpy(WFIFOP(inter_fd,4), merc, sizeof(struct s_mercenary));
+	WFIFOSET(inter_fd,size);
+	return 0;
+}
+
+int intif_parse_mercenary_received(int fd)
+{
+	int len = RFIFOW(fd,2) - 5;
+	if( sizeof(struct s_mercenary) != len )
+	{
+		if( battle_config.etc_log )
+			ShowError("intif: create mercenary data size error %d != %d\n", (int)sizeof(struct s_mercenary), len);
+		return 0;
+	}
+
+	merc_data_received((struct s_mercenary*)RFIFOP(fd,5), RFIFOB(fd,4));
+	return 0;
+}
+
+int intif_parse_mercenary_deleted(int fd)
+{
+	if( RFIFOB(fd,2) != 1 )
+		ShowError("Mercenary data delete failure\n");
+
+	return 0;
+}
+
+int intif_parse_mercenary_saved(int fd)
+{
+	if( RFIFOB(fd,2) != 1 )
+		ShowError("Mercenary data save failure\n");
+
+	return 0;
+}
+
 int intif_parse(int fd)
 {
 	int packet_len, cmd;
@@ -1502,6 +1775,7 @@ int intif_parse(int fd)
 	case 0x3811:	intif_parse_SaveStorage(fd); break;
 	case 0x3818:	intif_parse_LoadGuildStorage(fd); break;
 	case 0x3819:	intif_parse_SaveGuildStorage(fd); break;
+	case 0x381a:	intif_parse_GuildStorageBusy(fd); break;
 	case 0x3820:	intif_parse_PartyCreated(fd); break;
 	case 0x3821:	intif_parse_PartyInfo(fd); break;
 	case 0x3822:	intif_parse_PartyMemberAdded(fd); break;
@@ -1536,6 +1810,13 @@ int intif_parse(int fd)
 	case 0x3891:	intif_parse_RecvHomunculusData(fd); break;
 	case 0x3892:	intif_parse_SaveHomunculusOk(fd); break;
 	case 0x3893:	intif_parse_DeleteHomunculusOk(fd); break;
+	case 0x3860:	intif_parse_questlog(fd); break;
+	case 0x3861:	intif_parse_questsave(fd); break;
+	case 0x3862:	intif_parse_achievements(fd); break;
+	case 0x3863:	intif_parse_achievementsave(fd); break;
+	case 0x3870:	intif_parse_mercenary_received(fd); break;	// [Backport]
+	case 0x3871:	intif_parse_mercenary_deleted(fd); break;
+	case 0x3872:	intif_parse_mercenary_saved(fd); break;
 	default:
 		if(battle_config.error_log)
 			ShowError("intif_parse : unknown packet %d %x\n",fd,RFIFOW(fd,0));

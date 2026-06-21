@@ -38,6 +38,8 @@ struct npc_src_list {
 };
 static struct npc_src_list* npc_src_files = NULL;
 
+struct npc_data *fake_nd = NULL;	// real definition (declared extern in npc.h)
+
 static int npc_id=START_NPC_NUM;
 static int npc_warp=0;
 static int npc_shop=0;
@@ -312,17 +314,24 @@ int npc_event_sub(struct map_session_data* sd, struct event_data* ev, const char
 /*==========================================
  * SNPCOn*Cxgs
  *------------------------------------------*/
+// NOTE: restored the original varargs design. The x64 port had replaced the
+// va_arg parameters with globals (g_npc_event_doall_*), which (a) compared the
+// BARE event name against the "::"-prefixed key suffix, so no global event
+// (OnInit/OnClock*/OnAgit*/OnPCLoginEvent/...) ever matched, and (b) was not
+// re-entrant (run_script -> donpcevent -> npc_event_doall clobbered them).
+// The va_list-reuse crash that motivated the workaround is properly fixed by
+// va_copy in db.c's foreach (commit 556b59d), so plain va_arg is safe again.
 int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 {
 	const char* p = key.str;
 	struct event_data* ev;
 	int* c;
+	const char* name;
 	int rid;
-	char* name;
 
 	ev = (struct event_data *)data;
 	c = va_arg(ap, int *);
-	name = va_arg(ap,char *);
+	name = va_arg(ap, const char *);
 	rid = va_arg(ap, int);
 
 	if( (p=strchr(p, ':')) && p && strcmpi(name, p)==0 ) {
@@ -335,6 +344,7 @@ int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 
 	return 0;
 }
+
 int npc_event_doall(const char* name)
 {
 	int c = 0;
@@ -1777,18 +1787,17 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 /*==========================================
  * NPCxf[^Ro[g
  *------------------------------------------*/
-int npc_convertlabel_db(DBKey key, void* data, va_list ap)
+int npc_convertlabel_db(DBKey key, void* data, va_list ap, struct npc_data *nd)
 {
 	const char *lname = (const char*)key.str;
-	int pos = (int)(intptr_t)data;
-	struct npc_data *nd;
+	intptr_t pos = (intptr_t)data;
 	struct npc_label_list *lst;
 	int num;
 	const char *p;
 	int len;
 
-	nullpo_retr(0, ap);
-	nullpo_retr(0, nd = va_arg(ap,struct npc_data *));
+	if (nd == NULL)
+		return 0;
 
 	lst = nd->u.scr.label_list;
 	num = nd->u.scr.label_list_num;
@@ -1811,11 +1820,21 @@ int npc_convertlabel_db(DBKey key, void* data, va_list ap)
 	}
 	memcpy(lst[num].name, lname, len);
 	lst[num].name[len]=0;
-	lst[num].pos = pos;
+	lst[num].pos = (int)pos;
 	nd->u.scr.label_list = lst;
 	nd->u.scr.label_list_num = num+1;
 
 	return 0;
+}
+
+/*==========================================
+ * NPCxf[^Ro[g wrapper for x64 compatibility
+ *------------------------------------------*/
+static struct npc_data *g_nd = NULL;
+
+static int npc_convertlabel_db_wrapper(DBKey key, void* data, va_list ap)
+{
+	return npc_convertlabel_db(key, data, ap, g_nd);
 }
 
 /*==========================================
@@ -2080,7 +2099,9 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 		// script{
 		// xf[^Ro[g
 		label_db = script_get_label_db();
-		label_db->foreach(label_db, npc_convertlabel_db, nd);
+		g_nd = nd;
+		label_db->foreach(label_db, npc_convertlabel_db_wrapper);
+		g_nd = NULL;
 		label_db->clear(label_db,NULL); // not needed anymore, so clear the db
 
 		// gobt@
@@ -2720,6 +2741,7 @@ static int npc_parse_mapcell(char* w1, char* w2, char* w3, char* w4)
 void npc_parsesrcfile(const char* name)
 {
 	int m, lines = 0;
+	int in_comment = 0; // [Backport] inside a C-style /* */ block comment
 	char line[2048];
 
 	FILE *fp = fopen (name,"r");
@@ -2735,8 +2757,34 @@ void npc_parsesrcfile(const char* name)
 		int i, w4pos, count;
 		lines++;
 
-		if (line[0] == '/' && line[1] == '/')
+		// [Backport] Skip "//" line comments, including indented ones. The stock
+		// parser only recognized "//" at column 0, so generated commented-out script
+		// lines that keep their leading indent (e.g. "\t//[BACKPORT-GAP:...]") were
+		// parsed as NPC definitions and spammed "Invalid map" errors for every one.
+		{
+			const char* cp = line;
+			while (*cp == ' ' || *cp == '\t') cp++;
+			if (cp[0] == '/' && cp[1] == '/')
+				continue;
+		}
+
+		// [Backport] C-style block comments /* ... */ . eAthena scripts put the
+		// delimiters on their own lines; without this the parser emits errors on
+		// them and loads the commented-out NPCs in between as live ones.
+		if (in_comment) {
+			if (strstr(line, "*/") != NULL)
+				in_comment = 0;
 			continue;
+		}
+		{
+			const char* lp = line;
+			while (*lp == ' ' || *lp == '\t') lp++;
+			if (lp[0] == '/' && lp[1] == '*') {
+				if (strstr(lp + 2, "*/") == NULL)
+					in_comment = 1;
+				continue;
+			}
+		}
 
 		if (!sscanf(line, " %n", &i) && i == strlen(line)) // just whitespace
 			continue;

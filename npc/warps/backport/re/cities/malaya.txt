@@ -1,0 +1,20 @@
+//===== uAthena backport (renewal warps, GENERATED) =========
+//= Additive renewal warps from rathena-ref (warp2->warp).
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-warps.py
+//= Source: npc/re/warps/cities/malaya.txt
+//============================================================
+ma_fild01,251,190,0	warp	mf_minga_mf_in_minga	1,1,ma_in01,108,160
+ma_fild01,266,359,0	warp	mafild01_to02	1,1,ma_fild02,248,36
+ma_fild01,288,52,0	warp	mafild01_tobknw	1,1,ma_scene01,142,78
+ma_fild01,37,272,0	warp	mal_fild01_malaya	1,1,malaya,367,277
+ma_fild02,248,33,0	warp	mafild02_to01	1,1,ma_fild01,266,356
+ma_in01,105,160,0	warp	mf_in_minga_mf_minga	1,1,ma_fild01,248,190
+ma_in01,105,92,0	warp	mal_in_ship_malaya_ship	1,1,malaya,310,67
+ma_in01,126,17,0	warp	mal_in_shop_malaya_shop	1,1,malaya,261,237
+ma_in01,24,77,0	warp	mal_in_inn	1,1,malaya,178,208
+ma_in01,33,152,0	warp	mal_in_house01	1,1,malaya,52,75
+ma_in01,86,16,0	warp	mal_in_ws	1,1,malaya,115,212
+ma_in01,9,24,0	warp	mal_in_ts	1,1,malaya,296,167
+ma_scene01,140,80,0	warp	bknw_tofild01	1,1,ma_fild01,288,55
+malaya,309,70,0	warp	malaya_ship_mal_in_ship	1,1,ma_in01,108,92
+malaya,370,277,0	warp	malaya_mal_fild01	1,1,ma_fild01,40,272

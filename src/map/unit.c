@@ -12,6 +12,7 @@
 #include "mob.h"
 #include "pet.h"
 #include "mercenary.h"
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "skill.h"
 #include "clif.h"
 #include "npc.h"
@@ -42,6 +43,7 @@ struct unit_data* unit_bl2ud(struct block_list *bl)
 	if( bl->type == BL_PET) return &((struct pet_data*)bl)->ud;
 	if( bl->type == BL_NPC) return &((struct npc_data*)bl)->ud;
 	if( bl->type == BL_HOM) return &((struct homun_data*)bl)->ud;	//[orn]
+	if( bl->type == BL_MER) return &((struct mercenary_data*)bl)->ud;	// [Backport]
 	return NULL;
 }
 
@@ -186,7 +188,7 @@ static int unit_walktoxy_timer(int tid,unsigned int tick,intptr_t id,intptr_t da
 		if (
 			(sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
 			!(ud->walk_count%WALK_SKILL_INTERVAL) &&
-			rand()%10000 < battle_config.sg_miracle_skill_ratio
+			rnd()%10000 < battle_config.sg_miracle_skill_ratio
 		)	//SG_MIRACLE [Komurka]
 			sc_start(&sd->bl,SC_MIRACLE,100,1,battle_config.sg_miracle_skill_duration);
 	} else if (md) {
@@ -1323,8 +1325,8 @@ int unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, i
 
 	if (map_getcell(tbl->m,tbl->x-dx,tbl->y-dy,CELL_CHKNOPASS))
 	{	//Look for a suitable cell to place in.
-		for(i=0;i<9 && map_getcell(tbl->m,tbl->x-dirx[i],tbl->y-diry[i],CELL_CHKNOPASS);i++);
-		if (i==9) return 0; //No valid cells.
+		for(i=0;i<8 && map_getcell(tbl->m,tbl->x-dirx[i],tbl->y-diry[i],CELL_CHKNOPASS);i++);
+		if (i==8) return 0; //No valid cells.
 		dx = dirx[i];
 		dy = diry[i];
 	}
@@ -1530,8 +1532,8 @@ void unit_dataset(struct block_list *bl)
  *------------------------------------------*/
 static int unit_counttargeted_sub(struct block_list* bl, va_list ap)
 {
-	int id = va_arg(ap, int);
-	int target_lv = va_arg(ap, int); // extra condition
+	int id = (int)va_arg(ap, intptr_t);
+	int target_lv = (int)va_arg(ap, intptr_t); // extra condition
 	struct unit_data* ud;
 
 	if(bl->id == id)
@@ -1729,6 +1731,17 @@ int unit_remove_map(struct block_list *bl, int clrtype)
 			map_freeblock_unlock();
 			return 0;
 		}
+	} else if (bl->type == BL_MER) {	// [Backport] expired contract -> remove
+		struct mercenary_data *md = (struct mercenary_data *) bl;
+		if( mercenary_get_lifetime(md) <= 0 &&
+			!(md->master && md->master->state.waitingdisconnect)
+		) {	//If logging out, this is deleted on unit_free
+			clif_clearunit_area(bl,clrtype);
+			map_delblock(bl);
+			unit_free(bl,0);
+			map_freeblock_unlock();
+			return 0;
+		}
 	}
 	clif_clearunit_area(bl,clrtype);
 	map_delblock(bl);
@@ -1755,6 +1768,12 @@ int unit_free(struct block_list *bl, int clrtype)
 		struct map_session_data *sd = (struct map_session_data*)bl;
 		if(status_isdead(bl))
 			pc_setrestartvalue(sd,2);
+
+		// [Backport] stop the online/playtime reward timer
+		if( sd->online_reward_tid != INVALID_TIMER ) {
+			delete_timer(sd->online_reward_tid, pc_online_reward_timer);
+			sd->online_reward_tid = INVALID_TIMER;
+		}
 
 		//Status that are not saved...
 		if(sd->sc.count) {
@@ -1910,6 +1929,22 @@ int unit_free(struct block_list *bl, int clrtype)
 			}
 		}
 		if(sd) sd->hd = NULL;
+	} else if(bl->type == BL_MER) {	// [Backport]
+		struct mercenary_data *md = (TBL_MER*)bl;
+		struct map_session_data *sd = md->master;
+		if (clrtype >= 0) {
+			if( mercenary_get_lifetime(md) > 0 )
+				mercenary_save(md);
+			else
+			{
+				intif_mercenary_delete(md->mercenary.mercenary_id);
+				if( sd )
+					sd->status.mer_id = 0;
+			}
+		}
+		if( sd )
+			sd->md = NULL;
+		merc_contract_stop(md);
 	}
 
 	skill_clear_unitgroup(bl);

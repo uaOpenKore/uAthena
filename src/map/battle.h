@@ -32,6 +32,7 @@ void battle_drain(struct map_session_data *sd, struct block_list *tbl, int rdama
 int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv);
 
 // _[WIvZ
+int battle_weapon_mastery(struct map_session_data *sd, int weapon);	// [perf 6] weapon-type mastery bonus (cached in status_calc_pc)
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
 int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
 
@@ -146,9 +147,11 @@ extern struct Battle_Config {
 	unsigned short wp_rate;
 	unsigned short pp_rate;
 	unsigned short monster_active_enable;
+	unsigned short mob_target_merc_first;	// [Backport] mobs/bosses pick mercs+homun over players for a NEW target
 	unsigned short monster_damage_delay_rate;
 	unsigned short monster_loot_type;
 	unsigned short mob_skill_rate;	//[Skotlex]
+	unsigned short merc_skill_rate;	// [Backport] hired-merc AI offensive skill-cast chance % (0=disable)
 	unsigned short mob_skill_delay;	//[Skotlex]
 	unsigned short mob_count_rate;
 	unsigned short no_spawn_on_player; //[Skotlex]
@@ -162,6 +165,13 @@ extern struct Battle_Config {
 	unsigned short multihit_delay;  //Adjusts can't walk delay per hit on multi-hitting skills. [Skotlex]
 	unsigned short quest_skill_learn;
 	unsigned short quest_skill_reset;
+	unsigned short quest_progress_notify; // 0=off, 1=each kill, 2=on objective completion
+	int online_reward_interval; // [Backport] minutes online per reward (0 = off)
+	int online_reward_item;     // item nameid (0 = none)
+	int online_reward_amount;
+	int online_reward_zeny;
+	int online_reward_exp;       // base exp
+	int online_reward_afk;       // 0 = only active (non-idle) players, 1 = reward AFK too
 	unsigned short basic_skill_check;
 	unsigned short guild_emperium_check;
 	unsigned short guild_exp_limit;
@@ -191,6 +201,7 @@ extern struct Battle_Config {
 	unsigned short heal_exp;
 	unsigned short max_heal_lv;
 	int max_heal; //Mitternacht
+	unsigned short skill_add_heal_rate; // bitmask: which heal skills bHealPower (add_heal_rate) boosts (1 Heal, 2 Sanctuary, 4 PotionPitcher, 8 SlimPitcher, 16 AppleIdun)
 	unsigned short resurrection_exp;
 	unsigned short shop_exp;
 	unsigned short combo_delay_rate;
@@ -374,6 +385,14 @@ extern struct Battle_Config {
 	unsigned short berserk_cancels_buffs; // [Aru]
 	unsigned short debuff_on_logout; // Removes a few "official" negative Scs on logout. [Skotlex]
 	unsigned short mob_ai; //Configures various mob_ai settings to make them smarter or dumber(official). [Skotlex]
+	unsigned short mob_ai_lazy_skip_emptymap; // [perf] skip lazy AI for mobs on player-less maps (cosmetic walk-to-spawn only). 0=off(default)
+	unsigned short mob_ai_hard_skip_noplayer; // [perf] under mob_ai&0x20: send targetless mobs with no PC in view to the cheap lazy path. 0=off(default)
+	unsigned short mob_ai_active_maps_only; // [perf] under mob_ai&0x20: iterate mobs only on maps with players (cost scales with active locations). 1=on(default)
+	unsigned short socket_async_send; // [perf] 1 = run client send() on a dedicated worker thread (off the game loop). 0=off(default)
+	unsigned short socket_send_pool;  // [perf 5a] 1 = recycle send-worker buffers (default); 0 = plain malloc/free per send
+	unsigned short recv_parse_shortlist; // [perf] 1 = parse only fds that received data this tick (default); 0 = scan all
+	int socket_send_coalesce_ms; // [perf] map-only send-coalescing window in ms; <=0 = off, >0 = flush window (int: lives in battle_data_int[])
+	int socket_sndbuf_size; // [perf] SO_SNDBUF bytes per socket; 0 = kernel default (int: lives in battle_data_int[])
 	unsigned short hom_setting; //Configures various homunc settings which make them behave unlike normal characters.. [Skotlex]
 	unsigned short dynamic_mobs; // Dynamic Mobs [Wizputer] - battle_athena flag implemented by [random]
 	unsigned short mob_remove_damaged; // Dynamic Mobs - Remove mobs even if damaged [Wizputer]
@@ -412,6 +431,19 @@ extern struct Battle_Config {
 	unsigned short allow_skill_without_day; // [Komurka]
 	unsigned short allow_es_magic_pc; // [Skotlex]
 	unsigned short skill_wall_check; // [Skotlex]
+	unsigned short skill_unit_live_list;	// [perf] skill_unit_timer iterates the live-unit index vs the global objects[] scan
+	unsigned short skill_unit_skip_noplayer;	// [perf] skip a unit's AoE scan when it can only hit PC/HOM/MER and none are near
+	unsigned short skill_unit_los_cache;	// [perf] memoize LoS (path_search_long) — immutable per map, so cacheable
+	unsigned short clif_bcast_pc_grid;	// [perf] AREA broadcast skips blocks with no PC/HOM/MER (exact mobgrid count) — behaviour-identical
+	unsigned short weapon_mastery_cache;	// [perf 6] use the per-hand weapon-mastery bonus cached in status_calc_pc (behaviour-identical)
+	unsigned short status_calc_defer;	// [perf 7] coalesce equip-swap status_calc_pc to next tick (NOT behaviour-identical: OnEquip/OnUnequip see stale stats)
+	// --- over-refine (+11..+99) tunables [refine99] ---
+	int refine_player_max;          // player/NPC refine ceiling (<= MAX_REFINE_GM=99); 10 = vanilla (feature off)
+	int refine_over_chance;         // success % for the +10 -> +11 step
+	int refine_over_chance_step;    // % subtracted per extra level above +10
+	int refine_over_chance_min;     // success % floor at high levels
+	int refine_over_bonus_percent;  // ATK/DEF per extra level above +10, as % of the canon per-level bonus
+	int refine_over_fail;           // fail above +10: 0 = destroy (classic), 1 = drop one level, 2 = keep
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]

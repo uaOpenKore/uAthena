@@ -3,11 +3,11 @@ all sql: sqlobj map-server_sql
 sqlobj:
 	mkdir sqlobj
 
-COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/timer.o \
+COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
 	../common/obj/nullpo.o ../common/obj/malloc.o ../common/obj/showmsg.o \
 	../common/obj/utils.o ../common/obj/strlib.o ../common/obj/grfio.o \
-	../common/obj/mapindex.o ../common/obj/ers.o
+	../common/obj/mapindex.o ../common/obj/ers.o ../common/obj/random.o
 
 COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/db.h \
 	../common/plugins.h ../common/lock.h ../common/nullpo.h ../common/malloc.h \
@@ -18,7 +18,7 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/npc_chat.o obj/chat.o obj/path.o obj/itemdb.o obj/mob.o obj/script.o \
 	obj/storage.o obj/skill.o obj/atcommand.o obj/charcommand.o obj/battle.o \
 	obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/guild.o obj/pet.o \
-	obj/log.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o \
+	obj/log.o obj/log_async.o obj/async_db.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o \
 	$(COMMON_OBJ)
 
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
@@ -28,7 +28,7 @@ sqlobj/%.o: %.c
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 clean:
-	rm -rf *.o ../../map-server_sql sqlobj GNUmakefile
+	rm -rf *.o obj sqlobj ../../map-server ../../map-server_sql GNUmakefile
 
 # DO NOT DELETE
 
@@ -56,7 +56,15 @@ sqlobj/guild.o: guild.c guild.h storage.h battle.h clif.h intif.h pc.h npc.h map
 sqlobj/pet.o: pet.c pet.h map.h clif.h chrif.h intif.h pc.h itemdb.h battle.h mob.h npc.h script.h $(COMMON_H)
 sqlobj/mail.o: mail.c mail.h $(COMMON_H)
 sqlobj/log.o: log.c log.h map.h $(COMMON_H)
+sqlobj/log_async.o: log_async.c log.h map.h $(COMMON_H)
+sqlobj/async_db.o: async_db.c async_db.h ../common/showmsg.h
 sqlobj/charcommand.o: charcommand.c charcommand.h itemdb.h pc.h map.h skill.h clif.h mob.h intif.h battle.h storage.h guild.h pet.h log.h $(COMMON_H)
 sqlobj/date.o: date.c date.h $(COMMON_H)
 sqlobj/unit.o: unit.c unit.h $(COMMON_H)
 sqlobj/mercenary.o: mercenary.c mercenary.h $(COMMON_H)
+sqlobj/mercenary_soldier.o: mercenary_soldier.c mercenary_soldier.h map.h pc.h status.h skill.h clif.h intif.h unit.h npc.h battle.h $(COMMON_H)
+sqlobj/livemob.o: livemob.c livemob.h map.h $(COMMON_H)
+sqlobj/liveskillunit.o: liveskillunit.c liveskillunit.h map.h $(COMMON_H)
+sqlobj/mobgrid.o: mobgrid.c mobgrid.h
+sqlobj/quest.o: quest.c quest.h map.h pc.h npc.h itemdb.h script.h intif.h battle.h mob.h party.h unit.h log.h clif.h chrif.h $(COMMON_H)
+sqlobj/achievement.o: achievement.c achievement.h map.h pc.h clif.h $(COMMON_H)

@@ -23,7 +23,7 @@ gui.$(PLUGINEXT): ../../plugins/gui.conf
 depend:
 	makedepend -fGNUmakefile -o.$(PLUGINEXT) -Y. -Y../common *.c $(PLUGINS:%=../../plugins/%)
 clean:
-	rm -rf $(PLUGINS) GNUmakefile
+	rm -f *.o $(PLUGINS:%=../../plugins/%) GNUmakefile
 
 # DO NOT DELETE
 

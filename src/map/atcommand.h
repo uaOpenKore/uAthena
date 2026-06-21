@@ -279,6 +279,18 @@ enum AtCommandType {
 	AtCommand_HomStats, //[Skotlex]
 	AtCommand_HomShuffle, //[Skotlex]
 	AtCommand_ShowMobs, //KarLaeda
+	AtCommand_Quests, // questlog chat UI
+	AtCommand_Quest,  // questlog chat UI
+	AtCommand_Status, // status/cooldown chat UI
+	AtCommand_WhereIs, // mob spawn/drop search
+	AtCommand_Market, // vendor/price search
+	AtCommand_Cooking, // chat cooking UI
+	AtCommand_Cook, // alias of @cooking
+	AtCommand_Achievements, // achievements chat UI
+	AtCommand_Ach, // alias of @achievements
+	AtCommand_Title, // active title
+	AtCommand_Merc, // mercenary status chat UI
+	AtCommand_H3, // help page listing our custom chat commands
 	// end <- Ahem, guys, don't place AtCommands after AtCommand_Unknown! [Skotlex]
 	AtCommand_Unknown,
 	AtCommand_MAX

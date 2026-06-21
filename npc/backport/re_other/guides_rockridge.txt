@@ -1,0 +1,76 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../guides_rockridge.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Rock Ridge Guides
+//===== Description: =========================================
+//= NPC Guide for Rock Ridge
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [Capuche]
+//============================================================
+
+//[BACKPORT-BOUNDARY:harboro1] harboro1,356,211,5	script	Guide#rockridge01	4_F_ANYA,{
+//[BACKPORT-BOUNDARY:harboro1] 	mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 	mes "Welcome to Rock Ridge, the hot, dry desert in the West where adventure is waiting!";
+//[BACKPORT-BOUNDARY:harboro1] 	mes "I'm the sheriff's assistant, and I'm here to guide visitors. Is there a place you want to go?";
+//[BACKPORT-BOUNDARY:harboro1] 	next;
+//[BACKPORT-BOUNDARY:harboro1] 	mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 	mes "Tell me where you want to go, and I'll show you where it is.";
+//[BACKPORT-BOUNDARY:harboro1] 	mes "Also, you can use ^B9062FNavigation^000000 mode by ^B9062Fclicking the name of the place^000000 I showed to you.";
+//[BACKPORT-BOUNDARY:harboro1] 	while(true) {
+//[BACKPORT-BOUNDARY:harboro1] 		next;
+//[BACKPORT-BOUNDARY:harboro1] 		set .@s, select( "[Kafra Employee]", "[Inn]", "[Weapon/Armor Shop]", "[Tool Shop]", "[Sheriff's Office]", "Clear mini-map.", "Cancel." );
+//[BACKPORT-BOUNDARY:harboro1] 		switch(.@s) {
+//[BACKPORT-BOUNDARY:harboro1] 		case 1:
+//[BACKPORT-BOUNDARY:harboro1] 			mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "The ^006400Kafra Employee^000000, got it. Please click the ^0000FFBox icon^000000 on your mini-map.";
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 1,291,207,1,0xFFFF33;
+//[BACKPORT-BOUNDARY:harboro1] 			break;
+//[BACKPORT-BOUNDARY:harboro1] 		case 2:
+//[BACKPORT-BOUNDARY:harboro1] 			mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "I've marked the location of the <NAVI>Inn<INFO>harboro1,156,215,0,000,0</INFO></NAVI> on your mini-map.";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "Click the name to activate Navigation mode.";
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 1,156,215,2,0xAAFF00;
+//[BACKPORT-BOUNDARY:harboro1] 			break;
+//[BACKPORT-BOUNDARY:harboro1] 		case 3:
+//[BACKPORT-BOUNDARY:harboro1] 			mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "I've marked the location of the <NAVI>Weapon/Armor Shop<INFO>harboro1,312,193,0,000,0</INFO></NAVI> on your mini-map.";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "Click the name to activate Navigation mode.";
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 1,312,193,3,0x008080;
+//[BACKPORT-BOUNDARY:harboro1] 			break;
+//[BACKPORT-BOUNDARY:harboro1] 		case 4:
+//[BACKPORT-BOUNDARY:harboro1] 			mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "I've marked the location of the <NAVI>Tool Shop<INFO>harboro1,312,193,0,000,0</INFO></NAVI> on your mini-map.";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "Click the name to activate Navigation mode.";
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 1,312,193,4,0xFF1493;
+//[BACKPORT-BOUNDARY:harboro1] 			break;
+//[BACKPORT-BOUNDARY:harboro1] 		case 5:
+//[BACKPORT-BOUNDARY:harboro1] 			mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "I've marked the location of the <NAVI>Sheriff's Office<INFO>harboro1,241,218,0,000,0</INFO></NAVI> on your mini-map.";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "Click the name to activate Navigation mode.";
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 1,241,218,5,0xFFCCFF;
+//[BACKPORT-BOUNDARY:harboro1] 			break;
+//[BACKPORT-BOUNDARY:harboro1] 		case 6:
+//[BACKPORT-BOUNDARY:harboro1] 			mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "Let me remove all the marks on your mini-map.";
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 2,291,207,1,0xFFFF33;
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 2,156,215,2,0xAAFF00;
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 2,312,193,3,0x008080;
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 2,312,193,4,0xFF1493;
+//[BACKPORT-BOUNDARY:harboro1] 			viewpoint 2,241,218,5,0xFFCCFF;
+//[BACKPORT-BOUNDARY:harboro1] 			break;
+//[BACKPORT-BOUNDARY:harboro1] 		case 7:
+//[BACKPORT-BOUNDARY:harboro1] 			mes "[Sheriff Assistant]";
+//[BACKPORT-BOUNDARY:harboro1] 			mes "Enjoy your stay in Rock Ridge!";
+//[BACKPORT-BOUNDARY:harboro1] 			close;
+//[BACKPORT-BOUNDARY:harboro1] 		}
+//[BACKPORT-BOUNDARY:harboro1] 		if (.@s == 7)
+//[BACKPORT-BOUNDARY:harboro1] 			mes "Did you need anything else?";
+//[BACKPORT-BOUNDARY:harboro1] 		else
+//[BACKPORT-BOUNDARY:harboro1] 			mes "Is there anywhere else you want to check?";
+//[BACKPORT-BOUNDARY:harboro1] 	}
+//[BACKPORT-BOUNDARY:harboro1] }
+
+//[BACKPORT-BOUNDARY:harboro1] harboro1,80,211,3	duplicate(Guide#rockridge01)	Guide#rockridge02	4_F_ANYA

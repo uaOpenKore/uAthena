@@ -1,0 +1,9 @@
+map: dewata
+map: dic_in01
+map: dicastes01
+map: ecl_in01
+map: ma_in01
+map: mal_in01
+map: malangdo
+map: malaya
+map: mora

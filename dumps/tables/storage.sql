@@ -35,6 +35,7 @@ CREATE TABLE `storage` (
   `card1` smallint(11) NOT NULL DEFAULT '0',
   `card2` smallint(11) NOT NULL DEFAULT '0',
   `card3` smallint(11) NOT NULL DEFAULT '0',
+  `expire_time` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `account_id` (`account_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;

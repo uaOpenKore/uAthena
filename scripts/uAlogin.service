@@ -7,19 +7,33 @@ Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.t
 PartOf=uAthena.target
 ReloadPropagatedFrom=uAthena.target
 
+# Disable systemd's start-rate limiter: a crash-loop must keep restarting (and
+# keep producing crash dumps for later analysis) instead of latching into
+# 'failed'. StartLimitIntervalSec lives in [Unit] since systemd 230+.
+StartLimitIntervalSec=0
+
 
 [Service]
 Type=simple
 PIDFile=/opt/uathena/bin/PID-login.pid
 WorkingDirectory=/opt/uathena/bin/
-StandardOutput=/opt/uathena/log/uAlogin.log
-StandardError=/opt/uathena/log/uAlogin.log
+# append: (not a bare path or file:) so the console log PERSISTS across restarts
+# and crashes instead of being truncated/sent to the journal.
+StandardOutput=append:/opt/uathena/log/uAlogin.log
+StandardError=append:/opt/uathena/log/uAlogin.log
 
 
 User=root
 Group=root
 
 OOMScoreAdjust=-500
+
+# Keep the (light) login server on the reserved system cores 2-3, off the map
+# game-loop cores (0-1, 4-5, ...). Assumes >=4 vCPUs (the multi-map layout); on a
+# smaller box remove this line.
+CPUAffinity=2 3
+
+LimitNOFILE=65536
 
 ExecStart=/opt/uathena/bin/ua-start.sh login sql
 ExecStop=/opt/uathena/bin/ua-stop.sh login

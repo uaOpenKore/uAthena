@@ -1,0 +1,10 @@
+npc: npc/backport/cities/moscovia.txt
+npc: npc/backport/cities/brasilis.txt
+npc: npc/backport/cities/manuk.txt
+npc: npc/backport/cities/splendide.txt
+npc: npc/backport/merchants/manuk.txt
+npc: npc/backport/merchants/splendide.txt
+npc: npc/backport/guides/guides_mosk.txt
+npc: npc/backport/guides/guides_brasilis.txt
+npc: npc/backport/merchants/shops_backport.txt
+npc: npc/backport/kafras/kafras_backport.txt

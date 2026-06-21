@@ -11,6 +11,9 @@
 #include "../common/mapindex.h"
 #include "../common/db.h"
 
+#include "async_db.h" // AsyncDB
+#include "../common/random.h" // rnd()
+
 #include "itemdb.h" // MAX_ITEMGROUP
 #include "status.h" // SC_MAX
 
@@ -195,10 +198,11 @@ enum bl_type {
 	BL_SKILL = 0x020,
 	BL_NPC = 0x040,
 	BL_CHAT = 0x080,
+	BL_MER = 0x100,	// [Backport] hired mercenary soldier (eAthena uses 0x010 but that bit is BL_ITEM here)
 };
 
 //For common mapforeach calls. Since pets cannot be affected, they aren't included here yet.
-#define BL_CHAR (BL_PC|BL_MOB|BL_HOM)
+#define BL_CHAR (BL_PC|BL_MOB|BL_HOM|BL_MER)
 #define BL_ALL 0xfff
 
 enum bl_subtype { WARP, SHOP, SCRIPT, MONS };
@@ -244,7 +248,7 @@ struct block_list {
 	struct block_list *next,*prev;
 	int id;
 	short m,x,y;
-	unsigned char type;
+	unsigned short type;	// [Backport] widened from unsigned char: BL_MER = 0x100 needs >8 bits
 	unsigned char subtype;
 };
 
@@ -278,6 +282,7 @@ struct skill_unit {
 	int limit;
 	int val1,val2;
 	short alive,range;
+	int liveskillunit_idx;	// [perf] slot in the live skill-unit index (-1 = not indexed); see liveskillunit.c
 };
 
 struct skill_unit_group {
@@ -384,7 +389,7 @@ struct script_regstr {
 
 struct status_change_entry {
 	int timer;
-	int val1,val2,val3,val4;
+	intptr_t val1,val2,val3,val4;
 };
 
 struct status_change {
@@ -572,6 +577,7 @@ struct map_session_data {
 		unsigned ignoreAll : 1;
 		unsigned short autoloot;
 		struct guild *gmaster_flag;
+		unsigned short autobonus; //equip-location mask of currently-active autobonuses [Inkfish]
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -590,6 +596,20 @@ struct map_session_data {
 
 	int packet_ver;  // 5: old, 6: 7july04, 7: 13july04, 8: 26july04, 9: 9aug04/16aug04/17aug04, 10: 6sept04, 11: 21sept04, 12: 18oct04, 13: 25oct04 ... 18
 	struct mmo_charstatus status;
+	// Questlog system [Kevin] [Inkfish]
+	int num_quests;          // total quests (active + inactive + complete)
+	int avail_quests;        // active + inactive (not yet complete)
+	int quest_index[MAX_PC_QUESTS]; // index into quest_db[] per quest_log entry
+	struct quest quest_log[MAX_PC_QUESTS];
+	bool save_quest;
+
+	// [Backport] achievements & titles
+	int num_achievements;
+	struct achievement achievement_log[MAX_ACHIEVEMENT];
+	int achievement_index[MAX_ACHIEVEMENT]; // index into achievement_db[] per log entry
+	bool save_achievement;
+	int active_title;        // achievement_id whose title is active (0 = none)
+	int online_reward_tid;   // [Backport] online/playtime reward timer id
 	struct registry save_reg;
 	
 	struct item_data *inventory_data[MAX_INVENTORY];
@@ -624,19 +644,34 @@ struct map_session_data {
 	short skillid_old,skilllv_old;
 	short skillid_dance,skilllv_dance;
 	char blockskill[MAX_SKILL];	// [celest]
+	unsigned int blockskill_tick[MAX_SKILL];	// expiry tick per skill, for @status cooldowns
 	int cloneskill_id;
 	int menuskill_id, menuskill_val;
 
 	int invincible_timer;
+	int rental_timer; // [Backport] rental-item expiry timer
+	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
 	unsigned int canlog_tick;
 	unsigned int canuseitem_tick;	// [Skotlex]
 	unsigned int cantalk_tick;
 
 	short weapontype1,weapontype2;
+	int weapon_mastery[2];	// [perf 6] cached weapon-type mastery bonus for weapontype1/2 (recomputed in status_calc_pc)
 	short disguise; // [Valaris]
 
 	struct weapon_data right_weapon, left_weapon;
 	
+	// chance-on-attack temporary bonus (eAthena autobonus). MUST stay OUT of the
+	// status_calc_pc memset blocks below (bonus_script/other_script are aStrdup'd);
+	// managed manually by pc_addautobonus/pc_delautobonus/pc_exeautobonus.
+	struct s_autobonus {
+		short rate, atk_type;
+		unsigned int duration;
+		char *bonus_script, *other_script;	// aStrdup'd source; parsed bytecode is shared in autobonus_db (parse-once)
+		int active;
+		unsigned short pos;
+	} autobonus[MAX_PC_BONUS], autobonus2[MAX_PC_BONUS], autobonus3[MAX_PC_BONUS];
+
 	// here start arrays to be globally zeroed at the beginning of status_calc_pc()
 	int param_bonus[6],param_equip[6]; //Stores card/equipment bonuses.
 	int subele[ELE_MAX];
@@ -646,8 +681,8 @@ struct map_session_data {
 	int reseff[SC_COMMON_MAX-SC_COMMON_MIN+1];
 	int weapon_coma_ele[ELE_MAX];
 	int weapon_coma_race[RC_MAX];
-	int weapon_atk[16];
-	int weapon_atk_rate[16];
+	int weapon_atk[23];	// 23 = MAX_WEAPON_TYPE (pc.h); was [16] -> OOB for W_KATAR..W_HUUMA
+	int weapon_atk_rate[23];	// 23 = MAX_WEAPON_TYPE (pc.h)
 	int arrow_addele[ELE_MAX];
 	int arrow_addrace[RC_MAX];
 	int arrow_addsize[3];
@@ -662,14 +697,18 @@ struct map_session_data {
 	// zeroed structures start here
 	struct s_autospell{
 		short id, lv, rate, card_id, flag;
-	} autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS];
+	} autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS], autospell3[MAX_PC_BONUS]; //autospell3: cast a skill when USING a skill (bonus4 bAutoSpellOnSkill); .flag holds the source skill id
 	struct s_addeffect{
 		short id, rate, arrow_rate;
 		unsigned char flag;
 	} addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
+	struct s_addeffectonskill{	// inflict a status when USING a skill (bonus3 bAddEffOnSkill)
+		short id, rate, skill;
+		unsigned char target;
+	} addeff3[MAX_PC_BONUS];
 	struct { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		short id, val;
-	} skillatk[MAX_PC_BONUS], skillheal[5], skillblown[MAX_PC_BONUS];
+	} skillatk[MAX_PC_BONUS], skillheal[5], skillheal2[5], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS]; //skillheal2: per-skill heal RECEIVED +% (bonus2 bSkillHeal2); skillcast: per-skill cast-rate (bonus2 bCastRate)
 	struct {
 		short class_, rate;
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS],
@@ -691,6 +730,10 @@ struct map_session_data {
 	int near_attack_def_rate,long_attack_def_rate,magic_def_rate,misc_def_rate;
 	int ignore_mdef_ele;
 	int ignore_mdef_race;
+	int ignore_mdef[RC_MAX];	// % of target MDEF ignored on magic (bonus bIgnoreMdefRate / bonus2 by race)
+	int ignore_def[RC_MAX];	// % of target physical DEF ignored (bonus bIgnoreDefRate / bonus2 by race)
+	int add_heal_rate;	// heal/healing-skill output +% on the caster (bonus bHealPower)
+	int add_heal2_rate;	// healing RECEIVED +% on the target (bonus bHealpower2)
 	int perfect_hit;
 	int perfect_hit_add;
 	int get_zeny_rate;
@@ -703,6 +746,8 @@ struct map_session_data {
 	int crit_atk_rate;
 	int hp_loss_rate;
 	int sp_loss_rate;
+	int hp_regen_rate;	// [perf/bonus] interval (ms) for bonus2 bHPRegenRate
+	int sp_regen_rate;	// interval (ms) for bonus2 bSPRegenRate
 	int classchange; // [Valaris]
 	int speed_add_rate, aspd_add;
 	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
@@ -712,7 +757,10 @@ struct map_session_data {
 	short hp_loss_value;
 	short sp_loss_value;
 	short hp_loss_type;
+	short hp_regen_value;	// HP gained per hp_regen_rate ms (bonus2 bHPRegenRate)
+	short sp_regen_value;	// SP gained per sp_regen_rate ms (bonus2 bSPRegenRate)
 	short sp_gain_value, hp_gain_value;
+	short magic_sp_gain_value, magic_hp_gain_value;	// flat SP/HP gained when KILLING with magic (bonus bMagicSPGainValue / bMagicHPGainValue)
 	short sp_vanish_rate;
 	short sp_vanish_per;	
 	short add_drop_count;
@@ -732,6 +780,8 @@ struct map_session_data {
 
 	int hp_loss_tick;
 	int sp_loss_tick;
+	int hp_regen_tick;	// accumulator (NOT zeroed on recalc, like hp_loss_tick)
+	int sp_regen_tick;
 
 	int itemid;
 	short itemindex;	//Used item's index in sd->inventory [Skotlex]
@@ -775,6 +825,7 @@ struct map_session_data {
 
 	struct pet_data *pd;
 	struct homun_data *hd;	// [blackhole89]
+	struct mercenary_data *md;	// [Backport] hired mercenary soldier
 
 	struct{
 		int  m; //-1 - none, other: map index corresponding to map name.
@@ -804,13 +855,13 @@ struct map_session_data {
 
 };
 
-struct {
+struct duel_data {
 	int members_count;
 	int invites_count;
 	int max_players_limit;
-} duel_list[MAX_DUEL];
-
-int duel_count;
+};
+extern struct duel_data duel_list[MAX_DUEL];
+extern int duel_count;
 
 struct npc_timerevent_list {
 	int timer,pos;
@@ -894,6 +945,9 @@ struct spawn_data {
 
 struct mob_data {
 	struct block_list bl;
+	int livemob_idx;	// slot in the flat live-mob index (livemob.c); -1 if not indexed [perf]
+	unsigned int pcnear_tick;	// [perf] last tick the "PC in view" probe was refreshed (0=never)
+	unsigned char pcnear;		// [perf] cached result of that probe (mob_ai_hard_skip_noplayer)
 	struct unit_data  ud;
 	struct view_data *vd;
 	struct status_data status, *base_status; //Second one is in case of leveling up mobs, or tiny/large mobs.
@@ -1039,6 +1093,7 @@ struct map_data {
 	struct block_list **block;
 	struct block_list **block_mob;
 	int *block_count,*block_mob_count;
+	int *block_pc_count;	// [perf] exact BL_PC|BL_HOM count per block (mobgrid)
 	int m;
 	short xs,ys;
 	short bxs,bys;
@@ -1152,7 +1207,10 @@ enum _sp {
 
 	SP_BASEJOB=119,	// 100+19 - celest
 	SP_BASECLASS=120,	//Hmm.. why 100+19? I just use the next one... [Skotlex]
-	
+
+	// Mercenaries [Backport]
+	SP_MERCFLEE=165, SP_MERCKILLS=189, SP_MERCFAITH=190,
+
 	// original 1000-
 	SP_ATTACKRANGE=1000,	SP_ATKELE,SP_DEFELE,	// 1000-1002
 	SP_CASTRATE, SP_MAXHPRATE, SP_MAXSPRATE, SP_SPRATE, // 1003-1006
@@ -1162,7 +1220,7 @@ enum _sp {
 	SP_CRITICAL_DEF,SP_NEAR_ATK_DEF,SP_LONG_ATK_DEF, // 1019-1021
 	SP_DOUBLE_RATE, SP_DOUBLE_ADD_RATE, SP_SKILL_HEAL, SP_MATK_RATE, // 1022-1025
 	SP_IGNORE_DEF_ELE,SP_IGNORE_DEF_RACE, // 1026-1027
-	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_FREE3, // 1028-1030
+	SP_ATK_RATE,SP_SPEED_ADDRATE,SP_SP_REGEN_RATE, // 1028-1030 (1030 was the free SP_FREE3)
 	SP_MAGIC_ATK_DEF,SP_MISC_ATK_DEF, // 1031-1032
 	SP_IGNORE_MDEF_ELE,SP_IGNORE_MDEF_RACE, // 1033-1034
 	SP_MAGIC_ADDELE,SP_MAGIC_ADDRACE,SP_MAGIC_ADDSIZE, // 1035-1037
@@ -1177,7 +1235,10 @@ enum _sp {
 	SP_NO_KNOCKBACK,SP_CLASSCHANGE, // 1077-1078
 	SP_HP_DRAIN_VALUE,SP_SP_DRAIN_VALUE, // 1079-1080
 	SP_WEAPON_ATK,SP_WEAPON_ATK_RATE, // 1081-1082
-	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE, // 1083-1085
+	SP_DELAYRATE,SP_HP_DRAIN_RATE_RACE,SP_SP_DRAIN_RATE_RACE,SP_IGNORE_MDEF_RATE, // 1083-1086
+	SP_IGNORE_DEF_RATE, // 1087
+	SP_ADD_HEAL_RATE, // 1088
+	SP_SKILL_HEAL2, SP_ADD_HEAL2_RATE, // 1089-1090
 	
 	SP_RESTART_FULL_RECOVER=2000,SP_NO_CASTCANCEL,SP_NO_SIZEFIX,SP_NO_MAGIC_DAMAGE,SP_NO_WEAPON_DAMAGE,SP_NO_GEMSTONE, // 2000-2005
 	SP_NO_CASTCANCEL2,SP_NO_MISC_DAMAGE,SP_UNBREAKABLE_WEAPON,SP_UNBREAKABLE_ARMOR, SP_UNBREAKABLE_HELM, // 2006-2010
@@ -1185,15 +1246,18 @@ enum _sp {
 
 	SP_CRIT_ATK_RATE, SP_CRITICAL_ADDRACE, SP_NO_REGEN, SP_ADDEFF_WHENHIT, SP_AUTOSPELL_WHENHIT, // 2013-2017
 	SP_SKILL_ATK, SP_UNSTRIPABLE, SP_ADD_DAMAGE_BY_CLASS, // 2018-2020
-	SP_SP_GAIN_VALUE, SP_FREE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025
+	SP_SP_GAIN_VALUE, SP_HP_REGEN_RATE, SP_HP_LOSS_RATE, SP_ADDRACE2, SP_HP_GAIN_VALUE, // 2021-2025 (2022 was the free SP_FREE)
 	SP_SUBSIZE, SP_HP_DRAIN_VALUE_RACE, SP_ADD_ITEM_HEAL_RATE, SP_SP_DRAIN_VALUE_RACE, SP_EXP_ADDRACE,	// 2026-2030
 	SP_SP_GAIN_RACE, SP_SUBRACE2, SP_ADDEFF_WHENHIT_SHORT,	// 2031-2033
 	SP_UNSTRIPABLE_WEAPON,SP_UNSTRIPABLE_ARMOR,SP_UNSTRIPABLE_HELM,SP_UNSTRIPABLE_SHIELD,  // 2034-2037
 	SP_INTRAVISION, SP_ADD_MONSTER_DROP_ITEMGROUP, SP_SP_LOSS_RATE, // 2038-2040
-	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE //2041
-	//Before adding another, note that these are free:
-	//1030 (SP_FREE3, previous AspdAddRate)
-	//2022 (SP_FREE, previous bDefIgnoreMob)
+	SP_ADD_SKILL_BLOW, SP_SP_VANISH_RATE, //2041
+	SP_MAGIC_HP_GAIN_VALUE, SP_MAGIC_SP_GAIN_VALUE, //2042-2043 (backported bonuses; uAthena-local numbers, not eAthena's)
+	SP_ADDCLASSDROPITEM, //2044
+	SP_AUTOSPELL_ONSKILL, //2045
+	SP_ADDEFF_ONSKILL //2046
+	//Note: 1030 (was SP_FREE3) and 2022 (was SP_FREE) are now SP_SP_REGEN_RATE / SP_HP_REGEN_RATE.
+	//No free legacy slots remain; add new bonus types at the end of the 2000+ range.
 };
 
 enum _look {
@@ -1300,6 +1364,7 @@ int map_moveblock(struct block_list *, int, int, unsigned int);
 int map_foreachinrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int type, ...);
 int map_foreachinshootrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int type, ...);
 int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int type, ...);
+int map_foreachinareaPC(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, ...);	// [perf] AREA broadcast (BL_PC only, skips no-PC blocks)
 int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int dx, int dy, int type, ...);
 int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int y, int type, ...);
 int map_foreachinpath(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int range, int type, ...);
@@ -1345,6 +1410,8 @@ void map_addiddb(struct block_list *);
 void map_deliddb(struct block_list *bl);
 struct map_session_data** map_getallusers(int *users);
 void map_foreachpc(int (*func)(DBKey,void*,va_list),...);
+void map_foreachmob(int (*func)(DBKey,void*,va_list),...);	// spawned mobs only (subset of id_db) [perf]
+int map_pc_near(int m, int x, int y, int range);	// [perf] cheap PC/HOM-in-range probe (mobgrid)
 int map_foreachiddb(int (*)(DBKey,void*,va_list),...);
 void map_addnickdb(struct map_session_data *);
 struct map_session_data * map_nick2sd(const char*);
@@ -1421,6 +1488,11 @@ extern char mob_db_db[32];
 extern char mob_db2_db[32];
 extern char char_db[32];
 extern char mail_db[32];
+
+// Asynchronous writers - keep DB round-trips off the single-threaded game loop.
+// NULL if not started (callers fall back to a synchronous query).
+extern AsyncDB* map_async_db;  // game DB (mapreg)
+extern AsyncDB* mail_async_db; // optional mail DB (only when mail_server_enable)
 //Useful typedefs from jA [Skotlex]
 typedef struct map_session_data TBL_PC;
 typedef struct npc_data         TBL_NPC;
@@ -1430,6 +1502,7 @@ typedef struct chat_data        TBL_CHAT;
 typedef struct skill_unit       TBL_SKILL;
 typedef struct pet_data         TBL_PET;
 typedef struct homun_data       TBL_HOM;
+typedef struct mercenary_data   TBL_MER;	// [Backport]
 
 #define BL_CAST(type_, bl , dest) \
 	(((bl) == NULL || (bl)->type != type_) ? ((dest) = NULL, 0) : ((dest) = (T ## type_ *)(bl), 1))

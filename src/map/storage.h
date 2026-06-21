@@ -4,6 +4,8 @@
 #ifndef _STORAGE_H_
 #define _STORAGE_H_
 
+extern int guild_storage_lock; // cross-map-server guild storage lock (set from inter_athena.conf)
+
 //#include "../common/mmo.h"
 struct storage;
 struct guild_storage;

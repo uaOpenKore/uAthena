@@ -1,0 +1,43 @@
+// Achievement Database [Backport - uAthena SP]
+//
+// Structure:
+// ID,Group,TargetID,TargetCount,RewardItem,RewardAmount,RewardZeny,RewardExp,"Name","Title"
+//
+// Group (numeric):
+//   1 = KILL       : kill TargetCount of mob TargetID (TargetID 0 = any mob)
+//   2 = BASELEVEL  : reach base level TargetCount
+//   3 = JOBLEVEL   : reach job level TargetCount
+//   4 = JOBCHANGE  : change job (TargetID = job id, 0 = any non-novice)
+//   5 = QUEST      : complete TargetCount quests (TargetID != 0 = that specific quest)
+//   6 = ZENY       : accumulate TargetCount zeny
+// Reward* : 0 = none. Title "" = no title granted. Labels are ASCII (client codepage).
+
+// ----- Kill milestones -----
+1,1,1002,100,512,5,0,0,"Poring Hunter","Poring Slayer"
+2,1,1007,100,0,0,1000,0,"Fabre Hunter",""
+3,1,0,1000,0,0,0,50000,"Monster Slayer","Slayer"
+4,1,0,10000,0,0,0,500000,"Monster Exterminator","Exterminator"
+
+// ----- Base level milestones -----
+10,2,0,10,0,0,5000,0,"Beginner",""
+11,2,0,30,0,0,20000,0,"Adventurer",""
+12,2,0,50,0,0,50000,0,"Seasoned Traveler","Seasoned"
+13,2,0,70,0,0,150000,0,"Expert",""
+14,2,0,99,0,0,1000000,0,"Grand Master","Grand Master"
+
+// ----- Job level milestones -----
+20,3,0,10,0,0,10000,0,"Apprentice",""
+21,3,0,50,0,0,100000,0,"Job Master","Job Master"
+
+// ----- Job change -----
+30,4,0,1,0,0,0,0,"A New Path",""
+
+// ----- Quest completion -----
+40,5,0,1,0,0,5000,0,"First Steps",""
+41,5,0,10,0,0,30000,0,"Quest Enthusiast",""
+42,5,0,50,504,5,0,0,"Quest Master","Quest Master"
+
+// ----- Zeny milestones -----
+50,6,0,1000000,0,0,0,0,"Millionaire","Millionaire"
+51,6,0,10000000,0,0,0,0,"Multi-Millionaire",""
+52,6,0,100000000,0,0,0,0,"Tycoon","Tycoon"

@@ -92,7 +92,7 @@ int itemdb_searchrandomid(int group)
 		return UNKNOWN_ITEM_ID;
 	}
 	if (itemgroup_db[group].qty)
-		return itemgroup_db[group].nameid[rand()%itemgroup_db[group].qty];
+		return itemgroup_db[group].nameid[rnd()%itemgroup_db[group].qty];
 	
 	if (battle_config.error_log)
 		ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group);

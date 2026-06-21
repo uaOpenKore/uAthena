@@ -189,6 +189,7 @@ int mapif_load_homunculus(int fd){
          if(sql_res){
 	while((sql_row = mysql_fetch_row(sql_res))){
 						i = (atoi(sql_row[0])-HM_SKILLBASE-1);
+						if (i < 0 || i >= MAX_HOMUNSKILL) continue; //skip corrupt/out-of-range skill ids
 						homun_pt->hskill[i].id = atoi(sql_row[0]);
                         homun_pt->hskill[i].lv = atoi(sql_row[1]);
                  }

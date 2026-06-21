@@ -104,7 +104,7 @@
  * @private
  * @see DB_impl#ht
  */
-#define HASH_SIZE (256+27)
+#define HASH_SIZE 16381 // prime; all DBs are boot-time singletons (~24/process), so the cost is ~2.5MB total
 
 /**
  * A node in a RED-BLACK tree of the database.
@@ -609,9 +609,13 @@ static DBKey db_dup_key(DB_impl db, DBKey key)
 		case DB_STRING:
 		case DB_ISTRING:
 			if (db->maxlen) {
+				// copy only the actual string: a fixed maxlen memcpy reads past
+				// the source allocation when the key is shorter (ASan-verified
+				// OOB read on every script-label strdb_put at boot)
+				size_t len = strnlen(key.str, db->maxlen);
 				CREATE(str, char, db->maxlen +1);
-				memcpy(str, key.str, db->maxlen);
-				str[db->maxlen] = '\0';
+				memcpy(str, key.str, len);
+				str[len] = '\0';
 				key.str = str;
 			} else {
 				key.str = (char *)aStrdup(key.str);
@@ -1188,10 +1192,21 @@ static unsigned int db_obj_vgetall(DB self, void **buf, unsigned int max, DBMatc
 		node = db->ht[i];
 		while (node) {
 			parent = node->parent;
-			if (!(node->deleted) && match(node->key, node->data, args) == 0) {
-				if (buf && ret < max)
-					buf[ret] = node->data;
-				ret++;
+			if (!(node->deleted)) {
+				// match() consumes the va_list (e.g. itemdb search does va_arg),
+				// so give each node a fresh copy - reusing `args` fed the next
+				// node a wild pointer and crashed @iteminfo on x64. [matches the
+				// va_copy already in db_obj_vforeach/vclear]
+				va_list _argc;
+				int _match;
+				va_copy(_argc, args);
+				_match = match(node->key, node->data, _argc);
+				va_end(_argc);
+				if (_match == 0) {
+					if (buf && ret < max)
+						buf[ret] = node->data;
+					ret++;
+				}
 			}
 			if (node->left) {
 				node = node->left;
@@ -1577,7 +1592,7 @@ static int db_obj_vforeach(DB self, DBApply func, va_list args)
 		while (node) {
 			parent = node->parent;
 			if (!(node->deleted))
-				sum += func(node->key, node->data, args);
+				{ va_list _argc; va_copy(_argc, args); sum += func(node->key, node->data, _argc); va_end(_argc); }
 			if (node->left) {
 				node = node->left;
 				continue;
@@ -1673,7 +1688,7 @@ static int db_obj_vclear(DB self, DBApply func, va_list args)
 				db_dup_key_free(db, node->key);
 			} else {
 				if (func)
-					sum += func(node->key, node->data, args);
+					{ va_list _argc; va_copy(_argc, args); sum += func(node->key, node->data, _argc); va_end(_argc); }
 				db->release(node->key, node->data, DB_RELEASE_BOTH);
 				node->deleted = 1;
 			}
@@ -1760,7 +1775,7 @@ static int db_obj_vdestroy(DB self, DBApply func, va_list args)
 	if (db->free_lock)
 		ShowWarning("db_vdestroy: Database is still in use, %u lock(s) left. Continuing database destruction.\n"
 				"Database allocated at %s:%d\n",
-				db->alloc_file, db->alloc_line, db->free_lock);
+				db->free_lock, db->alloc_file, db->alloc_line);
 
 #ifdef DB_ENABLE_STATS
 	switch (db->type) {

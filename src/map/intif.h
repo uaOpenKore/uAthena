@@ -26,6 +26,7 @@ int intif_request_storage(int account_id);
 int intif_send_storage(struct storage *stor);
 int intif_request_guild_storage(int account_id, int guild_id);
 int intif_send_guild_storage(int account_id, struct guild_storage *gstor);
+int intif_guild_storage_unlock(int guild_id);
 
 
 int intif_create_party(struct party_member *member,char *name,int item,int item2);
@@ -73,6 +74,23 @@ int intif_homunculus_create(int account_id, struct s_homunculus *sh);
 int intif_homunculus_requestload(int account_id, int homun_id);
 int intif_homunculus_requestsave(int account_id, struct s_homunculus* sh);
 int intif_homunculus_requestdelete(int homun_id);
+
+// Questlog system
+int intif_request_questlog(struct map_session_data *sd);
+int intif_parse_questlog(int fd);
+int intif_parse_questsave(int fd);
+int intif_quest_save(struct map_session_data *sd);
+int intif_request_achievements(struct map_session_data *sd);
+int intif_achievement_save(struct map_session_data *sd);
+
+// [Backport] hired mercenary soldier
+int intif_mercenary_create(struct s_mercenary *merc);
+int intif_mercenary_request(int merc_id, int char_id);
+int intif_mercenary_delete(int merc_id);
+int intif_mercenary_save(struct s_mercenary *merc);
+int intif_parse_mercenary_received(int fd);
+int intif_parse_mercenary_deleted(int fd);
+int intif_parse_mercenary_saved(int fd);
 
 
 int CheckForCharServer(void);

@@ -14,6 +14,11 @@
 
 #include <time.h>
 
+// Maximum socket fd the server can hold. Replaces the old FD_SETSIZE (1024)
+// ceiling that select() imposed; with epoll the limit is just this array size
+// (and the OS open-file limit, which socket_init raises via setrlimit).
+#define SOCKET_MAX 32768
+
 
 // socket I/O macros
 #define RFIFOHEAD(fd)
@@ -21,12 +26,20 @@
 #define RFIFOP(fd,pos) (session[fd]->rdata + session[fd]->rdata_pos + (pos))
 #define WFIFOP(fd,pos) (session[fd]->wdata + session[fd]->wdata_size + (pos))
 
+// Unaligned-safe 16/32-bit field access for packet buffers. Reading/writing a
+// member of a __packed__ struct is well-defined for ANY address (the member has
+// alignment 1), unlike *(uint16*)ptr which is undefined behaviour on a
+// misaligned address. It stays an lvalue and compiles to the same instruction on
+// x86, while being correct on strict-alignment CPUs (ARM/MIPS/SPARC) too.
+struct s_unaligned_u16 { uint16 v; } __attribute__((packed));
+struct s_unaligned_u32 { uint32 v; } __attribute__((packed));
+
 #define RFIFOB(fd,pos) (*(uint8*)RFIFOP(fd,pos))
 #define WFIFOB(fd,pos) (*(uint8*)WFIFOP(fd,pos))
-#define RFIFOW(fd,pos) (*(uint16*)RFIFOP(fd,pos))
-#define WFIFOW(fd,pos) (*(uint16*)WFIFOP(fd,pos))
-#define RFIFOL(fd,pos) (*(uint32*)RFIFOP(fd,pos))
-#define WFIFOL(fd,pos) (*(uint32*)WFIFOP(fd,pos))
+#define RFIFOW(fd,pos) (((struct s_unaligned_u16*)RFIFOP(fd,pos))->v)
+#define WFIFOW(fd,pos) (((struct s_unaligned_u16*)WFIFOP(fd,pos))->v)
+#define RFIFOL(fd,pos) (((struct s_unaligned_u32*)RFIFOP(fd,pos))->v)
+#define WFIFOL(fd,pos) (((struct s_unaligned_u32*)WFIFOP(fd,pos))->v)
 #define RFIFOSPACE(fd) (session[fd]->max_rdata - session[fd]->rdata_size)
 #define WFIFOSPACE(fd) (session[fd]->max_wdata - session[fd]->wdata_size)
 
@@ -45,13 +58,13 @@
 // buffer I/O macros
 #define RBUFP(p,pos) (((uint8*)(p)) + (pos))
 #define RBUFB(p,pos) (*(uint8*)RBUFP((p),(pos)))
-#define RBUFW(p,pos) (*(uint16*)RBUFP((p),(pos)))
-#define RBUFL(p,pos) (*(uint32*)RBUFP((p),(pos)))
+#define RBUFW(p,pos) (((struct s_unaligned_u16*)RBUFP((p),(pos)))->v)
+#define RBUFL(p,pos) (((struct s_unaligned_u32*)RBUFP((p),(pos)))->v)
 
 #define WBUFP(p,pos) (((uint8*)(p)) + (pos))
 #define WBUFB(p,pos) (*(uint8*)WBUFP((p),(pos)))
-#define WBUFW(p,pos) (*(uint16*)WBUFP((p),(pos)))
-#define WBUFL(p,pos) (*(uint32*)WBUFP((p),(pos)))
+#define WBUFW(p,pos) (((struct s_unaligned_u16*)WBUFP((p),(pos)))->v)
+#define WBUFL(p,pos) (((struct s_unaligned_u32*)WBUFP((p),(pos)))->v)
 
 #define TOB(n) ((uint8)((n)&UINT8_MAX))
 #define TOW(n) ((uint16)((n)&UINT16_MAX))
@@ -75,17 +88,25 @@ struct socket_data {
 	RecvFunc func_recv;
 	SendFunc func_send;
 	ParseFunc func_parse;
+	unsigned char in_shortlist; // already queued in the send shortlist (dedup)
+	unsigned char in_parselist; // [perf] already queued in the recv parse shortlist (dedup)
+	unsigned int last_send_tick; // [perf] gettick() of last flush, for send coalescing
 };
 
 
 // Data prototype declaration
 
-extern struct socket_data* session[FD_SETSIZE];
+extern struct socket_data* session[SOCKET_MAX];
 
 extern int fd_max;
 
 extern time_t last_tick;
 extern time_t stall_time;
+
+extern int socket_send_coalesce_ms; // [perf] send coalescing window (ms); 0 disables
+extern int socket_async_send;       // [perf] 1 = client send() runs on the send worker thread
+extern int socket_sndbuf_size;      // [perf] >0 = SO_SNDBUF bytes per socket (0 = kernel default)
+extern int recv_parse_shortlist;    // [perf] 1 = parse only fds that received data (vs scan all fds)
 
 //////////////////////////////////
 // some checking on sockets
@@ -110,7 +131,7 @@ void socket_final(void);
 
 extern void flush_fifo(int fd);
 extern void flush_fifos(void);
-extern void set_nonblocking(int fd, unsigned long yes);
+extern void set_nonblocking(int fd, int yes);
 
 void set_defaultparse(ParseFunc defaultparse);
 

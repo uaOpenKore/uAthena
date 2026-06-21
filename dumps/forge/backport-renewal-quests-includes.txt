@@ -1,0 +1,7 @@
+npc: npc/backport/re_quests/quests_eclage.txt
+npc: npc/backport/re_quests/quests_malangdo.txt
+npc: npc/backport/re_quests/quests_malaya.txt
+npc: npc/backport/re_quests/quests_dicastes.txt
+npc: npc/backport/re_quests/quests_rockridge.txt
+npc: npc/backport/re_quests/quests_mora.txt
+npc: npc/backport/re_quests/quests_dewata.txt

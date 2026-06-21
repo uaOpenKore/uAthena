@@ -1,0 +1,11 @@
+/etc/sysctl.conf
+
+  net.netfilter.nf_conntrack_max=262144
+  net.core.somaxconn=4096
+  net.core.netdev_max_backlog=5000
+  net.core.rmem_max=16777216
+  net.core.wmem_max=16777216
+  net.ipv4.tcp_rmem=4096 87380 16777216
+  net.ipv4.tcp_wmem=4096 65536 16777216
+  net.ipv4.tcp_mtu_probing=1
+

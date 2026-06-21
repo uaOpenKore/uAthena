@@ -37,7 +37,7 @@
 //= 2.9 Corrected Valkyrie case spicifying where to warp after rebirthing. [L0ne_W0lf]
 //============================================================
 
-//valkyrie,48,86,4	script	Valkyrie#	811,{
+valkyrie,48,86,4	script	Valkyrie#	811,{
 	if (ADVJOB != 0 || Upper == 1) {
 		mes "[Valkyrie]";
 		mes "Welcome";
@@ -339,7 +339,7 @@ yuno_in02,93,207,1	script	Book of Ymir	111,{
 
 yuno_in05,49,43,1	script	Heart of Ymir	111,{
 	if (Baselevel > 98 && JobLevel > 49 && Class >= Job_Knight && Class <= Job_Crusader2) {
-		if (valkyrie_Q == 2) warp "valkyrie",48,8;
+		if (valkyrie_Q == 2) warp "valkyrie",48,86;
 	}
 	end;
 }

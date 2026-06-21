@@ -1,0 +1,942 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/enchan_illusion_dungeons.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Episode 16.2 - Illusion Enchants
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//= Illusion series related merchants and enchanters
+// Note:
+// - Some dialog are missing in Illusion of Luanda exchange NPC.
+//===== Changelog: ===========================================
+//= 1.0 Initial release of Illusion of Moonlight [crazyarashi]
+//= 1.1 Cleanup and improvements [Everade]
+//= 1.2 Added Illusion of Vampire enchanter [Capuche]
+//= 1.3 Added Illusion of Frozen enchanter [Capuche]
+//= 1.4 Added Illusion of Turtle enchanter [Capuche]
+//= 1.5 Added Illusion of Luanda enchanter [Capuche]
+//= 1.6 Added Illusion of Underwater exchange [Capuche]
+//= 1.7 Added Illusion of Twins enchanter [Capuche]
+//= 1.8 Added Illusion Merchant [Haydrich]
+//= 1.9 Added Illusion of Teddy Bear exchange [Atemo]
+//============================================================
+
+//============================================================
+//= Illusion of Moonlight
+//============================================================
+//[BACKPORT-BOUNDARY:pay_d03_i] pay_d03_i,160,45,3	script	Gemcutter#ilp20	4_TOWER_17,3,3,{
+//[BACKPORT-BOUNDARY:pay_d03_i] 	mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 	mes "Do you have business with me?";
+//[BACKPORT-BOUNDARY:pay_d03_i] 	next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	switch( select( "What are you doing here?", "Upgrade equipments" ) ) {
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case 1:
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "I came to the ruined village,";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "looking for some materials. Touched some strange light, and now I'm here.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "I've decided to stick around for a little while. Figured I'd be safe so long as I stay close to this soldier.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "I have a proposition for you. I want some materials that can only be found in this place.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Get them for me, and I'll improve your equipment in exchange. Just so you know, I can only improve certain types.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "If you're interested, we can discuss the details of our bargain.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		close;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	case 2:
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Make sure ^0000FFyour equipment is refined to at least +9^000000 before bringing it to me.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "That's the minimum requirement for my upgrade service to have any visible effects on your equipment.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Make sure you're ^0000FFequipped with the item that you want to improve.^000000";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Otherwise, I can't evaluate its condition.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "As you may have guessed, your equipment will transform into something new after this.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "In other words, ^0000FFIt'll lose its current refining levels, cards and enchantments.^000000";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		next;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "[ Gemcutter ]";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "And I need ^0000FFIllusion Stones and some other materials^000000 to upgrade your equipment.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		mes "Pick an item you want and I'll tell you what I need.";
+//[BACKPORT-BOUNDARY:pay_d03_i] 		close2;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		callshop "barter_ill_moonlight",1;
+//[BACKPORT-BOUNDARY:pay_d03_i] 		end;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	}
+//[BACKPORT-BOUNDARY:pay_d03_i] 	end;
+//[BACKPORT-BOUNDARY:pay_d03_i] 
+//[BACKPORT-BOUNDARY:pay_d03_i] OnTouch:
+//[BACKPORT-BOUNDARY:pay_d03_i] 	if (illusion_moonlight > 7)
+//[BACKPORT-BOUNDARY:pay_d03_i] 		npctalk "What kind of place is this?", "", bc_self;
+//[BACKPORT-BOUNDARY:pay_d03_i] 	end;
+//[BACKPORT-BOUNDARY:pay_d03_i] }
+
+
+//============================================================
+//= Illusion of Vampire
+//============================================================
+gef_dun01,139,228,3	script	Great Merchant#illgef	4_M_HUMERCHANT,{
+	mes "[Great Merchant]";
+	mes "Adventurer, do you have ^0000cdIllusion Stones^000000? If you have a ^0000cdweapon, a piece armor^000000, or ^0000cdan accessory at Refining Level 9 or higher^000000, ";
+	mes "then I can exchange it for something better at the cost of some Illusion Stones and other materials.";
+	next;
+	mes "[Great Merchant]";
+	mes "So, what do you want?";
+	next;
+	switch( select( "Exchange illusion equipment", "What are Illusion Stones?", "Can I strengthen the exchanged item?", "Cancel" ) ) {
+	case 1:
+		specialeffect EF_HFLIMOON3;
+		//[BACKPORT-GAP:ET_BEST] emotion ET_BEST;
+		mes "[Great Merchant]";
+		mes "Use it well and come see me later if you find more Illusion Stones! *Chuckle*";
+		close2;
+		callshop "barter_ill_vampire",1;
+		end;
+	case 2:
+		mes "[Great Merchant]";
+		mes "What are ^0000cdIllusion Stones^000000, you ask? Well... I don't think anyone knows exactly what they are.";
+		next;
+		mes "[Great Merchant]";
+		mes "I only know they're rare and can only be found in some special places, and I'm here to collect them for my clients.";
+		next;
+		mes "[Great Merchant]";
+		mes "My clients want to figure out what these stones are. They're paying me a lot of money,";
+		next;
+		mes "[Great Merchant]";
+		mes "so I could offer adventurers like you ^0000cdexpensive equipment in exchange for the stones^000000, and still fetch a profit.";
+		next;
+		mes "[Great Merchant]";
+		mes "Bring ^0000cda piece of refined equipment, Illusion Stones^000000, and various materials that are only found in this place. I'll ^0000cdupgrade the equipment, weapon, armor, or accessory?^000000for you.";
+		next;
+		mes "[Great Merchant]";
+		mes "This benefits both of us. Let me know if you're interested in my proposition.";
+		close;
+	case 3:
+		mes "[Great Merchant]";
+		mes "So, you want to reinforce the equipment you get. You're thorough. I like that!";
+		next;
+		mes "[Great Merchant]";
+		mes "A while ago, an adventurer who passed through this place told me that a chemist in Prontera refines the Illusion equipment in exchange for Illusion Stones.";
+		next;
+		mes "[Great Merchant]";
+		mes "It seems Illusion Stones are a popular topic everywhere. Everyone wants to know about what they are.";
+		next;
+		mes "[Great Merchant]";
+		mes "If you want to refine your equipment, then go to the <NAVI>Illusion Enchanter<INFO>prontera,90,115,000,0,</INFO></NAVI> near the Town Office.";
+		close;
+	case 4:
+		mes "[Great Merchant]";
+		mes "Did you find anything you liked? If you need anything, please let me know at any time.";
+		close;
+	}
+	end;
+}
+
+//============================================================
+//= Illusion of Frozen
+//============================================================
+
+// illusion exchange npc - trade items for illusion gears
+ice_dun02,153,18,3	script	Illusion Stone Research	4_M_ALCHE_B,{
+	disable_items;
+	mes "[Illusion Stone Researcher]";
+	mes "Ah, Illusion Stones are truly mysterious...";
+	next;
+	switch( select( "What are you doing here?", "Upgrade equipments", "Cancel" ) ) {
+	case 1:
+		mes "[Illusion Stone Researcher]";
+		mes "I'm here to find some Illusion Stones that I need for my research.";
+		next;
+		mes "[Illusion Stone Researcher]";
+		mes "This cave is very mysterious, but I'm not strong enough to explore it by myself.";
+		mes "If you go in there, could you procure some things for me?";
+		next;
+		mes "[Illusion Stone Researcher]";
+		mes "In exchange, I'll improve your equipment.";
+		mes "What do you say?";
+		close;
+	case 2:
+		mes "[Illusion Stone Researcher]";
+		mes "Make sure ^4d4dffyour equipment is refined to at least +9^000000 before bringing it to me.";
+		mes "Make sure you're ^4d4dffequipped with the item that you want to improve^000000.";
+		next;
+		mes "[Illusion Stone Researcher]";
+		mes "As you may have guessed, your equipment will transform into something new after this.";
+		mes "In other words, ^4d4dffit'll lose its current Refining and Upgrade levels.^000000";
+		next;
+		mes "[Illusion Stone Researcher]";
+		mes "And I need ^4d4dffIllusion Stones and some other materials^000000 to upgrade your equipment.";
+		mes "Pick an item you want. I'll tell you what I need.";
+		close2;
+		callshop "barter_ill_frozen",1;
+		end;
+	case 3:
+		mes "[Illusion Stone Researcher]";
+		mes "It's just hard to get..";
+		close;
+	}
+	end;
+}
+
+
+// illusion enhancing - enhance the illusion gears
+// note: unknown enhance rate
+//[BACKPORT-UNRESOLVED:delequip] prontera,90,115,5	script	Illusion Enchanter#0	4_GEFFEN_09,3,3,{
+//[BACKPORT-UNRESOLVED:delequip] 	if (checkweight(1201,1) == 0 || MaxWeight - Weight < 2000) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I'm overweight. I'd better lighten my bag first.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	disable_items;
+//[BACKPORT-UNRESOLVED:delequip] 	if (0 == 0) {
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Oh, do you have Illusion equipment?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		select("No. I don't even know what Illusion equipment is.");
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Oops, I'm sorry. I should've introduced myself first.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I'm a chemist specializing in the study of Illusion Stones, which have been circulating among adventurers.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		select("Illusion Stones?");
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "You don't know, don't you? They're the hottest trend these days.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		select("I don't care about trends.");
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "You must have heard about the strange places that have sprung up here and there lately. Illusion Stones are only found in those places,";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "and their atomic structure is unlike any mineral I've seen. *Blah Blah* ...Their chemical chains... *Blah Blah*";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		select("(Uh-oh, he's zoning out!)");
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Anyway, I can enchant equipment that is exchanged for or purchased with Illusion Stones. I call them the Illusion equipment.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		select("(He has no sense when it comes to names.)");
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "This equipment at least responds positively to Illusion Stones, or it has the potential to be enchanted successfully.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Explore the worlds of illusions, collect Illusion Stones, and exchange them for equipment. I can enchant the equipment for you.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "This benefits both of us. I need Illusion Stones for my studies, and you need powerful equipment for your adventures.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "That said, my service is not for free. It requires a few Illusion Stones and Zeny.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "If you're interested, how'd you like to get a membership for my service? You can get discounts that way!";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		if (select( "Sure!", "Not interested." ) == 2) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Okay, but let me know if you change your mind.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Alright, then I'll add you to my member list. I hope you'll have some Illusion equipment next time I see you.";
+//[BACKPORT-UNRESOLVED:delequip] 		setquest 12415;
+//[BACKPORT-UNRESOLVED:delequip] 		completequest 12415;
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 	mes "I can enchant Illusion equipment.";
+//[BACKPORT-UNRESOLVED:delequip] 	next;
+//[BACKPORT-UNRESOLVED:delequip] 	switch( select( "How much do you charge?", "Add stats to Illusion equipment.", "Reset enchanted Illusion equipment." ) ) {
+//[BACKPORT-UNRESOLVED:delequip] 	case 1:
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "First, let me tell you that I can only enchant certain types of Illusion equipment.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Up to 2 sockets can be enchanted, and enchanting each socket requires 5 Illusion Stones. You can reset enchanted Illusion equipment at any time.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Enchanting never fails, but resetting sometimes failes. Even modern science can't change that.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Resetting requires a different amount of Zeny depending on the success chance you choose. Select the menu if you'd like to see the available payment options.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		set .@reset, false;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 3:
+//[BACKPORT-UNRESOLVED:delequip] 		set .@reset, true;
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	setarray .@location[0], EQI_HAND_R, EQI_ARMOR, EQI_SHOES, EQI_GARMENT, EQI_ACC_R, EQI_ACC_L, EQI_HEAD_TOP, EQI_HAND_L;
+//[BACKPORT-UNRESOLVED:delequip] 	set .@s, select( "Right-handed Weapon", "Armor", "Shoes", "Garment", "Right Accessory", "Left accessory", "Helm (Upper)", "Left-handed Weapon/Shield" ) - 1;
+//[BACKPORT-UNRESOLVED:delequip] 	set .@loc, .@location[.@s];
+//[BACKPORT-UNRESOLVED:delequip] 	set .@eq_id, getequipid(.@loc);
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	switch(.@eq_id) {
+	// Illusion of Moonlight
+//[BACKPORT-UNRESOLVED:delequip] 		case 15195:	// Puente_Robe_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 16063:	// Long_Mace_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 19209:	// Nurse_Cap_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 20838:	// Muffler_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 19210:	// Apple_Of_Archer_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 22133:	// Shoes_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 26007:	// Spectral_Spear_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 26109:	// Staff_Of_Bordeaux_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 28725:	// Moonlight_Sword_IL
+	// Illusion of Vampire
+//[BACKPORT-UNRESOLVED:delequip] 		case 28022:	// Infiltrator_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 28023:	// Ghoul_Leg_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 2039:	// Wizardy_Staff_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 18149:	// Balistar_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 28612:	// Book_Of_The_Apo_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 20840:	// Cape_Of_Ancient_Lord_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 28508:	// Skul_Ring_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 28509:	// Ring_IL
+	// Illusion of Frozen
+//[BACKPORT-UNRESOLVED:delequip] 		case 1846:	// Combo_Battle_Glove_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 13337:	// Huuma_Flutter_Snow_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 19223:	// Cap_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 28922:	// Herald_Of_GOD_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 20847:	// Clack_Of_Servival_IL
+	// Illusion of Teddy bear
+//[BACKPORT-UNRESOLVED:delequip] 		case 28745:	// Illusion_Counter_Dagger
+//[BACKPORT-UNRESOLVED:delequip] 		case 28244:	// Illusion_Gate_Keeper_DD
+//[BACKPORT-UNRESOLVED:delequip] 		case 2051:	// Illusion_Survivor's_Staff
+//[BACKPORT-UNRESOLVED:delequip] 		case 22190:	// Illusion_Boots
+//[BACKPORT-UNRESOLVED:delequip] 		case 19344:	// Illusion_Hot_blooded_Headband
+	// Illusion of Turtle
+//[BACKPORT-UNRESOLVED:delequip] 		case 13469:	// Illusion_Immaterial_Sword
+//[BACKPORT-UNRESOLVED:delequip] 		case 1326:	// Illusion_War_Axe
+//[BACKPORT-UNRESOLVED:delequip] 		case 32005:	// Illusion_Pole_Axe
+//[BACKPORT-UNRESOLVED:delequip] 		case 13338:	// Illusion_Wing_Shuriken
+//[BACKPORT-UNRESOLVED:delequip] 		case 16065:	// Illusion_Iron_Driver
+//[BACKPORT-UNRESOLVED:delequip] 		case 19247:	// Illusion_Fancy_Flower
+	// Illusion of Twins
+//[BACKPORT-UNRESOLVED:delequip] 		case 450182:	// Sprint_Mail_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 470066:	// Sprint_Shoes_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 490120:	// Sprint_Ring_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 490121:	// Sprint_Glove_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 550030:	// Thorn_Staff_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 550031:	// Dea_Staff_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 530015:	// Gelerdria_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 500030:	// Excalibur_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 620010:	// Doom_Slayer_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 510034:	// Ancient_Dagger_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 460017:	// Guard_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 460018:	// Siver_Guard_IL
+	// Illusion of Luanda
+//[BACKPORT-UNRESOLVED:delequip] 		case 28626:	// Illusion_Tablet
+//[BACKPORT-UNRESOLVED:delequip] 		case 18174:	// Illusion_Hunter_Bow
+//[BACKPORT-UNRESOLVED:delequip] 		case 19366:	// Illusion_Goibne_Helm
+//[BACKPORT-UNRESOLVED:delequip] 		case 15348:	// Illusion_Goibne_Armor
+//[BACKPORT-UNRESOLVED:delequip] 		case 20923:	// Illusion_Goibne_Spaulders
+//[BACKPORT-UNRESOLVED:delequip] 		case 22192:	// Illusion_Goibne's_Greaves
+	// Illusion of Labyrinth
+//[BACKPORT-UNRESOLVED:delequip] 		case 19428:	// Illusion_Morpheus's_Hood
+//[BACKPORT-UNRESOLVED:delequip] 		case 20948:	// Illusion_Morpheus's_Shawl
+//[BACKPORT-UNRESOLVED:delequip] 		case 32238:	// Illusion_Morpheus's_Ring
+//[BACKPORT-UNRESOLVED:delequip] 		case 32239:	// Illusion_Morpheus's_Bracelet
+//[BACKPORT-UNRESOLVED:delequip] 		case 28254:	// Illusion_Butcher
+//[BACKPORT-UNRESOLVED:delequip] 		case 21050:	// Illusion_Tae_Goo_Lyeon
+//[BACKPORT-UNRESOLVED:delequip] 		case 32301:	// Illusion_Gold_Lux
+//[BACKPORT-UNRESOLVED:delequip] 		case 28762:	// Illusion_Bazerald
+	// Illusion of underwater
+//[BACKPORT-UNRESOLVED:delequip] 		case 570008:	// Electronic_Guitar_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 580008:	// Electric_Eel_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 630006:	// Brionac_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 610012:	// KatarOfCold_Icicle_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 600011:	// Death_Guidance_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 630007:	// Zephyrus_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 450144:	// Saint_Robe_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 450145:	// Water_Sprits_Armor_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 450146:	// Chain_Mail_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 400053:	// Morrigane's_Helm_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 480054:	// Morrigane's_Manteau_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 490069:	// Morrigane's_Belt_IL
+//[BACKPORT-UNRESOLVED:delequip] 		case 490070:	// Morrigane's_Pendant_IL
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case -1:
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "You must be equipped with an item in the selected location to have it enchanted.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		default:
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment is not from a world of fantastic illusions. I'm offended that you even showed it to me.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	for (set .@i,0; .@i < MAX_ITEM_RDM_OPT-1; set .@i,.@i+1 ) {
+//[BACKPORT-UNRESOLVED:delequip] 		if (0 > 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "^ff0000Random options are checked for that equipment. The equipment cannot be enchanted.^000000";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	set .@weapon_lvl, getequipweaponlv(.@loc);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@loc_enchant, .@loc;	// variable for enhancing function
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	switch(.@weapon_lvl) {
+//[BACKPORT-UNRESOLVED:delequip] 	case 0:
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case 1:
+//[BACKPORT-UNRESOLVED:delequip] 	case 2:
+//[BACKPORT-UNRESOLVED:delequip] 	case 3:
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@loc_enchant == EQI_HAND_L)
+//[BACKPORT-UNRESOLVED:delequip] 			set .@loc_enchant, EQI_HAND_R;	// the equipment is a weapon so the enchantments must be for weapons
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	default:	// illusion weapon level 4 can't be enhanced
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "This is the best of all Illusion equipment. There's no technology available in this day and age that can enchant it. Even the most skilled enchanter can't do that.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Well, not unless he's willing to risk his mental and physical health.";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "But who knows? Maybe someday you'll meet someone who is talented enough to handle this precious equipment.";
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	set .@refine, getequiprefinerycnt(.@loc);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@card[0], getequipcardid(.@loc,0);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@card[1], getequipcardid(.@loc,1);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@card[2], getequipcardid(.@loc,2);
+//[BACKPORT-UNRESOLVED:delequip] 	set .@card[3], getequipcardid(.@loc,3);
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	switch(.@reset) {
+//[BACKPORT-UNRESOLVED:delequip] 	case false:
+//[BACKPORT-UNRESOLVED:delequip] 		set .@item_req, 25271;	// IllusionStone
+//[BACKPORT-UNRESOLVED:delequip] 		set .@item_req_count, 5;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@card[2] > 0 && .@card[3] > 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This equipment is already enchanted to the maximum limit.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@weapon_lvl > 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "What kind of effect would you like to add?";
+//[BACKPORT-UNRESOLVED:delequip] 			next;
+//[BACKPORT-UNRESOLVED:delequip] 			set .@weapon_enchant_type, select( "Melee", "Ranged", "Magic" );
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@card[3] > 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@slot, 2;
+//[BACKPORT-UNRESOLVED:delequip] 			set .@string$, "second";
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		else {
+//[BACKPORT-UNRESOLVED:delequip] 			set .@slot, 3;
+//[BACKPORT-UNRESOLVED:delequip] 			set .@string$, "first";
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "I'll try to enchant the " + .@string$ + " ability for your item. ^ff0000Its existing Refining level and cards will not be damaged. It will not be destroyed, even if this attempt fails.^000000 Do you want to continue?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		if (select( "I'll come back later.", "Sure!" ) == 1) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "No problem. Come back if you change your mind.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		if (countitem(.@item_req) < .@item_req_count) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "This item requires " + .@item_req_count + " " + getitemname(.@item_req) + ", and you don't have all that I need from you.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 
+		// anti-hack
+//[BACKPORT-UNRESOLVED:delequip] 		if (callfunc("F_IsEquipIDHack", .@loc, .@eq_id) || callfunc("F_IsEquipCardHack", .@loc, .@card[0], .@card[1], .@card[2], .@card[3]) || callfunc("F_IsEquipRefineHack", .@loc, .@refine))
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		set .@card[.@slot], callsub( S_Enchant, .@loc_enchant, .@slot, .@weapon_enchant_type );
+//[BACKPORT-UNRESOLVED:delequip] 		delitem .@item_req, .@item_req_count;
+		//[BACKPORT-GAP:delequip] delequip .@loc;
+//[BACKPORT-UNRESOLVED:delequip] 		getitem2 .@eq_id,1,1,.@refine,0,.@card[0],.@card[1],.@card[2],.@card[3];
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "It's done. Please check.";
+//[BACKPORT-UNRESOLVED:delequip] 		specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 	case true:
+//[BACKPORT-UNRESOLVED:delequip] 		if (!F_IsCharm(.@card[2]) || !F_IsCharm(.@card[3])) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "Only fully enchanted items can be reset. Please enchant it twice, and if you still want to reset it, then bring it to me.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Your resetting chance varies, depending on the amount of Zeny you pay. What would you like to do?";
+//[BACKPORT-UNRESOLVED:delequip] 		next;
+//[BACKPORT-UNRESOLVED:delequip] 		set .@s, select( "I'll come back later.", "100,000 Zeny (50%)", "200,000 Zeny (60%)", "300,000 Zeny (70%)", "400,000 Zeny (80%)", "500,000 Zeny (90%)" ) - 1;
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@s == 0) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "No problem. Come back if you change your mind.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		set .@cost, 100000 * .@s;
+//[BACKPORT-UNRESOLVED:delequip] 		set .@rate, 40 + 10 * .@s;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		if (Zeny < .@cost) {
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "You don't have enough money.";
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 
+		// anti-hack
+//[BACKPORT-UNRESOLVED:delequip] 		if (callfunc("F_IsEquipIDHack", .@loc, .@eq_id) || callfunc("F_IsEquipCardHack", .@loc, .@card[0], .@card[1], .@card[2], .@card[3]) || callfunc("F_IsEquipRefineHack", .@loc, .@refine))
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] 		set Zeny, Zeny - .@cost;
+		//[BACKPORT-GAP:delequip] delequip .@loc;
+//[BACKPORT-UNRESOLVED:delequip] 		if (rand(100) < .@rate) {
+//[BACKPORT-UNRESOLVED:delequip] 			getitem2 .@eq_id,1,1,.@refine,0,.@card[0],.@card[1],0,0;
+//[BACKPORT-UNRESOLVED:delequip] 			mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 			mes "It's done. Please check.";
+//[BACKPORT-UNRESOLVED:delequip] 			specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-UNRESOLVED:delequip] 			close;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		mes "[Illusion Enchanter]";
+//[BACKPORT-UNRESOLVED:delequip] 		mes "Ah, that was unfortunate. Well, you can't always be lucky.";
+//[BACKPORT-UNRESOLVED:delequip] 		specialeffect2 EF_LORD;
+//[BACKPORT-UNRESOLVED:delequip] 		close;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	end;
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] S_Enchant:
+//[BACKPORT-UNRESOLVED:delequip] 	set .@slot, getarg(1);
+//[BACKPORT-UNRESOLVED:delequip] 	switch( getarg(0)) {	// location
+//[BACKPORT-UNRESOLVED:delequip] 	case EQI_HAND_R:
+//[BACKPORT-UNRESOLVED:delequip] 		switch( getarg(2)) {// weapon enchant type
+//[BACKPORT-UNRESOLVED:delequip] 		case 1:// Melee
+//[BACKPORT-UNRESOLVED:delequip] 			switch( .@slot ) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 2:
+//[BACKPORT-UNRESOLVED:delequip] 			case 3:
+				// <item ID>, <rate> (unknown)
+//[BACKPORT-UNRESOLVED:delequip] 				setarray .@item[0],
+//[BACKPORT-UNRESOLVED:delequip] 					4700, 1,	// Strength1
+//[BACKPORT-UNRESOLVED:delequip] 					4701, 1,	// Strength2
+//[BACKPORT-UNRESOLVED:delequip] 					4702, 1,	// Strength3
+//[BACKPORT-UNRESOLVED:delequip] 					4703, 1,	// Strength4
+//[BACKPORT-UNRESOLVED:delequip] 					4720, 1,	// Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 					4721, 1,	// Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 					4722, 1,	// Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 					4723, 1,	// Dexterity4
+//[BACKPORT-UNRESOLVED:delequip] 					4750, 1,	// Luck1
+//[BACKPORT-UNRESOLVED:delequip] 					4751, 1,	// Luck2
+//[BACKPORT-UNRESOLVED:delequip] 					4752, 1,	// Luck3
+//[BACKPORT-UNRESOLVED:delequip] 					4753, 1,	// Luck4
+//[BACKPORT-UNRESOLVED:delequip] 					4808, 1,	// Fighting_Spirit4
+//[BACKPORT-UNRESOLVED:delequip] 					4809, 1,	// Fighting_Spirit3
+//[BACKPORT-UNRESOLVED:delequip] 					4810, 1,	// Fighting_Spirit2
+//[BACKPORT-UNRESOLVED:delequip] 					4811, 1,	// Fighting_Spirit1
+//[BACKPORT-UNRESOLVED:delequip] 					4820, 1,	// Fighting_Spirit5
+//[BACKPORT-UNRESOLVED:delequip] 					29081, 1,	// Expect1Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29082, 1,	// Expect2Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29083, 1,	// Expect3Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29084, 1,	// Expect4Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29085, 1,	// Expect5Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29061, 1,	// Ambition1Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29062, 1,	// Ambition2Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29063, 1,	// Ambition3Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29064, 1,	// Ambition4Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29065, 1,	// Ambition5Lv
+//[BACKPORT-UNRESOLVED:delequip] 					4807, 1,	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 					4842, 1;	// Atk_Speed2
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			default:
+//[BACKPORT-UNRESOLVED:delequip] 				return 0;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 2:// Ranged
+//[BACKPORT-UNRESOLVED:delequip] 			switch( .@slot ) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 2:
+//[BACKPORT-UNRESOLVED:delequip] 			case 3:
+				// <item ID>, <rate>
+//[BACKPORT-UNRESOLVED:delequip] 				setarray .@item[0],
+//[BACKPORT-UNRESOLVED:delequip] 					4730, 1,	// Agility1
+//[BACKPORT-UNRESOLVED:delequip] 					4731, 1,	// Agility2
+//[BACKPORT-UNRESOLVED:delequip] 					4732, 1,	// Agility3
+//[BACKPORT-UNRESOLVED:delequip] 					4733, 1,	// Agility4
+//[BACKPORT-UNRESOLVED:delequip] 					4720, 1,	// Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 					4721, 1,	// Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 					4722, 1,	// Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 					4723, 1,	// Dexterity4
+//[BACKPORT-UNRESOLVED:delequip] 					4750, 1,	// Luck1
+//[BACKPORT-UNRESOLVED:delequip] 					4751, 1,	// Luck2
+//[BACKPORT-UNRESOLVED:delequip] 					4752, 1,	// Luck3
+//[BACKPORT-UNRESOLVED:delequip] 					4753, 1,	// Luck4
+//[BACKPORT-UNRESOLVED:delequip] 					4807, 1,	// Atk_Speed1
+//[BACKPORT-UNRESOLVED:delequip] 					4842, 1,	// Atk_Speed2
+//[BACKPORT-UNRESOLVED:delequip] 					4832, 1,	// Expert_Archer1
+//[BACKPORT-UNRESOLVED:delequip] 					4833, 1,	// Expert_Archer2
+//[BACKPORT-UNRESOLVED:delequip] 					4834, 1,	// Expert_Archer3
+//[BACKPORT-UNRESOLVED:delequip] 					4835, 1,	// Expert_Archer4
+//[BACKPORT-UNRESOLVED:delequip] 					4836, 1,	// Expert_Archer5
+//[BACKPORT-UNRESOLVED:delequip] 					29091, 1,	// ArchLine1Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29092, 1,	// ArchLine2Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29093, 1,	// ArchLine3Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29094, 1,	// ArchLine4Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29095, 1,	// ArchLine5Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29071, 1,	// Tab1Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29072, 1,	// Tab2Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29073, 1,	// Tab3Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29074, 1,	// Tab4Lv
+//[BACKPORT-UNRESOLVED:delequip] 					29075, 1;	// Tab5Lv
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			default:
+//[BACKPORT-UNRESOLVED:delequip] 				return 0;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		case 3:// Magic
+//[BACKPORT-UNRESOLVED:delequip] 			switch( .@slot ) {
+//[BACKPORT-UNRESOLVED:delequip] 			case 2:
+//[BACKPORT-UNRESOLVED:delequip] 			case 3:
+				// <item ID>, <rate>
+//[BACKPORT-UNRESOLVED:delequip] 				setarray .@item[0],
+//[BACKPORT-UNRESOLVED:delequip] 					4710, 1,	// Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 					4711, 1,	// Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 					4712, 1,	// Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 					4713, 1,	// Inteligence4
+//[BACKPORT-UNRESOLVED:delequip] 					4720, 1,	// Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 					4721, 1,	// Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 					4722, 1,	// Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 					4723, 1,	// Dexterity4
+//[BACKPORT-UNRESOLVED:delequip] 					4750, 1,	// Luck1
+//[BACKPORT-UNRESOLVED:delequip] 					4751, 1,	// Luck2
+//[BACKPORT-UNRESOLVED:delequip] 					4752, 1,	// Luck3
+//[BACKPORT-UNRESOLVED:delequip] 					4753, 1,	// Luck4
+//[BACKPORT-UNRESOLVED:delequip] 					4812, 1,	// Spell4
+//[BACKPORT-UNRESOLVED:delequip] 					4813, 1,	// Spell3
+//[BACKPORT-UNRESOLVED:delequip] 					4814, 1,	// Spell2
+//[BACKPORT-UNRESOLVED:delequip] 					4815, 1,	// Spell1
+//[BACKPORT-UNRESOLVED:delequip] 					4826, 1,	// Spell5
+//[BACKPORT-UNRESOLVED:delequip] 					4805, 1,	// Heal_Amount2
+//[BACKPORT-UNRESOLVED:delequip] 					4850, 1;	// Heal_Amount3
+//[BACKPORT-UNRESOLVED:delequip] 				break;
+//[BACKPORT-UNRESOLVED:delequip] 			default:
+//[BACKPORT-UNRESOLVED:delequip] 				return 0;
+//[BACKPORT-UNRESOLVED:delequip] 			}
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		default:
+//[BACKPORT-UNRESOLVED:delequip] 			return 0;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case EQI_ARMOR:
+//[BACKPORT-UNRESOLVED:delequip] 	case EQI_SHOES:
+//[BACKPORT-UNRESOLVED:delequip] 	case EQI_GARMENT:
+//[BACKPORT-UNRESOLVED:delequip] 	case EQI_HAND_L:
+//[BACKPORT-UNRESOLVED:delequip] 	case EQI_HEAD_TOP:
+//[BACKPORT-UNRESOLVED:delequip] 		switch( .@slot ) {
+//[BACKPORT-UNRESOLVED:delequip] 		case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		case 3:
+			// <item ID>, <rate>
+//[BACKPORT-UNRESOLVED:delequip] 			setarray .@item[0],
+//[BACKPORT-UNRESOLVED:delequip] 				4700, 700,	// Strength1
+//[BACKPORT-UNRESOLVED:delequip] 				4701, 600,	// Strength2
+//[BACKPORT-UNRESOLVED:delequip] 				4702, 500,	// Strength3
+//[BACKPORT-UNRESOLVED:delequip] 				4703, 200,	// Strength4
+//[BACKPORT-UNRESOLVED:delequip] 				4740, 700,	// Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 				4741, 600,	// Vitality2
+//[BACKPORT-UNRESOLVED:delequip] 				4742, 500,	// Vitality3
+//[BACKPORT-UNRESOLVED:delequip] 				4743, 200,	// Vitality4
+//[BACKPORT-UNRESOLVED:delequip] 				4710, 700,	// Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 				4711, 600,	// Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 				4712, 500,	// Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 				4713, 200,	// Inteligence4
+//[BACKPORT-UNRESOLVED:delequip] 				4750, 700,	// Luck1
+//[BACKPORT-UNRESOLVED:delequip] 				4751, 600,	// Luck2
+//[BACKPORT-UNRESOLVED:delequip] 				4752, 500,	// Luck3
+//[BACKPORT-UNRESOLVED:delequip] 				4753, 200,	// Luck4
+//[BACKPORT-UNRESOLVED:delequip] 				4994, 10,	// Rune of Strength Lv 1
+//[BACKPORT-UNRESOLVED:delequip] 				4995, 10,	// Rune of Strength Lv 2
+//[BACKPORT-UNRESOLVED:delequip] 				4997, 10,	// Rune of Agility Lv 1
+//[BACKPORT-UNRESOLVED:delequip] 				4998, 10,	// Rune of Agility Lv 2
+//[BACKPORT-UNRESOLVED:delequip] 				29009, 10,	// Rune of Vitality Lv 1
+//[BACKPORT-UNRESOLVED:delequip] 				29010, 10,	// Rune of Vitality Lv 2
+//[BACKPORT-UNRESOLVED:delequip] 				29000, 10,	// Rune of Intellect Lv 1
+//[BACKPORT-UNRESOLVED:delequip] 				29001, 10,	// Rune of Intellect Lv 2
+//[BACKPORT-UNRESOLVED:delequip] 				29003, 10,	// Rune of Dexterity Lv 1
+//[BACKPORT-UNRESOLVED:delequip] 				29004, 10,	// Rune of Dexterity Lv 2
+//[BACKPORT-UNRESOLVED:delequip] 				29006, 10,	// Rune of Luck Lv 1
+//[BACKPORT-UNRESOLVED:delequip] 				29007, 10,	// Rune of Luck Lv 2
+//[BACKPORT-UNRESOLVED:delequip] 				4861, 700,	// MHP1
+//[BACKPORT-UNRESOLVED:delequip] 				4862, 600,	// MHP2
+//[BACKPORT-UNRESOLVED:delequip] 				4867, 440,	// MHP3
+//[BACKPORT-UNRESOLVED:delequip] 				4868, 100,	// MHP4
+//[BACKPORT-UNRESOLVED:delequip] 				4992, 10,	// HPAbsorb1_Supplement_Reactor
+//[BACKPORT-UNRESOLVED:delequip] 				4993, 10,	// SPAbsorb1_Supplement_Reactor
+//[BACKPORT-UNRESOLVED:delequip] 				29208, 10,	// SP_Absorption_2
+//[BACKPORT-UNRESOLVED:delequip] 				29210, 10;	// HP_Absorption_23
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		default:
+//[BACKPORT-UNRESOLVED:delequip] 			return 0;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	case EQI_ACC_L:
+//[BACKPORT-UNRESOLVED:delequip] 	case EQI_ACC_R:
+//[BACKPORT-UNRESOLVED:delequip] 		switch( .@slot ) {
+//[BACKPORT-UNRESOLVED:delequip] 		case 2:
+//[BACKPORT-UNRESOLVED:delequip] 		case 3:
+			// <item ID>, <rate>
+//[BACKPORT-UNRESOLVED:delequip] 			setarray .@item[0],
+//[BACKPORT-UNRESOLVED:delequip] 				4700, 576,	// Strength1
+//[BACKPORT-UNRESOLVED:delequip] 				4701, 460,	// Strength2
+//[BACKPORT-UNRESOLVED:delequip] 				4702, 115,	// Strength3
+//[BACKPORT-UNRESOLVED:delequip] 				4703, 11,	// Strength4
+//[BACKPORT-UNRESOLVED:delequip] 				4730, 576,	// Agility1
+//[BACKPORT-UNRESOLVED:delequip] 				4731, 460,	// Agility2
+//[BACKPORT-UNRESOLVED:delequip] 				4732, 115,	// Agility3
+//[BACKPORT-UNRESOLVED:delequip] 				4733, 11,	// Agility4
+//[BACKPORT-UNRESOLVED:delequip] 				4740, 576,	// Vitality1
+//[BACKPORT-UNRESOLVED:delequip] 				4741, 460,	// Vitality2
+//[BACKPORT-UNRESOLVED:delequip] 				4742, 115,	// Vitality3
+//[BACKPORT-UNRESOLVED:delequip] 				4743, 11,	// Vitality4
+//[BACKPORT-UNRESOLVED:delequip] 				4710, 576,	// Inteligence1
+//[BACKPORT-UNRESOLVED:delequip] 				4711, 460,	// Inteligence2
+//[BACKPORT-UNRESOLVED:delequip] 				4712, 115,	// Inteligence3
+//[BACKPORT-UNRESOLVED:delequip] 				4713, 11,	// Inteligence4
+//[BACKPORT-UNRESOLVED:delequip] 				4720, 576,	// Dexterity1
+//[BACKPORT-UNRESOLVED:delequip] 				4721, 460,	// Dexterity2
+//[BACKPORT-UNRESOLVED:delequip] 				4722, 115,	// Dexterity3
+//[BACKPORT-UNRESOLVED:delequip] 				4723, 11,	// Dexterity4
+//[BACKPORT-UNRESOLVED:delequip] 				4750, 576,	// Luck1
+//[BACKPORT-UNRESOLVED:delequip] 				4751, 460,	// Luck2
+//[BACKPORT-UNRESOLVED:delequip] 				4752, 115,	// Luck3
+//[BACKPORT-UNRESOLVED:delequip] 				4753, 11,	// Luck4
+//[BACKPORT-UNRESOLVED:delequip] 				4928, 576,	// SP10
+//[BACKPORT-UNRESOLVED:delequip] 				4870, 460,	// SP25
+//[BACKPORT-UNRESOLVED:delequip] 				4800, 345,	// SP50
+//[BACKPORT-UNRESOLVED:delequip] 				4871, 115,	// SP75
+//[BACKPORT-UNRESOLVED:delequip] 				4801, 11,	// SP100
+//[BACKPORT-UNRESOLVED:delequip] 				4795, 576,	// HP100
+//[BACKPORT-UNRESOLVED:delequip] 				4796, 460,	// HP200
+//[BACKPORT-UNRESOLVED:delequip] 				4797, 345,	// HP300
+//[BACKPORT-UNRESOLVED:delequip] 				4798, 115,	// HP400
+//[BACKPORT-UNRESOLVED:delequip] 				4799, 11;	// HP500
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 		default:
+//[BACKPORT-UNRESOLVED:delequip] 			return 0;
+//[BACKPORT-UNRESOLVED:delequip] 		}
+//[BACKPORT-UNRESOLVED:delequip] 		break;
+//[BACKPORT-UNRESOLVED:delequip] 	default:
+//[BACKPORT-UNRESOLVED:delequip] 		return 0;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	set .@size, getarraysize(.@item);
+//[BACKPORT-UNRESOLVED:delequip] 	for (set .@i,0; .@i < .@size; set .@i,.@i + 2 )
+//[BACKPORT-UNRESOLVED:delequip] 		set .@total_rate, .@total_rate + .@item[.@i+1];
+//[BACKPORT-UNRESOLVED:delequip] 	set .@r, rand(.@total_rate);
+//[BACKPORT-UNRESOLVED:delequip] 	for (set .@i,0; .@i < .@size; set .@i,.@i + 2 ) {
+//[BACKPORT-UNRESOLVED:delequip] 		set .@rate_tmp, .@rate_tmp + .@item[.@i+1];
+//[BACKPORT-UNRESOLVED:delequip] 		if (.@r < .@rate_tmp)
+//[BACKPORT-UNRESOLVED:delequip] 			break;
+//[BACKPORT-UNRESOLVED:delequip] 	}
+//[BACKPORT-UNRESOLVED:delequip] 	return .@item[.@i];
+//[BACKPORT-UNRESOLVED:delequip] 
+//[BACKPORT-UNRESOLVED:delequip] OnTouch:
+//[BACKPORT-UNRESOLVED:delequip] 	if (0 == 0)
+//[BACKPORT-UNRESOLVED:delequip] 		npctalk "Illusion Enchanter: Come talk to me if you're interested in the Illusion equipment!", "", bc_self;
+//[BACKPORT-UNRESOLVED:delequip] 	end;
+//[BACKPORT-UNRESOLVED:delequip] }
+
+
+//============================================================
+//= Illusion of Turtle
+//============================================================
+
+// Exchange npc
+alberta,226,28,3	script	Equipment Researcher	4_TOWER_15,{
+	set .@illusion_stone_name$, getitemname(25271);
+
+	mes "[Equipment Researcher]";
+	mes "I'm the one who researches " + .@illusion_stone_name$ + " to enhance armors and weapons.";
+	mes "If you have the materials I need for my research, wouldn't you hand them over?";
+	mes "If you give me some equipment and some materials, I'll exchange them for my reinforced equipment.";
+	next;
+	switch( select( "What are you doing here?", "Exchange equipment" ) ) {
+	case 1:
+		mes "[Equipment Researcher]";
+		mes "I'm working on how to use an " + .@illusion_stone_name$ + " to strengthen equipment.";
+		mes "I went to go to the place where " + .@illusion_stone_name$ + " was found, and I barely got back..";
+		next;
+		mes "[Equipment Researcher]";
+		mes "I think I met a girl...";
+		mes "Anyway, after that, I couldn't find a way to go back.";
+		mes "Here, we're getting research materials from adventurers with " + .@illusion_stone_name$ + ", and I'm offering enhanced equipment instead.";
+		close;
+	case 2:
+		mes "[Equipment Researcher]";
+		mes "What are the equipment I can exchange? Wait a minute. I'll let you know.";
+		next;
+		mes "[Equipment Researcher]";
+		mes "As a material, you can bring ^0000CDexisting equipment that have been refined to +9 or higher.^000000";
+		mes "And I need some ^0000CD" + .@illusion_stone_name$ + " and other materials.^000000";
+		next;
+		mes "[Equipment Researcher]";
+		mes "Of course, we're giving you new equipment, so don't forget that all the existing ^0000CDsmelting and enchantments^000000 will disappear.";
+		mes "So, what kind of weapon do you want?";
+		close2;
+		callshop "barter_ill_turtle",1;
+		end;
+	}
+}
+
+
+//============================================================
+//= Illusion of Luanda
+//============================================================
+
+// Exchange npc
+//[BACKPORT-BOUNDARY:com_d02_i] com_d02_i,234,266,6	script	Village Soap#Lu	4_M_ORIENT01,{
+//[BACKPORT-BOUNDARY:com_d02_i] 	mes "[Village Soap]";
+//[BACKPORT-BOUNDARY:com_d02_i] 	mes "I've also rolled up my sleeves for the adventurers who work hard for the village. Can I make your equipment stronger? Is there anything on the list you want?";
+//[BACKPORT-BOUNDARY:com_d02_i] 	next;
+//[BACKPORT-BOUNDARY:com_d02_i] 	if (select( "Look at the illusion equipment", "Cancel" ) == 2) {
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "[Village Soap]";
+//[BACKPORT-BOUNDARY:com_d02_i] 		mes "Please come later. Just bring the ingredients and I'll make it for you.";
+//[BACKPORT-BOUNDARY:com_d02_i] 		close;
+//[BACKPORT-BOUNDARY:com_d02_i] 	}
+//[BACKPORT-BOUNDARY:com_d02_i] 	mes "[Village Soap]";
+//[BACKPORT-BOUNDARY:com_d02_i] 	mes "Who made it? It might be useful for you to take it with you.";
+//[BACKPORT-BOUNDARY:com_d02_i] 	close2;
+//[BACKPORT-BOUNDARY:com_d02_i] 	callshop "barter_ill_luanda",1;
+//[BACKPORT-BOUNDARY:com_d02_i] 	end;
+//[BACKPORT-BOUNDARY:com_d02_i] }
+
+
+//============================================================
+//= Illusion of Underwater
+//============================================================
+
+//[BACKPORT-BOUNDARY:iz_d04_i] iz_d04_i,134,228,4	script	Horen#Horen	4_M_BIBI,{
+//[BACKPORT-BOUNDARY:iz_d04_i] 	if (checkweight(1201,3) == 0) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Conversation cannot proceed because you have too many items.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Please clean up your inventory and try again.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	}
+//[BACKPORT-BOUNDARY:iz_d04_i] 	mes "[Horen]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 	mes "Hello. If you have rare materials from this place, I can enhance your equipment.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 	next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	mes "[Horen]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 	mes "Would you like to see upgradeable equipment?";
+//[BACKPORT-BOUNDARY:iz_d04_i] 	next;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	if (select( "Yes", "No" ) == 2) {
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "[Horen]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		mes "Come back if interested.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 		close;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	}
+//[BACKPORT-BOUNDARY:iz_d04_i] 	mes "[Horen]";
+//[BACKPORT-BOUNDARY:iz_d04_i] 	mes "There are many types, so take your time. If you want something, I can enhance it right away.";
+//[BACKPORT-BOUNDARY:iz_d04_i] 	close2;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	callshop "barter_ill_underwater",1;
+//[BACKPORT-BOUNDARY:iz_d04_i] 	end;
+//[BACKPORT-BOUNDARY:iz_d04_i] }
+
+//============================================================
+//= Illusion of Twins
+//============================================================
+// ant_d02_i,175,186,3	script	From#iltw	MECHANIC,{
+//[BACKPORT-BOUNDARY:ant_d02_i] ant_d02_i,175,186,3	script	From#iltw	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:ant_d02_i] 	if (checkweight(1201,3) == 0) {
+//[BACKPORT-BOUNDARY:ant_d02_i] 		mes "- You cannot proceed with the quest because you have too many items. -";
+//[BACKPORT-BOUNDARY:ant_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	}
+//[BACKPORT-BOUNDARY:ant_d02_i] 	mes "[From]";
+//[BACKPORT-BOUNDARY:ant_d02_i] 	mes "I feel like I'm going crazy.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 	mes "It's because of my mood. I'm human and it's not like you're mistaken.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 	mes "I'll help you if you get a lot here.";
+//[BACKPORT-BOUNDARY:ant_d02_i] 	mes "Do you want to enhance your equipment?";
+//[BACKPORT-BOUNDARY:ant_d02_i] 	close2;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	callshop "barter_ill_twins",1;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	end;
+//[BACKPORT-BOUNDARY:ant_d02_i] 
+//[BACKPORT-BOUNDARY:ant_d02_i] OnInit:
+	//[BACKPORT-GAP:getnpcid] .@npc_id = getnpcid(0);
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id, UNPC_CLASS, 4058;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id, UNPC_SEX, SEX_MALE;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id, UNPC_CLOTHCOLOR, 1;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id, UNPC_HAIRSTYLE, 11;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id, UNPC_HAIRCOLOR, 6;
+//[BACKPORT-BOUNDARY:ant_d02_i] 	end;
+//[BACKPORT-BOUNDARY:ant_d02_i] }
+
+//============================================================
+//= Illusion Merchant
+//============================================================
+-	shop	market_resonance_stone	-1,100003:2000000,100004:2000000
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] prontera,88,113,5	script	Illusion Merchant#0829	HIDDEN_NPC,{
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 	mes "[Illusion Merchant]";
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 	mes "I'm selling two random optional weapon grant scrolls that I made myself. You can choose the payment method you like.";
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 	next;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 	switch( select( "Purchase with Zeny.", "Purchase with Illusion Stones" )) {
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 		case 1:
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			mes "[Illusion Merchant]";
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			mes "I hope you like it.";
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			close2;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			callshop "market_resonance_stone",1;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			end;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 		case 2:
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			mes "[Illusion Merchant]";
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			mes "I hope you like it.";
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			close2;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			callshop "resonance_stone_barter",1;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 			end;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 	}
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] OnInit:
+	//[BACKPORT-GAP:getnpcid] .@npc_id = getnpcid(0);
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id,UNPC_CLASS, JOB_MAGE_HIGH;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id,UNPC_SEX,SEX_FEMALE;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id,UNPC_HEADTOP,142;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id,UNPC_HEADMIDDLE,92;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id,UNPC_HAIRSTYLE,2;
+	//[BACKPORT-GAP:setunitdata] setunitdata .@npc_id,UNPC_HAIRCOLOR,2;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 
+	// Restock
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "market_resonance_stone",100003,2000000,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "market_resonance_stone",100004,2000000,99999;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] 	end;
+//[BACKPORT-UNRESOLVED:getnpcid,npcshopupdate,setunitdata] }
+
+
+//============================================================
+//= Illusion of Teddy Bear
+//============================================================
+
+//[BACKPORT-BOUNDARY:ein_d02_i] ein_d02_i,177,158,3	script	Bear Wanting Illusion Stone#ITB	4_NASARIAN,{
+//[BACKPORT-BOUNDARY:ein_d02_i] 	set .@item_name$, getitemname(25271); // IllusionStone
+//[BACKPORT-BOUNDARY:ein_d02_i] 	mes "[Bear Wanting " + .@item_name$ + "]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 	mes "If you give me an " + .@item_name$ + ", I'll do something nice for you!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 	next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	switch( select( "Reason for being here", "Good thing [Illusion equipment]", "Quit" ) ) {
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 1:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Bear Wanting " + .@item_name$ + "]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I don't know why...!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "The other teddy bears were in line, so I was in line too!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Whoaaaaaa!!!!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I didn't know it was here!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Bear Wanting " + .@item_name$ + "]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "A teddy bear with an " + .@item_name$ + "!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Strong!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I don't have any " + .@item_name$ + "s!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Less... stronger...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Bear Wanting " + .@item_name$ + "]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "What are " + .@item_name$ + "s?";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "I don't know but I want some!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 2:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Bear Wanting " + .@item_name$ + "]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Makes you good with what you have!";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Bear Wanting " + .@item_name$ + "]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "If you want to do well, bring equipment refined to ^ff0000+9 or higher. It'll all disappear... haha?^000000";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Bear Wanting " + .@item_name$ + "]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "^ff0000" + .@item_name$ + "^000000!!! " + .@item_name$ + " is the most important thing, but... other materials are also needed.";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "For every good thing you need another good thing.";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		next;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close2;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		callshop "barter_ill_teddy",1;
+//[BACKPORT-BOUNDARY:ein_d02_i] 		end;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	case 3:
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "[Bear Wanting " + .@item_name$ + "]";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		mes "Okay...";
+//[BACKPORT-BOUNDARY:ein_d02_i] 		close;
+//[BACKPORT-BOUNDARY:ein_d02_i] 	}
+//[BACKPORT-BOUNDARY:ein_d02_i] 	end;
+//[BACKPORT-BOUNDARY:ein_d02_i] }

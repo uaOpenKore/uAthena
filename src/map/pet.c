@@ -76,7 +76,7 @@ static int pet_calc_pos(struct pet_data *pd,int tx,int ty,int dir)
 		else if(dy < 0) y++;
 		if(!unit_can_reach_pos(&pd->bl,x,y,0)) {
 			for(i=0;i<12;i++) {
-				k = rand()%8;
+				k = rnd()%8;
 				dx = -dirx[k]*2;
 				dy = -diry[k]*2;
 				x = tx + dx;
@@ -144,7 +144,7 @@ int pet_attackskill(struct pet_data *pd, int target_id)
 	if (DIFF_TICK(pd->ud.canact_tick, gettick()) > 0)
 		return 0;
 
-	if (rand()%100 < (pd->a_skill->rate +pd->pet.intimate*pd->a_skill->bonusrate/1000))
+	if (rnd()%100 < (pd->a_skill->rate +pd->pet.intimate*pd->a_skill->bonusrate/1000))
 	{	//Skotlex: Use pet's skill
 		bl=map_id2bl(target_id);
 		if(bl == NULL || pd->bl.m != bl->m || bl->prev == NULL || status_isdead(bl) ||
@@ -194,9 +194,9 @@ int pet_target_check(struct map_session_data *sd,struct block_list *bl,int type)
 		if(pd->petDB->defence_attack_rate > 0 && rate <= 0)
 			rate = 1;
 	}
-	if(rand()%10000 < rate) 
+	if(rnd()%10000 < rate) 
 	{
-		if(pd->target_id == 0 || rand()%10000 < pd->petDB->change_target_rate)
+		if(pd->target_id == 0 || rnd()%10000 < pd->petDB->change_target_rate)
 			pd->target_id = bl->id;
 	}
 
@@ -332,7 +332,7 @@ static int pet_performance(struct map_session_data *sd, struct pet_data *pd)
 		val = 1;
 
 	pet_stop_walking(pd,2000<<8);
-	clif_pet_performance(pd, rand()%val + 1);
+	clif_pet_performance(pd, rnd()%val + 1);
 	pet_lootitem_drop(pd,NULL);
 	return 1;
 }
@@ -574,7 +574,7 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 	if(battle_config.pet_catch_rate != 100)
 		pet_catch_rate = (pet_catch_rate*battle_config.pet_catch_rate)/100;
 
-	if(rand()%10000 < pet_catch_rate)
+	if(rnd()%10000 < pet_catch_rate)
 	{
 		unit_remove_map(&md->bl,0);
 		status_kill(&md->bl);
@@ -833,7 +833,7 @@ static int pet_randomwalk(struct pet_data *pd,unsigned int tick)
 		int i,x,y,c,d=12-pd->move_fail_count;
 		if(d<5) d=5;
 		for(i=0;i<retrycount;i++){
-			int r=rand();
+			int r=rnd();
 			x=pd->bl.x+r%(d*2+1)-d;
 			y=pd->bl.y+r/(d*2+1)%(d*2+1)-d;
 			if(map_getcell(pd->bl.m,x,y,CELL_CHKPASS) && unit_walktoxy(&pd->bl,x,y,0)){
@@ -857,7 +857,7 @@ static int pet_randomwalk(struct pet_data *pd,unsigned int tick)
 			else
 				c+=pd->status.speed;
 		}
-		pd->next_walktime = tick+rand()%3000+3000+c;
+		pd->next_walktime = tick+rnd()%3000+3000+c;
 
 		return 1;
 	}
@@ -977,7 +977,7 @@ static int pet_ai_sub_hard(struct pet_data *pd, struct map_session_data *sd, uns
 
 static int pet_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 {
-	unsigned int tick = va_arg(ap,unsigned int);
+	unsigned int tick = (unsigned int)va_arg(ap, intptr_t);
 	if(sd->status.pet_id && sd->pd)
 		pet_ai_sub_hard(sd->pd,sd,tick);
 
@@ -998,8 +998,8 @@ static int pet_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 	struct block_list **target;
 	int sd_id =0;
 
-	pd=va_arg(ap,struct pet_data *);
-	target=va_arg(ap,struct block_list**);
+	pd=(struct pet_data *)va_arg(ap, intptr_t);
+	target=(struct block_list**)va_arg(ap, intptr_t);
 
 	sd_id = fitem->first_get_id;
 

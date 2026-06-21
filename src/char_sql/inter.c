@@ -15,6 +15,9 @@
 #include "int_storage.h"
 #include "int_pet.h"
 #include "int_homun.h" //albator
+#include "int_mercenary.h"	// [Backport] hired mercenary soldier
+#include "int_quest.h"
+#include "int_achievement.h"
 
 #define WISDATA_TTL (60*1000)	// Wisf[^(60b)
 #define WISDELLIST_MAX 256			// Wisf[^Xgvf
@@ -47,6 +50,7 @@ char login_server_db[32] = "ragnarok";
 
 static struct accreg *accreg_pt;
 unsigned int party_share_level = 10;
+int guild_storage_lock = 0; // cross-map-server guild storage lock (inter_athena.conf); 0 = off
 char main_chat_nick[16] = "Main";
 
 // sending packet list
@@ -65,13 +69,13 @@ int inter_send_packet_length[] = {
 // recv. packet list
 int inter_recv_packet_length[] = {
 	-1,-1, 7,-1, -1,13,36, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3000-
-	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 0, 0,  0, 0,  0, 0,	// 3010-
+	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 6, 0,  0, 0,  0, 0,	// 3010-
 	-1, 6,-1,14, 14,19, 6,-1, 14,14, 0, 0,  0, 0,  0, 0,	// 3020-
 	-1, 6,-1,-1, 55,19, 6,-1, 14,-1,-1,-1, 14,19,186,-1,	// 3030-
 	 5, 9, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3040-
 	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3050-
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3060-
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3070-
+	 6,-1, 6,-1,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3060-  Quests [Kevin][Inkfish] + Achievements [Backport]
+	-1,10, 6,-1,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3070-  Mercenary Soldier [Backport]
 	48,14,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3080-
 	-1,10,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3090-  Homunculus packets [albator]
 };
@@ -261,6 +265,8 @@ static int inter_config_read(const char* cfgName)
 			log_inter = atoi(w2);
 		else if(!strcmpi(w1,"main_chat_nick"))
 			strcpy(main_chat_nick, w2);
+		else if(!strcmpi(w1,"guild_storage_lock"))
+			guild_storage_lock = atoi(w2);
 #endif //TXT_SQL_CONVERT
 		else if(!strcmpi(w1,"import"))
 			inter_config_read(w2);
@@ -281,7 +287,7 @@ int inter_log(char* fmt, ...)
 	va_list ap;
 	va_start(ap,fmt);
 
-	vsprintf(str,fmt,ap);
+	vsnprintf(str,sizeof(str),fmt,ap);
 	sprintf(tmp_sql,"INSERT INTO `%s` (`time`, `log`) VALUES (NOW(),  '%s')",interlog_db, jstrescapecpy(temp_str,str));
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -390,6 +396,7 @@ int inter_init_sql(const char *file)
 	inter_party_sql_init();
 	inter_pet_sql_init();
 	inter_homunculus_sql_init(); // albator
+	inter_mercenary_sql_init();	// [Backport] hired mercenary soldier
 	inter_accreg_sql_init();
 
 	sql_ping_init();
@@ -444,6 +451,7 @@ void inter_final(void)
 	inter_party_sql_final();
 	inter_pet_sql_final();
 	inter_homunculus_sql_final();	//[orn]
+	inter_mercenary_sql_final();	// [Backport] hired mercenary soldier
 
 	if (accreg_pt) aFree(accreg_pt);
 	return;
@@ -593,7 +601,7 @@ int check_ttl_wisdata_sub(DBKey key, void *data, va_list ap)
 {
 	unsigned long tick;
 	struct WisData *wd = (struct WisData *)data;
-	tick = va_arg(ap, unsigned long);
+	tick = (unsigned long)va_arg(ap, intptr_t);
 
 	if (DIFF_TICK(tick, wd->tick) > WISDATA_TTL && wis_delnum < WISDELLIST_MAX)
 		wis_dellist[wis_delnum++] = wd->id;
@@ -741,7 +749,7 @@ int mapif_parse_WisToGM(int fd)
 // Save account_reg into sql (type=2)
 int mapif_parse_Registry(int fd)
 {
-	int j,p,len, max;
+	int j,p,len=0, max;
 	struct accreg *reg=accreg_pt;
 
 	memset(accreg_pt,0,sizeof(struct accreg));
@@ -858,6 +866,9 @@ int inter_parse_frommap(int fd)
 		  || inter_storage_parse_frommap(fd)
 		  || inter_pet_parse_frommap(fd)
 		  || inter_homunculus_parse_frommap(fd)
+		  || inter_quest_parse_frommap(fd)
+		  || inter_achievement_parse_frommap(fd)
+		  || inter_mercenary_parse_frommap(fd)	// [Backport] hired mercenary soldier
 		   )
 			break;
 		else

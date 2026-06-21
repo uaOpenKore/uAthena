@@ -1,0 +1,292 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/moro_cav_exchange.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Enchants NPCs.
+//===== Description: =========================================
+//= [Official Conversion]
+//= Hero Ring enchants NPCs
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [Capuche]
+//= 1.1 Slight change to match official script. [Capuche]
+//============================================================
+
+//[BACKPORT-BOUNDARY:moro_cav] moro_cav,32,73,5	script	Hero Token Exchanger#1	4_F_SHADOWCHASER,{
+//[BACKPORT-BOUNDARY:moro_cav] 	disable_items;
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "If you fought Morocc";
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "and collected";
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "Hero Tokens,";
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "I can exchange them with a special ring for you.";
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "Do you want to take a look at my ring?";
+//[BACKPORT-BOUNDARY:moro_cav] 	while(true) {
+//[BACKPORT-BOUNDARY:moro_cav] 		next;
+//[BACKPORT-BOUNDARY:moro_cav] 		if (checkweight(2163,2) == 0) {
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Your pack has a lot of items,";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Please come again after arrange it!";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 		switch( select( "Ring description", "Exchange with the ring.", "End conversation." ) ) {
+//[BACKPORT-BOUNDARY:moro_cav] 		case 1:
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "This Hero Ring";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "may not";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "look";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "impressive,";
+//[BACKPORT-BOUNDARY:moro_cav] 			next;
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "but take it to";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Expert Enchanter Byrnes,";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "and he can Enchant";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "all 4 sockets in it";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "and bring out";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "its latent abilities.";
+//[BACKPORT-BOUNDARY:moro_cav] 			next;
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Hero Ring";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "can aid you";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "in subjugating";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Morocc.";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Any more questions?";
+//[BACKPORT-BOUNDARY:moro_cav] 			continue;
+//[BACKPORT-BOUNDARY:moro_cav] 		case 2:
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "- Hero Ring -";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "^006400A ring made for warriors^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "^006400on the quest to defeat Morocc..^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "^006400When Enchanted,^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "^006400it lends its owner^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "^006400the power to confront Morocc.^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "^006400Clas: Accessory/DEF: 0^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "^006400Weight: 20/Required Level: 160^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "^006400Slot: 0/Equip To: All Jobs^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			next;
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Hero Ring requires";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "30 Hero Tokens";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "for the exchange.";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Do you want to exchange?";
+//[BACKPORT-BOUNDARY:moro_cav] 			next;
+//[BACKPORT-BOUNDARY:moro_cav] 			if (select( "Previous menu.", "Exchange 30 Hero Tokens." ) == 1) {
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "Think";
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "again.";
+//[BACKPORT-BOUNDARY:moro_cav] 				continue;
+//[BACKPORT-BOUNDARY:moro_cav] 			}
+//[BACKPORT-BOUNDARY:moro_cav] 			if (countitem(6684) < 30) {
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "^006400Hero Token^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "is given to";
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "those who bravely fought Morocc.";
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "You don't have";
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "30 ^006400Hero Tokens^000000,";
+//[BACKPORT-BOUNDARY:moro_cav] 				mes "and therefore I can't assist you.";
+//[BACKPORT-BOUNDARY:moro_cav] 				continue;
+//[BACKPORT-BOUNDARY:moro_cav] 			}
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "I'll exchange";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "30 ^006400Hero Tokens^000000";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "with 1 ^006400Hero Ring^000000.";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Anything else?";
+//[BACKPORT-BOUNDARY:moro_cav] 			delitem 6684,30;	// TokenOfHero
+//[BACKPORT-BOUNDARY:moro_cav] 			getitem 2981,1;		// RingOfHero
+//[BACKPORT-BOUNDARY:moro_cav] 			continue;
+//[BACKPORT-BOUNDARY:moro_cav] 		case 3:
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Hero Token Exchanger]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "One day";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "you'll find yourself";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "in need of Hero Ring.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 	}
+//[BACKPORT-BOUNDARY:moro_cav] }
+
+//[BACKPORT-BOUNDARY:moro_cav] moro_cav,34,65,5	script	Expert Enchanter Byrnes	1_M_03,{
+//[BACKPORT-BOUNDARY:moro_cav] 	disable_items;
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "Have you heard of Hero Ring? Only true heroes deserve to possess that magnificent ring, and I've been waiting for one.";
+//[BACKPORT-BOUNDARY:moro_cav] 	mes "What can I do for you?";
+//[BACKPORT-BOUNDARY:moro_cav] 	next;
+//[BACKPORT-BOUNDARY:moro_cav] 	switch( select( "Enchant Hero Ring.", "Reset Enchantments on Hero Ring.", "Cancel." ) ) {
+//[BACKPORT-BOUNDARY:moro_cav] 	case 1:
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "I can Enchant only equipped rings. Which one of the equipped rings do you want to Enchant?";
+//[BACKPORT-BOUNDARY:moro_cav] 		next;
+//[BACKPORT-BOUNDARY:moro_cav] 		setarray .@eqi_slot[0], EQI_ACC_L, EQI_ACC_R;
+//[BACKPORT-BOUNDARY:moro_cav] 		set .@s, select( "Left", "Right" ) - 1;
+//[BACKPORT-BOUNDARY:moro_cav] 		switch( getequipid(.@eqi_slot[.@s]) ) {
+//[BACKPORT-BOUNDARY:moro_cav] 		case -1:
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Please equip the Hero Ring that you want to enchant.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		case 2981:
+//[BACKPORT-BOUNDARY:moro_cav] 			break;
+//[BACKPORT-BOUNDARY:moro_cav] 		default:
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Please equip your Hero Ring. I can't Enchant anything else.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+		// custom at this point
+//[BACKPORT-BOUNDARY:moro_cav] 		setarray .@card[0],
+//[BACKPORT-BOUNDARY:moro_cav] 			getequipcardid(.@eqi_slot[.@s],0),
+//[BACKPORT-BOUNDARY:moro_cav] 			getequipcardid(.@eqi_slot[.@s],1),
+//[BACKPORT-BOUNDARY:moro_cav] 			getequipcardid(.@eqi_slot[.@s],2),
+//[BACKPORT-BOUNDARY:moro_cav] 			getequipcardid(.@eqi_slot[.@s],3);
+//[BACKPORT-BOUNDARY:moro_cav] 
+//[BACKPORT-BOUNDARY:moro_cav] 		if (.@card[0] > 0) {
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "A fully enchanted Hero Ring cannot be enchanted any further.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 		if (.@card[3] == 0) {
+//[BACKPORT-BOUNDARY:moro_cav] 			setarray .@enchant_list$[0], "DEF", "MDEF";
+//[BACKPORT-BOUNDARY:moro_cav] 			set .@slot, 4;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 		else if (.@card[2] == 0) {
+//[BACKPORT-BOUNDARY:moro_cav] 			setarray .@enchant_list$[0], "Max HP", "Max SP";
+//[BACKPORT-BOUNDARY:moro_cav] 			set .@slot, 3;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 		else if (.@card[1] == 0) {
+//[BACKPORT-BOUNDARY:moro_cav] 			setarray .@enchant_list$[0], "Atk", "MAtk";
+//[BACKPORT-BOUNDARY:moro_cav] 			set .@slot, 2;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 		else {
+//[BACKPORT-BOUNDARY:moro_cav] 			setarray .@enchant_list$[0], "STR", "INT", "AGI", "VIT", "DEX", "LUK";
+//[BACKPORT-BOUNDARY:moro_cav] 			set .@slot, 1;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "Which ability do you want as an enchantment on slot " + .@slot + "?";
+//[BACKPORT-BOUNDARY:moro_cav] 		next;
+//[BACKPORT-BOUNDARY:moro_cav] 		set .@enchant_list_size, getarraysize(.@enchant_list$);
+//[BACKPORT-BOUNDARY:moro_cav] 		for (set .@i,0; .@i < .@enchant_list_size; set .@i,.@i+1 )
+//[BACKPORT-BOUNDARY:moro_cav] 			set .@menu$, .@menu$ + .@enchant_list$[.@i] + ":";
+//[BACKPORT-BOUNDARY:moro_cav] 		set .@type, select(.@menu$) - 1;
+//[BACKPORT-BOUNDARY:moro_cav] 
+//[BACKPORT-BOUNDARY:moro_cav] 		switch(.@slot) {
+//[BACKPORT-BOUNDARY:moro_cav] 		case 4:
+//[BACKPORT-BOUNDARY:moro_cav] 			switch(.@type) {// enchant list index
+//[BACKPORT-BOUNDARY:moro_cav] 			case 0:	// DEF
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4791, 4792, 4793, 4794, 4893;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			default:	// MDEF
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4890, 4786, 4891, 4787, 4892;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			}
+//[BACKPORT-BOUNDARY:moro_cav] 			break;
+//[BACKPORT-BOUNDARY:moro_cav] 		case 3:
+//[BACKPORT-BOUNDARY:moro_cav] 			switch(.@type) {
+			//[BACKPORT-GAP:max] case 0:	// Max HP
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4861, 4862, 4867, 4868, 4900;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+			//[BACKPORT-GAP:max] default:	// Max SP
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4800, 4870, 4871, 4801, 4802;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			}
+//[BACKPORT-BOUNDARY:moro_cav] 			break;
+//[BACKPORT-BOUNDARY:moro_cav] 		case 2:
+//[BACKPORT-BOUNDARY:moro_cav] 			switch(.@type) {
+//[BACKPORT-BOUNDARY:moro_cav] 			case 0:	// Atk
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4882, 4766, 4767, 4894, 4895;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			default:	// Matk
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4883, 4896, 4897, 4898, 4899;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			}
+//[BACKPORT-BOUNDARY:moro_cav] 			break;
+//[BACKPORT-BOUNDARY:moro_cav] 		case 1:
+//[BACKPORT-BOUNDARY:moro_cav] 			switch(.@type) {
+//[BACKPORT-BOUNDARY:moro_cav] 			case 0:	// STR
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4700, 4701, 4702, 4703, 4704;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			case 1:	// INT
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4710, 4711, 4712, 4713, 4714; 
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			case 2:	// AGI
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4730, 4731, 4732, 4733, 4734;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			case 3:	// VIT
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4740, 4741, 4742, 4743, 4744;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			case 4:	// DEX
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4720, 4721, 4722, 4723, 4724;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			default:	// LUK
+//[BACKPORT-BOUNDARY:moro_cav] 				setarray .@bonus[0], 4750, 4751, 4752, 4753, 4754;
+//[BACKPORT-BOUNDARY:moro_cav] 				break;
+//[BACKPORT-BOUNDARY:moro_cav] 			}
+//[BACKPORT-BOUNDARY:moro_cav] 			break;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 
+		// anti-hack
+//[BACKPORT-BOUNDARY:moro_cav] 		if (callfunc("F_IsEquipIDHack", .@eqi_slot[.@s], 2981) || callfunc("F_IsEquipCardHack", .@eqi_slot[.@s], .@card[0], .@card[1], .@card[2], .@card[3]))
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 
+//[BACKPORT-BOUNDARY:moro_cav] 		set .@bonus_size, getarraysize(.@bonus);
+//[BACKPORT-BOUNDARY:moro_cav] 		set .@card[.@slot-1], .@bonus[ rand(.@bonus_size) ];	// unknown rates
+//[BACKPORT-BOUNDARY:moro_cav] 		specialeffect2 EF_ANGEL2;
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "Enchantment completed!";
+		//[BACKPORT-GAP:delequip] delequip .@eqi_slot[.@s];
+//[BACKPORT-BOUNDARY:moro_cav] 		getitem2 2981,1,1,0,0,.@card[0],.@card[1],.@card[2],.@card[3];
+//[BACKPORT-BOUNDARY:moro_cav] 		close;
+//[BACKPORT-BOUNDARY:moro_cav] 	case 2:
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "To reset Enchantments on your Hero Ring, I need 3 Hero Tokens.";
+//[BACKPORT-BOUNDARY:moro_cav] 		next;
+//[BACKPORT-BOUNDARY:moro_cav] 		if (countitem(6684) < 3) {
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "You don't have enough Hero Tokens. I can't reset your Hero Ring.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "I can reset only equipped rings. Which one of the equipped rings do you want to reset?";
+//[BACKPORT-BOUNDARY:moro_cav] 		next;
+//[BACKPORT-BOUNDARY:moro_cav] 		setarray .@eqi_slot[0], EQI_ACC_L, EQI_ACC_R;
+//[BACKPORT-BOUNDARY:moro_cav] 		set .@s, select( "Left", "Right" ) - 1;
+//[BACKPORT-BOUNDARY:moro_cav] 		switch( getequipid(.@eqi_slot[.@s]) ) {
+//[BACKPORT-BOUNDARY:moro_cav] 		case -1:
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "You first have to equip the item to reset its Enchantment status.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		case 2981:
+//[BACKPORT-BOUNDARY:moro_cav] 			break;
+//[BACKPORT-BOUNDARY:moro_cav] 		default:
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Please equip your Hero Ring. I can't reset anything else.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+		// custom at this point
+//[BACKPORT-BOUNDARY:moro_cav] 		if (countitem(6684) < 3) {
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "You don't have enough Hero Tokens. I can't reset your Hero Ring.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 		setarray .@card[0],
+//[BACKPORT-BOUNDARY:moro_cav] 			getequipcardid(.@eqi_slot[.@s],0),
+//[BACKPORT-BOUNDARY:moro_cav] 			getequipcardid(.@eqi_slot[.@s],1),
+//[BACKPORT-BOUNDARY:moro_cav] 			getequipcardid(.@eqi_slot[.@s],2),
+//[BACKPORT-BOUNDARY:moro_cav] 			getequipcardid(.@eqi_slot[.@s],3);
+//[BACKPORT-BOUNDARY:moro_cav] 
+//[BACKPORT-BOUNDARY:moro_cav] 		if (.@card[3] == 0) {
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 			mes "Your Hero Ring is currently in a state without enchantment.";
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 		}
+//[BACKPORT-BOUNDARY:moro_cav] 
+		// anti-hack
+//[BACKPORT-BOUNDARY:moro_cav] 		if (callfunc("F_IsEquipIDHack", .@eqi_slot[.@s], 2981) || callfunc("F_IsEquipCardHack", .@eqi_slot[.@s], .@card[0], .@card[1], .@card[2], .@card[3]))
+//[BACKPORT-BOUNDARY:moro_cav] 			close;
+//[BACKPORT-BOUNDARY:moro_cav] 
+//[BACKPORT-BOUNDARY:moro_cav] 		specialeffect2 EF_ANGEL2;
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "[Byrnes]";
+//[BACKPORT-BOUNDARY:moro_cav] 		mes "Initialization completed.";
+//[BACKPORT-BOUNDARY:moro_cav] 		delitem 6684,3;
+		//[BACKPORT-GAP:delequip] delequip .@eqi_slot[.@s];
+//[BACKPORT-BOUNDARY:moro_cav] 		getitem 2981,1;
+//[BACKPORT-BOUNDARY:moro_cav] 		close;
+//[BACKPORT-BOUNDARY:moro_cav] 	case 3:
+//[BACKPORT-BOUNDARY:moro_cav] 		close;
+//[BACKPORT-BOUNDARY:moro_cav] 	}
+//[BACKPORT-BOUNDARY:moro_cav] }

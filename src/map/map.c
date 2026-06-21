@@ -7,6 +7,7 @@
 #include "../common/grfio.h"
 #include "../common/malloc.h"
 #include "../common/socket.h" // WFIFO*()
+#include "../common/send_worker.h" // [perf] off-thread client sends
 #include "../common/showmsg.h"
 #include "../common/version.h"
 #include "../common/nullpo.h"
@@ -32,10 +33,19 @@
 #include "guild.h"
 #include "pet.h"
 #include "mercenary.h"	//[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
+#include "quest.h"
+#include "achievement.h"
 #include "atcommand.h"
 #include "charcommand.h"
 
 #include "log.h"
+#include "async_db.h"
+#include "livemob.h"	// [perf] flat-array live-mob index (replaces livemob_db DBMap)
+#include "mobgrid.h"	// [perf] per-map player-presence grid
+#if BLOCK_SIZE != MOBGRID_BLOCK
+#error "MOBGRID_BLOCK must equal BLOCK_SIZE"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,6 +66,9 @@ char map_server_id[32] = "ragnarok";
 char map_server_pw[32] = "ragnarok";
 char map_server_db[32] = "ragnarok";
 MYSQL mmysql_handle;
+AsyncDB* map_async_db = NULL;  // async writer for game-DB writes (mapreg)
+AsyncDB* mail_async_db = NULL; // async writer for the (optional) mail DB
+int guild_storage_lock = 0;    // cross-map-server guild storage lock (inter_athena.conf); 0 = off
 MYSQL_RES* sql_res;
 MYSQL_ROW sql_row;
 
@@ -108,6 +121,7 @@ char *GRF_PATH_FILENAME;
 //  static?J?
 static struct dbt * id_db=NULL;
 static struct dbt * pc_db=NULL;
+// live-mob index is now a flat array in livemob.c (cheaper than a DBMap vforeach) [perf]
 static struct dbt * map_db=NULL;
 static struct dbt * charid_db=NULL;
 
@@ -362,6 +376,8 @@ int map_addblock_sub (struct block_list *bl, int flag)
 		if (bl->next) bl->next->prev = bl;
 		map[m].block[pos] = bl;
 		map[m].block_count[pos]++;
+		if (bl->type == BL_PC || bl->type == BL_HOM || bl->type == BL_MER)
+			mobgrid_inc(map[m].block_pc_count, pos);	// [perf] exact PC/HOM/MER presence (mobs target mercs too)
 		if (bl->type == BL_PC && flag)
 		{
 			struct map_session_data* sd;
@@ -404,6 +420,9 @@ int map_delblock_sub (struct block_list *bl, int flag)
 #endif
 	
 	b = bl->x/BLOCK_SIZE+(bl->y/BLOCK_SIZE)*map[bl->m].bxs;
+
+	if (bl->type == BL_PC || bl->type == BL_HOM || bl->type == BL_MER)
+		mobgrid_dec(map[bl->m].block_pc_count, b);	// [perf] exact PC/HOM/MER presence (mobs target mercs too)
 
 	if (bl->type == BL_PC && flag)
 		if (--map[bl->m].users == 0 && battle_config.dynamic_mobs)	//[Skotlex]
@@ -649,13 +668,50 @@ int map_foreachinrange(int (*func)(struct block_list*,va_list), struct block_lis
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
 	va_end(ap);
 	bl_list_count = blockcount;
 	return returnCount;	//[Skotlex]
+}
+
+// [perf 2c] Line-of-sight memoization. path_search_long() uses CELL_CHKWALL == static map wall
+// (type==1); Ice Wall (CELL_ICEWALL) is explicitly NOT checked (see map_getcellp), so LoS between
+// two cells depends ONLY on immutable map geometry and never changes at runtime. We therefore
+// memoize it permanently (no invalidation): direct-mapped cache, 64-bit verified key
+// (m:16, x0:12, y0:12, x1:12, y1:12). Behaviour-identical (memoizing a pure function). The huge
+// win is under WoE, where the 100ms skill_unit_timer re-checks LoS for many AoE cells vs the same
+// (largely stationary) targets every tick. Gated by battle_config.skill_unit_los_cache.
+#define LOS_CACHE_BITS 16
+#define LOS_CACHE_SIZE (1<<LOS_CACHE_BITS)
+static struct { uint64 key; signed char los; } los_cache[LOS_CACHE_SIZE];
+static int los_cache_ready = 0;
+
+static int map_los_cached(int m, int x0, int y0, int x1, int y1)
+{
+	uint64 key;
+	unsigned int slot;
+
+	if (!battle_config.skill_unit_los_cache)
+		return path_search_long(NULL, m, x0, y0, x1, y1);
+
+	if (!los_cache_ready) {                 // lazy init: empty = sentinel key (won't match a real key)
+		memset(los_cache, 0xFF, sizeof(los_cache));
+		los_cache_ready = 1;
+	}
+
+	key = ((uint64)(m  & 0xFFFF) << 48) | ((uint64)(x0 & 0xFFF) << 36) | ((uint64)(y0 & 0xFFF) << 24)
+	    | ((uint64)(x1 & 0xFFF) << 12) |  (uint64)(y1 & 0xFFF);
+	slot = (unsigned int)((key * 0x9E3779B97F4A7C15ULL) >> (64 - LOS_CACHE_BITS));
+
+	if (los_cache[slot].key == key)         // hit (LoS is immutable per map, so always fresh)
+		return los_cache[slot].los;
+
+	los_cache[slot].los = (signed char)(path_search_long(NULL, m, x0, y0, x1, y1) ? 1 : 0);
+	los_cache[slot].key = key;
+	return los_cache[slot].los;
 }
 
 /*==========================================
@@ -694,7 +750,7 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 #ifdef CIRCULAR_AREA
 						&& check_distance_bl(center, bl, range)
 #endif
-						&& path_search_long(NULL,center->m,center->x,center->y,bl->x,bl->y)
+						&& map_los_cached(center->m,center->x,center->y,bl->x,bl->y)
 						&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
 				}
@@ -711,7 +767,7 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 #ifdef CIRCULAR_AREA
 						&& check_distance_bl(center, bl, range)
 #endif
-						&& path_search_long(NULL,center->m,center->x,center->y,bl->x,bl->y)
+						&& map_los_cached(center->m,center->x,center->y,bl->x,bl->y)
 						&& bl_list_count<BL_LIST_MAX)
 						bl_list[bl_list_count++]=bl;
 				}
@@ -727,7 +783,7 @@ int map_foreachinshootrange(int (*func)(struct block_list*,va_list),struct block
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
@@ -801,13 +857,72 @@ int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, in
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
 	va_end(ap);
 	bl_list_count = blockcount;
 	return returnCount;	//[Skotlex]
+}
+
+/*==========================================
+ * [perf] Specialised map_foreachinarea for AREA *broadcasts* (BL_PC targets only).
+ * Identical collection to map_foreachinarea(..., BL_PC, ...) EXCEPT it skips whole
+ * blocks whose exact PC/HOM/MER presence count (block_pc_count, kept in lock-step by
+ * map_addblock/map_delblock) is zero — such a block provably holds no BL_PC, so it
+ * would contribute nothing to the broadcast. The resulting bl_list is therefore
+ * byte-identical (same order) to the generic walk; this is a pure skip-the-empty
+ * optimisation, behaviour-identical. Gated at the call site by clif_bcast_pc_grid.
+ *------------------------------------------*/
+int map_foreachinareaPC(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, ...)
+{
+	va_list ap;
+	int bx,by;
+	int returnCount =0;
+	struct block_list *bl=NULL;
+	int blockcount=bl_list_count,i,c;
+
+	if (m < 0)
+		return 0;
+	va_start(ap,y1);
+	if (x1 < x0) { bx = x0; x0 = x1; x1 = bx; }
+	if (y1 < y0) { bx = y0; y0 = y1; y1 = bx; }
+	if (x0 < 0) x0 = 0;
+	if (y0 < 0) y0 = 0;
+	if (x1 >= map[m].xs) x1 = map[m].xs-1;
+	if (y1 >= map[m].ys) y1 = map[m].ys-1;
+
+	for (by = y0 / BLOCK_SIZE; by <= y1 / BLOCK_SIZE; by++) {
+		for(bx = x0 / BLOCK_SIZE; bx <= x1 / BLOCK_SIZE; bx++) {
+			int pos = bx+by*map[m].bxs;
+			if (map[m].block_pc_count[pos] == 0)	// no PC/HOM/MER in this block -> nothing to broadcast to
+				continue;
+			bl = map[m].block[pos];
+			c = map[m].block_count[pos];
+			for(i=0;i<c && bl;i++,bl=bl->next){
+				if(bl && bl->type == BL_PC && bl->x>=x0 && bl->x<=x1 && bl->y>=y0 && bl->y<=y1 && bl_list_count<BL_LIST_MAX)
+					bl_list[bl_list_count++]=bl;
+			}
+		}
+	}
+
+	if(bl_list_count>=BL_LIST_MAX) {
+		if(battle_config.error_log)
+			ShowWarning("map_foreachinareaPC: block count too many!\n");
+	}
+
+	map_freeblock_lock();
+
+	for(i=blockcount;i<bl_list_count;i++)
+		if(bl_list[i]->prev)
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
+
+	map_freeblock_unlock();
+
+	va_end(ap);
+	bl_list_count = blockcount;
+	return returnCount;
 }
 
 /*==========================================
@@ -943,7 +1058,7 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	//
 
@@ -1002,7 +1117,7 @@ int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
@@ -1183,7 +1298,7 @@ int map_foreachinpath(int (*func)(struct block_list*,va_list),int m,int x0,int y
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	//This check is done in case some object gets killed due to further skill processing.
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();
 
@@ -1240,7 +1355,7 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type,..
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if(bl_list[i]->prev)	// L?`FbN
-			returnCount += func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); returnCount += func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();	// 
 
@@ -1349,7 +1464,7 @@ void map_foreachobject(int (*func)(struct block_list*,va_list),int type,...)
 
 	for(i=blockcount;i<bl_list_count;i++)
 		if( bl_list[i]->prev || bl_list[i]->next )
-			func(bl_list[i],ap);
+			{ va_list _apc; va_copy(_apc, ap); func(bl_list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();
 
@@ -1412,7 +1527,7 @@ int map_searchrandfreecell(int m,int *x,int *y,int stack)
 	}
 	if(free_cell==0)
 		return 0;
-	free_cell = rand()%free_cell;
+	free_cell = rnd()%free_cell;
 	*x = free_cells[free_cell][0];
 	*y = free_cells[free_cell][1];
 	return 1;
@@ -1473,8 +1588,8 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
 	}
 	
 	while(tries--) {
-		*x = (rx >= 0)?(rand()%rx2-rx+bx):(rand()%(map[m].xs-2)+1);
-		*y = (ry >= 0)?(rand()%ry2-ry+by):(rand()%(map[m].ys-2)+1);
+		*x = (rx >= 0)?(rnd()%rx2-rx+bx):(rnd()%(map[m].xs-2)+1);
+		*y = (ry >= 0)?(rnd()%ry2-ry+by):(rnd()%(map[m].ys-2)+1);
 		
 		if (*x == bx && *y == by)
 			continue; //Avoid picking the same target tile.
@@ -1517,7 +1632,7 @@ int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,struct 
 
 	if(!map_searchrandfreecell(m,&x,&y,type&2?1:0))
 		return 0;
-	r=rand();
+	r=rnd();
 
 	fitem = (struct flooritem_data *)aCalloc(1,sizeof(*fitem));
 	fitem->bl.type=BL_ITEM;
@@ -1619,6 +1734,8 @@ void map_addiddb(struct block_list *bl)
 
 	if (bl->type == BL_PC)
 		idb_put(pc_db,bl->id,bl);
+	else if (bl->type == BL_MOB)
+		livemob_add(bl);	// keep the flat mob-only index in lockstep with id_db [perf]
 	idb_put(id_db,bl->id,bl);
 }
 
@@ -1631,6 +1748,8 @@ void map_deliddb(struct block_list *bl)
 
 	if (bl->type == BL_PC)
 		idb_remove(pc_db,bl->id);
+	else if (bl->type == BL_MOB)
+		livemob_remove(bl);	// keep the flat mob-only index in lockstep with id_db [perf]
 	idb_remove(id_db,bl->id);
 }
 
@@ -1645,6 +1764,7 @@ int map_quit(struct map_session_data *sd)
 		TBL_PC *sd2 = map_id2sd(sd->status.account_id);
 		if (sd->pd) unit_free(&sd->pd->bl,-1);
 		if (sd->hd) unit_free(&sd->hd->bl,-1);
+		if (sd->md) unit_free(&sd->md->bl,-1); // [Backport] hired merc
 		//Double login, let original do the cleanups below.
 		if (sd2 && sd2 != sd)
 			return 0;
@@ -1660,8 +1780,10 @@ int map_quit(struct map_session_data *sd)
 			npc_script_event(sd, NPCE_LOGOUT);
 
 		sd->state.waitingdisconnect = 1;
+		status_calc_pc_flush(sd);	// [perf 7] run any pending deferred recompute while sd is still intact (before unit_free teardown)
 		if (sd->pd) unit_free(&sd->pd->bl,0);
 		if (sd->hd) unit_free(&sd->hd->bl,0);
+		if (sd->md) unit_free(&sd->md->bl,0); // [Backport] hired merc (saved in unit_free if lifetime>0)
 		unit_free(&sd->bl,3);
 		chrif_save(sd,1);
 	} else { //Try to free some data, without saving anything (this could be invoked on map server change. [Skotlex]
@@ -1671,6 +1793,8 @@ int map_quit(struct map_session_data *sd)
 			unit_remove_map(&sd->pd->bl, 0);
 		if (sd->hd && sd->hd->bl.prev != NULL)
 			unit_remove_map(&sd->hd->bl, 0);
+		if (sd->md && sd->md->bl.prev != NULL) // [Backport] hired merc
+			unit_remove_map(&sd->md->bl, 0);
 	}
 
 	//Do we really need to remove the name?
@@ -1875,6 +1999,23 @@ void map_foreachpc(int (*func)(DBKey,void*,va_list),...)
 	va_end(ap);
 }
 
+// Iterate only spawned mobs (mob_db is a maintained subset of id_db). Far cheaper
+// than map_foreachiddb() for mob-only timers when the world holds many NPCs/items. [perf]
+void map_foreachmob(int (*func)(DBKey,void*,va_list),...)
+{
+	va_list ap;
+	va_start(ap,func);
+	livemob_foreach(func,ap);	// flat-array iteration, no HASH_SIZE bucket sweep [perf]
+	va_end(ap);
+}
+
+// [perf] Cheap "is a PC/HOM within range tiles of (x,y) on map m" probe over the
+// exact-count presence grid (mobgrid), used to skip provably-empty mob scans.
+int map_pc_near(int m, int x, int y, int range)
+{
+	return mobgrid_any(map[m].block_pc_count, map[m].bxs, map[m].bys, x, y, range);
+}
+
 /*==========================================
  * id_db?Sfunc?s
  *------------------------------------------*/
@@ -2009,7 +2150,7 @@ int map_removemobs_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 	if (id < 0 || id >= MAX_MAP_PER_SERVER)
 	{	//Incorrect map id!
 		if (battle_config.error_log)
-			ShowError("map_removemobs_timer error: timer %d points to invalid map %d\n",tid, id);
+			ShowError("map_removemobs_timer error: timer %d points to invalid map %d\n",tid, (int)id);
 		return 0;
 	}
 	if (map[id].mob_delete_timer != tid)
@@ -2162,8 +2303,8 @@ int map_random_dir(struct block_list *bl, short *x, short *y)
 	if (dist < 1) dist =1;
 
 	do {
-		j = rand()%8; //Pick a random direction
-		segment = 1+(rand()%dist); //Pick a random interval from the whole vector in that direction
+		j = rnd()%8; //Pick a random direction
+		segment = 1+(rnd()%dist); //Pick a random interval from the whole vector in that direction
 		xi = bl->x + segment*dirx[j];
 		segment = (short)sqrt(dist2 - segment*segment); //The complement of the previously picked segment
 		yi = bl->y + segment*diry[j];
@@ -2699,7 +2840,7 @@ int map_waterheight(char* mapname)
 		aFree(rsw);
 		return wh;
 	}
-	ShowWarning("Failed to find water level for (%s)\n", mapname, fn);
+	ShowWarning("Failed to find water level for (%s)\n", mapname);
 	return NO_WATER;
 }
 
@@ -2892,6 +3033,7 @@ int map_readallmaps (void)
 				size = map[i].bxs * map[i].bys * sizeof(int);
 				map[i].block_count = (int*)aCallocA(size, 1);
 				map[i].block_mob_count = (int*)aCallocA(size, 1);
+				map[i].block_pc_count = (int*)aCallocA(size, 1);	// [perf] mobgrid
 
 				uidb_put(map_db, (unsigned int)map[i].index, &map[i]);
 
@@ -2954,9 +3096,9 @@ int parse_console(char* buf)
 	memset(&sd, 0, sizeof(struct map_session_data));
 	strcpy(sd.status.name, "console");
 
-	if( (n=sscanf(buf, "%[^:]:%[^:]:%99s %d %d[^\n]",type,command,map,&x,&y)) < 5 )
-		if( (n=sscanf(buf, "%[^:]:%[^\n]",type,command)) < 2 )
-			n = sscanf(buf,"%[^\n]",type);
+	if( (n=sscanf(buf, "%63[^:]:%63[^:]:%63s %d %d[^\n]",type,command,map,&x,&y)) < 5 )
+		if( (n=sscanf(buf, "%63[^:]:%63[^\n]",type,command)) < 2 )
+			n = sscanf(buf,"%63[^\n]",type);
 
 	if( n == 5 ) {
 		m = map_mapname2mapid(map);
@@ -3040,6 +3182,8 @@ int map_config_read(char *cfgName)
 				chrif_setuserid(w2);
 			} else if (strcmpi(w1, "passwd") == 0) {
 				chrif_setpasswd(w2);
+			} else if (strcmpi(w1, "guild_storage_lock") == 0) {
+				guild_storage_lock = atoi(w2);
 			} else if (strcmpi(w1, "char_ip") == 0) {
 				char_ip_set = chrif_setip(w2);
 			} else if (strcmpi(w1, "char_port") == 0) {
@@ -3440,6 +3584,7 @@ void do_final(void)
 		if(map[i].block_mob) aFree(map[i].block_mob);
 		if(map[i].block_count) aFree(map[i].block_count);
 		if(map[i].block_mob_count) aFree(map[i].block_mob_count);
+		if(map[i].block_pc_count) aFree(map[i].block_pc_count);
 		if(battle_config.dynamic_mobs) { //Dynamic mobs flag by [random]
 			for (j=0; j<MAX_MOB_LIST_PER_MAP; j++)
 				if (map[i].moblist[j]) aFree(map[i].moblist[j]);
@@ -3450,7 +3595,14 @@ void do_final(void)
 
 	id_db->destroy(id_db, NULL);
 	pc_db->destroy(pc_db, NULL);
+	livemob_final();	// non-owning index: mobs themselves are freed via id_db cleanup [perf]
 	charid_db->destroy(charid_db, NULL);
+
+	async_db_destroy(map_async_db); // drain buffered game-DB writes, join the worker
+	map_async_db = NULL;
+	async_db_destroy(mail_async_db); // drain buffered mail writes, join the worker
+	mail_async_db = NULL;
+	log_async_final(); // drain buffered SQL logs before closing the handles
 
     map_sql_close();
 	ShowStatus("Successfully terminated.\n");
@@ -3524,7 +3676,7 @@ int do_init(int argc, char *argv[])
 	MSG_CONF_NAME = "conf/msg_athena.conf";
 	GRF_PATH_FILENAME = "conf/grf-files.txt";
 
-	srand(gettick());
+	rnd_init();
 
 	for (i = 1; i < argc ; i++) {
 		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "--h") == 0 || strcmp(argv[i], "--?") == 0 || strcmp(argv[i], "/?") == 0)
@@ -3587,11 +3739,46 @@ int do_init(int argc, char *argv[])
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
 
+	// [perf] Send coalescing (map-only): the worker holds a client's lone
+	// sub-segment packets up to this many ms so they go out as one send() (bulk
+	// and EAGAIN drains flush at once). Forward the raw ms window to the worker;
+	// <=0 disables it. Needs socket_async_send: 1 (it is a send-worker feature).
+	socket_send_coalesce_ms = battle_config.socket_send_coalesce_ms;
+	sendworker_set_coalesce(socket_send_coalesce_ms);
+
+	// [perf] Optionally move client send() syscalls onto a dedicated worker thread
+	// (send_worker.c), off the single game loop. Off by default; enable in
+	// battle_athena.conf with socket_async_send: 1.
+	socket_async_send = battle_config.socket_async_send;
+	if( socket_async_send ) {
+		sendworker_init();
+		sendworker_set_pool(battle_config.socket_send_pool);	// [perf 5a] recycle send buffers (default on)
+		ShowStatus("Async send worker enabled (client send() off the game loop).\n");
+	}
+
+	// [perf] Optional larger kernel send buffer per socket (SO_SNDBUF, applied in setsocketopts);
+	// 0 = leave the kernel default. Helps WoE bursts avoid EAGAIN that defeats send-coalescing.
+	socket_sndbuf_size = battle_config.socket_sndbuf_size;
+
+	// [perf] Parse only fds that received data this tick (recv parse-shortlist) instead of
+	// scanning all sessions. 1 = on (default), 0 = old brute-scan.
+	recv_parse_shortlist = battle_config.recv_parse_shortlist;
+
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
+	livemob_init();	//Non-owning flat mob-only index for cheap lazy-AI iteration. [perf]
 	map_db = db_alloc(__FILE__,__LINE__,DB_UINT,DB_OPT_BASE,sizeof(int));
 	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	map_sql_init();
+
+	// Asynchronous writer for game-DB writes (mapreg, mail): the game loop hands
+	// it finished SQL and never blocks on a DB round-trip. NULL -> callers fall
+	// back to a synchronous query. Flush every 20 seconds.
+	map_async_db = async_db_create("game", map_server_ip, map_server_id, map_server_pw,
+		map_server_db, map_server_port, default_codepage, 20);
+	if(mail_server_enable)
+		mail_async_db = async_db_create("mail", mail_server_ip, mail_server_id, mail_server_pw,
+			mail_server_db, mail_server_port, default_codepage, 20);
 
 	mapindex_init();
 	grfio_init(GRF_PATH_FILENAME);
@@ -3618,13 +3805,18 @@ int do_init(int argc, char *argv[])
 	do_init_storage();
 	do_init_pet();
 	do_init_merc();	//[orn]
+	do_init_quest();
+	do_init_achievement();
+	do_init_mercenary();	// [Backport] hired mercenary soldier
 	do_init_npc();
 	do_init_unit();
 	if(mail_server_enable)
 		do_init_mail();
 
-	if (log_config.sql_logs)
+	if (log_config.sql_logs) {
 		log_sql_init();
+		log_async_init();
+	}
 
 	sql_ping_init();
 

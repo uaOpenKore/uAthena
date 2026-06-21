@@ -70,8 +70,8 @@ int party_searchname_sub(DBKey key,void *data,va_list ap)
 {
 	struct party_data *p=(struct party_data *)data,**dst;
 	char *str;
-	str=va_arg(ap,char *);
-	dst=va_arg(ap,struct party_data **);
+	str=(char*)va_arg(ap, intptr_t);
+	dst=(struct party_data **)va_arg(ap, intptr_t);
 	if(strncmpi(p->party.name,str,NAME_LENGTH)==0)
 		*dst=p;
 	return 0;
@@ -784,7 +784,7 @@ int party_share_loot(struct party_data* p, struct map_session_data* sd, struct i
 				count++;
 			}
 			while (count > 0) { //Pick a random member.
-				i = rand()%count;
+				i = rnd()%count;
 				if (pc_additem(psd[i],item_data,item_data->amount))
 				{	//Discard this receiver.
 					psd[i] = psd[count-1];
@@ -874,7 +874,7 @@ int party_foreachsamemap(int (*func)(struct block_list*,va_list),struct map_sess
 	map_freeblock_lock();
 	
 	for(i=0;i<blockcount;i++)
-		total += func(list[i],ap);
+	{ va_list _apc; va_copy(_apc, ap); total += func(list[i],_apc); va_end(_apc); }
 
 	map_freeblock_unlock();
 

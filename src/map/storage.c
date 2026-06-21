@@ -74,7 +74,7 @@ void do_final_storage(void) // by [MC Cameri]
 
 static int storage_reconnect_sub(DBKey key,void *data,va_list ap)
 { //Parses storage and saves 'dirty' ones upon reconnect. [Skotlex]
-	int type = va_arg(ap, int);
+	int type = (int)va_arg(ap, intptr_t);
 	if (type)
 	{	//Guild Storage
 		struct guild_storage* stor = (struct guild_storage*) data;
@@ -166,7 +166,8 @@ int compare_item(struct item *a, struct item *b)
 	if (a->nameid == b->nameid &&
 		a->identify == b->identify &&
 		a->refine == b->refine &&
-		a->attribute == b->attribute)
+		a->attribute == b->attribute &&
+		a->expire_time == b->expire_time) // [Backport] rentals never merge
 	{
 		int i;
 		for (i = 0; i < MAX_SLOTS && (a->card[i] == b->card[i]); i++);
@@ -190,6 +191,12 @@ static int storage_additem(struct map_session_data *sd,struct storage *stor,stru
 		return 1;
 
 	data = itemdb_search(item_data->nameid);
+
+	if (item_data->expire_time)
+	{	// [Backport] rental items can't be stored (would pause expiry while parked)
+		clif_displaymessage (sd->fd, msg_txt(264));
+		return 1;
+	}
 
 	if (!itemdb_canstore(item_data, pc_isGM(sd)))
 	{	//Check if item is storable. [Skotlex]
@@ -513,6 +520,13 @@ int storage_guild_storageopen(struct map_session_data *sd)
 		return 1;
 	}
 
+	if(guild_storage_lock) {
+		// Lock enabled: always re-fetch so the char-server (re)acquires the lock for
+		// this map-server. The storage_status/dirty guards in intif_parse_LoadGuildStorage
+		// still block a same-server double-open.
+		intif_request_guild_storage(sd->status.account_id,sd->status.guild_id);
+		return 0;
+	}
 	if((gstor = guild2storage2(sd->status.guild_id)) == NULL) {
 		intif_request_guild_storage(sd->status.account_id,sd->status.guild_id);
 		return 0;
@@ -539,6 +553,12 @@ int guild_storage_additem(struct map_session_data *sd,struct guild_storage *stor
 
 	if(item_data->nameid <= 0 || amount <= 0)
 		return 1;
+
+	if (item_data->expire_time)
+	{	// [Backport] rental items can't be stored in guild storage
+		clif_displaymessage (sd->fd, msg_txt(264));
+		return 1;
+	}
 
 	if (!itemdb_canguildstore(item_data, pc_isGM(sd)))
 	{	//Check if item is storable. [Skotlex]
@@ -713,6 +733,8 @@ int storage_guild_storagesave(int account_id, int guild_id, int flag)
 			stor->storage_status = 0;
 	 	if (stor->dirty)
 			intif_send_guild_storage(account_id,stor);
+		if (flag) //logout / map-change: release the cross-server lock after the final save
+			intif_guild_storage_unlock(guild_id);
 		return 1;
 	}
 	return 0;
@@ -748,6 +770,7 @@ int storage_guild_storageclose(struct map_session_data *sd)
 		else
 			storage_guild_storagesave(sd->status.account_id, sd->status.guild_id,0);
 		stor->storage_status=0;
+		intif_guild_storage_unlock(sd->status.guild_id); // release the cross-server lock
 	}
 	sd->state.storage_flag = 0;
 
@@ -761,6 +784,8 @@ int storage_guild_storage_quit(struct map_session_data *sd,int flag)
 	nullpo_retr(0, sd);
 	nullpo_retr(0, stor=guild2storage2(sd->status.guild_id));
 	
+	intif_guild_storage_unlock(sd->status.guild_id); // release the cross-server lock (covers all quit paths)
+
 	if(flag)
 	{	//Only during a guild break flag is 1 (don't save storage)
 		sd->state.storage_flag = 0;

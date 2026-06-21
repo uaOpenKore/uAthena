@@ -39,7 +39,7 @@ enum {
 	W_GRENADE,	//21
 	W_HUUMA,	//22
 	MAX_WEAPON_TYPE
-} weapon_type;
+};	// (was '} weapon_type;' — unused global, broke -fno-common)
 
 enum {
 	A_ARROW = 1,
@@ -49,7 +49,7 @@ enum {
 	A_GRENADE,  //5
 	A_SHURIKEN, //6
 	A_KUNAI     //7
-} ammo_type;
+};	// (was '} ammo_type;' — unused global)
 //Equip position constants
 enum {
 	EQP_HEAD_LOW = 0x0001, 
@@ -63,7 +63,7 @@ enum {
 	EQP_ACC_L    = 0x0008,
 	EQP_ACC_R    = 0x0080, //128
 	EQP_AMMO     = 0x8000, //32768
-} equip_pos_enum;
+};	// (was '} equip_pos_enum;' — unused global)
 
 #define EQP_WEAPON EQP_HAND_R
 #define EQP_SHIELD EQP_HAND_L
@@ -86,7 +86,7 @@ enum {
 	EQI_HAND_R,
 	EQI_AMMO,
 	EQI_MAX
-} equip_index_enum;
+};	// (was '} equip_index_enum;' — unused global)
 
 #define pc_setdead(sd) ((sd)->state.dead_sit = (sd)->vd.dead_sit = 1)
 #define pc_setsit(sd) ((sd)->state.dead_sit = (sd)->vd.dead_sit = 2)
@@ -122,8 +122,9 @@ int pc_can_give_items(int level); //[Lupus]
 int pc_setrestartvalue(struct map_session_data *sd,int type);
 int pc_makesavestatus(struct map_session_data *);
 int pc_setnewpc(struct map_session_data*,int,int,int,unsigned int,int,int);
-int pc_authok(struct map_session_data*, int, time_t, struct mmo_charstatus *);
+int pc_authok(struct map_session_data*, int, int, struct mmo_charstatus *);
 int pc_authfail(struct map_session_data *);
+int pc_online_reward_timer(int tid, unsigned int tick, intptr_t id, intptr_t data); // [Backport]
 int pc_reg_received(struct map_session_data *sd);
 
 int pc_isequip(struct map_session_data *sd,int n);
@@ -153,6 +154,11 @@ int pc_payzeny(struct map_session_data*,int);
 int pc_additem(struct map_session_data*,struct item*,int);
 int pc_getzeny(struct map_session_data*,int);
 int pc_delitem(struct map_session_data*,int,int,int);
+
+// [Backport] rental items
+void pc_inventory_rentals(struct map_session_data *sd);
+int pc_inventory_rental_clear(struct map_session_data *sd);
+void pc_inventory_rental_add(struct map_session_data *sd, int seconds);
 
 int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount);
 int pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type);
@@ -207,6 +213,7 @@ int pc_useitem(struct map_session_data*,int);
 
 int pc_skillatk_bonus(struct map_session_data *sd, int skill_num);
 int pc_skillheal_bonus(struct map_session_data *sd, int skill_num);
+int pc_skillheal2_bonus(struct map_session_data *sd, int skill_num);
 
 void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int hp, unsigned int sp);
 int pc_dead(struct map_session_data *sd,struct block_list *src);
@@ -264,6 +271,11 @@ struct map_session_data *pc_get_mother(struct map_session_data *sd);
 struct map_session_data *pc_get_child(struct map_session_data *sd);
 
 void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick);
+void pc_regen (struct map_session_data *sd, unsigned int diff_tick);
+int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short flag,const char *other_script,unsigned short pos,bool onskill);
+int pc_exeautobonus(struct map_session_data *sd,struct s_autobonus *bonus);
+int pc_endautobonus(int tid, unsigned int tick, intptr_t id, intptr_t data);
+int pc_delautobonus(struct map_session_data* sd, struct s_autobonus *bonus,char max,bool restore);
 
 int pc_set_gm_level(int account_id, int level);
 void pc_setstand(struct map_session_data *sd);

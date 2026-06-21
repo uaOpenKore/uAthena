@@ -9,26 +9,29 @@ CC = gcc -pipe
 MAKE = make
 # MAKE = gmake
 
-OPT = -Os
-# OPT = -O2
-# OPT = -O3
-# OPT += -g
-OPT += -g3
+### Dev & Test server
+# OPT = -O0 -g3 
+
+### Production server
+ OPT = -g -O2 -fno-strict-aliasing
+
 
 # OPT += -march=generic -mtune=generic
  OPT += -rdynamic
- OPT += -fomit-frame-pointer
+
+#OPT += -fomit-frame-pointer
+OPT += -fno-omit-frame-pointer
+
  OPT += -DCHRIF_OLDINFO
 # OPT += -DGCOLLECT
 # OPT += -DMEMWATCH
 # OPT += -DDMALLOC -DDMALLOC_FUNC_CHECK
- OPT += -DBCHECK
+# OPT += -DBCHECK
 
 # LIBS += -lgc
 # LIBS += -ldmalloc
 
 OPT += -ffast-math
-OPT += -fcommon
 OPT += -march=native -mtune=native
 
 OPT += -Wall
@@ -37,20 +40,26 @@ OPT += -Wno-unused-parameter -Wno-pointer-sign -Wno-switch -DHAVE_SETRLIMIT -Wno
 
 OPT += -DPCRE_SUPPORT
 
+# PCRE2
+OPT += -DPCRE2_CODE_UNIT_WIDTH=8
+LIBS += -lpcre2-8
+
 OPT += -I../common
 OPT += -I/usr/include
 OPT += -I/usr/include/mysql
+OPT += -I/usr/local/include
 
-LIBS += -L/usr/lib64
-LIBS += -L/usr/lib -L/usr/lib32 -L/usr/libx32
-LIBS += -lpcre
+
+LIBS += -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu
+LIBS += -L/usr/lib
+LIBS += -L/usr/local/lib
 
 LIBS += -L/usr/lib64/mysql
 LIBS += -L/usr/lib/mysql 
 LIBS += -lmysqlclient
 
 LIBS += -ldl
-#GOPT += -m32
+LIBS += -lpthread
 
 
 # Server Packet Protocol version (also defined in src/common/mmo.h)
@@ -118,16 +127,19 @@ plugins addons: src/plugins/GNUmakefile common
 tools:
 	$(MAKE) -C src/tool $(MKDEF)
 	
-clean: src/common/GNUmakefile src/login_sql/GNUmakefile \
-	src/char_sql/GNUmakefile src/map/GNUmakefile \
-	src/ladmin/GNUmakefile src/plugins/GNUmakefile
+# Self-contained, exhaustive clean: nukes EVERY build artifact directly so the next `make`
+# always rebuilds from source (no stale .o / stale generated GNUmakefile can survive). It does
+# NOT depend on the per-subdir GNUmakefiles (avoids the regenerate-then-delete chicken-and-egg),
+# and it covers ALL subdirs incl. src/tool. Keep this in sync if a new src/<dir> is added.
+clean:
 	rm -f Makefile.cache
-	$(MAKE) -C src/common $@
-	$(MAKE) -C src/login_sql $@
-	$(MAKE) -C src/char_sql $@
-	$(MAKE) -C src/map $@
-	$(MAKE) -C src/ladmin $@
-	$(MAKE) -C src/plugins $@
+	rm -rf src/common/obj src/map/obj src/map/sqlobj
+	rm -f src/common/*.o src/login_sql/*.o src/char_sql/*.o src/map/*.o src/ladmin/*.o src/tool/*.o src/plugins/*.o
+	rm -f src/common/GNUmakefile src/login_sql/GNUmakefile src/char_sql/GNUmakefile \
+		src/map/GNUmakefile src/ladmin/GNUmakefile src/plugins/GNUmakefile
+	rm -f login-server login-server_sql char-server char-server_sql \
+		map-server map-server_sql ladmin
+	rm -f plugins/*.so tools/adduser tools/convert
 
 depend: src/common/GNUmakefile src/login_sql/GNUmakefile \
 	src/char_sql/GNUmakefile src/map/GNUmakefile \
@@ -139,7 +151,7 @@ depend: src/common/GNUmakefile src/login_sql/GNUmakefile \
 	cd src/ladmin; makedepend -fGNUmakefile -Y. -Y../common *.c; cd ../..;
 	$(MAKE) -C src/plugins $@
 
-Makefile.cache:
+Makefile.cache: Makefile
 	printf "$(subst ",\",$(MKDEF))" > Makefile.cache
 
 src/%/GNUmakefile: src/%/Makefile
@@ -157,7 +169,6 @@ install:
 		$(shell mkdir -p /opt/uathena/backup/)
 		$(shell cp -r db    /opt/uathena/)
 		$(shell cp -r conf  /opt/uathena/)
-		$(shell cp -r conf-tmpl  /opt/uathena/)
 		$(shell cp -r npc   /opt/uathena/)
 		$(shell cp *_sql /opt/uathena/bin/)
 		$(shell ln -s /opt/uathena/db/      /opt/uathena/bin/)
@@ -167,12 +178,12 @@ install:
 		$(shell cp scripts/uA* /etc/systemd/system/)
 		$(shell systemctl daemon-reload)
 		$(shell cp scripts/ua-*.sh /opt/uathena/bin/)
+		$(shell cp -r scripts/cron /opt/uathena/bin/)
 
 uninstall:
 		$(shell rm -fr /opt/uathena/bin)
 		$(shell rm -fr /opt/uathena/db)
 		$(shell rm -fr /opt/uathena/conf)
-		$(shell rm -fr /opt/uathena/conf-tmpl)
 		$(shell rm -fr /opt/uathena/npc)
 		$(shell rm -f  /opt/uathena/log)
 		$(shell rm -f /etc/systemd/system/uA*)
@@ -185,4 +196,8 @@ update:
 		$(shell cp -f *_sql /opt/uathena/bin/)
 		$(shell cp -rf db    /opt/uathena/)
 		$(shell cp -rf npc   /opt/uathena/)
-
+		$(shell cp -f /opt/uathena/login_athena.conf /opt/uathena/conf/)
+		$(shell cp -f /opt/uathena/char_athena.conf  /opt/uathena/conf/)
+		$(shell cp -f /opt/uathena/map_athena.conf   /opt/uathena/conf/)
+		$(shell cp -f /opt/uathena/subnet_athena.conf /opt/uathena/conf/)
+		$(shell cp -f /opt/uathena/packet_athena.conf /opt/uathena/conf/)

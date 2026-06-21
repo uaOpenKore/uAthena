@@ -21,10 +21,13 @@
 #include "pc.h"
 #include "status.h"
 #include "skill.h"
+#include "achievement.h"
 #include "mob.h"
+#include "quest.h"
 #include "npc.h"
 #include "pet.h"
 #include "mercenary.h" //[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (@merc)
 #include "battle.h"
 #include "party.h"
 #include "guild.h"
@@ -39,6 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 char atcommand_symbol = '@'; // first char of the commands (by [Yor])
 
@@ -254,6 +258,16 @@ ACMD_FUNC(undisguiseall);
 ACMD_FUNC(disguiseall);
 ACMD_FUNC(changelook);
 ACMD_FUNC(mobinfo); //by Lupus
+ACMD_FUNC(quests); // questlog chat UI
+ACMD_FUNC(quest);  // questlog chat UI
+ACMD_FUNC(status); // status/cooldown chat UI
+ACMD_FUNC(whereis); // mob spawn/drop search
+ACMD_FUNC(market); // vendor/price search
+ACMD_FUNC(cooking); // chat cooking UI
+ACMD_FUNC(achievements); // achievements chat UI
+ACMD_FUNC(title); // active title
+ACMD_FUNC(merc); // mercenary status chat UI
+ACMD_FUNC(h3); // help page for our custom chat commands
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -576,6 +590,20 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_ItemInfo,           "@iteminfo",         1, atcommand_iteminfo }, // [Lupus]
 	{ AtCommand_ItemInfo,           "@ii",               1, atcommand_iteminfo }, // [Lupus]
 	{ AtCommand_WhoDrops,           "@whodrops",         1, atcommand_whodrops }, // [Skotlex]
+	{ AtCommand_Quests,             "@quests",           1, atcommand_quests }, // questlog chat UI
+	{ AtCommand_Quest,              "@quest",            1, atcommand_quest }, // questlog chat UI
+	{ AtCommand_Status,             "@status",           1, atcommand_status }, // buffs+cooldowns
+	{ AtCommand_Status,             "@cd",               1, atcommand_status }, // alias
+	{ AtCommand_WhereIs,            "@whereis",          1, atcommand_whereis }, // mob spawn/drop
+	{ AtCommand_Market,             "@market",           1, atcommand_market }, // vendor/price search
+	{ AtCommand_Cooking,            "@cooking",          1, atcommand_cooking }, // chat cooking UI
+	{ AtCommand_Cook,               "@cook",             1, atcommand_cooking }, // alias
+	{ AtCommand_Achievements,       "@achievements",     1, atcommand_achievements }, // achievements UI
+	{ AtCommand_Ach,                "@ach",              1, atcommand_achievements }, // alias
+	{ AtCommand_Title,              "@title",            1, atcommand_title }, // active title
+	{ AtCommand_Merc,               "@merc",             1, atcommand_merc }, // mercenary status
+	{ AtCommand_Merc,               "@mercenary",        1, atcommand_merc }, // alias
+	{ AtCommand_H3,                 "@h3",               1, atcommand_h3 }, // help: our custom commands
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -2548,8 +2576,10 @@ int atcommand_item2(const int fd, struct map_session_data* sd, const char* comma
 			}
 			if (item_data->type == 8)
 				refine = 0;
-			if (refine > 10)
-				refine = 10;
+			if (refine > MAX_REFINE_GM)	// GM-only experimental ceiling (PoC); was 10
+				refine = MAX_REFINE_GM;
+			else if (refine < 0)
+				refine = 0;
 		} else {
 			identify = 1;
 			refine = attr = 0;
@@ -2611,7 +2641,7 @@ int atcommand_baselevelup(const int fd, struct map_session_data* sd, const char*
 {
 	int level=0, i=0, status_point=0;
 	nullpo_retr(-1, sd);
-	level = atoi(message);
+	level = message ? atoi(message) : 0;
 
 	if (!message || !*message || !level) {
 		clif_displaymessage(fd, "Please, enter a level adjustment (usage: @lvup/@blevel/@baselvlup <number of levels>).");
@@ -2671,8 +2701,8 @@ int atcommand_joblevelup(const int fd, struct map_session_data* sd, const char* 
 {
 	int level=0;
 	nullpo_retr(-1, sd);
-	
-	level = atoi(message);
+
+	level = message ? atoi(message) : 0;
 
 	if (!message || !*message || !level) {
 		clif_displaymessage(fd, "Please, enter a level adjustment (usage: @joblvup/@jlevel/@joblvlup <number of levels>).");
@@ -3106,7 +3136,7 @@ int atcommand_go(const int fd, struct map_session_data* sd, const char* command,
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
  
 	// get the number
-	town = atoi(message);
+	town = message ? atoi(message) : 0;
  
 	// if no value, display all value
 	if (!message || !*message || sscanf(message, "%15s", map_name) < 1 || town < -3 || town >= (int)(sizeof(data) / sizeof(data[0]))) {
@@ -3391,11 +3421,11 @@ int atcommand_monstersmall(const int fd, struct map_session_data* sd, const char
 	for (i = 0; i < number; i++) {
 		int mx, my;
 		if (x <= 0)
-			mx = sd->bl.x + (rand() % 11 - 5);
+			mx = sd->bl.x + (rnd() % 11 - 5);
 		else
 			mx = x;
 		if (y <= 0)
-			my = sd->bl.y + (rand() % 11 - 5);
+			my = sd->bl.y + (rnd() % 11 - 5);
 		else
 			my = y;
 		count += (mob_once_spawn((struct map_session_data*)sd, "this", mx, my, name, mob_id, 1, "2") != 0) ? 1 : 0;
@@ -3467,11 +3497,11 @@ int atcommand_monsterbig(const int fd, struct map_session_data* sd, const char* 
 	for (i = 0; i < number; i++) {
 		int mx, my;
 		if (x <= 0)
-			mx = sd->bl.x + (rand() % 11 - 5);
+			mx = sd->bl.x + (rnd() % 11 - 5);
 		else
 			mx = x;
 		if (y <= 0)
-			my = sd->bl.y + (rand() % 11 - 5);
+			my = sd->bl.y + (rnd() % 11 - 5);
 		else
 			my = y;
 		count += (mob_once_spawn((struct map_session_data*)sd, "this", mx, my, name, mob_id, 1, "4") != 0) ? 1 : 0;
@@ -3567,10 +3597,10 @@ int atcommand_refine(const int fd, struct map_session_data* sd, const char* comm
 		return -1;
 	}
 
-	if (refine < -MAX_REFINE)
-		refine = -MAX_REFINE;
-	else if (refine > MAX_REFINE)
-		refine = MAX_REFINE;
+	if (refine < -MAX_REFINE_GM)		// GM-only experimental ceiling (PoC); normal paths still use MAX_REFINE
+		refine = -MAX_REFINE_GM;
+	else if (refine > MAX_REFINE_GM)
+		refine = MAX_REFINE_GM;
 	else if (refine == 0)
 		refine = 1;
 
@@ -3589,8 +3619,8 @@ int atcommand_refine(const int fd, struct map_session_data* sd, const char* comm
 			continue;
 
 		final_refine = sd->status.inventory[i].refine + refine;
-		if (final_refine > MAX_REFINE)
-			final_refine = MAX_REFINE;
+		if (final_refine > MAX_REFINE_GM)	// GM-only experimental ceiling (PoC)
+			final_refine = MAX_REFINE_GM;
 		else if (final_refine < 0)
 			final_refine = 0;
 		if (sd->status.inventory[i].refine != final_refine) {
@@ -6036,7 +6066,7 @@ int atcommand_jail(const int fd, struct map_session_data* sd, const char* comman
 		return -1;
 	}
 
-	switch(rand() % 2) { //Jail Locations
+	switch(rnd() % 2) { //Jail Locations
 	case 0:
 		m_index = mapindex_name2id(MAP_JAIL);
 		x = 24;
@@ -6187,7 +6217,7 @@ int atcommand_jailfor(const int fd, struct map_session_data* sd, const char* com
 	}
 
 	//Jail locations, add more as you wish.
-	switch(rand()%2)
+	switch(rnd()%2)
 	{
 		case 1: //Jail #1
 			m_index = mapindex_name2id(MAP_JAIL);
@@ -6420,7 +6450,7 @@ int atcommand_broadcast(const int fd, struct map_session_data* sd, const char* c
 		return -1;
 	}
 
-	sprintf(atcmd_output, "%s : %s", sd->status.name, message);
+	snprintf(atcmd_output, sizeof(atcmd_output), "%s : %s", sd->status.name, message);
 	intif_GMmessage(atcmd_output, strlen(atcmd_output) + 1, 0);
 
 	return 0;
@@ -6440,7 +6470,7 @@ int atcommand_localbroadcast(const int fd, struct map_session_data* sd, const ch
 		return -1;
 	}
 
-	sprintf(atcmd_output, "%s : %s", sd->status.name, message);
+	snprintf(atcmd_output, sizeof(atcmd_output), "%s : %s", sd->status.name, message);
 
 	clif_GMmessage(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, 1); // 1: ALL_SAMEMAP
 
@@ -6868,9 +6898,9 @@ int atcommand_dropall(const int fd, struct map_session_data* sd, const char* com
 	int i;
 	nullpo_retr(-1, sd);
 	for (i = 0; i < MAX_INVENTORY; i++) {
-	if (sd->status.inventory[i].amount) {
-		if(sd->status.inventory[i].equip != 0)
-			pc_unequipitem(sd, i, 3);
+		if (sd->status.inventory[i].amount) {
+			if(sd->status.inventory[i].equip != 0)
+				pc_unequipitem(sd, i, 3);
 			pc_dropitem(sd,  i, sd->status.inventory[i].amount);
 		}
 	}
@@ -7130,10 +7160,10 @@ int atcommand_skilltree(const int fd, struct map_session_data* sd, const char* c
 			meets = 0;
 		}
 
-		if (meets == 1) {
-			sprintf(atcmd_output, "I believe the player meets all the requirements for that skill");
-			clif_displaymessage(fd, atcmd_output);
-		}
+	if (meets == 1) {
+		sprintf(atcmd_output, "I believe the player meets all the requirements for that skill");
+		clif_displaymessage(fd, atcmd_output);
+	}
 
 	return 0;
 }
@@ -7473,7 +7503,7 @@ int atcommand_partyoption(const int fd, struct map_session_data* sd, const char*
 		return -1;
 	}
 	
-	if(!message || !*message || sscanf(message, "%15s %15s", w1, w2) < 2)
+	if(!message || !*message || sscanf(message, "%14s %14s", w1, w2) < 2)
 	{
 		clif_displaymessage(fd, "Command usage: @changeoption <pickup share: yes/no> <item distribution: yes/no>");
 		return -1;
@@ -8173,9 +8203,9 @@ int atcommand_petid(const int fd, struct map_session_data* sd, const char* comma
 	clif_displaymessage(fd,temp0);
 	while (i < MAX_PET_DB) {
 		strcpy(temp1,pet_db[i].name);
-		strcpy(temp1, estr_lower(temp1));
+		estr_lower(temp1);
 		strcpy(temp0,pet_db[i].jname);
-		strcpy(temp0, estr_lower(temp1));
+		estr_lower(temp0);
 		if (strstr(temp1, searchtext) || strstr(temp0, searchtext) ) {
   			snprintf(temp0, sizeof(temp0), "ID: %i -- Name: %s", pet_db[i].class_,
      			pet_db[i].jname);
@@ -8520,6 +8550,430 @@ int atcommand_sendmail(const int fd, struct map_session_data* sd, const char* co
 int atcommand_refreshonline(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	send_users_tochar(-1, gettick(), 0, 0);
+	return 0;
+}
+
+/*==========================================
+ * Quest chat UI (PV7 client has no quest journal window)
+ *------------------------------------------*/
+// Resolve display position N (1-based, completed-first then active) to a quest_log index.
+static int atcommand_quest_idx(struct map_session_data *sd, int n)
+{
+	int i, k = 0;
+	for( i = 0; i < sd->num_quests; i++ )
+		if( sd->quest_log[i].state == Q_COMPLETE && ++k == n ) return i;
+	for( i = 0; i < sd->num_quests; i++ )
+		if( sd->quest_log[i].state != Q_COMPLETE && ++k == n ) return i;
+	return -1;
+}
+
+// One summary line: [N] <quest_id> "<name>" - <status>[, <time>][ | obj, obj]
+static void atcommand_quest_line(const int fd, struct map_session_data *sd, int idx, int n)
+{
+	struct s_quest_db *q = &quest_db[sd->quest_index[idx]];
+	const char *st = (sd->quest_log[idx].state == Q_COMPLETE) ? "complete" :
+	                 (sd->quest_log[idx].state == Q_ACTIVE)   ? "active" : "inactive";
+	char tbuf[32] = "";
+	char obuf[120] = "";
+	int j;
+	if( sd->quest_log[idx].time )
+	{
+		int rem = (int)(sd->quest_log[idx].time - (unsigned int)time(NULL));
+		if( rem <= 0 ) snprintf(tbuf, sizeof(tbuf), ", expired");
+		else snprintf(tbuf, sizeof(tbuf), ", %dh%02dm left", rem/3600, (rem%3600)/60);
+	}
+	for( j = 0; j < q->num_objectives; j++ )
+	{
+		struct mob_db *mb = mob_db(q->mob[j]);
+		char one[40];
+		snprintf(one, sizeof(one), "%s%s %d/%d", j?", ":"", mb?mb->jname:"?",
+		         sd->quest_log[idx].count[j], q->count[j]);
+		strncat(obuf, one, sizeof(obuf)-strlen(obuf)-1);
+	}
+	snprintf(atcmd_output, sizeof(atcmd_output), "[%d] %d \"%s\" - %s%s%s%s",
+	         n, sd->quest_log[idx].quest_id, q->name[0]?q->name:"(no name)", st, tbuf,
+	         obuf[0]?" | ":"", obuf);
+	clif_displaymessage(fd, atcmd_output);
+}
+
+int atcommand_quests(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int i, n = 0;
+	nullpo_retr(-1, sd);
+	if( sd->num_quests == 0 )
+	{
+		clif_displaymessage(fd, "You have no quests.");
+		return 0;
+	}
+	clif_displaymessage(fd, "--- Quests (completed) ---");
+	for( i = 0; i < sd->num_quests; i++ )
+		if( sd->quest_log[i].state == Q_COMPLETE )
+			atcommand_quest_line(fd, sd, i, ++n);
+	clif_displaymessage(fd, "--- Quests (active) ---");
+	for( i = 0; i < sd->num_quests; i++ )
+		if( sd->quest_log[i].state != Q_COMPLETE )
+			atcommand_quest_line(fd, sd, i, ++n);
+	clif_displaymessage(fd, "@quest <N> = details, @quest <N> cancel = drop");
+	return 0;
+}
+
+int atcommand_quest(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int n = 0, idx, j;
+	char subcmd[16] = "";
+	struct s_quest_db *q;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message || sscanf(message, "%d %15s", &n, subcmd) < 1 )
+	{
+		clif_displaymessage(fd, "Usage: @quest <N> [cancel]   (N from @quests)");
+		return -1;
+	}
+	idx = atcommand_quest_idx(sd, n);
+	if( idx < 0 )
+	{
+		clif_displaymessage(fd, "No quest with that number. Type @quests.");
+		return -1;
+	}
+
+	if( strcmpi(subcmd, "cancel") == 0 )
+	{
+		int qid = sd->quest_log[idx].quest_id;
+		quest_delete(sd, qid);
+		snprintf(atcmd_output, sizeof(atcmd_output), "Quest [%d] (id %d) cancelled.", n, qid);
+		clif_displaymessage(fd, atcmd_output);
+		return 0;
+	}
+
+	atcommand_quest_line(fd, sd, idx, n);
+	q = &quest_db[sd->quest_index[idx]];
+	for( j = 0; j < q->num_objectives; j++ )
+	{
+		struct mob_db *mb = mob_db(q->mob[j]);
+		snprintf(atcmd_output, sizeof(atcmd_output), "  - %s: %d / %d",
+		         mb?mb->jname:"?", sd->quest_log[idx].count[j], q->count[j]);
+		clif_displaymessage(fd, atcmd_output);
+	}
+	clif_displaymessage(fd, "@quest <N> cancel = drop this quest");
+	return 0;
+}
+
+/*==========================================
+ * @market : online vendors selling an item (PV7 client has no store search)
+ *------------------------------------------*/
+static int atcommand_market_sub(DBKey key, void* data, va_list ap)
+{
+	struct map_session_data* vsd = (struct map_session_data*)data;
+	int fd      = va_arg(ap, int);
+	int nameid  = va_arg(ap, int);
+	int* total  = va_arg(ap, int*);
+	int* printed = va_arg(ap, int*);
+	int i;
+	char out[200];
+
+	if( vsd->vender_id == 0 )
+		return 0;
+	for( i = 0; i < vsd->vend_num; i++ )
+	{
+		int slot = vsd->vending[i].index;
+		if( slot < 0 || slot >= MAX_CART )
+			continue;
+		if( vsd->status.cart[slot].nameid != nameid )
+			continue;
+		(*total)++;
+		if( *printed < 20 )
+		{
+			snprintf(out, sizeof(out), "  %s @ %s %d,%d: %uz x%u (\"%s\")",
+				vsd->status.name, map[vsd->bl.m].name, vsd->bl.x, vsd->bl.y,
+				vsd->vending[i].value, vsd->vending[i].amount, vsd->message);
+			clif_displaymessage(fd, out);
+			(*printed)++;
+		}
+	}
+	return 0;
+}
+
+int atcommand_market(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	struct item_data* id;
+	int total = 0, printed = 0;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message )
+	{
+		clif_displaymessage(fd, "Usage: @market <item name>");
+		return -1;
+	}
+	id = itemdb_searchname(message);
+	if( id == NULL )
+	{
+		snprintf(atcmd_output, sizeof(atcmd_output), "Item not found: %s", message);
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+
+	snprintf(atcmd_output, sizeof(atcmd_output), "Vendors selling %s:", id->jname);
+	clif_displaymessage(fd, atcmd_output);
+
+	map_foreachpc(atcommand_market_sub, fd, id->nameid, &total, &printed);
+
+	if( total == 0 )
+		clif_displaymessage(fd, "No vendors selling that.");
+	else if( total > printed )
+	{
+		snprintf(atcmd_output, sizeof(atcmd_output), "  ...(+%d more)", total - printed);
+		clif_displaymessage(fd, atcmd_output);
+	}
+	return 0;
+}
+
+/*==========================================
+ * @cooking : chat-based cooking (the 2007 client has no cooking window).
+ * '@cooking' lists dishes you can make now, '@cooking all' lists every dish,
+ * '@cooking <N>' cooks dish N (needs the Cookbook + ingredients).
+ *------------------------------------------*/
+int atcommand_cooking(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int idx;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message )
+	{
+		if( skill_cooking_list(sd, 0) == 0 )
+			clif_displaymessage(fd, "No dishes ready. Need a Cookbook (Lv1-5) + ingredients. Try '@cooking all'.");
+		else
+			clif_displaymessage(fd, "Type '@cooking <number>' to cook a dish listed above.");
+		return 0;
+	}
+	if( strcmpi(message, "all") == 0 )
+	{
+		skill_cooking_list(sd, 1);
+		clif_displaymessage(fd, "Type '@cooking <number>' to cook (needs the Cookbook + ingredients).");
+		return 0;
+	}
+	idx = atoi(message);
+	if( idx <= 0 )
+	{
+		clif_displaymessage(fd, "Usage: @cooking | @cooking all | @cooking <number>");
+		return -1;
+	}
+	switch( skill_cooking_make(sd, idx) )
+	{
+		case 1:  clif_displaymessage(fd, "Cooking success!"); break;
+		case 0:  clif_displaymessage(fd, "The dish was ruined..."); break;
+		case -2: clif_displaymessage(fd, "You lack the required Cookbook or ingredients."); break;
+		default: clif_displaymessage(fd, "Invalid dish number. Use @cooking to list."); break;
+	}
+	return 0;
+}
+
+/*==========================================
+ * @achievements / @title : achievement & title chat UI (PV7 has no window)
+ *------------------------------------------*/
+int atcommand_achievements(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+	achievement_chat_list(sd);
+	return 0;
+}
+
+// [Backport] @merc / @mercenary — show the hired mercenary's status (PV7 has no window).
+// @merc reset — wipe the mercenary (live unit + DB record + ownership link) so the player
+// can summon a brand-new one from scratch. Also recovers a stuck "you already own a merc"
+// state left by an inconsistent/orphaned record.
+int atcommand_merc(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+
+	if( message && *message && strcmpi(message, "reset") == 0 )
+	{
+		int had = (sd->md != NULL) || (sd->status.mer_id != 0);
+		if( sd->md )
+			merc_delete(sd->md, 0);			// life_time=0 -> unit_free: deletes instance row, clears mer_id, frees, NULLs sd->md
+		if( sd->status.mer_id != 0 )
+		{	// orphaned ownership (no live merc, e.g. a pre-fix record): drop the dangling instance + link
+			intif_mercenary_delete(sd->status.mer_id);
+			sd->status.mer_id = 0;
+		}
+		chrif_save(sd, 0);				// persist mer_id=0 to mercenary_owner now (don't wait for autosave)
+		clif_displaymessage(fd, had ?
+			"Mercenary removed. You can summon a new one." :
+			"No mercenary found; ownership link cleared anyway.");
+		return 0;
+	}
+
+	mercenary_chat_status(sd);
+	return 0;
+}
+
+/*==========================================
+ * @h3 : help page listing the custom chat commands added to this server.
+ * The PV7 client lacks journal/search/title windows, so these expose those
+ * features via chat. (Mercenary control is autonomous AI + @merc for status.)
+ *------------------------------------------*/
+int atcommand_h3(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+	clif_displaymessage(fd, "== Custom chat commands (this server) ==");
+	clif_displaymessage(fd, "@quests / @quest <N> [cancel] - quest journal: list / detail / cancel");
+	clif_displaymessage(fd, "@status (@cd) - your active status effects + skill cooldowns");
+	clif_displaymessage(fd, "@whereis <mob> - where a monster spawns (maps+count) and what it drops");
+	clif_displaymessage(fd, "@market <item> - search open vending shops for an item + price");
+	clif_displaymessage(fd, "@cooking (@cook) - cooking UI");
+	clif_displaymessage(fd, "@achievements (@ach) - your achievements + progress");
+	clif_displaymessage(fd, "@title <N> / @title off - set or clear an earned title");
+	clif_displaymessage(fd, "@merc (@mercenary) - your hired mercenary's status (HP/SP/loyalty/skills)");
+	return 0;
+}
+
+int atcommand_title(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message )
+	{
+		const char* t;
+		achievement_title_list(sd);
+		t = achievement_active_title(sd);
+		if( t[0] )
+		{
+			snprintf(atcmd_output, sizeof(atcmd_output), "Active title: %s", t);
+			clif_displaymessage(fd, atcmd_output);
+		}
+		return 0;
+	}
+	if( strcmpi(message, "off") == 0 )
+	{
+		achievement_set_title(sd, 0);
+		clif_displaymessage(fd, "Title cleared.");
+		return 0;
+	}
+	if( achievement_set_title(sd, atoi(message)) )
+		clif_displaymessage(fd, "Title set.");
+	else
+		clif_displaymessage(fd, "You don't have that title. Use @title to list.");
+	return 0;
+}
+
+/*==========================================
+ * @whereis : where a mob spawns (maps + count) and what it drops
+ * (PV7 client has no mob search)
+ *------------------------------------------*/
+int atcommand_whereis(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int id, m, k, j, total, printed, any;
+	struct mob_db *md;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message )
+	{
+		clif_displaymessage(fd, "Usage: @whereis <mob name>");
+		return -1;
+	}
+	id = mobdb_searchname(message);
+	if( id <= 0 )
+	{
+		snprintf(atcmd_output, sizeof(atcmd_output), "Mob not found: %s", message);
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+	md = mob_db(id);
+
+	snprintf(atcmd_output, sizeof(atcmd_output), "[%s] (id %d)", md->jname, id);
+	clif_displaymessage(fd, atcmd_output);
+
+	// Spawns: one line per map (cap 20), then "(+N more)"
+	clif_displaymessage(fd, "Spawns:");
+	total = 0; printed = 0;
+	for( m = 0; m < map_num; m++ )
+		for( k = 0; k < MAX_MOB_LIST_PER_MAP; k++ )
+		{
+			struct spawn_data *spd = map[m].moblist[k];
+			if( spd && spd->class_ == id )
+			{
+				total++;
+				if( printed < 20 )
+				{
+					snprintf(atcmd_output, sizeof(atcmd_output), "  %s: %d", map[m].name, spd->num);
+					clif_displaymessage(fd, atcmd_output);
+					printed++;
+				}
+				break; // count each map once
+			}
+		}
+	if( total == 0 )
+		clif_displaymessage(fd, "  (none)");
+	else if( total > printed )
+	{
+		snprintf(atcmd_output, sizeof(atcmd_output), "  ...(+%d more)", total - printed);
+		clif_displaymessage(fd, atcmd_output);
+	}
+
+	// Drops
+	clif_displaymessage(fd, "Drops:");
+	any = 0;
+	for( j = 0; j < MAX_MOB_DROP; j++ )
+	{
+		if( md->dropitem[j].nameid <= 0 )
+			continue;
+		snprintf(atcmd_output, sizeof(atcmd_output), "  %s: %.2f%%",
+			itemdb_jname(md->dropitem[j].nameid), md->dropitem[j].p/100.0);
+		clif_displaymessage(fd, atcmd_output);
+		any = 1;
+	}
+	if( !any )
+		clif_displaymessage(fd, "  (none)");
+
+	return 0;
+}
+
+/*==========================================
+ * @status / @cd : active status changes + skill cooldowns with remaining time
+ * (PV7 client shows neither numerically)
+ *------------------------------------------*/
+int atcommand_status(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int i, shown;
+	unsigned int now = gettick();
+	nullpo_retr(-1, sd);
+
+	clif_displaymessage(fd, "--- Status (buffs/debuffs) ---");
+	shown = 0;
+	for( i = 1; i < SC_MAX; i++ )
+	{
+		const struct TimerData *td;
+		int rem;
+		if( sd->sc.data[i].timer == INVALID_TIMER )
+			continue;
+		td = get_timer(sd->sc.data[i].timer);
+		rem = td ? DIFF_TICK(td->tick, now)/1000 : 0;
+		if( StatusSkillChangeTable[i] > 0 )
+			snprintf(atcmd_output, sizeof(atcmd_output), "[Status] %s: %ds",
+				skill_get_name(StatusSkillChangeTable[i]), rem);
+		else
+			snprintf(atcmd_output, sizeof(atcmd_output), "[Status] SC#%d: %ds", i, rem);
+		clif_displaymessage(fd, atcmd_output);
+		shown++;
+	}
+	if( !shown )
+		clif_displaymessage(fd, "No active status.");
+
+	clif_displaymessage(fd, "--- Cooldowns ---");
+	shown = 0;
+	for( i = 1; i < MAX_SKILL; i++ )
+	{
+		int rem;
+		if( sd->blockskill[i] <= 0 )
+			continue;
+		rem = DIFF_TICK(sd->blockskill_tick[i], now)/1000;
+		if( rem < 0 ) rem = 0;
+		snprintf(atcmd_output, sizeof(atcmd_output), "[CD] %s: %ds", skill_get_name(i), rem);
+		clif_displaymessage(fd, atcmd_output);
+		shown++;
+	}
+	if( !shown )
+		clif_displaymessage(fd, "No cooldowns.");
+
 	return 0;
 }
 
@@ -9176,20 +9630,20 @@ int atcommand_adopt(const int fd, struct map_session_data* sd, const char* comma
 	        printf("Adopting: --%s--%s--%s--\n",player1,player2,player3);
 
         if((pl_sd1=map_nick2sd((char *) player1)) == NULL) {
-                sprintf(player2, "Cannot find player %s online", player1);
-                clif_displaymessage(fd, player2);
+                sprintf(atcmd_output, "Cannot find player %s online", player1);
+                clif_displaymessage(fd, atcmd_output);
                 return -1;
         }
 
         if((pl_sd2=map_nick2sd((char *) player2)) == NULL) {
-                sprintf(player1, "Cannot find player %s online", player2);
-                clif_displaymessage(fd, player1);
+                sprintf(atcmd_output, "Cannot find player %s online", player2);
+                clif_displaymessage(fd, atcmd_output);
                 return -1;
 	}
  
        if((pl_sd3=map_nick2sd((char *) player3)) == NULL) {
-                sprintf(player1, "Cannot find player %s online", player3);
-                clif_displaymessage(fd, player1);
+                sprintf(atcmd_output, "Cannot find player %s online", player3);
+                clif_displaymessage(fd, atcmd_output);
                 return -1;
         }
 
@@ -9296,7 +9750,7 @@ int atcommand_me(const int fd, struct map_session_data* sd, const char* command,
 	}
 	
 	sscanf(message, "%199[^\n]", tempmes);
-	sprintf(atcmd_output, msg_txt(270), sd->status.name, tempmes);
+	snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(270), sd->status.name, tempmes);
 	     clif_disp_overhead(sd, atcmd_output);
     
 	return 0;
@@ -9487,7 +9941,7 @@ int atcommand_invite(const int fd, struct map_session_data* sd, const char* comm
 
 	if(battle_config.duel_only_on_same_map && target_sd->bl.m != sd->bl.m)
 	{
-		sprintf(atcmd_output, msg_txt(364), message);
+		snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(364), message);
 		clif_displaymessage(fd, atcmd_output);
 		return 0;
 	}
@@ -9661,8 +10115,8 @@ int atcommand_clone(const int fd, struct map_session_data* sd, const char* comma
 	}
 	
 	do {
-		x = sd->bl.x + (rand() % 10 - 5);
-		y = sd->bl.y + (rand() % 10 - 5);
+		x = sd->bl.x + (rnd() % 10 - 5);
+		y = sd->bl.y + (rnd() % 10 - 5);
 	} while (map_getcell(sd->bl.m,x,y,CELL_CHKNOPASS) && i++ < 10);
 
 	if (i >= 10) {
@@ -9709,7 +10163,7 @@ int atcommand_main(const int fd, struct map_session_data* sd, const char* comman
 				clif_displaymessage(fd, msg_txt(387));
 				return -1;
 			}
-			sprintf(atcmd_output, msg_txt(386), sd->status.name, message);
+			snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(386), sd->status.name, message);
 			// I use 0xFE000000 color for signalizing that this message is
 			// main chat message. 0xFE000000 is invalid color, same using
 			// 0xFF000000 for simple (not colored) GM messages. [LuzZza]
@@ -9758,7 +10212,7 @@ int atcommand_request(const int fd, struct map_session_data* sd, const char* com
 		return -1;
 	}
 
-	sprintf(atcmd_output, msg_txt(278), message);
+	snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(278), message);
 	intif_wis_message_to_gm(sd->status.name, lowest_gm_level, atcmd_output);
 	clif_disp_onlyself(sd, atcmd_output, strlen(atcmd_output));
 	clif_displaymessage(sd->fd,msg_txt(279));

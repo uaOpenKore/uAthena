@@ -37,8 +37,6 @@
 #include <math.h>
 
 
-//Better equiprobability than rand()% [orn]
-#define rand(a, b) (a+(int) ((float)(b-a+1)*rand()/(RAND_MAX+1.0)))
 
 struct homunculus_db homunculus_db[MAX_HOMUNCULUS_CLASS];	//[orn]
 struct skill_tree_entry hskill_tree[MAX_HOMUNCULUS_CLASS][MAX_SKILL_TREE];
@@ -168,6 +166,8 @@ int merc_hom_checkskill(struct homun_data *hd,int skill_id)
 	int i = skill_id - HM_SKILLBASE - 1;
 	if(!hd)
 		return 0;
+	if( i < 0 || i >= MAX_HOMUNSKILL ) //defense-in-depth: don't index hskill[] out of range
+		return 0;
 
 	if(hd->homunculus.hskill[i].id == skill_id)
 		return (hd->homunculus.hskill[i].lv);
@@ -193,6 +193,8 @@ void merc_hom_skillup(struct homun_data *hd,int skillnum)
 		return;
 
 	i = skillnum - HM_SKILLBASE - 1;
+	if( i < 0 || i >= MAX_HOMUNSKILL ) //crafted skillup packet: skillnum outside the homun range -> OOB
+		return;
 	if(hd->homunculus.skillpts > 0 &&
 		hd->homunculus.hskill[i].id &&
 		hd->homunculus.hskill[i].flag == 0 && //Don't allow raising while you have granted skills. [Skotlex]
@@ -232,14 +234,14 @@ int merc_hom_levelup(struct homun_data *hd)
 	max  = &hd->homunculusDB->gmax;
 	min  = &hd->homunculusDB->gmin;
 
-	growth_max_hp = rand(min->HP, max->HP);
-	growth_max_sp = rand(min->SP, max->SP);
-	growth_str = rand(min->str, max->str);
-	growth_agi = rand(min->agi, max->agi);
-	growth_vit = rand(min->vit, max->vit);
-	growth_dex = rand(min->dex, max->dex);
-	growth_int = rand(min->int_,max->int_);
-	growth_luk = rand(min->luk, max->luk);
+	growth_max_hp = rnd_value(min->HP, max->HP);
+	growth_max_sp = rnd_value(min->SP, max->SP);
+	growth_str = rnd_value(min->str, max->str);
+	growth_agi = rnd_value(min->agi, max->agi);
+	growth_vit = rnd_value(min->vit, max->vit);
+	growth_dex = rnd_value(min->dex, max->dex);
+	growth_int = rnd_value(min->int_,max->int_);
+	growth_luk = rnd_value(min->luk, max->luk);
 
 	//Aegis discards the decimals in the stat growth values!
 	growth_str-=growth_str%10;
@@ -307,14 +309,14 @@ int merc_hom_evolution(struct homun_data *hd)
 	hom = &hd->homunculus;
 	max = &hd->homunculusDB->emax;
 	min = &hd->homunculusDB->emin;
-	hom->max_hp += rand(min->HP, max->HP);
-	hom->max_sp += rand(min->SP, max->SP);
-	hom->str += 10*rand(min->str, max->str);
-	hom->agi += 10*rand(min->agi, max->agi);
-	hom->vit += 10*rand(min->vit, max->vit);
-	hom->int_+= 10*rand(min->int_,max->int_);
-	hom->dex += 10*rand(min->dex, max->dex);
-	hom->luk += 10*rand(min->luk, max->luk);
+	hom->max_hp += rnd_value(min->HP, max->HP);
+	hom->max_sp += rnd_value(min->SP, max->SP);
+	hom->str += 10*rnd_value(min->str, max->str);
+	hom->agi += 10*rnd_value(min->agi, max->agi);
+	hom->vit += 10*rnd_value(min->vit, max->vit);
+	hom->int_+= 10*rnd_value(min->int_,max->int_);
+	hom->dex += 10*rnd_value(min->dex, max->dex);
+	hom->luk += 10*rnd_value(min->luk, max->luk);
 	hom->intimacy = 500;
 
 	unit_remove_map(&hd->bl, 0);
@@ -652,7 +654,7 @@ int merc_call_homunculus(struct map_session_data *sd)
 	struct homun_data *hd;
 
 	if (!sd->status.hom_id) //Create a new homun.
-		return merc_create_homunculus_request(sd, HM_CLASS_BASE + rand(0, 7)) ;
+		return merc_create_homunculus_request(sd, HM_CLASS_BASE + rnd_value(0, 7)) ;
 
 	// If homunc not yet loaded, load it
 	if (!sd->hd)

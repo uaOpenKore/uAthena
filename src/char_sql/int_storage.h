@@ -10,6 +10,7 @@ int inter_storage_delete(int account_id);
 int inter_guild_storage_delete(int guild_id);
 
 int inter_storage_parse_frommap(int fd);
+void inter_storage_guildlock_release(int fd); // release cross-server guild-storage locks held by a (disconnected) map-server
 
 //Exported for use in the TXT-SQL converter.
 int storage_tosql(int account_id,struct storage *p);

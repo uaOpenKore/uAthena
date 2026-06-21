@@ -1,0 +1,10 @@
+npc: npc/warps/backport/re/cities/dewata.txt
+npc: npc/warps/backport/re/cities/dicastes.txt
+npc: npc/warps/backport/re/cities/eclage.txt
+npc: npc/warps/backport/re/cities/malangdo.txt
+npc: npc/warps/backport/re/cities/malaya.txt
+npc: npc/warps/backport/re/dungeons/dic_dun.txt
+npc: npc/warps/backport/re/dungeons/ecl_dun.txt
+npc: npc/warps/backport/re/dungeons/ecl_tdun.txt
+npc: npc/warps/backport/re/fields/bif_fild.txt
+npc: npc/warps/backport/re/fields/dic_fild.txt

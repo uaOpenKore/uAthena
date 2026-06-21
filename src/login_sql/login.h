@@ -21,8 +21,8 @@ struct mmo_account {
 
 	int account_id;
 	int char_id;
-	long login_id1;
-	long login_id2;
+	int login_id1;
+	int login_id2;
 	char lastlogin[24];
 	int sex;
 	int level;

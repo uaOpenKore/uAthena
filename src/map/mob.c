@@ -16,7 +16,10 @@
 #include "pc.h"
 #include "status.h"
 #include "mob.h"
+#include "quest.h"
+#include "achievement.h"
 #include "mercenary.h"	//[orn]
+#include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "guild.h"
 #include "itemdb.h"
 #include "skill.h"
@@ -46,7 +49,7 @@
 #define RUDE_ATTACKED_COUNT 2	//After how many rude-attacks should the skill be used?
 
 //Used to determine default enemy type of mobs (for use in eachinrange calls)
-#define DEFAULT_ENEMY_TYPE(md) (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM)
+#define DEFAULT_ENEMY_TYPE(md) (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM|BL_MER)	// [Backport] mobs target hired mercs too
 
 //Dynamic mob database, allows saving of memory when there's big gaps in the mob_db [Skotlex]
 struct mob_db *mob_db_data[MAX_MOB_DB+1];
@@ -202,6 +205,7 @@ int mob_parse_dataset(struct spawn_data *data)
 struct mob_data* mob_spawn_dataset(struct spawn_data *data)
 {
 	struct mob_data *md = aCalloc(1, sizeof(struct mob_data));
+	md->livemob_idx = -1;	// not in the live-mob index until map_addiddb() [perf]
 	md->bl.id= npc_get_new_npc_id();
 	md->bl.type = BL_MOB;
 	md->bl.subtype = MONS;
@@ -256,13 +260,13 @@ int mob_get_random_id(int type, int flag, int lv)
 	}
 	do {
 		if (type)
-			class_ = summon[type].class_[rand()%summon[type].qty];
+			class_ = summon[type].class_[rnd()%summon[type].qty];
 		else //Dead branch
-			class_ = rand() % MAX_MOB_DB;
+			class_ = rnd() % MAX_MOB_DB;
 		mob = mob_db(class_);
 	} while ((mob == mob_dummy ||
 		mob_is_clone(class_) ||
-		(flag&1 && mob->summonper[type] <= rand() % 1000000) ||
+		(flag&1 && mob->summonper[type] <= rnd() % 1000000) ||
 		(flag&2 && lv < mob->lv) ||
 		(flag&4 && mob->status.mode&MD_BOSS) ||
 		(flag&8 && mob->base_exp < 1)
@@ -384,8 +388,8 @@ int mob_once_spawn_area(struct map_session_data *sd,const char *mapname,
 	for(i=0;i<amount;i++){
 		int j=0;
 		do{
-			x=rand()%(x1-x0+1)+x0;
-			y=rand()%(y1-y0+1)+y0;
+			x=rnd()%(x1-x0+1)+x0;
+			y=rnd()%(y1-y0+1)+y0;
 		} while (map_getcell(m,x,y,CELL_CHKNOPASS) && (++j)<max);
 		if(j>=max){
 			if(lx>=0){	// Since reference went wrong, the place which boiled before is used.
@@ -425,7 +429,7 @@ static int mob_spawn_guardian_sub(int tid,unsigned int tick,intptr_t id,intptr_t
 
 	if (g == NULL)
 	{	//Liberate castle, if the guild is not found this is an error! [Skotlex]
-		ShowError("mob_spawn_guardian_sub: Couldn't load guild %d!\n",data);
+		ShowError("mob_spawn_guardian_sub: Couldn't load guild %d!\n",(int)data);
 		if (md->class_ == MOBID_EMPERIUM)
 		{	//Not sure this is the best way, but otherwise we'd be invoking this for ALL guardians spawned later on.
 			md->guardian_data->guild_id = 0;
@@ -621,7 +625,7 @@ int mob_setdelayspawn(struct mob_data *md)
 
 	spawntime1 = md->last_spawntime + md->spawn->delay1;
 	spawntime2 = md->last_deadtime + md->spawn->delay2;
-	spawntime3 = gettick() + 5000 + rand()%5000; //Lupus
+	spawntime3 = gettick() + 5000 + rnd()%5000; //Lupus
 	// spawntime = max(spawntime1,spawntime2,spawntime3);
 	if (DIFF_TICK(spawntime1, spawntime2) > 0)
 		spawntime = spawntime1;
@@ -691,7 +695,7 @@ int mob_spawn (struct mob_data *md)
 
 	md->state.aggressive = md->status.mode&MD_ANGRY?1:0;
 	md->state.skillstate = MSS_IDLE;
-	md->next_walktime = tick+rand()%5000+1000;
+	md->next_walktime = tick+rnd()%5000+1000;
 	md->last_linktime = tick;
 
 	for (i = 0, c = tick-1000*3600*10; i < MAX_MOBSKILL; i++)
@@ -700,7 +704,7 @@ int mob_spawn (struct mob_data *md)
 	memset(md->dmglog, 0, sizeof(md->dmglog));
 	md->tdmg = 0;
 	if (md->lootitem)
-		memset(md->lootitem, 0, sizeof(md->lootitem));
+		memset(md->lootitem, 0, sizeof(struct item)*LOOTITEM_SIZE);
 	md->lootitem_count = 0;
 
 	if(md->db->option)
@@ -773,6 +777,27 @@ int mob_target(struct mob_data *md,struct block_list *bl,int dist)
 /*==========================================
  * The ?? routine of an active monster
  *------------------------------------------*/
+// [Backport] Decide whether candidate 'nbl' should replace the current best 'cbl' for a mob that is
+// picking a NEW target (cbl is the best found so far this scan, NULL if none yet). With
+// battle_config.mob_target_merc_first ON, summoned allies (merc/homun) outrank players: an ally is
+// taken over a non-ally regardless of distance, and a non-ally never displaces an ally. Within the
+// same rank — or when the flag is OFF — the closer one wins (vanilla behaviour). This only affects
+// NEW-target acquisition (activesearch runs only when the mob has no target), so a mob already
+// locked onto a player keeps that player.
+static int mob_newtarget_better(struct block_list *nbl, struct block_list *cbl, struct block_list *mbl, int dist)
+{
+	if( cbl == NULL )
+		return 1;
+	if( battle_config.mob_target_merc_first )
+	{
+		int n_ally = (nbl->type == BL_MER || nbl->type == BL_HOM);
+		int c_ally = (cbl->type == BL_MER || cbl->type == BL_HOM);
+		if( n_ally != c_ally )
+			return n_ally;	// ally beats non-ally regardless of distance; non-ally never replaces ally
+	}
+	return !check_distance_bl(mbl, cbl, dist);	// same rank (or flag off) -> closer wins
+}
+
 static int mob_ai_sub_hard_activesearch(struct block_list *bl,va_list ap)
 {
 	struct mob_data *md;
@@ -804,9 +829,9 @@ static int mob_ai_sub_hard_activesearch(struct block_list *bl,va_list ap)
 
 		dist = distance_bl(&md->bl, bl);
 		if(
-			((*target) == NULL || !check_distance_bl(&md->bl, *target, dist)) &&
-			battle_check_range(&md->bl,bl,md->db->range2)
-		) { //Pick closest target?
+			battle_check_range(&md->bl,bl,md->db->range2) &&
+			mob_newtarget_better(bl, *target, &md->bl, dist)	// [Backport] prefer merc/homun (gated)
+		) { //Pick best target (priority-then-closest)?
 			(*target) = bl;
 			md->target_id=bl->id;
 			md->min_chase= dist + md->db->range3;
@@ -978,14 +1003,14 @@ int mob_unlocktarget(struct mob_data *md,int tick)
 			DIFF_TICK(md->next_walktime, tick) <= 0 &&
 			!mob_randomwalk(md,tick))
 			//Delay next random walk when this one failed.
-			md->next_walktime=tick+rand()%3000;
+			md->next_walktime=tick+rnd()%3000;
 		break;
 	default:
 		mob_stop_attack(md);
 		if (battle_config.mob_ai&0x8)
 			mob_stop_walking(md,1); //Immediately stop chasing.
 		md->state.skillstate = MSS_IDLE;
-		md->next_walktime=tick+rand()%3000+3000;
+		md->next_walktime=tick+rnd()%3000+3000;
 		break;
 	}
 	if (md->target_id) {
@@ -1013,7 +1038,7 @@ int mob_randomwalk(struct mob_data *md,int tick)
 	d =12-md->move_fail_count;
 	if(d<5) d=5;
 	for(i=0;i<retrycount;i++){	// Search of a movable place
-		int r=rand();
+		int r=rnd();
 		x=r%(d*2+1)-d;
 		y=r/(d*2+1)%(d*2+1)-d;
 		x+=md->bl.x;
@@ -1042,7 +1067,7 @@ int mob_randomwalk(struct mob_data *md,int tick)
 	}
 	md->state.skillstate=MSS_WALK;
 	md->move_fail_count=0;
-	md->next_walktime = tick+rand()%3000+3000+c;
+	md->next_walktime = tick+rnd()%3000+3000+c;
 	return 1;
 }
 
@@ -1119,7 +1144,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 				) &&
 				md->state.attacked_count++ >= RUDE_ATTACKED_COUNT &&
 				!mobskill_use(md, tick, MSC_RUDEATTACKED) && //If can't rude Attack
-				can_move && unit_escape(bl, tbl, rand()%10 +1)) //Attempt escape
+				can_move && unit_escape(bl, tbl, rnd()%10 +1)) //Attempt escape
 			{	//Escaped
 				md->attacked_id = 0;
 				return 0;
@@ -1140,7 +1165,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			)	{	//Rude attacked
 				if (md->state.attacked_count++ >= RUDE_ATTACKED_COUNT &&
 					!mobskill_use(md, tick, MSC_RUDEATTACKED) && can_move &&
-					!tbl && unit_escape(bl, abl, rand()%10 +1))
+					!tbl && unit_escape(bl, abl, rnd()%10 +1))
 				{	//Escaped.
 					//TODO: Maybe it shouldn't attempt to run if it has another, valid target?
 					md->attacked_id = 0;
@@ -1179,16 +1204,25 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 			view_range, BL_ITEM, md, &tbl);
 	}
 
-	if ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW)
+	// [perf] The active/change-chase scans only seek BL_PC|BL_HOM|BL_MER (a normal mob's
+	// DEFAULT_ENEMY_TYPE). If none is within view_range the scan is provably empty,
+	// so skip it: tbl stays NULL and the no-target idle path runs below, exactly as
+	// if the scan had found nothing. The block_pc_count grid is kept in lockstep
+	// (PC/HOM/MER). Summoned mobs (special_state.ai) target BL_CHAR incl. mobs, so
+	// they always scan.
+	{
+	int pc_near = md->special_state.ai || map_pc_near(md->bl.m, md->bl.x, md->bl.y, view_range);
+	if (pc_near && ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW))
 	{
 		map_foreachinrange (mob_ai_sub_hard_activesearch, &md->bl,
 			view_range, DEFAULT_ENEMY_TYPE(md), md, &tbl);
 	} else
-	if (mode&MD_CHANGECHASE && (md->state.skillstate == MSS_RUSH || md->state.skillstate == MSS_FOLLOW))
+	if (pc_near && mode&MD_CHANGECHASE && (md->state.skillstate == MSS_RUSH || md->state.skillstate == MSS_FOLLOW))
 	{
 		search_size = view_range<md->status.rhw.range ? view_range:md->status.rhw.range;
 		map_foreachinrange (mob_ai_sub_hard_changechase, &md->bl,
 				search_size, DEFAULT_ENEMY_TYPE(md), md, &tbl);
+	}
 	}
 
 	if (!tbl) { //No targets available.
@@ -1300,7 +1334,7 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 static int mob_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 {
 	unsigned int tick;
-	tick=va_arg(ap,unsigned int);
+	tick=(unsigned int)va_arg(ap, intptr_t);
 	map_foreachinrange(mob_ai_sub_hard,&sd->bl, AREA_SIZE*2, BL_MOB,tick);
 
 	return 0;
@@ -1309,6 +1343,23 @@ static int mob_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 /*==========================================
  * Negligent mode MOB AI (PC is not in near)
  *------------------------------------------*/
+static unsigned int g_mob_ai_sub_lazy_tick = 0;
+
+// [perf] "Is a PC within this mob's view?" probe, cached per mob for MOB_PCNEAR_TTL ms.
+// The probe (map_pc_near -> mobgrid scan) is hot under mob_ai&0x20 (run for every
+// targetless mob); players move slowly, so a far mob's answer is stable for a few
+// ticks. Cost of the cache: a far mob notices an arriving PC up to TTL ms late.
+#define MOB_PCNEAR_TTL 250
+static int mob_pc_near_cached(struct mob_data *md, unsigned int tick)
+{
+	if( md->pcnear_tick == 0 || DIFF_TICK(tick, md->pcnear_tick) >= MOB_PCNEAR_TTL )
+	{
+		md->pcnear = map_pc_near(md->bl.m, md->bl.x, md->bl.y, md->db->range2) ? 1 : 0;
+		md->pcnear_tick = tick;
+	}
+	return md->pcnear;
+}
+
 static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 {
 	struct mob_data *md = (struct mob_data *)data;
@@ -1320,10 +1371,30 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 	if(md->bl.type!=BL_MOB || md->bl.prev == NULL)
 		return 0;
 
-	if (battle_config.mob_ai&0x20 && map[md->bl.m].users>0)
-		return mob_ai_sub_hard(&md->bl, ap);
+	// [perf] Optionally skip lazy AI for mobs on player-less maps. Their only lazy
+	// action there is a low-probability walk back toward spawn (cosmetic, unseen
+	// until a player arrives) plus slave-follow; both resume the instant someone
+	// enters the map (stale last_thinktime -> processed next tick). Gated; default
+	// 0 preserves the original behaviour. Does NOT touch respawn (separate timer).
+	if (battle_config.mob_ai_lazy_skip_emptymap && map[md->bl.m].users <= 0)
+		return 0;
 
-	tick=va_arg(ap,unsigned int);
+	if (battle_config.mob_ai&0x20 && map[md->bl.m].users>0) {
+		// [perf] Under 0x20 every mob on a populated map runs full hard AI. A mob
+		// with no target/aggressor and no PC within its view range can't acquire or
+		// chase anyone this tick — its only hard-AI action would be an idle random
+		// walk. Gated (mob_ai_hard_skip_noplayer): send such mobs to the cheap lazy
+		// path so 0x20 cost scales with PCs-nearby, not total mob count. map_pc_near
+		// is an UPPER-BOUND grid probe (never a false "no PC" -> never skips a mob
+		// that has a PC in view). Default off preserves the original 0x20 behaviour.
+		if (!battle_config.mob_ai_hard_skip_noplayer ||
+			md->target_id || md->attacked_id ||
+			mob_pc_near_cached(md, g_mob_ai_sub_lazy_tick))
+			return mob_ai_sub_hard(&md->bl, ap);
+		// else: fall through to the rate-limited lazy path below
+	}
+
+	tick = g_mob_ai_sub_lazy_tick;
 
 	if(DIFF_TICK(tick,md->last_thinktime)< 10*MIN_MOBTHINKTIME)
 		return 0;
@@ -1347,13 +1418,13 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 			// Since PC is in the same map, somewhat better negligent processing is carried out.
 
 			// It sometimes moves.
-			if(rand()%1000<MOB_LAZYMOVEPERC)
+			if(rnd()%1000<MOB_LAZYMOVEPERC)
 				mob_randomwalk(md,tick);
-			else if(rand()%1000<MOB_LAZYSKILLPERC) //Chance to do a mob's idle skill.
+			else if(rnd()%1000<MOB_LAZYSKILLPERC) //Chance to do a mob's idle skill.
 				mobskill_use(md, tick, -1);
 			// MOB which is not not the summons MOB but BOSS, either sometimes reboils.
 			// People don't want this, it seems custom, noone can prove it....
-//			else if( rand()%1000<MOB_LAZYWARPPERC
+//			else if( rnd()%1000<MOB_LAZYWARPPERC
 //				&& (md->spawn && !md->spawn->x && !md->spawn->y)
 //				&& !md->target_id && !(mode&MD_BOSS))
 //				unit_warp(&md->bl,-1,-1,-1,0);
@@ -1361,15 +1432,29 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
 			// Since PC is not even in the same map, suitable processing is carried out even if it takes.
 
 			// MOB which is not BOSS which is not Summons MOB, either -- a case -- sometimes -- leaping
-			if( rand()%1000<MOB_LAZYWARPPERC
+			if( rnd()%1000<MOB_LAZYWARPPERC
 				&& (md->spawn && !md->spawn->x && !md->spawn->y)
 				&& !(mode&MD_BOSS))
 				unit_warp(&md->bl,-1,-1,-1,0);
 		}
 
-		md->next_walktime = tick+rand()%10000+5000;
+		md->next_walktime = tick+rnd()%10000+5000;
 	}
 	return 0;
+}
+
+static int mob_ai_sub_lazy_wrapper(DBKey key,void * data,va_list ap)
+{
+	return mob_ai_sub_lazy(key, data, ap);
+}
+
+// [perf] block_list-signature wrapper so map_foreachinmap() can drive the same
+// per-mob AI (used by the per-active-map iteration under mob_ai&0x20).
+static int mob_ai_sub_lazy_bl(struct block_list *bl,va_list ap)
+{
+	DBKey key;
+	key.i = bl->id;
+	return mob_ai_sub_lazy(key, bl, ap);
 }
 
 /*==========================================
@@ -1377,7 +1462,15 @@ static int mob_ai_sub_lazy(DBKey key,void * data,va_list ap)
  *------------------------------------------*/
 static int mob_ai_lazy(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
-	map_foreachiddb(mob_ai_sub_lazy,tick);
+	// [perf] Under mob_ai&0x20 the 100ms hard timer already drives every mob via
+	// the same map_foreachmob(mob_ai_sub_lazy_wrapper): populated maps run the
+	// hard AI, player-less maps run the lazy path rate-limited to 10*MIN_MOBTHINKTIME
+	// (1000ms) by last_thinktime. The lazy cadence is set by that gate, not by this
+	// timer's period, so this once-a-second pass would only be gated out - skip it.
+	if (battle_config.mob_ai&0x20)
+		return 0;
+	g_mob_ai_sub_lazy_tick = tick;
+	map_foreachmob(mob_ai_sub_lazy_wrapper,tick);	// mob-only index instead of full id_db scan [perf]
 	return 0;
 }
 
@@ -1387,9 +1480,21 @@ static int mob_ai_lazy(int tid,unsigned int tick,intptr_t id,intptr_t data)
 static int mob_ai_hard(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 
-	if (battle_config.mob_ai&0x20)
-		map_foreachiddb(mob_ai_sub_lazy,tick);
-	else
+	if (battle_config.mob_ai&0x20) {
+		g_mob_ai_sub_lazy_tick = tick;
+		if (battle_config.mob_ai_active_maps_only) {
+			// [perf] Iterate mobs only on maps that have players, so 0x20 cost
+			// scales with ACTIVE locations, not the total live-mob count (mobs on
+			// the other maps can't do anything a player would see this tick). The
+			// map_num scan is trivial; map_foreachinmap walks each populated map's
+			// per-block mob index (snapshot + freeblock_lock, free-safe).
+			int m;
+			for (m = 0; m < map_num; m++)
+				if (map[m].users > 0)
+					map_foreachinmap(mob_ai_sub_lazy_bl, m, BL_MOB, tick);
+		} else
+			map_foreachmob(mob_ai_sub_lazy_wrapper,tick);	// every live mob (flat index) [perf]
+	} else
 		clif_foreachclient(mob_ai_sub_foreachclient,tick);
 
 	return 0;
@@ -1548,6 +1653,18 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 			char_id = hd->master->status.char_id;
 		if (damage)
 			md->attacked_id = src->id;
+		break;
+	}
+	case BL_MER:	// [Backport] hired mercenary soldier
+	{
+		struct mercenary_data *mer = (TBL_MER*)src;
+		if (mer->master)
+			char_id = mer->master->status.char_id;
+		if (damage)
+			md->attacked_id = src->id;
+		// Count the kill toward the mercenary's loyalty when the mob is challenging enough
+		if (mer->master && md->level > mer->master->status.base_level/2)
+			mercenary_kills(mer);
 		break;
 	}
 	case BL_PET:
@@ -1774,6 +1891,11 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		if (!tmpsd[i]) continue;
 
+		// Questlog: credit hunt objectives to each damage-dealer [Kevin] [Inkfish]
+		if (tmpsd[i]->avail_quests)
+			quest_update_objective(tmpsd[i], md->class_);
+		achievement_progress(tmpsd[i], AG_KILL, md->class_, 1);
+
 		if (!battle_config.exp_calc_type && md->tdmg)
 			//jAthena's exp formula based on total damage.
 			per = (double)md->dmglog[i].dmg/(double)md->tdmg;
@@ -1806,9 +1928,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		if(battle_config.zeny_from_mobs && md->level) {
 			 // zeny calculation moblv + random moblv [Valaris]
-			zeny=(int) ((md->level+rand()%md->level)*per*bonus/100.);
+			zeny=(int) ((md->level+rnd()%md->level)*per*bonus/100.);
 			if(md->db->mexp > 0)
-				zeny*=rand()%250;
+				zeny*=rnd()%250;
 		}
 
 		if (map[m].flag.nobaseexp || !md->db->base_exp)
@@ -1913,8 +2035,13 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				(int)(md->level - sd->status.base_level) >= 20)
 				drop_rate = (int)(drop_rate*1.25); // pk_mode increase drops if 20 level difference [Valaris]
 
+			// Bubble Gum (SC_ITEMBOOST): boost the killer's drop rate by val1%, capped
+			// at 90% unless the base rate is already higher [eAthena].
+			if (sd && sd->sc.data[SC_ITEMBOOST].timer != -1)
+				drop_rate = max(drop_rate, cap_value((int)(0.5+drop_rate*sd->sc.data[SC_ITEMBOOST].val1/100.),0,9000));
+
 			// attempt to drop the item
-			if (rand() % 10000 >= drop_rate)
+			if (rnd() % 10000 >= drop_rate)
 				continue;
 
 			ditem = mob_setdropitem(md->db->dropitem[i].nameid, 1);
@@ -1934,7 +2061,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		}
 
 		// Ore Discovery [Celest]
-		if (sd == mvp_sd && pc_checkskill(sd,BS_FINDINGORE)>0 && battle_config.finding_ore_rate/10 >= rand()%10000) {
+		if (sd == mvp_sd && pc_checkskill(sd,BS_FINDINGORE)>0 && battle_config.finding_ore_rate/10 >= rnd()%10000) {
 			ditem = mob_setdropitem(itemdb_searchrandomid(IG_FINDINGORE), 1);
 			mob_item_drop(md, dlist, ditem, 0, battle_config.finding_ore_rate/10);
 		}
@@ -1946,8 +2073,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			{
 				if (sd->add_drop[i].id < 0)
 					continue;
-				if (sd->add_drop[i].race & (1<<status->race) ||
-					sd->add_drop[i].race & 1<<(status->mode&MD_BOSS?RC_BOSS:RC_NONBOSS))
+				if (sd->add_drop[i].race == -md->class_ ||	// negative race == specific mob class (bAddClassDropItem)
+					(sd->add_drop[i].race > 0 && (
+						sd->add_drop[i].race & (1<<status->race) ||
+						sd->add_drop[i].race & 1<<(status->mode&MD_BOSS?RC_BOSS:RC_NONBOSS))))
 				{
 					//check if the bonus item drop rate should be multiplied with mob level/10 [Lupus]
 					if(sd->add_drop[i].rate < 0) {
@@ -1961,7 +2090,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 						//it's positive, then it goes as it is
 						drop_rate = sd->add_drop[i].rate;
 
-					if (rand()%10000 >= drop_rate)
+					if (rnd()%10000 >= drop_rate)
 						continue;
 					itemid = (sd->add_drop[i].id > 0) ? sd->add_drop[i].id : itemdb_searchrandomid(sd->add_drop[i].group);
 					mob_item_drop(md, dlist, mob_setdropitem(itemid,1), 0, drop_rate);
@@ -1969,8 +2098,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 
 			// process script-granted zeny bonus (get_zeny_num per level +/-10%) [Skotlex]
-			if(sd->get_zeny_num && rand()%100 < sd->get_zeny_rate)
-				pc_getzeny(sd,md->level*sd->get_zeny_num*(90+rand()%21)/100);
+			if(sd->get_zeny_num && rnd()%100 < sd->get_zeny_rate)
+				pc_getzeny(sd,md->level*sd->get_zeny_num*(90+rnd()%21)/100);
 		}
 
 		// process items looted by the mob
@@ -2024,7 +2153,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		else
 		for(j=0;j<3;j++)
 		{
-			i = rand() % 3;
+			i = rnd() % 3;
 
 			if(md->db->mvpitem[i].nameid <= 0)
 				continue;
@@ -2032,7 +2161,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			temp = md->db->mvpitem[i].p;
 			if(temp <= 0 && !battle_config.drop_rate0item)
 				temp = 1;
-			if(temp <= rand()%10000+1) //if ==0, then it doesn't drop
+			if(temp <= rnd()%10000+1) //if ==0, then it doesn't drop
 				continue;
 
 			memset(&item,0,sizeof(item));
@@ -2091,6 +2220,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		case BL_HOM:
 			sd = ((TBL_HOM*)src)->master;
 			break;
+		case BL_MER:	// [Backport]
+			sd = ((TBL_MER*)src)->master;
+			break;
 		}
 		if(sd && battle_config.mob_npc_event_type) {
 			pc_setglobalreg(sd,"killerrid",sd->bl.id);
@@ -2131,7 +2263,7 @@ void mob_revive(struct mob_data *md, unsigned int hp)
 	unsigned int tick = gettick();
 	md->state.skillstate = MSS_IDLE;
 	md->last_thinktime = tick;
-	md->next_walktime = tick+rand()%50+5000;
+	md->next_walktime = tick+rnd()%50+5000;
 	md->last_linktime = tick;
 	if (!md->bl.prev)
 		map_addblock(&md->bl);
@@ -2210,7 +2342,7 @@ int mob_random_class (int *value, size_t count)
 			return 0;
 	}
 	//Pick a random value, hoping it exists. [Skotlex]
-	return mobdb_checkid(value[rand()%count]);
+	return mobdb_checkid(value[rnd()%count]);
 }
 
 /*==========================================
@@ -2375,7 +2507,7 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 	while(count < 5 && mobdb_checkid(value[count])) count++;
 	if(count < 1) return 0;
 	if (amount > 0 && amount < count) { //Do not start on 0, pick some random sub subset [Skotlex]
-		k = rand()%count;
+		k = rnd()%count;
 		amount+=k; //Increase final value by same amount to preserve total number to summon.
 	}
 	
@@ -2587,7 +2719,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 		return 0; //Skill act delay only affects non-event skills.
 
 	//Pick a starting position and loop from that.
-	i = battle_config.mob_ai&0x100?rand()%md->db->maxskill:0;
+	i = battle_config.mob_ai&0x100?rnd()%md->db->maxskill:0;
 	for (n = 0; n < md->db->maxskill; i++, n++) {
 		int c2, flag = 0;
 
@@ -2607,7 +2739,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 			else
 				continue;
 		}
-		if (rand() % 10000 > ms[i].permillage) //Lupus (max value = 10000)
+		if (rnd() % 10000 > ms[i].permillage) //Lupus (max value = 10000)
 			continue;
 
 		if (ms[i].cond1 == event)
@@ -3086,7 +3218,7 @@ int mob_parse_dbrow(char** str)
 		return 0;
 	}
 	if (pcdb_checkid(class_)) {
-		ShowWarning("Mob with ID: %d not loaded. That ID is reserved for player classes.\n");
+		ShowWarning("Mob with ID: %d not loaded. That ID is reserved for player classes.\n", class_);
 		return 0;
 	}
 
@@ -3339,7 +3471,7 @@ static int mob_readdb(void)
 			ln++; // counts the number of correctly parsed entries
 		}
 		fclose(fp);
-		ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, filename[fi]);
+		ShowStatus("Done reading '"CL_WHITE"%u"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, filename[fi]);
 		ln = 0;
 	}
 	return 0;
@@ -3369,7 +3501,7 @@ static int mob_read_sqldb(void)
 			}
 
 			mysql_free_result(sql_res);
-			ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, mob_db_name[fi]);
+			ShowStatus("Done reading '"CL_WHITE"%u"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, mob_db_name[fi]);
 			ln = 0;
 		}
 	}
@@ -3857,10 +3989,10 @@ static int mob_readdb_race(void)
 void mob_reload(void)
 {
 	int i;
-    if(db_use_sqldbs)
-        mob_read_sqldb();
-    else
-	mob_readdb();
+	if(db_use_sqldbs)
+		mob_read_sqldb();
+	else
+		mob_readdb();
 
 	mob_readdb_mobavail();
 	mob_read_randommonster();
@@ -3883,10 +4015,10 @@ int do_init_mob(void)
 	item_drop_ers = ers_new(sizeof(struct item_drop));
 	item_drop_list_ers = ers_new(sizeof(struct item_drop_list));
 
-    if(db_use_sqldbs)
-        mob_read_sqldb();
-    else
-        mob_readdb();
+	if(db_use_sqldbs)
+		mob_read_sqldb();
+	else
+		mob_readdb();
 
 	mob_readdb_mobavail();
 	mob_read_randommonster();

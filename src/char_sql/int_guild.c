@@ -48,16 +48,18 @@ int inter_guild_tosql(struct guild *g,int flag);
 
 static int guild_save(DBKey key, void *data, va_list ap) {
 	struct guild *g = (struct guild*) data;
-	int *last_id = va_arg(ap, int *);
-	int *state = va_arg(ap, int *);
+	int *last_id = (int *)va_arg(ap, intptr_t);
+	int *state = (int *)va_arg(ap, intptr_t);
 	
 	if ((*state) == 0 && g->guild_id == (*last_id))
 		(*state)++; //Save next guild in the list.
 	else if (g->save_flag&GS_MASK && (*state) == 1) {
-	   inter_guild_tosql(g, g->save_flag&GS_MASK);
-		g->save_flag &= ~GS_MASK;
+		//Clear the dirty bits only if the save fully succeeded; on a DB error
+		//keep them set so the guild is retried next cycle (no silent data loss).
+		if (inter_guild_tosql(g, g->save_flag&GS_MASK))
+			g->save_flag &= ~GS_MASK;
 
-		//Some guild saved.
+		//Some guild saved (or attempted).
 		(*last_id) = g->guild_id;
 		(*state)++;
 	}
@@ -130,9 +132,10 @@ int inter_guild_tosql(struct guild *g,int flag)
 		t_ename[NAME_LENGTH*2],
 		t_emes[80],
 		t_info[240];
-	char emblem_data[4096];
+	char emblem_data[sizeof(g->emblem_data)*2+1]; //2 hex chars per emblem byte + NUL (g->emblem_data is 2048 -> 4097)
 	char new_guild = 0;
 	int i=0, sql_index;
+	int errors = 0; //count failed queries; the guild stays dirty for retry if any fail
 
 	if (g->guild_id<=0 && g->guild_id != -1) return 0;
 
@@ -241,6 +244,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 		{
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		}
 	}
 
@@ -256,6 +260,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				continue;
 #endif
 			if(m->account_id) {
+				int member_ok = 1;
 				//Since nothing references guild member table as foreign keys, it's safe to use REPLACE INTO
 				sprintf(tmp_sql,"REPLACE INTO `%s` (`guild_id`,`account_id`,`char_id`,`hair`,`hair_color`,`gender`,`class`,`lv`,`exp`,`exp_payper`,`online`,`position`,`name`) "
 					"VALUES ('%d','%d','%d','%d','%d','%d','%d','%d','%u','%d','%d','%d','%s')",
@@ -267,6 +272,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				{
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+					errors++; member_ok = 0;
 				}
 				if (m->modified & GS_MEMBER_NEW)
 				{
@@ -276,9 +282,11 @@ int inter_guild_tosql(struct guild *g,int flag)
 					{
 						ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 						ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+						errors++; member_ok = 0;
 					}
 				}
-				m->modified = GS_MEMBER_UNMODIFIED;
+				if (member_ok) //only mark the member saved if its queries succeeded
+					m->modified = GS_MEMBER_UNMODIFIED;
 			}
 		}
 	}
@@ -298,8 +306,10 @@ int inter_guild_tosql(struct guild *g,int flag)
 			if(mysql_query(&mysql_handle, tmp_sql) ) {
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				errors++;
 			}
-			p->modified = GS_POSITION_UNMODIFIED;
+			else
+				p->modified = GS_POSITION_UNMODIFIED;
 		}
 	}
 
@@ -315,6 +325,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 		{
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		}
 		else
 		{
@@ -332,6 +343,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 					{
 						ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 						ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+						errors++;
 					}
 				}
 			}
@@ -352,6 +364,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				if(mysql_query(&mysql_handle, tmp_sql) ) {
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+					errors++;
 				}
 			}
 		}
@@ -368,6 +381,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				if(mysql_query(&mysql_handle, tmp_sql) ) {
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+					errors++;
 				}
 			}
 		}
@@ -375,7 +389,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 
 	if (save_log)
 		ShowInfo("Saved guild (%d - %s):%s\n",g->guild_id,g->name,t_info);
-	return 1;
+	return errors == 0; //1 only if every query succeeded; else caller keeps it dirty for retry
 }
 #ifndef TXT_SQL_CONVERT
 // Read guild from sql
@@ -1259,14 +1273,14 @@ int mapif_guild_castle_alldataload(int fd) {
 			gc->guardian[5].visible = atoi(sql_row[15]);
 			gc->guardian[6].visible = atoi(sql_row[16]);
 			gc->guardian[7].visible = atoi(sql_row[17]);
-			gc->guardian[0].visible = atoi(sql_row[18]);
-			gc->guardian[1].visible = atoi(sql_row[19]);
-			gc->guardian[2].visible = atoi(sql_row[20]);
-			gc->guardian[3].visible = atoi(sql_row[21]);
-			gc->guardian[4].visible = atoi(sql_row[22]);
-			gc->guardian[5].visible = atoi(sql_row[23]);
-			gc->guardian[6].visible = atoi(sql_row[24]);
-			gc->guardian[7].visible = atoi(sql_row[25]);
+			gc->guardian[0].hp = atoi(sql_row[18]);
+			gc->guardian[1].hp = atoi(sql_row[19]);
+			gc->guardian[2].hp = atoi(sql_row[20]);
+			gc->guardian[3].hp = atoi(sql_row[21]);
+			gc->guardian[4].hp = atoi(sql_row[22]);
+			gc->guardian[5].hp = atoi(sql_row[23]);
+			gc->guardian[6].hp = atoi(sql_row[24]);
+			gc->guardian[7].hp = atoi(sql_row[25]);
 			memcpy(WFIFOP(fd,len), gc, sizeof(struct guild_castle));
 			len += sizeof(struct guild_castle);
 		}
@@ -1672,7 +1686,12 @@ int mapif_parse_GuildMemberInfoChange(int fd,int guild_id,int account_id,int cha
 	{
 		case GMI_POSITION:
 		  {
-			g->member[i].position=*((int *)data);
+			int pos = *((int *)data);
+			//Untrusted (client-controlled): a bad position is later used as a
+			//g->position[] subscript on the map side -> reject out-of-range.
+			if( pos < 0 || pos >= MAX_GUILDPOSITION )
+				break;
+			g->member[i].position=pos;
 			g->member[i].modified = GS_MEMBER_MODIFIED;
 			mapif_guild_memberinfochanged(guild_id,account_id,char_id,type,data,len);
 			g->save_flag |= GS_MEMBER;
@@ -1886,7 +1905,9 @@ int mapif_parse_GuildNotice(int fd,int guild_id,const char *mes1,const char *mes
 		return 0;
 
 	memcpy(g->mes1,mes1,60);
+	g->mes1[sizeof(g->mes1)-1] = '\0'; //the wire field is fixed-size and may not be NUL-terminated
 	memcpy(g->mes2,mes2,120);
+	g->mes2[sizeof(g->mes2)-1] = '\0';
 	g->save_flag |= GS_MES;	//Change mes of guild
 	return mapif_guild_notice(g);
 }
@@ -1899,7 +1920,9 @@ int mapif_parse_GuildEmblem(int fd,int len,int guild_id,int dummy,const char *da
 	if(g==NULL)
 		return 0;
 
-	if (len > sizeof(g->emblem_data))
+	if (len < 0)
+		return 0; //malformed packet: don't over-read the RFIFO buffer
+	if (len > (int)sizeof(g->emblem_data))
 		len = sizeof(g->emblem_data);
 
 	memcpy(g->emblem_data,data,len);

@@ -1,0 +1,29 @@
+//===== uAthena backport (renewal simple quests 2d, GENERATED) =====
+//= simple/misc quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-simple.py
+//= Source: npc/re/quests/mrsmile.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Mr. Smile Quest
+//===== By: ================================================== 
+//= Daegaladh, Masao
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Trade Clover, Fluff and Jellopy for a Mr. Smile mask.
+//===== Additional Comments: ================================= 
+//= 1.0 Updated to match the new Izlude Map. [Masao]
+//= 1.1 Added Izlude duplicates. [Euphy]
+//= 1.2 Added Morocc [zackdreaver]
+//============================================================ 
+
+//[BACKPORT-ORPHAN:SmileHelper] izlude,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz	92
+//[BACKPORT-BOUNDARY:izlude_a] izlude_a,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz_a	92
+//[BACKPORT-BOUNDARY:izlude_b] izlude_b,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz_b	92
+//[BACKPORT-BOUNDARY:izlude_c] izlude_c,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz_c	92
+//[BACKPORT-BOUNDARY:izlude_d] izlude_d,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz_d	92
+
+//[BACKPORT-ORPHAN:SmileHelper] morocc,159,107,4	duplicate(SmileHelper)	Smile Assistance#moc2	92

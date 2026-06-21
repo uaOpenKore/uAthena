@@ -69,6 +69,10 @@
 
 #define MAX_STATUS_TYPE 5
 
+#define MAX_QUEST_DB 3000 //Max quest DEFINITIONS the server loads (global quest_db[])
+#define MAX_PC_QUESTS 500 //Max ACTIVE quests a single character can hold (per-char quest_log[])
+#define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a single quest
+
 #define WEDDING_RING_M 2634
 #define WEDDING_RING_F 2635
 
@@ -104,6 +108,43 @@
 #define HM_CLASS_BASE 6001
 #define HM_CLASS_MAX (HM_CLASS_BASE+MAX_HOMUNCULUS_CLASS-1)
 
+//Base Mercenary Soldier skill. [Backport]
+#define MC_SKILLBASE 8201
+#define MAX_MERCSKILL 40
+#define MAX_MERCENARY_CLASS 100
+
+//Questlog system [Kevin] [Inkfish]
+typedef enum quest_state { Q_INACTIVE, Q_ACTIVE, Q_COMPLETE } quest_state;
+
+struct quest {
+	int quest_id;
+	unsigned int time;
+	int count[MAX_QUEST_OBJECTIVES];
+	quest_state state;
+};
+
+// [Backport] Achievements & titles
+#define MAX_ACHIEVEMENT_DB 500 // Max achievement definitions the server loads
+#define MAX_ACHIEVEMENT 256    // Max achievements tracked per character
+
+typedef enum achievement_group {
+	AG_NONE = 0,
+	AG_KILL,       // 1: kill <target_count> of mob <target_id> (0 = any)
+	AG_BASELEVEL,  // 2: reach base level <target_count>
+	AG_JOBLEVEL,   // 3: reach job level <target_count>
+	AG_JOBCHANGE,  // 4: change job (<target_id> job, 0 = any non-novice)
+	AG_QUEST,      // 5: complete <target_count> quests (<target_id> != 0 = that quest)
+	AG_ZENY,       // 6: accumulate <target_count> zeny
+	AG_MAX
+} achievement_group;
+
+struct achievement {           // per-character progress (all-int -> inter-server memcpy safe)
+	int achievement_id;
+	int count;
+	unsigned int completed;    // completion timestamp (0 = not completed)
+	int rewarded;              // 1 = reward granted
+};
+
 struct item {
 	int id;
 	short nameid;
@@ -113,6 +154,7 @@ struct item {
 	char refine;
 	char attribute;
 	short card[MAX_SLOTS];
+	unsigned int expire_time; // [Backport] rental: absolute unix-time of expiry (0 = not a rental)
 };
 
 struct point{
@@ -179,6 +221,15 @@ struct s_homunculus {	//[orn]
 	int luk ;
 };
 
+struct s_mercenary {	// [Backport] hired mercenary soldier (NOT the homunculus merc_hom_*)
+	int mercenary_id;
+	int char_id;
+	short class_;
+	int hp, sp;
+	unsigned int kill_count;
+	unsigned int life_time;
+};
+
 struct friend {
 	int account_id;
 	int char_id;
@@ -211,8 +262,11 @@ struct mmo_charstatus {
 	short manner;
 	unsigned char karma;
 	short hair,hair_color,clothes_color;
-	int party_id,guild_id,pet_id,hom_id;
+	int party_id,guild_id,pet_id,hom_id,mer_id;
 	int fame;
+	int arch_faith, arch_calls;		// [Backport] mercenary loyalty/calls (mercenary_owner table)
+	int spear_faith, spear_calls;
+	int sword_faith, sword_calls;
 
 	short weapon,shield;
 	short head_top,head_mid,head_bottom;
