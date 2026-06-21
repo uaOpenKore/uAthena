@@ -199,7 +199,5 @@ update:
 		$(shell cp -f /opt/uathena/login_athena.conf /opt/uathena/conf/)
 		$(shell cp -f /opt/uathena/char_athena.conf  /opt/uathena/conf/)
 		$(shell cp -f /opt/uathena/map_athena.conf   /opt/uathena/conf/)
-		$(shell cp -f /opt/uathena/exp.conf   /opt/uathena/conf/battle/)
-		$(shell cp -f /opt/uathena/drops.conf /opt/uathena/conf/battle/)
 		$(shell cp -f /opt/uathena/subnet_athena.conf /opt/uathena/conf/)
 		$(shell cp -f /opt/uathena/packet_athena.conf /opt/uathena/conf/)
