@@ -1,0 +1,441 @@
+300005	Abyss_Man_Card	DROPPED	bonus bMaxHPrate,10; bonus2 bSkillAtk,"SO_EARTHGRAVE",10;
+27322	Ahat_Card	KEPT	bonus bMaxSPrate,5;
+27181	AirShip_Raid_Card	DROPPED	.@r = getrefine(); bonus bLongAtkRate,1 + .@r/2; bonus bCritical,.@r/2;
+4515	Alnoldi_Card	KEPT	bonus2 bSubRace,RC_Plant,30;
+300085	Alnoldi_Ex_Card	KEPT	bonus bStr,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bBaseAtk,getskilllv("TK_POWER")*7;
+300086	Alnoldi_Ex_H_Card	DROPPED	.@r = getrefine(); if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_2HSWORD) { bonus bShortAtkRate,10; } bonus bShortAtkRate,.@r; if (.@r>=11) { bonus bUnbreakableWeapon; }
+4567	Alphoccio_Card	KEPT	bonus bFlee,10; if (BaseJob == Job_Bard) { bonus bMaxHPrate,10; bonus bMaxSPrate,5; }
+4601	Amdarais_Card	DROPPED	bonus2 bAddClass,Class_All,15; bonus bMatkRate,15; bonus2 bHPLossRate,666,4000; bonus2 bSPLossRate,66,4000;
+300254	Amitera_Card	KEPT	bonus bMaxHPrate,10; if (BaseLevel>=200) { bonus bMaxHPrate,10; }
+27293	Ancient_Megalith_Card	DROPPED	bonus bMatk,30; bonus bMaxSPrate,-1;
+27292	Ancient_Sta_Golem_Card	DROPPED	.@vit = readparam(bVit); .@val = .@vit/10; if (.@val) { bonus bAspdRate,.@val; bonus bMaxHP,(150*.@val); if (.@vit >= 120) { bonus bDelayrate,-3; } }
+27295	Ancient_S_Shooter_Card	DROPPED	.@luk = readparam(bLuk); .@crit = .@luk/10; bonus bAspdRate,.@crit; if (.@luk >= 120) { .@crit += 5; } bonus bCritAtkRate,.@crit;
+27294	Ancient_Tao_Gunka_Card	DROPPED	.@val = 30; if (getrefine() >= 10) { .@val += 20; } bonus2 bIgnoreDefClassRate,Class_Boss,.@val;
+27291	Ancient_Trijoint_Card	KEPT	bonus bBaseAtk,30; bonus bMaxHPrate,-1;
+27298	Ancient_W_Deffend_Card	DROPPED	.@val = 30; if (getrefine() >= 10) { .@val += 20; } bonus2 bSubClass,Class_Boss,.@val;
+27297	Ancient_W_Fighter_Card	KEPT	bonus bCritical,5; bonus bCritAtkRate,10;
+27296	Ancient_W_Shooter_Card	DROPPED	.@dex = readparam(bDex); .@val = .@dex/10; if (.@val) { bonus bAspdRate,.@val; bonus2 bWeaponDamageRate,W_BOW,.@val; if (.@dex >= 120) { bonus bBaseAtk,40; } }
+27110	AngerGazeti_Card	KEPT	bonus bLongAtkDef,20;
+27112	AngerIceTitan_Card	KEPT	bonus bDef,(5*(1+getrefine()));
+27081	AngerMoonlight_Card	KEPT	skill "PA_PRESSURE",4;
+27082	AngerNineTail_Card	DROPPED	.@val = 5; bonus bCritAtkRate,10; if (getrefine() >= 10) { .@val += 10; } bonus bCritical,.@val;
+27111	AngerSnowier_Card	KEPT	bonus2 bAddItemHealRate,11522,50; bonus2 bAddItemHealRate,11523,50; bonus2 bAddItemHealRate,11524,50;
+4513	Angra_Mantis_Card	KEPT	bonus bCritAtkRate,2; if (BaseClass == Job_Thief) { bonus bCritAtkRate,getrefine()/2; }
+4596	AntiqueBook_Card	DROPPED	bonus bMatk,5*(readparam(bInt)/10);
+4675	Archbishop_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Priest) { bonus bMaxHPrate,10; bonus bHealPower,15; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+27249	Archi_Card	DROPPED	bonus bBaseAtk,15; bonus bMatk,15; bonus bMaxHP,500; bonus bHit,15; bonus bFlee,15;
+4629	Arc_Elder_Card	DROPPED	bonus2 bSubEle,Ele_Neutral,15; bonus2 bMagicAtkEle,Ele_Earth,getrefine()*3;
+300097	Aries_Card	KEPT	bonus bAgi,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"TF_POISON",25;
+300098	Aries_H_Card	DROPPED	bonus bMatk,5; bonus2 bSkillAtk,"NJ_KOUENKA",10; bonus2 bSkillAtk,"NJ_HYOUSENSOU",10; bonus2 bSkillAtk,"NJ_HUUJIN",10; if (getrefine()>=7) { bonus bVariableCastrate,-5; }
+300081	Assistant_Card	KEPT	bonus bInt,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"MG_FIREBALL",25;
+300082	Assistant_H_Card	DROPPED	if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_1HSPEAR || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_2HSPEAR) { bonus bLongAtkRate,10; } bonus bLongAtkRate,2*(getrefine()/2);
+31024	As_Bdy_Knight_Card	DROPPED	bonus bAtkRate,10; bonus5 bAutoSpell,"RK_IGNITIONBREAK",5,20,BF_WEAPON,1;
+31026	As_Ragged_Golem_Card	DROPPED	bonus5 bAutoSpellWhenHit,"SO_FIREWALK",5,35,BF_WEAPON,0; bonus5 bAutoSpellWhenHit,"SO_ELECTRICWALK",5,80,BF_MAGIC,0; autobonus "{ bonus bFlee,200; }",30,10000,BF_WEAPON,"{ specialeffect2 EF_TEIHIT1; }"; autobonus "{ bonus bSpeedRate,25; }",25,10000,BF_MAGIC,"{ specialeffect2 EF_POTION_BERSERK; }";
+31025	As_Wind_Ghost_Card	DROPPED	bonus bMatkRate,10; bonus5 bAutoSpell,"SO_CLOUD_KILL",5,10,BF_MAGIC,1;
+27113	AwakenKtullanux_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Water,(20+(3*getrefine()));
+4591	Bakonawa_Card	KEPT	bonus bStr,4; bonus5 bAutoSpellWhenHit,"NPC_WIDEBLEEDING",4,20,BF_WEAPON,0;
+4518	Banaspaty_Card	DROPPED	bonus3 bAddEff,Eff_Burning,300,ATF_TARGET;
+4590	Bangungot_Card	KEPT	bonus bInt,4; bonus5 bAutoSpellWhenHit,"NPC_WIDESLEEP",4,20,BF_MAGIC,0;
+4660	Basilisk1_Card	DROPPED	bonus2 bSubSize,Size_Small,5; bonus2 bSubSize,Size_Medium,5;
+4661	Basilisk2_Card	DROPPED	bonus2 bSubSize,Size_Medium,20; bonus2 bSubSize,Size_Large,20; bonus2 bSubSize,Size_Small,-15;
+300103	Bath_Mermaid_Card	DROPPED	.@r = getrefine(); bonus bMatk,15; if (.@r>=9) { bonus2 bMagicAddRace,RC_Fish,10; bonus2 bMagicAddRace,RC_DemiHuman,10; } if (.@r>=11) { bonus bDelayrate,-3; }
+300111	Bellare3_Card	KEPT	bonus bAgi,2; bonus bInt,1; bonus bMaxHPrate,10; bonus2 bSkillAtk,"NJ_KOUENKA",10; bonus2 bSkillAtk,"NJ_HYOUSENSOU",10; bonus2 bSkillAtk,"NJ_HUUJIN",10;
+27306	Bellare_Card	DROPPED	if (getiteminfo(getequipid(EQI_COMPOUND_ON), ITEMINFO_VIEW) == W_REVOLVER) { .@r = getrefine(); bonus bHit,20; bonus bLongAtkRate,(5+.@r); if (.@r >= 10) { bonus2 bSkillAtk,"RL_FIREDANCE",15; } }
+300102	Beta_Baths_A_Card	DROPPED	bonus bInt,3; bonus bMaxHPrate,10; bonus2 bSkillAtk,"GN_SPORE_EXPLOSION",10; bonus2 bSkillAtk,"GN_CARTCANNON",10;
+300101	Beta_Cleaner_Card	DROPPED	bonus bStr,3; bonus bMaxHPrate,10; bonus2 bSkillAtk,"RK_DRAGONBREATH_WATER",10; bonus2 bSkillAtk,"RK_DRAGONBREATH",10;
+300076	Beta_Guards_Ng_Card	DROPPED	bonus bVit,3; bonus bMaxHPrate,10; bonus2 bSkillAtk,"LG_BANISHINGPOINT",10; bonus2 bSkillAtk,"LG_CANNONSPEAR",10;
+300087	Beta_Scissore_Ng_Card	DROPPED	bonus bLuk,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"SU_SV_STEMSPEAR",10; bonus2 bSkillAtk,"SU_SCAROFTAROU",10;
+4627	Big_Bell_Card	KEPT	bonus2 bAddRace,RC_Formless,10; bonus2 bAddRace,RC_Demon,10;
+4626	Big_Ben_Card	KEPT	bonus2 bMagicAddRace,RC_Formless,5; bonus2 bMagicAddRace,RC_Demon,5;
+4662	Big_Eggring_Card	DROPPED	bonus bBaseAtk,25-5*min(readparam(bStr)/10,5); bonus bMatk,25-5*min(readparam(bInt)/10,5); bonus bAspdRate,10-2*min(readparam(bAgi)/10,5); bonus bMaxHP,1000-200*min(readparam(bVit)/10,5); bonus bLongAtkRate,5-1*min(readparam(bDex)/10,5); bonus bCritAtkRate,10-2*min(readparam(bLuk)/10,5);
+4636	Bijou_Card	DROPPED	bonus2 bResEff,Eff_Freeze,10000; bonus2 bAddClass,Class_All,10; bonus bMatkRate,10;
+27086	BitterArcherSk_Card	DROPPED	if (getiteminfo(getequipid(EQI_COMPOUND_ON), ITEMINFO_VIEW) == W_BOW) { bonus3 bAutoSpell,"AC_DOUBLE",5,30; if (getrefine() >= 10) { bonus2 bWeaponDamageRate,W_BOW,20; } }
+27083	BitterBonGun_Card	DROPPED	bonus bBaseAtk,20; bonus bMatk,20;
+27085	BitterMunak_Card	DROPPED	bonus bBaseAtk,15; bonus bMatk,15;
+27084	BitterSohee_Card	DROPPED	bonus bMatk,10; if (getrefine() >= 10) { bonus bMatkRate,2; }
+4527	Black_Coelacanth_Card	KEPT	bonus bMaxHPrate,10; bonus bDef,100;
+300245	Bluemoon_Loli_Ruri_Card	DROPPED	.@r = getrefine(); bonus bVariableCastrate,5-.@r; if (.@r>=9) { bonus bHealPower,3; if (.@r>=11) { bonus bHealPower,5; } }
+27256	Blut_Hase_Card	KEPT	bonus bAtkRate,3; bonus bLongAtkRate,5;
+27105	Bomi_Card	KEPT	skill "HW_NAPALMVULCAN",4;
+300104	Bookworm_Card	DROPPED	bonus bVit,1; bonus bInt,2; bonus bMaxHPrate,10; bonus2 bSkillAtk,"SO_DIAMONDDUST",10; bonus2 bSkillAtk,"SO_PSYCHIC_WAVE",10;
+4472	Bradium_Goram_Card	DROPPED	bonus2 bMagicAddRace,RC_Brute,10; bonus2 bMagicAddRace,RC_Player_Doram,10;
+27324	Brinaranea_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Water,15;
+300241	Brutal_Murderer_Card	DROPPED	bonus bBaseAtk,15; bonus2 bAddSize,Size_Medium,15; if (BaseLevel>=200) { bonus2 bAddSize,Size_Medium,25; }
+4582	Bungisngis_Card	KEPT	bonus bMaxHPrate,(getrefine()/2);
+4519	Butoijo_Card	KEPT	bonus2 bAddRace,RC_Angel,20;
+4592	Buwaya_Card	KEPT	bonus bVit,4; bonus5 bAutoSpellWhenHit,"NPC_WIDESTONE",4,20,BF_MAGIC,0;
+# ID-CONFLICT skip 4359 B_Eremes_Card (id already in uAthena)
+# ID-CONFLICT skip 4361 B_Harword_Card (id already in uAthena)
+300088	B_Scissore_Ng_H_Card	DROPPED	.@r = getrefine(); if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_BOOK) { bonus bAtkRate,5; bonus bHit,20; } bonus bShortAtkRate,.@r; if (.@r>=10) { bonus2 bSkillAtk,"SJ_FALLINGSTAR_ATK",15; bonus2 bSkillAtk,"SJ_FALLINGSTAR_ATK2",15; bonus2 bSkillAtk,"SJ_FULLMOONKICK",15; }
+27316	Caput_Card	KEPT	bonus bDef,50; bonus2 bSubEle,Ele_Poison,10;
+4568	Ceila_Card	KEPT	bonus bFlee,10; skill "SA_ABRACADABRA",1;
+4517	Cendrawasih_Card	KEPT	bonus bInt,2; if (BaseClass == Job_Mage) { bonus bInt,getrefine()/3; }
+4595	Cenere_Card	KEPT	bonus bAspdRate,2*(readparam(bAgi)/10);
+4562	Champion_Card	DROPPED	bonus2 bAddClass,Class_All,(readparam(bAgi)>=110)?14:7; bonus5 bAutoSpellWhenHit,"MO_INVESTIGATE",5,100,BF_WEAPON,1;
+4697	Charleston_Card	KEPT	bonus bBreakArmorRate,5000; bonus bMaxSP,-300;
+4569	Chen_Card	KEPT	bonus bFlee,10; skill "MO_CALLSPIRITS",2;
+4560	Clown_Card	KEPT	skill "BA_POEMBRAGI",10; bonus bFlee,(readparam(bVit)>=110)?40:20;
+27286	Colorful_T_Bear_Card	DROPPED	bonus bMatk,5; bonus2 bMagicAddSize,Size_Large,15;
+4516	Comodo_Card	KEPT	bonus bDef,50; bonus bFlee,-25;
+4603	CorruptionRoot_Card	KEPT	bonus bBaseAtk,20; bonus5 bAutoSpell,"NPC_WIDESTONE",1,50,BF_SHORT,0; bonus5 bAutoSpell,"NPC_WIDESLEEP",1,50,BF_SHORT,0; bonus5 bAutoSpell,"NPC_WIDECURSE",1,50,BF_SHORT,0;
+27170	Cowraiders1_Card	KEPT	bonus bAgi,7; bonus bHit,7;
+27171	Cowraiders2_Card	KEPT	bonus bStr,4; bonus bAtkRate,4;
+27172	Cowraiders3_Card	DROPPED	.@bonus = 5; .@type = getiteminfo(getequipid(EQI_COMPOUND_ON), ITEMINFO_VIEW); if (.@type == W_DAGGER) { .@r = getrefine(); if (.@r>=10) { .@bonus += 20; } if (.@r>=14) { .@bonus += 20; } } bonus bBaseAtk,.@bonus; bonus bMatk,.@bonus;
+27179	Coyote_Card	DROPPED	bonus bNoCastCancel; .@hp = -12; .@sp = -6; if (getrefine() >= 10) { .@hp += 6; .@sp += 3; } bonus bMaxHPrate,.@hp; bonus bMaxSPrate,.@sp;
+4563	Creator_Card	KEPT	bonus bCritical,(readparam(bStr)>=110)?40:20; bonus5 bAutoSpellWhenHit,"AM_ACIDTERROR",5,100,BF_WEAPON,1;
+4529	Cruel_Coelacanth_Card	DROPPED	.@r = getrefine(); bonus2 bAddClass,Class_All,2+(.@r/2); bonus bMaxSPrate,-.@r/2;
+27152	Cutie_Card	DROPPED	bonus bMaxHPrate,10; .@r = getrefine()/2; bonus bAgi,.@r; bonus bAspdRate,.@r;
+4574	Daehyon_Card	DROPPED	.@i = getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW); if (.@i == W_1HSWORD || .@i == W_2HSWORD) { bonus bBaseAtk,100; }
+300252	Deadre_Card	DROPPED	bonus bMatk,15; bonus2 bMagicAtkEle,Ele_Holy,7; bonus bUseSPrate,5;
+300248	Death_Witch_Card	KEPT	bonus bUseSPrate,50; bonus bMatkRate,10; bonus2 bMagicAddRace,RC_Demon,50; bonus2 bMagicAddRace,RC_Formless,50;
+27321	DespairGodMorocc_Card	DROPPED	bonus bAtkRate,10; bonus bMaxHPrate,-50; bonus2 bAddRace,RC_DemiHuman,30; bonus2 bAddRace,RC_Player_Human,30; bonus2 bAddRace,RC_Angel,30; autobonus3 "{ }",1000,5000,"NV_FIRSTAID","{ active_transform 3097,5000; }"; /* unknown transformation rates */
+27250	Dio_Anemos_Card	DROPPED	bonus bMatkRate,3; bonus2 bMagicAtkEle,Ele_Neutral,5; bonus2 bMagicAtkEle,Ele_Earth,5;
+300244	Disguiser_Card	DROPPED	.@r = getrefine(); bonus bVariableCastrate,5-.@r; if (.@r>=9) { bonus bLongAtkRate,1; if (.@r>=11) { bonus bLongAtkRate,2; } }
+4506	Dolomedes_Card	KEPT	bonus bDex,2; if (BaseClass == Job_Archer) { bonus bDex,getrefine()/3; }
+300112	Dolor3_Card	DROPPED	bonus bVit,1; bonus bInt,2; bonus bMaxHPrate,10; bonus2 bSkillAtk,"SP_CURSEEXPLOSION",10; bonus2 bSkillAtk,"SP_SWHOO",10;
+300250	Dolorian_Card	KEPT	bonus2 bAddRace,RC_Demon,5; if (BaseLevel>=200) { bonus2 bAddRace,RC_Demon,15; }
+27312	Dolor_Card	KEPT	bonus2 bAddRace,RC_Demon,5;
+27019	DR815_Card	KEPT	bonus bHit,1+(BaseLevel>=90)+(BaseLevel>=120);
+300083	Dry_Rafflesia_Card	KEPT	bonus bAgi,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"NJ_KUNAI",15; bonus2 bSkillAtk,"NJ_HYOUSENSOU",15;
+300084	Dry_Rafflesia_H_Card	KEPT	bonus2 bSubEle,Ele_Holy,30; bonus bFlee,5;
+27262	Dy_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Dark,20; bonus2 bMagicAtkEle,Ele_Neutral,20;
+4659	Eggring_Card	KEPT	bonus bLuk,2; bonus bMaxHP,50;
+4577	Elvira_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Wind,20; bonus2 bMagicAtkEle,Ele_Ghost,20;
+27305	EL_A17T_Card	DROPPED	bonus4 bAutoSpell,"WL_HELLINFERNO",3,20,1;
+4583	Engkanto_Card	DROPPED	bonus2 bAddEle,Ele_Poison,30; bonus2 bMagicAddEle,Ele_Poison,30; bonus2 bIgnoreDefRaceRate,RC_Plant,30;
+300109	EP17_2_Cramp_Card	DROPPED	bonus bStr,1; bonus bDex,2; bonus bMaxHPrate,10; bonus2 bSkillAtk,"GC_COUNTERSLASH",10; bonus2 bSkillAtk,"GC_ROLLINGCUTTER",10;
+300121	EP17_2_Marc_Card	DROPPED	.@r = getrefine(); bonus2 bMagicAtkEle,Ele_Holy,5; bonus2 bMagicAtkEle,Ele_Water,5; bonus2 bMagicAtkEle,Ele_Holy,(.@r/2); bonus2 bMagicAtkEle,Ele_Water,(.@r/2);
+300118	EP17_2_Phen_Card	DROPPED	bonus bStr,2; bonus bVit,1; bonus bMaxHPrate,10; bonus2 bSkillAtk,"SJ_FALLINGSTAR_ATK",10; bonus2 bSkillAtk,"SJ_FALLINGSTAR_ATK2",10; bonus2 bSkillAtk,"SJ_FULLMOONKICK",10;
+300120	EP17_2_Piranha_Card	KEPT	bonus bMatkRate,2;
+300119	EP17_2_Sword_Fish_Card	DROPPED	bonus bAgi,1; bonus bDex,2; bonus bMaxHPrate,10; bonus2 bSkillAtk,"RL_HAMMER_OF_GOD",10; bonus2 bSkillAtk,"RL_R_TRIP",10;
+300218	EP18_Ashhopper_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Neutral,35; bonus bUseSPrate,10;
+300219	EP18_Ashring_Card	DROPPED	.@r = getequiprefinerycnt(EQI_HAND_R); if (getiteminfo(getequipid(EQI_HAND_R),11) == W_STAFF || getiteminfo(getequipid(EQI_HAND_R),11) == W_2HSTAFF) { bonus2 bMagicAtkEle,Ele_Dark,10; if (.@r>=10) { bonus2 bMagicAtkEle,Ele_Dark,10; if (.@r>=14) { bonus2 bMagicAtkEle,Ele_Dark,10; } } }
+300211	EP18_Ash_Toad_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Earth,35; bonus bUseSPrate,10;
+300217	EP18_Burning_Fang_Card	DROPPED	bonus2 bSubEle,Ele_All,-15; bonus bShortAtkRate,20;
+300228	EP18_Demi_Freyja_Card	KEPT	bonus2 bMagicAddRace,RC_Demon,75; bonus2 bSubRace,RC_Demon,-25;
+300222	EP18_Firewind_Kite_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Wind,35; bonus bUseSPrate,10;
+300220	EP18_Grey_Wolf_Card	DROPPED	bonus bShortAtkRate,6;
+300214	EP18_Hot_Molar_Card	DROPPED	if (getiteminfo(getequipid(EQI_HAND_R),11) == W_KATAR) { bonus bShortAtkRate,10+(getrefine()/2); }
+300216	EP18_Lava_Toad_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Fire,35; bonus bUseSPrate,10;
+300223	EP18_Phantom_Wolf_Card	DROPPED	bonus bShortAtkRate,6;
+300212	EP18_Rakehand_Card	KEPT	bonus2 bSubEle,Ele_Dark,10; bonus bDef,50;
+300227	EP18_Schulang_Card	KEPT	bonus2 bMagicAddRace,RC_Angel,75; bonus2 bSubRace,RC_Angel,-25;
+300213	EP18_Spark_Card	KEPT	bonus bBaseAtk,5; bonus2 bAddEle,Ele_Fire,10; bonus2 bCriticalAddRace,RC_Undead,15; bonus2 bCriticalAddRace,RC_Demon,15;
+300221	EP18_Tumble_Ring_Card	DROPPED	.@r = getrefine(); bonus2 bMagicAtkEle,Ele_Neutral,5+(.@r/2); bonus2 bMagicAtkEle,Ele_Dark,5+(.@r/2);
+300215	EP18_Volcaring_Card	DROPPED	.@r = getrefine(); bonus2 bMagicAtkEle,Ele_Earth,5+(.@r/2); bonus2 bMagicAtkEle,Ele_Fire,5+(.@r/2);
+27151	Evil_Card	DROPPED	bonus2 bAddEffWhenHit,Eff_Freezing,3000 + (readparam(bInt) >= 110 ? 1000 : 0); bonus bMdef,5;
+27265	Evil_Fanatics_Card	KEPT	bonus2 bAddEle,Ele_Dark,30; bonus2 bAddEle,Ele_Undead,30; bonus2 bMagicAddEle,Ele_Dark,30; bonus2 bMagicAddEle,Ele_Undead,30; bonus2 bAddEle,Ele_Holy,-30; bonus2 bAddEle,Ele_Fire,-30; bonus2 bMagicAddEle,Ele_Holy,-30; bonus2 bMagicAddEle,Ele_Fire,-30;
+27264	Evil_Shadow_Card	KEPT	bonus2 bSubEle,Ele_Dark,30; bonus2 bSubEle,Ele_Undead,30; bonus2 bSubEle,Ele_Holy,-30; bonus2 bSubEle,Ele_Fire,-30;
+27016	ExplorationRover_T_Card	KEPT	bonus2 bCriticalAddRace,RC_Formless,30;
+27173	E_Cowraiders1_Card	DROPPED	.@bonus = 10; .@r = getrefine(); if (.@r>=10) { .@bonus += 20; } if (.@r>=14) { .@bonus += 20; } bonus2 bSkillAtk,"GS_SPREADATTACK",.@bonus;
+27174	E_Cowraiders2_Card	DROPPED	.@bonus = 10; .@r = getrefine(); if (.@r>=10) { .@bonus += 20; } if (.@r>=14) { .@bonus += 20; } bonus2 bSkillAtk,"GS_RAPIDSHOWER",.@bonus;
+27175	E_Cowraiders3_Card	DROPPED	bonus2 bAddSize,Size_Small,10; bonus2 bMagicAddSize,Size_Small,10;
+27320	E_EA1L_Card	DROPPED	.@r = getrefine(); .@val = 3; if (.@r >= 9) { .@val += 2; if (.@r >= 11) { .@val += 5; } } bonus2 bMagicAtkEle,Ele_Fire,.@val;
+27304	E_EA2S_Card	KEPT	bonus bHPrecovRate,50;
+27163	Faceworm_Card	KEPT	bonus bAgi,-1; bonus bDex,-1; bonus bAspdRate,3;
+27165	Faceworm_D_Card	KEPT	bonus bVit,-1; bonus bInt,-1; bonus bDelayrate,-3;
+27166	Faceworm_Egg_Card	DROPPED	.@r = getrefine(); .@sub = 2+(.@r >= 9 ? 3 : .@r >= 7 ? 1 : 0); bonus2 bSubEle,Ele_Fire,.@sub;
+27167	Faceworm_L_Card	DROPPED	bonus2 bSubEle,Ele_Neutral,15; bonus2 bMagicAtkEle,Ele_Water,getrefine()*3;
+27164	Faceworm_Q_Card	DROPPED	bonus bMaxHPrate,-10; .@r = getrefine(); bonus bCritical,15 + .@r; bonus bCritAtkRate,.@r;
+4607	FaithfulManager_Card	DROPPED	bonus bBaseAtk,5; bonus bMatk,5; if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_BOOK) { .@r = getrefine(); if (.@r>=10) { bonus bBaseAtk,20; bonus bMatk,20; } if (.@r>=14) { bonus bBaseAtk,20; bonus bMatk,20; } }
+# ID-CONFLICT skip 4441 Fallen_Bishop_Card (id already in uAthena)
+27263	Fei_Kanabian_Card	DROPPED	autobonus "{ bonus bDef,300; }",20,10000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; active_transform 1040,10000; }";
+27182	Felock_Card	DROPPED	bonus bBaseAtk,30; .@r = getrefine(); bonus2 bSkillAtk,"RL_AM_BLAST",.@r >= 10 ? 60 : 30; bonus2 bSkillAtk,"RL_HAMMER_OF_GOD",.@r >= 10 ? 60 : 30;
+4556	Fenrir_Card	DROPPED	bonus bMatk,50+getrefine()*5; bonus bFixedCastrate,-70;
+4557	Fenrir_Card_	DROPPED	bonus bMatk,25;
+300256	Fillia_Card	DROPPED	bonus bMatk,15; bonus2 bMagicAtkEle,Ele_Fire,7; bonus bUseSPrate,5;
+27026	Fire_Condor_Card	DROPPED	bonus2 bVariableCastrate,"MG_FIREBALL",-50; bonus2 bSkillAtk,"MG_FIREBALL",100;
+27028	Fire_Frilldora_Card	DROPPED	.@r = getrefine(); bonus2 bMagicAddEle,Ele_Earth,3+((.@r>=7)*5)+((.@r>=9)*7);
+27029	Fire_Golem_Card	KEPT	bonus2 bSubEle,Ele_Fire,20; bonus2 bAddEle,Ele_Fire,5;
+27027	Fire_Sand_Man_Card	KEPT	bonus bDef,50; bonus2 bSubEle,Ele_Fire,10;
+27353	Firm_Blazzer_Card	KEPT	bonus2 bSubRace,RC_Demon,15; bonus2 bSubEle,Ele_Neutral,15;
+27350	Firm_Deleter1_Card	DROPPED	.@r = getrefine(); bonus bMaxSPrate,2+(.@r/2);
+27351	Firm_Deleter2_Card	KEPT	bonus bMaxHPrate,5;
+27349	Firm_Explosion_Card	KEPT	bonus2 bSubRace,RC_Dragon,15; bonus2 bSubEle,Ele_Fire,15;
+27347	Firm_Kaho_Card	KEPT	bonus2 bMagicAddEle,Ele_Earth,10;
+27348	Firm_Lava_G_Card	DROPPED	.@r = getrefine(); bonus2 bMagicAddEle,Ele_Neutral,3+((.@r>=7)*5)+((.@r>=9)*7);
+27346	Firm_Muspell_Card	DROPPED	bonus2 bSubRace,RC_Dragon,30; bonus2 bSubRace,RC_Demon,30; bonus2 bSubRace,RC_Brute,30; bonus2 bSubRace,RC_Player_Doram,30;
+27352	Firm_Nightmare_T_Card	KEPT	bonus bMaxSPrate,5;
+4570	Flamel_Card	DROPPED	bonus bFlee,10; bonus2 bAddItemGroupHealRate,IG_Flamel_Card,200;
+27360	Flame_Ghost_Card	KEPT	bonus2 bMagicAddEle,Ele_Fire,15;
+27289	Fragment_Of_Soul_Card	DROPPED	bonus bMatk,5; bonus2 bMagicAddSize,Size_Medium,15;
+4640	Frozenwolf_Card	KEPT	bonus bMatkRate,1;
+27356	Frozen_Gargoyle_Card	DROPPED	bonus2 bSubSize,Size_Medium,25; bonus2 bSubSize,Size_Large,25; bonus2 bSubSize,Size_Small,-5; bonus bDef,20;
+4670	Fru_Pom_Spider_Card	DROPPED	.@r = getrefine(); bonus2 bMagicAddEle,Ele_Fire,((.@r>=9)?7:((.@r>=7)?5:3));
+27030	Fulbuk_Card	DROPPED	bonus3 bAddEff,Eff_Burning,700,ATF_WEAPON|ATF_MAGIC;
+300259	Fulgor_Card	DROPPED	bonus bMatk,15; bonus2 bMagicAtkEle,Ele_Earth,7; bonus bUseSPrate,5;
+27088	FuryHero_Card	KEPT	bonus bAtkRate,2; bonus5 bAutoSpell,"SM_ENDURE",1,5,BF_SHORT,0;
+300261	Galensis_Card	KEPT	bonus bCritical,2*(readparam(bLuk)/10); if (readparam(bLuk)>=125) { bonus bCritAtkRate,30; }
+300240	Gan_Ceann_Card	DROPPED	bonus bBaseAtk,15; bonus2 bAddSize,Size_Large,15; if (BaseLevel>=200) { bonus2 bAddSize,Size_Large,25; }
+27178	Gaster_Card	DROPPED	bonus2 bSubClass,Class_Normal,25; bonus2 bSubClass,Class_Boss,-50;
+27018	GC109_Card	KEPT	bonus bAspdRate,1+(BaseLevel>=90)+(BaseLevel>=120);
+27251	Geffen_Gang_Card	KEPT	bonus bCritAtkRate,3; bonus bAspdRate,5;
+27253	Geffen_Thief_Card	DROPPED	bonus bMatkRate,3; bonus2 bMagicAtkEle,Ele_Fire,5; bonus2 bMagicAtkEle,Ele_Holy,5;
+27252	Geffen_Thug_Card	KEPT	bonus bCritAtkRate,5; bonus bAspdRate,3;
+4681	Genetic_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Alchemist) { bonus bFlee,20; bonus2 bAddRace,RC_All,15; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+4571	Gertie_Card	KEPT	bonus bFlee,10; skill "RG_CLOSECONFINE",1;
+300242	Ghost_Cube_Card	KEPT	if (BaseJob == JOB_NOVICE) { bonus bAtkRate,10; bonus bMaxHP,1500; }
+300249	Giant_Caput_Card	KEPT	bonus2 bAddRace,RC_Formless,5; if (BaseLevel>=200) { bonus2 bAddRace,RC_Formless,15; }
+4534	Giant_Octopus_Card	KEPT	bonus bMaxHPrate,12; skill "WZ_WATERBALL",5;
+27183	Gigantes_Card	KEPT	bonus bBaseAtk,20; if (readparam(bStr) >= 120) { bonus bBaseAtk,20; bonus bAspdRate,-3; }
+4576	Gioia_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Wind,100; bonus2 bMagicAtkEle,Ele_Ghost,100; bonus2 bSubEle,Ele_All,-30;
+4509	Gold_Q_Scaraba_Card	KEPT	bonus bInt,3; bonus2 bSubRace,RC_Insect,10; if (getrefine()>=9) { bonus2 bSubRace,RC_Insect,5; }
+4508	Gold_Scaraba_Card	KEPT	bonus bBaseAtk,20; bonus bMaxHPrate,-1;
+27106	Grand_Pere_Card	DROPPED	if (BaseJob == Job_Bard || BaseJob == Job_Dancer) { bonus bMatk,(15*getrefine()); }
+300100	Gran_Papilia_Card	DROPPED	bonus2 bSubClass,Class_Boss,25; bonus bHealPower2,30;
+4664	Grass_Fabre_Card	KEPT	bonus bLuk,1; bonus bMaxHP,100;
+4652	Grave_Amon_Ra_Card	KEPT	bonus2 bMagicAddRace,RC_Demon,50; bonus2 bMagicAddRace,RC_Undead,50; bonus2 bMagicAddEle,Ele_Dark,50; bonus2 bMagicAddEle,Ele_Undead,50;
+4653	Grave_Arclouse_Card	KEPT	bonus2 bSubRace,RC_Brute,20; bonus2 bSubRace,RC_Undead,20;
+4657	Grave_A_Mummy_Card	DROPPED	bonus2 bSubEle,Ele_Neutral,15; bonus2 bMagicAtkEle,Ele_Fire,getrefine()*3;
+4654	Grave_Mimic_Card	KEPT	bonus2 bMagicAddRace,RC_Brute,5; bonus2 bMagicAddRace,RC_Undead,5;
+4655	Grave_Minorous_Card	KEPT	bonus2 bAddRace,RC_Brute,10; bonus2 bAddRace,RC_Undead,10;
+4656	Grave_Mummy_Card	DROPPED	/* Unofficial chance */ bonus3 bAutoSpellWhenHit,"NPC_WIDESLEEP",2,30;
+4658	Grave_Verit_Card	KEPT	bonus bMatkRate,5; if (getrefine()>6) { bonus bMatkRate,3; } if (getrefine()>8) { bonus bMatkRate,2; }
+27014	GreenCenere_Card	DROPPED	bonus bMaxHPrate,2; autobonus2 "{ bonus2 bHPRegenRate,1000,1000; }",20,5000,BF_NORMAL|BF_MAGIC,"{ specialeffect2 EF_HEAL2; }";
+300246	Grote_Card	DROPPED	.@r = getrefine(); bonus bVariableCastrate,5-.@r; if (.@r>=9) { bonus2 bMagicSubSize,Size_Small,1; bonus bMdef,8; if (.@r>=11) { bonus2 bMagicSubSize,Size_Small,2; } }
+4674	GuillotineCross_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Assassin) { bonus bFlee2,10; bonus2 bAddRace,RC_All,15; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+4566	Gypsy_Card	KEPT	skill "DC_FORTUNEKISS",10; bonus bFlee,(readparam(bVit)>=110)?40:20;
+27149	Heart_Hunter_Card	DROPPED	.@type = getiteminfo(getequipid(EQI_COMPOUND_ON), ITEMINFO_VIEW); .@r = getrefine(); if (.@type == W_REVOLVER || .@type == W_RIFLE || .@type == W_GRENADE) { bonus bLongAtkRate,5+.@r+(.@r >= 10 ? 5 : 0); }
+27307	High_Bellare_Card	DROPPED	if (getiteminfo(getequipid(EQI_COMPOUND_ON), ITEMINFO_VIEW) == W_GATLING) { .@r = getrefine(); bonus bHit,20; bonus bLongAtkRate,(5+.@r); if (.@r >= 10) { bonus2 bSkillAtk,"RL_R_TRIP",15; } }
+27309	High_Sanare_Card	DROPPED	bonus bMatk,10; .@val = 5; if (getrefine() >= 9) { .@val += 5; } bonus2 bMagicAtkEle,Ele_Holy,.@val;
+27147	Human_Kimera_Card	KEPT	bonus bHit,(BaseLevel >= 90 ? 15 : 5);
+4667	Hunter_Wolf_Card	KEPT	bonus bMaxSP,30;
+27258	Hyper_Death_Card	KEPT	bonus bAtkRate,3; bonus bAspdRate,5;
+27120	Iara_Card	KEPT	skill "PR_STRECOVERY",1;
+27359	Ice_Ghost_Card	KEPT	bonus2 bMagicAddEle,Ele_Water,15;
+4646	IFN_Chimera_Card	KEPT	bonus bMaxHPrate,8; bonus bMaxSPrate,4;
+4645	IFN_Eclipse_Card	DROPPED	.@r = getrefine(); if (.@r>6) { .@b += 300; if (.@r>8) .@b += 400; } bonus bMaxHP,300+.@b;
+4648	IFN_Eddga_Card	KEPT	bonus4 bAutoSpellWhenHit,"SM_PROVOKE",10,500,1;
+4650	IFN_OrcHero_Card	DROPPED	bonus bVit,3; bonus3 bAddEffWhenHit,Eff_Stun,10000,ATF_MAGIC;
+4647	IFN_Osiris_Card	KEPT	bonus bHPGainValue,300;
+4649	IFN_Phreeoni_Card	KEPT	bonus bCritical,100;
+4651	IFN_Tao_Gunka_Card	KEPT	bonus bMaxHP,10000; bonus bAgi,-10;
+4642	IFN_Toad_Card	DROPPED	.@r = getrefine(); if (.@r>6) { .@b += 2; if (.@r>8) .@b += 3; } bonus bFlee2,2+.@b;
+4644	IFN_Vocal_Card	DROPPED	.@r = getrefine(); if (.@r>6) { .@b += 10; if (.@r>8) .@b += 15; } bonus bMdef,5+.@b;
+4643	IFN_V_Wolf_Card	DROPPED	.@r = getrefine(); if (.@r>6) { .@b += 10; if (.@r>8) .@b += 15; } bonus bBaseAtk,10+.@b;
+300145	ILL_Abysmal_Witch_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Fire,100; bonus2 bMagicAtkEle,Ele_Dark,100; bonus2 bSubEle,Ele_All,-30;
+300230	ILL_Andre_Card	KEPT	bonus2 bSubRace,RC_Insect,20; bonus bMaxHPrate,getrefine();
+300232	ILL_Andre_larva_Card	KEPT	bonus2 bAddRace,RC_Insect,20; bonus2 bMagicAddRace,RC_Insect,20;
+300231	ILL_Andre_soldier_Card	DROPPED	bonus2 bAddSize,Size_Small,20; bonus2 bAddSize,Size_Medium,20; bonus bBreakArmorRate,1;
+300235	ILL_Ant_egg_Card	KEPT	bonus bMaxSPrate,10; bonus bMaxHPrate,getrefine();
+300233	ILL_Deniro_Card	KEPT	bonus2 bSubRace,RC_Insect,20; bonus bMaxHPrate,getrefine();
+300142	ILL_Deviace_Card	DROPPED	.@r = getrefine(); bonus2 bAddRace,RC_Fish,5; bonus2 bAddEle,Ele_Water,5; if (.@r>=7) { bonus2 bAddEle,Ele_Water,5; } if (.@r>=9) { bonus2 bAddRace,RC_Fish,5; }
+27104	Ill_Dracula_Card	KEPT	skill "PF_HPCONVERSION",1;
+300237	ILL_Farmiliar_Card	DROPPED	bonus2 bIgnoreMdefRaceRate,RC_Brute,15; bonus2 bMagicAddRace,RC_Brute,5*(getrefine()/2);
+300236	ILL_Giearth_Card	KEPT	bonus2 bResEff,Eff_Confusion,10000; bonus2 bResEff,Eff_Blind,10000; bonus2 bAddRace,RC_Insect,4*(getrefine()/2);
+300150	ILL_King_Dramoh_Card	KEPT	bonus bMaxHPrate,-5; bonus bAtkRate,(getrefine()/3);
+300151	ILL_Kraken_Card	KEPT	bonus bLongAtkRate,25; bonus bPerfectHitAddRate,5;
+300143	ILL_Marse_Card	KEPT	bonus2 bSubEle,Ele_Earth,15; bonus2 bSubRace,RC_Insect,15;
+300239	ILL_Maya_Card	DROPPED	bonus2 bMagicAddRace,RC_Brute,50; bonus2 bMagicAddRace,RC_Player_Doram,50; bonus2 bMagicAddRace,RC_Plant,50; bonus bUseSPrate,50;
+300144	ILL_Merman_Card	KEPT	bonus bBaseAtk,4*(readparam(bStr)/15);
+300141	ILL_Obeaune_Card	DROPPED	bonus bMatk,30;
+300149	ILL_Phen_Card	DROPPED	bonus2 bSubEle,Ele_Neutral,15; bonus2 bMagicAtkEle,Ele_Wind,3*getrefine();
+300234	ILL_Piere_Card	DROPPED	bonus2 bIgnoreDefRaceRate,RC_Plant,15; bonus2 bAddRace,RC_Plant,5*(getrefine()/2);
+300146	ILL_Sedora_Card	KEPT	bonus2 bCriticalAddRace,RC_Fish,30;
+300140	ILL_Sropho_Card	DROPPED	.@r = getrefine(); bonus2 bMagicAtkEle,Ele_Wind,3; if (.@r>=9) { bonus2 bMagicAtkEle,Ele_Wind,2; } if (.@r>=11) { bonus2 bMagicAtkEle,Ele_Wind,5; }
+300148	ILL_Strouf_Card	KEPT	bonus bMaxHPrate,10; bonus bMaxSPrate,5; if (getrefine()>=9) { bonus2 bMagicAddEle,Ele_Water,5; bonus2 bAddEle,Ele_Water,5; }
+300147	ILL_Sword_Fish_Card	KEPT	bonus2 bSubEle,Ele_Water,10; if (getrefine()>=9) { bonus2 bMagicAddEle,Ele_Water,10; }
+300238	ILL_Vitata_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Poison,5; if (getrefine()>=9) { bonus2 bMagicAtkEle,Ele_Poison,5; skill "AL_HEAL",5; }
+4637	Immotal_Corps_Card	KEPT	bonus bHPGainValue,50; bonus bSPGainValue,5; bonus bNoRegen,1; bonus bNoRegen,2;
+27168	Irene_Elder_Card	KEPT	bonus bHit,10 + 5 * (getrefine()/3);
+4474	Jakudam_Card	DROPPED	bonus2 bMagicAddRace,RC_DemiHuman,10; bonus2 bMagicAddRace,RC_Player_Human,10;
+4589	Jejeling_Card	KEPT	bonus bMaxHP,200*readparam(bVit)/10;
+300006	Jeweliant_Card	DROPPED	bonus5 bAutoSpell,"SO_PSYCHIC_WAVE",1,100,BF_SHORT,1;
+27261	Jew_Card	DROPPED	.@rate = 10 + (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_BOOK ? 20 : 0) + (getrefine() >= 14 ? 20 : 0); bonus2 bSkillAtk,"MG_FIREBOLT",.@rate; bonus2 bSkillAtk,"MG_COLDBOLT",.@rate; bonus2 bSkillAtk,"MG_LIGHTNINGBOLT",.@rate;
+27109	JitterbugCard	KEPT	bonus2 bSubEle,Ele_Neutral,10; bonus bMaxHP,500;
+300007	Jungoliant_Card	KEPT	bonus2 bAddEle,Ele_Fire,40; bonus2 bAddEle,Ele_Water,40; bonus2 bAddRace,RC_Formless,40; bonus2 bAddRace,RC_Plant,40;
+4669	Ju_Mandragora_Card	DROPPED	.@r = getrefine(); bonus2 bMagicAddEle,Ele_Wind,((.@r>=9)?7:((.@r>=7)?5:3));
+4580	Kades_Card	KEPT	bonus2 bSubEle,Ele_Water,50; bonus2 bSubEle,Ele_Earth,50; bonus2 bSubEle,Ele_Fire,50; bonus2 bSubEle,Ele_Wind,50; bonus2 bSubEle,Ele_Dark,50; bonus2 bSubEle,Ele_Undead,50; bonus2 bSubEle,Ele_Holy,-100; bonus2 bSubEle,Ele_Ghost,-100;
+27013	KickAndKick_Card	DROPPED	bonus2 bSkillAtk,"NC_VULCANARM",10+((getrefine()>=10)*20);
+27012	Kick_Step_Card	DROPPED	bonus bMaxHPrate,8; if ((eaclass()&EAJ_THIRDMASK) == EAJ_MECHANIC) { bonus bLongAtkDef,30; }
+4524	King_Dramoh_Card	KEPT	bonus bStr,2; if (BaseClass == Job_Swordman) bonus bStr,getrefine()/3;
+4525	Kraken_Card	KEPT	bonus bFlee,10; skill "TF_HIDING",1; skill "RG_RAID",1; bonus5 bAutoSpellOnSkill,"RG_RAID","NPC_WIDEBLEEDING",1,250,1;
+27257	Kuro_Akuma_Card	DROPPED	bonus bVariableCastrate,-3; bonus bLongAtkRate,5; bonus2 bSkillAtk,"NJ_HUUJIN",5; bonus2 bSkillAtk,"NJ_HYOUSENSOU",5; bonus2 bSkillAtk,"NJ_KOUENKA",5;
+300258	Lava_Eater_Card	DROPPED	bonus bMatk,15; bonus2 bMagicAtkEle,Ele_Dark,7; bonus bUseSPrate,5;
+4663	Leaf_Lunatic_Card	KEPT	bonus bMaxSP,5;
+4520	Leak_Card	DROPPED	bonus bStr,3; bonus3 bAddEffWhenHit,Eff_Confusion,100,ATF_WEAPON|ATF_MAGIC; bonus3 bAddEffWhenHit,Eff_Fear,100,ATF_WEAPON|ATF_MAGIC;
+27158	Les_Card	KEPT	bonus2 bSubEle,Ele_Wind,30;
+4597	LichternB_Card	DROPPED	bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Water,(getrefine()>=9)?10:5;
+4600	LichternG_Card	DROPPED	bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Earth,(getrefine()>=9)?10:5;
+4599	LichternR_Card	DROPPED	bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Fire,(getrefine()>=9)?10:5;
+4598	LichternY_Card	DROPPED	bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Ghost,(getrefine()>=9)?10:5;
+27025	Lich_Lord_Card	DROPPED	bonus bDef,30; bonus bMdef,10; bonus3 bAddEffWhenHit,Eff_Silence,2000,ATF_WEAPON|ATF_MAGIC;
+4511	Little_Fatum_Card	DROPPED	bonus3 bAddEff,Eff_Silence,1000,ATF_MAGIC;
+300255	Litus_Card	DROPPED	bonus bMatk,15; bonus2 bMagicAtkEle,Ele_Wind,7; bonus bUseSPrate,5;
+27103	LivingDead_Card	DROPPED	bonus bBaseAtk,20; bonus bUnbreakableWeapon; bonus bUnbreakableArmor;
+27328	LivingDeath_Card	KEPT	bonus bMaxHP,500; bonus bMaxSP,50; bonus2 bSubRace,RC_Angel,-50;
+4579	Lora_Card	DROPPED	if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_MACE) { .@r = getrefine(); bonus bBaseAtk,20+.@r; bonus bCritical,10+.@r; }
+300243	Lude_Gal_Card	KEPT	if (BaseJob == JOB_NOVICE) { bonus bMatkRate,10; bonus bMaxSP,500; }
+4584	Manananggal_Card	KEPT	bonus bSPDrainValue,1; bonus bMaxSPrate,-1;
+4585	Mangkukulam_Card	KEPT	bonus bMaxSPrate,10; bonus bHPGainValue,-666;
+27102	MattDrainliar_Card	DROPPED	bonus2 bResEff,Eff_Burning,10000;
+27148	Matter_Kimera_Card	KEPT	bonus bFlee,(BaseLevel >= 90 ? 20 : 10);
+4677	Mechanic_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Blacksmith) { bonus bHit,20; bonus2 bAddRace,RC_All,15; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+27180	Mechaspider_Card	KEPT	bonus bBreakWeaponRate,1000; bonus bBreakArmorRate,1000;
+4593	Menblatt_Card	KEPT	bonus bLongAtkRate,readparam(bDex)/10;
+27318	Miguel_Card	DROPPED	bonus bCritAtkRate,20; bonus2 bSubRace,RC_All,-10;
+4510	Miming_Card	DROPPED	bonus3 bAutoSpell,"WM_LULLABY_DEEPSLEEP",1,30;
+27326	MinionOfMorocc_Card	KEPT	bonus bBaseAtk,100; bonus bAspdRate,25; bonus bMaxHPrate,-20;
+4533	Mini_Octopus_Card	DROPPED	bonus3 bAddEff,Eff_Blind,100,ATF_MAGIC;
+4673	Minstrel_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Bard) { bonus bMaxHPrate,15; bonus bMaxSPrate,10; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+27317	Mt_Caput_Card	KEPT	bonus2 bAddRace,RC_Formless,5;
+27313	Mt_Dolor_Card	DROPPED	if (getiteminfo(getequipid(EQI_COMPOUND_ON), ITEMINFO_VIEW) == W_KATAR) { .@r = getrefine(); bonus bCritical,7; bonus bBaseAtk,15; bonus bCritAtkRate,(2*.@r); if (.@r >= 10) { bonus2 bAddSize,Size_Large,15; } }
+27315	Mt_Venenum_Card	DROPPED	bonus2 bMagicAddRace,RC_Brute,15; bonus2 bMagicAddRace,RC_Player_Doram,15;
+27325	Muspellskoll_Card	KEPT	bonus2 bSubEle,Ele_Fire,30;
+4528	Mutant_Coelacanth_Card	DROPPED	.@r = getrefine(); bonus bMatkRate,2+(.@r/2); bonus bMaxHPrate,-.@r/2;
+27311	Mutant_Plaga_Card	DROPPED	if (getiteminfo(getequipid(EQI_COMPOUND_ON), ITEMINFO_VIEW) == W_KNUCKLE) { .@r = getrefine(); bonus bHit,20; bonus bBaseAtk,15; if (.@r >= 10) { .@val = 15; } bonus2 bAddSize,Size_Large,(.@r+.@val); }
+300260	Napeo_Card	DROPPED	bonus bMatk,5*(readparam(bInt)/10); if (readparam(bInt)>=125) { bonus bMatk,60; }
+300004	Neo_Mineral_Card	KEPT	bonus bDef,30;
+4628	Neo_Punk_Card	KEPT	bonus2 bSubRace,RC_Formless,20; bonus2 bSubRace,RC_Demon,20;
+4470	Nepenthes_Card	KEPT	bonus2 bMagicAddRace,RC_Plant,10;
+4545	Novice_Poring_Card	KEPT	bonus bLuk,1;
+4526	Odd_Coelacanth_Card	KEPT	bonus bMaxSPrate,5; bonus bMdef,50;
+27260	Odorico_Card	KEPT	bonus bAspdRate,3; bonus bLongAtkRate,5;
+27117	OminousAssulter_Card	DROPPED	.@type = getiteminfo(getequipid(EQI_COMPOUND_ON), ITEMINFO_VIEW); if (.@type == W_WHIP || .@type == W_MUSICAL || .@type == W_BOOK || .@type == W_2HSWORD || .@type == W_2HSPEAR) { .@r = getrefine(); bonus bCritical,5; bonus bBaseAtk,(3*.@r); } bonus bCritAtkRate,(10+.@r);
+27118	OminousFreezer_Card	DROPPED	bonus bMaxHPrate,10; bonus bStr,2; if (BaseLevel >= 160) { .@val = 10; } if (getrefine() >= 9) { .@val += 10; } if (.@val) { bonus2 bSkillAtk,"RK_HUNDREDSPEAR",.@val; bonus2 bSkillAtk,"LG_OVERBRAND",.@val; }
+27116	OminousHeater_Card	KEPT	bonus bCritical,3; bonus bCritAtkRate,5;
+27115	OminousPermeter_Card	DROPPED	.@r = getrefine(); bonus bInt,1; bonus bMaxSP,(80+10*(.@r/2)); if (.@r >= 7) { bonus bSPrecovRate,30; }
+27114	OminousSolider_Card	DROPPED	bonus bMaxHPrate,(10+(getrefine()/3)); .@val = 50; if (BaseLevel >= 160) { .@val += 50; bonus bVit,3; } bonus bDef,.@val;
+27119	OminousTurtleG_Card	DROPPED	bonus bDef,30; bonus bMdef,5; bonus2 bSubSize,Size_All,25;
+27255	Ordre_Card	DROPPED	bonus bMatkRate,3; bonus2 bMagicAtkEle,Ele_Wind,5; bonus2 bMagicAtkEle,Ele_Water,5;
+4632	Owl_Marquees_Card	KEPT	bonus5 bAutoSpell,"SA_VIOLENTGALE",(getskilllv("SA_VIOLENTGALE") == 5?5:1),20,BF_WEAPON,0;
+4631	Owl_Viscount_Card	KEPT	bonus bAspdRate,3;
+300077	O_Cleaner_Ng_Card	DROPPED	bonus bVit,1; bonus bDex,2; bonus bMaxHPrate,10; bonus2 bSkillAtk,"NC_AXEBOOMERANG",10; bonus2 bSkillAtk,"NC_VULCANARM",10;
+4565	Paladin_Card	KEPT	bonus bMaxHPrate,(readparam(bInt)>=110)?20:10; bonus5 bAutoSpellWhenHit,"CR_GRANDCROSS",10,100,BF_WEAPON,0;
+300095	Papila_Cae_Card	KEPT	bonus bDex,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"AC_SHOWER",25;
+300096	Papila_Cae_H_Card	DROPPED	.@r = getrefine(); if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_MUSICAL || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_WHIP) { bonus bMatk,20; } if (.@r>=10) { bonus bVariableCastrate,-10; bonus bMatk,20; } if (.@r>=13) { bonus bMatk,20; }
+300091	Papila_Card	KEPT	bonus bDex,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"GS_SPREADATTACK",10; bonus2 bSkillAtk,"GS_DESPERADO",10; bonus2 bSkillAtk,"GS_FULLBUSTER",10;
+300092	Papila_H_Card	KEPT	bonus bLuk,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"MC_CARTREVOLUTION",50;
+300093	Papila_Ruba_Card	KEPT	bonus bInt,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"AL_HOLYLIGHT",50;
+300094	Papila_Ruba_H_Card	DROPPED	if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_2HSWORD) { bonus bCritAtkRate,20; } bonus bCritAtkRate,2*(getrefine()/2);
+4512	Parus_Card	KEPT	bonus bHealPower,3; if (BaseClass == Job_Acolyte) { bonus bHealPower,getrefine()/2; }
+27169	Payon_Soldier_Card	DROPPED	.@atk = 5; .@r = getrefine(); .@i = getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW); if ((.@i == W_1HSPEAR || .@i == W_2HSPEAR) && .@r >= 10) { .@atk += 20; if (.@r >= 14) { .@atk += 20; } } bonus bBaseAtk,.@atk; bonus bMatk,.@atk;
+27254	Pa_Monk_Card	KEPT	bonus bSPrecovRate,10; bonus3 bAutoSpellWhenHit,"CH_SOULCOLLECT",1,10;
+4594	Petal_Card	KEPT	bonus bCritAtkRate,2*(readparam(bLuk)/10);
+300247	Pierrotzoist_Card	DROPPED	.@r = getrefine(); bonus bVariableCastrate,5-.@r; if (.@r>=9) { bonus2 bMagicAtkEle,Ele_Ghost,1; if (.@r>=11) { bonus2 bMagicAtkEle,Ele_Ghost,2; } }
+4476	Pinguicula_Card	KEPT	bonus2 bMagicAddRace,RC_Insect,10;
+4468	Pinguicula_Dark_Card	KEPT	bonus bBaseAtk,10; bonus2 bAddMonsterDropItem,7932,10; bonus2 bAddMonsterDropItem,7933,10; bonus2 bAddMonsterDropItem,7934,10; bonus2 bAddMonsterDropItem,7935,10; bonus2 bAddMonsterDropItem,7936,10; bonus2 bAddMonsterDropItem,7937,10;
+27121	Piranha_Card	DROPPED	.@val = 10; if (getrefine() >= 9) { .@val += 5; } bonus2 bAddRace,RC_Fish,.@val; bonus2 bMagicAddRace,RC_Fish,.@val;
+300107	Pitaya_Boss_Card	KEPT	bonus2 bAddItemHealRate,513,500; bonus2 bAddItemHealRate,512,500;
+300124	Pitaya_B_Card	DROPPED	.@r = getequiprefinerycnt(EQI_HAND_R); if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_STAFF || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_2HSTAFF) { bonus2 bMagicAtkEle,Ele_Water,10; } if (.@r>=10) { bonus2 bMagicAtkEle,Ele_Water,10; } if (.@r>=14) { bonus2 bMagicAtkEle,Ele_Water,10; }
+300125	Pitaya_G_Card	DROPPED	bonus bInt,1; bonus bLuk,2; bonus bMaxHPrate,10; bonus2 bSkillAtk,"SU_CN_METEOR",10; bonus2 bSkillAtk,"SU_PICKYPECK",10;
+300106	Pitaya_R_Card	DROPPED	.@r = getequiprefinerycnt(EQI_HAND_R); if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_STAFF || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_2HSTAFF) { bonus2 bMagicAtkEle,Ele_Fire,10; } if (.@r>=10) { bonus2 bMagicAtkEle,Ele_Fire,10; } if (.@r>=14) { bonus2 bMagicAtkEle,Ele_Fire,10; }
+300123	Pitaya_V_Card	DROPPED	bonus2 bSubEle,Ele_Neutral,15; bonus2 bMagicAtkEle,Ele_Neutral,3*getrefine();
+300122	Pitaya_Y_Card	DROPPED	bonus2 bSubEle,Ele_Neutral,15; bonus2 bMagicAtkEle,Ele_Holy,3*getrefine();
+27288	Pitman_Worker_Card	DROPPED	.@val = 10; bonus bAtkRate,5; if (getrefine() >= 10) { .@val += 5; } bonus bHit,.@val;
+300114	Plaga3_Card	DROPPED	.@r = getequiprefinerycnt(EQI_HAND_R); if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_STAFF || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_2HSTAFF) { bonus2 bMagicAtkEle,Ele_Neutral,10; } if (.@r>=10) { bonus2 bMagicAtkEle,Ele_Neutral,10; } if (.@r>=14) { bonus2 bMagicAtkEle,Ele_Neutral,10; }
+300251	Plagarion_Card	DROPPED	bonus bMatk,15; bonus2 bMagicAtkEle,Ele_Neutral,7; bonus bUseSPrate,5;
+27310	Plaga_Card	DROPPED	bonus bMatk,10; .@val = 5; if (getrefine() >= 9) { .@val += 5; } bonus2 bMagicAtkEle,Ele_Neutral,.@val;
+300117	Plasma_R2_Card	DROPPED	bonus bAgi,1; bonus bDex,2; bonus bMaxHPrate,10; bonus2 bSkillAtk,"RA_ARROWSTORM",10; bonus2 bSkillAtk,"RA_CLUSTERBOMB",10;
+300116	Plasma_R_Card	DROPPED	bonus bStr,2; bonus bInt,1; bonus bMaxHPrate,10; bonus2 bSkillAtk,"SR_RAMPAGEBLASTER",10; bonus2 bSkillAtk,"SR_TIGERCANNON",10;
+300113	Plasma_Y_Card	DROPPED	bonus bVit,1; bonus bInt,2; bonus bMaxHPrate,10; bonus2 bSkillAtk,"WM_SEVERE_RAINSTORM_MELEE",10; bonus2 bSkillAtk,"WM_REVERBERATION",10;
+27107	PlayingPere_Card	KEPT	bonus2 bAddEle,Ele_Neutral,20;
+300001	Poisonous_Card	KEPT	bonus2 bAddEle,Ele_Poison,25;
+27363	Polluted_Dark_L_Card	KEPT	bonus bAspd,1;
+27354	Polluted_Raydric_Card	KEPT	bonus bAtkRate,5;
+27355	Polluted_Ray_A_Card	KEPT	bonus bLongAtkRate,10;
+27362	Polluted_Spi_Q_Card	DROPPED	bonus2 bSubEle,Ele_All,-30; bonus2 bMagicAtkEle,Ele_Earth,100; bonus2 bMagicAtkEle,Ele_Water,100;
+27357	Polluted_Sting_Card	KEPT	bonus bDef,100+25*(getrefine()/3);
+27361	Polluted_W_Man_Card	DROPPED	bonus2 bAddSize,Size_Large,30; bonus2 bAddSize,Size_Medium,30;
+4514	Pom_Spider_Card	KEPT	bonus2 bAddRace,RC_Undead,20;
+300003	Porcellio_W_Card	KEPT	bonus bBaseAtk,20;
+4523	Pot_Dofle_Card	KEPT	bonus bDefEle,Ele_Water; bonus2 bSubRace,RC_Fish,10;
+27358	Prison_Breaker_Card	KEPT	bonus2 bSubEle,Ele_Wind,30; bonus2 bSubEle,Ele_Poison,30; bonus2 bSubEle,Ele_Dark,30; bonus2 bSubEle,Ele_Earth,30; bonus2 bSubEle,Ele_Undead,30; bonus2 bSubEle,Ele_Holy,-100; bonus2 bSubEle,Ele_Ghost,-100; bonus2 bSubEle,Ele_Fire,-100;
+4561	Professor_Card	KEPT	bonus bMatkRate,(readparam(bDex)>=110)?14:7; bonus5 bAutoSpellWhenHit,"SA_LANDPROTECTOR",5,100,BF_MAGIC,0;
+4578	Pyuriel_Card	DROPPED	bonus bCritAtkRate,30; bonus2 bSubRace,RC_All,-10;
+4635	P_Amdarais_Card	DROPPED	.@r = getrefine(); bonus bDef,(.@r*10); bonus bFlee,(.@r*-2); if (BaseLevel>=100) bonus bMaxHP,500;
+4633	P_Archer_Skeleton_Card	KEPT	bonus bLongAtkRate,(BaseLevel>=100?12:10);
+4446	P_Skeleton_Card	KEPT	bonus bBaseAtk,15; bonus2 bAddEff,Eff_Stun,(BaseLevel>=100?300:200);
+4634	P_Soldier_Skeleton_Card	KEPT	if (BaseLevel<100) { bonus bCritical,9; } else { bonus bCritical,10; bonus bCritAtkRate,5; }
+4507	Q_Scaraba_Card	DROPPED	bonus2 bAddRace2,RC2_SCARABA,30; bonus2 bAddMonsterDropItem,12806,50;
+300281	R001_Bestia_Card	KEPT	bonus bUseSPrate,50; bonus bMatkRate,10; bonus2 bMagicAddRace,RC_Fish,50; bonus2 bMagicAddRace,RC_Insect,50;
+27319	R48_85_Bestia_Card	KEPT	bonus2 bAddEle,Ele_Poison,40;
+4572	Randel_Card	KEPT	bonus bFlee,10; skill "CR_AUTOGUARD",3;
+4676	Ranger_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Hunter) { bonus bCritical,20; bonus2 bWeaponDamageRate,W_BOW,15; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+4696	Real_Alphoccio_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"WM_REVERBERATION",20+.@b;
+4692	Real_Ceila_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"SO_VARETYR_SPEAR",20+.@b;
+4693	Real_Chen_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"SR_RAMPAGEBLASTER",20+.@b;
+4684	Real_Eremes_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"GC_CROSSIMPACT",20+.@b;
+4691	Real_Flamel_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"GN_CART_TORNADO",20+.@b;
+4694	Real_Gertie_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"SC_FEINTBOMB",20+.@b;
+4688	Real_Harword_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"NC_AXETORNADO",20+.@b;
+4686	Real_Katrinn_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"WL_CRIMSONROCK",20+.@b;
+4685	Real_Magaleta_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"AB_ADORAMUS",20+.@b;
+4690	Real_Randel_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"LG_EARTHDRIVE",20+.@b;
+4689	Real_Seyren_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"RK_IGNITIONBREAK",20+.@b;
+4687	Real_Shecil_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"RA_CLUSTERBOMB",20+.@b;
+4695	Real_Trentini_Card	DROPPED	if (getrefine() > 9) .@b += 20; if (getequipweaponlv() == 4) .@b += 20; bonus2 bSkillAtk,"WM_SEVERE_RAINSTORM_MELEE",20+.@b;
+27327	ReaperAnkou_Card	DROPPED	.@r = getrefine(); bonus3 bAutoSpellWhenHit,"NPC_WIDECURSE",3,(1+.@r); autobonus2 "{ bonus bAtkRate,25; bonus bMatkRate,25; }",(1+.@r),10000,BF_WEAPON|BF_MAGIC; autobonus3 "{ }",1000,5000,"NV_FIRSTAID","{ active_transform 3029,5000; }"; /* unknown rates */
+27259	Rechenier_Card	DROPPED	bonus bMatkRate,3; bonus2 bMagicAtkEle,Ele_Holy,5; bonus bHealPower,5;
+300079	Redpepper_Card	KEPT	bonus2 bMagicAddRace,RC_Fish,30; bonus2 bMagicAddRace,RC_Formless,30; bonus2 bMagicAddEle,Ele_Holy,30; bonus2 bMagicAddEle,Ele_Water,30;
+300080	Redpepper_H_Card	KEPT	bonus2 bMagicAddRace,RC_Fish,50; bonus2 bMagicAddRace,RC_Formless,50; bonus2 bMagicAddEle,Ele_Holy,50; bonus2 bMagicAddEle,Ele_Water,50;
+4531	Red_Eruma_Card	DROPPED	bonus3 bAddEff,Eff_Curse,100,ATF_MAGIC;
+300265	Regen_Scientist_Card	DROPPED	.@r = getrefine(); bonus bMatkRate,5; if (getiteminfo(getequipid(EQI_HAND_R),11) == W_2HSTAFF) { bonus2 bMagicAtkEle,Ele_All,10+2*(.@r/3); if (BaseLevel>=200) { bonus2 bMagicAtkEle,Ele_All,3*(.@r/3); } }
+27015	RepairRobot_T_Card	DROPPED	bonus bHPrecovRate,25; bonus bSPrecovRate,25; .@r = getrefine(); bonus bHPGainValue,30+((.@r>=7)*10); bonus bSPGainValue,3+((.@r>=7)*3);
+300105	Roaming_Splbook_Card	DROPPED	bonus bInt,3; bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus2 bSkillAtk,"WL_CRIMSONROCK",10; bonus2 bSkillAtk,"WL_COMET",10;
+4699	Rock_Step_Card	DROPPED	bonus2 bSkillAtk,"NC_ARMSCANNON",20+((getrefine()>=10)*20);
+4680	RoyalGuard_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Crusader) { bonus bDef,350; bonus2 bAddRace,RC_All,10; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+27177	Rr_Arclouse_Card	DROPPED	.@int = readparam(bInt); .@bonus = 3*(.@int/10); if (.@int>=120) { .@bonus += 40; } bonus bMatk,.@bonus; bonus bAspdRate,(.@int/10);
+27176	Rr_Cramp_Card	DROPPED	.@str = readparam(bStr); .@bonus = 3*(.@str/10); if (.@str>=120) { .@bonus += 40; } bonus bBaseAtk,.@bonus; bonus bAspdRate,(.@str/10);
+4581	Rudo_Card	DROPPED	autobonus2 "{ bonus bAgi,44; bonus bNoWalkDelay; heal 0,-40; }",50,3000,0,"{ sc_start SC_SPEEDUP1,3000,50; }";
+4679	RuneKnight_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Knight) { bonus bAspd,2; bonus2 bAddRace,RC_All,15; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+300115	Sanare3_Card	DROPPED	bonus bInt,2; bonus bDex,1; bonus bMaxHPrate,10; bonus2 bSkillAtk,"AB_ADORAMUS",10; bonus2 bSkillAtk,"AB_JUDEX",10;
+27308	Sanare_Card	DROPPED	.@r = getrefine(); .@val = 2; if (.@r >= 9) { .@val += 3; } if (.@r >= 11) { .@val += 5; } bonus bHealPower,.@val;
+4610	Sarah_Card	DROPPED	bonus bAbsorbDmgMaxHP2,40;
+4505	Scaraba_Card	DROPPED	bonus bMatk,20; bonus bMaxSPrate,-1;
+27017	Scr_MT_Robots_Card	KEPT	if (getrefine()<7) bonus2 bSubRace,RC_Formless,10; else { bonus2 bSubRace,RC_Formless,15; bonus2 bAddMonsterDropItem,7317,10; bonus2 bAddMonsterDropItem,998,5; bonus2 bAddMonsterDropItem,7319,3; bonus2 bAddMonsterDropItem,7095,3; }
+4521	Sedora_Card	KEPT	bonus bCritAtkRate,15;
+4682	ShadowChaser_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Rogue) { bonus bMatkRate,15; bonus2 bAddRace,RC_All,5; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+27287	Shining_T_Bear_Card	DROPPED	bonus bUseSPrate,10; bonus2 bMagicAtkEle,Ele_Holy,(3*getrefine());
+27323	Shnaim_Card	KEPT	bonus bMaxHPrate,5;
+300099	Silva_Papilia_Card	DROPPED	bonus2 bSubClass,Class_Normal,20; bonus bHealPower2,15;
+27108	SingingPere_Card	KEPT	bonus2 bMagicAddEle,Ele_Neutral,20;
+27290	Sinister_Obsidian_Card	DROPPED	.@agi = readparam(bAgi); .@val = .@agi/10; if (.@val) { bonus bFlee,(3*.@val); bonus bAspdRate,.@val; if (.@agi >= 120) { bonus bAspd,1; } }
+4530	Siorava_Card	KEPT	bonus bLuk,2; if (BaseClass == Job_Merchant) bonus bLuk,getrefine()/3;
+4575	Soheon_Card	DROPPED	bonus bBaseAtk,10; if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_DAGGER) { .@r = getrefine(); if (.@r>=10) { bonus bAspd,1; } if (.@r>=14) { bonus bAspd,1; } }
+4671	Sorcerer_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Sage) { bonus bMaxHPrate,10; bonus bMatkRate,10; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+4522	Sropho_Card	DROPPED	bonus4 bAddEff,Eff_Crystalize,500,ATF_SHORT,3000;
+4564	Stalker_Card	KEPT	bonus bHit,(readparam(bLuk)>=110)?40:20; bonus5 bAutoSpellWhenHit,"ST_FULLSTRIP",1,100,BF_WEAPON,1;
+4698	Step_Card	DROPPED	bonus2 bSkillAtk,"NC_AXEBOOMERANG",30+((getrefine() >= 10)*30);
+4672	Sura_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Monk) { bonus bMaxHPrate,10; bonus2 bAddRace,RC_All,10; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+27101	SweetNightM_Card	DROPPED	bonus bMatk,20; bonus bNoCastCancel;
+300078	Sweety_Card	DROPPED	bonus2 bSkillAtk,"RL_FIREDANCE",60; bonus2 bSkillUseSPrate,"RL_FIREDANCE",-25;
+4666	Sw_Roda_Frog_Card	KEPT	bonus bMaxSP,10; bonus bMaxHP,300;
+4639	Tappy_Card	DROPPED	bonus2 bAddClass,Class_All,1;
+300262	The_One_Card	KEPT	bonus bUseSPrate,50; bonus bMatkRate,10; bonus2 bMagicAddRace,RC_Undead,50; bonus2 bMagicAddRace,RC_Dragon,50;
+4586	Tikbalang_Card	DROPPED	bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Wind,(getrefine()>=9)?10:5;
+4625	Timeholder_Card	KEPT	bonus bMatkRate,20; bonus bUseSPrate,10;
+4630	Time_Keeper_Card	KEPT	bonus3 bAutoSpell,"NPC_WIDECURSE",2,30;
+27123	Toucan_Card	DROPPED	.@val = 10; if (getrefine() >= 9) { .@val += 5; } bonus2 bMagicAddRace,RC_Insect,.@val;
+300002	Toxious_Card	KEPT	bonus bLongAtkDef,5; bonus bMaxHPrate,10;
+4668	Trance_Spore_Card	KEPT	bonus bVit,1; bonus bInt,1;
+4573	Trentini_Card	KEPT	bonus bFlee,10; if (BaseJob == Job_Dancer) { bonus bMaxHPrate,10; bonus bMaxSPrate,5; }
+27020	T_W_O_Card	DROPPED	bonus2 bAddClass,Class_All,10; bonus3 bAutoSpell,"NPC_WIDESOULDRAIN",2,5+((getrefine()/3)*10);
+4606	UndeadKnightF_Card	KEPT	bonus bMaxSPrate,-44; bonus bSPGainValue,20+(getrefine()/2);
+4605	UndeadKnightM_Card	KEPT	bonus bMaxHPrate,-44; bonus bHPGainValue,200+10*getrefine();
+300257	Vanilaqus_Card	DROPPED	bonus bMatk,15; bonus2 bMagicAtkEle,Ele_Water,7; bonus bUseSPrate,5;
+27160	Vavayaga_Card	KEPT	bonus bFlee,getrefine()*2;
+300253	Venedi_Card	DROPPED	bonus bMatk,15; bonus2 bMagicAtkEle,Ele_Poison,7; bonus bUseSPrate,5;
+300108	Venenum3_Card	DROPPED	bonus bAgi,2; bonus bDex,1; bonus bMaxHPrate,10; bonus2 bSkillAtk,"SC_FATALMENACE",10; bonus2 bSkillAtk,"SC_TRIANGLESHOT",10;
+27314	Venenum_Card	DROPPED	bonus2 bAddRace,RC_Brute,15; bonus2 bAddRace,RC_Player_Doram,15;
+27150	Venom_Kimera_Card	KEPT	bonus bMaxHP,1000; bonus bMaxSP,200; if (getrefine() >= 12) { bonus bMaxHPrate,15; bonus bMaxSPrate,15; }
+300089	Verporta_Card	KEPT	bonus bStr,2; bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus2 bSkillAtk,"SM_MAGNUM",25;
+300090	Verporte_H_Card	DROPPED	bonus2 bMagicAtkEle,Ele_Earth,10; bonus bUseSPrate,5; if (getrefine()>=9) { bonus2 bMagicAtkEle,Ele_Earth,10; }
+4588	Wakwak_Card	KEPT	bonus bBaseAtk,5*readparam(bStr)/10;
+4683	Wanderer_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Dancer) { bonus bMaxHPrate,10; bonus bMaxSPrate,15; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+4678	Warlock_Card	DROPPED	if (eaclass()&EAJL_THIRD && BaseJob == Job_Wizard) { bonus bMdef,80; bonus bMatkRate,15; } if (BaseLevel>174) bonus bAllStats,10; if (getrefine()>9) bonus bAllStats,10;
+4638	Watcher_Card	KEPT	bonus bBaseAtk,30; bonus bSPDrainValue,-5;
+300110	Waterfall_Card	DROPPED	bonus bAgi,2; bonus bInt,1; bonus bMaxHPrate,10; bonus2 bSkillAtk,"KO_BAKURETSU",10; bonus2 bSkillAtk,"KO_JYUMONJIKIRI",10;
+4665	Wild_Honet_Card	KEPT	bonus bBaseAtk,5;
+4532	Wild_Rider_Card	KEPT	bonus bAgi,1; bonus3 bAutoSpell,"AL_INCAGI",1,50;
+27087	WizardOfVeritas_Card	DROPPED	bonus bMatk,25; autobonus "{ bonus bNoCastCancel; }",5,5000,BF_MAGIC,"{ specialeffect2 EF_POTION_BERSERK; showscript \"This is the truth!\"; }";
+27157	Wood_Goblin_Card	DROPPED	.@r = getrefine(); bonus2 bAddEle,Ele_Water,(.@r >= 9 ? 10 : 5); bonus2 bAddEle,Ele_Earth,(.@r >= 9 ? 10 : 5); bonus2 bSubEle,Ele_Water,-5; bonus2 bSubEle,Ele_Earth,-5;
+31023	XM_Celine_Kimi_Card	DROPPED	bonus bMatkRate,10; bonus5 bAutoSpell,"NPC_WIDECRITICALWOUND",8,5+(10*(getrefine()/3)),BF_MAGIC,1;
+31017	XM_Cookie_Card	DROPPED	.@r = getrefine()/2; bonus bAtkRate,1+.@r; bonus bMatkRate,1+.@r; bonus bMaxHPrate,-2*(1+.@r);
+31020	XM_Hylozoist_Card	DROPPED	bonus bMaxHPrate,-13; bonus3 bAddEffWhenHit,Eff_Curse,4000,ATF_WEAPON;
+31019	XM_Lude_Card	DROPPED	bonus bMaxHPrate,-13; bonus3 bAddEffWhenHit,Eff_Curse,4000,ATF_MAGIC;
+31021	XM_Marionette_Card	KEPT	bonus bAspdRate,10; bonus bAtkRate,-3;
+31018	XM_Mystcase_Card	DROPPED	bonus bMaxHP,-1225; bonus3 bAddEff,Eff_Curse,5000,ATF_MAGIC;
+31022	XM_Teddy_Bear_Card	KEPT	bonus bMaxSPrate,20; bonus2 bAddEff2,Eff_Curse,20;
+31016	XM_Tree_Card	KEPT	bonus bMaxHP,1000; bonus bMaxSP,150; bonus bFlee,-25;
+4641	Zombie_Guard_Card	KEPT	bonus bNoRegen,2; bonus bSPDrainValue,1;
