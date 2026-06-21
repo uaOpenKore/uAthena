@@ -23,7 +23,7 @@ int mapif_quests_fromsql(int char_id, struct quest questlog[])
 {
 	int i = 0;
 
-	sprintf(tmp_sql, "SELECT `quest_id`, `state`, `time`, `count1`, `count2`, `count3` FROM `%s` WHERE `char_id`='%d' LIMIT %d", quest_db, char_id, MAX_QUEST_DB);
+	sprintf(tmp_sql, "SELECT `quest_id`, `state`, `time`, `count1`, `count2`, `count3` FROM `%s` WHERE `char_id`='%d' LIMIT %d", quest_db, char_id, MAX_PC_QUESTS);
 	if( mysql_query(&mysql_handle, tmp_sql) )
 	{
 		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
@@ -33,7 +33,7 @@ int mapif_quests_fromsql(int char_id, struct quest questlog[])
 	sql_res = mysql_store_result(&mysql_handle);
 	if( sql_res )
 	{
-		while( i < MAX_QUEST_DB && (sql_row = mysql_fetch_row(sql_res)) )
+		while( i < MAX_PC_QUESTS && (sql_row = mysql_fetch_row(sql_res)) )
 		{
 			memset(&questlog[i], 0, sizeof(struct quest));
 			questlog[i].quest_id = atoi(sql_row[0]);
@@ -93,7 +93,7 @@ int mapif_parse_quest_save(int fd)
 {
 	int i, j, k, old_n, new_n = (RFIFOW(fd,2)-8)/sizeof(struct quest);
 	int char_id = RFIFOL(fd,4);
-	struct quest qd_new[MAX_QUEST_DB], qd_old[MAX_QUEST_DB];
+	struct quest qd_new[MAX_PC_QUESTS], qd_old[MAX_PC_QUESTS];
 	bool success = true;
 
 	RFIFOHEAD(fd);
@@ -138,9 +138,9 @@ int mapif_parse_quest_save(int fd)
 int mapif_parse_quest_load(int fd)
 {
 	int char_id = RFIFOL(fd,2);
-	struct quest tmp_questlog[MAX_QUEST_DB];
+	struct quest tmp_questlog[MAX_PC_QUESTS];
 	int num_quests, i, num_complete = 0;
-	int complete[MAX_QUEST_DB];
+	int complete[MAX_PC_QUESTS];
 
 	RFIFOHEAD(fd);
 	memset(tmp_questlog, 0, sizeof(tmp_questlog));

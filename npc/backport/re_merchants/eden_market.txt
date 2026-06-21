@@ -1,0 +1,1962 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/eden_market.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Paradise Group Market
+//===== By: ==================================================
+//= Anity99
+//===== Current Version: =====================================
+//= 1.0.4
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= The Para Market is an NPC vending system in which certain monster-drop
+//= items are available from NPCs at a high price. Items are only available
+//= from designated Para Market NPCs. The Para Market is open all day and
+//= all week, however there are certain NPCs that are only available on
+//= the weekends. Items sold in the Para Market are sold in limited
+//= quantities for the entire server. It is unknown how often they restock
+//= their wares.
+//===== Additional Comments: =================================
+//= 1.0 First Version. [Nyalin]
+//= 1.0.1 Convert to Hercules [Ridley8819]
+//= 1.0.2 Convert to rAthena [Anity99]
+//= 1.0.3 Fix typos and update marketshop [Anity99]
+//= 1.0.4 Fixed item id typo [Everade]
+//============================================================
+
+// $event_paramk, 0 // Holiday Wednesday
+// $event_paramk, 1 // Monday, Tuesday, Thursday, Friday, Saturday, Sunday
+// $event_paramk, 2 // Friday, Saturday, Sunday
+// $event_paramk, 3 // Saturday, Sunday
+// $event_paramk, 4 // Late Saturday, Sunday
+
+function	script	F_CoolDown	{
+	if (@cd_marketshop + getarg(0) > gettimetick(2))
+		end;
+	set @cd_marketshop, gettimetick(2);
+	return;
+}
+
+// Shop NPC
+// Limited
+-	shop	para_coin10	FAKE_NPC,6304:500000,6080:100000,6081:300000,6380:1000000,6004:100000
+
+-	shop	para_hei10	FAKE_NPC,6608:150000,6607:20000,6755:200000,7642:10000,22687:200000,23016:1000000
+
+-	shop	para_key10	FAKE_NPC,7026:100000,7027:100000:10 // todo
+
+-	shop	para_wp00	FAKE_NPC,1181:10000000
+
+-	shop	para_arm10	FAKE_NPC,5007:2000000
+
+-	shop	para_ptn00	FAKE_NPC,678:80000,12016:50000,525:100000,12422:40000,12423:50000,12425:40000,12426:50000
+
+-	shop	para_ptn10	FAKE_NPC,505:40000,12679:100000,12676:30000,12680:50000
+
+-	shop	para_itm00	FAKE_NPC,12106:1500000,12107:500000,616:2500000,12194:200000
+
+-	shop	para_itm10	FAKE_NPC,12008:5000,12009:5000,12012:5000,12010:5000,12011:5000,12013:20000,12014:80000,7931:5000
+
+-	shop	para_seed10	FAKE_NPC,12290:5000,12376:5000,12291:10000,12377:10000,576:2000,587:2000,526:10000,607:70000,608:50000
+
+-	shop	para_mora10	FAKE_NPC,11526:5000,11525:5000,11520:50000,12574:20000
+
+-	shop	para_ref10	FAKE_NPC,998:10000,1003:10000,1002:10000,999:10000
+
+-	shop	para_ref20	FAKE_NPC,984:200000,985:200000,987:240000,988:600000,989:1200000
+
+-	shop	para_jew10	FAKE_NPC,969:1000000,7289:500000,7290:500000,7291:500000,7292:500000,7293:500000,7294:500000,7295:500000,7296:500000,7297:500000
+
+-	shop	para_alc10	FAKE_NPC,971:20000,972:12000,970:12000:20:7136:7000:20,7135:18000
+
+-	shop	para_alc20	FAKE_NPC,1061:3000,905:1000,1059:1000,7033:1000,929:4000
+
+-	shop	para_alc30	FAKE_NPC,1000:10000,1001:10000,990:10000,991:10000,992:10000,993:10000
+
+-	shop	para_fod10	FAKE_NPC,6252:40000,6253:8000,6254:30000,6256:15000,6257:15000,6259:15000,6260:10000,22658:80000,22659:100000
+
+-	shop	para_mag10	FAKE_NPC,12108:20000,717:1500,715:4500,716:4500,14512:100000,14513:100000,14514:100000,12737:500,12734:1500,12738:2000,12735:3000,12736:10000,6360:200,6363:200,6361:200,6362:200
+
+-	shop	para_mag11	FAKE_NPC,717:1500,12737:500,12734:1500,6360:200,6363:200,6361:200,6362:200
+
+-	shop	para_mag20	FAKE_NPC,12119:8000,12121:8000,12120:5000,12118:15000
+
+-	shop	para_plt01	FAKE_NPC,709:10000,7932:4000,7933:4000,7934:4000,7935:4000,7936:4000,7937:4000
+
+// Update Market Shop
+//[BACKPORT-UNRESOLVED:npcshopupdate] -	script	Update_Shop	-1,{
+//[BACKPORT-UNRESOLVED:npcshopupdate] OnInit:
+//[BACKPORT-UNRESOLVED:npcshopupdate] OnClock0000:
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_coin10",6304,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_coin10",6080,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_coin10",6081,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_coin10",6380,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_coin10",6004,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_hei10",6608,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_hei10",6607,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_hei10",6755,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_hei10",7642,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_hei10",22687,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_hei10",23016,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_key10",7026,0,10;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_key10",7027,0,10;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_wp00",1181,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_arm10",5007,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn00",678,0,999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn00",12016,0,9999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn00",525,0,1000;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn00",12422,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn00",12423,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn00",12425,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn00",12426,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn10",505,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn10",12679,0,500;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn10",12676,0,500;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ptn10",12680,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm00",12106,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm00",12107,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm00",616,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm00",12194,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm10",12008,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm10",12009,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm10",12012,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm10",12010,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm10",12011,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm10",12013,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm10",12014,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_itm10",7931,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",12290,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",12376,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",12291,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",12377,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",576,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",587,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",526,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",607,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_seed10",608,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mora10",11526,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mora10",11525,0,1000;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mora10",11520,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mora10",12574,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref10",998,0,500;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref10",1003,0,500;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref10",1002,0,500;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref10",999,0,500;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref20",984,0,10;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref20",985,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref20",987,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref20",988,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_ref20",989,0,1;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",969,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7289,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7290,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7291,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7292,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7293,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7294,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7295,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7296,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_jew10",7297,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc10",971,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc10",972,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc10",970,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc10",7136,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc10",7135,0,20;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc20",1061,0,1000;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc20",905,0,1000;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc20",1059,0,1000;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc20",7033,0,1000;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc20",929,0,1000;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc30",1000,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc30",1001,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc30",990,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc30",991,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc30",992,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_alc30",993,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",6252,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",6253,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",6254,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",6256,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",6257,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",6259,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",6260,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",22658,0,50;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_fod10",22659,0,50;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",12108,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",717,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",715,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",716,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",14512,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",14513,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",14514,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",12737,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",12734,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",12738,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",12735,0,50;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",12736,0,10;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",6360,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",6363,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",6361,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag10",6362,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag11",717,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag11",12737,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag11",12734,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag11",6360,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag11",6363,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag11",6361,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag11",6362,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag20",12119,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag20",12121,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag20",12120,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_mag20",12118,0,100;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_plt01",709,0,50;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_plt01",7932,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_plt01",7933,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_plt01",7934,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_plt01",7935,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_plt01",7936,0,99999;
+	//[BACKPORT-GAP:npcshopupdate] npcshopupdate "para_plt01",7937,0,99999;
+//[BACKPORT-UNRESOLVED:npcshopupdate] 	end;
+//[BACKPORT-UNRESOLVED:npcshopupdate] }
+
+// General Sales
+-	shop	para_wp01	FAKE_NPC,1501:-1,1504:-1,1507:-1,1510:-1,1513:-1,1519:-1,1516:-1,1522:-1,1601:-1,1604:-1,1607:-1,1610:-1,1617:-1,1619:-1,1801:-1,1803:-1,1805:-1,1807:-1,1811:-1,1809:-1
+
+-	shop	para_wp02	FAKE_NPC,1101:-1,1104:-1,1107:-1,1110:-1,1113:-1,1122:-1,1119:-1,1123:-1,1129:-1,1116:-1,1151:-1,1154:-1,1157:-1,1160:-1,1146:-1
+
+-	shop	para_wp03	FAKE_NPC,1701:-1,1704:-1,1707:-1,1710:-1,1713:-1,1714:-1,1718:-1,1721:-1,1901:-1,1903:-1,1905:-1,1950:-1,1952:-1,1954:-1
+
+-	shop	para_wp04	FAKE_NPC,1201:-1,1204:-1,1207:-1,1210:-1,1213:-1,1216:-1,1219:-1,1222:-1,13003:-1,1245:-1,1247:-1,1248:-1,1249:-1,13000:-1,1250:-1,1252:-1,1254:-1
+
+-	shop	para_wp05	FAKE_NPC,1301:-1,1351:-1,1354:-1,1357:-1,1360:-1,1401:-1,1404:-1,1407:-1,1451:-1,1454:-1,1457:-1,1460:-1,1463:-1,1410:-1
+
+-	shop	para_arm01	FAKE_NPC,2328:-1,2314:-1,2312:-1,2316:-1,2341:-1,2340:-1,2411:-1,2228:-1,2230:-1
+
+-	shop	para_arm02	FAKE_NPC,2101:-1,2103:-1,2105:-1,2107:-1
+
+-	shop	para_hat01	FAKE_NPC,2301:-1,2303:-1,2305:-1,2307:-1,2309:-1,2335:-1,2323:-1,2325:-1,2321:-1,2332:-1,2501:-1,2503:-1,2505:-1,2401:-1,2403:-1,2405:-1
+
+-	shop	para_hat02	FAKE_NPC,2239:-1,2203:-1,2201:-1,2243:-1,2242:-1,2205:-1,2220:-1,2226:-1,2222:-1,5114:-1,2216:-1,5092:-1,2218:-1,2211:-1,2212:-1,2208:-1,2232:-1
+
+-	shop	para_ptn01	FAKE_NPC,501:-1,502:-1,503:-1,504:-1,645:-1,656:-1,657:-1
+
+-	shop	para_itm01	FAKE_NPC,7940:-1,1065:-1
+
+-	shop	para_seed01	FAKE_NPC,522:-1
+
+-	shop	para_mora01	FAKE_NPC,11522:-1,11523:-1,11524:-1,11519:-1
+
+-	shop	para_fod01	FAKE_NPC,7482:-1,577:-1,580:-1,7457:-1,581:-1,7453:-1,7455:-1,7454:-1,7456:-1,7452:-1,579:-1
+
+-	shop	para_unm01	FAKE_NPC,537:-1,643:-1,10013:-1,10014:-1,6113:-1,6114:-1,6115:-1,6110:-1,6100:-1,6098:-1,6112:-1,6104:-1,6108:-1,6111:-1,6095:-1,7824:-1,6097:-1,6107:-1,6105:-1,6099:-1,25231:1000,25232:1000,25233:1000
+
+
+// setting map-variable
+-	script	MV_Eden Market Group	FAKE_NPC,{
+OnInit:
+OnClock0000:
+	switch( gettime(DT_DAYOFWEEK) ) {
+	case WEDNESDAY:
+		set $event_paramk, 0;
+		break;
+	case FRIDAY:
+		set $event_paramk, 2;
+		break;
+	case SATURDAY:
+		if (gettime(DT_HOUR) > 21)
+			set $event_paramk, 4;
+		else
+			set $event_paramk, 3;
+		break;
+	case THURSDAY:
+	default:
+		set $event_paramk, 1;
+		break;
+	}
+	end;
+
+OnSat2200:
+	set $event_paramk, 4;
+	end;
+}
+
+// Eden Market Group Hustler
+//[BACKPORT-UNRESOLVED:mesitemlink] moc_para01,106,38,4	script	Market Group Hustler#ent	4_M_YOYOROGUE,{
+//[BACKPORT-UNRESOLVED:mesitemlink] 	mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 	mes "Hey, adventurer.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 	mes "I can take you to somewhere nice. Are you interested?";
+//[BACKPORT-UNRESOLVED:mesitemlink] 	next;
+//[BACKPORT-UNRESOLVED:mesitemlink] 	switch (select("Move to Eden Market Group!:About Eden Market Group.:Cancel.")) {
+//[BACKPORT-UNRESOLVED:mesitemlink] 	case 1:
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Moving~!";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		close2;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		warp "paramk",97,17;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		end;
+//[BACKPORT-UNRESOLVED:mesitemlink] 	case 2:
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Hahaha... The Eden Market Group is a place where merchants gather around to sell various items.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "And I don't mean common stuff like Jellopy, which you can acquire anywhere. Here, we only deal in real goods.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Simple ingredients, precious stones, rare items from dungeons and excavation sites, and exotic artifacts that hail from another dimension...";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Everything you could ever want!";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		select("You mean, this is a black market?!");
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Ah... I wouldn't say that.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "This marketplace is, say, technically legal...";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Keep in mind that most special products are of ^4d4dfflimited quantity^000000. If you are late, they might be sold out.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Don't expect discounts for most limited quantity items.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "You have to pay the full price.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Adventurers sometimes come by to sell what they have found on their expeditions.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "But you have to see for yourself!";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Keep in mind that most stores are closed one day out of the week; ^4d4dffmost stores are not open on Wednesdays^000000.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Though, not all of them close on Wednesdays; majority of them are still open.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "More special items are sold on weekends.";
+		//[BACKPORT-GAP:mesitemlink] mes "I have even seen an " + mesitemlink( 709, false ) + " being sold~";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "It was amazing.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Of course it was super expensive and only a handful were up for sale.";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "How about it? Interested?";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Isn't it worth paying a visit?";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Hahahahaha!";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		close;
+//[BACKPORT-UNRESOLVED:mesitemlink] 	case 3:
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "[Hustler]";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		mes "Come by anytime, if you want to go to the Eden Market Group!";
+//[BACKPORT-UNRESOLVED:mesitemlink] 		close;
+//[BACKPORT-UNRESOLVED:mesitemlink] 	}
+//[BACKPORT-UNRESOLVED:mesitemlink] }
+
+// Eden Market Group Guide
+//[BACKPORT-BOUNDARY:paramk] paramk,101,22,3	script	Market Group Guide#info	4_F_ZONDAGIRL,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Hello. Welcome to Eden Market Group, the official marketplace run by the continental merchant coalition, supported by the Eden Group.";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch (select("About when we're open.:About Special Products.:About Eden Market Group.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 	case 1:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Eden Market Group is a marketplace that contains many different shops.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Wednesday is an official holiday designated by the marketplace; most shops are closed on this day.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "However, depending on the owner's wishes, and the type of items being offered, some shops remain partially open even on the holiday.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "And, some shops offer special items on certain days of the week. Keep that in mind.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	case 2:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Some shops will sell different items on weekends, certain days of the week, or even during certain hours; these items are different than their usual daily items.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "'Wonderful Friends' and 'Strong Friends' will sell one rare item each weekend.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "'Miner's Coalition' will sell the anvil for blacksmithing only on weekends.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I cannot tell you what items individual shops sell, because they are all different.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Why don't you find out for yourself by visiting often?";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "There are many people with the soul of a merchant that would like to sell their items to people in need of such.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Eden Market Group has designated a place for such people to buy and sell.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We provide the means for goods that would otherwise have been contraband to be bought and sold in a fair and transparent manner, working in conjunction with the merchant coalitions and adventurers.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Some people mutter that Eden Market Group is a black market... Haha, what a silly idea...";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We are merely a merchant coalition.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "A portion of our profits go towards running the Eden Group, an adventurer's guild.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "You can sell the loot from your adventures here, and the profits we make go towards providing services that benefit you. We are killing two birds with one stone, really.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Keep in mind that limited quantity items will never go on sale!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	case 4:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Guide]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Have a good time!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer60000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Welcome. This is the Eden Market Group.";
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Guards
+//[BACKPORT-BOUNDARY:paramk] paramk,103,17,3	script	Market Guard#1	4_M_YOUNGKNIGHT,{
+//[BACKPORT-BOUNDARY:paramk] 	callfunc("F_CoolDown", 5);
+//[BACKPORT-BOUNDARY:paramk] 	switch (atoi(strnpcinfo(2))) {
+//[BACKPORT-BOUNDARY:paramk] 	default:
+//[BACKPORT-BOUNDARY:paramk] 		npctalk "Welcome.";
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		npctalk "Welcome to the Eden Market Group.";
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 4:
+//[BACKPORT-BOUNDARY:paramk] 		npctalk "How are you? This is the Eden Market Group.";
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 5:
+//[BACKPORT-BOUNDARY:paramk] 		npctalk "Thank you for shopping at the Eden Market Group.";
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 6:
+//[BACKPORT-BOUNDARY:paramk] 		npctalk "Welcome. The Eden Market Group welcomes you.";
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Guard Duplicates
+//[BACKPORT-BOUNDARY:paramk] paramk,92,17,6	duplicate(Market Guard#1)	Market Guard#2	4_M_YOUNGKNIGHT
+//[BACKPORT-BOUNDARY:paramk] paramk,53,47,3	duplicate(Market Guard#1)	Market Guard#3	4_M_YOUNGKNIGHT
+//[BACKPORT-BOUNDARY:paramk] paramk,142,48,3	duplicate(Market Guard#1)	Market Guard#4	4_M_YOUNGKNIGHT
+//[BACKPORT-BOUNDARY:paramk] paramk,142,67,3	duplicate(Market Guard#1)	Market Guard#5	4_M_YOUNGKNIGHT
+//[BACKPORT-BOUNDARY:paramk] paramk,53,67,3	duplicate(Market Guard#1)	Market Guard#6	4_M_YOUNGKNIGHT
+
+
+// Center-North ConversationNPC
+// A wise customer
+//[BACKPORT-BOUNDARY:paramk] paramk,78,44,3	script	A wise customer#gst01	4_TOWER_14,6,6,{
+//[BACKPORT-BOUNDARY:paramk] OnTouch:
+//[BACKPORT-BOUNDARY:paramk] 	callfunc("F_CoolDown", 4);
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "I am waiting for the weapon that will be sold on the weekends. I heard that if I come by on the right day, both the red version and the blue version would be offered.";
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// A dining customer
+//[BACKPORT-BOUNDARY:paramk] paramk,119,80,3	script	A dining customer#gst02	4_M_CHN8GUEK,6,6,{
+//[BACKPORT-BOUNDARY:paramk] OnTouch:
+//[BACKPORT-BOUNDARY:paramk] 	callfunc("F_CoolDown", 4);
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "So spicy! I don't care if this is the 'taste of our homeland' or whatever, it's far too spicy! Aaaaaaahh!";
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Customer
+//[BACKPORT-BOUNDARY:paramk] paramk,106,61,3	script	Customer#gst03	4_TOWER_04,6,6,{
+//[BACKPORT-BOUNDARY:paramk] OnTouch:
+//[BACKPORT-BOUNDARY:paramk] 	callfunc("F_CoolDown", 4);
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "I come here when I need a break. I love this place. Comfortable, and lots of interesting items around.";
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Window-shopper
+//[BACKPORT-BOUNDARY:paramk] paramk,77,60,3	script	Window-shopper#gst04	4_TOWER_02,6,6,{
+//[BACKPORT-BOUNDARY:paramk] OnTouch:
+//[BACKPORT-BOUNDARY:paramk] 	callfunc("F_CoolDown", 4);
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "I wonder if it's really okay for me to window-shop all day without buying anything...";
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Cassie
+//[BACKPORT-BOUNDARY:paramk] paramk,113,56,3	script	Cassie#gst05	1_F_PUBGIRL,6,6,{
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Welcome to the Eden Market Group~ You want a fancy drink?";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Cassie]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Do you wish to buy a drink?";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch (select("Tropical Sograt.:Vermilion on the Beach.:No.")) {
+//[BACKPORT-BOUNDARY:paramk] 	case 1:
+//[BACKPORT-BOUNDARY:paramk] 		set .@item, 12112;
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 2:
+//[BACKPORT-BOUNDARY:paramk] 		set .@item, 12113;
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Cassie]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Have a good time.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	if (Zeny < 800) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Cassie]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "A drink costs 800z.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Cassie]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Enjoy it";
+//[BACKPORT-BOUNDARY:paramk] 	set Zeny, Zeny - 800;
+//[BACKPORT-BOUNDARY:paramk] 	getitem(.@item, 1);
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTouch:
+//[BACKPORT-BOUNDARY:paramk] 	callfunc("F_CoolDown", 4);
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Welcome to the Eden Market Group. Do you want a fancy drink?";
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Leria
+//[BACKPORT-BOUNDARY:paramk] paramk,74,15,0	script	Leria#coin	4_M_BIBI,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Leria]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I sell coins that I have collected from alternate dimensions.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Purchase whatever catches your eye.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Be warned: they are rather pricey. I had to go through immense trouble in order to procure them.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("See what is up for sale.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Leria]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I may not have any stock left since I sell only a handful of items.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_coin10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Leria]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Since I scour the world to find the items that I sell, the price is high...";
+//[BACKPORT-BOUNDARY:paramk] 		mes "But there are those who buy them anyway.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Leria]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Well, those who need them must pay the price. Isn't that so?";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Leria]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Ah... Today is the marketplace holiday.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come back tomorrow if you need coins.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Heimhunter
+//[BACKPORT-BOUNDARY:paramk] paramk,71,15,3	script	Heimhunter#hei	4_GEFFEN_11,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Heimhunter]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Ah, are you the customer that wants 'that' from the ancient castle?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I can only get one per day, but I will sell it.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("See the item.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Heimhunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "There's only one..";
+//[BACKPORT-BOUNDARY:paramk] 			mes "It might have been bought by someone else already.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Please understand.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_hei10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Heimhunter]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "As you wish.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Heimhunter]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Today is the official market holiday.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I will take a break, too.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Zephet
+//[BACKPORT-BOUNDARY:paramk] paramk,68,15,0	script	Zephet#key	4_M_HUMERCHANT,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 3) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Zephet]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Do you need keys?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I may have some extra keys for the clock tower?..";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Buy keys.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Zephet]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I gather and sell the keys for the clock tower all by myself...";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Even though I scavenge for them all week, there's not a lot available.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "They may be sold out already.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_key10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Zephet]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "You have no need of keys?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Remember that I sell keys here only on weekends.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Just for your information.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Zephet]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I don't have enough keys yet.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come back after Saturday afternoon.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Strong Friends - Weapon shop
+// Sign
+//[BACKPORT-BOUNDARY:paramk] paramk,72,33,0	script	[Strong Friends]#wp00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Strong Friends == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "From common weapons to priceless jewel-encrusted swords!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Every weapon that you could ever want is here for your perusal.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Miffy
+//[BACKPORT-BOUNDARY:paramk] paramk,65,30,3	script	Miffy#wp01	4_F_LGTGIRL,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 1) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Miffy]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "A limited collection, only available on fiery Friday, Saturday and Sunday!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We offer an assortment of ancient weapons that adventurers have retrieved from dungeons!";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at the items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Miffy]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Let us show you the 'Strong Friends' special collection.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If you open the chest and there's nothing there, ";
+//[BACKPORT-BOUNDARY:paramk] 			mes "That means the weapon has already been sold.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "The spoils go toward people with quick reflexes.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_wp00",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Miffy]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Special weapons sold on weekends!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come see us anytime!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // Wednesday Holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Miffy]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Hello. This is the weapon shop 'Strong Friends'.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell weapons that adventurers retrieve from dungeons and in battle, ";
+//[BACKPORT-BOUNDARY:paramk] 		mes "roving over the continent.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Miffy]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "^000000Friday-Saturday-Sunday, a limited weapon collection offered for 3 consecutive days!^000000";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come see us anytime!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Nelsha
+//[BACKPORT-BOUNDARY:paramk] paramk,70,31,3	script	Nelsha#wp02	4_M_SITDOWN,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Nelsha]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Hello.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "This is 'Strong Friends', where a range of basic weapons are available for your perusal.";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	setarray .@shopname$[0], "para_wp01", "para_wp02", "para_wp03", "para_wp04", "para_wp05";
+//[BACKPORT-BOUNDARY:paramk] 	setarray .@shopdesc$[0], "Maces, Rods and Knuckles", "One-Handed Swords and Two-Handed Sword", "Bows, Innstruments and Whips", "Daggers and Katars", "Axes and Spears";
+//[BACKPORT-BOUNDARY:paramk] 	set .@s, select("Maces, Rods, Knuckles:One-Handed Swords, Two-Handed Sword:Bows, Innstruments, Whips:Daggers, Katars:Axes, Spears:Cancel") - 1;
+//[BACKPORT-BOUNDARY:paramk] 	if (.@s == 5) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Nelsha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Thank you for shopping.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Nelsha]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I will show you " + .@shopdesc$[.@s];
+//[BACKPORT-BOUNDARY:paramk] 	close2;
+//[BACKPORT-BOUNDARY:paramk] 	callshop(.@shopname$[.@s], 1);
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Reliable Friends
+// Sign
+//[BACKPORT-BOUNDARY:paramk] paramk,72,33,3	script	[Reliable Friends]#arm00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Reliable Friends == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Do you need shields, armor, and sturdy helmets?";
+//[BACKPORT-BOUNDARY:paramk] 	mes "You can rely on Reliable Friends!";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Coco
+//[BACKPORT-BOUNDARY:paramk] paramk,78,31,3	script	Coco#arm01	4_F_SITDOWN,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Coco]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Do you need sturdy armors to protect your frail body?";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Or shields, to block the blows of your enemies?";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch (select("Look at armors.:Look at shields.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 	case 1:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Coco]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Cheap and sturdy armor.";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_arm01",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 2:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Coco]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "May, or may not, block blows made with reasonable force...";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_arm02",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Coco]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come again.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Handsome Friends
+// Sign
+//[BACKPORT-BOUNDARY:paramk] paramk,84,33,3	script	[Handsome Friends]#cst00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Handsome Friends == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "A clothier for someone who loves to dress up!";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Minho Doh
+//[BACKPORT-BOUNDARY:paramk] paramk,90,31,3	script	Minho Doh#cst01	4W_M_01,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 2) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Minho Doh]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Limited item collection, only available on weekends!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Only one item. If you want it, purchase quickly! You know the drill.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("See the collection.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Minho Doh]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Here is our special collection!";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If all the chests are empty, that means you are too late!";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_arm10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Minho Doh]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "See you again!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Hahahahaha!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Minho Doh]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Do you want to peruse our special collection of items?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "But the collection wouldn't be special if you can see them every day, right?";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Minho Doh]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come on weekends if you want to see our special collection.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell ONE item per day, on ^000000 Saturdays and Sundays^000000.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Minho Doh]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Hahahaha.. Aren't you looking forward to the special items soon to be revealed? Muhahahahaha!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Lapelt
+//[BACKPORT-BOUNDARY:paramk] paramk,94,32,3	script	Lapelt#hat01	4_M_LGTMAN,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Lapelt]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Welcome! This is 'Handsome Friends', a clothier that will make you fashionable!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "We sell common clothing and hats even on holidays.";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch (select("Clothes and shoes.:Hats and glasses.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 	case 1:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Lapelt]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Don't look down on the items just because they are cheap.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "They are well-made items from all over the world.";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_hat01",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 2:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Lapelt]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Fashion comes from matching accessories!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "With matching items and a good hat, you can stand on the apex of fashion!";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_hat02",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Lapelt]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Goodbye.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Meds for Pharmacists
+// Sign
+//[BACKPORT-BOUNDARY:paramk] paramk,96,33,3	script	[Meds for Pharma]#ptn00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Meds for Pharmacists == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "We sell assorted potions.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Days of Operation]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Special potions - Mon, Tue, Thu, Fri, Sat";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Common potions - every day";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Head Pharmacist
+//[BACKPORT-BOUNDARY:paramk] paramk,100,30,3	script	Head Pharmacist#ptn01	4_F_SCIENCE,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Head Pharmacist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Potent poisons that will knock you out with one sip, meds that will protect your body and spirit, meds that will temporarily grant supernatural speed.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We have them all.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "'Meds for Pharmacists', here to supply you with the medication you need.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Meds, please!:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Head Pharmacist]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "This is what we currently have left.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If there's nothing, it means that we are sold out.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We do not brew potions in large batches. Please understand.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_ptn00",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Head Pharmacist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come back if you have questions about the meds.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Head Pharmacist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Oh, you need potions?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We do not sell common meds. We stick to special potions.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "And today is a holiday. We are currently brewing new potions.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Head Pharmacist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I will show you a collection of our superior potions if you come back tomorrow, okay?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Hehe~";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Johanna
+//[BACKPORT-BOUNDARY:paramk] paramk,106,32,3	script	Johanna#ptn02	4_M_BRZ_JACI,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Johanna]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Welcome to 'Meds for Pharmacists'.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "What do you need?";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch (select("Look at items.:Sell items.:Days of Operation.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 	case 1:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Johanna]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Healing potions here.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Good potions sold at an affordable price.";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_ptn01",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 2:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Johanna]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I will take them off your hands and pay you a hefty price.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Don't tell other people I paid so much.";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_ptn01",2;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Johanna]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Most shops in the Eden Market Group do not operate on holidays.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Some shops remain open on holidays, however.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Johanna]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Our pharmacy offers common healing potions even on holidays, though not the special potions.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Take advantage of our services!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	case 4:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Johanna]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Goodbye.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Wyn, independent contractor || Name is too long
+//[BACKPORT-BOUNDARY:paramk] paramk,106,27,3	script	Brewer Wyn#ptn03	4_M_ALCHE_A,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Wyn]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "..Hello...";
+//[BACKPORT-BOUNDARY:paramk] 		mes "This is 'For Meds Pharmacists'....";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Do you need Blue Potions...?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I make 100 of them each day... yes... just me.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Wyn]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Uhhh.. Not sure we have any left.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "A moment please. If not, we are sold out..";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Aaaaa... Do I have to make more.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Aaa... The stench of herbs";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Feel like throwing up... Aaa..";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_ptn10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Wyn]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Thank you.. Come again.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Wyn]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Uhhh... Headache..";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I started working to pay off my college tuition...";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I feel like throwing up. Surrounded by the smell of herbs all week.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Blerch-!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// We-Have-Everything
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,108,33,3	script	[WeHaveEverything]#itm00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == We-Have-Everything == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Elemental quivers, Traps, A DIY kit for poisons.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Available always.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Days of Operation]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Wed - holiday!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Fri, Sat, Sun - Event Sales!";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Is-this-your-lucky-day Napeed#itm01
+//[BACKPORT-BOUNDARY:paramk] paramk,114,30,3	script	Lucky Day Napeed#itm01	4_F_03,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Napeed]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Thank you for visiting during the weekend sale.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "100 random item packages, sold on weekends only! Only one hundred available!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Do you have anything you want?";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at items.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Napeed]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "The popular choices are, 'Box of accessories', 'Gift-wrapped Mask', 'Worn Album', 'Presents to take to your Hometown'...";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If you do not see anything, it means we are sold out. Come back on next weekend~";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_itm00",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Napeed]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Thank you for frequenting 'We-Have-Everything'!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Napeed]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Welcome, welcome~! This store is 'We-Have-Everything'. Everything we do have, we have, and everything we don't have, we don't!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We are currently not open.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Today is a holiday, so we are brewing potions.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Parayo
+//[BACKPORT-BOUNDARY:paramk] paramk,118,31,3	script	Manager Parayo#itm02	4_F_KHELLISIA,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Parayo]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Thank you for coming to 'We-Have-Everything'.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell assorted elemental quivers and traps.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Is there anything you want?";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		switch (select("Look at elemental quivers.:Look at traps.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 		case 1:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Parayo]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We try to be stocked up in order to serve as many customers as possible";
+//[BACKPORT-BOUNDARY:paramk] 			mes "But sometimes we are sold out, unfortunately.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_itm10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 2:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Parayo]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Here are the traps.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "'We-Have-Everything' is always here for you.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_itm01",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 3:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Parayo]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Thank you for being a loyal customer of 'We-Have-Everything'.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Come again.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Parayo]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Hello, this is 'We-Have-Everything'.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Wednesdays are Eden Market Group official holidays, so we are not open during this time.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Goodbye.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Malangdonya
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,122,33,3	script	[Malangdonya]#seed00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Malangdonya == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Special items from Malangdo.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "The Yggdrasil series and the Doram series is here!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Days of Operation]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Special series - Mon, Tue, Thu, Fri, Sat, Sun";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Always Selling - Mastela Fruit.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Whiteberry
+//[BACKPORT-BOUNDARY:paramk] paramk,126,34,3	script	Whiteberry#seed01	4_CAT_SAILOR1,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Whiteberry]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Purr~ Welcome.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "The Catpaw merchant group is pleased to welcome you. We sell special products from Malangdo, purr~";
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Whiteberry]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell Mastela Fruit~";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell certain items even on holidays~";
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch (select("Look at items.:Sell items.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 	case 1:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Whiteberry]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Fresh Mastela Fruit here, purr~";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Please purchase a lot.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Though we grow them ourselves, honestly they're too sour.. ah... never mind.";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_seed01",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 2:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Whiteberry]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Purr~ Will buy at a reasonable price.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Please sell items that are useful.";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_seed01",2;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Whiteberry]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Purr~ Goodbye~";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Blackphone
+//[BACKPORT-BOUNDARY:paramk] paramk,129,33,3	script	Blackphone#seed02	4_M_MERCAT2,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Blackphone]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Meow~ Welcome";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Meow~ The Malangdonya Catpaw merchant group welcomes you.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Meow~ We sell various crops from Malangdo, as well as the Doram series.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Blackphone]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Meow~ Here are Doram cans and bottles, yggdrasil, and thorn berries.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Meow~ If you see nothing, that means we are sold out. Come back tomorrow.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_seed10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Blackphone]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Meow~ Come back soon. We offer interesting items.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Blackphone]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Meow~ We do not open on holidays.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Meow~ Today is the day we have our products shipped from Malangdo.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Meow~ If you need bottles or cans of of Doram, or Yggdrasil fruits, come back tomorrow.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// These comments are spoken continuously when in a specific region
+// Restraurant
+// Jeffrey
+//[BACKPORT-BOUNDARY:paramk] paramk,144,13,3	script	Jeffrey#food00	1_M_MERCHANT,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Jeffrey]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Everyone assumes that I am the cook here. I'm not! I'm just here to collect on the debt that the restaurant owner owes me!";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Jeffrey]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I made a few dishes just to shut up the complaining customers, but this is getting out of hand!";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer30000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Let me make this clear! I am not the cook! Don't wait around to be served! I am NOT making any more dishes!";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Vincent
+//[BACKPORT-BOUNDARY:paramk] paramk,140,18,3	script	Vincent#food01	4_TOWER_15,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Vincent]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "... The new cook makes amazing food, but apparently he's pretty lazy.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer33000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Take orders, don't just stand there in the kitchen! Please!";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Panel
+//[BACKPORT-BOUNDARY:paramk] paramk,138,19,3	script	Panel#food02	4_TOWER_14,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Panel]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "This restaurant opened only recently, but it became really popular after they hired a new cook.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer35000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Who cares if I am served late. All that matters is how delicious the food is.";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Matina
+//[BACKPORT-BOUNDARY:paramk] paramk,136,20,3	script	Matina#food03	4_TOWER_05,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Matina]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "What is it? Are you going to order? Forget it. Look at the line-up.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer37000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Why aren't you taking orders? This place is not really consumer-friendly...";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Lucy
+//[BACKPORT-BOUNDARY:paramk] paramk,134,21,3	script	Lucy#food04	4_TOWER_10,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Lucy]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Ah. I am going to wait a little more, but if I am still not served, I will leave.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer40000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "This is the limit! I can't wait any more. Five minutes, and I'm going home.";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Mara
+//[BACKPORT-BOUNDARY:paramk] paramk,136,16,3	script	Mara#food05	4_TOWER_02,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Mara]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I heard that the owner of this restaurant went on a trip to a faraway land, and the new cook is running this place. I heard that his cooking skill is amazing.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer28000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "The new cook seems to have a foul temper. I find that attractive, really.";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Lana
+//[BACKPORT-BOUNDARY:paramk] paramk,133,16,3	script	Lana#food06	4_TOWER_04,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Lana]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I came two days ago, yesterday, and today too. The pasta they serve here is amazing. The only problem is that it's so hard to order here.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer25000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Did my order go through? I am starving here!";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Rahoul
+//[BACKPORT-BOUNDARY:paramk] paramk,127,16,3	script	Rahoul#food07	4_TOWER_12,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Rahoul]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I have been waiting for hours already and the cook is still not taking orders. Ah, I am so hungry that I might drop dead.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer23000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Huh. I wonder how long they would make me wait...";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Nameless Drunk
+//[BACKPORT-BOUNDARY:paramk] paramk,124,20,3	script	Drunk#food08	4_TOWER_06,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Drunk]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Hey, bring more wine...";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer50000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Ehhhh.... Wine.......";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Annoyed Customer
+//[BACKPORT-BOUNDARY:paramk] paramk,127,10,3	script	Annoyed Customer#food09	4_TOWER_07,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Annoyed Customer]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I am going to talk to the owner once he comes back from his trip. Tell him to fire his employees there at the back.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "So many customers milling about, and they aren't even serving anyone";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer20000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "I wish I could do something about the employees.";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Kalin
+//[BACKPORT-BOUNDARY:paramk] paramk,124,11,3	script	Kalin#food10	4_F_01,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Kalin]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I am Thrann's colleague and I like being a cleaner at this store. I can be as lazy as I want and still get paid.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Thrann
+//[BACKPORT-BOUNDARY:paramk] paramk,121,11,3	script	Thrann#food11	4_F_02,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Thrann]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I spend hours here drinking coffee in peace, though I am technically at work, pretending to clean. They don't even kick me out.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnTimer47000:
+//[BACKPORT-BOUNDARY:paramk] 	npctalk "Such ruckus! If they are not taking orders because there's something wrong in the kitchen, it's only understandable.";
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] OnInit:
+//[BACKPORT-BOUNDARY:paramk] 	initnpctimer;
+//[BACKPORT-BOUNDARY:paramk] 	end;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Sobok the Cook
+//[BACKPORT-BOUNDARY:paramk] paramk,127,88,3	script	Sobok the Cook#fd01	4_M_CHNCOOK,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Sobok]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I am called Sobok, of the Sobokru, Eden Market Group's leading restaurant.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Do you wish to order? The dishes cost 3000 Zeny each - The weekend special is 5000 Zeny.";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch( select("Goose Soup.:Maccaroni Noodles.:Weekend Special.:Cancel.") ) {
+//[BACKPORT-BOUNDARY:paramk] 	case 1:
+//[BACKPORT-BOUNDARY:paramk] 		set .@hp, 100;
+//[BACKPORT-BOUNDARY:paramk] 		set .@sp, 0;
+//[BACKPORT-BOUNDARY:paramk] 		set .@zeny, 3000;
+//[BACKPORT-BOUNDARY:paramk] 		set .@talk$, "Goose Soup shall detoxify and heal you.";
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 2:
+//[BACKPORT-BOUNDARY:paramk] 		set .@hp, 0;
+//[BACKPORT-BOUNDARY:paramk] 		set .@sp, 100;
+//[BACKPORT-BOUNDARY:paramk] 		set .@zeny, 3000;
+//[BACKPORT-BOUNDARY:paramk] 		set .@talk$, "Maccaroni Noodles shall refresh your spirit.";
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		set .@hp, 100;
+//[BACKPORT-BOUNDARY:paramk] 		set .@sp, 100;
+//[BACKPORT-BOUNDARY:paramk] 		set .@zeny, 5000;
+//[BACKPORT-BOUNDARY:paramk] 		set .@talk$, "Ultimate combination for body and mind.";
+//[BACKPORT-BOUNDARY:paramk] 		break;
+//[BACKPORT-BOUNDARY:paramk] 	case 4:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Sobok]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come by when you may.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Sobok]";
+//[BACKPORT-BOUNDARY:paramk] 	mes .@talk$;
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	if (select("Yes:No") == 2)
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	if (Zeny < .@zeny) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Sobok]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Do you think you can eat for free??";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Sobok]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Delicious, isn't it?";
+//[BACKPORT-BOUNDARY:paramk] 	set Zeny, Zeny - .@zeny;
+//[BACKPORT-BOUNDARY:paramk] 	percentheal(.@hp, .@sp);
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Cafe Mora
+// Pomegranate
+//[BACKPORT-BOUNDARY:paramk] paramk,75,86,3	script	Pomegranate#mora01	4_F_RAFLE_PK,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Pomegranate]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Come forth, hasten!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Ask you where this is? Cafe Mora, open always.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Pomegranate, this thing and that thing sell.";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	switch (select("Check Shop.:Why do you speak like that?:Anything else?")) {
+//[BACKPORT-BOUNDARY:paramk] 	case 1:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Pomegranate]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Have! Sap of Mora Village!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Sell! Beef toast.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Delicious. Beef toast. Much. Good~";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Pomegranate!";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_mora01",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	case 2:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Pomegranate]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Know you not, Mora Tongue.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Pomegranate. Know. Human speech.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Pomegranate, awesome.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Study, did. Super hard!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	case 3:
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Pomegranate]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Sell. Master. Fri-Sat-Sun.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Delicious. Squeezed fruit. Mora best!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Cocktail Master
+//[BACKPORT-BOUNDARY:paramk] paramk,65,86,3	script	Cocktail Master#mora01	4_M_RAFLE_VI,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 1) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Cocktail Master]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Welcome to Mora Cafe.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We offer fruits and drinksfrom Mora.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "They are ^4d4dffRafflechino, Mora Hip Tea, Mora Mandarin, and Mora Berry^000000. We may run out of stock.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Cocktail Master]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If there is nothing, that means we are sold out. Come back tomorrow.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_mora10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Cocktail Master]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We are thankful that you came to visit us.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Cocktail Master]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Do you wish to purchase special Mora Drinks?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We are saddened to inform you that we only make drinks on weekends. Come back on ^4d4dffFri, Sat, Sun^000000.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Pomegranate, sell this and that.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Forge
+// Hans of the miner coalition
+//[BACKPORT-BOUNDARY:paramk] paramk,49,103,3	script	Hans #ref01	1_M_SIGNMCNT,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 3) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Hans]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell metal ores mined by our coalition.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "If you need iron, steel, coal, or iron ores, look around.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at ores.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Hans]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We are sold out, if there is nothing here.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We mine iron, steel, coal, and iron ores every day, so come back tomorrow.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_ref10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Hans]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Our stock of basic metal like iron, steel, coal, etc, are replenished every day.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Keep that in mind.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Hans]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We're closed today.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I am just about to visit the mines.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come back tomorrow if you need anything.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Dus the Smith
+//[BACKPORT-BOUNDARY:paramk] paramk,53,104,3	script	Dus the Smith#ref02	2_M_OLDBLSMITH,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 3) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Dus the Smith]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Oridecon, Elunium, and Anvils here.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Not a lot, but handcrafted, you'll see.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at items.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Dus the Smith]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Not sure if we have any left.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Please buy if we do.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_ref20",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Dus the Smith]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Rare ores are hard to come by, and hard to refine.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "That's why our stock is limited.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Dus the Smith]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Ah, a customer?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Sorry, we are not selling ores today.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Dus the Smith]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "They're hard to make, you see.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "What do we sell you ask?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Ahhh, we sell Oridecon, Elunium, and Anvils here.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Dus the Smith]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "If you need rare ores or anvils, come on weekends.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Late Saturday afternoon would be perfect.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Rain-of-Gems
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,63,98,3	script	[Rain-of-Gems]#jw	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "? Rain of Gems ?";
+//[BACKPORT-BOUNDARY:paramk] 	mes "We deal in gold and gemstones!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Days of Operation]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "We're closed on holidays.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Aurora
+//[BACKPORT-BOUNDARY:paramk] paramk,69,102,3	script	Aurora#jew01	4_F_02,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Aurora]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Welcome~";
+//[BACKPORT-BOUNDARY:paramk] 		mes "This is 'Rain of Gems'. Our items range from pure gold to uncut gemstones like rosestone!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell gold, opals, phlogopite, muscovite, et cetera.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "They are rare and hard to come by, therefore pricey!";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		switch (select("Look at items.:Sell items.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 		case 1:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Aurora]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If you don't see anything, that means everything is sold out!";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Thank you for visiting~!";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_jew10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 2:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Aurora]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We will buy at a reasonable price.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_fod01",2;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 3:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Aurora]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We deal in products like gold, phlogopite, agate and turquoise.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "But uncut gemstones are rare.";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Aurora]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We procure them from mines, but the supply is limited~";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Our stock is replenished every week, so if you time it just right.. maybe? Haha.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Aurora]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Aw, sorry that you came by today.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Our Market Group is not open on Wednesdays.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We need time to restock and check our inventory levels, and of course, time to rest up.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Aurora]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "If you come by tomorrow, we would be happy to offer you our range of products that will make your weapons more powerful!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// The Alchemical Cat
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,73,98,3	script	[Alchemical Cat]#alc00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == The Alchemical Cat == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Reagents for alchemy and";
+//[BACKPORT-BOUNDARY:paramk] 	mes "ingredients to make medication";
+//[BACKPORT-BOUNDARY:paramk] 	mes "All sold here~";
+//[BACKPORT-BOUNDARY:paramk] 	mes "";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Days of Operation]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Every day except for holidays";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Dye the Alchemist
+//[BACKPORT-BOUNDARY:paramk] paramk,75,102,3	script	Dye the Alchemist#alc01	4_M_ALCHE_C,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Dye the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Reagents for alchemy!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell Alcohol, Karvodailnirol, and Detrimindexta!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell 20 each, per day!";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at the reagents.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Dye the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Not sure if we have any left!";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If not, everything is sold out!";
+//[BACKPORT-BOUNDARY:paramk] 			mes "They may be a bit expensive, but easy consumption... well, you know what I am talking about. Yeah?";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_alc10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Dye the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come by tomorrow, we brew reagents every day!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Dye the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We are closed on Wednesdays~";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come back tomorrow!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Earl the Alchemist
+//[BACKPORT-BOUNDARY:paramk] paramk,80,104,3	script	Earl the Alchemist#alc02	4_TOWER_16,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Earl the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Ingredients to make reagents, potions, ";
+//[BACKPORT-BOUNDARY:paramk] 		mes "and elemental stones for magical experiements, all sold here!";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Earl the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Not sure how much remains of our stock, since our supply is limited, but...";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Looking for something?";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		switch (select("Look at ingredients.:Look at elemental stones.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 		case 1:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Earl the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Immortal Hearts, Stems, and many other ingredients from various dungeons";
+//[BACKPORT-BOUNDARY:paramk] 			mes "offered here at a reasonable price";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Earl the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If you don't see anything, that means everything is sold out.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_alc20",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 2:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Earl the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Stardust, and Star Crumb here.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Not sure if we have any left.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_alc30",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 3:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Earl the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Come again!";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Keep in mind that we don't open on Wednesdays, because that's when we have items shipped in!";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Earl the Alchemist]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Wednesday is a holiday.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come back tomorrow if there's anything you want to buy.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Manbok Groceries
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,83,98,3	script	[Manbok Groceries]#fod00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Manbok Groceries == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "We offer amazing cooking ingredients!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Wolf blood and Petite's Tails!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Days of Operation]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Every day except for holidays";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Manbok
+//[BACKPORT-BOUNDARY:paramk] paramk,87,101,3	script	Manbok#fod01	1_M_03,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Manbok]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Welcome.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "If you need cooking ingredients, you have come to the right place.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		switch (select("Advanced cooking ingredients.:Sauces and spies.:Sell items.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 		case 1:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Manbok]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Not sure how many we have left.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Well,^4d4dffif you see nothing, that means everything is sold out^000000.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Peruse at your pleasure.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_fod10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 2:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Manbok]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Sauces and spices from all over the world..";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I am the person to go to if you want cooking ingredients.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_fod01",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 3:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Manbok]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If it's a product I deal in, I will purchase them from you at a reasonable price.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_fod01",2;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		case 4:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Manbok]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "You might know this already, but I will say it anyways.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We have limited supplies. Our ingredients are often sold out if you hesitate for too long.";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Manbok]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Just saying.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Manbok]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Not open on Wednesdays.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We restock today. Come back tomorrow.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Magical Store, Ma-Ma-Ma-Ma
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,93,98,3	script	Ma-Ma-Ma-Ma#mag	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Ma-Ma-Ma-Ma == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Magical Store == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Ingredients and gems for magic, ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Specializing in magic scrolls";
+//[BACKPORT-BOUNDARY:paramk] 	mes "";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Days of Operation]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Some items not sold on holidays";
+//[BACKPORT-BOUNDARY:paramk] 	mes "But open every day.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Madoha
+//[BACKPORT-BOUNDARY:paramk] paramk,95,102,3	script	Madoha#mag01	4_M_SAGE_A,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Madoha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Welcome.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "This is Ma-Ma-Ma-Ma the Magical Store, run by the Ma brothers, helping non-Mages use magic.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Madoha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell magic scrolls and gems.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Anything particular that you are looking for?";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Madoha]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Blue, red, yellow gems. Magic scrolls like Meteor Storm, Stormgust, Lord of Vermillion...";
+//[BACKPORT-BOUNDARY:paramk] 			mes "^4d4dffIf there is nothing, it means everything is sold out^000000, please be aware.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_mag10",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Madoha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Making magic scrolls is interesting work.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Magic scrolls also help a lot of non-mage adventurers by allowing them to use magic they don't know.";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Madoha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "But there's a limit to how many scrolls I can scribe per week, so they sometimes run out.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Madoha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Oh, a customer?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Today is a holiday. We only sell basic magical ingredients today. No scrolls. Is that okay?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We have blue gems, points, and runestones..";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Madoha]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We try to be stocked up as much as possible but we may have run out.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If you see nothing, that means everything is sold out.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_mag11",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Madoha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Yellow and red gems, and magic scrolls, are sold on other days, ";
+//[BACKPORT-BOUNDARY:paramk] 		mes "So come back tomorrow.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Magiha
+//[BACKPORT-BOUNDARY:paramk] paramk,100,102,3	script	Magiha#mag02	4_M_SAGE_C,{
+//[BACKPORT-BOUNDARY:paramk] 	if ($event_paramk > 0) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Magiha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Welcome tooooooo.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Ma-Ma-Ma-Ma, the Magical Store.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We sell resistance potions to raise your elemental resistance..";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Look at items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Magiha]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We brew and sell four types of resistance potions that ward against water, wind, earth, or fire.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If you see nothing, that means all the potions are sold out.";
+//[BACKPORT-BOUNDARY:paramk] 			close2;
+//[BACKPORT-BOUNDARY:paramk] 			callshop "para_mag20",1;
+//[BACKPORT-BOUNDARY:paramk] 			end;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Magiha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come again!";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	} else { // holiday
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Magiha]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Today is a holiday! I did not brew any potions today...";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Come back tomorrow.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Blessings of Yggdrasil
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,103,98,3	script	[Yggdrasil Blessing]#00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Blessings of Yggdrasil == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Moving in soon";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+
+// Exotic Plants
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,113,98,3	script	[Exotic Plants]#plt	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == Exotic Plants == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Poisonous plants sold.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Days of Operation: always";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Hwaran
+//[BACKPORT-BOUNDARY:paramk] paramk,116,100,3	script	Hwaran#plt01	4_F_RUSGREEN,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Hwaran]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Welcome to Exotic Plants.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "I deal with plants that are shockingly bitter when you chew on them.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Will you look around?";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	if (select("Look at items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Hwaran]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Please shower them with affection, though they are poisonous plants.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "I selected these babies from the farm myself. Very potent when made into meds.";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_plt01",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Hwaran]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "So many frequent customers to my store are from the assassin's guild, surprisingly enough. I don't know why.";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Obviously they must be peace-loving people at heart, since they are so fond of plants.";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// You and Me
+// sign
+//[BACKPORT-BOUNDARY:paramk] paramk,133,98,3	script	[You and Me]#unm00	HIDDEN_NPC,{
+//[BACKPORT-BOUNDARY:paramk] 	mes " == You and Me == ";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Specializing in items for Cute Pets";
+//[BACKPORT-BOUNDARY:paramk] 	mes "We introduce you to beasts you can mount, and companions you can hunt with";
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Days of Operation]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Always!";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+
+// Gecko the Trainer
+//[BACKPORT-BOUNDARY:paramk] paramk,124,97,3	script	Gecko the Trainer#unm01	4_M_DESERT,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 	switch( Class ) {
+//[BACKPORT-BOUNDARY:paramk] 	case Job_Rune_Knight:
+//[BACKPORT-BOUNDARY:paramk] 	case Job_Rune_Knight_T:
+//[BACKPORT-BOUNDARY:paramk] 	case Job_Baby_Rune_Knight:
+//[BACKPORT-BOUNDARY:paramk] 		mes "Welcome. Would you like to rent a Dragon?";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Yes:No") == 2) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I see. Then have a great day.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+		// if (!getskilllv("RK_DRAGONTRAINING")) {
+//[BACKPORT-BOUNDARY:paramk] 		if (!getskilllv("KN_RIDING")) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Please learn how to ride a Dragon first.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		} else if (checkriding() || 0) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "You already have a Dragon.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		} else if (0) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Please remove your cash mount.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+		//[BACKPORT-GAP:setdragon] setdragon;
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] 	case Job_Royal_Guard:
+//[BACKPORT-BOUNDARY:paramk] 	case Job_Royal_Guard_T:
+//[BACKPORT-BOUNDARY:paramk] 	case Job_Baby_Royal_Guard:
+//[BACKPORT-BOUNDARY:paramk] 		mes "Welcome. Would you like to rent a Gryphon?";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		if (select("Yes:No") == 2) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I see. Then have a great day.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		if (!getskilllv("KN_RIDING")) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Please learn how to ride a Gryphon first.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		if (checkriding()) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "You already have a Gryphon.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		if (0) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Gecko the Trainer]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Please remove your cash mount.";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		setriding;
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] 	default:
+//[BACKPORT-BOUNDARY:paramk] 		mes "I'm here to provide Rune Knights and Royal Guards with riding creatures.";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+//[BACKPORT-BOUNDARY:paramk] 
+// Tete
+//[BACKPORT-BOUNDARY:paramk] paramk,126,100,3	script	Tamer Tete#unm02	4_M_DST_CHILD,{
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Tete]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "'You and Me', we love animals!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "We are open 24/7 to provide you with all the items your Cute Pets and companion animals need!";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Do you need items for your Pet?";
+//[BACKPORT-BOUNDARY:paramk] 	next;
+//[BACKPORT-BOUNDARY:paramk] 	if (select("Look at items.:Cancel.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 		mes "[Tete]";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We have a diverse selection of food for Pets.";
+//[BACKPORT-BOUNDARY:paramk] 		mes "We have incubators, too!";
+//[BACKPORT-BOUNDARY:paramk] 		close2;
+//[BACKPORT-BOUNDARY:paramk] 		callshop "para_unm01",1;
+//[BACKPORT-BOUNDARY:paramk] 		end;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Tete]";
+//[BACKPORT-BOUNDARY:paramk] 	mes "Thank you for coming by~!";
+//[BACKPORT-BOUNDARY:paramk] 	close;
+//[BACKPORT-BOUNDARY:paramk] }
+//[BACKPORT-BOUNDARY:paramk] 
+// Mist the Hunter
+//[BACKPORT-BOUNDARY:paramk] paramk,130,98,3	script	Mist the Hunter#unm03	4_M_JOB_HUNTER,{
+//[BACKPORT-BOUNDARY:paramk] 	if (Upper == 0) set .@price, 2500; // Normal Falcon - default price
+//[BACKPORT-BOUNDARY:paramk] 	if (Upper == 1) set .@price, 2500; // Scarf Falcon
+//[BACKPORT-BOUNDARY:paramk] 	if (Upper == 2) set .@price, 2500; // Baby Falcon
+//[BACKPORT-BOUNDARY:paramk] 	mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 	if (BaseJob == Job_Hunter) {
+//[BACKPORT-BOUNDARY:paramk] 		if (checkoption(Option_Wug) || checkoption(Option_Wugrider)) {
+//[BACKPORT-BOUNDARY:paramk] 			mes "Um...";
+//[BACKPORT-BOUNDARY:paramk] 			mes "You can't rent a Falcon";
+//[BACKPORT-BOUNDARY:paramk] 			mes "until you dismiss your warg first!";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 		mes "Do you need a Falcon?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "You can rent your own";
+//[BACKPORT-BOUNDARY:paramk] 		mes "trusty bird of prey for a";
+//[BACKPORT-BOUNDARY:paramk] 		mes "fee of just " + .@price + " zeny~";
+//[BACKPORT-BOUNDARY:paramk] 		next;
+//[BACKPORT-BOUNDARY:paramk] 		switch (select("Rent Falcon.:Buy a Falcon Flute.:Cancel.")) {
+//[BACKPORT-BOUNDARY:paramk] 		case 1:
+//[BACKPORT-BOUNDARY:paramk] 			if (0) {
+//[BACKPORT-BOUNDARY:paramk] 				mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 				mes "Um...";
+//[BACKPORT-BOUNDARY:paramk] 				mes "You can't rent a Falcon";
+//[BACKPORT-BOUNDARY:paramk] 				mes "until you dismiss your warg first!";
+//[BACKPORT-BOUNDARY:paramk] 				close;
+//[BACKPORT-BOUNDARY:paramk] 			}
+//[BACKPORT-BOUNDARY:paramk] 			if (Zeny < .@price) {
+//[BACKPORT-BOUNDARY:paramk] 				mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 				mes "What is this?";
+//[BACKPORT-BOUNDARY:paramk] 				mes "You don't have";
+//[BACKPORT-BOUNDARY:paramk] 				mes "enough zeny?!";
+//[BACKPORT-BOUNDARY:paramk] 				mes "You better start";
+//[BACKPORT-BOUNDARY:paramk] 				mes "hunting money";
+//[BACKPORT-BOUNDARY:paramk] 				mes "instead of monsters~";
+//[BACKPORT-BOUNDARY:paramk] 				close;
+//[BACKPORT-BOUNDARY:paramk] 			}
+//[BACKPORT-BOUNDARY:paramk] 			if (getskilllv("HT_FALCON") == 0) {
+//[BACKPORT-BOUNDARY:paramk] 				mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 				mes "Gosh~";
+//[BACKPORT-BOUNDARY:paramk] 				mes "Go learn how to";
+//[BACKPORT-BOUNDARY:paramk] 				mes "manage a Falcon";
+//[BACKPORT-BOUNDARY:paramk] 				mes "first! I can't rent one";
+//[BACKPORT-BOUNDARY:paramk] 				mes "to you if you can't";
+//[BACKPORT-BOUNDARY:paramk] 				mes "handle it, you know.";
+//[BACKPORT-BOUNDARY:paramk] 				close;
+//[BACKPORT-BOUNDARY:paramk] 			}
+//[BACKPORT-BOUNDARY:paramk] 			if (checkfalcon()) {
+//[BACKPORT-BOUNDARY:paramk] 				mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 				mes "Um...";
+//[BACKPORT-BOUNDARY:paramk] 				mes "You already have";
+//[BACKPORT-BOUNDARY:paramk] 				mes "a Falcon. It's right";
+//[BACKPORT-BOUNDARY:paramk] 				mes "there, can't you see it?";
+//[BACKPORT-BOUNDARY:paramk] 				close;
+//[BACKPORT-BOUNDARY:paramk] 			}
+//[BACKPORT-BOUNDARY:paramk] 			set Zeny, Zeny - .@price;
+//[BACKPORT-BOUNDARY:paramk] 			setfalcon;
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		case 2:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "With a magical Flute, you can call your Falcon from anywhere!";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "It's marvelous, isn't it? Ha ha ha!";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Why I'm selling these Falcon Flutes?";
+//[BACKPORT-BOUNDARY:paramk] 			mes "It's because I have no clue how they work.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Ha ha ha!";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Of course, you'll need the Skill ^ff0000Falcon Mastery^000000.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I don't have the Skill, so I don't know how to handle Falcons.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "As it's for now, I may never have a Falcon.";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "But I can't give you one for free!";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I have to make money since I also need to eat!";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "If you need a Falcon Flute I will sell them for 12,500 zeny. Or is that too expensive?";
+//[BACKPORT-BOUNDARY:paramk] 			next;
+//[BACKPORT-BOUNDARY:paramk] 			if (eaclass()&EAJL_THIRD) {
+//[BACKPORT-BOUNDARY:paramk] 				mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 				mes "For Rangers, however, I have a special price of 10,000 zeny!";
+//[BACKPORT-BOUNDARY:paramk] 				set .@price, 10000;
+//[BACKPORT-BOUNDARY:paramk] 				next;
+//[BACKPORT-BOUNDARY:paramk] 			} else
+//[BACKPORT-BOUNDARY:paramk] 				set .@price, 12500;
+//[BACKPORT-BOUNDARY:paramk] 			if (select("Don't buy one.:Buy a Falcon Flute.") == 1) {
+//[BACKPORT-BOUNDARY:paramk] 				mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 				mes "That's too bad. If you need one, come back!";
+//[BACKPORT-BOUNDARY:paramk] 				close;
+//[BACKPORT-BOUNDARY:paramk] 			}
+//[BACKPORT-BOUNDARY:paramk] 			if (Zeny >= .@price) {
+//[BACKPORT-BOUNDARY:paramk] 				if (countitem(12848) >= 1) { // Falcon_Flute
+//[BACKPORT-BOUNDARY:paramk] 					mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 					mes "As I can see you already have a Falcon Flute!";
+//[BACKPORT-BOUNDARY:paramk] 					mes "Don't worry, my young friend, once you've purchased the Falcon Flute you won't need to do so again";
+//[BACKPORT-BOUNDARY:paramk] 					mes "since the Falcon Flute won't disappear upon usage, isn't that great?";
+//[BACKPORT-BOUNDARY:paramk] 					close;
+//[BACKPORT-BOUNDARY:paramk] 				}
+//[BACKPORT-BOUNDARY:paramk] 				mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 				mes "Here, take this flute.";
+//[BACKPORT-BOUNDARY:paramk] 				mes "With it you can whistle for your Falcon from anywhere.";
+//[BACKPORT-BOUNDARY:paramk] 				set Zeny, Zeny - .@price;
+//[BACKPORT-BOUNDARY:paramk] 				getitem(12848, 1); // Falcon_Flute
+//[BACKPORT-BOUNDARY:paramk] 				next;
+//[BACKPORT-BOUNDARY:paramk] 				mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 				mes "Just a reminder.";
+//[BACKPORT-BOUNDARY:paramk] 				mes "You need the Skill ^ff0000Falcon Mastery^000000 in order to use it!";
+//[BACKPORT-BOUNDARY:paramk] 				close;
+//[BACKPORT-BOUNDARY:paramk] 			}
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Mist, the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "I'm sorry but you don't have enough money to buy a Falcon Flute, please come back when you have more money!";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 
+//[BACKPORT-BOUNDARY:paramk] 		case 3:
+//[BACKPORT-BOUNDARY:paramk] 			mes "[Mist the Hunter]";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Look at other items in our store.";
+//[BACKPORT-BOUNDARY:paramk] 			mes "We may be offering a new Pet Items soon~";
+//[BACKPORT-BOUNDARY:paramk] 			mes "Hahahaha!";
+//[BACKPORT-BOUNDARY:paramk] 			close;
+//[BACKPORT-BOUNDARY:paramk] 		}
+//[BACKPORT-BOUNDARY:paramk] 	} else {
+//[BACKPORT-BOUNDARY:paramk] 		mes "Young fool!";
+//[BACKPORT-BOUNDARY:paramk] 		mes "Falcons can only";
+//[BACKPORT-BOUNDARY:paramk] 		mes "be used by Hunters";
+//[BACKPORT-BOUNDARY:paramk] 		mes "and Snipers, capish?";
+//[BACKPORT-BOUNDARY:paramk] 		mes "...Heh heh, jealous?";
+//[BACKPORT-BOUNDARY:paramk] 		close;
+//[BACKPORT-BOUNDARY:paramk] 	}
+//[BACKPORT-BOUNDARY:paramk] }
+//[BACKPORT-BOUNDARY:paramk] 
+// exit
+//[BACKPORT-BOUNDARY:paramk] paramk,97,5,0	warp	paramk#ex	1,1,moc_para01,106,35

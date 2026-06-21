@@ -1,0 +1,413 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/hd_refiner.txt
+//============================================================
+//===== rAthena Script =======================================
+//= HD Refiners
+//===== Description: =========================================
+//= [Official Conversion]
+//= Refiners that use HD ores to refine equipment. Upon
+//= failure, the equipment is not destroyed; rather, its
+//= refine level decreases by 1. The success rate is identical
+//= to that for Enriched ores.
+//= - "Blacksmith Mighty Hammer" only refines from +7~9.
+//= - "Basta" only refines from +10 and up.
+//===== Changelog: ===========================================
+//= 1.0 First version. [Euphy]
+//= 1.1 Removed re-roll behavior. [Secret]
+//============================================================
+
+// Blacksmith Mighty Hammer (+7~9) :: cash_smelting79
+//============================================================
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] -	script	::MightyHammer	-1,{
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	disable_items;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Unlike others, I am a blacksmith who refines a very limited number of items.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "I refine only items that are ^CC0000+7 to +9^000000.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "My specialty is that even if my refining fails, the refine level decreases by 1 without losing the gear. Isn't it great?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "So lets kick this into overdrive, what d' ya say? What item do you want to refine?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	setarray .@indices[1], EQI_HEAD_TOP, EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_MID, EQI_HEAD_LOW;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	for (set .@i,1; .@i <= 10; set .@i,.@i+1 )
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@menu$, .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) + "-[Not equipped]" ) + ":";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@part, .@indices[ select(.@menu$) ];
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (!getequipisequiped(.@part)) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		switch(.@part) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HEAD_TOP:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "I'm a blacksmith, not a hairstylist.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_ARMOR:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "With my hammer, I will make you a star of the sky.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HAND_L:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HAND_R:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Making artificial hands is not my specialty.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_GARMENT:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Bring out the item so I can refine it!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_SHOES:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Where is this foot odor coming from?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_ACC_L:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_ACC_R:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Where is the accessory?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HEAD_MID:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "What do you want me to refine?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HEAD_LOW:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Huh? What do you want me to do?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (!getequipisenableref(.@part)) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "This item can't be refined.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	switch( getequiprefinerycnt(.@part) ) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	case 7:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@blacksmith_blessing_count, 1;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	case 8:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@blacksmith_blessing_count, 2;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	case 9:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@blacksmith_blessing_count, 4;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	default:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "I only handle items with refine levels from +7 to +9.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@refineitemid, getequipid(.@part); // save id of the item
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@itemtype, getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@refinerycnt, getequiprefinerycnt(.@part); //save refinery count
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+	//[BACKPORT-GAP:getequiprefinecost] .@price = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_ZENY_COST);
+	//[BACKPORT-GAP:getequiprefinecost] .@material = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_MATERIAL_ID);
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "In order to refine the gear you selected you need ^ff9999" + getitemname(.@material) + "^000000 and 20,000 zeny as a fee.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Do you have them ready?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (select("Yes:No") == 2) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "I will wait until you are ready.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (getequippercentrefinery(.@part) < 100) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "It looks like this item will likely fail to be refined.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Well, even if it fails, it only decreases by 1 refine level.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Would you like to continue refining?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		if (countitem(6635) < .@blacksmith_blessing_count)
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			setarray .@menu$[0], "", "Yes", "Not yet";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		else {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Ah! Is it the ^0000ffBlacksmith Blessing^000000?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "With the Blacksmith Blessing, the equipment won't vanish if the refine fails!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			if ( .@itemtype != IT_WEAPON )
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 				mes "For +" + getequiprefinerycnt(.@part) + " equipment, refine with^316AC5 " + .@blacksmith_blessing_count + " unit(s) Blacksmith Blessing^000000 can prevent the equipment from vanishing. Do you want use it to refine?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			else
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 				mes "For +" + getequiprefinerycnt(.@part) + " weapon, refine with^316AC5 " + .@blacksmith_blessing_count + " unit(s) Blacksmith Blessing^000000 can prevent the equipment from vanishing. Do you want use it to refine?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			setarray .@menu$[0], "Use it to refine", "Refine directly without it", "Don't refine yet";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		switch( select(.@menu$[0], .@menu$[1], .@menu$[2]) ) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case 1:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			set .@bless_who, 1;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case 2:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case 3:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Only those who overcome fear of failure will obtain a masterpiece.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if ((.@bless_who && countitem(6635) < .@blacksmith_blessing_count) || countitem(.@material) == 0 || Zeny < .@price) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Didn't you just say you had everything ready?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (.@bless_who)
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		delitem 6635, .@blacksmith_blessing_count;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	delitem .@material,1;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set Zeny, Zeny - .@price;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 
+	// anti-hack
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (callfunc("F_IsEquipIDHack", .@part, .@refineitemid) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) ||
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		callfunc("F_IsEquipRefineHack", .@part, .@refinerycnt)) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+		//[BACKPORT-GAP:ET_FRET] emotion ET_FRET;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Wait a second...";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Do you think I'm stupid?!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "You switched the item while I wasn't looking! Get out of here!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Tac! Tac! Tac!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (getequippercentrefinery(.@part, true) > rand(100)) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		successrefitem .@part;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+		//[BACKPORT-GAP:ET_BEST] emotion ET_BEST;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "The sound refreshes my mind every time I hear it.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Here, have it. Refine succeeded flawlessly!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (.@bless_who == 1) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		specialeffect EF_HOLYHIT;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+		//[BACKPORT-GAP:ET_HUK] emotion ET_HUK;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "What?!!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Aiya! I am faceless now. HmHm.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+	//[BACKPORT-GAP:downrefitem] downrefitem .@part;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+	//[BACKPORT-GAP:ET_HUK] emotion ET_HUK;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Oops!!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Blacksmith Mighty Hammer]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "I am sure a person like you would never blame me for a decrease in refine level by 1. Hmm.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] }
+//[BACKPORT-ORPHAN:MightyHammer] prt_in,59,54,3	duplicate(MightyHammer)	Mighty Hammer#prt	4_M_DWARF
+//[BACKPORT-ORPHAN:MightyHammer] morocc_in,65,30,3	duplicate(MightyHammer)	Mighty Hammer#morocc	4_M_DWARF
+//[BACKPORT-ORPHAN:MightyHammer] payon,148,176,3	duplicate(MightyHammer)	Mighty Hammer#pay	4_M_DWARF
+//[BACKPORT-ORPHAN:MightyHammer] alberta_in,16,56,3	duplicate(MightyHammer)	Mighty Hammer#alb	4_M_DWARF
+//[BACKPORT-ORPHAN:MightyHammer] yuno_in01,171,18,3	duplicate(MightyHammer)	Mighty Hammer#yuno	4_M_DWARF
+//[BACKPORT-ORPHAN:MightyHammer] ein_in01,22,82,3	duplicate(MightyHammer)	Mighty Hammer#ein	4_M_DWARF
+//[BACKPORT-ORPHAN:MightyHammer] lhz_in02,280,19,3	duplicate(MightyHammer)	Mighty Hammer#lhz	4_M_DWARF
+
+// iRO NPC locations:
+// payon,174,133,4	duplicate(MightyHammer)	Mighty Hammer#im	4_M_DWARF
+
+// Basta (+10 and up) :: cash_smelting
+//============================================================
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] -	script	::Basta	-1,{
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	disable_items;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "I'm the best Blacksmith in the whole world, Basta.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "But I don't provide a normal refine service.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "I only refine equipment ^CC0000over +10^000000.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Which equipment do you want to refine?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	setarray .@indices[1], EQI_HEAD_TOP, EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_MID, EQI_HEAD_LOW;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	for (set .@i,1; .@i <= 10; set .@i,.@i+1 )
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@menu$, .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) + "-[Unequipped]" ) + ":";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@part, .@indices[ select(.@menu$) ];
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (!getequipisequiped(.@part)) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		switch(.@part) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HEAD_TOP:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Is your head an equipment?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_ARMOR:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "What do you want me to do?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HAND_L:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HAND_R:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Making artificial hands is not my specialty.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_GARMENT:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Do you even know what a robe is?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_SHOES:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "If you want to refine your feet, don't come to me, try running a marathon.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_ACC_L:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_ACC_R:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Where is the accessory?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HEAD_MID:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Well... I don't see any equipment worth refining.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case EQI_HEAD_LOW:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "I can't make you smart. Go see a school teacher for that.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (!getequipisenableref(.@part)) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Even I cannot refine this item. There's no way.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@refine_count, getequiprefinerycnt(.@part);
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (.@refine_count < 10) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Haven't I told you? I only refine equipment that are +10 and above.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	else if (.@refine_count == 10)
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@blacksmith_blessing_count, 7;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	else if (.@refine_count == 11)
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@blacksmith_blessing_count, 11;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	else if (.@refine_count == 20) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "This weapon is perfect, no need to refine it anymore~";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@refineitemid, getequipid(.@part); // save id of the item
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@itemtype, getiteminfo( .@refineitemid, ITEMINFO_TYPE );
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set .@refinerycnt, getequiprefinerycnt(.@part); //save refinery count
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+	//[BACKPORT-GAP:getequiprefinecost] .@price = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_ZENY_COST);
+	//[BACKPORT-GAP:getequiprefinecost] .@material = getequiprefinecost(.@part, REFINE_COST_HD, REFINE_MATERIAL_ID);
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if ( .@itemtype != IT_WEAPON )
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@type$, "armor";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	else
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		set .@type$, "weapon";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Hmm... is this the one you want to refine?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "To refine this equipment, I need 1 ^ff9999" + getitemname(.@material) + "^000000 and " + callfunc("F_InsertComma",.@price) + " zeny as a fee.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Do you really want to refine this?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (select("Yes:No") == 2) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Okay. If that's what you want...";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (getequippercentrefinery(.@part, true) < 100) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "This " + .@type$ + " has already been refined pretty high.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "If you try to refine it more, the refine level could decrease.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "I am different from the blacksmiths in others places.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "It is impossible that the refine level will drop by, say, 3 or 4... that sounds scary.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Here it can only decrease by 1 level.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		if (.@blacksmith_blessing_count == 0 || countitem(6635) < .@blacksmith_blessing_count) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Compared to other blacksmiths, the risk is smaller.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "I've given all precautions. Do you want to try it?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			setarray .@menu$[0], "", "Yes", "No";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		else {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Woah~ Is it the ^316AC5Blacksmith Blessing^000000? It is difficult to get~ But, you have it!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "For +" + .@refine_count + " " + .@type$ + " need ^316AC5" + .@blacksmith_blessing_count + " unit(s) Blacksmith Blessing^000000 can prevent the equipment from vanishing. Do you want to refine with Blacksmith Blessing?";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			setarray .@menu$[0], "Refine with Blacksmith Blessing", "Refine without Blacksmith Blessing", "Don't refine yet";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		switch( select(.@menu$[0], .@menu$[1], .@menu$[2]) ) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case 1:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			set .@bless_who, 1;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case 2:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			break;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		case 3:
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Well~";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			mes "Not challenging at all could also be a kind of wisdom in life.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 			close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if ((.@bless_who && countitem(6635) < .@blacksmith_blessing_count) || countitem(.@material) == 0 || Zeny < .@price) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Hmm... You didn't bring all the materials needed.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Come back when you have them all.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (.@bless_who)
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		delitem 6635, .@blacksmith_blessing_count;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	delitem .@material,1;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	set Zeny, Zeny - .@price;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 
+	// anti-hack
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (callfunc("F_IsEquipIDHack", .@part, .@refineitemid) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) ||
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		callfunc("F_IsEquipRefineHack", .@part, .@refinerycnt)) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+		//[BACKPORT-GAP:ET_FRET] emotion ET_FRET;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Wait a second...";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Do you think I'm stupid?!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "You switched the item while I wasn't looking! Get out of here!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Pow! Pow! Pow! Pow!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (getequippercentrefinery(.@part, true) > rand(100)) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		successrefitem .@part;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+		//[BACKPORT-GAP:ET_BEST] emotion ET_BEST;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Great! Nicely done!!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "I really am the best blacksmith in the whole wide world!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	if (.@bless_who == 1) {
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		specialeffect EF_HOLYHIT;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+		//[BACKPORT-GAP:ET_MONEY,ET_HUK] emotion (!rand(5))?ET_MONEY:ET_HUK;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Aaaaaaaaaaak!!!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Refining has failed!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "The best blacksmith in the world like me...";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "doesn't guarantee 100% success~";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	else {
+		//[BACKPORT-GAP:downrefitem] downrefitem .@part;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+		//[BACKPORT-GAP:ET_MONEY,ET_HUK] emotion (!rand(5))?ET_MONEY:ET_HUK;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Aaaaaaaaaaak!!!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Damn it!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Refining has failed and refine level has decreased!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 		mes "Even the best blacksmith in the world doesn't guarantee 100% success!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	}
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "Too bad.";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	next;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "[Basta]";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	mes "I'll do better next time! Don't worry!";
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] 	close;
+//[BACKPORT-UNRESOLVED:downrefitem,getequiprefinecost] }
+
+//[BACKPORT-ORPHAN:Basta] prt_in,57,54,3	duplicate(Basta)	Basta#prt	4_M_DWARF
+//[BACKPORT-ORPHAN:Basta] morocc_in,68,30,3	duplicate(Basta)	Basta#morocc	4_M_DWARF
+//[BACKPORT-ORPHAN:Basta] payon,148,174,3	duplicate(Basta)	Basta#payon	4_M_DWARF
+//[BACKPORT-ORPHAN:Basta] alberta_in,18,56,3	duplicate(Basta)	Basta#alberta	4_M_DWARF
+//[BACKPORT-ORPHAN:Basta] yuno_in01,173,18,3	duplicate(Basta)	Basta#yuno	4_M_DWARF
+//[BACKPORT-ORPHAN:Basta] ein_in01,24,82,3	duplicate(Basta)	Basta#einbroch	4_M_DWARF
+//[BACKPORT-ORPHAN:Basta] lhz_in02,280,17,3	duplicate(Basta)	Basta#lighthalzen	4_M_DWARF
+
+// Refine UI makes these NPCs useless
+//[BACKPORT-UNRESOLVED:unloadnpc] -	script	RefineUI_Init	-1,{
+//[BACKPORT-UNRESOLVED:unloadnpc] 	end;
+//[BACKPORT-UNRESOLVED:unloadnpc] OnInit:
+//[BACKPORT-UNRESOLVED:unloadnpc] 	if (getbattleflag("feature.refineui")) {
+		//[BACKPORT-GAP:unloadnpc] unloadnpc "Basta";
+		//[BACKPORT-GAP:unloadnpc] unloadnpc "MightyHammer";
+//[BACKPORT-UNRESOLVED:unloadnpc] 	}
+//[BACKPORT-UNRESOLVED:unloadnpc] 	end;
+//[BACKPORT-UNRESOLVED:unloadnpc] }

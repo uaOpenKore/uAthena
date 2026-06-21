@@ -1,0 +1,80 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../kachua_key.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Dynamic NPC: Kachua's Secret Box
+//===== Description: =========================================
+//- [Official conversion]
+//= Kachua's Secret Box is a Gachapon NPC.
+//= It lets the player exchange a Kachua's Secret Key for a random item.
+//= It also gives a Kachua's Mileage Coupon for each pull.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [secretdataz]
+//============================================================
+
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] sec_in02,126,178,3	script	Kachua's Secret Box#bm	4_TREASURE_BOX,{
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 	set .@key$, "K_Secret_Key";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 	set .@keyname$, getitemname( .@key$ );
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 	set .@box$, "Main_Lucky_Box";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 	set .@boxname$, getitemname( .@box$ );
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 	mes "A Secret Box where no one knows what's inside.";
+	//[BACKPORT-GAP:mesitemlink] mes "^4d4dffYou can open this box by consuming " + mesitemlink( .@key$ ) + ".^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 	next;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 	switch(select("^4d4dffOpen the box 1 time (1 " + .@keyname$ + ")^000000","^4d4dffOpen the box 10 times (10 " + .@keyname$ + "s)^000000")) {
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 		case 1:
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			mes "^FF0000[Notice]^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			mes "^FF0000Exchange one random item with one " + .@keyname$ + ".^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			mes "^FF0000The item exchanged above cannot be withdrawn, nor can it be exchanged to " + .@keyname$ + ".^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			next;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			if(select("Keep going.","Stop conversation.") == 2) {
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				mes "You have decided not to open the Box.";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			} else if (countitem(.@key$) < 1) {
+				//[BACKPORT-GAP:mesitemlink] mes "Not enough " + mesitemlink( .@key$ ) + ".";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			} else {
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				if (checkweight(1201,1) == 0 || ((MaxWeight - Weight) * 100 / MaxWeight) < 10) {
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					mes "^4d4dffPlease make sure you have enough space in your inventory.^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				}
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				delitem(.@key$, 1);
+				//[BACKPORT-GAP:consumeitem] consumeitem(.@box$);
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				mes .@boxname$ + " was opened!";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				mes "Were you lucky?";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				specialeffect2 EF_VALLENTINE;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			}
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 		case 2:
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			mes "^FF0000[Notice]^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			mes "^FF0000Exchange 10 random items with 10 " + .@keyname$ + "s.^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			mes "^FF0000The items exchanged above cannot be withdrawn, nor can it be exchanged to " + .@keyname$ + ".^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			next;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			if(select("Keep going.","Stop conversation.") == 2) {
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				mes "You have decided not to open the Box.";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			} else if (countitem(.@key$) < 10) {
+				//[BACKPORT-GAP:mesitemlink] mes "You do not have enough " + mesitemlink( .@key$ ) + ".";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			} else {
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				for (set .@i,1; .@i <= 10; set .@i,.@i+1) {
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					progressbar "4d4dff",2;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					if (checkweight(1201,1) == 0 || ((MaxWeight - Weight) * 100 / MaxWeight) < 10) {
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 						mes "^4d4dffPlease make sure you have enough space in your inventory.^000000";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 						close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					}
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					if (countitem(.@key$) < 1) { // Custom check, just in case
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 						close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					}
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					delitem(.@key$, 1);
+					//[BACKPORT-GAP:consumeitem] consumeitem(.@box$);
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					dispbottom .@boxname$ + " was opened " + .@i + " times. Another one is being opened.",0xFFFFFF;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 					specialeffect2 EF_VALLENTINE;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				}
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				mes .@boxname$ + " was opened 10 times!";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				mes "Were you lucky?";
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 			}
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] 	}
+//[BACKPORT-UNRESOLVED:consumeitem,mesitemlink] }

@@ -1,0 +1,7 @@
+map: geffen
+map: morocc
+map: payon
+map: payon_in01
+map: prontera
+map: que_ng
+map: yuno

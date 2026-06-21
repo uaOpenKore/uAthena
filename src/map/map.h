@@ -599,8 +599,8 @@ struct map_session_data {
 	// Questlog system [Kevin] [Inkfish]
 	int num_quests;          // total quests (active + inactive + complete)
 	int avail_quests;        // active + inactive (not yet complete)
-	int quest_index[MAX_QUEST_DB]; // index into quest_db[] per quest_log entry
-	struct quest quest_log[MAX_QUEST_DB];
+	int quest_index[MAX_PC_QUESTS]; // index into quest_db[] per quest_log entry
+	struct quest quest_log[MAX_PC_QUESTS];
 	bool save_quest;
 
 	// [Backport] achievements & titles

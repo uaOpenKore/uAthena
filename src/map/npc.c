@@ -2757,8 +2757,16 @@ void npc_parsesrcfile(const char* name)
 		int i, w4pos, count;
 		lines++;
 
-		if (line[0] == '/' && line[1] == '/')
-			continue;
+		// [Backport] Skip "//" line comments, including indented ones. The stock
+		// parser only recognized "//" at column 0, so generated commented-out script
+		// lines that keep their leading indent (e.g. "\t//[BACKPORT-GAP:...]") were
+		// parsed as NPC definitions and spammed "Invalid map" errors for every one.
+		{
+			const char* cp = line;
+			while (*cp == ' ' || *cp == '\t') cp++;
+			if (cp[0] == '/' && cp[1] == '/')
+				continue;
+		}
 
 		// [Backport] C-style block comments /* ... */ . eAthena scripts put the
 		// delimiters on their own lines; without this the parser emits errors on

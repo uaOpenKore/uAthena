@@ -1,0 +1,14 @@
+map: bif_fild01
+map: dewata
+map: dic_fild02
+map: dicastes01
+map: ecl_in01
+map: geffen_in
+map: izlude
+map: malangdo
+map: malaya
+map: mid_camp
+map: moc_fild22b
+map: mora
+map: pvp_n_room
+map: pvp_y_room

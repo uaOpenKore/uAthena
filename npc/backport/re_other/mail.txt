@@ -1,0 +1,26 @@
+//===== uAthena backport (renewal small-NPC, GENERATED) ======
+//= guides(new zones)+other+taekwon from rathena-ref; tokens adapted.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-smallnpc.py
+//= Source: npc/re/.../mail.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Mail Boxes
+//===== By: ==================================================
+//= Euphy
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Pickup and write mail from/to players in game.
+//===== Additional Comments: =================================
+//= 1.0 First version, Renewal duplicates.
+//============================================================
+
+// Izlude
+//============================================================
+//[BACKPORT-BOUNDARY:izlude_a] izlude_a,136,94,0	duplicate(MailBox)	Mailbox#iz_a	888
+//[BACKPORT-BOUNDARY:izlude_b] izlude_b,136,94,0	duplicate(MailBox)	Mailbox#iz_b	888
+//[BACKPORT-BOUNDARY:izlude_c] izlude_c,136,94,0	duplicate(MailBox)	Mailbox#iz_c	888
+//[BACKPORT-BOUNDARY:izlude_d] izlude_d,136,94,0	duplicate(MailBox)	Mailbox#iz_d	888

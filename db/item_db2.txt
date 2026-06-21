@@ -1340,3 +1340,98 @@
 31022,XM_Teddy_Bear_Card,Abandoned Teddy Bear Card,6,20,,10,,,,,,,,64,,,,,{ bonus bMaxSPrate,20; bonus2 bAddEff2,Eff_Curse,20; },{},{}
 31016,XM_Tree_Card,Decorated Evil Tree Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxHP,1000; bonus bMaxSP,150; bonus bFlee,-25; },{},{}
 4641,Zombie_Guard_Card,Zombie Guard Card,6,20,,10,,,,,,,,32,,,,,{ bonus bNoRegen,2; bonus bSPDrainValue,1; },{},{}
+// ===== Backport renewal shop-items (GENERATED) =====
+2171,Fox_Armguard,Fox Wrist Guard,5,40000,,200,,45,,1,0xFFFFFFFF,,,32,,99,,1,{ bonus bFlee,5; },{},{}
+6493,Makibishi,Makibishi,3,30,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6512,Charm_Fire,Fire Amulet,3,50,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6513,Charm_Ice,Ice Amulet,3,50,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6514,Charm_Wind,Wind Amulet,3,50,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6515,Charm_Earth,Earth Amulet,3,50,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6607,Temporal_Crystal,Temporal Crystal,3,20,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6608,Coagulated_Spell,Coagulated Spell,3,20,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6755,Polluted_Spell,Contaminated Magic,3,20,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+7642,Bloody_Coin,Bloody Coin,3,10,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+7663,Full_Metal_Jacket,Full Metal Jacket,3,15,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+7664,Shooting_Mine,Grenade Launcher,3,30,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+7665,Dragon_Tail_Missile,Dragon Tail Missile,3,15,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+11557,TE_White_Potion,TE White Potion,0,200,,300,,,,,0xFFFFFFFF,,,,,,,,{ itemheal 325,0; },{},{}
+11558,TE_White_Slim_Potion,TE White Slim Potion,0,275,,100,,,,,0xFFFFFFFF,,,,,,,,{ itemheal 325,0; },{},{}
+11616,Yummy_Meat,Delicious Meat,0,1400,,50,,,,,0xFFFFFFFF,,,,,,,,{ itemheal rand(100,150),0; },{},{}
+11621,High_RedPotion,Red Syrup,0,800,,70,,,,,0xFFFFFFFF,,,,,60,,,{ itemheal 325,0; },{},{}
+11622,High_YelloPotion,Yellow Syrup,0,1200,,100,,,,,0xFFFFFFFF,,,,,60,,,{ itemheal 900,0; },{},{}
+11623,High_WhitePotion,White Syrup,0,1500,,140,,,,,0xFFFFFFFF,,,,,60,,,{ itemheal 1800,0; },{},{}
+11624,High_BluePotion,Blue Syrup,0,7000,,100,,,,,0xFFFFFFFF,,,,,60,,,{ itemheal 0,180; },{},{}
+12676,Sg_Violet_Potion_Box,Siege Violet Potion Box,2,20,,200,,,,,0xFFFFFFFF,,,,,,,,{ getitem 11547,50; },{},{}
+12679,Sg_White_Potion_Box,Siege White Potion Box,2,20,,200,,,,,0xFFFFFFFF,,,,,,,,{ getitem 11548,30; },{},{}
+12680,Sg_Blue_Potion_Box,Siege Blue Potion Box,2,20,,200,,,,,0xFFFFFFFF,,,,,,,,{ getitem 11549,10; },{},{}
+12786,Change_Slot_Card,Character Position Change Coupon,2,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+12849,Combination_Kit,Combination Kit,2,40,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+13120,H_FEATHER_H_FIRE,Heaven's Feather & Hell's Fire,4,1200000,,800,150,,9,1,0xFFFFFFFF,,,34,3,99,,,{},{},{}
+13122,ALTAIR_ARES,Altair & Ares,4,1450000,,1000,200,,9,,0xFFFFFFFF,,,34,3,99,,,{ bonus bHit,5; bonus bAspdRate,10; bonus bLongAtkRate,30; },{},{}
+13189,COLORSCOPE,Color Scope,4,1350000,,1200,240,,9,2,0xFFFFFFFF,,,34,3,99,,,{ bonus bCritical,30; bonus bHit,20; },{},{}
+13192,DEATHFIRE,Death Fire,4,1250000,,2000,400,,9,1,0xFFFFFFFF,,,34,3,99,,,{ bonus bSplashRange,1; bonus bAtkRange,5; bonus bHit,-50; bonus bAspdRate,-10; },{},{}
+13193,R_THUNDER,Rolling Thunder,4,1350000,,1800,280,,9,1,0xFFFFFFFF,,,34,3,99,,,{ bonus bSplashRange,1; bonus bHit,-10; bonus bAspdRate,-10; bonus3 bAutoSpell,"MG_THUNDERSTORM",5,30; },{},{}
+13194,P_BREAKER,Peace Breaker,4,1950000,,1400,250,,9,,0xFFFFFFFF,,,34,3,99,,,{ bonus bSplashRange,1; bonus bHit,-25; bonus bAspdRate,25; },{},{}
+13195,RAG203,RAG203,4,1800000,,1300,260,,9,,0xFFFFFFFF,,,34,3,99,,,{ bonus bCritical,15; bonus bHit,10; bonus4 bAutoSpell,"AL_DECAGI",1,30,1; },{},{}
+13197,MINIMAY,Mini Mei,4,1600000,,500,220,,9,2,0xFFFFFFFF,,,34,2,99,,,{ bonus bCritical,5; bonus bHit,-5; },{},{}
+13215,AP_Ammo,Armor-Piercing Bullet,10,5,,1,50,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13216,Blaze_Bullet,Blazing Bullet,10,5,,1,40,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Fire; },{},{}
+13217,Freezing_Bullet,Freezing Bullet,10,5,,1,40,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Water; },{},{}
+13218,Electric_Shock_Bullet,Lightning Bullet,10,5,,1,40,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Wind; },{},{}
+13219,Magical_Stone_Bullet,Magic Stone Bullet,10,5,,1,40,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Earth; },{},{}
+13220,Sanctified_Bullet,Purifying Bullet,10,5,,1,40,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Holy; },{},{}
+13221,Silver_Bullet_,Silver Bullet,10,5,,1,15,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Holy; },{},{}
+13222,Shell_Of_Blood_,Bloody Shell,10,5,,1,30,,,,0xFFFFFFFF,,,,,1,,,{ bonus2 bAddEff,Eff_Bleeding,100; },{},{}
+13228,Flare_Bullet,Flare Bullet,10,5,,1,20,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Fire; },{},{}
+13229,Lighting_Bullet,Lightning Bullet,10,5,,1,20,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Wind; },{},{}
+13230,Ice_Bullet,Ice Bullet,10,5,,1,20,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Water; },{},{}
+13231,Poison_Bullet,Poison Bullet,10,5,,1,20,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Poison; bonus2 bAddEff,Eff_Poison,500; },{},{}
+13232,Blind_Bullet,Blind Bullet,10,5,,1,20,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Dark; bonus2 bAddEff,Eff_Blind,500; },{},{}
+13294,Explosive_Kunai,Explosive Kunai,10,100,,1,50,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Neutral; },{},{}
+15053,Special_Ninja_Suit,Special Ninja Suit,5,10000,,1200,,70,,,0xFFFFFFFF,,,16,,99,,,{ bonus bAgi,1+(getrefine()/3); },{},{}
+18005,Ice_Cannon_Ball,Ice Cannon Ball,10,50,,1,120,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Water; },{},{}
+18006,Lightning_Cannon_Ball,Lightning Cannon Ball,10,50,,1,120,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Wind; },{},{}
+18007,Stone_Cannon_Ball,Stone Cannon Ball,10,50,,1,120,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Earth; },{},{}
+18008,Flare_Cannon_Ball,Fire Cannon Ball,10,50,,1,120,,,,0xFFFFFFFF,,,,,99,,,{ bonus bAtkEle,Ele_Fire; },{},{}
+22658,BraisedShortRibs,Cow Steamed Ribs,0,20,,100,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+22659,BraisedSpareribs,Pig Steamed Ribs,0,20,,100,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+22687,Pieces_Of_Sentiment,Sentimental Fragment,11,0,,1,,,,,0xFFFFFFFF,,,,,99,,,{},{},{}
+23016,Pieces_Of_Grudge,Cursed Fragment,2,1,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+23277,Mado_Box,Emergency Magic Gear,2,10000,,300,,,,,0xFFFFFFFF,,,,,99,,,{},{},{}
+23280,N_Fly_Wing2,Novice Fly Wing,11,10,,0,,,,,0xFFFFFFFF,,,,,1,,,{ itemskill "AL_TELEPORT",1; },{},{}
+23288,Cps_Fly_Wing,Compressed Fly Wing,11,1000,,10,,,,,0xFFFFFFFF,,,,,,,,{ itemskill "AL_TELEPORT",1; },{},{}
+25187,Slug_Bullet,Slug Bullet,3,1000,,1200,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+25231,Suspicious_Bottle,Suspicious Bottle,3,1000,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+25232,Cheap_Lubricant,Cheap Lubricant,3,1000,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+25233,Wad_Of_Cotton,Cotton Tufts,3,1000,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+25377,High_Class_Pet_food,Luxurious Pet Food,3,10000,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+28200,END_OF_HORIZON,End Of The Horizon,4,2700000,,2400,410,,9,1,0xFFFFFFFF,,,34,3,99,,,{ bonus3 bAddEff,Eff_Stun,500,ATF_LONG; bonus3 bAddEff,Eff_Blind,500,ATF_LONG; },{},{}
+28201,Southern_Cross_R,Southern Cross,4,2800000,,2000,480,,9,,0xFFFFFFFF,,,34,3,99,,,{},{},{}
+31144,C_Indi_Feather_Band,Costume Indian Feather Headband,5,0,,0,,,,,0xFFFFFFFF,,,,,1,,809,{},{},{}
+100003,ILL_Piece_A,Red Phantom Resonance Stone,11,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+100004,ILL_Piece_B,Azure Mirage Resonance Stone,11,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+100158,Mado_Box02,Mado Strengthening Suit,2,10000,,300,,,,,0xFFFFFFFF,,,,,99,,,{},{},{}
+100251,Illu_Enhance_Cube,Illusion Reinforcement Cube,11,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+100252,Auto_Enhance_Cube,Automatic Reinforcement Cube,11,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+101117,Soa_Charm_Bundle,Soul Talisman Bundle,2,0,,250,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000227,Cloud_Cotton,Cloud Cotton,3,0,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000291,Wind_Stone_4th,Wind Stone 4th,3,1000,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000292,Earth_Stone_4th,Earth Stone 4th,3,1000,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000293,Flame_Stone_4th,Flame Stone 4th,3,1000,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000294,Poison_Stone_4th,Poison Stone 4th,3,1000,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000295,Ice_Stone_4th,Ice Stone 4th,3,1000,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000321,Amber,Amber,3,45000,,100,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000552,Evil_Water,Evil Water,3,1000,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000563,Soa_Charm,Soa Charm,3,0,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000564,Nw_Grenade,Nw Grenade,3,30,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000565,SS_Charm,SS Charm,3,30,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000566,SS_Charm_F,SS Charm F,3,30,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000567,SS_Charm_W,SS Charm W,3,30,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000568,SS_Charm_G,SS Charm G,3,30,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000569,SS_Charm_L,SS Charm L,3,30,,1,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1000889,Mixed_Fruits_Juice,Complex Fruit Juice,3,1000,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+1220001,Kunai,Kunai,10,30,,1,30,,,,0xFFFFFFFF,,,,,1,,,{},{},{}
+1220002,Kunai_Of_Nothing,Kunai Of Nothing,10,30,,1,30,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Ghost; },{},{}
+1220003,Kunai_Of_Shadow,Kunai Of Shadow,10,30,,1,30,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Dark; },{},{}
+1220004,Kunai_Of_Hamaya,Kunai Of Hamaya,10,30,,1,30,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Holy; },{},{}
+// ===== end renewal shop-items =====

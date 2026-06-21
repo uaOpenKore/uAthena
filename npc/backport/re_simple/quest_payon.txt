@@ -1,0 +1,12 @@
+//===== uAthena backport (renewal simple quests 2d, GENERATED) =====
+//= simple/misc quests from rathena-ref; tokens adapted, renewal-feature blocks commented.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-simple.py
+//= Source: npc/re/quests/quest_payon.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Quest Payon Renewal
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [JohnnyPlayy]
+//============================================================
+
+payon_in01,46,21,4	duplicate(Young man#12)	Young man#1	4_M_ORIENT02

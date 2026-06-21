@@ -66,9 +66,9 @@ int quest_add(TBL_PC * sd, int quest_id)
 
 	int i, j;
 
-	if( sd->num_quests >= MAX_QUEST_DB )
+	if( sd->num_quests >= MAX_PC_QUESTS )
 	{
-		ShowError("quest_add: Character %d has got all the quests.(max quests: %d)\n", sd->status.char_id, MAX_QUEST_DB);
+		ShowError("quest_add: Character %d has got all the quests.(max quests: %d)\n", sd->status.char_id, MAX_PC_QUESTS);
 		return 1;
 	}
 
@@ -169,7 +169,7 @@ int quest_delete(TBL_PC * sd, int quest_id)
 
 	if( sd->quest_log[i].state != Q_COMPLETE )
 		sd->avail_quests--;
-	if( sd->num_quests-- < MAX_QUEST_DB && sd->quest_log[i+1].quest_id )
+	if( sd->num_quests-- < MAX_PC_QUESTS && sd->quest_log[i+1].quest_id )
 	{
 		memmove(&sd->quest_log[i], &sd->quest_log[i+1], sizeof(struct quest)*(sd->num_quests-i));
 		memmove(sd->quest_index+i, sd->quest_index+i+1, sizeof(int)*(sd->num_quests-i));

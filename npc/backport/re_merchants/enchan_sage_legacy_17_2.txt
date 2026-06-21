@@ -1,0 +1,490 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/enchan_sage_legacy_17_2.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Episode 17.2 - Sage's Legacy Enchants
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//= Sage's Legacy related merchants and enchanters
+//===== Changelog: ===========================================
+//= 1.0 Initial release [crazyarashi]
+//= 1.1 Optimizations and cleanup [Everade]
+//= 1.2 Cleanup [Capuche]
+//============================================================
+
+//[BACKPORT-BOUNDARY:ba_in01] ba_in01,87,370,3	script	Lisa#ep172_merchant	20698,{
+//[BACKPORT-BOUNDARY:ba_in01] 	if (checkweight(1201,3) == 0) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "^ff0000It seems that the type or weight of the item you have is too much. Please organize your inventory.^000000";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	disable_items;
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "Welcome welcome~";
+//[BACKPORT-BOUNDARY:ba_in01] 	next;
+//[BACKPORT-BOUNDARY:ba_in01] 	switch( select( "Explore Devices", "Automatic Engine Wing Enhancement", "Automatic Armor Enhancement", "Automatic Leg Enhancement", "Automatic Accessories(R) Enhancement", "Automatic Accessories(L) Enhancement" ) ) {
+//[BACKPORT-BOUNDARY:ba_in01] 	case 1:
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "If you bring automatic equipment and reinforcement modules, we can enchant the appropriate module on the equipment.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "This is done according to the specification module, so the equipment will not be destroyed. However, the number of upgrades can vary depending on the module.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Then please visit again when you need help~";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 2:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@part, EQI_GARMENT;
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@equip_required[0],480020,480021;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 3:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@part, EQI_ARMOR;
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@equip_required[0],450127,450128;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 4:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@part, EQI_SHOES;
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@equip_required[0],470022,470023;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 5:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@part, EQI_ACC_R;
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@equip_required[0],490024,490026;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 6:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@part, EQI_ACC_L;
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@equip_required[0],490025,490027;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@equip_id, getequipid(.@part);
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@equip_name$, getequipname(.@part);
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@refine, getequiprefinerycnt(.@part);
+//[BACKPORT-BOUNDARY:ba_in01] 	for (set .@i,0; .@i < 4; set .@i,.@i+1 )
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@card[.@i], getequipcardid(.@part,.@i);
+//[BACKPORT-BOUNDARY:ba_in01] 
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "If you bring automatic equipment and reinforcement modules, we can enchant the appropriate module on the equipment.";
+//[BACKPORT-BOUNDARY:ba_in01] 	next;
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes strcharinfo(0) + ".";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "Please select the grade of module that you want to use.";
+//[BACKPORT-BOUNDARY:ba_in01] 	next;
+//[BACKPORT-BOUNDARY:ba_in01] 	switch( select( "Cancel", "Normal Grade", "Rare Grade", "Unique Grade", "Legendary Grade", "Epic Grade 1", "Epic Grade 2", "Epic Grade 3" ) ) {
+//[BACKPORT-BOUNDARY:ba_in01] 	case 1:
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Stopping conversation.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 2:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc[0],1000105,1000106,1000107,1000108,1000109,1000110,1000111,1000112;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 3:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc[0],1000113,1000114,1000115,1000116,1000117,1000118,1000119,1000120,1000121,1000122,1000123,1000124,1000125,1000126,1000127;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 4:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc[0],1000128,1000129,1000130,1000131,1000132,1000133,1000134,1000135,1000136,1000137,1000138,1000139,1000140,1000141,1000142,1000143,1000207,1000208;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 5:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc[0],1000144,1000145,1000146,1000147,1000148,1000149;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 6:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc[0],1000152,1000153,1000154,1000155,1000156,1000157,1000158,1000159,1000160,1000161,1000162,1000163,1000164,1000165,1000166,1000167,1000168;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 7:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc[0],1000169,1000170,1000171,1000172,1000173,1000174,1000175,1000176,1000177,1000178,1000179,1000180,1000181,1000182,1000183,1000184,1000185;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 8:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc[0],1000186,1000187,1000188,1000189,1000190,1000191,1000192,1000193,1000194,1000195,1000196,1000197,1000198,1000199,1000200,1000201,1000202;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@size, getarraysize(.@module_etc);
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@menu$, "Cancel:";
+//[BACKPORT-BOUNDARY:ba_in01] 
+	// Build the menu according to all the modules with the given grade in inventory
+//[BACKPORT-BOUNDARY:ba_in01] 	for (set .@i,0; .@i < .@size; set .@i,.@i+1 ) {
+//[BACKPORT-BOUNDARY:ba_in01] 		if (countitem(.@module_etc[.@i]) < 1)
+//[BACKPORT-BOUNDARY:ba_in01] 			set .@menu$, .@menu$ + "^808080(Module Amount 0)^000000" + ":";
+//[BACKPORT-BOUNDARY:ba_in01] 		else {
+//[BACKPORT-BOUNDARY:ba_in01] 			set .@item_name$, getitemname(.@module_etc[.@i]);
+			//[BACKPORT-GAP:replacestr] .@item_name$ = replacestr(.@item_name$, "Automatic Modification Module(", "");
+			//[BACKPORT-GAP:replacestr] .@item_name$ = replacestr(.@item_name$, ")", "");
+//[BACKPORT-BOUNDARY:ba_in01] 			set .@menu$, .@menu$ + .@item_name$ + ":";
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@s, select(.@menu$) - 2;
+//[BACKPORT-BOUNDARY:ba_in01] 	if (.@s == -1) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Stopping conversation.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@module_id, .@module_etc[.@s];
+//[BACKPORT-BOUNDARY:ba_in01] 
+//[BACKPORT-BOUNDARY:ba_in01] 	if (countitem(.@module_id) < 1) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "You must possess a module in your inventory that matches the efficacy to proceed with the enhancement.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	if (.@equip_required[0] != .@equip_id && .@equip_required[1] != .@equip_id) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Please make sure you have equipped the proper automatic equipment that you want to enhance.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	if (.@card[1] > 0) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "This automatic equipment is already at its maximum capacity.";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Please try another automatic equipment.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	if (.@module_id < 1000105 || .@module_id == 1000150 || .@module_id == 1000151 || (.@module_id >= 1000203 && .@module_id != 1000207 && .@module_id != 1000208)) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Unknown error has occurred.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 
+	// Each part has a list of allowed module and a maximum allowed number of the same module
+//[BACKPORT-BOUNDARY:ba_in01] 	switch( .@part ) {
+//[BACKPORT-BOUNDARY:ba_in01] 	case EQI_GARMENT:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc_data[0],1000105,3,1000106,3,1000125,2,1000126,2,1000127,2,1000135,1,1000142,1,1000208,1;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case EQI_ARMOR:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc_data[0],1000105,3,1000106,3,1000122,2,1000123,2,1000124,2,1000128,1,1000129,1,1000130,1,1000131,1,1000132,1,1000133,1,1000207,1,1000140,1;
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@size, getarraysize(.@module_etc_data);
+//[BACKPORT-BOUNDARY:ba_in01] 
+		// Epic enchants. Max 2 epic enchants of the same enchant allowed
+//[BACKPORT-BOUNDARY:ba_in01] 		for (set .@i,1000152; .@i < 1000203; set .@i,.@i+1) {
+//[BACKPORT-BOUNDARY:ba_in01] 			setarray .@module_etc_data[.@size], .@i, 2;
+//[BACKPORT-BOUNDARY:ba_in01] 			set .@size, .@size + 2;
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case EQI_SHOES:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc_data[0],
+//[BACKPORT-BOUNDARY:ba_in01] 			1000105,3,1000106,3,1000119,2,1000120,2,1000121,2,1000134,1,1000141,1,
+//[BACKPORT-BOUNDARY:ba_in01] 			1000144,1,1000145,1,1000146,1,1000147,1,1000148,1,1000149,1;	// Legendary enchants (must be unique on EQI_SHOES)
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case EQI_ACC_L:
+//[BACKPORT-BOUNDARY:ba_in01] 	case EQI_ACC_R:
+//[BACKPORT-BOUNDARY:ba_in01] 		setarray .@module_etc_data[0],1000107,3,1000108,3,1000109,3,1000110,3,1000111,3,1000112,3,1000113,2,1000114,2,1000115,1,1000116,1,1000117,1,1000118,1,1000136,1,1000137,1,1000138,1,1000139,1,1000143,1;
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@data_index, -1;
+//[BACKPORT-BOUNDARY:ba_in01] 
+//[BACKPORT-BOUNDARY:ba_in01] 	if (.@data_index == -1) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "You can not enchant this module to this automatic equipment.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+	// Max number of the selected module allowed
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@max_module, .@module_etc_data[.@data_index+1];
+//[BACKPORT-BOUNDARY:ba_in01] 	
+	// Bind the module etc to the specific enchant
+//[BACKPORT-BOUNDARY:ba_in01] 	for (set .@i,1000105; .@i < 1000203; set .@i,.@i+1 ) {
+//[BACKPORT-BOUNDARY:ba_in01] 		if (.@i == 1000150 || .@i == 1000151)
+//[BACKPORT-BOUNDARY:ba_in01] 			continue;
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@auto_module[.@i], 310082 + .@size_auto_module;
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@size_auto_module,.@size_auto_module+1;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@auto_module[1000207], 310178;
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@auto_module[1000208], 310179;
+//[BACKPORT-BOUNDARY:ba_in01] 
+	// Check the count of the corresponding enchant in card slots
+//[BACKPORT-BOUNDARY:ba_in01] 	set .@enchant_id, .@auto_module[.@module_id];
+//[BACKPORT-BOUNDARY:ba_in01] 	if (.@enchant_id == 0) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Unknown error has occurred.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	if (0 >= .@max_module) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "This automatic equipment has already maximized the enhancement from this module.";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Please try another module.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "Are you sure you want to enchance your ^FF0000" + .@equip_name$ + "^000000 with ^0000CD" + getitemname(.@module_id) + "^000000? This process cannot be reversed.";
+//[BACKPORT-BOUNDARY:ba_in01] 	next;
+//[BACKPORT-BOUNDARY:ba_in01] 	if (select( "Wait... Don't", "I'm sure. Do it." ) == 1) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Stopping conversation.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	delitem .@module_id,1;
+//[BACKPORT-BOUNDARY:ba_in01] 
+//[BACKPORT-BOUNDARY:ba_in01] 	if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipRefineHack", .@part, .@refine) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]))
+//[BACKPORT-BOUNDARY:ba_in01] 		end;
+//[BACKPORT-BOUNDARY:ba_in01] 
+//[BACKPORT-BOUNDARY:ba_in01] 	for (set .@i,3; .@i > 0; set .@i,.@i-1) {
+//[BACKPORT-BOUNDARY:ba_in01] 		if (.@card[.@i] == 0) {
+//[BACKPORT-BOUNDARY:ba_in01] 			set .@card[.@i], .@enchant_id;
+//[BACKPORT-BOUNDARY:ba_in01] 			break;
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+	//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-BOUNDARY:ba_in01] 	getitem2 .@equip_id,1,1,.@refine,0,.@card[0],.@card[1],.@card[2],.@card[3];
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Lisa]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "Woaaaah~ I can feel the power of your automatic equipment already~!";
+//[BACKPORT-BOUNDARY:ba_in01] 	close;
+//[BACKPORT-BOUNDARY:ba_in01] }
+
+//= Merchants
+-	shop	ep172littlemanager00	-1,1000227:172
+
+//[BACKPORT-BOUNDARY:ba_in01] ba_in01,87,386,3	script	Child Manager ©¬#ep172_pet	EP17_2_CHILD_ADMIN1,{
+//[BACKPORT-BOUNDARY:ba_in01] 	if (checkweight(1201,3) == 0) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "- You have too many items.";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Please clear your inventory and try again. -";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Child Manager ©¬]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "I have a whole bunch of little stuffs!";
+//[BACKPORT-BOUNDARY:ba_in01] 	next;
+//[BACKPORT-BOUNDARY:ba_in01] 	switch( select( "Little Manager", "Cloud Cotton", "Little Headress", "Cancel" ) ) {
+//[BACKPORT-BOUNDARY:ba_in01] 	case 1:
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Child Manager ©¬]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "If you want to play with the little manager, it would cost you 30 Barmeal Tickets.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		if (select( "Exchange.", "Stop." ) == 2) {
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "[Child Manager ©¬]";
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "Then, it's time for me to play!";
+//[BACKPORT-BOUNDARY:ba_in01] 			close;
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 		if (countitem(1000103) < 30) {
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "[Child Manager ©¬]";
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "Like I said, if you want to play with the little manager, you'll need 30 Barmeal Tickets!";
+//[BACKPORT-BOUNDARY:ba_in01] 			close;
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Child Manager ©¬]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Have fun with your new friend!";
+//[BACKPORT-BOUNDARY:ba_in01] 		delitem 1000103,30;
+//[BACKPORT-BOUNDARY:ba_in01] 		getitem 9123,1;
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 2:
+//[BACKPORT-BOUNDARY:ba_in01] 		callshop "ep172littlemanager00",1;
+//[BACKPORT-BOUNDARY:ba_in01] 		end;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 3:
+//[BACKPORT-BOUNDARY:ba_in01] 		callshop "barter_Ep_17_2_C_Admin_Acc",1;
+//[BACKPORT-BOUNDARY:ba_in01] 		end;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 4:
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Child Manager ©¬]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Then, it's time for me to play!";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	end;
+//[BACKPORT-BOUNDARY:ba_in01] }
+
+//= Cube Shop
+-	shop	ep172cubeshop00	-1,100251:10000000,100252:30000000
+
+//[BACKPORT-BOUNDARY:ba_in01] ba_in01,87,376,3	script	Cube Lane#ep172cube	4_EP17_GUARD_B,{
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Cube Lane]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "We are offering reinforcement cubes that will refine your ^0000CD+4^000000 Illusion and Automatic Equipment to ^FF0000+7^000000 in an instant!";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "Varmundt is no doubt the best man in the world!";
+//[BACKPORT-BOUNDARY:ba_in01] 	close2;
+//[BACKPORT-BOUNDARY:ba_in01] 	callshop "ep172cubeshop00",1;
+//[BACKPORT-BOUNDARY:ba_in01] 	end;
+//[BACKPORT-BOUNDARY:ba_in01] }
+
+//= Module Shop
+//[BACKPORT-BOUNDARY:ba_in01] ba_in01,87,373,3	script	Spiera#ep172_soapstone	MD_ASSISTANT,{
+//[BACKPORT-BOUNDARY:ba_in01] 	callshop "barter_EP17_2_EP",1;
+//[BACKPORT-BOUNDARY:ba_in01] 	end;
+//[BACKPORT-BOUNDARY:ba_in01] }
+
+//= Equipment Shop
+//[BACKPORT-BOUNDARY:ba_in01] ba_in01,87,383,3	script	Yeoncheong#equipment_exchange	4_EP17_CLEANER_W,{
+//[BACKPORT-BOUNDARY:ba_in01] 	if (checkweight(1201,3) == 0) {
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "ep172_omega.bmp",2;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yeoncheong]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "The bag is full. Please check the weight and number of items in your possession before talking again.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	disable_items;
+//[BACKPORT-BOUNDARY:ba_in01] 	cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Yeoncheong]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "We accept Barmeal Tickets for upgrading your Illusion Equipment into Automatic Requipments.";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "What would you like to exchange?";
+//[BACKPORT-BOUNDARY:ba_in01] 	next;
+//[BACKPORT-BOUNDARY:ba_in01] 	switch( select( "Exchange Information", "Automatic Equipment Exchange", "Automatic Accessory Exchange", "Quit" ) ) {
+//[BACKPORT-BOUNDARY:ba_in01] 	case 1:
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yeoncheong]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "You can exchange your ^0000CD+9 Illusion Armor, Engine, or Leg and 900 Barmeal Tickets^000000 to ^FF0000Automatic Armor, Engine, or Leg^000000.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yeoncheong]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "The ^FF0000Automatic Accessories^000000 can be exchanged for ^0000CDIllusion Accessories and 1500 Barmeal Tickets^000000.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yeoncheong]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "The equipment you want to exchange must be in your inventory and talk to me.";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "^FF0000Bring only one equipment that you want to exchange and proceed.^000000";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 2:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@shop$, "barter_auto_equip_1";
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 3:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@shop$, "barter_auto_equip_2";
+//[BACKPORT-BOUNDARY:ba_in01] 		break;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 4:
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yeoncheong]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Have a nice day, dear guest~";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Yeoncheong]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "^FF0000Bring only one equipment that you want to exchange and proceed.^000000";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "If there are multiple equipments in your inventory, it will be exchanged randomly if it meets the condition.";
+//[BACKPORT-BOUNDARY:ba_in01] 	close2;
+//[BACKPORT-BOUNDARY:ba_in01] 	cutin "",255;
+//[BACKPORT-BOUNDARY:ba_in01] 	callshop .@shop$,1;
+//[BACKPORT-BOUNDARY:ba_in01] 	end;
+//[BACKPORT-BOUNDARY:ba_in01] }
+
+//= Device Module Exchange
+//[BACKPORT-BOUNDARY:ba_in01] ba_in01,87,380,3	script	Yecheon#ep172module_trader	4_EP17_CLEANER_W,{
+//[BACKPORT-BOUNDARY:ba_in01] 	if (checkweight(1201,3) == 0) {
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "The bag is full. Please check the weight and number of items in your possession before talking again.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	disable_items;
+//[BACKPORT-BOUNDARY:ba_in01] 	cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "I can provide you an Automatic Module, Physical Automatic Improvement Device, and Magical Automatic Improvement Device. It will help you the improve abilites of your automatic equipments.";
+//[BACKPORT-BOUNDARY:ba_in01] 	next;
+//[BACKPORT-BOUNDARY:ba_in01] 	cutin "",255;
+//[BACKPORT-BOUNDARY:ba_in01] 	switch( select( "More information.", "Get Automatic Module", "Get Physical Automatic Improvement Device", "Get Magical Automatic Improvement Device", "Cancel" ) ) {
+//[BACKPORT-BOUNDARY:ba_in01] 	case 1:
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "You can get an ^FF0000automatic module^000000 for ^0000CD90 Barmeal Tickets^000000. I will give you a random automatic module excluding the epic grade modules.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "I'm also providing ^FF0000Physical Automatic Improvement Device and Magical Automatic Improvement Device^000000. You can exchange it for ^0000CD45 Barmeal Tickets^000000, or ^0000CD1500000 Zeny^000000.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Then, combat-specialized guest, do safely improve your abilities.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 2:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@price, 90;
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+		//[BACKPORT-GAP:mesitemlink] mes "I will exchange 1 random Automatic Module excluding the epic grade modules for " + .@price + " " + mesitemlink(1000103) + ".";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "",255;
+//[BACKPORT-BOUNDARY:ba_in01] 		if (select( "Exchange Barmeal Ticket.", "Do not exchange" ) == 2) {
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "Transaction ended.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 		if (countitem(1000103) < .@price) {
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "You don't have enough Barmeal tickets for the exchange.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "I exchanged it for one random Automatic Module.";
+//[BACKPORT-BOUNDARY:ba_in01] 		delitem 1000103,.@price;
+//[BACKPORT-BOUNDARY:ba_in01] 		getitem rand(1000105,1000149),1;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 3:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@price, 45;
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@zeny, 1500000;
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+		//[BACKPORT-GAP:mesitemlink] mes "I will exchange ^FF00001 Physical Automatic Improvement Device^000000 for " + .@price + " " + mesitemlink(1000103) + " or " + .@zeny + " Zeny.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "",255;
+//[BACKPORT-BOUNDARY:ba_in01] 		switch( select( "Exchange for Barmeal Ticket.", "Exchange for 1500000 Zeny.", "Do not exchange." ) ) {
+//[BACKPORT-BOUNDARY:ba_in01] 		case 1:
+//[BACKPORT-BOUNDARY:ba_in01] 			cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 			if (countitem(1000103) < .@price) {
+//[BACKPORT-BOUNDARY:ba_in01] 				mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 				mes "You don't have enough Barmeal tickets for the exchange.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 			}
+//[BACKPORT-BOUNDARY:ba_in01] 			delitem 1000103,.@price;
+//[BACKPORT-BOUNDARY:ba_in01] 			break;
+//[BACKPORT-BOUNDARY:ba_in01] 		case 2:
+//[BACKPORT-BOUNDARY:ba_in01] 			cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 			if (Zeny < .@zeny) {
+//[BACKPORT-BOUNDARY:ba_in01] 				mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 				mes "You don't have enough Zeny for the exchange.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 			}
+//[BACKPORT-BOUNDARY:ba_in01] 			set Zeny, Zeny - .@zeny;
+//[BACKPORT-BOUNDARY:ba_in01] 			break;
+//[BACKPORT-BOUNDARY:ba_in01] 		case 3:
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "Transaction ended.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "I exchanged it for one random Physical Automatic Improvement Device.";
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@r, rand(100);
+//[BACKPORT-BOUNDARY:ba_in01] 		if (.@r < 50)
+//[BACKPORT-BOUNDARY:ba_in01] 			getitem 100164,1;
+//[BACKPORT-BOUNDARY:ba_in01] 		else if (.@r < 80)
+//[BACKPORT-BOUNDARY:ba_in01] 			getitem 100165,1;
+//[BACKPORT-BOUNDARY:ba_in01] 		else
+//[BACKPORT-BOUNDARY:ba_in01] 			getitem 100166,1;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 4:
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@price, 45;
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@zeny, 1500000;
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+		//[BACKPORT-GAP:mesitemlink] mes "I will exchange ^FF00001 Magical Automatic Improvement Device^000000 for " + .@price + " " + mesitemlink(1000103) + " or " + .@zeny + " Zeny.";
+//[BACKPORT-BOUNDARY:ba_in01] 		next;
+//[BACKPORT-BOUNDARY:ba_in01] 		cutin "",255;
+//[BACKPORT-BOUNDARY:ba_in01] 		switch( select( "Exchange for Barmeal Ticket.", "Exchange for 1500000 Zeny.", "Do not exchange." ) ) {
+//[BACKPORT-BOUNDARY:ba_in01] 		case 1:
+//[BACKPORT-BOUNDARY:ba_in01] 			cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 			if (countitem(1000103) < .@price) {
+//[BACKPORT-BOUNDARY:ba_in01] 				mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 				mes "You don't have enough Barmeal tickets for the exchange.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 			}
+//[BACKPORT-BOUNDARY:ba_in01] 			delitem 1000103,.@price;
+//[BACKPORT-BOUNDARY:ba_in01] 			break;
+//[BACKPORT-BOUNDARY:ba_in01] 		case 2:
+//[BACKPORT-BOUNDARY:ba_in01] 			cutin "ep172_omega",2;
+//[BACKPORT-BOUNDARY:ba_in01] 			if (Zeny < .@zeny) {
+//[BACKPORT-BOUNDARY:ba_in01] 				mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 				mes "You don't have enough Zeny for the exchange.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 			}
+//[BACKPORT-BOUNDARY:ba_in01] 			set Zeny, Zeny - .@zeny;
+//[BACKPORT-BOUNDARY:ba_in01] 			break;
+//[BACKPORT-BOUNDARY:ba_in01] 		case 3:
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 			mes "Transaction ended.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 		}
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "I exchanged it for one random Magical Automatic Improvement Device.";
+//[BACKPORT-BOUNDARY:ba_in01] 		set .@r, rand(100);
+//[BACKPORT-BOUNDARY:ba_in01] 		if (.@r < 50)
+//[BACKPORT-BOUNDARY:ba_in01] 			getitem 100167,1;
+//[BACKPORT-BOUNDARY:ba_in01] 		else if (.@r < 80)
+//[BACKPORT-BOUNDARY:ba_in01] 			getitem 100168,1;
+//[BACKPORT-BOUNDARY:ba_in01] 		else
+//[BACKPORT-BOUNDARY:ba_in01] 			getitem 100169,1;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	case 5:
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Yecheon]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Transaction ended.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	end;
+//[BACKPORT-BOUNDARY:ba_in01] }
+
+//[BACKPORT-BOUNDARY:ba_in01] ba_in01,87,389,2	script	Butterfly Merchant#ba_in01	4_EP17_MASTER_A,{
+//[BACKPORT-BOUNDARY:ba_in01] 	if (ep17_2_main < 8) {
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "[Butterfly Merchant]";
+//[BACKPORT-BOUNDARY:ba_in01] 		mes "Sorry. Registration is required to purchase butterflies.";
+//[BACKPORT-BOUNDARY:ba_in01] 		close;
+//[BACKPORT-BOUNDARY:ba_in01] 	}
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "[Butterfly Merchant]";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "Welcome.";
+//[BACKPORT-BOUNDARY:ba_in01] 	mes "Do you need wings to move to Barmund Mansion?";
+//[BACKPORT-BOUNDARY:ba_in01] 	close2;
+//[BACKPORT-BOUNDARY:ba_in01] 	callshop "barter_Teleport_Ep17_02",1;
+//[BACKPORT-BOUNDARY:ba_in01] 	end;
+//[BACKPORT-BOUNDARY:ba_in01] }

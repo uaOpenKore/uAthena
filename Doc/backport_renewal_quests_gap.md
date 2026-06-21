@@ -1,0 +1,2240 @@
+# Renewal 2a zone-quest gap-лог (адаптации/dedup/boundary/unresolved/orphan)
+
+
+## quests_eclage.txt
+- MANUAL [charat] switch(atoi(charat(strnpcinfo(1),16))) {
+- ADAPT [for/incr->set] for (.@i = 0; .@i < getarraysize(.@map$); .@i++) {
+- ADAPT [=->set] .@i = select(.@menu$) -2;
+- ADAPT [=->set] .@choice$ = .@map$[.@i/2];
+- ADAPT [=->set] .@price = .@cost[.@i/2];
+- ADAPT [=->set] .@price = .@price*1000;
+- ADAPT [=->set] Zeny = Zeny -.@price;
+- ADAPT [=->set] ep14_2_oliver = 1;
+- ADAPT [=->set] ep14_2_oliver = 3;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_GO] emotion ET_GO;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- ADAPT [=->set] ep14_2_oliver = 2;
+- COMMENT [ET_GO] emotion ET_GO;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [getnpcid,ET_SWEAT] emotion ET_SWEAT, getnpcid(0, "Security Guard#ep14_2");
+- COMMENT [getnpcid,ET_SWEAT] emotion ET_SWEAT, getnpcid(0, "Security Guard#ep14_2_2");
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_COOL] emotion ET_COOL;
+- COMMENT [ET_HELP] emotion ET_HELP;
+- COMMENT [ET_COMEON] emotion ET_COMEON;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Fairy Carpenter#ep14_2");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_GO] emotion ET_GO;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_GO] emotion ET_GO;
+- ADAPT [=->set] ep14_2_oliver = 4;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_AHA] emotion ET_AHA;
+- ADAPT [=->set] ep14_2_oliver = 5;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- ADAPT [=->set] ep14_2_oliver = 7;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- ADAPT [=->set] ep14_2_oliver = 6;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_KEK] emotion ET_KEK, playerattached();
+- COMMENT [ET_SWEAT] emotion ET_SWEAT, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- ADAPT [=->set] ep14_2_oliver = 8;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [=->set] ep14_2_oliver = 10;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_THINK] emotion ET_THINK;
+- ADAPT [=->set] ep14_2_oliver = 16;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- ADAPT [=->set] ep14_2_oliver = 23;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- ADAPT [=->set] ep14_2_oliver = 9;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- ADAPT [=->set] ep14_2_oliver = 15;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_AHA] emotion ET_AHA;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- ADAPT [=->set] ep14_2_oliver = 14;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- ADAPT [=->set] ep14_2_oliver = 11;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- ADAPT [=->set] ep14_2_oliver = 12;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- ADAPT [=->set] ep14_2_oliver = 13;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [=->set] ep14_2_oliver = 17;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_THINK] emotion ET_THINK;
+- ADAPT [=->set] ep14_2_oliver = 18;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- ADAPT [=->set] ep14_2_oliver = 22;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_SHY] emotion ET_SHY, playerattached();
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [=->set] ep14_2_oliver = 19;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- ADAPT [=->set] ep14_2_oliver = 20;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [=->set] ep14_2_oliver = 21;
+- ADAPT [=->set] ep14_2_oliver = 29;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUM] emotion ET_HUM;
+- COMMENT [ET_CONFUSE] emotion ET_CONFUSE;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- ADAPT [=->set] ep14_2_oliver = 24;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- ADAPT [=->set] ep14_2_oliver = 25;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [=->set] ep14_2_oliver = 27;
+- COMMENT [getnpcid,ET_HUNGRY] emotion ET_HUNGRY, getnpcid(0, "Oliver#ep14_2");
+- COMMENT [getnpcid,ET_SEXY] emotion ET_SEXY, getnpcid(0, "Oliver#ep14_2");
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "Oliver#ep14_2");
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- COMMENT [ET_CHUP] emotion ET_CHUP;
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- ADAPT [=->set] ep14_2_oliver = 28;
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- ADAPT [=->set] ep14_2_oliver = 26;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Maggi Steen#ep14_2in2");
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "Mark Esha#ep14_2in2");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Maggi Steen#ep14_2in2");
+- COMMENT [getnpcid,ET_SPARK] emotion ET_SPARK, getnpcid(0, "Alp Ocart#ep14_2in2");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "Alp Ocart#ep14_2in2");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [getnpcid,ET_SHY] emotion ET_SHY, getnpcid(0, "Alp Ocart#ep14_2in2");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [getnpcid,ET_SHY] emotion ET_SHY, getnpcid(0, "Alp Ocart#ep14_2in2");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Mark Esha#ep14_2in2");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Mark Esha#ep14_2in2");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "Mark Esha#ep14_2in2");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "Maggi Steen#ep14_2in2");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "Alp Ocart#ep14_2in2");
+- ADAPT [=->set] ep14_2_oliver = 30;
+- ADAPT [=->set] .@npc_name$ = strnpcinfo(1);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 4; .@i++ )
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [getnpcid,ET_BEST] emotion ET_BEST, getnpcid(0, "Alp Ocart#ep14_2in2");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "Du Lian#ep14_2in2");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SHY] emotion ET_SHY, playerattached();
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [=->set] ep14_2_big = 1;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_GO] emotion ET_GO;
+- ADAPT [=->set] ep14_2_big = 2;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [=->set] ep14_2_big = 8;
+- ADAPT [=->set] ep14_2_big = 9;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14123))
+- ADAPT [=->set] ep14_2_big = 15;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- ADAPT [=->set] ep14_2_big = 16;
+- ADAPT [=->set] ep14_2_big = 17;
+- ADAPT [=->set] ep14_2_big = 17;
+- ADAPT [=->set] ep14_2_big = 25;
+- ADAPT [=->set] ep14_2_big = 26;
+- ADAPT [=->set] ep14_2_big = 3;
+- ADAPT [=->set] ep14_2_big = 4;
+- ADAPT [=->set] ep14_2_big = 5;
+- ADAPT [=->set] ep14_2_big = 6;
+- ADAPT [=->set] ep14_2_big = 7;
+- ADAPT [=->set] ep14_2_big = 24;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [=->set] ep14_2_big = 10;
+- ADAPT [=->set] ep14_2_big = 11;
+- ADAPT [=->set] ep14_2_big = 19;
+- ADAPT [=->set] ep14_2_big = 14;
+- ADAPT [=->set] ep14_2_big = 18;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [=->set] ep14_2_big = 20;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- ADAPT [=->set] ep14_2_big = 21;
+- ADAPT [=->set] ep14_2_big = 23;
+- ADAPT [=->set] ep14_2_big = 22;
+- COMMENT [getnpcid,ET_HNG] emotion ET_HNG, getnpcid(0, "Lafiki#eclbig");
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [getnpcid,ET_KIK] emotion ET_KIK, getnpcid(0, "Dandy#eclbig");
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_MONEY] emotion ET_MONEY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig01");
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig02");
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig03");
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig04");
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig05");
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig01");
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig02");
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig03");
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig04");
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Choir member#eclbig05");
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- ADAPT [=->set] ep14_2_detect = 1;
+- ADAPT [=->set] ep14_2_detect = 2;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9240) == 1 || isbegin_quest(9241) == 1 || isbegin_quest(9242) == 1 || isbegin_quest(9243) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9240) == 1 || isbegin_quest(9242) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(9244) == 1 || isbegin_quest(9245) == 1 ||isbegin_quest(9246) == 1 || isbegin_quest(9247) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9244) == 1 || isbegin_quest(9246) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(9248) == 1 || isbegin_quest(9249) == 1 ||isbegin_quest(9250) == 1 || isbegin_quest(9251) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9248) == 1 || isbegin_quest(9250) == 1) {
+- ADAPT [=->set] ep14_2_detect = 4;
+- ADAPT [=->set] .@last = getarg(1);
+- ADAPT [for/incr->set] for ( .@i = getarg(0); .@i <= .@last; .@i++ ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9226) != 1) {
+- ADAPT [=->set] .@menu = select("Who's the first person to find me?:Have you seen short, red hair elsewhere?");
+- ADAPT [=->set] .@menu = select("Who's the first person to find me?:Have you seen short, red hair before?");
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9252) != 1 || isbegin_quest(9253) != 1 || isbegin_quest(9254) != 1 || isbegin_quest(9255) != 1 || isbegin_quest(9256) != 1 || isbegin_quest(9257) != 1) {
+- ADAPT [=->set] ep14_2_detect = 5;
+- ADAPT [=->set] ep14_2_detect = 9;
+- ADAPT [=->set] ep14_2_detect = 11;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9227) == 1) {
+- ADAPT [=->set] .@menu = select("What kind of friend is he?:Did you talk about anything else?");
+- ADAPT [=->set] .@menu2 = select("Has he been suspicious before?:Do you suspect him after the incident?");
+- ADAPT [=->set] ep14_2_detect = 12;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9228) == 1) {
+- ADAPT [=->set] .@menu = select("Why did you just go into the house?:Was there anything suspicious?");
+- ADAPT [=->set] .@menu2 = select("Do you suspect anyone?:Is there anything else missing?");
+- ADAPT [=->set] ep14_2_detect = 3;
+- ADAPT [=->set] ep14_2_detect = 13;
+- ADAPT [isbegin_quest->0] if (ep14_2_detect == 5 && isbegin_quest(9231) == 1) {
+- ADAPT [=->set] ep14_2_detect = 6;
+- ADAPT [=->set] ep14_2_detect = 14;
+- ADAPT [=->set] ep14_2_detect = 15;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9232) != 1 || checkquest(9259,HUNTING) < 1) end;
+- ADAPT [=->set] ep14_2_detect = 7;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9258) != 1) end;
+- ADAPT [=->set] Zeny = Zeny - 10000;
+- ADAPT [=->set] .@amount = 1;
+- ADAPT [=->set] .@amount = 2;
+- ADAPT [=->set] ep14_2_detect = 8;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9252) != 0) {
+- ADAPT [=->set] .@header$ = "["+ strcharinfo(0) +"]";
+- ADAPT [for/incr->set] for (.@i = 9240; .@i < 9252; .@i++) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@i) == 1)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9258) == 1)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9260) == 1)
+- ADAPT [=->set] ep14_2_detect = 10;
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4254) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(4257) == 0) {
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(4257) == 1) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4261) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4262) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4255) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4257) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4263) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4264) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4256) ) {
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4257) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(4254) != 2 || isbegin_quest(4255) != 2) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(4258) != 2 || isbegin_quest(4259) != 2) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4260) ) {
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(4260) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(4264) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(4262) == 1) {
+- ADAPT [=->set] ep14_2_etran = 2;
+- ADAPT [=->set] ep14_2_etran = 27;
+- ADAPT [=->set] ep14_2_etran = 4;
+- ADAPT [=->set] ep14_2_etran = 5;
+- ADAPT [=->set] ep14_2_etran = 6;
+- ADAPT [=->set] ep14_2_etran = 8;
+- ADAPT [=->set] ep14_2_etran = 22;
+- ADAPT [=->set] ep14_2_etran = 23;
+- ADAPT [=->set] ep14_2_etran = 26;
+- ADAPT [=->set] ep14_2_etran = 28;
+- ADAPT [=->set] ep14_2_etran = 29;
+- ADAPT [=->set] ep14_2_etran = 43;
+- ADAPT [=->set] ep14_2_etran = 11;
+- ADAPT [=->set] ep14_2_etran = 12;
+- ADAPT [=->set] ep14_2_etran = 13;
+- ADAPT [=->set] .@ep_14_chk = countitem(7798) && countitem(715) > 1 && countitem(716) > 1 && countitem(717) > 1;
+- ADAPT [=->set] ep14_2_etran = 17;
+- ADAPT [=->set] ep14_2_etran = 18;
+- ADAPT [=->set] ep14_2_etran = 19;
+- ADAPT [=->set] ep14_2_etran = 21;
+- ADAPT [=->set] ep14_2_etran = 30;
+- ADAPT [=->set] ep14_2_etran = 32;
+- ADAPT [=->set] ep14_2_etran = 36;
+- ADAPT [=->set] ep14_2_etran = 38;
+- ADAPT [=->set] ep14_2_etran = 42;
+- ADAPT [=->set] .@etran_r = select("I'll do it next time~:Imbue Physical Ability:Imbue Magical Ability:Imbue Ranged Ability:Imbue Recovering Ability") -1;
+- ADAPT [=->set] ep14_2_etran = 16;
+- ADAPT [=->set] ep14_2_etran = 14;
+- ADAPT [=->set] ep14_2_etran = 15;
+- ADAPT [=->set] ep14_2_etran = 3;
+- ADAPT [=->set] ep14_2_etran = 9;
+- ADAPT [=->set] ep14_2_etran = 24;
+- ADAPT [=->set] ep14_2_etran = 25;
+- ADAPT [=->set] ep14_2_etran = 34;
+- ADAPT [=->set] ep14_2_etran = 41;
+- ADAPT [=->set] ep14_2_etran = 33;
+- ADAPT [=->set] ep14_2_etran = 35;
+- ADAPT [=->set] ep14_2_etran = 31;
+- ADAPT [=->set] ep14_2_etran = .@input;
+- ADAPT [=->set] ep14_2_mylord = 7;
+- ADAPT [=->set] ep14_2_etran = 20;
+- ADAPT [=->set] ep14_2_etran = 37;
+- ADAPT [=->set] ep14_2_etran = 39;
+- ADAPT [=->set] ep14_2_etran = 44;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13051) == 1 || isbegin_quest(13052) == 1 || isbegin_quest(13053) == 1 || isbegin_quest(13054) == 1)
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13055) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13056) == 1 || isbegin_quest(13057) == 1 || isbegin_quest(13058) == 1) {
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13055) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13056) == 1 || isbegin_quest(13057) == 1 || isbegin_quest(13058) == 1) {
+- COMMENT [ET_THINK] emotion ET_THINK;
+- ADAPT [=->set] ep14_2_nines = 3;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13050) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13051) == 1 || isbegin_quest(13052) == 1 || isbegin_quest(13053) == 1 || isbegin_quest(13054) == 1) {
+- ADAPT [=->set] ep14_2_nines = 2;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 0) {
+- ADAPT [=->set] ep14_2_nines = 1;
+- COMMENT [ET_CONFUSE] emotion ET_CONFUSE;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13050) == 1 && isbegin_quest(13051) == 1) {
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1)
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1 && isbegin_quest(13052) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13050) == 1 && isbegin_quest(13052) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1)
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1 && isbegin_quest(13053) == 1) {
+- COMMENT [ET_HNG] emotion ET_HNG;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13050) == 1 && isbegin_quest(13053) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1)
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1 && isbegin_quest(13054) == 1) {
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13050) == 1) {
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13050) == 1 && isbegin_quest(13054) == 1) {
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13055) == 1 && isbegin_quest(13056) == 1) {
+- ADAPT [=->set] .@npc_uin = atoi( charat(strnpcinfo(2),3) );
+- COMMENT [charat] .@npc_uin = atoi( charat(strnpcinfo(2),3) );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13055) != 1)
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13055) == 1 && isbegin_quest(13057) == 1) {
+- ADAPT [=->set] .@npc_uin = atoi( charat(strnpcinfo(2),3) );
+- COMMENT [charat] .@npc_uin = atoi( charat(strnpcinfo(2),3) );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13055) == 1) {
+- ADAPT [=->set] .@playtime_13062 = checkquest(13062,PLAYTIME);
+- ADAPT [=->set] .@playtime_13064 = checkquest(13064,PLAYTIME);
+- ADAPT [=->set] .@playtime_13066 = checkquest(13066,PLAYTIME);
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13058))
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13058))
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13061) == 1) {
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13061) == 2) {
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_STARE_ABOUT] emotion ET_STARE_ABOUT;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_OK] emotion ET_OK;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13065) == 1) {
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13065) == 2) {
+- COMMENT [ET_OTL] emotion ET_OTL;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13065) == 1) {
+- ADAPT [=->set] ep14_2_nines = 6;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- ADAPT [=->set] ep14_2_nines = 5;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13061) == 1) {
+- ADAPT [=->set] ep14_2_nines = 4;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(13055) == 1 && isbegin_quest(13058) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(13055) == 1) {
+- ADAPT [=->set] ep14_2_nines = 0;
+- ADAPT [=->set] ep14_2_oliver = 0;
+- ADAPT [=->set] ep14_2_oliver = 5;
+- ADAPT [for/incr->set] for ( .@i = 13050; .@i < 13067; .@i++ )
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@i)) erasequest .@i;
+- ADAPT [=->set] ep14_2_profe = 0;
+- ADAPT [for/incr->set] for (.@i = 1214; .@i < 1226; .@i++)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@i))
+- ADAPT [=->set] ep14_2_profe = 4;
+- ADAPT [=->set] ep14_2_profe = 11;
+- ADAPT [=->set] ep14_2_profe = 1;
+- ADAPT [=->set] ep14_2_profe = 3;
+- ADAPT [=->set] ep14_2_profe = 4;
+- ADAPT [=->set] .@quest_status = isbegin_quest(1218) + isbegin_quest(1219) + isbegin_quest(1220) + isbegin_quest(1221) + isbegin_quest(1222);
+- ADAPT [isbegin_quest->0] .@quest_status = isbegin_quest(1218) + isbegin_quest(1219) + isbegin_quest(1220) + isbegin_quest(1221) + isbegin_quest(1222);
+- ADAPT [=->set] ep14_2_profe = 5;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT, playerattached();
+- ADAPT [=->set] ep14_2_profe = 6;
+- ADAPT [=->set] ep14_2_profe = 12;
+- ADAPT [=->set] .@pro = rand(1,100);
+- ADAPT [=->set] ep14_2_profe = 2;
+- ADAPT [=->set] ep14_2_profe = 7;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- ADAPT [=->set] ep14_2_profe = 8;
+- ADAPT [=->set] ep14_2_profe = 9;
+- ADAPT [=->set] ep14_2_profe = 10;
+- ADAPT [=->set] ep14_2_profe = 11;
+- ADAPT [isbegin_quest->0] if ((isbegin_quest(7411) + isbegin_quest(7412) + isbegin_quest(7413)) == 3) {
+- ADAPT [=->set] ep14_2_mylord = 4;
+- ADAPT [=->set] ep14_2_mylord = 3;
+- ADAPT [isbegin_quest->0] if (ep14_2_mylord == 2 && isbegin_quest(7411) == 1) {
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- ADAPT [=->set] ep14_2_mylord = 2;
+- ADAPT [isbegin_quest->0] if ((isbegin_quest(7423) + isbegin_quest(7424) + isbegin_quest(7425) + isbegin_quest(7426)) == 4) {
+- ADAPT [=->set] ep14_2_mylord = 11;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- COMMENT [getnpcid,ET_BLABLA] emotion ET_BLABLA, getnpcid(0, "Traveler Litrip#tl02");
+- COMMENT [getnpcid,ET_BLABLA] emotion ET_BLABLA, getnpcid(0, "Traveler Chiba#tl03");
+- ADAPT [=->set] ep14_2_mylord = 1;
+- ADAPT [isbegin_quest->0] if (ep14_2_mylord == 2 && isbegin_quest(7412) == 1) {
+- ADAPT [=->set] ep14_2_mylord = 2;
+- ADAPT [isbegin_quest->0] if (ep14_2_mylord == 2 && isbegin_quest(7413) == 1) {
+- ADAPT [=->set] ep14_2_mylord = 2;
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(7418) == 1) {
+- ADAPT [isbegin_quest->0] if ((isbegin_quest(7418) + isbegin_quest(7419) + isbegin_quest(7420)) > 5) {
+- ADAPT [=->set] ep14_2_mylord = 8;
+- ADAPT [isbegin_quest->0] if ((isbegin_quest(7418) + isbegin_quest(7419) + isbegin_quest(7420)) > 5) {
+- ADAPT [=->set] ep14_2_mylord = 8;
+- ADAPT [=->set] ep14_2_mylord = 4;
+- ADAPT [=->set] ep14_2_mylord = 6;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7438) == 1)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7439) == 1)
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(7428) == 1) {
+- ADAPT [=->set] ep14_2_mylord = 5;
+- ADAPT [=->set] ep14_2_mylord = 29;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7449) == 1)
+- ADAPT [=->set] ep14_2_mylord = 10;
+- ADAPT [=->set] ep14_2_mylord = 17;
+- ADAPT [=->set] ep14_2_mylord = 18;
+- ADAPT [=->set] ep14_2_mylord = 26;
+- ADAPT [=->set] ep14_2_mylord = 26;
+- ADAPT [=->set] ep14_2_mylord = 28;
+- ADAPT [=->set] ep14_2_mylord = 29;
+- ADAPT [=->set] ep14_2_mylord = 7;
+- ADAPT [=->set] ep14_2_mylord = 9;
+- ADAPT [=->set] ep14_2_mylord = 12;
+- ADAPT [=->set] ep14_2_mylord = 13;
+- ADAPT [=->set] ep14_2_mylord = 14;
+- ADAPT [=->set] ep14_2_mylord = 21;
+- ADAPT [=->set] ep14_2_mylord = 24;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7446) == 1) {
+- ADAPT [=->set] ep14_2_mylord = 27;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7447) == 1)
+- ADAPT [=->set] .@quest_7449 = isbegin_quest(7449);
+- ADAPT [isbegin_quest->0] .@quest_7449 = isbegin_quest(7449);
+- ADAPT [=->set] ep14_2_mylord = 31;
+- COMMENT [npcskill] npcskill "AL_BLESSING",1,0,0;
+- ADAPT [=->set] ep14_2_mylord = 33;
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(7420) ) {
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- ADAPT [isbegin_quest->0] if ((isbegin_quest(7420) + isbegin_quest(7419) + isbegin_quest(7418)) > 5) {
+- ADAPT [=->set] ep14_2_mylord = 8;
+- ADAPT [isbegin_quest->0] if ((isbegin_quest(7420) + isbegin_quest(7419) + isbegin_quest(7418)) > 5) {
+- ADAPT [=->set] ep14_2_mylord = 8;
+- ADAPT [=->set] .@total = isbegin_quest(7423) + isbegin_quest(7424) + isbegin_quest(7425) + isbegin_quest(7426);
+- ADAPT [isbegin_quest->0] .@total = isbegin_quest(7423) + isbegin_quest(7424) + isbegin_quest(7425) + isbegin_quest(7426);
+- ADAPT [=->set] .@quest7423 = 1;
+- ADAPT [=->set] ep14_2_mylord = 11;
+- ADAPT [=->set] .@daytime = checkquest(7433,PLAYTIME);
+- COMMENT [ET_THINK] emotion ET_THINK;
+- ADAPT [=->set] .@quest_7419 = isbegin_quest(7419);
+- ADAPT [isbegin_quest->0] .@quest_7419 = isbegin_quest(7419);
+- ADAPT [=->set] .@alltotal = isbegin_quest(7418) + .@quest_7419 + isbegin_quest(7420);
+- ADAPT [isbegin_quest->0] .@alltotal = isbegin_quest(7418) + .@quest_7419 + isbegin_quest(7420);
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- ADAPT [=->set] .@sub = 1;
+- ADAPT [=->set] ep14_2_mylord = 8;
+- ADAPT [=->set] .@checktime = checkquest(7431,PLAYTIME);
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(7430) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7419) == 1) {
+- ADAPT [isbegin_quest->0] else if (isbegin_quest(7430) == 1) {
+- ADAPT [isbegin_quest->0] if ((isbegin_quest(7423) + isbegin_quest(7424) + isbegin_quest(7425) + isbegin_quest(7426)) > 3) {
+- ADAPT [=->set] ep14_2_mylord = 11;
+- ADAPT [isbegin_quest->0] if ((isbegin_quest(7423) + isbegin_quest(7424) + isbegin_quest(7425) + isbegin_quest(7426)) > 3) {
+- ADAPT [=->set] ep14_2_mylord = 11;
+- ADAPT [=->set] ep14_2_mylord = 15;
+- ADAPT [=->set] ep14_2_mylord = 16;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7440) == 1) {
+- ADAPT [=->set] ep14_2_mylord = 19;
+- ADAPT [=->set] ep14_2_mylord = 25;
+- ADAPT [=->set] ep14_2_mylord = 20;
+- ADAPT [=->set] $111204_avantlabo = 1;
+- ADAPT [=->set] $111204_avantlabo = 0;
+- MANUAL [unregistered-map:que_avan01] que_avan01,26,26,0	script	#tltimer	HIDDEN_WARP_NPC,0,1,{
+- ADAPT [=->set] $111204_avantlabo = 0;
+- MANUAL [unregistered-map:que_avan01] que_avan01,18,38,0	script	Desk#tl01	CLEAR_NPC,{
+- ADAPT [=->set] .@book = 0;
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 5; .@i++ ) {
+- ADAPT [=->set] .@select_book = select("First:Second:Third:Fourth:Fifth") -1;
+- ADAPT [op=->set] .@book += 10;
+- ADAPT [=->set] ep14_2_mylord = 22;
+- MANUAL [unregistered-map:que_avan01] que_avan01,1,1,0	script	#avtmanager	CLEAR_NPC,{
+- ADAPT [=->set] $111204_avantlabo = 0;
+- ADAPT [=->set] $111204_avantlabo = 0;
+- MANUAL [unregistered-map:que_avan01] que_avan01,26,41,3	script	Avant Magic Scholar#tlac	4_M_FAIRYAVANT,{
+- MANUAL [unregistered-map:que_avan01] que_avan01,22,40,3	script	Avant's Summon#tlact01	1198,{
+- BOUNDARY [que_avan01] que_avan01,29,40,0	duplicate(Avant's Summon#tlact01)	Avant's Summon#tlact02	1198
+- BOUNDARY [que_avan01] que_avan01,29,36,0	duplicate(Avant's Summon#tlact01)	Avant's Summon#tlact03	1198
+- BOUNDARY [que_avan01] que_avan01,29,32,0	duplicate(Avant's Summon#tlact01)	Avant's Summon#tlact04	1198
+- MANUAL [unregistered-map:que_avan01] que_avan01,23,34,2	script	Hisie#tlspt	4_M_FARIY_HISIE,4,4,{
+- COMMENT [npcskill] npcskill "AL_BLESSING",1,0,0;
+- COMMENT [npcskill] npcskill "AL_HEAL",10,99,80;
+- COMMENT [npcskill] npcskill "AL_INCAGI",1,0,0;
+- COMMENT [npcskill] npcskill "AL_HEAL",9,99,80;
+- MANUAL [unregistered-map:que_avan01] que_avan01,25,41,5	script	Hisie#tlhunt	4_M_FARIY_HISIE,10,10,{
+- ADAPT [=->set] ep14_2_mylord = 23;
+- ADAPT [=->set] ep14_2_mylord = 32;
+- UNRESOLVED [charat] Teleport Cat#ep14_2
+- UNRESOLVED [getnpcid] Tourist#ep14_2f3
+- UNRESOLVED [getnpcid] #ep14_2Bridge
+- UNRESOLVED [getnpcid] Yube#ep14_2in
+- UNRESOLVED [getnpcid] Du Lian#ep14_2in2
+- UNRESOLVED [charat,getnpcid,isbegin_quest,npcskill] Wuhari#eclbig
+- ORPHAN [Teleport Cat#ep14_2] ecl_fild01,118,311,4	duplicate(Teleport Cat#ep14_2)	Teleport Cat No.1	4_M_BOSSCAT
+- ORPHAN [Teleport Cat#ep14_2] bif_fild02,293,325,4	duplicate(Teleport Cat#ep14_2)	Teleport Cat No.2	4_M_BOSSCAT
+- ORPHAN [Teleport Cat#ep14_2] spl_fild02,53,242,4	duplicate(Teleport Cat#ep14_2)	Teleport Cat No.3	4_M_BOSSCAT
+- ORPHAN [Teleport Cat#ep14_2] mid_camp,207,234,4	duplicate(Teleport Cat#ep14_2)	Teleport Cat No.4	4_M_BOSSCAT
+- ORPHAN [Teleport Cat#ep14_2] man_fild02,135,49,4	duplicate(Teleport Cat#ep14_2)	Teleport Cat No.5	4_M_BOSSCAT
+- ORPHAN [Teleport Cat#ep14_2] dic_fild01,161,266,4	duplicate(Teleport Cat#ep14_2)	Teleport Cat No.6	4_M_BOSSCAT
+- ORPHAN [Du Lian#ep14_2in2] ecl_in04,224,234,4	duplicate(Du Lian#ep14_2in2)	Mark Esha#ep14_2in2	4_M_BLUEMAN
+- ORPHAN [Du Lian#ep14_2in2] ecl_in04,223,234,4	duplicate(Du Lian#ep14_2in2)	Maggi Steen#ep14_2in2	4_F_PINKWOMAN
+- ORPHAN [Du Lian#ep14_2in2] ecl_in04,223,230,4	duplicate(Du Lian#ep14_2in2)	Alp Ocart#ep14_2in2	4_M_BLACKMAN
+
+## quests_malangdo.txt
+- COMMENT [npcskill] npcskill "AL_INCAGI",10,0,0;
+- COMMENT [npcskill] npcskill "AL_BLESSING",10,0,0;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Samuel#mal");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Samuel#mal");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Samuel#mal");
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Samuel#mal");
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Samuel#mal");
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Samuel#mal");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_AHA] emotion ET_AHA;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Scottfold#mal");
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Scottfold#mal");
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Koon#mal");
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Linguist Devore#mal");
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Geologist Mali#mal");
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Koon#mal");
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Linguist Devore#mal");
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Geologist Mali#mal");
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HELP] emotion ET_HELP;
+- COMMENT [ET_HELP] emotion ET_HELP;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- COMMENT [ET_HELP] emotion ET_HELP;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Brie#mal");
+- COMMENT [getnpcid,ET_WRAP] emotion ET_WRAP, getnpcid(0, "Brie#mal");
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Linguist Devore#mal");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [substr] donpcevent "Crackt"+substr(strnpcinfo(2),3,getstrlen(strnpcinfo(2))-1)+"#mal::OnEnable";
+- COMMENT [substr] donpcevent "Crackt"+substr(strnpcinfo(2),3,getstrlen(strnpcinfo(2))-1)+"#mal::OnEnable";
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- COMMENT [substr] donpcevent "Crack#mal"+substr(strnpcinfo(1),6,getstrlen(strnpcinfo(1))-1)+"::OnDisable";
+- COMMENT [substr] donpcevent "Crack#mal"+substr(strnpcinfo(1),6,getstrlen(strnpcinfo(1))-1)+"::OnEnable";
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- COMMENT [ET_SHY] emotion ET_SHY;
+- COMMENT [ET_COOL] emotion ET_COOL;
+- COMMENT [ET_HUNGRY] emotion ET_HUNGRY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_GOODBOY] emotion ET_GOODBOY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_CHUP] emotion ET_CHUP;
+- COMMENT [ET_CHUP] emotion ET_CHUP;
+- COMMENT [ET_CHUP] emotion ET_CHUP;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Rican#mal");
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- COMMENT [substr] donpcevent "Suspicious Sand Pile#"+substr(strnpcinfo(1),10,getstrlen(strnpcinfo(1))-1)+"::OnDisable";
+- COMMENT [substr] donpcevent "Suspicious Sand Pile#"+substr(strnpcinfo(1),10,getstrlen(strnpcinfo(1))-1)+"::OnEnable";
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Linguist Devore#mald");
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Linguist Devore#mald");
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Linguist Devore#mald");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Linguist Devore#mald");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Linguist Devore#mald");
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_COOL] emotion ET_COOL;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "Biscuit#mal");
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "Biscuit#mal");
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Crime Prevention Staff#ml");
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Crime Prevention Staff#ml");
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- ADAPT [=->set] .@index = getarg(1);
+- ADAPT [=->set] .@num = getarg(0);
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "Cat Detective#nya_14");
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "Friend of Detective#mal");
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_BEST] emotion ET_BEST, playerattached();
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH, playerattached();
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_COOL] emotion ET_COOL;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_OK] emotion ET_OK, playerattached();
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- COMMENT [ET_SORRY] emotion ET_SORRY, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_THANKS] emotion ET_THANKS, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SORRY] emotion ET_SORRY, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_SCISSOR] emotion ET_SCISSOR;
+- COMMENT [ET_WRAP] emotion ET_WRAP, playerattached();
+- COMMENT [ET_WRAP] emotion ET_WRAP;
+- COMMENT [ET_ROCK] emotion ET_ROCK, playerattached();
+- COMMENT [ET_ROCK] emotion ET_ROCK;
+- COMMENT [ET_SCISSOR] emotion ET_SCISSOR, playerattached();
+- COMMENT [ET_ROCK,ET_WRAP,ET_SCISSOR] setarray .@emote[0], ET_ROCK, ET_WRAP, ET_SCISSOR;
+- COMMENT [ET_ROCK,ET_WRAP,ET_SCISSOR] setarray .@emote[0], ET_ROCK, ET_WRAP, ET_SCISSOR;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA, playerattached();
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA, playerattached();
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA, playerattached();
+- COMMENT [ET_BLABLA] emotion ET_BLABLA;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_DELIGHT,ET_STARE_ABOUT,ET_FRET,ET_BEST,ET_CONFUSE] ET_DELIGHT,ET_STARE_ABOUT,ET_FRET,ET_BEST,ET_CONFUSE;
+- COMMENT [round] set .@round, .@round+1;
+- COMMENT [ET_FLAG] set .@emotion[0], ET_FLAG;
+- COMMENT [ET_PROFUSELY_SWEAT] set .@emotion[0], ET_PROFUSELY_SWEAT;
+- COMMENT [ET_DELIGHT] set .@emotion[.@i], ET_DELIGHT;
+- COMMENT [ET_FLAG] set .@emotion[.@i], ET_FLAG;
+- COMMENT [round] mes "Game ^C1653E"+.@round+"^000000 results...";
+- COMMENT [round] mes "^FF0000"+.@you_flag$+"^000000 for game ^C1653E"+.@round+"^000000.";
+- COMMENT [round] mes "^FF0000"+.@cat_flag$[.@i]+"^000000 the flag for game ^C1653E"+.@round+"^000000.";
+- COMMENT [getnpcid] emotion .@emotion[.@i], getnpcid(0, .@npc_name$[.@i]);
+- COMMENT [round] mes "Game "+.@round+" has ended properly. Point penalty will be given after "+(10-.@rounds_nowave)+" more.";
+- COMMENT [round] mes "After "+.@round+" games, "+strcharinfo(0)+" has "+.@flag_point+" Flag Point left.";
+- COMMENT [ET_STARE_ABOUT] emotion ET_STARE_ABOUT;
+- COMMENT [ET_STARE_ABOUT] emotion ET_STARE_ABOUT;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [delequip] delequip EQI_GARMENT;
+- COMMENT [delequip] delequip EQI_GARMENT;
+- COMMENT [showscript] showscript "Huuph...! Yucky..! Wa, Water...!!";
+- COMMENT [showscript] showscript "Yeeyuck...!! This is rotten!!";
+- COMMENT [showscript] showscript "Arrrrrgggg...!! Bu, Bu, Bugggggg!!!!!";
+- COMMENT [showscript] showscript "Errrgg!!! This is so... bitter....!!";
+- COMMENT [showscript] showscript "....well, at least this is good for my health.";
+- COMMENT [showscript] showscript "Phewphew!! Argh.... Is this poisoned or what?!";
+- COMMENT [showscript] showscript "Whasdfhwkljhrtklwert....!!";
+- COMMENT [showscript] showscript "It's ok, no one saw me yet...";
+- COMMENT [showscript] showscript "I really need something to eat... ?? Sorry, little buggy.";
+- UNRESOLVED [npcskill] Investment Cat Helper
+- UNRESOLVED [getnpcid] Tomas#mal
+- UNRESOLVED [getnpcid] President of Meeting#mal
+- UNRESOLVED [getnpcid] Scottfold#mal
+- UNRESOLVED [getnpcid] Koon#mal
+- UNRESOLVED [getnpcid] Linguist Devore#mal
+- UNRESOLVED [getnpcid] Geologist Mali#mal
+- UNRESOLVED [substr] Crack#mal0
+- UNRESOLVED [substr] Crackt0#mal
+- UNRESOLVED [getnpcid] Dry Machine#mal
+- UNRESOLVED [substr] Water Sand0#mal
+- UNRESOLVED [getnpcid] Biscuit#mal
+- UNRESOLVED [getnpcid] Star Candy#mal
+- UNRESOLVED [getnpcid] Patrol Leader#ml
+- UNRESOLVED [getnpcid] Noisy Machine#nya_13
+- UNRESOLVED [multiline-call] Box#nya01
+- UNRESOLVED [multiline-call] Book#nya02
+- UNRESOLVED [multiline-call] Dirty Bed#nya03
+- UNRESOLVED [multiline-call] Seashell#nya04
+- UNRESOLVED [multiline-call] Ship Pillar#nya05
+- UNRESOLVED [multiline-call] Ventilation Window#nya06
+- UNRESOLVED [getnpcid,round] Leader#gamer
+- UNRESOLVED [delequip] Fallen Angel#mal
+- UNRESOLVED [showscript] F_Cat_Hard_Biscuit
+- UNRESOLVED [showscript] F_Rice_Weevil_Bug
+- ORPHAN [Crack#mal0] malangdo,114,157,0	duplicate(Crack#mal0)	Crack#mal1	550
+- ORPHAN [Crack#mal0] malangdo,284,237,0	duplicate(Crack#mal0)	Crack#mal2	550
+- ORPHAN [Crack#mal0] malangdo,134,150,0	duplicate(Crack#mal0)	Crack#mal3	550
+- ORPHAN [Crack#mal0] malangdo,173,199,0	duplicate(Crack#mal0)	Crack#mal4	550
+- ORPHAN [Crack#mal0] malangdo,233,197,0	duplicate(Crack#mal0)	Crack#mal5	550
+- ORPHAN [Crack#mal0] malangdo,137,239,0	duplicate(Crack#mal0)	Crack#mal6	550
+- ORPHAN [Crack#mal0] malangdo,239,157,0	duplicate(Crack#mal0)	Crack#mal7	550
+- ORPHAN [Crack#mal0] malangdo,221,155,0	duplicate(Crack#mal0)	Crack#mal8	550
+- ORPHAN [Crack#mal0] malangdo,217,109,0	duplicate(Crack#mal0)	Crack#mal9	550
+- ORPHAN [Crack#mal0] malangdo,162,183,0	duplicate(Crack#mal0)	Crack#mal10	550
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt1#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt2#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt3#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt4#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt5#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt6#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt7#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt8#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt9#mal	-1
+- ORPHAN [Crackt0#mal] -	duplicate(Crackt0#mal)	Crackt10#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand1#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand2#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand3#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand4#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand5#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand6#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand7#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand8#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand9#mal	-1
+- ORPHAN [Water Sand0#mal] -	duplicate(Water Sand0#mal)	Water Sand10#mal	-1
+
+## quests_malaya.txt
+- ADAPT [=->set] .@playtime = checkquest(7405, PLAYTIME);
+- ADAPT [=->set] .@hunting = checkquest(7404, HUNTING);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[1] = strcharinfo(0);
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- ADAPT [=->set] $malayaNames$[0] = "unknown";
+- ADAPT [=->set] $malayaNames$[1] = "unknown";
+- ADAPT [=->set] $malayaNames$[2] = "unknown";
+- ADAPT [=->set] $malayaNames$[3] = "unknown";
+- ADAPT [=->set] $malayaNames$[4] = "unknown";
+- ADAPT [=->set] $malayaNames$[5] = "unknown";
+- ADAPT [=->set] .@playtime = checkquest(7367, PLAYTIME);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[0] = strcharinfo(0);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] .@playtime = checkquest(7381, PLAYTIME);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[0] = strcharinfo(0);
+- ADAPT [=->set] .@playtime = checkquest(7375, PLAYTIME);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[2] = strcharinfo(0);
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[1] = strcharinfo(0);
+- ADAPT [=->set] .@hunting = checkquest(7393, HUNTING);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[1] = strcharinfo(0);
+- ADAPT [=->set] .@playtime = checkquest(7394, PLAYTIME);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[0] = strcharinfo(0);
+- ADAPT [=->set] .@playtime = checkquest(7401, PLAYTIME);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[0] = strcharinfo(0);
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- COMMENT [close3] close3;
+- ADAPT [=->set] .@playtime = checkquest(7408, PLAYTIME);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[2] = strcharinfo(0);
+- ADAPT [=->set] .@playtime = checkquest(7390, PLAYTIME);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[2] = strcharinfo(0);
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [=->set] .@playtime = checkquest(7410, PLAYTIME);
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- ADAPT [=->set] $malayaNames$[1] = strcharinfo(0);
+- ADAPT [=->set] .@part    = EQI_ARMOR;
+- ADAPT [=->set] .@item    = 15051;
+- ADAPT [=->set] .@newItem = 15052;
+- ADAPT [=->set] .@part    = EQI_HAND_L;
+- ADAPT [=->set] .@item    = 2169;
+- ADAPT [=->set] .@newItem = 2170;
+- ADAPT [=->set] .@part    = EQI_GARMENT;
+- ADAPT [=->set] .@item    = 2590;
+- ADAPT [=->set] .@newItem = 2591;
+- ADAPT [=->set] .@part    = EQI_SHOES;
+- ADAPT [=->set] .@item    = 2491;
+- ADAPT [=->set] .@newItem = 2492;
+- ADAPT [=->set] .@equip_refine = getequiprefinerycnt(.@part);
+- COMMENT [delequip] delequip .@part;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE, playerattached();
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "buwaya_A");
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "buwaya_B");
+- COMMENT [getnpcid,ET_STARE_ABOUT] emotion ET_STARE_ABOUT, getnpcid(0, "buwaya_C");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "buwaya_A");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "buwaya_B");
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "buwaya_C");
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "buwaya_B");
+- COMMENT [getnpcid,ET_SURPRISE] emotion ET_SURPRISE, getnpcid(0, "buwaya_C");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "buwaya_A");
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "buwaya_B");
+- COMMENT [getnpcid,ET_STARE_ABOUT] emotion ET_STARE_ABOUT, getnpcid(0, "buwaya_C");
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "buwaya_B");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "buwaya_C");
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "buwaya_A");
+- COMMENT [getnpcid,ET_BIGTHROB] emotion ET_BIGTHROB, getnpcid(0, "buwaya_B");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "buwaya_C");
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "buwaya_A");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0, "buwaya_A");
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "buwaya_B");
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "buwaya_B");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- COMMENT [ET_HUK] emotion ET_HUK;
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- COMMENT [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE))
+- COMMENT [ET_SWEAT] emotion ET_SWEAT, playerattached();
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- COMMENT [ET_AHA] emotion ET_AHA;
+- COMMENT [ET_AHA] emotion ET_AHA;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- MANUAL [vip_status] if (!VIP_SCRIPT || vip_status(VIP_STATUS_ACTIVE)) {
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HELP] emotion ET_HELP;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HELP] emotion ET_HELP;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Bushes#ma");
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_FRET] emotion ET_FRET, playerattached();
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_FRET] emotion ET_FRET, playerattached();
+- COMMENT [replacestr] donpcevent "Tent"+replacestr(strnpcinfo(3),"MalayaStick","")+"#ma::OnEnable";
+- COMMENT [replacestr] donpcevent "Tent"+replacestr(strnpcinfo(3),"MalayaStick","")+"#ma::OnEnable";
+- COMMENT [replacestr] donpcevent "Tent"+replacestr(strnpcinfo(3),"MalayaStick","")+"#ma::OnEnable";
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- COMMENT [replacestr] donpcevent "MalayaStick"+replacestr(strnpcinfo(1),"Tent","")+"::OnDisable";
+- COMMENT [replacestr] donpcevent "MalayaStick"+replacestr(strnpcinfo(1),"Tent","")+"::OnEnable";
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CONFUSE] emotion ET_CONFUSE;
+- COMMENT [ET_OTL] emotion ET_OTL;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_STARE] emotion ET_STARE;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_HUM] emotion ET_HUM;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- UNRESOLVED [vip_status] Rodel the Guard#malaya
+- UNRESOLVED [vip_status] Imelda#malaya
+- UNRESOLVED [vip_status] Old Man Nardo#malaya
+- UNRESOLVED [vip_status] Collection Dealer Woeon
+- UNRESOLVED [vip_status] Blacksmith Pandoi
+- UNRESOLVED [vip_status] Pedro the Sailor
+- UNRESOLVED [close3] Ghost Diwata
+- UNRESOLVED [vip_status] Dhong the Guard
+- UNRESOLVED [vip_status] Maries#malaya
+- UNRESOLVED [vip_status] Good Capre Budidai
+- UNRESOLVED [delequip] Tribe Blacksmith#malaya
+- UNRESOLVED [getnpcid] Port Malaya Villager
+- UNRESOLVED [vip_status] Totoy#buwaya
+- UNRESOLVED [vip_status] Guard Leader#buwaya
+- UNRESOLVED [vip_status] Old Legend Teller#bako1
+- UNRESOLVED [vip_status] Village Chief#bako2
+- UNRESOLVED [vip_status] Young Fortune Teller
+- UNRESOLVED [vip_status] F_Malaya_Nurse
+- UNRESOLVED [getnpcid] Nurse#ma_n1
+- UNRESOLVED [replacestr] Suspicious Wooden Stick
+- UNRESOLVED [replacestr] Tent#ma
+- UNRESOLVED [multiline-call] Festival Helper Boy#pin
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent1#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent2#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent3#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent4#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent5#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent6#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent7#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent8#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent9#ma	-1
+- ORPHAN [Tent#ma] -	duplicate(Tent#ma)	Tent10#ma	-1
+- ORPHAN [buwaya_A] malaya,278,288,3	duplicate(buwaya_A)	Port Malaya Villager::buwaya_B	583
+- ORPHAN [buwaya_A] malaya,276,286,7	duplicate(buwaya_A)	Port Malaya Villager::buwaya_C	582
+- ORPHAN [MalayaStick] malaya,40,52,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick1	858
+- ORPHAN [MalayaStick] malaya,31,42,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick2	858
+- ORPHAN [MalayaStick] malaya,34,36,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick3	858
+- ORPHAN [MalayaStick] malaya,40,32,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick4	858
+- ORPHAN [MalayaStick] malaya,50,85,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick5	858
+- ORPHAN [MalayaStick] malaya,46,93,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick6	858
+- ORPHAN [MalayaStick] malaya,36,98,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick7	858
+- ORPHAN [MalayaStick] malaya,48,79,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick8	858
+- ORPHAN [MalayaStick] malaya,50,46,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick9	858
+- ORPHAN [MalayaStick] malaya,59,84,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick10	858
+
+## quests_dicastes.txt
+- COMMENT [freeloop] freeloop(1);
+- COMMENT [freeloop] freeloop(0);
+- ADAPT [=->set] .@type = getarg(0);
+- MANUAL [getargcount] for(set .@i,1; .@i<getargcount(); set .@i,.@i+1) {
+- MANUAL [unregistered-map:izlude_a] izlude_a,136,160,0	script	Fish Tails#a	844,{ unknown_d(12174,1023); }
+- MANUAL [unregistered-map:izlude_b] izlude_b,136,160,0	script	Fish Tails#b	844,{ unknown_d(12174,1023); }
+- MANUAL [unregistered-map:izlude_c] izlude_c,136,160,0	script	Fish Tails#c	844,{ unknown_d(12174,1023); }
+- MANUAL [unregistered-map:izlude_d] izlude_d,136,160,0	script	Fish Tails#d	844,{ unknown_d(12174,1023); }
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [getnpcid,ET_HUK] emotion ET_HUK, getnpcid(0, "Hound#ep133_is06");
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "Hound#ep133_is06");
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "Sapha from Manuk");
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- COMMENT [charat] setd ".@e_"+.@j, getd(".@f_"+.@j+"["+atoi(charat(.@str$,.@len-.@c))+"]");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- UNRESOLVED [freeloop] 13.3 Related Reset
+- UNRESOLVED [getargcount] que_dic
+- BOUNDARY [izlude_a] Fish Tails#a
+- BOUNDARY [izlude_b] Fish Tails#b
+- BOUNDARY [izlude_c] Fish Tails#c
+- BOUNDARY [izlude_d] Fish Tails#d
+- UNRESOLVED [charat,getnpcid] Secret Adjutant#ep133_2
+
+## quests_rockridge.txt
+- ADAPT [isbegin_quest->0] if (rock_main_quest == 0 && isbegin_quest(7790) == 0) {// first time
+- ADAPT [=->set] rock_main_quest = 1;
+- ADAPT [=->set] rock_main_quest = 1;
+- ADAPT [=->set] Zeny = Zeny - 10000;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7790) == 0) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel >= 100 && !isbegin_quest(7790)" );
+- MANUAL [unregistered-map:harboro1] harboro1,80,218,5	script	Costello#harboro1	4_M_COSTELL,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- ADAPT [=->set] rock_main_quest = 2;
+- ADAPT [=->set] rock_main_quest = 4;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 1 || rock_main_quest == 3" );
+- MANUAL [unregistered-map:har_in01] har_in01,20,30,5	script	Wyatt Warp#har_in01	4_M_YATTWARP,{
+- ADAPT [=->set] rock_main_quest = 3;
+- ADAPT [=->set] rock_main_quest = 5;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- ADAPT [=->set] rock_main_quest = 7;
+- COMMENT [questinfo,questinfo_refresh] questinfo_refresh();	// the update of the variable refreshes questinfo
+- ADAPT [=->set] rock_main_quest = 10;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7809) == 0 && countitem(25247) > 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(7809) == 0 && countitem(25247) > 0) {
+- ADAPT [=->set] rock_main_quest = 16;
+- COMMENT [mesitemlink] mes "I have " + mesitemlink( 28495, false, "Vigilante Badge (L)" );
+- COMMENT [mesitemlink] mes "and " + mesitemlink( 28496, false, "Vigilante Badge (R)" ) + ".";
+- ADAPT [=->set] .@s = select( "Vigilante Badge (L)", "Vigilante Badge (R)" ) - 1;
+- COMMENT [mesitemlink] mes "Do you want " + mesitemlink( .@item_id[.@s], false, .@item_name$[.@s] ) + "?";
+- ADAPT [=->set] rock_main_quest = 22;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW,
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 14 && isbegin_quest(7809) == 0 && countitem(25247) > 0" );
+- MANUAL [unregistered-map:har_in01] har_in01,14,24,5	script	Ivoka Skudi#rr03	4_M_EVOKASCUDI,{
+- ADAPT [=->set] rock_main_quest = 8;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 6 || rock_main_quest == 7" );
+- MANUAL [unregistered-map:har_in01] har_in01,34,28,0	script	har_in01_jail	WARPNPC,1,1,{
+- MANUAL [unregistered-map:har_in01] har_in01,100,14,3	script	Vigilante#srdg01	4_M_CACTUSLADY,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- MANUAL [unregistered-map:har_in01] har_in01,81,30,3	script	Harold#srdg01	4_TOWER_09,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [getnpcid,ET_HNG] emotion ET_HNG, getnpcid(0, "Egring#srdg01");
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- MANUAL [unregistered-map:har_in01] har_in01,78,25,5	script	Egring#srdg01	4_DR_TORTEL,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- MANUAL [unregistered-map:har_in01] har_in01,89,26,5	script	Johnny James#har_in01	4_M_JOHNNYJAMES,{
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakoffnpcself] cloakoffnpcself(  "Ivoka Skudi#har02" );
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- ADAPT [=->set] rock_main_quest = 9;
+- ADAPT [=->set] rock_main_quest = 15;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 8 || rock_main_quest == 14" );
+- MANUAL [unregistered-map:har_in01] har_in01,88,22,6	script	Ivoka Skudi#har02	4_M_EVOKASCUDI,{
+- COMMENT [cloakonnpcself] cloakonnpcself( "Ivoka Skudi#har02" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- BOUNDARY [rockrdg1] rockrdg1,160,306,3	duplicate(dummy_cloaked_npc)	Johnny James#revt04	4_M_JOHNNYJAMES
+- BOUNDARY [rockrdg1] rockrdg1,168,306,3	duplicate(dummy_cloaked_npc)	Albert Ford#revt08	4_M_ALBERTFORD
+- BOUNDARY [rockrdg1] rockrdg1,156,302,7	duplicate(dummy_cloaked_npc)	Ivoka Skudi#revt02	4_M_EVOKASCUDI
+- BOUNDARY [rockrdg1] rockrdg1,156,306,5	duplicate(dummy_cloaked_npc)	Cactus Gunslinger#revt05	4_M_EVOKASCUDI
+- BOUNDARY [rockrdg1] rockrdg1,161,302,1	duplicate(dummy_cloaked_npc)	Cactus Gunslinger#revt06	4_M_EVOKASCUDI
+- BOUNDARY [rockrdg1] rockrdg1,164,306,3	duplicate(dummy_cloaked_npc)	Cactus Gunslinger#revt07	4_M_EVOKASCUDI
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,156,312,3	script	Unmoving Freight Train#	4_ENERGY_RED,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Johnny James#revt04" );
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0,"Johnny James#revt04");
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Albert Ford#revt08" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wyatt Warp#revt03" );
+- COMMENT [getnpcid,ET_AHA] emotion ET_AHA, getnpcid(0,"Johnny James#revt04");
+- COMMENT [getnpcid,ET_THINK] emotion ET_THINK, getnpcid(0,"Albert Ford#revt08");
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Cactus Gunslinger#revt05" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Cactus Gunslinger#revt06" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Cactus Gunslinger#revt07" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Ivoka Skudi#revt02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Albert Ford#revt08" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Cactus Gunslinger#revt05" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Cactus Gunslinger#revt06" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Cactus Gunslinger#revt07" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Ivoka Skudi#revt02" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "Johnny James#revt04" );
+- ADAPT [=->set] rock_main_quest = 6;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 5" );
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,153,303,5	script	Wyatt Warp#revt03	4_M_YATTWARP,{
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wyatt Warp#revt03" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- MANUAL [unregistered-map:harboro1] harboro1,288,193,5	script	Shawn McCurdy#harboro1	4_M_SEANMCCURDY,{
+- ADAPT [=->set] rock_main_quest = 11;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 10" );
+- MANUAL [unregistered-map:rockrdg2] rockrdg2,347,216,5	script	Shawn McCurdy#rockrdg2	4_M_SEANMCCURDY,{
+- ADAPT [=->set] rock_main_quest = 13;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 11 || rock_main_quest == 12" );
+- MANUAL [unregistered-map:rockmi2] rockmi2,10,86,5	script	Shawn McCurdy#rockmi2	4_M_SEANMCCURDY,{
+- ADAPT [=->set] rock_main_quest = 12;
+- ADAPT [=->set] rock_main_quest = 13;
+- ADAPT [=->set] rock_main_quest = 17;
+- ADAPT [=->set] rock_main_quest = 20;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 11 || rock_main_quest == 16" );
+- MANUAL [unregistered-map:rockmi2] rockmi2,97,120,5	script	Broken Elevator#rrevt10	4_ENERGY_WHITE,{
+- ADAPT [=->set] rock_main_quest = 18;
+- ADAPT [=->set] rock_main_quest = 19;
+- MANUAL [unregistered-map:rockrdg2] rockrdg2,279,313,3	script	Concaved Rock#revt09	4_ENERGY_RED,{
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Albert Ford#rockrdg2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Albert Ford#rockrdg2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Albert Ford#rockrdg2" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Albert Ford#rockrdg2" );
+- MANUAL [unregistered-map:rockrdg2] rockrdg2,295,309,3	script	Albert Ford#rockrdg2	4_M_ALBERTFORD,{
+- ADAPT [=->set] .@account_id = getcharid(3);
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- ADAPT [=->set] rock_main_quest = 14;
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < 5; ++.@i ) {
+- COMMENT [getfreecell] getfreecell("rockrdg2",.@x,.@y,295,309,4,4);
+- COMMENT [getfreecell] getfreecell("rockrdg2",.@x,.@y,296,309,4,4);
+- ADAPT [=->set] rock_main_quest = 21;
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- COMMENT [cloakonnpc] cloakonnpc();
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,341,133,3	script	Mrs. Cacturon#rrrem01	4_M_CACTUSLADY,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) != 2) {// first time
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [getnpcid,ET_DELIGHT] emotion ET_DELIGHT, getnpcid(0, "Little Lecter#rrrem02");
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Little Lecter#rrrem02");
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Little Lecter#rrrem02");
+- COMMENT [ET_QUESTION] emotion ET_QUESTION, playerattached();
+- COMMENT [getnpcid,ET_SMILE] emotion ET_SMILE, getnpcid(0, "Little Lecter#rrrem02");
+- COMMENT [ET_SCRATCH] emotion ET_SCRATCH;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 22 && (!isbegin_quest(16078) || (checkquest(16078,HUNTING) == 2 && countitem(25246) >= 5))" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 22 && checkquest(16080,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 22 && checkquest(16079,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,339,134,3	script	Little Lecter#rrrem02	4_M_CACTUSCHILD,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) == 2) {
+- COMMENT [getnpcid] emotion 28, getnpcid(0,"Little Lecter#rrrem02");
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,182,124,3	script	Suspicious Sand Mound#rremef05	4_ENERGY_RED,15,15,{
+- ADAPT [isbegin_quest->0] if (checkquest(16078,HUNTING) != 0 && checkquest(16078,HUNTING) != 1 || countitem("Juice_Package") > 4 || isbegin_quest(16082) == 2) {
+- COMMENT [cloakonnpcself] cloakonnpcself( "Suspicious Sand Mound#rremef05" );
+- ADAPT [=->set] .@name$ = strcharinfo(0);
+- ADAPT [isbegin_quest->0] if (checkquest(16078,HUNTING) != 0 && checkquest(16078,HUNTING) != 1 || countitem("Juice_Package") > 4 || isbegin_quest(16082) == 2)
+- COMMENT [cloakonnpcself] cloakonnpcself( "Suspicious Sand Mound#rremef05" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Suspicious Sand Mound#rremef05" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- BOUNDARY [rockrdg1] rockrdg1,182,124,3	duplicate(Suspicious Sand Mound#rremef05)	Suspicious Sand Mound#rrem01	4_SOIL
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,286,247,3	script	Suspicious Sand Mound#rremef06	4_ENERGY_RED,15,15,{
+- ADAPT [=->set] .@quest_id = callsub( S_Quest );
+- ADAPT [=->set] .@npc_name$ = callsub( S_Name );
+- ADAPT [isbegin_quest->0] if (checkquest(16078,HUNTING) != 0 && checkquest(16078,HUNTING) != 1 || countitem("Juice_Package") > 4 || isbegin_quest(.@quest_id) == 2) {
+- COMMENT [cloakonnpcself] cloakonnpcself( .@npc_name$ );
+- ADAPT [=->set] .@name$ = strcharinfo(0);
+- COMMENT [cloakonnpcself] cloakonnpcself();
+- ADAPT [=->set] .@id = atoi( replacestr( strnpcinfo(2), "rremef", "" ) );
+- COMMENT [replacestr] .@id = atoi( replacestr( strnpcinfo(2), "rremef", "" ) );
+- ADAPT [=->set] .@id = atoi( replacestr( strnpcinfo(2), "rrem", "" ) );
+- COMMENT [replacestr] .@id = atoi( replacestr( strnpcinfo(2), "rrem", "" ) );
+- ADAPT [op=->set] .@id += 4;
+- ADAPT [=->set] .@id = atoi( replacestr( strnpcinfo(2), "rrem", "" ) );
+- COMMENT [replacestr] .@id = atoi( replacestr( strnpcinfo(2), "rrem", "" ) );
+- ADAPT [op=->set] .@id += 4;
+- ADAPT [=->set] .@string$ = strnpcinfo(1) + "#rrem" + (.@id < 10 ? "0" : "") + .@id;	// example: rremef06 for rrem02
+- ADAPT [=->set] .@quest_id = callsub( S_Quest );
+- ADAPT [=->set] .@npc_name$ = callsub( S_Name );
+- ADAPT [isbegin_quest->0] if (checkquest(16078,HUNTING) != 0 && checkquest(16078,HUNTING) != 1 || countitem("Juice_Package") > 4 || isbegin_quest(.@quest_id) == 2)
+- COMMENT [cloakonnpcself] cloakonnpcself( .@npc_name$ );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( .@npc_name$ );
+- COMMENT [cloakonnpc] cloakonnpc();
+- BOUNDARY [rockrdg1] rockrdg1,202,246,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rremef07	4_ENERGY_RED,15,15
+- BOUNDARY [rockrdg1] rockrdg1,149,103,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rremef08	4_ENERGY_RED,15,15
+- BOUNDARY [rockrdg1] rockrdg1,96,141,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rremef09	4_ENERGY_RED,15,15
+- BOUNDARY [rockrdg1] rockrdg1,122,243,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rremef10	4_ENERGY_RED,15,15
+- BOUNDARY [rockrdg1] rockrdg1,330,240,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rremef11	4_ENERGY_RED,15,15
+- BOUNDARY [rockrdg1] rockrdg1,242,287,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rremef12	4_ENERGY_RED,15,15
+- BOUNDARY [rockrdg1] rockrdg1,89,216,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rremef13	4_ENERGY_RED,15,15
+- BOUNDARY [rockrdg1] rockrdg1,77,259,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rremef14	4_ENERGY_RED,15,15
+- BOUNDARY [rockrdg1] rockrdg1,286,247,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem02	4_SOIL
+- BOUNDARY [rockrdg1] rockrdg1,202,246,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem03	4_SOIL
+- BOUNDARY [rockrdg1] rockrdg1,149,103,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem04	4_SOIL
+- BOUNDARY [rockrdg1] rockrdg1,96,141,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem05	4_SOIL
+- BOUNDARY [rockrdg1] rockrdg1,122,243,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem06	4_SOIL
+- BOUNDARY [rockrdg1] rockrdg1,330,240,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem07	4_SOIL
+- BOUNDARY [rockrdg1] rockrdg1,242,287,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem08	4_SOIL
+- BOUNDARY [rockrdg1] rockrdg1,89,216,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem09	4_SOIL
+- BOUNDARY [rockrdg1] rockrdg1,77,259,3	duplicate(Suspicious Sand Mound#rremef06)	Suspicious Sand Mound#rrem10	4_SOIL
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,146,164,1	script	Wasteland Cactuten#rremef01	4_ENERGY_RED,15,15,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) == 1 && isbegin_quest(16083) == 0 && countitem(25246) < 5) {
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wasteland Cactuten#rremef01" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) != 1 || countitem("Juice_Package") > 4 || isbegin_quest(16083) > 1)
+- COMMENT [cloakonnpcself] cloakonnpcself( "Wasteland Cactuten#rremef01" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Wasteland Cactuten#rremef01" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- BOUNDARY [rockrdg1] rockrdg1,146,164,1	duplicate(Wasteland Cactuten#rremef01)	Wasteland Cactuten#rrem03	4_M_CACTUSMAN2
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,195,183,3	script	Curious Coyote#rremef03	4_ENERGY_RED,15,15,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) != 1 || countitem("Juice_Package") > 4 || isbegin_quest(16085) > 1)
+- COMMENT [cloakonnpcself] cloakonnpcself( "Curious Coyote#rremef03" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Curious Coyote#rremef03" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,195,183,3	script	Curious Coyote#rrem05	COYOTE,4,4,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) == 1 && isbegin_quest(16085) == 0 && countitem(25246) < 5) {
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [cloakonnpcself] cloakonnpcself( "Curious Coyote#rremef03" );
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,305,200,3	script	Cactus Girl#rremef02	4_ENERGY_RED,15,15,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) == 1 && isbegin_quest(16087) == 0 && countitem(25246) < 5) {
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [cloakonnpcself] cloakonnpcself( "Cactus Girl#rremef02" );
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) != 1 || countitem("Juice_Package") > 4 || isbegin_quest(16087) > 1)
+- COMMENT [cloakonnpcself] cloakonnpcself( "Cactus Girl#rremef02" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Cactus Girl#rremef02" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- BOUNDARY [rockrdg1] rockrdg1,305,200,3	duplicate(Cactus Girl#rremef02)	Cactus Girl#rrem04	4_F_CACTUSCHILD2
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,266,219,3	script	Absorbed Coyote#rremef04	4_ENERGY_RED,15,15,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) != 1 || countitem("Juice_Package") > 4 || isbegin_quest(16088) > 1)
+- COMMENT [cloakonnpcself] cloakonnpcself( "Absorbed Coyote#rremef04" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "Absorbed Coyote#rremef04" );
+- COMMENT [cloakonnpc] cloakonnpc();
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,266,219,3	script	Absorbed Coyote#rrem06	COYOTE,4,4,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(16078) == 1 && isbegin_quest(16088) == 0 && countitem(25246) < 5) {
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [cloakonnpcself] cloakonnpcself( "Absorbed Coyote#rremef04" );
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,262,90,7	script	Crouched Horse#rr	4_M_CACTUSMAN1,{
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- ADAPT [isbegin_quest->0] if (isbegin_quest(9460) == 0) {// first time
+- ADAPT [=->set] .@count = countitem(25260);
+- MANUAL [unregistered-map:harboro1] harboro1,231,254,3	script	Exotic Merchant	1_M_MERCHANT,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12410) == 0) {
+- ADAPT [=->set] .@size = getarraysize(.@item_id);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i++ ) {
+- ADAPT [=->set] .@item_name$ = getitemname(.@item_id[.@i]);
+- ADAPT [op=->set] .@menu$ += "^777777Not enough " + .@item_name$ + "^000000:";
+- ADAPT [op=->set] .@menu$ += "" + .@item_name$ + ":";
+- ADAPT [=->set] .@s = select( "Cancel:" + .@menu$ ) - 2;
+- MANUAL [unregistered-map:harboro1] harboro1,357,163,3	script	Food Distributer	4_COOK,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12381) == 0) {// first time
+- ADAPT [for/incr->set] for ( .@quest_id = 12383; .@quest_id <= 12388 && isbegin_quest(.@quest_id) == 0; .@quest_id++ )
+- ADAPT [isbegin_quest->0] for ( .@quest_id = 12383; .@quest_id <= 12388 && isbegin_quest(.@quest_id) == 0; .@quest_id++ )
+- COMMENT [mesitemlink] mes "Bring me 160 " + mesitemlink( 516, false, "Sweet Potatoes" ) + " from Midgard. You can buy them from merchants in big cities.";
+- COMMENT [mesitemlink] mes "Bring me 50 " + mesitemlink( 517, false, "Meats" ) + " from Midgard. You can buy them from merchants in big cities.";
+- COMMENT [mesitemlink] mes "Bring me 160 " + mesitemlink( 515, false, "Carrots" ) + " from Midgard. You can buy them from merchants in big cities.";
+- COMMENT [mesitemlink] mes "Bring me 160 " + mesitemlink( 513, false, "Bananas" ) + " from Midgard. You can buy them from merchants in big cities.";
+- COMMENT [mesitemlink] mes "Bring me 160 " + mesitemlink( 535, false, "Pumpkins" ) + " from Midgard. You can buy them from merchants in big cities.";
+- COMMENT [mesitemlink] mes "Bring me 60 " + mesitemlink( 581, false, "Mushrooms" ) + " from Midgard. You can buy them from merchants in big cities.";
+- ADAPT [=->set] .@item_id = getarg(1);
+- ADAPT [=->set] .@amount = getarg(2);
+- COMMENT [mesitemlink] mes "Bring me " + .@amount + " " + mesitemlink( .@item_id, false ) + " from Midgard. You can buy them from merchants in big cities.";
+- BOUNDARY [harboro1] harboro1,352,196,5	duplicate(dummy_npc)	Hungry Laborer#2	4W_M_02
+- BOUNDARY [harboro1] harboro1,352,193,5	duplicate(dummy_npc)	Hungry Laborer#3	4_M_EINMAN
+- BOUNDARY [harboro1] harboro1,352,190,5	duplicate(dummy_npc)	Hungry Laborer#4	4W_SAILOR
+- BOUNDARY [harboro1] harboro1,352,184,5	duplicate(dummy_npc)	Hungry Laborer#6	4W_M_03
+- BOUNDARY [harboro1] harboro1,352,181,5	duplicate(dummy_npc)	Hungry Laborer#7	4_F_EINOLD
+- BOUNDARY [harboro1] harboro1,352,175,5	duplicate(dummy_npc)	Hungry Laborer#9	4W_M_03
+- BOUNDARY [harboro1] harboro1,352,172,5	duplicate(dummy_npc)	Hungry Laborer#10	4W_M_02
+- BOUNDARY [harboro1] harboro1,353,166,5	duplicate(dummy_npc)	Hungry Laborer#12	4W_M_03
+- BOUNDARY [harboro1] harboro1,354,149,7	duplicate(dummy_npc)	Enthusiastic Job Seeker#1	4_M_JOB_KNIGHT1
+- BOUNDARY [harboro1] harboro1,345,149,7	duplicate(dummy_npc)	Enthusiastic Job Seeker#2	4_M_JOB_KNIGHT2
+- BOUNDARY [harboro1] harboro1,350,149,7	duplicate(dummy_npc)	Enthusiastic Job Seeker#3	4_M_MONK
+- BOUNDARY [harboro1] harboro1,348,148,7	duplicate(dummy_npc)	Enthusiastic Job Seeker#4	4_M_MONK
+- BOUNDARY [harboro1] harboro1,346,157,6	duplicate(dummy_npc)	Enthusiastic Job Seeker#5	4_M_JOB_HUNTER
+- BOUNDARY [harboro1] harboro1,349,157,6	duplicate(dummy_npc)	Enthusiastic Job Seeker#6	4_M_JOB_KNIGHT2
+- BOUNDARY [harboro1] harboro1,353,156,6	duplicate(dummy_npc)	Enthusiastic Job Seeker#7	4_M_SAGE_C
+- BOUNDARY [harboro1] harboro1,347,155,6	duplicate(dummy_npc)	Enthusiastic Job Seeker#8	4_M_JOB_KNIGHT1
+- BOUNDARY [harboro1] harboro1,351,154,7	duplicate(dummy_npc)	Enthusiastic Job Seeker#9	4_M_JOB_WIZARD
+- BOUNDARY [harboro1] harboro1,354,153,7	duplicate(dummy_npc)	Enthusiastic Job Seeker#10	4_M_JOB_HUNTER
+- BOUNDARY [harboro1] harboro1,347,151,7	duplicate(dummy_npc)	Enthusiastic Job Seeker#11	4_M_JOB_HUNTER
+- BOUNDARY [harboro1] harboro1,352,150,7	duplicate(dummy_npc)	Enthusiastic Job Seeker#12	4_M_JOB_WIZARD
+- MANUAL [unregistered-map:harboro1] harboro1,352,154,0	script	#r_q1	HIDDEN_WARP_NPC,5,5,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12389) == 2)
+- ADAPT [=->set] .@r = rand(1,6);
+- ADAPT [=->set] .@r = rand(1,4);
+- MANUAL [unregistered-map:harboro1] harboro1,357,155,3	script	Steel Vigilante#1	4_M_MASKMAN,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12389) == 0) {// first time
+- ADAPT [for/incr->set] for ( .@quest_id = 12391; .@quest_id <= 12396 && isbegin_quest(.@quest_id) == 0; .@quest_id++ )
+- ADAPT [isbegin_quest->0] for ( .@quest_id = 12391; .@quest_id <= 12396 && isbegin_quest(.@quest_id) == 0; .@quest_id++ )
+- ADAPT [=->set] .@quest_id = rand(12391,12396);
+- ADAPT [=->set] .@mob_id = 3736;
+- ADAPT [=->set] .@mob_id = 3737;
+- ADAPT [=->set] .@mob_id = 3738;
+- ADAPT [=->set] .@mob_id = 3739;
+- ADAPT [=->set] .@mob_id = 3787;
+- ADAPT [=->set] .@mob_id = 3788;
+- MANUAL [unregistered-map:harboro1] harboro1,357,152,3	script	Steel Vigilante#2	4_M_ACROSS,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12389) != 2) {
+- ADAPT [for/incr->set] for ( .@quest_id = 12399; .@quest_id <= 12402 && isbegin_quest(.@quest_id) == 0; .@quest_id++ )
+- ADAPT [isbegin_quest->0] for ( .@quest_id = 12399; .@quest_id <= 12402 && isbegin_quest(.@quest_id) == 0; .@quest_id++ )
+- ADAPT [=->set] .@quest_id = rand(12399,12402);
+- ADAPT [=->set] .@no_npctalk = true;
+- ADAPT [=->set] .@mob_id = 3747;
+- ADAPT [=->set] .@mob_id = 3748;
+- ADAPT [=->set] .@mob_id = 3749;
+- ADAPT [=->set] .@mob_id = 3740;
+- BOUNDARY [harboro1] harboro1,347,133,2	duplicate(dummy_npc)	Scared Artificer#1	4_M_LGTPOOR
+- BOUNDARY [harboro1] harboro1,344,133,2	duplicate(dummy_npc)	Scared Artificer#2	4_M_03
+- BOUNDARY [harboro1] harboro1,340,137,3	duplicate(dummy_npc)	Scared Artificer#3	4_M_DWARF
+- BOUNDARY [harboro1] harboro1,338,132,2	duplicate(dummy_npc)	Scared Artificer#4	4_M_EINMAN2
+- BOUNDARY [harboro1] harboro1,343,137,3	duplicate(dummy_npc)	Scared Artificer#5	4_M_ORIENT01
+- BOUNDARY [harboro1] harboro1,342,135,2	duplicate(dummy_npc)	Scared Artificer#6	4_M_LGTPOOR
+- BOUNDARY [harboro1] harboro1,344,142,3	duplicate(dummy_npc)	Scared Artificer#7	4_M_SEAMAN
+- BOUNDARY [harboro1] harboro1,341,131,2	duplicate(dummy_npc)	Scared Artificer#8	4_M_DWARF
+- BOUNDARY [harboro1] harboro1,338,141,3	duplicate(dummy_npc)	Scared Artificer#9	4_M_EINMAN
+- BOUNDARY [harboro1] harboro1,347,137,3	duplicate(dummy_npc)	Scared Artificer#10	4_M_ORIENT01
+- BOUNDARY [harboro1] harboro1,341,141,3	duplicate(dummy_npc)	Scared Artificer#11	4_M_DWARF
+- BOUNDARY [harboro1] harboro1,338,136,3	duplicate(dummy_npc)	Scared Artificer#12	4_M_LGTPOOR
+- MANUAL [unregistered-map:harboro1] harboro1,341,136,0	script	#r_q2	HIDDEN_WARP_NPC,5,5,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12389) == 2)
+- ADAPT [=->set] .@r = rand(1,6);
+- ADAPT [=->set] .@r = rand(1,4);
+- MANUAL [unregistered-map:harboro1] harboro1,334,135,6	script	Desalination Facility Manager	4_M_YURI,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12403) == 0) {// first time
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12405) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12409) == 0) {
+- ADAPT [for/incr->set] for ( .@quest_id = 12405; .@quest_id <= 12409; .@quest_id++ )
+- MANUAL [unregistered-map:harboro1] harboro1,333,138,6	script	Jamie	4_F_KAFRA9,{
+- MANUAL [unregistered-map:harboro1] harboro1,332,144,6	script	Underground Passage#1	PORTAL,{
+- MANUAL [unregistered-map:harboro2] harboro2,333,187,6	script	Underground Passage#2	PORTAL,{
+- MANUAL [unregistered-map:harboro2] harboro2,52,261,3	script	Red Pipe#1	4_ENERGY_RED,{
+- ADAPT [=->set] .@npc_name$ = strnpcinfo(1);
+- ADAPT [if-=->set] if (.@npc_name$ == "Red Pipe")			.@quest_id = 12405;
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@quest_id) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12405) == 2 && isbegin_quest(12406) == 2 && isbegin_quest(12407) == 2 && isbegin_quest(12408) == 2)
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- BOUNDARY [harboro2] harboro2,54,216,3	duplicate(Red Pipe#1)	Blue Pipe#2	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,59,243,3	duplicate(Red Pipe#1)	Yellow Pipe#3	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,71,200,3	duplicate(Red Pipe#1)	White Pipe#4	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,73,102,3	duplicate(Red Pipe#1)	Red Pipe#5	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,74,173,3	duplicate(Red Pipe#1)	Blue Pipe#6	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,86,160,3	duplicate(Red Pipe#1)	Yellow Pipe#7	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,89,213,3	duplicate(Red Pipe#1)	White Pipe#8	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,89,223,3	duplicate(Red Pipe#1)	Red Pipe#9	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,89,234,3	duplicate(Red Pipe#1)	Blue Pipe#10	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,92,124,3	duplicate(Red Pipe#1)	Yellow Pipe#11	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,94,106,3	duplicate(Red Pipe#1)	White Pipe#12	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,97,209,3	duplicate(Red Pipe#1)	Red Pipe#13	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,106,233,3	duplicate(Red Pipe#1)	Blue Pipe#14	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,108,112,3	duplicate(Red Pipe#1)	Yellow Pipe#15	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,117,197,3	duplicate(Red Pipe#1)	White Pipe#16	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,120,116,3	duplicate(Red Pipe#1)	Red Pipe#17	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,121,157,3	duplicate(Red Pipe#1)	Blue Pipe#18	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,140,115,3	duplicate(Red Pipe#1)	Yellow Pipe#19	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,146,95,3	duplicate(Red Pipe#1)	White Pipe#20	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,148,128,3	duplicate(Red Pipe#1)	Red Pipe#21	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,151,123,3	duplicate(Red Pipe#1)	Blue Pipe#22	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,158,151,3	duplicate(Red Pipe#1)	Yellow Pipe#23	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,161,163,3	duplicate(Red Pipe#1)	White Pipe#24	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,169,125,3	duplicate(Red Pipe#1)	Red Pipe#25	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,170,224,3	duplicate(Red Pipe#1)	Blue Pipe#26	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,177,134,3	duplicate(Red Pipe#1)	Yellow Pipe#27	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,180,114,3	duplicate(Red Pipe#1)	White Pipe#28	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,181,155,3	duplicate(Red Pipe#1)	Red Pipe#29	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,187,113,3	duplicate(Red Pipe#1)	Blue Pipe#30	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,207,121,3	duplicate(Red Pipe#1)	Yellow Pipe#31	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,211,49,3	duplicate(Red Pipe#1)	White Pipe#32	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,221,234,3	duplicate(Red Pipe#1)	Red Pipe#33	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,224,199,3	duplicate(Red Pipe#1)	Blue Pipe#34	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,226,69,3	duplicate(Red Pipe#1)	Yellow Pipe#35	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,230,102,3	duplicate(Red Pipe#1)	White Pipe#36	4_ENERGY_WHITE
+- BOUNDARY [harboro2] harboro2,240,83,3	duplicate(Red Pipe#1)	Red Pipe#37	4_ENERGY_RED
+- BOUNDARY [harboro2] harboro2,244,161,3	duplicate(Red Pipe#1)	Blue Pipe#38	4_ENERGY_BLUE
+- BOUNDARY [harboro2] harboro2,266,129,3	duplicate(Red Pipe#1)	Yellow Pipe#39	4_ENERGY_YELLOW
+- BOUNDARY [harboro2] harboro2,291,44,3	duplicate(Red Pipe#1)	White Pipe#40	4_ENERGY_WHITE
+- MANUAL [unregistered-map:harboro1] harboro1,138,157,5	script	Donovan	4_M_EINMAN2,{
+- MANUAL [unregistered-map:harboro2] harboro2,167,82,3	script	Midnight#srdg01	4_M_COWRAIDERS2,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(14672) == 1 || isbegin_quest(14673) == 1) {// Demon quest started
+- MANUAL [unregistered-map:harboro2] harboro2,164,80,5	script	Demon#srdg01	4_M_NFMAN,{
+- COMMENT [ET_THROB] emotion ET_THROB;
+- ADAPT [=->set] .@account_id = getcharid(3);
+- ADAPT [=->set] .@player_name$ = strcharinfo(0);
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- COMMENT [getnpcid,ET_ANGER] emotion ET_ANGER, getnpcid(0, "Midnight#srdg01");
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_STARE] emotion ET_STARE;
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_SPARK] emotion ET_SPARK;
+- COMMENT [ET_HUK] emotion ET_HUK;
+- COMMENT [ET_GOODBOY] emotion ET_GOODBOY, .@account_id;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 22 && BaseLevel >= 140 && !isbegin_quest(14672) && checkquest(14673,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(14672,HUNTING) == 2 && countitem(25277) > 9 && countitem(6213) > 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "checkquest(14673,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:harboro2] harboro2,166,80,5	script	Traces of Fire#srdg01	4_TRACE,{
+- BOUNDARY [harboro2] harboro2,165,77,5	duplicate(dummy_npc)	Tool#srdg01	4_ROPEPILE
+- BOUNDARY [harboro2] harboro2,164,78,5	duplicate(dummy_npc)	Tool#srdg02	4_BRICKPILE
+- BOUNDARY [harboro2] harboro2,166,78,5	duplicate(dummy_npc)	Tool#srdg03	4_WOODPILE
+- MANUAL [unregistered-map:rockrdg2] rockrdg2,295,328,5	script	Frail Ghast#rockdaily	4_M_COWRAIDERS2,{
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE, playerattached();
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 22 && !isbegin_quest(1298) && checkquest(1299,PLAYTIME) == -1" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 22 && checkquest(1298,HUNTING) == 2" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "rock_main_quest == 22 && checkquest(1299,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:harboro1] harboro1,347,65,3	script	Mrs. McPhy#rockdaily	1_F_MERCHANT_02,{
+- ADAPT [=->set] .@r = rand(1,8);
+- ADAPT [=->set] .@string$ = "slipper";
+- ADAPT [=->set] .@string$ = "spoon";
+- ADAPT [=->set] .@string$ = "work boot";
+- ADAPT [=->set] .@string$ = "glove";
+- ADAPT [=->set] .@string$ = "hat";
+- ADAPT [=->set] .@string$ = "pillow cover";
+- ADAPT [=->set] .@string$ = "alarm clock";
+- ADAPT [=->set] .@string$ = "flyswatter";
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1330))	// debug
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1322) == 0) {	// debug
+- ADAPT [for/incr->set] for ( .@quest_id = 1321; .@quest_id < 1329; .@quest_id++ ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@quest_id) == 1)
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1330) == 0)	// debug
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW,
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel > 99 && (isbegin_quest(1322) == 1 || isbegin_quest(1328) == 1)" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "BaseLevel > 99 && checkquest(1329,PLAYTIME) == 2" );
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,36,250,5	script	Mr. McPhy#rkdlout	4W_M_02,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1330) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1321) == 1) {
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkq1321" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkdqgd11" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkdqgd22" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkdqgd33" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1322) == 1 || isbegin_quest(1328) == 1) {
+- COMMENT [cloakonnpcself] cloakonnpcself( "Mr. McPhy#rkdlout" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkq1321" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkq1323" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkq1324" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkq1325" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkq1326" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkq1327" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkdqgd11" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkdqgd22" );
+- COMMENT [cloakoffnpcself] cloakoffnpcself( "#rkdqgd33" );
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1322) == 2) {
+- COMMENT [cloakonnpcself] cloakonnpcself( "Mr. McPhy#rkdlout" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(1330) == 1 && isbegin_quest(1322) == 0" );
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(1330) == 1 && isbegin_quest(1322) == 2 && isbegin_quest(1328) == 0 && isbegin_quest(1329) == 0" );
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,170,233,3	script	Hole#rkdqgd1	4_CRACK,{
+- ADAPT [=->set] .@size = getarraysize(.@list);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i++ ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@list[.@i]))
+- BOUNDARY [rockrdg1] rockrdg1,183,143,3	duplicate(Hole#rkdqgd1)	Hole#rkdqgd2	4_CRACK
+- BOUNDARY [rockrdg1] rockrdg1,215,72,3	duplicate(Hole#rkdqgd1)	Hole#rkdqgd3	4_CRACK
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,170,233,3	script	#rkdqgd11	4_ENERGY_WHITE,{
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW, "isbegin_quest(1330) == 1" );
+- BOUNDARY [rockrdg1] rockrdg1,183,143,3	duplicate(#rkdqgd11)	#rkdqgd22	4_ENERGY_WHITE
+- BOUNDARY [rockrdg1] rockrdg1,215,72,3	duplicate(#rkdqgd11)	#rkdqgd33	4_ENERGY_WHITE
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,43,145,3	script	Hole#rkq1321	4_CRACK,{
+- ADAPT [=->set] .@quest_id_npc = atoi( replacestr(strnpcinfo(2), "rkq", "") ) ;
+- COMMENT [replacestr] .@quest_id_npc = atoi( replacestr(strnpcinfo(2), "rkq", "") ) ;
+- ADAPT [=->set] .@size = getarraysize(.@list);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; .@i++ ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@list[.@i]))
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkq1321" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkdqgd11" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkdqgd22" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkdqgd33" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkq1321" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkq1323" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkq1324" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkq1325" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkq1326" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkq1327" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkdqgd11" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkdqgd22" );
+- COMMENT [cloakonnpcself] cloakonnpcself( "#rkdqgd33" );
+- BOUNDARY [rockrdg1] rockrdg1,100,230,3	duplicate(Hole#rkq1321)	Hole#rkq1323	4_CRACK
+- BOUNDARY [rockrdg1] rockrdg1,58,195,3	duplicate(Hole#rkq1321)	Hole#rkq1324	4_CRACK
+- BOUNDARY [rockrdg1] rockrdg1,71,149,3	duplicate(Hole#rkq1321)	Hole#rkq1325	4_CRACK
+- BOUNDARY [rockrdg1] rockrdg1,109,60,3	duplicate(Hole#rkq1321)	Hole#rkq1326	4_CRACK
+- BOUNDARY [rockrdg1] rockrdg1,191,101,3	duplicate(Hole#rkq1321)	Hole#rkq1327	4_CRACK
+- BOUNDARY [rockrdg1] rockrdg1,43,145,3	duplicate(dummy_npc)	#rkq1321	4_ENERGY_WHITE
+- BOUNDARY [rockrdg1] rockrdg1,100,230,3	duplicate(dummy_npc)	#rkq1323	4_ENERGY_WHITE
+- BOUNDARY [rockrdg1] rockrdg1,58,195,3	duplicate(dummy_npc)	#rkq1324	4_ENERGY_WHITE
+- BOUNDARY [rockrdg1] rockrdg1,71,149,3	duplicate(dummy_npc)	#rkq1325	4_ENERGY_WHITE
+- BOUNDARY [rockrdg1] rockrdg1,109,60,3	duplicate(dummy_npc)	#rkq1326	4_ENERGY_WHITE
+- BOUNDARY [rockrdg1] rockrdg1,191,101,3	duplicate(dummy_npc)	#rkq1327	4_ENERGY_WHITE
+- MANUAL [unregistered-map:harboro1] harboro1,345,61,3	script	Spotty#rockdaily	4_DOG01,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1329) == 1) {
+- MANUAL [unregistered-map:harboro1] harboro1,344,61,5	script	Mr. McPhy#rockdaily	4W_M_02,{
+- ADAPT [isbegin_quest->0] switch( isbegin_quest(1321) ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1322) == 2 && isbegin_quest(1331) == 0 && isbegin_quest(1332) == 0) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1331) == 1) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(1332) == 1) {
+- COMMENT [questinfo] questinfo( QTYPE_QUEST, QMARK_YELLOW,
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,330,104,3	script	Curt Snake#rockc05	4_M_CACTUSMAN2,{
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,299,82,3	script	Tagliatelle#rockc07	4_DR_M_02,{
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,297,84,7	script	Taneska#rockc08	4_CAT_MERMASTER,{
+- COMMENT [ET_THROB] emotion ET_THROB;
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,285,96,3	script	Glaring Eagle#rockc01	4_M_CACTUSMAN3,{
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,328,112,5	script	Karintas#rockc04	4_F_CACTUSCHILD2,{
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,331,111,3	script	Juanitas#rockc02	4_M_CACTUSCHILD,5,5,{
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,327,109,5	script	Swift Scorpion#rockc03	4_F_CACTUSCHILD2,{
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,287,95,3	script	Litis#rockc10	4_F_CACTUSLADY2,{
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,297,111,3	script	Roytanen#rockc10	4_F_RANGER,{
+- COMMENT [ET_CRY] emotion ET_CRY;
+- MANUAL [unregistered-map:harboro1] harboro1,91,211,3	script	#rockno01	HIDDEN_NPC,5,5,{
+- MANUAL [unregistered-map:harboro1] harboro1,299,211,3	script	#rockno02	HIDDEN_NPC,5,5,{
+- MANUAL [unregistered-map:harboro1] harboro1,260,211,3	script	#rockno03	HIDDEN_NPC,5,5,{
+- MANUAL [unregistered-map:harboro1] harboro1,215,212,3	script	#rockno04	HIDDEN_NPC,5,5,{
+- MANUAL [unregistered-map:harboro1] harboro1,134,211,3	script	#rockno05	HIDDEN_NPC,5,5,{
+- MANUAL [unregistered-map:harboro1] harboro1,310,201,3	script	#rockno06	HIDDEN_NPC,5,5,{
+- MANUAL [unregistered-map:harboro1] harboro1,60,215,5	script	Karam Pucci#harboro1	4_M_SEAMAN,{
+- MANUAL [unregistered-map:harboro1] harboro1,321,237,5	script	Rubina Adler#rockn07	4_F_SITDOWN,{
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- MANUAL [unregistered-map:harboro1] harboro1,75,211,1	script	Zebedee#rockwn13	4_KID01,5,5,{
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- MANUAL [unregistered-map:harboro1] harboro1,75,219,3	script	Irene#rockwn14	4W_KID,5,5,{
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- MANUAL [unregistered-map:harboro1] harboro1,79,224,5	script	Miles Wiesner#rockwn12	4_M_SITDOWN,{
+- MANUAL [unregistered-map:harboro1] harboro1,82,221,3	script	Cheerful Leaf#rockwn16	4_F_CACTUSCHILD2,{
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- MANUAL [unregistered-map:harboro1] harboro1,83,221,3	script	Mahua Kaya#rockwn15	4_M_CACTUSCHIEF,{
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- MANUAL [unregistered-map:harboro1] harboro1,86,218,3	script	Welch#rockwn01	4_M_ARCHER,5,5,{
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- MANUAL [unregistered-map:harboro1] harboro1,88,217,3	script	Edith Richie#rockwn02	4_F_KID2,{
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- MANUAL [unregistered-map:harboro1] harboro1,86,210,4	script	Carmen O'Neil#rockwn06	8_F,{
+- MANUAL [unregistered-map:harboro1] harboro1,85,208,7	script	Leland Wenkins#rockwn03	4_M_TWTEAMAN,5,5,{
+- ADAPT [=->set] .talk = 1;
+- ADAPT [=->set] .talk = 0;
+- MANUAL [unregistered-map:harboro1] harboro1,100,77,4	script	Maybell#rockn02	8_F,{
+- MANUAL [unregistered-map:harboro1] harboro1,229,64,3	script	Rosemary Weber#rockn03	4_F_EINWOMAN,{
+- COMMENT [getnpcid] emotion 54, getnpcid(0,"Rosemary Weber#rockn03");
+- MANUAL [unregistered-map:harboro1] harboro1,87,207,1	script	Drunk Doram#rockwn11	4_CAT_SAILOR5,{
+- MANUAL [unregistered-map:harboro1] harboro1,80,204,7	script	Elsie#rockwn05	4W_KID,5,5,{
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SWEAT] emotion ET_SWEAT;
+- COMMENT [ET_FRET] emotion ET_FRET, playerattached();
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- MANUAL [unregistered-map:harboro1] harboro1,81,205,1	script	Mortimer#rockwn07	4_M_ROGUE,5,5,{
+- COMMENT [ET_HUK] emotion ET_HUK, playerattached();
+- MANUAL [unregistered-map:harboro1] harboro1,73,206,5	script	Walter Greenwald#rockwn	4_M_BARD,{
+- MANUAL [unregistered-map:harboro1] harboro1,84,200,5	script	Delbert Lake#rockwn04	4_M_EINMINER,{
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "Constance#rockwn18");
+- MANUAL [unregistered-map:harboro1] harboro1,85,195,1	script	Constance#rockwn18	4_F_EINWOMAN,5,5,{
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- MANUAL [unregistered-map:harboro1] harboro1,93,201,1	script	Roland Burts#rockwn17	4_M_ILYA,{
+- COMMENT [ET_KEK] emotion ET_KEK;
+- MANUAL [unregistered-map:harboro1] harboro1,98,211,3	script	Loretta#rockwn08	4_F_ACOLYTE,5,5,{
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [getnpcid,ET_KEK] emotion ET_KEK, getnpcid(0, "Dolores#rockwn09");
+- COMMENT [getnpcid,ET_BIGTHROB] emotion ET_BIGTHROB, getnpcid(0, "Dolores#rockwn09");
+- COMMENT [getnpcid,ET_BIGTHROB] emotion ET_BIGTHROB, getnpcid(0, "Maurice#rockwn10");
+- MANUAL [unregistered-map:harboro1] harboro1,100,211,3	script	Dolores#rockwn09	1_F_PRIEST,{
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- MANUAL [unregistered-map:harboro1] harboro1,101,210,3	script	Maurice#rockwn10	1_M_PASTOR,{
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- MANUAL [unregistered-map:harboro1] harboro1,94,237,3	script	Cordell#rockn01	4_M_MAYOR,{
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- MANUAL [unregistered-map:harboro1] harboro1,74,259,3	script	Eloise McCurdy#rockn14	4_F_GUNSLINGER,{
+- COMMENT [ET_CRY] emotion ET_CRY;
+- MANUAL [unregistered-map:harboro1] harboro1,130,237,3	script	Loading Dock Foreman#ro	4_M_05,{
+- MANUAL [unregistered-map:harboro1] harboro1,126,236,7	script	Jader#rockn11	4_M_SITDOWN,{
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- MANUAL [unregistered-map:harboro1] harboro1,128,233,7	script	Rosco Richie#rockn12	4_M_NOV_HUNT,{
+- MANUAL [unregistered-map:harboro1] harboro1,130,232,7	script	Portnias#rockn13	4_CAT_SAILOR2,{
+- COMMENT [ET_OTL] emotion ET_OTL;
+- MANUAL [unregistered-map:harboro1] harboro1,144,262,7	script	Scrap Metal Collector#s1	4_M_CAVE1,{
+- MANUAL [unregistered-map:harboro1] harboro1,146,264,3	script	Scrap Metal Collector#s2	4_M_HUBOY,{
+- MANUAL [unregistered-map:harboro1] harboro1,182,241,5	script	Stray Dog#srdg02	4_DOG01,{
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- MANUAL [unregistered-map:harboro1] harboro1,183,241,5	script	Stray Dog#srdg01	4_DOG01,{
+- COMMENT [ET_SEXY] emotion ET_SEXY;
+- MANUAL [unregistered-map:harboro1] harboro1,187,236,3	script	Customer#srdg01	4_TOWER_04,{
+- COMMENT [getnpcid,ET_FRET] emotion ET_FRET, getnpcid(0, "Customer#srdg02");
+- COMMENT [getnpcid,ET_QUESTION] emotion ET_QUESTION, getnpcid(0, "Customer#srdg02");
+- MANUAL [unregistered-map:harboro1] harboro1,182,236,5	script	Customer#srdg02	4_TOWER_02,{
+- COMMENT [getnpcid,ET_SPARK] emotion ET_SPARK, getnpcid(0, "Stray Dog#srdg01");
+- COMMENT [getnpcid,ET_SPARK] emotion ET_SPARK, getnpcid(0, "Stray Dog#srdg02");
+- MANUAL [unregistered-map:harboro1] harboro1,231,251,4	script	Merchant's Chest	4_TREASURE_BOX,{
+- MANUAL [unregistered-map:harboro1] harboro1,229,256,7	script	Charlotte	4_DST_CAMEL,{
+- BOUNDARY [harboro1] harboro1,192,262,7	duplicate(dummy_npc)	Bulk Trader's Camel#1	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,197,262,7	duplicate(dummy_npc)	Bulk Trader's Camel#2	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,210,262,7	duplicate(dummy_npc)	Bulk Trader's Camel#7	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,216,262,7	duplicate(dummy_npc)	Bulk Trader's Camel#8	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,223,261,1	duplicate(dummy_npc)	Bulk Trader's Camel#9	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,225,257,6	duplicate(dummy_npc)	Bulk Trader's Camel#10	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,227,263,1	duplicate(dummy_npc)	Bulk Trader's Camel#11	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,229,258,6	duplicate(dummy_npc)	Bulk Trader's Camel#12	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,234,259,3	duplicate(dummy_npc)	Bulk Trader's Camel#13	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,236,252,6	duplicate(dummy_npc)	Bulk Trader's Camel#14	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,237,256,3	duplicate(dummy_npc)	Bulk Trader's Camel#15	4_DST_CAMEL
+- BOUNDARY [harboro1] harboro1,238,258,3	duplicate(dummy_npc)	Bulk Trader's Camel#16	4_DST_CAMEL
+- MANUAL [unregistered-map:harboro1] harboro1,226,255,3	script	Bulk Trader's Camel#3	4_DST_CAMEL,{
+- MANUAL [unregistered-map:harboro1] harboro1,227,260,3	script	Bulk Trader's Camel#4	4_DST_CAMEL,{
+- BOUNDARY [harboro1] harboro1,227,260,3	duplicate(Bulk Trader's Camel#4)	Bulk Trader's Camel#6	4_DST_CAMEL
+- MANUAL [unregistered-map:harboro1] harboro1,232,258,6	script	Bulk Trader's Camel#5	4_DST_CAMEL,{
+- MANUAL [unregistered-map:harboro1] harboro1,210,219,5	script	Priest#srdg01	4_M_MINISTER,{
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, true;
+- COMMENT [setpcblock] setpcblock PCBLOCK_NPC, false;
+- MANUAL [unregistered-map:harboro1] harboro1,229,212,7	script	Herman Farland#rockn19	4_M_TWTEAMAN,{
+- MANUAL [unregistered-map:harboro1] harboro1,231,212,7	script	Edel Peppina#rockn16	4_F_CAPEGIRL,{
+- MANUAL [unregistered-map:harboro1] harboro1,233,215,3	script	Wilfred Sagan#rockn15	4_M_SITDOWN,{
+- MANUAL [unregistered-map:harboro1] harboro1,168,216,3	script	Hilliard#rockn09	4_TOWER_12,{
+- MANUAL [unregistered-map:harboro1] harboro1,156,215,5	script	Innkeeper#rockridge	1_ETC_01,{
+- ADAPT [=->set] Zeny = Zeny - 5000;
+- MANUAL [unregistered-map:harboro1] harboro1,228,170,3	script	Wanderer Doram#rkrgtwn	4_DR_STELO,5,5,{
+- COMMENT [ET_CRY] emotion ET_CRY;
+- MANUAL [unregistered-map:harboro1] harboro1,130,158,3	script	Akuha#rockn19	4_M_CACTUSCHILD,5,5,{
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_KEK] emotion ET_KEK;
+- MANUAL [unregistered-map:harboro1] harboro1,132,157,3	script	Nahari#rockn19	4_F_CACTUSCHILD2,{
+- COMMENT [getnpcid,ET_CRY] emotion ET_CRY, getnpcid(0, "Akuha#rockn19");
+- MANUAL [unregistered-map:harboro1] harboro1,99,127,7	script	Kid#srdg01	4_KID01,{
+- BOUNDARY [harboro1] harboro1,96,130,3	duplicate(dummy_npc)	Thunder#srdg01	4_DONKEY
+- BOUNDARY [harboro1] harboro1,104,130,5	duplicate(dummy_npc)	Lightning#srdg01	4_DONKEY
+- BOUNDARY [harboro1] harboro1,102,133,7	duplicate(dummy_npc)	Speed Racer 2#srdg01	4_DONKEY
+- BOUNDARY [harboro1] harboro1,104,132,5	duplicate(dummy_npc)	Speed Racer 1#srdg01	4_DONKEY
+- MANUAL [unregistered-map:harboro1] harboro1,174,125,3	script	Villager#srdg01	1_M_INNKEEPER,{
+- MANUAL [unregistered-map:harboro1] harboro1,184,123,5	script	Traveler#srdg02_1	4_M_SIT_NOVICE,{
+- MANUAL [unregistered-map:harboro1] harboro1,188,123,3	script	Traveler#srdg02_2	4_M_SITDOWN,{
+- MANUAL [unregistered-map:harboro1] harboro1,211,115,5	script	Worker#srdg01	1_M_SIGNMONK2,{
+- MANUAL [unregistered-map:harboro1] harboro1,213,117,3	script	Worker#srdg02	1_M_JOBGUIDER,{
+- MANUAL [unregistered-map:harboro1] harboro1,211,113,7	script	Foreman#srdg01	4_F_EDEN_OFFICER,{
+- MANUAL [unregistered-map:harboro1] harboro1,214,115,3	script	Worker#srdg03	1_M_HOF,{
+- MANUAL [unregistered-map:harboro1] harboro1,290,104,5	script	Eznia#rockn04	4_DR_M_02,{
+- MANUAL [unregistered-map:harboro1] harboro1,273,259,4	script	Alain Morlein#dy	4_M_YURI,{
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [getnpcid,ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, getnpcid(0, "Bank Clerk#dy");
+- COMMENT [getnpcid,ET_SORRY] emotion ET_SORRY, getnpcid(0, "Bank Clerk#dy");
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [getnpcid,ET_THANKS] emotion ET_THANKS, getnpcid(0, "Bank Clerk#dy");
+- MANUAL [unregistered-map:harboro1] harboro1,270,252,6	script	Bank Clerk#dy	4_M_MANAGER,{
+- COMMENT [ET_BIGTHROB] emotion ET_BIGTHROB;
+- COMMENT [openbank] openbank;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- COMMENT [ET_COOL] emotion ET_COOL;
+- MANUAL [unregistered-map:harboro1] harboro1,241,200,5	script	Gunslinger Posh#rockn05	4_M_HUMERCHANT,{
+- MANUAL [unregistered-map:harboro1] harboro1,274,214,5	script	White Twig#rockn19	4_F_CACTUSLADY3,5,5,{
+- MANUAL [unregistered-map:harboro1] harboro1,278,195,5	script	Carola Firth#rockn17	4_F_CAPEGIRL,{
+- MANUAL [unregistered-map:harboro1] harboro1,280,195,3	script	Lucas Richie#rockn08	4_M_ROGUE,{
+- MANUAL [unregistered-map:harboro1] harboro1,314,211,4	script	Bakery Owner#dy	4_COOK,3,3,{
+- ADAPT [=->set] .@r = rand(1,10);
+- MANUAL [unregistered-map:harboro1] harboro1,282,201,3	script	Rock Ridge Tiger#srdg01	4_CAT_REST,{
+- COMMENT [ET_SLEEPY] emotion ET_SLEEPY;
+- MANUAL [unregistered-map:harboro1] harboro1,302,175,7	script	Sammy#srdg01	4_DOG01,{
+- COMMENT [ET_THROB] emotion ET_THROB;
+- MANUAL [unregistered-map:harboro1] harboro1,312,173,8	script	Bounty Hunter#rockn18	8_F_GIRL,{
+- MANUAL [unregistered-map:harboro1] harboro1,301,175,7	script	Shepherd#srdg01	4_F_JOB_BLACKSMITH,{
+- COMMENT [ET_CRY] emotion ET_CRY;
+- BOUNDARY [harboro1] harboro1,303,179,3	duplicate(dummy_npc)	Malnourished Sheep#srdg	4_LAM
+- BOUNDARY [harboro1] harboro1,299,179,7	duplicate(dummy_npc)	Frail Sheep#srdg01	4_LAM
+- BOUNDARY [harboro1] harboro1,305,178,5	duplicate(dummy_npc)	Coarse-haired Sheep#srd	4_LAM
+- BOUNDARY [harboro1] harboro1,297,178,5	duplicate(dummy_npc)	Dozing Sheep#srdg01	4_LAM
+- MANUAL [unregistered-map:harboro1] harboro1,311,53,5	script	Joyce Leslie#rockn06	4_F_01,{
+- COMMENT [ET_OHNO] emotion ET_OHNO;
+- MANUAL [unregistered-map:harboro1] harboro1,324,124,7	script	Joe	4_MAL_CAPTAIN,{
+- MANUAL [unregistered-map:harboro1] harboro1,352,199,5	script	Hungry Laborer#1	4W_M_03,5,5,{
+- ADAPT [isbegin_quest->0] if (isbegin_quest(12381) == 2)
+- ADAPT [=->set] .@num = atoi(strnpcinfo(2));
+- BOUNDARY [harboro1] harboro1,352,187,5	duplicate(Hungry Laborer#1)	Curious Person#5	4_M_LGTPOOR,5,5
+- BOUNDARY [harboro1] harboro1,352,178,5	duplicate(Hungry Laborer#1)	Hungry Laborer#8	4W_SAILOR,5,5
+- BOUNDARY [harboro1] harboro1,352,169,5	duplicate(Hungry Laborer#1)	Hungry Laborer#11	4_M_EINMAN,5,5
+- BOUNDARY [harboro1] harboro1,355,164,5	duplicate(Hungry Laborer#1)	Hungry Laborer#13	4W_SAILOR,5,5
+- MANUAL [unregistered-map:harboro2] harboro2,67,191,5	script	Smell Maniac#srdg01	4_M_ALCHE_B,{
+- MANUAL [unregistered-map:harboro2] harboro2,57,239,3	script	Unemployed Man#srdg01	4_M_03,{
+- MANUAL [unregistered-map:harboro2] harboro2,118,264,5	script	Old Woman#srdg01	4_F_LGTGRAND,{
+- MANUAL [unregistered-map:harboro2] harboro2,120,265,3	script	Old Man#srdg01	4_M_DST_GRAND,{
+- MANUAL [unregistered-map:harboro2] harboro2,125,196,3	script	Mom's Kid#srdg01	4_F_CHILD,{
+- MANUAL [unregistered-map:harboro2] harboro2,123,195,5	script	Kid's Mom#srdg01	1_M_INNKEEPER,{
+- MANUAL [unregistered-map:harboro2] harboro2,142,155,7	script	Buffalo Bandit#srdg01	4_M_COWRAIDERS1,{
+- MANUAL [unregistered-map:harboro2] harboro2,144,156,1	script	Buffalo Bandit#srdg02	4_M_COWRAIDERS3,{
+- MANUAL [unregistered-map:harboro2] harboro2,258,117,3	script	Dispatched Nun#srdg02	1_F_PRIEST,{
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,310,48,3	script	Erekter#rockc06	4_M_CACTUSCHILD,{
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- MANUAL [unregistered-map:rockrdg1] rockrdg1,308,49,5	script	Soft Feather#rockc09	4_F_CACTUSLADY3,{
+- MANUAL [unregistered-map:harboro1] harboro1,1,1,3	script	Manager#1	CLEAR_NPC,3,0,{
+- ADAPT [=->set] .@equip_id = getequipid(EQI_ARMOR);
+- ADAPT [=->set] .@i = callfunc("F_GM_NPC",1854,0);
+- ADAPT [=->set] .@size = getarraysize(.@quest_id);
+- ADAPT [for/incr->set] for ( .@i = 0; .@i < .@size; ++.@i ) {
+- ADAPT [isbegin_quest->0] if (isbegin_quest(.@quest_id[.@i]) > 0)
+- UNRESOLVED [questinfo] Karam Pucci#alberta
+- BOUNDARY [harboro1] Costello#harboro1
+- BOUNDARY [har_in01] Wyatt Warp#har_in01
+- BOUNDARY [har_in01] Ivoka Skudi#rr03
+- BOUNDARY [har_in01] har_in01_jail
+- BOUNDARY [har_in01] Vigilante#srdg01
+- BOUNDARY [har_in01] Harold#srdg01
+- BOUNDARY [har_in01] Egring#srdg01
+- BOUNDARY [har_in01] Johnny James#har_in01
+- BOUNDARY [har_in01] Ivoka Skudi#har02
+- BOUNDARY [rockrdg1] Unmoving Freight Train#
+- BOUNDARY [rockrdg1] Wyatt Warp#revt03
+- BOUNDARY [harboro1] Shawn McCurdy#harboro1
+- BOUNDARY [rockrdg2] Shawn McCurdy#rockrdg2
+- BOUNDARY [rockmi2] Shawn McCurdy#rockmi2
+- BOUNDARY [rockmi2] Broken Elevator#rrevt10
+- BOUNDARY [rockrdg2] Concaved Rock#revt09
+- BOUNDARY [rockrdg2] Albert Ford#rockrdg2
+- BOUNDARY [rockrdg1] Mrs. Cacturon#rrrem01
+- BOUNDARY [rockrdg1] Little Lecter#rrrem02
+- BOUNDARY [rockrdg1] Suspicious Sand Mound#rremef05
+- BOUNDARY [rockrdg1] Suspicious Sand Mound#rremef06
+- BOUNDARY [rockrdg1] Wasteland Cactuten#rremef01
+- BOUNDARY [rockrdg1] Curious Coyote#rremef03
+- BOUNDARY [rockrdg1] Curious Coyote#rrem05
+- BOUNDARY [rockrdg1] Cactus Girl#rremef02
+- BOUNDARY [rockrdg1] Absorbed Coyote#rremef04
+- BOUNDARY [rockrdg1] Absorbed Coyote#rrem06
+- BOUNDARY [rockrdg1] Crouched Horse#rr
+- BOUNDARY [harboro1] Exotic Merchant
+- BOUNDARY [harboro1] Food Distributer
+- BOUNDARY [harboro1] #r_q1
+- BOUNDARY [harboro1] Steel Vigilante#1
+- BOUNDARY [harboro1] Steel Vigilante#2
+- BOUNDARY [harboro1] #r_q2
+- BOUNDARY [harboro1] Desalination Facility Manager
+- BOUNDARY [harboro1] Jamie
+- BOUNDARY [harboro1] Underground Passage#1
+- BOUNDARY [harboro2] Underground Passage#2
+- BOUNDARY [harboro2] Red Pipe#1
+- BOUNDARY [harboro1] Donovan
+- BOUNDARY [harboro2] Midnight#srdg01
+- BOUNDARY [harboro2] Demon#srdg01
+- BOUNDARY [harboro2] Traces of Fire#srdg01
+- BOUNDARY [rockrdg2] Frail Ghast#rockdaily
+- BOUNDARY [harboro1] Mrs. McPhy#rockdaily
+- BOUNDARY [rockrdg1] Mr. McPhy#rkdlout
+- BOUNDARY [rockrdg1] Hole#rkdqgd1
+- BOUNDARY [rockrdg1] #rkdqgd11
+- BOUNDARY [rockrdg1] Hole#rkq1321
+- BOUNDARY [harboro1] Spotty#rockdaily
+- BOUNDARY [harboro1] Mr. McPhy#rockdaily
+- BOUNDARY [rockrdg1] Curt Snake#rockc05
+- BOUNDARY [rockrdg1] Tagliatelle#rockc07
+- BOUNDARY [rockrdg1] Taneska#rockc08
+- BOUNDARY [rockrdg1] Glaring Eagle#rockc01
+- BOUNDARY [rockrdg1] Karintas#rockc04
+- BOUNDARY [rockrdg1] Juanitas#rockc02
+- BOUNDARY [rockrdg1] Swift Scorpion#rockc03
+- BOUNDARY [rockrdg1] Litis#rockc10
+- BOUNDARY [rockrdg1] Roytanen#rockc10
+- BOUNDARY [harboro1] #rockno01
+- BOUNDARY [harboro1] #rockno02
+- BOUNDARY [harboro1] #rockno03
+- BOUNDARY [harboro1] #rockno04
+- BOUNDARY [harboro1] #rockno05
+- BOUNDARY [harboro1] #rockno06
+- BOUNDARY [harboro1] Karam Pucci#harboro1
+- BOUNDARY [harboro1] Rubina Adler#rockn07
+- BOUNDARY [harboro1] Zebedee#rockwn13
+- BOUNDARY [harboro1] Irene#rockwn14
+- BOUNDARY [harboro1] Miles Wiesner#rockwn12
+- BOUNDARY [harboro1] Cheerful Leaf#rockwn16
+- BOUNDARY [harboro1] Mahua Kaya#rockwn15
+- BOUNDARY [harboro1] Welch#rockwn01
+- BOUNDARY [harboro1] Edith Richie#rockwn02
+- BOUNDARY [harboro1] Carmen O'Neil#rockwn06
+- BOUNDARY [harboro1] Leland Wenkins#rockwn03
+- BOUNDARY [harboro1] Maybell#rockn02
+- BOUNDARY [harboro1] Rosemary Weber#rockn03
+- BOUNDARY [harboro1] Drunk Doram#rockwn11
+- BOUNDARY [harboro1] Elsie#rockwn05
+- BOUNDARY [harboro1] Mortimer#rockwn07
+- BOUNDARY [harboro1] Walter Greenwald#rockwn
+- BOUNDARY [harboro1] Delbert Lake#rockwn04
+- BOUNDARY [harboro1] Constance#rockwn18
+- BOUNDARY [harboro1] Roland Burts#rockwn17
+- BOUNDARY [harboro1] Loretta#rockwn08
+- BOUNDARY [harboro1] Dolores#rockwn09
+- BOUNDARY [harboro1] Maurice#rockwn10
+- BOUNDARY [harboro1] Cordell#rockn01
+- BOUNDARY [harboro1] Eloise McCurdy#rockn14
+- BOUNDARY [harboro1] Loading Dock Foreman#ro
+- BOUNDARY [harboro1] Jader#rockn11
+- BOUNDARY [harboro1] Rosco Richie#rockn12
+- BOUNDARY [harboro1] Portnias#rockn13
+- BOUNDARY [harboro1] Scrap Metal Collector#s1
+- BOUNDARY [harboro1] Scrap Metal Collector#s2
+- BOUNDARY [harboro1] Stray Dog#srdg02
+- BOUNDARY [harboro1] Stray Dog#srdg01
+- BOUNDARY [harboro1] Customer#srdg01
+- BOUNDARY [harboro1] Customer#srdg02
+- BOUNDARY [harboro1] Merchant's Chest
+- BOUNDARY [harboro1] Charlotte
+- BOUNDARY [harboro1] Bulk Trader's Camel#3
+- BOUNDARY [harboro1] Bulk Trader's Camel#4
+- BOUNDARY [harboro1] Bulk Trader's Camel#5
+- BOUNDARY [harboro1] Priest#srdg01
+- BOUNDARY [harboro1] Herman Farland#rockn19
+- BOUNDARY [harboro1] Edel Peppina#rockn16
+- BOUNDARY [harboro1] Wilfred Sagan#rockn15
+- BOUNDARY [harboro1] Hilliard#rockn09
+- BOUNDARY [harboro1] Innkeeper#rockridge
+- BOUNDARY [harboro1] Wanderer Doram#rkrgtwn
+- BOUNDARY [harboro1] Akuha#rockn19
+- BOUNDARY [harboro1] Nahari#rockn19
+- BOUNDARY [harboro1] Kid#srdg01
+- BOUNDARY [harboro1] Villager#srdg01
+- BOUNDARY [harboro1] Traveler#srdg02_1
+- BOUNDARY [harboro1] Traveler#srdg02_2
+- BOUNDARY [harboro1] Worker#srdg01
+- BOUNDARY [harboro1] Worker#srdg02
+- BOUNDARY [harboro1] Foreman#srdg01
+- BOUNDARY [harboro1] Worker#srdg03
+- BOUNDARY [harboro1] Eznia#rockn04
+- BOUNDARY [harboro1] Alain Morlein#dy
+- BOUNDARY [harboro1] Bank Clerk#dy
+- BOUNDARY [harboro1] Gunslinger Posh#rockn05
+- BOUNDARY [harboro1] White Twig#rockn19
+- BOUNDARY [harboro1] Carola Firth#rockn17
+- BOUNDARY [harboro1] Lucas Richie#rockn08
+- BOUNDARY [harboro1] Bakery Owner#dy
+- BOUNDARY [harboro1] Rock Ridge Tiger#srdg01
+- BOUNDARY [harboro1] Sammy#srdg01
+- BOUNDARY [harboro1] Bounty Hunter#rockn18
+- BOUNDARY [harboro1] Shepherd#srdg01
+- BOUNDARY [harboro1] Joyce Leslie#rockn06
+- BOUNDARY [harboro1] Joe
+- BOUNDARY [harboro1] Hungry Laborer#1
+- BOUNDARY [harboro2] Smell Maniac#srdg01
+- BOUNDARY [harboro2] Unemployed Man#srdg01
+- BOUNDARY [harboro2] Old Woman#srdg01
+- BOUNDARY [harboro2] Old Man#srdg01
+- BOUNDARY [harboro2] Mom's Kid#srdg01
+- BOUNDARY [harboro2] Kid's Mom#srdg01
+- BOUNDARY [harboro2] Buffalo Bandit#srdg01
+- BOUNDARY [harboro2] Buffalo Bandit#srdg02
+- BOUNDARY [harboro2] Dispatched Nun#srdg02
+- BOUNDARY [rockrdg1] Erekter#rockc06
+- BOUNDARY [rockrdg1] Soft Feather#rockc09
+- BOUNDARY [harboro1] Manager#1
+
+## quests_mora.txt
+- COMMENT [charat] set .@i, atoi(charat(strnpcinfo(2),9));
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- COMMENT [charat] donpcevent "Bush"+charat(strnpcinfo(2),9)+"Timer::OnDisable";
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- COMMENT [charat] set .@i, atoi(charat(strnpcinfo(2),9));
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- COMMENT [charat] donpcevent "Bush#ep14_1_bs"+charat(strnpcinfo(0),4)+"::OnDisable";
+- COMMENT [charat] donpcevent "Bush#ep14_1_bs"+charat(strnpcinfo(0),4)+"::OnEnable";
+- ADAPT [isbegin_quest->0] if(!isbegin_quest(11186)) { // TODO: Confirm official dialog (is there one?)
+- COMMENT [round] case 2212: // Theodore: grassy-green hair, dark skin, snow-white clothing, round wings
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT, playerattached();
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_THROB] emotion ET_THROB;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_BEST] emotion ET_BEST;
+- COMMENT [ET_WRAP] emotion ET_WRAP;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_KIK] emotion ET_KIK;
+- COMMENT [ET_SMILE] emotion ET_SMILE;
+- COMMENT [ET_DELIGHT] emotion ET_DELIGHT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_THINK] emotion ET_THINK, playerattached();
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- COMMENT [charat] set .@i, atoi(charat(strnpcinfo(2),9));
+- COMMENT [freeloop] freeloop(1);
+- COMMENT [freeloop] freeloop(0);
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT, playerattached();
+- UNRESOLVED [charat] #mora_bush
+- UNRESOLVED [charat] #mora_pouch
+- UNRESOLVED [charat] #mora_bush_timer
+- UNRESOLVED [round] Tired-looking Fairy
+- UNRESOLVED [charat] #mora_puddle
+- UNRESOLVED [freeloop] Initializing Mora Sanjo
+- BOUNDARY [1@mist] Tazaar's Remains#33
+- BOUNDARY [1@mist] Naizar's Remains#33
+- BOUNDARY [1@mist] Meshir's Remains#33
+- BOUNDARY [1@mist] Noirit's Remains#33
+- BOUNDARY [1@mist] Pajama God's Remains#33
+- BOUNDARY [1@mist] Mendel's Remains#33
+- BOUNDARY [1@mist] Milebit's Remains#33
+- BOUNDARY [1@mist] Kunmun's Remains#33
+- BOUNDARY [1@mist] Tsaihokin's Remains#33
+- BOUNDARY [1@mist] Tuar's Remains#33
+- ORPHAN [#mora_bush] spl_fild02,79,104,0	duplicate(#mora_bush)	Bush#ep14_1_bs1	111
+- ORPHAN [#mora_pouch] spl_fild02,79,104,0	duplicate(#mora_pouch)	#ep14_1_bs1	139,2,2
+- ORPHAN [#mora_bush] spl_fild02,103,344,0	duplicate(#mora_bush)	Bush#ep14_1_bs2	111
+- ORPHAN [#mora_pouch] spl_fild02,103,344,0	duplicate(#mora_pouch)	#ep14_1_bs2	139,2,2
+- ORPHAN [#mora_bush] spl_fild02,261,323,0	duplicate(#mora_bush)	Bush#ep14_1_bs3	111
+- ORPHAN [#mora_pouch] spl_fild02,261,323,0	duplicate(#mora_pouch)	#ep14_1_bs3	139,2,2
+- ORPHAN [#mora_bush] spl_fild02,137,305,0	duplicate(#mora_bush)	Bush#ep14_1_bs4	111
+- ORPHAN [#mora_pouch] spl_fild02,137,305,0	duplicate(#mora_pouch)	#ep14_1_bs4	139,2,2
+- ORPHAN [#mora_bush] spl_fild02,23,196,0	duplicate(#mora_bush)	Bush#ep14_1_bs5	111
+- ORPHAN [#mora_pouch] spl_fild02,23,196,0	duplicate(#mora_pouch)	#ep14_1_bs5	139,2,2
+- ORPHAN [#mora_bush] spl_fild02,186,260,0	duplicate(#mora_bush)	Bush#ep14_1_bs6	111
+- ORPHAN [#mora_pouch] spl_fild02,186,260,0	duplicate(#mora_pouch)	#ep14_1_bs6	139,2,2
+- ORPHAN [#mora_bush_timer] spl_fild02,180,1,0	duplicate(#mora_bush_timer)	Bush1Timer	440
+- ORPHAN [#mora_bush_timer] spl_fild02,181,1,0	duplicate(#mora_bush_timer)	Bush2Timer	440
+- ORPHAN [#mora_bush_timer] spl_fild02,182,1,0	duplicate(#mora_bush_timer)	Bush3Timer	440
+- ORPHAN [#mora_bush_timer] spl_fild02,183,1,0	duplicate(#mora_bush_timer)	Bush4Timer	440
+- ORPHAN [#mora_bush_timer] spl_fild02,184,1,0	duplicate(#mora_bush_timer)	Bush5Timer	440
+- ORPHAN [#mora_bush_timer] spl_fild02,186,1,0	duplicate(#mora_bush_timer)	Bush6Timer	440
+- ORPHAN [#mora_puddle] bif_fild02,315,285,0	duplicate(#mora_puddle)	Puddle#ep14_muk01	844
+- ORPHAN [#mora_puddle] bif_fild02,65,109,0	duplicate(#mora_puddle)	Puddle#ep14_muk02	844
+- ORPHAN [#mora_puddle] bif_fild02,223,71,0	duplicate(#mora_puddle)	Puddle#ep14_muk03	844
+- ORPHAN [#mora_puddle] bif_fild02,113,340,0	duplicate(#mora_puddle)	Puddle#ep14_muk04	844
+
+## quests_dewata.txt
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_HNG] emotion ET_HNG;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_THANKS] emotion ET_THANKS;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_ANGER] emotion ET_ANGER;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- COMMENT [ET_SORRY] emotion ET_SORRY;
+- COMMENT [ET_FRET] emotion ET_FRET;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_BLABLA] emotion ET_BLABLA, playerattached();
+- COMMENT [ET_OK] emotion ET_OK;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_QUESTION] emotion ET_QUESTION;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_THINK] emotion ET_THINK;
+- COMMENT [ET_SURPRISE] emotion ET_SURPRISE;
+- COMMENT [ET_CRY] emotion ET_CRY;
+- COMMENT [ET_BEST] emotion ET_BEST, playerattached();
+- ADAPT [npc()->npc strnpcinfo(0)] enablenpc();
+- ADAPT [npc()->npc strnpcinfo(0)] disablenpc();
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_PROFUSELY_SWEAT] emotion ET_PROFUSELY_SWEAT;
+- COMMENT [ET_HUK] emotion ET_HUK;

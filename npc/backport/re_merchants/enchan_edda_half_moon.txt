@@ -1,0 +1,288 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/enchan_edda_half_moon.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Half Moon in the Daylight Enchanter
+//===== Description: =========================================
+//= [Walkthrough Conversion]
+//= Half Moon in the Daylight related enchanter
+//===== Changelog: ===========================================
+//= 1.0 Initial release [Everade]
+//= 1.1 Clean-up [Capuche]
+//============================================================
+
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] rachel,177,139,3	script	Temple Item Manager#0hmoon	4_M_TRAINEE,{
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	disable_items;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	if (MaxWeight - Weight < 1000 || checkweight(5819,1) == 0) {
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		npctalk "Reduce your weight please.", "", bc_self;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		end;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "If you have 1 ^0000cd" + getitemname(28387) + "^000000 and a ^0000cd" + getitemname(25088) + "^000000, I will grant you the power of the Goddess.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "I'll do a good job. Leave it to me.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	switch( select( "What is a Goddess' power?", "Well then, please.", "It's nothing." ) ) {
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	case 1:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "What is the power of a Goddess? Did you just ask about the power of the Goddess?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		if (select( "No.", "Yes. I asked." ) == 1) {
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			 mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			 mes "I'd like to talk to you, please listen.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			 close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Power of the Goddess!!! I love the Goddess! Goddess, you're awesome!!!";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "There's a story that needs to be told first.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I've always been a fan of the ^0000cdGoddess^000000. As I entered the temple and started my life as a devoted follower, my life began to blossom.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "One day before I went to sleep, I had a ^0000cddream^000000 while I way praying to the Goddess.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I heard the ^0000cdvoice^000000 of Goddess Freya in the full light.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "But unfortunately, as soon as I woke up, I forgot all about my dream. That's how dreams are.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I cried endlessly because I felt sorry for that fact. But if the Goddess lets me hear her voice through a dream, wouldn't we too, be able to reach the Goddess through dreaming?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I started to study dreams with all my passion. I thought this was the will of the Goddess, who's trying to convey to me through them.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "While I was working hard on my research, I made the ^0000cdPassage of Dreams^000000 at the request of our aunt, High Priestess Niren, who's right next to me. It's the result of what I dedicated my life to.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I can't reach the Goddess yet... But there aren't many people who encounter the Goddess in their dreams... Like me...";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Anyway, when I first heard the request from our aunt, High Priestess Niren, I was surprised.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Would you dare to enter the Pope's dream...? The High Priestess Niren convinced me to enter her dream, but there was nothing that I could do to help her.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "And the persuasion was surprisingly convincing.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[" + strcharinfo(0) + "]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "So what's the Power of the Goddess?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "When I first entered the Pope's dream, I was amazed.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[" + strcharinfo(0) + "]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Why?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Of my ^0000cdgenius^000000.";
+		//[BACKPORT-GAP:ET_SWEAT] emotion ET_SWEAT;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Can anyone else in the world create a device that allows them to enter other people's dreams and experience them vividly? Kya- After all, Goddess' beloved lamb.";
+		//[BACKPORT-GAP:ET_SWEAT] emotion ET_SWEAT;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "As I was walking through the Pope's dream, I accidentally found a ^0000cdPriest's Necklace^000000 from the priest and a special energetic ^0000cdFragment^000000 from the faceless shrine there.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "And I went around trying to find out as much as I could in my dreams, but when the Pope found me, she rejected me fiercely in fear.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I'm not the Pope's closest confidant, so I must have been just a stranger to her.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "So I was thrown out of the Pope's dream.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "By the way. When I woke up from my dream, I had the Priest's Necklace from the shrine and the strange fragment still in my hands. What do you think?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[" + strcharinfo(0) + "]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Amazing.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Oh Goddess, please pity the blunt sensibility of an adventurer who can express these tremendous results in a word that is just amazing-";
+		//[BACKPORT-GAP:ET_SWEAT] emotion ET_SWEAT;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I was able to bring out the things I got from other people's dreams. This is a big deal! Let's get down to business because you don't seem to empathize.";
+		//[BACKPORT-GAP:ET_SWEAT] emotion ET_SWEAT;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I began to study the necklace and the strange fragment of the shrine. The strange fragment was named the ^0000cdDream Fragment^000000, meaning the fragment obtained in a dream. Kyah- Name Sense!";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "They seemed normal when being separated, however I felt a subtle energy when I stacked them on top of each other.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "From then on, I entered the Pope's dream and began to study by collecting them one by one, without being noticed by the Pope.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I discovered that by collecting about ^0000cd100 Dream Fragments^000000, compressing them with force, and putting them into the ^0000cdPriest's Necklace^000000, I can grant it ^0000cdspecial powers^000000.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "And by continuously researching and researching, I've succeeded in separating that power into three degrees.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "This power can help the wearer's ^0000cdphysical^000000, ^0000cdmagical^000000, or ^0000cdranged^000000 attacks. Without any side effects!";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "I gave these powers the names of ^0000cdGoddess of Justice, Goddess of Mercy, Goddess of Insight^000000, respectively. Isn't that plausible?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "But what's even more surprising is that if you put a larger amount of ^0000cdDream Fragments^000000, that's about ^0000cd1000pcs^000000 or so, you can enchant an even more ^0000cdpowerful power^000000.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Any more than that, the Priest's Necklace couldn't hold up to, so all the items I've gathered were destroyed. I'm still working on it, so I'm sure I'll succeed someday.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[" + strcharinfo(0) + "]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "So, give me a three-line summary.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Oh my, what should I do with this person? Still, I'm a kind Lamb of the Goddess, so I'll tell you briefly.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "If you bring me ^0000cd1 Priest's Necklace and 100 Dream Fragments^000000 obtained in a dream, your ^0000cdPriest's Necklace will be enchanted with the Power of the Goddess^000000.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "And if you bring an enchanted ^0000ffPriest's Necklace with Goddess Power^000000 and ^0000ff1000 pieces of Dream Fragments^000000, you'll get even more power.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "That's it!";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[" + strcharinfo(0) + "]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Oh, thank you.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Would you like to hear it one more time?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[" + strcharinfo(0) + "]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Oh no, that's enough. That's all right.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Oh, that's a shame. I was going to go into more detail this time.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	case 2:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "Great decision! Do you want it on your ^0000cdleft^000000? Or the ^0000cdright^000000 side? I'm confident either way!...";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		switch( select( "Left", "Right", "Cancel" ) ) {
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		case 1:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			set .@part, EQI_ACC_L;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			break;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		case 2:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			set .@part, EQI_ACC_R;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			break;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		case 3:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "Oh, why!!! I'm being nice to you!!!";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		set .@itemid, getequipid(.@part);
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		if (.@itemid != 28387) {
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "[Temple Item Manager]";
+			//[BACKPORT-GAP:mesitemlink] mes "Uh, wait! That's not the ^0000cd" + mesitemlink(28387, false) + "^000000, is it? Can you check it again?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		set .@card, getequipcardid(.@part,3);
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		if (getiteminfo(.@card, ITEMINFO_SUBTYPE) == CARD_ENCHANT) {
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			npctalk "This necklace of yours already has an enchantment.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			end;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		mes "What special abilities would you like to enchant your necklace with?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		setarray .@enhance_n$[0], "Goddess of Justice", "Goddess of Mercy", "Goddess of Insight";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		set .@s, select( .@enhance_n$[0], .@enhance_n$[1], .@enhance_n$[2], "Cancel" ) -1;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		switch( .@s ) {
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		default:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			setarray .@enhance_a[0],29121,29123,29125;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			setarray .@enhance_s[0],29122,29124,29126;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "You have selected the " + .@enhance_n$[.@s] + " enchantment.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "Please select the class";
+			//[BACKPORT-GAP:mesitemlink] mes "" + mesitemlink(.@enhance_a[.@s], false) + "";
+			//[BACKPORT-GAP:mesitemlink] mes "" + mesitemlink(.@enhance_s[.@s], false) + "";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			switch( select( "A Class", "S Class" ) ) {
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			case 1:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				set .@enchant, .@enhance_a[.@s];
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				set .@cost, 100;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				set .@class, 1;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				break;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			case 2:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				set .@enchant, .@enhance_s[.@s];
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				set .@cost, 1000;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				set .@class, 2;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				break;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "[Temple Item Manager]";
+			//[BACKPORT-GAP:mesitemlink] mes "The necklace will be enchanted with the " + mesitemlink(.@enchant, false) + "";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "Are you really sure to proceed with this enchantment process?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			if (select( "No, I need time to consider.","Yes, please proceed." ) == 1)
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				break;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			set .@card, getequipcardid(.@part,3);	// re-defined
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			if (!getequipisequiped(.@part) || isequipped(28387) < 1) {
+				//[BACKPORT-GAP:mesitemlink] mes "You aren't wearing the " + mesitemlink(28387, false) + "...!";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			if (.@enchant == .@card) {
+				//[BACKPORT-GAP:mesitemlink] mes "Your " + mesitemlink(28387, false) + " already has an enchant.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			if (countitem(25088) < .@cost) {
+				//[BACKPORT-GAP:mesitemlink] mes "You didn't bring enough " + mesitemlink(25088, false) + "!";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			if (.@class == 2 && (.@enchant == 29122 && .@card != 29121 || .@enchant == 29124 && .@card != 29123 || .@enchant == 29126 && .@card != 29125)) {
+				//[BACKPORT-GAP:mesitemlink] mes "You need to have your necklace enchanted with " + mesitemlink(.@enhance_a[.@s], false) + " first.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 				close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			specialeffect2 182;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			specialeffect2 205;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			specialeffect2 102;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			specialeffect2 104;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			mes "The necklace has been enchanted according to your specifications.";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			delitem 25088,.@cost; //Fragment of Dream
+			//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			getitem2 28387,1,1,0,0,0,0,0,.@enchant; //Priest's Necklace
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		case 3:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 			break;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		break;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	case 3:
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 		break;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	}
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "Nothing? Did you forget what to say?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "If you're not busy right now, would you like to eat with me?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "Why don't you take the time with me to talk about dreams, science, and the goddess?";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "[" + strcharinfo(0) + "]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "Well, I'm busy so...";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	next;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "[Temple Item Manager]";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	mes "Even if you have nothing to say, just listen to me!!!";
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] 	close;
+//[BACKPORT-UNRESOLVED:delequip,mesitemlink] }

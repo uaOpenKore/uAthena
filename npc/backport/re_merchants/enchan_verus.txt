@@ -1,0 +1,1420 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/enchan_verus.txt
+//============================================================
+//===== rAthena Script =======================================
+//= Enchants and exchange NPCs.
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Exchangers and enchanters NPCs on Verus.
+//===== Additional Comments: =================================
+//= 1.0 Added NPCs coming along Charleston instance. [Capuche]
+//= 1.1 Added Excellion Wing/Suit trader and enchant NPCs. [Capuche]
+//============================================================
+
+// Charleston
+//[BACKPORT-BOUNDARY:verus04] verus04,69,108,5	script	Mass Charleston#1	4_F_CHARLESTON01,{
+//[BACKPORT-BOUNDARY:verus04] 	if (!checkweight(1201,1) || (MaxWeight - Weight) < 1000) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "^ff0000You have carried too many items, please reduce it and come back later.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	cutin "dalle01.bmp",2;
+//[BACKPORT-BOUNDARY:verus04] 	if (countitem(6752) < 10) {
+//[BACKPORT-BOUNDARY:verus04] 		if (0 == 0) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "I don't know where you can find Charleston Components,";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "but if you have 10 or more, then I can exchange them with factory products.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "A series of trials and errors was made before the mass version of Charleston was developed.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I don't mean to depreciate myself, but mass versions are mass versions; they're cost-effective and practical, but never as good as the high-end versions.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Some Charlestons, especially in the development stage, are equipped with more advanced features. To study them, I need more components.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "If you have 10 or more Charleston Components, then I can exchange them with factory products.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "You got some nice parts on you! Would you like to exchange it with the goods produced in the factory?";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Is a collection of Charleston advantages in a commodity, but can not be sold separately, IF bring good parts can be exchanged for you.";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	set .@s, select( "Quit.", "Exchange Reinforced parts", "Exchange Supplementary device" ) - 2;
+//[BACKPORT-BOUNDARY:verus04] 	if (.@s == -1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I'll see you next time!";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	setarray .@job_aft$[0], "Reinforced parts", "Supplementary device";
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Which part of " + .@job_aft$[.@s] + " do you want to select?";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	switch(.@s) {
+//[BACKPORT-BOUNDARY:verus04] 	case 0:
+//[BACKPORT-BOUNDARY:verus04] 		setarray .@item[0],
+//[BACKPORT-BOUNDARY:verus04] 			20733,	// Upgrade_Part_Engine
+//[BACKPORT-BOUNDARY:verus04] 			22044,	// Upgrade_Part_Booster
+//[BACKPORT-BOUNDARY:verus04] 			2996;	// Upgrade_Part_Gun_Barrel
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 1:
+//[BACKPORT-BOUNDARY:verus04] 		setarray .@item[0],
+//[BACKPORT-BOUNDARY:verus04] 			20732,	// Supplement_Part_Con
+//[BACKPORT-BOUNDARY:verus04] 			22043,	// Supplement_Part_Agi
+//[BACKPORT-BOUNDARY:verus04] 			2995;	// Supplement_Part_Dex
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	default:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I'll see you next time!";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+	// custom translation from here
+//[BACKPORT-BOUNDARY:verus04] 	set .@index, select( "Quit.", getitemname(.@item[0]) + " (garment)", getitemname(.@item[1]) + " (Shoes)", getitemname(.@item[2]) + " (Accessory)" ) - 2;
+//[BACKPORT-BOUNDARY:verus04] 	if (.@index == -1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I'll see you next time!";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (countitem(6752) < 10) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "If you find enough Charleston parts, can you come to me again?";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	delitem 6752,10;	// Charleston_Parts
+//[BACKPORT-BOUNDARY:verus04] 	getitem .@item[.@index],1;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Exchanged 10 " + getitemname(6752) + " for " + .@job_aft$[.@s] + ". If you find more part, come to me again!";
+	//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] }
+
+//[BACKPORT-BOUNDARY:verus04] verus04,71,106,5	script	Mass Charleston#2	4_F_CHARLESTON01,{
+//[BACKPORT-BOUNDARY:verus04] 	disable_items;
+//[BACKPORT-BOUNDARY:verus04] 	if (!checkweight(1201,1)) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "You have too many types of items. Lighten your inventory first.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if ((MaxWeight - Weight) < 10000) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "The items in your inventory are weighing you down. Lighten your weight first.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	cutin "dalle01.bmp",2;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "I can upgrade the Charleston Factory products. Let me know if you're interested.";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	switch( select( "More information.", "Add abilities to your product.", "Reset product." ) ) {
+//[BACKPORT-BOUNDARY:verus04] 	case 1:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Each Upgrade/resetting attempt costs 100,000 zeny and 1 Charleston Component.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I also provide a wider selection of Upgrade options for Charleston Equipment at ^ff0000+9^000000 or above.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Rest assured, my Upgrade technology does not involve accidental damage on the item's Upgrade level or equipped cards.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	case 2:
+//[BACKPORT-BOUNDARY:verus04] 		set .@type_action, 1;
+//[BACKPORT-BOUNDARY:verus04] 		set .@string$, "Upgrading";
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 3:
+//[BACKPORT-BOUNDARY:verus04] 		set .@type_action, 2;
+//[BACKPORT-BOUNDARY:verus04] 		set .@string$, "Resetting";
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (Zeny < 100000 || countitem(6752) < 1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+		//[BACKPORT-GAP:strtolower] mes "" + .@string$ + " a Charleston product costs 1 Charleston Component and 100,000 zeny. Please know that all the expenses go into " + strtolower(.@string$) + " your product.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Please make sure you're equipped with the Equipment you want to upgrade.";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	set .@s, select( "Let me go equip it.", "Footgear", "Garment", "Clothes", "Accessory" ) - 2;
+//[BACKPORT-BOUNDARY:verus04] 	if (.@s == -1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Sure, please come back after you do.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (Zeny < 100000 || countitem(6752) < 1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Things needed for commodity upgrades seem inadequate!";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	setarray .@eq_num[0], EQI_SHOES, EQI_GARMENT, EQI_ARMOR, EQI_ACC_R;
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	set .@part, .@eq_num[.@s];
+//[BACKPORT-BOUNDARY:verus04] 	set .@item_id, getequipid(.@part);
+//[BACKPORT-BOUNDARY:verus04] 	set .@refine, getequiprefinerycnt(.@part);
+//[BACKPORT-BOUNDARY:verus04] 	setarray .@card_saved[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+//[BACKPORT-BOUNDARY:verus04] 	copyarray .@card[0], .@card_saved[0], 4;
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	switch(.@item_id) {
+//[BACKPORT-BOUNDARY:verus04] 	case -1:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Because it is a customized upgrade be sure to wear equipment.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	case 15111:	// Upgrade_Part_Plate
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type, 3;
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type_9, 1;
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_slot, 1;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 20733:	// Upgrade_Part_Engine
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type, 4;
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type_9, 5;
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_slot, 1;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 22044:	// Upgrade_Part_Booster
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type, 6;
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type_9, 7;
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_slot, 1;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 2996:	// Upgrade_Part_Gun_Barrel
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type, 8;
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type_9, 8;
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_slot, 2;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 15110:	// Supplement_Part_Str
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type, 3;
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type_9, 2;
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_slot, 1;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 20732:	// Supplement_Part_Con
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type, 4;
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type_9, 5;
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_slot, 1;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 22043:	// Supplement_Part_Agi
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type, 6;
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type_9, 7;
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_slot, 1;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 2995:	// Supplement_Part_Dex
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type, 8;
+//[BACKPORT-BOUNDARY:verus04] 		set .@en_type_9, 8;
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_slot, 2;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	default:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "^990099" + getequipname(.@part) + "^000000??";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I'm not interested in this Equipment.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	switch(.@type_action) {
+//[BACKPORT-BOUNDARY:verus04] 	case 1:	// Add abilities
+//[BACKPORT-BOUNDARY:verus04] 		if (.@refine >= 9) {
+//[BACKPORT-BOUNDARY:verus04] 			setarray .@menu_en_type$[1],
+//[BACKPORT-BOUNDARY:verus04] 				"Attack enhancement",
+//[BACKPORT-BOUNDARY:verus04] 				"Defense enhancement",
+//[BACKPORT-BOUNDARY:verus04] 				"Acceleration enhancements",
+//[BACKPORT-BOUNDARY:verus04] 				"Garment upgrade",
+//[BACKPORT-BOUNDARY:verus04] 				"Advanced Garment upgrade",
+//[BACKPORT-BOUNDARY:verus04] 				"Shoes upgrade",
+//[BACKPORT-BOUNDARY:verus04] 				"Advanced Shoes upgrade",
+//[BACKPORT-BOUNDARY:verus04] 				"Accessory upgrade";
+//[BACKPORT-BOUNDARY:verus04] 			if (.@menu_en_type$[.@en_type] == "" || .@menu_en_type$[.@en_type_9] == "") {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "Something's not right!";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "This is a considerable level of enhanced equipment, this type can give enhanced expansion performance, choose from the following series of desirable to strengthen it!";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			if (select( .@menu_en_type$[.@en_type], .@menu_en_type$[.@en_type_9] ) == 2)
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_type, .@en_type_9;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		if (.@card[3] < 1 && .@max_slot < 4) {
+//[BACKPORT-BOUNDARY:verus04] 			set .@slot, 4;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "I'll be Upgrading the first ability. The existing Upgrade level and cards will not be damaged. Do you want to continue?";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			if (select( "I'll come back later.", "Continue." ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "No problem. Come back if you change your mind.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		else if (.@card[2] < 1 && .@max_slot < 3) {
+//[BACKPORT-BOUNDARY:verus04] 			set .@slot, 3;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "I'll be Upgrading the second ability. The existing Upgrade level and cards will not be damaged.";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Though there is a slight chance of failure, in which case the existing Upgrade level will be reset. What would you like to do?";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			if (select( "I'll come back later.", "Continue." ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "No problem. Come back if you change your mind.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		else if (.@card[1] < 1 && .@max_slot < 2) {
+//[BACKPORT-BOUNDARY:verus04] 			set .@slot, 2;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "I'll be Upgrading the 3rd ability. This highest Upgrade stage incurs a  chance of ^990000destroying the Equipment or resetting its existing Upgrade level.^000000 Do you want to continue?";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			if (select( "I'll come back later.", "Continue." ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "No problem. Come back if you change your mind.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		else if (.@card[0] < 1 && .@max_slot < 1)
+//[BACKPORT-BOUNDARY:verus04] 			set .@slot, 1;
+//[BACKPORT-BOUNDARY:verus04] 		else {
+//[BACKPORT-BOUNDARY:verus04] 			cutin "dalle02.bmp",2;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "This Equipment is Upgraded to the maximum level. Please bring something else.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		switch(.@en_type) {
+//[BACKPORT-BOUNDARY:verus04] 		case 1:
+//[BACKPORT-BOUNDARY:verus04] 			if (.@slot == 4) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 100;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 3) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 200;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 2) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 300;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "An unknown error has occurred.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@r, rand( .@en_brk1, .@en_brk2 );
+//[BACKPORT-BOUNDARY:verus04] 			if (.@r < 11) set .@en_name, 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 21) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 36) .@en_name = 4832;	// Expert_Archer1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 51) .@en_name = 4811;	// Fighting_Spirit1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 61) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 71) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 86) .@en_name = 4833;	// Expert_Archer2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 101) .@en_name = 4810;	// Fighting_Spirit2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 111) .@en_name = 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 121) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 132) .@en_name = 4832;	// Expert_Archer1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 143) .@en_name = 4811;	// Fighting_Spirit1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 151) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 159) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 167) .@en_name = 4833;	// Expert_Archer2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 175) .@en_name = 4810;	// Fighting_Spirit2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 182) .@en_name = 4702;	// Strength3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 189) .@en_name = 4722;	// Dexterity3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 190) .@en_name = 4834;	// Expert_Archer3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 191) .@en_name = 4809;	// Fighting_Spirit3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 201) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 207) .@en_name = 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 213) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 221) .@en_name = 4832;	// Expert_Archer1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 229) .@en_name = 4811;	// Fighting_Spirit1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 238) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 247) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 260) .@en_name = 4810;	// Fighting_Spirit2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 273) .@en_name = 4833;	// Expert_Archer2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 280) .@en_name = 4702;	// Strength3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 287) .@en_name = 4722;	// Dexterity3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 289) .@en_name = 4834;	// Expert_Archer3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 291) .@en_name = 4809;	// Fighting_Spirit3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 296) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 301) .@en_name = 9;
+//[BACKPORT-BOUNDARY:verus04] 			else .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 2:
+//[BACKPORT-BOUNDARY:verus04] 			if (.@slot == 4) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 100;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 3) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 200;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 2) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 310;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "An unknown error has occurred.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@r, rand( .@en_brk1, .@en_brk2 );
+//[BACKPORT-BOUNDARY:verus04] 			if (.@r < 11) set .@en_name, 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 21) .@en_name = 4791;	// Def3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 36) .@en_name = 4933;	// Tolerance_Not1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 51) .@en_name = 4861;	// MHP1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 61) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 71) .@en_name = 4792;	// Def6
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 86) .@en_name = 4934;	// Tolerance_Not2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 101) .@en_name = 4862;	// MHP2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 111) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 121) .@en_name = 4791;	// Def3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 132) .@en_name = 4933;	// Tolerance_Not1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 143) .@en_name = 4861;	// MHP1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 151) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 159) .@en_name = 4792;	// Def6
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 167) .@en_name = 4934;	// Tolerance_Not2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 173) .@en_name = 4862;	// MHP2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 179) .@en_name = 4742;	// Vitality3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 185) .@en_name = 4793;	// Def9
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 188) .@en_name = 4935;	// Tolerance_Not3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 191) .@en_name = 4867;	// MHP3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 201) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 207) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 213) .@en_name = 4791;	// Def3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 221) .@en_name = 4933;	// Tolerance_Not1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 229) .@en_name = 4861;	// MHP1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 238) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 247) .@en_name = 4792;	// Def6
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 258) .@en_name = 4934;	// Tolerance_Not2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 269) .@en_name = 4862;	// MHP2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 276) .@en_name = 4742;	// Vitality3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 283) .@en_name = 4793;	// Def9
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 287) .@en_name = 4867;	// MHP3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 291) .@en_name = 4935;	// Tolerance_Not3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 296) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 301) .@en_name = 9;
+//[BACKPORT-BOUNDARY:verus04] 			else .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 3:
+//[BACKPORT-BOUNDARY:verus04] 			if (.@slot == 4) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 100;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 3) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 200;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 2) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 310;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "An unknown error has occurred.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@r, rand( .@en_brk1, .@en_brk2 );
+//[BACKPORT-BOUNDARY:verus04] 			if (.@r < 11) set .@en_name, 4860;	// Evasion3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 21) .@en_name = 4750;	// Luck1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 36) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 51) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 61) .@en_name = 4762;	// Evasion6
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 71) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 86) .@en_name = 4872;	// Attack_Delay_2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 101) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 111) .@en_name = 4860;	// Evasion3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 121) .@en_name = 4750;	// Luck1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 132) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 143) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 151) .@en_name = 4762;	// Evasion6
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 159) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 166) .@en_name = 4872;	// Attack_Delay_2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 173) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 180) .@en_name = 4763;	// Evasion12
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 187) .@en_name = 4752;	// Luck3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 191) .@en_name = 4732;	// Agility3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 201) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 207) .@en_name = 4860;	// Evasion3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 213) .@en_name = 4750;	// Luck1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 221) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 229) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 239) .@en_name = 4762;	// Evasion6
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 249) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 261) .@en_name = 4872;	// Attack_Delay_2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 273) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 280) .@en_name = 4763;	// Evasion12
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 287) .@en_name = 4752;	// Luck3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 291) .@en_name = 4732;	// Agility3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 296) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 301) .@en_name = 9;
+//[BACKPORT-BOUNDARY:verus04] 			else .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 4:
+//[BACKPORT-BOUNDARY:verus04] 			if (.@slot == 4) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 100;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 3) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 200;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 2) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 310;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "An unknown error has occurred.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@r, rand( .@en_brk1, .@en_brk2 );
+//[BACKPORT-BOUNDARY:verus04] 			if (.@r < 8) set .@en_name, 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 17) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 24) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 33) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 40) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 47) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 54) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 63) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 69) .@en_name = 4750;	// Luck1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 77) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 83) .@en_name = 4710;	// Inteligence1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 91) .@en_name = 4711;	// Inteligence2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 101) .@en_name = 4832;	// Expert_Archer1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 111) .@en_name = 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 121) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 131) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 141) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 149) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 158) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 164) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 170) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 177) .@en_name = 4750;	// Luck1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 184) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 187) .@en_name = 4710;	// Inteligence1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 190) .@en_name = 4711;	// Inteligence2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 192) .@en_name = 4832;	// Expert_Archer1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 201) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 207) .@en_name = 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 213) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 220) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 227) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 237) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 247) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 257) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 267) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 271) .@en_name = 4750;	// Luck1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 276) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 281) .@en_name = 4710;	// Inteligence1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 286) .@en_name = 4711;	// Inteligence2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 291) .@en_name = 4832;	// Expert_Archer1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 296) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 301) .@en_name = 9;
+//[BACKPORT-BOUNDARY:verus04] 			else .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 5:
+//[BACKPORT-BOUNDARY:verus04] 			if (.@slot == 4) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 100;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 3) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 200;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 2) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 310;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "An unknown error has occurred.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@r, rand( .@en_brk1, .@en_brk2 );
+//[BACKPORT-BOUNDARY:verus04] 			if (.@r < 9) set .@en_name, 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 16) .@en_name = 4702;	// Strength3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 25) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 32) .@en_name = 4722;	// Dexterity3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 41) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 46) .@en_name = 4732;	// Agility3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 55) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 62) .@en_name = 4742;	// Vitality3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 70) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 76) .@en_name = 4752;	// Luck3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 84) .@en_name = 4711;	// Inteligence2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 90) .@en_name = 4712;	// Inteligence3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 95) .@en_name = 4832;	// Expert_Archer1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 101) .@en_name = 4833;	// Expert_Archer2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 111) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 121) .@en_name = 4702;	// Strength3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 131) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 141) .@en_name = 4722;	// Dexterity3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 149) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 157) .@en_name = 4732;	// Agility3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 163) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 169) .@en_name = 4742;	// Vitality3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 176) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 183) .@en_name = 4752;	// Luck3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 185) .@en_name = 4711;	// Inteligence2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 187) .@en_name = 4712;	// Inteligence3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 189) .@en_name = 4833;	// Expert_Archer2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 191) .@en_name = 4834;	// Expert_Archer3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 201) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 207) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 213) .@en_name = 4702;	// Strength3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 220) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 227) .@en_name = 4722;	// Dexterity3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 237) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 247) .@en_name = 4732;	// Agility3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 257) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 261) .@en_name = 4742;	// Vitality3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 266) .@en_name = 4751;	// Luck2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 271) .@en_name = 4752;	// Luck3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 276) .@en_name = 4711;	// Inteligence2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 281) .@en_name = 4712;	// Inteligence3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 286) .@en_name = 4832;	// Expert_Archer1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 291) .@en_name = 4833;	// Expert_Archer2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 296) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 301) .@en_name = 9;
+//[BACKPORT-BOUNDARY:verus04] 			else .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 6:
+//[BACKPORT-BOUNDARY:verus04] 			if (.@slot == 4) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 100;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 3) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 200;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 2) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 310;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "An unknown error has occurred.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@r, rand( .@en_brk1, .@en_brk2 );
+//[BACKPORT-BOUNDARY:verus04] 			if (.@r < 11) set .@en_name, 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 21) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 31) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 41) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 51) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 61) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 71) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 81) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 91) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 101) .@en_name = 4815;	// Spell1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 111) .@en_name = 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 121) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 132) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 143) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 151) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 159) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 169) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 179) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 185) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 191) .@en_name = 4815;	// Spell1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 201) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 209) .@en_name = 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 217) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 225) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 233) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 244) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 255) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 265) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 275) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 283) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 291) .@en_name = 4815;	// Spell1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 296) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 301) .@en_name = 9;
+//[BACKPORT-BOUNDARY:verus04] 			else .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 7:
+//[BACKPORT-BOUNDARY:verus04] 			if (.@slot == 4) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 100;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 3) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 200;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 2) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 101;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 310;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "An unknown error has occurred.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@r, rand( .@en_brk1, .@en_brk2 );
+//[BACKPORT-BOUNDARY:verus04] 			if (.@r < 11) set .@en_name, 4702;	// Strength3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 21) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 31) .@en_name = 4722;	// Dexterity3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 41) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 51) .@en_name = 4732;	// Agility3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 61) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 71) .@en_name = 4742;	// Vitality3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 81) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 86) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 91) .@en_name = 4872;	// Attack_Delay_2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 96) .@en_name = 4815;	// Spell1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 101) .@en_name = 4814;	// Spell2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 111) .@en_name = 4702;	// Strength3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 121) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 132) .@en_name = 4722;	// Dexterity3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 143) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 151) .@en_name = 4732;	// Agility3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 159) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 169) .@en_name = 4742;	// Vitality3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 179) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 182) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 185) .@en_name = 4815;	// Spell1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 188) .@en_name = 4872;	// Attack_Delay_2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 191) .@en_name = 4814;	// Spell2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 201) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 209) .@en_name = 4702;	// Strength3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 217) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 225) .@en_name = 4722;	// Dexterity3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 233) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 244) .@en_name = 4732;	// Agility3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 255) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 265) .@en_name = 4742;	// Vitality3
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 275) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 279) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 283) .@en_name = 4815;	// Spell1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 287) .@en_name = 4872;	// Attack_Delay_2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 291) .@en_name = 4814;	// Spell2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 296) .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 301) .@en_name = 9;
+//[BACKPORT-BOUNDARY:verus04] 			else .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 8:
+//[BACKPORT-BOUNDARY:verus04] 			if (.@slot == 4) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 100;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 3) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 111;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@slot == 2) {
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk1, 1;
+//[BACKPORT-BOUNDARY:verus04] 				set .@en_brk2, 111;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 				mes "An unknown error has occurred.";
+				//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@r, rand( .@en_brk1, .@en_brk2 );
+//[BACKPORT-BOUNDARY:verus04] 			if (.@r < 11) set .@en_name, 4700;	// Strength1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 21) .@en_name = 4701;	// Strength2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 31) .@en_name = 4720;	// Dexterity1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 41) .@en_name = 4721;	// Dexterity2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 50) .@en_name = 4730;	// Agility1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 59) .@en_name = 4731;	// Agility2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 69) .@en_name = 4740;	// Vitality1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 79) .@en_name = 4741;	// Vitality2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 89) .@en_name = 4710;	// Inteligence1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 99) .@en_name = 4711;	// Inteligence2
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 100) .@en_name = 4869;	// Attack_Delay_1
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@r < 101) .@en_name = 4815;	// Spell1
+//[BACKPORT-BOUNDARY:verus04] 			else .@en_name = 0;
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		default:
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "An unknown error has occurred.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		if (Zeny < 100000 || countitem(6752) < 1) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Things needed for commodity upgrades seem inadequate!";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 
+		// anti-hack
+//[BACKPORT-BOUNDARY:verus04] 		if (callfunc("F_IsEquipIDHack", .@part, .@item_id) ||
+//[BACKPORT-BOUNDARY:verus04] 				callfunc("F_IsEquipCardHack", .@part, .@card_saved[0], .@card_saved[1], .@card_saved[2], .@card_saved[3]) ||
+//[BACKPORT-BOUNDARY:verus04] 				callfunc("F_IsEquipRefineHack", .@part, .@refine)) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "An unknown error has occurred.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 		set .@card[.@slot-1], .@en_name;
+//[BACKPORT-BOUNDARY:verus04] 		delitem 6752,1;	// Charleston_Parts
+//[BACKPORT-BOUNDARY:verus04] 		set Zeny, Zeny - 100000;
+		//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 		switch(.@en_name) {
+//[BACKPORT-BOUNDARY:verus04] 		case 0:
+//[BACKPORT-BOUNDARY:verus04] 			cutin "dalle02.bmp",2;
+//[BACKPORT-BOUNDARY:verus04] 			specialeffect2 EF_SHIELDCHARGE;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Since the balance of power does not match, the given existing ability has been destroyed. It is unfortunate but please try again next time.";// unknown text
+//[BACKPORT-BOUNDARY:verus04] 			getitem2 .@item_id,1,1,.@refine,0, .@card[0], .@card[1], .@card[2], .@card[3];
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		case 9:
+//[BACKPORT-BOUNDARY:verus04] 			cutin "dalle04.bmp",2;
+//[BACKPORT-BOUNDARY:verus04] 			specialeffect2 EF_SUI_EXPLOSION;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "This!";
+//[BACKPORT-BOUNDARY:verus04] 			mes "I'm sorry but the equipment has been destroyed.";// unknown text
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		default:
+//[BACKPORT-BOUNDARY:verus04] 			specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "^990000Socket" + .@slot + "^000000 will be Upgrade.";
+//[BACKPORT-BOUNDARY:verus04] 			getitem2 .@item_id,1,1,.@refine,0, .@card[0], .@card[1], .@card[2], .@card[3];
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 	case 2:	// Reset
+		// Note: the NPC doesn't check if the equipment is already enhanced
+//[BACKPORT-BOUNDARY:verus04] 		if (getiteminfo(.@card[0], ITEMINFO_SUBTYPE) == CARD_ENCHANT) set .@card[0], 0;
+//[BACKPORT-BOUNDARY:verus04] 		if (getiteminfo(.@card[1], ITEMINFO_SUBTYPE) == CARD_ENCHANT) set .@card[1], 0;
+//[BACKPORT-BOUNDARY:verus04] 		if (getiteminfo(.@card[2], ITEMINFO_SUBTYPE) == CARD_ENCHANT) set .@card[2], 0;
+//[BACKPORT-BOUNDARY:verus04] 		if (getiteminfo(.@card[3], ITEMINFO_SUBTYPE) == CARD_ENCHANT) set .@card[3], 0;
+//[BACKPORT-BOUNDARY:verus04] 		specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Reset the product's abilities.";
+//[BACKPORT-BOUNDARY:verus04] 		delitem 6752,1;	// Charleston_Parts
+//[BACKPORT-BOUNDARY:verus04] 		set Zeny, Zeny - 100000;
+		//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-BOUNDARY:verus04] 		getitem2 .@item_id,1,1,.@refine,0, .@card[0], .@card[1], .@card[2], .@card[3];
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	dfault:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "An unknown error has occurred.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	end;
+//[BACKPORT-BOUNDARY:verus04] }
+
+//[BACKPORT-BOUNDARY:verus04] verus04,63,112,4	script	Mass Charleston#3	4_F_CHARLESTON01,{
+//[BACKPORT-BOUNDARY:verus04] 	if (!checkweight(1201,1) || (MaxWeight - Weight) < 1000) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "^ff0000You have carried too many items, please reduce it and come back later.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	cutin "dalle03.bmp",2;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Eh, do I have a customer? Activating Salesman mode...";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	cutin "dalle01.bmp",2;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Charleston Factory's best-selling items: ^FF0000Upgrade Part Plate^000000 and ^FF0000Supplement Part Str^000000 now on sale!";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "For only ^FF00003,999,999^000000 zeny! Get yourself the ultra-performance action gears!";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Also available is the ^FF0000Pilebuncker^000000 ^FF0000Upgrade^000000 service!";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	switch( select( "Talk.", "Exchange Upgrade Parts.", "Exchange Supplementary devices.", "Upgrade Pilebuncker." ) ) {
+//[BACKPORT-BOUNDARY:verus04] 	case 1:
+//[BACKPORT-BOUNDARY:verus04] 		if (0 == 0) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "The Charleston Factory shut down, but its technology and products remain with us.";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Oh, haven't you heard the news? Oops, my bad. Please forget I said that.";
+			//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		cutin "dalle03.bmp",2;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I'm a mass version Charleston. I wasn't even given a serial number. Who knows how many copies of me were made? It could be a hundred, maybe even a thousand.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "The original Charleston is standing over there, but...";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "By the time Charlestons 1 and 2 escaped the factory, they're severely damaged. The battle that took place that day was incredible.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I can still remember Charlestons 1 and 2 destroying Dr. Ve's numerous creatures like it was yesterday.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "They also destroyed the mass version Charlestons modified by Dr. Ve to his bidding.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Of course there are others--like us here working on product upgrades--that were lucky enough to escape Dr. Ve's clutches and meet Charleston 1, who saved us all.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "After escaping with the modified Charleston 3, we came here.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Just so you know, this place was already in shambles when we arrived. We had nothing to do with its destruction. Perhaps...";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Sorry I sidetracked. Anyway, this is the problem.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Charlestons 1 and 2 were destroyed to a point of impairment. They tried to repair each other, to no avail.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "They realized they're damaged beyond repair. They salvaged however many parts they could, and built one body with one OS.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "And that's the newly built body. They blamed themselves for the destruction of the factory, and wanted to fix it. I'm afraid their data is corrupted or missing important memory.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "The characteristics of the data show more traits of Charleston 2, while the access method of the OS is more similar to that of Charleston 1. Charleston 1 always was the more sentimental one.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I don't know if the new Charleston is Charleston 1 or 2. I can't even tell what it misses or remembers the most.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "She keeps blaming herself for losing her data, for letting down her friends. Every time we try to console her,";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "she would say she doesn't have the heart or brain to remember or know. I wonder if she knows";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "that the memories of Humans fade and get distorted or glorified with time.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "And that Humans learn from their mistakes and failures. I read that from those paper memory devices called ^FF0000books^000000 in the factory.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "There was a small study in the ^FF0000south wing of the factory^000000. Later, it was turned into a robot development room.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Maybe the Charleston is more like the Humans than the rest of us. I just hope she doesn't have to be so sad.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "I feel so congested in the OS that I ranted. Perhaps I need to defragment my memory.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	case 2:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Upgrade Part Plate";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Class: Armor, indestructible.";
+//[BACKPORT-BOUNDARY:verus04] 		mes "-10% damage from Small and Medium monsters.";
+//[BACKPORT-BOUNDARY:verus04] 		mes "-10% damage from Large monsters when Upgraded to +7.";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Additional -5% damage from Small and Medium monsters when Upgraded to +9.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Weight: 300";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Required Level: 100";
+//[BACKPORT-BOUNDARY:verus04] 		callsub S_Buy, 15111;	// Upgrade_Part_Plate
+//[BACKPORT-BOUNDARY:verus04] 	case 3:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Supplement Part Str";
+//[BACKPORT-BOUNDARY:verus04] 		mes "ATK+ 5%!";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Additional ATK +1% every 4 Upgrade levels.";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Use with Vitality/Agility/Dexterity supplementary devices for best results.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Weight: 200";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Required Level: 100";
+//[BACKPORT-BOUNDARY:verus04] 		callsub S_Buy, 15110;	// Supplement_Part_Str
+//[BACKPORT-BOUNDARY:verus04] 	case 4:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "The last masterpiece of the Charleston Factory! You'll never find such fine Equipment anywhere else.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "To Upgrade Pilebuncker,";
+//[BACKPORT-BOUNDARY:verus04] 		mes "^FF00001 Pilebuncker^000000,";
+//[BACKPORT-BOUNDARY:verus04] 		mes "^FF0000300 Dented Iron Plates^000000,";
+//[BACKPORT-BOUNDARY:verus04] 		mes "and ^FF000015 Broken Engines^000000 are required.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		switch( select( "Pilebuncker S", "Pilebuncker P", "Pilebuncker T" ) ) {
+//[BACKPORT-BOUNDARY:verus04] 		case 1:
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Pilebuncker S";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Class: Blunt Weapon";
+//[BACKPORT-BOUNDARY:verus04] 			mes "ATK: 400";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Attack Speed bonus every 2 Upgrade levels.";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Weight: 300";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Weapon Level: 4";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Required Level: 130";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Mechanic only. Comes with 1 Card socket.";
+//[BACKPORT-BOUNDARY:verus04] 			set .@item_id, 16030;	// Pilebuncker_S
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 2:
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Pilebuncker P";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Class: Blunt Weapon";
+//[BACKPORT-BOUNDARY:verus04] 			mes "ATK: 450";
+//[BACKPORT-BOUNDARY:verus04] 			mes "ATK +5 every Upgrade level.";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Weight: 400";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Weapon Level: 4";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Required Level: 130";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Mechanic only.";
+//[BACKPORT-BOUNDARY:verus04] 			set .@item_id, 16031;	// Pilebuncker_P
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 3:
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Pilebuncker T";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Class: Blunt Weapon";
+//[BACKPORT-BOUNDARY:verus04] 			mes "ATK: 400";
+//[BACKPORT-BOUNDARY:verus04] 			mes "SP cost -1% every Upgrade level.";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Weight: 350";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Weapon Level: 4";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Required Level: 130";
+//[BACKPORT-BOUNDARY:verus04] 			mes "Mechanic only. Comes with 1 Card socket.";
+//[BACKPORT-BOUNDARY:verus04] 			set .@item_id, 16032;	// Pilebuncker_T
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Do you really want to Upgrade ^FF0000" + getitemname(.@item_id) + "^000000?";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	if (select( "I suggest you reconsider.", "Buy." ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "It's a good buy, but you still need to make your decision carefully.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (countitem(6751) > 299 && countitem(6750) > 14 && countitem(1549) > 0) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "You won't regret it! She's a Charleston factory!";
+//[BACKPORT-BOUNDARY:verus04] 		delitem 6751,300;	// Distorted_Iron_Plate
+//[BACKPORT-BOUNDARY:verus04] 		delitem 6750,15;	// Wrong_Engine
+//[BACKPORT-BOUNDARY:verus04] 		delitem 1549,1;		// Pilebuncker
+//[BACKPORT-BOUNDARY:verus04] 		getitem .@item_id,1;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Not enough materials for the Upgrade.";
+	//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] S_Buy:
+//[BACKPORT-BOUNDARY:verus04] 	set .@item_id, getarg(0);
+//[BACKPORT-BOUNDARY:verus04] 	mes "^FF0000Mechanic only^000000";
+//[BACKPORT-BOUNDARY:verus04] 	mes "^FF0000Price: 3,999,999 zeny^000000";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Do you really want to buy ^FF0000" + getitemname(.@item_id) + "^000000?";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	if (select( "I suggest you reconsider.", "Buy." ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "It's a good buy, but you still need to make your decision carefully.";
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+	//if (Zeny >= 3999998) {// typo?
+//[BACKPORT-BOUNDARY:verus04] 	if (Zeny >= 3999999) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "You won't regret it! She's a Charleston factory!";
+//[BACKPORT-BOUNDARY:verus04] 		set Zeny, Zeny - 3999999;
+//[BACKPORT-BOUNDARY:verus04] 		getitem .@item_id,1;
+		//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	mes "[Mass Charleston]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Good commodity value is not uncommon, please confirm your pocket depth!";
+	//[BACKPORT-GAP:close3] close3;
+//[BACKPORT-BOUNDARY:verus04] }
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 
+// Excellion
+//[BACKPORT-BOUNDARY:verus04] verus04,161,222,4	script	Grandpa picking up scrap iron	1_M_HOF,{
+//[BACKPORT-BOUNDARY:verus04] 	switch( 0 ) {
+//[BACKPORT-BOUNDARY:verus04] 	case 0:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Grandpa picking up scrap iron]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "There are two pieces of scrap iron I see the value of not Fibonacci to pick up and sell to the recycling bin, the result is not willing to deal with me.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Grandpa picking up scrap iron]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Because it's not iron? Each resource recycling are not willing to buy, is nerve-racking!";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	case 1:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Grandpa picking up scrap iron]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Hey! Did you just talk to that piece of junk? Or am I losing my sight?";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	case 2:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[Grandpa picking up scrap iron]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Oh, my God! That can't be sold to the Recycle Bin!";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] }
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] verus04,163,219,4	script	PLUTO_09#pa0829	4_SCR_AT_ROBOTS,{
+//[BACKPORT-BOUNDARY:verus04] 	disable_items;
+//[BACKPORT-BOUNDARY:verus04] 	if (checkweight(1201,1) == 0 || (MaxWeight - Weight) < 10000) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "^ff0000You have carried too many items, please reduce it and come back later.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (0 < 2) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "^0000ffAlthough the LCD still dim, but does not seem to work anymore.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	mes "^0000ffWhen the strange dinosaur pattern appears, go to the introduction screen.^000000";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "" + strcharinfo(0) + ",";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Hello. How can I help you?";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	switch( select( "Note", "Old Fuel and Huge Metal Scrap to exchange for gear.", "Design drawings for the production of Enchantment" ) ) {
+//[BACKPORT-BOUNDARY:verus04] 	case 1:
+//[BACKPORT-BOUNDARY:verus04] 		mes "^0000ffDinosaur forward screen appears and a description of the cute girl voice.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "This is 100 years since the genesis of the new PLUTO_09.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Bring Huge Metal Scrap and Old Fuel can help you make useful to you Equipment Oh~";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Do you want to make enchantment equipment? You bring the tank! I can make enchant with a design for you. Oh, good luck.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "This is the Tyrannosaurus rex that appeared in the dinosaur fairy tale, very beautiful... (Continue to appear boring dinosaur story)";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "^0000ffIn this introduction to the screen, presumed that the psychological state of the robot maker is extremely unstable.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	case 2:
+//[BACKPORT-BOUNDARY:verus04] 		setarray .@id[0],20773,15128; // Excelion_Wing, Excelion_Suit
+//[BACKPORT-BOUNDARY:verus04] 		mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Production equipment needs ^0000ff10 Huge Metal Scrap and 5 Old Fuel^000000.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		switch( select( "Quit.", "Making the " + getitemname(.@id[0]), "Making the " + getitemname(.@id[1]) ) ) {
+//[BACKPORT-BOUNDARY:verus04] 		case 1:
+//[BACKPORT-BOUNDARY:verus04] 			mes "^0000ffDinosaurs gazed at the picture here after staying a bit closed.^000000";
+//[BACKPORT-BOUNDARY:verus04] 			close;
+//[BACKPORT-BOUNDARY:verus04] 		case 2:
+//[BACKPORT-BOUNDARY:verus04] 			set .@item_id, .@id[0];
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		case 3:
+//[BACKPORT-BOUNDARY:verus04] 			set .@item_id, .@id[1];
+//[BACKPORT-BOUNDARY:verus04] 			break;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		if (countitem(6961) < 10 || countitem(6962) < 5) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "I have already talked about the production equipment needs ^0000ff10 " + getitemname(6961) + " and 5 " + getitemname(6962) + "^000000, you don't have enough.";
+//[BACKPORT-BOUNDARY:verus04] 			close;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		specialeffect EF_SPELLBREAKER;
+//[BACKPORT-BOUNDARY:verus04] 		delitem 6962,5;// OldTank
+//[BACKPORT-BOUNDARY:verus04] 		delitem 6961,10;// LargeScrap
+//[BACKPORT-BOUNDARY:verus04] 		getitem .@item_id,1;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Your equipment is ready. Let's see if it fits.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	case 3:
+//[BACKPORT-BOUNDARY:verus04] 		while(1) {
+//[BACKPORT-BOUNDARY:verus04] 			if (countitem(6962) < 5)
+//[BACKPORT-BOUNDARY:verus04] 				set .@string$, "^aaaaaaInsufficient fuel for making design drawings.^000000";
+//[BACKPORT-BOUNDARY:verus04] 			else
+//[BACKPORT-BOUNDARY:verus04] 				set .@string$, "Production design (^ff0000 success rate 30%^000000)";
+//[BACKPORT-BOUNDARY:verus04] 			mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "If you give me 5 " + getitemname(6962) + ", I can do the production of design drawings look!";
+//[BACKPORT-BOUNDARY:verus04] 			mes "----------";
+//[BACKPORT-BOUNDARY:verus04] 			mes "^0000ffLittle dinosaur running around on the screen.^000000";
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 			if (select( "Quit.", .@string$ ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 				mes "^0000ffIt's over after showing that the dinosaurs are stuffing themselves.^000000";
+//[BACKPORT-BOUNDARY:verus04] 				close;
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			set .@fail, false;
+//[BACKPORT-BOUNDARY:verus04] 			set .@reac_rnd, rand(1,10000);
+//[BACKPORT-BOUNDARY:verus04] 			if (.@reac_rnd < 26)		set .@en_name, 6977;	// Reactor_A_STR_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 51)	.@en_name = 6978;	// Reactor_A_INT_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 251)	.@en_name = 6979;	// Reactor_A_DEF_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 326)	.@en_name = 6981;	// Reactor_A_ATK_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 401)	.@en_name = 6982;	// Reactor_A_MATK_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 601)	.@en_name = 6980;	// Reactor_A_AVOI_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 801)	.@en_name = 6983;	// Reactor_A_MHP_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 1001)	.@en_name = 6984;	// Reactor_A_MSP_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 1151)	.@en_name = 6986;	// Reactor_A_ASPD_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 1401)	.@en_name = 6975;	// Reactor_Cure_201_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 1551)	.@en_name = 6976;	// Reactor_Cure_202_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 1751)	.@en_name = 6973;	// Reactor_Cure_101_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 1851)	.@en_name = 6974;	// Reactor_Cure_102_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 1901)	.@en_name = 6985;	// Reactor_A_FROZ_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 2101)	.@en_name = 6970;	// Reactor_T_WATER_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 2301)	.@en_name = 6971;	// Reactor_T_GROUND_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 2501)	.@en_name = 6969;	// Reactor_T_FIRE_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 2701)	.@en_name = 6972;	// Reactor_T_WIND_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 2776)	.@en_name = 6966;	// Reactor_P_WATER_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 2851)	.@en_name = 6967;	// Reactor_P_GROUND_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 2926)	.@en_name = 6965;	// Reactor_P_FIRE_
+//[BACKPORT-BOUNDARY:verus04] 			else if (.@reac_rnd < 3001)	.@en_name = 6968;	// Reactor_P_WIND_
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				set .@fail, true;
+//[BACKPORT-BOUNDARY:verus04] 				set .@reac_rnd2, rand(1,13000);
+//[BACKPORT-BOUNDARY:verus04] 				if (.@reac_rnd2 < 2)
+//[BACKPORT-BOUNDARY:verus04] 					set .@en_name, 969;	// Gold
+//[BACKPORT-BOUNDARY:verus04] 				else if (.@reac_rnd2 < 1002)
+//[BACKPORT-BOUNDARY:verus04] 					set .@en_name, 999;	// Steel
+//[BACKPORT-BOUNDARY:verus04] 				else if (.@reac_rnd2 < 3002)
+//[BACKPORT-BOUNDARY:verus04] 					set .@en_name, 998;	// Iron
+//[BACKPORT-BOUNDARY:verus04] 				else if (.@reac_rnd2 < 8002)
+//[BACKPORT-BOUNDARY:verus04] 					set .@en_name, 1002;	// Iron_Ore
+//[BACKPORT-BOUNDARY:verus04] 				else
+//[BACKPORT-BOUNDARY:verus04] 					set .@en_name, 7054;	// Brigan
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			if (countitem(6962) < 5)
+//[BACKPORT-BOUNDARY:verus04] 				mes "^0000ffThe picture shows the dinosaur silently looking at the empty bowl, it may be an error message when the material is insufficient!^000000";
+//[BACKPORT-BOUNDARY:verus04] 			else {
+//[BACKPORT-BOUNDARY:verus04] 				specialeffect EF_SPELLBREAKER;
+//[BACKPORT-BOUNDARY:verus04] 				delitem 6962,5;// OldTank
+//[BACKPORT-BOUNDARY:verus04] 				getitem .@en_name,1;
+//[BACKPORT-BOUNDARY:verus04] 				mes "[PLUTO_09]";
+//[BACKPORT-BOUNDARY:verus04] 				if (.@fail)
+//[BACKPORT-BOUNDARY:verus04] 					mes "What a pity, the design failed.";
+//[BACKPORT-BOUNDARY:verus04] 				else
+//[BACKPORT-BOUNDARY:verus04] 					mes "Great, the design was made.";
+//[BACKPORT-BOUNDARY:verus04] 			}
+//[BACKPORT-BOUNDARY:verus04] 			next;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		end;
+//[BACKPORT-BOUNDARY:verus04] 	default:
+//[BACKPORT-BOUNDARY:verus04] 		mes "^0000ffA screen showing howling that a dinosaur may not understand the command.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	end;
+//[BACKPORT-BOUNDARY:verus04] }
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] verus04,165,217,4	script	MARS_01#pa0829	4_SCR_MT_ROBOTS,{
+//[BACKPORT-BOUNDARY:verus04] 	disable_items;
+//[BACKPORT-BOUNDARY:verus04] 	if (checkweight(1201,1) == 0 || (MaxWeight - Weight) < 10000) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "^ff0000You have carried too many items, please reduce it and come back later.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	switch( 0 ) {
+//[BACKPORT-BOUNDARY:verus04] 	case 0:
+//[BACKPORT-BOUNDARY:verus04] 		mes "Blurred LCD screen may be frightened or happy and intense shaking, perhaps due to lack of power and can not complete the presentation.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		if (select( "Just ignore it.", "Press every button." ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "It may be a pre-scrap robot that is common everywhere and doesn't require much attention.";
+//[BACKPORT-BOUNDARY:verus04] 			close;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		mes "[?????]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Hello! I'm MARS_01, an exploration robot. Currently, I have entered hibernation mode to save power. The related functions are set as follows.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		if (select( "Interrupt the machine", "Supply of fuel" ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "The robot re-enters hibernation mode after a faint sound.";
+//[BACKPORT-BOUNDARY:verus04] 			close;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "We are super power robot, as long as the old oil 1 will let me and the companion PLUTO has more than 90% of the power.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "If you find Old Fuel, please insert the fuel into the mouth of the bottom of the screen, so you can lift the hibernation mode.";
+//[BACKPORT-BOUNDARY:verus04] 		setquest 12368;	// Operate the old robot
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	case 1:
+//[BACKPORT-BOUNDARY:verus04] 		if (countitem(6962) < 1) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 			mes "If you find 1 " + getitemname(6962) + ", please insert the fuel into the mouth of the bottom of the screen, so you can lift the hibernation mode.";
+//[BACKPORT-BOUNDARY:verus04] 			close;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		mes "Maybe we ran out of power when we went looking for fuel. should we put in the fuel?";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		if (select( "Quit.", "Put in the fuel" ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 			mes "The old robot may be running out of power and not responding at all.";
+//[BACKPORT-BOUNDARY:verus04] 			close;
+//[BACKPORT-BOUNDARY:verus04] 		}
+//[BACKPORT-BOUNDARY:verus04] 		mes "When the fuel is put in, the sound screen opens.";
+//[BACKPORT-BOUNDARY:verus04] 		npctalk "Whoa, whoa?! It moves!!!", "Grandpa picking up scrap iron";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Start the inspection system and confirm the damage of each part.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Power meter 10%, dashboard normal, body skeleton 13%, perform mining operations well.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Pluto_09 began to inject energy for mining auxiliary robot.";
+//[BACKPORT-BOUNDARY:verus04] 		npctalk "Energy response confirmed. It's working.", "PLUTO_09#pa0829";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Thank you for getting me started, I will reset the person who started me to be a manager.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		select("Enter a name.");
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "" + strcharinfo(0) + ",";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Hello! The fuel has been fully charged.";
+//[BACKPORT-BOUNDARY:verus04] 		delitem 6962,1;// OldTank
+//[BACKPORT-BOUNDARY:verus04] 		completequest 12368;
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	case 2:
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "" + strcharinfo(0) + ",";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Hello! Can I help you?";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	switch( select( "Note", "Enhanced " + getitemname(20773), "Enhanced " + getitemname(15128) ) ) {	// Excelion_Wing, Excelion_Suit
+//[BACKPORT-BOUNDARY:verus04] 	case 1:
+//[BACKPORT-BOUNDARY:verus04] 		mes "^0000ffSoon the instructions again.^000000";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "While waiting for the new owner, we continue to update to the latest version.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "If you bring aak Seri Wong propulsion wing, aak Seri Wong jacket equipment and strengthen the design, I will strengthen the equipment according to the design.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "According to the standard design drawings of the operation, the equipment will not be damaged during the process, but the number of maximum upgrade will change depending on the type of equipment.";
+//[BACKPORT-BOUNDARY:verus04] 		next;
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Welcome back again~";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	case 2:
+//[BACKPORT-BOUNDARY:verus04] 		set .@part, EQI_GARMENT;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	case 3:
+//[BACKPORT-BOUNDARY:verus04] 		set .@part, EQI_ARMOR;
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	}
+	// <item ID required>, <item enchant ID>, <max number of this enchant on armor>, <max number of this enchant on garment>, <enchant on first slot only>
+//[BACKPORT-BOUNDARY:verus04] 	setarray .@list[0],
+//[BACKPORT-BOUNDARY:verus04] 		6965, 4970, 1,0,3,	// Reactor_P_FIRE_		Reactor_P_FIRE
+//[BACKPORT-BOUNDARY:verus04] 		6966, 4971, 1,0,3,	// Reactor_P_WATER_		Reactor_P_WATER
+//[BACKPORT-BOUNDARY:verus04] 		6967, 4972, 1,0,3,	// Reactor_P_GROUND_	Reactor_P_GROUND
+//[BACKPORT-BOUNDARY:verus04] 		6968, 4973, 1,0,3,	// Reactor_P_WIND_		Reactor_P_WIND
+//[BACKPORT-BOUNDARY:verus04] 		6969, 4974, 0,3,0,	// Reactor_T_FIRE_		Reactor_T_FIRE
+//[BACKPORT-BOUNDARY:verus04] 		6970, 4975, 0,3,0,	// Reactor_T_WATER_		Reactor_T_WATER
+//[BACKPORT-BOUNDARY:verus04] 		6971, 4976, 0,3,0,	// Reactor_T_GROUND_	Reactor_T_GROUND
+//[BACKPORT-BOUNDARY:verus04] 		6972, 4977, 0,3,0,	// Reactor_T_WIND_		Reactor_T_WIND
+//[BACKPORT-BOUNDARY:verus04] 		6973, 4978, 3,3,0,	// Reactor_Cure_101_	Reactor_Cure_101
+//[BACKPORT-BOUNDARY:verus04] 		6974, 4979, 3,3,0,	// Reactor_Cure_102_	Reactor_Cure_102
+//[BACKPORT-BOUNDARY:verus04] 		6975, 4980, 3,3,0,	// Reactor_Cure_201_	Reactor_Cure_201
+//[BACKPORT-BOUNDARY:verus04] 		6976, 4981, 3,3,0,	// Reactor_Cure_202_	Reactor_Cure_202
+//[BACKPORT-BOUNDARY:verus04] 		6977, 4982, 1,0,0,	// Reactor_A_STR_		Reactor_A_STR
+//[BACKPORT-BOUNDARY:verus04] 		6978, 4983, 1,0,0,	// Reactor_A_INT_		Reactor_A_INT
+//[BACKPORT-BOUNDARY:verus04] 		6979, 4984, 3,3,0,	// Reactor_A_DEF_		Reactor_A_DEF
+//[BACKPORT-BOUNDARY:verus04] 		6980, 4985, 1,1,0,	// Reactor_A_AVOI_		Reactor_A_AVOI
+//[BACKPORT-BOUNDARY:verus04] 		6981, 4986, 3,3,0,	// Reactor_A_ATK_		Reactor_A_ATK
+//[BACKPORT-BOUNDARY:verus04] 		6982, 4987, 3,3,0,	// Reactor_A_MATK_		Reactor_A_MATK
+//[BACKPORT-BOUNDARY:verus04] 		6983, 4988, 3,3,0,	// Reactor_A_MHP_		Reactor_A_MHP
+//[BACKPORT-BOUNDARY:verus04] 		6984, 4989, 3,3,0,	// Reactor_A_MSP_		Reactor_A_MSP
+//[BACKPORT-BOUNDARY:verus04] 		6985, 4990, 1,0,0,	// Reactor_A_FROZ_		Reactor_A_FROZ
+//[BACKPORT-BOUNDARY:verus04] 		6986, 4991, 1,1,0;	// Reactor_A_ASPD_		Reactor_A_ASPD
+//[BACKPORT-BOUNDARY:verus04] 	set .@size, getarraysize(.@list);
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	for (set .@i,0; .@i < .@size; set .@i,.@i + 5 ) {
+//[BACKPORT-BOUNDARY:verus04] 		if (countitem(.@list[.@i]) < 1)
+			//[BACKPORT-GAP:sprintf] .@menu$ += sprintf( "^aaaaaa%s (Missing)^000000:", getitemname(.@list[.@i]) );
+//[BACKPORT-BOUNDARY:verus04] 		else
+			//[BACKPORT-GAP:sprintf] .@menu$ += sprintf( "%s:", getitemname(.@list[.@i]) );
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 	mes "" + strcharinfo(0) + ",";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Choose the enchant you want to use!";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	set .@s, select("Quit.:" + .@menu$) - 2;
+//[BACKPORT-BOUNDARY:verus04] 	if (.@s < 0) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "So far.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	set .@s, .@s * 5;
+//[BACKPORT-BOUNDARY:verus04] 	set .@item_req, .@list[.@s];
+//[BACKPORT-BOUNDARY:verus04] 	set .@item_enchant_id, .@list[.@s+1];
+//[BACKPORT-BOUNDARY:verus04] 	set .@first_slot_only, .@list[.@s+4];
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	set .@equip_id, getequipid(.@part);
+//[BACKPORT-BOUNDARY:verus04] 	set .@equip_refine, getequiprefinerycnt(.@part);
+//[BACKPORT-BOUNDARY:verus04] 	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	if (countitem(.@item_req) < 1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "So far.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (.@part == EQI_ARMOR)
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_num_enchant, .@list[.@s+2];
+//[BACKPORT-BOUNDARY:verus04] 	else if (.@part == EQI_GARMENT)
+//[BACKPORT-BOUNDARY:verus04] 		set .@max_num_enchant, .@list[.@s+3];
+//[BACKPORT-BOUNDARY:verus04] 	else {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Please contact the administrator.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 
+	// anti-hack
+//[BACKPORT-BOUNDARY:verus04] 	if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine)) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Did you remove your gear?";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	if (.@card[0] > 0 && .@item_enchant_id == .@card[0]) { set .@slot_sum,.@slot_sum+1; }
+//[BACKPORT-BOUNDARY:verus04] 	if (.@card[1] > 0 && .@item_enchant_id == .@card[1]) { set .@slot_sum,.@slot_sum+1; }
+//[BACKPORT-BOUNDARY:verus04] 	if (.@card[2] > 0 && .@item_enchant_id == .@card[2]) { set .@slot_sum,.@slot_sum+1; }
+//[BACKPORT-BOUNDARY:verus04] 	if (.@card[3] > 0 && .@item_enchant_id == .@card[3]) { set .@slot_sum,.@slot_sum+1; }
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	if (.@max_num_enchant < 1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "The design you choose is incompatible with the equipment.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (.@first_slot_only > 0 && .@card[3] != 0) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "This design is only for the first time to strengthen the use, but the equipment has other performance, please use other design to strengthen it!";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (.@slot_sum >= .@max_num_enchant) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "The maximum number of enchants is " + .@max_num_enchant + ". The item has reached the upper limit.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	if (.@card[1] != 0) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "The number of equipment has reached the limit.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 
+	// anti-hack
+//[BACKPORT-BOUNDARY:verus04] 	if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine)) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Please pay special attention if the equipment will be removed.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	switch( .@equip_id ) {
+//[BACKPORT-BOUNDARY:verus04] 	case 20773:	// Excelion_Wing
+//[BACKPORT-BOUNDARY:verus04] 	case 15128:	// Excelion_Suit
+//[BACKPORT-BOUNDARY:verus04] 		break;
+//[BACKPORT-BOUNDARY:verus04] 	default:
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "The product does not have a serial number, does not meet the specifications of the product can not be strengthened.";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	mes "[MARS_01]^0000ff";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Choose " + getequipname(.@part) + " + " + getitemname(.@item_req) + ",";
+//[BACKPORT-BOUNDARY:verus04] 	mes "^000000------------------";
+//[BACKPORT-BOUNDARY:verus04] 	mes "Your selected design can be upgraded to the equipment limit ^0000ff" + .@max_num_enchant + " the same design, ^000000so far, enhanced ^0000ff" + .@slot_sum + " times^000000, do you want to continue?";
+//[BACKPORT-BOUNDARY:verus04] 	next;
+//[BACKPORT-BOUNDARY:verus04] 	if (select( "I'll think about it...", "Go on." ) == 1) {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "Come back next time you need me~";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 
+	// anti-hack
+//[BACKPORT-BOUNDARY:verus04] 	if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine))
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	if (.@card[3] == 0) {
+//[BACKPORT-BOUNDARY:verus04] 		set .@enchant_count, 1;
+//[BACKPORT-BOUNDARY:verus04] 		set .@card[3], .@item_enchant_id;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	else if (.@card[2] == 0) {
+//[BACKPORT-BOUNDARY:verus04] 		set .@enchant_count, 2;
+//[BACKPORT-BOUNDARY:verus04] 		set .@card[2], .@item_enchant_id;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	else if (.@card[1] == 0) {
+//[BACKPORT-BOUNDARY:verus04] 		set .@enchant_count, 3;
+//[BACKPORT-BOUNDARY:verus04] 		set .@card[1], .@item_enchant_id;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	else {
+//[BACKPORT-BOUNDARY:verus04] 		mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 		mes "The equipment has reached the upper limit of strengthening Hello!";
+//[BACKPORT-BOUNDARY:verus04] 		close;
+//[BACKPORT-BOUNDARY:verus04] 	}
+//[BACKPORT-BOUNDARY:verus04] 	specialeffect2 EF_REPAIRWEAPON;
+//[BACKPORT-BOUNDARY:verus04] 	mes "[MARS_01]";
+//[BACKPORT-BOUNDARY:verus04] 	if (.@enchant_count < 5)
+//[BACKPORT-BOUNDARY:verus04] 		mes "The first equipment has been upgraded ^990000" + .@enchant_count + " times^000000.";
+//[BACKPORT-BOUNDARY:verus04] 	else
+//[BACKPORT-BOUNDARY:verus04] 		mes "For additional performance equipment^990000 ^000000 upgrade.";	// never displayed
+//[BACKPORT-BOUNDARY:verus04] 
+//[BACKPORT-BOUNDARY:verus04] 	delitem .@item_req, 1;
+	//[BACKPORT-GAP:delequip] delequip .@part;
+//[BACKPORT-BOUNDARY:verus04] 	getitem2 .@equip_id,1,1,.@equip_refine,0,.@card[0],.@card[1],.@card[2],.@card[3];
+//[BACKPORT-BOUNDARY:verus04] 	close;
+//[BACKPORT-BOUNDARY:verus04] }

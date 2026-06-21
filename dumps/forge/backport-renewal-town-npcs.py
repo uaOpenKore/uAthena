@@ -147,17 +147,76 @@ def adapt_text(text):
         # required '.@var' anchor before ++/-- skips prose like mes "Snort--" / "--- ".
         before_d = line
         line = re.sub(r'for\s*\(\s*(\.@\w+)\s*=\s*([^;]+);', r'for (set \1,\2;', line)
-        line = re.sub(r'(\.@\w+)\+\+', r'set \1,\1+1', line)
-        line = re.sub(r'(\.@\w+)--', r'set \1,\1-1', line)
+        # postfix/prefix ++/-- -> set var,var±1. Lookahead/behind guards keep us at
+        # statement level: don't rewrite inside an array index like .@arr[.@i++] (the
+        # ++ there is followed by ']'), which would inject a 'set' into a subscript.
+        line = re.sub(r'(\.@\w+)\+\+(?=[;\s)]|$)', r'set \1,\1+1', line)
+        line = re.sub(r'(\.@\w+)--(?=[;\s)]|$)', r'set \1,\1-1', line)
+        line = re.sub(r'(?<=[(;\s])\+\+(\.@\w+)', r'set \1,\1+1', line)
+        line = re.sub(r'(?<=[(;\s])--(\.@\w+)', r'set \1,\1-1', line)
         if line != before_d:
             events.append(("ADAPT", "for/incr->set", before_d.strip()))
-        # CLASS A: rAthena '=' assignment -> uAthena 'set var, expr' (old parser has no
-        # '=' assignment). Single '=' only (the [^=] guard skips ==, the \.@? anchor and
-        # leading-var match skip +=,<=,>=,!= and mid-expression equals).
-        ma = re.match(r'^(\s*)(\.@?\w+\$?(?:\[[^\]]*\])?)\s*=\s*([^=].*?);\s*$', line)
-        if ma:
-            line = f'{ma.group(1)}set {ma.group(2)}, {ma.group(3)};'
+        # VAR = a script variable: optional sigil (. $ ' #), optional @, name, optional $,
+        # optional [index]. Covers .@x, $global, 'npc, #account, bare Zeny, .@a$[.@i].
+        VAR = r"[.$'#]?@?\w+\$?(?:\[[^\]]*\])?"
+        KW = ("if", "while", "for", "switch", "set", "else")
+        # for-incr compound: for(...; var OP= expr) -> for(...; set var,var OP expr)
+        line = re.sub(r'(for\s*\([^;]*;[^;]*;\s*)(' + VAR + r')\s*([+\-*/])=\s*([^)]+)\)',
+                      lambda m: f'{m.group(1)}set {m.group(2)},{m.group(2)} {m.group(3)} {m.group(4)})',
+                      line)
+        # CLASS A-compound: 'var OP= expr;' -> 'set var, var OP expr;' (no compound assign)
+        mc = re.match(r'^(\s*)(' + VAR + r')\s*([+\-*/])=\s*([^=].*?);(\s*//.*)?$', line)
+        if mc and mc.group(2) not in KW:
+            line = (f'{mc.group(1)}set {mc.group(2)}, {mc.group(2)} {mc.group(3)} '
+                    f'{mc.group(4)};{mc.group(5) or ""}')
+            events.append(("ADAPT", "op=->set", stripped))
+        # callshop arity: uAthena sig "si" needs a flag; rAthena 1-arg (literal OR
+        # concatenated name, paren or space form) -> normalize to: callshop <name>,1
+        m_cs = re.match(r'^(\s*)callshop\s*\(?\s*(.+?)\s*\)?\s*;(\s*//.*)?$', line)
+        if m_cs and "," not in re.sub(r'\([^()]*\)', '', m_cs.group(2)):  # no top-level comma = 1 arg
+            line = f'{m_cs.group(1)}callshop {m_cs.group(2)},1;{m_cs.group(3) or ""}'
+            events.append(("ADAPT", "callshop+flag", stripped))
+        # movenpc arity: uAthena sig is "sii" (map,x,y); rAthena 4-arg adds a facing dir
+        # -> drop the trailing dir argument.
+        m_mv = re.sub(r'(\bmovenpc\s+"[^"]*"\s*,\s*\d+\s*,\s*\d+)\s*,\s*\d+(\s*;)', r'\1\2', line)
+        if m_mv != line:
+            line = m_mv
+            events.append(("ADAPT", "movenpc-dropdir", stripped))
+        # NPC display-state header: rAthena 'script(CLOAKED|DISABLED|HIDDEN)' attaches a
+        # display state to the definition. uAthena's parser has no such state -> drop the
+        # '(STATE)' so the NPC (and its duplicates) load as a normal NPC. Renewal-only
+        # cosmetic; the dummy templates use sprite -1 (already invisible) anyway.
+        m_ss = re.sub(r'(\t)script\(\w+\)(\t)', r'\1script\2', line)
+        if m_ss != line:
+            line = m_ss
+            events.append(("ADAPT", "script-dropstate", stripped))
+        # inline-if assignment: 'if (cond) var = val;' -> 'if (cond) set var, val;'
+        mif = re.match(r'^(\s*if\s*\(.*?\)\s*)(' + VAR + r')\s*=\s*([^=].*?);(\s*//.*)?$', line)
+        if mif:
+            line = f'{mif.group(1)}set {mif.group(2)}, {mif.group(3)};{mif.group(4) or ""}'
+            events.append(("ADAPT", "if-=->set", stripped))
+        # CLASS A: rAthena '=' assignment -> uAthena 'set var, expr' (no '=' assignment).
+        # Single '=' only ([^=] guard skips ==). VAR allows sigils/bare vars/index; trailing
+        # // comment preserved. Keyword guard avoids matching control-flow heads.
+        ma = re.match(r'^(\s*)(' + VAR + r')\s*=\s*([^=].*?);(\s*//.*)?$', line)
+        if ma and ma.group(2) not in KW:
+            line = f'{ma.group(1)}set {ma.group(2)}, {ma.group(3)};{ma.group(4) or ""}'
             events.append(("ADAPT", "=->set", stripped))
+        # CLASS E: gap buildins used INSIDE expressions/conditions (uAthena lacks them) ->
+        # replace the whole call with a safe constant so the line parses. Semantics degrade
+        # (the condition becomes constant); logged. Balanced-paren match handles 1 nesting
+        # level (e.g. inarray(.@x, getarg(0))). Only outside string literals.
+        for fn_name, val in (("inarray", "-1"), ("countinarray", "0"),
+                             ("isbegin_quest", "0"), ("jobcanentermap", "1"),
+                             ("getequiprandomoption", "0"), ("checkmadogear", "0"),
+                             ("checkdragon", "0"), ("checkwug", "0"), ("ismounting", "0"),
+                             ("is_party_leader", "0"), ("guild_has_permission", "0"),
+                             ("getequiparmorlv", "1")):
+            if fn_name in line and ('"' not in line or fn_name in code_only(line)):
+                new = re.sub(r'\b' + fn_name + r'\s*\([^()]*(?:\([^()]*\)[^()]*)*\)', val, line)
+                if new != line:
+                    line = new
+                    events.append(("ADAPT", fn_name + "->" + val, stripped))
         # detect remaining gap buildins + ET_* emotion consts (over code only, NOT
         # inside string literals: a gap word in mes/dialogue text is prose, not a call)
         code = code_only(line)

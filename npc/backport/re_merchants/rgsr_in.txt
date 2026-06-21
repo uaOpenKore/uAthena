@@ -1,0 +1,456 @@
+//===== uAthena backport (renewal merchants, GENERATED) ======
+//= Port from rathena-ref; rAthena-only tokens adapted, marketshop->shop.
+//= DO NOT EDIT - regenerate via dumps/forge/backport-renewal-merchants.py
+//= Source: npc/re/merchants/rgsr_in.txt
+//============================================================
+//===== rAthena Script ======================================= 
+//= Reform NPCs in rgsr_in
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [Capuche]
+//============================================================
+
+itemmall,14,50,3	script	Equipment Reform PR Agent#it01	4_F_ZONDAGIRL,{
+	mes "[Equipment Reform PR Agent]";
+	mes "Hello, adventurer!";
+	mes "Are you unhappy with your equipment now?";
+	mes "Don't you want to try a new modification than just any other normal method?";
+	mes "Join the Regenschirm Institute!";
+	next;
+	switch( select( "Let's go.", "Listen to the explanation.", "Quit." ) ) {
+	case 1:
+		mes "[Equipment Reform PR Agent]";
+		mes "Good! Other facilities in the institute are confidential and are not accessible, so we will guide you on a special path where you outsiders can enter!";
+		close2;
+		warp "rgsr_in",125,170;
+		end;
+	case 2:
+		mes "[Equipment Reform PR Agent]";
+		mes "All around the world research is being conducted at the Regenschirm Institute to modify weapons, armor, accessories and other equipment items...";
+		mes "We're still collecting data and researching modifications, so we need a lot of adventurer's equipment to increase our modification research.";
+		next;
+		mes "[Equipment Reform PR Agent]";
+		mes "Research is ongoing, so please look forward to the addition of multiple new equipment as soon as it is completed!";
+		close;
+	case 3:
+		mes "[Equipment Reform PR Agent]";
+		mes "If you're interested later, come back!";
+		close;
+	}
+}
+lighthalzen,99,156,3	duplicate(Equipment Reform PR Agent#it01)	Equipment Reform PR Agent#lh01	4_F_ZONDAGIRL
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,112,167,7	script	Enchant Researcher#rg02-1	MD_ED_M_SCIENCE,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Torus]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Huh? Do you have anyone else to see on our team other than the team leader?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Then that's me~";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "I am in charge of Enchants.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Let's see what you got?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	if (select( "Modified OS Weapon Enchant", "Quit" ) == 2) {
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Torus]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Come back whenever you need it.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "And we need the research.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		close;
+//[BACKPORT-BOUNDARY:rgsr_in] 	}
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Torus]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Where...";
+//[BACKPORT-BOUNDARY:rgsr_in] 	close2;
+	//[BACKPORT-GAP:item_enchant] item_enchant(33);
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,115,169,5	script	Weapon Researcher#rg02	MD_ED_M_SCIENCE,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Let's see... You're a guest.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "I like people who are sure what they want.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Modifiable items can also be read as <TIPBOX>[List]<INFO>9163</INFO></TIPBOX>.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "I will try to answer any questions you have.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	switch( select( "Thanos Weapons", "OS Weapons", "Quit" ) ) {
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 1:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "^0000FFThanos weapon^000000 mods have lower and intermediate levels in the modification method.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		next;
+//[BACKPORT-BOUNDARY:rgsr_in] 		switch( select( "Lower mods", "Intermediate mods", "Quit" ) ) {
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 1:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Thanos weapon lower modification.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Refine level is reduced by 5^000000, but consumes less materials.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "And for mods, the weapon needs to be refine level +9 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+			//[BACKPORT-GAP:item_reform] item_reform("Thanos_W_Reform_1");
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 2:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Thanos Weapon intermediate modification.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Refine level is reduced by 1^000000, but consumes more material.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "And for mods, the weapon needs to be refine level +9 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+			//[BACKPORT-GAP:item_reform] item_reform("Thanos_W_Reform_2");
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 3:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "If you need mods, come back.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "You are welcome any time you help us with our research.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close;
+//[BACKPORT-BOUNDARY:rgsr_in] 		}
+//[BACKPORT-BOUNDARY:rgsr_in] 		end;
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 2:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "^0000FFOS Weapons^000000...";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "For modification, the refine level must be +7 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Refine level does not decrease.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Did you bring the stuff?";
+//[BACKPORT-BOUNDARY:rgsr_in] 		next;
+//[BACKPORT-BOUNDARY:rgsr_in] 		if (select( "Convert", "Quit" ) == 2) {
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "If you need mods, come back.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "You are welcome any time you help us with our research.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close;
+//[BACKPORT-BOUNDARY:rgsr_in] 		}
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Let's see what you brought.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		close2;
+		//[BACKPORT-GAP:item_reform] item_reform("OS_Weapon_Reform");
+//[BACKPORT-BOUNDARY:rgsr_in] 		end;
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 3:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Frasa]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "If you need mods, come back.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "You are welcome any time you help us with our research.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		close;
+//[BACKPORT-BOUNDARY:rgsr_in] 	}
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad");
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,115,180,5	script	Armor Researcher#rg02	MD_ED_M_SCIENCE,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Algebra]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Ah, we've come this far, but our team's research is still lacking in experiments.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "I'll improve it a bit next time and get the captain's permission, then let's proceed.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Okay?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Grimace.", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	close;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Fresa" );
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,135,186, 7	script	Assistant#rg02	4_M_ALCHE_D,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Don't touch it... It's dangerous...", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	sleep2 300;
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: ...Oh..............", "Assistant#rg04", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Don't worry, it's nothing...", "Assistant#rg03", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,135,189,5	script	Assistant#rg03	4_M_REPAIR,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: ...Paycheck... Give it to me...? Then ask unnecessary questions...", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Of course...", "Assistant#rg02", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,137,187,3	script	Assistant#rg04	4_F_HUWOMAN,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: No, not that.... That's it. That's it...", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	sleep2 300;
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Hick... It was almost a big day... You didn't see him, did you?", "Assistant#rg02", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Grid: ?", "Ore Researcher#rg02", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,146,169,3	script	Assistant#rg05	4_M_REPAIR,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Quiet... I'm...", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Licht");
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,146,167,3	script	Assistant#rg06	4_M_REPAIR,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Our leader is a great guy. I'm still young...", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Licht");
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,144,170,5	script	Assistant#rg07	4_M_REPAIR,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Hey, this data was really cool. I was wise to follow you.", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Licht");
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,106,167,5	script	Assistant#rg11	4_M_REPAIR,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Can we move to a larger lab one day after we do more research?", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	sleep2 300;
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: ....Hang.", "Assistant#rg10", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,109,167,3	script	Assistant#rg10	4_M_REPAIR,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: ....I'm.", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	sleep2 300;
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Adventurer, please walk carefully. The building is old and the floor is a little creaky.", "Assistant#rg11", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,146,178,3	script	Assistant#rg20	4_M_REPAIR,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Ask our lead about any questions you have.", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,143,180,5	script	Assistant#rg21	4_M_REPAIR,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: Isn't it a little noisy outside?", "", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	sleep2 200;
+//[BACKPORT-BOUNDARY:rgsr_in] 	npctalk "Assistant: I wish I could move to a good soundproofed place.", "Assistant#rg20", bc_self;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Atnad" );
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,131,187,5	script	Ore Researcher#rg02	MD_ED_M_SCIENCE,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Come on.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "It's a low-budget lab, so it's always like this.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "My assistants and I refine the gemstones used in this lab. For a fee.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	switch( select( "View the exchange list", "What are you exchanging?", "Quit" ) ) {
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 1:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Let's see...";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Now there are these things.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		next;
+//[BACKPORT-BOUNDARY:rgsr_in] 		switch( select( "Gemstone refining", "Top ore exchange", "Buy additional ore", "Cancel" ) ) {
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 1:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Gemstone refining.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+//[BACKPORT-BOUNDARY:rgsr_in] 			callshop "barter_rgsr_in_1",1;
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 2:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Top ore exchange.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+//[BACKPORT-BOUNDARY:rgsr_in] 			callshop "barter_rgsr_in_2",1;
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 3:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Don't have enough ore? Then there's something I'm specifically collecting...";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Do you have a shadow decon?";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+//[BACKPORT-BOUNDARY:rgsr_in] 			callshop "barter_rgsr_in_3",1;
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 4:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "If you need anything, come again.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close;
+//[BACKPORT-BOUNDARY:rgsr_in] 		}
+//[BACKPORT-BOUNDARY:rgsr_in] 		end;
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 2:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "As we see in our research, the materials are very rare. There are adventurers hired by our team, but the material is not comparable to the amount we need.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "So when the adventurers came with the materials, they decided to provide the corresponding research value.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		next;
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Luckily, we do the research and adventurers who come to us provide materials to use our technology.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "If you want to modify something you only need to bring the presented materials.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		next;
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "You're an adventurer, so you know what that means?";
+//[BACKPORT-BOUNDARY:rgsr_in] 		close;
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 3:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Grid]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "If you need anything, come again.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		close;
+//[BACKPORT-BOUNDARY:rgsr_in] 	}
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,137,178,3	script	Accessories Researcher#rg02	MD_ED_M_SCIENCE,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Champ]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Finally, I talked to an adventurer and asked him to confirm my research, was that you?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Unfortunately, our team hasn't done enough to get out there yet.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Champ]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "It's still incomplete.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "I'll see you next time I get permission from the captain.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	close;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Zerter");
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,136,171,5	script	Special Equipment Researcher#rg02	MD_ED_M_SCIENCE,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "See Team Licht's performance?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "We're proud of this lab.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Which one do you want to modify?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Modifiable items are located in <TIPBOX>[List]<INFO>9166</INFO></TIPBOX>.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	switch( select( "Non-standard armor", "Non-standard weapon", "Quit" ) ) {
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 1:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "^0000FFNon-standard armor^000000, there are Lower, Intermediate, and Upper levels of the modification method.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Non-refineable armor is only capable of Upper modification.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		next;
+//[BACKPORT-BOUNDARY:rgsr_in] 		switch( select( "Lower mods", "Intermediate mods", "Upper mods", "Quit" ) ) {
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 1:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Armor Lower Mods? Okay.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Refine level is reduced by 5^000000, but consumes less material.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "And for modification, the equipment must have a refine level of +9 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+			//[BACKPORT-GAP:item_reform] item_reform("C_Armor_Reform_1");
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 2:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Armor Intermediate Mods? Okay.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Refine level is reduced by 1^000000, but consumes more material.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "And for modification, the equipment must have a refine level of +9 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+			//[BACKPORT-GAP:item_reform] item_reform("C_Armor_Reform_2");
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 3:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Armor Upper Mods? Okay.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Refine level increases by 1^000000, but consumes more material.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "And for modification, the equipment must have a refine level of +9 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Non-refineable equipment^000000 can also be granted with advanced modifications, but the refine level does not increase.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+			//[BACKPORT-GAP:item_reform] item_reform("C_Armor_Reform_3");
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 4:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Already going?";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "You need to see more of our outstanding performance!";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close;
+//[BACKPORT-BOUNDARY:rgsr_in] 		}
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 2:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "^0000FFNon-standard weapon^000000, there are Lower, Intermediate, and Upper levels of the modification method.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		next;
+//[BACKPORT-BOUNDARY:rgsr_in] 		switch( select( "Lower mods", "Intermediate mods", "Upper mods", "Quit" ) ) {
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 1:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Weapon Lower Mods? Okay.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Refine level is reduced by 5^000000, but consumes less material.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "And for modification, the equipment must have a refine level of +9 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+			//[BACKPORT-GAP:item_reform] item_reform("C_Weapon_Reform_1");
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 2:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Weapon Intermediate Mods? Okay.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Refine level is reduced by 1^000000, but consumes more material.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "And for modification, the equipment must have a refine level of +9 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+			//[BACKPORT-GAP:item_reform] item_reform("C_Weapon_Reform_2");
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 3:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Weapon Advanced Mods? Okay.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "^FF0000Refine level increases by 1^000000, but consumes more material.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "And for modification, the equipment must have a refine level of +9 or higher.";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close2;
+			//[BACKPORT-GAP:item_reform] item_reform("C_Weapon_Reform_3");
+//[BACKPORT-BOUNDARY:rgsr_in] 			end;
+//[BACKPORT-BOUNDARY:rgsr_in] 		case 4:
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "Already going?";
+//[BACKPORT-BOUNDARY:rgsr_in] 			mes "You need to see more of our outstanding performance!";
+//[BACKPORT-BOUNDARY:rgsr_in] 			close;
+//[BACKPORT-BOUNDARY:rgsr_in] 		}
+//[BACKPORT-BOUNDARY:rgsr_in] 		end;
+//[BACKPORT-BOUNDARY:rgsr_in] 	case 3:
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Stack]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Already going?";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "You need to see more of our outstanding performance!";
+//[BACKPORT-BOUNDARY:rgsr_in] 		close;
+//[BACKPORT-BOUNDARY:rgsr_in] 	}
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] 
+//[BACKPORT-BOUNDARY:rgsr_in] OnInit:
+	//[BACKPORT-GAP:getnpcid,setunittitle] setunittitle( getnpcid(0), "Team Licht");
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,128,174,5	script	Director#rg02	1_M_LIBRARYMASTER,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Director]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "...Come on.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "You may have heard the explanation when you came, but to briefly introduce you to this place, there is still a long way to go. We are working on converting many weapons, armor, accessories, etc. into something different.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Director]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "It is essential to cut the refine of the equipment to be converted, but it is a labor for greater power.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Director]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Research is ongoing, so it is not known when and where something will suddenly be completed and offered to adventurers.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "It is... As soon as the data is collected, it will be somehow.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Director]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "And this time, Team Licht achieved it.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "If you're interested, check out what research was done.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Director]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Everyone likes it quiet, so don't talk too loud.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	close;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,122,160,5	script	Exit Guard#rg01	4_M_LGTGUARD,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Exit guard]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Are you done?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "^FF0000Return to Lighthalzen^000000?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	if (select( "Return.", "Work remaining." ) == 2) {
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Exit guard]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Please tell us at any time when you are finished.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		close;
+//[BACKPORT-BOUNDARY:rgsr_in] 	}
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Exit guard]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Let me guide you on the way back.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	close2;
+//[BACKPORT-BOUNDARY:rgsr_in] 	warp "lighthalzen",101,156;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
+
+//[BACKPORT-BOUNDARY:rgsr_in] rgsr_in,129,160,3	script	Exit Guard#rg02	4_M_LGTGUARD,{
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Exit guard]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Are you done?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "^FF0000Return to Item Mall^000000?";
+//[BACKPORT-BOUNDARY:rgsr_in] 	next;
+//[BACKPORT-BOUNDARY:rgsr_in] 	if (select( "Return.", "Work remaining." ) == 2) {
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "[Exit guard]";
+//[BACKPORT-BOUNDARY:rgsr_in] 		mes "Please tell us at any time when you are finished.";
+//[BACKPORT-BOUNDARY:rgsr_in] 		close;
+//[BACKPORT-BOUNDARY:rgsr_in] 	}
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "[Exit guard]";
+//[BACKPORT-BOUNDARY:rgsr_in] 	mes "Let me guide you on the way back.";
+//[BACKPORT-BOUNDARY:rgsr_in] 	close2;
+//[BACKPORT-BOUNDARY:rgsr_in] 	warp "itemmall",16,47;
+//[BACKPORT-BOUNDARY:rgsr_in] 	end;
+//[BACKPORT-BOUNDARY:rgsr_in] }
