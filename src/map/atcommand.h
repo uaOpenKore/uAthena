@@ -284,6 +284,9 @@ enum AtCommandType {
 	AtCommand_Status, // status/cooldown chat UI
 	AtCommand_WhereIs, // mob spawn/drop search
 	AtCommand_Market, // vendor/price search
+	AtCommand_BuyStore, // [Backport] buying store owner UI
+	AtCommand_BuyMarket, // [Backport] buying store search
+	AtCommand_SellTo, // [Backport] sell into a buying store
 	AtCommand_Cooking, // chat cooking UI
 	AtCommand_Cook, // alias of @cooking
 	AtCommand_Achievements, // achievements chat UI

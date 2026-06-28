@@ -1,0 +1,54 @@
+//===== uAthena Script =======================================
+//= Buying Shop License [Backport]
+//===== Description: =========================================
+//= Teaches the Open Buying Store skill (ALL_BUYING_STORE) to
+//= the Merchant class tree. With it a merchant can open a
+//= "buying store" (skup) and post items he wants to BUY for
+//= zeny; other players sell those items to him.
+//=
+//= On the 2007 client there is no native buying-store window,
+//= so the store is driven entirely through chat commands:
+//=   owner : @buystore add/list/remove/open/close
+//=   buyer : @buymarket [id] , @sellto <id> <itemID> <amount>
+//============================================================
+
+alberta,123,53,4	script	Buying Agent#bstore	49,{
+	mes "[Buying Agent]";
+	if (getskilllv("ALL_BUYING_STORE") >= 1) {
+		mes "You already hold a Bulk Buyer License.";
+		mes "Use ^0000FF@buystore^000000 to manage your buying store.";
+		close;
+	}
+	mes "A ^8B4513Bulk Buyer License^000000 lets you open a";
+	mes "^0000FFbuying store^000000 - post items you want to BUY,";
+	mes "and other adventurers sell them to you for zeny.";
+	next;
+	if (BaseClass != Job_Merchant) {
+		mes "[Buying Agent]";
+		mes "...but this trade secret is for the";
+		mes "^8B4513Merchant^000000 guild only. Sorry.";
+		close;
+	}
+	mes "[Buying Agent]";
+	mes "The license costs ^FF000010,000z^000000.";
+	mes "Shall I register you?";
+	next;
+	if (select("Register me:Not now") == 2) {
+		mes "[Buying Agent]";
+		mes "Come back any time.";
+		close;
+	}
+	if (Zeny < 10000) {
+		mes "[Buying Agent]";
+		mes "You don't have 10,000 zeny.";
+		close;
+	}
+	set Zeny, Zeny - 10000;
+	skill "ALL_BUYING_STORE",1,0;
+	mes "[Buying Agent]";
+	mes "Done! You may now open a buying store.";
+	mes "Manage it with ^0000FF@buystore^000000.";
+	mes "Sellers find you with ^0000FF@buymarket^000000";
+	mes "and sell with ^0000FF@sellto^000000.";
+	close;
+}

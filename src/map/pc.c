@@ -30,6 +30,7 @@
 #include "skill.h"
 #include "status.h" // struct status_data
 #include "vending.h" // vending_closevending()
+#include "buyingstore.h" // [Backport] buyingstore_close()
 #include "pc.h"
 
 #include "mail.h" // mail system [Valaris]
@@ -5346,6 +5347,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		
 	if(sd->vender_id)
 		vending_closevending(sd);
+	if(sd->state.buyingstore) // [Backport] close buying store on map change
+		buyingstore_close(sd);
 
 	if(sd->status.pet_id > 0 && sd->pd)
 	{

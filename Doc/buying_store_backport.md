@@ -34,19 +34,25 @@
 - `src/map/skill.h` + `db/skill_db.txt` — скилл `ALL_BUYING_STORE` (id 2535,
   max lv1, self). `skill_castend_nodamage_id`: вызывает `buyingstore_setup`
   с лимитом `2 + pc_checkskill(MC_VENDING)`.
-- `src/map/clif.{c,h}` — `clif_buyingstore_*`: натив под `#if PACKETVER>=20100629`,
-  иначе no-op (фидбек на PV7 даёт atcommand). Натив-парсеры — dormant.
+- `src/map/clif.{c,h}` — `clif_buyingstore_*`: на PV7 это **no-op заглушки**
+  (фидбек даёт atcommand). Блок `#if PACKETVER>=20100629` сейчас содержит
+  `#error` — нативные тела пакетов (0x810/0x814/0x818/...) НЕ портированы (см.
+  «Известные ограничения»). Движок зовёт хуки, так что тела дописываются без
+  переделки остального.
 - `src/map/atcommand.c` + `conf/atcommand_athena.conf` — `@buystore`,
-  `@buymarket`, `@sellto` (enum + таблица + conf согласованы).
-- `db/item_buyingstore.txt` — список разрешённых к скупке (из эталона).
-- `npc/merchants/buying_shops.txt` — NPC-учитель (адаптир., мерчант-онли).
-- `src/map/Makefile{,.in}` — `buyingstore.o`.
+  `@buymarket`, `@sellto` (enum в atcommand.h + таблица + conf согласованы).
+- `db/item_buyingstore.txt` — ОПЦИОНАЛЬНый whitelist разрешённых к скупке;
+  по умолчанию пустой (только шапка), читается лишь при
+  `buyingstore_restrict_items: 1`.
+- `npc/merchants/buying_shops.txt` — NPC-учитель «Buying Agent» на
+  `alberta,123,53` (гейт `BaseClass == Job_Merchant`, цена 10000z).
+- `src/map/Makefile` — `obj/buyingstore.o` + dependency-правило.
 
 ## Чат-команды
-Владелец: `@buystore add <id> <amount> <price>` / `list` / `remove <id>` /
-`title <text>` / `open` / `close`.
-Покупатель: `@buymarket` (список) / `@buymarket <storeid>` (детали) /
-`@sellto <storeid> <itemID> <amount>`.
+Владелец (нужен скилл + тележка): `@buystore add <id> <amount> <price>` /
+`list` / `remove <id>` / `open <title>` / `close`.
+Покупатель: `@buymarket` (список открытых скупок) / `@buymarket <storeid>`
+(детали) / `@sellto <storeid> <itemID> <amount>`.
 
 ## Безопасность (дюп-критично)
 Зеркало вендинга/трейда: атомарная транзакция (зени↔предмет одним блоком),
@@ -64,8 +70,21 @@
 3. NPC-учитель + item_buyingstore.txt + дефолт battle conf.
 4. Логирование + крайние случаи + регресс-сборка обоих серверов.
 
+## Статус сборки/проверки
+- Собирается чисто (`make sql`, `map-server_sql` линкуется).
+- Полный boot-parse `--run_once` (MariaDB up) проходит чисто: `skill_db.txt`
+  с записью 1095 грузится, NPC-учитель парсится (в составе 14139 NPC, OnInit ок),
+  `item_buyingstore.txt` читается (0 записей, без спама), сервер доходит до
+  "ready" и завершается без утечек. Новых `[Error]/[Warning]` нет.
+
 ## Известные ограничения
-- Нативный путь (PACKETVER≥20100629) пишется по эталону, но на этом ящике
-  компиляционно проверяется только PV7-ветка (#else). 2010-сборка/рантайм — за
-  будущим тестером при апгрейде клиента.
-- Рантайм-тест скупки (клиент/кластер) — за тестерами (чек-лист в чате задачи).
+- **Нативные пакеты Buying Store НЕ портированы** (заглушки на PV7). Блок
+  `#if PACKETVER>=20100629` в clif.c содержит `#error` — при сборке под клиент
+  2010+ его надо заполнить (faithful-копия из eAthena). На PV7 фича полностью
+  работает через чат. Это отдельный follow-up, движок к нему готов.
+- Скилл `ALL_BUYING_STORE` имеет внутренний id **1095** (а не официальный 2535:
+  тот ≥ MAX_SKILL_DB и не индексируется). Скрипт/клиент ходят по имени, так что
+  номер чисто внутренний.
+- Слоты скупки = `2 + MC_VENDING lv` (как у вендинга) — а не по уровню самого
+  ALL_BUYING_STORE (сознательное отклонение по ТЗ).
+- Рантайм-тест скупки (клиент/кластер) — за тестерами (чек-лист в задаче).

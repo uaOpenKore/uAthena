@@ -22,6 +22,7 @@
 #include "chat.h"
 #include "trade.h"
 #include "vending.h"
+#include "buyingstore.h" // [Backport] buyingstore_close()
 #include "party.h"
 #include "intif.h"
 #include "chrif.h"
@@ -1673,6 +1674,8 @@ int unit_remove_map(struct block_list *bl, int clrtype)
 			trade_tradecancel(sd);
 		if(sd->vender_id)
 			vending_closevending(sd);
+		if(sd->state.buyingstore) // [Backport] close buying store on map leave/quit
+			buyingstore_close(sd);
 		if(!sd->state.waitingdisconnect)
 	  	{	//when quitting, let the final chrif_save handle storage saving.
 			if(sd->state.storage_flag == 1)
