@@ -5469,6 +5469,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start4(bl,type,100,
 				skilllv,skillid,src->id,skill_get_time(skillid,skilllv),1000));
+		if (sd) skill_blockpc_start (sd, skillid, skill_get_time(skillid, skilllv)+3000); // [Backport] cooldown-parity: Venom Splasher reuse delay
 		break;
 
 	case PF_MINDBREAKER:
@@ -6132,6 +6133,9 @@ int skill_castend_id (int tid, unsigned int tick, intptr_t id, intptr_t data)
 				sc->data[SC_SPIRIT].val3 == ud->skillid &&
 				ud->skillid != WZ_WATERBALL)
 				sc->data[SC_SPIRIT].val3 = 0; //Clear bounced spell check.
+
+			if(sc->data[SC_DANCING].timer != -1 && (skill_get_inf2(ud->skillid)&INF2_SONG_DANCE) && sd)
+				skill_blockpc_start(sd,BD_ADAPTATION,3000); // [Backport] cooldown-parity: prevent song/dance spam
 		}
 
 		if (ud->skilltimer == -1) {
