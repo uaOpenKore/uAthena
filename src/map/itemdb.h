@@ -80,6 +80,7 @@ struct item_data {
 		unsigned no_refine : 1;	// [celest]
 		unsigned delay_consume : 1;	// Signifies items that are not consumed immediately upon double-click [Skotlex]
 		unsigned trade_restriction : 7;	//Item restrictions mask [Skotlex]
+		unsigned buyingstore : 1;	// [Backport] item is allowed in buying stores (db/item_buyingstore.txt)
 	} flag;
 	short gm_lv_trade_override;	//GM-level to override trade_restriction
 };

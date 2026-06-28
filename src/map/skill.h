@@ -967,6 +967,12 @@ enum _skill {
 	MER_KYRIE,
 	MER_BLESSING,
 	MER_INCAGI,
+
+	// [Backport] Buying Store skill. Official id is 2535, but that exceeds
+	// MAX_SKILL_DB (1100) and isn't in any compaction range, so we use a free
+	// directly-indexable internal id (1041..1099 gap, above the merc band).
+	// Scripts/clients reference it by name, so the number is internal only.
+	ALL_BUYING_STORE = 1095,
 };
 
 enum {

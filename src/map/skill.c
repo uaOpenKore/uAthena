@@ -15,6 +15,7 @@
 #include "status.h"
 #include "pet.h"
 #include "mercenary.h"	//[orn]
+#include "buyingstore.h"	// [Backport] buyingstore_setup
 #include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (struct mercenary_data)
 #include "liveskillunit.h"	// [perf] live skill-unit index for skill_unit_timer
 #include "mob.h"
@@ -4755,6 +4756,16 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				clif_skill_fail(sd,skillid,0,0);
 			else
 				clif_openvendingreq(sd,2+skilllv);
+		}
+		break;
+
+	case ALL_BUYING_STORE: // [Backport] permission/native trigger; chat uses @buystore
+		if(sd)
+		{
+			if ( pc_can_give_items(pc_isGM(sd)) )
+				clif_skill_fail(sd,skillid,0,0);
+			else // slots = 2 + MC_VENDING level (no-op window on PACKETVER 7)
+				buyingstore_setup(sd, 2+pc_checkskill(sd,MC_VENDING));
 		}
 		break;
 

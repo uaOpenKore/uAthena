@@ -271,6 +271,8 @@ extern struct Battle_Config {
 	unsigned short dead_branch_active;
 	int vending_max_value;
 	unsigned short vending_tax;
+	int feature_buying_store;        // [Backport] master switch for buying stores (skup)
+	int buyingstore_restrict_items;  // [Backport] 0: any tradable item; 1: only db/item_buyingstore.txt
 	unsigned short show_steal_in_same_party;
 	unsigned short party_share_type;
 	unsigned short party_hp_mode;

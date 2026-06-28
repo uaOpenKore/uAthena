@@ -61,6 +61,7 @@
 #define MAX_DROP_PER_MAP 48
 #define MAX_IGNORE_LIST 20 // official is 14
 #define MAX_VENDING 12
+#define MAX_BUYINGSTORE_SLOTS MAX_VENDING // [Backport] buying store: slots capped like vending (2 + MC_VENDING lv)
 #define MOBID_EMPERIUM 1288
 
 #define MAX_PC_BONUS 10
@@ -407,6 +408,19 @@ struct vending {
 	unsigned int value;
 };
 
+// [Backport] Buying store (skup via shop) - the merchant posts items he wants to BUY.
+struct s_buyingstore_item {
+	int price;
+	unsigned short amount;
+	unsigned short nameid;
+};
+
+struct s_buyingstore {
+	struct s_buyingstore_item items[MAX_BUYINGSTORE_SLOTS];
+	int zenylimit;          // total zeny the owner commits to spend
+	unsigned char slots;    // number of active item slots
+};
+
 struct weapon_data {
 	int atkmods[3];
 	// all the variables except atkmods get zero'ed in each call of status_calc_pc
@@ -561,6 +575,7 @@ struct map_session_data {
 		unsigned mainchat :1; //[LuzZza]
 		unsigned noask :1; // [LuzZza]
 		unsigned trading :1; //[Skotlex] is 1 only after a trade has started.
+		unsigned buyingstore :1; //[Backport] 1 while a buying store is open
 		unsigned deal_locked :2; //1: Clicked on OK. 2: Clicked on TRADE
 		unsigned party_sent :1;
 		unsigned guild_sent :1;
@@ -822,6 +837,12 @@ struct map_session_data {
 	int vend_num;
 	char message[MESSAGE_SIZE];
 	struct vending vending[MAX_VENDING];
+
+	// [Backport] Buying store
+	int buyer_id;                                                       // unique id of the active buying store (0 = none)
+	struct s_buyingstore buyingstore;                                   // active buying store data
+	struct s_buyingstore_item buyingstore_stage[MAX_BUYINGSTORE_SLOTS]; // chat-UI staging buffer (before @buystore open)
+	unsigned char buyingstore_stagecount;                               // number of staged items
 
 	struct pet_data *pd;
 	struct homun_data *hd;	// [blackhole89]

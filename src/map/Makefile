@@ -17,7 +17,7 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/db.h 
 OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/npc_chat.o obj/chat.o obj/path.o obj/itemdb.o obj/mob.o obj/script.o \
 	obj/storage.o obj/skill.o obj/atcommand.o obj/charcommand.o obj/battle.o \
-	obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/guild.o obj/pet.o \
+	obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/buyingstore.o obj/guild.o obj/pet.o \
 	obj/log.o obj/log_async.o obj/async_db.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o \
 	$(COMMON_OBJ)
 
@@ -52,6 +52,7 @@ sqlobj/intif.o: intif.c intif.h chrif.h clif.h party.h guild.h storage.h map.h b
 sqlobj/trade.o: trade.c trade.h clif.h itemdb.h map.h pc.h npc.h log.h $(COMMON_H)
 sqlobj/party.o: party.c party.h clif.h intif.h pc.h map.h battle.h $(COMMON_H)
 sqlobj/vending.o: vending.c vending.h clif.h itemdb.h map.h pc.h log.h $(COMMON_H)
+sqlobj/buyingstore.o: buyingstore.c buyingstore.h clif.h itemdb.h map.h pc.h battle.h log.h $(COMMON_H)
 sqlobj/guild.o: guild.c guild.h storage.h battle.h clif.h intif.h pc.h npc.h map.h $(COMMON_H)
 sqlobj/pet.o: pet.c pet.h map.h clif.h chrif.h intif.h pc.h itemdb.h battle.h mob.h npc.h script.h $(COMMON_H)
 sqlobj/mail.o: mail.c mail.h $(COMMON_H)

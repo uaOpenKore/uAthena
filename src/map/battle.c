@@ -3752,6 +3752,8 @@ static const struct battle_data_int {
 	{ "max_cart_weight",                   &battle_config.max_cart_weight			},
 	{ "gvg_eliminate_time",                &battle_config.gvg_eliminate_time		},
 	{ "vending_max_value",                 &battle_config.vending_max_value		},
+	{ "feature_buying_store",              &battle_config.feature_buying_store		}, // [Backport]
+	{ "buyingstore_restrict_items",        &battle_config.buyingstore_restrict_items	}, // [Backport]
 // eAthena additions
 	{ "item_rate_mvp",                     &battle_config.item_rate_mvp		},
 	{ "item_rate_common",                  &battle_config.item_rate_common	},	// Added by RoVeRT
@@ -4011,6 +4013,8 @@ void battle_set_defaults()
 	battle_config.dead_branch_active = 0;
 	battle_config.vending_max_value = 10000000;
 	battle_config.vending_tax = 0;
+	battle_config.feature_buying_store = 1;        // [Backport] enabled by default
+	battle_config.buyingstore_restrict_items = 0;  // [Backport] any tradable item by default (like vending)
 	battle_config.show_steal_in_same_party = 0;
 	battle_config.party_update_interval = 1000;
 	battle_config.party_share_type = 0;

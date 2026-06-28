@@ -5776,6 +5776,32 @@ int clif_openvending(struct map_session_data *sd,int id,struct vending *vending)
 	return n;
 }
 
+//=============================================================================
+// [Backport] Buying store client hooks.
+//
+// On PACKETVER 7 (the current client) the buying-store native UI does not
+// exist, so these are no-ops and the @buystore/@buymarket/@sellto commands
+// provide all feedback. The native packet bodies (0x810/0x814/0x818/...) are
+// added under #if PACKETVER >= 20100629 when the client is upgraded; the
+// buyingstore engine already calls these hooks, so no rework is needed then.
+//=============================================================================
+#if PACKETVER >= 20100629
+// TODO: port native buying-store packet builders here (faithful eAthena copy).
+// Left intentionally unimplemented until a 2010+ client/packet_db is available.
+#error "Buying store native packets are not yet ported; build with PACKETVER 7."
+#else
+void clif_buyingstore_open(struct map_session_data* sd) { (void)sd; }
+void clif_buyingstore_open_failed(struct map_session_data* sd, unsigned short result, unsigned int weight) { (void)sd; (void)result; (void)weight; }
+void clif_buyingstore_myitemlist(struct map_session_data* sd) { (void)sd; }
+void clif_buyingstore_entry(struct map_session_data* sd) { (void)sd; }
+void clif_buyingstore_disappear_entry(struct map_session_data* sd) { (void)sd; }
+void clif_buyingstore_itemlist(struct map_session_data* sd, struct map_session_data* pl_sd) { (void)sd; (void)pl_sd; }
+void clif_buyingstore_trade_failed_buyer(struct map_session_data* sd, short result) { (void)sd; (void)result; }
+void clif_buyingstore_update_item(struct map_session_data* sd, unsigned short nameid, unsigned short amount) { (void)sd; (void)nameid; (void)amount; }
+void clif_buyingstore_delete_item(struct map_session_data* sd, short index, unsigned short amount, int price) { (void)sd; (void)index; (void)amount; (void)price; }
+void clif_buyingstore_trade_failed_seller(struct map_session_data* sd, short result, unsigned short nameid) { (void)sd; (void)result; (void)nameid; }
+#endif
+
 /*==========================================
  * IXACe
  *------------------------------------------*/
