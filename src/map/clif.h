@@ -403,11 +403,13 @@ int clif_hwalkok(struct homun_data *hd);	//[orn]
 void clif_rental_time(int fd, int nameid, int seconds);
 void clif_rental_expired(int fd, int index, int nameid);
 
-// [Backport] hired mercenary soldier window (PV7-dormant)
+// [Backport] hired mercenary soldier window (runtime-gated on client packet_ver)
+void clif_msg(struct map_session_data* sd, unsigned short id);
 void clif_mercenary_info(struct map_session_data *sd);
 void clif_mercenary_updatestatus(struct map_session_data *sd, int type);
 void clif_mercenary_skillblock(struct map_session_data *sd);
 void clif_mercenary_message(struct map_session_data* sd, int message);
+void clif_parse_mercenary_action(int fd, struct map_session_data* sd);
 
 int clif_foreachclient(int (*)(struct map_session_data*,va_list),...);
 int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type);

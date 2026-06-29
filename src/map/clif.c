@@ -1497,18 +1497,23 @@ void clif_rental_expired(int fd, int index, int nameid)
 	WFIFOSET(fd,packet_len(0x299));
 }
 
-// [Backport] Mercenary Soldier status window. Client packets 0x29b/0x29d/0x2a2 are
-// PACKETVER >= 20080102; under uAthena's PV7 these are no-ops (no window) — the
-// mercenary still spawns/fights as a visible unit; status is exposed via @merc (MSP3).
+// [Backport] Mercenary Soldier status window (ZC_MER_INIT 0x29b / ZC_MER_PAR_CHANGE
+// 0x2a2 / ZC_MER_SKILLINFO_LIST 0x29d). These packets first appear at packet_ver 21
+// (client ~2008+). The 2007 client (packet_ver 7) does not understand them, so the
+// whole window is gated at RUNTIME on the client's advertised packet_ver: a custom
+// client advertising packet_ver >= PACKETVER_MERC_WINDOW gets the window; vanilla
+// clients receive nothing and stay desync-safe. @merc still exposes status in chat.
+#define PACKETVER_MERC_WINDOW 21
 void clif_mercenary_info(struct map_session_data *sd)
 {
-#if PACKETVER >= 20080102
 	int fd;
 	struct mercenary_data *md;
 	struct status_data *status;
 	int atk;
 
 	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+	if( sd->packet_ver < PACKETVER_MERC_WINDOW )
 		return;
 
 	fd = sd->fd;
@@ -1540,16 +1545,16 @@ void clif_mercenary_info(struct map_session_data *sd)
 	WFIFOL(fd,74) = md->mercenary.kill_count;
 	WFIFOW(fd,78) = md->battle_status.rhw.range;
 	WFIFOSET(fd,packet_len(0x29b));
-#endif
 }
 
 void clif_mercenary_updatestatus(struct map_session_data *sd, int type)
 {
-#if PACKETVER >= 20080102
 	struct mercenary_data *md;
 	struct status_data *status;
 	int fd;
 	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+	if( sd->packet_ver < PACKETVER_MERC_WINDOW )
 		return;
 
 	fd = sd->fd;
@@ -1580,16 +1585,16 @@ void clif_mercenary_updatestatus(struct map_session_data *sd, int type)
 		case SP_MERCFAITH: WFIFOL(fd,4) = mercenary_get_faith(md); break;
 	}
 	WFIFOSET(fd,packet_len(0x2a2));
-#endif
 }
 
 void clif_mercenary_skillblock(struct map_session_data *sd)
 {
-#if PACKETVER >= 20080102
 	struct mercenary_data *md;
 	int fd, i, len = 4, id, j;
 
 	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+	if( sd->packet_ver < PACKETVER_MERC_WINDOW )
 		return;
 
 	fd = sd->fd;
@@ -1612,14 +1617,39 @@ void clif_mercenary_skillblock(struct map_session_data *sd)
 
 	WFIFOW(fd,2) = len;
 	WFIFOSET(fd,len);
-#endif
+}
+
+/// Generic ZC_MSG (0x291): display a msgstringtable.txt string by id. First appears
+/// at packet_ver 20; runtime-gated so older clients never receive it. [Backport]
+void clif_msg(struct map_session_data* sd, unsigned short id)
+{
+	int fd;
+	nullpo_retv(sd);
+	if( sd->packet_ver < 20 )
+		return;
+	fd = sd->fd;
+	WFIFOHEAD(fd, packet_len(0x291));
+	WFIFOW(fd, 0) = 0x291;
+	WFIFOW(fd, 2) = id; // zero-based msgstringtable.txt index
+	WFIFOSET(fd, packet_len(0x291));
 }
 
 void clif_mercenary_message(struct map_session_data* sd, int message)
 {
-#if PACKETVER >= 20080102
-	clif_msg(sd, 1266 + message); // NOTE: clif_msg() must be added when PV is bumped
-#endif
+	if( sd == NULL || sd->packet_ver < PACKETVER_MERC_WINDOW )
+		return;
+	clif_msg(sd, 1266 + message);
+}
+
+/// Mercenary window action (CZ_MER_COMMAND 0x29f). option 2 = dismiss the
+/// mercenary via the status window's button. [Backport]
+void clif_parse_mercenary_action(int fd, struct map_session_data* sd)
+{
+	int option = RFIFOB(fd,2);
+	if( sd->md == NULL )
+		return;
+	if( option == 2 )
+		merc_delete(sd->md, 2);
 }
 
 void clif_homskillup(struct map_session_data *sd, int skill_num)
@@ -12008,6 +12038,7 @@ static int packetdb_readdb(void)
 		{clif_parse_HomAttack,"homattack"},
 		{clif_parse_HomMenu,"hommenu"},
 		{clif_parse_Hotkey,"hotkey"},
+		{clif_parse_mercenary_action,"mermenu"}, // [Backport] merc window dismiss
 		{NULL,NULL}
 	};
 
