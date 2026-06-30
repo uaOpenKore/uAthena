@@ -14,6 +14,8 @@ packet_ver: 5
 0x0064,55
 0x0065,17
 0x0066,6
+// [uaRO] Mercenary window dismiss (CZ_MER_COMMAND): enabled for the PV7 custom client.
+0x029f,5,mermenu,2
 0x0067,37
 0x0068,46
 0x0069,-1

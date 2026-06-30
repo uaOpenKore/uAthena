@@ -1498,12 +1498,12 @@ void clif_rental_expired(int fd, int index, int nameid)
 }
 
 // [Backport] Mercenary Soldier status window (ZC_MER_INIT 0x29b / ZC_MER_PAR_CHANGE
-// 0x2a2 / ZC_MER_SKILLINFO_LIST 0x29d). These packets first appear at packet_ver 21
-// (client ~2008+). The 2007 client (packet_ver 7) does not understand them, so the
-// whole window is gated at RUNTIME on the client's advertised packet_ver: a custom
-// client advertising packet_ver >= PACKETVER_MERC_WINDOW gets the window; vanilla
-// clients receive nothing and stay desync-safe. @merc still exposes status in chat.
-#define PACKETVER_MERC_WINDOW 21
+// 0x2a2 / ZC_MER_SKILLINFO_LIST 0x29d). In vanilla these packets first appear at
+// packet_ver 21 (client ~2008+); the uaRO custom client (packet_ver 7) DOES understand
+// them and the merc-window packet lengths are registered in packet_len_table below, so
+// the gate is lowered to 7 to enable the window for our client. A genuine 2007 vanilla
+// client never connects to this server, so there is no desync risk. @merc still works.
+#define PACKETVER_MERC_WINDOW 7
 void clif_mercenary_info(struct map_session_data *sd)
 {
 	int fd;
@@ -11893,8 +11893,8 @@ static int packetdb_readdb(void)
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
 	//#0x0280
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0, 18,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0, 80,  0, -1,  0,  5, // 0x29b/0x29d/0x29f mercenary window [uaRO]
+	    0,  0, 12,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0, // 0x2a2 mercenary par-change [uaRO]
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,191,  0,  0,  0,  0,  0,  0,
 	//#0x02C0
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
