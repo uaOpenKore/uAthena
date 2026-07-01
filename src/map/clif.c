@@ -1643,13 +1643,23 @@ void clif_mercenary_message(struct map_session_data* sd, int message)
 
 /// Mercenary window action (CZ_MER_COMMAND 0x29f). option 2 = dismiss the
 /// mercenary via the status window's button. [Backport]
+/// A full dismiss mirrors @merc reset (S.): remove the live unit AND clear the ownership record +
+/// persist it, so the player can immediately hire a new mercenary. Just deleting the unit left
+/// mer_id set -> "you already own a mercenary" and no new hire.
 void clif_parse_mercenary_action(int fd, struct map_session_data* sd)
 {
 	int option = RFIFOB(fd,2);
-	if( sd->md == NULL )
+	if( option != 2 )
 		return;
-	if( option == 2 )
-		merc_delete(sd->md, 2);
+	if( sd->md )
+		merc_delete(sd->md, 0);
+	if( sd->status.mer_id != 0 )
+	{	// orphaned/live ownership: drop the dangling instance + link so a new merc can be summoned
+		intif_mercenary_delete(sd->status.mer_id);
+		sd->status.mer_id = 0;
+	}
+	chrif_save(sd, 0);
+	clif_displaymessage(fd, "Mercenary dismissed.");
 }
 
 void clif_homskillup(struct map_session_data *sd, int skill_num)
