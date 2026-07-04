@@ -10156,6 +10156,11 @@ BUILDIN_FUNC(successremovecards)
 	struct item item_tmp;
 	int c=MAX_SLOTS;
 
+	// Zero the whole struct so backported fields we don't set here (notably expire_time) don't carry
+	// STACK GARBAGE into the re-added card/item. A garbage expire_time made the returned item look like an
+	// expired rental: it couldn't be stored in Kafra and was purged on the next login (S. bug report).
+	memset(&item_tmp,0,sizeof(item_tmp));
+
 	num=script_getnum(st,2);
 	sd=script_rid2sd(st);
 	i=pc_checkequip(sd,equip[num-1]);
@@ -10222,6 +10227,10 @@ BUILDIN_FUNC(failedremovecards)
 	TBL_PC *sd;
 	struct item item_tmp;
 	int c=MAX_SLOTS;
+
+	// Zero the struct (see successremovecards): an uninitialised expire_time made the returned item look
+	// like an expired rental -> not storable + purged on relog.
+	memset(&item_tmp,0,sizeof(item_tmp));
 
 	num=script_getnum(st,2);
 	typefail=script_getnum(st,3);
