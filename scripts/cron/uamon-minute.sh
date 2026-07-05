@@ -15,15 +15,21 @@ TS=$(iso_utc "$(epoch_floor "$NOW" 60)")
 
 # ---- enumerate instances + take CPU sample #0 ----------------------------
 declare -A INST J0
+n_inst=0
 while read -r n pid; do
 	[ -n "$n" ] || continue
 	INST["$n"]="$pid"
+	n_inst=$((n_inst+1))
 	for tid in $(pid_threads "$pid"); do
 		J0["$pid:$tid"]=$(thread_jiffies "$pid" "$tid")
 	done
 done < <(running_instances)
 
-[ "${#INST[@]}" -eq 0 ] && { uamon_log "no running map-servers; nothing to log"; exit 0; }
+# NB: ${#INST[@]} on an EMPTY *associative* array trips `set -u` ("unbound
+# variable") even on modern bash (5.2) - which is exactly when the map-servers
+# are down (the state this guard is meant to handle). Use a plain integer
+# counter so we exit cleanly instead of erroring mid-shutdown.
+[ "$n_inst" -eq 0 ] && { uamon_log "no running map-servers; nothing to log"; exit 0; }
 
 # ---- wait the delta window, then take sample #1 + RSS ---------------------
 SECS=$CPU_SAMPLE_SECS; [ "$SECS" -ge 1 ] 2>/dev/null || SECS=1
@@ -64,5 +70,5 @@ while IFS=$'\t' read -r mapname cnt; do
 done < <(online_map_counts)
 
 mongo_eval "var d=[${DOCS}]; if(d.length) db.${COLL_MIN}.insertMany(d);" \
-	&& uamon_log "logged minute $TS: ${#INST[@]} server(s)" \
+	&& uamon_log "logged minute $TS: $n_inst server(s)" \
 	|| uamon_die "mongosh insert failed"
