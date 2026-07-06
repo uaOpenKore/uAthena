@@ -4131,6 +4131,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case MC_CHANGECART:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		if (sd) {
+			// Change the pushcart to the best appearance the base level unlocks. The stub only
+			// played the animation and never called pc_setcart, so the cart never changed (S.).
+			// pc_setcart sets OPTION_CART1..5 + resends the option (0x229) and the cart list.
+			int cart_type;
+			if      (sd->status.base_level >= 90) cart_type = 5;
+			else if (sd->status.base_level >= 80) cart_type = 4;
+			else if (sd->status.base_level >= 65) cart_type = 3;
+			else if (sd->status.base_level >= 40) cart_type = 2;
+			else                                  cart_type = 1;
+			pc_setcart(sd, cart_type);
+		}
 		break;
 
 	case TK_MISSION:
