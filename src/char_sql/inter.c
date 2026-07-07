@@ -329,8 +329,8 @@ int sql_ping_init(void)
 		mysql_free_result(sql_res);
 	}
 
-	// establish keepalive
-	connection_ping_interval = connection_timeout - 30; // 30-second reserve
+	// establish keepalive -- ping at half the timeout (see login sql_ping_init). (S.)
+	connection_ping_interval = connection_timeout / 2;
 	add_timer_func_list(inter_sql_ping, "inter_sql_ping");
 	add_timer_interval(gettick() + connection_ping_interval*1000, inter_sql_ping, 0, 0, connection_ping_interval*1000);
 
@@ -349,6 +349,7 @@ int inter_init_sql(const char *file)
 
 	//DB connection initialized
 	mysql_init(&mysql_handle);
+	{ my_bool reconnect = 1; mysql_options(&mysql_handle, MYSQL_OPT_RECONNECT, &reconnect); }  // auto-reconnect dropped idle conn (S.)
 	ShowInfo("Connect Character DB server.... (Character Server)\n");
 	if(!mysql_real_connect(&mysql_handle, char_server_ip, char_server_id, char_server_pw,
 		char_server_db ,char_server_port, (char *)NULL, 0)) {
@@ -363,6 +364,7 @@ int inter_init_sql(const char *file)
 
 	if(char_gm_read) {
 		mysql_init(&lmysql_handle);
+		{ my_bool reconnect = 1; mysql_options(&lmysql_handle, MYSQL_OPT_RECONNECT, &reconnect); }  // auto-reconnect (S.)
 		ShowInfo("Connect Character DB server.... (login server)\n");
 		if(!mysql_real_connect(&lmysql_handle, login_server_ip, login_server_id, login_server_pw,
 			login_server_db ,login_server_port, (char *)NULL, 0)) {
