@@ -67,7 +67,7 @@ geffen,110,118,3	script	Ford	752,{
 	emotion 58;
 	next;
 	
-	skill 1002,1,0;
+	callfunc "F_KeepSkill",1002,1;
 	mes "[Ford]";
 	mes "I can't believe I lost!";
 	mes "I NEVER lose...";

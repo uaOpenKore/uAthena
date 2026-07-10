@@ -1,0 +1,35 @@
+//===== uaRO custom script ================================================
+//= Platinum (quest) skill persistence
+//===== Description: ======================================================
+//= Records every platinum/quest skill a character learns and re-grants any
+//= that are missing on login. The eAthena engine loses quest-skill grants
+//= on a skill reset even with quest_skill_reset off (the platinum NPCs even
+//= note it: "eA engine doesn't let you keep learn't skill"). This makes them
+//= come back on the next login, so Find Stone / Stone Fling / Sonic
+//= Acceleration / Throw Venom Knife etc. survive a reset. (S.)
+//=========================================================================
+
+// Grant a platinum skill AND remember it. The platinum NPCs call this instead
+// of a bare `skill <id>,<lv>,0;` so the grant is recorded in PLATINUM_SK[] (a
+// saved, per-character array).
+function	script	F_KeepSkill	{
+	.@id = getarg(0);
+	.@lv = getarg(1);
+	skill .@id,.@lv,0;
+	.@n = getarraysize(PLATINUM_SK);
+	for (.@i = 0; .@i < .@n; ++.@i)
+		if (PLATINUM_SK[.@i] == .@id) return;   // already recorded -> done
+	PLATINUM_SK[.@n] = .@id;
+	return;
+}
+
+// On login, re-grant any recorded platinum skill the character no longer has
+// (e.g. wiped by a skill reset). Level 1 -- all platinum skills are level 1.
+-	script	PlatinumKeep	-1,{
+OnPCLoginEvent:
+	.@n = getarraysize(PLATINUM_SK);
+	for (.@i = 0; .@i < .@n; ++.@i)
+		if (PLATINUM_SK[.@i] > 0 && getskilllv(PLATINUM_SK[.@i]) < 1)
+			skill PLATINUM_SK[.@i],1,0;
+	end;
+}

@@ -91,7 +91,7 @@ L_GetSkill:
  	next;
 	mes "~ several hours later ~";
 	next;
-	skill 157,1,0;
+	callfunc "F_KeepSkill",157,1;
 	set @ENRGYCOAT,0;
 	mes "[BLIZZARDRISS]";
 	mes "You can now use the spell, 'Energy Coat'!! Use it wisely my friend!";

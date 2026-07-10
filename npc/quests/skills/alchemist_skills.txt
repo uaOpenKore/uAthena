@@ -964,7 +964,7 @@ lhz_in01,224,140,8	script	Kellasus	57,{
 		mes "[Kellasus]";
 		mes "I already taught you";
 		mes "skills of the homunculus...";
-		if(getskilllv(238) == 0 && BaseJob == Job_Alchem) skill 238,1,0;
+		if(getskilllv(238) == 0 && BaseJob == Job_Alchem) callfunc "F_KeepSkill",238,1;
 		close;
 	}
 	switch(bioeth){
@@ -1061,7 +1061,7 @@ lhz_in01,224,140,8	script	Kellasus	57,{
 		mes "He wants me to get back? Okay, well...";
 		mes "I guess you've deserved it.";
 		mes "Here you are, secrets of homunculus are yours now~";
-		if(BaseJob == Job_Alchem) skill 238,1,0;
+		if(BaseJob == Job_Alchem) callfunc "F_KeepSkill",238,1;
 		set MISC_QUEST,MISC_QUEST|64;
 		set bioeth,0;
 		close;

@@ -101,7 +101,7 @@ L_Check:
 	mes "[Acolyte Klift]";
 	mes "Yes! I feel it. You have released your hidden abilities and can now";
 	mes "use ^5555FFHoly Light^000000!";
-	skill 156,1,0;
+	callfunc "F_KeepSkill",156,1;
 	set @HOLYLIGHT, 0;
 	next;
 	mes "[Priest]";

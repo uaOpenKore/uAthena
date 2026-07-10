@@ -31,7 +31,7 @@ prt_in,235,133,4	script	Nurse Aid	90,{
 		next;
 		mes "....... 1 hour later.......";
 		next;
-		skill 142,1,0;
+		callfunc "F_KeepSkill",142,1;
 		set FIRSTAID,0;
 		set got_bandage,0;
 		mes "[Nurse Aid]";
@@ -143,7 +143,7 @@ prt_in,73,87,2	script	Bulma	98,{
 		mes "[Bulma]";
 		mes "With the right motivation and focus you will be able to play dead anywhere at any given moment.  Congratulations on mastering this skill.";
 		emotion e_no1;
-		skill 143,1,0;
+		callfunc "F_KeepSkill",143,1;
 		set PLAYDEAD, 0;
 		set got_novnametag,0;
 		close;
