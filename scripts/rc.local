@@ -83,5 +83,21 @@ sysctl -q -w net.ipv4.tcp_mtu_probing=1 2>/dev/null
 # --- 7. irqbalance off (it would override the manual IRQ affinity above) ---
 systemctl disable --now irqbalance 2>/dev/null
 
+# --- 8. CPU governor: performance -----------------------------------------
+# The game loop is latency-sensitive: on-demand/schedutil governors down-clock
+# semi-idle cores and add ramp-up lag to bursty tick+send() work. Pin every
+# core to 'performance'. NO-OP inside a KVM guest that does not expose cpufreq
+# (the common case) - there the governor must be set on the HOST; see
+# Doc/perf_ops_tuning.md. Harmless where cpufreq is absent.
+for g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+    [ -w "$g" ] && echo performance > "$g" 2>/dev/null
+done
+
+# --- 9. send-path latency: flush small map-server writes promptly ----------
+# The map servers set TCP_NODELAY in code; tcp_notsent_lowat keeps the kernel
+# from buffering tiny movement/action packets, so they leave on the tick that
+# produced them (less rubber-banding under load). Cheap, safe.
+sysctl -q -w net.ipv4.tcp_notsent_lowat=16384 2>/dev/null
+
 tc qdisc show dev "$IFACE"   # boot log: should show 'mq'
 exit 0

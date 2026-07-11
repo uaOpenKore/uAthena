@@ -14,10 +14,11 @@ git reset --hard HEAD                 # discard local edits -> pristine tracked 
 git pull || { echo "DEPLOY: 'git pull' failed (conflict/network) — aborting; server left untouched."; exit 1; }
 make clean                            # surgically wipe ALL build artifacts (no stale .o can survive)
 make || { echo "DEPLOY: BUILD FAILED — aborting BEFORE stop/install; server keeps running the OLD binary."; exit 1; }
+./stop.sh
 cd ./dumps
 ./dumps.sh update
 cd ..
-./stop.sh
+./update_logs.sh
 make install
 make update
 ./start.sh

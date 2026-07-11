@@ -1497,18 +1497,23 @@ void clif_rental_expired(int fd, int index, int nameid)
 	WFIFOSET(fd,packet_len(0x299));
 }
 
-// [Backport] Mercenary Soldier status window. Client packets 0x29b/0x29d/0x2a2 are
-// PACKETVER >= 20080102; under uAthena's PV7 these are no-ops (no window) — the
-// mercenary still spawns/fights as a visible unit; status is exposed via @merc (MSP3).
+// [Backport] Mercenary Soldier status window (ZC_MER_INIT 0x29b / ZC_MER_PAR_CHANGE
+// 0x2a2 / ZC_MER_SKILLINFO_LIST 0x29d). In vanilla these packets first appear at
+// packet_ver 21 (client ~2008+); the uaRO custom client (packet_ver 7) DOES understand
+// them and the merc-window packet lengths are registered in packet_len_table below, so
+// the gate is lowered to 7 to enable the window for our client. A genuine 2007 vanilla
+// client never connects to this server, so there is no desync risk. @merc still works.
+#define PACKETVER_MERC_WINDOW 7
 void clif_mercenary_info(struct map_session_data *sd)
 {
-#if PACKETVER >= 20080102
 	int fd;
 	struct mercenary_data *md;
 	struct status_data *status;
 	int atk;
 
 	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+	if( sd->packet_ver < PACKETVER_MERC_WINDOW )
 		return;
 
 	fd = sd->fd;
@@ -1540,16 +1545,16 @@ void clif_mercenary_info(struct map_session_data *sd)
 	WFIFOL(fd,74) = md->mercenary.kill_count;
 	WFIFOW(fd,78) = md->battle_status.rhw.range;
 	WFIFOSET(fd,packet_len(0x29b));
-#endif
 }
 
 void clif_mercenary_updatestatus(struct map_session_data *sd, int type)
 {
-#if PACKETVER >= 20080102
 	struct mercenary_data *md;
 	struct status_data *status;
 	int fd;
 	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+	if( sd->packet_ver < PACKETVER_MERC_WINDOW )
 		return;
 
 	fd = sd->fd;
@@ -1580,16 +1585,16 @@ void clif_mercenary_updatestatus(struct map_session_data *sd, int type)
 		case SP_MERCFAITH: WFIFOL(fd,4) = mercenary_get_faith(md); break;
 	}
 	WFIFOSET(fd,packet_len(0x2a2));
-#endif
 }
 
 void clif_mercenary_skillblock(struct map_session_data *sd)
 {
-#if PACKETVER >= 20080102
 	struct mercenary_data *md;
 	int fd, i, len = 4, id, j;
 
 	if( sd == NULL || (md = sd->md) == NULL )
+		return;
+	if( sd->packet_ver < PACKETVER_MERC_WINDOW )
 		return;
 
 	fd = sd->fd;
@@ -1612,14 +1617,49 @@ void clif_mercenary_skillblock(struct map_session_data *sd)
 
 	WFIFOW(fd,2) = len;
 	WFIFOSET(fd,len);
-#endif
+}
+
+/// Generic ZC_MSG (0x291): display a msgstringtable.txt string by id. First appears
+/// at packet_ver 20; runtime-gated so older clients never receive it. [Backport]
+void clif_msg(struct map_session_data* sd, unsigned short id)
+{
+	int fd;
+	nullpo_retv(sd);
+	if( sd->packet_ver < 20 )
+		return;
+	fd = sd->fd;
+	WFIFOHEAD(fd, packet_len(0x291));
+	WFIFOW(fd, 0) = 0x291;
+	WFIFOW(fd, 2) = id; // zero-based msgstringtable.txt index
+	WFIFOSET(fd, packet_len(0x291));
 }
 
 void clif_mercenary_message(struct map_session_data* sd, int message)
 {
-#if PACKETVER >= 20080102
-	clif_msg(sd, 1266 + message); // NOTE: clif_msg() must be added when PV is bumped
-#endif
+	if( sd == NULL || sd->packet_ver < PACKETVER_MERC_WINDOW )
+		return;
+	clif_msg(sd, 1266 + message);
+}
+
+/// Mercenary window action (CZ_MER_COMMAND 0x29f). option 2 = dismiss the
+/// mercenary via the status window's button. [Backport]
+/// A full dismiss mirrors @merc reset (S.): remove the live unit AND clear the ownership record +
+/// persist it, so the player can immediately hire a new mercenary. Just deleting the unit left
+/// mer_id set -> "you already own a mercenary" and no new hire.
+void clif_parse_mercenary_action(int fd, struct map_session_data* sd)
+{
+	int option = RFIFOB(fd,2);
+	if( option != 2 )
+		return;
+	if( sd->md )
+		merc_delete(sd->md, 0);
+	if( sd->status.mer_id != 0 )
+	{	// orphaned/live ownership: drop the dangling instance + link so a new merc can be summoned
+		intif_mercenary_delete(sd->status.mer_id);
+		sd->status.mer_id = 0;
+	}
+	chrif_save(sd, 0);
+	clif_displaymessage(fd, "Mercenary dismissed.");
 }
 
 void clif_homskillup(struct map_session_data *sd, int skill_num)
@@ -5776,6 +5816,32 @@ int clif_openvending(struct map_session_data *sd,int id,struct vending *vending)
 	return n;
 }
 
+//=============================================================================
+// [Backport] Buying store client hooks.
+//
+// On PACKETVER 7 (the current client) the buying-store native UI does not
+// exist, so these are no-ops and the @buystore/@buymarket/@sellto commands
+// provide all feedback. The native packet bodies (0x810/0x814/0x818/...) are
+// added under #if PACKETVER >= 20100629 when the client is upgraded; the
+// buyingstore engine already calls these hooks, so no rework is needed then.
+//=============================================================================
+#if PACKETVER >= 20100629
+// TODO: port native buying-store packet builders here (faithful eAthena copy).
+// Left intentionally unimplemented until a 2010+ client/packet_db is available.
+#error "Buying store native packets are not yet ported; build with PACKETVER 7."
+#else
+void clif_buyingstore_open(struct map_session_data* sd) { (void)sd; }
+void clif_buyingstore_open_failed(struct map_session_data* sd, unsigned short result, unsigned int weight) { (void)sd; (void)result; (void)weight; }
+void clif_buyingstore_myitemlist(struct map_session_data* sd) { (void)sd; }
+void clif_buyingstore_entry(struct map_session_data* sd) { (void)sd; }
+void clif_buyingstore_disappear_entry(struct map_session_data* sd) { (void)sd; }
+void clif_buyingstore_itemlist(struct map_session_data* sd, struct map_session_data* pl_sd) { (void)sd; (void)pl_sd; }
+void clif_buyingstore_trade_failed_buyer(struct map_session_data* sd, short result) { (void)sd; (void)result; }
+void clif_buyingstore_update_item(struct map_session_data* sd, unsigned short nameid, unsigned short amount) { (void)sd; (void)nameid; (void)amount; }
+void clif_buyingstore_delete_item(struct map_session_data* sd, short index, unsigned short amount, int price) { (void)sd; (void)index; (void)amount; (void)price; }
+void clif_buyingstore_trade_failed_seller(struct map_session_data* sd, short result, unsigned short nameid) { (void)sd; (void)result; (void)nameid; }
+#endif
+
 /*==========================================
  * IXACe
  *------------------------------------------*/
@@ -8114,6 +8180,11 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	// cart
 	if(pc_iscarton(sd)) {
+		// Restore the Change Cart design chosen earlier: the OPTION_CART tier bits reset on relog,
+		// so reapply the tier persisted in the char reg (S.: "карт сбрасывается после релога").
+		int cart_tier = pc_readglobalreg(sd, "MC_CART_TIER");
+		if (cart_tier >= 1 && cart_tier <= 5)
+			pc_setcart(sd, cart_tier);
 		clif_cartlist(sd);
 		clif_updatestatus(sd,SP_CARTINFO);
 	}
@@ -11837,8 +11908,8 @@ static int packetdb_readdb(void)
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
 	//#0x0280
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0, 18,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0, 80,  0, -1,  0,  5, // 0x29b/0x29d/0x29f mercenary window [uaRO]
+	    0,  0,  8,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0, // 0x2a2 mercenary par-change [uaRO]
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,191,  0,  0,  0,  0,  0,  0,
 	//#0x02C0
 	    0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,
@@ -11982,6 +12053,7 @@ static int packetdb_readdb(void)
 		{clif_parse_HomAttack,"homattack"},
 		{clif_parse_HomMenu,"hommenu"},
 		{clif_parse_Hotkey,"hotkey"},
+		{clif_parse_mercenary_action,"mermenu"}, // [Backport] merc window dismiss
 		{NULL,NULL}
 	};
 

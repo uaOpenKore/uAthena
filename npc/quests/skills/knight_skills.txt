@@ -228,7 +228,7 @@ K_Learn:
 	mes "but you instantly get the";
 	mes "image of the attack, so that's good.";
 	next;
-	skill 1001,1,0;
+	callfunc "F_KeepSkill",1001,1;
 	if(KNGT_SK == 8) {
 		mes "[Aesop]";
 		mes "Then use it well.";

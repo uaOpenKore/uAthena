@@ -28,6 +28,7 @@
 #include "pet.h"
 #include "mercenary.h" //[orn]
 #include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (@merc)
+#include "buyingstore.h"	// [Backport] buying store (@buystore/@buymarket/@sellto)
 #include "battle.h"
 #include "party.h"
 #include "guild.h"
@@ -263,6 +264,9 @@ ACMD_FUNC(quest);  // questlog chat UI
 ACMD_FUNC(status); // status/cooldown chat UI
 ACMD_FUNC(whereis); // mob spawn/drop search
 ACMD_FUNC(market); // vendor/price search
+ACMD_FUNC(buystore); // [Backport] buying store owner UI
+ACMD_FUNC(buymarket); // [Backport] buying store search
+ACMD_FUNC(sellto); // [Backport] sell into a buying store
 ACMD_FUNC(cooking); // chat cooking UI
 ACMD_FUNC(achievements); // achievements chat UI
 ACMD_FUNC(title); // active title
@@ -596,6 +600,9 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Status,             "@cd",               1, atcommand_status }, // alias
 	{ AtCommand_WhereIs,            "@whereis",          1, atcommand_whereis }, // mob spawn/drop
 	{ AtCommand_Market,             "@market",           1, atcommand_market }, // vendor/price search
+	{ AtCommand_BuyStore,           "@buystore",         1, atcommand_buystore }, // [Backport] buying store owner UI
+	{ AtCommand_BuyMarket,          "@buymarket",        1, atcommand_buymarket }, // [Backport] buying store search
+	{ AtCommand_SellTo,             "@sellto",           1, atcommand_sellto }, // [Backport] sell into a buying store
 	{ AtCommand_Cooking,            "@cooking",          1, atcommand_cooking }, // chat cooking UI
 	{ AtCommand_Cook,               "@cook",             1, atcommand_cooking }, // alias
 	{ AtCommand_Achievements,       "@achievements",     1, atcommand_achievements }, // achievements UI
@@ -8724,6 +8731,375 @@ int atcommand_market(const int fd, struct map_session_data* sd, const char* comm
 		snprintf(atcmd_output, sizeof(atcmd_output), "  ...(+%d more)", total - printed);
 		clif_displaymessage(fd, atcmd_output);
 	}
+	return 0;
+}
+
+//=============================================================================
+// [Backport] Buying store chat UI. The 2007 client (PACKETVER 7) has no native
+// buying-store window/board/sell dialog, so the whole feature is driven through
+// chat, mirroring @market/@quests-style commands:
+//   @buystore add/list/remove/open/close  - the merchant manages his store
+//   @buymarket [storeid]                   - find open stores / view one
+//   @sellto <storeid> <itemID> <amount>    - sell an item into a store
+//=============================================================================
+
+// map_foreachpc: resolve a buying store owner's account_id from its store id (buyer_id).
+static int atcommand_buyingstore_find_sub(DBKey key, void* data, va_list ap)
+{
+	struct map_session_data* pl_sd = (struct map_session_data*)data;
+	int storeid    = va_arg(ap, int);
+	int* accountid = va_arg(ap, int*);
+
+	if( pl_sd->state.buyingstore && (int)pl_sd->buyer_id == storeid )
+		*accountid = pl_sd->status.account_id;
+	return 0;
+}
+
+// map_foreachpc: list open buying stores.
+static int atcommand_buymarket_list_sub(DBKey key, void* data, va_list ap)
+{
+	struct map_session_data* pl_sd = (struct map_session_data*)data;
+	int fd     = va_arg(ap, int);
+	int* count = va_arg(ap, int*);
+	char out[200];
+
+	if( !pl_sd->state.buyingstore )
+		return 0;
+	(*count)++;
+	snprintf(out, sizeof(out), "  #%d  %s @ %s %d,%d  (%d items) \"%s\"",
+		(int)pl_sd->buyer_id, pl_sd->status.name, map[pl_sd->bl.m].name,
+		pl_sd->bl.x, pl_sd->bl.y, pl_sd->buyingstore.slots, pl_sd->message);
+	clif_displaymessage(fd, out);
+	return 0;
+}
+
+int atcommand_buystore(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	char sub[32];
+	int slotcap;
+	nullpo_retr(-1, sd);
+
+	if( !battle_config.feature_buying_store )
+	{
+		clif_displaymessage(fd, "Buying stores are disabled on this server.");
+		return -1;
+	}
+	if( pc_checkskill(sd, ALL_BUYING_STORE) <= 0 )
+	{
+		clif_displaymessage(fd, "You need the Open Buying Store skill (learn it from the Buying Shop NPC).");
+		return -1;
+	}
+
+	slotcap = 2 + pc_checkskill(sd, MC_VENDING);
+	if( slotcap > MAX_BUYINGSTORE_SLOTS )
+		slotcap = MAX_BUYINGSTORE_SLOTS;
+
+	if( !message || !*message || sscanf(message, "%31s", sub) < 1 )
+	{
+		clif_displaymessage(fd, "Usage: @buystore add <itemID> <amount> <price> | list | remove <itemID> | open <title> | close");
+		return -1;
+	}
+
+	if( strcmpi(sub, "add") == 0 )
+	{
+		int itemid = 0, amount = 0, price = 0, i;
+		struct item_data* id;
+
+		if( sd->state.buyingstore )
+		{
+			clif_displaymessage(fd, "A buying store is already open. Close it first (@buystore close).");
+			return -1;
+		}
+		if( sscanf(message, "%*s %d %d %d", &itemid, &amount, &price) < 3 )
+		{
+			clif_displaymessage(fd, "Usage: @buystore add <itemID> <amount> <price>");
+			return -1;
+		}
+		if( ( id = itemdb_exists(itemid) ) == NULL )
+		{
+			clif_displaymessage(fd, "Unknown item id.");
+			return -1;
+		}
+		if( amount <= 0 || amount > BUYINGSTORE_MAX_AMOUNT || price <= 0 || price > BUYINGSTORE_MAX_PRICE )
+		{
+			clif_displaymessage(fd, "Invalid amount or price.");
+			return -1;
+		}
+		if( battle_config.buyingstore_restrict_items && !id->flag.buyingstore )
+		{
+			clif_displaymessage(fd, "That item cannot be bought through a buying store.");
+			return -1;
+		}
+		if( sd->buyingstore_stagecount >= slotcap )
+		{
+			snprintf(atcmd_output, sizeof(atcmd_output), "Your buying list is full (%d slots from Vending level).", slotcap);
+			clif_displaymessage(fd, atcmd_output);
+			return -1;
+		}
+		for( i = 0; i < sd->buyingstore_stagecount; i++ )
+		{
+			if( sd->buyingstore_stage[i].nameid == itemid )
+			{
+				clif_displaymessage(fd, "That item is already on your buying list.");
+				return -1;
+			}
+		}
+		i = sd->buyingstore_stagecount++;
+		sd->buyingstore_stage[i].nameid = (unsigned short)itemid;
+		sd->buyingstore_stage[i].amount = (unsigned short)amount;
+		sd->buyingstore_stage[i].price  = price;
+		snprintf(atcmd_output, sizeof(atcmd_output), "Added: %s x%d @ %dz  (%d/%d slots). Use '@buystore open <title>' when ready.",
+			id->jname, amount, price, sd->buyingstore_stagecount, slotcap);
+		clif_displaymessage(fd, atcmd_output);
+		return 0;
+	}
+	else if( strcmpi(sub, "remove") == 0 )
+	{
+		int itemid = 0, i, found = -1;
+
+		if( sd->state.buyingstore )
+		{
+			clif_displaymessage(fd, "Close the store first (@buystore close) to edit the list.");
+			return -1;
+		}
+		if( sscanf(message, "%*s %d", &itemid) < 1 )
+		{
+			clif_displaymessage(fd, "Usage: @buystore remove <itemID>");
+			return -1;
+		}
+		for( i = 0; i < sd->buyingstore_stagecount; i++ )
+		{
+			if( sd->buyingstore_stage[i].nameid == itemid )
+			{
+				found = i;
+				break;
+			}
+		}
+		if( found < 0 )
+		{
+			clif_displaymessage(fd, "That item is not on your buying list.");
+			return -1;
+		}
+		for( i = found; i + 1 < sd->buyingstore_stagecount; i++ )
+			sd->buyingstore_stage[i] = sd->buyingstore_stage[i+1];
+		sd->buyingstore_stagecount--;
+		memset(&sd->buyingstore_stage[sd->buyingstore_stagecount], 0, sizeof(sd->buyingstore_stage[0]));
+		clif_displaymessage(fd, "Removed from buying list.");
+		return 0;
+	}
+	else if( strcmpi(sub, "list") == 0 )
+	{
+		int i;
+		if( sd->state.buyingstore )
+		{
+			snprintf(atcmd_output, sizeof(atcmd_output), "Buying store #%d open (\"%s\"), budget left %dz:", (int)sd->buyer_id, sd->message, sd->buyingstore.zenylimit);
+			clif_displaymessage(fd, atcmd_output);
+			for( i = 0; i < sd->buyingstore.slots; i++ )
+			{
+				struct item_data* id = itemdb_exists(sd->buyingstore.items[i].nameid);
+				snprintf(atcmd_output, sizeof(atcmd_output), "  %s x%u @ %dz", id ? id->jname : "?", sd->buyingstore.items[i].amount, sd->buyingstore.items[i].price);
+				clif_displaymessage(fd, atcmd_output);
+			}
+		}
+		else if( sd->buyingstore_stagecount == 0 )
+			clif_displaymessage(fd, "Your buying list is empty. Add items with '@buystore add <itemID> <amount> <price>'.");
+		else
+		{
+			clif_displaymessage(fd, "Your buying list (not open yet):");
+			for( i = 0; i < sd->buyingstore_stagecount; i++ )
+			{
+				struct item_data* id = itemdb_exists(sd->buyingstore_stage[i].nameid);
+				snprintf(atcmd_output, sizeof(atcmd_output), "  %s x%u @ %dz", id ? id->jname : "?", sd->buyingstore_stage[i].amount, sd->buyingstore_stage[i].price);
+				clif_displaymessage(fd, atcmd_output);
+			}
+		}
+		return 0;
+	}
+	else if( strcmpi(sub, "open") == 0 )
+	{
+		unsigned char buf[MAX_BUYINGSTORE_SLOTS*8];
+		const char* title = message;
+		double zsum = 0;
+		int zenylimit, i;
+
+		if( sd->state.buyingstore )
+		{
+			clif_displaymessage(fd, "A buying store is already open.");
+			return -1;
+		}
+		if( sd->buyingstore_stagecount == 0 )
+		{
+			clif_displaymessage(fd, "Add items first: '@buystore add <itemID> <amount> <price>'.");
+			return -1;
+		}
+		// title = the text after "open"
+		while( *title && *title != ' ' && *title != '\t' ) title++;
+		while( *title == ' ' || *title == '\t' ) title++;
+		if( *title == '\0' )
+			title = "Buying";
+
+		for( i = 0; i < sd->buyingstore_stagecount; i++ )
+		{
+			WBUFW(buf,i*8+0) = sd->buyingstore_stage[i].nameid;
+			WBUFW(buf,i*8+2) = sd->buyingstore_stage[i].amount;
+			WBUFL(buf,i*8+4) = sd->buyingstore_stage[i].price;
+			zsum += (double)sd->buyingstore_stage[i].amount * (double)sd->buyingstore_stage[i].price;
+		}
+		if( zsum > (double)sd->status.zeny )
+		{
+			snprintf(atcmd_output, sizeof(atcmd_output), "Not enough zeny to back the buying store (need %.0f, you have %d).", zsum, sd->status.zeny);
+			clif_displaymessage(fd, atcmd_output);
+			return -1;
+		}
+		zenylimit = (int)zsum;
+		if( zenylimit <= 0 )
+		{
+			clif_displaymessage(fd, "Invalid total cost.");
+			return -1;
+		}
+
+		if( !buyingstore_setup(sd, (unsigned char)slotcap) )
+		{
+			clif_displaymessage(fd, "You can't open a buying store here right now.");
+			return -1;
+		}
+		buyingstore_create(sd, zenylimit, 1, title, buf, sd->buyingstore_stagecount);
+
+		if( sd->state.buyingstore )
+		{
+			snprintf(atcmd_output, sizeof(atcmd_output), "Buying store #%d opened with %d item(s), budget %dz. Buyers: @sellto %d <itemID> <amount>.",
+				(int)sd->buyer_id, sd->buyingstore.slots, sd->buyingstore.zenylimit, (int)sd->buyer_id);
+			clif_displaymessage(fd, atcmd_output);
+			sd->buyingstore_stagecount = 0;
+			memset(sd->buyingstore_stage, 0, sizeof(sd->buyingstore_stage));
+		}
+		else
+			clif_displaymessage(fd, "Failed to open buying store (check items, zeny or weight).");
+		return 0;
+	}
+	else if( strcmpi(sub, "close") == 0 )
+	{
+		if( sd->state.buyingstore )
+		{
+			buyingstore_close(sd);
+			clif_displaymessage(fd, "Buying store closed.");
+		}
+		else
+			clif_displaymessage(fd, "You have no open buying store.");
+		sd->buyingstore_stagecount = 0;
+		memset(sd->buyingstore_stage, 0, sizeof(sd->buyingstore_stage));
+		return 0;
+	}
+
+	clif_displaymessage(fd, "Usage: @buystore add <itemID> <amount> <price> | list | remove <itemID> | open <title> | close");
+	return -1;
+}
+
+int atcommand_buymarket(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+
+	if( !battle_config.feature_buying_store )
+	{
+		clif_displaymessage(fd, "Buying stores are disabled on this server.");
+		return -1;
+	}
+
+	if( !message || !*message )
+	{// list all open buying stores
+		int count = 0;
+		clif_displaymessage(fd, "Open buying stores ('@buymarket <id>' for details):");
+		map_foreachpc(atcommand_buymarket_list_sub, fd, &count);
+		if( count == 0 )
+			clif_displaymessage(fd, "  (none)");
+		return 0;
+	}
+	else
+	{// detail of one store
+		int storeid = atoi(message), accountid = -1, i;
+		struct map_session_data* pl_sd;
+
+		map_foreachpc(atcommand_buyingstore_find_sub, storeid, &accountid);
+		if( accountid < 0 || ( pl_sd = map_id2sd(accountid) ) == NULL || !pl_sd->state.buyingstore )
+		{
+			clif_displaymessage(fd, "No such open buying store.");
+			return -1;
+		}
+		snprintf(atcmd_output, sizeof(atcmd_output), "Buying store #%d by %s @ %s %d,%d \"%s\":",
+			storeid, pl_sd->status.name, map[pl_sd->bl.m].name, pl_sd->bl.x, pl_sd->bl.y, pl_sd->message);
+		clif_displaymessage(fd, atcmd_output);
+		for( i = 0; i < pl_sd->buyingstore.slots; i++ )
+		{
+			struct item_data* id;
+			if( pl_sd->buyingstore.items[i].amount == 0 )
+				continue;
+			id = itemdb_exists(pl_sd->buyingstore.items[i].nameid);
+			snprintf(atcmd_output, sizeof(atcmd_output), "  [%d] %s  wants x%u @ %dz",
+				pl_sd->buyingstore.items[i].nameid, id ? id->jname : "?",
+				pl_sd->buyingstore.items[i].amount, pl_sd->buyingstore.items[i].price);
+			clif_displaymessage(fd, atcmd_output);
+		}
+		clif_displaymessage(fd, "Sell with: @sellto <id> <itemID> <amount>");
+		return 0;
+	}
+}
+
+int atcommand_sellto(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int storeid = 0, itemid = 0, amount = 0, accountid = -1, index, before;
+	unsigned char buf[8];
+	struct map_session_data* pl_sd;
+	nullpo_retr(-1, sd);
+
+	if( !battle_config.feature_buying_store )
+	{
+		clif_displaymessage(fd, "Buying stores are disabled on this server.");
+		return -1;
+	}
+	if( !message || !*message || sscanf(message, "%d %d %d", &storeid, &itemid, &amount) < 3 )
+	{
+		clif_displaymessage(fd, "Usage: @sellto <storeid> <itemID> <amount>   (see @buymarket)");
+		return -1;
+	}
+	if( amount <= 0 )
+	{
+		clif_displaymessage(fd, "Invalid amount.");
+		return -1;
+	}
+
+	map_foreachpc(atcommand_buyingstore_find_sub, storeid, &accountid);
+	if( accountid < 0 || ( pl_sd = map_id2sd(accountid) ) == NULL || !pl_sd->state.buyingstore )
+	{
+		clif_displaymessage(fd, "No such open buying store.");
+		return -1;
+	}
+	index = pc_search_inventory(sd, itemid);
+	if( index < 0 )
+	{
+		clif_displaymessage(fd, "You don't have that item.");
+		return -1;
+	}
+	if( sd->status.inventory[index].amount < amount )
+	{
+		clif_displaymessage(fd, "You don't have that many of that item in one stack.");
+		return -1;
+	}
+
+	// build the seller item list (<index+2>.W <nameid>.W <amount>.W) and trade
+	WBUFW(buf,0) = index+2;
+	WBUFW(buf,2) = itemid;
+	WBUFW(buf,4) = amount;
+	before = sd->status.zeny;
+	buyingstore_trade(sd, accountid, (unsigned int)storeid, buf, 1);
+
+	if( sd->status.zeny > before )
+	{
+		struct item_data* id = itemdb_exists(itemid);
+		snprintf(atcmd_output, sizeof(atcmd_output), "Sold %s x%d for %dz.", id ? id->jname : "item", amount, sd->status.zeny - before);
+		clif_displaymessage(fd, atcmd_output);
+	}
+	else
+		clif_displaymessage(fd, "Sale failed (store full, out of budget, no longer wanted, or too far).");
 	return 0;
 }
 

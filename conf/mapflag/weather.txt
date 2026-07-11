@@ -1,0 +1,11 @@
+// Weather mapflags: make the server announce the map's weather to clients
+// (clif_weather_check -> ZC_NOTIFY_EFFECT2 0x1f3: 161 rain, 162 snow, 163 sakura, 333 leaves).
+// The uaRO client renders these as falling particles (#32).
+
+// Sakura petals
+amatsu.gat	mapflag	sakura
+ama_fild01.gat	mapflag	sakura
+
+// Snow
+xmas.gat	mapflag	snow
+xmas_fild01.gat	mapflag	snow

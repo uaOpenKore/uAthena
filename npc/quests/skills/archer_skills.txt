@@ -117,7 +117,7 @@ L_GetSkill:
 	mes "I hope you didn't expect some kind of elaborate ceremony or some";
 	mes "kind of unique and lengthy training.......";
 	next;
-	skill 147,1,0;
+	callfunc "F_KeepSkill",147,1;
 	set @ARWCRFT, 0;
 	mes "[Roberto]";
 	mes "...... Well good luck and have fun making arrows.  I've got other";
@@ -197,7 +197,7 @@ L_Check:
 	mes "OH! Marvelous you brought me all the ingredients!";
 	mes "Now it'll be my pleasure to teach you the skill ^0033FFArrow Repel^000000";
 	next;
-	skill 148,1,0;
+	callfunc "F_KeepSkill",148,1;
 	set @ARWREP, 0;
 	mes "[Jason]";
 	mes "There you go! Happy hunting in the future.";

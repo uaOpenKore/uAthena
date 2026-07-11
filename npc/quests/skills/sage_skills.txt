@@ -61,7 +61,7 @@ yuno_in03,176,24,3	script	Mischna	755,{
 	mes "I see you have what we need,";
 	mes "so I'll teach you this new";
 	mes "talent of mine!";
-	skill 1007,1,0;
+	callfunc "F_KeepSkill",1007,1;
 	next;
 	
 	mes "[Mischna]";
@@ -125,24 +125,24 @@ L_elemental:
 		sage_1:
 		if(countitem(991)<20)goto L_sagefail;//Items: Crystal_Blue,
 		delitem 991, 20;		//Items: Crystal_Blue,
-		skill 1008,1,0;
+		callfunc "F_KeepSkill",1008,1;
 		goto L_alreadyhave;
 
 		sage_2:
 		if(countitem(993)<20)goto L_sagefail;//Items: Green_Live,
 		delitem 993, 20;//Items: Green_Live,
-		skill 1017,1,0;
+		callfunc "F_KeepSkill",1017,1;
 		goto L_alreadyhave;
 
 		sage_3:
 		if(countitem(990)<20)goto L_sagefail;//Items: Red_Blood,
 		delitem 990, 20;//Items: Red_Blood,
-		skill 1018,1,0;
+		callfunc "F_KeepSkill",1018,1;
 		goto L_alreadyhave;
 
 		sage_4:
 		if(countitem(992)<20)goto L_sagefail;//Items: Wind_of_Verdure,
 		delitem 992, 20;//Items: Wind_of_Verdure,
-		skill 1019,1,0;
+		callfunc "F_KeepSkill",1019,1;
 		goto L_alreadyhave;
 }

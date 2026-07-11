@@ -1334,8 +1334,13 @@ static int mob_ai_sub_hard(struct block_list *bl,va_list ap)
 static int mob_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 {
 	unsigned int tick;
+	int active_range;
 	tick=(unsigned int)va_arg(ap, intptr_t);
-	map_foreachinrange(mob_ai_sub_hard,&sd->bl, AREA_SIZE*2, BL_MOB,tick);
+	// Radius around the player at which mobs switch to active (hard) AI -> they walk
+	// and look alive. mob_active_range>0 overrides the legacy AREA_SIZE*2; aggro/view
+	// range (range2) is untouched, so detection distance for aggressive mobs is unchanged.
+	active_range = battle_config.mob_active_range > 0 ? battle_config.mob_active_range : AREA_SIZE*2;
+	map_foreachinrange(mob_ai_sub_hard,&sd->bl, active_range, BL_MOB,tick);
 
 	return 0;
 }
@@ -1354,7 +1359,12 @@ static int mob_pc_near_cached(struct mob_data *md, unsigned int tick)
 {
 	if( md->pcnear_tick == 0 || DIFF_TICK(tick, md->pcnear_tick) >= MOB_PCNEAR_TTL )
 	{
-		md->pcnear = map_pc_near(md->bl.m, md->bl.x, md->bl.y, md->db->range2) ? 1 : 0;
+		// "Comes alive" radius. mob_active_range>0 widens the activation distance so
+		// mobs run hard AI (and thus random-walk = look alive) for PCs up to that many
+		// cells away. Legacy: range2 (= view range). Aggro search inside hard AI still
+		// uses range2, so detection range is unchanged.
+		int active_range = battle_config.mob_active_range > 0 ? battle_config.mob_active_range : md->db->range2;
+		md->pcnear = map_pc_near(md->bl.m, md->bl.x, md->bl.y, active_range) ? 1 : 0;
 		md->pcnear_tick = tick;
 	}
 	return md->pcnear;

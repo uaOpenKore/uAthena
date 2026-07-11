@@ -52,7 +52,7 @@ comodo,205,171,7	script	Chanel	724,{
 	mes "[Chanel]";
 	mes "I see you have what you need,";
 	mes "so I'll teach you my talent.";
-	skill 1011,1,0;
+	callfunc "F_KeepSkill",1011,1;
 	close;
 	
 L_noitems:

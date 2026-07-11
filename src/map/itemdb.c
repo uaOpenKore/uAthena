@@ -435,6 +435,44 @@ static int itemdb_read_itemavail (void)
 }
 
 /*==========================================
+ * [Backport] read buying-store item whitelist (db/item_buyingstore.txt)
+ * Format: <item id>   (one per line, // comments allowed)
+ * Only consulted when battle_config.buyingstore_restrict_items is enabled.
+ *------------------------------------------*/
+static int itemdb_read_buyingstore(void)
+{
+	FILE *fp;
+	int nameid, ln = 0;
+	char line[1024];
+	struct item_data *id;
+
+	sprintf(line, "%s/item_buyingstore.txt", db_path);
+	if ((fp = fopen(line,"r")) == NULL) {
+		// optional file; silently ignore if absent
+		return 0;
+	}
+
+	while(fgets(line, sizeof(line), fp))
+	{
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		nameid = atoi(line);
+		if (nameid <= 0)
+			continue;
+		if ((id = itemdb_exists(nameid)) == NULL) {
+			ShowWarning("itemdb_read_buyingstore: Invalid item id %d.\n", nameid);
+			continue;
+		}
+		id->flag.buyingstore = 1;
+		ln++;
+	}
+	fclose(fp);
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, "item_buyingstore.txt");
+
+	return 0;
+}
+
+/*==========================================
  * read item group data
  *------------------------------------------*/
 static void itemdb_read_itemgroup_sub(const char* filename)
@@ -985,6 +1023,7 @@ static void itemdb_read(void)
 	itemdb_read_itemavail();
 	itemdb_read_noequip();
 	itemdb_read_itemtrade();
+	itemdb_read_buyingstore(); // [Backport]
 }
 
 /*==========================================

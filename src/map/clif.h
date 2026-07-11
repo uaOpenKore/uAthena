@@ -275,6 +275,20 @@ int clif_buyvending(struct map_session_data *sd,int index,int amount,int fail);
 int clif_openvending(struct map_session_data *sd,int id,struct vending *vending);
 int clif_vendingreport(struct map_session_data *sd,int index,int amount);
 
+// [Backport] Buying store client hooks. On PACKETVER 7 these are no-ops (the
+// chat atcommands give all feedback); native packets are added under
+// #if PACKETVER >= 20100629 when the client is upgraded.
+void clif_buyingstore_open(struct map_session_data* sd);
+void clif_buyingstore_open_failed(struct map_session_data* sd, unsigned short result, unsigned int weight);
+void clif_buyingstore_myitemlist(struct map_session_data* sd);
+void clif_buyingstore_entry(struct map_session_data* sd);
+void clif_buyingstore_disappear_entry(struct map_session_data* sd);
+void clif_buyingstore_itemlist(struct map_session_data* sd, struct map_session_data* pl_sd);
+void clif_buyingstore_trade_failed_buyer(struct map_session_data* sd, short result);
+void clif_buyingstore_update_item(struct map_session_data* sd, unsigned short nameid, unsigned short amount);
+void clif_buyingstore_delete_item(struct map_session_data* sd, short index, unsigned short amount, int price);
+void clif_buyingstore_trade_failed_seller(struct map_session_data* sd, short result, unsigned short nameid);
+
 int clif_movetoattack(struct map_session_data *sd,struct block_list *bl);
 
 // party
@@ -389,11 +403,13 @@ int clif_hwalkok(struct homun_data *hd);	//[orn]
 void clif_rental_time(int fd, int nameid, int seconds);
 void clif_rental_expired(int fd, int index, int nameid);
 
-// [Backport] hired mercenary soldier window (PV7-dormant)
+// [Backport] hired mercenary soldier window (runtime-gated on client packet_ver)
+void clif_msg(struct map_session_data* sd, unsigned short id);
 void clif_mercenary_info(struct map_session_data *sd);
 void clif_mercenary_updatestatus(struct map_session_data *sd, int type);
 void clif_mercenary_skillblock(struct map_session_data *sd);
 void clif_mercenary_message(struct map_session_data* sd, int message);
+void clif_parse_mercenary_action(int fd, struct map_session_data* sd);
 
 int clif_foreachclient(int (*)(struct map_session_data*,va_list),...);
 int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type);

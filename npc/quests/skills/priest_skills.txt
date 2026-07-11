@@ -61,7 +61,7 @@ prt_church,111,112,3	script	Nun Linus	79,{
 L_bless:
 	mes "[Nun Linus]";
 	mes "Hum... I see God has shined on you this time";
-	skill 1014,1,0;
+	callfunc "F_KeepSkill",1014,1;
 	close;
 	
 L_noitems:

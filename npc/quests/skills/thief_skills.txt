@@ -201,7 +201,7 @@ L_Sand:
 	mes "[Alcouskou]";
 	mes "Oh and it does Earth Property damage....... (I gotta find a better way to teach this).........";
 	emotion e_swt;
-	skill 149,1,0;
+	callfunc "F_KeepSkill",149,1;
 	set @SANDATTACK, 0;
 	close;
 
@@ -240,7 +240,7 @@ L_Back:
 	next;
 	mes "[Alcouskou]";
 	mes "Ah! You've got it.  Just like a pro.  With this skill being overwhelmed by mobs is a thing of the past.";
-	skill 150,1,0;
+	callfunc "F_KeepSkill",150,1;
 	set @BACKSLIDE, 0;
 	close;
 
@@ -273,7 +273,7 @@ L_Find:
 	mes "[Alcouskou]";
 	mes "Very good.  You have chosen some fine stones.  This tells me that you have now perfected the Find Stone skill.";
 	emotion e_no1;
-	skill 151,1,0;
+	callfunc "F_KeepSkill",151,1;
 	set @FINDSTONE, 0;
 	next;
 	mes "[Alcouskou]";
@@ -314,7 +314,7 @@ L_Fling:
 	mes "[Alcouskou]";
 	mes "Haha! Excellent! It's a bullseye.  You have now mastered Stone Fling, congratulations.";
 	emotion e_no1;
-	skill 152,1,0;
+	callfunc "F_KeepSkill",152,1;
 	set @STONEFLING, 0;
 	next;
 	mes "[Alcouskou]";

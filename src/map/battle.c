@@ -3667,6 +3667,7 @@ static const struct battle_data_short {
 	{ "mob_ai_lazy_skip_emptymap",         &battle_config.mob_ai_lazy_skip_emptymap},
 	{ "mob_ai_hard_skip_noplayer",         &battle_config.mob_ai_hard_skip_noplayer},
 	{ "mob_ai_active_maps_only",           &battle_config.mob_ai_active_maps_only},
+	{ "mob_active_range",                  &battle_config.mob_active_range},
 	{ "socket_async_send",                 &battle_config.socket_async_send},
 	{ "socket_send_pool",                  &battle_config.socket_send_pool},	// [perf 5a]
 	{ "recv_parse_shortlist",              &battle_config.recv_parse_shortlist},	// [perf]
@@ -3751,6 +3752,8 @@ static const struct battle_data_int {
 	{ "max_cart_weight",                   &battle_config.max_cart_weight			},
 	{ "gvg_eliminate_time",                &battle_config.gvg_eliminate_time		},
 	{ "vending_max_value",                 &battle_config.vending_max_value		},
+	{ "feature_buying_store",              &battle_config.feature_buying_store		}, // [Backport]
+	{ "buyingstore_restrict_items",        &battle_config.buyingstore_restrict_items	}, // [Backport]
 // eAthena additions
 	{ "item_rate_mvp",                     &battle_config.item_rate_mvp		},
 	{ "item_rate_common",                  &battle_config.item_rate_common	},	// Added by RoVeRT
@@ -4010,6 +4013,8 @@ void battle_set_defaults()
 	battle_config.dead_branch_active = 0;
 	battle_config.vending_max_value = 10000000;
 	battle_config.vending_tax = 0;
+	battle_config.feature_buying_store = 1;        // [Backport] enabled by default
+	battle_config.buyingstore_restrict_items = 0;  // [Backport] any tradable item by default (like vending)
 	battle_config.show_steal_in_same_party = 0;
 	battle_config.party_update_interval = 1000;
 	battle_config.party_share_type = 0;
@@ -4135,6 +4140,7 @@ void battle_set_defaults()
 	battle_config.mob_ai_lazy_skip_emptymap = 0; // [perf] default off = original behaviour
 	battle_config.mob_ai_hard_skip_noplayer = 1; // [perf] default on: under 0x20, skip hard AI for mobs with no PC in view
 	battle_config.mob_ai_active_maps_only = 1; // [perf] default on: under 0x20, iterate mobs only on maps with players
+	battle_config.mob_active_range = 0; // 0 = legacy activation radius (AREA_SIZE*2 around a PC / range2 for the 0x20 gate)
 	battle_config.socket_async_send = 0; // [perf] default off = inline send on the game loop
 	battle_config.socket_send_pool = 1; // [perf 5a] default on = recycle send-worker buffers
 	// [refine99] over-refine (+11..+99) defaults. refine_player_max=99 turns it on for players via

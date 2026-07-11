@@ -271,6 +271,8 @@ extern struct Battle_Config {
 	unsigned short dead_branch_active;
 	int vending_max_value;
 	unsigned short vending_tax;
+	int feature_buying_store;        // [Backport] master switch for buying stores (skup)
+	int buyingstore_restrict_items;  // [Backport] 0: any tradable item; 1: only db/item_buyingstore.txt
 	unsigned short show_steal_in_same_party;
 	unsigned short party_share_type;
 	unsigned short party_hp_mode;
@@ -388,6 +390,7 @@ extern struct Battle_Config {
 	unsigned short mob_ai_lazy_skip_emptymap; // [perf] skip lazy AI for mobs on player-less maps (cosmetic walk-to-spawn only). 0=off(default)
 	unsigned short mob_ai_hard_skip_noplayer; // [perf] under mob_ai&0x20: send targetless mobs with no PC in view to the cheap lazy path. 0=off(default)
 	unsigned short mob_ai_active_maps_only; // [perf] under mob_ai&0x20: iterate mobs only on maps with players (cost scales with active locations). 1=on(default)
+	unsigned short mob_active_range; // radius (cells) at which a mob switches to active (hard) AI = "comes alive"/walks. 0=legacy (AREA_SIZE*2 around a PC / range2 for the 0x20 gate). Does NOT change aggro/view range.
 	unsigned short socket_async_send; // [perf] 1 = run client send() on a dedicated worker thread (off the game loop). 0=off(default)
 	unsigned short socket_send_pool;  // [perf 5a] 1 = recycle send-worker buffers (default); 0 = plain malloc/free per send
 	unsigned short recv_parse_shortlist; // [perf] 1 = parse only fds that received data this tick (default); 0 = scan all

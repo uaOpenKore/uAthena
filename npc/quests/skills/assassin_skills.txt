@@ -47,8 +47,8 @@ in_moc_16,14,21,3	script	Kiltin	884,{
 	mes "[Kiltin]";
 	mes "I see you have what you need,";
 	mes "so I'll teach you my talent.";
-	skill 1003,1,0;
-	skill 1004,1,0;
+	callfunc "F_KeepSkill",1003,1;
+	callfunc "F_KeepSkill",1004,1;
 	close;
 	
 L_noitems:

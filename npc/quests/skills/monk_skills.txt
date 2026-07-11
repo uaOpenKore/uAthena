@@ -72,8 +72,8 @@ prt_monk,270,198,5	script	Training Monk	753,{
 			mes "So use it well, alright?";
 			next;
 			set MONK_SK, 7;
-			skill 1015,1,0;
-			skill 1016,1,0;
+			callfunc "F_KeepSkill",1015,1;
+			callfunc "F_KeepSkill",1016,1;
 			mes "[Ikusa]";
 			mes "If you're good, you're";
 			mes "free to go. I'll say it again, though";
@@ -187,7 +187,7 @@ prt_monk,270,198,5	script	Training Monk	753,{
 				mes "will take responsibility with the skill.";
 				next;
 				set MONK_SK, 3;
-				skill 1015,1,0;
+				callfunc "F_KeepSkill",1015,1;
 				mes "[Ikusa]";
 				mes "Then, take care.";
 				next;
@@ -341,7 +341,7 @@ prt_monk,129,263,3	script	Monk	823,{
 			mes "so I'm sure you're satisfied?";
 			next;
 			set MONK_SK, 6;
-			skill 1016,1,0;
+			callfunc "F_KeepSkill",1016,1;
 			mes "[Monk]";
 			mes "Then farewell. SHould you";
 			mes "find a way to convince that idiot";

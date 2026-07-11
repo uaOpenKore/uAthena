@@ -1,0 +1,16 @@
+// Buying Store item whitelist [Backport]
+// =====================================================================
+// List of items that may be bought through a buying store (skup).
+//
+// This file is ONLY consulted when battle_config.buyingstore_restrict_items
+// is set to 1 (see conf/battle/items.conf). By DEFAULT that option is 0, so
+// a buying store accepts ANY tradable item (same as vending) and this file
+// is ignored.
+//
+// Format: <item id>     (one per line; // starts a comment)
+// Example:
+//   501   // Red Potion
+//   909   // Jellopy
+//
+// Add the item ids you want to allow below when restriction is enabled.
+// =====================================================================

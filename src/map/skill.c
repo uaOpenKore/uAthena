@@ -15,6 +15,7 @@
 #include "status.h"
 #include "pet.h"
 #include "mercenary.h"	//[orn]
+#include "buyingstore.h"	// [Backport] buyingstore_setup
 #include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (struct mercenary_data)
 #include "liveskillunit.h"	// [perf] live skill-unit index for skill_unit_timer
 #include "mob.h"
@@ -4130,6 +4131,21 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case MC_CHANGECART:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		if (sd) {
+			// CYCLE the pushcart design (S.: "цикл для смены карта"), bounded by the tiers the
+			// base level unlocks (1/2/3/4/5 at 1/40/65/80/90). Persist the choice in a char reg so
+			// it survives relog -- the OPTION_CART bits alone reset on relog. pc_setcart applies
+			// OPTION_CART<N> + resends the option (0x229) and the cart list.
+			int maxtier = (sd->status.base_level >= 90) ? 5 :
+			              (sd->status.base_level >= 80) ? 4 :
+			              (sd->status.base_level >= 65) ? 3 :
+			              (sd->status.base_level >= 40) ? 2 : 1;
+			int cur = pc_readglobalreg(sd, "MC_CART_TIER");
+			if (cur < 1 || cur > maxtier) cur = 0;   // out of range for this level -> restart cycle
+			cur = (cur % maxtier) + 1;               // 1..maxtier
+			pc_setcart(sd, cur);
+			pc_setglobalreg(sd, "MC_CART_TIER", cur);
+		}
 		break;
 
 	case TK_MISSION:
@@ -4755,6 +4771,16 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				clif_skill_fail(sd,skillid,0,0);
 			else
 				clif_openvendingreq(sd,2+skilllv);
+		}
+		break;
+
+	case ALL_BUYING_STORE: // [Backport] permission/native trigger; chat uses @buystore
+		if(sd)
+		{
+			if ( pc_can_give_items(pc_isGM(sd)) )
+				clif_skill_fail(sd,skillid,0,0);
+			else // slots = 2 + MC_VENDING level (no-op window on PACKETVER 7)
+				buyingstore_setup(sd, 2+pc_checkskill(sd,MC_VENDING));
 		}
 		break;
 
@@ -5458,6 +5484,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start4(bl,type,100,
 				skilllv,skillid,src->id,skill_get_time(skillid,skilllv),1000));
+		if (sd) skill_blockpc_start (sd, skillid, skill_get_time(skillid, skilllv)+3000); // [Backport] cooldown-parity: Venom Splasher reuse delay
 		break;
 
 	case PF_MINDBREAKER:
@@ -6121,6 +6148,9 @@ int skill_castend_id (int tid, unsigned int tick, intptr_t id, intptr_t data)
 				sc->data[SC_SPIRIT].val3 == ud->skillid &&
 				ud->skillid != WZ_WATERBALL)
 				sc->data[SC_SPIRIT].val3 = 0; //Clear bounced spell check.
+
+			if(sc->data[SC_DANCING].timer != -1 && (skill_get_inf2(ud->skillid)&INF2_SONG_DANCE) && sd)
+				skill_blockpc_start(sd,BD_ADAPTATION,3000); // [Backport] cooldown-parity: prevent song/dance spam
 		}
 
 		if (ud->skilltimer == -1) {

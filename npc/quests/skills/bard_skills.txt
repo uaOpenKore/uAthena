@@ -44,7 +44,7 @@ prontera,134,328,7	script	Timid man	89,{
 	mes "[Timid man]";
 	mes "I see you have what you need,";
 	mes "so I'll teach you my talent.";
-	skill 1010,1,0;
+	callfunc "F_KeepSkill",1010,1;
 	close;
 	
 L_noitems:

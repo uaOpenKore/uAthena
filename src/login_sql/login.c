@@ -288,8 +288,9 @@ int sql_ping_init(void)
 		mysql_free_result(sql_res);
 	}
 
-	// establish keepalive
-	connection_ping_interval = connection_timeout - 30; // 30-second reserve
+	// establish keepalive -- ping at half the timeout so at least two pings fit each idle window
+	// (the old timeout-30 was razor-thin: one late/missed ping let the connection lapse). (S.)
+	connection_ping_interval = connection_timeout / 2;
 	add_timer_func_list(login_sql_ping, "login_sql_ping");
 	add_timer_interval(gettick() + connection_ping_interval*1000, login_sql_ping, 0, 0, connection_ping_interval*1000);
 
@@ -304,6 +305,11 @@ int mmo_auth_sqldb_init(void)
 	ShowStatus("Login server init....\n");
 
 	mysql_init(&mysql_handle);
+
+	// Auto-reconnect a dropped connection (idle > wait_timeout, MySQL restart, network blip). Without
+	// this, mysql_ping()/mysql_query() on a dead handle only report the error and never reconnect, so
+	// after an idle timeout every auth returns "no such account" until the server is restarted. (S.)
+	{ my_bool reconnect = 1; mysql_options(&mysql_handle, MYSQL_OPT_RECONNECT, &reconnect); }
 
 	// DB connection start
 	ShowStatus("Connect Login Database Server....\n");
