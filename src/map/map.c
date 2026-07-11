@@ -3348,6 +3348,7 @@ int inter_config_read(char *cfgName)
 int map_sql_init(void)
 {
 	mysql_init(&mmysql_handle);
+	{ my_bool reconnect = 1; mysql_options(&mmysql_handle, MYSQL_OPT_RECONNECT, &reconnect); }  // auto-reconnect dropped idle conn (S.)
 
 	//DB connection start
 	ShowInfo("Connecting to the Map DB Server....\n");
@@ -3363,6 +3364,7 @@ int map_sql_init(void)
 
 	if(mail_server_enable) { // mail system [Valaris]
 		mysql_init(&mail_handle);
+		{ my_bool reconnect = 1; mysql_options(&mail_handle, MYSQL_OPT_RECONNECT, &reconnect); }  // auto-reconnect (S.)
 	        ShowInfo("Connecting to the Mail DB Server....\n");
 		if(!mysql_real_connect(&mail_handle, mail_server_ip, mail_server_id, mail_server_pw,
 			mail_server_db ,mail_server_port, (char *)NULL, 0)) {
@@ -3406,6 +3408,7 @@ int map_sql_close(void)
 int log_sql_init(void)
 {
     mysql_init(&logmysql_handle);
+	{ my_bool reconnect = 1; mysql_options(&logmysql_handle, MYSQL_OPT_RECONNECT, &reconnect); }  // auto-reconnect (S.)
 
 	//DB connection start
 	ShowInfo(""CL_WHITE"[SQL]"CL_RESET": Connecting to the Log Database "CL_WHITE"%s"CL_RESET" At "CL_WHITE"%s"CL_RESET"...\n",log_db,log_db_ip);
@@ -3460,7 +3463,7 @@ int sql_ping_init(void)
 	}
 
 	// establish keepalive
-	connection_ping_interval = connection_timeout - 30; // 30-second reserve
+	connection_ping_interval = connection_timeout / 2; // half the timeout -- robust keepalive (S.)
 	add_timer_func_list(map_sql_ping, "map_sql_ping");
 	add_timer_interval(gettick() + connection_ping_interval*1000, map_sql_ping, 0, 0, connection_ping_interval*1000);
 

@@ -49,7 +49,7 @@ in_rogue,387,94,3	script	Hyzaragrack	84,{
 	mes "[Hyzaragrack]";
 	mes "I see you have what you need,";
 	mes "so I'll teach you my talent.";
-	skill 1005,1,0;
+	callfunc "F_KeepSkill",1005,1;
 	close;
 
 L_noitems:

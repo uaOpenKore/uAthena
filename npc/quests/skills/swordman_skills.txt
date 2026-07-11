@@ -137,7 +137,7 @@ L_Check:
 	mes "Yes! That's it! You have just mastered Fatal Blow!";
 	emotion e_no1;
 	next;
-	skill 145,1,0;
+	callfunc "F_KeepSkill",145,1;
 	set FATALBLOW,0;
 	mes "[Leon]";
 	mes "Use it wisely young warrior!!";
@@ -239,7 +239,7 @@ L_Check:
 	mes "Haha! You have just learned HP Moving Recovery!";
 //-- Padded armor does not have to be deleted! --
 //	delitem 2312,1;
-	skill 144,1,0;
+	callfunc "F_KeepSkill",144,1;
 	set MOVHPREC, 0;
 	next;
 	mes "[Knight De Thomas]";
@@ -349,7 +349,7 @@ L_Check:
 	next;
 	mes "[Juan]";
 	mes "Great job you have done well and deserve this skill.";
-	skill 146,1,0;
+	callfunc "F_KeepSkill",146,1;
 	set BERSERK, 0;
 	next;
 	mes "[Juan]";

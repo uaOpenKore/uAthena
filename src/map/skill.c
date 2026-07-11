@@ -4131,6 +4131,21 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case MC_CHANGECART:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		if (sd) {
+			// CYCLE the pushcart design (S.: "цикл для смены карта"), bounded by the tiers the
+			// base level unlocks (1/2/3/4/5 at 1/40/65/80/90). Persist the choice in a char reg so
+			// it survives relog -- the OPTION_CART bits alone reset on relog. pc_setcart applies
+			// OPTION_CART<N> + resends the option (0x229) and the cart list.
+			int maxtier = (sd->status.base_level >= 90) ? 5 :
+			              (sd->status.base_level >= 80) ? 4 :
+			              (sd->status.base_level >= 65) ? 3 :
+			              (sd->status.base_level >= 40) ? 2 : 1;
+			int cur = pc_readglobalreg(sd, "MC_CART_TIER");
+			if (cur < 1 || cur > maxtier) cur = 0;   // out of range for this level -> restart cycle
+			cur = (cur % maxtier) + 1;               // 1..maxtier
+			pc_setcart(sd, cur);
+			pc_setglobalreg(sd, "MC_CART_TIER", cur);
+		}
 		break;
 
 	case TK_MISSION:

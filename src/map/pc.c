@@ -138,15 +138,10 @@ void pc_delinvincibletimer_sub(struct map_session_data *sd)
 static int pc_spiritball_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
+	int i;
 
 	if( (sd=(struct map_session_data *)map_id2sd(id)) == NULL || sd->bl.type!=BL_PC )
 		return 1;
-
-	if(sd->spirit_timer[0] != tid){
-		if(battle_config.error_log)
-			ShowError("spirit_timer %d != %d\n",sd->spirit_timer[0],tid);
-		return 0;
-	}
 
 	if(sd->spiritball <= 0) {
 		if(battle_config.error_log)
@@ -155,11 +150,22 @@ static int pc_spiritball_timer(int tid,unsigned int tick,intptr_t id,intptr_t da
 		return 0;
 	}
 
+	// [Backport] Find the firing timer anywhere in the list, not just slot [0].
+	// Spiritballs can expire out of FIFO order; the old slot-[0] assumption left
+	// the fired (already-freed) tid lingering in spirit_timer[], which later made
+	// pc_delspiritball/pc_addspiritball call delete_timer() on a stale tid ->
+	// "delete_timer error: function mismatch (nil) ... pc_spiritball_timer".
+	ARR_FIND(0, sd->spiritball, i, sd->spirit_timer[i] == tid);
+	if( i == sd->spiritball ){
+		if(battle_config.error_log)
+			ShowError("pc_spiritball_timer: timer not found (cid=%d tid=%d)\n", sd->status.char_id, tid);
+		return 0;
+	}
+
 	sd->spiritball--;
-	// I leave this here as bad example [Shinomori]
-	//memcpy( &sd->spirit_timer[0], &sd->spirit_timer[1], sizeof(sd->spirit_timer[0]) * sd->spiritball );
-	memmove( sd->spirit_timer+0, sd->spirit_timer+1, (sd->spiritball)*sizeof(int) );
-	sd->spirit_timer[sd->spiritball]=-1;
+	if( i != sd->spiritball )
+		memmove( sd->spirit_timer+i, sd->spirit_timer+i+1, (sd->spiritball-i)*sizeof(int) );
+	sd->spirit_timer[sd->spiritball] = -1;
 
 	clif_spiritball(sd);
 

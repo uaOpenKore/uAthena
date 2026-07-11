@@ -8180,6 +8180,11 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	// cart
 	if(pc_iscarton(sd)) {
+		// Restore the Change Cart design chosen earlier: the OPTION_CART tier bits reset on relog,
+		// so reapply the tier persisted in the char reg (S.: "карт сбрасывается после релога").
+		int cart_tier = pc_readglobalreg(sd, "MC_CART_TIER");
+		if (cart_tier >= 1 && cart_tier <= 5)
+			pc_setcart(sd, cart_tier);
 		clif_cartlist(sd);
 		clif_updatestatus(sd,SP_CARTINFO);
 	}

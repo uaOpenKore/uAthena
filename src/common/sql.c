@@ -65,6 +65,7 @@ Sql* Sql_Malloc(void)
 	Sql* self;
 	CREATE(self, Sql, 1);
 	mysql_init(&self->handle);
+	{ my_bool reconnect = 1; mysql_options(&self->handle, MYSQL_OPT_RECONNECT, &reconnect); }  // auto-reconnect dropped idle conn (S.)
 	StringBuf_Init(&self->buf);
 	return self;
 }

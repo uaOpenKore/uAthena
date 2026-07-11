@@ -53,7 +53,7 @@ gef_tower,116,37,1	script	Enoz#2	748,{
 	mes "[Enoz]";
 	mes "I see you have what you need,";
 	mes "so I'll teach you my talent.";
-	skill 1006,1,0;
+	callfunc "F_KeepSkill",1006,1;
 	close;
 
 L_take:

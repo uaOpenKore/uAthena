@@ -59,7 +59,7 @@ payon_in02,54,13,7	script	Albest	55,{
 	mes "[Albest]";
 	mes "I see you have what you need,";
 	mes "so I'll teach you my talent.";
-	skill 1009,1,0;
+	callfunc "F_KeepSkill",1009,1;
 	close;
 
 L_noitems:

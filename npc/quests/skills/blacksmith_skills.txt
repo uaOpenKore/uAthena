@@ -35,7 +35,7 @@ geffen,178,72,5	script	Akki	726,{
 			mes "but you are looking good~";
 			mes "I will teach you the skill";
 			mes "you learned before again~";
-			skill 1012,1,0;
+			callfunc "F_KeepSkill",1012,1;
 			set BLACK_SK, 8;
 			close;
 		} else if(BLACK_SK == 8) {
@@ -444,7 +444,7 @@ geffen,178,72,5	script	Akki	726,{
 				mes "Then, bon voyage and.";
 				mes "bye bye~";
 				set BLACK_SK, 7;
-				skill 1012,1,0;
+				callfunc "F_KeepSkill",1012,1;
 				close;
 			}
 				set @teach, rand(1,2);
@@ -502,7 +502,7 @@ geffen,172,52,7	script	Goodday	826,{
 			mes "You look amazing~";
 			mes "I will give you the skill you";
 			mes "learned before again~";
-			skill 1013,1,0;
+			callfunc "F_KeepSkill",1013,1;
 			set BLACK_SK2, 3;
 			close;
 		} else if(BLACK_SK2 == 3) {
@@ -690,7 +690,7 @@ geffen,172,52,7	script	Goodday	826,{
 				next;
 				mes "[Goodday]";
 				mes "Then here is your skill.";
-				skill 1013,1,0;
+				callfunc "F_KeepSkill",1013,1;
 				set BLACK_SK2, 2;
 				close;
 		} else if(BLACK_SK2 == 2) {
