@@ -38,6 +38,7 @@
 //============================================================
 
 //valkyrie,48,86,4	script	Valkyrie#	811,{
+/*
 	if (ADVJOB != 0 || Upper == 1) {
 		mes "[Valkyrie]";
 		mes "Welcome";
@@ -206,6 +207,7 @@
 		end;
 	}
 }
+*/
 
 yuno_in02,88,164,5	script	Metheus Sylphe#Library	742,{
 	if (Baselevel > 98 && JobLevel > 49 && Class >= Job_Knight && Class <= Job_Crusader2) {
