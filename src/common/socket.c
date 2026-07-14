@@ -615,7 +615,14 @@ int do_parsepacket(void)
 			if(!session[i])
 				continue;
 
-			if (session[i]->rdata_tick && DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time) {
+			// Skip the idle stall timeout for inter-server (s2s) links (client_addr==0): they can sit
+			// idle far longer than stall_time between logins, and killing an ALIVE char<->map link makes
+			// the char-server's auth (0x2b06) get lost in the reconnect gap -> the player who logs in then
+			// "not authed within 30 seconds" -> intermittent disconnect on map entry (S., server-side).
+			// A genuinely dead s2s link is still caught: periodic s2s writes (send_users_tochar etc.)
+			// fail -> set_eof, and the reconnect timer re-links.
+			if (session[i]->client_addr &&
+				session[i]->rdata_tick && DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time) {
 				ShowInfo ("Session #%d timed out\n", i);
 				set_eof(i);
 			}
@@ -685,7 +692,10 @@ int do_parsepacket(void)
 			last_stall_sweep = now;
 			for(i = 1; i < fd_max; i++)
 			{
-				if( session[i] && session[i]->rdata_tick
+				// Skip idle-stall for inter-server (s2s) links (client_addr==0) -- see the note in the
+				// brute-scan path above: killing an alive char<->map link on idle loses the map-entry
+				// auth and disconnects the player ("not authed within 30 seconds"). (S., server-side)
+				if( session[i] && session[i]->client_addr && session[i]->rdata_tick
 					&& DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time )
 				{
 					ShowInfo("Session #%d timed out\n", i);

@@ -1,3 +1,0 @@
-tur_dun05,0,0,0,0	monster	Permeter	1314,3,20000,0,0
-tur_dun05,0,0,0,0	monster	Freezer	1319,5,30000,0,0
-tur_dun05,0,0,0,0	monster	Assaulter	1315,1,20000,0,0

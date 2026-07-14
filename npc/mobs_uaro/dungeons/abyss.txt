@@ -1,9 +1,20 @@
-abyss_01,0,0,0,0	monster	Penomena	1216,20,30000,0,0
-abyss_01,0,0,0,0	monster	Mimic	1191,20,0,0,0
-abyss_01,0,0,0,0	monster	Ancient Mimic	1699,1,0,0,0
 abyss_01,0,0,0,0	monster	Novus	1715,10,0,0,0
 abyss_01,0,0,0,0	monster	Ferus	1717,20,0,0,0
-abyss_01,0,0,0,0	monster	Hydro	1720,1,1800000,0,0
+abyss_01,0,0,0,0<------>monster>Mimic<->1191,10,600000,0,0
+abyss_01,0,0,0,0<------>monster>Ancient Mimic<->1699,10,600000,0,0
+abyss_01,152,205,130,70>monster>Ferus<->1714,10,0,0,0
+abyss_01,152,205,130,70>monster>Ferus<->1717,25,300000,0,0
+abyss_01,152,205,130,70>monster>Novus<->1715,3,0,0,0
+abyss_01,152,205,130,70>monster>Novus<->1718,3,0,0,0
+abyss_01,103,93,85,70<->monster>Ferus<->1714,10,0,0,0
+abyss_01,103,93,85,70<->monster>Novus<->1715,3,0,0,0
+abyss_01,103,93,85,70<->monster>Novus<->1718,3,0,0,0
+abyss_01,195,102,85,70<>monster>Ferus<->1714,10,0,0,0
+abyss_01,195,102,85,70<>monster>Novus<->1715,3,0,0,0
+abyss_01,195,102,85,70<>monster>Novus<->1718,3,0,0,0
+abyss_01,260,40,14,14<->monster>Dragon Egg<---->1721,3,1200000,600000,0
+abyss_01,150,160,50,50<>monster>Dragon Egg<---->1721,5,1800000,600000,0
+
 abyss_02,0,0,0,0	monster	Ancient Mimic	1699,10,0,0,0
 abyss_02,0,0,0,0	monster	Dragon Egg	1721,5,0,0,0
 abyss_02,0,0,0,0	monster	Acidus	1713,30,0,0,0
@@ -12,13 +23,16 @@ abyss_02,0,0,0,0	monster	Novus	1715,10,0,0,0
 abyss_02,0,0,0,0	monster	Novus	1718,10,0,0,0
 abyss_02,0,0,0,0	monster	Ferus	1717,30,0,0,0
 abyss_02,0,0,0,0	monster	Hydro	1720,1,1800000,0,0
+
+abyss_03,0,0,0,0<------>monster>Mimic<-><------>1191,10,300000,0,0
+abyss_03,0,0,0,0<------>monster>Acidus<><------>1716,10,300000,0,0
+abyss_03,0,0,0,0<------>monster>Hydrolancer<--->1720,3,3000000,2400000,0
+abyss_03,0,0,0,0<------>monster>Detardeurus<--->1719,1,10800000,7200000,0
 abyss_03,0,0,0,0	monster	Ancient Mimic	1699,20,0,0,0
 abyss_03,0,0,0,0	monster	Dragon Egg	1721,5,0,0,0
-abyss_03,0,0,0,0	monster	Spring Rabbit	1690,10,0,0,0
 abyss_03,0,0,0,0	monster	Acidus	1713,20,0,0,0
 abyss_03,0,0,0,0	monster	Acidus	1716,20,0,0,0
 abyss_03,0,0,0,0	monster	Novus	1715,10,0,0,0
 abyss_03,0,0,0,0	monster	Novus	1718,10,0,0,0
-abyss_03,0,0,0,0	monster	Ferus	1714,20,0,0,0
-abyss_03,0,0,0,0	monster	Hydro	1720,2,1800000,0,0
-abyss_03,0,0,0,0	monster	Detale	1719,1,3600000,7200000,0
+abyss_03,0,0,0,0	monster	Ferus	1714,10,0,0,0
+abyss_03,0,0,0,0	monster	Ferus	1717,10,0,0,0

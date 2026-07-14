@@ -1,2 +1,0 @@
-in_sphinx4,0,0,0,0	monster	Anubis	1098,20,0,0,0
-in_sphinx5,0,0,0,0	monster	Anubis	1098,10,0,0,0

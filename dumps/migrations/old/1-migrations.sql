@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `file` varchar(99) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;

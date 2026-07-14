@@ -1,6 +1,0 @@
-hu_fild01,0,0,0,0	monster	Plasma	1693,5,900000,300000,0
-hu_fild03,0,0,0,0	monster	Novus	1715,30,0,0,0
-hu_fild04,0,0,0,0	monster	Petite	1155,10,0,0,0
-hu_fild04,0,0,0,0	monster	Petite	1156,60,0,0,0
-hu_fild07,0,0,0,0	monster	Deleter	1384,10,420000,24000,0
-hu_fild07,0,0,0,0	monster	Deleter	1385,10,420000,240000,0
