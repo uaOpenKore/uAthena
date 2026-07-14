@@ -1,3 +1,0 @@
-pay_fild06,0,0,0,0	monster	Thief Bug Female	1053,40,0,0,0
-pay_fild10,0,0,0,0	monster	Dokebi	1110,70,0,0,0
-pay_fild11,0,0,0,0	monster	Nine Tail	1180,60,180000,0,0

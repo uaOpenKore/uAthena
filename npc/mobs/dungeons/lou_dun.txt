@@ -1,2 +1,0 @@
-lou_dun03,0,0,0,0	monster	Green Maiden	1631,5,3000000,1800000,1
-lou_dun03,0,0,0,0	monster	White Lady	1630,1,7000000,5000000,1

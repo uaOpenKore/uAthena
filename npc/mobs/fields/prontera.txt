@@ -1,2 +1,0 @@
-prt_fild03,0,0,0,0	monster	Poporing	1031,10,0,0,0
-prt_fild07,0,0,0,0	monster	Vocal	1088,1,1800000,1200000,0
