@@ -9700,6 +9700,9 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	sd->idletime = last_tick;
 
 	tmp = skill_get_inf(skillnum);
+	if (skillnum == 1009)  // HT_PHANTASMIC debug [temporary]
+		ShowInfo("PHANTASMIC-DBG: clif_parse_UseSkillToId skillnum=%d lv=%d tgt=%d inf=0x%x (ground-return=%d)\n",
+			skillnum, skilllv, target_id, tmp, (tmp&INF_GROUND_SKILL || !tmp) ? 1 : 0);
 	if (tmp&INF_GROUND_SKILL || !tmp)
 		return; //Using a ground/passive skill on a target? WRONG.
 
