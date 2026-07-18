@@ -389,6 +389,7 @@ int pc_setnewpc(struct map_session_data *sd, int account_id, int char_id, int lo
 	sd->bl.type      = BL_PC;
 	sd->calc_pc_timer = INVALID_TIMER;	// [perf 7] no deferred recompute pending (set at creation: 0 is a valid tid)
 	sd->canlog_tick  = gettick();
+	sd->auth_tick    = gettick(); // [xms] fixed connect tick (canlog_tick gets bumped by actions; this one doesn't)
 	sd->state.waitingdisconnect = 0;
 	//Required to prevent homunculus copuing a base speed of 0.
 	sd->battle_status.speed = sd->base_status.speed = DEFAULT_WALK_SPEED;

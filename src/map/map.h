@@ -667,6 +667,7 @@ struct map_session_data {
 	int rental_timer; // [Backport] rental-item expiry timer
 	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
 	unsigned int canlog_tick;
+	unsigned int auth_tick; // [xms] tick this SESSION was set up (pc_setnewpc); never bumped by actions -> true "time since connect" for the cross-server dupe-kick race guard
 	unsigned int canuseitem_tick;	// [Skotlex]
 	unsigned int cantalk_tick;
 

@@ -912,6 +912,21 @@ int chrif_disconnectplayer(int fd)
 		return 0;
 	}
 
+	// [xms] Cross-server transfer race guard. On a rapid map<->map (cross-server) hop the char-server
+	// can emit a duplicate "someone else logged in" kick (reason 2) meant for the STALE session, but
+	// map_id2sd() above resolves purely by account_id and returns the FRESHLY-arrived session -> the
+	// just-connected player is killed ~0.2s after entering the new map (observed intermittent DC).
+	// A session that authenticated a moment ago is the just-arrived one, not a real remote relogin, so
+	// skip the kick. A genuine duplicate login targets an ESTABLISHED session (auth_tick old) and is
+	// still kicked. auth_tick is the connect tick and is never bumped by actions, so an actively-playing
+	// victim is NOT falsely spared. Only reason 2 is transfer-racy; server-close/overpop/GM kicks pass.
+	if (RFIFOB(fd, 6) == 2 && DIFF_TICK(gettick(), sd->auth_tick) < 4000)
+	{
+		ShowInfo("chrif_disconnectplayer: skipped stale dupe-kick for aid=%d cid=%d (connected %ums ago; cross-server transfer race)\n",
+			sd->status.account_id, sd->status.char_id, DIFF_TICK(gettick(), sd->auth_tick));
+		return 0;
+	}
+
 	switch(RFIFOB(fd, 6))
 	{
 		case 1: clif_authfail_fd(sd->fd, 1); break; //server closed
