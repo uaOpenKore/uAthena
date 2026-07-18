@@ -2912,6 +2912,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	struct status_data *tstatus;
 	struct status_change *sc;
 
+	if (skillid == 1009)  // HT_PHANTASMIC debug [temporary]
+		ShowInfo("PHANTASMIC-DBG: skill_castend_damage_id enter lv=%d flag=%d bl=%p\n", skilllv, flag, (void*)bl);
+
 	if (skillid > 0 && skilllv <= 0) return 0;
 
 	nullpo_retr(1, src);
