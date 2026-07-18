@@ -77,6 +77,7 @@ enum send_target {
 };
 
 int clif_setip(const char* ip);
+int clif_set_public_ip(const char* ip);
 void clif_setbindip(const char* ip);
 void clif_setport(uint16 port);
 

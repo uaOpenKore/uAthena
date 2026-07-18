@@ -3190,6 +3190,8 @@ int map_config_read(char *cfgName)
 				chrif_setport(atoi(w2));
 			} else if (strcmpi(w1, "map_ip") == 0) {
 				map_ip_set = clif_setip(w2);
+			} else if (strcmpi(w1, "public_ip") == 0) {
+				clif_set_public_ip(w2);
 			} else if (strcmpi(w1, "bind_ip") == 0) {
 				clif_setbindip(w2);
 			} else if (strcmpi(w1, "map_port") == 0) {

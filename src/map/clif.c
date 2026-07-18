@@ -97,6 +97,12 @@ static char map_ip_str[128];
 static uint32 map_ip;
 static uint32 bind_ip = INADDR_ANY;
 static uint16 map_port = 5121;
+// PUBLIC (WAN) address this map-server is reachable at from the internet. Optional. When set (map_athena.conf
+// `public_ip:`), any client that is NOT matched by a LAN subnet entry is handed THIS ip on the cross-mapserver
+// warp handoff (clif_changemapserver), instead of the raw (internal) map_ip the char-server routed. This lets
+// map_ip stay INTERNAL for server-side inter-mapserver routing while external clients still get a reachable
+// address -- the standard NAT split, but as one explicit knob so it doesn't depend on subnet_athena.conf. [S. 2026-07-18]
+static uint32 clif_public_ip = 0;
 int map_fd;
 
 //These two will be used to verify the incoming player's validity.
@@ -121,6 +127,19 @@ int clif_setip(const char* ip)
 
 	strncpy(map_ip_str, ip, sizeof(map_ip_str));
 	ShowInfo("Map Server IP Address : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%s"CL_RESET"'.\n", ip, ip2str(map_ip, ip_str));
+	return 1;
+}
+
+// Set the PUBLIC/WAN address handed to non-LAN clients on the cross-mapserver handoff. [S. 2026-07-18]
+int clif_set_public_ip(const char* ip)
+{
+	char ip_str[16];
+	clif_public_ip = host2ip(ip);
+	if (!clif_public_ip) {
+		ShowWarning("clif_set_public_ip: failed to resolve public_ip '%s' -> cross-mapserver WAN handoff disabled.\n", ip);
+		return 0;
+	}
+	ShowInfo("Map Server PUBLIC (WAN handoff) IP : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%s"CL_RESET"'.\n", ip, ip2str(clif_public_ip, ip_str));
 	return 1;
 }
 
@@ -1951,7 +1970,11 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 	// to DC. If no subnet matches (WAN default), keep the ip as configured. [S. 2026-07-18]
 	{
 		uint32 cip = (fd && session[fd]) ? clif_lan_subnetcheck(session[fd]->client_addr) : 0;
-		if (cip) ip = cip;
+		if (cip)
+			ip = cip;                 // matched a LAN subnet -> that entry's map_ip (internal for on-LAN clients)
+		else if (clif_public_ip)
+			ip = clif_public_ip;      // no LAN match = external client -> the configured PUBLIC/WAN address
+		// else: keep the ip the char-server routed (legacy behaviour: raw map_ip)
 	}
 
 	WFIFOHEAD(fd,packet_len(0x92));
