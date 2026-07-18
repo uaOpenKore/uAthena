@@ -1123,10 +1123,14 @@ int chrif_load_scdata(int fd)
 	// battle_status, re-send the six stats (+ walk speed, which AGI/Quagmire change) so the buffed
 	// values show correctly. [S. 2026-07-18]
 	if (count > 0 && sd->fd) {
+		status_calc_pc(sd, 0);  // force-fold all just-loaded SCs into battle_status before re-sending
 		clif_updatestatus(sd, SP_STR); clif_updatestatus(sd, SP_AGI);
 		clif_updatestatus(sd, SP_VIT); clif_updatestatus(sd, SP_INT);
 		clif_updatestatus(sd, SP_DEX); clif_updatestatus(sd, SP_LUK);
 		clif_updatestatus(sd, SP_SPEED);
+		ShowInfo("XMS-SC: load_scdata aid=%d count=%d -> agi base=%d bonus=%d, dex base=%d bonus=%d\n",
+			aid, count, sd->status.agi, sd->battle_status.agi - sd->status.agi,
+			sd->status.dex, sd->battle_status.dex - sd->status.dex); // [temp diag]
 	}
 #endif
 	return 0;
