@@ -1194,6 +1194,8 @@ static void clif_spiritball_single(int fd, struct map_session_data *sd)
 /*==========================================
  *
  *------------------------------------------*/
+const char* clif_client_mapname(const char* name);  // fwd decl; defined below near clif_changemap
+
 static void clif_set0192(int fd, int m, int x, int y, int type)
 {
 	WFIFOHEAD(fd,packet_len(0x192));
@@ -1201,7 +1203,7 @@ static void clif_set0192(int fd, int m, int x, int y, int type)
 	WFIFOW(fd,2) = x;
 	WFIFOW(fd,4) = y;
 	WFIFOW(fd,6) = type;
-	mapindex_getmapname_ext(map[m].name, (char*)WFIFOP(fd,8));
+	mapindex_getmapname_ext(clif_client_mapname(map[m].name), (char*)WFIFOP(fd,8));
 	WFIFOSET(fd,packet_len(0x192));
 }
 
@@ -1836,6 +1838,15 @@ void clif_setwaitclose(int fd)
 /*==========================================
  *
  *------------------------------------------*/
+// Some maps exist on the SERVER but are missing from the client's GRF (e.g. the international airship
+// airplane_01, which shares airplane's interior). Send the client an ALIAS map name it can actually
+// render, while the server keeps the real map internally (own NPCs/GAT). Client-facing map-name only.
+const char* clif_client_mapname(const char* name)
+{
+	if (name && strcmp(name, "airplane_01") == 0) return "airplane";
+	return name;
+}
+
 void clif_changemap(struct map_session_data *sd, short map, int x, int y)
 {
 	int fd;
@@ -1844,7 +1855,7 @@ void clif_changemap(struct map_session_data *sd, short map, int x, int y)
 
 	WFIFOHEAD(fd,packet_len(0x91));
 	WFIFOW(fd,0) = 0x91;
-	mapindex_getmapname_ext(mapindex_id2name(map), (char*)WFIFOP(fd,2));
+	mapindex_getmapname_ext(clif_client_mapname(mapindex_id2name(map)), (char*)WFIFOP(fd,2));
 	WFIFOW(fd,18) = x;
 	WFIFOW(fd,20) = y;
 	WFIFOSET(fd,packet_len(0x91));
@@ -1861,7 +1872,7 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 
 	WFIFOHEAD(fd,packet_len(0x92));
 	WFIFOW(fd,0) = 0x92;
-	mapindex_getmapname_ext(mapindex_id2name(map_index), (char*)WFIFOP(fd,2));
+	mapindex_getmapname_ext(clif_client_mapname(mapindex_id2name(map_index)), (char*)WFIFOP(fd,2));
 	WFIFOW(fd,18) = x;
 	WFIFOW(fd,20) = y;
 	WFIFOL(fd,22) = htonl(ip);

@@ -3268,7 +3268,13 @@ int parse_char(int fd)
 			WFIFOHEAD(fd,28);
 			WFIFOW(fd,0) = 0x71;
 			WFIFOL(fd,2) = char_dat.char_id;
-			mapindex_getmapname_ext(mapindex_id2name(char_dat.last_point.map), (char*)WFIFOP(fd,6));
+			{
+				// Alias server-only maps missing from the client GRF (airplane_01 -> airplane, same
+				// interior) so char-select doesn't send the client to a map it can't render. [S. 2026-07-18]
+				const char* cmap = mapindex_id2name(char_dat.last_point.map);
+				if (cmap && strcmp(cmap, "airplane_01") == 0) cmap = "airplane";
+				mapindex_getmapname_ext(cmap, (char*)WFIFOP(fd,6));
+			}
 		{
 			// Advanced subnet check [LuzZza]
 			uint32 subnet_map_ip;
