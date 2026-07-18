@@ -135,6 +135,61 @@ void clif_setbindip(const char* ip)
 	}
 }
 
+// Advanced subnet check [LuzZza] -- ported to the MAP server so cross-mapserver warps hand the CLIENT
+// a reachable (public/WAN) address, exactly like the char-server does at char-select. Behind NAT the
+// map->map changemapserver handoff used to send the raw internal map_ip, which external clients can't
+// reach -> warp DC. With this, map_ip stays INTERNAL (server-side inter-mapserver routing works) and
+// clif_changemapserver translates the target ip via the same conf/subnet_athena.conf. [S. 2026-07-18]
+static struct _clif_subnet {
+	uint32 subnet;
+	uint32 mask;
+	uint32 char_ip;
+	uint32 map_ip;
+} clif_subnet[16];
+static int clif_subnet_count = 0;
+
+// Returns the client-reachable map ip for a client at `ip`, or 0 if no subnet matches (WAN default).
+uint32 clif_lan_subnetcheck(uint32 ip)
+{
+	int i;
+	for (i = 0; i < clif_subnet_count; i++) {
+		if ((clif_subnet[i].subnet & clif_subnet[i].mask) == (ip & clif_subnet[i].mask))
+			return clif_subnet[i].map_ip;
+	}
+	return 0;
+}
+
+// Read conf/subnet_athena.conf (same file the char-server uses) so the map server can translate the
+// map ip it advertises to a client on a cross-mapserver handoff.
+void clif_read_subnet(void)
+{
+	FILE* fp;
+	char line[1024], w1[64], w2[64], w3[64], w4[64];
+	const char* fn = "conf/subnet_athena.conf";
+	clif_subnet_count = 0;
+	fp = fopen(fn, "r");
+	if (fp == NULL)
+		return; // no LAN config -> everyone treated as WAN (advertise map_ip as-is)
+	while (fgets(line, sizeof(line), fp)) {
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		if (sscanf(line, "%63[^:]:%63[^:]:%63[^:]:%63[^\r\n]", w1, w2, w3, w4) != 4)
+			continue;
+		remove_control_chars(w1);
+		if (strcmpi(w1, "subnet") != 0)
+			continue;
+		if (clif_subnet_count >= (int)ARRAYLENGTH(clif_subnet))
+			break;
+		clif_subnet[clif_subnet_count].mask = str2ip(w2);
+		clif_subnet[clif_subnet_count].char_ip = str2ip(w3);
+		clif_subnet[clif_subnet_count].map_ip = str2ip(w4);
+		clif_subnet[clif_subnet_count].subnet = clif_subnet[clif_subnet_count].char_ip & clif_subnet[clif_subnet_count].mask;
+		clif_subnet_count++;
+	}
+	fclose(fp);
+	ShowStatus("Read information about %d subnets (map-server LAN handoff).\n", clif_subnet_count);
+}
+
 /*==========================================
  * mapIport
  *------------------------------------------*/
@@ -1869,6 +1924,15 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 	int fd;
 	nullpo_retv(sd);
 	fd = sd->fd;
+
+	// Translate the target map-server ip to the address THIS client can actually reach (WAN/public for
+	// external clients, LAN for same-subnet), via conf/subnet_athena.conf -- mirrors char-select. Behind
+	// NAT the raw internal map_ip is unreachable for external clients, causing the cross-mapserver warp
+	// to DC. If no subnet matches (WAN default), keep the ip as configured. [S. 2026-07-18]
+	{
+		uint32 cip = (fd && session[fd]) ? clif_lan_subnetcheck(session[fd]->client_addr) : 0;
+		if (cip) ip = cip;
+	}
 
 	WFIFOHEAD(fd,packet_len(0x92));
 	WFIFOW(fd,0) = 0x92;
@@ -12363,6 +12427,8 @@ int do_init_clif(void)
 	memset(packet_db,0,sizeof(packet_db));
 	//Using the packet_db file is the only way to set up packets now [Skotlex]
 	packetdb_readdb();
+
+	clif_read_subnet(); // LAN/WAN map ip translation for cross-mapserver warp handoff (behind NAT)
 
 	set_defaultparse(clif_parse);
 	if (!make_listen_bind(bind_ip,map_port)) {
