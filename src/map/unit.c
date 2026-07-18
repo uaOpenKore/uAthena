@@ -814,10 +814,6 @@ int unit_skilluse_id2(struct block_list *src, int target_id, int skill_num, int 
 	if (temp)
 		target_id = ud->target; //Auto-select skills. [Skotlex]
 
-	if (skill_num == 1009)  // HT_PHANTASMIC debug [temporary]
-		ShowInfo("PHANTASMIC-DBG: unit_skilluse_id2 enter aid=%d tgt=%d lv=%d wpn=%d skillnotok=%d\n",
-			sd ? sd->status.account_id : 0, target_id, skill_lv,
-			sd ? sd->status.weapon : -1, sd ? skillnotok(skill_num, sd) : -1);
 	if (sd) {
 		//Target_id checking.
 		if(skillnotok(skill_num, sd)) // [MouseJstr]

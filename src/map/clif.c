@@ -4531,9 +4531,6 @@ int clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype)
 {
 	int fd;
 
-	if (skill_id == 1009)  // HT_PHANTASMIC debug [temporary]
-		ShowInfo("PHANTASMIC-DBG: clif_skill_fail skill=%d type=%d btype=%d\n", skill_id, type, btype);
-
 	if (!sd) {	//Since this is the most common nullpo....
 		ShowDebug("clif_skill_fail: Error, received NULL sd for skill %d\n", skill_id);
 		return 0;
