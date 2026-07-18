@@ -1116,6 +1116,18 @@ int chrif_load_scdata(int fd)
 		}
 		status_change_start(&sd->bl, data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 15);
 	}
+	// The stat block (clif_initialstatus / 0x141 couple-statuses) was already sent at map entry
+	// (clif_parse_LoadEndAck, connect_new) BEFORE this sc_data arrived, so the client showed the
+	// pre-buff bonus (0) -> a buff's +stat (e.g. Concentration +AGI/+DEX) "dropped" in the stat window
+	// on a cross-server transition while its icon stayed. Now that the loaded SCs are folded into
+	// battle_status, re-send the six stats (+ walk speed, which AGI/Quagmire change) so the buffed
+	// values show correctly. [S. 2026-07-18]
+	if (count > 0 && sd->fd) {
+		clif_updatestatus(sd, SP_STR); clif_updatestatus(sd, SP_AGI);
+		clif_updatestatus(sd, SP_VIT); clif_updatestatus(sd, SP_INT);
+		clif_updatestatus(sd, SP_DEX); clif_updatestatus(sd, SP_LUK);
+		clif_updatestatus(sd, SP_SPEED);
+	}
 #endif
 	return 0;
 }
