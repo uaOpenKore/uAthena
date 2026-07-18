@@ -11867,30 +11867,28 @@ int clif_parse(int fd)
 		packet_ver = clif_guess_PacketVer(fd, 0, &err);
 		if( err )
 		{// failed to identify packet version
-			ShowInfo("clif_parse: Disconnecting session #%d with unknown packet version%s.\n", fd, (
-				err == 1 ? "" :
-				err == 2 ? ", possibly for having an invalid account_id" :
-				err == 3 ? ", possibly for having an invalid char_id." :
-				/* Uncomment when checks are added in clif_guess_PacketVer. [FlavioJS]
-				err == 4 ? ", possibly for having an invalid login_id1." :
-				err == 5 ? ", possibly for having an invalid client_tick." :
-				*/
-				err == 6 ? ", possibly for having an invalid sex." :
-				". ERROR invalid error code"));
-			WFIFOHEAD(fd,packet_len(0x6a));
-			WFIFOW(fd,0) = 0x6a;
-			WFIFOB(fd,2) = 3; // Rejected from Server
-			WFIFOSET(fd,packet_len(0x6a));
+			// [xms] Don't kick an unauthenticated session whose packet version we can't identify
+			// (S. request: ignore unknown packets instead of disconnecting). Flush its pending read
+			// buffer and keep the connection so a stray/garbage/half-open socket no longer produces a
+			// "unknown packet version" disconnect. The socket-layer connect timeout still reaps a
+			// genuinely dead session. CAVEAT: if this is a real client whose cross-server handshake
+			// (wanttoconnection) failed the version guess, its login still won't proceed -- that would
+			// be a separate packet-format bug to fix; here we only stop nuking the connection over it.
+			ShowWarning("clif_parse: Ignored packet with unidentifiable version from session #%d (err=%d, kept connection).\n", fd, err);
 			RFIFOSKIP(fd, RFIFOREST(fd));
-			clif_setwaitclose(fd);
 			return 0;
 		}
 	}
 
 	// filter out invalid / unsupported packets
 	if (cmd > MAX_PACKET_DB || packet_db[packet_ver][cmd].len == 0) {
-		ShowWarning("clif_parse: Received unsupported packet (packet 0x%04x, %d bytes received), disconnecting session #%d.\n", cmd, (int)RFIFOREST(fd), fd);
-		set_eof(fd);
+		// [xms] Don't disconnect the client over an unknown packet TYPE (S. request). We can't know
+		// the unknown packet's length (len==0), so we can't skip just it -- flush this session's
+		// pending read buffer and keep the connection alive. A stray/unrecognized packet no longer
+		// kicks an in-game player; the next valid packet (from a fresh recv) parses normally. Bounded:
+		// RFIFOSKIP consumes the bytes so there's no re-parse loop.
+		ShowWarning("clif_parse: Ignored unsupported packet (packet 0x%04x, %d bytes) from session #%d (kept connection).\n", cmd, (int)RFIFOREST(fd), fd);
+		RFIFOSKIP(fd, RFIFOREST(fd));
 		return 0;
 	}
 
