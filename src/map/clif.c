@@ -616,6 +616,8 @@ int clif_authok(struct map_session_data *sd)
 	WFIFOB(fd,10) = 5; // ignored
 	WFIFOSET(fd,packet_len(0x73));
 
+	ShowInfo("MAPENTRY-DBG: [1] sent 0x73 ACCEPT_ENTER to aid=%d fd=%d map=%s (%d,%d) -> awaiting client LoadEndAck\n",
+		sd->status.account_id, fd, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y); // [temp diag]
 	return 0;
 }
 
@@ -8239,6 +8241,9 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
  *------------------------------------------*/
 void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 {
+	ShowInfo("MAPENTRY-DBG: [2] LoadEndAck from aid=%d fd=%d (state.auth=%d, already_on_map=%d)\n",
+		sd->status.account_id, fd, sd->state.auth, (sd->bl.prev != NULL)); // [temp diag]
+
 	if(sd->bl.prev != NULL)
 		return;
 
@@ -8246,6 +8251,8 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	{	//Character loading is not complete yet!
 		//Let pc_reg_received reinvoke this when ready.
 		sd->state.connect_new = 0;
+		ShowInfo("MAPENTRY-DBG: [2b] LoadEndAck DEFERRED aid=%d (state.auth=0, waiting for pc_reg_received to finish char load)\n",
+			sd->status.account_id); // [temp diag]
 		return;
 	}
 
@@ -8294,6 +8301,8 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 	map_addblock(&sd->bl);	// ubNo^
 	clif_spawn(&sd->bl);	// spawn
+	ShowInfo("MAPENTRY-DBG: [3] SPAWNED aid=%d on map=%s (%d,%d) -> map entry complete\n",
+		sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y); // [temp diag]
 
 
 	// Party
