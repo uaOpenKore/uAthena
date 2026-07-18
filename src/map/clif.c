@@ -635,8 +635,6 @@ int clif_authok(struct map_session_data *sd)
 	WFIFOB(fd,10) = 5; // ignored
 	WFIFOSET(fd,packet_len(0x73));
 
-	ShowInfo("MAPENTRY-DBG: [1] sent 0x73 ACCEPT_ENTER to aid=%d fd=%d map=%s (%d,%d) -> awaiting client LoadEndAck\n",
-		sd->status.account_id, fd, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y); // [temp diag]
 	return 0;
 }
 
@@ -1969,7 +1967,6 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 	// NAT the raw internal map_ip is unreachable for external clients, causing the cross-mapserver warp
 	// to DC. If no subnet matches (WAN default), keep the ip as configured. [S. 2026-07-18]
 	{
-		uint32 raw = ip;
 		uint32 caddr = (fd && session[fd]) ? session[fd]->client_addr : 0;
 		uint32 cip = caddr ? clif_lan_subnetcheck(caddr) : 0;
 		if (cip)
@@ -1977,12 +1974,6 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 		else if (clif_public_ip)
 			ip = clif_public_ip;      // no LAN match = external client -> the configured PUBLIC/WAN address
 		// else: keep the ip the char-server routed (legacy behaviour: raw map_ip)
-		{ // [temp diag] prove which branch ran + that this binary carries the public_ip fix
-			char s1[16], s2[16], s3[16], s4[16], s5[16];
-			ShowInfo("XMS-DBG: clif_changemapserver aid=%d client_addr=%s raw_target=%s subnet=%s public_ip=%s -> sent=%s:%d\n",
-				sd->bl.id, ip2str(caddr,s1), ip2str(raw,s2), cip?ip2str(cip,s3):"none",
-				clif_public_ip?ip2str(clif_public_ip,s4):"UNSET", ip2str(ip,s5), port);
-		}
 	}
 
 	WFIFOHEAD(fd,packet_len(0x92));
@@ -8272,9 +8263,6 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
  *------------------------------------------*/
 void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 {
-	ShowInfo("MAPENTRY-DBG: [2] LoadEndAck from aid=%d fd=%d (state.auth=%d, already_on_map=%d)\n",
-		sd->status.account_id, fd, sd->state.auth, (sd->bl.prev != NULL)); // [temp diag]
-
 	if(sd->bl.prev != NULL)
 		return;
 
@@ -8282,8 +8270,6 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	{	//Character loading is not complete yet!
 		//Let pc_reg_received reinvoke this when ready.
 		sd->state.connect_new = 0;
-		ShowInfo("MAPENTRY-DBG: [2b] LoadEndAck DEFERRED aid=%d (state.auth=0, waiting for pc_reg_received to finish char load)\n",
-			sd->status.account_id); // [temp diag]
 		return;
 	}
 
@@ -8332,8 +8318,6 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 	map_addblock(&sd->bl);	// ubNo^
 	clif_spawn(&sd->bl);	// spawn
-	ShowInfo("MAPENTRY-DBG: [3] SPAWNED aid=%d on map=%s (%d,%d) -> map entry complete\n",
-		sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y); // [temp diag]
 
 
 	// Party

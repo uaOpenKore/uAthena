@@ -2679,12 +2679,6 @@ int parse_frommap(int fd)
 			map_id = search_mapserver(RFIFOW(fd,18), ntohl(RFIFOL(fd,24)), ntohs(RFIFOW(fd,28))); //Locate mapserver by ip and port.
 			if (map_id >= 0)
 				map_fd = server_fd[map_id];
-			{ // [temp diag] trace cross-mapserver auth routing
-				uint32 dip = ntohl(RFIFOL(fd,24));
-				ShowInfo("XMS-DBG: 0x2b05 aid=%d cid=%d mapidx=%d ip=%d.%d.%d.%d port=%d -> search_mapserver=%d map_fd=%d %s\n",
-					RFIFOL(fd,2), RFIFOL(fd,14), RFIFOW(fd,18), CONVIP(dip), ntohs(RFIFOW(fd,28)),
-					map_id, map_fd, (map_id<0)?"NOT FOUND -> NAK":"found -> sending 0x2afd auth");
-			}
 			//Char should just had been saved before this packet, so this should be safe. [Skotlex]
 			char_data = uidb_get(char_db_,RFIFOL(fd,14));
 			if (char_data == NULL)
