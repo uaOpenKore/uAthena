@@ -1084,6 +1084,24 @@ int chrif_save_scdata(struct map_session_data *sd)
 }
 
 //Retrieve and load sc_data for a player. [Skotlex]
+// A cross-server arrival can have its EQUIPMENT applied a hair later than sc_data lands (the equip
+// bonus scripts settle after chrif_load_scdata on some instances), so the immediate re-send below
+// only carries the SC bonus + whatever equipment was folded by then. This delayed pass re-runs a full
+// status_calc_pc + re-sends the stats once everything has settled, so equipment AGI/DEX + buffs show
+// on EVERY instance after a cross-server transition (fixed the prt_in-vs-prontera asymmetry). [S. 2026-07-18]
+static int chrif_restat_delayed(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data* sd = map_id2sd((int)id);
+	if (sd && sd->fd && sd->bl.prev != NULL) {  // still online + on a map
+		status_calc_pc(sd, 1);
+		clif_updatestatus(sd, SP_STR); clif_updatestatus(sd, SP_AGI);
+		clif_updatestatus(sd, SP_VIT); clif_updatestatus(sd, SP_INT);
+		clif_updatestatus(sd, SP_DEX); clif_updatestatus(sd, SP_LUK);
+		clif_updatestatus(sd, SP_SPEED);
+	}
+	return 0;
+}
+
 int chrif_load_scdata(int fd)
 {
 #ifdef ENABLE_SC_SAVING
@@ -1136,6 +1154,10 @@ int chrif_load_scdata(int fd)
 		ShowInfo("XMS-SC: load_scdata aid=%d count=%d -> agi base=%d bonus=%d, dex base=%d bonus=%d\n",
 			aid, count, sd->status.agi, sd->battle_status.agi - sd->status.agi,
 			sd->status.dex, sd->battle_status.dex - sd->status.dex); // [temp diag]
+		// ...and once more after ~1.5s, by when the equipment bonuses have definitely settled on this
+		// instance (they can land after this packet on some instances -> the immediate re-send above was
+		// short by the equip bonus). Catches the prt_in-vs-prontera asymmetry. [S. 2026-07-18]
+		add_timer(gettick()+1500, chrif_restat_delayed, sd->bl.id, 0);
 	}
 #endif
 	return 0;
@@ -1476,6 +1498,7 @@ int do_init_chrif(void)
 	add_timer_func_list(send_usercount_tochar, "send_usercount_tochar");
 	add_timer_func_list(send_users_tochar, "send_users_tochar");
 	add_timer_func_list(auth_db_cleanup, "auth_db_cleanup");
+	add_timer_func_list(chrif_restat_delayed, "chrif_restat_delayed");
 
 	add_timer_interval(gettick() + 1000, check_connect_char_server, 0, 0, 10 * 1000);
 	add_timer_interval(gettick() + 1000, send_users_tochar, 0, 0, CHECK_INTERVAL);
