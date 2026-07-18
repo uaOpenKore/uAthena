@@ -1099,24 +1099,6 @@ int chrif_save_scdata(struct map_session_data *sd)
 }
 
 //Retrieve and load sc_data for a player. [Skotlex]
-// A cross-server arrival can have its EQUIPMENT applied a hair later than sc_data lands (the equip
-// bonus scripts settle after chrif_load_scdata on some instances), so the immediate re-send below
-// only carries the SC bonus + whatever equipment was folded by then. This delayed pass re-runs a full
-// status_calc_pc + re-sends the stats once everything has settled, so equipment AGI/DEX + buffs show
-// on EVERY instance after a cross-server transition (fixed the prt_in-vs-prontera asymmetry). [S. 2026-07-18]
-static int chrif_restat_delayed(int tid, unsigned int tick, intptr_t id, intptr_t data)
-{
-	struct map_session_data* sd = map_id2sd((int)id);
-	if (sd && sd->fd && sd->bl.prev != NULL) {  // still online + on a map
-		status_calc_pc(sd, 1);
-		clif_updatestatus(sd, SP_STR); clif_updatestatus(sd, SP_AGI);
-		clif_updatestatus(sd, SP_VIT); clif_updatestatus(sd, SP_INT);
-		clif_updatestatus(sd, SP_DEX); clif_updatestatus(sd, SP_LUK);
-		clif_updatestatus(sd, SP_SPEED);
-	}
-	return 0;
-}
-
 int chrif_load_scdata(int fd)
 {
 #ifdef ENABLE_SC_SAVING
@@ -1149,31 +1131,26 @@ int chrif_load_scdata(int fd)
 		}
 		status_change_start(&sd->bl, data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 15);
 	}
-	// The stat block (clif_initialstatus / 0x141 couple-statuses) was already sent at map entry
-	// (clif_parse_LoadEndAck, connect_new) BEFORE this sc_data arrived, so the client showed the
-	// pre-buff bonus (0) -> a buff's +stat (e.g. Concentration +AGI/+DEX) "dropped" in the stat window
-	// on a cross-server transition while its icon stayed. Now that the loaded SCs are folded into
-	// battle_status, re-send the six stats (+ walk speed, which AGI/Quagmire change) so the buffed
-	// values show correctly. [S. 2026-07-18]
-	if (count > 0 && sd->fd) {
-		// first=1, NOT 0: sc_data (0x2b1d) can arrive before LoadEndAck sets sd->state.auth, and
-		// status_calc_pc no-ops when (!state.auth && !(first&1)) (status.c:1704). first=1 bypasses that
-		// and runs the FULL recompute (equip bonus scripts + all SCs) so equipment AGI/DEX + buffs are
-		// folded into battle_status before we re-send -- otherwise only the SC deltas were present and
-		// the equip bonus was lost on the cross-server transition. [S. 2026-07-18]
-		status_calc_pc(sd, 1);
-		clif_updatestatus(sd, SP_STR); clif_updatestatus(sd, SP_AGI);
-		clif_updatestatus(sd, SP_VIT); clif_updatestatus(sd, SP_INT);
-		clif_updatestatus(sd, SP_DEX); clif_updatestatus(sd, SP_LUK);
-		clif_updatestatus(sd, SP_SPEED);
-		ShowInfo("XMS-SC: load_scdata aid=%d count=%d -> agi base=%d bonus=%d, dex base=%d bonus=%d\n",
-			aid, count, sd->status.agi, sd->battle_status.agi - sd->status.agi,
-			sd->status.dex, sd->battle_status.dex - sd->status.dex); // [temp diag]
-		// ...and once more after ~1.5s, by when the equipment bonuses have definitely settled on this
-		// instance (they can land after this packet on some instances -> the immediate re-send above was
-		// short by the equip bonus). Catches the prt_in-vs-prontera asymmetry. [S. 2026-07-18]
-		add_timer(gettick()+1500, chrif_restat_delayed, sd->bl.id, 0);
+	// [xms] rAthena-style pc_loaded gate. sc_data (0x2b1d) is the LAST async piece of a cross-server
+	// arrival; the char-server now ALWAYS replies (even count==0) so this is a reliable completion
+	// signal. Fold everything into battle_status synchronously, then either send the initial status
+	// block now (if LoadEndAck already ran and deferred it) or let LoadEndAck send it (if it hasn't
+	// run yet). Either way the client's FIRST stat block already carries buffs+equipment -> no
+	// buff-less short block flickers on a cross-server transition, server is authoritative, no client
+	// settle-window needed. status_calc_pc(sd,1): first=1 (NOT 0) bypasses the status.c:1704 guard
+	// (sc_data can arrive before state.auth is set) and runs the FULL recompute (equip bonus scripts +
+	// all loaded SCs). [S. 2026-07-18]
+	status_calc_pc(sd, 1);
+	sd->state.scdata_loaded = 1;
+	if (sd->state.initstatus_deferred && sd->fd) {
+		sd->state.initstatus_deferred = 0;
+		clif_initialstatus(sd); // full, buffs+equip already folded
+		clif_updatestatus(sd, SP_SPEED); // AGI/Quagmire change walk speed; not in clif_initialstatus
 	}
+	if (count > 0)
+		ShowInfo("XMS-SC: load_scdata aid=%d count=%d -> agi base=%d bonus=%d, dex base=%d bonus=%d (deferred_initstatus=%d)\n",
+			aid, count, sd->status.agi, sd->battle_status.agi - sd->status.agi,
+			sd->status.dex, sd->battle_status.dex - sd->status.dex, sd->state.initstatus_deferred); // [temp diag]
 #endif
 	return 0;
 }
@@ -1513,7 +1490,6 @@ int do_init_chrif(void)
 	add_timer_func_list(send_usercount_tochar, "send_usercount_tochar");
 	add_timer_func_list(send_users_tochar, "send_users_tochar");
 	add_timer_func_list(auth_db_cleanup, "auth_db_cleanup");
-	add_timer_func_list(chrif_restat_delayed, "chrif_restat_delayed");
 
 	add_timer_interval(gettick() + 1000, check_connect_char_server, 0, 0, 10 * 1000);
 	add_timer_interval(gettick() + 1000, send_users_tochar, 0, 0, CHECK_INTERVAL);

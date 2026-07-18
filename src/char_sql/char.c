@@ -2551,12 +2551,17 @@ int parse_frommap(int fd)
 				if (count >= 50)
 					ShowWarning("Too many status changes for %d:%d, some of them were not loaded.\n", aid, cid);
 				mysql_free_result(sql_res);
+				// [xms] ALWAYS reply with 0x2b1d, even when count==0. The map-server uses this
+				// reply as the "sc_data loaded" completion signal for its rAthena-style pc_loaded
+				// gate (it defers the initial status block until this arrives so the client never
+				// sees a buff-less short block on a cross-server hop). A char with no saved SC must
+				// still get the signal, else its deferred status would never be sent.
+				WFIFOW(fd,2) = 14 + count*sizeof(struct status_change_data);
+				WFIFOW(fd,12) = count;
+				WFIFOSET(fd,WFIFOW(fd,2));
+
 				if (count > 0)
 				{
-					WFIFOW(fd,2) = 14 + count*sizeof(struct status_change_data);
-					WFIFOW(fd,12) = count;
-					WFIFOSET(fd,WFIFOW(fd,2));
-
 					//Clear the data once loaded.
 					sprintf(tmp_sql, "DELETE FROM `%s` WHERE `account_id` = '%d' AND `char_id`='%d'", scdata_db, aid, cid);
 					if (mysql_query(&mysql_handle, tmp_sql)) {

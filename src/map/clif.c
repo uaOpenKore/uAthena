@@ -8257,6 +8257,22 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 	return;
 }
 
+// [xms] Safety net for the pc_loaded gate: if LoadEndAck deferred the initial status block waiting
+// for sc_data (0x2b1d) but the reply never arrived (char-server hiccup), force-send it after a grace
+// period so the client's status window is never left blank.
+static int clif_initstatus_deferred_timeout(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data* sd = map_id2sd((int)id);
+	if (sd && sd->fd && sd->state.initstatus_deferred) {
+		sd->state.initstatus_deferred = 0;
+		sd->state.scdata_loaded = 1; // treat as loaded so nothing tries to send it twice
+		clif_initialstatus(sd);
+		clif_updatestatus(sd, SP_SPEED);
+		ShowWarning("clif_initstatus_deferred_timeout: sc_data reply never arrived for aid=%d, sent status anyway.\n", sd->status.account_id);
+	}
+	return 0;
+}
+
 /*==========================================
  * 007d NCAg}bv
  * mapNKvf[^S
@@ -8403,7 +8419,22 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_updatestatus(sd,SP_NEXTBASEEXP);
 		clif_updatestatus(sd,SP_NEXTJOBEXP);
 		clif_updatestatus(sd,SP_SKILLPOINT);
+		// [xms] rAthena-style pc_loaded gate: hold the initial status block until sc_data has been
+		// applied so the client's FIRST stat block already carries buffs+equipment (no buff-less
+		// short block flickering on a cross-server transition). If sc_data already arrived, send now;
+		// otherwise chrif_load_scdata will send it when the 0x2b1d reply lands (char-server now always
+		// replies, even with 0 status changes, so this is guaranteed). Safety timer force-sends it if
+		// the reply is somehow lost so the status window is never left blank.
+#ifdef ENABLE_SC_SAVING
+		if (sd->state.scdata_loaded) {
+			clif_initialstatus(sd);
+		} else {
+			sd->state.initstatus_deferred = 1;
+			add_timer(gettick() + 3000, clif_initstatus_deferred_timeout, sd->bl.id, 0);
+		}
+#else
 		clif_initialstatus(sd);
+#endif
 
 		if (sd->sc.option&OPTION_FALCON)
 			clif_status_load(&sd->bl, SI_FALCON, 1);
@@ -12481,5 +12512,6 @@ int do_init_clif(void)
 	add_timer_func_list(clif_waitclose, "clif_waitclose");
 	add_timer_func_list(clif_clearunit_delayed_sub, "clif_clearunit_delayed_sub");
 	add_timer_func_list(clif_delayquit, "clif_delayquit");
+	add_timer_func_list(clif_initstatus_deferred_timeout, "clif_initstatus_deferred_timeout");
 	return 0;
 }
