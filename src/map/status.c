@@ -1631,6 +1631,15 @@ static int status_calc_pc_timer_cb(int tid, unsigned int tick, intptr_t id, intp
 	if( sd && sd->calc_pc_timer == tid ) {
 		sd->calc_pc_timer = -1;
 		status_calc_pc(sd, 0);
+		// Re-push the six stats after this deferred recompute settles (equip/buff bonuses fold here on
+		// a cross-server arrival, AFTER clif_initialstatus already sent the short block) so the client
+		// window gets the FULL bonus without a fixed delay -- catches fast (bot) map hops too. [S. 2026-07-18]
+		if( sd->fd ) {
+			clif_updatestatus(sd, SP_STR); clif_updatestatus(sd, SP_AGI);
+			clif_updatestatus(sd, SP_VIT); clif_updatestatus(sd, SP_INT);
+			clif_updatestatus(sd, SP_DEX); clif_updatestatus(sd, SP_LUK);
+			clif_updatestatus(sd, SP_SPEED);
+		}
 	}
 	return 0;
 }
