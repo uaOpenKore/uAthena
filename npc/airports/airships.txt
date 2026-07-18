@@ -668,13 +668,11 @@ while(1)
 	mapannounce "airplane_01","The Airship is leaving the ground. Our next destination is Izlude.",1,0x00FF00;
 	end;
 OnTimer15000:
-	set $@mobinv, $@mobinv+1;
-	set $@mobrand, rand(1,3);
-	if($@mobinv >= 9 && $@mobrand == 3) {
-		stopnpctimer;
-		enablenpc "Quest_Izl";
-		donpcevent "Quest_Izl::OnInvasion";
-	}
+	// NOTE: the stock "Quest_Izl" invasion mini-event that used to fire here called stopnpctimer and
+	// handed control to an NPC named Quest_Izl -- which does NOT exist in this server. So once $@mobinv
+	// reached 9 a 1/3 roll permanently STOPPED the airship timer with nothing to restart it -> the Izlude
+	// airship "worked after a restart, then stopped" (S. 2026-07-18). Removed the invasion trigger so the
+	// cycle never stalls. Re-add it only together with a real Quest_Izl that restarts YunoIzl_Airship.
 	mapannounce "airplane_01","We are heading to Izlude.",1,0x00FF00;
 	end;
 OnTimer30000:
