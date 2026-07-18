@@ -1123,7 +1123,12 @@ int chrif_load_scdata(int fd)
 	// battle_status, re-send the six stats (+ walk speed, which AGI/Quagmire change) so the buffed
 	// values show correctly. [S. 2026-07-18]
 	if (count > 0 && sd->fd) {
-		status_calc_pc(sd, 0);  // force-fold all just-loaded SCs into battle_status before re-sending
+		// first=1, NOT 0: sc_data (0x2b1d) can arrive before LoadEndAck sets sd->state.auth, and
+		// status_calc_pc no-ops when (!state.auth && !(first&1)) (status.c:1704). first=1 bypasses that
+		// and runs the FULL recompute (equip bonus scripts + all SCs) so equipment AGI/DEX + buffs are
+		// folded into battle_status before we re-send -- otherwise only the SC deltas were present and
+		// the equip bonus was lost on the cross-server transition. [S. 2026-07-18]
+		status_calc_pc(sd, 1);
 		clif_updatestatus(sd, SP_STR); clif_updatestatus(sd, SP_AGI);
 		clif_updatestatus(sd, SP_VIT); clif_updatestatus(sd, SP_INT);
 		clif_updatestatus(sd, SP_DEX); clif_updatestatus(sd, SP_LUK);
