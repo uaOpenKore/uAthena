@@ -1969,12 +1969,20 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 	// NAT the raw internal map_ip is unreachable for external clients, causing the cross-mapserver warp
 	// to DC. If no subnet matches (WAN default), keep the ip as configured. [S. 2026-07-18]
 	{
-		uint32 cip = (fd && session[fd]) ? clif_lan_subnetcheck(session[fd]->client_addr) : 0;
+		uint32 raw = ip;
+		uint32 caddr = (fd && session[fd]) ? session[fd]->client_addr : 0;
+		uint32 cip = caddr ? clif_lan_subnetcheck(caddr) : 0;
 		if (cip)
 			ip = cip;                 // matched a LAN subnet -> that entry's map_ip (internal for on-LAN clients)
 		else if (clif_public_ip)
 			ip = clif_public_ip;      // no LAN match = external client -> the configured PUBLIC/WAN address
 		// else: keep the ip the char-server routed (legacy behaviour: raw map_ip)
+		{ // [temp diag] prove which branch ran + that this binary carries the public_ip fix
+			char s1[16], s2[16], s3[16], s4[16], s5[16];
+			ShowInfo("XMS-DBG: clif_changemapserver aid=%d client_addr=%s raw_target=%s subnet=%s public_ip=%s -> sent=%s:%d\n",
+				sd->bl.id, ip2str(caddr,s1), ip2str(raw,s2), cip?ip2str(cip,s3):"none",
+				clif_public_ip?ip2str(clif_public_ip,s4):"UNSET", ip2str(ip,s5), port);
+		}
 	}
 
 	WFIFOHEAD(fd,packet_len(0x92));
