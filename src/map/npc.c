@@ -2122,13 +2122,26 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 	//-----------------------------------------
 	// Cxgpxf[^GNX|[g
 	// A passive cross-mapserver template is name-resolvable (for duplicate()) but must not run its own
-	// events (OnInit/OnAgitStart/OnClock/...) or timers -- only the instance that actually HOSTS the
-	// master map runs them. Duplicate()s on hosted maps register their OWN events below (m>=0), so this
-	// does not affect them.
-	for (i = 0; !is_template && i < nd->u.scr.label_list_num; i++)
+	// SELF-SCHEDULED events (OnInit/OnAgitStart/OnClock/OnTimer/...) -- only the instance that actually
+	// HOSTS the master map runs those. Duplicate()s on hosted maps register their OWN events below (m>=0).
+	// EXCEPTION: a template STILL registers the per-instance INIT + castle-data-load callbacks
+	// (OnInterIfInit*, OnCharIfInit, OnRecvCastle*). These are meant to run on EVERY instance and are how a
+	// castle's FLAG emblem reaches instances that host a castle's TOWN/GUILD-map flags but not the castle
+	// map itself: the Agit controller sits on the castle map, so without this its OnInterIfInitOnce ->
+	// GetCastleData -> OnRecvCastleXNN (FlagEmblem + RequestGuildInfo) never fired on the town/guild
+	// instance, leaving those flags with guild_id 0 (blank emblem, on any client). They are data-load
+	// callbacks (idempotent, char-synced), not engine-auto-scheduled game logic, so running them
+	// per-instance is safe -- WoE (OnAgit*) stays suppressed. [S. cross-server flags 2026-07-18]
+	for (i = 0; i < nd->u.scr.label_list_num; i++)
 	{
 		char* lname = nd->u.scr.label_list[i].name;
 		int pos = nd->u.scr.label_list[i].pos;
+
+		if (is_template &&
+			strnicmp(lname, "OnInterIfInit", 13) != 0 &&
+			strnicmp(lname, "OnCharIfInit", 12) != 0 &&
+			strnicmp(lname, "OnRecvCastle", 12) != 0)
+			continue;  // template: skip everything except the cross-instance init/castle-data callbacks
 
 		if ((lname[0] == 'O' || lname[0] == 'o') && (lname[1] == 'N' || lname[1] == 'n'))
 		{
