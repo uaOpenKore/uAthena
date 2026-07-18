@@ -1942,6 +1942,7 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 	struct npc_label_list *label_dup = NULL;
 	int label_dupnum = 0;
 	int src_id = 0;
+	int is_template = 0;
 
 	if (strcmp(w1, "-") == 0) {
 		x = 0; y = 0; m = -1;
@@ -1954,6 +1955,12 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 		}
 		m = map_mapname2mapid(mapname);
 	}
+	// A cross-mapserver PASSIVE TEMPLATE: a script master placed on a real map that THIS server does
+	// not host (m<0 but w1!="-"). We keep its name+script resolvable so duplicate()s on hosted maps
+	// can link to it, but it must NOT self-execute -- so below we skip event (OnInit/OnAgitStart/...)
+	// and OnTimer registration for it (a floating "-" NPC, m<0 with w1=="-", is NOT a template and
+	// keeps its events). See npc_parsesrcfile's m<0 fall-through.
+	is_template = (m < 0 && strcmp(w1, "-") != 0);
 
 	if (strcmp(w2, "script") == 0){
 		// parsing script with curly
@@ -2114,7 +2121,11 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 
 	//-----------------------------------------
 	// Cxgpxf[^GNX|[g
-	for (i = 0; i < nd->u.scr.label_list_num; i++)
+	// A passive cross-mapserver template is name-resolvable (for duplicate()) but must not run its own
+	// events (OnInit/OnAgitStart/OnClock/...) or timers -- only the instance that actually HOSTS the
+	// master map runs them. Duplicate()s on hosted maps register their OWN events below (m>=0), so this
+	// does not affect them.
+	for (i = 0; !is_template && i < nd->u.scr.label_list_num; i++)
 	{
 		char* lname = nd->u.scr.label_list[i].name;
 		int pos = nd->u.scr.label_list[i].pos;
@@ -2136,7 +2147,7 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 
 	//-----------------------------------------
 	// xf[^^C}[Cxg
-	for (i = 0; i < nd->u.scr.label_list_num; i++){
+	for (i = 0; !is_template && i < nd->u.scr.label_list_num; i++){
 		int t = 0, k = 0;
 		char *lname = nd->u.scr.label_list[i].name;
 		int pos = nd->u.scr.label_list[i].pos;
@@ -2817,11 +2828,16 @@ void npc_parsesrcfile(const char* name)
 				continue;
 			}
 			if ((m = map_mapname2mapid(mapname)) < 0) {
-			// "mapname" is not assigned to this server
-			// we must skip the script info...
+			// "mapname" is not assigned to this server (multi-mapserver split).
+			// A plain 'script' MASTER is still parsed below (npc_parse_script sees m<0 and builds a
+			// PASSIVE name-template: registered in npcname_db, not placed, no OnInit/OnTimer) so that
+			// duplicate()s on maps THIS server DOES host can resolve their source across instances.
+			// Everything else on an unhosted map (warp/shop/monster/mapflag and duplicate() copies) is
+			// still skipped -- only the source master needs to be resolvable here.
 				if (strcmpi(w2,"script") == 0 && count > 3)
-					npc_skip_script(w1,w2,w3,w4,line+w4pos,fp,&lines);
-				continue;
+					; // fall through to the dispatch -> npc_parse_script builds the template
+				else
+					continue;
 			}
 		}
 		if (strcmpi(w2,"warp") == 0 && count > 3) {
