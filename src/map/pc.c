@@ -1047,6 +1047,13 @@ int pc_reg_received(struct map_session_data *sd)
 	}
 
 	status_calc_pc(sd,1);
+	{ // [temp diag] on (cross-server) authok, how many items are EQUIPPED + the resulting equip stat bonus
+		int _eq = 0, _i; for (_i = 0; _i < EQI_MAX-1; _i++) if (sd->equip_index[_i] >= 0) _eq++;
+		ShowInfo("XMS-EQ: authok aid=%d connect_new=%d equipped=%d -> agi bonus=%d (param_equip=%d) dex bonus=%d (param_equip=%d)\n",
+			sd->status.account_id, sd->state.connect_new, _eq,
+			sd->battle_status.agi - sd->status.agi, sd->param_equip[1],
+			sd->battle_status.dex - sd->status.dex, sd->param_equip[4]);
+	}
 	chrif_scdata_request(sd->status.account_id, sd->status.char_id);
 
 	if (!sd->state.connect_new && sd->fd)
