@@ -489,6 +489,8 @@ void chrif_authok(int fd)
 	memcpy(auth_data->char_dat,RFIFOP(fd, 20),sizeof(struct mmo_charstatus));
 	auth_data->node_created=gettick();
 	uidb_put(auth_db, RFIFOL(fd, 4), auth_data);
+	ShowInfo("XMS-DBG: chrif_authok PARKED cross-server auth node aid=%d login1=%d (awaiting client connect)\n",
+		RFIFOL(fd,4), RFIFOL(fd,8)); // [temp diag]
 }
 
 // How long (ms) a pending map-entry auth node may live before it is purged. The stock 30s is too
