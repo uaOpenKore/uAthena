@@ -167,9 +167,12 @@ void clif_read_subnet(void)
 	char line[1024], w1[64], w2[64], w3[64], w4[64];
 	const char* fn = "conf/subnet_athena.conf";
 	clif_subnet_count = 0;
+	ShowStatus("clif_read_subnet: loading LAN handoff config '%s' ...\n", fn); // unconditional: proves this build has the fix
 	fp = fopen(fn, "r");
-	if (fp == NULL)
-		return; // no LAN config -> everyone treated as WAN (advertise map_ip as-is)
+	if (fp == NULL) {
+		ShowWarning("clif_read_subnet: could NOT open '%s' (cwd-relative) -> cross-mapserver clients will get the raw map_ip. Put subnet_athena.conf there or fix the working dir.\n", fn);
+		return;
+	}
 	while (fgets(line, sizeof(line), fp)) {
 		if (line[0] == '/' && line[1] == '/')
 			continue;
