@@ -163,16 +163,31 @@ uint32 clif_lan_subnetcheck(uint32 ip)
 // map ip it advertises to a client on a cross-mapserver handoff.
 void clif_read_subnet(void)
 {
-	FILE* fp;
+	FILE* fp = NULL;
 	char line[1024], w1[64], w2[64], w3[64], w4[64];
-	const char* fn = "conf/subnet_athena.conf";
+	// The map-server's working dir isn't guaranteed to be the one where "conf/" resolves (it may be
+	// launched per-instance with conf1/conf2, taskset/perf wrappers, or a service WorkingDirectory), so
+	// a single hardcoded relative path silently missed the file -> no subnet -> cross-mapserver clients
+	// got the raw internal map_ip -> NAT DC. Try the likely locations and log which one hit. [S.]
+	static const char* cands[] = {
+		"conf/subnet_athena.conf",
+		"conf1/subnet_athena.conf",
+		"conf2/subnet_athena.conf",
+		"../conf/subnet_athena.conf",
+		"/opt/uathena/conf/subnet_athena.conf",
+	};
+	const char* fn = NULL;
+	int ci;
 	clif_subnet_count = 0;
-	ShowStatus("clif_read_subnet: loading LAN handoff config '%s' ...\n", fn); // unconditional: proves this build has the fix
-	fp = fopen(fn, "r");
+	for (ci = 0; ci < (int)ARRAYLENGTH(cands); ci++) {
+		fp = fopen(cands[ci], "r");
+		if (fp) { fn = cands[ci]; break; }
+	}
 	if (fp == NULL) {
-		ShowWarning("clif_read_subnet: could NOT open '%s' (cwd-relative) -> cross-mapserver clients will get the raw map_ip. Put subnet_athena.conf there or fix the working dir.\n", fn);
+		ShowWarning("clif_read_subnet: could NOT find subnet_athena.conf in any of conf/, conf1/, conf2/, ../conf/, /opt/uathena/conf/ (cwd-relative) -> cross-mapserver clients get the raw map_ip. Behind NAT set map_ip=PUBLIC or place subnet_athena.conf reachable.\n");
 		return;
 	}
+	ShowStatus("clif_read_subnet: loading LAN handoff config '%s' ...\n", fn);
 	while (fgets(line, sizeof(line), fp)) {
 		if (line[0] == '/' && line[1] == '/')
 			continue;
