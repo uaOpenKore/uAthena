@@ -491,12 +491,20 @@ void chrif_authok(int fd)
 	uidb_put(auth_db, RFIFOL(fd, 4), auth_data);
 }
 
+// How long (ms) a pending map-entry auth node may live before it is purged. The stock 30s is too
+// tight under a RECONNECT STORM: every map-server restart/deploy drops all online players at once,
+// they stampede char-select, and the tail of that flood needs longer than 30s to actually connect
+// to the map and complete wanttoconnection -> their still-valid auth node gets purged -> "not authed"
+// -> kick -> retry -> loop. Raised to 90s so a burst drains without false purges (a genuinely dead
+// session just lingers a bit longer before cleanup, which is harmless). [S. 2026-07-18 prod DC]
+#define AUTH_NODE_TTL_MS 90000
+
 int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 {
 	struct auth_node *node=(struct auth_node*)data;
 
-	if(DIFF_TICK(gettick(),node->node_created)>30000) {
-		ShowNotice("Character (aid: %d) not authed within 30 seconds of character select!\n", node->account_id);
+	if(DIFF_TICK(gettick(),node->node_created)>AUTH_NODE_TTL_MS) {
+		ShowNotice("Character (aid: %d) not authed within %d seconds of character select!\n", node->account_id, AUTH_NODE_TTL_MS/1000);
 		if (node->char_dat)
 			aFree(node->char_dat);
 		db_remove(auth_db, key);
