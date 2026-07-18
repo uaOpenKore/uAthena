@@ -413,6 +413,13 @@ void chrif_authreq(struct map_session_data *sd)
 	struct auth_node *auth_data;
 	auth_data=idb_get(auth_db, sd->bl.id);
 
+	// [temp diag] this fires when a client's wanttoconnection reaches THIS map-server. Shows whether a
+	// pre-parked cross-server node exists and whether login_id1 matches (mismatch -> authfail).
+	ShowInfo("XMS-DBG: chrif_authreq aid=%d client_login1=%d -> node=%s%s\n",
+		sd->bl.id, sd->login_id1,
+		auth_data ? "FOUND" : "NONE(await char)",
+		auth_data ? (auth_data->char_dat ? (auth_data->login_id1==sd->login_id1 ? " char_dat=yes login1=MATCH -> AUTHOK" : " char_dat=yes login1=MISMATCH -> AUTHFAIL") : " char_dat=NULL(await)") : "");
+
 	if(auth_data) {
 		if(auth_data->char_dat &&
 			auth_data->account_id== sd->bl.id &&
