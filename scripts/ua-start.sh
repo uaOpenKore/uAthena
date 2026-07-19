@@ -205,8 +205,13 @@ run_single() {
 	local CONSOLE_LOG="$LOG_DIR/uA${SERVER}.log"
 	setup_core_pattern
 
-	echo "ua-start: launching $BIN ($(date '+%F %T'))"
-	"$BIN" &
+	echo "ua-start: launching $BIN ($(date '+%F %T'))" | tee -a "$CONSOLE_LOG"
+	# Redirect the binary's console straight to uAlogin.log / uAchar.log, exactly like the map
+	# supervisor does for uAmapN.log. Previously login/char were launched bare ("$BIN" &) and relied
+	# on systemd StandardOutput=append: -- which silently produces NO file on systemd < v240 (no
+	# 'append:' support), so uAchar.log / uAlogin.log never appeared while uAmapN.log always did (the
+	# map path redirects in-shell). This also makes capture_crash's `tail "$CONSOLE_LOG"` actually work.
+	"$BIN" >> "$CONSOLE_LOG" 2>&1 &
 	local SPID=$!
 	echo "$SPID" > "$PID"
 
