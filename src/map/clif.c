@@ -11867,15 +11867,27 @@ int clif_parse(int fd)
 		packet_ver = clif_guess_PacketVer(fd, 0, &err);
 		if( err )
 		{// failed to identify packet version
-			// [xms] Don't kick an unauthenticated session whose packet version we can't identify
-			// (S. request: ignore unknown packets instead of disconnecting). Flush its pending read
-			// buffer and keep the connection so a stray/garbage/half-open socket no longer produces a
-			// "unknown packet version" disconnect. The socket-layer connect timeout still reaps a
-			// genuinely dead session. CAVEAT: if this is a real client whose cross-server handshake
-			// (wanttoconnection) failed the version guess, its login still won't proceed -- that would
-			// be a separate packet-format bug to fix; here we only stop nuking the connection over it.
-			ShowWarning("clif_parse: Ignored packet with unidentifiable version from session #%d (err=%d, kept connection).\n", fd, err);
+			// NOTE: this is the UNAUTHENTICATED handshake path -- we can't even identify the client's
+			// packet version, so the session cannot be served at all. It MUST be closed: keeping it
+			// (an earlier attempt to "ignore" per S.) only spins -- the peer keeps re-sending the same
+			// unparseable bytes (observed 900+ ignore lines for a handful of sessions) and, worse, a
+			// real client whose cross-server handshake lands here hangs for the full socket timeout
+			// (~45s) instead of failing fast back to char-select. S.'s "ignore unknown packet" request
+			// is honoured for the AUTHENTICATED unknown-TYPE path below, where there IS a live player to
+			// keep. (If a real client's wanttoconnection fails this guess, that's a separate packet
+			// bug -- diagnose from a client packet log, don't paper over it by lingering here.)
+			ShowInfo("clif_parse: Disconnecting session #%d with unknown packet version%s.\n", fd, (
+				err == 1 ? "" :
+				err == 2 ? ", possibly for having an invalid account_id" :
+				err == 3 ? ", possibly for having an invalid char_id." :
+				err == 6 ? ", possibly for having an invalid sex." :
+				". ERROR invalid error code"));
+			WFIFOHEAD(fd,packet_len(0x6a));
+			WFIFOW(fd,0) = 0x6a;
+			WFIFOB(fd,2) = 3; // Rejected from Server
+			WFIFOSET(fd,packet_len(0x6a));
 			RFIFOSKIP(fd, RFIFOREST(fd));
+			clif_setwaitclose(fd);
 			return 0;
 		}
 	}
