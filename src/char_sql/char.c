@@ -2684,6 +2684,17 @@ int parse_frommap(int fd)
 			map_id = search_mapserver(RFIFOW(fd,18), ntohl(RFIFOL(fd,24)), ntohs(RFIFOW(fd,28))); //Locate mapserver by ip and port.
 			if (map_id >= 0)
 				map_fd = server_fd[map_id];
+			// [temp diag XMS-CMS] cross-server change-map handshake: which dest instance the char-server
+			// picked for this player + whether it parked the auth (map_fd valid) or NAKed. Pair with the
+			// dest instance's uAmap log (does 0x2afd -> wanttoconnection -> authok fire?) to pin a stalled
+			// cross-server auth. (S. root-cause #3.)
+			ShowInfo("XMS-CMS: change-map aid=%d map_index=%d -> dest map_id=%d fd=%d ip=%d.%d.%d.%d:%d req_ip=%d.%d.%d.%d:%d\n",
+				(int)RFIFOL(fd,2), (int)RFIFOW(fd,18), map_id, map_fd,
+				(map_id>=0)?(int)((server[map_id].ip>>24)&0xff):0, (map_id>=0)?(int)((server[map_id].ip>>16)&0xff):0,
+				(map_id>=0)?(int)((server[map_id].ip>>8)&0xff):0, (map_id>=0)?(int)(server[map_id].ip&0xff):0,
+				(map_id>=0)?(int)server[map_id].port:0,
+				(int)((ntohl(RFIFOL(fd,24))>>24)&0xff), (int)((ntohl(RFIFOL(fd,24))>>16)&0xff),
+				(int)((ntohl(RFIFOL(fd,24))>>8)&0xff), (int)(ntohl(RFIFOL(fd,24))&0xff), (int)ntohs(RFIFOW(fd,28)));
 			//Char should just had been saved before this packet, so this should be safe. [Skotlex]
 			char_data = uidb_get(char_db_,RFIFOL(fd,14));
 			if (char_data == NULL)
