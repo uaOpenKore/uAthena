@@ -1930,12 +1930,19 @@ void clif_setwaitclose(int fd)
 /*==========================================
  *
  *------------------------------------------*/
-// Some maps exist on the SERVER but are missing from the client's GRF (e.g. the international airship
-// airplane_01, which shares airplane's interior). Send the client an ALIAS map name it can actually
-// render, while the server keeps the real map internally (own NPCs/GAT). Client-facing map-name only.
+// Some maps exist on the SERVER but are missing from the client's content, yet share another map's
+// interior. Send the client an ALIAS map name it can actually render, while the server keeps the real
+// map internally (own NPCs/GAT/warps -> two airships stay independent). Client-facing map-name only.
+//
+// Client content (data.zip) HAS: airport (Einbroch), lhz_airport (Lighthalzen), airplane (one airship
+// interior). It does NOT have y_airport or airplane_01. The two airships run independently server-side
+// but share the single `airplane` interior; the Yuno airport reuses the `airport` layout (identical
+// clone, same 126,43 / 148,51 / 142,40 coords). So only these two names need aliasing:
 const char* clif_client_mapname(const char* name)
 {
-	if (name && strcmp(name, "airplane_01") == 0) return "airplane";
+	if (!name) return name;
+	if (strcmp(name, "airplane_01") == 0) return "airplane";  // 2nd airship -> the one airship interior
+	if (strcmp(name, "y_airport")   == 0) return "airport";   // Yuno airport -> Einbroch airport interior (clone)
 	return name;
 }
 

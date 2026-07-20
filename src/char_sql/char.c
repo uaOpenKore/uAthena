@@ -3285,10 +3285,12 @@ int parse_char(int fd)
 			WFIFOW(fd,0) = 0x71;
 			WFIFOL(fd,2) = char_dat.char_id;
 			{
-				// Alias server-only maps missing from the client GRF (airplane_01 -> airplane, same
-				// interior) so char-select doesn't send the client to a map it can't render. [S. 2026-07-18]
+				// Alias server-only maps missing from the client content (airplane_01 -> airplane;
+				// y_airport -> airport, same interior) so char-select doesn't send the client to a map
+				// it can't render. Keep in sync with clif_client_mapname() in map/clif.c. [S. 2026-07-18/20]
 				const char* cmap = mapindex_id2name(char_dat.last_point.map);
 				if (cmap && strcmp(cmap, "airplane_01") == 0) cmap = "airplane";
+				else if (cmap && strcmp(cmap, "y_airport") == 0) cmap = "airport";
 				mapindex_getmapname_ext(cmap, (char*)WFIFOP(fd,6));
 			}
 		{
