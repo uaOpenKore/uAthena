@@ -11892,7 +11892,10 @@ int clif_parse(int fd)
 			// is honoured for the AUTHENTICATED unknown-TYPE path below, where there IS a live player to
 			// keep. (If a real client's wanttoconnection fails this guess, that's a separate packet
 			// bug -- diagnose from a client packet log, don't paper over it by lingering here.)
-			ShowInfo("clif_parse: Disconnecting session #%d with unknown packet version%s.\n", fd, (
+			// Log the SOURCE IP so we can tell WHOSE packet this is (S.: "почему наш клиент даёт
+			// неизвестный тип пакета?" -- the answer is usually a bot/old client on another IP, not us).
+			ShowInfo("clif_parse: Disconnecting session #%d (IP %s) with unknown packet version%s.\n", fd,
+				(session[fd] ? ip2str(session[fd]->client_addr, NULL) : "?"), (
 				err == 1 ? "" :
 				err == 2 ? ", possibly for having an invalid account_id" :
 				err == 3 ? ", possibly for having an invalid char_id." :
