@@ -3882,6 +3882,16 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 				}
 				sd->status.option = sd->sc.option & (OPTION_CART|OPTION_FALCON|OPTION_RIDING);
 
+				// Persist the ACTIVE status changes (buffs) before the transfer. chrif_save_scdata is
+				// otherwise only called from unit_free() at logout -- NOT on a map-server change -- so a
+				// cross-server hop lost every buff (Blessing/AGI-up/food/...): the dest requested sc_data
+				// and got count=0, and the initial status carried the equipment-only bonus. The dest-side
+				// pc_loaded gate (chrif_load_scdata, 2026-07-18) folds buffs into the FIRST status block,
+				// but only if they were actually saved -- this is that missing save half. Send it before
+				// chrif_save so both land on the char-server ahead of the dest's scdata_request. Safe: it
+				// only transmits the SCs (no-op when there are none) and does not clear the live sd. (S.:
+				// "при межсерверном переходе слетают бонусные статы".)
+				chrif_save_scdata(sd);
 				chrif_save(sd,2);
 				chrif_changemapserver(sd, mapindex, x, y, ip, (short)port);
 				return 0;
