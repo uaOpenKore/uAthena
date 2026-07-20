@@ -3868,6 +3868,20 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 				if(sd->md) // [Backport] hired merc: saved+freed in unit_free; reloads on the new map-server
 					unit_remove_map(&sd->md->bl, clrtype);
 
+				// Cross-server transfer: chrif_save(sd,2) skips pc_makesavestatus (it only runs for flag==0),
+				// so the LIVE hp/sp (battle_status) never sync into sd->status -> the dest instance gets
+				// STALE hp/sp (they don't transfer). Sync them here (+ the mount/cart/falcon option) so the
+				// full current state carries over. Position/last_point is set by the char-server from the
+				// 0x2b05 packet, so we must NOT touch it here. (S.: "при межсерверном переходе не передаются
+				// HP и мана".)
+				if (pc_isdead(sd))
+					pc_setrestartvalue(sd, 0);   // dead -> the respawn hp/sp, like pc_makesavestatus
+				else {
+					sd->status.hp = sd->battle_status.hp;
+					sd->status.sp = sd->battle_status.sp;
+				}
+				sd->status.option = sd->sc.option & (OPTION_CART|OPTION_FALCON|OPTION_RIDING);
+
 				chrif_save(sd,2);
 				chrif_changemapserver(sd, mapindex, x, y, ip, (short)port);
 				return 0;
