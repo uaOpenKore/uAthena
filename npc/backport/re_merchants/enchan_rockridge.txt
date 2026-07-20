@@ -400,7 +400,7 @@
 
 -	shop	shotguns_rockridge	-1,13154:-1,13155:-1,13192:-1,13193:-1,13194:-1
 -	shop	revolvers_rockridge	-1,13102:-1,13120:-1,13122:-1
--	shop	bullets_rockridge	-1,13200:-1,13221:-1,13222:-1,13228:-1,13229:-1,13230:-1,13231:-1,13232:-1
+-	shop	bullets_rockridge	-1,13200:-1,13201:-1,13202:-1,13228:-1,13229:-1,13230:-1,13231:-1,13232:-1
 
 //[BACKPORT-BOUNDARY:har_in01] har_in01,19,86,4	script	Weapon Dealer#rockridge01	1_F_02,{
 //[BACKPORT-BOUNDARY:har_in01] 	if (checkweight(1301,3) == 0) {
