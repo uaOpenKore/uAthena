@@ -504,7 +504,15 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 	struct auth_node *node=(struct auth_node*)data;
 
 	if(DIFF_TICK(gettick(),node->node_created)>AUTH_NODE_TTL_MS) {
-		ShowNotice("Character (aid: %d) not authed within %d seconds of character select!\n", node->account_id, AUTH_NODE_TTL_MS/1000);
+		// [temp diag XMS-AUTH] distinguish WHERE the cross-server auth broke: char_dat set = the
+		// char-server PUSHED this node (0x2afd) but no client ever claimed it here -> the client never
+		// reconnected to THIS instance (wrong ip:port handoff / didn't connect). char_dat NULL + sd set =
+		// the client DID connect + sent wanttoconnection, but the char-server never confirmed the auth
+		// (chrif_authreq -> char, no reply). login_id1 lets us match the char's XMS-CMS handoff. (S. #3)
+		ShowNotice("Character (aid: %d) not authed within %d seconds of character select! [XMS-AUTH char_dat=%s sd=%s login_id1=%u]\n",
+			node->account_id, AUTH_NODE_TTL_MS/1000,
+			node->char_dat ? "set(char-pushed,client-never-came)" : "null",
+			node->sd ? "set(client-connected)" : "null", (unsigned int)node->login_id1);
 		if (node->char_dat)
 			aFree(node->char_dat);
 		db_remove(auth_db, key);
