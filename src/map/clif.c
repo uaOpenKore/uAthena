@@ -1976,6 +1976,15 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 		// else: keep the ip the char-server routed (legacy behaviour: raw map_ip)
 	}
 
+	// [temp diag XMS-XFER] the FINAL ip:port we hand the client to reconnect to (post subnet/public
+	// translation) + the client's own address. If this ip:port is unreachable or the wrong instance,
+	// the client never auths on the dest -> "not authed within 90s". (S. root-cause #3)
+	ShowInfo("XMS-XFER: clif_changemapserver aid=%d -> client reconnect to %d.%d.%d.%d:%d (client_addr=%d.%d.%d.%d) map_index=%d\n",
+		sd->bl.id, (int)((ip>>24)&0xff),(int)((ip>>16)&0xff),(int)((ip>>8)&0xff),(int)(ip&0xff), (int)port,
+		(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>24&0xff),(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>16&0xff),
+		(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>8&0xff),(int)(((fd&&session[fd])?session[fd]->client_addr:0)&0xff),
+		(int)map_index);
+
 	WFIFOHEAD(fd,packet_len(0x92));
 	WFIFOW(fd,0) = 0x92;
 	mapindex_getmapname_ext(clif_client_mapname(mapindex_id2name(map_index)), (char*)WFIFOP(fd,2));
