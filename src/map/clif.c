@@ -1906,7 +1906,14 @@ void clif_quitsave(int fd,struct map_session_data *sd)
  *------------------------------------------*/
 static int clif_waitclose(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
-	if (session[id] && session[id]->func_parse == clif_parse) //Avoid disconnecting non-players, as pointed out by End of Exam [Skotlex]
+	// [xms] A delayed close scheduled for connection A must NOT fire on connection B if fd `id` was
+	// closed and RECYCLED to a new socket in the meantime -- otherwise a rejected/double connection's
+	// 1s timer kills a freshly-authenticated player who happened to reuse the fd number (observed on
+	// rapid cross-server hops: `set_eof(#21) <- clif_waitclose` immediately after Arrow's authok on
+	// #21). clif_setwaitclose passes the CURRENT session pointer as `data`; if it no longer matches,
+	// the fd was recycled and this timer is stale -> ignore it. (S.: "почему я ловлю дисконнекты".)
+	if (session[id] && (data == 0 || (intptr_t)session[id] == data) &&
+	    session[id]->func_parse == clif_parse) //Avoid disconnecting non-players [Skotlex]
 		set_eof(id);
 
 	return 0;
@@ -1919,12 +1926,15 @@ void clif_setwaitclose(int fd)
 {
 	struct map_session_data *sd;
 
+	// [xms] Pass the CURRENT session pointer as the timer's data so clif_waitclose can tell if fd was
+	// recycled to a different connection before the timer fires (stale-close guard, see above).
+	intptr_t tag = (intptr_t)session[fd];
 	// if player is not already in the game (double connection probably)
 	if ((sd = (struct map_session_data*)session[fd]->session_data) == NULL) {
 		// limited timer, just to send information.
-		add_timer(gettick() + 1000, clif_waitclose, fd, 0);
+		add_timer(gettick() + 1000, clif_waitclose, fd, tag);
 	} else
-		add_timer(gettick() + 5000, clif_waitclose, fd, 0);
+		add_timer(gettick() + 5000, clif_waitclose, fd, tag);
 }
 
 /*==========================================
