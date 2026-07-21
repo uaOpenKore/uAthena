@@ -16,6 +16,7 @@
 #include "pc.h"
 #include "status.h"
 #include "mercenary.h"
+#include "mercenary_soldier.h"	// [Backport] hired mercenary: persist it in chrif_save like the homunculus
 #include "chrif.h"
 
 #include <stdio.h>
@@ -196,6 +197,14 @@ int chrif_save(struct map_session_data *sd, int flag)
 
 	if (sd->hd && merc_is_hom_active(sd->hd))
 		merc_save(sd->hd);
+
+	// [Backport] Persist the hired mercenary here too. Its live HP/SP + remaining life_time were saved
+	// ONLY from unit_free() (final logout), so it was never autosaved and NOT saved on a cross-server
+	// transfer (chrif_save(sd,2)) -> the dest re-loaded stale merc data (old HP, reverted lifetime),
+	// the same gap fixed for hp/sp + sc_data. Mirror the homunculus save above; mercenary_save syncs
+	// hp/sp/life_time internally. Guard on a still-valid contract (lifetime > 0), like unit_free. (S.)
+	if (sd->md && mercenary_get_lifetime(sd->md) > 0)
+		mercenary_save(sd->md);
 
 	if (sd->save_quest)
 		intif_quest_save(sd);
