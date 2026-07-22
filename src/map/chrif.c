@@ -17,6 +17,7 @@
 #include "status.h"
 #include "mercenary.h"
 #include "mercenary_soldier.h"	// [Backport] hired mercenary: persist it in chrif_save like the homunculus
+#include "storage.h"			// [Multi-mapserver] evict this server's stale storage cache on terminal save
 #include "chrif.h"
 
 #include <stdio.h>
@@ -176,7 +177,31 @@ int chrif_save(struct map_session_data *sd, int flag)
 		storage_storage_save(sd->status.account_id, flag);
 	else if (sd->state.storage_flag == 2)
 		storage_guild_storagesave(sd->status.account_id, sd->status.guild_id, flag);
-	if (flag) sd->state.storage_flag = 0; //Force close it.
+	{
+		int had_guild_storage_open = (sd->state.storage_flag == 2);  // capture before the reset below
+		if (flag) sd->state.storage_flag = 0; //Force close it.
+
+		// [Multi-mapserver storage-loss FIX] Each map-server keeps its OWN account2storage /
+		// guild2storage cache (storage_db / guild_storage_db). storage_storageopen REUSES a resident
+		// cache instead of reloading from the char-server, and the cache was NEVER evicted when the
+		// player left this server -> on a later open (after the player edited storage on the OTHER
+		// server) this server serves its STALE copy and saving it clobbers the other server's changes,
+		// so items moved into storage vanish (S.: "хранилища теряют итемы при переходе между серверами
+		// (аккаунт и гильдийское)"). On any terminal save (quit=1 or cross-server=2) drop this server's
+		// cached copies so the next open reloads fresh from the authoritative char-server SQL. The
+		// pending async save already memcpy'd the data into the inter-server FIFO, so eviction is safe.
+		if (flag) {
+			storage_delete(sd->status.account_id);  // per-account cache: only this player uses it
+			// Guild storage cache is SHARED by all guild members on this server. Evict only when THIS
+			// player owned the open storage, or nobody currently has it open -- never yank it out from
+			// under another member mid-session.
+			if (sd->status.guild_id) {
+				struct guild_storage *gs = guild2storage2(sd->status.guild_id);
+				if (gs && (had_guild_storage_open || !gs->storage_status))
+					guild_storage_delete(sd->status.guild_id);
+			}
+		}
+	}
 
 	//Saving of registry values. 
 	if (sd->state.reg_dirty&4)
