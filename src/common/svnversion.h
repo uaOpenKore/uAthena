@@ -1,1 +1,1 @@
-#define SVNVERSION uAthena of UaRO.kiev.ua
+#define SVNVERSION uAthena of bornrok.com
