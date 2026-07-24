@@ -231,6 +231,15 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if (sd->md && mercenary_get_lifetime(sd->md) > 0)
 		mercenary_save(sd->md);
 
+	// [Backport] Persist the pet here too, same gap/parity as the homunculus + mercenary above (S.
+	// audit: "петов также сделал сохранение?"). The pet was saved ONLY from unit_free()/feed/hatch —
+	// never on autosave (chrif_save,0) nor on a cross-server hop (chrif_save,2) — so a crash reverted
+	// its hunger/intimacy and a server change relied on map_quit's cleanup timing. pd->pet.* fields are
+	// live (updated in place, no hp/sp-style sync needed). intimate>0 mirrors unit_free's save guard;
+	// intimate<=0 is a runaway pet that unit_free deletes, so don't persist it here.
+	if (sd->pd && sd->pd->pet.intimate > 0)
+		intif_save_petdata(sd->pd->pet.account_id, &sd->pd->pet);
+
 	if (sd->save_quest)
 		intif_quest_save(sd);
 
