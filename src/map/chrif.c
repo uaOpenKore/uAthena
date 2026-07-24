@@ -161,7 +161,16 @@ int chrif_save(struct map_session_data *sd, int flag)
 
 	status_calc_pc_flush(sd);	// [perf 7] run any pending deferred equip-swap recompute before snapshotting
 
-	if (!flag) //The flag check is needed to prevent 'nosave' taking effect when a jailed player logs out.
+	// Snapshot the LIVE state (position -> last_point, hp/sp from battle_status, mount/cart/falcon option,
+	// clothes) into sd->status before saving. Must run on autosave (flag 0) AND on quit/logout (flag 1) --
+	// the old `if(!flag)` skipped it on quit, so a disconnect saved the STALE last autosave snapshot: the
+	// logout position was wrong and hp/sp/mount could rewind (S.: "при дисконнекте плохо сохраняются данные
+	// чара - последняя точка местонахождения, возможно и другие данные"). pc_makesavestatus already keeps a
+	// JAILED player in place (SC_JAILED early-return) and relocates on nosave maps, so it is safe here.
+	// EXCEPT flag 2 (cross-server hop): pc_setpos already synced hp/sp + option and the char-server sets the
+	// destination position from the 0x2b05 packet -- makesavestatus would stamp last_point to the OLD map. So
+	// keep skipping it there (see the matching note in pc_setpos).
+	if (flag != 2)
 		pc_makesavestatus(sd);
 
 	if(!chrif_isconnected())
