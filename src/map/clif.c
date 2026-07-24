@@ -9962,6 +9962,16 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 
 	pc_delinvincibletimer(sd);
 
+	// [SKILLDBG temp] Pin why a player skill does/doesn't fire. checkskill==0 => the skill's .id is NOT in
+	// the char's granted tree (pc_calc_skilltree didn't grant it: joblv/prereq gate -> raise player_skillfree
+	// or the char's job level); skilllv==0 => DROP (server sends nothing, client shows only its swing). Remove
+	// once the Sin X "skills do nothing" case is resolved. (S. 2026-07-24)
+	if (skillnum > 0 && skillnum < GD_SKILLBASE)
+		ShowInfo("SKILLDBG: '%s' sid=%d checkskill=%d -> skilllv=%d %s | job=%d joblv=%d skillfree=%d skilluplimit=%d\n",
+			sd->status.name, skillnum, pc_checkskill(sd, skillnum), skilllv,
+			skilllv ? "CAST" : "DROP", sd->status.class_, sd->status.job_level,
+			battle_config.skillfree, battle_config.skillup_limit);
+
 	if (skilllv)
 		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
 
