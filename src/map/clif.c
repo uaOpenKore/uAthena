@@ -9964,17 +9964,6 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 
 	if (skilllv)
 		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
-	else if (skillnum > 0 && skillnum < GD_SKILLBASE)
-		// [S. audit] A PLAYER skill dropped to lv 0 -> unit_skilluse_id is skipped and the server
-		// sends NOTHING (no clif_skill_fail), so the client shows only its local swing = "у кросса
-		// скиллы ничего не делают". Log why: what skillnum the server RECEIVED (garbage => client
-		// packet bug), pc_checkskill for it (0 => not in the char's granted tree), NV_BASIC (<9 =>
-		// pc_calc_skilltree_normalize_job demoted the char to the Novice tree, wiping 2nd-job skills),
-		// the NORMALIZED job the skilltree was scanned as, and the skillpoint gate. Remove once fixed.
-		ShowWarning("XMS-SKILL drop: sid=%d '%s' job=%d checkskill=%d NV_BASIC=%d normJob=0x%x skillpt_avail=%d change_lv=%d\n",
-			skillnum, sd->status.name, sd->status.class_, pc_checkskill(sd, skillnum),
-			pc_checkskill(sd, NV_BASIC), pc_calc_skilltree_normalize_job(sd),
-			sd->status.skill_point, sd->change_level);
 
 	if (sd->state.skill_flag)
 		sd->state.skill_flag = 0;
