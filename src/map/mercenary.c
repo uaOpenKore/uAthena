@@ -433,6 +433,12 @@ int merc_menu(struct map_session_data *sd,int menunum)
 		case 2:
 			merc_hom_delete(sd->hd, -1);
 			break;
+		case 3:
+			// REST/recall: vaporize (keep in DB, re-callable) rather than the permanent delete of case 2.
+			// The client's "Отозвать" button uses this so recall actually REMOVES the homun from the field
+			// (S.: "кнопка рекол не убирает гомункула; отозвать = отдых, потом призвать заново").
+			merc_hom_vaporize(sd, 1);
+			break;
 		default:
 			ShowError("merc_menu : unknown menu choice : %d\n", menunum) ;
 			break;
