@@ -997,18 +997,24 @@ int chrif_disconnectplayer(int fd)
 	}
 
 	// [xms] Cross-server transfer race guard. On a rapid map<->map (cross-server) hop the char-server
-	// can emit a duplicate "someone else logged in" kick (reason 2) meant for the STALE session, but
-	// map_id2sd() above resolves purely by account_id and returns the FRESHLY-arrived session -> the
-	// just-connected player is killed ~0.2s after entering the new map (observed intermittent DC).
-	// A session that authenticated a moment ago is the just-arrived one, not a real remote relogin, so
-	// skip the kick. A genuine duplicate login targets an ESTABLISHED session (auth_tick old) and is
-	// still kicked. auth_tick is the connect tick and is never bumped by actions, so an actively-playing
-	// victim is NOT falsely spared. Only reason 2 is transfer-racy; server-close/overpop/GM kicks pass.
-	if (RFIFOB(fd, 6) == 2 && DIFF_TICK(gettick(), sd->auth_tick) < 4000)
+	// resolves by account_id (map_id2sd above) and can emit an ENVIRONMENTAL kick meant for the STALE
+	// old-server session that instead lands on the FRESHLY-arrived session -> the just-connected player
+	// is killed ~0s after entering the new map (S.: "дисконнект просто на переходе между локациями",
+	// client sees an orderly FIN with no kick packet, last packet 0x00b0). The racy kicks are reason 1
+	// (server-closed, from set_all_offline when the OLD map-server drops), 2 (someone-else-logged-in dupe,
+	// set_char_online / login re-auth) and 3 (overpopulated) -- none should kill a session that connected
+	// <4s ago via a legit transfer. GM kick (5) and time-expired (4) always pass. auth_tick is the connect
+	// tick and is never bumped by actions, so an actively-playing victim of a REAL dupe (auth_tick old) is
+	// still kicked. Previously only reason 2 was guarded, so a racy reason-1 slipped through.
 	{
-		ShowInfo("chrif_disconnectplayer: skipped stale dupe-kick for aid=%d cid=%d (connected %ums ago; cross-server transfer race)\n",
-			sd->status.account_id, sd->status.char_id, DIFF_TICK(gettick(), sd->auth_tick));
-		return 0;
+		const int why = RFIFOB(fd, 6);
+		const unsigned int age = DIFF_TICK(gettick(), sd->auth_tick);
+		// [DCDBG temp] log every s2s kick so we can confirm the reason/timing of the cross-server DC.
+		ShowInfo("chrif_disconnectplayer: aid=%d cid=%d reason=%d connected=%ums ago -> %s\n",
+			sd->status.account_id, sd->status.char_id, why, age,
+			((why == 1 || why == 2 || why == 3) && age < 4000) ? "SKIPPED (transfer race)" : "kicked");
+		if ((why == 1 || why == 2 || why == 3) && age < 4000)
+			return 0;
 	}
 
 	switch(RFIFOB(fd, 6))
