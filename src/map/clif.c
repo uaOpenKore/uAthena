@@ -11930,13 +11930,18 @@ int clif_parse(int fd)
 			// bug -- diagnose from a client packet log, don't paper over it by lingering here.)
 			// Log the SOURCE IP so we can tell WHOSE packet this is (S.: "почему наш клиент даёт
 			// неизвестный тип пакета?" -- the answer is usually a bot/old client on another IP, not us).
-			ShowInfo("clif_parse: Disconnecting session #%d (IP %s) with unknown packet version%s.\n", fd,
+			// XMS-UPV diag: log the actual first opcode + bytes-in-buffer so the NEXT log tells us
+			// WHOSE packet this is. If cmd == our connect opcode (0x009b) AND bytes > its length, it's a
+			// real client whose reconnect pipelined a follow-up packet (the `< len` fix above should now
+			// let it through). If cmd is random / bytes tiny, it's a bot/old client sending garbage (not
+			// our client). Distinguishes "real player transfer DC" from bot-farm noise on the same IPs.
+			ShowInfo("clif_parse: Disconnecting session #%d (IP %s) with unknown packet version%s. [XMS-UPV cmd=0x%04x bytes=%d]\n", fd,
 				(session[fd] ? ip2str(session[fd]->client_addr, NULL) : "?"), (
 				err == 1 ? "" :
 				err == 2 ? ", possibly for having an invalid account_id" :
 				err == 3 ? ", possibly for having an invalid char_id." :
 				err == 6 ? ", possibly for having an invalid sex." :
-				". ERROR invalid error code"));
+				". ERROR invalid error code"), cmd, (int)RFIFOREST(fd));
 			WFIFOHEAD(fd,packet_len(0x6a));
 			WFIFOW(fd,0) = 0x6a;
 			WFIFOB(fd,2) = 3; // Rejected from Server
