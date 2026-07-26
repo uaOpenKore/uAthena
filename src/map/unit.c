@@ -528,6 +528,18 @@ int unit_movepos(struct block_list *bl,int dst_x,int dst_y, int easy, int checkp
 		//If you want to use bl afterwards, uncomment this:
 		//bl = &sd->bl;
 		}
+		// Homunculus / hired mercenary follow the master the same way the pet does: if the master
+		// out-walked it and it fell too far behind (> AREA_SIZE, i.e. off-screen), snap it to the
+		// master so it's never stranded (S. 2026-07-26: "гом застревает на месте не догоняя хима").
+		// The client AI handles the normal in-view follow; this is only the far-behind catch-up.
+		if (sd->hd && merc_is_hom_active(sd->hd) && !check_distance_bl(&sd->bl, &sd->hd->bl, AREA_SIZE)) {
+			unit_movepos(&sd->hd->bl, sd->bl.x, sd->bl.y, 0, 0);
+			clif_slide(&sd->hd->bl, sd->hd->bl.x, sd->hd->bl.y);
+		}
+		if (sd->md && !check_distance_bl(&sd->bl, &sd->md->bl, AREA_SIZE)) {
+			unit_movepos(&sd->md->bl, sd->bl.x, sd->bl.y, 0, 0);
+			clif_slide(&sd->md->bl, sd->md->bl.x, sd->md->bl.y);
+		}
 	}
 	return 1;
 }
