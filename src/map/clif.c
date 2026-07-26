@@ -8191,8 +8191,15 @@ static int clif_guess_PacketVer(int fd, int get_previous, int *error)
 //define SET_ERROR
 
 #define CHECK_PACKET_VER() \
-	if( cmd != clif_config.connect_cmd[packet_ver] || packet_len != packet_db[packet_ver][cmd].len )\
-		;/* not wanttoconnection or wrong length */\
+	if( cmd != clif_config.connect_cmd[packet_ver] || packet_len < packet_db[packet_ver][cmd].len )\
+		;/* not wanttoconnection, or the connect packet isn't fully here yet */\
+	/* NOTE: was `packet_len != len` (RFIFOREST must EXACTLY equal the connect-packet size). On a */\
+	/* cross-server transfer the client reconnects and may pipeline a follow-up packet (keepalive/  */\
+	/* ping) into the same TCP segment, so RFIFOREST > len -> version detection failed -> the player */\
+	/* was kicked with "Rejected from Server" mid-transfer (S.: народ жалуется на дисконнекты; ~13%+ */\
+	/* of transfers failed in the map logs). Accept when there are AT LEAST `len` bytes and the cmd  */\
+	/* matches; the id/sex fields validated below all live within `len`, and the trailing bytes are  */\
+	/* parsed on the next clif_parse pass once packet_ver is known. */\
 	else if( (value=(int)RFIFOL(fd, packet_db[packet_ver][cmd].pos[0])) < START_ACCOUNT_NUM || value > max_account_id )\
 	{ SET_ERROR(2); }/* invalid account_id */\
 	else if( (value=(int)RFIFOL(fd, packet_db[packet_ver][cmd].pos[1])) <= 0 || value > max_char_id )\
