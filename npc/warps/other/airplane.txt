@@ -58,7 +58,7 @@ yuno,53,214,0	warp	jairp3	1,1,y_airport,143,23
 y_airport,143,16,0	warp	jairp3a	1,1,yuno,52,207
 yuno,52,238,0	warp	jairp4a	1,1,y_airport,143,60
 yuno,55,238,0	warp	jairp5a	1,1,y_airport,143,60
-yuno,8,261,0	warp	jairp6	1,1,airplane,224,64
+yuno,8,261,0	warp	jairp6	1,1,airplane_01,224,64
 yuno,97,260,0	warp	jairp7	1,1,airplane,224,64
 
 
