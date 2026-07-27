@@ -34,12 +34,12 @@ y_airport,126,43,4	script	Airport Staff#001::AirportY	90,{
 			if(countitem(7311) > 0) goto GotTicket;
 			if(zeny < 1200) goto L_NoZeny;
 			set Zeny,zeny-1200;
-			warp "y_airport",148,51;
+			warp "airplane",224,64;
 			close;
 
 		GotTicket:
 			delitem 7311,1;
-			warp "y_airport",148,51;
+			warp "airplane",224,64;
 			close;
 
 		L_NoZeny:
