@@ -48,15 +48,21 @@ lighthalzen,294,76,0	warp	lairp4a	1,1,lhz_airport,143,60
 lighthalzen,308,76,0	warp	lairp5	1,1,airplane,224,64
 
 
-// -Juno Airport-
-airport,125,14,0	warp	jairp1	1,1,airport,19,20
-airport,19,18,0	warp	jairp1a	1,1,airport,123,14
-airport,160,14,0	warp	jairp2	1,1,airport,48,20
-airport,48,18,0	warp	jairp2a	1,1,airport,162,14
-yuno,53,214,0	warp	jairp3	1,1,airport,143,23
-airport,143,16,0	warp	jairp3a	1,1,yuno,52,207
-yuno,52,238,0	warp	jairp4a	1,1,airport,143,60
-yuno,55,238,0	warp	jairp5a	1,1,airport,143,60
+// -Juno Airport-  Juno has its OWN airport map `y_airport` so its exits go ONLY to Juno, not shared
+// with Einbroch's `airport` (S. 2026-07-27: раньше обе карты = один `airport` с выходами в оба города).
+// y_airport is the SAME building; the client aliases y_airport->airport visually.
+y_airport,125,14,0	warp	jairp1	1,1,y_airport,19,20
+y_airport,19,18,0	warp	jairp1a	1,1,y_airport,123,14
+y_airport,160,14,0	warp	jairp2	1,1,y_airport,48,20
+y_airport,48,18,0	warp	jairp2a	1,1,y_airport,162,14
+yuno,53,214,0	warp	jairp3	1,1,y_airport,143,23
+y_airport,143,16,0	warp	jairp3a	1,1,yuno,52,207
+yuno,52,238,0	warp	jairp4a	1,1,y_airport,143,60
+yuno,55,238,0	warp	jairp5a	1,1,y_airport,143,60
+// The two cells that on Einbroch's `airport` exit to Einbroch — on y_airport they exit to Juno, so a
+// Juno traveller is never dumped into Einbroch (this WAS the "2 exits" bug).
+y_airport,142,61,0	warp	jairp_x1	1,1,yuno,52,207
+y_airport,143,14,0	warp	jairp_x2	1,1,yuno,52,207
 yuno,8,261,0	warp	jairp6	1,1,airplane,224,64
 yuno,97,260,0	warp	jairp7	1,1,airplane,224,64
 
