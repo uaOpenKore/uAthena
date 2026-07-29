@@ -18,7 +18,7 @@ make || { echo "DEPLOY: BUILD FAILED — aborting BEFORE stop/install; server ke
 cd ./dumps
 ./dumps.sh update
 cd ..
-./update_logs.sh
+#./update_logs.sh
 make install
 make update
 ./start.sh
