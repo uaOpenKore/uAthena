@@ -1,3 +1,7 @@
+Project available: 
+https://bornrok.com
+https://uaro.kiev.ua
+
 ## CONTENTS:
 [1. uAthena Ideology](#1-uathena-ideology)  
 [2. uAthena Goals](#2-uathena-goals)  
