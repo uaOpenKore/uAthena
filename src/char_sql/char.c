@@ -2551,12 +2551,17 @@ int parse_frommap(int fd)
 				if (count >= 50)
 					ShowWarning("Too many status changes for %d:%d, some of them were not loaded.\n", aid, cid);
 				mysql_free_result(sql_res);
+				// [xms] ALWAYS reply with 0x2b1d, even when count==0. The map-server uses this
+				// reply as the "sc_data loaded" completion signal for its rAthena-style pc_loaded
+				// gate (it defers the initial status block until this arrives so the client never
+				// sees a buff-less short block on a cross-server hop). A char with no saved SC must
+				// still get the signal, else its deferred status would never be sent.
+				WFIFOW(fd,2) = 14 + count*sizeof(struct status_change_data);
+				WFIFOW(fd,12) = count;
+				WFIFOSET(fd,WFIFOW(fd,2));
+
 				if (count > 0)
 				{
-					WFIFOW(fd,2) = 14 + count*sizeof(struct status_change_data);
-					WFIFOW(fd,12) = count;
-					WFIFOSET(fd,WFIFOW(fd,2));
-
 					//Clear the data once loaded.
 					sprintf(tmp_sql, "DELETE FROM `%s` WHERE `account_id` = '%d' AND `char_id`='%d'", scdata_db, aid, cid);
 					if (mysql_query(&mysql_handle, tmp_sql)) {
@@ -2679,6 +2684,17 @@ int parse_frommap(int fd)
 			map_id = search_mapserver(RFIFOW(fd,18), ntohl(RFIFOL(fd,24)), ntohs(RFIFOW(fd,28))); //Locate mapserver by ip and port.
 			if (map_id >= 0)
 				map_fd = server_fd[map_id];
+			// [temp diag XMS-CMS] cross-server change-map handshake: which dest instance the char-server
+			// picked for this player + whether it parked the auth (map_fd valid) or NAKed. Pair with the
+			// dest instance's uAmap log (does 0x2afd -> wanttoconnection -> authok fire?) to pin a stalled
+			// cross-server auth. (S. root-cause #3.)
+			ShowInfo("XMS-CMS: change-map aid=%d map_index=%d -> dest map_id=%d fd=%d ip=%d.%d.%d.%d:%d req_ip=%d.%d.%d.%d:%d\n",
+				(int)RFIFOL(fd,2), (int)RFIFOW(fd,18), map_id, map_fd,
+				(map_id>=0)?(int)((server[map_id].ip>>24)&0xff):0, (map_id>=0)?(int)((server[map_id].ip>>16)&0xff):0,
+				(map_id>=0)?(int)((server[map_id].ip>>8)&0xff):0, (map_id>=0)?(int)(server[map_id].ip&0xff):0,
+				(map_id>=0)?(int)server[map_id].port:0,
+				(int)((ntohl(RFIFOL(fd,24))>>24)&0xff), (int)((ntohl(RFIFOL(fd,24))>>16)&0xff),
+				(int)((ntohl(RFIFOL(fd,24))>>8)&0xff), (int)(ntohl(RFIFOL(fd,24))&0xff), (int)ntohs(RFIFOW(fd,28)));
 			//Char should just had been saved before this packet, so this should be safe. [Skotlex]
 			char_data = uidb_get(char_db_,RFIFOL(fd,14));
 			if (char_data == NULL)
@@ -3268,7 +3284,15 @@ int parse_char(int fd)
 			WFIFOHEAD(fd,28);
 			WFIFOW(fd,0) = 0x71;
 			WFIFOL(fd,2) = char_dat.char_id;
-			mapindex_getmapname_ext(mapindex_id2name(char_dat.last_point.map), (char*)WFIFOP(fd,6));
+			{
+				// Alias server-only maps missing from the client content (airplane_01 -> airplane;
+				// y_airport -> airport, same interior) so char-select doesn't send the client to a map
+				// it can't render. Keep in sync with clif_client_mapname() in map/clif.c. [S. 2026-07-18/20]
+				const char* cmap = mapindex_id2name(char_dat.last_point.map);
+				if (cmap && strcmp(cmap, "airplane_01") == 0) cmap = "airplane";
+				else if (cmap && strcmp(cmap, "y_airport") == 0) cmap = "airport";
+				mapindex_getmapname_ext(cmap, (char*)WFIFOP(fd,6));
+			}
 		{
 			// Advanced subnet check [LuzZza]
 			uint32 subnet_map_ip;

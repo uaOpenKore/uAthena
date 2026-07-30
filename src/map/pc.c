@@ -389,6 +389,7 @@ int pc_setnewpc(struct map_session_data *sd, int account_id, int char_id, int lo
 	sd->bl.type      = BL_PC;
 	sd->calc_pc_timer = INVALID_TIMER;	// [perf 7] no deferred recompute pending (set at creation: 0 is a valid tid)
 	sd->canlog_tick  = gettick();
+	sd->auth_tick    = gettick(); // [xms] fixed connect tick (canlog_tick gets bumped by actions; this one doesn't)
 	sd->state.waitingdisconnect = 0;
 	//Required to prevent homunculus copuing a base speed of 0.
 	sd->battle_status.speed = sd->base_status.speed = DEFAULT_WALK_SPEED;
@@ -1047,6 +1048,13 @@ int pc_reg_received(struct map_session_data *sd)
 	}
 
 	status_calc_pc(sd,1);
+	{ // [temp diag] on (cross-server) authok, how many items are EQUIPPED + the resulting equip stat bonus
+		int _eq = 0, _i; for (_i = 0; _i < EQI_MAX-1; _i++) if (sd->equip_index[_i] >= 0) _eq++;
+		ShowInfo("XMS-EQ: authok aid=%d connect_new=%d equipped=%d -> agi bonus=%d (param_equip=%d) dex bonus=%d (param_equip=%d)\n",
+			sd->status.account_id, sd->state.connect_new, _eq,
+			sd->battle_status.agi - sd->status.agi, sd->param_equip[1],
+			sd->battle_status.dex - sd->status.dex, sd->param_equip[4]);
+	}
 	chrif_scdata_request(sd->status.account_id, sd->status.char_id);
 
 	if (!sd->state.connect_new && sd->fd)
@@ -3860,6 +3868,30 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 				if(sd->md) // [Backport] hired merc: saved+freed in unit_free; reloads on the new map-server
 					unit_remove_map(&sd->md->bl, clrtype);
 
+				// Cross-server transfer: chrif_save(sd,2) skips pc_makesavestatus (it only runs for flag==0),
+				// so the LIVE hp/sp (battle_status) never sync into sd->status -> the dest instance gets
+				// STALE hp/sp (they don't transfer). Sync them here (+ the mount/cart/falcon option) so the
+				// full current state carries over. Position/last_point is set by the char-server from the
+				// 0x2b05 packet, so we must NOT touch it here. (S.: "при межсерверном переходе не передаются
+				// HP и мана".)
+				if (pc_isdead(sd))
+					pc_setrestartvalue(sd, 0);   // dead -> the respawn hp/sp, like pc_makesavestatus
+				else {
+					sd->status.hp = sd->battle_status.hp;
+					sd->status.sp = sd->battle_status.sp;
+				}
+				sd->status.option = sd->sc.option & (OPTION_CART|OPTION_FALCON|OPTION_RIDING);
+
+				// Persist the ACTIVE status changes (buffs) before the transfer. chrif_save_scdata is
+				// otherwise only called from unit_free() at logout -- NOT on a map-server change -- so a
+				// cross-server hop lost every buff (Blessing/AGI-up/food/...): the dest requested sc_data
+				// and got count=0, and the initial status carried the equipment-only bonus. The dest-side
+				// pc_loaded gate (chrif_load_scdata, 2026-07-18) folds buffs into the FIRST status block,
+				// but only if they were actually saved -- this is that missing save half. Send it before
+				// chrif_save so both land on the char-server ahead of the dest's scdata_request. Safe: it
+				// only transmits the SCs (no-op when there are none) and does not clear the live sd. (S.:
+				// "при межсерверном переходе слетают бонусные статы".)
+				chrif_save_scdata(sd);
 				chrif_save(sd,2);
 				chrif_changemapserver(sd, mapindex, x, y, ip, (short)port);
 				return 0;

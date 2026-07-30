@@ -14,6 +14,17 @@ git reset --hard HEAD                 # discard local edits -> pristine tracked 
 git pull || { echo "DEPLOY: 'git pull' failed (conflict/network) — aborting; server left untouched."; exit 1; }
 make clean                            # surgically wipe ALL build artifacts (no stale .o can survive)
 make || { echo "DEPLOY: BUILD FAILED — aborting BEFORE stop/install; server keeps running the OLD binary."; exit 1; }
+
+# Keep the systemd units in sync BEFORE stop/start. `systemctl restart|stop uAthena.target`
+# only controls all three servers when each service is PartOf=uAthena.target; a stale unit
+# installed before that was added left the login/char servers running while only the map
+# cycled (S.: "restart/stop должны перезапускать/останавливать ВСЕ процессы"). Reinstall the
+# tracked units + daemon-reload + (re)enable so the target propagation is always current.
+install -m644 scripts/uAlogin.service scripts/uAchar.service scripts/uAmap.service \
+             scripts/uAthena.target /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable uAlogin.service uAchar.service uAmap.service uAthena.target
+
 ./stop.sh
 cd ./dumps
 ./dumps.sh update

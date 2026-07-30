@@ -97,6 +97,12 @@ static char map_ip_str[128];
 static uint32 map_ip;
 static uint32 bind_ip = INADDR_ANY;
 static uint16 map_port = 5121;
+// PUBLIC (WAN) address this map-server is reachable at from the internet. Optional. When set (map_athena.conf
+// `public_ip:`), any client that is NOT matched by a LAN subnet entry is handed THIS ip on the cross-mapserver
+// warp handoff (clif_changemapserver), instead of the raw (internal) map_ip the char-server routed. This lets
+// map_ip stay INTERNAL for server-side inter-mapserver routing while external clients still get a reachable
+// address -- the standard NAT split, but as one explicit knob so it doesn't depend on subnet_athena.conf. [S. 2026-07-18]
+static uint32 clif_public_ip = 0;
 int map_fd;
 
 //These two will be used to verify the incoming player's validity.
@@ -124,6 +130,19 @@ int clif_setip(const char* ip)
 	return 1;
 }
 
+// Set the PUBLIC/WAN address handed to non-LAN clients on the cross-mapserver handoff. [S. 2026-07-18]
+int clif_set_public_ip(const char* ip)
+{
+	char ip_str[16];
+	clif_public_ip = host2ip(ip);
+	if (!clif_public_ip) {
+		ShowWarning("clif_set_public_ip: failed to resolve public_ip '%s' -> cross-mapserver WAN handoff disabled.\n", ip);
+		return 0;
+	}
+	ShowInfo("Map Server PUBLIC (WAN handoff) IP : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%s"CL_RESET"'.\n", ip, ip2str(clif_public_ip, ip_str));
+	return 1;
+}
+
 void clif_setbindip(const char* ip)
 {
 	char ip_str[16];
@@ -133,6 +152,79 @@ void clif_setbindip(const char* ip)
 	} else {
 		ShowWarning("Failed to Resolve Map Server Address! (%s)\n", ip);
 	}
+}
+
+// Advanced subnet check [LuzZza] -- ported to the MAP server so cross-mapserver warps hand the CLIENT
+// a reachable (public/WAN) address, exactly like the char-server does at char-select. Behind NAT the
+// map->map changemapserver handoff used to send the raw internal map_ip, which external clients can't
+// reach -> warp DC. With this, map_ip stays INTERNAL (server-side inter-mapserver routing works) and
+// clif_changemapserver translates the target ip via the same conf/subnet_athena.conf. [S. 2026-07-18]
+static struct _clif_subnet {
+	uint32 subnet;
+	uint32 mask;
+	uint32 char_ip;
+	uint32 map_ip;
+} clif_subnet[16];
+static int clif_subnet_count = 0;
+
+// Returns the client-reachable map ip for a client at `ip`, or 0 if no subnet matches (WAN default).
+uint32 clif_lan_subnetcheck(uint32 ip)
+{
+	int i;
+	for (i = 0; i < clif_subnet_count; i++) {
+		if ((clif_subnet[i].subnet & clif_subnet[i].mask) == (ip & clif_subnet[i].mask))
+			return clif_subnet[i].map_ip;
+	}
+	return 0;
+}
+
+// Read conf/subnet_athena.conf (same file the char-server uses) so the map server can translate the
+// map ip it advertises to a client on a cross-mapserver handoff.
+void clif_read_subnet(void)
+{
+	FILE* fp = NULL;
+	char line[1024], w1[64], w2[64], w3[64], w4[64];
+	// The map-server's working dir isn't guaranteed to be the one where "conf/" resolves (it may be
+	// launched per-instance with conf1/conf2, taskset/perf wrappers, or a service WorkingDirectory), so
+	// a single hardcoded relative path silently missed the file -> no subnet -> cross-mapserver clients
+	// got the raw internal map_ip -> NAT DC. Try the likely locations and log which one hit. [S.]
+	static const char* cands[] = {
+		"conf/subnet_athena.conf",
+		"conf1/subnet_athena.conf",
+		"conf2/subnet_athena.conf",
+		"../conf/subnet_athena.conf",
+		"/opt/uathena/conf/subnet_athena.conf",
+	};
+	const char* fn = NULL;
+	int ci;
+	clif_subnet_count = 0;
+	for (ci = 0; ci < (int)ARRAYLENGTH(cands); ci++) {
+		fp = fopen(cands[ci], "r");
+		if (fp) { fn = cands[ci]; break; }
+	}
+	if (fp == NULL) {
+		ShowWarning("clif_read_subnet: could NOT find subnet_athena.conf in any of conf/, conf1/, conf2/, ../conf/, /opt/uathena/conf/ (cwd-relative) -> cross-mapserver clients get the raw map_ip. Behind NAT set map_ip=PUBLIC or place subnet_athena.conf reachable.\n");
+		return;
+	}
+	ShowStatus("clif_read_subnet: loading LAN handoff config '%s' ...\n", fn);
+	while (fgets(line, sizeof(line), fp)) {
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		if (sscanf(line, "%63[^:]:%63[^:]:%63[^:]:%63[^\r\n]", w1, w2, w3, w4) != 4)
+			continue;
+		remove_control_chars(w1);
+		if (strcmpi(w1, "subnet") != 0)
+			continue;
+		if (clif_subnet_count >= (int)ARRAYLENGTH(clif_subnet))
+			break;
+		clif_subnet[clif_subnet_count].mask = str2ip(w2);
+		clif_subnet[clif_subnet_count].char_ip = str2ip(w3);
+		clif_subnet[clif_subnet_count].map_ip = str2ip(w4);
+		clif_subnet[clif_subnet_count].subnet = clif_subnet[clif_subnet_count].char_ip & clif_subnet[clif_subnet_count].mask;
+		clif_subnet_count++;
+	}
+	fclose(fp);
+	ShowStatus("Read information about %d subnets (map-server LAN handoff).\n", clif_subnet_count);
 }
 
 /*==========================================
@@ -1194,6 +1286,8 @@ static void clif_spiritball_single(int fd, struct map_session_data *sd)
 /*==========================================
  *
  *------------------------------------------*/
+const char* clif_client_mapname(const char* name);  // fwd decl; defined below near clif_changemap
+
 static void clif_set0192(int fd, int m, int x, int y, int type)
 {
 	WFIFOHEAD(fd,packet_len(0x192));
@@ -1201,7 +1295,7 @@ static void clif_set0192(int fd, int m, int x, int y, int type)
 	WFIFOW(fd,2) = x;
 	WFIFOW(fd,4) = y;
 	WFIFOW(fd,6) = type;
-	mapindex_getmapname_ext(map[m].name, (char*)WFIFOP(fd,8));
+	mapindex_getmapname_ext(clif_client_mapname(map[m].name), (char*)WFIFOP(fd,8));
 	WFIFOSET(fd,packet_len(0x192));
 }
 
@@ -1812,8 +1906,25 @@ void clif_quitsave(int fd,struct map_session_data *sd)
  *------------------------------------------*/
 static int clif_waitclose(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
-	if (session[id] && session[id]->func_parse == clif_parse) //Avoid disconnecting non-players, as pointed out by End of Exam [Skotlex]
-		set_eof(id);
+	// [xms] A delayed close scheduled for connection A must NOT fire on connection B if fd `id` was
+	// closed and RECYCLED to a new socket in the meantime -- otherwise a rejected/double connection's
+	// timer kills a freshly-authenticated player who reused the fd number (rapid cross-server hops:
+	// `set_eof <- clif_waitclose` right after authok). The OLD guard compared the session POINTER, but
+	// the freed map_session_data can be re-allocated at the SAME address for the new connection, so the
+	// pointer matches and the stale timer still kills the fresh player (S.: "дисконнект просто на
+	// переходе между локациями" -- server FIN, no kick packet, no XMS-EOF logged). Compare the CURRENT
+	// player's per-connection auth_tick (set fresh in pc_setnewpc, never re-used) against the token
+	// captured when the timer was scheduled: a re-arrived session has a different auth_tick -> skip.
+	// Pre-auth rejects (no session_data yet) keep the pointer token (short 1s window, not a real player).
+	if (session[id] && session[id]->func_parse == clif_parse) { //Avoid disconnecting non-players [Skotlex]
+		struct map_session_data* sd = (struct map_session_data*)session[id]->session_data;
+		if (sd != NULL) {
+			if ((intptr_t)sd->auth_tick == data)  // still the SAME connection -> close it
+				set_eof(id);
+		} else if (data == 0 || (intptr_t)session[id] == data) {
+			set_eof(id);
+		}
+	}
 
 	return 0;
 }
@@ -1825,17 +1936,35 @@ void clif_setwaitclose(int fd)
 {
 	struct map_session_data *sd;
 
-	// if player is not already in the game (double connection probably)
+	// [xms] Token so clif_waitclose can tell if fd was recycled to a different connection before the
+	// timer fires (stale-close guard, see above). For an authed player use the per-connection auth_tick
+	// (survives session-pointer reuse); pre-auth uses the raw session pointer (short window).
 	if ((sd = (struct map_session_data*)session[fd]->session_data) == NULL) {
 		// limited timer, just to send information.
-		add_timer(gettick() + 1000, clif_waitclose, fd, 0);
+		add_timer(gettick() + 1000, clif_waitclose, fd, (intptr_t)session[fd]);
 	} else
-		add_timer(gettick() + 5000, clif_waitclose, fd, 0);
+		add_timer(gettick() + 5000, clif_waitclose, fd, (intptr_t)sd->auth_tick);
 }
 
 /*==========================================
  *
  *------------------------------------------*/
+// Some maps exist on the SERVER but are missing from the client's content, yet share another map's
+// interior. Send the client an ALIAS map name it can actually render, while the server keeps the real
+// map internally (own NPCs/GAT/warps -> two airships stay independent). Client-facing map-name only.
+//
+// Client content (data.zip) HAS: airport (Einbroch), lhz_airport (Lighthalzen), airplane (one airship
+// interior). It does NOT have y_airport or airplane_01. The two airships run independently server-side
+// but share the single `airplane` interior; the Yuno airport reuses the `airport` layout (identical
+// clone, same 126,43 / 148,51 / 142,40 coords). So only these two names need aliasing:
+const char* clif_client_mapname(const char* name)
+{
+	if (!name) return name;
+	if (strcmp(name, "airplane_01") == 0) return "airplane";  // 2nd airship -> the one airship interior
+	if (strcmp(name, "y_airport")   == 0) return "airport";   // Yuno airport -> Einbroch airport interior (clone)
+	return name;
+}
+
 void clif_changemap(struct map_session_data *sd, short map, int x, int y)
 {
 	int fd;
@@ -1844,7 +1973,7 @@ void clif_changemap(struct map_session_data *sd, short map, int x, int y)
 
 	WFIFOHEAD(fd,packet_len(0x91));
 	WFIFOW(fd,0) = 0x91;
-	mapindex_getmapname_ext(mapindex_id2name(map), (char*)WFIFOP(fd,2));
+	mapindex_getmapname_ext(clif_client_mapname(mapindex_id2name(map)), (char*)WFIFOP(fd,2));
 	WFIFOW(fd,18) = x;
 	WFIFOW(fd,20) = y;
 	WFIFOSET(fd,packet_len(0x91));
@@ -1859,9 +1988,32 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 	nullpo_retv(sd);
 	fd = sd->fd;
 
+	// Translate the target map-server ip to the address THIS client can actually reach (WAN/public for
+	// external clients, LAN for same-subnet), via conf/subnet_athena.conf -- mirrors char-select. Behind
+	// NAT the raw internal map_ip is unreachable for external clients, causing the cross-mapserver warp
+	// to DC. If no subnet matches (WAN default), keep the ip as configured. [S. 2026-07-18]
+	{
+		uint32 caddr = (fd && session[fd]) ? session[fd]->client_addr : 0;
+		uint32 cip = caddr ? clif_lan_subnetcheck(caddr) : 0;
+		if (cip)
+			ip = cip;                 // matched a LAN subnet -> that entry's map_ip (internal for on-LAN clients)
+		else if (clif_public_ip)
+			ip = clif_public_ip;      // no LAN match = external client -> the configured PUBLIC/WAN address
+		// else: keep the ip the char-server routed (legacy behaviour: raw map_ip)
+	}
+
+	// [temp diag XMS-XFER] the FINAL ip:port we hand the client to reconnect to (post subnet/public
+	// translation) + the client's own address. If this ip:port is unreachable or the wrong instance,
+	// the client never auths on the dest -> "not authed within 90s". (S. root-cause #3)
+	ShowInfo("XMS-XFER: clif_changemapserver aid=%d -> client reconnect to %d.%d.%d.%d:%d (client_addr=%d.%d.%d.%d) map_index=%d\n",
+		sd->bl.id, (int)((ip>>24)&0xff),(int)((ip>>16)&0xff),(int)((ip>>8)&0xff),(int)(ip&0xff), (int)port,
+		(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>24&0xff),(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>16&0xff),
+		(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>8&0xff),(int)(((fd&&session[fd])?session[fd]->client_addr:0)&0xff),
+		(int)map_index);
+
 	WFIFOHEAD(fd,packet_len(0x92));
 	WFIFOW(fd,0) = 0x92;
-	mapindex_getmapname_ext(mapindex_id2name(map_index), (char*)WFIFOP(fd,2));
+	mapindex_getmapname_ext(clif_client_mapname(mapindex_id2name(map_index)), (char*)WFIFOP(fd,2));
 	WFIFOW(fd,18) = x;
 	WFIFOW(fd,20) = y;
 	WFIFOL(fd,22) = htonl(ip);
@@ -4531,7 +4683,7 @@ int clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype)
 {
 	int fd;
 
-	if (!sd) {	//Since this is the most common nullpo.... 
+	if (!sd) {	//Since this is the most common nullpo....
 		ShowDebug("clif_skill_fail: Error, received NULL sd for skill %d\n", skill_id);
 		return 0;
 	}
@@ -8039,8 +8191,15 @@ static int clif_guess_PacketVer(int fd, int get_previous, int *error)
 //define SET_ERROR
 
 #define CHECK_PACKET_VER() \
-	if( cmd != clif_config.connect_cmd[packet_ver] || packet_len != packet_db[packet_ver][cmd].len )\
-		;/* not wanttoconnection or wrong length */\
+	if( cmd != clif_config.connect_cmd[packet_ver] || packet_len < packet_db[packet_ver][cmd].len )\
+		;/* not wanttoconnection, or the connect packet isn't fully here yet */\
+	/* NOTE: was `packet_len != len` (RFIFOREST must EXACTLY equal the connect-packet size). On a */\
+	/* cross-server transfer the client reconnects and may pipeline a follow-up packet (keepalive/  */\
+	/* ping) into the same TCP segment, so RFIFOREST > len -> version detection failed -> the player */\
+	/* was kicked with "Rejected from Server" mid-transfer (S.: народ жалуется на дисконнекты; ~13%+ */\
+	/* of transfers failed in the map logs). Accept when there are AT LEAST `len` bytes and the cmd  */\
+	/* matches; the id/sex fields validated below all live within `len`, and the trailing bytes are  */\
+	/* parsed on the next clif_parse pass once packet_ver is known. */\
 	else if( (value=(int)RFIFOL(fd, packet_db[packet_ver][cmd].pos[0])) < START_ACCOUNT_NUM || value > max_account_id )\
 	{ SET_ERROR(2); }/* invalid account_id */\
 	else if( (value=(int)RFIFOL(fd, packet_db[packet_ver][cmd].pos[1])) <= 0 || value > max_char_id )\
@@ -8138,6 +8297,22 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 	WFIFOSET(fd,4);
 	chrif_authreq(sd);
 	return;
+}
+
+// [xms] Safety net for the pc_loaded gate: if LoadEndAck deferred the initial status block waiting
+// for sc_data (0x2b1d) but the reply never arrived (char-server hiccup), force-send it after a grace
+// period so the client's status window is never left blank.
+static int clif_initstatus_deferred_timeout(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data* sd = map_id2sd((int)id);
+	if (sd && sd->fd && sd->state.initstatus_deferred) {
+		sd->state.initstatus_deferred = 0;
+		sd->state.scdata_loaded = 1; // treat as loaded so nothing tries to send it twice
+		clif_initialstatus(sd);
+		clif_updatestatus(sd, SP_SPEED);
+		ShowWarning("clif_initstatus_deferred_timeout: sc_data reply never arrived for aid=%d, sent status anyway.\n", sd->status.account_id);
+	}
+	return 0;
 }
 
 /*==========================================
@@ -8286,7 +8461,22 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_updatestatus(sd,SP_NEXTBASEEXP);
 		clif_updatestatus(sd,SP_NEXTJOBEXP);
 		clif_updatestatus(sd,SP_SKILLPOINT);
+		// [xms] rAthena-style pc_loaded gate: hold the initial status block until sc_data has been
+		// applied so the client's FIRST stat block already carries buffs+equipment (no buff-less
+		// short block flickering on a cross-server transition). If sc_data already arrived, send now;
+		// otherwise chrif_load_scdata will send it when the 0x2b1d reply lands (char-server now always
+		// replies, even with 0 status changes, so this is guaranteed). Safety timer force-sends it if
+		// the reply is somehow lost so the status window is never left blank.
+#ifdef ENABLE_SC_SAVING
+		if (sd->state.scdata_loaded) {
+			clif_initialstatus(sd);
+		} else {
+			sd->state.initstatus_deferred = 1;
+			add_timer(gettick() + 3000, clif_initstatus_deferred_timeout, sd->bl.id, 0);
+		}
+#else
 		clif_initialstatus(sd);
+#endif
 
 		if (sd->sc.option&OPTION_FALCON)
 			clif_status_load(&sd->bl, SI_FALCON, 1);
@@ -9787,6 +9977,16 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	}
 
 	pc_delinvincibletimer(sd);
+
+	// [SKILLDBG temp] Pin why a player skill does/doesn't fire. checkskill==0 => the skill's .id is NOT in
+	// the char's granted tree (pc_calc_skilltree didn't grant it: joblv/prereq gate -> raise player_skillfree
+	// or the char's job level); skilllv==0 => DROP (server sends nothing, client shows only its swing). Remove
+	// once the Sin X "skills do nothing" case is resolved. (S. 2026-07-24)
+	if (skillnum > 0 && skillnum < GD_SKILLBASE)
+		ShowInfo("SKILLDBG: '%s' sid=%d checkskill=%d -> skilllv=%d %s | job=%d joblv=%d skillfree=%d skilluplimit=%d\n",
+			sd->status.name, skillnum, pc_checkskill(sd, skillnum), skilllv,
+			skilllv ? "CAST" : "DROP", sd->status.class_, sd->status.job_level,
+			battle_config.skillfree, battle_config.skillup_limit);
 
 	if (skilllv)
 		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
@@ -11719,16 +11919,29 @@ int clif_parse(int fd)
 		packet_ver = clif_guess_PacketVer(fd, 0, &err);
 		if( err )
 		{// failed to identify packet version
-			ShowInfo("clif_parse: Disconnecting session #%d with unknown packet version%s.\n", fd, (
+			// NOTE: this is the UNAUTHENTICATED handshake path -- we can't even identify the client's
+			// packet version, so the session cannot be served at all. It MUST be closed: keeping it
+			// (an earlier attempt to "ignore" per S.) only spins -- the peer keeps re-sending the same
+			// unparseable bytes (observed 900+ ignore lines for a handful of sessions) and, worse, a
+			// real client whose cross-server handshake lands here hangs for the full socket timeout
+			// (~45s) instead of failing fast back to char-select. S.'s "ignore unknown packet" request
+			// is honoured for the AUTHENTICATED unknown-TYPE path below, where there IS a live player to
+			// keep. (If a real client's wanttoconnection fails this guess, that's a separate packet
+			// bug -- diagnose from a client packet log, don't paper over it by lingering here.)
+			// Log the SOURCE IP so we can tell WHOSE packet this is (S.: "почему наш клиент даёт
+			// неизвестный тип пакета?" -- the answer is usually a bot/old client on another IP, not us).
+			// XMS-UPV diag: log the actual first opcode + bytes-in-buffer so the NEXT log tells us
+			// WHOSE packet this is. If cmd == our connect opcode (0x009b) AND bytes > its length, it's a
+			// real client whose reconnect pipelined a follow-up packet (the `< len` fix above should now
+			// let it through). If cmd is random / bytes tiny, it's a bot/old client sending garbage (not
+			// our client). Distinguishes "real player transfer DC" from bot-farm noise on the same IPs.
+			ShowInfo("clif_parse: Disconnecting session #%d (IP %s) with unknown packet version%s. [XMS-UPV cmd=0x%04x bytes=%d]\n", fd,
+				(session[fd] ? ip2str(session[fd]->client_addr, NULL) : "?"), (
 				err == 1 ? "" :
 				err == 2 ? ", possibly for having an invalid account_id" :
 				err == 3 ? ", possibly for having an invalid char_id." :
-				/* Uncomment when checks are added in clif_guess_PacketVer. [FlavioJS]
-				err == 4 ? ", possibly for having an invalid login_id1." :
-				err == 5 ? ", possibly for having an invalid client_tick." :
-				*/
 				err == 6 ? ", possibly for having an invalid sex." :
-				". ERROR invalid error code"));
+				". ERROR invalid error code"), cmd, (int)RFIFOREST(fd));
 			WFIFOHEAD(fd,packet_len(0x6a));
 			WFIFOW(fd,0) = 0x6a;
 			WFIFOB(fd,2) = 3; // Rejected from Server
@@ -11741,8 +11954,13 @@ int clif_parse(int fd)
 
 	// filter out invalid / unsupported packets
 	if (cmd > MAX_PACKET_DB || packet_db[packet_ver][cmd].len == 0) {
-		ShowWarning("clif_parse: Received unsupported packet (packet 0x%04x, %d bytes received), disconnecting session #%d.\n", cmd, (int)RFIFOREST(fd), fd);
-		set_eof(fd);
+		// [xms] Don't disconnect the client over an unknown packet TYPE (S. request). We can't know
+		// the unknown packet's length (len==0), so we can't skip just it -- flush this session's
+		// pending read buffer and keep the connection alive. A stray/unrecognized packet no longer
+		// kicks an in-game player; the next valid packet (from a fresh recv) parses normally. Bounded:
+		// RFIFOSKIP consumes the bytes so there's no re-parse loop.
+		ShowWarning("clif_parse: Ignored unsupported packet (packet 0x%04x, %d bytes) from session #%d (kept connection).\n", cmd, (int)RFIFOREST(fd), fd);
+		RFIFOSKIP(fd, RFIFOREST(fd));
 		return 0;
 	}
 
@@ -12353,6 +12571,8 @@ int do_init_clif(void)
 	//Using the packet_db file is the only way to set up packets now [Skotlex]
 	packetdb_readdb();
 
+	clif_read_subnet(); // LAN/WAN map ip translation for cross-mapserver warp handoff (behind NAT)
+
 	set_defaultparse(clif_parse);
 	if (!make_listen_bind(bind_ip,map_port)) {
 		ShowFatalError("can't bind game port\n");
@@ -12362,5 +12582,6 @@ int do_init_clif(void)
 	add_timer_func_list(clif_waitclose, "clif_waitclose");
 	add_timer_func_list(clif_clearunit_delayed_sub, "clif_clearunit_delayed_sub");
 	add_timer_func_list(clif_delayquit, "clif_delayquit");
+	add_timer_func_list(clif_initstatus_deferred_timeout, "clif_initstatus_deferred_timeout");
 	return 0;
 }

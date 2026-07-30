@@ -43,11 +43,18 @@
 #define GD_SKILLRANGEMAX GD_SKILLRANGEMIN+MAX_GUILDSKILL
 #define HM_SKILLRANGEMIN 800
 #define HM_SKILLRANGEMAX HM_SKILLRANGEMIN+MAX_HOMUNSKILL
-//[Backport] Mercenary Soldier skills (MC_SKILLBASE 8201) -> free slice 1000-1040
-//(homun 800-816, guild 900-915; MERC_SKILLRANGEMAX 1040 < MAX_SKILL_DB 1100).
+//[Backport] Mercenary Soldier skills (MC_SKILLBASE 8201) -> remapped slice.
+//MUST NOT be 1000: the old base 1000 overlapped REAL expanded-class skill ids
+//1001-1019 (HT_PHANTASMIC 1009, HT_POWER 1010, ...). During skill_readdb those
+//normal skills are stored at skill_db[1001..1019], then the merc lines 8201-8219
+//(which remap to the SAME indices 1000-1018) load LATER in the file and OVERWRITE
+//them -> HT_PHANTASMIC's inf became MA_LANDMINE's inf=2 (INF_GROUND), so the
+//parser dropped its unit cast. Fixed by moving the merc slice into the confirmed
+//free gap 940-979 (homun 800-816, guild 900-915, expanded skills start at 1001;
+//817-1000 is empty across all skill dbs). MERC_SKILLRANGEMAX 980 < MAX_SKILL_DB 1100.
 //The MC branch must precede HM at every remap site: a merc id 8201 also satisfies
 //(id >= HM_SKILLBASE 8000), so HM would otherwise mis-map it.
-#define MERC_SKILLRANGEMIN 1000
+#define MERC_SKILLRANGEMIN 940
 #define MERC_SKILLRANGEMAX MERC_SKILLRANGEMIN+MAX_MERCSKILL
 
 int skill_names_id[MAX_SKILL_DB];

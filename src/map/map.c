@@ -1786,15 +1786,19 @@ int map_quit(struct map_session_data *sd)
 		if (sd->md) unit_free(&sd->md->bl,0); // [Backport] hired merc (saved in unit_free if lifetime>0)
 		unit_free(&sd->bl,3);
 		chrif_save(sd,1);
-	} else { //Try to free some data, without saving anything (this could be invoked on map server change. [Skotlex]
+	} else { //Invoked on a map-server change: the char + its pet/homun/merc were already saved by
+		// chrif_save(sd,2) in pc_setpos before the handoff. The old code only unit_remove_map'd the
+		// companions here (and even that was skipped because pc_setpos had already removed them, so
+		// bl.prev==NULL) -> their aCalloc'd structs were NEVER freed and their hunger/contract timers
+		// stayed armed on the dead session: a per-transfer leak + a zombie timer ticking until sd was
+		// aFree'd. unit_free() frees the struct + stops the timers; its save re-persists the same
+		// already-saved data harmlessly (and is a safety net if this path is hit WITHOUT a prior
+		// chrif_save(sd,2)). Don't gate on bl.prev != NULL -- they're usually already off the map. (S. audit)
 		if (sd->bl.prev != NULL)
 			unit_remove_map(&sd->bl, 0);
-		if (sd->pd && sd->pd->bl.prev != NULL)
-			unit_remove_map(&sd->pd->bl, 0);
-		if (sd->hd && sd->hd->bl.prev != NULL)
-			unit_remove_map(&sd->hd->bl, 0);
-		if (sd->md && sd->md->bl.prev != NULL) // [Backport] hired merc
-			unit_remove_map(&sd->md->bl, 0);
+		if (sd->pd) unit_free(&sd->pd->bl, 0);
+		if (sd->hd) unit_free(&sd->hd->bl, 0);
+		if (sd->md) unit_free(&sd->md->bl, 0); // [Backport] hired merc
 	}
 
 	//Do we really need to remove the name?
@@ -3190,6 +3194,8 @@ int map_config_read(char *cfgName)
 				chrif_setport(atoi(w2));
 			} else if (strcmpi(w1, "map_ip") == 0) {
 				map_ip_set = clif_setip(w2);
+			} else if (strcmpi(w1, "public_ip") == 0) {
+				clif_set_public_ip(w2);
 			} else if (strcmpi(w1, "bind_ip") == 0) {
 				clif_setbindip(w2);
 			} else if (strcmpi(w1, "map_port") == 0) {

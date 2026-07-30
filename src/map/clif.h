@@ -77,6 +77,7 @@ enum send_target {
 };
 
 int clif_setip(const char* ip);
+int clif_set_public_ip(const char* ip);
 void clif_setbindip(const char* ip);
 void clif_setport(uint16 port);
 
@@ -120,6 +121,7 @@ int clif_additem(struct map_session_data*,int,int,int);	//self
 int clif_delitem(struct map_session_data*,int,int);	//self
 int clif_updatestatus(struct map_session_data*,int);	//self
 int clif_changestatus(struct block_list*,int,int);	//area
+int clif_initialstatus(struct map_session_data *sd);	// [xms] full status block (declared for the pc_loaded gate in chrif_load_scdata)
 int clif_damage(struct block_list* src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);	// area
 void clif_takeitem(struct block_list* src,struct block_list* dst);
 void clif_sitting(struct block_list* bl);

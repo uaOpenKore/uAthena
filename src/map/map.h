@@ -550,6 +550,8 @@ struct map_session_data {
 		unsigned waitingdisconnect : 1;
 		unsigned lr_flag : 2;
 		unsigned connect_new : 1;
+		unsigned scdata_loaded : 1;      // [xms] sc_data (0x2b1d) reply has arrived + been applied (rAthena-style pc_loaded gate)
+		unsigned initstatus_deferred : 1;// [xms] LoadEndAck ran before sc_data -> initial status send was held for chrif_load_scdata to complete
 		unsigned arrow_atk : 1;
 		unsigned skill_flag : 1;
 		unsigned gangsterparadise : 1;
@@ -667,6 +669,7 @@ struct map_session_data {
 	int rental_timer; // [Backport] rental-item expiry timer
 	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
 	unsigned int canlog_tick;
+	unsigned int auth_tick; // [xms] tick this SESSION was set up (pc_setnewpc); never bumped by actions -> true "time since connect" for the cross-server dupe-kick race guard
 	unsigned int canuseitem_tick;	// [Skotlex]
 	unsigned int cantalk_tick;
 

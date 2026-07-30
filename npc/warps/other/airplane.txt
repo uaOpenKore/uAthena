@@ -48,7 +48,8 @@ lighthalzen,294,76,0	warp	lairp4a	1,1,lhz_airport,143,60
 lighthalzen,308,76,0	warp	lairp5	1,1,airplane,224,64
 
 
-// -Juno Airport-
+// -Juno Airport-  (restored to the separate `y_airport` map — commit 7270a53d had renamed these to
+// `airport`, merging Juno into Einbroch's airport so it wrongly showed exits to both cities).
 y_airport,125,14,0	warp	jairp1	1,1,y_airport,19,20
 y_airport,19,18,0	warp	jairp1a	1,1,y_airport,123,14
 y_airport,160,14,0	warp	jairp2	1,1,y_airport,48,20
@@ -69,11 +70,23 @@ airplane,87,67,0	warp	air_1wp01a	1,1,airplane,250,54
 airplane,208,53,0	warp	air_1wp02	1,1,airplane,239,160
 airplane,245,160,0	warp	air_1wp02a	1,1,airplane,214,54
 
-airplane_01,254,54,0	warp	air_2wp01	1,1,airplane_01,91,67
-airplane_01,87,67,0	warp	air_2wp01a	1,1,airplane_01,250,54
-airplane_01,208,53,0	warp	air_2wp02	1,1,airplane_01,239,160
-airplane_01,245,160,0	warp	air_2wp02a	1,1,airplane_01,214,54
-airplane_01,104,199,0	warp	air_2wp03	1,1,airplane_01,105,72
-airplane_01,103,72,0	warp	air_2wp03a	1,1,airplane_01,102,199
-airplane_01,104,176,0	warp	air_2wp04	1,1,airplane_01,105,52
-airplane_01,103,52,0	warp	air_2wp04a	1,1,airplane_01,102,176
+airplane,254,54,0	warp	air_2wp01	1,1,airplane,91,67
+airplane,87,67,0	warp	air_2wp01a	1,1,airplane,250,54
+airplane,208,53,0	warp	air_2wp02	1,1,airplane_01,239,160
+airplane,245,160,0	warp	air_2wp02a	1,1,airplane,214,54
+airplane,104,199,0	warp	air_2wp03	1,1,airplane,105,72
+airplane,103,72,0	warp	air_2wp03a	1,1,airplane,102,199
+airplane,104,176,0	warp	air_2wp04	1,1,airplane,105,52
+airplane,103,52,0	warp	air_2wp04a	1,1,airplane,102,176
+
+// 2nd airship (airplane_01) — same internal deck layout as airplane but the internal floor
+// warps were never defined here, so its middle "between-decks" teleport was missing (S.).
+// Mirror airplane's internal warps with destinations kept INSIDE airplane_01.
+airplane_01,254,54,0	warp	air01_wp01	1,1,airplane_01,91,67
+airplane_01,87,67,0	warp	air01_wp01a	1,1,airplane_01,250,54
+airplane_01,208,53,0	warp	air01_wp02	1,1,airplane_01,239,160
+airplane_01,245,160,0	warp	air01_wp02a	1,1,airplane_01,214,54
+airplane_01,104,199,0	warp	air01_wp03	1,1,airplane_01,105,72
+airplane_01,103,72,0	warp	air01_wp03a	1,1,airplane_01,102,199
+airplane_01,104,176,0	warp	air01_wp04	1,1,airplane_01,105,52
+airplane_01,103,52,0	warp	air01_wp04a	1,1,airplane_01,102,176

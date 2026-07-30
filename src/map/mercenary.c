@@ -402,7 +402,14 @@ void merc_hom_heal(struct homun_data *hd,int hp,int sp)
 void merc_save(struct homun_data *hd)
 {
 	// copy data that must be saved in homunculus struct ( hp / sp )
-	TBL_PC * sd = hd->master;
+	TBL_PC * sd;
+	nullpo_retv(hd);
+	sd = hd->master;
+	// A masterless homun can reach here: merc_hom_delete() hands one to unit_free() (clrtype=1) with
+	// intimacy still non-zero, and unit_free() BL_HOM then calls merc_save() -> sd would be NULL and
+	// intif_homunculus_requestsave(sd->status.account_id, ...) crashed. Bail instead. (S. audit)
+	if (sd == NULL)
+		return;
 	//Do not check for max_hp/max_sp caps as current could be higher to max due
 	//to status changes/skills (they will be capped as needed upon stat
 	//calculation on login)
@@ -425,6 +432,12 @@ int merc_menu(struct map_session_data *sd,int menunum)
 			break;
 		case 2:
 			merc_hom_delete(sd->hd, -1);
+			break;
+		case 3:
+			// REST/recall: vaporize (keep in DB, re-callable) rather than the permanent delete of case 2.
+			// The client's "Отозвать" button uses this so recall actually REMOVES the homun from the field
+			// (S.: "кнопка рекол не убирает гомункула; отозвать = отдых, потом призвать заново").
+			merc_hom_vaporize(sd, 1);
 			break;
 		default:
 			ShowError("merc_menu : unknown menu choice : %d\n", menunum) ;

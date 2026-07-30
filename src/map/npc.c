@@ -1942,6 +1942,7 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 	struct npc_label_list *label_dup = NULL;
 	int label_dupnum = 0;
 	int src_id = 0;
+	int is_template = 0;
 
 	if (strcmp(w1, "-") == 0) {
 		x = 0; y = 0; m = -1;
@@ -1954,6 +1955,12 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 		}
 		m = map_mapname2mapid(mapname);
 	}
+	// A cross-mapserver PASSIVE TEMPLATE: a script master placed on a real map that THIS server does
+	// not host (m<0 but w1!="-"). We keep its name+script resolvable so duplicate()s on hosted maps
+	// can link to it, but it must NOT self-execute -- so below we skip event (OnInit/OnAgitStart/...)
+	// and OnTimer registration for it (a floating "-" NPC, m<0 with w1=="-", is NOT a template and
+	// keeps its events). See npc_parsesrcfile's m<0 fall-through.
+	is_template = (m < 0 && strcmp(w1, "-") != 0);
 
 	if (strcmp(w2, "script") == 0){
 		// parsing script with curly
@@ -2114,10 +2121,27 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 
 	//-----------------------------------------
 	// Cxgpxf[^GNX|[g
+	// A passive cross-mapserver template is name-resolvable (for duplicate()) but must not run its own
+	// SELF-SCHEDULED events (OnInit/OnAgitStart/OnClock/OnTimer/...) -- only the instance that actually
+	// HOSTS the master map runs those. Duplicate()s on hosted maps register their OWN events below (m>=0).
+	// EXCEPTION: a template STILL registers the per-instance INIT + castle-data-load callbacks
+	// (OnInterIfInit*, OnCharIfInit, OnRecvCastle*). These are meant to run on EVERY instance and are how a
+	// castle's FLAG emblem reaches instances that host a castle's TOWN/GUILD-map flags but not the castle
+	// map itself: the Agit controller sits on the castle map, so without this its OnInterIfInitOnce ->
+	// GetCastleData -> OnRecvCastleXNN (FlagEmblem + RequestGuildInfo) never fired on the town/guild
+	// instance, leaving those flags with guild_id 0 (blank emblem, on any client). They are data-load
+	// callbacks (idempotent, char-synced), not engine-auto-scheduled game logic, so running them
+	// per-instance is safe -- WoE (OnAgit*) stays suppressed. [S. cross-server flags 2026-07-18]
 	for (i = 0; i < nd->u.scr.label_list_num; i++)
 	{
 		char* lname = nd->u.scr.label_list[i].name;
 		int pos = nd->u.scr.label_list[i].pos;
+
+		if (is_template &&
+			strnicmp(lname, "OnInterIfInit", 13) != 0 &&
+			strnicmp(lname, "OnCharIfInit", 12) != 0 &&
+			strnicmp(lname, "OnRecvCastle", 12) != 0)
+			continue;  // template: skip everything except the cross-instance init/castle-data callbacks
 
 		if ((lname[0] == 'O' || lname[0] == 'o') && (lname[1] == 'N' || lname[1] == 'n'))
 		{
@@ -2136,7 +2160,7 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 
 	//-----------------------------------------
 	// xf[^^C}[Cxg
-	for (i = 0; i < nd->u.scr.label_list_num; i++){
+	for (i = 0; !is_template && i < nd->u.scr.label_list_num; i++){
 		int t = 0, k = 0;
 		char *lname = nd->u.scr.label_list[i].name;
 		int pos = nd->u.scr.label_list[i].pos;
@@ -2817,11 +2841,16 @@ void npc_parsesrcfile(const char* name)
 				continue;
 			}
 			if ((m = map_mapname2mapid(mapname)) < 0) {
-			// "mapname" is not assigned to this server
-			// we must skip the script info...
+			// "mapname" is not assigned to this server (multi-mapserver split).
+			// A plain 'script' MASTER is still parsed below (npc_parse_script sees m<0 and builds a
+			// PASSIVE name-template: registered in npcname_db, not placed, no OnInit/OnTimer) so that
+			// duplicate()s on maps THIS server DOES host can resolve their source across instances.
+			// Everything else on an unhosted map (warp/shop/monster/mapflag and duplicate() copies) is
+			// still skipped -- only the source master needs to be resolvable here.
 				if (strcmpi(w2,"script") == 0 && count > 3)
-					npc_skip_script(w1,w2,w3,w4,line+w4pos,fp,&lines);
-				continue;
+					; // fall through to the dispatch -> npc_parse_script builds the template
+				else
+					continue;
 			}
 		}
 		if (strcmpi(w2,"warp") == 0 && count > 3) {

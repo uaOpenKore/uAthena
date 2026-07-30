@@ -11,6 +11,7 @@
 #include "send_worker.h"
 
 #include <stdio.h>
+#include <execinfo.h>  // [temp diag XMS-EOF] backtrace() to name who closes a client session
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -195,6 +196,17 @@ void set_eof(int fd)
 {
 	if( session_isActive(fd) )
 	{
+		// [temp diag XMS-EOF] The cross-server 0.2s silent FIN leaves no other server-side trace, so
+		// log WHO closes a client session (has session_data). backtrace_symbols resolves the caller with
+		// -rdynamic -> readable name, no addr2line. Skip already-eof'd + non-client (s2s) sessions.
+		if (session[fd]->session_data && !session[fd]->eof) {
+			void* _bt[4];
+			int _n = backtrace(_bt, 4);
+			char** _s = backtrace_symbols(_bt, _n);
+			ShowInfo("XMS-EOF: set_eof(#%d) <- %s <- %s\n", fd,
+				(_s && _n > 1) ? _s[1] : "?", (_s && _n > 2) ? _s[2] : "?");
+			if (_s) free(_s);
+		}
 #ifdef SEND_SHORTLIST
 		// Add this socket to the shortlist for eof handling.
 		send_shortlist_add_fd(fd);

@@ -16,6 +16,8 @@
 #include "pc.h"
 #include "status.h"
 #include "mercenary.h"
+#include "mercenary_soldier.h"	// [Backport] hired mercenary: persist it in chrif_save like the homunculus
+#include "storage.h"			// [Multi-mapserver] evict this server's stale storage cache on terminal save
 #include "chrif.h"
 
 #include <stdio.h>
@@ -159,7 +161,16 @@ int chrif_save(struct map_session_data *sd, int flag)
 
 	status_calc_pc_flush(sd);	// [perf 7] run any pending deferred equip-swap recompute before snapshotting
 
-	if (!flag) //The flag check is needed to prevent 'nosave' taking effect when a jailed player logs out.
+	// Snapshot the LIVE state (position -> last_point, hp/sp from battle_status, mount/cart/falcon option,
+	// clothes) into sd->status before saving. Must run on autosave (flag 0) AND on quit/logout (flag 1) --
+	// the old `if(!flag)` skipped it on quit, so a disconnect saved the STALE last autosave snapshot: the
+	// logout position was wrong and hp/sp/mount could rewind (S.: "при дисконнекте плохо сохраняются данные
+	// чара - последняя точка местонахождения, возможно и другие данные"). pc_makesavestatus already keeps a
+	// JAILED player in place (SC_JAILED early-return) and relocates on nosave maps, so it is safe here.
+	// EXCEPT flag 2 (cross-server hop): pc_setpos already synced hp/sp + option and the char-server sets the
+	// destination position from the 0x2b05 packet -- makesavestatus would stamp last_point to the OLD map. So
+	// keep skipping it there (see the matching note in pc_setpos).
+	if (flag != 2)
 		pc_makesavestatus(sd);
 
 	if(!chrif_isconnected())
@@ -175,7 +186,31 @@ int chrif_save(struct map_session_data *sd, int flag)
 		storage_storage_save(sd->status.account_id, flag);
 	else if (sd->state.storage_flag == 2)
 		storage_guild_storagesave(sd->status.account_id, sd->status.guild_id, flag);
-	if (flag) sd->state.storage_flag = 0; //Force close it.
+	{
+		int had_guild_storage_open = (sd->state.storage_flag == 2);  // capture before the reset below
+		if (flag) sd->state.storage_flag = 0; //Force close it.
+
+		// [Multi-mapserver storage-loss FIX] Each map-server keeps its OWN account2storage /
+		// guild2storage cache (storage_db / guild_storage_db). storage_storageopen REUSES a resident
+		// cache instead of reloading from the char-server, and the cache was NEVER evicted when the
+		// player left this server -> on a later open (after the player edited storage on the OTHER
+		// server) this server serves its STALE copy and saving it clobbers the other server's changes,
+		// so items moved into storage vanish (S.: "хранилища теряют итемы при переходе между серверами
+		// (аккаунт и гильдийское)"). On any terminal save (quit=1 or cross-server=2) drop this server's
+		// cached copies so the next open reloads fresh from the authoritative char-server SQL. The
+		// pending async save already memcpy'd the data into the inter-server FIFO, so eviction is safe.
+		if (flag) {
+			storage_delete(sd->status.account_id);  // per-account cache: only this player uses it
+			// Guild storage cache is SHARED by all guild members on this server. Evict only when THIS
+			// player owned the open storage, or nobody currently has it open -- never yank it out from
+			// under another member mid-session.
+			if (sd->status.guild_id) {
+				struct guild_storage *gs = guild2storage2(sd->status.guild_id);
+				if (gs && (had_guild_storage_open || !gs->storage_status))
+					guild_storage_delete(sd->status.guild_id);
+			}
+		}
+	}
 
 	//Saving of registry values. 
 	if (sd->state.reg_dirty&4)
@@ -196,6 +231,23 @@ int chrif_save(struct map_session_data *sd, int flag)
 
 	if (sd->hd && merc_is_hom_active(sd->hd))
 		merc_save(sd->hd);
+
+	// [Backport] Persist the hired mercenary here too. Its live HP/SP + remaining life_time were saved
+	// ONLY from unit_free() (final logout), so it was never autosaved and NOT saved on a cross-server
+	// transfer (chrif_save(sd,2)) -> the dest re-loaded stale merc data (old HP, reverted lifetime),
+	// the same gap fixed for hp/sp + sc_data. Mirror the homunculus save above; mercenary_save syncs
+	// hp/sp/life_time internally. Guard on a still-valid contract (lifetime > 0), like unit_free. (S.)
+	if (sd->md && mercenary_get_lifetime(sd->md) > 0)
+		mercenary_save(sd->md);
+
+	// [Backport] Persist the pet here too, same gap/parity as the homunculus + mercenary above (S.
+	// audit: "петов также сделал сохранение?"). The pet was saved ONLY from unit_free()/feed/hatch —
+	// never on autosave (chrif_save,0) nor on a cross-server hop (chrif_save,2) — so a crash reverted
+	// its hunger/intimacy and a server change relied on map_quit's cleanup timing. pd->pet.* fields are
+	// live (updated in place, no hp/sp-style sync needed). intimate>0 mirrors unit_free's save guard;
+	// intimate<=0 is a runaway pet that unit_free deletes, so don't persist it here.
+	if (sd->pd && sd->pd->pet.intimate > 0)
+		intif_save_petdata(sd->pd->pet.account_id, &sd->pd->pet);
 
 	if (sd->save_quest)
 		intif_quest_save(sd);
@@ -331,6 +383,14 @@ int chrif_changemapserverack(int account_id, int login_id1, int login_id2, int c
 		return 0;
 	}
 
+	// [temp diag XMS-XFER] cross-server transfer: the char-server ack'd (0x2b06) with the DEST
+	// instance's raw ip:port; we now hand it to the client and quit this session. Pair with the dest
+	// instance's XMS-XFER auth-park / wanttoconnect lines + the client DC log. (S. root-cause #3)
+	ShowInfo("XMS-XFER: changemap-ack aid=%d cid=%d -> map_index=%d raw_dest=%d.%d.%d.%d:%d login_id1=%d\n",
+		account_id, char_id, map_index,
+		(int)((ntohl(ip)>>24)&0xff),(int)((ntohl(ip)>>16)&0xff),(int)((ntohl(ip)>>8)&0xff),(int)(ntohl(ip)&0xff),
+		(int)ntohs(port), login_id1);
+
 	clif_changemapserver(sd, map_index, x, y, ntohl(ip), ntohs(port));
 
 	//Player has been saved already, remove him from memory. [Skotlex]
@@ -418,8 +478,15 @@ void chrif_authreq(struct map_session_data *sd)
 			auth_data->account_id== sd->bl.id &&
 			auth_data->login_id1 == sd->login_id1)
 		{	//auth ok
+			// [temp diag XMS-XFER] client reached this instance, char had already pushed the node, and
+			// login_id1 matched -> auth OK (cross-server transfer completed). (S. #3)
+			ShowInfo("XMS-XFER: wanttoconnect aid=%d login_id1=%d -> AUTHOK (char node matched)\n", sd->bl.id, sd->login_id1);
 			pc_authok(sd, auth_data->login_id2, auth_data->connect_until_time, auth_data->char_dat);
 		} else { //auth failed
+			// [temp diag XMS-XFER] client reached this instance but the parked node did NOT match:
+			// login_id mismatch (client login_id1 vs the char-parked one) or no char_dat -> auth FAIL.
+			ShowInfo("XMS-XFER: wanttoconnect aid=%d client_login_id1=%d vs node_login_id1=%d char_dat=%s -> AUTHFAIL\n",
+				sd->bl.id, sd->login_id1, auth_data->login_id1, auth_data->char_dat?"set":"null");
 			pc_authfail(sd);
 			chrif_char_offline(sd); //Set him offline, the char server likely has it set as online already.
 		}
@@ -427,6 +494,10 @@ void chrif_authreq(struct map_session_data *sd)
 			aFree(auth_data->char_dat);
 		idb_remove(auth_db, sd->bl.id);
 	} else { //data from char server has not arrived yet.
+		// [temp diag XMS-XFER] client reached this instance and sent wanttoconnect, but the char-server's
+		// auth-park (0x2afd) hasn't arrived yet -> we WAIT (request auth). If char never sends it, this
+		// node hits the 90s TTL (see XMS-AUTH). (S. #3)
+		ShowInfo("XMS-XFER: wanttoconnect aid=%d login_id1=%d -> WAIT (char node not arrived, requesting auth)\n", sd->bl.id, sd->login_id1);
 		auth_data = aCalloc(1,sizeof(struct auth_node));
 		auth_data->sd = sd;
 		auth_data->fd = sd->fd;
@@ -489,14 +560,35 @@ void chrif_authok(int fd)
 	memcpy(auth_data->char_dat,RFIFOP(fd, 20),sizeof(struct mmo_charstatus));
 	auth_data->node_created=gettick();
 	uidb_put(auth_db, RFIFOL(fd, 4), auth_data);
+	// [temp diag XMS-XFER] the char-server PUSHED an auth-park to THIS instance (cross-server transfer
+	// destination). Now we await the client's wanttoconnect (XMS-XFER WAIT/AUTHOK). If it never comes
+	// -> 90s TTL (XMS-AUTH char_dat=set,client-never-came) = the client didn't reconnect here. (S. #3)
+	ShowInfo("XMS-XFER: char auth-park RECEIVED aid=%d login_id1=%d -> awaiting client wanttoconnect on THIS instance\n",
+		(int)RFIFOL(fd,4), (int)RFIFOL(fd,8));
 }
+
+// How long (ms) a pending map-entry auth node may live before it is purged. The stock 30s is too
+// tight under a RECONNECT STORM: every map-server restart/deploy drops all online players at once,
+// they stampede char-select, and the tail of that flood needs longer than 30s to actually connect
+// to the map and complete wanttoconnection -> their still-valid auth node gets purged -> "not authed"
+// -> kick -> retry -> loop. Raised to 90s so a burst drains without false purges (a genuinely dead
+// session just lingers a bit longer before cleanup, which is harmless). [S. 2026-07-18 prod DC]
+#define AUTH_NODE_TTL_MS 90000
 
 int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 {
 	struct auth_node *node=(struct auth_node*)data;
 
-	if(DIFF_TICK(gettick(),node->node_created)>30000) {
-		ShowNotice("Character (aid: %d) not authed within 30 seconds of character select!\n", node->account_id);
+	if(DIFF_TICK(gettick(),node->node_created)>AUTH_NODE_TTL_MS) {
+		// [temp diag XMS-AUTH] distinguish WHERE the cross-server auth broke: char_dat set = the
+		// char-server PUSHED this node (0x2afd) but no client ever claimed it here -> the client never
+		// reconnected to THIS instance (wrong ip:port handoff / didn't connect). char_dat NULL + sd set =
+		// the client DID connect + sent wanttoconnection, but the char-server never confirmed the auth
+		// (chrif_authreq -> char, no reply). login_id1 lets us match the char's XMS-CMS handoff. (S. #3)
+		ShowNotice("Character (aid: %d) not authed within %d seconds of character select! [XMS-AUTH char_dat=%s sd=%s login_id1=%u]\n",
+			node->account_id, AUTH_NODE_TTL_MS/1000,
+			node->char_dat ? "set(char-pushed,client-never-came)" : "null",
+			node->sd ? "set(client-connected)" : "null", (unsigned int)node->login_id1);
 		if (node->char_dat)
 			aFree(node->char_dat);
 		db_remove(auth_db, key);
@@ -904,6 +996,27 @@ int chrif_disconnectplayer(int fd)
 		return 0;
 	}
 
+	// [xms] Cross-server transfer race guard. On a rapid map<->map (cross-server) hop the char-server
+	// resolves by account_id (map_id2sd above) and can emit an ENVIRONMENTAL kick meant for the STALE
+	// old-server session that instead lands on the FRESHLY-arrived session -> the just-connected player
+	// is killed ~0s after entering the new map (S.: "дисконнект просто на переходе между локациями",
+	// client sees an orderly FIN with no kick packet, last packet 0x00b0). The racy kicks are reason 1
+	// (server-closed, from set_all_offline when the OLD map-server drops), 2 (someone-else-logged-in dupe,
+	// set_char_online / login re-auth) and 3 (overpopulated) -- none should kill a session that connected
+	// <4s ago via a legit transfer. GM kick (5) and time-expired (4) always pass. auth_tick is the connect
+	// tick and is never bumped by actions, so an actively-playing victim of a REAL dupe (auth_tick old) is
+	// still kicked. Previously only reason 2 was guarded, so a racy reason-1 slipped through.
+	{
+		const int why = RFIFOB(fd, 6);
+		const unsigned int age = DIFF_TICK(gettick(), sd->auth_tick);
+		// [DCDBG temp] log every s2s kick so we can confirm the reason/timing of the cross-server DC.
+		ShowInfo("chrif_disconnectplayer: aid=%d cid=%d reason=%d connected=%ums ago -> %s\n",
+			sd->status.account_id, sd->status.char_id, why, age,
+			((why == 1 || why == 2 || why == 3) && age < 4000) ? "SKIPPED (transfer race)" : "kicked");
+		if ((why == 1 || why == 2 || why == 3) && age < 4000)
+			return 0;
+	}
+
 	switch(RFIFOB(fd, 6))
 	{
 		case 1: clif_authfail_fd(sd->fd, 1); break; //server closed
@@ -1108,6 +1221,26 @@ int chrif_load_scdata(int fd)
 		}
 		status_change_start(&sd->bl, data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 15);
 	}
+	// [xms] rAthena-style pc_loaded gate. sc_data (0x2b1d) is the LAST async piece of a cross-server
+	// arrival; the char-server now ALWAYS replies (even count==0) so this is a reliable completion
+	// signal. Fold everything into battle_status synchronously, then either send the initial status
+	// block now (if LoadEndAck already ran and deferred it) or let LoadEndAck send it (if it hasn't
+	// run yet). Either way the client's FIRST stat block already carries buffs+equipment -> no
+	// buff-less short block flickers on a cross-server transition, server is authoritative, no client
+	// settle-window needed. status_calc_pc(sd,1): first=1 (NOT 0) bypasses the status.c:1704 guard
+	// (sc_data can arrive before state.auth is set) and runs the FULL recompute (equip bonus scripts +
+	// all loaded SCs). [S. 2026-07-18]
+	status_calc_pc(sd, 1);
+	sd->state.scdata_loaded = 1;
+	if (sd->state.initstatus_deferred && sd->fd) {
+		sd->state.initstatus_deferred = 0;
+		clif_initialstatus(sd); // full, buffs+equip already folded
+		clif_updatestatus(sd, SP_SPEED); // AGI/Quagmire change walk speed; not in clif_initialstatus
+	}
+	if (count > 0)
+		ShowInfo("XMS-SC: load_scdata aid=%d count=%d -> agi base=%d bonus=%d, dex base=%d bonus=%d (deferred_initstatus=%d)\n",
+			aid, count, sd->status.agi, sd->battle_status.agi - sd->status.agi,
+			sd->status.dex, sd->battle_status.dex - sd->status.dex, sd->state.initstatus_deferred); // [temp diag]
 #endif
 	return 0;
 }
