@@ -4,7 +4,7 @@ alde_dun02,0,0,0,0	monster	High Orc	1213,50,0,0,0
 alde_dun02,0,0,0,0	monster	Orc Archer	1189,20,0,0,0
 alde_dun02,0,0,0,0	monster	Brilight	1211,20,0,0,0
 alde_dun02,0,0,0,0	monster	Arclouze	1194,20,0,0,0
-alde_dun02,0,0,0,0<---->monster>Drainliar<----->1111,10,0,0,0
+alde_dun02,0,0,0,0	monster	Drainliar	1111,10,0,0,0
 alde_dun03,0,0,0,0	monster	Cramp	1209,25,0,0,0
 alde_dun03,0,0,0,0	monster	Drainliar	1111,20,0,0,0
 alde_dun03,77,28,5,5	monster	Cramp	1209,3,40000,20000,0

@@ -204,7 +204,7 @@ moc_fild17,335,191,0,0	monster	Yellow Plant	1081,1,180000,90000,1
 moc_fild17,347,224,0,0	monster	Yellow Plant	1081,1,180000,90000,1
 moc_fild17,359,258,0,0	monster	Yellow Plant	1081,1,180000,90000,1
 moc_fild17,270,106,0,0	monster	Blue Plant	1079,1,180000,90000,1
-moc_fild17,0,0,0,0<---->monster>Scorpion<------>1001,5,0,0,0
+moc_fild17,0,0,0,0	monster	Scorpion	1001,5,0,0,0
 
 moc_fild18,0,0,0,0	monster	Steel Chonchon	1042,70,0,0,0
 moc_fild18,0,0,0,0	monster	Muka	1055,40,0,0,0

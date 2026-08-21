@@ -1,6 +1,6 @@
-um_dun01,0,0,0,0<------>monster>Beetle King<--->1494,10,0,0,0
-um_dun01,0,0,0,0<------>monster>Stainer>1174,10,0,0,0
-um_dun01,0,0,0,0<------>monster>Dustiness<----->1114,10,0,0,0
+um_dun01,0,0,0,0	monster	Beetle King	1494,10,0,0,0
+um_dun01,0,0,0,0	monster	Stainer	1174,10,0,0,0
+um_dun01,0,0,0,0	monster	Dustiness	1114,10,0,0,0
 um_dun01,0,0,0,0	monster	Stone Shooter	1495,70,0,0,0
 um_dun01,0,0,0,0	monster	Wootan Fighter	1499,10,0,0,0
 um_dun01,0,0,0,0	monster	Wootan Shooter	1498,10,0,0,0
@@ -36,8 +36,8 @@ um_dun02,0,0,0,0	monster	Dryad	1493,25,0,0,0
 um_dun02,0,0,0,0	monster	Yellow Plant	1081,5,180000,90000,1
 um_dun02,0,0,0,0	monster	Red Plant	1078,5,180000,90000,1
 um_dun02,0,0,0,0	monster	Shining Plant	1083,6,180000,90000,1
-um_dun02,0,0,0,0<------>monster>Beetle King<--->1494,30,0,0,0
-um_dun02,117,43,10,10<->monster>Beetle King<--->1494,3,120000,60000,0
-um_dun02,209,34,10,10<->monster>Beetle King<--->1494,3,120000,60000,0
-um_dun02,205,265,10,10<>monster>Beetle King<--->1494,4,120000,60000,0
+um_dun02,0,0,0,0	monster	Beetle King	1494,30,0,0,0
+um_dun02,117,43,10,10	monster	Beetle King	1494,3,120000,60000,0
+um_dun02,209,34,10,10	monster	Beetle King	1494,3,120000,60000,0
+um_dun02,205,265,10,10	monster	Beetle King	1494,4,120000,60000,0
 

@@ -1,6 +1,6 @@
 
 
-prt_maze01,19,180,21,21>monster>Savage Babe<--->1167,3,120000,40000,1
+prt_maze01,19,180,21,21	monster	Savage Babe	1167,3,120000,40000,1
 prt_maze01,179,20,21,21	monster	Poring	1002,5,120000,40000,1
 prt_maze01,139,20,21,21	monster	Lunatic	1063,5,120000,40000,1
 prt_maze01,99,20,21,21	monster	Fabre	1007,5,120000,40000,1

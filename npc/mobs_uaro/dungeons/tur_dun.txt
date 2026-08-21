@@ -36,7 +36,7 @@ tur_dun04,26,26,3,3	monster	Wanderer	1208,1,300000,150000,0
 tur_dun04,0,0,0,0	monster	Permeter	1314,2,300000,150000,0
 tur_dun04,0,0,0,0	monster	Permeter	1314,2,640000,320000,0
 tur_dun04,99,93,20,20	monster	Turtle General	1312,1,3600000,1800000,1
-tur_dun05,0,0,0,0<----->monster>Permeter<------>1314,3,20000,0,0
-tur_dun05,0,0,0,0<----->monster>Freezer>1319,5,30000,0,0
-tur_dun05,0,0,0,0<----->monster>Assaulter<----->1315,1,20000,0,0
+tur_dun05,0,0,0,0	monster	Permeter	1314,3,20000,0,0
+tur_dun05,0,0,0,0	monster	Freezer	1319,5,30000,0,0
+tur_dun05,0,0,0,0	monster	Assaulter	1315,1,20000,0,0
 

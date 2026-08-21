@@ -32,7 +32,7 @@ prt_fild03,0,0,0,0	monster	Green Plant	1080,15,360000,180000,1
 prt_fild03,296,58,15,15	monster	Green Plant	1080,5,360000,180000,1
 prt_fild03,296,58,15,15	monster	Blue Plant	1079,2,900000,450000,1
 prt_fild03,0,0,0,0	monster	Choco	1214,3,1800000,900000,0
-prt_fild03,0,0,0,0<---->monster>Poporing<------>1031,10,0,0,0
+prt_fild03,0,0,0,0	monster	Poporing	1031,10,0,0,0
 
 prt_fild04,0,0,0,0	monster	Rocker	1052,70,0,0,0
 prt_fild04,0,0,0,0	monster	Creamy	1018,40,0,0,0
@@ -59,7 +59,7 @@ prt_fild06,222,30,40,10	monster	Green Plant	1080,15,900000,450000,1
 prt_fild07,0,0,0,0	monster	Rocker	1052,120,0,0,0
 prt_fild07,0,0,0,0	monster	Poporing	1031,30,0,0,0
 prt_fild07,225,110,5,5	monster	Black Mushroom	1084,3,360000,180000,1
-prt_fild07,0,0,0,0<---->monster>Vocal<->1088,1,1800000,1200000,0
+prt_fild07,0,0,0,0	monster	Vocal	1088,1,1800000,1200000,0
 
 prt_fild08,0,0,0,0	monster	Poring	1002,100,0,0,0
 prt_fild08,0,0,0,0	monster	Lunatic	1063,40,0,0,0

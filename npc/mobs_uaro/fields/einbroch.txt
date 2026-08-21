@@ -29,17 +29,17 @@ ein_fild05,0,0,0,0	monster	Black Mushroom	1084,5,180000,90000,1
 ein_fild05,0,0,0,0	monster	Yellow Plant	1081,5,180000,90000,1
 ein_fild05,0,0,0,0	monster	Red Plant	1078,5,180000,90000,1
 
-ein_fild05,205,300,50,50<------>monster>Mineral>1614,10,600000,360000,0
-ein_fild05,299,189,55,55<------>monster>Mineral>1614,15,600000,360000,0
-ein_fild05,145,195,30,50<------>monster>Mineral>1614,10,600000,360000,0
-ein_fild05,205,300,50,50<------>monster>Obsidian<------>1615,5,420000,360000,0
-ein_fild05,299,189,55,55<------>monster>Obsidian<------>1615,7,420000,360000,0
-ein_fild05,145,195,30,50<------>monster>Obsidian<------>1615,5,420000,360000,0
-ein_fild05,0,0,0,0<---->monster>Anopheles<----->1627,30,0,0,0
-ein_fild05,0,0,0,0<---->monster>Demon Pungus<-->1378,10,0,0,0
-ein_fild05,0,0,0,0<---->monster>Geographer<---->1368,10,0,0,0
+ein_fild05,205,300,50,50	monster	Mineral	1614,10,600000,360000,0
+ein_fild05,299,189,55,55	monster	Mineral	1614,15,600000,360000,0
+ein_fild05,145,195,30,50	monster	Mineral	1614,10,600000,360000,0
+ein_fild05,205,300,50,50	monster	Obsidian	1615,5,420000,360000,0
+ein_fild05,299,189,55,55	monster	Obsidian	1615,7,420000,360000,0
+ein_fild05,145,195,30,50	monster	Obsidian	1615,5,420000,360000,0
+ein_fild05,0,0,0,0	monster	Anopheles	1627,30,0,0,0
+ein_fild05,0,0,0,0	monster	Demon Pungus	1378,10,0,0,0
+ein_fild05,0,0,0,0	monster	Geographer	1368,10,0,0,0
 
-ein_fild06,0,0,0,0<---->monster>Harpy<->1376,5,1800000,1200000,0
+ein_fild06,0,0,0,0	monster	Harpy	1376,5,1800000,1200000,0
 ein_fild06,0,0,0,0	monster	Martin	1145,30,0,0
 ein_fild06,0,0,0,0	monster	Goat	1372,20,0,0,0
 ein_fild06,0,0,0,0	monster	Pupa	1008,10,0,0,0
@@ -88,5 +88,5 @@ ein_fild10,257,107,90,90	monster	Red Mushroom	1085,10,180000,90000,1
 ein_fild10,0,0,0,0	monster	Red Plant	1078,10,180000,90000,1
 ein_fild10,0,0,0,0	monster	Yellow Plant	1081,10,180000,90000,1
 ein_fild10,257,107,90,90	monster	Flora	1118,20,300000,150000,0
-ein_fild10,0,0,0,0<---->monster>Blue Plant<---->1079,20,600000,300000,0
+ein_fild10,0,0,0,0	monster	Blue Plant	1079,20,600000,300000,0
 

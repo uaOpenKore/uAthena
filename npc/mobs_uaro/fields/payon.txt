@@ -57,7 +57,7 @@ pay_fild06,0,0,0,0	monster	Poporing	1031,20,0,0,0
 pay_fild06,211,191,2,10	monster	Red Mushroom	1085,8,180000,90000,1
 pay_fild06,268,155,20,20	monster	Green Plant	1080,10,360000,180000,1
 pay_fild06,268,155,20,20	monster	Shining Plant	1083,1,1800000,900000,1
-pay_fild06,0,0,0,0<---->monster>Thief Bug Female<------>1053,40,0,0,0
+pay_fild06,0,0,0,0	monster	Thief Bug Female	1053,40,0,0,0
 
 pay_fild07,0,0,0,0	monster	Elder Willow	1033,70,0,0,0
 pay_fild07,0,0,0,0	monster	Eggyra	1116,40,0,0,0
@@ -96,7 +96,7 @@ pay_fild10,213,157,10,10	monster	Blue Plant	1079,1,360000,180000,1
 pay_fild10,281,307,10,10	monster	Blue Plant	1079,1,360000,180000,1
 pay_fild10,66,332,10,10	monster	Blue Plant	1079,1,360000,180000,1
 pay_fild10,0,0,0,0	monster	Nine Tail	1180,2,600000,300000,1
-pay_fild10,0,0,0,0<---->monster>Dokebi<>1110,70,0,0,0
+pay_fild10,0,0,0,0	monster	Dokebi	1110,70,0,0,0
 
 pay_fild11,0,0,0,0	monster	Horong	1129,50,0,0,0
 pay_fild11,0,0,0,0	monster	Poison Spore	1077,40,0,0,0
@@ -107,4 +107,4 @@ pay_fild11,0,0,0,0	monster	Dragon Tail	1321,10,0,0,0x
 pay_fild11,241,162,5,5	monster	Red Mushroom	1085,3,360000,180000,1
 pay_fild11,66,293,5,5	monster	Red Mushroom	1085,3,360000,180000,1
 pay_fild11,0,0,0,0	monster	Eddga	1115,1,7200000,3600000,1
-pay_fild11,0,0,0,0<---->monster>Nine Tail<----->1180,60,180000,0,0
+pay_fild11,0,0,0,0	monster	Nine Tail	1180,60,180000,0,0

@@ -17,5 +17,5 @@ lou_dun03,0,0,0,0	monster	Civil Servant	1513,15,0,0,0
 lou_dun03,0,0,0,0	monster	Gajomart	1309,1,300000,150000,0
 lou_dun03,0,0,0,0	monster	Chung E	1519,1,0,0,0
 lou_dun03,0,0,0,0	monster	Bacsojin	1518,1,3600000,1800000,1
-lou_dun03,0,0,0,0<----->monster>Green Maiden<-->1631,5,3000000,1800000,1
-lou_dun03,0,0,0,0<----->monster>White Lady<---->1630,1,7000000,5000000,1
+lou_dun03,0,0,0,0	monster	Green Maiden	1631,5,3000000,1800000,1
+lou_dun03,0,0,0,0	monster	White Lady	1630,1,7000000,5000000,1

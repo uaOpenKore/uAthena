@@ -23,7 +23,7 @@ gef_fild02,215,209,2,1	monster	Blue Plant	1079,2,360000,180000,1
 gef_fild02,207,214,1,1	monster	Blue Plant	1079,1,360000,180000,1
 gef_fild02,220,214,1,1	monster	Blue Plant	1079,1,360000,180000,1
 gef_fild02,164,194,1,1	monster	Shining Plant	1083,1,1800000,900000,1
-gef_fild02,0,0,0,0<---->monster>Orc Hero<------>1087,1,86400000,43200000,1
+gef_fild02,0,0,0,0	monster	Orc Hero	1087,1,86400000,43200000,1
 
 
 gef_fild03,0,0,0,0	monster	Savage	1166,40,0,0,0
