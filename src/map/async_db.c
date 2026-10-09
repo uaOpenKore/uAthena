@@ -22,6 +22,7 @@
 #define ASYNC_DB_WAKE_LEN    4096   // flush early once this many entries pile up
 #define ASYNC_DB_MAX_QUEUE   65536  // hard cap: drop new entries beyond this
 
+#ifndef TXT_ONLY // real engine needs <mysql.h>; the no-MySQL build gets no-op stubs (see #else at EOF)
 #ifndef ASYNC_DB_TEST
 #include "../common/showmsg.h"
 #include <mysql.h>
@@ -394,3 +395,10 @@ void async_db__start_worker(AsyncDB* h)
 		h->running = 1;
 }
 #endif
+#else // TXT_ONLY -- no-MySQL build: async SQL writer is a no-op stub (no <mysql.h>, no worker thread)
+AsyncDB* async_db_create(const char* name, const char* ip, const char* user,
+                         const char* pw, const char* db, int port,
+                         const char* codepage, int flush_sec) { return (AsyncDB*)0; }
+int async_db_submit(AsyncDB* h, const char* sql) { return 0; }
+void async_db_destroy(AsyncDB* h) { }
+#endif // TXT_ONLY

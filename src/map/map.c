@@ -65,12 +65,16 @@ char map_server_ip[32] = "127.0.0.1";
 char map_server_id[32] = "ragnarok";
 char map_server_pw[32] = "ragnarok";
 char map_server_db[32] = "ragnarok";
+#ifndef TXT_ONLY
 MYSQL mmysql_handle;
+#endif
 AsyncDB* map_async_db = NULL;  // async writer for game-DB writes (mapreg)
 AsyncDB* mail_async_db = NULL; // async writer for the (optional) mail DB
 int guild_storage_lock = 0;    // cross-map-server guild storage lock (inter_athena.conf); 0 = off
+#ifndef TXT_ONLY
 MYSQL_RES* sql_res;
 MYSQL_ROW sql_row;
+#endif
 
 int db_use_sqldbs = 0;
 char item_db_db[32] = "item_db";
@@ -86,9 +90,11 @@ int log_db_port = 3306;
 char log_db_id[32] = "ragnarok";
 char log_db_pw[32] = "ragnarok";
 char log_db[32] = "log";
+#ifndef TXT_ONLY
 MYSQL logmysql_handle;
 MYSQL_RES* logsql_res;
 MYSQL_ROW logsql_row;
+#endif
 
 // mail system
 int mail_server_enable = 0;
@@ -98,9 +104,11 @@ char mail_server_id[32] = "ragnarok";
 char mail_server_pw[32] = "ragnarok";
 char mail_server_db[32] = "ragnarok";
 char mail_db[32] = "mail";
+#ifndef TXT_ONLY
 MYSQL mail_handle;
 MYSQL_RES* mail_res;
 MYSQL_ROW mail_row;
+#endif
 
 int lowest_gm_level = 1;
 
@@ -3355,6 +3363,7 @@ int inter_config_read(char *cfgName)
 	return 0;
 }
 
+#ifndef TXT_ONLY
 /*=======================================
  *  MySQL Init
  *---------------------------------------*/
@@ -3482,6 +3491,7 @@ int sql_ping_init(void)
 
 	return 0;
 }
+#endif // !TXT_ONLY -- map_sql_init/close/ping + log_sql_init compiled out of the no-MySQL build
 
 int map_db_final(DBKey k,void *d,va_list ap)
 {

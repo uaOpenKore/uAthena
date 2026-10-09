@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef TXT_ONLY // the whole mail subsystem is SQL (mail_handle); no-MySQL build gets no-op stubs
 
 int MAIL_CHECK_TIME = 120000;
 int mail_timer;
@@ -348,3 +349,10 @@ int do_init_mail(void)
 	mail_timer=add_timer(gettick()+MAIL_CHECK_TIME,mail_check_timer,0,0);
 	return 0;
 }
+#else // TXT_ONLY -- no-MySQL build: SQL mail system compiled out (mail_server_enable is forced off)
+int mail_check(struct map_session_data *sd, int type) { return 0; }
+int mail_read(struct map_session_data *sd, int message_id) { return 0; }
+int mail_delete(struct map_session_data *sd, int message_id) { return 0; }
+int mail_send(struct map_session_data *sd, char *name, char *message, int flag) { return 0; }
+int do_init_mail(void) { return 0; }
+#endif // TXT_ONLY

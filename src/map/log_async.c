@@ -28,6 +28,7 @@
 #include "map.h"
 #include "log.h"
 
+#ifndef TXT_ONLY // real writer needs <mysql.h>; the no-MySQL build gets no-op stubs (see #else at EOF)
 #include <mysql.h>
 #include <errmsg.h>
 #include <pthread.h>
@@ -280,3 +281,8 @@ void log_async_final(void)
 	worker_running = 0; // later log calls fall back to the sync path
 	ShowStatus("Asynchronous SQL log writer stopped, queue flushed.\n");
 }
+#else // TXT_ONLY -- no-MySQL build: async SQL log writer is a no-op stub
+int log_async_init(void) { return 0; }
+void log_async_final(void) { }
+int log_async_query(const char* sql) { return 0; }
+#endif // TXT_ONLY

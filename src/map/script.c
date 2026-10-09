@@ -12517,6 +12517,7 @@ BUILDIN_FUNC(setd)
 
 BUILDIN_FUNC(query_sql)
 {
+#ifndef TXT_ONLY
 	char *name = NULL;
 	const char *query;
 	int num, i = 0,j, nb_rows;
@@ -12588,6 +12589,12 @@ BUILDIN_FUNC(query_sql)
 	}
 	script_pushint(st,i);
 	return 0;
+#else
+	// No-MySQL (TXT) build: query_sql has no database to run against.
+	ShowWarning("buildin_query_sql: SQL queries are unavailable in the TXT (no-MySQL) build.\n");
+	script_pushint(st,0);
+	return 0;
+#endif // !TXT_ONLY
 }
 
 //Allows escaping of a given string.

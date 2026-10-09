@@ -1488,11 +1488,14 @@ extern char *GRF_PATH_FILENAME;
 
 extern char *map_server_dns;
 
+#ifndef TXT_ONLY
 #include <mysql.h>
+#endif // !TXT_ONLY -- the no-MySQL build neither includes nor links the MySQL client
 
 extern char tmp_sql[65535];
 
 extern int db_use_sqldbs;
+#ifndef TXT_ONLY
 extern MYSQL mmysql_handle;
 extern MYSQL_RES*	sql_res ;
 extern MYSQL_ROW	sql_row ;
@@ -1500,11 +1503,14 @@ extern MYSQL_ROW	sql_row ;
 extern MYSQL logmysql_handle;
 extern MYSQL_RES*	logsql_res ;
 extern MYSQL_ROW	logsql_row ;
+#endif // !TXT_ONLY
 
 extern int mail_server_enable;
+#ifndef TXT_ONLY
 extern MYSQL mail_handle;
 extern MYSQL_RES* 	mail_res ;
 extern MYSQL_ROW	mail_row ;
+#endif // !TXT_ONLY
 
 extern char item_db_db[32];
 extern char item_db2_db[32];

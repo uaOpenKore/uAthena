@@ -29,8 +29,11 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
 	$(CC) -o ../../$@ $> $(LIB_S)
 
+# TXT build links WITHOUT the MySQL client -- the no-MySQL stack must build on a box with no
+# libmysqlclient/libmariadb installed (S. 2026-10-09). All mysql_* refs are under #ifndef TXT_ONLY.
+LIB_TXT = $(filter-out -lmysqlclient -lmariadb,$(LIB_S))
 map-server: $(OBJECTS:obj/%=txtobj/%)
-	$(CC) -o ../../$@ $> $(LIB_S)
+	$(CC) -o ../../$@ $> $(LIB_TXT)
 
 sqlobj/%.o: %.c
 	$(COMPILE.c) $(OUTPUT_OPTION) $<

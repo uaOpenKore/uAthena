@@ -3487,6 +3487,7 @@ static int mob_readdb(void)
 	return 0;
 }
 
+#ifndef TXT_ONLY
 static int mob_read_sqldb(void)
 {
 	char *mob_db_name[] = { mob_db_db, mob_db2_db };
@@ -3517,6 +3518,7 @@ static int mob_read_sqldb(void)
 	}
 	return 0;
 }
+#endif // !TXT_ONLY -- SQL mob_db reader excluded from the no-MySQL build
 
 /*==========================================
  * MOB display graphic change data reading
@@ -3999,9 +4001,11 @@ static int mob_readdb_race(void)
 void mob_reload(void)
 {
 	int i;
+#ifndef TXT_ONLY
 	if(db_use_sqldbs)
 		mob_read_sqldb();
 	else
+#endif
 		mob_readdb();
 
 	mob_readdb_mobavail();
@@ -4025,9 +4029,11 @@ int do_init_mob(void)
 	item_drop_ers = ers_new(sizeof(struct item_drop));
 	item_drop_list_ers = ers_new(sizeof(struct item_drop_list));
 
+#ifndef TXT_ONLY
 	if(db_use_sqldbs)
 		mob_read_sqldb();
 	else
+#endif
 		mob_readdb();
 
 	mob_readdb_mobavail();
