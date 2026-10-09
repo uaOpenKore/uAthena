@@ -383,14 +383,6 @@ int chrif_changemapserverack(int account_id, int login_id1, int login_id2, int c
 		return 0;
 	}
 
-	// [temp diag XMS-XFER] cross-server transfer: the char-server ack'd (0x2b06) with the DEST
-	// instance's raw ip:port; we now hand it to the client and quit this session. Pair with the dest
-	// instance's XMS-XFER auth-park / wanttoconnect lines + the client DC log. (S. root-cause #3)
-	ShowInfo("XMS-XFER: changemap-ack aid=%d cid=%d -> map_index=%d raw_dest=%d.%d.%d.%d:%d login_id1=%d\n",
-		account_id, char_id, map_index,
-		(int)((ntohl(ip)>>24)&0xff),(int)((ntohl(ip)>>16)&0xff),(int)((ntohl(ip)>>8)&0xff),(int)(ntohl(ip)&0xff),
-		(int)ntohs(port), login_id1);
-
 	clif_changemapserver(sd, map_index, x, y, ntohl(ip), ntohs(port));
 
 	//Player has been saved already, remove him from memory. [Skotlex]
@@ -478,15 +470,8 @@ void chrif_authreq(struct map_session_data *sd)
 			auth_data->account_id== sd->bl.id &&
 			auth_data->login_id1 == sd->login_id1)
 		{	//auth ok
-			// [temp diag XMS-XFER] client reached this instance, char had already pushed the node, and
-			// login_id1 matched -> auth OK (cross-server transfer completed). (S. #3)
-			ShowInfo("XMS-XFER: wanttoconnect aid=%d login_id1=%d -> AUTHOK (char node matched)\n", sd->bl.id, sd->login_id1);
 			pc_authok(sd, auth_data->login_id2, auth_data->connect_until_time, auth_data->char_dat);
 		} else { //auth failed
-			// [temp diag XMS-XFER] client reached this instance but the parked node did NOT match:
-			// login_id mismatch (client login_id1 vs the char-parked one) or no char_dat -> auth FAIL.
-			ShowInfo("XMS-XFER: wanttoconnect aid=%d client_login_id1=%d vs node_login_id1=%d char_dat=%s -> AUTHFAIL\n",
-				sd->bl.id, sd->login_id1, auth_data->login_id1, auth_data->char_dat?"set":"null");
 			pc_authfail(sd);
 			chrif_char_offline(sd); //Set him offline, the char server likely has it set as online already.
 		}
@@ -494,10 +479,6 @@ void chrif_authreq(struct map_session_data *sd)
 			aFree(auth_data->char_dat);
 		idb_remove(auth_db, sd->bl.id);
 	} else { //data from char server has not arrived yet.
-		// [temp diag XMS-XFER] client reached this instance and sent wanttoconnect, but the char-server's
-		// auth-park (0x2afd) hasn't arrived yet -> we WAIT (request auth). If char never sends it, this
-		// node hits the 90s TTL (see XMS-AUTH). (S. #3)
-		ShowInfo("XMS-XFER: wanttoconnect aid=%d login_id1=%d -> WAIT (char node not arrived, requesting auth)\n", sd->bl.id, sd->login_id1);
 		auth_data = aCalloc(1,sizeof(struct auth_node));
 		auth_data->sd = sd;
 		auth_data->fd = sd->fd;
@@ -560,11 +541,6 @@ void chrif_authok(int fd)
 	memcpy(auth_data->char_dat,RFIFOP(fd, 20),sizeof(struct mmo_charstatus));
 	auth_data->node_created=gettick();
 	uidb_put(auth_db, RFIFOL(fd, 4), auth_data);
-	// [temp diag XMS-XFER] the char-server PUSHED an auth-park to THIS instance (cross-server transfer
-	// destination). Now we await the client's wanttoconnect (XMS-XFER WAIT/AUTHOK). If it never comes
-	// -> 90s TTL (XMS-AUTH char_dat=set,client-never-came) = the client didn't reconnect here. (S. #3)
-	ShowInfo("XMS-XFER: char auth-park RECEIVED aid=%d login_id1=%d -> awaiting client wanttoconnect on THIS instance\n",
-		(int)RFIFOL(fd,4), (int)RFIFOL(fd,8));
 }
 
 // How long (ms) a pending map-entry auth node may live before it is purged. The stock 30s is too
@@ -580,15 +556,8 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 	struct auth_node *node=(struct auth_node*)data;
 
 	if(DIFF_TICK(gettick(),node->node_created)>AUTH_NODE_TTL_MS) {
-		// [temp diag XMS-AUTH] distinguish WHERE the cross-server auth broke: char_dat set = the
-		// char-server PUSHED this node (0x2afd) but no client ever claimed it here -> the client never
-		// reconnected to THIS instance (wrong ip:port handoff / didn't connect). char_dat NULL + sd set =
-		// the client DID connect + sent wanttoconnection, but the char-server never confirmed the auth
-		// (chrif_authreq -> char, no reply). login_id1 lets us match the char's XMS-CMS handoff. (S. #3)
-		ShowNotice("Character (aid: %d) not authed within %d seconds of character select! [XMS-AUTH char_dat=%s sd=%s login_id1=%u]\n",
-			node->account_id, AUTH_NODE_TTL_MS/1000,
-			node->char_dat ? "set(char-pushed,client-never-came)" : "null",
-			node->sd ? "set(client-connected)" : "null", (unsigned int)node->login_id1);
+		ShowNotice("Character (aid: %d) not authed within %d seconds of character select!\n",
+			node->account_id, AUTH_NODE_TTL_MS/1000);
 		if (node->char_dat)
 			aFree(node->char_dat);
 		db_remove(auth_db, key);
@@ -1009,10 +978,7 @@ int chrif_disconnectplayer(int fd)
 	{
 		const int why = RFIFOB(fd, 6);
 		const unsigned int age = DIFF_TICK(gettick(), sd->auth_tick);
-		// [DCDBG temp] log every s2s kick so we can confirm the reason/timing of the cross-server DC.
-		ShowInfo("chrif_disconnectplayer: aid=%d cid=%d reason=%d connected=%ums ago -> %s\n",
-			sd->status.account_id, sd->status.char_id, why, age,
-			((why == 1 || why == 2 || why == 3) && age < 4000) ? "SKIPPED (transfer race)" : "kicked");
+		// Skip the kick if this looks like a cross-server transfer race (reason 1/2/3 within 4s of auth).
 		if ((why == 1 || why == 2 || why == 3) && age < 4000)
 			return 0;
 	}
@@ -1237,10 +1203,6 @@ int chrif_load_scdata(int fd)
 		clif_initialstatus(sd); // full, buffs+equip already folded
 		clif_updatestatus(sd, SP_SPEED); // AGI/Quagmire change walk speed; not in clif_initialstatus
 	}
-	if (count > 0)
-		ShowInfo("XMS-SC: load_scdata aid=%d count=%d -> agi base=%d bonus=%d, dex base=%d bonus=%d (deferred_initstatus=%d)\n",
-			aid, count, sd->status.agi, sd->battle_status.agi - sd->status.agi,
-			sd->status.dex, sd->battle_status.dex - sd->status.dex, sd->state.initstatus_deferred); // [temp diag]
 #endif
 	return 0;
 }

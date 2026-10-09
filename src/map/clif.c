@@ -2002,15 +2002,6 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 		// else: keep the ip the char-server routed (legacy behaviour: raw map_ip)
 	}
 
-	// [temp diag XMS-XFER] the FINAL ip:port we hand the client to reconnect to (post subnet/public
-	// translation) + the client's own address. If this ip:port is unreachable or the wrong instance,
-	// the client never auths on the dest -> "not authed within 90s". (S. root-cause #3)
-	ShowInfo("XMS-XFER: clif_changemapserver aid=%d -> client reconnect to %d.%d.%d.%d:%d (client_addr=%d.%d.%d.%d) map_index=%d\n",
-		sd->bl.id, (int)((ip>>24)&0xff),(int)((ip>>16)&0xff),(int)((ip>>8)&0xff),(int)(ip&0xff), (int)port,
-		(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>24&0xff),(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>16&0xff),
-		(int)(((fd&&session[fd])?session[fd]->client_addr:0)>>8&0xff),(int)(((fd&&session[fd])?session[fd]->client_addr:0)&0xff),
-		(int)map_index);
-
 	WFIFOHEAD(fd,packet_len(0x92));
 	WFIFOW(fd,0) = 0x92;
 	mapindex_getmapname_ext(clif_client_mapname(mapindex_id2name(map_index)), (char*)WFIFOP(fd,2));
@@ -9978,16 +9969,6 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 
 	pc_delinvincibletimer(sd);
 
-	// [SKILLDBG temp] Pin why a player skill does/doesn't fire. checkskill==0 => the skill's .id is NOT in
-	// the char's granted tree (pc_calc_skilltree didn't grant it: joblv/prereq gate -> raise player_skillfree
-	// or the char's job level); skilllv==0 => DROP (server sends nothing, client shows only its swing). Remove
-	// once the Sin X "skills do nothing" case is resolved. (S. 2026-07-24)
-	if (skillnum > 0 && skillnum < GD_SKILLBASE)
-		ShowInfo("SKILLDBG: '%s' sid=%d checkskill=%d -> skilllv=%d %s | job=%d joblv=%d skillfree=%d skilluplimit=%d\n",
-			sd->status.name, skillnum, pc_checkskill(sd, skillnum), skilllv,
-			skilllv ? "CAST" : "DROP", sd->status.class_, sd->status.job_level,
-			battle_config.skillfree, battle_config.skillup_limit);
-
 	if (skilllv)
 		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
 
@@ -11930,18 +11911,13 @@ int clif_parse(int fd)
 			// bug -- diagnose from a client packet log, don't paper over it by lingering here.)
 			// Log the SOURCE IP so we can tell WHOSE packet this is (S.: "почему наш клиент даёт
 			// неизвестный тип пакета?" -- the answer is usually a bot/old client on another IP, not us).
-			// XMS-UPV diag: log the actual first opcode + bytes-in-buffer so the NEXT log tells us
-			// WHOSE packet this is. If cmd == our connect opcode (0x009b) AND bytes > its length, it's a
-			// real client whose reconnect pipelined a follow-up packet (the `< len` fix above should now
-			// let it through). If cmd is random / bytes tiny, it's a bot/old client sending garbage (not
-			// our client). Distinguishes "real player transfer DC" from bot-farm noise on the same IPs.
-			ShowInfo("clif_parse: Disconnecting session #%d (IP %s) with unknown packet version%s. [XMS-UPV cmd=0x%04x bytes=%d]\n", fd,
+			ShowInfo("clif_parse: Disconnecting session #%d (IP %s) with unknown packet version%s.\n", fd,
 				(session[fd] ? ip2str(session[fd]->client_addr, NULL) : "?"), (
 				err == 1 ? "" :
 				err == 2 ? ", possibly for having an invalid account_id" :
 				err == 3 ? ", possibly for having an invalid char_id." :
 				err == 6 ? ", possibly for having an invalid sex." :
-				". ERROR invalid error code"), cmd, (int)RFIFOREST(fd));
+				". ERROR invalid error code"));
 			WFIFOHEAD(fd,packet_len(0x6a));
 			WFIFOW(fd,0) = 0x6a;
 			WFIFOB(fd,2) = 3; // Rejected from Server
