@@ -837,10 +837,8 @@ AtCommandType atcommand(struct map_session_data* sd, const int level, const char
 		return AtCommand_None;
 	if (battle_config.atc_gmonly != 0 && !level) // level = pc_isGM(sd)
 		return AtCommand_None;
-	if (!p || !*p) {
-		ShowError("at command message is empty\n");
-		return AtCommand_None;
-	}
+	if (!p || !*p)
+		return AtCommand_None; // empty message is benign input (bots/garbage chat) -- don't spam the log [S. log cleanup]
 
 	if (*p == atcommand_symbol) { // check first char
 		char command[101];

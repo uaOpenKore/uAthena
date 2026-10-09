@@ -1843,6 +1843,12 @@ int unit_free(struct block_list *bl, int clrtype)
 		guild_send_memberinfoshort(sd,0);
 		pc_cleareventtimer(sd);
 		pc_delspiritball(sd,sd->spiritball,1);
+		// Free the autobonus scripts (aStrdup'd in pc_addautobonus). These were only ever cleared
+		// by status_calc_pc with restore=true, which keeps active ones -- so a logout leaked every
+		// live autobonus's bonus_script/other_script (map-server_sql.leaks: pc.c:1613-1614). [S.]
+		pc_delautobonus(sd,sd->autobonus,ARRAYLENGTH(sd->autobonus),false);
+		pc_delautobonus(sd,sd->autobonus2,ARRAYLENGTH(sd->autobonus2),false);
+		pc_delautobonus(sd,sd->autobonus3,ARRAYLENGTH(sd->autobonus3),false);
 		if (clrtype >= 0) {
 			chrif_save_scdata(sd); //Save status changes, then clear'em out from memory. [Skotlex]
 			pc_makesavestatus(sd);

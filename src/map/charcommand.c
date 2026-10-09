@@ -213,10 +213,8 @@ CharCommandType charcommand(struct map_session_data* sd, const int level, const 
 		return CharCommand_None;
 	if (battle_config.atc_gmonly != 0 && !level) // level = pc_isGM(sd)
 		return CharCommand_None;
-	if (!p || !*p) {
-		ShowError("char command message is empty\n");
-		return CharCommand_None;
-	}
+	if (!p || !*p)
+		return CharCommand_None; // empty message is benign input (bots/garbage chat) -- don't spam the log [S. log cleanup]
 
 	if (*p == charcommand_symbol) { // check first char
 		char command[101];
