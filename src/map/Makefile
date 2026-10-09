@@ -1,7 +1,12 @@
-all sql: sqlobj map-server_sql
+all: sql
+sql: sqlobj map-server_sql
+txt: txtobj map-server
 
 sqlobj:
 	mkdir sqlobj
+
+txtobj:
+	mkdir txtobj
 
 COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
@@ -24,11 +29,17 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
 	$(CC) -o ../../$@ $> $(LIB_S)
 
+map-server: $(OBJECTS:obj/%=txtobj/%)
+	$(CC) -o ../../$@ $> $(LIB_S)
+
 sqlobj/%.o: %.c
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
+txtobj/%.o: %.c
+	$(COMPILE.c) -DTXT_ONLY $(OUTPUT_OPTION) $<
+
 clean:
-	rm -rf *.o obj sqlobj ../../map-server ../../map-server_sql GNUmakefile
+	rm -rf *.o obj sqlobj txtobj ../../map-server ../../map-server_sql GNUmakefile
 
 # DO NOT DELETE
 

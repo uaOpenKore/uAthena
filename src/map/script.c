@@ -3208,6 +3208,7 @@ void run_script_main(struct script_state *st)
  *------------------------------------------*/
 // Submit a mapreg persistence statement: hand it to the async writer if the
 // worker is up, otherwise fall back to a synchronous query so nothing is lost.
+#ifndef TXT_ONLY
 static void mapreg_submit(const char* sql)
 {
 	if(map_async_db)
@@ -3217,6 +3218,7 @@ static void mapreg_submit(const char* sql)
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,sql);
 	}
 }
+#endif // !TXT_ONLY
 
 // Mark a map register changed so the next flush persists it. $@temp globals are
 // never written to the DB, so they are not tracked.
@@ -3265,6 +3267,44 @@ int mapreg_setregstr(int num,const char *str)
  *------------------------------------------*/
 static int script_load_mapreg(void)
 {
+#if defined(TXT_ONLY) || !defined(MAPREGSQL)
+	// TXT persistence: load the whole-file snapshot from save/mapreg.txt (restored for the
+	// no-MySQL build 2026-10-09). Format mirrors the classic eAthena mapreg.txt.
+	FILE *fp;
+	char line[1024];
+
+	if( (fp=fopen(mapreg_txt,"rt"))==NULL )
+		return -1;
+
+	while(fgets(line,sizeof(line),fp))
+	{
+		char buf1[256],buf2[1024],*p;
+		int n,v,s,i;
+		if( sscanf(line,"%255[^,],%d\t%n",buf1,&i,&n)!=2 &&
+			(i=0,sscanf(line,"%[^\t]\t%n",buf1,&n)!=1) )
+			continue;
+		if( buf1[strlen(buf1)-1]=='$' ){
+			if( sscanf(line+n,"%[^\n\r]",buf2)!=1 ){
+				ShowError("%s: %s broken data !\n",mapreg_txt,buf1);
+				continue;
+			}
+			p=(char *)aMallocA((strlen(buf2) + 1)*sizeof(char));
+			strcpy(p,buf2);
+			s= add_str(buf1);
+			idb_put(mapregstr_db,(i<<24)|s,p);
+		}else{
+			if( sscanf(line+n,"%d",&v)!=1 ){
+				ShowError("%s: %s broken data !\n",mapreg_txt,buf1);
+				continue;
+			}
+			s= add_str(buf1);
+			idb_put(mapreg_db,(i<<24)|s,(void*)(intptr_t)v);
+		}
+	}
+	fclose(fp);
+	mapreg_dirty=0;
+	return 0;
+#else
 	// SQL mapreg code start [zBuffer]
 	/*
 	     0       1       2
@@ -3307,6 +3347,7 @@ static int script_load_mapreg(void)
 	perfomance = (((unsigned int)time(NULL)) - perfomance);
 	ShowInfo("SQL Mapreg Loading Completed Under %d Seconds.\n",perfomance);
 	return 0;
+#endif /* TXT_ONLY */
 }
 /*==========================================
  * iI}bv
@@ -3314,6 +3355,7 @@ static int script_load_mapreg(void)
 // Flush one dirty map register. With no UNIQUE(varname,index) key we cannot
 // UPSERT, so DELETE then INSERT the current value (this also self-heals any
 // duplicate rows). FIFO ordering in the async queue keeps writes consistent.
+#ifndef TXT_ONLY
 static int mapreg_flush_sub(DBKey key,void *data,va_list ap)
 {
 	int num = key.i;
@@ -3348,8 +3390,51 @@ static int mapreg_flush_sub(DBKey key,void *data,va_list ap)
 	(*count)++;
 	return 0;
 }
+#else
+// TXT persistence: write every register to save/mapreg.txt (classic eAthena format).
+static int script_save_mapreg_intsub(DBKey key,void *data,va_list ap)
+{
+	FILE *fp=va_arg(ap,FILE*);
+	int num=key.i&0x00ffffff, i=key.i>>24;
+	char *name=str_buf+str_data[num].str;
+	if( name[1]!='@' ){
+		if(i==0)
+			fprintf(fp,"%s\t%d\n", name, (int)(intptr_t)data);
+		else
+			fprintf(fp,"%s,%d\t%d\n", name, i, (int)(intptr_t)data);
+	}
+	return 0;
+}
+static int script_save_mapreg_strsub(DBKey key,void *data,va_list ap)
+{
+	FILE *fp=va_arg(ap,FILE*);
+	int num=key.i&0x00ffffff, i=key.i>>24;
+	char *name=str_buf+str_data[num].str;
+	if( name[1]!='@' ){
+		if(i==0)
+			fprintf(fp,"%s\t%s\n", name, (char *)data);
+		else
+			fprintf(fp,"%s,%d\t%s\n", name, i, (char *)data);
+	}
+	return 0;
+}
+#endif // TXT_ONLY
 static int script_save_mapreg(void)
 {
+#if defined(TXT_ONLY) || !defined(MAPREGSQL)
+	FILE *fp;
+	int lock;
+
+	if( (fp=lock_fopen(mapreg_txt,&lock))==NULL ) {
+		ShowError("script_save_mapreg: Unable to lock-open file [%s]\n",mapreg_txt);
+		return -1;
+	}
+	mapreg_db->foreach(mapreg_db,script_save_mapreg_intsub,fp);
+	mapregstr_db->foreach(mapregstr_db,script_save_mapreg_strsub,fp);
+	lock_fclose(fp,mapreg_txt,&lock);
+	mapreg_dirty = 0;
+	return 0;
+#else
 	int count = 0;
 	if(mapreg_dirty_db){
 		mapreg_dirty_db->foreach(mapreg_dirty_db,mapreg_flush_sub, &count);
@@ -3357,6 +3442,7 @@ static int script_save_mapreg(void)
 	}
 	mapreg_dirty = 0;
 	return 0;
+#endif
 }
 static int script_autosave_mapreg(int tid,unsigned int tick,intptr_t id,intptr_t data)
 {

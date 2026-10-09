@@ -94,10 +94,16 @@ MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS) $(GOPT)" LIB_S="$(LIBS) $(GOPT)"
 
 endif
 
-.PHONY: sql common login_sql char_sql map_sql ladmin \
+.PHONY: sql txt common login_sql char_sql map_sql login char map converters ladmin \
 	plugins tools clean depend
 
 all: sql
+
+# TXT (no-MySQL) server set -- restored 2026-10-09 for the tester (branch `txt`). Builds the
+# standalone TXT login/char servers plus the map server in -DTXT_ONLY mode, so the whole stack
+# runs without a MySQL database. Kept separate from `all`/`sql` so the production SQL build and
+# DEPLOY.sh (which run `make`/`make sql`) are untouched -- invoke explicitly with `make txt`.
+txt: Makefile.cache common login char map
 
 ifdef SQLFLAG
 sql: Makefile.cache common login_sql char_sql map_sql
@@ -108,6 +114,18 @@ endif
 
 common: src/common/GNUmakefile
 	$(MAKE) -C src/$@ $(MKDEF)
+
+login: src/login/GNUmakefile common
+	$(MAKE) -C src/$@ $(MKDEF) txt
+
+char: src/char/GNUmakefile common
+	$(MAKE) -C src/$@ $(MKDEF) txt
+
+map: src/map/GNUmakefile common
+	$(MAKE) -C src/map $(MKDEF) txt
+
+converters: src/txt-converter/GNUmakefile common
+	$(MAKE) -C src/txt-converter $(MKDEF)
 
 login_sql: src/login_sql/GNUmakefile common
 	$(MAKE) -C src/$@ $(MKDEF) sql
@@ -133,10 +151,12 @@ tools:
 # and it covers ALL subdirs incl. src/tool. Keep this in sync if a new src/<dir> is added.
 clean:
 	rm -f Makefile.cache
-	rm -rf src/common/obj src/map/obj src/map/sqlobj
+	rm -rf src/common/obj src/map/obj src/map/sqlobj src/map/txtobj
 	rm -f src/common/*.o src/login_sql/*.o src/char_sql/*.o src/map/*.o src/ladmin/*.o src/tool/*.o src/plugins/*.o
+	rm -f src/login/*.o src/char/*.o src/txt-converter/*.o
 	rm -f src/common/GNUmakefile src/login_sql/GNUmakefile src/char_sql/GNUmakefile \
-		src/map/GNUmakefile src/ladmin/GNUmakefile src/plugins/GNUmakefile
+		src/map/GNUmakefile src/ladmin/GNUmakefile src/plugins/GNUmakefile \
+		src/login/GNUmakefile src/char/GNUmakefile src/txt-converter/GNUmakefile
 	rm -f login-server login-server_sql char-server char-server_sql \
 		map-server map-server_sql ladmin
 	rm -f plugins/*.so tools/adduser tools/convert

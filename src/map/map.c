@@ -3310,6 +3310,13 @@ int inter_config_read(char *cfgName)
 		} else if(strcmpi(w1,"use_sql_db")==0){
 			db_use_sqldbs = config_switch(w2);
 			ShowStatus ("Using SQL dbs: %s\n",w2);
+		} else if(strcmpi(w1,"mapreg_txt")==0){
+			// Path of the map-register save file for the TXT (no-MySQL) build. The SQL build
+			// persists mapreg to the DB and ignores this value, but accept the key either way
+			// so a shared map_athena.conf doesn't warn "Unknown setting 'mapreg_txt'".
+			extern char mapreg_txt[256];
+			strncpy(mapreg_txt, w2, sizeof(mapreg_txt)-1);
+			mapreg_txt[sizeof(mapreg_txt)-1] = '\0';
 		} else if(strcmpi(w1,"log_db")==0) {
 			strcpy(log_db, w2);
 		} else if(strcmpi(w1,"log_db_ip")==0) {
@@ -3607,6 +3614,7 @@ void do_final(void)
 	livemob_final();	// non-owning index: mobs themselves are freed via id_db cleanup [perf]
 	charid_db->destroy(charid_db, NULL);
 
+#ifndef TXT_ONLY
 	async_db_destroy(map_async_db); // drain buffered game-DB writes, join the worker
 	map_async_db = NULL;
 	async_db_destroy(mail_async_db); // drain buffered mail writes, join the worker
@@ -3614,6 +3622,7 @@ void do_final(void)
 	log_async_final(); // drain buffered SQL logs before closing the handles
 
     map_sql_close();
+#endif // !TXT_ONLY -- no SQL handles were opened in the TXT build
 	ShowStatus("Successfully terminated.\n");
 }
 
@@ -3778,6 +3787,7 @@ int do_init(int argc, char *argv[])
 	livemob_init();	//Non-owning flat mob-only index for cheap lazy-AI iteration. [perf]
 	map_db = db_alloc(__FILE__,__LINE__,DB_UINT,DB_OPT_BASE,sizeof(int));
 	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+#ifndef TXT_ONLY
 	map_sql_init();
 
 	// Asynchronous writer for game-DB writes (mapreg, mail): the game loop hands
@@ -3788,6 +3798,7 @@ int do_init(int argc, char *argv[])
 	if(mail_server_enable)
 		mail_async_db = async_db_create("mail", mail_server_ip, mail_server_id, mail_server_pw,
 			mail_server_db, mail_server_port, default_codepage, 20);
+#endif // !TXT_ONLY -- no-MySQL build: mapreg persists to save/mapreg.txt, map_async_db stays NULL
 
 	mapindex_init();
 	grfio_init(GRF_PATH_FILENAME);
@@ -3822,12 +3833,14 @@ int do_init(int argc, char *argv[])
 	if(mail_server_enable)
 		do_init_mail();
 
+#ifndef TXT_ONLY
 	if (log_config.sql_logs) {
 		log_sql_init();
 		log_async_init();
 	}
 
 	sql_ping_init();
+#endif // !TXT_ONLY -- no SQL handle to keep alive / log to in the TXT build
 
 	npc_event_do_oninit();	// npcOnInitCxg?s
 
