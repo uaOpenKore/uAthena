@@ -43,7 +43,7 @@ int inter_guild_tostr(char *str, struct guild *g) {
 	// {f[^
 	len = sprintf(str, "%d\t%s\t%s\t%d,%d,%u,%d,%d\t%s#\t%s#\t",
 	              g->guild_id, g->name, g->master,
-	              g->guild_lv, g->max_member, g->exp, g->skill_point, g->castle_id,
+	              g->guild_lv, g->max_member, g->exp, g->skill_point, 0, // legacy castle_id dropped from struct guild (x64 port); keep field slot = 0 for txt compat
 	              g->mes1, g->mes2);
 	// o[
 	for(i = 0; i < g->max_member; i++) {
@@ -120,9 +120,8 @@ int inter_guild_fromstr(char *str, struct guild *g) {
 	g->max_member = tmp_int[2];
 	g->exp = exp;
 	g->skill_point = tmp_int[4];
-#ifndef TXT_SQL_CONVERT
-	g->castle_id = tmp_int[5];
-#endif
+	// tmp_int[5] = legacy castle_id (field dropped from struct guild in the x64 port); parsed for
+	// txt-format compat but no longer stored — castle ownership lives in struct guild_castle.
 	memcpy(g->name, tmp_str[0], NAME_LENGTH);
 	memcpy(g->master, tmp_str[1], NAME_LENGTH);
 	memcpy(g->mes1, tmp_str[2], 60);
