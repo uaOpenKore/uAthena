@@ -34,7 +34,7 @@ alberta,28,229,8	script	Kafra::kaf_alberta	115,{
 }
 
 // South ---------------------------------------------------------------------
-alberta,113,60,5	script	Kafra::kaf_alberta2	112,{
+alberta,113,60,5	script	Kafra::kaf_alberta2	115,{
 	cutin "kafra_06",2;
 	callfunc "F_KafSetAlb";
 	callfunc "F_Kafra",0,0,0;

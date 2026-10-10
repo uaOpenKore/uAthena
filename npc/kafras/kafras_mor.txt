@@ -56,7 +56,7 @@ morocc,28,167,6	script	Kafra::kaf_morocc3	116,{
 }
 
 // East =================================
-morocc,292,211,4	script	Kafra::kaf_morocc4	112,{
+morocc,292,211,4	script	Kafra::kaf_morocc4	115,{
 	cutin "kafra_06",2;
 	callfunc "F_KafSetMoc";
 	callfunc "F_Kafra",0,0,0;

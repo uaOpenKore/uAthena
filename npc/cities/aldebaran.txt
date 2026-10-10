@@ -1018,7 +1018,7 @@ aldeba_in,142,238,4	script	Kafra Service#3alde	114,{
 	end;
 }
 
-aldeba_in,91,244,4	script	Kafra Service#4alde	112,{
+aldeba_in,91,244,4	script	Kafra Service#4alde	115,{
 	cutin "kafra_06",2;
 	mes "[Kafra Curly Sue]";
 	mes "Hello, hello!!";
