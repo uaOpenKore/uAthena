@@ -8745,7 +8745,7 @@ aldebaran,58,225,4	script	Kafra Employee#l1	116,{
 	}
 }
 
-aldeba_in,155,240,5	script	Kafra Employee#l2	859,{
+aldeba_in,155,240,5	script	Kafra Employee#l2	115,{
 
 	if(checkweight(7343,1) != 1)
 	{

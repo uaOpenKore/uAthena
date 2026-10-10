@@ -23,7 +23,7 @@
 
 
 // Center ------------------------------------------------------------------
-yuno,152,187,4	script	Kafra::kaf_yuno	113,{
+yuno,152,187,4	script	Kafra::kaf_yuno	115,{
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
     setarray @wrpD$[0], "Geffen", "Prontera", "Morroc", "Payon";
@@ -41,7 +41,7 @@ callfunc "F_Kafra",0,0,1;
 }
 
 // South East --------------------------------------------------------------
-yuno,327,108,4	script	Kafra::kaf_yuno2	113,{
+yuno,327,108,4	script	Kafra::kaf_yuno2	115,{
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
     setarray @wrpD$[0], "Geffen", "Prontera", "Morroc", "Payon";

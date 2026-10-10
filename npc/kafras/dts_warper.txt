@@ -77,7 +77,7 @@
 yuno,153,191,4	script	Cool Event Voting Staff::CoolEventVotingStaff01	874,{
 	callfunc "F_DTS_Warp",0,0;
 }
-yuno,162,191,6	script	Kafra Voting Staff#01	861,{
+yuno,162,191,6	script	Kafra Voting Staff#01	115,{
 	callfunc "F_DTS_Warp",1,8;
 }
 //Lighthalzen

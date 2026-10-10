@@ -25,7 +25,7 @@
 
 
 // Main Town, South ----------------------------------------------------------
-payon,181,104,4	script	Kafra::kaf_payon	113,{
+payon,181,104,4	script	Kafra::kaf_payon	115,{
 	cutin "kafra_05",2;
 	callfunc "F_KafSetPay";
 	callfunc "F_Kafra",0,0,1;

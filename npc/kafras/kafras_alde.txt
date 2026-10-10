@@ -22,7 +22,7 @@
 
 
 // Kafra Main Office (Kafra Leilah) ------------------------------------
-aldeba_in,96,181,4	script	Kafra Leilah	113,{
+aldeba_in,96,181,4	script	Kafra Leilah	115,{
 	cutin "kafra_05",2;
 	callfunc "F_Kafra",0,2,1;
 
@@ -33,7 +33,7 @@ aldeba_in,96,181,4	script	Kafra Leilah	113,{
 }
 
 // South --------------------------------------------------
-aldebaran,143,119,4	script	Kafra::kaf_aldebaran	113,{
+aldebaran,143,119,4	script	Kafra::kaf_aldebaran	115,{
 	cutin "kafra_05",2;
 	cleararray @wrpC$[0],"",getarraysize(@wrpC$);
 	setarray @wrpP[0], 1200, 1200, 1800, 1700;
