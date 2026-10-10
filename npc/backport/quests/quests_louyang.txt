@@ -1005,22 +1005,6 @@ lou_in02,42,186,5	script	Liu Jia Lim#lou	816,{
 	close;
 }
 
-lou_in02,43,169,1	script	Jiang Rong#lou	827,{
-	mes "[Jiang Rong]";
-	mes "Dragon Soup is known for its spicy, yet sweet and refreshing taste.";
-	next;
-	mes "[Jiang Rong]";
-	mes "It's made with all sorts of medicinal herbs, so it's good";
-	mes "for your health as well.";
-	next;
-	mes "[Jiang Rong]";
-	mes "Dragon Soup draws out the unnecessary heat created inside";
-	mes "the body and circulates the blood. So it helps optimize the body's functions and promotes longevity.";
-	next;
-	mes "[Jiang Rong]";
-	mes "I've eaten Dragon Soup regularly ever since I was young. Look at me, don't you think I look so healthy considering my age?";
-	close;
-}
 
 louyang,261,123,3	script	Chi Wu Ping#lou	824,{
 	mes "[Chi Wu Ping]";
