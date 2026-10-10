@@ -71,8 +71,6 @@ jupe_gate	mapflag	nosave	SavePoint
 pvp_y_room	mapflag	nosave	SavePoint
 pvp_y_1-1	mapflag	nosave	SavePoint
 pvp_y_1-2	mapflag	nosave	SavePoint
-pvp_y_1-3	mapflag	nosave	SavePoint
-pvp_y_1-4	mapflag	nosave	SavePoint
 pvp_y_1-5	mapflag	nosave	SavePoint
 pvp_y_2-1	mapflag	nosave	SavePoint
 pvp_y_2-2	mapflag	nosave	SavePoint
@@ -81,7 +79,6 @@ pvp_y_2-4	mapflag	nosave	SavePoint
 pvp_y_2-5	mapflag	nosave	SavePoint
 pvp_y_3-1	mapflag	nosave	SavePoint
 pvp_y_3-2	mapflag	nosave	SavePoint
-pvp_y_3-3	mapflag	nosave	SavePoint
 pvp_y_3-4	mapflag	nosave	SavePoint
 pvp_y_3-5	mapflag	nosave	SavePoint
 pvp_y_4-1	mapflag	nosave	SavePoint
@@ -96,7 +93,6 @@ pvp_y_5-4	mapflag	nosave	SavePoint
 pvp_y_5-5	mapflag	nosave	SavePoint
 pvp_y_6-1	mapflag	nosave	SavePoint
 pvp_y_6-2	mapflag	nosave	SavePoint
-pvp_y_6-3	mapflag	nosave	SavePoint
 pvp_y_6-4	mapflag	nosave	SavePoint
 pvp_y_6-5	mapflag	nosave	SavePoint
 pvp_y_7-1	mapflag	nosave	SavePoint
@@ -106,8 +102,6 @@ pvp_y_7-4	mapflag	nosave	SavePoint
 pvp_y_7-5	mapflag	nosave	SavePoint
 pvp_y_8-1	mapflag	nosave	SavePoint
 pvp_y_8-2	mapflag	nosave	SavePoint
-pvp_y_8-3	mapflag	nosave	SavePoint
-pvp_y_8-4	mapflag	nosave	SavePoint
 pvp_y_8-5	mapflag	nosave	SavePoint
 pvp_n_room	mapflag	nosave	SavePoint
 pvp_n_1-1	mapflag	nosave	SavePoint
