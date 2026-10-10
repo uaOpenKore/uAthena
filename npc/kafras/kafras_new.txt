@@ -46,7 +46,7 @@ callfunc "F_KafEnd",0,1;
 
 
 // Nameless ------------------------------------------------------------------
-nameless_n,158,190,0	script	Kafra::kaf_nameless	861,{
+nameless_n,158,190,0	script	Kafra::kaf_nameless	115,{
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
     setarray @wrpD$[0], "Prontera";
@@ -120,7 +120,7 @@ callfunc "F_KafEnd",0,1;
 
 // Einbech -----------------------------------------------------------------
 
-einbech,181,132,4	script	Kafra::kaf_einbech	860,{
+einbech,181,132,4	script	Kafra::kaf_einbech	115,{
 
 cutin "kafra_03",2;
 callfunc "F_KafSetPay";
@@ -163,7 +163,7 @@ callfunc "F_Kafra",0,1,1;
 
 // RAchel -------------------------------------------------
 
-rachel,132,117,4	script	Kafra::kaf_rachel	860,{
+rachel,132,117,4	script	Kafra::kaf_rachel	115,{
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
     setarray @wrpD$[0], "Prontera", "Morroc", "Payon";
@@ -203,7 +203,7 @@ callfunc "F_Kafra",0,0,1;
 // Lighthalzen--------------------------------------------------------------
 
 //Outside the hotel
-lighthalzen,164,100,4	script	Kafra::kaf_lighthalzen	860,{
+lighthalzen,164,100,4	script	Kafra::kaf_lighthalzen	115,{
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
     setarray @wrpD$[0], "Prontera", "Geffen", "Payon";
@@ -221,7 +221,7 @@ callfunc "F_KafEnd",0,1;
 }
 
 // Entrance
-lighthalzen,191,320,4	script	Kafra::kaf_lighthalzen2	861,{
+lighthalzen,191,320,4	script	Kafra::kaf_lighthalzen2	115,{
 
     cutin "kafra_01",2;
     cleararray @wrpC$[0],"",getarraysize(@wrpC$);
@@ -276,7 +276,7 @@ callfunc "F_KafEnd",0,1;
 }
 
 // Niflheim ----------------------------------------------------------------
-niflheim,201,184,4	script	Kafra::Prontera	791,{
+niflheim,201,184,4	script	Kafra::Prontera	115,{
     mes "[Kafra]";
     if(#gl_lang == 1) {
         mes "Ласкаво просимо до сервісу Кафри!";

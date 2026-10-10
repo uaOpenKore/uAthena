@@ -34,11 +34,11 @@ ayothaya.gat,195,160,8	script	Kafra Express::Ayothaya	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_06",0,"ayothaya.gat",194,173;
 }
 
-comodo.gat,190,153,5	script	Kafra Express::Comodo	721,{
+comodo.gat,190,153,5	script	Kafra Express::Comodo	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_07",0,"comodo.gat",189,166;
 }
 
-geffen.gat,121,62,8	script	Kafra Express::Geffen	113,{
+geffen.gat,121,62,8	script	Kafra Express::Geffen	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_05",0,"geffen.gat",119,56;
 }
 
@@ -46,11 +46,11 @@ gonryun.gat,169,188,2	script	Kafra Express::GonRyun	117,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_01",2,"gonryun.gat",168,199;
 }
 
-einbech.gat,143,243,3	script	Kafra Express::Einbech	860,{
+einbech.gat,143,243,3	script	Kafra Express::Einbech	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_08",0,"einbech.gat",157,250;
 }
 
-einbroch.gat,58,207,4	script	Kafra Express::Einbroch	860,{
+einbroch.gat,58,207,4	script	Kafra Express::Einbroch	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_08",0,"einbroch.gat",64,184;
 }
 
@@ -62,11 +62,11 @@ izlude.gat,136,94,2	script	Kafra Express::Izlude	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_03",0,"izlude.gat",147,99;
 }
 
-jawaii.gat,208,217,7	script	Kafra Express::Jawaii	721,{
+jawaii.gat,208,217,7	script	Kafra Express::Jawaii	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_07",0,"jawaii.gat",213,209;
 }
 
-lighthalzen.gat,165,106,3	script	Kafra Express::Lighthalzen	861,{
+lighthalzen.gat,165,106,3	script	Kafra Express::Lighthalzen	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_09",0,"lighthalzen.gat",152,106;
 }
 
@@ -78,11 +78,11 @@ xmas.gat,148,126,4	script	Kafra Express::Lutie	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_06",0,"xmas.gat",149,117;
 }
 
-morocc.gat,156,97,3	script	Kafra Express::Morocc	721,{
+morocc.gat,156,97,3	script	Kafra Express::Morocc	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_07",0,"morocc.gat",156,91;
 }
 
-niflheim.gat,196,192,3	script	Kafra Express::Niflheim	791,{
+niflheim.gat,196,192,3	script	Kafra Express::Niflheim	115,{
 	callfunc "F_KafraExpress","Kafra Express","",3,"niflheim.gat",194,185;
 }
 
@@ -94,17 +94,17 @@ prontera.gat,147,177,7	script	Kafra Express::Prontera	116,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_02",0,"prontera.gat",156,195;
 }
 
-umbala.gat,89,159,4	script	Kafra Express::Umbala	860,{
+umbala.gat,89,159,4	script	Kafra Express::Umbala	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_08",0,"umbala.gat",91,159;
 }
 
-yuno.gat,159,87,5	script	Kafra Express::Yuno	861,{
+yuno.gat,159,87,5	script	Kafra Express::Yuno	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_09",0,"yuno.gat",159,52;
 }
 
 //Dungeon Kafras
 //Abyss Lake
-hu_fild05.gat,170,305,7	script	Kafra Express::D_Abyss	861,{
+hu_fild05.gat,170,305,7	script	Kafra Express::D_Abyss	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_09",1,"hu_fild05.gat",160,302;
 }
 
@@ -134,22 +134,22 @@ izlu2dun.gat,101,82,7	script	Kafra Express::D_Byalan	115,{
 }
 
 //Comodo East Cave
-cmd_fild01.gat,33,321,4	script	Kafra Express::D_ComodoE	721,{
+cmd_fild01.gat,33,321,4	script	Kafra Express::D_ComodoE	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_07",1,"cmd_fild01.gat",34,325;
 }
 
 //Comodo West Cave
-comodo.gat,31,218,4	script	Kafra Express::D_ComodoW	721,{
+comodo.gat,31,218,4	script	Kafra Express::D_ComodoW	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_07",1,"comodo.gat",32,209;
 }
 
 //Comodo North Cave
-comodo.gat,182,347,2	script	Kafra Express::D_ComodoN	721,{
+comodo.gat,182,347,2	script	Kafra Express::D_ComodoN	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_07",1,"comodo.gat",180,352;
 }
 
 //Coal Mines
-mjolnir_02.gat,83,364,4	script	Kafra Express::D_Coal	861,{
+mjolnir_02.gat,83,364,4	script	Kafra Express::D_Coal	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_09",1,"mjolnir_02.gat",89,358;
 }
 
@@ -159,47 +159,47 @@ prt_fild05.gat,275,219,5	script	Kafra Express::D_Culvert	115,{
 }
 
 //Gefenia
-gefenia01.gat,56,171,6	script	Kafra Express::D_Gefenia1	861,{
+gefenia01.gat,56,171,6	script	Kafra Express::D_Gefenia1	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_09",1,"gefenia01.gat",59,169;
 }
 
 //Geffen Dungeon
-gef_tower.gat,156,33,3	script	Kafra Express::D_Geffen	113,{
+gef_tower.gat,156,33,3	script	Kafra Express::D_Geffen	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_05",1,"gef_tower.gat",147,35;
 }
 
 //GH: Church
-glast_01.gat,193,136,5	script	Kafra Express::D_GHChurch	791,{
+glast_01.gat,193,136,5	script	Kafra Express::D_GHChurch	115,{
 	callfunc "F_KafraExpress","Kafra Express","",1,"glast_01.gat",206,136;
 }
 
 //GH: Castle
-glast_01.gat,200,350,4	script	Kafra Express::D_GHCastle	791,{
+glast_01.gat,200,350,4	script	Kafra Express::D_GHCastle	115,{
 	callfunc "F_KafraExpress","Kafra Express","",1,"glast_01.gat",200,347;
 }
 
 //GH: Staircase
-glast_01.gat,58,103,7	script	Kafra Express::D_GHStair	791,{
+glast_01.gat,58,103,7	script	Kafra Express::D_GHStair	115,{
 	callfunc "F_KafraExpress","Kafra Express","",1,"glast_01.gat",62,107;
 }
 
 //GH: Chivalry
-glast_01.gat,62,198,6	script	Kafra Express::D_GHChivalry	791,{
+glast_01.gat,62,198,6	script	Kafra Express::D_GHChivalry	115,{
 	callfunc "F_KafraExpress","Kafra Express","",1,"glast_01.gat",69,193;
 }
 
 //LightHalzen Rekkenber (Sewer Entrance)
-lighthalzen.gat,311,293,1	script	Kafra Express::D_Lhz	860,{
+lighthalzen.gat,311,293,1	script	Kafra Express::D_Lhz	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_08",1,"lighthalzen.gat",301,286;
 }
 
 //LightHalzen Rekkenber (Rekkenber Entrance)(
-//lighthalzen.gat,69,57,7	script	Kafra Express::D_Lhz	860,{
+//lighthalzen.gat,69,57,7	script	Kafra Express::D_Lhz	115,{
 //	callfunc "F_KafraExpress","Kafra Express","kafra_08",1,"lighthalzen.gat",78,57;
 //}
 
 //Juperos
-jupe_cave.gat,45,55,5	script	Kafra Express::D_Juperos	860,{
+jupe_cave.gat,45,55,5	script	Kafra Express::D_Juperos	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_08",1,"jupe_cave.gat",45,48;
 }
 
@@ -249,7 +249,7 @@ alb2trea.gat,75,101,5	script	Kafra Express::D_Sunken	114,{
 }
 
 //Thanatos Tower
-tha_scene01.gat,139,194,0	script	Kafra Express::D_Thanatos	113,{
+tha_scene01.gat,139,194,0	script	Kafra Express::D_Thanatos	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_05",1,"tha_scene01.gat",132,220;
 }
 
@@ -259,12 +259,12 @@ xmas.gat,138,307,6	script	Kafra Express::D_Toy	116,{
 }
 
 //Turtle Cave Entrance
-tur_dun01.gat,147,237,6	script	Kafra Express::D_TCave	113,{
+tur_dun01.gat,147,237,6	script	Kafra Express::D_TCave	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_05",1,"tur_dun01.gat",155,234;
 }
 
 //Turtle Island Entrance
-tur_dun01.gat,148,54,6	script	Kafra Express::D_TIsland	113,{
+tur_dun01.gat,148,54,6	script	Kafra Express::D_TIsland	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_05",1,"tur_dun01.gat",153,47;
 }
 
@@ -281,7 +281,7 @@ umbala.gat,120,284,3	script	Kafra Express::D_Umbala	117,{
 //}
 
 //Geffen Guild Grounds
-//gef_fild13.gat,237,182,6	script	Kafra Express::G_Geffen	113,{
+//gef_fild13.gat,237,182,6	script	Kafra Express::G_Geffen	115,{
 //	callfunc "F_KafraExpress","Kafra Express","kafra_05",1,"gef_fild13.gat",231,181;
 //}
 

@@ -48,7 +48,7 @@ prontera,151,29,8	script	Kafra::kaf_prontera2	116,{
 }
 
 //WEST=========================================
-prontera,29,207,6	script	Kafra::kaf_prontera3	113,{
+prontera,29,207,6	script	Kafra::kaf_prontera3	115,{
 	cutin "kafra_05",2;
 	callfunc "F_KafSetPront";
 	callfunc "F_Kafra",0,0,0;
