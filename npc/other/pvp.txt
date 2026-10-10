@@ -151,11 +151,10 @@ payon_in01,140,53,4	duplicate(PVPGateKeeper)	Gate Keeper#pay	83
 pvp_y_room,86,85,4	script	Fight Square Reception Staff	105,{
 	set .@mapcount_1,getmapusers("pvp_y_8-1");
 	set .@mapcount_2,getmapusers("pvp_y_8-2");
-	set .@mapcount_3,getmapusers("pvp_y_8-3");
-	set .@mapcount_4,getmapusers("pvp_y_8-4");
 	set .@mapcount_5,getmapusers("pvp_y_8-5");
+	// Payon (pvp_y_8-3) and Alberta (pvp_y_8-4) dropped: those maps don't exist on this server (S.).
 	while(1) {
-		switch(select("Prontera [ "+.@mapcount_1+" / 128 ]:Izlude [ "+.@mapcount_2+" / 128 ]:Payon [ "+.@mapcount_3+" / 128 ]:Alberta [ "+.@mapcount_4+" / 128 ]:Morroc [ "+.@mapcount_5+" / 128 ]:Cancel")) {
+		switch(select("Prontera [ "+.@mapcount_1+" / 128 ]:Izlude [ "+.@mapcount_2+" / 128 ]:Morroc [ "+.@mapcount_5+" / 128 ]:Cancel")) {
 		case 1:
 			callsub S_CheckPVPRoom,@mapcount_1,"pvp_y_8-1";
 			break;
@@ -163,15 +162,9 @@ pvp_y_room,86,85,4	script	Fight Square Reception Staff	105,{
 			callsub S_CheckPVPRoom,@mapcount_2,"pvp_y_8-2";
 			break;
 		case 3:
-			callsub S_CheckPVPRoom,@mapcount_3,"pvp_y_8-3";
-			break;
-		case 4:
-			callsub S_CheckPVPRoom,@mapcount_4,"pvp_y_8-4";
-			break;
-		case 5:
 			callsub S_CheckPVPRoom,@mapcount_5,"pvp_y_8-5";
 			break;
-		case 6:
+		case 4:
 			close;
 		}
 	}

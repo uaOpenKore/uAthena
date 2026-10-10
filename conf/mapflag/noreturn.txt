@@ -144,8 +144,6 @@ sec_in02	mapflag	noreturn
 pvp_y_room	mapflag	noreturn
 //pvp_y_1-1	mapflag	noreturn
 //pvp_y_1-2	mapflag	noreturn
-//pvp_y_1-3	mapflag	noreturn
-//pvp_y_1-4	mapflag	noreturn
 //pvp_y_1-5	mapflag	noreturn
 //pvp_y_2-1	mapflag	noreturn
 //pvp_y_2-2	mapflag	noreturn
@@ -154,7 +152,6 @@ pvp_y_room	mapflag	noreturn
 //pvp_y_2-5	mapflag	noreturn
 //pvp_y_3-1	mapflag	noreturn
 //pvp_y_3-2	mapflag	noreturn
-//pvp_y_3-3	mapflag	noreturn
 //pvp_y_3-4	mapflag	noreturn
 //pvp_y_3-5	mapflag	noreturn
 //pvp_y_4-1	mapflag	noreturn
@@ -169,7 +166,6 @@ pvp_y_room	mapflag	noreturn
 //pvp_y_5-5	mapflag	noreturn
 //pvp_y_6-1	mapflag	noreturn
 //pvp_y_6-2	mapflag	noreturn
-//pvp_y_6-3	mapflag	noreturn
 //pvp_y_6-4	mapflag	noreturn
 //pvp_y_6-5	mapflag	noreturn
 //pvp_y_7-1	mapflag	noreturn
@@ -179,8 +175,6 @@ pvp_y_room	mapflag	noreturn
 //pvp_y_7-5	mapflag	noreturn
 //pvp_y_8-1	mapflag	noreturn
 //pvp_y_8-2	mapflag	noreturn
-//pvp_y_8-3	mapflag	noreturn
-//pvp_y_8-4	mapflag	noreturn
 //pvp_y_8-5	mapflag	noreturn
 pvp_n_room	mapflag	noreturn
 //pvp_n_1-1	mapflag	noreturn
