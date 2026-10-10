@@ -21,7 +21,7 @@
 //= 2.0 - Completely rewrote the current scripts based on iRO.
 //        Added the 'Shouting Quest' and the 'Medicine Quest'
 //= 2.1 Optimized, made quest vars unique [Lupus]
-//= 2.1a minor fix, 2.1b Fixed Typo’s [Nexon]
+//= 2.1a minor fix, 2.1b Fixed TypoÂ’s [Nexon]
 //= 2.2 Fixed exploits [Lupus]
 //= 2.2a Updated the color codes a little and fixed the shouting quest
 //=	 to broadcast green text.
@@ -34,7 +34,7 @@
 //= 2.6a Updated a few names with new item_db.txt names [Evera]
 //= 2.7 Split quests to quests/quests_louyang.txt [Evera]
 //= 2.7a Minor optimizations before Louyang quests [Lupus]
-//= 2.7b Moved guides to the Guides folder. 2.7ñ more typos [Lupus]
+//= 2.7b Moved guides to the Guides folder. 2.7Ã± more typos [Lupus]
 //= 2.8 Moved some quest-related NPCs to proper file. [SinSloth]
 //============================================================
 
@@ -390,7 +390,7 @@ louyang,272,133,0	script	Trainee::trainees	819,{
 	case 11:
 	default:
 		mes "Yeeah~!";
-		mes "Ah I’m so tired~~!!";
+		mes "Ah IÂ’m so tired~~!!";
 		mes "(faints).....";
 		close;
 	}
@@ -546,12 +546,3 @@ s_No:
 	close;
 }
 
-lou_in02,272,55,1	script	Familiar-Looking Patient	86,{
-
-	mes "[??????]";
-	mes "*Cough cough...*";
-	mes "Awww......www...";
-	mes "Aww...wwww..";
-	emotion e_dots;
-	close;
-}
