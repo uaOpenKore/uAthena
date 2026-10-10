@@ -27,7 +27,7 @@
 
 
 // North ==================================
-prontera,152,326,4	script	Kafra::kaf_prontera	112,{
+prontera,152,326,4	script	Kafra::kaf_prontera	115,{
 	cutin "kafra_06",2;
 	callfunc "F_Kafra",0,1,1;
 

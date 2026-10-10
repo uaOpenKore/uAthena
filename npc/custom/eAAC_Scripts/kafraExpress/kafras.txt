@@ -30,7 +30,7 @@ amatsu.gat,201,80,8	script	Kafra Express::Amatsu	114,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_04",0,"amatsu.gat",197,81;
 }
 
-ayothaya.gat,195,160,8	script	Kafra Express::Ayothaya	112,{
+ayothaya.gat,195,160,8	script	Kafra Express::Ayothaya	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_06",0,"ayothaya.gat",194,173;
 }
 
@@ -74,7 +74,7 @@ louyang.gat,220,123,3	script	Kafra Express::LouYang	117,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_01",0,"louyang.gat",221,128;
 }
 
-xmas.gat,148,126,4	script	Kafra Express::Lutie	112,{
+xmas.gat,148,126,4	script	Kafra Express::Lutie	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_06",0,"xmas.gat",149,117;
 }
 
@@ -129,7 +129,7 @@ ayo_fild02.gat,289,144,3	script	Kafra Express::D_Ayothaya	116,{
 }
 
 //Byalan Island
-izlu2dun.gat,101,82,7	script	Kafra Express::D_Byalan	112,{
+izlu2dun.gat,101,82,7	script	Kafra Express::D_Byalan	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_06",1,"izlu2dun.gat",112,84;
 }
 
@@ -154,7 +154,7 @@ mjolnir_02.gat,83,364,4	script	Kafra Express::D_Coal	861,{
 }
 
 //Culvert
-prt_fild05.gat,275,219,5	script	Kafra Express::D_Culvert	112,{
+prt_fild05.gat,275,219,5	script	Kafra Express::D_Culvert	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_06",1,"prt_fild05.gat",274,208;
 }
 
@@ -204,7 +204,7 @@ jupe_cave.gat,45,55,5	script	Kafra Express::D_Juperos	860,{
 }
 
 //Laberynth
-prt_fild01.gat,143,365,3	script	Kafra Express::D_Maze	112,{
+prt_fild01.gat,143,365,3	script	Kafra Express::D_Maze	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_06",1,"prt_fild01.gat",136,361;
 }
 
@@ -229,7 +229,7 @@ in_orcs01.gat,103,99,5	script	Kafra Express::D_OrcsS	116,{
 }
 
 //Payon D
-pay_arche.gat,38,138,6	script	Kafra Express::D_Payon	112,{
+pay_arche.gat,38,138,6	script	Kafra Express::D_Payon	115,{
 	callfunc "F_KafraExpress","Kafra Express","kafra_06",1,"pay_arche.gat",41,133;
 }
 
