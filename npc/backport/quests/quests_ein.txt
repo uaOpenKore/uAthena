@@ -7215,31 +7215,6 @@ einbroch,188,72,3	script	Keneshiotz#ein	855,{
 	close;
 }
 
-einbech,216,118,3	script	Catzllanpu#ein	854,{
-	mes "[Catzllanpu]";
-	mes "^333333*Sigh...*^000000";
-	mes "Simple pleasures.";
-	mes "They're what make";
-	mes "life worth living,";
-	mes "you know?";
-	next;
-	mes "[Catzllanpu]";
-	mes "It's enough for me just to";
-	mes "live a normal and happy life,";
-	mes "but everyone around me wants";
-	mes "to work harder and harder. If";
-	mes "you never take a rest, you're";
-	mes "killing yourself pretty slowly.";
-	next;
-	mes "[Catzllanpu]";
-	mes "I guess you can tell that";
-	mes "I don't have the worries";
-	mes "other people have about";
-	mes "money. It's great, but it's";
-	mes "not worth sacrificing the";
-	mes "quality of your life, right?";
-	close;
-}
 
 einbroch,208,208,3	script	Kesunboss#ein	850,{
 	mes "[Kesunboss]";
@@ -7272,74 +7247,5 @@ einbroch,208,208,3	script	Kesunboss#ein	850,{
 	close;
 }
 
-einbech,176,125,3	script	Ellhenje#ein	850,{
-	mes "[Ellhenje]";
-	mes "Things might be";
-	mes "bad in this town";
-	mes "with the pollution";
-	mes "and the bullying";
-	mes "from Einbroch...";
-	next;
-	mes "[Ellhenje]";
-	mes "But somehow, people";
-	mes "are able to get by. That's";
-	mes "because there's a guy";
-	mes "that everyone here likes...";
-	next;
-	mes "[Ellhenje]";
-	mes "I'm talking about Clitzer!";
-	mes "He's almost too honest and";
-	mes "almost too diligent. But most";
-	mes "of all, he's the nicest guy~";
-	next;
-	mes "[Ellhenje]";
-	mes "Clitzer was born in one of";
-	mes "Einbech's poorest families,";
-	mes "but he's usually happy and always thinks about others. I guess that's why people like to think of him";
-	mes "as representing all of Einbech.";
-	next;
-	mes "[Ellhenje]";
-	mes "Recently, something's";
-	mes "been bothering him. I'm";
-	mes "not sure, but I think only";
-	mes "woman troubles could make";
-	mes "a guy feel so glum. I hope he";
-	mes "feels better soon...";
-	close;
-}
 
-ein_in01,208,86,3	script	Decii#ein	855,{
-	mes "[Decii]";
-	mes "This is so";
-	mes "frustrating!";
-	mes "I'm surrounded";
-	mes "by all these ^FF0000people^000000!";
-	next;
-	mes "[Decii]";
-	mes "There's absolutely";
-	mes "no privacy in a city";
-	mes "this crowded! I guess";
-	mes "I should try to move";
-	mes "out as soon as I can.";
-	close;
-}
 
-ein_in01,192,90,3	script	Supineque#ein	849,{
-	mes "[Supineque]";
-	mes "Ugh...";
-	mes "I'm starving!";
-	next;
-	mes "[Supineque]";
-	mes "I haven't had food for so";
-	mes "long that my stomach is";
-	mes "beginning to digest itself!";
-	mes "This is horrible...";
-	next;
-	mes "[Supineque]";
-	mes "I mean, I have";
-	mes "food that I can";
-	mes "eat today. But if";
-	mes "I finish it, what am";
-	mes "I gonna eat tomorrow?";
-	close;
-}

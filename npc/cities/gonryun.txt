@@ -10,7 +10,7 @@
 //
 //===== Additional Comments: ================================= 
 // May be missing npc's and dialogue.
-//= 1.1 Fixed Typos [Nexon]
+//= 1.1 Fixed TypoÂs [Nexon]
 //= 1.2 Removed Duplicates [Silent]
 //= 1.3 Max NPC Name is 23 [Toms]
 //= 1.3a Removed temp NPC plugs due Broken Sword quest [Lupus]
@@ -125,16 +125,6 @@ gon_in,153,35,4	script	Hotel Manager	702,{
 
 //===============================================================================
 
-gonryun,139,142,6	script	Girl#08	772,{
-	mes "[Sanfayon]";
-	mes "................";
-	mes "It's been great having new visitors come to the village, but........ ever since I was robbed by that Thief.......";
-	next;
-	mes "[Sanfayon]";
-	mes "I have been so afraid of the foreigners.....";
-	emotion e_wah;
-	close;
-}
 
 //===============================================================================
 
@@ -314,13 +304,13 @@ gon_in,73,82,5	script	SungChul Ki#gn	778,{
 	close;
 
 //	no idea what should happen after you started the quest...
-//	if ((v[cha] == 1) & (v[°Ç°-È¯] > 0))
+//	if ((v[cha] == 1) & (v[Â°ÃÂ°-ÃÂ¯] > 0))
 //		mes "[SungChul Ki]"
-//		mes "...À_? ¹ìÀ> Àâ_Æ_- _ª¿Â"
-//		mes "¹°°ÇÀÌ¶ó°í? ÈåÀ_..."
-//		mes "¿ØÁö ¸ð¸_°Ô ÁÁ_Æº¸ÀÌ_Â°É."
-//		mes "ÀÌ¸R Áàº¸°Ô. ÇÑ¹ø Â÷¸¦"
-//		mes "¸¸÷é_îº¸°Ú_×!"
+//		mes "...Ã_? Â¹Ã¬Ã> ÃÃ¢_Ã_- _ÂªÂ¿Ã"
+//		mes "Â¹Â°Â°ÃÃÃÂ¶Ã³Â°Ã­? ÃÃ¥Ã_..."
+//		mes "Â¿ÃÃÃ¶ Â¸Ã°Â¸_Â°Ã ÃÃ_ÃÂºÂ¸ÃÃ_ÃÂ°Ã."
+//		mes "ÃÃÂ¸R ÃÃ ÂºÂ¸Â°Ã. ÃÃÂ¹Ã¸ ÃÃ·Â¸Â¦"
+//		mes "Â¸Â¸Ã·Ã©_Ã®ÂºÂ¸Â°Ã_Ã!"
 //		next;
 //		mes "................................"
 //		next;
@@ -334,17 +324,17 @@ gon_in,73,82,5	script	SungChul Ki#gn	778,{
 //
 }
 
-//==============ÃàÁ¦ °ü¸RÀÎ================
-//npc "gon_in" "È_ÀÌ _º" 4_M_TWMIDMAN 101 21 3 5 5
+//==============ÃÃ ÃÂ¦ Â°Ã¼Â¸RÃÃ================
+//npc "gon_in" "Ã_ÃÃ _Âº" 4_M_TWMIDMAN 101 21 3 5 5
 //OnClick:
-//	mes "[È_ÀÌ _º]"
-//	mes "ÈÞ¿ì... °ÆÁ¤ÀÌ+º."
-//	mes "____ ÀÌ¹ø¿¡÷÷ ÃàÁ¦¸¦ ¹úÀÏ"
-//	mes "Å¸ÀÌ¹ÖÀÌ ¿Ô_Â÷_ _îÂî÷È"
-//	mes "ÀÏÀÎÁö ÀüÇô ÃàÁ¦ÁØºñ°¡"
-//	mes "÷ÇÁö_Ê_Ò_î..."
+//	mes "[Ã_ÃÃ _Âº]"
+//	mes "ÃÃÂ¿Ã¬... Â°ÃÃÂ¤ÃÃ+Âº."
+//	mes "____ ÃÃÂ¹Ã¸Â¿Â¡Ã·Ã· ÃÃ ÃÂ¦Â¸Â¦ Â¹ÃºÃÃ"
+//	mes "ÃÂ¸ÃÃÂ¹ÃÃÃ Â¿Ã_ÃÃ·_ _Ã®ÃÃ®Ã·Ã"
+//	mes "ÃÃÃÃÃÃ¶ ÃÃ¼ÃÃ´ ÃÃ ÃÂ¦ÃÃÂºÃ±Â°Â¡"
+//	mes "Ã·ÃÃÃ¶_Ã_Ã_Ã®..."
 //	next;
-//	mes "[È_ÀÌ _º]"
+//	mes "[Ã_ÃÃ _Âº]"
 
 gon_in,173,27,3	script	Kuha Woo#gn	774,{
 	mes "[Kuha Woo]";

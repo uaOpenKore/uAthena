@@ -1365,18 +1365,6 @@ amatsu,171,174,4	script	Gate Soldier#ama6	767,{
 	close;
 }
 	
-ama_in02,187,57,2	script	Soldier#ama1	767,{
-	mes "[Ichiro]";
-	mes "Welcome.";
-	mes "Our lord prepared guest rooms";
-	mes "for travelers like you.";
-	next;
-	mes "[Ichiro]";
-	mes "If you are having any problems,";
-	mes "tell me. I would appreciate it if you talk to our lord of the";
-	mes "palace. This is all provided by him.";
-	close;
-}
 	
 ama_in02,170,62,4	script	Soldier#ama2	767,{
 	mes "[Jiro]";
@@ -1429,106 +1417,12 @@ ama_in02,170,62,4	script	Soldier#ama2	767,{
 	}
 }
 	
-ama_in02,37,157,4	script	Soldier#ama3	767,{
-	mes "[Saburo]";
-	mes "This is the training ground for improving our battle skills.";
-	mes "Please look around...";
-	next;
-	mes "[Saburo]";
-	mes "By the way, recently I've felt";
-	mes "like the soldiers have changed";
-	mes "lately. How do I say it...";
-	mes "Their faces are gloomy and";
-	mes "some of them are no longer around.";
-	mes "Have they gone to Rune-Midgard??";
-	next;
-	mes "[Saburo]";
-	mes "In this job, I encounter";
-	mes "many strangers. But downstairs,";
-	mes "there's a guest from a distant land who seems suspicious...";
-	mes "I told my guards to watch him...";
-	next;
-	mes "[Saburo]";
-	mes "Of course, my lord precisely knows everything that's going on.";
-	mes "Haha, don't take what I said seriously~";
-	mes "See ya...";
-	close;
-}
 	
 	
-ama_in02,40,167,3	script	Soldier#ama5	767,{
-	mes "[Goro]";
-	mes "*Psst*... Please, be quiet.";
-	mes "I will tell you a story, okay?";
-	mes " ";
-	next;
-	mes "[Goro]";
-	mes "There is a rumor in Amatsu.";
-	mes "The lord of this palace isn't";
-	mes "real... *Psst*, Quiet!";
-	mes "Don't panic and listen to me.";
-	next;
-	mes "[Goro]";
-	mes "There is a real lord behind";
-	mes "the kind lord and he is scheming";
-	mes "something. He is controlling";
-	mes "our town in some hidden place.";
-	mes "...Our kind lord is just a figurehead~!";
-	next;
-	mes "[Goro]";
-	mes "It's for real! Trust me~";
-	mes "I saw him. The lord who was";
-	mes "laughing at the town on the";
-	mes "TenguGak!!";
-	mes "Just don't tell anyone that I've told you this, okay?";
-	close;
-}
 	
 	
-ama_in02,42,34,2	script	Soldier#ama7	767,{
-	mes "[Shichiro]";
-	mes "Have a good time.";
-	mes "My lord prepared some";
-	mes "guest rooms.";
-	next;
-	mes "[Shichiro]";
-	mes "If you have any problems,";
-	mes "please call me. Also, try not to disturb the other guests.";
-	mes " ";
-	next;
-	mes "[Shichiro]";
-	mes "Have a good day.";
-	close;
-}
 	
-ama_in02,203,156,4	script	Soldier#ama8	767,{
-	mes "[Hachiro]";
-	mes "My lord is inside.";
-	mes "If you'd like to greet him, feel free to enter.";
-	next;
-	mes "[Hachiro]";
-	mes "Don't be rude in front of him.";
-	mes "He is somehow not feeling well.";
-	mes "Usually, he greets people from";
-	mes "other continents gladly, but...";
-	mes "What could have happened to him...?";
-	close;
-}
 	
-ama_in02,195,156,4	script	Soldier#ama9	767,{
-	mes "[Kyuro]";
-	mes "This is not good.";
-	mes "My lord is really kind, but";
-	mes "recently he is not doing well...";
-	next;
-	mes "[Kyuro]";
-	mes "I've heard about the rumors";
-	mes "but I trust him. He made";
-	mes "Amatsu into a great town.";
-	mes "That is why I'm following";
-	mes "him as a soldier.";
-	close;
-}
 	
 ama_in02,115,177,7	script	Soldier#ama10	767,{
 	mes "[Jyuro]";
