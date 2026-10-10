@@ -1284,63 +1284,9 @@ ama_in01,162,17,1	script	Sushi Master#ama	765,{
 
 // Dungeon Quest
 //============================================================ 
-amatsu,112,164,4	script	Gate Soldier#ama1	767,{
-	mes "[Gate Soldier]";
-	mes "This is the great palace,";
-	mes "Toukoujyo.";
-	mes "Locals are prohibited";
-	mes "from entering...";
-	next;
-	mes "[Gate Soldier]";
-	mes "Your attire looks unfamiliar.";
-	mes "Are you from another continent?";
-	mes "The lord has granted entrance to";
-	mes "tourists, so you can go in.";
-	mes " ";
-	close;
-}
 	
-amatsu,119,164,4	script	Gate Soldier#ama2	767,{
-	mes "[Gate Soldier]";
-	mes "Are you from Rune-Midgard?";
-	mes "Welcome to Amatsu.";
-	mes "Visit our lord in Chun-Su-Gak";
-	mes "when you go in.";
-	mes " ";
-	next;
-	mes "[Gate Soldier]";
-	mes "He is really kind.";
-	mes "He invested in various fields for";
-	mes "Amatsu, and intercontinental trade was his idea.";
-	close;
-}
 	
-ama_in02,207,40,6	script	Gate Soldier#ama3	767,{
-	mes "[Gate Soldier]";
-	mes "Welcome. The lord of the palace";
-	mes "has specially allowed guests";
-	mes "from other continents.";
-	next;
-	mes "[Gate Soldier]";
-	mes "Look around and take your time.";
-	mes "Please enjoy your stay.";
-	close;
-}
 	
-ama_in02,207,49,6	script	Gate Soldier#ama4	767,{
-	mes "[Gate Soldier]";
-	mes "The lord is really nice guy.";
-	mes "Who would know that our town was";
-	mes "once a small village?";
-	next;
-	mes "[Gate Soldier]";
-	mes "I thank him for hiring me.";
-	mes "These days, he seems to have";
-	mes "troubles on his mind.";
-	mes "Lately, he's been looking pretty gloomy.";
-	mes " ";
-	close;
-}
 	
 amatsu,164,174,4	script	Gate Soldier#ama5	767,{
 	mes "[Gate Soldier]";
@@ -1509,24 +1455,6 @@ ama_in02,37,157,4	script	Soldier#ama3	767,{
 	close;
 }
 	
-ama_in02,32,51,6	script	Soldier#ama4	767,{
-	mes "[Shiro]";
-	mes "*Cough, Cough* What...";
-	mes "Don't talk to me...";
-	mes "*Cough, Cough*... Oh, my freakin' neck.";
-	next;
-	mes "[Shiro]";
-	mes "That quack's cold medicine";
-	mes "is useless! I should never have trusted people from Rune-Midgard!";
-	mes "*Cough, Cough*...";
-	next;
-	mes "[Shiro]";
-	mes "I don't know why but...";
-	mes "I'm getting worse and worse...";
-	mes "What kind of cold is this?";
-	mes "*Cough*... *Cough*...";
-	close;
-}
 	
 ama_in02,40,167,3	script	Soldier#ama5	767,{
 	mes "[Goro]";
@@ -1556,27 +1484,6 @@ ama_in02,40,167,3	script	Soldier#ama5	767,{
 	close;
 }
 	
-ama_in02,32,167,5	script	Soldier#ama6	767,{
-	mes "[Rokuro]";
-	mes "He always talks nonsense.";
-	mes "He says that our lord";
-	mes "is not real, but a fake.";
-	mes "It's not even funny.";
-	next;
-	mes "[Rokuro]";
-	mes "However, it is true that";
-	mes "recently, weird things are";
-	mes "happening. There were no";
-	mes "prohibited places before...";
-	next;
-	mes "[Rokuro]";
-	mes "I hear strange sounds sometimes.";
-	mes "The mother of the lord has been";
-	mes "visited by doctors several times.";
-	mes "I guess her health hasn't";
-	mes "improve after their visits...";
-	close;
-}
 	
 ama_in02,42,34,2	script	Soldier#ama7	767,{
 	mes "[Shichiro]";
@@ -2081,26 +1988,6 @@ amatsu,189,166,5	script	Kouji#ama	764,{
 	close;
 }
 	
-ama_in01,169,173,1	script	Shaman#ama	769,{
-	mes "[Tokako]";
-	mes "Er, I'm not really a shaman...";
-	mes "My friend, Takehue-kun brought";
-	mes "me here and invited me to try on these clothes.";
-	next;
-	mes "[Tokako]";
-	mes "He asks me to do a lot of";
-	mes "weird stuff, but he is funny.";
-	mes "Sometimes, I don't know what";
-	mes "he is thinking. Still, he is a good friend.";
-	next;
-	mes "[Tokako]";
-	mes "If you are curious about,";
-	mes "something, ask Takehue-kun.";
-	mes "He knows stuff about";
-	mes "mysticism and the occult that other people don't know about.";
-	mes " ";
-	close;
-}
 	
 ama_in01,180,173,3	script	Kitsune Mask#ama	762,{
 	if (event_amatsu == 3) {

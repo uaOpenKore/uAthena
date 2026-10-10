@@ -15876,24 +15876,6 @@ mid_camp,255,269,0	script	Wet Firewood#moc2	844,{
 	}
 }
 
-morocc,43,108,5	script	Sharp-Looking Boy#dan_07	82,{
-	if (BaseClass == Job_Assassin) {
-		mes "[Jack]";
-		mes "Almost half of this town has been destroyed,";
-		mes "and yet some people still come to visit.";
-		mes "I must say that it's amazing that our stronghold is still intact, and withstood all the devastation.";
-		close;
-	}
-	else {
-		mes "[Jack]";
-		mes "As you see, half of this town is gone. I guess there's no real reason to control access to this tavern.";
-		mes "Just feel free to go in.";
-		next;
-		mes "[Jack]";
-		mes "I'm impressed by your courage to step into this hell.";
-		close;
-	}
-}
 
 
 que_job01,6,94,0	warp	morocc#01	2,2,morocc,45,103

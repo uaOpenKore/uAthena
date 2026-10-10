@@ -10,7 +10,7 @@
 //
 //===== Additional Comments: ================================= 
 // May be missing npc's and dialogue.
-//= 1.1 Fixed Typo’s [Nexon]
+//= 1.1 Fixed TypoÂ’s [Nexon]
 //= 1.2 Removed Duplicates [Silent]
 //= 1.3 Max NPC Name is 23 [Toms]
 //= 1.3a Removed temp NPC plugs due Broken Sword quest [Lupus]
@@ -138,20 +138,6 @@ gonryun,139,142,6	script	Girl#08	772,{
 
 //===============================================================================
 
-gon_in,18,27,4	script	Elder's Wife	771,{
-	mes "[Sangufayon]";
-	mes "Oh my! You look like an important visitor from the outside. Aren't you?";
-	next;
-	menu "Yes, I am.",-,"Where is the village Elder?",M_End;
-
-		mes "[Sangufayon]";
-		mes "We do not get many visitors from the outside to see my husband so it's so easy to spot them. Hohohohoho!";
-		close;
-	M_End:
-		mes "[Sangufayon]";
-		mes "The master of the house, hohohohoho? Why... he is upstairs on the second floor if you need to talk to him, hohohoho.";
-		close;
-}
 
 //===============================================================================
 
@@ -193,73 +179,6 @@ gonryun,51,101,4	script	Gaiysonchoru	778,{
 
 //===============================================================================
 
-gonryun,237,226,3	script	YunKyoHam#gn	776,{
-	mes "[YunKyoHam]";
-	if (nakha < 2) {
-		mes "Oh no~ Holy cow!";
-		mes "Can't believe I dropped";
-		mes "my valuable knife! ahhhhhh.";
-		if (baselevel >= 20) {
-			next;
-			if (nakha == 0) set nakha,1;
-			mes "[YunKyoHam]";
-			mes "I need to go down to get it";
-			mes "but...the monsters..";
-			mes "I am so scared..  What should I do!";
-		}
-	} else if (nakha == 2) {
-		mes "ehhhh.. what should I do..";
-		mes "got any business to";
-		mes "take care of?";
-		mes "hmm?";
-		if (countitem(1201) < 1) close;
-		next;
-		mes "[YunKyoHam]";
-		mes "uk! that...that knife";
-		mes "is my ancestor's knife that";
-		mes "I dropped from here.";
-		mes "Where did you get it?";
-		next;
-		mes "[YunKyoHam]";
-		mes "I dropped that knife from";
-		mes "here and it belongs to my";
-		mes "ancestor's property. It sure is";
-		mes "a cheap knife,";
-		mes "but really valuable to me";
-		mes "and my family.";
-		next; 
-		mes "[YunKyoHam]";
-		mes "Would you hand that";
-		mes "knife to me?";
-		next;
-		if (select("give.:ignore.") == 2 || countitem(1201) < 1) {
-			mes "[YunKyoHam]";
-			mes "Huk! my family heiloom!!";
-			mes "You Evil! Satan! Animal! Hode";
-			mes "My curse shall be on his head!!!";
-			close;
-		}
-		mes "[YunKyoHam]";
-		mes "ohoh! Thank you!";
-		mes "Take these potions.";
-		mes "They are not expensive";
-		mes "but my favorites.";
-		set nakha,3;
-		delitem 1201, 1; // Knife
-		getitem 505,2; // Blue_Potion
-		next;
-		mes "[YunKyoHam]";
-		mes "You kept my family";
-		mes "treasure safe. Thank you!!";
-		mes "hahaha";
-	} else {
-		mes "next.. I heard my neighbor";
-		mes "is worrying about something";
-		mes "these days.. well, I got my";
-		mes "own business to take care of.";
-	}
-	close;
-}
 
 gon_fild01,245,257,0	script	lost knife#gn	139,1,1,{
 	if (nakha == 1) {
@@ -395,13 +314,13 @@ gon_in,73,82,5	script	SungChul Ki#gn	778,{
 	close;
 
 //	no idea what should happen after you started the quest...
-//	if ((v[cha] == 1) & (v[°Ç°-È¯] > 0))
+//	if ((v[cha] == 1) & (v[Â°Ã‡Â°-ÃˆÂ¯] > 0))
 //		mes "[SungChul Ki]"
-//		mes "...À_? ¹ìÀ> Àâ_Æ_- _ª¿Â"
-//		mes "¹°°ÇÀÌ¶ó°í? ÈåÀ_..."
-//		mes "¿ØÁö ¸ğ¸_°Ô ÁÁ_Æº¸ÀÌ_Â°É."
-//		mes "ÀÌ¸R Áàº¸°Ô. ÇÑ¹ø Â÷¸¦"
-//		mes "¸¸÷é_îº¸°Ú_×!"
+//		mes "...Ã€_? Â¹Ã¬Ã€> Ã€Ã¢_Ã†_- _ÂªÂ¿Ã‚"
+//		mes "Â¹Â°Â°Ã‡Ã€ÃŒÂ¶Ã³Â°Ã­? ÃˆÃ¥Ã€_..."
+//		mes "Â¿Ã˜ÃÃ¶ Â¸Ã°Â¸_Â°Ã” ÃÃ_Ã†ÂºÂ¸Ã€ÃŒ_Ã‚Â°Ã‰."
+//		mes "Ã€ÃŒÂ¸R ÃÃ ÂºÂ¸Â°Ã”. Ã‡Ã‘Â¹Ã¸ Ã‚Ã·Â¸Â¦"
+//		mes "Â¸Â¸Ã·Ã©_Ã®ÂºÂ¸Â°Ãš_Ã—!"
 //		next;
 //		mes "................................"
 //		next;
@@ -415,17 +334,17 @@ gon_in,73,82,5	script	SungChul Ki#gn	778,{
 //
 }
 
-//==============ÃàÁ¦ °ü¸RÀÎ================
-//npc "gon_in" "È_ÀÌ _º" 4_M_TWMIDMAN 101 21 3 5 5
+//==============ÃƒÃ ÃÂ¦ Â°Ã¼Â¸RÃ€Ã================
+//npc "gon_in" "Ãˆ_Ã€ÃŒ _Âº" 4_M_TWMIDMAN 101 21 3 5 5
 //OnClick:
-//	mes "[È_ÀÌ _º]"
-//	mes "ÈŞ¿ì... °ÆÁ¤ÀÌ+º."
-//	mes "____ ÀÌ¹ø¿¡÷÷ ÃàÁ¦¸¦ ¹úÀÏ"
-//	mes "Å¸ÀÌ¹ÖÀÌ ¿Ô_Â÷_ _îÂî÷È"
-//	mes "ÀÏÀÎÁö ÀüÇô ÃàÁ¦ÁØºñ°¡"
-//	mes "÷ÇÁö_Ê_Ò_î..."
+//	mes "[Ãˆ_Ã€ÃŒ _Âº]"
+//	mes "ÃˆÃÂ¿Ã¬... Â°Ã†ÃÂ¤Ã€ÃŒ+Âº."
+//	mes "____ Ã€ÃŒÂ¹Ã¸Â¿Â¡Ã·Ã· ÃƒÃ ÃÂ¦Â¸Â¦ Â¹ÃºÃ€Ã"
+//	mes "Ã…Â¸Ã€ÃŒÂ¹Ã–Ã€ÃŒ Â¿Ã”_Ã‚Ã·_ _Ã®Ã‚Ã®Ã·Ãˆ"
+//	mes "Ã€ÃÃ€ÃÃÃ¶ Ã€Ã¼Ã‡Ã´ ÃƒÃ ÃÂ¦ÃÃ˜ÂºÃ±Â°Â¡"
+//	mes "Ã·Ã‡ÃÃ¶_ÃŠ_Ã’_Ã®..."
 //	next;
-//	mes "[È_ÀÌ _º]"
+//	mes "[Ãˆ_Ã€ÃŒ _Âº]"
 
 gon_in,173,27,3	script	Kuha Woo#gn	774,{
 	mes "[Kuha Woo]";

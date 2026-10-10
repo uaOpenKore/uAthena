@@ -15,7 +15,7 @@
 //= 1.2 - Fixed Something by Muad Dib
 //= 1.3 - Fixed up For eA by Darkchild
 //= 1.4 - Fixed some wrong item names [Lupus]
-//= 1.5 – Spell Checked [massdriller]
+//= 1.5 Â– Spell Checked [massdriller]
 //= 1.6 - Fixed item names, added a chance to get to Niflheim via Jumping Bungy Area [Lupus]
 //= 1.7 - Fixed bugs and exploits [Lupus]
 //= 1.8 - Warps you to Niff with 1HP [Lance]
@@ -495,40 +495,8 @@ umbala,80,146,4	script	Yuki	753,{
 }
 
 //=====================================================================
-um_in,101,73,3	script	Yunatan 	783,{
-	if(event_umbala < 3) goto LumWord;
-	mes "[Yunatan]";
-	mes "I'm standing out here because I";
-	mes "can't stand to lay eyes on";
-	mes "that lecher Wambokoriotan.";
-	mes "I hate his guts!";
-	close;
-LumWord:
-	mes "[Yunatan]";
-	mes "Umbaba!  Umbaumbaugaga";
-	mes "Ugugumubaugaumuumu.";
-	mes "Umbabababababababa.";
-	close;
-}
 
 //=====================================================================
-um_in,94,123,5	script	Bartsutan	783,{
-	if(event_umbala < 3) goto LumWord;
-	mes "[Bartsutan]";
-	mes "I want to see Wambokoriotan";
-	mes "morph into an insect so I can";
-	mes "have the satisfaction of crushing";
-	mes "his skull!  I hate him and his";
-	mes "advances!  I wish he would just stay";
-	mes "away from me.";
-	close;
-LumWord:
-	mes "[Bartsutan]";
-	mes "Umbarugumbarumbauma!";
-	mes "Umuguugumubarumba.";
-	mes "Umba...uumu.";
-	close;
-}
 
 //=====================================================================
 umbala,140,157,6	script	Utan Tribe Young Adult::UtanTribeYougAdult1	785,{
@@ -771,74 +739,10 @@ LumWord:
 }
 
 //=====================================================================
-umbala,145,217,3	script	Chibibatan	783,{
-	if(event_umbala < 3) goto LumWord;
-	mes "[Chibibatan]";
-	mes "I want to have some fun with";
-	mes "Wambokoriotan, but after seeing";
-	mes "how his wife can be, I don't know if";
-	mes "I want to end up being on her bad side.";
-	close;
-LumWord:
-	mes "[Chibibatan]";
-	mes "Umbaba.";
-	mes "Ugaugumbarumbaruuuu!";
-	mes "Ugugauwubaruguagumbagua.";
-	close;
-}
 
 //=====================================================================
-um_in,139,48,5	script	Purenotan	783,{
-	if(event_umbala < 3) goto LumWord;
-	mes "[Purenotan]";
-	mes "See that loser over there?";
-	mes "I'm on to him.  He hasn't";
-	mes "exactly made a secret of his desire";
-	mes "to have an affair or three.";
-	mes "He needs to be smacked in the nuts, HARD.";
-	close;
-LumWord:
-	mes "[Purenotan]";
-	mes "Umbaumbaugaga!";
-	mes "Umbaumbabababa!";
-	mes "Umbaumba!";
-	emotion e_an;
-	next;
-	mes "[Purenotan]";
-	mes "Umbaumabaumbaumbaba!";
-	mes "Umbababababaugau!";
-	mes "Uguugaumbabaumbagumba!";
-	emotion e_oh;
-	next;
-	emotion e_go;
-	close;
-On_emo:
-emotion e_an;
-end;
-}
 
 //=====================================================================
-um_in,144,45,5	script	Wambokoriotan	789,{
-	if(event_umbala < 3) goto LumWord;
-	mes "[Wambokoriotan]";
-	mes "Ahhh...My wife is a real";
-	mes "hothead.  Ouch...ouch.";
-	next;
-	mes "[Wambokoriotan]";
-	mes "Yunatan, Bartsutan, Chibibatan...";
-	mes "I want Umbala's babes as much";
-	mes "as they want me...Ouch...ouch!";
-	close;
-LumWord:
-	mes "[Wambokoriotan]";
-	mes "Umbaumbaba.....";
-	mes "Umbaugua!";
-	mes "Umbagumumbabagumbagaga!";
-	emotion e_heh;
-	next;
-	donpcevent "Purenotan::On_emo";
-	close;
-}
 
 //==============================================================================
 //Bungee jumping!
