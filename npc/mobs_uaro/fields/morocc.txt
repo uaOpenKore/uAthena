@@ -225,3 +225,4 @@ moc_fild18,325,207,0,0	monster	Yellow Plant	1081,1,180000,90000,1
 moc_fild18,325,272,0,0	monster	Yellow Plant	1081,1,180000,90000,1
 moc_fild18,0,0,0,0	monster	Dragon Fly	1091,1,3600000,1800000,1
 moc_fild18,0,0,0,0	monster	Hunter Fly	1035,1,3600000,1800000,1
+moc_fild20,200,200,0,0	monster	Satan Morroc	1917,1,7200000,3600000,1	// MVP spawn - map center, walkable cell (S.)
