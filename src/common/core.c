@@ -1,11 +1,18 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#if defined(__linux__) && !defined(_GNU_SOURCE)
+#define _GNU_SOURCE  // cpu_set_t / CPU_SET / sched_setaffinity (CPU affinity, #switch-cpu)
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#if defined(__linux__)
+#include <sched.h>  // sched_setaffinity — pin the server off the client's CPU core (Switch, #switch-cpu)
+#endif
 
 #include "core.h"
 #include "../common/mmo.h"
@@ -187,10 +194,63 @@ void usercheck(void)
 }
 
 /*======================================
+ * CPU affinity (#switch-cpu): pin the whole server process to a subset of CPU cores so, when the
+ * server and the client run on the SAME machine (e.g. a Nintendo Switch under L4T Linux where only
+ * 3 cores are free), the server stays off the core the client renders on. Set BEFORE any worker
+ * thread is created so every thread inherits the mask.
+ *
+ * Config (first that is set wins), cores as a comma/space list, 0-based:
+ *   - env  UATHENA_CPU_CORES   e.g.  UATHENA_CPU_CORES=1,2
+ *   - file conf/cpu_affinity.conf  line  cpu_cores: 1,2
+ * Not set -> no change (server may use every core, exactly as before). Linux-only; no-op elsewhere.
+ *--------------------------------------*/
+static void apply_cpu_affinity(void)
+{
+#if defined(__linux__)
+	char buf[256] = {0};
+	const char* env = getenv("UATHENA_CPU_CORES");
+	if (env && env[0]) {
+		strncpy(buf, env, sizeof(buf) - 1);
+	} else {
+		FILE* fp = fopen("conf/cpu_affinity.conf", "r");
+		if (fp) {
+			char line[256];
+			while (fgets(line, sizeof(line), fp)) {
+				char* p;
+				if (line[0] == '/' || line[0] == '#') continue;  // comment
+				if ((p = strstr(line, "cpu_cores:")) != NULL) { strncpy(buf, p + 10, sizeof(buf) - 1); break; }
+			}
+			fclose(fp);
+		}
+	}
+	if (!buf[0]) return;  // not configured
+
+	cpu_set_t set;
+	CPU_ZERO(&set);
+	int n = 0;
+	char list[256];
+	strncpy(list, buf, sizeof(list) - 1); list[sizeof(list) - 1] = '\0';
+	char* tok = strtok(list, " ,\t\r\n");
+	while (tok) {
+		int core = atoi(tok);
+		if (core >= 0 && core < CPU_SETSIZE) { CPU_SET(core, &set); ++n; }
+		tok = strtok(NULL, " ,\t\r\n");
+	}
+	if (n <= 0) return;
+	if (sched_setaffinity(0, sizeof(set), &set) == 0)
+		ShowStatus("CPU affinity: server pinned to %d core(s) [%s] (%s)\n", n, buf,
+		           (env && env[0]) ? "env UATHENA_CPU_CORES" : "conf/cpu_affinity.conf");
+	else
+		ShowWarning("CPU affinity: sched_setaffinity failed for cores [%s]\n", buf);
+#endif
+}
+
+/*======================================
  *	CORE : MAINROUTINE
  *--------------------------------------*/
 int main (int argc, char **argv)
 {
+
 	{// initialize program arguments
 		char *p1 = SERVER_NAME = argv[0];
 		char *p2 = p1;
@@ -207,6 +267,8 @@ int main (int argc, char **argv)
 	}
 
 	malloc_init();// needed for Show* in display_title() [FlavioJS]
+
+	apply_cpu_affinity();// pin the server off the client's CPU core when co-hosted (Switch); no-op unless configured
 
 #ifdef MINICORE // minimalist Core
 	display_title();
