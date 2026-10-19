@@ -678,15 +678,20 @@ int mmo_auth(struct mmo_account* account, int fd)
 	if (login_config.online_check) {
 		struct online_login_data* data = idb_get(online_db,account->account_id);
 		if (data && data->char_server > -1) {
-			//Request char servers to kick this account out. [Skotlex]
+			// (B1) The account still has an online (often GHOST) session. Previously we REJECTED the
+			// new login (return 3), which forced the player to keep retrying -- exactly what fed the
+			// relog storm. Per policy we never refuse a login: kick the old/stuck session out of all
+			// char-servers and let THIS login proceed (last-login-wins). The map/char guards
+			// (set_char_online) tear down any lingering map session for the same char, so there is no
+			// double session. [auth-resilience, approved by S. 2026-10-19]
 			unsigned char buf[8];
-			ShowNotice("User [%s] is already online - Rejected.\n",account->userid);
+			ShowNotice("User [%s] already online - kicking old session, accepting new login.\n",account->userid);
 			WBUFW(buf,0) = 0x2734;
 			WBUFL(buf,2) = account->account_id;
 			charif_sendallwos(-1, buf, 6);
 			if (data->waiting_disconnect == -1)
 				data->waiting_disconnect = add_timer(gettick()+30000, waiting_disconnect_timer, account->account_id, 0);
-			return 3; // Rejected
+			// fall through -> new login accepted (no "Rejected")
 		}
 	}
 

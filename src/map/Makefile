@@ -18,7 +18,7 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/npc_chat.o obj/chat.o obj/path.o obj/itemdb.o obj/mob.o obj/script.o \
 	obj/storage.o obj/skill.o obj/atcommand.o obj/charcommand.o obj/battle.o \
 	obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/buyingstore.o obj/guild.o obj/pet.o \
-	obj/log.o obj/log_async.o obj/async_db.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o \
+	obj/log.o obj/log_async.o obj/async_db.o obj/async_read.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o \
 	$(COMMON_OBJ)
 
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
@@ -59,6 +59,7 @@ sqlobj/mail.o: mail.c mail.h $(COMMON_H)
 sqlobj/log.o: log.c log.h map.h $(COMMON_H)
 sqlobj/log_async.o: log_async.c log.h map.h $(COMMON_H)
 sqlobj/async_db.o: async_db.c async_db.h ../common/showmsg.h
+sqlobj/async_read.o: async_read.c async_read.h ../common/showmsg.h
 sqlobj/charcommand.o: charcommand.c charcommand.h itemdb.h pc.h map.h skill.h clif.h mob.h intif.h battle.h storage.h guild.h pet.h log.h $(COMMON_H)
 sqlobj/date.o: date.c date.h $(COMMON_H)
 sqlobj/unit.o: unit.c unit.h $(COMMON_H)
