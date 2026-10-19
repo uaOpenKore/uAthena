@@ -4101,8 +4101,25 @@ void set_server_type(void)
 static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 {
 	struct online_char_data *character= (struct online_char_data*)data;
+	int *online_cnt = va_arg(ap, int*);
+	int *ghost_cnt  = va_arg(ap, int*);
+
 	if (character->server == -2) //Unknown server.. set them offline
 		set_char_offline(character->char_id, character->account_id);
+	// (B2) Reap GHOST sessions: a character still flagged online on a map-server that is no longer
+	// connected (server_fd gone, e.g. the map-server crashed/was restarted without a clean player
+	// disconnect) would otherwise keep online=1 in the DB until the next full reboot. This is the
+	// accumulation that used to force a manual reboot. We reconcile it here on a short interval so
+	// the DB's online flags track reality without ever refusing anyone a login. [auth-resilience]
+	else if (character->server >= 0 &&
+	         (character->server >= MAX_MAP_SERVERS || server_fd[character->server] <= 0))
+	{
+		if (ghost_cnt) (*ghost_cnt)++;
+		set_char_offline(character->char_id, character->account_id);
+	}
+	else if (character->server >= 0 && online_cnt)
+		(*online_cnt)++;
+
 	if (character->server < 0)
 		//Free data from players that have not been online for a while.
 		db_remove(online_char_db, key);
@@ -4111,7 +4128,11 @@ static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 
 static int online_data_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
-	online_char_db->foreach(online_char_db, online_data_cleanup_sub);
+	int online_cnt = 0, ghost_cnt = 0;
+	online_char_db->foreach(online_char_db, online_data_cleanup_sub, &online_cnt, &ghost_cnt);
+	// (E) Observability: report the reconciled online count and how many ghost sessions were reaped.
+	if (ghost_cnt > 0)
+		ShowInfo("Online reconcile: %d account(s) online, %d ghost session(s) cleared.\n", online_cnt, ghost_cnt);
 	return 0;
 }
 
@@ -4178,7 +4199,9 @@ int do_init(int argc, char **argv)
 	add_timer_func_list(chardb_waiting_disconnect, "chardb_waiting_disconnect");
 
 	add_timer_func_list(online_data_cleanup, "online_data_cleanup");
-	add_timer_interval(gettick() + 600*1000, online_data_cleanup, 0, 0, 600 * 1000);
+	// (B2) Reconcile online flags against reality every 120s (was 600s) so ghost sessions clear
+	// within ~2 min instead of lingering until a reboot. [auth-resilience]
+	add_timer_interval(gettick() + 120*1000, online_data_cleanup, 0, 0, 120 * 1000);
 
 	// send ALIVE PING to login server.
 	add_timer_interval(gettick() + 10, check_connect_login_server, 0, 0, 10 * 1000);
