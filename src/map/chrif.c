@@ -94,8 +94,11 @@ static int chrif_state = 0;
 static int char_init_done = 0;
 int other_mapserver_count=0; //Holds count of how many other map servers are online (apart of this instance) [Skotlex]
 
-//Interval at which map server updates online listing. [Valaris]
-#define CHECK_INTERVAL 3600000
+//Interval at which map server pushes its full online-char list to the char-server. Lowered from
+//3600000 (1h) to 60000 (60s) so the char-server can reconcile ghost online-flags within minutes
+//instead of up to an hour. The list is ~8 bytes/online-player, so 60s is cheap. Keep in sync with
+//ONLINE_SYNC_INTERVAL_MS in char_sql/char.c. [auth-resilience B3]
+#define CHECK_INTERVAL 60000
 //Interval at which map server sends number of connected users. [Skotlex]
 #define UPDATE_INTERVAL 10000
 //This define should spare writing the check in every function. [Skotlex]

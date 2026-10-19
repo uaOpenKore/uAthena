@@ -187,6 +187,7 @@ struct online_char_data {
 	int fd;
 	int waiting_disconnect;
 	short server;
+	unsigned int confirm_tick; // (B3) last time a map-server's online-list (0x2aff) or set_char_online confirmed this char; 0 = never
 };
 
 struct dbt *online_char_db; //Holds all online characters.
@@ -200,6 +201,7 @@ static void * create_online_char_data(DBKey key, va_list args)
 	character->server = -1;
 	character->fd = -1;
 	character->waiting_disconnect = -1;
+	character->confirm_tick = 0;
 	return character;
 }
 
@@ -244,6 +246,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 
 	character->char_id = (char_id==99)?-1:char_id;
 	character->server = (char_id==99)?-1:map_id;
+	character->confirm_tick = gettick(); // (B3) freshly confirmed online
 
 	if(character->waiting_disconnect != -1) {
 		delete_timer(character->waiting_disconnect, chardb_waiting_disconnect);
@@ -339,14 +342,35 @@ static int char_db_kickoffline(DBKey key, void* data, va_list ap)
 	return 1;
 }
 
-// (B3) Reap a char still marked 'unknown' (server == -2) after an authoritative online-list sync:
-// the map that had it no longer reports it, so it is a ghost. Used only when a single map-server is
-// connected (see the 0x2aff handler), so a char migrating between map-servers is never dropped.
-static int char_db_reap_unknown(DBKey key, void* data, va_list ap)
+// (B3) Online-flag stale-reap, correct for ANY number of map-servers.
+// Every map-server re-confirms each of its online players on its periodic online-list sync (0x2aff).
+// We stamp confirm_tick on every confirmation (and when a char goes online). A char whose server
+// still says "online" but which NO map-server has confirmed within the grace window is a ghost (the
+// player vanished without a clean disconnect) and is reaped. Because the grace window is comfortably
+// larger than the sync interval, a live char - including one migrating between map-servers, which
+// its new server re-confirms within one interval - is never dropped. 0 = never confirmed yet (freshly
+// created placeholder), skip.
+#define ONLINE_SYNC_INTERVAL_MS 60000   // must match CHECK_INTERVAL in map/chrif.c
+#define ONLINE_STALE_GRACE_MS   (ONLINE_SYNC_INTERVAL_MS * 5 / 2) // 150s: >2 sync intervals of slack
+
+static int online_stale_reap_sub(DBKey key, void* data, va_list ap)
 {
 	struct online_char_data* character = (struct online_char_data*)data;
-	if (character->server == -2)
+	int* reaped = va_arg(ap, int*);
+	if (character->server >= 0 && character->confirm_tick != 0
+	 && DIFF_TICK(gettick(), character->confirm_tick) > ONLINE_STALE_GRACE_MS) {
+		if (reaped) (*reaped)++;
 		set_char_offline(character->char_id, character->account_id);
+	}
+	return 0;
+}
+
+static int online_stale_reap(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	int reaped = 0;
+	online_char_db->foreach(online_char_db, online_stale_reap_sub, &reaped);
+	if (reaped > 0)
+		ShowInfo("Online stale-reap: %d ghost session(s) cleared (unconfirmed > %ds).\n", reaped, ONLINE_STALE_GRACE_MS/1000);
 	return 0;
 }
 
@@ -2619,20 +2643,9 @@ int parse_frommap(int fd)
 				}
 				character->server = id;
 				character->char_id = cid;
+				character->confirm_tick = gettick(); // (B3) this map-server confirms the char is online NOW
 			}
-			// (B3) Chars still at -2 are this server's players that the fresh list no longer reports
-			// = ghosts. The cleanup timer eventually reaps them (up to 120s); with a SINGLE map-server
-			// connected we can reap them NOW (seconds), since no other server could still own a -2
-			// entry. With multiple servers we leave them to the timer to avoid dropping a char that is
-			// mid-migration between servers. [auth-resilience B3]
-			{
-				int mcount = 0, s;
-				for (s = 0; s < MAX_MAP_SERVERS; s++)
-					if (server_fd[s] > 0) mcount++;
-				if (mcount <= 1)
-					online_char_db->foreach(online_char_db, char_db_reap_unknown);
-			}
-			//Any chars still in -2 (multi-server case) will be cleaned in the cleanup timer.
+			//Any chars still in -2 are handled by the stale-reap / cleanup timers.
 			RFIFOSKIP(fd,RFIFOW(fd,2));
 		}
 		break;
@@ -4473,6 +4486,10 @@ int do_init(int argc, char **argv)
 	// (B2) Reconcile online flags against reality every 120s (was 600s) so ghost sessions clear
 	// within ~2 min instead of lingering until a reboot. [auth-resilience]
 	add_timer_interval(gettick() + 120*1000, online_data_cleanup, 0, 0, 120 * 1000);
+	// (B3) Stale-reap per-player ghosts not confirmed by any map-server's online sync within the
+	// grace window - correct for any number of map-servers. Runs every 30s. [auth-resilience]
+	add_timer_func_list(online_stale_reap, "online_stale_reap");
+	add_timer_interval(gettick() + 30*1000, online_stale_reap, 0, 0, 30 * 1000);
 
 	// send ALIVE PING to login server.
 	add_timer_interval(gettick() + 10, check_connect_login_server, 0, 0, 10 * 1000);
