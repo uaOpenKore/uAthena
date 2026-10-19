@@ -339,6 +339,17 @@ static int char_db_kickoffline(DBKey key, void* data, va_list ap)
 	return 1;
 }
 
+// (B3) Reap a char still marked 'unknown' (server == -2) after an authoritative online-list sync:
+// the map that had it no longer reports it, so it is a ghost. Used only when a single map-server is
+// connected (see the 0x2aff handler), so a char migrating between map-servers is never dropped.
+static int char_db_reap_unknown(DBKey key, void* data, va_list ap)
+{
+	struct online_char_data* character = (struct online_char_data*)data;
+	if (character->server == -2)
+		set_char_offline(character->char_id, character->account_id);
+	return 0;
+}
+
 void set_all_offline(int id)
 {
 	if (id < 0)
@@ -2609,7 +2620,19 @@ int parse_frommap(int fd)
 				character->server = id;
 				character->char_id = cid;
 			}
-			//If any chars remain in -2, they will be cleaned in the cleanup timer.
+			// (B3) Chars still at -2 are this server's players that the fresh list no longer reports
+			// = ghosts. The cleanup timer eventually reaps them (up to 120s); with a SINGLE map-server
+			// connected we can reap them NOW (seconds), since no other server could still own a -2
+			// entry. With multiple servers we leave them to the timer to avoid dropping a char that is
+			// mid-migration between servers. [auth-resilience B3]
+			{
+				int mcount = 0, s;
+				for (s = 0; s < MAX_MAP_SERVERS; s++)
+					if (server_fd[s] > 0) mcount++;
+				if (mcount <= 1)
+					online_char_db->foreach(online_char_db, char_db_reap_unknown);
+			}
+			//Any chars still in -2 (multi-server case) will be cleaned in the cleanup timer.
 			RFIFOSKIP(fd,RFIFOW(fd,2));
 		}
 		break;
@@ -4375,8 +4398,12 @@ static int online_data_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t
 	int online_cnt = 0, ghost_cnt = 0;
 	online_char_db->foreach(online_char_db, online_data_cleanup_sub, &online_cnt, &ghost_cnt);
 	// (E) Observability: report the reconciled online count and how many ghost sessions were reaped.
+	// (E) Regular pulse of the online count (every run) + ghost-reap count when any were cleared,
+	// so the log carries a steady, greppable health signal. [auth-resilience]
 	if (ghost_cnt > 0)
 		ShowInfo("Online reconcile: %d account(s) online, %d ghost session(s) cleared.\n", online_cnt, ghost_cnt);
+	else
+		ShowInfo("Online status: %d account(s) online.\n", online_cnt);
 	return 0;
 }
 

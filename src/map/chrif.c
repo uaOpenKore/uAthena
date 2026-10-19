@@ -583,9 +583,11 @@ int auth_db_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
 	int pending = 0, purged = 0;
 	auth_db->foreach(auth_db, auth_db_cleanup_sub, &pending, &purged);
 	// (E) Observability: surface the pending map-entry auth-queue depth so a login storm is visible
-	// BEFORE it forces a manual reboot. Only log when the queue is non-trivial or something was
-	// purged, to avoid spamming the log when idle. [auth-resilience]
-	if (purged > 0 || pending >= 20)
+	// BEFORE it forces a manual reboot. Escalate to a WARNING at the high-water mark (impossible to
+	// miss), a quieter INFO for the normal non-trivial case, silence when idle. [auth-resilience]
+	if (pending >= 50)
+		ShowWarning("Auth queue HIGH: %d pending map-entry node(s) (%d purged this sweep) - possible login storm building.\n", pending, purged);
+	else if (purged > 0 || pending >= 20)
 		ShowInfo("Auth queue: %d pending map-entry node(s), %d purged this sweep.\n", pending, purged);
 	return 0;
 }
