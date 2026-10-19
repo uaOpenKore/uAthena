@@ -554,13 +554,25 @@ void chrif_authok(int fd)
 int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 {
 	struct auth_node *node=(struct auth_node*)data;
+	int *pending = va_arg(ap, int*);
+	int *purged  = va_arg(ap, int*);
+
+	if (pending) (*pending)++;
 
 	if(DIFF_TICK(gettick(),node->node_created)>AUTH_NODE_TTL_MS) {
+		// (C2) Only a node whose client never actually connected to the map (sd==NULL) is a truly
+		// dead/stale request. A node with sd!=NULL means the client IS here and still finishing
+		// map-entry load; purging it would kick a player who is genuinely connecting, so give those
+		// a longer grace (3x TTL) before giving up. This keeps honest-but-slow logins in without
+		// ever refusing anyone. [auth-resilience]
+		if (node->sd != NULL && DIFF_TICK(gettick(),node->node_created) <= AUTH_NODE_TTL_MS*3)
+			return 0;
 		ShowNotice("Character (aid: %d) not authed within %d seconds of character select!\n",
 			node->account_id, AUTH_NODE_TTL_MS/1000);
 		if (node->char_dat)
 			aFree(node->char_dat);
 		db_remove(auth_db, key);
+		if (purged) (*purged)++;
 		return 1;
 	}
 	return 0;
@@ -568,7 +580,13 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 
 int auth_db_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
-	auth_db->foreach(auth_db, auth_db_cleanup_sub);
+	int pending = 0, purged = 0;
+	auth_db->foreach(auth_db, auth_db_cleanup_sub, &pending, &purged);
+	// (E) Observability: surface the pending map-entry auth-queue depth so a login storm is visible
+	// BEFORE it forces a manual reboot. Only log when the queue is non-trivial or something was
+	// purged, to avoid spamming the log when idle. [auth-resilience]
+	if (purged > 0 || pending >= 20)
+		ShowInfo("Auth queue: %d pending map-entry node(s), %d purged this sweep.\n", pending, purged);
 	return 0;
 }
 

@@ -16,6 +16,7 @@
 #include "int_storage.h"
 #include "itemdb.h"
 #include "char.h"
+#include "char_async_load.h"	// async character-load lane (auth-resilience)
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -3090,6 +3091,362 @@ int lan_subnetcheck(uint32 ip)
 	return 0;
 }
 
+//==========================================================================================================
+// Asynchronous character load on char-select (0x66). See char_async_load.h.
+//
+// The 8 SELECTs of a full character load used to run synchronously on the game
+// thread, serialising every player's login behind the DB round-trips. Here the
+// SELECTs run on a worker thread (its own connection) into a per-request ctx,
+// and the game thread finishes the handoff (cache write + 0x71 + auth_fifo +
+// 0x2afd + set_char_online) in char_load_done(), revalidating the session first.
+//==========================================================================================================
+extern char default_codepage[32]; // from inter.c (char DB SET NAMES)
+ACharLane* char_load_lane = NULL;
+
+struct achar_ctx {
+	int fd;
+	int account_id, char_num;
+	int login_id1, login_id2, sex;
+	int connect_until_time;
+	uint32 ip;
+	int ok;                 // worker result: 1 = char loaded, 0 = not found / error
+	struct mmo_charstatus cs;
+};
+
+// Thread-safe full character load: runs on the WORKER thread with its own
+// connection and LOCAL buffers only. Fills r->cs; writes NO shared game state
+// (the char_db_ cache write stays on the game thread in char_load_finish_ok).
+// Mirrors mmo_char_fromsql(load_everything=true) - keep the two in sync.
+static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
+{
+	char q[4096];
+	char* p;
+	MYSQL_RES* res;
+	MYSQL_ROW row;
+	struct mmo_charstatus* cs = &r->cs;
+	int i, j, n, char_id;
+
+	if (conn == NULL)
+		return 0;
+
+	// 1. resolve char_id from account_id + char_num
+	snprintf(q, sizeof(q), "SELECT `char_id` FROM `%s` WHERE `account_id`='%d' AND `char_num`='%d'",
+		char_db, r->account_id, r->char_num);
+	if (mysql_query(conn, q)) return 0;
+	res = mysql_store_result(conn);
+	row = res ? mysql_fetch_row(res) : NULL;
+	if (!row) { if (res) mysql_free_result(res); return 0; }
+	char_id = atoi(row[0]);
+	mysql_free_result(res);
+
+	memset(cs, 0, sizeof(*cs));
+	cs->char_id = char_id;
+
+	// 2. char row
+	snprintf(q, sizeof(q), "SELECT "
+		"`char_id`,`account_id`,`char_num`,`name`,`class`,`base_level`,`job_level`,`base_exp`,`job_exp`,`zeny`,"
+		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
+		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`homun_id`,`hair`,"
+		"`hair_color`,`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
+		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`"
+		" FROM `%s` WHERE `char_id` = '%d'", char_db, char_id);
+	if (mysql_query(conn, q)) return 0;
+	res = mysql_store_result(conn);
+	if (!res) return 0;
+	row = mysql_fetch_row(res);
+	if (!row) { mysql_free_result(res); return 0; }
+	cs->char_id = char_id;
+	cs->account_id = atoi(row[1]);
+	cs->char_num = atoi(row[2]);
+	strncpy(cs->name, row[3], NAME_LENGTH-1);
+	cs->class_ = atoi(row[4]);
+	cs->base_level = atoi(row[5]);
+	cs->job_level = atoi(row[6]);
+	cs->base_exp = (unsigned int)cap_value(atof(row[7]), 0, UINT_MAX);
+	cs->job_exp = (unsigned int)cap_value(atof(row[8]), 0, UINT_MAX);
+	cs->zeny = atoi(row[9]);
+	cs->str = atoi(row[10]);
+	cs->agi = atoi(row[11]);
+	cs->vit = atoi(row[12]);
+	cs->int_ = atoi(row[13]);
+	cs->dex = atoi(row[14]);
+	cs->luk = atoi(row[15]);
+	cs->max_hp = atoi(row[16]);
+	cs->hp = atoi(row[17]);
+	cs->max_sp = atoi(row[18]);
+	cs->sp = atoi(row[19]);
+	cs->status_point = (unsigned short)cap_value(atoi(row[20]), 0, USHRT_MAX);
+	cs->skill_point = (unsigned short)cap_value(atoi(row[21]), 0, USHRT_MAX);
+	cs->option = atoi(row[22]);
+	cs->karma = atoi(row[23]);
+	cs->manner = atoi(row[24]);
+	cs->party_id = atoi(row[25]);
+	cs->guild_id = atoi(row[26]);
+	cs->pet_id = atoi(row[27]);
+	cs->hom_id = atoi(row[28]);
+	cs->hair = atoi(row[29]);
+	cs->hair_color = atoi(row[30]);
+	cs->clothes_color = atoi(row[31]);
+	cs->weapon = atoi(row[32]);
+	cs->shield = atoi(row[33]);
+	cs->head_top = atoi(row[34]);
+	cs->head_mid = atoi(row[35]);
+	cs->head_bottom = atoi(row[36]);
+	cs->last_point.map = mapindex_name2id(row[37]); cs->last_point.x = atoi(row[38]); cs->last_point.y = atoi(row[39]);
+	cs->save_point.map = mapindex_name2id(row[40]); cs->save_point.x = atoi(row[41]); cs->save_point.y = atoi(row[42]);
+	cs->partner_id = atoi(row[43]);
+	cs->father = atoi(row[44]);
+	cs->mother = atoi(row[45]);
+	cs->child = atoi(row[46]);
+	cs->fame = atoi(row[47]);
+	mysql_free_result(res);
+
+	// 3. memo
+	snprintf(q, sizeof(q), "SELECT `map`,`x`,`y` FROM `%s` WHERE `char_id`='%d' ORDER by `memo_id`", memo_db, char_id);
+	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_MEMOPOINTS; i++) {
+			cs->memo_point[i].map = mapindex_name2id(row[0]);
+			cs->memo_point[i].x = atoi(row[1]);
+			cs->memo_point[i].y = atoi(row[2]);
+		}
+		mysql_free_result(res);
+	}
+
+	// 4. inventory
+	p = q;
+	p += sprintf(p, "SELECT `id`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`");
+	for (j = 0; j < MAX_SLOTS; j++) p += sprintf(p, ", `card%d`", j);
+	p += sprintf(p, ", `expire_time`");
+	p += sprintf(p, " FROM `%s` WHERE `char_id`='%d'", inventory_db, char_id);
+	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_INVENTORY; i++) {
+			cs->inventory[i].id = atoi(row[0]);
+			cs->inventory[i].nameid = atoi(row[1]);
+			cs->inventory[i].amount = atoi(row[2]);
+			cs->inventory[i].equip = atoi(row[3]);
+			cs->inventory[i].identify = atoi(row[4]);
+			cs->inventory[i].refine = atoi(row[5]);
+			cs->inventory[i].attribute = atoi(row[6]);
+			for (j = 0; j < MAX_SLOTS; j++) cs->inventory[i].card[j] = atoi(row[7+j]);
+			cs->inventory[i].expire_time = (unsigned int)strtoul(row[7+MAX_SLOTS], NULL, 10);
+		}
+		mysql_free_result(res);
+	}
+
+	// 5. cart
+	p = q;
+	p += sprintf(p, "SELECT `id`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`");
+	for (j = 0; j < MAX_SLOTS; j++) p += sprintf(p, ", `card%d`", j);
+	p += sprintf(p, ", `expire_time`");
+	p += sprintf(p, " FROM `%s` WHERE `char_id`='%d'", cart_db, char_id);
+	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_CART; i++) {
+			cs->cart[i].id = atoi(row[0]);
+			cs->cart[i].nameid = atoi(row[1]);
+			cs->cart[i].amount = atoi(row[2]);
+			cs->cart[i].equip = atoi(row[3]);
+			cs->cart[i].identify = atoi(row[4]);
+			cs->cart[i].refine = atoi(row[5]);
+			cs->cart[i].attribute = atoi(row[6]);
+			for (j = 0; j < MAX_SLOTS; j++) cs->cart[i].card[j] = atoi(row[7+j]);
+			cs->cart[i].expire_time = (unsigned int)strtoul(row[7+MAX_SLOTS], NULL, 10);
+		}
+		mysql_free_result(res);
+	}
+
+	// 6. skills
+	snprintf(q, sizeof(q), "SELECT `id`, `lv` FROM `%s` WHERE `char_id`='%d'", skill_db, char_id);
+	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+		while ((row = mysql_fetch_row(res))) {
+			n = atoi(row[0]);
+			if (n >= 0 && n < MAX_SKILL) { cs->skill[n].id = n; cs->skill[n].lv = atoi(row[1]); }
+		}
+		mysql_free_result(res);
+	}
+
+	// 7. friends
+	snprintf(q, sizeof(q), "SELECT f.friend_account, f.friend_id, c.name FROM `%s` f LEFT JOIN `%s` c ON f.friend_account=c.account_id AND f.friend_id=c.char_id WHERE f.char_id='%d'",
+		friend_db, char_db, char_id);
+	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_FRIENDS; i++) {
+			if (row[2]) {
+				cs->friends[i].account_id = atoi(row[0]);
+				cs->friends[i].char_id = atoi(row[1]);
+				strncpy(cs->friends[i].name, row[2], NAME_LENGTH-1);
+			}
+		}
+		mysql_free_result(res);
+	}
+
+#ifdef HOTKEY_SAVING
+	// 8. hotkeys
+	snprintf(q, sizeof(q), "SELECT `hotkey`, `type`, `itemskill_id`, `skill_lvl` FROM `%s` WHERE `char_id`='%d'", hotkey_db, char_id);
+	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+		while ((row = mysql_fetch_row(res))) {
+			n = atoi(row[0]);
+			if (n < 0 || n >= MAX_HOTKEYS) continue;
+			cs->hotkeys[n].type = atoi(row[1]);
+			cs->hotkeys[n].id = atoi(row[2]);
+			cs->hotkeys[n].lv = atoi(row[3]);
+		}
+		mysql_free_result(res);
+	}
+#endif
+
+	// 9. hired mercenary owner data
+	snprintf(q, sizeof(q), "SELECT `merc_id`, `arch_calls`, `arch_faith`, `spear_calls`, `spear_faith`, `sword_calls`, `sword_faith` FROM `mercenary_owner` WHERE `char_id` = '%d'", char_id);
+	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+		if ((row = mysql_fetch_row(res))) {
+			cs->mer_id      = atoi(row[0]);
+			cs->arch_calls  = atoi(row[1]);
+			cs->arch_faith  = atoi(row[2]);
+			cs->spear_calls = atoi(row[3]);
+			cs->spear_faith = atoi(row[4]);
+			cs->sword_calls = atoi(row[5]);
+			cs->sword_faith = atoi(row[6]);
+		}
+		mysql_free_result(res);
+	}
+
+	return 1;
+}
+
+// WORKER thread: run the load into the ctx. No game state touched here.
+static void char_load_work(MYSQL* conn, void* ctx)
+{
+	struct achar_ctx* r = (struct achar_ctx*)ctx;
+	r->ok = achar_fetch(conn, r);
+}
+
+// GAME thread: finish a successfully-loaded char-select exactly as the old
+// synchronous 0x66 tail did. r->cs holds the loaded character.
+static void char_load_finish_ok(struct achar_ctx* r)
+{
+	struct mmo_charstatus* cd = &r->cs;
+	struct mmo_charstatus* cp;
+	int i, map_fd;
+
+	cd->sex = r->sex;
+
+	// char_db_ cache (the shared-state write that mmo_char_fromsql does at its end)
+	cp = idb_ensure(char_db_, cd->char_id, create_charstatus);
+	memcpy(cp, cd, sizeof(struct mmo_charstatus));
+
+	if (log_char) {
+		char escaped_name[NAME_LENGTH*2];
+		sprintf(tmp_sql, "INSERT INTO `%s`(`time`, `account_id`,`char_num`,`name`) VALUES (NOW(), '%d', '%d', '%s')",
+			charlog_db, r->account_id, r->char_num, jstrescapecpy(escaped_name, cd->name));
+		if (mysql_query(&mysql_handle, tmp_sql)) {
+			ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		}
+	}
+	ShowInfo("Selected char: (Account %d: %d - %s)" RETCODE, r->account_id, r->char_num, cd->name);
+
+	// locate the map server for the character's last map (with major-city fallback)
+	i = search_mapserver(cd->last_point.map, -1, -1);
+	if (i < 0) {
+		unsigned short j;
+		for (j = 0; j < MAX_MAP_SERVERS; j++)
+			if (server_fd[j] >= 0 && server[j].map[0]) break;
+		if (j == MAX_MAP_SERVERS) {
+			WFIFOHEAD(r->fd,3); WFIFOW(r->fd,0) = 0x81; WFIFOB(r->fd,2) = 1; WFIFOSET(r->fd,3);
+			return;
+		}
+		if ((i = search_mapserver((j=mapindex_name2id(MAP_PRONTERA)),-1,-1)) >= 0)      { cd->last_point.x = 273; cd->last_point.y = 354; }
+		else if ((i = search_mapserver((j=mapindex_name2id(MAP_GEFFEN)),-1,-1)) >= 0)   { cd->last_point.x = 120; cd->last_point.y = 100; }
+		else if ((i = search_mapserver((j=mapindex_name2id(MAP_MORROC)),-1,-1)) >= 0)   { cd->last_point.x = 160; cd->last_point.y = 94; }
+		else if ((i = search_mapserver((j=mapindex_name2id(MAP_ALBERTA)),-1,-1)) >= 0)  { cd->last_point.x = 116; cd->last_point.y = 57; }
+		else if ((i = search_mapserver((j=mapindex_name2id(MAP_PAYON)),-1,-1)) >= 0)    { cd->last_point.x = 87;  cd->last_point.y = 117; }
+		else if ((i = search_mapserver((j=mapindex_name2id(MAP_IZLUDE)),-1,-1)) >= 0)   { cd->last_point.x = 94;  cd->last_point.y = 103; }
+		else {
+			WFIFOHEAD(r->fd,3); WFIFOW(r->fd,0) = 0x81; WFIFOB(r->fd,2) = 1; WFIFOSET(r->fd,3);
+			return;
+		}
+		ShowWarning("Unable to find map-server for '%s', sending to major city '%s'.\n", mapindex_id2name(cd->last_point.map), mapindex_id2name(j));
+		cd->last_point.map = j;
+	}
+
+	// send player to map (0x71)
+	WFIFOHEAD(r->fd,28);
+	WFIFOW(r->fd,0) = 0x71;
+	WFIFOL(r->fd,2) = cd->char_id;
+	{
+		const char* cmap = mapindex_id2name(cd->last_point.map);
+		if (cmap && strcmp(cmap, "airplane_01") == 0) cmap = "airplane";
+		else if (cmap && strcmp(cmap, "y_airport") == 0) cmap = "airport";
+		mapindex_getmapname_ext(cmap, (char*)WFIFOP(r->fd,6));
+	}
+	{
+		uint32 subnet_map_ip = lan_subnetcheck(r->ip);
+		WFIFOL(r->fd,22) = htonl((subnet_map_ip) ? subnet_map_ip : server[i].ip);
+		WFIFOW(r->fd,26) = ntows(htons(server[i].port));
+		WFIFOSET(r->fd,28);
+	}
+
+	if (auth_fifo_pos >= AUTH_FIFO_SIZE)
+		auth_fifo_pos = 0;
+	auth_fifo[auth_fifo_pos].account_id = r->account_id;
+	auth_fifo[auth_fifo_pos].char_id = cd->char_id;
+	auth_fifo[auth_fifo_pos].login_id1 = r->login_id1;
+	auth_fifo[auth_fifo_pos].login_id2 = r->login_id2;
+	auth_fifo[auth_fifo_pos].delflag = 0;
+	auth_fifo[auth_fifo_pos].sex = r->sex;
+	auth_fifo[auth_fifo_pos].connect_until_time = r->connect_until_time;
+	auth_fifo[auth_fifo_pos].ip = r->ip;
+
+	if ((map_fd = server_fd[i]) < 1 || session[map_fd] == NULL) {
+		ShowError("char_load_done: map server #%d session invalid.\n", i);
+		server_fd[i] = -1;
+		memset(&server[i], 0, sizeof(struct mmo_map_server));
+		WFIFOHEAD(r->fd,3); WFIFOW(r->fd,0) = 0x81; WFIFOB(r->fd,2) = 1; WFIFOSET(r->fd,3);
+		return;
+	}
+
+	// auth ok to map (0x2afd) with the full charstatus
+	WFIFOHEAD(map_fd,20 + sizeof(struct mmo_charstatus));
+	WFIFOW(map_fd,0) = 0x2afd;
+	WFIFOW(map_fd,2) = 20 + sizeof(struct mmo_charstatus);
+	WFIFOL(map_fd,4) = r->account_id;
+	WFIFOL(map_fd,8) = r->login_id1;
+	WFIFOL(map_fd,16) = r->login_id2;
+	WFIFOL(map_fd,12) = r->connect_until_time;
+	memcpy(WFIFOP(map_fd,20), cd, sizeof(struct mmo_charstatus));
+	WFIFOSET(map_fd, WFIFOW(map_fd,2));
+
+	set_char_online(i, cd->char_id, r->account_id);
+	auth_fifo_pos++;
+}
+
+// GAME thread (via acl_poll): revalidate the session, then finish or drop. Frees ctx.
+static void char_load_done(void* ctx)
+{
+	struct achar_ctx* r = (struct achar_ctx*)ctx;
+	struct char_session_data* sd;
+
+	// The client may have disconnected (or the fd been reused by another account)
+	// while the load was in flight: validate before touching anything.
+	if (!session_isValid(r->fd) || session[r->fd]->eof
+	 || (sd = (struct char_session_data*)session[r->fd]->session_data) == NULL
+	 || sd->account_id != r->account_id) {
+		aFree(r);
+		return;
+	}
+
+	if (r->ok)
+		char_load_finish_ok(r);
+	// else: character not found / load error -> mirror old behaviour (no reply)
+	aFree(r);
+}
+
+// Game-thread timer: dispatch finished char loads. Runs often so a completed
+// load turns into the map handoff with negligible added latency.
+static int char_load_poll_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	acl_poll(char_load_lane);
+	return 0;
+}
+
 int parse_char(int fd)
 {
 	int i, ch = 0;
@@ -3187,147 +3544,32 @@ int parse_char(int fd)
 
 		case 0x66: // char select
 			FIFOSD_CHECK(3);
-
-			sprintf(tmp_sql, "SELECT `char_id` FROM `%s` WHERE `account_id`='%d' AND `char_num`='%d'",char_db, sd->account_id, RFIFOB(fd, 2));
-			RFIFOSKIP(fd, 3);
-
-			if (mysql_query(&mysql_handle, tmp_sql)) {
-				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-			}
-			sql_res = mysql_store_result(&mysql_handle);
-			sql_row = sql_res?mysql_fetch_row(sql_res):NULL;
-			
-			if (sql_row)
 			{
-				int char_id = atoi(sql_row[0]);
-				mysql_free_result(sql_res); //Free'd as soon as possible
-				mmo_char_fromsql(char_id, &char_dat, true);
-				char_dat.sex = sd->sex;
-			} else {
-				mysql_free_result(sql_res);
-				break;
-			}
+				// (D1) Character load runs on the async char-load lane: the 8 SELECTs
+				// execute on a worker thread so the game loop is not blocked, and the
+				// handoff (char_db_ cache + 0x71 + auth_fifo + 0x2afd + set_char_online)
+				// finishes on the game thread in char_load_done() after revalidating the
+				// session. If the lane is unavailable or its queue is full we fall back
+				// to a synchronous load on the main connection, so behaviour is never
+				// worse than before. [auth-resilience]
+				struct achar_ctx* r = (struct achar_ctx*)aCalloc(1, sizeof(struct achar_ctx));
+				r->fd = fd;
+				r->account_id = sd->account_id;
+				r->char_num = RFIFOB(fd, 2);
+				r->login_id1 = sd->login_id1;
+				r->login_id2 = sd->login_id2;
+				r->sex = sd->sex;
+				r->connect_until_time = sd->connect_until_time;
+				r->ip = session[fd]->client_addr;
+				RFIFOSKIP(fd, 3);
 
-			if (log_char) {
-				char escaped_name[NAME_LENGTH*2];
-				sprintf(tmp_sql,"INSERT INTO `%s`(`time`, `account_id`,`char_num`,`name`) VALUES (NOW(), '%d', '%d', '%s')",
-					charlog_db, sd->account_id, RFIFOB(fd, 2), jstrescapecpy(escaped_name, char_dat.name));
-				//query
-				if(mysql_query(&mysql_handle, tmp_sql)) {
-					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
-					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				if (!char_load_lane || !acl_submit(char_load_lane, r)) {
+					// synchronous fallback (lane disabled or queue full)
+					r->ok = achar_fetch(&mysql_handle, r);
+					char_load_done(r); // validates, finishes the handoff, frees r
 				}
 			}
-			ShowInfo("Selected char: (Account %d: %d - %s)" RETCODE, sd->account_id, RFIFOB(fd, 2), char_dat.name);
-
-			// searching map server
-			i = search_mapserver(char_dat.last_point.map, -1, -1);
-
-			// if map is not found, we check major cities
-			if (i < 0) {
-				unsigned short j;
-				//First check that there's actually a map server online.
-				for(j = 0; j < MAX_MAP_SERVERS; j++)
-					if (server_fd[j] >= 0 && server[j].map[0])
-						break;
-				if (j == MAX_MAP_SERVERS) {
-					ShowInfo("Connection Closed. No map servers available.\n");
-					WFIFOHEAD(fd,3);
-					WFIFOW(fd,0) = 0x81;
-					WFIFOB(fd,2) = 1; // 01 = Server closed
-					WFIFOSET(fd,3);
-					break;
-				}
-				if ((i = search_mapserver((j=mapindex_name2id(MAP_PRONTERA)),-1,-1)) >= 0) {
-					char_dat.last_point.x = 273;
-					char_dat.last_point.y = 354;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_GEFFEN)),-1,-1)) >= 0) {
-					char_dat.last_point.x = 120;
-					char_dat.last_point.y = 100;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_MORROC)),-1,-1)) >= 0) {
-					char_dat.last_point.x = 160;
-					char_dat.last_point.y = 94;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_ALBERTA)),-1,-1)) >= 0) {
-					char_dat.last_point.x = 116;
-					char_dat.last_point.y = 57;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_PAYON)),-1,-1)) >= 0) {
-					char_dat.last_point.x = 87;
-					char_dat.last_point.y = 117;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_IZLUDE)),-1,-1)) >= 0) {
-					char_dat.last_point.x = 94;
-					char_dat.last_point.y = 103;
-				} else {
-					ShowInfo("Connection Closed. No map server available that has a major city, and unable to find map-server for '%s'.\n", mapindex_id2name(char_dat.last_point.map));
-					WFIFOHEAD(fd,3);
-					WFIFOW(fd,0) = 0x81;
-					WFIFOB(fd,2) = 1; // 01 = Server closed
-					WFIFOSET(fd,3);
-					break;
-				}
-				ShowWarning("Unable to find map-server for '%s', sending to major city '%s'.\n", mapindex_id2name(char_dat.last_point.map), mapindex_id2name(j));
-				char_dat.last_point.map = j;
-			}
-
-			//Send player to map
-			WFIFOHEAD(fd,28);
-			WFIFOW(fd,0) = 0x71;
-			WFIFOL(fd,2) = char_dat.char_id;
-			{
-				// Alias server-only maps missing from the client content (airplane_01 -> airplane;
-				// y_airport -> airport, same interior) so char-select doesn't send the client to a map
-				// it can't render. Keep in sync with clif_client_mapname() in map/clif.c. [S. 2026-07-18/20]
-				const char* cmap = mapindex_id2name(char_dat.last_point.map);
-				if (cmap && strcmp(cmap, "airplane_01") == 0) cmap = "airplane";
-				else if (cmap && strcmp(cmap, "y_airport") == 0) cmap = "airport";
-				mapindex_getmapname_ext(cmap, (char*)WFIFOP(fd,6));
-			}
-		{
-			// Advanced subnet check [LuzZza]
-			uint32 subnet_map_ip;
-			subnet_map_ip = lan_subnetcheck(ipl);
-			WFIFOL(fd,22) = htonl((subnet_map_ip) ? subnet_map_ip : server[i].ip);
-			WFIFOW(fd,26) = ntows(htons(server[i].port)); // [!] LE byte order here [!]
-			WFIFOSET(fd,28);
-		}
-			if (auth_fifo_pos >= AUTH_FIFO_SIZE)
-				auth_fifo_pos = 0;
-			auth_fifo[auth_fifo_pos].account_id = sd->account_id;
-			auth_fifo[auth_fifo_pos].char_id = char_dat.char_id;
-			auth_fifo[auth_fifo_pos].login_id1 = sd->login_id1;
-			auth_fifo[auth_fifo_pos].login_id2 = sd->login_id2;
-			auth_fifo[auth_fifo_pos].delflag = 0;
-			auth_fifo[auth_fifo_pos].sex = sd->sex;
-			auth_fifo[auth_fifo_pos].connect_until_time = sd->connect_until_time;
-			auth_fifo[auth_fifo_pos].ip = session[fd]->client_addr;
-
-			//Send NEW auth packet [Kevin]
-			if ((map_fd = server_fd[i]) < 1 || session[map_fd] == NULL)
-			{
-				ShowError("parse_char: Attempting to write to invalid session %d! Map Server #%d disconnected.\n", map_fd, i);
-				server_fd[i] = -1;
-				memset(&server[i], 0, sizeof(struct mmo_map_server));
-				//Send server closed.
-				WFIFOHEAD(fd,3);
-				WFIFOW(fd,0) = 0x81;
-				WFIFOB(fd,2) = 1; // 01 = Server closed
-				WFIFOSET(fd,3);
-				break;
-			}
-			//Send auth ok to map server
-			WFIFOHEAD(map_fd,20 + sizeof(struct mmo_charstatus));
-			WFIFOW(map_fd,0) = 0x2afd;
-			WFIFOW(map_fd,2) = 20 + sizeof(struct mmo_charstatus);
-			WFIFOL(map_fd,4) = auth_fifo[auth_fifo_pos].account_id;
-			WFIFOL(map_fd,8) = auth_fifo[auth_fifo_pos].login_id1;
-			WFIFOL(map_fd,16) = auth_fifo[auth_fifo_pos].login_id2;
-			WFIFOL(map_fd,12) = auth_fifo[auth_fifo_pos].connect_until_time;
-			memcpy(WFIFOP(map_fd,20), &char_dat, sizeof(struct mmo_charstatus));
-			WFIFOSET(map_fd, WFIFOW(map_fd,2));
-
-			set_char_online(i, auth_fifo[auth_fifo_pos].char_id, auth_fifo[auth_fifo_pos].account_id);
-			auth_fifo_pos++;
-		break;
+			break;
 
 		case 0x67:	// make new
 			FIFOSD_CHECK(37);
@@ -4046,6 +4288,8 @@ int char_config_read(const char* cfgName)
 void do_final(void)
 {
 	ShowInfo("Doing final stage...\n");
+	acl_destroy(char_load_lane); // stop the async char-load worker + join
+	char_load_lane = NULL;
 	do_final_itemdb();
 	//check SQL save progress.
 	//wait until save char complete
@@ -4101,8 +4345,25 @@ void set_server_type(void)
 static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 {
 	struct online_char_data *character= (struct online_char_data*)data;
+	int *online_cnt = va_arg(ap, int*);
+	int *ghost_cnt  = va_arg(ap, int*);
+
 	if (character->server == -2) //Unknown server.. set them offline
 		set_char_offline(character->char_id, character->account_id);
+	// (B2) Reap GHOST sessions: a character still flagged online on a map-server that is no longer
+	// connected (server_fd gone, e.g. the map-server crashed/was restarted without a clean player
+	// disconnect) would otherwise keep online=1 in the DB until the next full reboot. This is the
+	// accumulation that used to force a manual reboot. We reconcile it here on a short interval so
+	// the DB's online flags track reality without ever refusing anyone a login. [auth-resilience]
+	else if (character->server >= 0 &&
+	         (character->server >= MAX_MAP_SERVERS || server_fd[character->server] <= 0))
+	{
+		if (ghost_cnt) (*ghost_cnt)++;
+		set_char_offline(character->char_id, character->account_id);
+	}
+	else if (character->server >= 0 && online_cnt)
+		(*online_cnt)++;
+
 	if (character->server < 0)
 		//Free data from players that have not been online for a while.
 		db_remove(online_char_db, key);
@@ -4111,7 +4372,11 @@ static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 
 static int online_data_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
-	online_char_db->foreach(online_char_db, online_data_cleanup_sub);
+	int online_cnt = 0, ghost_cnt = 0;
+	online_char_db->foreach(online_char_db, online_data_cleanup_sub, &online_cnt, &ghost_cnt);
+	// (E) Observability: report the reconciled online count and how many ghost sessions were reaped.
+	if (ghost_cnt > 0)
+		ShowInfo("Online reconcile: %d account(s) online, %d ghost session(s) cleared.\n", online_cnt, ghost_cnt);
 	return 0;
 }
 
@@ -4178,13 +4443,26 @@ int do_init(int argc, char **argv)
 	add_timer_func_list(chardb_waiting_disconnect, "chardb_waiting_disconnect");
 
 	add_timer_func_list(online_data_cleanup, "online_data_cleanup");
-	add_timer_interval(gettick() + 600*1000, online_data_cleanup, 0, 0, 600 * 1000);
+	// (B2) Reconcile online flags against reality every 120s (was 600s) so ghost sessions clear
+	// within ~2 min instead of lingering until a reboot. [auth-resilience]
+	add_timer_interval(gettick() + 120*1000, online_data_cleanup, 0, 0, 120 * 1000);
 
 	// send ALIVE PING to login server.
 	add_timer_interval(gettick() + 10, check_connect_login_server, 0, 0, 10 * 1000);
 	// send USER COUNT PING to login server.
 	add_timer_interval(gettick() + 10, send_users_tologin, 0, 0, 5 * 1000);
 	add_timer_interval(gettick() + 3600*1000, send_accounts_tologin, 0, 0, 3600 * 1000); //Sync online accounts every hour.
+
+	// (D1) Async character-load lane: its own DB connection on a worker thread, drained on the
+	// game thread by a frequent poll timer. If creation fails, char_load_lane stays NULL and
+	// char-select falls back to a synchronous load. [auth-resilience]
+	char_load_lane = acl_create("char_load", char_server_ip, char_server_id, char_server_pw,
+		char_server_db, char_server_port, default_codepage, char_load_work, char_load_done);
+	if (char_load_lane) {
+		add_timer_func_list(char_load_poll_timer, "char_load_poll_timer");
+		add_timer_interval(gettick() + 20, char_load_poll_timer, 0, 0, 20); // poll every 20ms
+	} else
+		ShowWarning("Async char-load lane unavailable - char-select will load synchronously.\n");
 
 	char_read_fame_list(); //Read fame lists.
 
