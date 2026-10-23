@@ -3773,6 +3773,11 @@ int do_init(int argc, char *argv[])
 	// scanning all sessions. 1 = on (default), 0 = old brute-scan.
 	recv_parse_shortlist = battle_config.recv_parse_shortlist;
 
+	// [dc-log] Log unexpected client DROPS (idle timeout / peer close / error) on the MAP server, so
+	// player-disconnect complaints can be diagnosed. Clean quits and s2s links are excluded. Enabled
+	// only here (not on login/char, where clients disconnect normally during the char-select handoff).
+	socket_log_disconnects = 1;
+
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
 	livemob_init();	//Non-owning flat mob-only index for cheap lazy-AI iteration. [perf]

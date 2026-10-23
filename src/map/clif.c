@@ -8654,6 +8654,7 @@ void clif_parse_QuitGame(int fd, struct map_session_data *sd)
 	if (sd->sc.data[SC_CLOAKING].timer==-1 && sd->sc.data[SC_HIDING].timer==-1 &&
 		(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout)
 	) {
+		socket_set_disconnect_reason(fd, SDC_CLEAN_QUIT); // [dc-log] player chose to quit -- not a drop
 		clif_setwaitclose(fd);
 		WFIFOW(fd,2)=0;
 	} else {
@@ -9126,6 +9127,7 @@ void clif_parse_Restart(int fd, struct map_session_data *sd)
 		/*	Rovert's Prevent logout option - Fixed [Valaris]	*/
 		if (!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout)
 		{	//Send to char-server for character selection.
+			socket_set_disconnect_reason(fd, SDC_CLEAN_QUIT); // [dc-log] returning to char-select -- not a drop
 			chrif_charselectreq(sd, session[fd]->client_addr);
 		} else {
 			WFIFOHEAD(fd,packet_len(0x18b));
