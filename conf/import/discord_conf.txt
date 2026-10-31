@@ -1,0 +1,6 @@
+// Local Discord relay override (NOT committed to git — keep the webhook secret here).
+// Fill these in on the server host, then restart the map server. These win over conf/discord.conf.
+//
+//discord_announce: yes
+//discord_webhook: https://discord.com/api/webhooks/<id>/<token>
+//discord_username: uAthena

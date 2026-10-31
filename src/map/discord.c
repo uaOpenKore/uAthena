@@ -124,16 +124,15 @@ void discord_announce(const char* text)
 	pthread_mutex_unlock(&g_mtx);
 }
 
-// Minimal "key: value" reader for conf/discord.conf. Keys: discord_announce (yes/no),
+// Minimal "key: value" reader for one config file. Keys: discord_announce (yes/no),
 // discord_webhook (URL), discord_username (display name). Lines starting with // are comments.
-static void discord_config_read(void)
+// Missing file is silently fine (lets the import override be optional).
+static void discord_config_parse(const char* path)
 {
 	char line[1024];
-	FILE* fp = fopen("conf/discord.conf", "r");
-	if( fp == NULL ) {
-		ShowInfo("Discord relay: conf/discord.conf not found; relay disabled.\n");
+	FILE* fp = fopen(path, "r");
+	if( fp == NULL )
 		return;
-	}
 	while( fgets(line, sizeof(line), fp) ) {
 		char key[64], val[960];
 		size_t L;
@@ -156,6 +155,15 @@ static void discord_config_read(void)
 		}
 	}
 	fclose(fp);
+}
+
+// Read the shipped template first, then the local import override (kept out of git), whose
+// keys win. The webhook URL is a secret, so it belongs in conf/import/discord_conf.txt on the
+// host, never committed to the repo.
+static void discord_config_read(void)
+{
+	discord_config_parse("conf/discord.conf");
+	discord_config_parse("conf/import/discord_conf.txt");
 }
 
 void discord_init(void)
