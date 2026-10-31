@@ -56,6 +56,7 @@
 #include <unistd.h>
 
 #include "mail.h"
+#include "discord.h"
 
 char tmp_sql[65535]="";
 char default_codepage[32] = "";
@@ -3547,6 +3548,8 @@ void do_final(void)
 
 	ShowStatus("Terminating...\n");
 
+	discord_final();  // stop the Discord relay worker thread
+
 	for (i = 0; i < map_num; i++)
 		if (map[i].m >= 0)
 			map_foreachinmap(cleanup_sub, i, BL_ALL);
@@ -3747,6 +3750,7 @@ int do_init(int argc, char *argv[])
 	script_config_read(SCRIPT_CONF_NAME);
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
+	discord_init();  // Discord webhook relay for rare-drop announces (conf/discord.conf; off until configured)
 
 	// [perf] Send coalescing (map-only): the worker holds a client's lone
 	// sub-segment packets up to this many ms so they go out as one send() (bulk

@@ -30,6 +30,7 @@
 #include "script.h"
 #include "atcommand.h"
 #include "date.h"
+#include "discord.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2064,6 +2065,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				sprintf (message, msg_txt(541), (mvp_sd?mvp_sd->status.name:"???"), md->name, i_data->jname, (float)drop_rate/100);
 				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
 				intif_GMmessage(message,strlen(message)+1,0);
+				discord_announce(message);  // mirror the rare-drop announce to Discord (#notifications)
 			}
 			// Announce first, or else ditem will be freed. [Lance]
 			// By popular demand, use base drop rate for autoloot code. [Skotlex]
@@ -2188,6 +2190,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				sprintf (message, msg_txt(541), mvp_sd->status.name, md->name, i_data->jname, temp/100.);
 				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
 				intif_GMmessage(message,strlen(message)+1,0);
+				discord_announce(message);  // mirror the rare MVP-drop announce to Discord (#notifications)
 			}
 
 			if((temp = pc_additem(mvp_sd,&item,1)) != 0) {
