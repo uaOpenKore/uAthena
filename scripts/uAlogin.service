@@ -1,7 +1,12 @@
 [Unit]
 Description=uAthena Login+SQL server
-After=network.target
+After=network.target mariadb.service
 Requires=network.target
+# Order after + pull in the DB, but softly (Wants, not Requires): a brief MariaDB
+# restart must NOT force-stop the game servers (they reconnect). The After= here
+# is what prevents the boot race that logged thousands of "Can't connect (115)"
+# and lost char saves. If your DB unit is named mysql.service, change it here.
+Wants=mariadb.service
 Before=uAchar.service uAmap.service
 Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target shutdown.target
 PartOf=uAthena.target

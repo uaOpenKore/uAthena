@@ -1,7 +1,9 @@
 [Unit]
 Description=uAthena Map+SQL server
-After=uAchar.service uAlogin.service
+After=uAchar.service uAlogin.service mariadb.service
 Requires=uAchar.service uAlogin.service
+# Map talks to MariaDB directly; order after it (soft Wants). See uAlogin.service.
+Wants=mariadb.service
 Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target shutdown.target
 PartOf=uAthena.target
 ReloadPropagatedFrom=uAthena.target
