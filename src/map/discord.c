@@ -184,12 +184,16 @@ void discord_init(void)
 	}
 	g_running = 1;
 	ShowStatus("Discord relay enabled (bot '%s').\n", g_username);
+	discord_announce("\xF0\x9F\x9F\xA2 Сервер запущен");  // U+1F7E2 green circle
 }
 
 void discord_final(void)
 {
 	if( !g_running )
 		return;
+	// Queue the stop notice first, then signal shutdown: the worker drains the queue (sending
+	// this message) before it exits, and the pthread_join below waits for that send to finish.
+	discord_announce("\xF0\x9F\x94\xB4 Сервер остановлен");  // U+1F534 red circle
 	pthread_mutex_lock(&g_mtx);
 	g_shutdown = 1;
 	pthread_cond_signal(&g_cv);
