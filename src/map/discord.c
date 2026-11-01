@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "discord.h"
 #include "../common/showmsg.h"
@@ -16,11 +17,22 @@
 #define DISCORD_URL_MAX   512
 #define DISCORD_NAME_MAX  64
 
+// Error-mirroring throttle: collapse the common flood where one fault (e.g. a dropped SQL
+// connection) fires the SAME message hundreds of times/sec, without losing distinct errors.
+#define DISCORD_ERR_DEDUP  120   // suppress an IDENTICAL error seen again within this many sec
+#define DISCORD_ERR_MINGAP 3     // min seconds between ANY two error posts (burst guard)
+
 static char g_webhook[DISCORD_URL_MAX];
 static char g_username[DISCORD_NAME_MAX] = "uAthena";
 static int  g_enabled = 0;   // config master switch + valid webhook
+static int  g_errors_enabled = 0;  // also mirror critical server errors (discord_errors)
 static int  g_running = 0;   // worker thread is up
 static int  g_shutdown = 0;  // asked to stop
+
+// error-throttle state (guarded by g_mtx)
+static char   g_last_err[DISCORD_MSG_MAX];
+static time_t g_last_err_time = 0;   // when g_last_err was last posted
+static time_t g_last_any_err_time = 0;  // when ANY error was last posted
 
 // Single-producer (game loop) / single-consumer (worker) ring buffer.
 static char g_queue[DISCORD_QUEUE_MAX][DISCORD_MSG_MAX];
@@ -124,6 +136,72 @@ void discord_announce(const char* text)
 	pthread_mutex_unlock(&g_mtx);
 }
 
+// Copy src to dst, dropping ANSI colour escapes (\033[...m) and folding any newlines/tabs to
+// single spaces, so a console error line renders cleanly in Discord. Always NUL-terminates.
+static void strip_ansi(const char* src, char* dst, size_t cap)
+{
+	size_t o = 0;
+	const unsigned char* p = (const unsigned char*)src;
+	for( ; *p && o + 1 < cap; ++p ) {
+		if( *p == 0x1b ) {           // ESC: skip "\033[ ... <final letter>"
+			if( p[1] == '[' ) {
+				p += 2;
+				while( *p && !(*p >= '@' && *p <= '~') ) ++p;
+				if( !*p ) break;     // ran off the end mid-sequence
+			}
+			continue;                // drop ESC (and the consumed sequence)
+		}
+		if( *p == '\n' || *p == '\r' || *p == '\t' )
+			dst[o++] = ' ';
+		else
+			dst[o++] = (char)*p;
+	}
+	// trim trailing spaces
+	while( o && dst[o-1] == ' ' ) --o;
+	dst[o] = '\0';
+}
+
+// Mirror one critical server error to Discord (registered as showmsg's error hook when
+// discord_errors is on). Throttled: identical errors are suppressed for DISCORD_ERR_DEDUP sec,
+// and no more than one error is posted per DISCORD_ERR_MINGAP sec. Non-blocking.
+void discord_announce_error(const char* text)
+{
+	char clean[DISCORD_MSG_MAX];
+	time_t now;
+
+	if( !g_errors_enabled || !g_running || text == NULL )
+		return;
+	strip_ansi(text, clean, sizeof(clean));
+	if( clean[0] == '\0' )
+		return;
+	now = time(NULL);
+
+	pthread_mutex_lock(&g_mtx);
+	// drop an identical error repeated within the dedup window (the SQL-outage flood)
+	if( strcmp(clean, g_last_err) == 0 && (now - g_last_err_time) < DISCORD_ERR_DEDUP ) {
+		pthread_mutex_unlock(&g_mtx);
+		return;
+	}
+	// burst guard: never post errors faster than one per MINGAP sec
+	if( g_last_any_err_time != 0 && (now - g_last_any_err_time) < DISCORD_ERR_MINGAP ) {
+		pthread_mutex_unlock(&g_mtx);
+		return;
+	}
+	strncpy(g_last_err, clean, sizeof(g_last_err) - 1);
+	g_last_err[sizeof(g_last_err) - 1] = '\0';
+	g_last_err_time = now;
+	g_last_any_err_time = now;
+
+	if( g_count < DISCORD_QUEUE_MAX ) {
+		// U+26A0 U+FE0F warning sign + the cleaned message (snprintf truncates safely)
+		snprintf(g_queue[g_tail], DISCORD_MSG_MAX, "\xE2\x9A\xA0\xEF\xB8\x8F %s", clean);
+		g_tail = (g_tail + 1) % DISCORD_QUEUE_MAX;
+		++g_count;
+		pthread_cond_signal(&g_cv);
+	}
+	pthread_mutex_unlock(&g_mtx);
+}
+
 // Minimal "key: value" reader for one config file. Keys: discord_announce (yes/no),
 // discord_webhook (URL), discord_username (display name). Lines starting with // are comments.
 // Missing file is silently fine (lets the import override be optional).
@@ -146,6 +224,8 @@ static void discord_config_parse(const char* path)
 
 		if( strcmp(key, "discord_announce") == 0 )
 			g_enabled = (strcmp(val, "yes") == 0 || strcmp(val, "1") == 0 || strcmp(val, "true") == 0);
+		else if( strcmp(key, "discord_errors") == 0 )
+			g_errors_enabled = (strcmp(val, "yes") == 0 || strcmp(val, "1") == 0 || strcmp(val, "true") == 0);
 		else if( strcmp(key, "discord_webhook") == 0 ) {
 			strncpy(g_webhook, val, sizeof(g_webhook) - 1);
 			g_webhook[sizeof(g_webhook) - 1] = '\0';
@@ -183,7 +263,12 @@ void discord_init(void)
 		return;
 	}
 	g_running = 1;
-	ShowStatus("Discord relay enabled (bot '%s').\n", g_username);
+	// Mirror critical server errors too, if asked (registered AFTER g_running so the hook never
+	// fires into a not-yet-started worker).
+	if( g_errors_enabled )
+		showmsg_set_error_hook(discord_announce_error);
+	ShowStatus("Discord relay enabled (bot '%s'%s).\n", g_username,
+		g_errors_enabled ? ", mirroring errors" : "");
 	discord_announce("\xF0\x9F\x9F\xA2 Сервер запущен");  // U+1F7E2 green circle
 }
 
@@ -191,6 +276,9 @@ void discord_final(void)
 {
 	if( !g_running )
 		return;
+	// Stop mirroring errors first, so shutdown-time error spam can't flood the queue or race the
+	// worker teardown.
+	showmsg_set_error_hook(NULL);
 	// Queue the stop notice first, then signal shutdown: the worker drains the queue (sending
 	// this message) before it exits, and the pthread_join below waits for that send to finish.
 	discord_announce("\xF0\x9F\x94\xB4 Сервер остановлен");  // U+1F534 red circle

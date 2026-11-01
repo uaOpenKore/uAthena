@@ -93,4 +93,11 @@ extern int ShowDebug(const char *, ...) __attribute__((format(printf,1,2)));
 extern int ShowError(const char *, ...) __attribute__((format(printf,1,2)));
 extern int ShowFatalError(const char *, ...) __attribute__((format(printf,1,2)));
 
+// Optional sink for critical messages (MSG_ERROR / MSG_FATALERROR / MSG_SQL): when set, each
+// such message is also passed (already printf-expanded, NUL-terminated) to this hook. Lets a
+// server mirror its errors elsewhere (e.g. the map Discord relay) without common depending on
+// map. The hook must be cheap, non-blocking and must NOT itself call Show*() (reentrancy is
+// guarded, but still). Pass NULL to unregister.
+extern void showmsg_set_error_hook(void (*hook)(const char* msg));
+
 #endif /* _SHOWMSG_H_ */

@@ -225,6 +225,10 @@ int	FPRINTF(FILE *file, const char *fmt, ...)
 
 char timestamp_format[20] = ""; //For displaying Timestamps
 
+// Optional sink for critical messages (see showmsg.h). NULL = disabled.
+static void (*error_hook)(const char* msg) = NULL;
+void showmsg_set_error_hook(void (*hook)(const char* msg)) { error_hook = hook; }
+
 // by MC Cameri
 int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 {
@@ -289,6 +293,25 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 
 	if (flag == MSG_ERROR || flag == MSG_FATALERROR || flag == MSG_SQL)
 	{	//Send Errors to StdErr [Skotlex]
+		// Mirror the critical message to the optional hook (e.g. Discord relay). Snapshot the
+		// args with va_copy FIRST, since VFPRINTF below consumes `ap`. A reentrancy guard keeps
+		// a hook that itself logs an error from recursing forever.
+		if (error_hook) {
+			static int in_hook = 0;
+			if (!in_hook) {
+				va_list ap2;
+				char ebuf[512];
+				const char* tag = (flag == MSG_SQL) ? "SQL" : (flag == MSG_FATALERROR) ? "FATAL" : "ERROR";
+				int n = snprintf(ebuf, sizeof(ebuf), "%s: ", tag);
+				if (n < 0 || n > (int)sizeof(ebuf) - 1) n = (int)sizeof(ebuf) - 1;
+				va_copy(ap2, ap);
+				vsnprintf(ebuf + n, sizeof(ebuf) - n, string, ap2);
+				va_end(ap2);
+				in_hook = 1;
+				error_hook(ebuf);
+				in_hook = 0;
+			}
+		}
 		FPRINTF(STDERR, "%s ", prefix);
 		VFPRINTF(STDERR, string, ap);
 		FFLUSH(STDERR);

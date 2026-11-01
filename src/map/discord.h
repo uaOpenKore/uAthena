@@ -8,5 +8,7 @@
 void discord_init(void);              // read conf/discord.conf, start the worker if enabled
 void discord_final(void);             // stop and join the worker thread
 void discord_announce(const char* text);  // enqueue one line for delivery (fire-and-forget)
+void discord_announce_error(const char* text);  // enqueue a critical server error (throttled);
+                                                 // registered as showmsg's error hook when enabled
 
 #endif /* _DISCORD_H_ */
