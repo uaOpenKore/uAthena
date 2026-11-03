@@ -73,10 +73,17 @@ ua_map_count() {
 
 # Cores for instance N: #1 -> 0,1 ; #N>=2 -> 2N,2N+1. Empty when <4 threads
 # (then the instance is not pinned and may use every core).
+# SPECIAL CASE: a SINGLE map instance on a box with >=6 threads also gets cores
+# 4,5 (-> 0,1,4,5), so its helper threads (SQL/log_async/send_worker) have room
+# beyond the game-loop pair. Only when there is exactly one map: as soon as a 2nd
+# shard exists it would own 4,5 (2N,2N+1), so #1 falls back to 0,1 to avoid overlap.
+# Cores 2,3 stay reserved for login/char + system/NIC either way.
 ua_cores_for() {
 	local n="$1" t; t=$(ua_threads)
 	[ "$t" -lt 4 ] && { echo ""; return; }
-	if [ "$n" -le 1 ]; then echo "0,1"; else echo "$((2 * n)),$((2 * n + 1))"; fi
+	if [ "$n" -le 1 ]; then
+		if [ "$t" -ge 6 ] && [ "$(ua_map_count)" -eq 1 ]; then echo "0,1,4,5"; else echo "0,1"; fi
+	else echo "$((2 * n)),$((2 * n + 1))"; fi
 }
 
 # Conf directory for instance N: confN if it exists; for #1 fall back to conf/.
