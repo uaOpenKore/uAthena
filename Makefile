@@ -201,3 +201,5 @@ update:
 		$(shell cp -f /opt/uathena/map_athena.conf   /opt/uathena/conf/)
 		$(shell cp -f /opt/uathena/subnet_athena.conf /opt/uathena/conf/)
 		$(shell cp -f /opt/uathena/packet_athena.conf /opt/uathena/conf/)
+		$(shell cp -f /opt/uathena/discord.conf /opt/uathena/conf/)
+
