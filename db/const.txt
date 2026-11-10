@@ -1929,3 +1929,15 @@ DT_DAYOFMONTH	5
 DT_MONTH	6
 DT_YEAR	7
 DT_DAYOFYEAR	8
+
+// Weekday names (same fix as DT_* above): backport/RE scripts compare gettime(4)
+// against SUNDAY..SATURDAY. These rAthena constants were undefined here, so in an
+// OnInit (no player) they were read as a player variable -> "script_rid2sd: player
+// not attached". gettime(4) returns tm_wday, 0=Sunday .. 6=Saturday.
+SUNDAY		0
+MONDAY		1
+TUESDAY		2
+WEDNESDAY	3
+THURSDAY	4
+FRIDAY		5
+SATURDAY	6
