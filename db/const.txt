@@ -1915,3 +1915,29 @@ EF_MIRESULT_MAKE_FAIL	1018
 EF_ALL_RAY_OF_PROTECTION	1019
 EF_VENOMFOG	1020
 EF_DUSTSTORM	1021
+
+// gettime() type constants (rAthena DT_ names -> this engine's numeric gettime types,
+// see src/map/script.c buildin gettime). Lets backport/re_ scripts that call
+// gettime(DT_DAYOFWEEK)/gettime(DT_HOUR)/etc. resolve instead of being mistaken for an
+// (unattached) player variable in OnInit -> "script_rid2sd: player not attached".
+DT_SECOND	1
+DT_MIN	2
+DT_MINUTE	2
+DT_HOUR	3
+DT_DAYOFWEEK	4
+DT_DAYOFMONTH	5
+DT_MONTH	6
+DT_YEAR	7
+DT_DAYOFYEAR	8
+
+// Weekday names (same fix as DT_* above): backport/RE scripts compare gettime(4)
+// against SUNDAY..SATURDAY. These rAthena constants were undefined here, so in an
+// OnInit (no player) they were read as a player variable -> "script_rid2sd: player
+// not attached". gettime(4) returns tm_wday, 0=Sunday .. 6=Saturday.
+SUNDAY		0
+MONDAY		1
+TUESDAY		2
+WEDNESDAY	3
+THURSDAY	4
+FRIDAY		5
+SATURDAY	6
