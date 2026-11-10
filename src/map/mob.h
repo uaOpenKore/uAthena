@@ -20,7 +20,11 @@
 #define MAX_STEAL_DROP 7
 
 //Min time between AI executions
-#define MIN_MOBTHINKTIME 100
+// [perf] Raised 100 -> 150ms: mob hard-AI ran ~10x/s per active mob; at 150ms it
+// runs ~6.6x/s, cutting mob-AI CPU (map_foreachinrange, the top map-loop self-cost
+// in the perf profile) by ~a third. Mobs react marginally slower (within ~1 cell
+// of walk). Needs a rebuild to take effect. (S.)
+#define MIN_MOBTHINKTIME 150
 //Min time before mobs do a check to call nearby friends for help (or for slaves to support their master)
 #define MIN_MOBLINKTIME 1000
 
