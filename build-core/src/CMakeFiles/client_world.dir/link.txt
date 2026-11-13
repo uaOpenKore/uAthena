@@ -1,2 +1,0 @@
-/usr/bin/ar qc libclient_world.a CMakeFiles/client_world.dir/world/GroundMesh.cpp.o CMakeFiles/client_world.dir/world/ModelMesh.cpp.o CMakeFiles/client_world.dir/world/SpriteComposer.cpp.o CMakeFiles/client_world.dir/world/Pathfind.cpp.o CMakeFiles/client_world.dir/world/RomModel.cpp.o CMakeFiles/client_world.dir/world/MapLoader.cpp.o
-/usr/bin/ranlib libclient_world.a
