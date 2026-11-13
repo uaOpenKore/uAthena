@@ -1,1 +1,0 @@
-/usr/bin/c++ -g -static-libstdc++ -static-libgcc CMakeFiles/sprbatch.dir/sprbatch.cpp.o -o sprbatch  ../src/libclient_formats.a ../src/libclient_resource.a /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libzstd.a ../src/libclient_core.a ../third_party/lua51/liblua51.a -ldl -lm

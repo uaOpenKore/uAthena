@@ -60,3 +60,8 @@ login-server_sql
 map-server
 map-server_sql
 Makefile.cache
+
+# CMake build output (untracked 2026-11; these dirs are generated)
+/build-core/
+/Client/build/
+/Client/build-core/

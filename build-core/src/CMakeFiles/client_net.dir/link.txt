@@ -1,2 +1,0 @@
-/usr/bin/ar qc libclient_net.a CMakeFiles/client_net.dir/net/Socket.cpp.o CMakeFiles/client_net.dir/net/Connection.cpp.o CMakeFiles/client_net.dir/net/Protocol.cpp.o CMakeFiles/client_net.dir/net/PacketTable.cpp.o CMakeFiles/client_net.dir/net/ClientInfo.cpp.o CMakeFiles/client_net.dir/net/JobNames.cpp.o CMakeFiles/client_net.dir/net/SkillNames.cpp.o CMakeFiles/client_net.dir/net/SkillCastDelay.cpp.o
-/usr/bin/ranlib libclient_net.a

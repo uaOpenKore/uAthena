@@ -1,2 +1,0 @@
-/usr/bin/ar qc libclient_resource.a CMakeFiles/client_resource.dir/resource/Grf.cpp.o CMakeFiles/client_resource.dir/resource/GrfDecrypt.cpp.o CMakeFiles/client_resource.dir/resource/Zip.cpp.o CMakeFiles/client_resource.dir/resource/Vfs.cpp.o CMakeFiles/client_resource.dir/resource/ContentRoute.cpp.o CMakeFiles/client_resource.dir/resource/ItemDb.cpp.o CMakeFiles/client_resource.dir/resource/EmbeddedQuestTitles.cpp.o CMakeFiles/client_resource.dir/resource/LuaTables.cpp.o CMakeFiles/client_resource.dir/resource/GrfData.cpp.o
-/usr/bin/ranlib libclient_resource.a
