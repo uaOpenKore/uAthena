@@ -168,6 +168,31 @@ finalize_perf() {  # finalize_perf <perfpid> <perfdata>
 	prune_keep "$PERF_DIR" "*.perf.data" "$UA_PERF_KEEP"
 }
 
+# Block until MariaDB/MySQL accepts connections, so a boot or restart that races
+# ahead of the DB does not fail with "Can't connect to server (115)" (which, mid
+# do_final, silently loses char saves). Only for the _sql build. Best-effort and
+# strictly bounded: after UA_DB_WAIT_SECS we launch anyway (Restart=always retries).
+#   UA_WAIT_DB=0        disable this wait
+#   UA_DB_HOST/PORT     where to probe   (default 127.0.0.1:3306 - matches conf)
+#   UA_DB_WAIT_SECS     max seconds      (default 60)
+wait_for_db() {
+	[ "$uAtype" = "_sql" ] || return 0
+	[ "${UA_WAIT_DB:-1}" = "1" ] || return 0
+	command -v mysqladmin >/dev/null 2>&1 || { echo "ua-start: mysqladmin not found - skipping DB wait" >&2; return 0; }
+	local host="${UA_DB_HOST:-127.0.0.1}" port="${UA_DB_PORT:-3306}"
+	local timeout="${UA_DB_WAIT_SECS:-60}" waited=0 out
+	while [ "$waited" -lt "$timeout" ]; do
+		# "mysqld is alive" = up; "Access denied" = up too (auth != reachability).
+		out=$(mysqladmin --protocol=tcp -h "$host" -P "$port" --connect-timeout=2 ping 2>&1)
+		if echo "$out" | grep -qiE "alive|denied"; then
+			[ "$waited" -gt 0 ] && echo "ua-start: MariaDB reachable after ${waited}s"
+			return 0
+		fi
+		sleep 2; waited=$((waited + 2))
+	done
+	echo "ua-start: WARN MariaDB not reachable after ${timeout}s - launching anyway" >&2
+}
+
 setup_core_pattern() {
 	ulimit -c unlimited 2>/dev/null
 	[ "$UA_SET_COREPATTERN" = "1" ] || return 0
@@ -204,6 +229,7 @@ run_single() {
 	local PID="${BIN_DIR}/PID-${SERVER}.pid"
 	local CONSOLE_LOG="$LOG_DIR/uA${SERVER}.log"
 	setup_core_pattern
+	wait_for_db
 
 	echo "ua-start: launching $BIN ($(date '+%F %T'))" | tee -a "$CONSOLE_LOG"
 	# Redirect the binary's console straight to uAlogin.log / uAchar.log, exactly like the map
@@ -325,6 +351,7 @@ run_map_supervisor() {
 	fi
 
 	setup_core_pattern
+	wait_for_db
 	echo $$ > "${BIN_DIR}/PID-map.pid"   # supervisor pid (for systemd)
 
 	local shutting_down=0

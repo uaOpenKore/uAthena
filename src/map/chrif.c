@@ -94,8 +94,11 @@ static int chrif_state = 0;
 static int char_init_done = 0;
 int other_mapserver_count=0; //Holds count of how many other map servers are online (apart of this instance) [Skotlex]
 
-//Interval at which map server updates online listing. [Valaris]
-#define CHECK_INTERVAL 3600000
+//Interval at which map server pushes its full online-char list to the char-server. Lowered from
+//3600000 (1h) to 60000 (60s) so the char-server can reconcile ghost online-flags within minutes
+//instead of up to an hour. The list is ~8 bytes/online-player, so 60s is cheap. Keep in sync with
+//ONLINE_SYNC_INTERVAL_MS in char_sql/char.c. [auth-resilience B3]
+#define CHECK_INTERVAL 60000
 //Interval at which map server sends number of connected users. [Skotlex]
 #define UPDATE_INTERVAL 10000
 //This define should spare writing the check in every function. [Skotlex]
@@ -554,13 +557,25 @@ void chrif_authok(int fd)
 int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 {
 	struct auth_node *node=(struct auth_node*)data;
+	int *pending = va_arg(ap, int*);
+	int *purged  = va_arg(ap, int*);
+
+	if (pending) (*pending)++;
 
 	if(DIFF_TICK(gettick(),node->node_created)>AUTH_NODE_TTL_MS) {
+		// (C2) Only a node whose client never actually connected to the map (sd==NULL) is a truly
+		// dead/stale request. A node with sd!=NULL means the client IS here and still finishing
+		// map-entry load; purging it would kick a player who is genuinely connecting, so give those
+		// a longer grace (3x TTL) before giving up. This keeps honest-but-slow logins in without
+		// ever refusing anyone. [auth-resilience]
+		if (node->sd != NULL && DIFF_TICK(gettick(),node->node_created) <= AUTH_NODE_TTL_MS*3)
+			return 0;
 		ShowNotice("Character (aid: %d) not authed within %d seconds of character select!\n",
 			node->account_id, AUTH_NODE_TTL_MS/1000);
 		if (node->char_dat)
 			aFree(node->char_dat);
 		db_remove(auth_db, key);
+		if (purged) (*purged)++;
 		return 1;
 	}
 	return 0;
@@ -568,7 +583,15 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 
 int auth_db_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
-	auth_db->foreach(auth_db, auth_db_cleanup_sub);
+	int pending = 0, purged = 0;
+	auth_db->foreach(auth_db, auth_db_cleanup_sub, &pending, &purged);
+	// (E) Observability: surface the pending map-entry auth-queue depth so a login storm is visible
+	// BEFORE it forces a manual reboot. Escalate to a WARNING at the high-water mark (impossible to
+	// miss), a quieter INFO for the normal non-trivial case, silence when idle. [auth-resilience]
+	if (pending >= 50)
+		ShowWarning("Auth queue HIGH: %d pending map-entry node(s) (%d purged this sweep) - possible login storm building.\n", pending, purged);
+	else if (purged > 0 || pending >= 20)
+		ShowInfo("Auth queue: %d pending map-entry node(s), %d purged this sweep.\n", pending, purged);
 	return 0;
 }
 

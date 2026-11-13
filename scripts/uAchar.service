@@ -1,7 +1,9 @@
 [Unit]
 Description=uAthena Char+SQL server
-After=uAlogin.service
+After=uAlogin.service mariadb.service
 Requires=uAlogin.service
+# Char talks to MariaDB directly; order after it (soft Wants). See uAlogin.service.
+Wants=mariadb.service
 Before=uAmap.service
 Conflicts=uAlogin-txt.service uAchar-txt.service uAmap-txt.service uAthena-txt.target shutdown.target
 PartOf=uAthena.target

@@ -1,0 +1,26 @@
+
+2026-10-09 15:29:17: The login-server starting...
+2026-10-09 15:29:17: The configuration of the server is set:
+2026-10-09 15:29:17: - with no remote administration.
+2026-10-09 15:29:17: - to accept any IP for remote administration
+2026-10-09 15:29:17: - with the DEFAULT 'To GM become' password (gm_pass).
+2026-10-09 15:29:17: - to create GM with level '60' when @gm is used.
+2026-10-09 15:29:17: - to ALLOW new users (with _F/_M).
+2026-10-09 15:29:17: - with port: 6900.
+2026-10-09 15:29:17: - with the accounts file name: 'save/account.txt'.
+2026-10-09 15:29:17: - with the GM accounts file name: 'conf/GM_account.txt'.
+2026-10-09 15:29:17: - to check GM accounts file modifications every 15 seconds.
+2026-10-09 15:29:17: - to save password in plain text.
+2026-10-09 15:29:17: - with the unknown packets file name: 'log/login_unknown_packets.log'.
+2026-10-09 15:29:17: - to SAVE only unkown packets sending by a char-server or a remote administration.
+2026-10-09 15:29:17: - to NOT display normal parse packets on console.
+2026-10-09 15:29:17: - to NOT display administration parse packets on console.
+2026-10-09 15:29:17: - to NOT display char-server parse packets on console.
+2026-10-09 15:29:17: - with no minimum level for connection.
+2026-10-09 15:29:17: - to refuse adjustment (with timeadd ladmin) on an unlimited account. You must use timeset (ladmin command) before.
+2026-10-09 15:29:17: - to create new accounts with an unlimited time.
+2026-10-09 15:29:17: - with the IP security order: 'deny,allow' (allow if not deny). You refuse no IP.
+2026-10-09 15:29:17: 2 accounts read in save/account.txt, of which is no GM account and 1 server account ('S').
+2026-10-09 15:29:17: read_gm_account: file 'conf/GM_account.txt' read (0 GM accounts found).
+2026-10-09 15:29:17: The login-server is ready (Server is listening on the port 6900).
+2026-10-09 15:29:18: ----End of login-server (normal end with closing of all files).

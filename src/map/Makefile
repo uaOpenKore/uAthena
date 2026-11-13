@@ -23,7 +23,7 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/npc_chat.o obj/chat.o obj/path.o obj/itemdb.o obj/mob.o obj/script.o \
 	obj/storage.o obj/skill.o obj/atcommand.o obj/charcommand.o obj/battle.o \
 	obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/buyingstore.o obj/guild.o obj/pet.o \
-	obj/log.o obj/log_async.o obj/async_db.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o \
+	obj/log.o obj/log_async.o obj/async_db.o obj/async_read.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o obj/discord.o \
 	$(COMMON_OBJ)
 
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
@@ -46,7 +46,7 @@ clean:
 
 # DO NOT DELETE
 
-sqlobj/map.o: map.c map.h chrif.h clif.h npc.h pc.h mob.h chat.h skill.h itemdb.h storage.h party.h pet.h atcommand.h log.h $(COMMON_H)
+sqlobj/map.o: map.c map.h chrif.h clif.h npc.h pc.h mob.h chat.h skill.h itemdb.h storage.h party.h pet.h atcommand.h log.h discord.h $(COMMON_H)
 sqlobj/chrif.o: chrif.c map.h battle.h chrif.h clif.h intif.h pc.h npc.h $(COMMON_H)
 sqlobj/clif.o: clif.c map.h chrif.h clif.h mob.h intif.h pc.h npc.h itemdb.h chat.h script.h storage.h party.h guild.h atcommand.h pet.h charcommand.h $(COMMON_H)
 sqlobj/pc.o: pc.c map.h clif.h intif.h pc.h npc.h mob.h itemdb.h battle.h skill.h script.h party.h guild.h pet.h trade.h storage.h chat.h vending.h log.h $(COMMON_H)
@@ -56,7 +56,8 @@ sqlobj/npc_chat.o: npc_chat.c map.h npc.h clif.h pc.h script.h mob.h itemdb.h ba
 sqlobj/chat.o: chat.c map.h clif.h pc.h chat.h $(COMMON_H)
 sqlobj/path.o: path.c map.h battle.h $(COMMON_H)
 sqlobj/itemdb.o: itemdb.c map.h battle.h itemdb.h $(COMMON_H)
-sqlobj/mob.o: mob.c map.h clif.h intif.h pc.h mob.h skill.h battle.h npc.h itemdb.h log.h date.h $(COMMON_H)
+sqlobj/mob.o: mob.c map.h clif.h intif.h pc.h mob.h skill.h battle.h npc.h itemdb.h log.h date.h discord.h $(COMMON_H)
+sqlobj/discord.o: discord.c discord.h ../common/showmsg.h
 sqlobj/script.o: script.c itemdb.h map.h pc.h mob.h clif.h intif.h npc.h script.h storage.h skill.h pet.h battle.h log.h $(COMMON_H)
 sqlobj/storage.o: storage.c itemdb.h pc.h clif.h intif.h storage.h guild.h $(COMMON_H)
 sqlobj/skill.o: skill.c skill.h map.h clif.h pc.h mob.h battle.h itemdb.h script.h log.h date.h $(COMMON_H)
@@ -73,6 +74,7 @@ sqlobj/mail.o: mail.c mail.h $(COMMON_H)
 sqlobj/log.o: log.c log.h map.h $(COMMON_H)
 sqlobj/log_async.o: log_async.c log.h map.h $(COMMON_H)
 sqlobj/async_db.o: async_db.c async_db.h ../common/showmsg.h
+sqlobj/async_read.o: async_read.c async_read.h ../common/showmsg.h
 sqlobj/charcommand.o: charcommand.c charcommand.h itemdb.h pc.h map.h skill.h clif.h mob.h intif.h battle.h storage.h guild.h pet.h log.h $(COMMON_H)
 sqlobj/date.o: date.c date.h $(COMMON_H)
 sqlobj/unit.o: unit.c unit.h $(COMMON_H)

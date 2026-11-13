@@ -49,6 +49,7 @@ static struct epoll_event* epoll_events = NULL;
 int fd_max;
 time_t last_tick;
 time_t stall_time = 60;
+int socket_log_disconnects = 0; // [dc-log] 1 = log unexpected client DROPS in set_eof (map-server sets this on)
 
 uint32 addr_[16];   // ip addresses of local host (host byte order)
 int naddr_ = 0;   // # of ip addresses
@@ -191,10 +192,40 @@ void setsocketopts(int fd)
 /*======================================
  *	CORE : Socket Sub Function
  *--------------------------------------*/
+// [dc-log] Human-readable name for a socket_dc_reason.
+static const char* socket_dc_reason_str(int reason)
+{
+	switch( reason ) {
+		case SDC_CLEAN_QUIT:     return "clean_quit";
+		case SDC_IDLE_TIMEOUT:   return "idle_timeout";
+		case SDC_PEER_CLOSE:     return "peer_close";
+		case SDC_RECV_ERROR:     return "recv_error";
+		case SDC_SEND_ERROR:     return "send_error";
+		case SDC_INVALID_PACKET: return "invalid_packet";
+		default:                 return "unknown";
+	}
+}
+
+void socket_set_disconnect_reason(int fd, int reason)
+{
+	if( session_isValid(fd) )
+		session[fd]->disconnect_reason = (unsigned char)reason;
+}
+
 void set_eof(int fd)
 {
 	if( session_isActive(fd) )
 	{
+		// [dc-log] Log real connection DROPS once (on the 0->1 transition), excluding clean quits and
+		// inter-server (s2s, client_addr==0) links. Lets us see WHY players lose connection (idle
+		// timeout vs peer close vs error) and filter out players who simply chose to log out.
+		if( socket_log_disconnects && !session[fd]->eof && session[fd]->client_addr
+			&& session[fd]->disconnect_reason != SDC_CLEAN_QUIT )
+		{
+			ShowInfo("Session #%d DROP: %s (IP %d.%d.%d.%d)\n", fd,
+				socket_dc_reason_str(session[fd]->disconnect_reason),
+				CONVIP(session[fd]->client_addr));
+		}
 #ifdef SEND_SHORTLIST
 		// Add this socket to the shortlist for eof handling.
 		send_shortlist_add_fd(fd);
@@ -219,12 +250,14 @@ int recv_to_fifo(int fd)
 		}
 		if (s_errno != S_EWOULDBLOCK) {
 			//ShowDebug("recv_to_fifo: error %d, ending connection #%d\n", s_errno, fd);
+			socket_set_disconnect_reason(fd, SDC_RECV_ERROR); // [dc-log]
 			set_eof(fd);
 		}
 		return 0;
 	}
 
 	if (len == 0) { //Normal connection end.
+		socket_set_disconnect_reason(fd, SDC_PEER_CLOSE); // [dc-log] remote closed the TCP connection
 		set_eof(fd);
 		return 0;
 	}
@@ -265,6 +298,7 @@ int send_from_fifo(int fd)
 		if (s_errno != S_EWOULDBLOCK) {
 			//ShowDebug("send_from_fifo: error %d, ending connection #%d\n", s_errno, fd);
 			session[fd]->wdata_size = 0; //Clear the send queue as we can't send anymore. [Skotlex]
+			socket_set_disconnect_reason(fd, SDC_SEND_ERROR); // [dc-log]
 			set_eof(fd);
 		}
 		return 0;
@@ -624,6 +658,7 @@ int do_parsepacket(void)
 			if (session[i]->client_addr &&
 				session[i]->rdata_tick && DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time) {
 				ShowInfo ("Session #%d timed out\n", i);
+				socket_set_disconnect_reason(i, SDC_IDLE_TIMEOUT); // [dc-log]
 				set_eof(i);
 			}
 
@@ -634,6 +669,7 @@ int do_parsepacket(void)
 
 			/* after parse, check client's RFIFO size to know if there is an invalid packet (too big and not parsed) */
 			if (session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size) {
+				socket_set_disconnect_reason(i, SDC_INVALID_PACKET); // [dc-log]
 				set_eof(i);
 				continue;
 			}
@@ -660,9 +696,10 @@ int do_parsepacket(void)
 			if( session[i] )
 			{
 				// invalid (oversized, unparseable) packet -> close
-				if( session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size )
+				if( session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size ) {
+					socket_set_disconnect_reason(i, SDC_INVALID_PACKET); // [dc-log]
 					set_eof(i);
-				else
+				} else
 					RFIFOFLUSH(i);
 			}
 
@@ -699,6 +736,7 @@ int do_parsepacket(void)
 					&& DIFF_TICK(last_tick, session[i]->rdata_tick) > stall_time )
 				{
 					ShowInfo("Session #%d timed out\n", i);
+					socket_set_disconnect_reason(i, SDC_IDLE_TIMEOUT); // [dc-log]
 					set_eof(i);
 				}
 			}

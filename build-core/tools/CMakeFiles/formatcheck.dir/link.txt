@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -static-libstdc++ -static-libgcc CMakeFiles/formatcheck.dir/formatcheck.cpp.o -o formatcheck  ../src/libclient_resource.a ../src/libclient_formats.a ../src/libclient_world.a /usr/lib/x86_64-linux-gnu/libz.so ../src/libclient_resource.a /usr/lib/x86_64-linux-gnu/libz.so ../src/libclient_formats.a /usr/lib/x86_64-linux-gnu/libzstd.a ../src/libclient_core.a

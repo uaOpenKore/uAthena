@@ -56,6 +56,7 @@
 #include <unistd.h>
 
 #include "mail.h"
+#include "discord.h"
 
 char tmp_sql[65535]="";
 char default_codepage[32] = "";
@@ -3564,6 +3565,8 @@ void do_final(void)
 
 	ShowStatus("Terminating...\n");
 
+	discord_final();  // stop the Discord relay worker thread
+
 	for (i = 0; i < map_num; i++)
 		if (map[i].m >= 0)
 			map_foreachinmap(cleanup_sub, i, BL_ALL);
@@ -3766,6 +3769,7 @@ int do_init(int argc, char *argv[])
 	script_config_read(SCRIPT_CONF_NAME);
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
+	discord_init();  // Discord webhook relay for rare-drop announces (conf/discord.conf; off until configured)
 
 	// [perf] Send coalescing (map-only): the worker holds a client's lone
 	// sub-segment packets up to this many ms so they go out as one send() (bulk
@@ -3791,6 +3795,11 @@ int do_init(int argc, char *argv[])
 	// [perf] Parse only fds that received data this tick (recv parse-shortlist) instead of
 	// scanning all sessions. 1 = on (default), 0 = old brute-scan.
 	recv_parse_shortlist = battle_config.recv_parse_shortlist;
+
+	// [dc-log] Log unexpected client DROPS (idle timeout / peer close / error) on the MAP server, so
+	// player-disconnect complaints can be diagnosed. Clean quits and s2s links are excluded. Enabled
+	// only here (not on login/char, where clients disconnect normally during the char-select handoff).
+	socket_log_disconnects = 1;
 
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]

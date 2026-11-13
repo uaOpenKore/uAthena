@@ -76,8 +76,22 @@ typedef int (*RecvFunc)(int fd);
 typedef int (*SendFunc)(int fd);
 typedef int (*ParseFunc)(int fd);
 
+// [dc-log] Reason a client session closed, for diagnosing player disconnects. Set at the point the
+// cause becomes known (idle sweep, recv/send error, quit packet); logged once in set_eof for real
+// DROPS. Clean quits (player chose to leave) are excluded so the log shows only unexpected drops.
+enum socket_dc_reason {
+	SDC_UNKNOWN = 0,     // server-initiated kick / unclassified
+	SDC_CLEAN_QUIT,      // client asked to quit or returned to char-select -- NOT a drop (excluded)
+	SDC_IDLE_TIMEOUT,    // no data received for stall_time seconds
+	SDC_PEER_CLOSE,      // TCP closed by the remote end (recv == 0): alt-F4 / client crash / NAT drop
+	SDC_RECV_ERROR,      // recv() socket error
+	SDC_SEND_ERROR,      // send() socket error
+	SDC_INVALID_PACKET,  // oversized / unparseable packet -> closed
+};
+
 struct socket_data {
 	unsigned char eof;
+	unsigned char disconnect_reason; // [dc-log] enum socket_dc_reason; why this session closed
 	unsigned char *rdata, *wdata;
 	size_t max_rdata, max_wdata;
 	size_t rdata_size, wdata_size;
@@ -102,6 +116,7 @@ extern int fd_max;
 
 extern time_t last_tick;
 extern time_t stall_time;
+extern int socket_log_disconnects; // [dc-log] 1 = log unexpected client DROPS (set on by the map-server)
 
 extern int socket_send_coalesce_ms; // [perf] send coalescing window (ms); 0 disables
 extern int socket_async_send;       // [perf] 1 = client send() runs on the send worker thread
@@ -113,6 +128,11 @@ extern int recv_parse_shortlist;    // [perf] 1 = parse only fds that received d
 extern int session_isValid(int fd);
 extern int session_isActive(int fd);
 //////////////////////////////////
+
+// [dc-log] Tag a session with why it is about to close (see enum socket_dc_reason). Callers that
+// know the cause (e.g. clif's quit-packet handler = SDC_CLEAN_QUIT) call this before set_eof so the
+// drop log can classify it. A no-op on invalid fds.
+void socket_set_disconnect_reason(int fd, int reason);
 
 // Function prototype declaration
 

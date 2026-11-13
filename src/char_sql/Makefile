@@ -10,7 +10,7 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 	../common/malloc.h ../common/showmsg.h ../common/utils.h ../common/strlib.h \
 	../common/grfio.h ../common/mapindex.h
 
-char-server_sql: char.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
+char-server_sql: char.o char_async_load.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
 	$(CC) -o ../../$@ $^ $(LIB_S)
 
 clean:
@@ -18,7 +18,8 @@ clean:
 
 # DO NOT DELETE
 
-char.o: char.c char.h ../common/strlib.h itemdb.h ../common/showmsg.h
+char.o: char.c char.h char_async_load.h ../common/strlib.h itemdb.h ../common/showmsg.h
+char_async_load.o: char_async_load.c char_async_load.h ../common/showmsg.h
 inter.o: inter.c inter.h int_party.h int_guild.h int_storage.h int_pet.h int_homun.h ../common/mmo.h char.h ../common/socket.h ../common/showmsg.h
 int_party.o: int_party.c int_party.h inter.h ../common/mmo.h char.h ../common/socket.h ../common/timer.h ../common/db.h ../common/showmsg.h
 int_guild.o: int_guild.c int_guild.h inter.h ../common/mmo.h char.h ../common/socket.h ../common/db.h ../common/showmsg.h
