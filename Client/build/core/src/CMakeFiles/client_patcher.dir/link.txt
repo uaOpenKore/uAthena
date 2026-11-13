@@ -1,2 +1,0 @@
-/usr/bin/ar qc libclient_patcher.a CMakeFiles/client_patcher.dir/patcher/PatchManifest.cpp.o CMakeFiles/client_patcher.dir/patcher/PlatformId.cpp.o CMakeFiles/client_patcher.dir/patcher/PatcherConfig.cpp.o CMakeFiles/client_patcher.dir/patcher/GDriveUrl.cpp.o
-/usr/bin/ranlib libclient_patcher.a

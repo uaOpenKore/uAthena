@@ -1,2 +1,0 @@
-client_core_tests 38 0.000339082
----

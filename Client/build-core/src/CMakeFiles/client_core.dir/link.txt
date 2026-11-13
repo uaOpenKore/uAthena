@@ -1,2 +1,0 @@
-/usr/bin/ar qc libclient_core.a CMakeFiles/client_core.dir/core/Log.cpp.o CMakeFiles/client_core.dir/core/compress/Lz4.cpp.o CMakeFiles/client_core.dir/core/time/Clock.cpp.o CMakeFiles/client_core.dir/core/thread/ThreadRole.cpp.o CMakeFiles/client_core.dir/core/crypto/Sha512.cpp.o
-/usr/bin/ranlib libclient_core.a
