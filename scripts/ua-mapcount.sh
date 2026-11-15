@@ -32,6 +32,15 @@
 
 UA_MAP_MAX=30   # char-server hard cap (MAX_MAP_SERVERS)
 
+# UA_NO_CPU_PIN: when non-zero (the DEFAULT now), do NOT hand out per-instance
+# CPU cores, so ua-start.sh launches every server WITHOUT taskset and the host
+# is free to place/migrate them. This is the bare-metal + numad layout (single
+# EPYC socket): numad balances NUMA/placement, so hard affinity would only fight
+# it. The shard COUNT (floor(threads/2)-1) is unchanged - more single-threaded
+# map game-loops still means more throughput, they just float instead of being
+# pinned. Set UA_NO_CPU_PIN=0 to restore the old fixed CPU-pair pinning.
+: "${UA_NO_CPU_PIN:=1}"
+
 ua_threads() {
 	local n
 	# UA_FORCE_THREADS overrides autodetection (testing / manual capping).
@@ -79,7 +88,10 @@ ua_map_count() {
 # shard exists it would own 4,5 (2N,2N+1), so #1 falls back to 0,1 to avoid overlap.
 # Cores 2,3 stay reserved for login/char + system/NIC either way.
 ua_cores_for() {
-	local n="$1" t; t=$(ua_threads)
+	local n="$1" t
+	# No pinning when requested (bare-metal + numad): leave placement to the host.
+	[ "${UA_NO_CPU_PIN:-1}" != 0 ] && { echo ""; return; }
+	t=$(ua_threads)
 	[ "$t" -lt 4 ] && { echo ""; return; }
 	if [ "$n" -le 1 ]; then
 		if [ "$t" -ge 6 ] && [ "$(ua_map_count)" -eq 1 ]; then echo "0,1,4,5"; else echo "0,1"; fi
