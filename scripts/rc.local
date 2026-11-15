@@ -1,75 +1,48 @@
 #!/bin/bash
 #
-# Network tuning for the game VM, THREAD-AWARE for the multi-map layout.
-# Copy to /etc/rc.local on the guest, then:
+# Network + CPU tuning for the game server on a BARE-METAL HOST (single EPYC
+# socket, 32 threads), with NO CPU affinity: numad runs on the host and owns
+# NUMA/placement, so this script sets NO manual IRQ/RPS/XPS pinning and no core
+# isolation - it would only fight numad and the scheduler. The map-servers also
+# launch unpinned (see ua-mapcount.sh, UA_NO_CPU_PIN=1).
+#
+# Copy to /etc/rc.local on the host, then:
 #     chmod +x /etc/rc.local && systemctl enable rc-local
 # (systemd has no rc.local by default on Debian; the rc-local shim runs it.)
 #
-# CPU layout (mirrors ua-mapcount.sh / ua-start.sh; T = vCPU/thread count):
-#     CPU 0-1            = map server #1
-#     CPU 2-3            = NIC RX/TX softirq + system + login/char  (NET_CPUS)
-#     CPU 2N..2N+1       = map server #N (N>=2)                     (APP_CPUS)
-# Goal: keep NIC interrupt/softirq work on CPU 2-3, away from every core that
-# runs a map game-loop + send worker, so send()s go out promptly (no movement
-# rubber-banding) and the qdisc TX lock stops contending with the ticks.
-#
-# Everything below is DERIVED from the thread count - no hand-editing needed
-# when the core count changes. Override IFACE if auto-detection picks the wrong
-# interface.
+# What is left here is placement-agnostic throughput/latency tuning only:
+# NIC multiqueue + offloads, conntrack sizing, socket buffers, CPU governor,
+# and the small-write flush. irqbalance stays ON so the kernel spreads NIC
+# interrupts across cores on its own.
 
-# --- 0. derive CPU layout + queue count from the thread count -------------
+# --- 0. thread count (for sizing tables/buffers only; no pinning) ----------
 T=$(nproc 2>/dev/null || grep -c '^processor' /proc/cpuinfo)
-QUEUES="$T"                       # virtio-net combined queues = vCPUs
-
-if [ "$T" -lt 4 ]; then
-    # too few cores to isolate the NIC; use all cores everywhere
-    NET_CPUS=$(seq -s' ' 0 $((T - 1)))
-    APP_CPUS="$NET_CPUS"
-else
-    NET_CPUS="2 3"
-    K=$(( T / 2 - 1 )); [ "$K" -gt 30 ] && K=30   # map-server count (== ua-mapcount.sh)
-    APP_CPUS="0 1"
-    n=2; while [ "$n" -le "$K" ]; do APP_CPUS="$APP_CPUS $((2 * n)) $((2 * n + 1))"; n=$((n + 1)); done
-fi
 
 # --- interface (auto-detect default-route NIC; override by editing IFACE) ---
 IFACE="${IFACE:-$(ip route show default 2>/dev/null | awk '/default/{print $5; exit}')}"
-IFACE="${IFACE:-enp1s0}"
+IFACE="${IFACE:-eth0}"
 
-echo "rc.local: T=$T QUEUES=$QUEUES NET_CPUS='$NET_CPUS' APP_CPUS='$APP_CPUS' IFACE=$IFACE"
+# --- NIC combined-queue count: min(threads, card maximum) -----------------
+# Give the card as many combined queues as it supports (up to the thread count)
+# so RX/TX work fans out across cores by itself. Clamp to the hardware ceiling
+# from ethtool -l, otherwise ethtool -L fails.
+MAXQ=$(ethtool -l "$IFACE" 2>/dev/null | awk '/^Combined:/{print $2; exit}')
+case "$MAXQ" in ''|*[!0-9]*) MAXQ="$T";; esac
+QUEUES="$T"; [ "$QUEUES" -gt "$MAXQ" ] && QUEUES="$MAXQ"
 
-# --- 1. virtio-net multiqueue + offloads ----------------------------------
+echo "rc.local: T=$T QUEUES=$QUEUES (max $MAXQ) IFACE=$IFACE (no-affinity / numad host)"
+
+# --- 1. NIC multiqueue + offloads -----------------------------------------
 ethtool -L "$IFACE" combined "$QUEUES" 2>/dev/null
 ethtool -K "$IFACE" gro on tso on gso on 2>/dev/null
 
-# --- 2. NIC queue interrupts -> NET_CPUS (round-robin) --------------------
-net=($NET_CPUS); i=0
-for irq in $(grep -E "virtio[0-9]+-(input|output)|${IFACE}-(rx|tx)" /proc/interrupts | sed 's/:.*//; s/ //g'); do
-    echo "${net[$((i % ${#net[@]}))]}" > "/proc/irq/$irq/smp_affinity_list" 2>/dev/null
-    i=$((i + 1))
-done
-
-# --- 3. RPS: receive packet steering -> NET_CPUS --------------------------
-rps=0; for c in $NET_CPUS; do rps=$((rps | (1 << c))); done; rps=$(printf '%x' "$rps")
-for q in /sys/class/net/$IFACE/queues/rx-*; do
-    echo "$rps" > "$q/rps_cpus" 2>/dev/null
-done
-
-# --- 4. XPS: spread TX queues across the APP (map) cores ------------------
-# Splits the qdisc TX lock so each map server transmits on its own TX queue.
-app=($APP_CPUS); j=0
-for q in /sys/class/net/$IFACE/queues/tx-*; do
-    c=${app[$((j % ${#app[@]}))]}
-    printf '%x' $((1 << c)) > "$q/xps_cpus" 2>/dev/null
-    j=$((j + 1))
-done
-
-# --- 5. conntrack table (guest side; host NAT conntrack is separate) -------
+# --- 2. conntrack table ----------------------------------------------------
+# The host terminates every game connection, so size conntrack for full load.
 CONNTRACK=$(( T * 16384 )); [ "$CONNTRACK" -lt 262144 ] && CONNTRACK=262144
 [ -d /sys/module/nf_conntrack ] && echo $((CONNTRACK / 4)) > /sys/module/nf_conntrack/parameters/hashsize 2>/dev/null
 sysctl -q -w net.netfilter.nf_conntrack_max=$CONNTRACK 2>/dev/null
 
-# --- 6. socket buffers / backlog (scaled by thread count) -----------------
+# --- 3. socket buffers / backlog (scaled by thread count) -----------------
 SOMAXCONN=$(( T * 1024 ));  [ "$SOMAXCONN" -lt 4096 ] && SOMAXCONN=4096
 BACKLOG=$(( T * 2000 ));    [ "$BACKLOG"   -lt 5000 ] && BACKLOG=5000
 sysctl -q -w net.core.somaxconn=$SOMAXCONN 2>/dev/null
@@ -80,24 +53,26 @@ sysctl -q -w net.ipv4.tcp_rmem="4096 87380 16777216" 2>/dev/null
 sysctl -q -w net.ipv4.tcp_wmem="4096 65536 16777216" 2>/dev/null
 sysctl -q -w net.ipv4.tcp_mtu_probing=1 2>/dev/null
 
-# --- 7. irqbalance off (it would override the manual IRQ affinity above) ---
-systemctl disable --now irqbalance 2>/dev/null
-
-# --- 8. CPU governor: performance -----------------------------------------
+# --- 4. CPU governor: performance -----------------------------------------
 # The game loop is latency-sensitive: on-demand/schedutil governors down-clock
 # semi-idle cores and add ramp-up lag to bursty tick+send() work. Pin every
-# core to 'performance'. NO-OP inside a KVM guest that does not expose cpufreq
-# (the common case) - there the governor must be set on the HOST; see
-# Doc/perf_ops_tuning.md. Harmless where cpufreq is absent.
+# core to 'performance'. This is a frequency policy, not a CPU affinity, so it
+# coexists fine with numad. Harmless where cpufreq is absent.
 for g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
     [ -w "$g" ] && echo performance > "$g" 2>/dev/null
 done
+# On AMD EPYC with amd-pstate active this keeps turbo/boost enabled.
+[ -w /sys/devices/system/cpu/cpufreq/boost ] && \
+    echo 1 > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null
 
-# --- 9. send-path latency: flush small map-server writes promptly ----------
+# --- 5. send-path latency: flush small map-server writes promptly ----------
 # The map servers set TCP_NODELAY in code; tcp_notsent_lowat keeps the kernel
 # from buffering tiny movement/action packets, so they leave on the tick that
 # produced them (less rubber-banding under load). Cheap, safe.
 sysctl -q -w net.ipv4.tcp_notsent_lowat=16384 2>/dev/null
 
-tc qdisc show dev "$IFACE"   # boot log: should show 'mq'
+# NOTE: irqbalance is intentionally left ENABLED (not disabled as on the old VM)
+# so NIC interrupts are spread automatically; numad handles process/NUMA placement.
+
+tc qdisc show dev "$IFACE"   # boot log: should show 'mq' on a multiqueue card
 exit 0
