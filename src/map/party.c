@@ -302,7 +302,7 @@ int party_reply_invite(struct map_session_data *sd,int account_id,int flag)
 	struct party_member member;
 	nullpo_retr(0, sd);
 
-	if(flag==1){
+	if(flag==1 && sd->party_invite>0){
 		party_fill_member(&member, sd);
 		intif_party_addmember(sd->party_invite, &member);
 		return 0;
