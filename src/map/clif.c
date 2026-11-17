@@ -657,6 +657,12 @@ int clif_authfail_fd(int fd, int type)
 	if (!fd || !session[fd] || session[fd]->func_parse != clif_parse) //clif_authfail should only be invoked on players!
 		return 0;
 
+	// [dc-log] (ТЗ п.11) auth refusal / kick: the DROP line shows it with the code the client got
+	// (0 auth fail, 1 server closed, 2 logged in elsewhere, 3 timed out, 4 overpopulated, 8 still
+	// recognizes last login, 10 time expired, 15 GM).
+	socket_set_disconnect_reason(fd, SDC_SERVER_KICK);
+	socket_set_disconnect_code(fd, type);
+
 	WFIFOHEAD(fd, packet_len(0x81));
 	WFIFOW(fd,0) = 0x81;
 	WFIFOB(fd,2) = type;
@@ -1935,6 +1941,10 @@ static int clif_waitclose(int tid, unsigned int tick, intptr_t id, intptr_t data
 void clif_setwaitclose(int fd)
 {
 	struct map_session_data *sd;
+
+	// [dc-log] (ТЗ п.11) The server decided to close this session. Callers that know why tag a more
+	// precise reason first (first writer wins); this is the fallback, so no server close is "unknown".
+	socket_set_disconnect_reason(fd, SDC_SERVER_CLOSE);
 
 	// [xms] Token so clif_waitclose can tell if fd was recycled to a different connection before the
 	// timer fires (stale-close guard, see above). For an authed player use the per-connection auth_tick
@@ -7631,6 +7641,7 @@ int clif_GM_kick(struct map_session_data *sd,struct map_session_data *tsd,int ty
 		return 0;
 	}
 
+	socket_set_disconnect_reason(fd, SDC_GM_KICK); // [dc-log] (ТЗ п.11)
 	WFIFOW(fd,0) = 0x18b;
 	WFIFOW(fd,2) = 0;
 	WFIFOSET(fd,packet_len(0x18b));
@@ -7665,6 +7676,7 @@ int clif_timedout(struct map_session_data *sd)
 	nullpo_retr(0, sd);
 
 	ShowInfo("%sCharacter with Account ID '"CL_WHITE"%d"CL_RESET"' timed out.\n", (pc_isGM(sd))?"GM ":"", sd->bl.id);
+	socket_set_disconnect_reason(sd->fd, SDC_TIMEOUT); // [dc-log] (ТЗ п.11)
 	clif_authfail_fd(sd->fd,3); // Even if player is not on we still send anyway
 	clif_setwaitclose(sd->fd); // Set session to EOF
 	return 0;
@@ -8260,6 +8272,7 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 		WFIFOW(fd,0) = 0x6a;
 		WFIFOB(fd,2) = 5; // Your Game's EXE file is not the latest version
 		WFIFOSET(fd,packet_len(0x6a));
+		socket_set_disconnect_reason(fd, SDC_REJECTED); // [dc-log] (ТЗ п.11)
 		clif_setwaitclose(fd);
 		return;
 	} else
@@ -8272,6 +8285,7 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 			WFIFOW(fd,0) = 0x6a;
 			WFIFOB(fd,2) = 3; // Rejected by server
 			WFIFOSET(fd,packet_len(0x6a));
+			socket_set_disconnect_reason(fd, SDC_REJECTED); // [dc-log] (ТЗ п.11)
 			clif_setwaitclose(fd);
 			return;
 		}
@@ -8677,12 +8691,14 @@ void check_fake_id(int fd, struct map_session_data *sd, int target_id)
 		// if we block people
 		if (battle_config.ban_bot < 0) {
 			chrif_char_ask_name(-1, sd->status.name, 1, 0, 0, 0, 0, 0, 0); // type: 1 - block
+			socket_set_disconnect_reason(sd->fd, SDC_HACK_CHECK); // [dc-log] (ТЗ п.11)
 			clif_setwaitclose(sd->fd); // forced to disconnect because of the hack
 			// message about the ban
 			sprintf(message_to_gm, msg_txt(540)); //  This player has been definitivly blocked.
 		// if we ban people
 		} else if (battle_config.ban_bot > 0) {
 			chrif_char_ask_name(-1, sd->status.name, 2, 0, 0, 0, 0, battle_config.ban_bot, 0); // type: 2 - ban (year, month, day, hour, minute, second)
+			socket_set_disconnect_reason(sd->fd, SDC_HACK_CHECK); // [dc-log] (ТЗ п.11)
 			clif_setwaitclose(sd->fd); // forced to disconnect because of the hack
 			// message about the ban
 			sprintf(message_to_gm, msg_txt(507), battle_config.ban_bot); //  This player has been banned for %d minute(s).
@@ -8718,12 +8734,14 @@ void check_fake_id(int fd, struct map_session_data *sd, int target_id)
 		// if we block people
 		if (battle_config.ban_bot < 0) {
 			chrif_char_ask_name(-1, sd->status.name, 1, 0, 0, 0, 0, 0, 0); // type: 1 - block
+			socket_set_disconnect_reason(sd->fd, SDC_HACK_CHECK); // [dc-log] (ТЗ п.11)
 			clif_setwaitclose(sd->fd); // forced to disconnect because of the hack
 			// message about the ban
 			sprintf(message_to_gm, msg_txt(540)); //  This player has been definitivly blocked.
 		// if we ban people
 		} else if (battle_config.ban_bot > 0) {
 			chrif_char_ask_name(-1, sd->status.name, 2, 0, 0, 0, 0, battle_config.ban_bot, 0); // type: 2 - ban (year, month, day, hour, minute, second)
+			socket_set_disconnect_reason(sd->fd, SDC_HACK_CHECK); // [dc-log] (ТЗ п.11)
 			clif_setwaitclose(sd->fd); // forced to disconnect because of the hack
 			// message about the ban
 			sprintf(message_to_gm, msg_txt(507), battle_config.ban_bot); //  This player has been banned for %d minute(s).
@@ -8821,6 +8839,7 @@ void clif_parse_GlobalMessage(int fd, struct map_session_data* sd)
 		message[namelen] != ' ' || message[namelen+1] != ':' || message[namelen+2] != ' ') // completely, not just the prefix
 	{
 		//Hacked message, or infamous "client desynch" issue where they pick one char while loading another.
+		socket_set_disconnect_reason(fd, SDC_HACK_CHECK); // [dc-log] (ТЗ п.11)
 		clif_setwaitclose(fd); // Just kick them out to correct it.
 		ShowWarning("clif_parse_GlobalMessage: Player '%.*s' sent a message using an incorrect name ('%s')! Forcing a relog...", namelen, sd->status.name, message);
 		return;
@@ -9127,8 +9146,11 @@ void clif_parse_Restart(int fd, struct map_session_data *sd)
 		/*	Rovert's Prevent logout option - Fixed [Valaris]	*/
 		if (!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout)
 		{	//Send to char-server for character selection.
-			socket_set_disconnect_reason(fd, SDC_CLEAN_QUIT); // [dc-log] returning to char-select -- not a drop
-			chrif_charselectreq(sd, session[fd]->client_addr);
+			// [dc-log] returning to char-select -- not a drop. Tagged only once the request is actually
+			// sent: with the char-server down the session stays, and (first writer wins) a later real drop
+			// would otherwise be hidden as a clean quit.
+			if (chrif_charselectreq(sd, session[fd]->client_addr) == 0)
+				socket_set_disconnect_reason(fd, SDC_CLEAN_QUIT);
 		} else {
 			WFIFOHEAD(fd,packet_len(0x18b));
 			WFIFOW(fd,0)=0x18b;
@@ -9158,6 +9180,7 @@ void clif_parse_Wis(int fd, struct map_session_data *sd)
 	if (len < 28)
 	{	//Invalid packet, specified size is less than minimum! [Skotlex]
 		ShowWarning("Hack on Whisper: %s (AID/CID: %d:%d)!\n", sd->status.name, sd->status.account_id, sd->status.char_id);
+		socket_set_disconnect_reason(fd, SDC_HACK_CHECK); // [dc-log] (ТЗ п.11)
 		clif_setwaitclose(fd);
 		return;
 	}
@@ -11925,6 +11948,7 @@ int clif_parse(int fd)
 			WFIFOB(fd,2) = 3; // Rejected from Server
 			WFIFOSET(fd,packet_len(0x6a));
 			RFIFOSKIP(fd, RFIFOREST(fd));
+			socket_set_disconnect_reason(fd, SDC_REJECTED); // [dc-log] (ТЗ п.11)
 			clif_setwaitclose(fd);
 			return 0;
 		}
@@ -11951,6 +11975,7 @@ int clif_parse(int fd)
 		packet_len = RFIFOW(fd,2);
 		if (packet_len < 4 || packet_len > 32768) {
 			ShowWarning("clif_parse: Received packet 0x%04x specifies invalid packet_len (%d), disconnecting session #%d.\n", cmd, packet_len, fd);
+			socket_set_disconnect_reason(fd, SDC_INVALID_PACKET); // [dc-log] (ТЗ п.11)
 			set_eof(fd);
 			return 0;
 		}

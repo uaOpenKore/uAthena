@@ -87,11 +87,23 @@ enum socket_dc_reason {
 	SDC_RECV_ERROR,      // recv() socket error
 	SDC_SEND_ERROR,      // send() socket error
 	SDC_INVALID_PACKET,  // oversized / unparseable packet -> closed
+	// [dc-log] Closes decided by the server (ТЗ «разрывы связи» п.11). Each call site tags its own
+	// reason before closing, so none of them is logged as "unknown" any more.
+	SDC_SERVER_KICK,     // 0x81 auth refusal / kick sent to the client (the code goes to dc_code)
+	SDC_GM_KICK,         // @kick by a GM
+	SDC_ACCOUNT_CHANGE,  // account deleted / sex or status changed by the login-server
+	SDC_BAN,             // account banned
+	SDC_HACK_CHECK,      // bot / forged-packet checks
+	SDC_NPC_ERROR,       // NPC shop sale error
+	SDC_TIMEOUT,         // clif_timedout: the account timed out
+	SDC_REJECTED,        // refused at connect, before authentication (client version, bad ids)
+	SDC_SERVER_CLOSE,    // any other close decided by the server (clif_setwaitclose without a reason)
 };
 
 struct socket_data {
 	unsigned char eof;
 	unsigned char disconnect_reason; // [dc-log] enum socket_dc_reason; why this session closed
+	unsigned char dc_code; // [dc-log] 0x81 code sent to the client before closing, +1 (0 = none sent)
 	unsigned char *rdata, *wdata;
 	size_t max_rdata, max_wdata;
 	size_t rdata_size, wdata_size;
@@ -133,6 +145,8 @@ extern int session_isActive(int fd);
 // know the cause (e.g. clif's quit-packet handler = SDC_CLEAN_QUIT) call this before set_eof so the
 // drop log can classify it. A no-op on invalid fds.
 void socket_set_disconnect_reason(int fd, int reason);
+// [dc-log] Record the 0x81 code sent to the client, shown in the DROP line. First one wins.
+void socket_set_disconnect_code(int fd, int code);
 
 // Function prototype declaration
 
