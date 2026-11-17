@@ -208,8 +208,22 @@ static const char* socket_dc_reason_str(int reason)
 
 void socket_set_disconnect_reason(int fd, int reason)
 {
-	if( session_isValid(fd) )
-		session[fd]->disconnect_reason = (unsigned char)reason;
+	if( !session_isValid(fd) )
+		return;
+	// [DCMETRIC] ТЗ Причина 4: FIRST-WRITER-WINS. The old code let a later writer overwrite the reason, so a
+	// transport-level recv==0 (peer_close) in recv_to_fifo would mask the REAL cause that was set earlier
+	// (idle_timeout, invalid_packet, a server-side classification) -> the DROP log blamed the wrong thing and
+	// every real stall showed up as "peer_close". Now we keep the first meaningful reason and log the masked
+	// overwrite attempt so the discrepancy is visible/countable instead of silently lost.
+	if( session[fd]->disconnect_reason != SDC_UNKNOWN
+		&& session[fd]->disconnect_reason != (unsigned char)reason )
+	{
+		if( socket_log_disconnects && session[fd]->client_addr )
+			ShowInfo("[DCMETRIC] dc_reason_masked: fd=%d kept=%s ignored=%s\n", fd,
+				socket_dc_reason_str(session[fd]->disconnect_reason), socket_dc_reason_str(reason));
+		return;
+	}
+	session[fd]->disconnect_reason = (unsigned char)reason;
 }
 
 void set_eof(int fd)

@@ -1785,6 +1785,9 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 	if (max_connect_user && count_users() >= max_connect_user &&
 		isGM(sd->account_id) < gm_allow_level) {
 		// refuse connection (over populated)
+		// [DCMETRIC] ТЗ Причина 3: char-select refused because the server is at max_connect_user.
+		ShowWarning("[DCMETRIC] charsel_overpop: aid=%d refused (users=%d >= max=%d) -> 0x6c\n",
+			sd->account_id, count_users(), max_connect_user);
 		WFIFOW(fd,0) = 0x6c;
 		WFIFOW(fd,2) = 0;
 		WFIFOSET(fd,3);
@@ -1795,6 +1798,11 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 	{	// check if character is not online already. [Skotlex]
 		if (character->server > -1)
 		{	//Character already online. KICK KICK KICK
+			// [DCMETRIC] ТЗ Причина 3: account is still marked online on a map-server. Instead of waiting for
+			// the old session to drop, char-server sends 0x81/8 ("duplicate") to the NEW login AND kicks the
+			// old one. A relogin within the online-grace window therefore bounces. Count + attribute it.
+			ShowWarning("[DCMETRIC] charsel_dup_online: aid=%d cid=%d still online on map-server %d -> kick old + 0x81/8 to new\n",
+				character->account_id, character->char_id, character->server);
 			mapif_disconnectplayer(server_fd[character->server],
 				character->account_id, character->char_id, 2);
 			if (character->waiting_disconnect == -1)
@@ -1806,6 +1814,9 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 		}
 		if (character->fd >= 0 && character->fd != fd)
 		{	//There's already a connection from this account that hasn't picked a char yet.
+			// [DCMETRIC] ТЗ Причина 3: another char-server connection for this account is still at char-select.
+			ShowWarning("[DCMETRIC] charsel_dup_select: aid=%d old fd=%d new fd=%d -> 0x81/8 to new\n",
+				sd->account_id, character->fd, fd);
 			WFIFOW(fd,0) = 0x81;
 			WFIFOB(fd,2) = 8;
 			WFIFOSET(fd,3);
