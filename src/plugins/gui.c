@@ -26,14 +26,15 @@ PLUGIN_EVENTS_TABLE = {
 
 unsigned int (*gettick)();
 int (*add_timer_func_list)(int (*)(int,unsigned int,intptr_t,intptr_t),char*);
-int (*add_timer_interval)(unsigned int,int (*)(int,unsigned int,intptr_t,intptr_t),int,int,int);
+// must match common/timer.h exactly: id/data are intptr_t (a 64-bit slot on x86-64), not int
+int (*add_timer_interval)(unsigned int,int (*)(int,unsigned int,intptr_t,intptr_t),intptr_t,intptr_t,int);
 
 //-----------------------------------------------------
 //I'm Alive Alert
 //Used to output 'I'm Alive' every few seconds
 //Intended to let frontends know if the app froze
 //-----------------------------------------------------
-int imalive_timer(int tid, unsigned int tick, int id, int data)
+int imalive_timer(int tid, unsigned int tick, intptr_t id, intptr_t data) // TimerFunc signature (common/timer.h)
 {
 	printf("I'm Alive\n");
 	return 0;
@@ -43,7 +44,7 @@ int imalive_timer(int tid, unsigned int tick, int id, int data)
 //Flush stdout
 //stdout buffer needs flushed to be seen in GUI
 //-----------------------------------------------------
-int flush_timer(int tid, unsigned int tick, int id, int data)
+int flush_timer(int tid, unsigned int tick, intptr_t id, intptr_t data) // TimerFunc signature (common/timer.h)
 {
 	fflush(stdout);
 	return 0;

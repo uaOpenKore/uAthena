@@ -1,4 +1,5 @@
-all sql: login-server_sql
+# [build] Link target = the real output file (see src/char_sql/Makefile).
+all sql: ../../login-server_sql
 
 COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
@@ -11,14 +12,15 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 	../common/grfio.h ../common/mapindex.h \
 	../common/md5calc.h
 
-# [build] Rebuild on ANY login or common header change (see src/map/Makefile).
-LOGIN_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+# [build] Rebuild on ANY login or common header change, or a compiler-flag change (Makefile.cache) -- see
+# src/map/Makefile.
+LOGIN_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h) $(wildcard ../../Makefile.cache)
 
 %.o: %.c $(LOGIN_ALL_H)
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-login-server_sql: login.o $(COMMON_OBJ)
-	$(CC) -o ../../$@ $^ $(LIB_S)
+../../login-server_sql: login.o $(COMMON_OBJ)
+	$(CC) -o $@ $^ $(LIB_S)
 
 clean:
 	rm -f *.o ../../login-server_sql GNUmakefile

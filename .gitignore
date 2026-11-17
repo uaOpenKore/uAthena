@@ -65,3 +65,9 @@ Makefile.cache
 /build-core/
 /Client/build/
 /Client/build-core/
+
+# build outputs of `make ladmin`, `make tools`, `make plugins` (generated, never commit)
+/ladmin
+/tools/adduser
+/tools/convert
+/plugins/

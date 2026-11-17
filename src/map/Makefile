@@ -1,7 +1,9 @@
-all sql: sqlobj map-server_sql
+# [build] The link target is the real output file: a target named `map-server_sql` that writes
+# ../../map-server_sql never exists, so the server was relinked on every `make`.
+all sql: ../../map-server_sql
 
 sqlobj:
-	mkdir sqlobj
+	mkdir -p sqlobj
 
 COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
@@ -21,16 +23,18 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/log.o obj/log_async.o obj/async_db.o obj/async_read.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o obj/discord.o \
 	$(COMMON_OBJ)
 
-map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
-	$(CC) -o ../../$@ $> $(LIB_S)
+../../map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
+	$(CC) -o $@ $> $(LIB_S)
 
 # [build] Every object depends on ALL map + common headers. The hand-kept dep lines at the bottom are
 # incomplete (unit.o, storage.o, mercenary.o use map_session_data but do not list map.h), so after a
 # struct change in a header those objects kept the OLD layout -> one binary with two layouts = silent
 # memory corruption. Rebuilding everything on any header change is cheap and always correct.
-MAP_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+# ../../Makefile.cache holds the compiler flags, so a flag change rebuilds too. `| sqlobj` = order-only:
+# the dir exists before any compile (parallel `make -j` raced the mkdir) but never triggers rebuilds.
+MAP_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h) $(wildcard ../../Makefile.cache)
 
-sqlobj/%.o: %.c $(MAP_ALL_H)
+sqlobj/%.o: %.c $(MAP_ALL_H) | sqlobj
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 clean:

@@ -2,7 +2,7 @@
 sql all: obj common
 
 obj:
-	mkdir obj
+	mkdir -p obj
 
 common: obj/core.o obj/socket.o obj/timer.o obj/db.o obj/plugins.o obj/lock.o \
 	obj/nullpo.o obj/malloc.o obj/showmsg.o  obj/strlib.o obj/utils.o \
@@ -11,13 +11,15 @@ common: obj/core.o obj/socket.o obj/timer.o obj/db.o obj/plugins.o obj/lock.o \
 
 
 # [build] Rebuild on ANY header change (see src/map/Makefile): a struct change in socket.h/mmo.h must
-# not leave objects compiled against the old layout.
-COMMON_ALL_H = $(wildcard *.h)
+# not leave objects compiled against the old layout. ../../Makefile.cache holds the compiler flags, so a
+# flag change rebuilds too. `| obj` = order-only: the dir must exist before a compile (parallel `make -j`
+# used to race the mkdir), but its mtime never triggers rebuilds.
+COMMON_ALL_H = $(wildcard *.h) $(wildcard ../../Makefile.cache)
 
-obj/%.o: %.c $(COMMON_ALL_H)
+obj/%.o: %.c $(COMMON_ALL_H) | obj
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-obj/mini%.o: %.c $(COMMON_ALL_H)
+obj/mini%.o: %.c $(COMMON_ALL_H) | obj
 	$(COMPILE.c) -DMINICORE $(OUTPUT_OPTION) $<
 
 
