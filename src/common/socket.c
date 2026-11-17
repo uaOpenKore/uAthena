@@ -202,6 +202,15 @@ static const char* socket_dc_reason_str(int reason)
 		case SDC_RECV_ERROR:     return "recv_error";
 		case SDC_SEND_ERROR:     return "send_error";
 		case SDC_INVALID_PACKET: return "invalid_packet";
+		case SDC_SERVER_KICK:    return "server_kick";
+		case SDC_GM_KICK:        return "gm_kick";
+		case SDC_ACCOUNT_CHANGE: return "account_change";
+		case SDC_BAN:            return "ban";
+		case SDC_HACK_CHECK:     return "hack_check";
+		case SDC_NPC_ERROR:      return "npc_error";
+		case SDC_TIMEOUT:        return "timeout";
+		case SDC_REJECTED:       return "rejected";
+		case SDC_SERVER_CLOSE:   return "server_close";
 		default:                 return "unknown";
 	}
 }
@@ -210,20 +219,19 @@ void socket_set_disconnect_reason(int fd, int reason)
 {
 	if( !session_isValid(fd) )
 		return;
-	// [DCMETRIC] ТЗ Причина 4: FIRST-WRITER-WINS. The old code let a later writer overwrite the reason, so a
-	// transport-level recv==0 (peer_close) in recv_to_fifo would mask the REAL cause that was set earlier
-	// (idle_timeout, invalid_packet, a server-side classification) -> the DROP log blamed the wrong thing and
-	// every real stall showed up as "peer_close". Now we keep the first meaningful reason and log the masked
-	// overwrite attempt so the discrepancy is visible/countable instead of silently lost.
-	if( session[fd]->disconnect_reason != SDC_UNKNOWN
-		&& session[fd]->disconnect_reason != (unsigned char)reason )
-	{
-		if( socket_log_disconnects && session[fd]->client_addr )
-			ShowInfo("[DCMETRIC] dc_reason_masked: fd=%d kept=%s ignored=%s\n", fd,
-				socket_dc_reason_str(session[fd]->disconnect_reason), socket_dc_reason_str(reason));
+	// [dc-log] (ТЗ Причина 4, п.10) FIRST WRITER WINS. Every caller tags a session that is about to close,
+	// so the first reason is the cause; whatever comes after it is only the transport noticing. The old
+	// code let a later writer overwrite it: recv_to_fifo turned every "returned to char select"
+	// (SDC_CLEAN_QUIT) and every server kick into peer_close as soon as the client closed its end.
+	if( session[fd]->disconnect_reason != SDC_UNKNOWN )
 		return;
-	}
 	session[fd]->disconnect_reason = (unsigned char)reason;
+}
+
+void socket_set_disconnect_code(int fd, int code)
+{
+	if( session_isValid(fd) && session[fd]->dc_code == 0 )
+		session[fd]->dc_code = (unsigned char)(code + 1);
 }
 
 void set_eof(int fd)
@@ -236,9 +244,14 @@ void set_eof(int fd)
 		if( socket_log_disconnects && !session[fd]->eof && session[fd]->client_addr
 			&& session[fd]->disconnect_reason != SDC_CLEAN_QUIT )
 		{
-			ShowInfo("Session #%d DROP: %s (IP %d.%d.%d.%d)\n", fd,
-				socket_dc_reason_str(session[fd]->disconnect_reason),
-				CONVIP(session[fd]->client_addr));
+			if( session[fd]->dc_code ) // [dc-log] (ТЗ п.11) a 0x81 went to the client: show its code
+				ShowInfo("Session #%d DROP: %s code=%d (IP %d.%d.%d.%d)\n", fd,
+					socket_dc_reason_str(session[fd]->disconnect_reason), session[fd]->dc_code - 1,
+					CONVIP(session[fd]->client_addr));
+			else
+				ShowInfo("Session #%d DROP: %s (IP %d.%d.%d.%d)\n", fd,
+					socket_dc_reason_str(session[fd]->disconnect_reason),
+					CONVIP(session[fd]->client_addr));
 		}
 #ifdef SEND_SHORTLIST
 		// Add this socket to the shortlist for eof handling.

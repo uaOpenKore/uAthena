@@ -3,6 +3,7 @@
 
 #include "../common/cbasetypes.h"
 #include "../common/timer.h"
+#include "../common/socket.h" // [dc-log] socket_set_disconnect_reason
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
@@ -1435,7 +1436,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 		//any item as deleted even though a few were sold. In such a case, we
 		//have no recourse but to kick them out so their inventory will refresh
 		//correctly on relog. [Skotlex]
-		if (i) clif_setwaitclose(sd->fd);
+		if (i) { socket_set_disconnect_reason(sd->fd, SDC_NPC_ERROR); clif_setwaitclose(sd->fd); } // [dc-log] (ТЗ п.11)
 		return 1;
 	}
 	return 0;
