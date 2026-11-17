@@ -134,6 +134,9 @@ struct char_session_data{
 	int found_char[MAX_CHARS];
 	char email[40]; // e-mail (default: a@a.com) by [Yor]
 	int connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
+	unsigned int auth_wait_tick; // [auth-queue] when char_auth_ok started holding this login because the account was still online (0 = not held)
+	int auth_wait_tid;           // [auth-queue] pending re-check of a held login (char_auth_wait_timer), INVALID_TIMER if none
+	unsigned authed : 1;         // [auth-queue] char_auth_ok let this login through (char list sent)
 };
 
 #define AUTH_FIFO_SIZE 256
@@ -1779,9 +1782,34 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 	return 0;
 }
 
+// [auth-queue] (ТЗ п.8) How long a new login is held while its account is still online (the old map
+// session in its 10 s prevent_logout delay + final save, or another char-select connection closing), and
+// how often the hold is re-checked. Code 8 only if the old session is still there after that.
+#define CHAR_AUTH_WAIT_MS      20000
+#define CHAR_AUTH_WAIT_POLL_MS 250
+
+static void char_auth_ok(int fd, struct char_session_data *sd);
+
+// [auth-queue] Re-check a held login (see char_auth_ok).
+static int char_auth_wait_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	int fd = (int)id;
+	struct char_session_data* sd;
+	if (!session_isActive(fd) || (sd = (struct char_session_data*)session[fd]->session_data) == NULL
+		|| sd->account_id != (int)data || sd->auth_wait_tid != tid)
+		return 0; // that connection is gone, or its fd now belongs to someone else
+	sd->auth_wait_tid = INVALID_TIMER;
+	char_auth_ok(fd, sd);
+	return 0;
+}
+
 static void char_auth_ok(int fd, struct char_session_data *sd)
 {
 	struct online_char_data* character;
+	if (sd->auth_wait_tid != INVALID_TIMER) { // re-entered (e.g. a repeated 0x2713) while held
+		delete_timer(sd->auth_wait_tid, char_auth_wait_timer);
+		sd->auth_wait_tid = INVALID_TIMER;
+	}
 	if (max_connect_user && count_users() >= max_connect_user &&
 		isGM(sd->account_id) < gm_allow_level) {
 		// refuse connection (over populated)
@@ -1796,34 +1824,64 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 
 	if (online_check && (character = idb_get(online_char_db, sd->account_id)))
 	{	// check if character is not online already. [Skotlex]
+		// [auth-queue] (ТЗ п.8/9) The account is still online: on a map-server (the old session may stay up
+		// to 10 s after the game was closed, prevent_logout, until its final save sets it offline), or
+		// through another char-select connection that has not closed yet. The old session is kicked as
+		// before, but the NEW login is no longer refused with code 8 at once ("Server still recognizes
+		// your last login"): it is held and re-checked every 250 ms, and continues as soon as the account
+		// is offline. Code 8 only if the old session is still there after 20 s; every code 8 is logged
+		// with the check that fired and how long we waited.
+		const char* busy = NULL;
+		if (character->fd >= 0 && character->fd != fd) {
+			// The recorded char-select connection must still be a live session of THIS account; a stale fd
+			// (closed, or reused by someone else) would otherwise lock the account out for good.
+			struct char_session_data* osd = session_isActive(character->fd) ? (struct char_session_data*)session[character->fd]->session_data : NULL;
+			if (osd == NULL || osd->account_id != sd->account_id) {
+				ShowWarning("[DCMETRIC] charsel_stale_fd: aid=%d recorded char-select fd=%d is not its connection any more -> cleared\n",
+					sd->account_id, character->fd);
+				character->fd = -1;
+			}
+		}
 		if (character->server > -1)
-		{	//Character already online. KICK KICK KICK
-			// [DCMETRIC] ТЗ Причина 3: account is still marked online on a map-server. Instead of waiting for
-			// the old session to drop, char-server sends 0x81/8 ("duplicate") to the NEW login AND kicks the
-			// old one. A relogin within the online-grace window therefore bounces. Count + attribute it.
-			ShowWarning("[DCMETRIC] charsel_dup_online: aid=%d cid=%d still online on map-server %d -> kick old + 0x81/8 to new\n",
-				character->account_id, character->char_id, character->server);
-			mapif_disconnectplayer(server_fd[character->server],
-				character->account_id, character->char_id, 2);
-			if (character->waiting_disconnect == -1)
-				character->waiting_disconnect = add_timer(gettick()+20000, chardb_waiting_disconnect, character->account_id, 0);
+			busy = "still online on a map-server";
+		else if (character->fd >= 0 && character->fd != fd)
+			busy = "another char-select connection is open"; //There's already a connection from this account that hasn't picked a char yet.
+
+		if (busy != NULL) {
+			unsigned int now = gettick();
+			if (sd->auth_wait_tick == 0) {
+				sd->auth_wait_tick = now ? now : 1;
+				if (character->server > -1)
+				{	//Character already online. KICK KICK KICK
+					mapif_disconnectplayer(server_fd[character->server],
+						character->account_id, character->char_id, 2);
+					if (character->waiting_disconnect == -1)
+						character->waiting_disconnect = add_timer(gettick()+20000, chardb_waiting_disconnect, character->account_id, 0);
+				}
+				ShowInfo("[DCMETRIC] charsel_wait: aid=%d cid=%d %s (map-server %d) -> new login held until it is offline\n",
+					sd->account_id, character->char_id, busy, character->server);
+			}
+			if (DIFF_TICK(now, sd->auth_wait_tick) < CHAR_AUTH_WAIT_MS) {
+				sd->auth_wait_tid = add_timer(now + CHAR_AUTH_WAIT_POLL_MS, char_auth_wait_timer, fd, sd->account_id);
+				return;
+			}
+			ShowWarning("[DCMETRIC] charsel_code8: aid=%d %s after %u ms of waiting -> 0x81/8\n",
+				sd->account_id, busy, (unsigned int)DIFF_TICK(now, sd->auth_wait_tick));
+			sd->auth_wait_tick = 0;
+			WFIFOHEAD(fd,3);
 			WFIFOW(fd,0) = 0x81;
 			WFIFOB(fd,2) = 8;
 			WFIFOSET(fd,3);
 			return;
 		}
-		if (character->fd >= 0 && character->fd != fd)
-		{	//There's already a connection from this account that hasn't picked a char yet.
-			// [DCMETRIC] ТЗ Причина 3: another char-server connection for this account is still at char-select.
-			ShowWarning("[DCMETRIC] charsel_dup_select: aid=%d old fd=%d new fd=%d -> 0x81/8 to new\n",
-				sd->account_id, character->fd, fd);
-			WFIFOW(fd,0) = 0x81;
-			WFIFOB(fd,2) = 8;
-			WFIFOSET(fd,3);
-			return;
+		if (sd->auth_wait_tick != 0) {
+			ShowInfo("[DCMETRIC] charsel_wait_done: aid=%d account went offline after %u ms -> login continues\n",
+				sd->account_id, (unsigned int)DIFF_TICK(gettick(), sd->auth_wait_tick));
+			sd->auth_wait_tick = 0;
 		}
 		character->fd = fd;
 	}
+	sd->authed = 1;
 	if (login_fd > 0) {
 		// request to login-server to obtain e-mail/time limit
 		WFIFOHEAD(login_fd,6);
@@ -1893,10 +1951,13 @@ int parse_fromlogin(int fd)
 			if (RFIFOREST(fd) < 51)
 				return 0;
 
+			// [auth-queue] The login still waiting for this reply, not an older connection of the same account
+			// that is already at char select (0x2713 carries no login ids, so the first account match could
+			// hand the reply to the old connection and leave the new one hanging).
 			for(i = 0; i < fd_max && !(
 				session[i] &&
 				(sd = (struct char_session_data*)session[i]->session_data) &&
-				sd->account_id == RFIFOL(fd,2))
+				sd->account_id == RFIFOL(fd,2) && !sd->authed)
 				; i++);
 
 			if (i < fd_max) {
@@ -3514,6 +3575,10 @@ int parse_char(int fd)
 		if (sd != NULL)
 		{
 			struct online_char_data* data = idb_get(online_char_db, sd->account_id);
+			if (sd->auth_wait_tid != INVALID_TIMER) { // [auth-queue] a held login gave up
+				delete_timer(sd->auth_wait_tid, char_auth_wait_timer);
+				sd->auth_wait_tid = INVALID_TIMER;
+			}
 			if (!data || data->server== -1) //If it is not in any server, send it offline. [Skotlex]
 				set_char_offline(99,sd->account_id);
 			if (data && data->fd == fd)
@@ -3546,6 +3611,7 @@ int parse_char(int fd)
 
 			CREATE(session[fd]->session_data, struct char_session_data, 1);
 			sd = (struct char_session_data*)session[fd]->session_data;
+			sd->auth_wait_tid = INVALID_TIMER; // [auth-queue] 0 is a valid timer id
 			sd->connect_until_time = 0; // unknow or illimited (not displaying on map-server)
 			sd->account_id = RFIFOL(fd,2);
 			sd->login_id1 = RFIFOL(fd,6);
@@ -4492,6 +4558,7 @@ int do_init(int argc, char **argv)
 	add_timer_func_list(send_users_tologin, "send_users_tologin");
 	add_timer_func_list(send_accounts_tologin, "send_accounts_tologin");
 	add_timer_func_list(chardb_waiting_disconnect, "chardb_waiting_disconnect");
+	add_timer_func_list(char_auth_wait_timer, "char_auth_wait_timer");
 
 	add_timer_func_list(online_data_cleanup, "online_data_cleanup");
 	// (B2) Reconcile online flags against reality every 120s (was 600s) so ghost sessions clear
