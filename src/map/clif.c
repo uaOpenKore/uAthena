@@ -2555,104 +2555,100 @@ void clif_equiplist(struct map_session_data *sd)
 	}
 }
 
-//Unified storage function which sends all of the storage (requires two packets, one for equipable items and one for stackable ones. [Skotlex]
-void clif_storagelist(struct map_session_data *sd,struct storage *stor)
+// [limits 2026-11-17] The original uaRO.exe copies EVERY incoming packet into a 20480-byte (0x5000) stack
+// buffer in its dispatcher with no length check (FUN_00579900 -> FUN_00419200), so any packet longer than
+// that smashes its stack and crashes it. Item lists are therefore sent in chunks of at most
+// CLIF_ITEMLIST_CHUNK entries: 18-byte stackable / 20-byte equip entries -> <= 20004 bytes per packet.
+// Both clients merge storage list packets by storage index (the exe clears its list only on close, 0xf8;
+// BornRok 0.0.50+ likewise), and every index goes out exactly once per open, so a chunked list arrives whole.
+#ifndef CLIF_ITEMLIST_CHUNK
+#define CLIF_ITEMLIST_CHUNK 1000
+#endif
+#define CLIF_CLIENT_MAX_PACKET 20480
+// Inventory and cart lists still go out as ONE packet each: they must stay under that buffer too.
+typedef char clif_inventorylist_fits_client_buffer[(MAX_INVENTORY * 20 + 4 <= CLIF_CLIENT_MAX_PACKET) ? 1 : -1];
+typedef char clif_cartlist_fits_client_buffer[(MAX_CART * 20 + 4 <= CLIF_CLIENT_MAX_PACKET) ? 1 : -1];
+typedef char clif_storagechunk_fits_client_buffer[(CLIF_ITEMLIST_CHUNK * 20 + 4 <= CLIF_CLIENT_MAX_PACKET) ? 1 : -1];
+
+// Sends a storage's items (Kafra or guild): all stackables (0x1f0 / old 0xa5) first, then all equips (0xa6),
+// each in chunks of CLIF_ITEMLIST_CHUNK entries -- same order as the old single-packet pair. [Skotlex/limits]
+static void clif_storageitemlist(struct map_session_data *sd, struct item *items, int count)
 {
 	struct item_data *id;
-	int i,n,ne,fd=sd->fd;
+	int i,n,fd=sd->fd;
 	unsigned char *buf;
-	unsigned char bufe[MAX_STORAGE*20+4];
+	unsigned char bufe[CLIF_ITEMLIST_CHUNK*20+4];
 #if PACKETVER < 5
 	const int s = 10; //Entry size.
+	const int cmd = 0xa5;
 #else
 	const int s = 18;
+	const int cmd = 0x1f0;
 #endif
-	WFIFOHEAD(fd,MAX_STORAGE * s + 4);
+
+	// Stackables, written straight into the send buffer.
+	WFIFOHEAD(fd,CLIF_ITEMLIST_CHUNK * s + 4);
 	buf = WFIFOP(fd,0);
-	
-	for(i=0,n=0,ne=0;i<MAX_STORAGE;i++){
-		if(stor->storage_[i].nameid<=0)
+	for(i=0,n=0;i<count;i++){
+		if(items[i].nameid<=0)
 			continue;
-		id = itemdb_search(stor->storage_[i].nameid);
+		id = itemdb_search(items[i].nameid);
 		if(!itemdb_isstackable2(id))
-		{ //Equippable
-			WBUFW(bufe,ne*20+4)=i+1;
-			clif_item_sub(bufe, ne*20+6, &stor->storage_[i], id, id->equip);
-			clif_addcards(WBUFP(bufe, ne*20+16), &stor->storage_[i]);
-			ne++;
-		} else { //Stackable
-			WBUFW(buf,n*s+4)=i+1;
-			clif_item_sub(buf, n*s+6, &stor->storage_[i], id,-1);
+			continue;
+		WBUFW(buf,n*s+4)=i+1;
+		clif_item_sub(buf, n*s+6, &items[i], id,-1);
 #if PACKETVER >= 5
-			clif_addcards(WBUFP(buf,n*s+14), &stor->storage_[i]);
+		clif_addcards(WBUFP(buf,n*s+14), &items[i]);
 #endif
-			n++;
+		if(++n == CLIF_ITEMLIST_CHUNK){
+			WBUFW(buf,0)=cmd;
+			WBUFW(buf,2)=4+n*s;
+			WFIFOSET(fd,WFIFOW(fd,2));
+			WFIFOHEAD(fd,CLIF_ITEMLIST_CHUNK * s + 4);
+			buf = WFIFOP(fd,0);
+			n = 0;
 		}
 	}
 	if(n){
-#if PACKETVER < 5
-		WBUFW(buf,0)=0xa5;
-#else
-		WBUFW(buf,0)=0x1f0;
-#endif
+		WBUFW(buf,0)=cmd;
 		WBUFW(buf,2)=4+n*s;
 		WFIFOSET(fd,WFIFOW(fd,2));
 	}
-	if(ne){
+
+	// Equips.
+	for(i=0,n=0;i<count;i++){
+		if(items[i].nameid<=0)
+			continue;
+		id = itemdb_search(items[i].nameid);
+		if(itemdb_isstackable2(id))
+			continue;
+		WBUFW(bufe,n*20+4)=i+1;
+		clif_item_sub(bufe, n*20+6, &items[i], id, id->equip);
+		clif_addcards(WBUFP(bufe, n*20+16), &items[i]);
+		if(++n == CLIF_ITEMLIST_CHUNK){
+			WBUFW(bufe,0)=0xa6;
+			WBUFW(bufe,2)=4+n*20;
+			clif_send(bufe, WBUFW(bufe,2), &sd->bl, SELF);
+			n = 0;
+		}
+	}
+	if(n){
 		WBUFW(bufe,0)=0xa6;
-		WBUFW(bufe,2)=4+ne*20;
+		WBUFW(bufe,2)=4+n*20;
 		clif_send(bufe, WBUFW(bufe,2), &sd->bl, SELF);
 	}
 }
 
 //Unified storage function which sends all of the storage (requires two packets, one for equipable items and one for stackable ones. [Skotlex]
+void clif_storagelist(struct map_session_data *sd,struct storage *stor)
+{
+	clif_storageitemlist(sd, stor->storage_, MAX_STORAGE);
+}
+
+//Unified storage function which sends all of the storage (requires two packets, one for equipable items and one for stackable ones. [Skotlex]
 void clif_guildstoragelist(struct map_session_data *sd,struct guild_storage *stor)
 {
-	struct item_data *id;
-	int i,n,ne,fd=sd->fd;
-	unsigned char *buf;
-	unsigned char bufe[MAX_GUILD_STORAGE*20+4];
-#if PACKETVER < 5
-	const int s = 10; //Entry size.
-#else
-	const int s = 18;
-#endif
-	WFIFOHEAD(fd,MAX_GUILD_STORAGE * s + 4);
-	buf = WFIFOP(fd,0);
-	
-	for(i=0,n=0,ne=0;i<MAX_GUILD_STORAGE;i++){
-		if(stor->storage_[i].nameid<=0)
-			continue;
-		id = itemdb_search(stor->storage_[i].nameid);
-		if(!itemdb_isstackable2(id))
-		{ //Equippable
-			WBUFW(bufe,ne*20+4)=i+1;
-			clif_item_sub(bufe, ne*20+6, &stor->storage_[i], id, id->equip);
-			clif_addcards(WBUFP(bufe, ne*20+16), &stor->storage_[i]);
-			ne++;
-		} else { //Stackable
-			WBUFW(buf,n*s+4)=i+1;
-			clif_item_sub(buf, n*s+6, &stor->storage_[i], id,-1);
-#if PACKETVER >= 5
-			clif_addcards(WBUFP(buf,n*s+14), &stor->storage_[i]);
-#endif
-			n++;
-		}
-	}
-	if(n){
-#if PACKETVER < 5
-		WBUFW(buf,0)=0xa5;
-#else
-		WBUFW(buf,0)=0x1f0;
-#endif
-		WBUFW(buf,2)=4+n*s;
-		WFIFOSET(fd,WFIFOW(fd,2));
-	}
-	if(ne){
-		WBUFW(bufe,0)=0xa6;
-		WBUFW(bufe,2)=4+ne*20;
-		clif_send(bufe, WBUFW(bufe,2), &sd->bl, SELF);
-	}
+	clif_storageitemlist(sd, stor->storage_, MAX_GUILD_STORAGE);
 }
 
 void clif_cartlist(struct map_session_data *sd)
@@ -2712,6 +2708,10 @@ void clif_clearcart(int fd)
 {
 	WFIFOHEAD(fd, packet_len(0x12b));
 	WFIFOW(fd,0) = 0x12b;
+	// Was never sent (no WFIFOSET): on cart-off the client kept its cart list, and when a cart came back
+	// the original exe ADDED the new list's amounts onto the stale entries by index (doubled counts on
+	// screen until relog); BornRok's 0x12b handler (clear + close the cart window) never ran.
+	WFIFOSET(fd, packet_len(0x12b));
 }
 
 // Guild XY locators [Valaris]
