@@ -32,7 +32,8 @@ unsigned long (*getuptime)();
 char *server_name;
 int crash_flag = 0;
 
-extern const char *strsignal(int);
+// strsignal() comes from <string.h> (included above). The old hand-written
+// `extern const char *strsignal(int);` conflicts with glibc's `char *strsignal(int)` -> compile error.
 int sig_final ();
 
 // by Gabuzomeu

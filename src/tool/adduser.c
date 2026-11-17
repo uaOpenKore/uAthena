@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-	close(FPaccin);
+	fclose(FPaccin); // was close(FILE*): closed a garbage fd number, the stream itself was never closed
 	printf("File exists.\n");
 
 	printf("Don't create an account if the login-server is online!!!\n");
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 	FPaccout = fopen(account_txt, "r+");
 	fseek(FPaccout, 0, SEEK_END);
 	fprintf(FPaccout, "%i	%s	%s	-	%s	-\r\n", next_id, username, password, sex);
-	close(FPaccout);
+	fclose(FPaccout); // was close(FILE*): the new account line was only written by the flush at exit
 
 	printf("Account added.\n");
 }

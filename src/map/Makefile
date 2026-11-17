@@ -1,12 +1,14 @@
+# [build] Link targets are the real output files: targets named `map-server_sql`/`map-server` that
+# write ../../map-server_sql / ../../map-server never exist, so the server was relinked on every `make`.
 all: sql
-sql: sqlobj map-server_sql
-txt: txtobj map-server
+sql: ../../map-server_sql
+txt: ../../map-server
 
 sqlobj:
-	mkdir sqlobj
+	mkdir -p sqlobj
 
 txtobj:
-	mkdir txtobj
+	mkdir -p txtobj
 
 COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
@@ -26,25 +28,27 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/log.o obj/log_async.o obj/async_db.o obj/async_read.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o obj/discord.o \
 	$(COMMON_OBJ)
 
-map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
-	$(CC) -o ../../$@ $> $(LIB_S)
+../../map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
+	$(CC) -o $@ $> $(LIB_S)
 
 # TXT build links WITHOUT the MySQL client -- the no-MySQL stack must build on a box with no
 # libmysqlclient/libmariadb installed (S. 2026-10-09). All mysql_* refs are under #ifndef TXT_ONLY.
 LIB_TXT = $(filter-out -lmysqlclient -lmariadb,$(LIB_S))
-map-server: $(OBJECTS:obj/%=txtobj/%)
-	$(CC) -o ../../$@ $> $(LIB_TXT)
+../../map-server: $(OBJECTS:obj/%=txtobj/%)
+	$(CC) -o $@ $> $(LIB_TXT)
 
 # [build] Every object depends on ALL map + common headers. The hand-kept dep lines at the bottom are
 # incomplete (unit.o, storage.o, mercenary.o use map_session_data but do not list map.h), so after a
 # struct change in a header those objects kept the OLD layout -> one binary with two layouts = silent
 # memory corruption. Rebuilding everything on any header change is cheap and always correct.
-MAP_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+# ../../Makefile.cache holds the compiler flags, so a flag change rebuilds too. `| sqlobj` = order-only:
+# the dir exists before any compile (parallel `make -j` raced the mkdir) but never triggers rebuilds.
+MAP_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h) $(wildcard ../../Makefile.cache)
 
-sqlobj/%.o: %.c $(MAP_ALL_H)
+sqlobj/%.o: %.c $(MAP_ALL_H) | sqlobj
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-txtobj/%.o: %.c $(MAP_ALL_H)
+txtobj/%.o: %.c $(MAP_ALL_H) | txtobj
 	$(COMPILE.c) -DTXT_ONLY $(OUTPUT_OPTION) $<
 
 clean:

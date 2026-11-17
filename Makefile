@@ -1,4 +1,7 @@
-CACHED = $(shell ls | grep Makefile.cache)
+# [build] Trust the cached flags only while Makefile.cache is NEWER than this Makefile. Before, any existing
+# cache was used as-is and the `Makefile.cache: Makefile` rule re-wrote it from that same cached MKDEF, so an
+# edited OPT/LIBS never took effect until `make clean` deleted the cache.
+CACHED = $(shell test Makefile.cache -nt Makefile && echo Makefile.cache)
 ifeq ($(findstring Makefile.cache,$(CACHED)), Makefile.cache)
 MKDEF = $(shell cat Makefile.cache)
 else
@@ -94,8 +97,8 @@ MKDEF = CC="$(CC)" CFLAGS="$(CFLAGS) $(GOPT)" LIB_S="$(LIBS) $(GOPT)"
 
 endif
 
-.PHONY: sql txt common login_sql char_sql map_sql login char map converters ladmin \
-	plugins tools clean depend
+.PHONY: all sql txt common login_sql char_sql map_sql login char map converters ladmin \
+	plugins addons tools clean depend install uninstall erase update
 
 all: sql
 
@@ -159,7 +162,7 @@ clean:
 		src/login/GNUmakefile src/char/GNUmakefile src/txt-converter/GNUmakefile
 	rm -f login-server login-server_sql char-server char-server_sql \
 		map-server map-server_sql ladmin
-	rm -f plugins/*.so tools/adduser tools/convert
+	rm -f plugins/*.so plugins/*.conf tools/adduser tools/convert
 
 depend: src/common/GNUmakefile src/login_sql/GNUmakefile \
 	src/char_sql/GNUmakefile src/map/GNUmakefile \
@@ -184,42 +187,39 @@ src/map/GNUmakefile: src/map/Makefile
 src/plugins/GNUmakefile: src/plugins/Makefile
 src/ladmin/GNUmakefile: src/ladmin/Makefile
 
+# [build] install/uninstall/erase/update are plain recipe lines now. They used $(shell ...), which make runs
+# while EXPANDING the recipe: every exit status was thrown away and nothing was echoed, so a failed copy
+# (busy binary, full disk, missing build output) still ended in a "successful" deploy with the OLD binary
+# left in /opt/uathena/bin. Same operations in the same order; a failure now stops the target with an error.
+# Binaries are copied with --remove-destination (new inode), so a still-running server can't block the
+# copy with "Text file busy". Links are only created when missing, exactly like the old `ln -s` that
+# failed silently once they existed.
 install:
-		$(shell mkdir -p /opt/uathena/bin/log/)
-		$(shell mkdir -p /opt/uathena/backup/)
-		$(shell cp -r db    /opt/uathena/)
-		$(shell cp -r conf  /opt/uathena/)
-		$(shell cp -r npc   /opt/uathena/)
-		$(shell cp *_sql /opt/uathena/bin/)
-		$(shell ln -s /opt/uathena/db/      /opt/uathena/bin/)
-		$(shell ln -s /opt/uathena/conf/    /opt/uathena/bin/)
-		$(shell ln -s /opt/uathena/npc/     /opt/uathena/bin/)
-		$(shell ln -s /opt/uathena/bin/log/ /opt/uathena/)
-		$(shell cp scripts/uA* /etc/systemd/system/)
-		$(shell systemctl daemon-reload)
-		$(shell cp scripts/ua-*.sh /opt/uathena/bin/)
-		$(shell cp -r scripts/cron /opt/uathena/bin/)
+	mkdir -p /opt/uathena/bin/log/ /opt/uathena/backup/
+	cp -r db conf npc /opt/uathena/
+	cp --remove-destination *_sql /opt/uathena/bin/
+	for d in db conf npc; do [ -e /opt/uathena/bin/$$d ] || ln -s /opt/uathena/$$d/ /opt/uathena/bin/ || exit 1; done
+	[ -e /opt/uathena/log ] || ln -s /opt/uathena/bin/log/ /opt/uathena/
+	cp scripts/uA* /etc/systemd/system/
+	-systemctl daemon-reload
+	cp scripts/ua-*.sh /opt/uathena/bin/
+	cp -r scripts/cron /opt/uathena/bin/
 
 uninstall:
-		$(shell rm -fr /opt/uathena/bin)
-		$(shell rm -fr /opt/uathena/db)
-		$(shell rm -fr /opt/uathena/conf)
-		$(shell rm -fr /opt/uathena/npc)
-		$(shell rm -f  /opt/uathena/log)
-		$(shell rm -f /etc/systemd/system/uA*)
-		$(shell systemctl daemon-reload)
+	rm -fr /opt/uathena/bin /opt/uathena/db /opt/uathena/conf /opt/uathena/npc
+	rm -f /opt/uathena/log /etc/systemd/system/uA*
+	-systemctl daemon-reload
 
 erase:
-		$(shell rm -rf /opt/uathena/)
+	rm -rf /opt/uathena/
 
+# Restores the host's own copies of the per-server confs (kept in /opt/uathena/) over the repo ones that
+# `install` just copied. A missing saved copy keeps the repo version, now with a notice instead of silence.
 update:
-		$(shell cp -f *_sql /opt/uathena/bin/)
-		$(shell cp -rf db    /opt/uathena/)
-		$(shell cp -rf npc   /opt/uathena/)
-		$(shell cp -f /opt/uathena/login_athena.conf /opt/uathena/conf/)
-		$(shell cp -f /opt/uathena/char_athena.conf  /opt/uathena/conf/)
-		$(shell cp -f /opt/uathena/map_athena.conf   /opt/uathena/conf/)
-		$(shell cp -f /opt/uathena/subnet_athena.conf /opt/uathena/conf/)
-		$(shell cp -f /opt/uathena/packet_athena.conf /opt/uathena/conf/)
-		$(shell cp -f /opt/uathena/discord.conf /opt/uathena/conf/)
+	cp --remove-destination *_sql /opt/uathena/bin/
+	cp -rf db npc /opt/uathena/
+	for f in login_athena.conf char_athena.conf map_athena.conf subnet_athena.conf packet_athena.conf discord.conf; do \
+		if [ -f /opt/uathena/$$f ]; then cp -f /opt/uathena/$$f /opt/uathena/conf/ || exit 1; \
+		else echo "update: no saved /opt/uathena/$$f - keeping the repo's conf/$$f"; fi; \
+	done
 

@@ -1,4 +1,6 @@
-all sql: char-server_sql
+# [build] Link target = the real output file (a target named `char-server_sql` writing
+# ../../char-server_sql never existed, so the server was relinked on every `make`).
+all sql: ../../char-server_sql
 
 COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
@@ -12,14 +14,15 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 
 # [build] Rebuild on ANY char or common header change (see src/map/Makefile): the dep lines below are
 # hand-kept and incomplete (char.o does not list socket.h/mmo.h), so a struct change would leave
-# objects compiled against the old layout.
-CHAR_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+# objects compiled against the old layout. ../../Makefile.cache holds the compiler flags (flag change ->
+# rebuild).
+CHAR_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h) $(wildcard ../../Makefile.cache)
 
 %.o: %.c $(CHAR_ALL_H)
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-char-server_sql: char.o char_async_load.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
-	$(CC) -o ../../$@ $^ $(LIB_S)
+../../char-server_sql: char.o char_async_load.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
+	$(CC) -o $@ $^ $(LIB_S)
 
 clean:
 	rm -f *.o ../../char-server_sql GNUmakefile
