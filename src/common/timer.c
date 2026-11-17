@@ -92,14 +92,33 @@ char* search_timer_func_list(TimerFunc func)
 static unsigned int gettick_cache;
 static int gettick_count;
 
+// [clock] The tick is a MONOTONIC millisecond clock anchored to the wall clock at startup: it starts at the
+// same value the old gettimeofday() tick had (same range and wrap for every DIFF_TICK user), but a later
+// wall-clock step -- an NTP step, a VM clock catching up after a pause, a manual date change -- no longer
+// moves it. A forward step used to make every pending timer due at once (a do_timer storm); a backward
+// step froze all timers (mob AI, walking, regen, skill delays) for the length of the step.
+static int64 gettick_mono_offset;
+static bool gettick_mono_anchored = false;
+
 unsigned int gettick_nocache(void)
 {
 	struct timeval tval;
+	struct timespec ts;
+	int64 mono;
 
-	gettimeofday(&tval, NULL);
 	gettick_count = 256;
 
-	return gettick_cache = tval.tv_sec * 1000 + tval.tv_usec / 1000;
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) { // never fails on Linux; keep the old clock just in case
+		gettimeofday(&tval, NULL);
+		return gettick_cache = (unsigned int)(tval.tv_sec * 1000 + tval.tv_usec / 1000);
+	}
+	mono = (int64)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+	if (!gettick_mono_anchored) {
+		gettimeofday(&tval, NULL);
+		gettick_mono_offset = ((int64)tval.tv_sec * 1000 + tval.tv_usec / 1000) - mono;
+		gettick_mono_anchored = true;
+	}
+	return gettick_cache = (unsigned int)(mono + gettick_mono_offset);
 }
 
 unsigned int gettick(void)

@@ -49,6 +49,28 @@ static struct epoll_event* epoll_events = NULL;
 int fd_max;
 time_t last_tick;
 time_t stall_time = 60;
+
+// [stall-guard] A stall of the main loop this long or longer (normal: <= ~1 s, do_timer waits at most
+// 1000 ms) is the server's own freeze, not client silence -- see do_sendrecv.
+#define SOCKET_STALL_GUARD_SEC 3
+
+// [stall-guard] Seconds for last_tick / rdata_tick on a MONOTONIC clock anchored to the wall clock at
+// startup: same values as time(0) at first, but a later wall-clock step (NTP step, a VM clock catching
+// up after a pause) no longer jumps it. A forward step used to add its whole size to every session's idle
+// time at once and reap all of them as "timed out" in one burst.
+static time_t socket_clock(void)
+{
+	static time_t offset;
+	static bool anchored = false;
+	struct timespec ts;
+	if( clock_gettime(CLOCK_MONOTONIC, &ts) != 0 )
+		return time(0);
+	if( !anchored ) {
+		offset = time(0) - ts.tv_sec;
+		anchored = true;
+	}
+	return ts.tv_sec + offset;
+}
 int socket_log_disconnects = 0; // [dc-log] 1 = log unexpected client DROPS in set_eof (map-server sets this on)
 
 uint32 addr_[16];   // ip addresses of local host (host byte order)
@@ -630,9 +652,35 @@ int WFIFOSET(int fd, int len)
 
 int do_sendrecv(int next)
 {
+	static time_t prev_loop = 0;
 	int ret, n, i;
 
-	last_tick = time(0);
+	last_tick = socket_clock();
+
+	// [stall-guard] The server itself did not run for a while (a VM/host pause, a frozen main loop). Packets
+	// the clients sent meanwhile may still be in flight -- after a pause TCP retransmits arrive late -- so the
+	// first idle sweep would blame them for OUR silence and reap healthy players in one burst. Pause every
+	// client's idle clock for the stall (minus 1 s per stall, so dead sessions still age even if the loop is
+	// permanently overloaded) and log how long the server was gone. A frozen loop alone is otherwise harmless:
+	// data received during it is read below, before the sweep in do_parsepacket.
+	if( prev_loop && last_tick - prev_loop >= SOCKET_STALL_GUARD_SEC )
+	{
+		time_t credit = last_tick - prev_loop - 1;
+		int paused = 0;
+		for( i = 1; i < fd_max; i++ )
+		{
+			if( session[i] && session[i]->client_addr && session[i]->rdata_tick )
+			{
+				session[i]->rdata_tick += credit;
+				if( session[i]->rdata_tick > last_tick )
+					session[i]->rdata_tick = last_tick;
+				paused++;
+			}
+		}
+		ShowWarning("[DCMETRIC] loop_stall: the main loop did not run for %ld s -> idle clocks of %d client session(s) paused for it\n",
+			(long)(last_tick - prev_loop), paused);
+	}
+	prev_loop = last_tick;
 
 	// PRESEND Timers run before do_sendrecv and can queue packets and/or set
 	// sessions to eof. Flush queued data and close eof sessions.
@@ -750,9 +798,16 @@ int do_parsepacket(void)
 	// can't live in the parse loop. Sweep ALL sessions on a ~1s throttle instead of every tick.
 	{
 		static unsigned int last_stall_sweep = 0;
+		static bool stall_sweep_started = false;
 		unsigned int now = gettick();
-		if( DIFF_TICK(now, last_stall_sweep) >= 1000 )
+		// [stall-guard] Start the 1 s throttle on the first call. It used to compare against 0, but the tick
+		// is epoch-ms mod 2^32 and DIFF_TICK is int32: whenever the tick is in the upper half (every other
+		// ~24.8 days, e.g. 2026-10-28 02:54 .. 2026-11-21 23:25) DIFF_TICK(now, 0) is negative, so
+		// last_stall_sweep was never set and the idle sweep NEVER ran -- dead/half-open client sessions were
+		// never reaped and kept their characters online; then it silently switched back on at the flip.
+		if( !stall_sweep_started || DIFF_TICK(now, last_stall_sweep) >= 1000 )
 		{
+			stall_sweep_started = true;
 			last_stall_sweep = now;
 			for(i = 1; i < fd_max; i++)
 			{
@@ -1212,7 +1267,7 @@ void socket_init(void)
 	socket_config_read(SOCKET_CONF_FILENAME);
 
 	// initialise last send-receive tick
-	last_tick = time(0);
+	last_tick = socket_clock(); // [stall-guard] monotonic, anchored to the wall clock here
 
 	// session[0] is now currently used for disconnected sessions of the map server, and as such,
 	// should hold enough buffer (it is a vacuum so to speak) as it is never flushed. [Skotlex]
