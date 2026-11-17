@@ -1785,7 +1785,10 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 // [auth-queue] (ТЗ п.8) How long a new login is held while its account is still online (the old map
 // session in its 10 s prevent_logout delay + final save, or another char-select connection closing), and
 // how often the hold is re-checked. Code 8 only if the old session is still there after that.
-#define CHAR_AUTH_WAIT_MS      20000
+// One second longer than the 20 s chardb_waiting_disconnect armed on the first kick: when the map-server
+// never answers (e.g. the char was selected but its client never reached the map), that timer marks the
+// account offline at 20 s and the held login must still be waiting to take it, not race it to a code 8.
+#define CHAR_AUTH_WAIT_MS      21000
 #define CHAR_AUTH_WAIT_POLL_MS 250
 
 static void char_auth_ok(int fd, struct char_session_data *sd);
