@@ -462,108 +462,198 @@ int chrif_scdata_request(int account_id, int char_id)
 
 /*==========================================
  * new auth system [Kevin]
+ *
+ * [auth-queue] One auth_db node per account, in one of three shapes:
+ *   waiting : sd != NULL      - the client is on the map, its char data has not come yet
+ *   parked  : char_dat != NULL - the char data came first, the client has not connected yet
+ *   retry   : retry == 1       - the data came while the same char was still on this map (stale,
+ *                                discarded); its client gets code 8 and logs in again
+ * Rules (ТЗ «разрывы связи», п.1-7): a node never outlives its connection, a node is matched to its
+ * connection by fd + sd + auth_seq + account, char data from the char-server is never silently lost,
+ * and a session that went through pc_authok is never authed or refused again.
  *------------------------------------------*/
+
+// [auth-queue] (ТЗ п.2) Is the session a waiting node points at still THAT connection? fd + pointer alone
+// are not enough: when a session closes, its fd number and its freed map_session_data block go straight
+// to the next connection, so the old check (session[fd]->session_data == node->sd) took a stranger for
+// the waiting client and pc_authfail kicked him (ТЗ Причина 1). auth_seq is never reused. A session that
+// already went through pc_authok is not waiting any more either.
+static bool chrif_auth_node_alive(struct auth_node* node)
+{
+	struct map_session_data* sd = node->sd;
+	if (sd == NULL || !session_isValid(node->fd) || session[node->fd]->session_data != sd)
+		return false;
+	// sd is the live session_data of node->fd here, so it is safe to dereference
+	return (sd->auth_seq == node->auth_seq && sd->bl.id == node->account_id
+		&& !sd->state.authok && !sd->state.auth);
+}
+
+// [auth-queue] Remove the node of account_id together with its parked char data.
+static void chrif_auth_node_remove(int account_id)
+{
+	struct auth_node* node = (struct auth_node*)idb_get(auth_db, account_id);
+	if (node == NULL)
+		return;
+	if (node->char_dat)
+		aFree(node->char_dat);
+	idb_remove(auth_db, account_id);
+}
+
+// [auth-queue] (ТЗ п.1) An unauthenticated session is going away (map_quit, !state.auth): remove the
+// waiting node of THIS connection, so it cannot outlive it and later match whoever inherits the fd.
+void chrif_auth_delete_sd(struct map_session_data* sd)
+{
+	struct auth_node* node = (struct auth_node*)idb_get(auth_db, sd->bl.id);
+	if (node && node->sd == sd && node->auth_seq == sd->auth_seq)
+		chrif_auth_node_remove(sd->bl.id);
+}
+
+// [auth-queue] Park the char data of the 0x2afd packet at fd until its client connects.
+static void chrif_auth_park(int fd)
+{
+	struct auth_node* node = (struct auth_node *)aCalloc(1,sizeof(struct auth_node));
+	node->char_dat = (struct mmo_charstatus *) aCalloc(1,sizeof(struct mmo_charstatus));
+	node->account_id=RFIFOL(fd, 4);
+	node->login_id1=RFIFOL(fd, 8);
+	node->connect_until_time=RFIFOL(fd, 12);
+	node->login_id2=RFIFOL(fd, 16);
+	memcpy(node->char_dat,RFIFOP(fd, 20),sizeof(struct mmo_charstatus));
+	node->node_created=gettick();
+	uidb_put(auth_db, node->account_id, node);
+}
+
+// [auth-queue] Retry marker for a login whose data was stale (see chrif_authok).
+static void chrif_auth_mark_retry(int account_id, int login_id1)
+{
+	struct auth_node* node = (struct auth_node *)aCalloc(1,sizeof(struct auth_node));
+	node->account_id = account_id;
+	node->login_id1 = login_id1;
+	node->retry = 1;
+	node->node_created = gettick();
+	uidb_put(auth_db, account_id, node);
+}
+
 void chrif_authreq(struct map_session_data *sd)
 {
-	struct auth_node *auth_data;
-	auth_data=idb_get(auth_db, sd->bl.id);
+	struct auth_node *node = (struct auth_node*)idb_get(auth_db, sd->bl.id);
 
-	if(auth_data) {
-		if(auth_data->char_dat &&
-			auth_data->account_id== sd->bl.id &&
-			auth_data->login_id1 == sd->login_id1)
-		{	//auth ok
-			pc_authok(sd, auth_data->login_id2, auth_data->connect_until_time, auth_data->char_dat);
-		} else { //auth failed
-			// [DCMETRIC] ТЗ Причина 1: client reached the map but the already-present auth node does not
-			// match its account/login (stale node from a previous attempt) -> immediate map-entry kick.
-			ShowWarning("[DCMETRIC] authreq_fail: aid=%d node mismatch (node aid=%d lid1=%d vs sd lid1=%d) -> pc_authfail\n",
-				sd->bl.id, auth_data->account_id, auth_data->login_id1, sd->login_id1);
-			pc_authfail(sd);
-			chrif_char_offline(sd); //Set him offline, the char server likely has it set as online already.
-		}
-		if (auth_data->char_dat)
-			aFree(auth_data->char_dat);
-		idb_remove(auth_db, sd->bl.id);
-	} else { //data from char server has not arrived yet.
-		auth_data = aCalloc(1,sizeof(struct auth_node));
-		auth_data->sd = sd;
-		auth_data->fd = sd->fd;
-		auth_data->account_id = sd->bl.id;
-		auth_data->login_id1 = sd->login_id1;
-		auth_data->node_created = gettick();
-		uidb_put(auth_db, sd->bl.id, auth_data);
+	if (node && node->retry && node->login_id1 == sd->login_id1) {
+		// [auth-queue] (ТЗ п.4) This login's data came while the same character was still on the map, so it
+		// was stale and was not kept. Tell the client to log in again now (code 8, "still recognizes last
+		// login") instead of leaving it waiting for data that will never come.
+		ShowWarning("[DCMETRIC] authreq_retry: aid=%d its data came while the char was still online -> code 8, client logs in again\n", sd->bl.id);
+		chrif_auth_node_remove(sd->bl.id);
+		clif_authfail_fd(sd->fd, 8);
+		return;
 	}
-	return;
+
+	if (node && node->char_dat) {
+		if (node->login_id1 == sd->login_id1)
+		{	//auth ok
+			pc_authok(sd, node->login_id2, node->connect_until_time, node->char_dat);
+			chrif_auth_node_remove(sd->bl.id);
+			return;
+		}
+		// [auth-queue] (ТЗ п.5) The parked data belongs to another login (an earlier character select whose
+		// client never came). Do not refuse this session: drop the old data, let it wait for its own.
+		ShowWarning("[DCMETRIC] authreq_replace: aid=%d parked data is for another login (lid1 %d, client lid1 %d) -> client waits for its own data\n",
+			sd->bl.id, node->login_id1, sd->login_id1);
+		chrif_auth_node_remove(sd->bl.id);
+	}
+	else if (node && node->sd) {
+		if (chrif_auth_node_alive(node)) {
+			// Another open connection is already waiting for this account: keep it, refuse this one. The
+			// char-server is NOT told "offline" -- the account is still logging in through that connection.
+			ShowWarning("[DCMETRIC] authreq_dup: aid=%d connection fd=%d is already waiting for this account -> new fd=%d refused\n",
+				sd->bl.id, node->fd, sd->fd);
+			pc_authfail(sd);
+			return;
+		}
+		// A waiting node whose connection is gone (should not survive map_quit any more): replace it.
+		ShowWarning("[DCMETRIC] authreq_stale: aid=%d waiting node of a closed connection (fd %d) -> replaced\n", sd->bl.id, node->fd);
+		chrif_auth_node_remove(sd->bl.id);
+	}
+	else if (node) // retry marker of another login
+		chrif_auth_node_remove(sd->bl.id);
+
+	//data from char server has not arrived yet.
+	node = (struct auth_node*)aCalloc(1,sizeof(struct auth_node));
+	node->sd = sd;
+	node->fd = sd->fd;
+	node->auth_seq = sd->auth_seq;
+	node->account_id = sd->bl.id;
+	node->login_id1 = sd->login_id1;
+	node->node_created = gettick();
+	uidb_put(auth_db, sd->bl.id, node);
 }
 
 //character selected, insert into auth db
 void chrif_authok(int fd)
 {
-	struct auth_node *auth_data;
+	int account_id = RFIFOL(fd, 4);
+	int login_id1 = RFIFOL(fd, 8);
+	struct mmo_charstatus *status = (struct mmo_charstatus *)RFIFOP(fd, 20);
+	struct auth_node *node = (struct auth_node*)idb_get(auth_db, account_id);
+	bool waiting = (node != NULL && chrif_auth_node_alive(node));
 	TBL_PC* sd;
+
 	//Check if we don't already have player data in our server
 	//(prevents data that is to be saved from being overwritten by
 	//this received status data if this auth is later successful) [Skotlex]
-	if ((sd = map_id2sd(RFIFOL(fd, 4))) != NULL)
+	if ((sd = map_id2sd(account_id)) != NULL && sd->state.auth && sd->status.char_id == status->char_id)
 	{
-		struct mmo_charstatus *status = (struct mmo_charstatus *)RFIFOP(fd, 20);
-		//Auth check is because this could be the very same sd that is waiting char-server authorization.
-		if (sd->state.auth && sd->status.char_id == status->char_id)
+		// [auth-queue] (ТЗ п.4) The same character is still on this map and its final save is not acknowledged
+		// yet. The char-server read this data BEFORE that save (the save-ack would otherwise have arrived
+		// first on this connection), so it is stale: applying it now or later would roll the character back,
+		// which is what this early return protects against. But the new client must not be left waiting
+		// for data that never comes (the login loop of ТЗ Причина 2): a waiting client gets code 8 at once,
+		// one that has not connected yet gets it on arrival (retry marker). It logs in again and gets
+		// fresh data once the old session is saved.
+		if (waiting && node->login_id1 == login_id1) {
+			ShowWarning("[DCMETRIC] authok_retry: aid=%d cid=%d still online here, data is stale -> waiting client gets code 8\n",
+				account_id, status->char_id);
+			clif_authfail_fd(node->sd->fd, 8);
+			chrif_auth_node_remove(account_id);
 			return;
-	}
-
-	if ((auth_data =uidb_get(auth_db, RFIFOL(fd, 4))) != NULL)
-	{	//Is the character already awaiting authorization?
-		if (auth_data->sd)
-		{
-			//First, check to see if the session data still exists (avoid dangling pointers)
-			if(session[auth_data->fd] && session[auth_data->fd]->session_data == auth_data->sd)
-			{	
-				if (auth_data->char_dat == NULL &&
-					auth_data->account_id == RFIFOL(fd, 4) &&
-					auth_data->login_id1 == RFIFOL(fd, 8))
-				{ //Auth Ok
-					pc_authok(auth_data->sd, RFIFOL(fd, 16), RFIFOL(fd, 12), (struct mmo_charstatus*)RFIFOP(fd, 20));
-				} else { //Auth Failed
-					// [DCMETRIC] ТЗ Причина 1/2: char-server auth for a still-live session failed the
-					// id/login match -> player gets kicked at map-entry. Log who, so the login-loop is countable.
-					ShowWarning("[DCMETRIC] authok_fail: aid=%d waiting session failed id/login match (char_dat=%p) -> pc_authfail\n",
-						RFIFOL(fd, 4), (void*)auth_data->char_dat);
-					pc_authfail(auth_data->sd);
-					chrif_char_offline(auth_data->sd); //Set him offline, the char server likely has it set as online already.
-				}
-			} else {
-				// [DCMETRIC] ТЗ Причина 1: the awaited session's fd is gone OR was REUSED by a different
-				// session (session_data pointer mismatch) = the classic auth_db dangling/fd-reuse race.
-				// Code falls through ("just go through") and the node's data is dropped. Count it.
-				ShowWarning("[DCMETRIC] authok_stale: aid=%d awaited sd=%p but session[%d]->data=%p (fd dead/reused) -> node dropped\n",
-					RFIFOL(fd, 4), (void*)auth_data->sd, auth_data->fd,
-					session[auth_data->fd] ? (void*)session[auth_data->fd]->session_data : NULL);
-			}
 		}
-		// [DCMETRIC] ТЗ Причина 2: a pre-existing node forces us to drop the FRESH char-server data
-		// (new char_dat from 0x2afd is freed below, never applied). Count how often fresh data is lost.
-		else
-			ShowWarning("[DCMETRIC] authok_drop: aid=%d stale node (no sd) present -> fresh char data from char-server discarded\n",
-				RFIFOL(fd, 4));
-		//Delete the data of this node...
-		if (auth_data->char_dat)
-			aFree (auth_data->char_dat);
-		uidb_remove(auth_db, RFIFOL(fd, 4));
+		if (waiting) // a client of another login is waiting: the account has moved on, refuse it (ТЗ п.3)
+			pc_authfail(node->sd);
+		ShowWarning("[DCMETRIC] authok_retry: aid=%d cid=%d still online here, data is stale -> its client will get code 8\n",
+			account_id, status->char_id);
+		chrif_auth_node_remove(account_id);
+		chrif_auth_mark_retry(account_id, login_id1);
 		return;
 	}
-	// Awaiting for client to connect.
-	auth_data = (struct auth_node *)aCalloc(1,sizeof(struct auth_node));
-	auth_data->char_dat = (struct mmo_charstatus *) aCalloc(1,sizeof(struct mmo_charstatus));
 
-	auth_data->account_id=RFIFOL(fd, 4);
-	auth_data->login_id1=RFIFOL(fd, 8);
-	auth_data->connect_until_time=RFIFOL(fd, 12);
-	auth_data->login_id2=RFIFOL(fd, 16);
-	memcpy(auth_data->char_dat,RFIFOP(fd, 20),sizeof(struct mmo_charstatus));
-	auth_data->node_created=gettick();
-	uidb_put(auth_db, RFIFOL(fd, 4), auth_data);
+	if (node != NULL)
+	{
+		if (waiting) {
+			if (node->login_id1 == login_id1)
+			{	//Auth Ok
+				pc_authok(node->sd, RFIFOL(fd, 16), RFIFOL(fd, 12), status);
+				chrif_auth_node_remove(account_id);
+				return;
+			}
+			// [auth-queue] (ТЗ п.3) The waiting client belongs to another (earlier) login: only it is refused,
+			// the new data stays parked for its own client. The char-server is not told "offline": the
+			// account is logging in with this new data.
+			ShowWarning("[DCMETRIC] authok_other_login: aid=%d waiting client lid1 %d, data lid1 %d -> waiting client refused, data kept\n",
+				account_id, node->login_id1, login_id1);
+			pc_authfail(node->sd);
+		} else if (node->sd) {
+			// [auth-queue] (ТЗ п.2/3) The connection this node waited for is gone or its fd now belongs to
+			// someone else: nobody is refused, the data is kept for its client.
+			ShowWarning("[DCMETRIC] authok_stale: aid=%d waiting connection fd=%d is gone -> node replaced, data kept\n",
+				account_id, node->fd);
+		} else if (node->char_dat) {
+			// [auth-queue] (ТЗ п.3) Older parked data whose client never came: the newest data wins.
+			ShowWarning("[DCMETRIC] authok_replace: aid=%d older parked data (lid1 %d) replaced by new (lid1 %d)\n",
+				account_id, node->login_id1, login_id1);
+		}
+		chrif_auth_node_remove(account_id);
+	}
+	// Awaiting for client to connect.
+	chrif_auth_park(fd);
 }
 
 // How long (ms) a pending map-entry auth node may live before it is purged. The stock 30s is too
@@ -588,7 +678,10 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 		// map-entry load; purging it would kick a player who is genuinely connecting, so give those
 		// a longer grace (3x TTL) before giving up. This keeps honest-but-slow logins in without
 		// ever refusing anyone. [auth-resilience]
-		if (node->sd != NULL && DIFF_TICK(gettick(),node->node_created) <= AUTH_NODE_TTL_MS*3)
+		// [auth-queue] (ТЗ п.7) ...but only when that client is verifiably still connected (fd + sd +
+		// auth_seq): sd!=NULL alone also matched dead sessions, whose nodes then blocked the account
+		// for 270 s instead of 90 s.
+		if (chrif_auth_node_alive(node) && DIFF_TICK(gettick(),node->node_created) <= AUTH_NODE_TTL_MS*3)
 			return 0;
 		ShowNotice("Character (aid: %d) not authed within %d seconds of character select!\n",
 			node->account_id, AUTH_NODE_TTL_MS/1000);

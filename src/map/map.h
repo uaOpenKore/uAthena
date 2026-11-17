@@ -545,6 +545,7 @@ struct map_session_data {
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct {
 		unsigned auth : 1;
+		unsigned authok : 1; // [auth-queue] pc_authok already ran on this session (state.auth is only set later, in pc_reg_received)
 		unsigned menu_or_input : 1;// if a script is waiting for feedback from the player
 		unsigned dead_sit : 2;
 		unsigned waitingdisconnect : 1;
@@ -670,6 +671,7 @@ struct map_session_data {
 	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
 	unsigned int canlog_tick;
 	unsigned int auth_tick; // [xms] tick this SESSION was set up (pc_setnewpc); never bumped by actions -> true "time since connect" for the cross-server dupe-kick race guard
+	unsigned int auth_seq; // [auth-queue] unique id of this CONNECTION (pc_setnewpc, global counter, never 0/reused): ties an auth_db node to its own session, not to a recycled fd number or a re-allocated sd address
 	unsigned int canuseitem_tick;	// [Skotlex]
 	unsigned int cantalk_tick;
 

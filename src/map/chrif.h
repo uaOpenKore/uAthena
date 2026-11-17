@@ -10,6 +10,8 @@ struct auth_node{
 	struct map_session_data *sd;	//Data from logged on char.
 	struct mmo_charstatus *char_dat;	//Data from char server.
 	unsigned int node_created; //For node auto-deleting
+	unsigned int auth_seq; // [auth-queue] connection id (sd->auth_seq) of the waiting session; checked together with fd + sd
+	unsigned retry : 1;    // [auth-queue] marker: this login's data arrived while the same char was still on the map (stale, discarded) -> its client gets code 8 to log in again
 };
 
 void chrif_setuserid(char* id);
@@ -25,6 +27,7 @@ extern int other_mapserver_count;
 
 void chrif_authreq(struct map_session_data* sd);
 void chrif_authok(int fd);
+void chrif_auth_delete_sd(struct map_session_data* sd);
 int chrif_scdata_request(int account_id, int char_id);
 int chrif_save(struct map_session_data* sd, int flag);
 int chrif_charselectreq(struct map_session_data* sd, uint32 s_ip);

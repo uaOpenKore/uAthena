@@ -1771,6 +1771,9 @@ int map_quit(struct map_session_data *sd)
 {
 	if(!sd->state.auth) { //Removing a player that hasn't even finished loading
 		TBL_PC *sd2 = map_id2sd(sd->status.account_id);
+		// [auth-queue] (ТЗ п.1) Its auth_db node must not outlive it: the fd number and this sd block are
+		// handed to the next connection, and a leftover node would later take that stranger for us.
+		chrif_auth_delete_sd(sd);
 		if (sd->pd) unit_free(&sd->pd->bl,-1);
 		if (sd->hd) unit_free(&sd->hd->bl,-1);
 		if (sd->md) unit_free(&sd->md->bl,-1); // [Backport] hired merc
