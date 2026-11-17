@@ -770,11 +770,16 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 
 	next++;
 
+	// [limits] The item loops below end only at the field's tab: a line holding more items than the arrays
+	// (a damaged save, or one written by a build with higher limits) wrote PAST p->inventory / p->cart into
+	// the rest of the character. Parse every entry (to stay in step with the line) but store only what fits,
+	// like storage_fromstr already does.
 	for(i = 0; str[next] && str[next] != '\t'; i++) {
 		if(sscanf(str + next, "%d,%d,%d,%d,%d,%d,%d%[0-9,-]%n",
 		      &tmp_int[0], &tmp_int[1], &tmp_int[2], &tmp_int[3],
 		      &tmp_int[4], &tmp_int[5], &tmp_int[6], tmp_str[0], &len) == 8)
 		{
+			if (i < MAX_INVENTORY) {
 			p->inventory[i].id = tmp_int[0];
 			p->inventory[i].nameid = tmp_int[1];
 			p->inventory[i].amount = tmp_int[2];
@@ -785,6 +790,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 
 			for(j = 0; j < MAX_SLOTS && tmp_str[0] && sscanf(tmp_str[0], ",%d%[0-9,-]",&tmp_int[0], tmp_str[0]) > 0; j++)
 				p->inventory[i].card[j] = tmp_int[0];
+			}
 
 			next += len;
 			if (str[next] == ' ')
@@ -792,6 +798,8 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 		} else // invalid structure
 			return -4;
 	}
+	if (i > MAX_INVENTORY)
+		ShowWarning("mmo_char_fromstr: character %d has %d inventory items, more than MAX_INVENTORY (%d); the rest were discarded!\n", p->char_id, i, MAX_INVENTORY);
 	next++;
 
 	for(i = 0; str[next] && str[next] != '\t'; i++) {
@@ -799,6 +807,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 		      &tmp_int[0], &tmp_int[1], &tmp_int[2], &tmp_int[3],
 		      &tmp_int[4], &tmp_int[5], &tmp_int[6], tmp_str[0], &len) == 8)
 		{
+			if (i < MAX_CART) {
 			p->cart[i].id = tmp_int[0];
 			p->cart[i].nameid = tmp_int[1];
 			p->cart[i].amount = tmp_int[2];
@@ -806,24 +815,30 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 			p->cart[i].identify = tmp_int[4];
 			p->cart[i].refine = tmp_int[5];
 			p->cart[i].attribute = tmp_int[6];
-			
+
 			for(j = 0; j < MAX_SLOTS && tmp_str && sscanf(tmp_str[0], ",%d%[0-9,-]",&tmp_int[0], tmp_str[0]) > 0; j++)
 				p->cart[i].card[j] = tmp_int[0];
-			
+			}
+
 			next += len;
 			if (str[next] == ' ')
 				next++;
 		} else // invalid structure
 			return -5;
 	}
+	if (i > MAX_CART)
+		ShowWarning("mmo_char_fromstr: character %d has %d cart items, more than MAX_CART (%d); the rest were discarded!\n", p->char_id, i, MAX_CART);
 
 	next++;
 
 	for(i = 0; str[next] && str[next] != '\t'; i++) {
 		if (sscanf(str + next, "%d,%d%n", &tmp_int[0], &tmp_int[1], &len) != 2)
 			return -6;
-		p->skill[tmp_int[0]].id = tmp_int[0];
-		p->skill[tmp_int[0]].lv = tmp_int[1];
+		if (tmp_int[0] > 0 && tmp_int[0] < MAX_SKILL) { // [limits] the id indexes p->skill[]: never trust it from the file
+			p->skill[tmp_int[0]].id = tmp_int[0];
+			p->skill[tmp_int[0]].lv = tmp_int[1];
+		} else
+			ShowWarning("mmo_char_fromstr: character %d has an invalid skill id %d; skipped.\n", p->char_id, tmp_int[0]);
 		next += len;
 		if (str[next] == ' ')
 			next++;
@@ -832,7 +847,11 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	next++;
 
 	for(i = 0; str[next] && str[next] != '\t' && str[next] != '\n' && str[next] != '\r'; i++) { // global_regOathena.txt'\n'`FbN
-		if (sscanf(str + next, "%[^,],%[^ ] %n", reg[i].str, reg[i].value, &len) != 2) { 
+		if (i >= GLOBAL_REG_NUM) { // [limits] reg[] holds GLOBAL_REG_NUM entries: never write past it
+			ShowWarning("mmo_char_fromstr: character %d has more than %d global registry values; the rest were discarded!\n", p->char_id, GLOBAL_REG_NUM);
+			break;
+		}
+		if (sscanf(str + next, "%[^,],%[^ ] %n", reg[i].str, reg[i].value, &len) != 2) {
 			// because some scripts are not correct, the str can be "". So, we must check that.
 			// If it's, we must not refuse the character, but just this REG value.
 			// Character line will have something like: nov_2nd_cos,9 ,9 nov_1_2_cos_c,1 (here, ,9 is not good)
@@ -961,7 +980,7 @@ int parse_hotkey_txt(struct mmo_charstatus *p)
 //---------------------------------
 int mmo_char_init(void)
 {
-	char line[65536];
+	static char line[TXT_LINE_MAX]; // [limits] one whole character per line, see char.h
 	int ret, line_count;
 	FILE* fp;
 
@@ -1070,7 +1089,8 @@ int mmo_char_init(void)
 //---------------------------------------------------------
 void mmo_char_sync(void)
 {
-	char line[65536],f_line[1024];
+	static char line[TXT_LINE_MAX]; // [limits] mmo_char_tostr writes a whole character here, see char.h
+	char f_line[1024];
 	int i, j, k;
 	int lock;
 	FILE *fp,*f_fp;

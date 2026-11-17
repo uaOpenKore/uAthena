@@ -10,6 +10,14 @@
 #define START_CHAR_NUM 150000
 #define MAX_MAP_SERVERS 30
 
+// [limits 2026-11-17] One TXT save line (a whole character in athena.txt, a whole storage in storage.txt /
+// g_storage.txt) is written with unbounded sprintf and read back with fgets into this buffer. Worst cases
+// with every int at full width (11 numbers x 12 chars per item): character = header + 300 inventory + 600
+// cart items + MAX_SKILL skills + 96 registry values ~ 173 KB; storage 1000 items ~ 132 KB; guild storage
+// 2338 items ~ 309 KB. The old 64 KB stack buffers would overflow on write and split the line on read
+// (a corrupted save). Static (the TXT char-server is single-threaded), with headroom.
+#define TXT_LINE_MAX (1024*1024)
+
 #define DEFAULT_AUTOSAVE_INTERVAL 300*1000
 
 struct character_data {

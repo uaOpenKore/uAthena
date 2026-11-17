@@ -191,7 +191,7 @@ struct guild_storage *guild2storage(int guild_id)
 // qf[^
 int inter_storage_init()
 {
-	char line[65536];
+	static char line[TXT_LINE_MAX]; // [limits] one whole (guild) storage per line, see char.h
 	int c=0,tmp_int;
 	struct storage *s;
 	struct guild_storage *gs;
@@ -265,7 +265,7 @@ void inter_storage_final() {
 
 int inter_storage_save_sub(DBKey key,void *data,va_list ap)
 {
-	char line[65536];
+	static char line[TXT_LINE_MAX]; // [limits] storage_tostr writes a whole storage here, see char.h
 	FILE *fp;
 	storage_tostr(line,(struct storage *)data);
 	fp=va_arg(ap,FILE *);
@@ -291,7 +291,7 @@ int inter_storage_save()
 
 int inter_guild_storage_save_sub(DBKey key,void *data,va_list ap)
 {
-	char line[65536];
+	static char line[TXT_LINE_MAX]; // [limits] guild_storage_tostr writes 2338 items here, see char.h
 	FILE *fp;
 	if(inter_guild_search(((struct guild_storage *)data)->guild_id) != NULL) {
 		guild_storage_tostr(line,(struct guild_storage *)data);
