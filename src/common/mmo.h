@@ -19,16 +19,24 @@
 //#define HOTKEY_SAVING 27
 
 #define MAX_MAP_PER_SERVER 1024
-#define MAX_INVENTORY 100
+// [limits 2026-11-17, S.] inventory/cart/storage/stack raised: inventory 100->300, cart 100->600, Kafra
+// storage 300->1000, guild storage 1000->2338, stack 30000->32766. Constraints checked:
+//  - struct mmo_charstatus (inventory+cart inside) travels map<->char in ONE packet with a 16-bit length
+//    (0x2afd +20, 0x2b01 +13): now 33344 bytes, limit 65535.
+//  - struct item.amount is a short and every client item packet carries the amount as 16 bits -> 32767 max.
+//  - script arrays stop at 128: getinventorylist exports at most 128 stacks (see script.c).
+//  - NEVER LOWER any of these: the char-server loads only the first MAX_* rows and DELETES the rest on the
+//    next save (verified: 400 stored items + a 300 cap -> 299 rows after one change). No binary rollback either.
+#define MAX_INVENTORY 300
 //Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
 #define MAX_CHARS 9
 //Number of slots carded equipment can have. Never set to less than 4 as they are also used to keep the data of forged items/equipment. [Skotlex]
 //Note: The client seems unable to receive data for more than 4 slots due to all related packets having a fixed size.
 #define MAX_SLOTS 4
-#define MAX_AMOUNT 30000
+#define MAX_AMOUNT 32766 // was 30000; hard max 32767 (short amount + 16-bit packet fields)
 #define MAX_ZENY 1000000000
 #define MAX_FAME 1000000000
-#define MAX_CART 100
+#define MAX_CART 600 // was 100
 #define MAX_SKILL 1100 // Bumped to 1100 for new quest skills, will need to further increase one day... [DracoRPG]
 #define GLOBAL_REG_NUM 96
 #define ACCOUNT_REG_NUM 64
@@ -38,8 +46,12 @@
 #define DEFAULT_WALK_SPEED 150
 #define MIN_WALK_SPEED 0
 #define MAX_WALK_SPEED 1000
-#define MAX_STORAGE 300
-#define MAX_GUILD_STORAGE 1000
+// Kafra (per-account) / guild storage slots. Hard ceiling ~2339 for EITHER: the whole struct goes map<->char
+// in ONE inter-server packet with a 16-bit length (intif 0x3011/0x3019, sizeof(struct item)=28). The original
+// uaRO.exe keeps storage items in a linked list (no fixed 300 array), BornRok reads the max from 0xF2.
+// NEVER LOWER these: the char-server loads only the first MAX_* rows and deletes the rest on the next save.
+#define MAX_STORAGE 1000 // was 300
+#define MAX_GUILD_STORAGE 2338 // was 1000; 2338*28+24 = 65488 bytes in the 0x3019 packet (limit 65535)
 #define MAX_PARTY 25
 #define MAX_GUILD 16+10*6	// increased max guild members +6 per 1 extension levels [Lupus]
 #define MAX_GUILDPOSITION 20	// increased max guild positions to accomodate for all members [Valaris] (removed) [PoW]

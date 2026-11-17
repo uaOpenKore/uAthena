@@ -10972,6 +10972,15 @@ BUILDIN_FUNC(getinventorylist)
 	if(!sd) return 0;
 	for(i=0;i<MAX_INVENTORY;i++){
 		if(sd->status.inventory[i].nameid > 0 && sd->status.inventory[i].amount > 0){
+			// Script arrays hold indexes 0..127 only (getelementofarray / getarraysize stop at 128), and the
+			// index lives in the top 8 bits of the variable uid (j<<24): from j=256 on it wraps onto index 0
+			// and overwrites the first entries. With MAX_INVENTORY > 128 a full inventory would hand scripts
+			// a count they can't read and corrupted entries -- export at most 128 items, consistently.
+			if (j >= 128) {
+				ShowWarning("script:getinventorylist: %s (aid %d) has more than 128 item stacks; only the first 128 are listed (script array limit).\n",
+					sd->status.name, sd->status.account_id);
+				break;
+			}
 			pc_setreg(sd,add_str("@inventorylist_id")+(j<<24),sd->status.inventory[i].nameid);
 			pc_setreg(sd,add_str("@inventorylist_amount")+(j<<24),sd->status.inventory[i].amount);
 			pc_setreg(sd,add_str("@inventorylist_equip")+(j<<24),sd->status.inventory[i].equip);
