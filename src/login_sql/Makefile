@@ -11,6 +11,12 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 	../common/grfio.h ../common/mapindex.h \
 	../common/md5calc.h
 
+# [build] Rebuild on ANY login or common header change (see src/map/Makefile).
+LOGIN_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+
+%.o: %.c $(LOGIN_ALL_H)
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+
 login-server_sql: login.o $(COMMON_OBJ)
 	$(CC) -o ../../$@ $^ $(LIB_S)
 

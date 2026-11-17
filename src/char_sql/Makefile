@@ -10,6 +10,14 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 	../common/malloc.h ../common/showmsg.h ../common/utils.h ../common/strlib.h \
 	../common/grfio.h ../common/mapindex.h
 
+# [build] Rebuild on ANY char or common header change (see src/map/Makefile): the dep lines below are
+# hand-kept and incomplete (char.o does not list socket.h/mmo.h), so a struct change would leave
+# objects compiled against the old layout.
+CHAR_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+
+%.o: %.c $(CHAR_ALL_H)
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+
 char-server_sql: char.o char_async_load.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
 	$(CC) -o ../../$@ $^ $(LIB_S)
 

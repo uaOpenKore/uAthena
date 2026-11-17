@@ -35,10 +35,16 @@ LIB_TXT = $(filter-out -lmysqlclient -lmariadb,$(LIB_S))
 map-server: $(OBJECTS:obj/%=txtobj/%)
 	$(CC) -o ../../$@ $> $(LIB_TXT)
 
-sqlobj/%.o: %.c
+# [build] Every object depends on ALL map + common headers. The hand-kept dep lines at the bottom are
+# incomplete (unit.o, storage.o, mercenary.o use map_session_data but do not list map.h), so after a
+# struct change in a header those objects kept the OLD layout -> one binary with two layouts = silent
+# memory corruption. Rebuilding everything on any header change is cheap and always correct.
+MAP_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+
+sqlobj/%.o: %.c $(MAP_ALL_H)
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-txtobj/%.o: %.c
+txtobj/%.o: %.c $(MAP_ALL_H)
 	$(COMPILE.c) -DTXT_ONLY $(OUTPUT_OPTION) $<
 
 clean:
