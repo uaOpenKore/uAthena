@@ -10,7 +10,11 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 	../common/malloc.h ../common/showmsg.h ../common/utils.h ../common/strlib.h \
 	../common/grfio.h ../common/mapindex.h
 
-%.o: %.c
+# [build] Rebuild on ANY char or common header change (see src/map/Makefile): the hand-kept dep lines
+# miss transitive headers, so a struct change (e.g. socket.h) would leave objects with the old layout.
+CHAR_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+
+%.o: %.c $(CHAR_ALL_H)
 	$(COMPILE.c) -DTXT_ONLY $(OUTPUT_OPTION) $<
 
 char-server: char.o inter.o int_party.o int_guild.o int_status.o int_storage.o int_pet.o int_homun.o $(COMMON_OBJ)
