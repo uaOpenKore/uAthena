@@ -475,6 +475,10 @@ void chrif_authreq(struct map_session_data *sd)
 		{	//auth ok
 			pc_authok(sd, auth_data->login_id2, auth_data->connect_until_time, auth_data->char_dat);
 		} else { //auth failed
+			// [DCMETRIC] ТЗ Причина 1: client reached the map but the already-present auth node does not
+			// match its account/login (stale node from a previous attempt) -> immediate map-entry kick.
+			ShowWarning("[DCMETRIC] authreq_fail: aid=%d node mismatch (node aid=%d lid1=%d vs sd lid1=%d) -> pc_authfail\n",
+				sd->bl.id, auth_data->account_id, auth_data->login_id1, sd->login_id1);
 			pc_authfail(sd);
 			chrif_char_offline(sd); //Set him offline, the char server likely has it set as online already.
 		}
@@ -522,11 +526,27 @@ void chrif_authok(int fd)
 				{ //Auth Ok
 					pc_authok(auth_data->sd, RFIFOL(fd, 16), RFIFOL(fd, 12), (struct mmo_charstatus*)RFIFOP(fd, 20));
 				} else { //Auth Failed
+					// [DCMETRIC] ТЗ Причина 1/2: char-server auth for a still-live session failed the
+					// id/login match -> player gets kicked at map-entry. Log who, so the login-loop is countable.
+					ShowWarning("[DCMETRIC] authok_fail: aid=%d waiting session failed id/login match (char_dat=%p) -> pc_authfail\n",
+						RFIFOL(fd, 4), (void*)auth_data->char_dat);
 					pc_authfail(auth_data->sd);
 					chrif_char_offline(auth_data->sd); //Set him offline, the char server likely has it set as online already.
 				}
-			} //else: Character no longer exists, just go through.
+			} else {
+				// [DCMETRIC] ТЗ Причина 1: the awaited session's fd is gone OR was REUSED by a different
+				// session (session_data pointer mismatch) = the classic auth_db dangling/fd-reuse race.
+				// Code falls through ("just go through") and the node's data is dropped. Count it.
+				ShowWarning("[DCMETRIC] authok_stale: aid=%d awaited sd=%p but session[%d]->data=%p (fd dead/reused) -> node dropped\n",
+					RFIFOL(fd, 4), (void*)auth_data->sd, auth_data->fd,
+					session[auth_data->fd] ? (void*)session[auth_data->fd]->session_data : NULL);
+			}
 		}
+		// [DCMETRIC] ТЗ Причина 2: a pre-existing node forces us to drop the FRESH char-server data
+		// (new char_dat from 0x2afd is freed below, never applied). Count how often fresh data is lost.
+		else
+			ShowWarning("[DCMETRIC] authok_drop: aid=%d stale node (no sd) present -> fresh char data from char-server discarded\n",
+				RFIFOL(fd, 4));
 		//Delete the data of this node...
 		if (auth_data->char_dat)
 			aFree (auth_data->char_dat);
@@ -1002,8 +1022,24 @@ int chrif_disconnectplayer(int fd)
 		const int why = RFIFOB(fd, 6);
 		const unsigned int age = DIFF_TICK(gettick(), sd->auth_tick);
 		// Skip the kick if this looks like a cross-server transfer race (reason 1/2/3 within 4s of auth).
-		if ((why == 1 || why == 2 || why == 3) && age < 4000)
+		if ((why == 1 || why == 2 || why == 3) && age < 4000) {
+			// [DCMETRIC] ТЗ Причина 1/3: a char-server kick (server-closed / dupe / overpop) landed on a
+			// session that authed <4s ago = almost certainly a transfer/relogin race hitting the WRONG
+			// (fresh) session. We suppress it here; count the saves so we can see how often it fires.
+			ShowWarning("[DCMETRIC] kick_suppressed: aid=%d reason=%d age=%ums (<4s transfer race) -> kick NOT delivered\n",
+				sd->status.account_id, why, age);
 			return 0;
+		}
+	}
+
+	// [DCMETRIC] ТЗ Причина 1/3: a char-server kick that WE DO deliver. reason 2 = "someone else logged in"
+	// (dual-session guard), reason 1 = server-closed, 3 = overpop. age = ms since this session authed; a
+	// small age on a reason 1/2/3 that slipped past the 4s guard is still suspect. Logged to attribute DCs.
+	{
+		const int why = RFIFOB(fd, 6);
+		const unsigned int age = DIFF_TICK(gettick(), sd->auth_tick);
+		ShowInfo("[DCMETRIC] kick_delivered: aid=%d cid=%d reason=%d age=%ums\n",
+			sd->status.account_id, sd->status.char_id, why, age);
 	}
 
 	switch(RFIFOB(fd, 6))
