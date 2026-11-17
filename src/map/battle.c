@@ -21,6 +21,7 @@
 #include "guild.h"
 #include "party.h"
 #include "battle.h"
+#include "elemark.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -202,15 +203,33 @@ int battle_delay_damage (unsigned int tick, struct block_list *src, struct block
 	return 0;
 }
 /*==========================================
+ * [elemark] Element mark (S. 2026-11-17, rules in elemark.h): the monster a hit may mark or use a mark on,
+ * or NULL. Only player hits on monsters, never on PvP/GvG maps, never castle guardians or the Emperium.
+ *------------------------------------------*/
+static struct mob_data* battle_elemark_target(struct block_list *src, struct block_list *target)
+{
+	struct mob_data *md;
+	if (!battle_config.element_mark || !src || src->type != BL_PC || !target || target->type != BL_MOB)
+		return NULL;
+	md = (struct mob_data*)target;
+	if (md->guardian_data || map_flag_vs(target->m))
+		return NULL;
+	return md;
+}
+
+/*==========================================
  * Does attribute fix modifiers.
  * Added passing of the chars so that the status changes can affect it. [Skotlex]
  * Note: Passing src/target == NULL is perfectly valid, it skips SC_ checks.
+ * [elemark] ratio_out (may be NULL) gets the element ratio (%) this hit has before a mark's boost.
  *------------------------------------------*/
-int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv)
+static int battle_attr_fix_ratio(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv, int *ratio_out)
 {
 	struct status_change *sc=NULL, *tsc=NULL;
+	struct mob_data *md;
 	int ratio;
 	
+	if (ratio_out) *ratio_out = 100;
 	if (src) sc = status_get_sc(src);
 	if (target) tsc = status_get_sc(target);
 	
@@ -250,7 +269,36 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			status_change_end(target, SC_SPIDERWEB, -1);
 		}
 	}
+	if (ratio_out) *ratio_out = ratio;
+	if ((md = battle_elemark_target(src, target)) != NULL && md->state.elemark)
+		ratio = elemark_boost_ratio(ratio); // [elemark] this hit uses the monster's mark
 	return damage*ratio/100;
+}
+
+int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv)
+{
+	return battle_attr_fix_ratio(src, target, damage, atk_elem, def_type, def_lv, NULL);
+}
+
+/*==========================================
+ * [elemark] After a player's hit on a monster: mark the monster (a landed hit whose main element passed
+ * below 100%) or use its mark up (any landed hit), by the elemark.h rules. Called once per hit right after
+ * its damage is calculated -- in battle_calc_attack before a zero-damage skill hit is turned into a miss,
+ * so an immune (0%) hit still marks.
+ *------------------------------------------*/
+static void battle_elemark_hit(struct block_list *src, struct block_list *target, struct Damage *d)
+{
+	struct mob_data *md = battle_elemark_target(src, target);
+	int was;
+
+	if (md == NULL)
+		return;
+	was = md->state.elemark;
+	md->state.elemark = elemark_after_hit(was, d->dmg_lv == ATK_DEF, d->ele_weak);
+	// "!" over the monster when it gets marked (S.: "эмоция - это хорошо"), unless this hit kills it
+	if (!was && md->state.elemark && battle_config.element_mark_emotion >= 0 &&
+		d->damage + d->damage2 < status_get_hp(target))
+		clif_emotion(target, battle_config.element_mark_emotion);
 }
 
 /*==========================================
@@ -1851,7 +1899,9 @@ static struct Damage battle_calc_weapon_attack(
 	{	//Elemental attribute fix
 		if (wd.damage > 0)
 		{
-			wd.damage=battle_attr_fix(src,target,wd.damage,s_ele,tstatus->def_ele, tstatus->ele_lv);
+			int ratio;
+			wd.damage=battle_attr_fix_ratio(src,target,wd.damage,s_ele,tstatus->def_ele, tstatus->ele_lv, &ratio);
+			wd.ele_weak = ratio < 100; // [elemark]
 			if(skill_num==MC_CARTREVOLUTION) //Cart Revolution applies the element fix once more with neutral element
 				wd.damage = battle_attr_fix(src,target,wd.damage,ELE_NEUTRAL,tstatus->def_ele, tstatus->ele_lv);
 			if(skill_num== GS_GROUNDDRIFT) //Additional 50*lv Neutral damage.
@@ -2414,7 +2464,11 @@ struct Damage battle_calc_magic_attack(
 			ad.damage=1;
 
 		if (!(nk&NK_NO_ELEFIX))
-			ad.damage=battle_attr_fix(src, target, ad.damage, s_ele, tstatus->def_ele, tstatus->ele_lv);
+		{
+			int ratio;
+			ad.damage=battle_attr_fix_ratio(src, target, ad.damage, s_ele, tstatus->def_ele, tstatus->ele_lv, &ratio);
+			ad.ele_weak = ratio < 100; // [elemark]
+		}
 
 		if (sd && !(nk&NK_NO_CARDFIX_ATK)) {
 			short t_class = status_get_class(target);
@@ -2684,7 +2738,11 @@ struct Damage  battle_calc_misc_attack(
 		md.damage = 1;
 
 	if(!(nk&NK_NO_ELEFIX))
-		md.damage=battle_attr_fix(src, target, md.damage, s_ele, tstatus->def_ele, tstatus->ele_lv);
+	{
+		int ratio;
+		md.damage=battle_attr_fix_ratio(src, target, md.damage, s_ele, tstatus->def_ele, tstatus->ele_lv, &ratio);
+		md.ele_weak = ratio < 100; // [elemark]
+	}
 
 	md.damage=battle_calc_damage(src,target,md.damage,md.div_,skill_num,skill_lv,md.flag);
 	if (map_flag_gvg2(target->m))
@@ -2715,6 +2773,7 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 		memset(&d,0,sizeof(d));
 		break;
 	}
+	battle_elemark_hit(bl, target, &d); // [elemark] before the zero-damage-is-a-miss rule below
 	if (d.damage + d.damage2 < 1)
 	{	//Miss/Absorbed
 		//Weapon attacks should go through to cause additional effects.
@@ -2950,6 +3009,7 @@ int battle_weapon_attack(struct block_list* src, struct block_list* target, unsi
 	}
 
 	wd = battle_calc_weapon_attack(src, target, 0, 0, flag);
+	battle_elemark_hit(src, target, &wd); // [elemark]
 
 	if (sd && sd->state.arrow_atk) //Consume arrow.
 		battle_consume_ammo(sd, 0, 0);
@@ -3719,6 +3779,7 @@ static const struct battle_data_short {
 	{ "homunculus_show_growth",					&battle_config.homunculus_show_growth },	//[orn]
 	{ "homunculus_friendly_rate",				&battle_config.homunculus_friendly_rate },
 	{ "vending_tax",                       &battle_config.vending_tax },
+	{ "element_mark",                      &battle_config.element_mark },	// [elemark] on/off
 };
 
 static const struct battle_data_int {
@@ -3780,6 +3841,7 @@ static const struct battle_data_int {
 	{ "refine_over_chance_min",            &battle_config.refine_over_chance_min },	// [refine99] success % floor
 	{ "refine_over_bonus_percent",         &battle_config.refine_over_bonus_percent },	// [refine99] above-+10 ATK/DEF as % of canon
 	{ "refine_over_fail",                  &battle_config.refine_over_fail },		// [refine99] 0=destroy 1=drop1 2=keep
+	{ "element_mark_emotion",              &battle_config.element_mark_emotion },	// [elemark] emotion id, -1 = none
 };
 
 int battle_set_value(const char* w1, const char* w2)
@@ -4152,6 +4214,9 @@ void battle_set_defaults()
 	battle_config.refine_over_chance_min = 5;
 	battle_config.refine_over_bonus_percent = 50;
 	battle_config.refine_over_fail = 1;
+	// [elemark] element mark on by default (S. asked for it); "!" (e_gasp = 0) over a monster when it gets marked
+	battle_config.element_mark = 1;
+	battle_config.element_mark_emotion = 0;
 	battle_config.recv_parse_shortlist = 1; // [perf] default on = parse only fds with new data
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
 	battle_config.socket_sndbuf_size = 131072; // [perf] SO_SNDBUF bytes per socket (0 = kernel default); pairs with send coalescing
