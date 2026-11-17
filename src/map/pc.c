@@ -371,12 +371,20 @@ int pc_makesavestatus(struct map_session_data *sd)
 	return 0;
 }
 
+// [auth-queue] Source of map_session_data.auth_seq: one value per map connection, never 0, never reused
+// (a 32-bit wrap needs 4 billion logins). See chrif_auth_node_alive.
+static unsigned int pc_auth_seq_counter = 0;
+
 /*==========================================
  * ?b
  *------------------------------------------*/
 int pc_setnewpc(struct map_session_data *sd, int account_id, int char_id, int login_id1, unsigned int client_tick, int sex, int fd)
 {
 	nullpo_retr(0, sd);
+
+	if (++pc_auth_seq_counter == 0)
+		++pc_auth_seq_counter;
+	sd->auth_seq = pc_auth_seq_counter;
 
 	sd->bl.id        = account_id;
 	sd->status.account_id   = account_id;
@@ -717,11 +725,16 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	int i;
 	unsigned long tick = gettick();
 
-	if (sd->state.auth) //Temporary debug. [Skotlex]
+	// [auth-queue] (ТЗ п.6) A session that already went through pc_authok is never authed again: a second
+	// pc_authok would copy another login's (or another account's) character into a live session.
+	// state.auth alone is not enough -- it only appears later, in pc_reg_received.
+	if (sd->state.auth || sd->state.authok)
 	{
-		ShowDebug("pc_authok: Received auth ok for already authorized client (account id %d)!\n", sd->bl.id);
+		ShowWarning("[DCMETRIC] authok_repeat: pc_authok for session aid=%d that is already authed (data aid=%d cid=%d) -> ignored\n",
+			sd->bl.id, st->account_id, st->char_id);
 		return 1;
 	}
+	sd->state.authok = 1;
 
 	sd->login_id2 = login_id2;
 	memcpy(&sd->status, st, sizeof(*st));
@@ -925,8 +938,13 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
  *------------------------------------------*/
 int pc_authfail(struct map_session_data *sd)
 {
-	if (sd->state.auth) //Temporary debug. [Skotlex]
-		ShowDebug("pc_authfail: Received auth fail for already authentified client (account id %d)!\n", sd->bl.id);
+	// [auth-queue] (ТЗ п.6) Never kick a session that already went through pc_authok. This used to log
+	// "auth fail for already authentified client" and kick anyway -- that was the stranger who inherited a
+	// dead waiting session's fd and memory (ТЗ Причина 1). Callers in chrif.c log both account ids.
+	if (sd->state.auth || sd->state.authok) {
+		ShowWarning("[DCMETRIC] authfail_ignored: auth fail for session aid=%d that already passed pc_authok -> NOT kicked\n", sd->bl.id);
+		return 0;
+	}
 
 	if (!sd->fd)
 		ShowDebug("pc_authfail: Received auth fail for a player with no connection (account id %d)!\n", sd->bl.id);
