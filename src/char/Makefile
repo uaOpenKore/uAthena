@@ -1,4 +1,6 @@
-all txt: char-server
+# [build] Link target = the real output file (a target named `char-server` writing ../../char-server never
+# existed, so it relinked on every `make`).
+all txt: ../../char-server
 
 COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
@@ -12,13 +14,13 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 
 # [build] Rebuild on ANY char or common header change (see src/map/Makefile): the hand-kept dep lines
 # miss transitive headers, so a struct change (e.g. socket.h) would leave objects with the old layout.
-CHAR_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+CHAR_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h) $(wildcard ../../Makefile.cache)
 
 %.o: %.c $(CHAR_ALL_H)
 	$(COMPILE.c) -DTXT_ONLY $(OUTPUT_OPTION) $<
 
-char-server: char.o inter.o int_party.o int_guild.o int_status.o int_storage.o int_pet.o int_homun.o $(COMMON_OBJ)
-	$(CC) -o ../../$@ $> $(filter-out -lmysqlclient -lmariadb,$(LIB_S))
+../../char-server: char.o inter.o int_party.o int_guild.o int_status.o int_storage.o int_pet.o int_homun.o $(COMMON_OBJ)
+	$(CC) -o $@ $> $(filter-out -lmysqlclient -lmariadb,$(LIB_S))
 
 clean:
 	rm -f *.o ../../char-server GNUmakefile

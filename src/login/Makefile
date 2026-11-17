@@ -1,4 +1,6 @@
-all txt: login-server
+# [build] Link target = the real output file (a target named `login-server` writing ../../login-server never
+# existed, so it relinked on every `make`).
+all txt: ../../login-server
 
 COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_worker.o ../common/obj/timer.o \
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
@@ -12,13 +14,13 @@ COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/mmo.h
 	../common/md5calc.h
 
 # [build] Rebuild on ANY login or common header change (see src/map/Makefile).
-LOGIN_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+LOGIN_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h) $(wildcard ../../Makefile.cache)
 
 %.o: %.c $(LOGIN_ALL_H)
 	$(COMPILE.c) -DTXT_ONLY $(OUTPUT_OPTION) $<
 
-login-server: login.o $(COMMON_OBJ)
-	$(CC) -o ../../$@ login.o $(COMMON_OBJ) $(filter-out -lmysqlclient -lmariadb,$(LIB_S))
+../../login-server: login.o $(COMMON_OBJ)
+	$(CC) -o $@ login.o $(COMMON_OBJ) $(filter-out -lmysqlclient -lmariadb,$(LIB_S))
 
 clean:
 	rm -f *.o ../../login-server GNUmakefile
