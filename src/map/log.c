@@ -65,7 +65,7 @@ int log_branch(struct map_session_data *sd)
 	nullpo_retr(0, sd);
 	if(log_config.sql_logs > 0)
 	{
-		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`branch_date`, `account_id`, `char_id`, `char_name`, `map`) VALUES (NOW(), '%d', '%d', '%s', '%s')",
+		sprintf(tmp_sql, "INSERT INTO `%s` (`branch_date`, `account_id`, `char_id`, `char_name`, `map`) VALUES (NOW(), '%d', '%d', '%s', '%s')",
 			log_config.log_branch_db, sd->status.account_id, sd->status.char_id, jstrescapecpy(t_name, sd->status.name), mapindex_id2name(sd->mapindex));
 		return log_async_query(tmp_sql);
 	}
@@ -89,10 +89,10 @@ int log_pick_pc(struct map_session_data *sd, const char *type, int nameid, int a
 	if(log_config.sql_logs > 0)
 	{
 		if (itm==NULL) {
-			sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%s')",
+			sprintf(tmp_sql, "INSERT INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%s')",
 			 log_config.log_pick_db, sd->status.char_id, type, nameid, amount, mapname);
 		} else {
-			sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `refine`, `card0`, `card1`, `card2`, `card3`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s')",
+			sprintf(tmp_sql, "INSERT INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `refine`, `card0`, `card1`, `card2`, `card3`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s')",
 			 log_config.log_pick_db, sd->status.char_id, type, itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname);
 		}
 
@@ -117,10 +117,10 @@ int log_pick_mob(struct mob_data *md, const char *type, int nameid, int amount, 
 	if(log_config.sql_logs > 0)
 	{
 		if (itm==NULL) {
-			sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%s')",
+			sprintf(tmp_sql, "INSERT INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%s')",
 			 log_config.log_pick_db, md->class_, type, nameid, amount, mapname);
 		} else {
-			sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `refine`, `card0`, `card1`, `card2`, `card3`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s')",
+			sprintf(tmp_sql, "INSERT INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `refine`, `card0`, `card1`, `card2`, `card3`, `map`) VALUES (NOW(), '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s')",
 			 log_config.log_pick_db, md->class_, type, itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname);
 		}
 
@@ -137,7 +137,7 @@ int log_zeny(struct map_session_data *sd, char *type, struct map_session_data *s
 	nullpo_retr(0, sd);
 	if(log_config.sql_logs > 0)
 	{
-		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `src_id`, `type`, `amount`, `map`) VALUES (NOW(), '%d', '%d', '%s', '%d', '%s')",
+		sprintf(tmp_sql, "INSERT INTO `%s` (`time`, `char_id`, `src_id`, `type`, `amount`, `map`) VALUES (NOW(), '%d', '%d', '%s', '%d', '%s')",
 			 log_config.log_zeny_db, sd->status.char_id, src_sd->status.char_id, type, amount, mapindex_id2name(sd->mapindex));
 		return log_async_query(tmp_sql);
 	}
@@ -151,7 +151,7 @@ int log_mvpdrop(struct map_session_data *sd, int monster_id, int *log_mvp)
 	nullpo_retr(0, sd);
 	if(log_config.sql_logs > 0)
 	{
-		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`mvp_date`, `kill_char_id`, `monster_id`, `prize`, `mvpexp`, `map`) VALUES (NOW(), '%d', '%d', '%d', '%d', '%s') ", log_config.log_mvpdrop_db, sd->status.char_id, monster_id, log_mvp[0], log_mvp[1], mapindex_id2name(sd->mapindex));
+		sprintf(tmp_sql, "INSERT INTO `%s` (`mvp_date`, `kill_char_id`, `monster_id`, `prize`, `mvpexp`, `map`) VALUES (NOW(), '%d', '%d', '%d', '%d', '%s') ", log_config.log_mvpdrop_db, sd->status.char_id, monster_id, log_mvp[0], log_mvp[1], mapindex_id2name(sd->mapindex));
 		return log_async_query(tmp_sql);
 	}
 	return 0;
@@ -174,7 +174,7 @@ int log_atcommand(struct map_session_data *sd, const char *message)
 					sd->status.name, sd->status.account_id, sd->status.char_id);
 			return 0;
 		}
-		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`atcommand_date`, `account_id`, `char_id`, `char_name`, `map`, `command`) VALUES(NOW(), '%d', '%d', '%s', '%s', '%s') ",
+		sprintf(tmp_sql, "INSERT INTO `%s` (`atcommand_date`, `account_id`, `char_id`, `char_name`, `map`, `command`) VALUES(NOW(), '%d', '%d', '%s', '%s', '%s') ",
 			log_config.log_gm_db, sd->status.account_id, sd->status.char_id, jstrescapecpy(t_name, sd->status.name), mapindex_id2name(sd->mapindex), jstrescapecpy(t_msg, (char *)message));
 		return log_async_query(tmp_sql);
 	}
@@ -191,7 +191,7 @@ int log_npc(struct map_session_data *sd, const char *message)
 	nullpo_retr(0, sd);
 	if(log_config.sql_logs > 0)
 	{
-		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`npc_date`, `account_id`, `char_id`, `char_name`, `map`, `mes`) VALUES(NOW(), '%d', '%d', '%s', '%s', '%s') ",
+		sprintf(tmp_sql, "INSERT INTO `%s` (`npc_date`, `account_id`, `char_id`, `char_name`, `map`, `mes`) VALUES(NOW(), '%d', '%d', '%s', '%s', '%s') ",
 			log_config.log_npc_db, sd->status.account_id, sd->status.char_id, jstrescapecpy(t_name, sd->status.name), mapindex_id2name(sd->mapindex), jstrescapecpy(t_msg, (char *)message));
 		return log_async_query(tmp_sql);
 	}
@@ -214,7 +214,7 @@ int log_chat(const char* type, int type_id, int src_charid, int src_accid, const
 					type_id, src_accid, src_charid);
 			return 0;
 		}
-		sprintf(tmp_sql, "INSERT DELAYED INTO `%s` (`time`, `type`, `type_id`, `src_charid`, `src_accountid`, `src_map`, `src_map_x`, `src_map_y`, `dst_charname`, `message`) VALUES (NOW(), '%s', '%d', '%d', '%d', '%s', '%d', '%d', '%s', '%s')",
+		sprintf(tmp_sql, "INSERT INTO `%s` (`time`, `type`, `type_id`, `src_charid`, `src_accountid`, `src_map`, `src_map_x`, `src_map_y`, `dst_charname`, `message`) VALUES (NOW(), '%s', '%d', '%d', '%d', '%s', '%d', '%d', '%s', '%s')",
 			log_config.log_chat_db, type, type_id, src_charid, src_accid, map, x, y, jstrescapecpy(t_charname, dst_charname), jstrescapecpy(t_msg, message));
 
 		return log_async_query(tmp_sql);
