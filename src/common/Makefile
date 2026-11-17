@@ -10,10 +10,14 @@ common: obj/core.o obj/socket.o obj/timer.o obj/db.o obj/plugins.o obj/lock.o \
 	obj/mapindex.o obj/ers.o obj/md5calc.o obj/random.o obj/send_worker.o
 
 
-obj/%.o: %.c
+# [build] Rebuild on ANY header change (see src/map/Makefile): a struct change in socket.h/mmo.h must
+# not leave objects compiled against the old layout.
+COMMON_ALL_H = $(wildcard *.h)
+
+obj/%.o: %.c $(COMMON_ALL_H)
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-obj/mini%.o: %.c
+obj/mini%.o: %.c $(COMMON_ALL_H)
 	$(COMPILE.c) -DMINICORE $(OUTPUT_OPTION) $<
 
 

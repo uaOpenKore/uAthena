@@ -24,7 +24,13 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 map-server_sql: $(OBJECTS:obj/%=sqlobj/%)
 	$(CC) -o ../../$@ $> $(LIB_S)
 
-sqlobj/%.o: %.c
+# [build] Every object depends on ALL map + common headers. The hand-kept dep lines at the bottom are
+# incomplete (unit.o, storage.o, mercenary.o use map_session_data but do not list map.h), so after a
+# struct change in a header those objects kept the OLD layout -> one binary with two layouts = silent
+# memory corruption. Rebuilding everything on any header change is cheap and always correct.
+MAP_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h)
+
+sqlobj/%.o: %.c $(MAP_ALL_H)
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 clean:
