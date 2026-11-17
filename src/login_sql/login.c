@@ -329,7 +329,7 @@ int mmo_auth_sqldb_init(void)
 
 	if (login_config.log_login)
 	{
-		sprintf(tmpsql, "INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '0', 'lserver','100','login server started')", loginlog_db);
+		sprintf(tmpsql, "INSERT INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '0', 'lserver','100','login server started')", loginlog_db);
 
 		//query
 		if (mysql_query(&mysql_handle, tmpsql)) {
@@ -354,7 +354,7 @@ void mmo_db_close(void)
 	//set log.
 	if (login_config.log_login)
 	{
-		sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '0', 'lserver','100', 'login server shutdown')", loginlog_db);
+		sprintf(tmpsql,"INSERT INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '0', 'lserver','100', 'login server shutdown')", loginlog_db);
 
 		//query
 		if (mysql_query(&mysql_handle, tmpsql)) {
@@ -776,7 +776,7 @@ int parse_fromchar(int fd)
 		case 0x2709: // request from map-server via char-server to reload GM accounts
 			if (login_config.log_login)
 			{
-				sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`log`) VALUES (NOW(), '%u', '%s', 'GM reload request')", loginlog_db, ipl, server[id].name);
+				sprintf(tmpsql,"INSERT INTO `%s`(`time`,`ip`,`user`,`log`) VALUES (NOW(), '%u', '%s', 'GM reload request')", loginlog_db, ipl, server[id].name);
 				if (mysql_query(&mysql_handle, tmpsql)) {
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
@@ -1316,7 +1316,7 @@ int login_ip_ban_check(uint32 ip)
 
 	if (login_config.log_login)
 	{
-		sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', 'unknown','-3', 'ip banned')", loginlog_db, ip);
+		sprintf(tmpsql,"INSERT INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', 'unknown','-3', 'ip banned')", loginlog_db, ip);
 		// query
 		if(mysql_query(&mysql_handle, tmpsql)) {
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -1410,7 +1410,7 @@ int parse_login(int fd)
 					WFIFOSET(fd,3);
 				} else {
 					if (login_config.log_login) {
-						sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', '%s','100', 'login ok')", loginlog_db, ipl, t_uid);
+						sprintf(tmpsql,"INSERT INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', '%s','100', 'login ok')", loginlog_db, ipl, t_uid);
 						//query
 						if(mysql_query(&mysql_handle, tmpsql)) {
 							ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -1494,7 +1494,7 @@ int parse_login(int fd)
 					default : error = "Unknown Error."; break;
 					}
 
-					sprintf(tmpsql, "INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', '%s', '%d','login failed : %s')", loginlog_db, ipl, t_uid, result, error);
+					sprintf(tmpsql, "INSERT INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', '%s', '%d','login failed : %s')", loginlog_db, ipl, t_uid, result, error);
 
 					//query
 					if(mysql_query(&mysql_handle, tmpsql)) {
@@ -1615,7 +1615,7 @@ int parse_login(int fd)
 			{
 				char t_login[50];
 				jstrescapecpy(t_login,account.userid);
-				sprintf(tmpsql,"INSERT DELAYED INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', '%s@%s','100', 'charserver - %s@%u.%u.%u.%u:%d')",
+				sprintf(tmpsql,"INSERT INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%u', '%s@%s','100', 'charserver - %s@%u.%u.%u.%u:%d')",
 					loginlog_db, ipl, t_login, t_uid, t_uid, CONVIP(server_ip), server_port);
 
 				//query
