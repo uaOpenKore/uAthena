@@ -996,6 +996,7 @@ struct mob_data {
 		unsigned steal_coin_flag : 1;
 		unsigned soul_change_flag : 1; // Celest
 		unsigned alchemist: 1;
+		unsigned elemark : 1; // [elemark] carries an element mark (battle.c, elemark.h); spawn clears it
 		unsigned char attacked_count; //For rude attacked.
 		int provoke_flag; // Celest
 	} state;

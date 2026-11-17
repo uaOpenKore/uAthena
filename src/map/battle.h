@@ -12,6 +12,7 @@ struct Damage {
 	int blewcount;
 	int flag;
 	int dmg_lv;	//ATK_LUCKY,ATK_FLEE,ATK_DEF
+	int ele_weak;	// [elemark] the hit's main element passed below 100% (marks the monster, see elemark.h)
 };
 
 // \ipc.cAbattle_attr_fixgpj
@@ -447,6 +448,9 @@ extern struct Battle_Config {
 	int refine_over_chance_min;     // success % floor at high levels
 	int refine_over_bonus_percent;  // ATK/DEF per extra level above +10, as % of the canon per-level bonus
 	int refine_over_fail;           // fail above +10: 0 = destroy (classic), 1 = drop one level, 2 = keep
+	// --- element mark [elemark] ---
+	unsigned short element_mark;    // a player's weak-element hit marks a monster; the next hit's element bonus doubles
+	int element_mark_emotion;       // emotion shown over a monster when it gets marked (-1 = none)
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]
