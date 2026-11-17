@@ -22,6 +22,7 @@
 
 #define ASYNC_READ_MAX_QUEUE 65536 // hard cap on requests in flight: drop beyond this
 
+#ifndef TXT_ONLY // real engine needs <mysql.h>; the no-MySQL build gets no-op stubs (see #else at EOF), as async_db.c
 #ifndef ASYNC_READ_TEST
 #include "../common/showmsg.h"
 #include <mysql.h>
@@ -454,3 +455,13 @@ void async_read__run_worker_once(AsyncRead* h)
 	if (node) { node->next = NULL; arr_process(h, node); }
 }
 #endif
+#else // TXT_ONLY -- no-MySQL build: async SQL reader is a no-op stub (no <mysql.h>, no worker thread).
+// Without this the TXT map-server failed to link (undefined mysql_* from this file).
+AsyncRead* async_read_create(const char* name, const char* ip, const char* user,
+                             const char* pw, const char* db, int port,
+                             const char* codepage) { return (AsyncRead*)0; }
+int async_read_submit(AsyncRead* h, const char* sql, async_read_cb cb, void* ctx) { return 0; }
+int async_read_poll(AsyncRead* h) { return 0; }
+unsigned int async_read_pending(AsyncRead* h) { return 0; }
+void async_read_destroy(AsyncRead* h) { }
+#endif // TXT_ONLY
