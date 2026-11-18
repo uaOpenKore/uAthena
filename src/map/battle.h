@@ -32,6 +32,12 @@ void battle_drain(struct map_session_data *sd, struct block_list *tbl, int rdama
 
 int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv);
 
+// [streak] «Натиск»: a weapon skill the player uses opens a window around its resolution (skill.c). spend=1 when
+// the skill is used (it spends the streak), 0 for its delayed hits. Returns 1 when a window was opened.
+int battle_streak_cast_begin(struct block_list *src, int skill, int spend);
+void battle_streak_cast_end(struct block_list *src, int opened);
+void battle_streak_reset(struct map_session_data *sd); // weapon/ammo change, death, teleport (pc.c)
+
 // _[WIvZ
 int battle_weapon_mastery(struct map_session_data *sd, int weapon);	// [perf 6] weapon-type mastery bonus (cached in status_calc_pc)
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
@@ -451,6 +457,10 @@ extern struct Battle_Config {
 	// --- element mark [elemark] ---
 	unsigned short element_mark;    // a player's weak-element hit marks a monster; the next hit's element damage doubles
 	int element_mark_emotion;       // emotion shown over a monster when it gets marked (-1 = none)
+	// --- «Натиск» weapon streak [streak] ---
+	unsigned short weapon_streak;   // landed weapon hits on the same monster raise the base attack step by step
+	int weapon_streak_step;         // base attack added per step, %
+	int weapon_streak_max;          // cap of the base attack rate, % (0 = no cap)
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]

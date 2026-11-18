@@ -3824,6 +3824,7 @@ int pc_setpos(struct map_session_data *sd,unsigned short mapindex,int x,int y,in
 	int m;
 
 	nullpo_retr(0, sd);
+	battle_streak_reset(sd); // [streak] teleport or map change resets «Натиск»
 
 	if (!mapindex || !mapindex_id2name(mapindex)) {
 		ShowDebug("pc_setpos: Passed mapindex(%d) is invalid!\n", mapindex);
@@ -5394,6 +5395,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	int i=0,j=0;
 	unsigned int tick = gettick();
 		
+	battle_streak_reset(sd); // [streak] death resets «Натиск»
 	if(sd->vender_id)
 		vending_closevending(sd);
 	if(sd->state.buyingstore) // [Backport] close buying store on map change
@@ -6785,6 +6787,14 @@ int pc_cleareventtimer(struct map_session_data *sd)
 	return 0;
 }
 
+// [streak] Changing the weapon (either hand) or the ammo resets «Натиск»; shields, armor and accessories don't.
+static void pc_streak_equipchange(struct map_session_data *sd, int n, int pos)
+{
+	if (pos&(EQP_HAND_R|EQP_AMMO) ||
+		(pos&EQP_HAND_L && sd->inventory_data[n] && sd->inventory_data[n]->type == IT_WEAPON))
+		battle_streak_reset(sd);
+}
+
 //
 // ?
 //
@@ -6836,6 +6846,8 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 		else
 			flag = id->range != sd->inventory_data[i]->range;
 	}
+
+	pc_streak_equipchange(sd, n, pos); // [streak]
 
 	for(i=0;i<EQI_MAX;i++) {
 		if(pos & equip_pos[i]) {
@@ -6966,6 +6978,7 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		clif_unequipitemack(sd,n,0,0);
 		return 0;
 	}
+	pc_streak_equipchange(sd, n, sd->status.inventory[n].equip); // [streak]
 	for(i=0;i<EQI_MAX;i++) {
 		if(sd->status.inventory[n].equip & equip_pos[i])
 			sd->equip_index[i] = -1;

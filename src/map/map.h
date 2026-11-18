@@ -16,6 +16,7 @@
 
 #include "itemdb.h" // MAX_ITEMGROUP
 #include "status.h" // SC_MAX
+#include "streak.h" // struct streak_state
 
 #include <stdarg.h>
 
@@ -879,6 +880,7 @@ struct map_session_data {
 
 	char away_message[128]; // [LuzZza]
 
+	struct streak_state streak; // [streak] «Натиск» weapon streak (battle.c, streak.h); runtime only, never saved
 };
 
 struct duel_data {
