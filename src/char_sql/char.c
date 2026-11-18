@@ -3579,6 +3579,9 @@ int parse_char(int fd)
 		{
 			struct online_char_data* data = idb_get(online_char_db, sd->account_id);
 			if (sd->auth_wait_tid != INVALID_TIMER) { // [auth-queue] a held login gave up
+				// [DCMETRIC] its connection closed (the client gave up waiting) before the login went through
+				ShowInfo("[DCMETRIC] charsel_wait_abandoned: aid=%d connection closed after %u ms of waiting (map-server %d) -> login abandoned\n",
+					sd->account_id, (unsigned int)DIFF_TICK(gettick(), sd->auth_wait_tick), data ? data->server : -1);
 				delete_timer(sd->auth_wait_tid, char_auth_wait_timer);
 				sd->auth_wait_tid = INVALID_TIMER;
 			}
