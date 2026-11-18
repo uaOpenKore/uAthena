@@ -4162,12 +4162,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case TK_MISSION:
 		if (sd) {
 			int id;
-			if (sd->mission_mobid && (sd->mission_count || rnd()%100)) { //Cannot change target when already have one
+			// [tkmission] a target that spawns nowhere (a backported renewal monster) can never be finished: such a
+			// mission is replaced right away instead of locking the player in (S. 2026-11-18)
+			if (sd->mission_mobid && mob_is_spawned(sd->mission_mobid) &&
+				(sd->mission_count || rnd()%100)) { //Cannot change target when already have one
 				clif_mission_info(sd, sd->mission_mobid, sd->mission_count);
 				clif_skill_fail(sd,skillid,0,0);
 				break;
 			}
-			id = mob_get_random_id(0,0xC, sd->status.base_level);
+			id = mob_get_random_id(0,0x1C, sd->status.base_level); // [tkmission] 0x10: spawns somewhere
 			if (!id) {
 				clif_skill_fail(sd,skillid,0,0);
 				break;
