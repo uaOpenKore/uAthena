@@ -391,6 +391,7 @@ void clif_feel_info(struct map_session_data *sd, unsigned char feel_level, unsig
 void clif_hate_info(struct map_session_data *sd, unsigned char hate_level,int class_, unsigned char type);
 void clif_mission_info(struct map_session_data *sd, int mob_id, unsigned char progress);
 void clif_feel_hate_reset(struct map_session_data *sd);
+void clif_padmetric_log(struct map_session_data *sd); // [padmetric] per-session padding summary (map_quit)
 
 // [blackhole89]
 int clif_spawnhomun(struct homun_data *hd);
