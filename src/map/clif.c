@@ -8577,10 +8577,98 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
+ * [padmetric] Bot fingerprint experiment (S. 2026-11-18, idea by Vitaly MN): a client packet has bytes no field
+ * uses. The original client fills them with whatever it has; OpenKore-style bots send zeros or constants (and so
+ * does BornRok, whose protocol was written from the OpenKore notes). Per session and per packet kind: count,
+ * all-zero count, how many differ from the first one, first/last pattern. Logged as [PADMETRIC] on the first walk
+ * and as a summary on logout (clif_padmetric_log). `sizes` = byte size of each field in packet_db pos[] order.
+ *------------------------------------------*/
+enum { PADM_WALK, PADM_ACT, PADM_SKILL, PADM_TICK };
+static const char* padm_kind[] = { "walk", "act", "skill", "tick" };
+
+static void clif_padhex(const unsigned char *b, int n, char *out)
+{
+	int i;
+	for (i = 0; i < n; i++)
+		sprintf(out + i*2, "%02x", b[i]);
+	out[n*2] = '\0';
+	if (n == 0)
+		strcpy(out, "-");
+}
+
+static void clif_padmetric(int fd, struct map_session_data *sd, int kind, const int *sizes, int nfields)
+{
+	int cmd = RFIFOW(fd,0), len, i, j, n = 0, zero = 1;
+	unsigned char used[64], pad[24];
+	char hex[64];
+
+	if (!battle_config.pad_metric || sd->packet_ver < 0 || sd->packet_ver > MAX_PACKET_VER)
+		return;
+	len = packet_db[sd->packet_ver][cmd].len;
+	if (len <= 2 || len > (int)sizeof(used))
+		return; // variable or unexpected length: nothing to fingerprint
+	memset(used, 0, sizeof(used));
+	for (i = 0; i < nfields; i++)
+		for (j = 0; j < sizes[i]; j++) {
+			int o = packet_db[sd->packet_ver][cmd].pos[i] + j;
+			if (o >= 2 && o < len)
+				used[o] = 1;
+		}
+	for (i = 2; i < len && n < (int)sizeof(pad); i++)
+		if (!used[i]) {
+			pad[n] = RFIFOB(fd,i);
+			if (pad[n])
+				zero = 0;
+			n++;
+		}
+	if (sd->padmetric[kind].total == 0) {
+		memcpy(sd->padmetric[kind].first, pad, n);
+		sd->padmetric[kind].len = (unsigned char)n;
+		if (kind == PADM_WALK) {
+			clif_padhex(pad, n, hex);
+			ShowInfo("[PADMETRIC] first_walk aid=%d cid=%d name='%s' ip=%s ver=%d cmd=0x%04x pad=%s\n",
+				sd->status.account_id, sd->status.char_id, sd->status.name,
+				ip2str(session[fd]->client_addr, NULL), sd->packet_ver, cmd, hex);
+		}
+	} else if (n != sd->padmetric[kind].len || memcmp(pad, sd->padmetric[kind].first, n) != 0)
+		sd->padmetric[kind].changed++;
+	memcpy(sd->padmetric[kind].last, pad, n);
+	sd->padmetric[kind].total++;
+	if (zero)
+		sd->padmetric[kind].zero++;
+}
+
+// [padmetric] One summary line per session (map_quit): per kind total/all-zero/changed and the first/last pattern.
+void clif_padmetric_log(struct map_session_data *sd)
+{
+	char line[512], first[64], last[64];
+	int k, off;
+
+	if (!battle_config.pad_metric || sd == NULL)
+		return;
+	off = sprintf(line, "[PADMETRIC] logout aid=%d cid=%d name='%s' ver=%d", sd->status.account_id,
+		sd->status.char_id, sd->status.name, sd->packet_ver);
+	for (k = 0; k < 4; k++) {
+		if (!sd->padmetric[k].total)
+			continue;
+		clif_padhex(sd->padmetric[k].first, sd->padmetric[k].len, first);
+		clif_padhex(sd->padmetric[k].last, sd->padmetric[k].len, last);
+		off += snprintf(line + off, sizeof(line) - off, " %s=%u/z%u/c%u first=%s last=%s", padm_kind[k],
+			sd->padmetric[k].total, sd->padmetric[k].zero, sd->padmetric[k].changed, first, last);
+		if (off >= (int)sizeof(line))
+			break;
+	}
+	ShowInfo("%s\n", line);
+}
+
+/*==========================================
  *
  *------------------------------------------*/
 void clif_parse_TickSend(int fd, struct map_session_data *sd)
 {
+	static const int padm_sizes[] = { 4 }; // client tick
+	clif_padmetric(fd, sd, PADM_TICK, padm_sizes, 1);
+
 	sd->client_tick = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]);
 
 	WFIFOHEAD(fd, packet_len(0x7f));
@@ -8629,7 +8717,9 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd)
 {
 	int x, y;
 	int cmd;
+	static const int padm_sizes[] = { 3 }; // packed x,y
 
+	clif_padmetric(fd, sd, PADM_WALK, padm_sizes, 1); // [padmetric] every walk request, even refused ones
 	if (pc_isdead(sd)) {
 		clif_clearunit_area(&sd->bl, 1);
 		return;
@@ -9121,6 +9211,8 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
  *------------------------------------------*/
 void clif_parse_ActionRequest(int fd, struct map_session_data *sd)
 {
+	static const int padm_sizes[] = { 4, 1 }; // target id, action type
+	clif_padmetric(fd, sd, PADM_ACT, padm_sizes, 2); // [padmetric]
 	clif_parse_ActionRequest_sub(sd,
 		RFIFOB(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]),
 		RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]),
@@ -9893,7 +9985,9 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 {
 	int skillnum, skilllv, tmp, target_id;
 	unsigned int tick = gettick();
+	static const int padm_sizes[] = { 2, 2, 4 }; // skill level, skill id, target id
 
+	clif_padmetric(fd, sd, PADM_SKILL, padm_sizes, 3); // [padmetric]
 	skilllv = RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]);
 	if (skilllv < 1) skilllv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 	skillnum = RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);

@@ -1769,6 +1769,8 @@ void map_deliddb(struct block_list *bl)
  *------------------------------------------*/
 int map_quit(struct map_session_data *sd)
 {
+	if (sd->state.auth)
+		clif_padmetric_log(sd); // [padmetric] bot fingerprint experiment: one summary line per session
 	if(!sd->state.auth) { //Removing a player that hasn't even finished loading
 		TBL_PC *sd2 = map_id2sd(sd->status.account_id);
 		// [auth-queue] (ТЗ п.1) Its auth_db node must not outlive it: the fd number and this sd block are

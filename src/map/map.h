@@ -881,6 +881,13 @@ struct map_session_data {
 	char away_message[128]; // [LuzZza]
 
 	struct streak_state streak; // [streak] «Натиск» weapon streak (battle.c, streak.h); runtime only, never saved
+
+	// [padmetric] the unused ("padding") bytes of walk / attack / skill / tick packets this session sent (clif.c)
+	struct {
+		unsigned int total, zero, changed; // packets, all-zero padding, padding different from the first packet
+		unsigned char first[24], last[24]; // padding of the first and of the latest packet
+		unsigned char len;                 // padding length (bytes)
+	} padmetric[4];
 };
 
 struct duel_data {

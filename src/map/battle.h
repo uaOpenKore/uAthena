@@ -461,6 +461,7 @@ extern struct Battle_Config {
 	unsigned short weapon_streak;   // landed weapon hits on the same monster raise the base attack step by step
 	int weapon_streak_step;         // base attack added per step, %
 	int weapon_streak_max;          // cap of the base attack rate, % (0 = no cap)
+	unsigned short pad_metric;      // [padmetric] log the padding bytes of walk/attack/skill/tick packets (bot fingerprint)
 	unsigned short cell_stack_limit; // [Skotlex]
 	unsigned short skill_caster_check; // [Skotlex]
 	unsigned short sc_castcancel; // [Skotlex]
