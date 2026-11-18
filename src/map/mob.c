@@ -248,8 +248,25 @@ struct mob_data* mob_spawn_dataset(struct spawn_data *data)
  * &2: Apply a monster check level.
  * &4: Selected monster should not be a boss type
  * &8: Selected monster must give base exp.
+ * &16: Selected monster must spawn somewhere (a spawn line in a loaded script) [tkmission]
  * lv: Mob level to check against
  *------------------------------------------*/
+// [tkmission] The db holds ~1200 backported renewal monsters with no spawn anywhere (mob_db2.txt); a Taekwon
+// Mission on one of them can never be finished (S. 2026-11-18). npc_parse_mob marks every class a spawn line
+// uses, on any map of the world (also maps another map-server instance hosts), so all instances agree.
+static unsigned char mob_spawned[MAX_MOB_DB];
+
+void mob_set_spawned(int class_)
+{
+	if (class_ > 0 && class_ < MAX_MOB_DB)
+		mob_spawned[class_] = 1;
+}
+
+int mob_is_spawned(int class_)
+{
+	return class_ > 0 && class_ < MAX_MOB_DB && mob_spawned[class_];
+}
+
 int mob_get_random_id(int type, int flag, int lv)
 {
 	struct mob_db *mob;
@@ -270,7 +287,8 @@ int mob_get_random_id(int type, int flag, int lv)
 		(flag&1 && mob->summonper[type] <= rnd() % 1000000) ||
 		(flag&2 && lv < mob->lv) ||
 		(flag&4 && mob->status.mode&MD_BOSS) ||
-		(flag&8 && mob->base_exp < 1)
+		(flag&8 && mob->base_exp < 1) ||
+		(flag&16 && !mob_is_spawned(class_))
 	) && (i++) < MAX_MOB_DB);
 
 	if(i >= MAX_MOB_DB)
@@ -1836,7 +1854,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		if (hp||sp)
 			status_heal(src, hp, sp, battle_config.show_hp_sp_gain?2:0);
 		if (sd->mission_mobid == md->class_) { //TK_MISSION [Skotlex]
-			if (++sd->mission_count >= 100 && (temp = mob_get_random_id(0,0xC, sd->status.base_level)))
+			if (++sd->mission_count >= 100 && (temp = mob_get_random_id(0,0x1C, sd->status.base_level))) // [tkmission] 0x10: spawns somewhere
 			{
 				pc_addfame(sd, 1);
 				sd->mission_mobid = temp;

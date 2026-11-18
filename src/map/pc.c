@@ -995,6 +995,16 @@ int pc_reg_received(struct map_session_data *sd)
 	{	//Better check for class rather than skill to prevent "skill resets" from unsetting this
 		sd->mission_mobid = pc_readglobalreg(sd,"TK_MISSION_ID");
 		sd->mission_count = pc_readglobalreg(sd,"TK_MISSION_COUNT");
+		// [tkmission] a mission on a monster that spawns nowhere (backported renewal monsters, S. 2026-11-18)
+		// could never be finished: drop it, the next Taekwon Mission hands out a huntable target
+		if (sd->mission_mobid && !mob_is_spawned(sd->mission_mobid)) {
+			ShowInfo("pc_reg_received: '%s' (cid %d) had Taekwon Mission on monster %d that spawns nowhere - mission reset.\n",
+				sd->status.name, sd->status.char_id, sd->mission_mobid);
+			sd->mission_mobid = 0;
+			sd->mission_count = 0;
+			pc_setglobalreg(sd,"TK_MISSION_ID", 0);
+			pc_setglobalreg(sd,"TK_MISSION_COUNT", 0);
+		}
 	}
 
 	//SG map and mob read [Komurka]

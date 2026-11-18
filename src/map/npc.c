@@ -2397,6 +2397,9 @@ int npc_parse_mob(char* w1, char* w2, char* w3, char* w4)
 		ShowError("wrong map name : %s %s (file %s)\n", w1,w3, current_file);
 		return 1;
 	}
+	// [tkmission] this monster lives in the world, even when another map-server instance hosts the map
+	if (num > 0 && mobdb_checkid(class_))
+		mob_set_spawned(class_);
 	mode =  map_mapname2mapid(mapname);
 	if (mode < 0) //Not loaded on this map-server instance.
 		return 1;

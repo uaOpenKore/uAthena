@@ -172,6 +172,9 @@ int mob_deleteslave(struct mob_data *md);
 
 int mob_random_class (int *value, size_t count);
 int mob_get_random_id(int type, int flag, int lv);
+// [tkmission] monsters that have a spawn line in a loaded script (on any map-server instance's maps)
+void mob_set_spawned(int class_);
+int mob_is_spawned(int class_);
 int mob_class_change(struct mob_data *md,int class_);
 int mob_warpslave(struct block_list *bl, int range);
 int mob_linksearch(struct block_list *bl,va_list ap);
