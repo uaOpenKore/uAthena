@@ -9,6 +9,7 @@
 #include "../common/strlib.h"
 #include "socket.h"
 #include "send_worker.h"
+#include "stallguard.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,8 +51,9 @@ int fd_max;
 time_t last_tick;
 time_t stall_time = 60;
 
-// [stall-guard] A stall of the main loop this long or longer (normal: <= ~1 s, do_timer waits at most
-// 1000 ms) is the server's own freeze, not client silence -- see do_sendrecv.
+// [stall-guard] A main-loop round in which the server itself did not run this long or longer is its own
+// freeze, not client silence -- see do_sendrecv. Sleeping in the socket wait is not counted (stallguard.h):
+// an idle login-server's round is mostly 4-5 s of sleep.
 #define SOCKET_STALL_GUARD_SEC 3
 
 // [stall-guard] Seconds for last_tick / rdata_tick on a MONOTONIC clock anchored to the wall clock at
@@ -652,10 +654,14 @@ int WFIFOSET(int fd, int len)
 
 int do_sendrecv(int next)
 {
-	static time_t prev_loop = 0;
+	static bool looped = false;                  // [stall-guard] a previous round was measured
+	static unsigned int prev_start;              // gettick_nocache() at the previous round's start
+	static unsigned int prev_waited, prev_asked; // the previous round's socket wait: took / allowed (ms)
+	unsigned int start, gone;
 	int ret, n, i;
 
 	last_tick = socket_clock();
+	start = gettick_nocache();
 
 	// [stall-guard] The server itself did not run for a while (a VM/host pause, a frozen main loop). Packets
 	// the clients sent meanwhile may still be in flight -- after a pause TCP retransmits arrive late -- so the
@@ -663,9 +669,12 @@ int do_sendrecv(int next)
 	// client's idle clock for the stall (minus 1 s per stall, so dead sessions still age even if the loop is
 	// permanently overloaded) and log how long the server was gone. A frozen loop alone is otherwise harmless:
 	// data received during it is read below, before the sweep in do_parsepacket.
-	if( prev_loop && last_tick - prev_loop >= SOCKET_STALL_GUARD_SEC )
+	// Only the time the server was gone counts, not its sleep in the socket wait (stallguard.h): measuring the
+	// whole round flagged an idle login-server ~11 times a minute (live logs 2026-11-18).
+	gone = looped ? stallguard_gone_ms(start - prev_start, prev_waited, prev_asked) : 0;
+	if( gone >= SOCKET_STALL_GUARD_SEC * 1000 )
 	{
-		time_t credit = last_tick - prev_loop - 1;
+		time_t credit = gone / 1000 - 1;
 		int paused = 0;
 		for( i = 1; i < fd_max; i++ )
 		{
@@ -677,20 +686,27 @@ int do_sendrecv(int next)
 				paused++;
 			}
 		}
-		ShowWarning("[DCMETRIC] loop_stall: the main loop did not run for %ld s -> idle clocks of %d client session(s) paused for it\n",
-			(long)(last_tick - prev_loop), paused);
+		ShowWarning("[DCMETRIC] loop_stall: the main loop did not run for %u s -> idle clocks of %d client session(s) paused for it\n",
+			gone / 1000, paused);
 	}
-	prev_loop = last_tick;
+	next = stallguard_wait_ms(next); // [stall-guard] wake at least once a second, so a freeze in the wait shows
+	looped = true;
+	prev_start = start;
+	prev_asked = (unsigned int)next;
 
 	// PRESEND Timers run before do_sendrecv and can queue packets and/or set
 	// sessions to eof. Flush queued data and close eof sessions.
 	send_shortlist_do_sends();
 
 	// Wait for readable sockets (replaces select). next is the ms until the
-	// next timer; epoll_wait takes its timeout directly in milliseconds.
+	// next timer (at most 1 s); epoll_wait takes its timeout directly in milliseconds.
 	// Level-triggered: any ready fd not fully drained this tick is reported
 	// again next time, so a fifo recv that doesn't empty the socket is safe.
-	ret = epoll_wait(epoll_fd, epoll_events, SOCKET_MAX, next);
+	{
+		unsigned int before = gettick_nocache();
+		ret = epoll_wait(epoll_fd, epoll_events, SOCKET_MAX, next);
+		prev_waited = gettick_nocache() - before; // [stall-guard]
+	}
 	if( ret < 0 )
 	{
 		if( s_errno != EINTR )
