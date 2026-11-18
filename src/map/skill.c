@@ -2708,6 +2708,7 @@ static int skill_timerskill (int tid, unsigned int tick, intptr_t id, intptr_t d
 	struct unit_data *ud = unit_bl2ud(src);
 	struct skill_timerskill *skl = NULL;
 	int range;
+	int streak_win; // [streak]
 
 	nullpo_retr(0, src);
 	nullpo_retr(0, ud);
@@ -2767,7 +2768,10 @@ static int skill_timerskill (int tid, unsigned int tick, intptr_t id, intptr_t d
 					}
 					break;
 				default:
+					// [streak] a delayed hit (Palm Strike) gets the streak its skill spent when it was used
+					streak_win = battle_streak_cast_begin(src, skl->skill_id, 0);
 					skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
+					battle_streak_cast_end(src, streak_win);
 					break;
 			}
 		}
@@ -5996,6 +6000,7 @@ int skill_castend_id (int tid, unsigned int tick, intptr_t id, intptr_t data)
 	struct unit_data* ud = unit_bl2ud(src);
 	struct status_change *sc = NULL;
 	int inf,inf2;
+	int streak_win; // [streak]
 
 	nullpo_retr(0, ud);
 
@@ -6138,10 +6143,13 @@ int skill_castend_id (int tid, unsigned int tick, intptr_t id, intptr_t data)
 				src->type, src->id, ud->skillid, ud->skilllv, target->id);
 
 		map_freeblock_lock();
+		// [streak] «Натиск»: a weapon skill the player uses spends the streak; its hits get the spent steps
+		streak_win = battle_streak_cast_begin(src, ud->skillid, 1);
 		if (skill_get_casttype(ud->skillid) == CAST_NODAMAGE)
 			skill_castend_nodamage_id(src,target,ud->skillid,ud->skilllv,tick,0);
 		else
 			skill_castend_damage_id(src,target,ud->skillid,ud->skilllv,tick,0);
+		battle_streak_cast_end(src, streak_win);
 
 		if (sd) skill_onskillusage(sd, target, ud->skillid, tick);
 
@@ -6223,6 +6231,7 @@ int skill_castend_pos (int tid, unsigned int tick, intptr_t id, intptr_t data)
 	struct homun_data *hd = NULL;	//[orn]
 	struct unit_data *ud = unit_bl2ud(src);
 	struct mob_data *md = NULL;
+	int streak_win; // [streak]
 
 	nullpo_retr(0, ud);
 
@@ -6305,7 +6314,9 @@ int skill_castend_pos (int tid, unsigned int tick, intptr_t id, intptr_t data)
 		unit_set_walkdelay(src, tick, battle_config.default_skill_delay+skill_get_walkdelay(ud->skillid, ud->skilllv), 1);
 
 		map_freeblock_lock();
+		streak_win = battle_streak_cast_begin(src, ud->skillid, 1); // [streak] e.g. Arrow Shower spends the streak
 		skill_castend_pos2(src,ud->skillx,ud->skilly,ud->skillid,ud->skilllv,tick,0);
+		battle_streak_cast_end(src, streak_win);
 
 		if (sd) skill_onskillusage(sd, NULL, ud->skillid, tick);
 

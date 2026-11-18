@@ -302,6 +302,76 @@ static void battle_elemark_hit(struct block_list *src, struct block_list *target
 }
 
 /*==========================================
+ * [streak] «Натиск» weapon streak (S. 2026-11-17, rules in streak.h): the streak a hit of player `src` on monster
+ * `target` works with, or NULL. Only player hits on monsters, never on PvP/GvG maps, castle guardians or the
+ * Emperium; only normal attacks and weapon-type skills (magic, misc and magic hybrids like Grand Cross never).
+ *------------------------------------------*/
+static struct streak_state* battle_streak_of(struct block_list *src, struct block_list *target, int skill_num)
+{
+	struct mob_data *md;
+	if (!battle_config.weapon_streak || !src || src->type != BL_PC || !target || target->type != BL_MOB)
+		return NULL;
+	if (skill_num && skill_get_type(skill_num) != BF_WEAPON)
+		return NULL;
+	md = (struct mob_data*)target;
+	if (md->guardian_data || map_flag_vs(target->m))
+		return NULL;
+	return &((struct map_session_data*)src)->streak;
+}
+
+// Streak steps a weapon hit gets. Decided before hit/miss is known, so that a hit on another monster (or on a
+// respawn of the same id) restarts the streak even when it misses.
+static int battle_streak_steps(struct block_list *src, struct block_list *target, int skill_num)
+{
+	struct streak_state *s = battle_streak_of(src, target, skill_num);
+	unsigned int life;
+
+	if (s == NULL)
+		return 0;
+	life = ((struct mob_data*)target)->last_spawntime;
+	if (s->active) // a hit of the weapon skill the player used: the streak that skill spent
+		return streak_spent_steps(s, skill_num, target->id, life);
+	return streak_passive_steps(s, target->id, life);
+}
+
+// After a passive weapon hit (normal attack, Double Attack, Triple Attack, card autocast) is calculated: a landed
+// hit steps the streak up, a miss steps it back. Hits of the weapon skill the player used change nothing here.
+static void battle_streak_hit(struct block_list *src, struct block_list *target, int skill_num, struct Damage *d)
+{
+	struct streak_state *s = battle_streak_of(src, target, skill_num);
+
+	if (s == NULL || s->active)
+		return;
+	streak_passive_done(s, d->dmg_lv == ATK_DEF,
+		streak_max_count(battle_config.weapon_streak_step, battle_config.weapon_streak_max));
+}
+
+int battle_streak_cast_begin(struct block_list *src, int skill, int spend)
+{
+	struct map_session_data *sd;
+
+	if (!battle_config.weapon_streak || !src || src->type != BL_PC || skill_get_type(skill) != BF_WEAPON)
+		return 0;
+	sd = (struct map_session_data*)src;
+	if (spend)
+		streak_spend(&sd->streak, skill);
+	sd->streak.active++;
+	return 1;
+}
+
+void battle_streak_cast_end(struct block_list *src, int opened)
+{
+	if (opened && src && src->type == BL_PC && ((struct map_session_data*)src)->streak.active > 0)
+		((struct map_session_data*)src)->streak.active--;
+}
+
+void battle_streak_reset(struct map_session_data *sd)
+{
+	if (sd)
+		streak_reset(&sd->streak);
+}
+
+/*==========================================
  * _??[W??IvZ
  *------------------------------------------*/
 int battle_calc_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag)
@@ -907,6 +977,7 @@ static struct Damage battle_calc_weapon_attack(
 	short skill=0;
 	short s_ele, s_ele_, t_class;
 	short i, nk;
+	int streak_steps; // [streak] «Натиск» steps this hit gets
 
 	struct map_session_data *sd, *tsd;
 	struct Damage wd;
@@ -963,6 +1034,8 @@ static struct Damage battle_calc_weapon_attack(
 
 	BL_CAST(BL_PC, src, sd);
 	BL_CAST(BL_PC, target, tsd);
+
+	streak_steps = battle_streak_steps(src, target, skill_num); // [streak] decided for hits and misses alike
 
 	if(sd)
 		wd.blewcount += battle_blewcount_bonus(sd, skill_num);
@@ -1340,6 +1413,12 @@ static struct Damage battle_calc_weapon_attack(
 				break;
 			}	//End default case
 		} //End switch(skill_num)
+
+		// [streak] «Натиск» raises the base attack (S.: "прибавка идёт в базовую атаку"); the skill ratio, crit,
+		// cards and element below all build on it. Defense and refine stay apart, so the final numbers grow a bit
+		// slower than the base.
+		if (streak_steps)
+			ATK_RATE(streak_rate(streak_steps, battle_config.weapon_streak_step, battle_config.weapon_streak_max));
 
 		//Skill damage modifiers that stack linearly
 		if(sc && skill_num != PA_SACRIFICE)
@@ -2774,6 +2853,8 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 		break;
 	}
 	battle_elemark_hit(bl, target, &d); // [elemark] before the zero-damage-is-a-miss rule below
+	if (attack_type == BF_WEAPON)
+		battle_streak_hit(bl, target, skill_num, &d); // [streak]
 	if (d.damage + d.damage2 < 1)
 	{	//Miss/Absorbed
 		//Weapon attacks should go through to cause additional effects.
@@ -3010,6 +3091,7 @@ int battle_weapon_attack(struct block_list* src, struct block_list* target, unsi
 
 	wd = battle_calc_weapon_attack(src, target, 0, 0, flag);
 	battle_elemark_hit(src, target, &wd); // [elemark]
+	battle_streak_hit(src, target, 0, &wd); // [streak]
 
 	if (sd && sd->state.arrow_atk) //Consume arrow.
 		battle_consume_ammo(sd, 0, 0);
@@ -3780,6 +3862,7 @@ static const struct battle_data_short {
 	{ "homunculus_friendly_rate",				&battle_config.homunculus_friendly_rate },
 	{ "vending_tax",                       &battle_config.vending_tax },
 	{ "element_mark",                      &battle_config.element_mark },	// [elemark] on/off
+	{ "weapon_streak",                     &battle_config.weapon_streak },	// [streak] «Натиск» on/off
 };
 
 static const struct battle_data_int {
@@ -3842,6 +3925,8 @@ static const struct battle_data_int {
 	{ "refine_over_bonus_percent",         &battle_config.refine_over_bonus_percent },	// [refine99] above-+10 ATK/DEF as % of canon
 	{ "refine_over_fail",                  &battle_config.refine_over_fail },		// [refine99] 0=destroy 1=drop1 2=keep
 	{ "element_mark_emotion",              &battle_config.element_mark_emotion },	// [elemark] emotion id, -1 = none
+	{ "weapon_streak_step",                &battle_config.weapon_streak_step },	// [streak] base attack % per step
+	{ "weapon_streak_max",                 &battle_config.weapon_streak_max },	// [streak] cap %, 0 = none
 };
 
 int battle_set_value(const char* w1, const char* w2)
@@ -4217,6 +4302,10 @@ void battle_set_defaults()
 	// [elemark] element mark on by default (S. asked for it); "!" (e_gasp = 0) over a monster when it gets marked
 	battle_config.element_mark = 1;
 	battle_config.element_mark_emotion = 0;
+	// [streak] «Натиск» on by default (S. asked for it): +25% base attack per step, capped at 700% (S.)
+	battle_config.weapon_streak = 1;
+	battle_config.weapon_streak_step = 25;
+	battle_config.weapon_streak_max = 700;
 	battle_config.recv_parse_shortlist = 1; // [perf] default on = parse only fds with new data
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
 	battle_config.socket_sndbuf_size = 131072; // [perf] SO_SNDBUF bytes per socket (0 = kernel default); pairs with send coalescing
