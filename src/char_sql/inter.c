@@ -810,12 +810,16 @@ int mapif_parse_NameChangeRequest(int fd)
 {
 	int account_id, char_id, type;
 	char* name;
+	char newname[NAME_LENGTH];
 	int i;
 
 	account_id = RFIFOL(fd,2);
 	char_id = RFIFOL(fd,6);
 	type = RFIFOB(fd,10);
-	name = RFIFOP(fd,11);
+	// The 24-byte name is what the player typed and need not end in a NUL. The ack below hands it back to the
+	// map-server, which stores those 24 bytes as the pet's / homunculus' name, so terminate it here.
+	safestrncpy(newname, (char*)RFIFOP(fd,11), NAME_LENGTH);
+	name = newname;
 
 	// Check Authorised letters/symbols in the name
 	if (char_name_option == 1) { // only letters/symbols in char_name_letters are authorised

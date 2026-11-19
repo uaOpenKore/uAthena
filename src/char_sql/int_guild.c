@@ -1304,6 +1304,11 @@ int mapif_parse_CreateGuild(int fd,int account_id,char *name,struct guild_member
 {
 	struct guild *g;
 	int i=0;
+	char gname[NAME_LENGTH];
+	// The 24-byte name comes from the client's packet and need not end in a NUL: everything below (the escaping
+	// into 48-byte buffers above all) reads up to one, so cut it to 23 characters here.
+	safestrncpy(gname, name, NAME_LENGTH);
+	name = gname;
 #ifdef NOISY
 	ShowInfo("Creating Guild (%s)\n", name);
 #endif
@@ -1454,6 +1459,7 @@ int mapif_parse_GuildLeave(int fd,int guild_id,int account_id,int char_id,int fl
 					strncpy(g->expulsion[j].acc,"dummy",NAME_LENGTH);
 					memcpy(g->expulsion[j].name,g->member[i].name,NAME_LENGTH);
 					memcpy(g->expulsion[j].mes,mes,40);
+					g->expulsion[j].mes[39] = '\0'; // the reason is 40 raw bytes from the client
 				}
 
 				mapif_guild_leaved(guild_id,account_id,char_id,flag,g->member[i].name,mes);

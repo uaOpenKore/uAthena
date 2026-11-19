@@ -16,8 +16,10 @@ struct s_pet *pet_pt;
 int inter_pet_tosql(int pet_id, struct s_pet *p) {
 	//`pet` (`pet_id`, `class`,`name`,`account_id`,`char_id`,`level`,`egg_id`,`equip`,`intimate`,`hungry`,`rename_flag`,`incuvate`)
 	char t_name[NAME_LENGTH*2];
+	char name[NAME_LENGTH];
 
-	jstrescapecpy(t_name, p->name);
+	safestrncpy(name, p->name, NAME_LENGTH); // a renamed pet's name can fill all 24 bytes without a NUL
+	jstrescapecpy(t_name, name);
 
 	if(p->hungry < 0)
 		p->hungry = 0;
