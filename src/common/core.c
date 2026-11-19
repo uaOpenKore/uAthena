@@ -223,6 +223,15 @@ static void apply_cpu_affinity(void)
 			fclose(fp);
 		}
 	}
+	{	// trim the value (the conf line keeps its leading space and newline) so the status line stays whole
+		char* s = buf;
+		size_t len;
+		while (*s == ' ' || *s == '\t') ++s;
+		memmove(buf, s, strlen(s) + 1);
+		len = strlen(buf);
+		while (len > 0 && (buf[len - 1] == '\n' || buf[len - 1] == '\r' || buf[len - 1] == ' ' || buf[len - 1] == '\t'))
+			buf[--len] = '\0';
+	}
 	if (!buf[0]) return;  // not configured
 
 	cpu_set_t set;
