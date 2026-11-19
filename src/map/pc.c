@@ -850,10 +850,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 	// Hired Mercenary Soldier [Backport]: requested in pc_reg_received (after state.auth=1) instead —
 	// merc_data_received's map_charid2sd needs state.auth, which isn't set yet here. See pc_reg_received.
 
-	// Questlog [Kevin] [Inkfish]
-	intif_request_questlog(sd);
-	// [Backport] Achievements
-	intif_request_achievements(sd);
+	// Questlog [Kevin] [Inkfish] + [Backport] Achievements: requested in pc_reg_received (after
+	// state.auth=1) instead - see there.
 
 	// [Backport] start rental-item expiry timers (announce remaining time, remove expired)
 	pc_inventory_rentals(sd);
@@ -1062,6 +1060,13 @@ int pc_reg_received(struct map_session_data *sd)
 	// would never reload on relogin (and the dangling mer_id then blocks re-summon).
 	if (sd->status.mer_id > 0)
 		intif_mercenary_request(sd->status.mer_id, sd->status.char_id);
+	// Quest log + achievements, for the same reason as the mercenary: intif_parse_questlog and
+	// intif_parse_achievements find the player with map_charid2sd, which skips sessions without
+	// state.auth. Requested from pc_authok, the replies came back before the login-server's account_reg2
+	// (so before this function) on EVERY login and were dropped: the quest log and the achievements were
+	// empty after each relog, and the next quest/achievement save wrote that empty list over the stored one.
+	intif_request_questlog(sd);
+	intif_request_achievements(sd);
 
 	if (sd->status.party_id > 0 && party_search(sd->status.party_id) == NULL)
 		party_request_info(sd->status.party_id);
