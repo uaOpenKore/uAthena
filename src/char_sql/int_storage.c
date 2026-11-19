@@ -76,12 +76,20 @@ int storage_fromsql(int account_id, struct storage *p){
 	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
 
 	str_p += sprintf(str_p," FROM `%s` WHERE `account_id`='%d' ORDER BY `nameid`", storage_db, account_id);
-	
+
+	// A read that fails returns 0, never an empty storage: the map-server would open it and its save on
+	// close would delete every stored item.
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		return 0;
 	}
 	sql_res = mysql_store_result(&mysql_handle) ;
+	if (sql_res == NULL) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		return 0;
+	}
 
 	if (sql_res) {
 		while((sql_row = mysql_fetch_row(sql_res)) && i<MAX_STORAGE) {	//start to fetch
@@ -155,12 +163,19 @@ int guild_storage_fromsql(int guild_id, struct guild_storage *p){
 	str_p += sprintf(str_p, ", `expire_time`"); // [Backport] rental
 
 	str_p += sprintf(str_p," FROM `%s` WHERE `guild_id`='%d' ORDER BY `nameid`", guild_storage_db, guild_id);
-	
+
+	// As storage_fromsql: a failed read returns 0, never an empty guild storage.
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		return 0;
 	}
 	sql_res = mysql_store_result(&mysql_handle) ;
+	if (sql_res == NULL) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		return 0;
+	}
 
 	if (sql_res) {
 		while((sql_row = mysql_fetch_row(sql_res)) && i < MAX_GUILD_STORAGE) {	//start to fetch
@@ -180,7 +195,7 @@ int guild_storage_fromsql(int guild_id, struct guild_storage *p){
 		mysql_free_result(sql_res);
 	}
 	ShowInfo ("guild storage load complete from DB - id: %d (total: %d)\n", guild_id, p->storage_amount);
-	return 0;
+	return 1;
 }
 
 //---------------------------------------------------------
@@ -232,7 +247,8 @@ int inter_guild_storage_delete(int guild_id)
 int mapif_load_storage(int fd,int account_id){
 	//load from DB
 	WFIFOHEAD(fd, sizeof(struct storage)+8);
-	storage_fromsql(account_id, storage_pt);
+	if (!storage_fromsql(account_id, storage_pt))
+		return 0; // DB error: no reply, the storage just doesn't open
 	WFIFOW(fd,0)=0x3810;
 	WFIFOW(fd,2)=sizeof(struct storage)+8;
 	WFIFOL(fd,4)=account_id;
@@ -272,8 +288,9 @@ int mapif_load_guild_storage(int fd,int account_id,int guild_id)
 	}
 	mysql_free_result(sql_res) ; //resource free
 #endif
+	if(guild_exist==1 && !guild_storage_fromsql(guild_id,guild_storage_pt))
+		guild_exist = 0; // DB error: the "no guild storage" reply, which the map-server ignores (nothing opens)
 	if(guild_exist==1) {
-		guild_storage_fromsql(guild_id,guild_storage_pt);
 		WFIFOW(fd,2)=sizeof(struct guild_storage)+12;
 		WFIFOL(fd,4)=account_id;
 		WFIFOL(fd,8)=guild_id;
@@ -286,7 +303,7 @@ int mapif_load_guild_storage(int fd,int account_id,int guild_id)
 	}
 	WFIFOSET(fd,WFIFOW(fd,2));
 
-	return 0;
+	return guild_exist;
 }
 int mapif_save_guild_storage_ack(int fd,int account_id,int guild_id,int fail)
 {
@@ -349,7 +366,8 @@ int mapif_parse_LoadGuildStorage(int fd)
 			return mapif_guild_storage_busy(fd, account_id, guild_id);
 		idb_put(guild_storage_lock_db, guild_id, (void*)(intptr_t)fd);
 	}
-	mapif_load_guild_storage(fd, account_id, guild_id);
+	if(!mapif_load_guild_storage(fd, account_id, guild_id) && guild_storage_lock && guild_id > 0)
+		idb_remove(guild_storage_lock_db, guild_id); // nothing was opened, so nothing will unlock it
 	return 0;
 }
 

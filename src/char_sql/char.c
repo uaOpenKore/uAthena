@@ -2638,6 +2638,9 @@ int parse_frommap(int fd)
 			if (mysql_query(&mysql_handle, tmp_sql)) {
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				// Drop the request (as when there is no result): left unread it was parsed again and again
+				// and froze the char-server. The map-server's own timer stops waiting for the reply.
+				RFIFOSKIP(fd, 10);
 				break;
 			}
 			sql_res = mysql_store_result(&mysql_handle);
@@ -3221,8 +3224,18 @@ struct achar_ctx {
 	int connect_until_time;
 	uint32 ip;
 	int ok;                 // worker result: 1 = char loaded, 0 = not found / error
+	char err[256];          // worker result: what failed, empty when the character just wasn't found
 	struct mmo_charstatus cs;
 };
+
+// WORKER thread: note a failed query; the whole load then fails. A character sent with a section it could
+// not read left empty would have the stored rows deleted by its next save (skills at once, items at the
+// first change), so no character at all is the better outcome.
+static int achar_fail(MYSQL* conn, struct achar_ctx* r, const char* what)
+{
+	snprintf(r->err, sizeof(r->err), "%s: %s", what, conn ? mysql_error(conn) : "no DB connection");
+	return 0;
+}
 
 // Thread-safe full character load: runs on the WORKER thread with its own
 // connection and LOCAL buffers only. Fills r->cs; writes NO shared game state
@@ -3238,15 +3251,14 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 	int i, j, n, char_id;
 
 	if (conn == NULL)
-		return 0;
+		return achar_fail(conn, r, "connect");
 
 	// 1. resolve char_id from account_id + char_num
 	snprintf(q, sizeof(q), "SELECT `char_id` FROM `%s` WHERE `account_id`='%d' AND `char_num`='%d'",
 		char_db, r->account_id, r->char_num);
-	if (mysql_query(conn, q)) return 0;
-	res = mysql_store_result(conn);
-	row = res ? mysql_fetch_row(res) : NULL;
-	if (!row) { if (res) mysql_free_result(res); return 0; }
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "char_id");
+	row = mysql_fetch_row(res);
+	if (!row) { mysql_free_result(res); return 0; } // no character in that slot
 	char_id = atoi(row[0]);
 	mysql_free_result(res);
 
@@ -3261,9 +3273,7 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 		"`hair_color`,`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
 		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`"
 		" FROM `%s` WHERE `char_id` = '%d'", char_db, char_id);
-	if (mysql_query(conn, q)) return 0;
-	res = mysql_store_result(conn);
-	if (!res) return 0;
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "char");
 	row = mysql_fetch_row(res);
 	if (!row) { mysql_free_result(res); return 0; }
 	cs->char_id = char_id;
@@ -3314,7 +3324,8 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 
 	// 3. memo
 	snprintf(q, sizeof(q), "SELECT `map`,`x`,`y` FROM `%s` WHERE `char_id`='%d' ORDER by `memo_id`", memo_db, char_id);
-	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "memo");
+	{
 		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_MEMOPOINTS; i++) {
 			cs->memo_point[i].map = mapindex_name2id(row[0]);
 			cs->memo_point[i].x = atoi(row[1]);
@@ -3329,7 +3340,8 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 	for (j = 0; j < MAX_SLOTS; j++) p += sprintf(p, ", `card%d`", j);
 	p += sprintf(p, ", `expire_time`");
 	p += sprintf(p, " FROM `%s` WHERE `char_id`='%d'", inventory_db, char_id);
-	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "inventory");
+	{
 		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_INVENTORY; i++) {
 			cs->inventory[i].id = atoi(row[0]);
 			cs->inventory[i].nameid = atoi(row[1]);
@@ -3350,7 +3362,8 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 	for (j = 0; j < MAX_SLOTS; j++) p += sprintf(p, ", `card%d`", j);
 	p += sprintf(p, ", `expire_time`");
 	p += sprintf(p, " FROM `%s` WHERE `char_id`='%d'", cart_db, char_id);
-	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "cart");
+	{
 		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_CART; i++) {
 			cs->cart[i].id = atoi(row[0]);
 			cs->cart[i].nameid = atoi(row[1]);
@@ -3367,7 +3380,8 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 
 	// 6. skills
 	snprintf(q, sizeof(q), "SELECT `id`, `lv` FROM `%s` WHERE `char_id`='%d'", skill_db, char_id);
-	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "skill");
+	{
 		while ((row = mysql_fetch_row(res))) {
 			n = atoi(row[0]);
 			if (n >= 0 && n < MAX_SKILL) { cs->skill[n].id = n; cs->skill[n].lv = atoi(row[1]); }
@@ -3378,7 +3392,8 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 	// 7. friends
 	snprintf(q, sizeof(q), "SELECT f.friend_account, f.friend_id, c.name FROM `%s` f LEFT JOIN `%s` c ON f.friend_account=c.account_id AND f.friend_id=c.char_id WHERE f.char_id='%d'",
 		friend_db, char_db, char_id);
-	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "friends");
+	{
 		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_FRIENDS; i++) {
 			if (row[2]) {
 				cs->friends[i].account_id = atoi(row[0]);
@@ -3392,7 +3407,8 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 #ifdef HOTKEY_SAVING
 	// 8. hotkeys
 	snprintf(q, sizeof(q), "SELECT `hotkey`, `type`, `itemskill_id`, `skill_lvl` FROM `%s` WHERE `char_id`='%d'", hotkey_db, char_id);
-	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "hotkey");
+	{
 		while ((row = mysql_fetch_row(res))) {
 			n = atoi(row[0]);
 			if (n < 0 || n >= MAX_HOTKEYS) continue;
@@ -3406,7 +3422,8 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 
 	// 9. hired mercenary owner data
 	snprintf(q, sizeof(q), "SELECT `merc_id`, `arch_calls`, `arch_faith`, `spear_calls`, `spear_faith`, `sword_calls`, `sword_faith` FROM `mercenary_owner` WHERE `char_id` = '%d'", char_id);
-	if (!mysql_query(conn, q) && (res = mysql_store_result(conn))) {
+	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "mercenary_owner");
+	{
 		if ((row = mysql_fetch_row(res))) {
 			cs->mer_id      = atoi(row[0]);
 			cs->arch_calls  = atoi(row[1]);
@@ -3546,6 +3563,8 @@ static void char_load_done(void* ctx)
 
 	if (r->ok)
 		char_load_finish_ok(r);
+	else if (r->err[0])
+		ShowError("char_load_done: account %d slot %d not loaded, the DB read failed (%s).\n", r->account_id, r->char_num, r->err);
 	// else: character not found / load error -> mirror old behaviour (no reply)
 	aFree(r);
 }

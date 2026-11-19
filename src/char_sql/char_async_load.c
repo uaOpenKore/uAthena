@@ -114,9 +114,9 @@ static void acl_process(ACharLane* h, struct acl_node* node)
 
 	// Run the caller's work even if the connection is down: work_fn is expected
 	// to detect a NULL/failed query via its own error path and mark ctx as
-	// failed, so done_fn can fall back gracefully. We still pass the connection
-	// (valid or not) exactly once.
-	h->work_fn(acl_conn(h), node->ctx);
+	// failed, so done_fn can fall back gracefully. A connection that could not be
+	// (re)opened is passed as NULL: the handle is closed and must not be queried.
+	h->work_fn(h->connected ? acl_conn(h) : NULL, node->ctx);
 
 	pthread_mutex_lock(&h->mutex);
 	node->next = NULL;
