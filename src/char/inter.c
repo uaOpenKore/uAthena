@@ -21,6 +21,9 @@
 #include "int_storage.h"
 #include "int_pet.h"
 #include "int_homun.h"
+#include "int_quest.h"
+#include "int_achievement.h"
+#include "int_mercenary.h"
 
 #define WISDATA_TTL (60*1000)	// Existence time of Wisp/page data (60 seconds)
                              	// that is the waiting time of answers of all map-servers
@@ -51,13 +54,13 @@ int inter_send_packet_length[]={
 // recv. packet list
 int inter_recv_packet_length[]={
 	-1,-1, 7,-1, -1,13,36, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3000-0x300f
-	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 0, 0,  0, 0,  0, 0, //0x3010-0x301f
+	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 6, 0,  0, 0,  0, 0, //0x3010-0x301f
 	-1, 6,-1,14, 14,19, 6,-1, 14,14, 0, 0,  0, 0,  0, 0, //0x3020-0x302f
 	-1, 6,-1,-1, 55,19, 6,-1, 14,-1,-1,-1, 14,19,186,-1, //0x3030-0x303f
 	 5, 9, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
 	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
-	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,
+	 6,-1, 6,-1,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3060-0x306f  Quests + Achievements (as char_sql)
+	-1,10, 6,-1,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3070-0x307f  Mercenary Soldier (as char_sql)
 	48,14,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3080-0x308f
 	-1,10,-1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x3090 - 0x309f  Homunculus packets [albator]
 };
@@ -205,6 +208,12 @@ static int inter_config_read(const char *cfgName) {
 #ifndef TXT_SQL_CONVERT
 		} else if (strcmpi(w1, "homun_txt") == 0) {
 			strncpy(homun_txt, w2, sizeof(homun_txt));
+		} else if (strcmpi(w1, "quest_txt") == 0) {
+			strncpy(quest_txt, w2, sizeof(quest_txt));
+		} else if (strcmpi(w1, "achievement_txt") == 0) {
+			strncpy(achievement_txt, w2, sizeof(achievement_txt));
+		} else if (strcmpi(w1, "mercenary_txt") == 0) {
+			strncpy(mercenary_txt, w2, sizeof(mercenary_txt));
 		} else if (strcmpi(w1, "party_share_level") == 0) {
 			party_share_level = (unsigned int)atof(w2);
 		} else if (strcmpi(w1, "inter_log_filename") == 0) {
@@ -250,6 +259,9 @@ int inter_save(void) {
 	inter_guild_storage_save();
 	inter_pet_save();
 	inter_homun_save();
+	inter_quest_save();
+	inter_achievement_save();
+	inter_mercenary_save();
 	inter_accreg_save();
 
 	return 0;
@@ -267,6 +279,9 @@ int inter_init_txt(const char *file) {
 	inter_storage_init();
 	inter_pet_init();
 	inter_homun_init();
+	inter_quest_init();
+	inter_achievement_init();
+	inter_mercenary_init();
 	inter_accreg_init();
 #endif //TXT_SQL_CONVERT
 	return 0;
@@ -282,6 +297,9 @@ void inter_final(void) {
 	inter_storage_final();
 	inter_pet_final();
 	inter_homun_final();
+	inter_quest_final();
+	inter_achievement_final();
+	inter_mercenary_final();
 
 	return;
 }
@@ -706,6 +724,12 @@ int inter_parse_frommap(int fd) {
 		if (inter_pet_parse_frommap(fd))
 			break;
 		if (inter_homun_parse_frommap(fd))
+			break;
+		if (inter_quest_parse_frommap(fd))
+			break;
+		if (inter_achievement_parse_frommap(fd))
+			break;
+		if (inter_mercenary_parse_frommap(fd))
 			break;
 		return 0;
 	}

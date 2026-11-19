@@ -461,6 +461,15 @@ int mapif_parse_SaveGuildStorage(int fd)
 	return 0;
 }
 
+// 0x301a <guild_id>.L -- the map-server releases its cross-map-server lock on a guild storage; it sends
+// this on every guild storage close. The lock (inter_athena.conf guild_storage_lock) only exists on the
+// SQL char-server, where it is off by default and then ignores this packet too: nothing to do here,
+// the packet only has to be consumed (an unknown packet drops the map-server link).
+int mapif_parse_GuildStorageUnlock(int fd)
+{
+	return 0;
+}
+
 // map server M
 // EPpPbg
 // EpPbgf[^inter.cZbg
@@ -474,6 +483,7 @@ int inter_storage_parse_frommap(int fd)
 	case 0x3011: mapif_parse_SaveStorage(fd); break;
 	case 0x3018: mapif_parse_LoadGuildStorage(fd); break;
 	case 0x3019: mapif_parse_SaveGuildStorage(fd); break;
+	case 0x301a: mapif_parse_GuildStorageUnlock(fd); break;
 	default:
 		return 0;
 	}

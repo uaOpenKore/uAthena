@@ -19,6 +19,9 @@
 #include "int_pet.h"
 #include "int_party.h"
 #include "int_storage.h"
+#include "int_quest.h"
+#include "int_achievement.h"
+#include "int_mercenary.h"
 #ifdef ENABLE_SC_SAVING
 #include "int_status.h"
 #endif
@@ -47,6 +50,7 @@
 char char_txt[1024] = "save/athena.txt";
 char friends_txt[1024] = "save/friends.txt";
 char hotkeys_txt[1024] = "save/hotkeys.txt";
+char mercenary_owner_txt[1024] = "save/mercenary_owner.txt";
 char char_log_filename[1024] = "log/char.log";
 
 int save_log = 1;	// show loading/saving messages
@@ -975,6 +979,65 @@ int parse_hotkey_txt(struct mmo_charstatus *p)
 
 
 #ifndef TXT_SQL_CONVERT
+//---------------------------------------------------------------------------------------------------
+// [Backport] Hired mercenary owner data: mer_id + per-guild loyalty/calls (the SQL server's
+// `mercenary_owner` table, loaded and saved with the character). The map-server sends it inside every
+// character save, so it lives in char_dat; it is not part of the athena.txt line (that would change
+// its format), so it has its own file, written with the characters and applied right after they are
+// read. One line per character that has any of it:
+//   <char_id>,<mer_id>,<arch_calls>,<arch_faith>,<spear_calls>,<spear_faith>,<sword_calls>,<sword_faith>
+//---------------------------------------------------------------------------------------------------
+static void mmo_char_mercenary_owner_init(void)
+{
+	char line[1024];
+	int tmp_int[8], i, line_count = 0;
+	FILE *fp;
+
+	if ((fp = fopen(mercenary_owner_txt, "r")) == NULL)
+		return;
+	while (fgets(line, sizeof(line), fp))
+	{
+		line_count++;
+		if ((line[0] == '/' && line[1] == '/') || line[0] == '\n' || line[0] == '\r')
+			continue;
+		if (sscanf(line, "%d,%d,%d,%d,%d,%d,%d,%d", &tmp_int[0], &tmp_int[1], &tmp_int[2], &tmp_int[3],
+			&tmp_int[4], &tmp_int[5], &tmp_int[6], &tmp_int[7]) != 8) {
+			ShowError("mmo_char_init: broken data [%s] line %d\n", mercenary_owner_txt, line_count);
+			continue;
+		}
+		ARR_FIND(0, char_num, i, char_dat[i].status.char_id == tmp_int[0]);
+		if (i == char_num)
+			continue; // no such character (any more): the line is dropped by the next save
+		char_dat[i].status.mer_id = tmp_int[1];
+		char_dat[i].status.arch_calls = tmp_int[2];
+		char_dat[i].status.arch_faith = tmp_int[3];
+		char_dat[i].status.spear_calls = tmp_int[4];
+		char_dat[i].status.spear_faith = tmp_int[5];
+		char_dat[i].status.sword_calls = tmp_int[6];
+		char_dat[i].status.sword_faith = tmp_int[7];
+	}
+	fclose(fp);
+}
+
+static void mmo_char_mercenary_owner_sync(void)
+{
+	struct mmo_charstatus *p;
+	int i, lock;
+	FILE *fp;
+
+	if ((fp = lock_fopen(mercenary_owner_txt, &lock)) == NULL) {
+		ShowWarning("Server cannot save the mercenary owner data [%s].\n", mercenary_owner_txt);
+		return;
+	}
+	for (i = 0; i < char_num; i++) {
+		p = &char_dat[i].status;
+		if (p->mer_id || p->arch_calls || p->arch_faith || p->spear_calls || p->spear_faith || p->sword_calls || p->sword_faith)
+			fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d" RETCODE, p->char_id, p->mer_id, p->arch_calls, p->arch_faith,
+				p->spear_calls, p->spear_faith, p->sword_calls, p->sword_faith);
+	}
+	lock_fclose(fp, mercenary_owner_txt, &lock);
+}
+
 //---------------------------------
 // Function to read characters file
 //---------------------------------
@@ -1068,6 +1131,8 @@ int mmo_char_init(void)
 	}
 	fclose(fp);
 
+	mmo_char_mercenary_owner_init();
+
 	if (char_num == 0) {
 		ShowNotice("mmo_char_init: No character found in %s.\n", char_txt);
 		char_log("mmo_char_init: No character found in %s." RETCODE, char_txt);
@@ -1145,6 +1210,8 @@ void mmo_char_sync(void)
 
 	lock_fclose(f_fp, hotkeys_txt, &lock);
 #endif
+
+	mmo_char_mercenary_owner_sync();
 
 	DELETE_BUFFER(id);
 
@@ -1926,6 +1993,11 @@ static int char_delete(struct mmo_charstatus *cs)
 		inter_pet_delete(cs->pet_id);
 	if (cs->hom_id)
 		inter_homun_delete(cs->hom_id);
+	// [Backport] the character's hired mercenaries (mercenary_owner_delete on SQL; the owner data goes
+	// with the character), its quest log and its achievements
+	inter_mercenary_delete_char(cs->char_id);
+	inter_quest_delete(cs->char_id);
+	inter_achievement_delete(cs->char_id);
 	for (j = 0; j < MAX_INVENTORY; j++)
 		if (cs->inventory[j].card[0] == (short)0xff00)
 			inter_pet_delete(MakeDWord(cs->inventory[j].card[1],cs->inventory[j].card[2]));
@@ -4157,6 +4229,8 @@ int char_config_read(const char *cfgName)
 			strcpy(friends_txt, w2);
 		} else if (strcmpi(w1, "hotkeys_txt") == 0) { //By davidsiaw
 			strcpy(hotkeys_txt, w2);
+		} else if (strcmpi(w1, "mercenary_owner_txt") == 0) {
+			strcpy(mercenary_owner_txt, w2);
 #ifndef TXT_SQL_CONVERT
 		} else if (strcmpi(w1, "max_connect_user") == 0) {
 			max_connect_user = atoi(w2);
