@@ -3643,6 +3643,7 @@ int script_reload()
 
 	if(mapreg_dirty>=0)
 		script_save_mapreg();
+#if !defined(TXT_ONLY) && defined(MAPREGSQL)
 	// script_save_mapreg() only queues the writes for the async writer, which flushes every 20 s. Wait until they
 	// are in the table before it is read back below, else the reload brings back the old values and the globals
 	// changed since the last flush roll back. If they can't be written now, keep the registers in memory.
@@ -3650,6 +3651,12 @@ int script_reload()
 		ShowWarning("script_reload: map registers not written to `%s` in time, keeping the ones in memory.\n", mapregsql_db);
 		reload_mapreg = 0;
 	}
+#else
+	// TXT: the save above wrote save/mapreg.txt synchronously; clear the registers and read the file back.
+	mapreg_db->clear(mapreg_db, NULL);
+	mapregstr_db->clear(mapregstr_db, NULL);
+	mapreg_dirty_db->clear(mapreg_dirty_db, NULL);
+#endif
 
 	userfunc_db->clear(userfunc_db,do_final_userfunc_sub);
 	scriptlabel_db->clear(scriptlabel_db, NULL);
