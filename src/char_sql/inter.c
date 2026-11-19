@@ -162,19 +162,25 @@ int inter_accreg_fromsql(int account_id,int char_id, struct accreg *reg, int typ
 		ShowError("inter_accreg_fromsql: Char server shouldn't handle type 1 registry values (##). That is the login server's work!\n");
 		return 0;
 	}
+	// A read that fails returns 0, never an empty list: the map-server's next save of an empty list would
+	// delete every stored variable of that type.
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		return 0;
 	}
 	sql_res = mysql_store_result(&mysql_handle);
-
-	if (sql_res) {
-		for(j=0;(sql_row = mysql_fetch_row(sql_res));j++){
-			strcpy(reg->reg[j].str, sql_row[0]);
-			strcpy(reg->reg[j].value, sql_row[1]);
-		}
-		mysql_free_result(sql_res);
+	if (sql_res == NULL) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		return 0;
 	}
+
+	for(j=0; j < MAX_REG_NUM && (sql_row = mysql_fetch_row(sql_res)); j++){
+		safestrncpy(reg->reg[j].str, sql_row[0], sizeof(reg->reg[j].str));
+		safestrncpy(reg->reg[j].value, sql_row[1], sizeof(reg->reg[j].value));
+	}
+	mysql_free_result(sql_res);
 	reg->reg_num=j;
 	return 1;
 }
@@ -527,8 +533,11 @@ int mapif_account_reg(int fd,unsigned char *src)
 int mapif_account_reg_reply(int fd,int account_id,int char_id, int type)
 {
 	struct accreg *reg=accreg_pt;
-	WFIFOHEAD(fd, 13 + 5000);
-	inter_accreg_fromsql(account_id,char_id,reg,type);
+	// Room for every variable (at most 13 + 96*288 bytes): the reply used to stop at 5000 bytes, and the
+	// map-server's next save then deleted the variables it never got.
+	WFIFOHEAD(fd, 13 + MAX_REG_NUM*(sizeof(reg->reg[0].str)+sizeof(reg->reg[0].value)));
+	if (!inter_accreg_fromsql(account_id,char_id,reg,type))
+		return 0; // DB error: no reply, so the map-server keeps refusing changes instead of saving over the stored ones
 
 	WFIFOW(fd,0)=0x3804;
 	WFIFOL(fd,4)=account_id;
@@ -538,13 +547,11 @@ int mapif_account_reg_reply(int fd,int account_id,int char_id, int type)
 		WFIFOW(fd,2)=13;
 	}else{
 		int i,p;
-		for (p=13,i = 0; i < reg->reg_num && p < 5000; i++) {
+		for (p=13,i = 0; i < reg->reg_num; i++) {
 			p+= sprintf(WFIFOP(fd,p), "%s", reg->reg[i].str)+1; //We add 1 to consider the '\0' in place.
 			p+= sprintf(WFIFOP(fd,p), "%s", reg->reg[i].value)+1;
 		}
 		WFIFOW(fd,2)=p;
-		if (p>= 5000)
-			ShowWarning("Too many acc regs for %d:%d, not all values were loaded.\n", account_id, char_id);
 	}
 	WFIFOSET(fd,WFIFOW(fd,2));
 	return 0;
