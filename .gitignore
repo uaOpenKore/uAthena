@@ -71,3 +71,6 @@ Makefile.cache
 /tools/adduser
 /tools/convert
 /plugins/
+
+# map cache the map-server builds from the GRF (conf/map_athena.conf map_cache_file)
+db/mapinfo.txt

@@ -11,12 +11,18 @@
 # that fails (build, install, start) leaves that file as it was, so the next run tries again instead of finding
 # the already pulled checkout "up to date". Without the file (the first run) the checked-out commits count.
 #
+# The map-server reads its maps from a map cache (conf/map_athena.conf read_map_from_cache / map_cache_file) that
+# it builds from the GRF's .gat/.rsw on the first start; after that it never looks at those files again. So a
+# deploy whose GRF commits touch .gat/.rsw (or one that can't tell what the server runs) removes the cache, and
+# the map-server rebuilds it on this start.
+#
 # Paths (env, the tests point them elsewhere): UA_SRC_DIR (/root/uAthena), UA_GRF_DIR (/GRF/data),
-# UA_DEPLOYED_FILE (/opt/uathena/bin/.ua-deployed).
+# UA_DEPLOYED_FILE (/opt/uathena/bin/.ua-deployed), UA_MAPCACHE_FILE (/opt/uathena/bin/db/mapinfo.txt).
 
 SRC_DIR="${UA_SRC_DIR:-/root/uAthena}"
 GRF_DIR="${UA_GRF_DIR:-/GRF/data}"
 DEPLOYED="${UA_DEPLOYED_FILE:-/opt/uathena/bin/.ua-deployed}"
+MAPCACHE="${UA_MAPCACHE_FILE:-/opt/uathena/bin/db/mapinfo.txt}"
 
 MODE=deploy
 case "${1:-}" in
@@ -37,6 +43,18 @@ news() {
 	# a deployed commit that already contains the remote one (e.g. a local commit on top) is up to date
 	git -C "$dir" merge-base --is-ancestor "$up" "$have" 2>/dev/null && return 1
 	echo "$name ${have:0:8} -> ${up:0:8}"
+}
+
+# grf_maps_changed: succeed when the checked-out GRF differs from the deployed one in a .gat/.rsw, or when that
+# can't be told (no record, unknown commit) - the map cache may then be stale.
+grf_maps_changed() {
+	local have new files
+	have=$([ -r "$DEPLOYED" ] && awk '$1 == "GRF" { print $2 }' "$DEPLOYED")
+	[ -n "$have" ] || return 0
+	new=$(git -C "$GRF_DIR" rev-parse HEAD 2>/dev/null) || return 0
+	[ "$have" = "$new" ] && return 1
+	files=$(git -C "$GRF_DIR" diff --name-only "$have" "$new" 2>/dev/null) || return 0
+	grep -qiE '\.(gat|rsw)$' <<< "$files"
 }
 
 if [ "$MODE" != "force" ]; then
@@ -90,6 +108,9 @@ cd ..
 #./update_logs.sh
 make install; installed=$?
 make update; updated=$?
+if [ -e "$MAPCACHE" ] && grf_maps_changed; then
+	rm -f "$MAPCACHE" && echo "DEPLOY: map cache $MAPCACHE removed (GRF maps changed or unknown) - the map-server rebuilds it on this start."
+fi
 ./start.sh; started=$?
 if [ "$installed" -ne 0 ] || [ "$updated" -ne 0 ] || [ "$started" -ne 0 ]; then
 	echo "DEPLOY: make install / make update / start.sh failed - not recorded as deployed, the next run tries again."
