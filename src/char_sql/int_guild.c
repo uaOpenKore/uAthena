@@ -1340,12 +1340,15 @@ int mapif_parse_CreateGuild(int fd,int account_id,char *name,struct guild_member
 	memcpy(&g->member[0],master,sizeof(struct guild_member));
 	g->member[0].modified = GS_MEMBER_MODIFIED;
 
-	// Set default positions
+	// Set default positions. Marked modified so the create below writes them: unwritten, they came back from
+	// the DB as mode 0 after a restart and the master could no longer invite or expel.
 	g->position[0].mode=0x11;
 	strcpy(g->position[0].name,"GuildMaster");
 	strcpy(g->position[MAX_GUILDPOSITION-1].name,"Newbie");
 	for(i=1;i<MAX_GUILDPOSITION-1;i++)
 		sprintf(g->position[i].name,"Position %d",i+1);
+	for(i=0;i<MAX_GUILDPOSITION;i++)
+		g->position[i].modified = GS_POSITION_MODIFIED;
 
 	// Initialize guild property
 	g->max_member=16;
@@ -1354,8 +1357,8 @@ int mapif_parse_CreateGuild(int fd,int account_id,char *name,struct guild_member
 		g->skill[i].id=i + GD_SKILLBASE;
 	g->guild_id= -1; //Request to create guild.
 
-	// Create the guild
-	if (!inter_guild_tosql(g,GS_BASIC|GS_POSITION|GS_SKILL)) {
+	// Create the guild (with its master's member row)
+	if (!inter_guild_tosql(g,GS_BASIC|GS_POSITION|GS_SKILL|GS_MEMBER)) {
 		//Failed to Create guild....
 		ShowError("Failed to create Guild %s (Guild Master: %s)\n", g->name, g->master);
 		mapif_guild_created(fd,account_id,NULL);
