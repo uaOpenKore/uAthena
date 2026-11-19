@@ -12,6 +12,7 @@
 #include "../common/db.h"
 #include "../common/lock.h"
 #include "../common/showmsg.h"
+#include "../common/strlib.h"
 #include "char.h"
 #include "inter.h"
 #include "int_storage.h"
@@ -1500,11 +1501,15 @@ int mapif_parse_GuildMasterChange(int fd, int guild_id, const char* name, int le
 	struct guild *g = idb_get(guild_db, guild_id);
 	struct guild_member gm;
 	int pos;
+	char gmname[NAME_LENGTH];
 
 	if(g==NULL || g->guild_id<=0 || len > NAME_LENGTH)
 		return 0;
-	
-	for (pos = 0; pos < g->max_member && strncmp(g->member[pos].name, name, len); pos++);
+
+	// The map sends the name's length without the NUL: compare whole names, a prefix match made "Alex" find
+	// "Alexander" (who became master while `master` read "Alex").
+	safestrncpy(gmname, name, (len < NAME_LENGTH) ? len + 1 : NAME_LENGTH);
+	for (pos = 0; pos < g->max_member && strcmp(g->member[pos].name, gmname); pos++);
 
 	if (pos == g->max_member)
 		return 0; //Character not found??
@@ -1515,9 +1520,7 @@ int mapif_parse_GuildMasterChange(int fd, int guild_id, const char* name, int le
 
 	g->member[pos].position = g->member[0].position;
 	g->member[0].position = 0; //Position 0: guild Master.
-	strncpy(g->master, name, len);
-	if (len < NAME_LENGTH)
-		g->master[len] = '\0';
+	safestrncpy(g->master, gmname, NAME_LENGTH);
 
 	ShowInfo("int_guild: Guildmaster Changed to %s (Guild %d - %s)\n",name, guild_id, g->name);
 	return mapif_guild_master_changed(g, g->member[0].account_id, g->member[0].char_id);
