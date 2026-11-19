@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 static int failures = 0;
 #define CHECK(cond, msg) do { \
@@ -68,6 +69,44 @@ int main(void)
 	CHECK(async_db_test_count() == 2
 	   && strcmp(async_db_test_stmt(0), "T1") == 0
 	   && strcmp(async_db_test_stmt(1), "T2") == 0, "worker preserves FIFO order");
+
+	// 5. async_db_sync: returns once everything queued so far has run, without waiting for the
+	//    15 s flush interval (script_reload reads the table back right after it).
+	h = async_db_create("test", "", "", "", "", 0, "", 15);
+	async_db_test_reset();
+	async_db__start_worker(h);
+	async_db_submit(h, "S1");
+	async_db_submit(h, "S2");
+	{
+		time_t t0 = time(NULL);
+		int synced = async_db_sync(h, 5);
+		CHECK(synced == 1, "sync reports the queue written");
+		CHECK(async_db_test_count() == 2
+		   && strcmp(async_db_test_stmt(0), "S1") == 0
+		   && strcmp(async_db_test_stmt(1), "S2") == 0, "sync returns only after the queued statements ran");
+		CHECK(time(NULL) - t0 <= 2, "sync does not wait for the flush interval");
+	}
+	CHECK(async_db_sync(h, 5) == 1, "sync with nothing queued returns at once");
+
+	// 6. DB unreachable: sync gives up after its timeout and says so; the statement stays queued.
+	async_db_test_fail_servergone(1000000);
+	async_db_submit(h, "S3");
+	{
+		time_t t0 = time(NULL);
+		CHECK(async_db_sync(h, 1) == 0, "sync fails while the DB is unreachable");
+		CHECK(time(NULL) - t0 <= 3, "sync honours its timeout");
+	}
+	async_db_test_fail_servergone(0);
+	async_db_destroy(h);                // the DB is back: destroy drains S3
+	CHECK(async_db_test_count() == 3 && strcmp(async_db_test_stmt(2), "S3") == 0,
+	      "a statement that missed the sync is still written later");
+
+	// 7. No worker thread (failed create path in the tests): sync drains inline.
+	h = async_db_create("test", "", "", "", "", 0, "", 15);
+	async_db_test_reset();
+	async_db__enqueue(h, "N1");
+	CHECK(async_db_sync(h, 1) == 1 && async_db_test_count() == 1, "sync without a worker drains inline");
+	async_db_destroy(h);
 
 	printf(failures ? "\n%d CHECK(S) FAILED\n" : "\nALL CHECKS PASSED\n", failures);
 	return failures ? 1 : 0;
