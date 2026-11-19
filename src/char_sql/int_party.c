@@ -244,7 +244,7 @@ struct party_data *inter_party_fromsql(int party_id)
 		return NULL;
 	}
 	p->party.party_id = party_id;
-	strncpy(p->party.name, sql_row[1], NAME_LENGTH);
+	safestrncpy(p->party.name, sql_row[1], NAME_LENGTH);
 	p->party.exp = atoi(sql_row[2])?1:0;
 	p->party.item = atoi(sql_row[3]);
 	leader_id = atoi(sql_row[4]);
@@ -267,7 +267,7 @@ struct party_data *inter_party_fromsql(int party_id)
 			m->account_id = atoi(sql_row[0]);
 			m->char_id = atoi(sql_row[1]);
 			m->leader = (m->account_id == leader_id && m->char_id == leader_char)?1:0;
-			memcpy(m->name, sql_row[2], NAME_LENGTH);
+			safestrncpy(m->name, sql_row[2], NAME_LENGTH);
 			m->lv = atoi(sql_row[3]);
 			m->map = mapindex_name2id(sql_row[4]);
 			m->online = atoi(sql_row[5])?1:0;
@@ -510,6 +510,11 @@ int mapif_parse_CreateParty(int fd, char *name, int item, int item2, struct part
 {
 	struct party_data *p;
 	int i;
+	char pname[NAME_LENGTH];
+	// The 24-byte name comes from the client's packet and need not end in a NUL: everything below (the escaping
+	// into 48-byte buffers above all) reads up to one, so cut it to 23 characters here.
+	safestrncpy(pname, name, NAME_LENGTH);
+	name = pname;
 	if( (p=search_partyname(name))!=NULL){
 		mapif_party_created(fd,leader->account_id,leader->char_id,NULL);
 		return 0;

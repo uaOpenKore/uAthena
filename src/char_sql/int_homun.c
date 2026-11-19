@@ -92,7 +92,9 @@ int mapif_save_homunculus(int fd, int account_id, struct s_homunculus *hd)
 {
 	int flag =1;
 	char t_name[NAME_LENGTH*2];
-	jstrescapecpy(t_name, hd->name);
+	char name[NAME_LENGTH];
+	safestrncpy(name, hd->name, NAME_LENGTH); // a renamed homunculus' name can fill all 24 bytes without a NUL
+	jstrescapecpy(t_name, name);
 
 	if(hd->hom_id==0) // new homunculus
 	{
