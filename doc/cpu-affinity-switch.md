@@ -115,6 +115,28 @@ taskset -cp $(pgrep -f map-server)
 
 ---
 
+## 6. Map cache (faster start, no .gat files needed afterwards)
+
+The map server reads its maps from a **map cache** (`conf/map_athena.conf`: `read_map_from_cache: 2`,
+`map_cache_file: db/mapinfo.txt`):
+
+* The **first** start reads the `.gat`/`.rsw` map files from the GRF data folder (`conf/grf-files.txt`)
+  and writes `db/mapinfo.txt` (about 1.7 MB for all maps).
+* **Every later start** reads only that file. The server no longer touches the ~1.4 GB of `.gat`/`.rsw`,
+  which is a lot of SD-card reading on the Switch.
+* The cache does **not** notice changed map files: after replacing `.gat`/`.rsw` files, delete
+  `db/mapinfo.txt` and the next start rebuilds it.
+* It does not change the server's memory use (the maps are unpacked in RAM exactly as before).
+
+You should see this at map-server startup:
+
+```
+[Status]: Loading Maps with... [cache] [gat]
+[Info]: Successfully loaded '679' maps.
+```
+
+---
+
 ## Notes
 
 * **Linux only.** On any non-Linux build the setting is ignored (no effect, no error).
