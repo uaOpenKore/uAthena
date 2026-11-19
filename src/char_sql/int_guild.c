@@ -2042,14 +2042,17 @@ int mapif_parse_GuildMasterChange(int fd, int guild_id, const char* name, int le
 	struct guild * g;
 	struct guild_member gm;
 	int pos;
+	char gmname[NAME_LENGTH];
 
 	g = inter_guild_fromsql(guild_id);
-	
+
 	if(g==NULL || len > NAME_LENGTH)
 		return 0;
 
-	// Find member (name)
-	for (pos = 0; pos < g->max_member && strncmp(g->member[pos].name, name, len); pos++);
+	// Find member (name). The map sends the name's length without the NUL: compare whole names, a prefix match
+	// made "Alex" find "Alexander" (who became master while `master` read "Alex").
+	safestrncpy(gmname, name, (len < NAME_LENGTH) ? len + 1 : NAME_LENGTH);
+	for (pos = 0; pos < g->max_member && strcmp(g->member[pos].name, gmname); pos++);
 
 	if (pos == g->max_member)
 		return 0; //Character not found??
@@ -2065,9 +2068,7 @@ int mapif_parse_GuildMasterChange(int fd, int guild_id, const char* name, int le
 	g->member[0].position = 0; //Position 0: guild Master.
 	g->member[0].modified = GS_MEMBER_MODIFIED;
 
-	strncpy(g->master, name, len);
-	if (len < NAME_LENGTH)
-		g->master[len] = '\0';
+	safestrncpy(g->master, gmname, NAME_LENGTH);
 
 	ShowInfo("int_guild: Guildmaster Changed to %s (Guild %d - %s)\n",g->master, guild_id, g->name);
 	g->save_flag |= (GS_BASIC|GS_MEMBER); //Save main data and member data.
