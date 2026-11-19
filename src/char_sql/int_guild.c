@@ -393,12 +393,18 @@ int inter_guild_tosql(struct guild *g,int flag)
 }
 #ifndef TXT_SQL_CONVERT
 // Read guild from sql
+// Set by inter_guild_fromsql when it returned NULL because of a DB error rather than a missing guild: the
+// callers must then not act as if the guild did not exist (telling the map-server so, or clearing the
+// members' guild_id, drops the membership of a guild that is still there).
+static int guild_load_failed = 0;
+
 struct guild * inter_guild_fromsql(int guild_id)
 {
 	int i;
 	char * pstr, * pEmblemData;
 	struct guild *g;
 
+	guild_load_failed = 0;
 	if (guild_id<=0) return NULL;
 
 	g = idb_get(guild_db_,guild_id);
@@ -417,13 +423,20 @@ struct guild * inter_guild_fromsql(int guild_id)
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		aFree(g);
+		guild_load_failed = 1;
 		return NULL;
 	}
 
 	sql_res = mysql_store_result(&mysql_handle) ;
-	if (sql_res==NULL || mysql_num_rows(sql_res)<1) {
+	if (sql_res==NULL) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		aFree(g);
+		guild_load_failed = 1;
+		return NULL;
+	}
+	if (mysql_num_rows(sql_res)<1) {
 		//Guild does not exists.
-		if (sql_res) mysql_free_result(sql_res);
+		mysql_free_result(sql_res);
 		aFree(g);
 		return NULL;
 	}
@@ -481,9 +494,16 @@ struct guild * inter_guild_fromsql(int guild_id)
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		aFree(g);
+		guild_load_failed = 1;
 		return NULL;
 	}
 	sql_res = mysql_store_result(&mysql_handle) ;
+	if (sql_res == NULL) { // a part-loaded guild must not be cached (its next save would write it back)
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		aFree(g);
+		guild_load_failed = 1;
+		return NULL;
+	}
 	if (sql_res) {
 		for(i=0;((sql_row = mysql_fetch_row(sql_res))&&i<g->max_member);i++){
 			struct guild_member *m = &g->member[i];
@@ -514,9 +534,16 @@ struct guild * inter_guild_fromsql(int guild_id)
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		aFree(g);
+		guild_load_failed = 1;
 		return NULL;
 	}
 	sql_res = mysql_store_result(&mysql_handle) ;
+	if (sql_res == NULL) { // a part-loaded guild must not be cached (its next save would write it back)
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		aFree(g);
+		guild_load_failed = 1;
+		return NULL;
+	}
 	if (sql_res) {
 		for(i=0;((sql_row = mysql_fetch_row(sql_res))&&i<MAX_GUILDPOSITION);i++){
 			int position = atoi(sql_row[1]);
@@ -535,9 +562,16 @@ struct guild * inter_guild_fromsql(int guild_id)
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		aFree(g);
+		guild_load_failed = 1;
 		return NULL;
 	}
 	sql_res = mysql_store_result(&mysql_handle) ;
+	if (sql_res == NULL) { // a part-loaded guild must not be cached (its next save would write it back)
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		aFree(g);
+		guild_load_failed = 1;
+		return NULL;
+	}
 	if (sql_res) {
 		for(i=0;((sql_row = mysql_fetch_row(sql_res))&&i<MAX_GUILDALLIANCE);i++){
 			struct guild_alliance *a = &g->alliance[i];
@@ -554,9 +588,16 @@ struct guild * inter_guild_fromsql(int guild_id)
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		aFree(g);
+		guild_load_failed = 1;
 		return NULL;
 	}
 	sql_res = mysql_store_result(&mysql_handle) ;
+	if (sql_res == NULL) { // a part-loaded guild must not be cached (its next save would write it back)
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		aFree(g);
+		guild_load_failed = 1;
+		return NULL;
+	}
 	if (sql_res) {
 		for(i=0;((sql_row = mysql_fetch_row(sql_res))&&i<MAX_GUILDEXPULSION);i++){
 			struct guild_expulsion *e = &g->expulsion[i];
@@ -579,6 +620,7 @@ struct guild * inter_guild_fromsql(int guild_id)
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		aFree(g);
+		guild_load_failed = 1;
 		return NULL;
 	}
 	
@@ -588,6 +630,12 @@ struct guild * inter_guild_fromsql(int guild_id)
 	}
 
 	sql_res = mysql_store_result(&mysql_handle) ;
+	if (sql_res == NULL) { // a part-loaded guild must not be cached (its next save would write it back)
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		aFree(g);
+		guild_load_failed = 1;
+		return NULL;
+	}
 	if (sql_res) {
 		while ((sql_row = mysql_fetch_row(sql_res))){
 			int id = atoi(sql_row[1])-GD_SKILLBASE;
@@ -1390,7 +1438,7 @@ int mapif_parse_GuildInfo(int fd,int guild_id)
 		if (!guild_calcinfo(g))
 			mapif_guild_info(fd,g);
 	}
-	else
+	else if (!guild_load_failed) // on a DB error the map-server would drop the members' guild
 		mapif_guild_noinfo(fd,guild_id); // Failed to load info
 	return 0;
 }
@@ -1482,7 +1530,7 @@ int mapif_parse_GuildLeave(int fd,int guild_id,int account_id,int char_id,int fl
 		if (!guild_calcinfo(g))
 			mapif_guild_info(fd,g);
 		g->save_flag |= GS_EXPULSION;
-	}else{
+	}else if (!guild_load_failed) {
 		// Unknown guild, just update the player
 		sprintf(tmp_sql, "UPDATE `%s` SET `guild_id`='0' WHERE `account_id`='%d' AND `char_id`='%d'",char_db, account_id,char_id);
 		if(mysql_query(&mysql_handle, tmp_sql) ) {
@@ -1853,6 +1901,8 @@ int mapif_parse_GuildAlliance(int fd,int guild_id1,int guild_id2,
 	int j,i;
 	g[0] = inter_guild_fromsql(guild_id1);
 	g[1] = inter_guild_fromsql(guild_id2);
+	if (g[1] == NULL && guild_load_failed)
+		return 0; // a DB error, not a missing guild: don't remove the alliance
 
 	if(g[0] && g[1]==NULL && (flag & GUILD_ALLIANCE_REMOVE)) //Requested to remove an alliance with a not found guild.
 		return mapif_parse_GuildDeleteAlliance(g[0], guild_id2,	account_id1, account_id2, flag); //Try to do a manual removal of said guild.

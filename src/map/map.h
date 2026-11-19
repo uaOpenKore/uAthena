@@ -553,6 +553,8 @@ struct map_session_data {
 		unsigned lr_flag : 2;
 		unsigned connect_new : 1;
 		unsigned scdata_loaded : 1;      // [xms] sc_data (0x2b1d) reply has arrived + been applied (rAthena-style pc_loaded gate)
+		unsigned questlog_loaded : 1;    // the char-server's quest log arrived: only then may it be saved (a save of a log
+		unsigned achievements_loaded : 1;// that never arrived deletes the stored quests / achievements); same for achievements
 		unsigned initstatus_deferred : 1;// [xms] LoadEndAck ran before sc_data -> initial status send was held for chrif_load_scdata to complete
 		unsigned arrow_atk : 1;
 		unsigned skill_flag : 1;

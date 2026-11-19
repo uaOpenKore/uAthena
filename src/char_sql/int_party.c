@@ -210,6 +210,10 @@ int inter_party_tosql(struct party *p, int flag, int index)
 }
 #ifndef TXT_SQL_CONVERT
 // Read party from mysql
+// Set by inter_party_fromsql when it returned NULL because of a DB error rather than a missing party: the
+// callers must then not act as if the party did not exist (that drops the members' party_id).
+static int party_load_failed = 0;
+
 struct party_data *inter_party_fromsql(int party_id)
 {
 	int leader_id = 0, leader_char = 0;
@@ -217,6 +221,7 @@ struct party_data *inter_party_fromsql(int party_id)
 #ifdef NOISY
 	ShowInfo("Load party request ("CL_BOLD"%d"CL_RESET")\n", party_id);
 #endif
+	party_load_failed = 0;
 	if (party_id <=0)
 		return NULL;
 	
@@ -232,12 +237,16 @@ struct party_data *inter_party_fromsql(int party_id)
 	if (mysql_query(&mysql_handle, tmp_sql)) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		party_load_failed = 1;
 		return NULL;
 	}
 
 	sql_res = mysql_store_result(&mysql_handle) ;
-	if (!sql_res)
+	if (!sql_res) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		party_load_failed = 1;
 		return NULL;
+	}
 	sql_row = mysql_fetch_row(sql_res);
 	if (!sql_row) {
 		mysql_free_result(sql_res);
@@ -257,9 +266,15 @@ struct party_data *inter_party_fromsql(int party_id)
 	if (mysql_query(&mysql_handle, tmp_sql)) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		party_load_failed = 1;
 		return NULL;
 	}
 	sql_res = mysql_store_result(&mysql_handle);
+	if (sql_res == NULL) { // a party without its members must not be cached
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		party_load_failed = 1;
+		return NULL;
+	}
 	if (sql_res) {
 		int i;
 		for (i = 0; i<MAX_PARTY && (sql_row = mysql_fetch_row(sql_res)); i++) {
@@ -566,7 +581,7 @@ int mapif_parse_PartyInfo(int fd,int party_id)
 
 	if (p)
 		mapif_party_info(fd,&p->party);
-	else
+	else if (!party_load_failed) // on a DB error the map-server would drop the members' party
 		mapif_party_noinfo(fd,party_id);
 	return 0;
 }
@@ -634,6 +649,8 @@ int mapif_parse_PartyLeave(int fd, int party_id, int account_id, int char_id)
 	int i,j=-1;
 
 	p = inter_party_fromsql(party_id);
+	if (!p && party_load_failed)
+		return 0; // a DB error, not a missing party: don't take every member out of it
 	if (!p) { //Party does not exists?
 		sprintf(tmp_sql, "UPDATE `%s` SET `party_id`='0' WHERE `party_id`='%d'", char_db, party_id);
 		if (mysql_query(&mysql_handle, tmp_sql)) {

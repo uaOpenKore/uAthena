@@ -112,7 +112,9 @@ static bool mapif_mercenary_save(struct s_mercenary* merc)
 	return flag;
 }
 
-static bool mapif_mercenary_load(int merc_id, int char_id, struct s_mercenary *merc)
+// 1 = loaded, 0 = no such mercenary of this character, -1 = DB error (the map-server must not hear
+// "no mercenary" then: it would drop the character's contract).
+static int mapif_mercenary_load(int merc_id, int char_id, struct s_mercenary *merc)
 {
 	memset(merc, 0, sizeof(struct s_mercenary));
 	merc->mercenary_id = merc_id;
@@ -123,15 +125,19 @@ static bool mapif_mercenary_load(int merc_id, int char_id, struct s_mercenary *m
 	{
 		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__, __LINE__, tmp_sql);
-		return false;
+		return -1;
 	}
 
 	sql_res = mysql_store_result(&mysql_handle);
-	if( !sql_res || !(sql_row = mysql_fetch_row(sql_res)) )
+	if( !sql_res )
 	{
-		if( sql_res )
-			mysql_free_result(sql_res);
-		return false;
+		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+		return -1;
+	}
+	if( !(sql_row = mysql_fetch_row(sql_res)) )
+	{
+		mysql_free_result(sql_res);
+		return 0;
 	}
 
 	merc->class_     = atoi(sql_row[0]);
@@ -141,7 +147,7 @@ static bool mapif_mercenary_load(int merc_id, int char_id, struct s_mercenary *m
 	merc->life_time  = atoi(sql_row[4]);
 	mysql_free_result(sql_res);
 
-	return true;
+	return 1;
 }
 
 static bool mapif_mercenary_delete(int merc_id)
@@ -178,7 +184,9 @@ static void mapif_parse_mercenary_create(int fd, struct s_mercenary* merc)
 static void mapif_parse_mercenary_load(int fd, int merc_id, int char_id)
 {
 	struct s_mercenary merc;
-	bool result = mapif_mercenary_load(merc_id, char_id, &merc);
+	int result = mapif_mercenary_load(merc_id, char_id, &merc);
+	if( result < 0 )
+		return; // DB error: no reply, the mercenary just isn't summoned this time
 	mapif_mercenary_send(fd, &merc, result);
 }
 
