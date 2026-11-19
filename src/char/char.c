@@ -2935,23 +2935,26 @@ int parse_frommap(int fd)
 				return 0;
 		{
 #ifdef ENABLE_SC_SAVING
-			int aid, cid;
+			int aid, cid, count;
 			struct scdata *data;
 			aid = RFIFOL(fd,2);
 			cid = RFIFOL(fd,6);
 			data = status_search_scdata(aid, cid);
-			if (data->count > 0)
-			{	//Deliver status change data.
-				WFIFOW(fd,0) = 0x2b1d;
-				WFIFOW(fd,2) = 14 + data->count*sizeof(struct status_change_data);
-				WFIFOL(fd,4) = aid;
-				WFIFOL(fd,8) = cid;
-				WFIFOW(fd,12) = data->count;
-				for (i = 0; i < data->count; i++)
-					memcpy(WFIFOP(fd,14+i*sizeof(struct status_change_data)), &data->data[i], sizeof(struct status_change_data));
-				WFIFOSET(fd, WFIFOW(fd,2));
+			count = data->count;
+			// ALWAYS answer 0x2b1d, with 0 status changes too (as char_sql does): the map-server holds the
+			// character's first status block until this reply arrives (chrif_load_scdata), so a character
+			// without saved buffs got it only from the 3 s safety timer ("sc_data reply never arrived").
+			WFIFOHEAD(fd, 14 + count*sizeof(struct status_change_data));
+			WFIFOW(fd,0) = 0x2b1d;
+			WFIFOW(fd,2) = 14 + count*sizeof(struct status_change_data);
+			WFIFOL(fd,4) = aid;
+			WFIFOL(fd,8) = cid;
+			WFIFOW(fd,12) = count;
+			for (i = 0; i < count; i++)
+				memcpy(WFIFOP(fd,14+i*sizeof(struct status_change_data)), &data->data[i], sizeof(struct status_change_data));
+			WFIFOSET(fd, WFIFOW(fd,2));
+			if (count > 0)
 				status_delete_scdata(aid, cid); //Data sent, so it needs be discarded now.
-			}
 #endif
 			RFIFOSKIP(fd, 10);
 		}
