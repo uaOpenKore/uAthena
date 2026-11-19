@@ -92,10 +92,45 @@ int inter_sql_test (void);
 
 #endif //TXT_SQL_CONVERT
 //--------------------------------------------------------
-// Save registry to sql
+// One save = one transaction (InnoDB): all of its statements reach the DB or none does, so an error or a
+// crash halfway through a "delete the rows, insert the new ones" save no longer leaves the rows deleted.
+// sql_tx_end() commits only when ok and the connection was not re-opened in between (with
+// MYSQL_OPT_RECONNECT a dropped connection continues in a new session in autocommit mode: what ran before
+// is rolled back and what ran after is already committed, a partial save), else it rolls back.
+// Returns 1 when the save is committed.
+static unsigned long sql_tx_conn = 0;
+
+int sql_tx_begin(void)
+{
+	sql_tx_conn = mysql_thread_id(&mysql_handle);
+	if (mysql_query(&mysql_handle, "START TRANSACTION")) {
+		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+		return 0;
+	}
+	return 1;
+}
+
+int sql_tx_end(int ok)
+{
+	if (ok && mysql_thread_id(&mysql_handle) != sql_tx_conn) {
+		ShowSQL("sql_tx_end: the DB connection was re-opened during the save, so it counts as failed.\n");
+		ok = 0;
+	}
+	if (ok && !mysql_query(&mysql_handle, "COMMIT"))
+		return 1;
+	if (ok)
+		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+	if (mysql_query(&mysql_handle, "ROLLBACK"))
+		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+	return 0;
+}
+
+//--------------------------------------------------------
+// Save registry to sql. Returns -1 when the save failed and was rolled back (the stored variables are as
+// they were before it).
 int inter_accreg_tosql(int account_id, int char_id, struct accreg *reg, int type){
 
-	int j;
+	int j, tx, errors = 0;
 	char temp_str[64]; //Needs be twice the source to ensure it fits [Skotlex]
 	char temp_str2[512];
 	if (account_id<=0) return 0;
@@ -118,15 +153,15 @@ int inter_accreg_tosql(int account_id, int char_id, struct accreg *reg, int type
 			ShowError("inter_accreg_tosql: Invalid type %d\n", type);
 			return 0;
 			
-	}	
+	}
+	tx = sql_tx_begin(); // the DELETE and the INSERTs below go in together or not at all
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		errors++;
 	}
 
-	if (reg->reg_num<=0) return 0;
-
-	for(j=0;j<reg->reg_num;j++){
+	for(j=0;j<reg->reg_num && !errors;j++){
 		if(reg->reg[j].str != NULL){
 			sprintf(tmp_sql,"INSERT INTO `%s` (`type`, `account_id`, `char_id`, `str`, `value`) VALUES ('%d','%d','%d','%s','%s')",
 				reg_db, type, type!=3?reg->account_id:0, type==3?reg->char_id:0,
@@ -134,11 +169,81 @@ int inter_accreg_tosql(int account_id, int char_id, struct accreg *reg, int type
 			if(mysql_query(&mysql_handle, tmp_sql) ) {
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				errors++;
 			}
 		}
 	}
+	if (!sql_tx_end(tx && !errors)) {
+		ShowError("inter_accreg_tosql: saving the %s variables of %d failed and was rolled back.\n",
+			type == 3 ? "character" : "account", type == 3 ? char_id : account_id);
+		return -1;
+	}
 	return 1;
 }
+
+#ifndef TXT_SQL_CONVERT
+//--------------------------------------------------------
+// Variable saves that failed (rolled back) are kept here and written again by a timer, and before those
+// variables are read again (a read in between would hand out the old ones), so a failed save is not lost.
+// Keyed by char_id for character variables (type 3), by account_id for account variables (type 2).
+static struct dbt* accreg_pending_db[2] = { NULL, NULL };
+
+static struct dbt* accreg_pending(int type) { return accreg_pending_db[type == 3 ? 1 : 0]; }
+
+static void accreg_pending_keep(int type, int key, const struct accreg* reg)
+{
+	struct accreg* copy = (struct accreg*)idb_get(accreg_pending(type), key);
+	if (copy == NULL) {
+		CREATE(copy, struct accreg, 1);
+		idb_put(accreg_pending(type), key, copy);
+	}
+	memcpy(copy, reg, sizeof(struct accreg));
+}
+
+static void accreg_pending_drop(int type, int key)
+{
+	struct accreg* copy = (struct accreg*)idb_remove(accreg_pending(type), key);
+	if (copy)
+		aFree(copy);
+}
+
+// 1 when nothing is pending for these variables or they have been written now.
+static int accreg_pending_flush(int type, int key)
+{
+	struct accreg* copy = (struct accreg*)idb_get(accreg_pending(type), key);
+	if (copy == NULL)
+		return 1;
+	if (inter_accreg_tosql(copy->account_id, copy->char_id, copy, type) < 0)
+		return 0;
+	ShowInfo("inter_accreg: the failed save of the %s variables of %d is written now.\n", type == 3 ? "character" : "account", key);
+	accreg_pending_drop(type, key);
+	return 1;
+}
+
+static int accreg_pending_flush_sub(DBKey key, void* data, va_list ap)
+{
+	int type = va_arg(ap, int);
+	accreg_pending_flush(type, key.i);
+	return 0;
+}
+
+static int accreg_pending_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	accreg_pending_db[0]->foreach(accreg_pending_db[0], accreg_pending_flush_sub, 2);
+	accreg_pending_db[1]->foreach(accreg_pending_db[1], accreg_pending_flush_sub, 3);
+	return 0;
+}
+
+static int accreg_pending_final_sub(DBKey key, void* data, va_list ap)
+{
+	int type = va_arg(ap, int);
+	if (!accreg_pending_flush(type, key.i)) {
+		ShowError("inter_accreg: the %s variables of %d could not be saved before shutdown.\n", type == 3 ? "character" : "account", key.i);
+		aFree(data);
+	}
+	return 0;
+}
+#endif //TXT_SQL_CONVERT
 #ifndef TXT_SQL_CONVERT
 
 // Load account_reg from sql (type=2)
@@ -189,6 +294,10 @@ int inter_accreg_fromsql(int account_id,int char_id, struct accreg *reg, int typ
 int inter_accreg_sql_init(void)
 {
 	CREATE(accreg_pt, struct accreg, 1);
+	accreg_pending_db[0] = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
+	accreg_pending_db[1] = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
+	add_timer_func_list(accreg_pending_timer, "accreg_pending_timer");
+	add_timer_interval(gettick() + 10*1000, accreg_pending_timer, 0, 0, 10*1000);
 	return 0;
 
 }
@@ -454,6 +563,12 @@ void inter_final(void)
 {
 	wis_db->destroy(wis_db, NULL);
 
+	// a last try for variable saves that failed (each failure is logged)
+	accreg_pending_db[0]->foreach(accreg_pending_db[0], accreg_pending_final_sub, 2);
+	accreg_pending_db[1]->foreach(accreg_pending_db[1], accreg_pending_final_sub, 3);
+	accreg_pending_db[0]->destroy(accreg_pending_db[0], NULL);
+	accreg_pending_db[1]->destroy(accreg_pending_db[1], NULL);
+
 	inter_guild_sql_final();
 	inter_storage_sql_final();
 	inter_party_sql_final();
@@ -536,6 +651,9 @@ int mapif_account_reg_reply(int fd,int account_id,int char_id, int type)
 	// Room for every variable (at most 13 + 96*288 bytes): the reply used to stop at 5000 bytes, and the
 	// map-server's next save then deleted the variables it never got.
 	WFIFOHEAD(fd, 13 + MAX_REG_NUM*(sizeof(reg->reg[0].str)+sizeof(reg->reg[0].value)));
+	if (type == 2 || type == 3) // a failed save of these variables must reach the DB before they are read
+		if (!accreg_pending_flush(type, type == 3 ? char_id : account_id))
+			return 0; // still failing: no reply, as for a read error
 	if (!inter_accreg_fromsql(account_id,char_id,reg,type))
 		return 0; // DB error: no reply, so the map-server keeps refusing changes instead of saving over the stored ones
 
@@ -784,7 +902,13 @@ int mapif_parse_Registry(int fd)
 	}
 	reg->reg_num=j;
 
-	inter_accreg_tosql(RFIFOL(fd,4),RFIFOL(fd,8),reg, RFIFOB(fd,12));
+	{
+		int type = RFIFOB(fd,12), key = (type == 3) ? RFIFOL(fd,8) : RFIFOL(fd,4);
+		if (inter_accreg_tosql(RFIFOL(fd,4),RFIFOL(fd,8),reg, type) < 0)
+			accreg_pending_keep(type, key, reg); // rolled back: written again by accreg_pending_timer
+		else
+			accreg_pending_drop(type, key); // this newer save supersedes a failed older one
+	}
 	mapif_account_reg(fd,RFIFOP(fd,0));	// Send updated accounts to other map servers.
 	return 0;
 }

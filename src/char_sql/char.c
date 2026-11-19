@@ -487,6 +487,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 	int i=0,j;
 	int count = 0;
 	int diff = 0;
+	int errors = 0, tx; // one transaction: any failed statement rolls the whole save back
 	char *tmp_ptr; //Building a single query should be more efficient than running
 		//multiple queries for each thing about to be saved, right? [Skotlex]
 	char save_status[128]; //For displaying save information. [Skotlex]
@@ -500,6 +501,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 #else
 	cp = aCalloc(1, sizeof(struct mmo_charstatus));
 #endif
+	tx = sql_tx_begin();
 
 	memset(save_status, 0, sizeof(save_status));
 	diff = 0;
@@ -523,9 +525,12 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		}
 	}
 	//printf("- Save item data to MySQL!\n");
-	if (diff)
+	if (diff) {
 		if (!memitemdata_to_sql(mapitem, count, p->char_id,TABLE_INVENTORY))
 			strcat(save_status, " inventory");
+		else
+			errors++;
+	}
 
 	count = 0;
 	diff = 0;
@@ -550,9 +555,12 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		}
 	}
 
-	if (diff)
+	if (diff) {
 		if (!memitemdata_to_sql(mapitem, count, p->char_id,TABLE_CART))
 			strcat(save_status, " cart");
+		else
+			errors++;
+	}
 #ifdef TXT_SQL_CONVERT
 {	//Insert the barebones to then update the rest.
 	char t_name[NAME_LENGTH*2];
@@ -563,6 +571,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 	{
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		errors++;
 	} else
 		strcat(save_status, " creation");
 }
@@ -608,6 +617,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		{
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		} else
 			strcat(save_status, " status");
 	}
@@ -639,6 +649,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		{
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		} else
 			strcat(save_status, " status2");
 	}
@@ -661,6 +672,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		{
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		}
 
 		//insert here.
@@ -681,6 +693,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			{
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				errors++;
 			} else
 				strcat(save_status, " memo");
 		} else //Memo Points cleared (how is this possible?).
@@ -709,6 +722,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		{
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		}
 		tmp_ptr = tmp_sql;
 		tmp_ptr += sprintf(tmp_ptr,"INSERT INTO `%s`(`char_id`,`id`,`lv`) VALUES ", skill_db);
@@ -730,6 +744,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			{
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				errors++;
 			} else
 				strcat(save_status, " skills");
 		} else //Skills removed (reset?)
@@ -750,6 +765,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		if(mysql_query(&mysql_handle, tmp_sql)){
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		}
 		  
 		tmp_ptr = tmp_sql;
@@ -769,6 +785,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			{
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				errors++;
 			} else
 				strcat(save_status, " friends");
 		} else //Friend list cleared.
@@ -792,6 +809,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		if(mysql_query(&mysql_handle, tmp_sql)){
 			ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
 		} else {
 			strcat(save_status, " hotkeys");
 		}
@@ -801,7 +819,18 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 	// [Backport] hired mercenary soldier owner data (mer_id, loyalty, calls)
 	if( mercenary_owner_tosql(char_id, p) )
 		strcat(save_status, " mercenary");
+	else
+		errors++;
 
+	if (!sql_tx_end(tx && !errors)) {
+		// Nothing of it is stored and the cache keeps the last stored state, so the next save of this
+		// character writes all of it again (see char_pending_keep for the final save).
+		ShowError("Saving char %d - %s failed and was rolled back.\n", char_id, p->name);
+#ifdef TXT_SQL_CONVERT
+		aFree(cp);
+#endif
+		return 1;
+	}
 	if (save_status[0]!='\0' && save_log)
 		ShowInfo("Saved char %d - %s:%s.\n", char_id, p->name, save_status);
 #ifndef TXT_SQL_CONVERT
@@ -812,10 +841,93 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 	return 0;
 }
 
+#ifndef TXT_SQL_CONVERT
+// Character saves that failed (rolled back) are kept here, keyed by char_id, and written again by
+// char_pending_timer and before the account's characters are loaded again (a load in between would hand
+// out the old data). Without this a failed final save on logout was simply lost. A later successful save
+// of the character supersedes its pending one (it writes everything since the last stored state).
+static struct dbt* char_pending_db = NULL;
+
+static void char_pending_keep(const struct mmo_charstatus* p)
+{
+	struct mmo_charstatus* copy = (struct mmo_charstatus*)idb_get(char_pending_db, p->char_id);
+	if (copy == NULL) {
+		CREATE(copy, struct mmo_charstatus, 1);
+		idb_put(char_pending_db, p->char_id, copy);
+	}
+	memcpy(copy, p, sizeof(struct mmo_charstatus));
+}
+
+static void char_pending_drop(int char_id)
+{
+	struct mmo_charstatus* copy = (struct mmo_charstatus*)idb_remove(char_pending_db, char_id);
+	if (copy)
+		aFree(copy);
+}
+
+// The newest state of a character whose last save failed, or NULL.
+static struct mmo_charstatus* char_pending_get(int char_id)
+{
+	return (struct mmo_charstatus*)idb_get(char_pending_db, char_id);
+}
+
+// 1 when nothing is pending for the character or it has been written now.
+static int char_pending_flush(int char_id)
+{
+	struct mmo_charstatus* copy = char_pending_get(char_id);
+	if (copy == NULL)
+		return 1;
+	if (mmo_char_tosql(char_id, copy))
+		return 0;
+	ShowInfo("char_pending: the failed save of char %d - %s is written now.\n", char_id, copy->name);
+	char_pending_drop(char_id);
+	return 1;
+}
+
+static int char_pending_flush_account_sub(DBKey key, void* data, va_list ap)
+{
+	int account_id = va_arg(ap, int);
+	int* failed = va_arg(ap, int*);
+	if (((struct mmo_charstatus*)data)->account_id == account_id && !char_pending_flush(key.i))
+		(*failed)++;
+	return 0;
+}
+
+// 1 when no character of the account has a pending save left.
+static int char_pending_flush_account(int account_id)
+{
+	int failed = 0;
+	char_pending_db->foreach(char_pending_db, char_pending_flush_account_sub, account_id, &failed);
+	return failed == 0;
+}
+
+static int char_pending_timer_sub(DBKey key, void* data, va_list ap)
+{
+	char_pending_flush(key.i);
+	return 0;
+}
+
+static int char_pending_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+{
+	char_pending_db->foreach(char_pending_db, char_pending_timer_sub);
+	return 0;
+}
+
+static int char_pending_final_sub(DBKey key, void* data, va_list ap)
+{
+	if (!char_pending_flush(key.i)) {
+		ShowError("char_pending: char %d - %s could not be saved before shutdown.\n", key.i, ((struct mmo_charstatus*)data)->name);
+		aFree(data);
+	}
+	return 0;
+}
+#endif //TXT_SQL_CONVERT
+
 // [Ilpalazzo-sama]
 int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tableswitch)
 {
 	int i,j, flag, id;
+	int errors = 0; // failed statements: the caller rolls the save back
 	char* tablename;
 	char selectoption[16];
 	char* str_p = tmp_sql;
@@ -847,6 +959,11 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 		return 1;
 	}
 	sql_res = mysql_store_result(&mysql_handle);
+	if (sql_res == NULL) { // without the stored rows every item would be INSERTed again (a full dupe)
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		return 1;
+	}
 	if (sql_res) {
 		while ((sql_row = mysql_fetch_row(sql_res))) {
 			flag = 0;
@@ -882,6 +999,7 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 						{
 							ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 							ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+							errors++;
 						}
 					} else
 #endif //TXT_SQL_CONVERT
@@ -902,6 +1020,7 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 						{
 							ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 							ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+							errors++;
 						}
 					}
 					flag = mapitem[i].flag = 1; //Item dealt with,
@@ -914,6 +1033,7 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 				{
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 					ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+					errors++;
 				}
 			}
 		}
@@ -942,10 +1062,11 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 			{
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				errors++;
 			}
 		}
 	}
-	return 0;
+	return errors ? 1 : 0;
 }
 
 #ifndef TXT_SQL_CONVERT
@@ -1207,6 +1328,9 @@ int mmo_char_sql_init(void)
 {
 	ShowInfo("Begin Initializing.......\n");
 	char_db_= db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA, sizeof(int));
+	char_pending_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE, sizeof(int));
+	add_timer_func_list(char_pending_timer, "char_pending_timer");
+	add_timer_interval(gettick() + 10*1000, char_pending_timer, 0, 0, 10*1000);
 	// memory initialize
 	memset(&char_dat, 0, sizeof(struct mmo_charstatus));
 	if(char_per_account == 0){
@@ -1451,6 +1575,8 @@ int delete_char_sql(int char_id, int partner_id)
 {
 	char char_name[NAME_LENGTH], t_name[NAME_LENGTH*2]; //Name needs be escaped.
 	int account_id, party_id, guild_id, hom_id, char_base_level;
+
+	char_pending_drop(char_id); // the character goes away: a failed save of it must not bring it back
 
 	sprintf(tmp_sql, "SELECT `name`,`account_id`,`party_id`,`guild_id`,`base_level`,`homun_id` FROM `%s` WHERE `char_id`='%d'",char_db, char_id);
 
@@ -2757,7 +2883,10 @@ int parse_frommap(int fd)
 				character->char_id == cid))
 			{
 				memcpy(&char_dat, RFIFOP(fd,13), sizeof(struct mmo_charstatus));
-				mmo_char_tosql(cid, &char_dat);
+				if (mmo_char_tosql(cid, &char_dat))
+					char_pending_keep(&char_dat); // rolled back: written again by char_pending_timer
+				else
+					char_pending_drop(cid); // this newer save supersedes a failed older one
 			} else {	//This may be valid on char-server reconnection, when re-sending characters that already logged off.
 				ShowError("parse_from_map (save-char): Received data for non-existant/offline character (%d:%d).\n", aid, cid);
 				set_char_online(id, cid, aid);
@@ -2811,7 +2940,10 @@ int parse_frommap(int fd)
 			if (map_id >= 0)
 				map_fd = server_fd[map_id];
 			//Char should just had been saved before this packet, so this should be safe. [Skotlex]
-			char_data = uidb_get(char_db_,RFIFOL(fd,14));
+			// a save that failed holds the newest state (the cache keeps the last stored one)
+			char_data = char_pending_get(RFIFOL(fd,14));
+			if (char_data == NULL)
+				char_data = uidb_get(char_db_,RFIFOL(fd,14));
 			if (char_data == NULL)
 			{	//Really shouldn't happen.
 				mmo_char_fromsql(RFIFOL(fd,14), &char_dat, true);
@@ -3701,7 +3833,15 @@ int parse_char(int fd)
 				// session. If the lane is unavailable or its queue is full we fall back
 				// to a synchronous load on the main connection, so behaviour is never
 				// worse than before. [auth-resilience]
-				struct achar_ctx* r = (struct achar_ctx*)aCalloc(1, sizeof(struct achar_ctx));
+				struct achar_ctx* r;
+				// A failed save of this account's characters must reach the DB before one is loaded from it,
+				// else the old data would be played (and saved over the pending one). Still failing: no reply.
+				if (!char_pending_flush_account(sd->account_id)) {
+					ShowError("char select: account %d has a character save that still fails, not loading.\n", sd->account_id);
+					RFIFOSKIP(fd, 3);
+					break;
+				}
+				r = (struct achar_ctx*)aCalloc(1, sizeof(struct achar_ctx));
 				r->fd = fd;
 				r->account_id = sd->account_id;
 				r->char_num = RFIFOB(fd, 2);
@@ -4439,6 +4579,9 @@ void do_final(void)
 	ShowInfo("Doing final stage...\n");
 	acl_destroy(char_load_lane); // stop the async char-load worker + join
 	char_load_lane = NULL;
+	// a last try for character saves that failed (each failure is logged); needs the item db, so before it goes
+	char_pending_db->foreach(char_pending_db, char_pending_final_sub);
+	char_pending_db->destroy(char_pending_db, NULL);
 	do_final_itemdb();
 	//check SQL save progress.
 	//wait until save char complete
