@@ -35,6 +35,7 @@
 #include "mercenary_soldier.h"	// [Backport] hired mercenary soldier
 #include "log.h"
 #include "clif.h"
+#include "tickrate.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8638,16 +8639,31 @@ static void clif_padmetric(int fd, struct map_session_data *sd, int kind, const 
 		sd->padmetric[kind].zero++;
 }
 
-// [padmetric] One summary line per session (map_quit): per kind total/all-zero/changed and the first/last pattern.
+// [whobot] The walk padding this session sent first, as hex into `out` (49+ bytes); "-" before the first walk.
+void clif_padmetric_walk(struct map_session_data *sd, char *out)
+{
+	if (sd->padmetric[PADM_WALK].total)
+		clif_padhex(sd->padmetric[PADM_WALK].first, sd->padmetric[PADM_WALK].len, out);
+	else
+		strcpy(out, "-");
+}
+
+// [padmetric] One summary line per session (map_quit): time online and tick rate ([whobot]), then per kind
+// total/all-zero/changed and the first/last pattern.
 void clif_padmetric_log(struct map_session_data *sd)
 {
 	char line[512], first[64], last[64];
-	int k, off;
+	int k, off, d;
+	unsigned int online, tenths;
 
 	if (!battle_config.pad_metric || sd == NULL)
 		return;
-	off = sprintf(line, "[PADMETRIC] logout aid=%d cid=%d name='%s' ver=%d", sd->status.account_id,
-		sd->status.char_id, sd->status.name, sd->packet_ver);
+	d = DIFF_TICK(gettick(), sd->auth_tick);
+	online = d > 0 ? (unsigned int)d : 0;
+	tenths = tickrate_tenths(sd->ticksend_count, online);
+	off = sprintf(line, "[PADMETRIC] logout aid=%d cid=%d name='%s' ver=%d online=%us tick_rate=%u.%u/s",
+		sd->status.account_id, sd->status.char_id, sd->status.name, sd->packet_ver, online / 1000,
+		tenths / 10, tenths % 10);
 	for (k = 0; k < 4; k++) {
 		if (!sd->padmetric[k].total)
 			continue;
@@ -8667,6 +8683,7 @@ void clif_padmetric_log(struct map_session_data *sd)
 void clif_parse_TickSend(int fd, struct map_session_data *sd)
 {
 	static const int padm_sizes[] = { 4 }; // client tick
+	sd->ticksend_count++; // [whobot] a game client ticks every few seconds, OpenKore's default config 10 times a second
 	clif_padmetric(fd, sd, PADM_TICK, padm_sizes, 1);
 
 	sd->client_tick = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]);
