@@ -888,6 +888,7 @@ struct map_session_data {
 		unsigned char first[24], last[24]; // padding of the first and of the latest packet
 		unsigned char len;                 // padding length (bytes)
 	} padmetric[4];
+	unsigned int ticksend_count; // [whobot] tick packets this session sent (clif_parse_TickSend): @whobot, logout line
 };
 
 struct duel_data {

@@ -29,6 +29,7 @@
 #include "mercenary.h" //[orn]
 #include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (@merc)
 #include "buyingstore.h"	// [Backport] buying store (@buystore/@buymarket/@sellto)
+#include "tickrate.h"	// [whobot] tick rate of a session (@whobot)
 #include "battle.h"
 #include "party.h"
 #include "guild.h"
@@ -272,6 +273,7 @@ ACMD_FUNC(achievements); // achievements chat UI
 ACMD_FUNC(title); // active title
 ACMD_FUNC(merc); // mercenary status chat UI
 ACMD_FUNC(h3); // help page for our custom chat commands
+ACMD_FUNC(whobot); // [whobot] online players sending more ticks than a game client
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -611,6 +613,7 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Merc,               "@merc",             1, atcommand_merc }, // mercenary status
 	{ AtCommand_Merc,               "@mercenary",        1, atcommand_merc }, // alias
 	{ AtCommand_H3,                 "@h3",               1, atcommand_h3 }, // help: our custom commands
+	{ AtCommand_WhoBot,             "@whobot",          60, atcommand_whobot }, // [whobot] tick rate > a client's
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -9197,6 +9200,66 @@ int atcommand_h3(const int fd, struct map_session_data* sd, const char* command,
 	clif_displaymessage(fd, "@achievements (@ach) - your achievements + progress");
 	clif_displaymessage(fd, "@title <N> / @title off - set or clear an earned title");
 	clif_displaymessage(fd, "@merc (@mercenary) - your hired mercenary's status (HP/SP/loyalty/skills)");
+	return 0;
+}
+
+/*==========================================
+ * @whobot [whobot] (S. 2026-11-19): online players who send the tick packet more than once a second. A game
+ * client sends it every few seconds (BornRok every 4 s), OpenKore's default config every 0.1 s; a session is
+ * judged after a minute online (tickrate.h). Only lists - does nothing to anyone. Sorted by IP, so a farm
+ * shows up as one block.
+ *------------------------------------------*/
+static int atcommand_whobot_cmp(const void *a, const void *b)
+{
+	const struct map_session_data *x = *(struct map_session_data * const *)a;
+	const struct map_session_data *y = *(struct map_session_data * const *)b;
+	uint32 ix = session[x->fd]->client_addr, iy = session[y->fd]->client_addr;
+
+	if (ix != iy)
+		return ix < iy ? -1 : 1;
+	return strcmp(x->status.name, y->status.name);
+}
+
+int atcommand_whobot(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	struct map_session_data *pl_sd, **pl_allsd, **found;
+	int i, users, shown = 0, count = 0, judged = 0, GM_level, d;
+	unsigned int now = gettick(), online, tenths;
+	char pad[64];
+
+	nullpo_retr(-1, sd);
+	GM_level = pc_isGM(sd);
+	pl_allsd = map_getallusers(&users);
+	CREATE(found, struct map_session_data *, users > 0 ? users : 1);
+	for (i = 0; i < users; i++) {
+		if (!(pl_sd = pl_allsd[i]) || !session_isActive(pl_sd->fd))
+			continue;
+		if ((battle_config.hide_GM_session || (pl_sd->sc.option & OPTION_INVISIBLE)) && pc_isGM(pl_sd) > GM_level)
+			continue; // as @who: a GM sees only lower or same levels
+		shown++;
+		d = DIFF_TICK(now, pl_sd->auth_tick);
+		online = d > 0 ? (unsigned int)d : 0;
+		if (online >= TICKRATE_MIN_ONLINE_MS)
+			judged++;
+		if (tickrate_suspect(pl_sd->ticksend_count, online, TICKRATE_CLIENT_MAX_PER_S))
+			found[count++] = pl_sd;
+	}
+	qsort(found, count, sizeof(found[0]), atcommand_whobot_cmp);
+	for (i = 0; i < count; i++) {
+		pl_sd = found[i];
+		d = DIFF_TICK(now, pl_sd->auth_tick);
+		online = d > 0 ? (unsigned int)d : 0;
+		tenths = tickrate_tenths(pl_sd->ticksend_count, online);
+		clif_padmetric_walk(pl_sd, pad);
+		snprintf(atcmd_output, sizeof(atcmd_output), "%s (aid %d, IP %s): %u.%u ticks/s, online %u min, walk pad %s",
+			pl_sd->status.name, pl_sd->status.account_id, ip2str(session[pl_sd->fd]->client_addr, NULL),
+			tenths / 10, tenths % 10, online / 60000, pad);
+		clif_displaymessage(fd, atcmd_output);
+	}
+	snprintf(atcmd_output, sizeof(atcmd_output), "@whobot: %d of %d online send more than %d tick/s (%d of them online over a minute).",
+		count, shown, TICKRATE_CLIENT_MAX_PER_S, judged);
+	clif_displaymessage(fd, atcmd_output);
+	aFree(found);
 	return 0;
 }
 
