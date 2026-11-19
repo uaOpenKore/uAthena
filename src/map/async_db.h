@@ -34,6 +34,12 @@ AsyncDB* async_db_create(const char* name, const char* ip, const char* user,
 // dropped (NULL engine or queue full). Call from the game thread only.
 int async_db_submit(AsyncDB* h, const char* sql);
 
+// Write everything queued so far now and wait (at most timeout_sec) until it has reached the DB.
+// Returns 1 when it has (always for a NULL engine: its callers ran their queries synchronously),
+// 0 on timeout, e.g. while the DB is unreachable; the statements then stay queued as usual.
+// For a caller that reads back what it just wrote. Game thread only.
+int async_db_sync(AsyncDB* h, int timeout_sec);
+
 // Drain the queue, stop and join the worker, free the engine. NULL-safe.
 void async_db_destroy(AsyncDB* h);
 

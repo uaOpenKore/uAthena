@@ -45,9 +45,12 @@ struct AsyncDB {
 	unsigned int q_dropped;
 	int q_flush_request;
 	int q_shutdown;
+	unsigned long q_seq;    // statements queued so far
+	unsigned long done_seq; // statements up to this count have been written (async_db_sync waits on it)
 
 	pthread_mutex_t mutex;
 	pthread_cond_t  cond;
+	pthread_cond_t  done_cond; // signalled each time done_seq moves
 	pthread_t       tid;
 	int             running;
 	int             connected;
@@ -187,12 +190,14 @@ static int adb_flush_once(AsyncDB* h)
 	struct async_db_node* batch;
 	struct async_db_node* remain;
 	unsigned int dropped;
+	unsigned long seq;
 	int quit;
 
 	pthread_mutex_lock(&h->mutex);
 	h->q_flush_request = 0;
 	quit = h->q_shutdown;
 	batch = h->q_head;
+	seq = h->q_seq; // this batch holds every statement queued so far (requeued ones are back at its head)
 	h->q_head = h->q_tail = NULL;
 	h->q_len = 0;
 	dropped = h->q_dropped;
@@ -229,8 +234,15 @@ static int adb_flush_once(AsyncDB* h)
 				ShowWarning("async_db[%s]: DB unreachable on shutdown, %u statements lost.\n", h->name, lost);
 			} else
 				adb_requeue(h, batch);
+			return quit;
 		}
 	}
+	// Everything queued up to seq has been executed now.
+	pthread_mutex_lock(&h->mutex);
+	if (seq > h->done_seq)
+		h->done_seq = seq;
+	pthread_cond_broadcast(&h->done_cond);
+	pthread_mutex_unlock(&h->mutex);
 	return quit;
 }
 
@@ -293,6 +305,7 @@ static int adb_enqueue(AsyncDB* h, const char* sql)
 	else
 		h->q_head = node;
 	h->q_tail = node;
+	h->q_seq++;
 	if (++h->q_len == ASYNC_DB_WAKE_LEN) {
 		h->q_flush_request = 1;
 		pthread_cond_signal(&h->cond);
@@ -331,12 +344,14 @@ AsyncDB* async_db_create(const char* name, const char* ip, const char* user,
 
 	pthread_mutex_init(&h->mutex, NULL);
 	pthread_cond_init(&h->cond, NULL);
+	pthread_cond_init(&h->done_cond, NULL);
 
 #ifndef ASYNC_DB_TEST
 	if (pthread_create(&h->tid, NULL, adb_worker, h) != 0) {
 		ShowWarning("async_db[%s]: pthread_create failed - writes will be lost.\n", h->name);
 		pthread_mutex_destroy(&h->mutex);
 		pthread_cond_destroy(&h->cond);
+		pthread_cond_destroy(&h->done_cond);
 		free(h);
 		return NULL;
 	}
@@ -349,6 +364,40 @@ AsyncDB* async_db_create(const char* name, const char* ip, const char* user,
 int async_db_submit(AsyncDB* h, const char* sql)
 {
 	return adb_enqueue(h, sql);
+}
+
+int async_db_sync(AsyncDB* h, int timeout_sec)
+{
+	unsigned long target;
+	int ok;
+
+	if (h == NULL)
+		return 1; // no engine: the callers' fallback ran their queries synchronously
+
+	if (!h->running) { // no worker thread: write the queue right here
+		adb_flush_once(h);
+		pthread_mutex_lock(&h->mutex);
+		ok = (h->q_head == NULL);
+		pthread_mutex_unlock(&h->mutex);
+		return ok;
+	}
+
+	pthread_mutex_lock(&h->mutex);
+	target = h->q_seq;
+	if (h->done_seq < target) {
+		struct timespec deadline;
+		clock_gettime(CLOCK_REALTIME, &deadline);
+		deadline.tv_sec += timeout_sec;
+		h->q_flush_request = 1; // don't wait for the flush interval
+		pthread_cond_signal(&h->cond);
+		while (h->done_seq < target) {
+			if (pthread_cond_timedwait(&h->done_cond, &h->mutex, &deadline) == ETIMEDOUT)
+				break;
+		}
+	}
+	ok = (h->done_seq >= target);
+	pthread_mutex_unlock(&h->mutex);
+	return ok;
 }
 
 void async_db_destroy(AsyncDB* h)
@@ -382,6 +431,7 @@ void async_db_destroy(AsyncDB* h)
 	}
 	pthread_mutex_destroy(&h->mutex);
 	pthread_cond_destroy(&h->cond);
+	pthread_cond_destroy(&h->done_cond);
 	free(h);
 }
 

@@ -3282,6 +3282,15 @@ static int script_load_mapreg(void)
 	}
 	ShowInfo("Success! Returning results ...\n");
 	sql_res = mysql_store_result(&mmysql_handle);
+	if (sql_res == NULL) {
+		ShowSQL("DB error - %s\n",mysql_error(&mmysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+		return -1;
+	}
+	// Replace the registers in memory only now that the table has been read, so a failed reload keeps them.
+	mapreg_db->clear(mapreg_db, NULL);
+	mapregstr_db->clear(mapregstr_db, NULL);
+	mapreg_dirty_db->clear(mapreg_dirty_db, NULL);
 	if (sql_res) {
         while ((sql_row = mysql_fetch_row(sql_res))) {
 			char buf1[33], *p = NULL;
@@ -3544,12 +3553,18 @@ int do_init_script()
 
 int script_reload()
 {
+	int reload_mapreg = 1;
+
 	if(mapreg_dirty>=0)
 		script_save_mapreg();
+	// script_save_mapreg() only queues the writes for the async writer, which flushes every 20 s. Wait until they
+	// are in the table before it is read back below, else the reload brings back the old values and the globals
+	// changed since the last flush roll back. If they can't be written now, keep the registers in memory.
+	if(!async_db_sync(map_async_db, 10)) {
+		ShowWarning("script_reload: map registers not written to `%s` in time, keeping the ones in memory.\n", mapregsql_db);
+		reload_mapreg = 0;
+	}
 
-	mapreg_db->clear(mapreg_db, NULL);
-	mapregstr_db->clear(mapregstr_db, NULL);
-	mapreg_dirty_db->clear(mapreg_dirty_db, NULL);
 	userfunc_db->clear(userfunc_db,do_final_userfunc_sub);
 	scriptlabel_db->clear(scriptlabel_db, NULL);
 
@@ -3566,7 +3581,8 @@ int script_reload()
 		linkdb_final(&sleep_db);
 	}
 
-	script_load_mapreg();
+	if(reload_mapreg)
+		script_load_mapreg(); // replaces the registers only if the table could be read
 	return 0;
 }
 
