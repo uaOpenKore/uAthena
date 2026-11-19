@@ -54,4 +54,9 @@ extern char main_chat_nick[16];
 
 int inter_accreg_tosql(int account_id, int char_id, struct accreg *reg, int type);
 
+// One save = one transaction: sql_tx_begin() before its statements, sql_tx_end(no statement failed) after
+// them; returns 1 when committed, 0 when rolled back.
+int sql_tx_begin(void);
+int sql_tx_end(int ok);
+
 #endif /* _INTER_SQL_H_ */
