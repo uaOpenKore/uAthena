@@ -1537,7 +1537,8 @@ int parse_login(int fd)
 
 					if (sql_row && (unsigned int)atoi(sql_row[0]) >= login_config.dynamic_pass_failure_ban_limit ) {
 						uint8* p = (uint8*)&ipl;
-						sprintf(tmpsql,"INSERT INTO `ipbanlist`(`list`,`btime`,`rtime`,`reason`) VALUES ('%d.%d.%d.*', NOW() , NOW() +  INTERVAL %d MINUTE ,'Password error ban: %s')", (uint8)p[3], (uint8)p[2], (uint8)p[1], login_config.dynamic_pass_failure_ban_duration, t_uid);
+						// Ban this one address, not its /24: behind a shared NAT the whole subnet is other players (S.).
+						sprintf(tmpsql,"INSERT INTO `ipbanlist`(`list`,`btime`,`rtime`,`reason`) VALUES ('%d.%d.%d.%d', NOW() , NOW() +  INTERVAL %d MINUTE ,'Password error ban: %s')", (uint8)p[3], (uint8)p[2], (uint8)p[1], (uint8)p[0], login_config.dynamic_pass_failure_ban_duration, t_uid);
 						if(mysql_query(&mysql_handle, tmpsql)) {
 							ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 							ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
@@ -1547,7 +1548,7 @@ int parse_login(int fd)
 				}
 				else if (result == -2){	//dynamic banned - add ip to ban list.
 					uint8* p = (uint8*)&ipl;
-					sprintf(tmpsql,"INSERT INTO `ipbanlist`(`list`,`btime`,`rtime`,`reason`) VALUES ('%d.%d.%d.*', NOW() , NOW() +  INTERVAL 1 MONTH ,'Dynamic banned user id : %s')", (uint8)p[3], (uint8)p[2], (uint8)p[1], t_uid);
+					sprintf(tmpsql,"INSERT INTO `ipbanlist`(`list`,`btime`,`rtime`,`reason`) VALUES ('%d.%d.%d.%d', NOW() , NOW() +  INTERVAL 1 MONTH ,'Dynamic banned user id : %s')", (uint8)p[3], (uint8)p[2], (uint8)p[1], (uint8)p[0], t_uid);
 					if(mysql_query(&mysql_handle, tmpsql)) {
 						ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 						ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
