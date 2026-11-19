@@ -15,6 +15,15 @@
 # kernel writes a core on a crash; this wrapper decodes it into a backtrace
 # report under $UA_LOG_DIR/crash/ and (UA_PERF=1) records a perf profile.
 #
+# Log rotation (S. 2026-11-19): every launch of a server starts a new piece of
+# its console log and a new perf dump, and so does every UA_ROTATE_HOURS of
+# uptime - the server keeps running. The live log keeps its name (uAmap1.log,
+# uAchar.log ...); a closed piece is <name>-<start>.log, with the stamp its
+# perf dump carries too: uAmap1-20261119-030123.log next to
+# map1-20261119-030123-pid<pid>.perf.data/.txt. The map supervisor does the
+# same with its own uAmap.log and the monitor's uamon.log. Old pieces go with
+# clean_logs.sh.
+#
 # Usage:  ua-start.sh <login|char|map> [sql]
 #
 # Tunables (env):
@@ -29,6 +38,10 @@
 #   UA_SET_COREPATTERN=0  do not touch kernel.core_pattern
 #   UA_FORCE_THREADS  override CPU thread count (caps map-server count)
 #   UA_DRYRUN=1       (map) print the launch plan and exit, launch nothing
+#   UA_ROTATE_HOURS   new log piece + perf dump after this many hours of uptime
+#                     (default 24; 0 = no rotation at all, the logs just grow)
+#   UA_ROTATE_SECS    the same in seconds, overrides UA_ROTATE_HOURS (tests)
+#   UA_ROTATE_TICK    seconds between the uptime checks (default 60)
 
 set -u
 
@@ -57,6 +70,15 @@ UA_CORE_KEEP="${UA_CORE_KEEP:-0}"
 UA_PERF_KEEP="${UA_PERF_KEEP:-10}"
 UA_SET_COREPATTERN="${UA_SET_COREPATTERN:-1}"
 UA_DRYRUN="${UA_DRYRUN:-0}"
+UA_ROTATE_HOURS="${UA_ROTATE_HOURS:-24}"
+UA_ROTATE_TICK="${UA_ROTATE_TICK:-60}"
+case "$UA_ROTATE_HOURS" in
+	''|*[!0-9]*) echo "ua-start: WARN UA_ROTATE_HOURS='$UA_ROTATE_HOURS' is not whole hours - using 24" >&2
+	             UA_ROTATE_HOURS=24 ;;
+esac
+ROTATE_SECS="${UA_ROTATE_SECS:-$((UA_ROTATE_HOURS * 3600))}"
+case "$ROTATE_SECS" in ''|*[!0-9]*) ROTATE_SECS=$((UA_ROTATE_HOURS * 3600)) ;; esac
+case "$UA_ROTATE_TICK" in ''|0|*[!0-9]*) UA_ROTATE_TICK=60 ;; esac
 
 # map supervisor: restart back-off (avoid a hot crash-loop)
 MIN_UPTIME=10   # a child that dies < this many seconds after start is "flapping"
@@ -144,28 +166,85 @@ capture_crash() {
 	echo "$(date '+%F %T')  ${tag}  $name  pid=$pid  report=$report" >> "$CRASH_INDEX"
 }
 
-start_perf() {  # start_perf <pid> <tag> ; echoes "perfpid|perfdata" or empty
+start_perf() {  # start_perf <pid> <tag> [stamp] ; echoes "perfpid|perfdata" or empty
 	[ "$UA_PERF" = "1" ] || return 0
 	command -v perf >/dev/null 2>&1 || { echo "ua-start: UA_PERF=1 but 'perf' not installed" >&2; return 0; }
 	local pid="$1" tag="$2" para data ppid
 	para=$(cat /proc/sys/kernel/perf_event_paranoid 2>/dev/null || echo 3)
 	[ "$para" -gt 1 ] 2>/dev/null && echo 1 > /proc/sys/kernel/perf_event_paranoid 2>/dev/null
-	data="$PERF_DIR/${tag}-$(date +%Y%m%d-%H%M%S)-pid${pid}.perf.data"
+	data="$PERF_DIR/${tag}-${3:-$(date +%Y%m%d-%H%M%S)}-pid${pid}.perf.data"
 	perf record -F "$UA_PERF_FREQ" -g --call-graph fp -o "$data" -p "$pid" >/dev/null 2>&1 &
 	ppid=$!
 	echo "${ppid}|${data}"
 }
 
-finalize_perf() {  # finalize_perf <perfpid> <perfdata>
-	local ppid="$1" data="$2"
+alive() {  # alive <pid>: running, not a zombie waiting to be reaped
+	local st
+	st=$(ps -o stat= -p "$1" 2>/dev/null) && [ -n "$st" ] && [ "${st#Z}" = "$st" ]
+}
+
+finalize_perf() {  # finalize_perf <perfpid> <perfdata> [bg] ; bg = write the report in the background, niced
+	local ppid="$1" data="$2" n=0
 	[ -n "$ppid" ] || return 0
 	kill -INT "$ppid" 2>/dev/null
-	wait "$ppid" 2>/dev/null
+	# start_perf runs inside $(...), so the recorder is not this shell's child and `wait` returns at once:
+	# wait until it has finished its file (bounded), or the report reads a half-written perf.data.
+	while alive "$ppid" && [ "$n" -lt 600 ]; do sleep 0.1; n=$((n + 1)); done
 	if [ -n "$data" ] && [ -s "$data" ]; then
-		perf report --stdio -i "$data" > "${data%.data}.txt" 2>/dev/null && \
-			echo "ua-start: perf report -> ${data%.data}.txt"
+		if [ "${3:-}" = "bg" ]; then
+			{ nice -n 19 perf report --stdio -i "$data" > "${data%.data}.txt" 2>/dev/null && \
+				echo "ua-start: perf report -> ${data%.data}.txt"; } &
+		else
+			perf report --stdio -i "$data" > "${data%.data}.txt" 2>/dev/null && \
+				echo "ua-start: perf report -> ${data%.data}.txt"
+		fi
 	fi
 	prune_keep "$PERF_DIR" "*.perf.data" "$UA_PERF_KEEP"
+}
+
+# --------------------------------------------------------------------------
+# log rotation (see the header). A piece of console log runs from a launch or a
+# cut to the next one.
+# --------------------------------------------------------------------------
+STAMP_RE='[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}'
+
+# piece_stamp <log>: YYYYMMDD-HHMMSS the piece in <log> started at. That is the
+# time in its first "ua-start: ... (DATE)" line (every launch and every cut
+# writes one) or in its first "DATE ..." line (uamon.log); else its last write.
+piece_stamp() {
+	local t
+	t=$(head -n 200 -- "$1" 2>/dev/null | grep -a -m1 -E "^ua-start: .*\($STAMP_RE\)|^$STAMP_RE " | \
+		grep -oE "$STAMP_RE" | head -n 1)
+	if [ -n "$t" ]; then
+		t=${t//-/}; t=${t//:/}; echo "${t/ /-}"
+	else
+		date -r "$1" +%Y%m%d-%H%M%S
+	fi
+}
+
+# cut_log <log> [stamp]: close the piece in <log> as <log minus .log>-<stamp>.log
+# (stamp: piece_stamp) and empty <log>; echoes the new file. The writers keep
+# the file open and go on at its start: they all append (>>, systemd append:).
+# A line written in the instant between the last copy and the truncate is
+# lost. A missing or empty log is left alone; so is the log if the copy fails.
+cut_log() {
+	local log="$1" stamp="${2:-}" dst n=1 fd mt
+	[ -s "$log" ] || return 0
+	[ -n "$stamp" ] || stamp=$(piece_stamp "$log")
+	dst="${log%.log}-${stamp}.log"
+	while [ -e "$dst" ]; do n=$((n + 1)); dst="${log%.log}-${stamp}-${n}.log"; done
+	exec {fd}<"$log" || return 1
+	# the bulk, then what was written meanwhile, then empty the log at once
+	if ! { cat <&"$fd" > "$dst" && mt=$(stat -c %Y -- "$log") && cat <&"$fd" >> "$dst"; }; then
+		exec {fd}<&-
+		rm -f -- "$dst"
+		echo "ua-start: WARN could not copy $log to $dst - the log goes on unrotated" >&2
+		return 1
+	fi
+	: > "$log"
+	exec {fd}<&-
+	touch -d "@$mt" -- "$dst"   # the piece's own last write: clean_logs.sh ages it by that
+	echo "$dst"
 }
 
 # Block until MariaDB/MySQL accepts connections, so a boot or restart that races
@@ -228,10 +307,18 @@ run_single() {
 	fi
 	local PID="${BIN_DIR}/PID-${SERVER}.pid"
 	local CONSOLE_LOG="$LOG_DIR/uA${SERVER}.log"
+	# a new piece of console log for every launch: close what the previous run left in it
+	if [ "$ROTATE_SECS" -gt 0 ]; then
+		local prev
+		prev=$(cut_log "$CONSOLE_LOG")
+		[ -n "$prev" ] && echo "ua-start: previous log piece -> $prev" >> "$CONSOLE_LOG"
+	fi
 	setup_core_pattern
 	wait_for_db
 
-	echo "ua-start: launching $BIN ($(date '+%F %T'))" | tee -a "$CONSOLE_LOG"
+	local PIECE_AT PIECE_TS
+	PIECE_AT=$(date +%s); PIECE_TS=$(date -d "@$PIECE_AT" +%Y%m%d-%H%M%S)
+	echo "ua-start: launching $BIN ($(date -d "@$PIECE_AT" '+%F %T'))" | tee -a "$CONSOLE_LOG"
 	# Redirect the binary's console straight to uAlogin.log / uAchar.log, exactly like the map
 	# supervisor does for uAmapN.log. Previously login/char were launched bare ("$BIN" &) and relied
 	# on systemd StandardOutput=append: -- which silently produces NO file on systemd < v240 (no
@@ -242,19 +329,58 @@ run_single() {
 	echo "$SPID" > "$PID"
 
 	local PERF_PID="" PERF_DATA="" pr
-	pr=$(start_perf "$SPID" "$SERVER"); PERF_PID="${pr%%|*}"; PERF_DATA="${pr#*|}"
+	pr=$(start_perf "$SPID" "$SERVER" "$PIECE_TS"); PERF_PID="${pr%%|*}"; PERF_DATA="${pr#*|}"
 	[ "$pr" = "$PERF_PID" ] && PERF_DATA=""   # no '|' -> perf off
 	[ -n "$PERF_DATA" ] && echo "ua-start: perf profiling -> $PERF_DATA (${UA_PERF_FREQ}Hz)"
 
-	shutdown_fwd() { [ -n "$PERF_PID" ] && kill -INT "$PERF_PID" 2>/dev/null; kill -TERM "$SPID" 2>/dev/null; }
+	# cut_piece <now>: new log piece + perf dump after ROTATE_SECS of uptime; the server keeps running
+	cut_piece() {
+		local now="$1" stamp prev pr oldp="$PERF_PID" oldd="$PERF_DATA"
+		stamp=$(date -d "@$now" +%Y%m%d-%H%M%S)
+		# the new recording starts before the old one stops: no hole in the profile
+		pr=$(start_perf "$SPID" "$SERVER" "$stamp"); PERF_PID="${pr%%|*}"; PERF_DATA="${pr#*|}"
+		[ "$pr" = "$PERF_PID" ] && PERF_DATA=""
+		prev=$(cut_log "$CONSOLE_LOG" "$PIECE_TS")
+		echo "ua-start: ${SERVER} new log piece ($(date -d "@$now" '+%F %T')), previous piece -> ${prev:-(empty)}" \
+			>> "$CONSOLE_LOG"
+		[ -n "$PERF_DATA" ] && echo "ua-start: perf profiling -> $PERF_DATA (${UA_PERF_FREQ}Hz)"
+		PIECE_AT=$now; PIECE_TS=$stamp
+		finalize_perf "$oldp" "$oldd" bg
+	}
+
+	local STOPPING=0 TICK_PID=""
+	shutdown_fwd() {
+		STOPPING=1
+		[ -n "$TICK_PID" ] && kill "$TICK_PID" 2>/dev/null
+		[ -n "$PERF_PID" ] && kill -INT "$PERF_PID" 2>/dev/null
+		kill -TERM "$SPID" 2>/dev/null
+	}
 	trap shutdown_fwd TERM INT
 
-	local rc
-	wait "$SPID"; rc=$?
-	while kill -0 "$SPID" 2>/dev/null; do wait "$SPID"; rc=$?; done
+	# Wait for the server. A ticker child wakes us every UA_ROTATE_TICK s for the uptime check; a background
+	# perf report finishing wakes us too.
+	local rc dpid now
+	[ "$ROTATE_SECS" -gt 0 ] && { sleep "$UA_ROTATE_TICK" & TICK_PID=$!; }
+	while :; do
+		dpid=""
+		wait -n -p dpid; rc=$?
+		dpid=${dpid:-}   # wait unsets it when a signal (the TERM trap) cut the wait short
+		[ "$dpid" = "$SPID" ] && break
+		if [ -n "$dpid" ] && [ "$dpid" = "$TICK_PID" ]; then
+			TICK_PID=""
+			[ "$STOPPING" -eq 1 ] && continue
+			now=$(date +%s)
+			[ $((now - PIECE_AT)) -ge "$ROTATE_SECS" ] && cut_piece "$now"
+			sleep "$UA_ROTATE_TICK" & TICK_PID=$!
+			continue
+		fi
+		[ -z "$dpid" ] && [ "$rc" -eq 127 ] && break   # no child left (cannot happen while the server runs)
+	done
 	trap - TERM INT
+	[ -n "$TICK_PID" ] && kill "$TICK_PID" 2>/dev/null
 
 	finalize_perf "$PERF_PID" "$PERF_DATA"
+	wait   # reports of earlier pieces still being written
 
 	if [ "$rc" -gt 128 ]; then
 		local sig=$((rc - 128))
@@ -280,7 +406,9 @@ run_map_supervisor() {
 	# matching a command line). systemd already prevents a double ExecStart; this
 	# covers manual invocation. Skipped in dry-run.
 	if [ "$UA_DRYRUN" != "1" ] && command -v flock >/dev/null 2>&1; then
-		exec 9>"${BIN_DIR}/.ua-map.lock" 2>/dev/null && \
+		# The braces matter: a bare `exec 9>lock 2>/dev/null` makes BOTH redirections permanent, and the
+		# supervisor's stderr - CRASH reports, flapping, restarting map#N - went to /dev/null.
+		{ exec 9>"${BIN_DIR}/.ua-map.lock"; } 2>/dev/null && \
 		if ! flock -n 9; then
 			echo "ua-start: map supervisor already running (lock held)"
 			exit 0
@@ -291,9 +419,18 @@ run_map_supervisor() {
 	. "$SELF_DIR/ua-mapcount.sh"
 
 	local K; K=$(ua_map_count)
-	echo "ua-start: multi-map supervisor: $K map-server(s) (threads=$(ua_threads), confN=$(ua_conf_max))"
+	# This supervisor's own log (systemd StandardOutput) and the load monitor's (cron, scripts/cron) get new
+	# pieces with the supervisor: at its start and every ROTATE_SECS.
+	local SUP_LOG="$LOG_DIR/uAmap.log" MON_LOG="$LOG_DIR/uamon.log" SUP_AT SUP_TS
+	SUP_AT=$(date +%s); SUP_TS=$(date -d "@$SUP_AT" +%Y%m%d-%H%M%S)
+	if [ "$ROTATE_SECS" -gt 0 ] && [ "$UA_DRYRUN" != "1" ]; then
+		cut_log "$SUP_LOG" > /dev/null
+		cut_log "$MON_LOG" > /dev/null
+	fi
+	echo "ua-start: multi-map supervisor: $K map-server(s) (threads=$(ua_threads), confN=$(ua_conf_max))" \
+		"($(date -d "@$SUP_AT" '+%F %T'))"
 
-	declare -A MAP_PID PID_INST START_AT PERF_PID PERF_DATA CONSOLE CONFDIR CORES
+	declare -A MAP_PID PID_INST START_AT PERF_PID PERF_DATA CONSOLE CONFDIR CORES PIECE_AT PIECE_TS
 
 	build_cfg_args() {  # build_cfg_args <confdir> ; sets global CFG_ARGS array
 		local d="$1"
@@ -327,19 +464,61 @@ run_map_supervisor() {
 			return 0
 		fi
 
-		echo "ua-start: map#$i launch (cores=${cores:-all} conf=$confdir) -> $console ($(date '+%F %T'))" \
+		# a new piece of console log for every launch: close what the previous run (or crash) left in it
+		local now stamp prev
+		now=$(date +%s); stamp=$(date -d "@$now" +%Y%m%d-%H%M%S)
+		if [ "$ROTATE_SECS" -gt 0 ]; then
+			prev=$(cut_log "$console" "${PIECE_TS[$i]:-}")
+			[ -n "$prev" ] && echo "ua-start: map#$i previous log piece -> $prev"
+		fi
+		echo "ua-start: map#$i launch (cores=${cores:-all} conf=$confdir) -> $console ($(date -d "@$now" '+%F %T'))" \
 			| tee -a "$console"
 		"${PIN[@]}" "$BIN" "${CFG_ARGS[@]}" >> "$console" 2>&1 &
 		local pid=$!
-		MAP_PID[$i]=$pid; PID_INST[$pid]=$i; START_AT[$i]=$(date +%s)
+		MAP_PID[$i]=$pid; PID_INST[$pid]=$i; START_AT[$i]=$now; PIECE_AT[$i]=$now; PIECE_TS[$i]=$stamp
 		echo "$pid" > "${BIN_DIR}/PID-map${i}.pid"
 
-		pr=$(start_perf "$pid" "map${i}")
+		pr=$(start_perf "$pid" "map${i}" "$stamp")
 		if [ -n "$pr" ] && [ "$pr" != "${pr%%|*}" ]; then
 			PERF_PID[$i]="${pr%%|*}"; PERF_DATA[$i]="${pr#*|}"
 			echo "ua-start: map#$i perf -> ${PERF_DATA[$i]}"
 		fi
 		return 0
+	}
+
+	cut_instance() {  # cut_instance <i> <now>: new log piece + perf dump for map#i; the server keeps running
+		local i="$1" now="$2" stamp prev pr oldp="${PERF_PID[$1]:-}" oldd="${PERF_DATA[$1]:-}"
+		stamp=$(date -d "@$now" +%Y%m%d-%H%M%S)
+		unset 'PERF_PID[$i]' 'PERF_DATA[$i]'
+		# the new recording starts before the old one stops: no hole in the profile
+		pr=$(start_perf "${MAP_PID[$i]}" "map${i}" "$stamp")
+		if [ -n "$pr" ] && [ "$pr" != "${pr%%|*}" ]; then
+			PERF_PID[$i]="${pr%%|*}"; PERF_DATA[$i]="${pr#*|}"
+			echo "ua-start: map#$i perf -> ${PERF_DATA[$i]}"
+		fi
+		prev=$(cut_log "${CONSOLE[$i]}" "${PIECE_TS[$i]}")
+		echo "ua-start: map#$i new log piece ($(date -d "@$now" '+%F %T')), previous piece -> ${prev:-(empty)}" \
+			| tee -a "${CONSOLE[$i]}"
+		PIECE_AT[$i]=$now; PIECE_TS[$i]=$stamp
+		finalize_perf "$oldp" "$oldd" bg
+	}
+
+	cut_supervisor() {  # cut_supervisor <now>: the same for this supervisor's own log and uamon.log
+		local now="$1" prev
+		prev=$(cut_log "$SUP_LOG" "$SUP_TS")
+		cut_log "$MON_LOG" "$SUP_TS" > /dev/null
+		SUP_AT=$now; SUP_TS=$(date -d "@$now" +%Y%m%d-%H%M%S)
+		echo "ua-start: map supervisor new log piece ($(date -d "@$now" '+%F %T')), previous piece -> ${prev:-(empty)}"
+	}
+
+	cut_due() {  # the uptime check: cut whatever has run ROTATE_SECS since its launch or its last cut
+		local now i
+		now=$(date +%s)
+		[ $((now - SUP_AT)) -ge "$ROTATE_SECS" ] && cut_supervisor "$now"
+		for i in "${!MAP_PID[@]}"; do
+			[ "$shutting_down" -eq 0 ] || return 0   # a stop came in: the shutdown takes it from here
+			[ $((now - ${PIECE_AT[$i]:-$now})) -ge "$ROTATE_SECS" ] && cut_instance "$i" "$now"
+		done
 	}
 
 	# ---- dry run: print the plan and exit -------------------------------
@@ -354,11 +533,12 @@ run_map_supervisor() {
 	wait_for_db
 	echo $$ > "${BIN_DIR}/PID-map.pid"   # supervisor pid (for systemd)
 
-	local shutting_down=0
+	local shutting_down=0 TICK_PID=""
 	stop_all() {
 		shutting_down=1
 		echo "ua-start: stopping all map-servers (SIGTERM)..."
 		local i
+		[ -n "$TICK_PID" ] && kill "$TICK_PID" 2>/dev/null
 		for i in "${!MAP_PID[@]}"; do kill -TERM "${MAP_PID[$i]}" 2>/dev/null; done
 		for i in "${!PERF_PID[@]}"; do kill -INT "${PERF_PID[$i]}" 2>/dev/null; done
 	}
@@ -366,16 +546,26 @@ run_map_supervisor() {
 
 	local i
 	for i in $(seq 1 "$K"); do launch_instance "$i"; done
+	# a ticker child wakes the loop below every UA_ROTATE_TICK s for the uptime check
+	[ "$ROTATE_SECS" -gt 0 ] && { sleep "$UA_ROTATE_TICK" & TICK_PID=$!; }
 
 	# ---- supervise: restart any instance that dies ----------------------
 	local dpid rc inst sig now up
 	while [ "$shutting_down" -eq 0 ]; do
 		dpid=""
 		wait -n -p dpid; rc=$?
+		dpid=${dpid:-}   # wait unsets it when a signal cut the wait short
 		[ "$shutting_down" -ne 0 ] && break
 		[ -z "$dpid" ] && continue
+		if [ "$dpid" = "$TICK_PID" ]; then
+			TICK_PID=""
+			cut_due
+			[ "$shutting_down" -ne 0 ] && break
+			sleep "$UA_ROTATE_TICK" & TICK_PID=$!
+			continue
+		fi
 		inst="${PID_INST[$dpid]:-}"
-		[ -z "$inst" ] && continue          # a perf child (or unknown) exited - ignore
+		[ -z "$inst" ] && continue          # a background perf report (or unknown) exited - ignore
 		unset 'PID_INST[$dpid]'
 		unset 'MAP_PID[$inst]'
 
@@ -406,9 +596,11 @@ run_map_supervisor() {
 
 	# ---- graceful shutdown ---------------------------------------------
 	trap - TERM INT
+	[ -n "$TICK_PID" ] && kill "$TICK_PID" 2>/dev/null   # a ticker started just after stop_all ran
 	echo "ua-start: waiting for map-servers to finish do_final()..."
 	for i in "${!MAP_PID[@]}"; do wait "${MAP_PID[$i]}" 2>/dev/null; done
 	for i in "${!PERF_PID[@]}"; do finalize_perf "${PERF_PID[$i]}" "${PERF_DATA[$i]:-}"; done
+	wait   # reports of earlier pieces still being written
 	rm -f "${BIN_DIR}"/PID-map*.pid
 	echo "ua-start: all map-servers stopped."
 	exit 0
