@@ -388,14 +388,20 @@ int mmo_auth_new(struct mmo_account* account, char sex)
 {
 	unsigned int tick = gettick();
 	char user_password[256];
+	// Escaped copies for the queries. The name and password come straight from the client's login packet, so
+	// they are escaped before any query sees them; account->userid/passwd stay as typed for the login that follows.
+	char esc_userid[NAME_LENGTH*2+1], esc_passwd[NAME_LENGTH*2+1];
 	//Account Registration Flood Protection by [Kevin]
 	if(DIFF_TICK(tick, new_reg_tick) < 0 && num_regs >= allowed_regs) {
 		ShowNotice("Account registration denied (registration limit exceeded)\n");
 		return 3;
 	}
 
+	mysql_real_escape_string(&mysql_handle, esc_userid, account->userid, (unsigned long)strlen(account->userid));
+	mysql_real_escape_string(&mysql_handle, esc_passwd, account->passwd, (unsigned long)strlen(account->passwd));
+
 	//Check for preexisting account
-	sprintf(tmpsql, "SELECT `%s` FROM `%s` WHERE `userid` = '%s'", login_db_userid, login_db, account->userid);
+	sprintf(tmpsql, "SELECT `%s` FROM `%s` WHERE `userid` = '%s'", login_db_userid, login_db, esc_userid);
 	if(mysql_query(&mysql_handle, tmpsql)){
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
@@ -403,25 +409,27 @@ int mmo_auth_new(struct mmo_account* account, char sex)
 	}
 
 	sql_res = mysql_store_result(&mysql_handle);
+	if(sql_res == NULL){
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
+		return 1;
+	}
 	if(mysql_num_rows(sql_res) > 0){
 		mysql_free_result(sql_res);
 		return 1; //Already exists, return incorrect user/pass.
 	}
 	mysql_free_result(sql_res); //Only needed for the already-exists check...
 
-	mysql_real_escape_string(&mysql_handle, account->userid, account->userid, strlen(account->userid));
-	mysql_real_escape_string(&mysql_handle, account->passwd, account->passwd, strlen(account->passwd));
-
 	sex = TOUPPER(sex);
 
 	if (login_config.use_md5_passwds)
 		MD5_String(account->passwd, user_password);
 	else
-		jstrescapecpy(user_password, account->passwd);
+		strcpy(user_password, esc_passwd);
 
 	ShowInfo("New account: user: %s with passwd: %s sex: %c\n", account->userid, user_password, sex);
 
-	sprintf(tmpsql, "INSERT INTO `%s` (`%s`, `%s`, `sex`, `email`) VALUES ('%s', '%s', '%c', '%s')", login_db, login_db_userid, login_db_user_pass, account->userid, user_password, sex, "a@a.com");
+	sprintf(tmpsql, "INSERT INTO `%s` (`%s`, `%s`, `sex`, `email`) VALUES ('%s', '%s', '%c', '%s')", login_db, login_db_userid, login_db_user_pass, esc_userid, user_password, sex, "a@a.com");
 
 	if(mysql_query(&mysql_handle, tmpsql)){
 		//Failed to insert new acc :/
@@ -925,10 +933,13 @@ int parse_fromchar(int fd)
 				return 0;
 		{
 			int acc;
-			char actual_email[40], new_email[40];
+			// The addresses are what the player typed after @email: terminated here and escaped for the UPDATE.
+			char actual_email[40+1], new_email[40+1], esc_email[40*2+1];
 			acc = RFIFOL(fd,2);
 			memcpy(actual_email, RFIFOP(fd,6), 40);
+			actual_email[40] = '\0';
 			memcpy(new_email, RFIFOP(fd,46), 40);
+			new_email[40] = '\0';
 			if (e_mail_check(actual_email) == 0)
 				ShowWarning("Char-server '%s': Attempt to modify an e-mail on an account (@email GM command), but actual email is invalid (account: %d, ip: %s)" RETCODE,
 				server[id].name, acc, ip);
@@ -950,14 +961,15 @@ int parse_fromchar(int fd)
 					sql_row = mysql_fetch_row(sql_res);	//row fetching
 
 					if (sql_row && strcmpi(sql_row[1], actual_email) == 0) {
-						sprintf(tmpsql, "UPDATE `%s` SET `email` = '%s' WHERE `%s` = '%d'", login_db, new_email, login_db_account_id, acc);
+						mysql_real_escape_string(&mysql_handle, esc_email, new_email, (unsigned long)strlen(new_email));
+						sprintf(tmpsql, "UPDATE `%s` SET `email` = '%s' WHERE `%s` = '%d'", login_db, esc_email, login_db_account_id, acc);
 						// query
 						if (mysql_query(&mysql_handle, tmpsql)) {
 							ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 							ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
 						}
 						ShowInfo("Char-server '%s': Modify an e-mail on an account (@email GM command) (account: %d (%s), new e-mail: %s, ip: %s)." RETCODE,
-							server[id].name, acc, sql_row[0], actual_email, ip);
+							server[id].name, acc, sql_row[0], new_email, ip);
 					}
 					mysql_free_result(sql_res);
 				}
@@ -1068,9 +1080,12 @@ int parse_fromchar(int fd)
 			acc = RFIFOL(fd,2);
 			sprintf(tmpsql,"SELECT `sex` FROM `%s` WHERE `%s` = '%d'",login_db,login_db_account_id,acc);
 
+			// Every exit drops the packet: one left unread is parsed again and again and blocks everything
+			// this char-server sends after it.
 			if(mysql_query(&mysql_handle, tmpsql)) {
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
+				RFIFOSKIP(fd,6);
 				return 0;
 			}
 
@@ -1079,6 +1094,7 @@ int parse_fromchar(int fd)
 			if (sql_row == NULL) {
 				if (sql_res)
 					mysql_free_result(sql_res);
+				RFIFOSKIP(fd,6);
 				return 0;
 			}
 
@@ -1215,13 +1231,18 @@ int parse_fromchar(int fd)
 			int char_id = RFIFOL(fd, 6);
 			int p;
 			sprintf(tmpsql, "SELECT `str`,`value` FROM `%s` WHERE `type`='1' AND `account_id`='%d'",reg_db, account_id);
+			// On an error drop the request without an answer: left in the buffer it is parsed again forever, and an
+			// empty answer would make the map-server's next save delete the account's ## variables.
 			if (mysql_query(&mysql_handle, tmpsql)) {
 				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmpsql);
+				RFIFOSKIP(fd,10);
 				break;
 			}
 			sql_res = mysql_store_result(&mysql_handle) ;
 			if (!sql_res) {
+				ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+				RFIFOSKIP(fd,10);
 				break;
 			}
 			WFIFOHEAD(fd,10000);
