@@ -630,7 +630,9 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			char_db, p->class_,
 			p->hair, p->hair_color, p->clothes_color,
 			p->partner_id, p->father, p->mother, p->child,
-			p->karma, p->manner, p->fame,
+			// karma/manner are TINYINT: a mute over 127 minutes (manner -200) made strict SQL reject this whole
+			// UPDATE (class, hair, family...). Clamped, a longer mute resumes at 128 minutes after a relog.
+			cap_value(p->karma, -128, 127), cap_value(p->manner, -128, 127), p->fame,
 			p->account_id, p->char_id
 		);
 		if(mysql_query(&mysql_handle, tmp_sql))
@@ -856,6 +858,9 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 					&& mapitem[i].card[0] == atoi(sql_row[7])
 					&& mapitem[i].card[2] == atoi(sql_row[9])
 					&& mapitem[i].card[3] == atoi(sql_row[10])
+					// a rental and a permanent stack of the same item are different items: matched to each other,
+					// the quick update below swapped their amounts but kept each row's expire_time
+					&& mapitem[i].expire_time == (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10)
 				) {	//They are the same item.
 					for (j = 0; j<MAX_SLOTS && mapitem[i].card[j] == atoi(sql_row[7+j]); j++);
 					if (j == MAX_SLOTS &&
@@ -1512,12 +1517,14 @@ int delete_char_sql(int char_id, int partner_id)
 
 	// Komurka's suggested way to clear pets, modified by [Skotlex] (because I always personalize what I do :X)
 	//Removing pets that are in the char's inventory....
+	// An egg keeps its pet_id as card1 = low word, card2 = high word (pet.c); the old card1|(card2<<2) missed
+	// pets from 32768 on and from 65536 on hit another player's pet.
 	{	//NOTE: The syntax for multi-table deletes is a bit changed between 4.0 and 4.1 regarding aliases, so we have to consider the version... [Skotlex]
 		//Since we only care about the major and minor version, a double conversion is good enough. (4.1.20 -> 4.10000)
 		double mysql_version = atof(mysql_get_server_info(&mysql_handle));
 		
 		sprintf(tmp_sql,
-		"delete FROM `%s` USING `%s` as c LEFT JOIN `%s` as i ON c.char_id = i.char_id, `%s` as p WHERE c.char_id = '%d' AND i.card0 = -256 AND p.pet_id = (i.card1|(i.card2<<2))",
+		"delete FROM `%s` USING `%s` as c LEFT JOIN `%s` as i ON c.char_id = i.char_id, `%s` as p WHERE c.char_id = '%d' AND i.card0 = -256 AND p.pet_id = ((i.card1 & 0xFFFF)|((i.card2 & 0xFFFF)<<16))",
 			(mysql_version<4.1?pet_db:"p"), char_db, inventory_db, pet_db, char_id);
 		
 		if(mysql_query(&mysql_handle, tmp_sql)) {
@@ -1527,7 +1534,7 @@ int delete_char_sql(int char_id, int partner_id)
 
 		//Removing pets that are in the char's cart....
 		sprintf(tmp_sql,
-		"delete FROM `%s` USING `%s` as c LEFT JOIN `%s` as i ON c.char_id = i.char_id, `%s` as p WHERE c.char_id = '%d' AND i.card0 = -256 AND p.pet_id = (i.card1|(i.card2<<2))",
+		"delete FROM `%s` USING `%s` as c LEFT JOIN `%s` as i ON c.char_id = i.char_id, `%s` as p WHERE c.char_id = '%d' AND i.card0 = -256 AND p.pet_id = ((i.card1 & 0xFFFF)|((i.card2 & 0xFFFF)<<16))",
 			(mysql_version<4.1?pet_db:"p"), char_db, cart_db, pet_db, char_id);
 		
 		if(mysql_query(&mysql_handle, tmp_sql)) {
@@ -1638,9 +1645,13 @@ int delete_char_sql(int char_id, int partner_id)
 	}
 	*/
 
-	sprintf(tmp_sql, "SELECT `guild_id` FROM `%s` WHERE `master` = '%s'", guild_db, t_name);
-	
-	if (mysql_query(&mysql_handle, tmp_sql))
+	// Break the character's guild only when it is that guild's master (guild.char_id). Matching some guild's
+	// stored master *name* broke the character's own guild when an unrelated guild carried the same name.
+	sprintf(tmp_sql, "SELECT `guild_id` FROM `%s` WHERE `guild_id` = '%d' AND `char_id` = '%d'", guild_db, guild_id, char_id);
+
+	if (!guild_id)
+		; // not in a guild: nothing to break or leave
+	else if (mysql_query(&mysql_handle, tmp_sql))
 	{
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
