@@ -3794,7 +3794,9 @@ int parse_char(int fd)
 			if (sd->found_char[i] != char_num - 1) {
 				int j, k;
 				struct char_session_data *sd2;
-				memcpy(&char_dat[sd->found_char[i]], &char_dat[char_num-1], sizeof(struct mmo_charstatus));
+				// the WHOLE entry (status + its char variables): copying only sizeof(struct mmo_charstatus) left
+				// the moved character with the deleted character's variables (the 0x2730 path did it right)
+				memcpy(&char_dat[sd->found_char[i]], &char_dat[char_num-1], sizeof(struct character_data));
 				// Correct moved character reference in the character's owner
 				for (j = 0; j < fd_max; j++) {
 					if (session[j] && (sd2 = (struct char_session_data*)session[j]->session_data) &&
