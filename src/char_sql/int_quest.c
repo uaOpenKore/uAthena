@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//Load entire questlog for a character. Returns the number of quests read.
+//Load entire questlog for a character. Returns the number of quests read, -1 on a DB error.
 int mapif_quests_fromsql(int char_id, struct quest questlog[])
 {
 	int i = 0;
@@ -28,9 +28,14 @@ int mapif_quests_fromsql(int char_id, struct quest questlog[])
 	{
 		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__, __LINE__, tmp_sql);
-		return 0;
+		return -1;
 	}
 	sql_res = mysql_store_result(&mysql_handle);
+	if( sql_res == NULL )
+	{
+		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+		return -1;
+	}
 	if( sql_res )
 	{
 		while( i < MAX_PC_QUESTS && (sql_row = mysql_fetch_row(sql_res)) )
@@ -102,6 +107,11 @@ int mapif_parse_quest_save(int fd)
 	if( new_n )
 		memcpy(&qd_new, RFIFOP(fd,8), RFIFOW(fd,2)-8);
 	old_n = mapif_quests_fromsql(char_id, qd_old);
+	if( old_n < 0 )
+	{ // the stored log can't be read: change nothing (diffing against "no entries" would add them all again)
+		success = false;
+		new_n = old_n = 0;
+	}
 
 	for( i = 0; i < new_n; i++ )
 	{
@@ -147,6 +157,8 @@ int mapif_parse_quest_load(int fd)
 	memset(complete, 0, sizeof(complete));
 
 	num_quests = mapif_quests_fromsql(char_id, tmp_questlog);
+	if( num_quests < 0 )
+		return 0; // DB error: no reply - an empty log would make the next save delete the stored quests
 
 	WFIFOHEAD(fd, num_quests*sizeof(struct quest)+8);
 	WFIFOW(fd,0) = 0x3860;

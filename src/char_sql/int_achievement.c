@@ -16,7 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-// Load all achievements for a character. Returns the count read.
+// Load all achievements for a character. Returns the count read, -1 on a DB error.
 int mapif_achievements_fromsql(int char_id, struct achievement log[])
 {
 	int i = 0;
@@ -26,9 +26,14 @@ int mapif_achievements_fromsql(int char_id, struct achievement log[])
 	{
 		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__, __LINE__, tmp_sql);
-		return 0;
+		return -1;
 	}
 	sql_res = mysql_store_result(&mysql_handle);
+	if( sql_res == NULL )
+	{
+		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+		return -1;
+	}
 	if( sql_res )
 	{
 		while( i < MAX_ACHIEVEMENT && (sql_row = mysql_fetch_row(sql_res)) )
@@ -95,6 +100,11 @@ int mapif_parse_achievement_save(int fd)
 	if( new_n )
 		memcpy(&ad_new, RFIFOP(fd,8), RFIFOW(fd,2)-8);
 	old_n = mapif_achievements_fromsql(char_id, ad_old);
+	if( old_n < 0 )
+	{ // the stored log can't be read: change nothing (diffing against "no entries" would add them all again)
+		success = false;
+		new_n = old_n = 0;
+	}
 
 	for( i = 0; i < new_n; i++ )
 	{
@@ -136,6 +146,8 @@ int mapif_parse_achievement_load(int fd)
 	RFIFOHEAD(fd);
 	memset(tmp_log, 0, sizeof(tmp_log));
 	n = mapif_achievements_fromsql(char_id, tmp_log);
+	if( n < 0 )
+		return 0; // DB error: no reply - an empty log would be completed (rewards paid) and saved over the stored one
 
 	WFIFOHEAD(fd, n*sizeof(struct achievement)+8);
 	WFIFOW(fd,0) = 0x3862;

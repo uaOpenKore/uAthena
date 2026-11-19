@@ -252,10 +252,12 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if (sd->pd && sd->pd->pet.intimate > 0)
 		intif_save_petdata(sd->pd->pet.account_id, &sd->pd->pet);
 
-	if (sd->save_quest)
+	// Only logs that arrived from the char-server: it replaces the stored log with the one sent, so saving a
+	// log that never arrived (a DB error, a session gone before the reply) would delete the stored entries.
+	if (sd->save_quest && sd->state.questlog_loaded)
 		intif_quest_save(sd);
 
-	if (sd->save_achievement)
+	if (sd->save_achievement && sd->state.achievements_loaded)
 		intif_achievement_save(sd);
 
 	if (flag)

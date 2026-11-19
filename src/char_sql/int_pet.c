@@ -72,15 +72,19 @@ int inter_pet_fromsql(int pet_id, struct s_pet *p){
 	if(mysql_query(&mysql_handle, tmp_sql) ) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
 		ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
-		return 0;
+		return -1;
 	}
 	sql_res = mysql_store_result(&mysql_handle) ;
-	if (sql_res!=NULL && mysql_num_rows(sql_res)>0) {
+	if (sql_res == NULL) {
+		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
+		return -1;
+	}
+	if (mysql_num_rows(sql_res)>0) {
 		sql_row = mysql_fetch_row(sql_res);
 
 		p->pet_id = pet_id;
 		p->class_ = atoi(sql_row[1]);
-		strncpy(p->name, sql_row[2], NAME_LENGTH);
+		safestrncpy(p->name, sql_row[2], NAME_LENGTH);
 		p->account_id = atoi(sql_row[3]);
 		p->char_id = atoi(sql_row[4]);
 		p->level = atoi(sql_row[5]);
@@ -104,7 +108,7 @@ int inter_pet_fromsql(int pet_id, struct s_pet *p){
 
 	if (save_log)
 		ShowInfo("Pet loaded (%d - %s).\n", pet_id, p->name);
-	return 0;
+	return p->pet_id ? 1 : 0;
 }
 //----------------------------------------------
 
@@ -231,7 +235,9 @@ int mapif_create_pet(int fd, int account_id, int char_id, short pet_class, short
 int mapif_load_pet(int fd, int account_id, int char_id, int pet_id){
 	memset(pet_pt, 0, sizeof(struct s_pet));
 
-	inter_pet_fromsql(pet_id, pet_pt);
+	// A DB error is answered with nothing: "not your pet" would make the map-server drop the character's pet.
+	if (inter_pet_fromsql(pet_id, pet_pt) < 0)
+		return 0;
 
 	if(pet_pt!=NULL) {
 		if(pet_pt->incuvate == 1) {

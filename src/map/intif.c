@@ -1535,6 +1535,7 @@ int intif_parse_questlog(int fd)
 		if( sd->quest_log[i].state == Q_COMPLETE )
 			sd->avail_quests--;
 	}
+	sd->state.questlog_loaded = 1;
 
 	quest_pc_login(sd);
 
@@ -1608,6 +1609,7 @@ int intif_parse_achievements(int fd)
 			continue;
 		}
 	}
+	sd->state.achievements_loaded = 1;
 
 	achievement_login(sd);
 
