@@ -4365,6 +4365,10 @@ int chardb_final(int key, void* data, va_list va)
 void do_final(void)
 {
 	ShowStatus("Terminating server.\n");
+	// Kick the players and tell the login-server they left BEFORE the online db goes: set_all_offline walks it,
+	// and running it after the destroy below read freed memory -- the TXT char-server segfaulted on every stop
+	// (dmesg: set_all_offline, char.c) and the login-server kept those accounts online.
+	set_all_offline(-1);
 	// write online players files with no player
 	online_char_db->clear(online_char_db, NULL); //clean the db...
 	create_online_files();
@@ -4372,7 +4376,6 @@ void do_final(void)
 
 	mmo_char_sync();
 	inter_save();
-	set_all_offline(-1);
 	flush_fifos();
 	
 	if(gm_account) aFree(gm_account);
