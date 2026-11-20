@@ -49,7 +49,29 @@ static int npc_mob=0;
 static int npc_delay_mob=0;
 static int npc_cache_mob=0;
 const char *current_file = NULL;
-int npc_get_new_npc_id(void){ return npc_id++; }
+// The id of a new npc/mob/pet/homunculus/mercenary. Ids are never handed back, so after ~2 billion (years of
+// uptime, a respawn takes a new id) the counter wraps to START_NPC_NUM instead of overflowing into negative ids,
+// and from then on skips the ids still in use (the permanent NPCs and mobs at the bottom of the range).
+#define MAX_NPC_ID 2100000000
+static bool npc_id_wrapped = false;
+int npc_get_new_npc_id(void)
+{
+	int tries = 0;
+	for(;;) {
+		if( npc_id >= MAX_NPC_ID ) {
+			ShowWarning("npc_get_new_npc_id: the npc/mob id counter reached %d, wrapping to %d (ids in use are skipped).\n", npc_id, START_NPC_NUM);
+			npc_id = START_NPC_NUM;
+			npc_id_wrapped = true;
+		}
+		if( !npc_id_wrapped || map_id2bl(npc_id) == NULL )
+			return npc_id++;
+		npc_id++;
+		if( ++tries >= MAX_NPC_ID - START_NPC_NUM ) {
+			ShowFatalError("npc_get_new_npc_id: every npc/mob id is in use!\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+}
 int npc_peek_new_npc_id(void){ return npc_id; } // [metrics] MOBMETRIC: ids used per hour
 
 static struct dbt *ev_db;
