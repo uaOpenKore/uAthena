@@ -34,7 +34,7 @@
 	next;
 	setarray .@indices[1], EQI_HEAD_TOP, EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_MID, EQI_HEAD_LOW;
 	for(set .@i,1; .@i<=10; set .@i,.@i+1)
-		set .@menu$, .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : F_getpositionname(.@indices[.@i]) +"-[Unequipped]" ) +":";
+		set .@menu$, .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : callfunc("F_getpositionname",.@indices[.@i]) +"-[Unequipped]" ) +":";
 	set .@part, .@indices[ select(.@menu$) ];
 	if (!getequipisequiped(.@part)) {
 		mes "[Blacksmith Dister]";
@@ -163,7 +163,7 @@
 
 	mes "[Blacksmith Dister]";
 	mes "Tac! Tac! Tac!";
-	if (getequippercentrefinery(.@part, true) > rand(100)) {
+	if (getequippercentrefinery(.@part) /* [eAthena] no enriched rates: the normal ones */ > rand(100)) {
 		specialeffect EF_BLESSING;
 		successrefitem .@part;
 		next;

@@ -14,7 +14,7 @@
 
 -	shop	market_soda	-1
 
-rachel,142,155,3	script	Carbonated Water Vending Machine#ra	4_VENDING_MACHINE2,{
+rachel,142,155,3	script	Carbonated Water Vending Machine#ra::CarbonatedVending	4_VENDING_MACHINE2,{
 	set .@item_name$, getitemname(1000374);
 
 	mes "[Carbonated Water Vending Machine]";
@@ -27,13 +27,13 @@ rachel,142,155,3	script	Carbonated Water Vending Machine#ra	4_VENDING_MACHINE2,{
 	callshop "market_soda",1;
 	end;
 }
-prontera,170,125,3	duplicate(Carbonated Water Vending Machine#ra)	Carbonated Water Vending Machine#prt	4_VENDING_MACHINE2
-alberta,127,59,3	duplicate(Carbonated Water Vending Machine#ra)	Carbonated Water Vending Machine#alb	4_VENDING_MACHINE2
-einbroch,249,186,3	duplicate(Carbonated Water Vending Machine#ra)	Carbonated Water Vending Machine#ein	4_VENDING_MACHINE2
-geffen,153,70,3	duplicate(Carbonated Water Vending Machine#ra)	Carbonated Water Vending Machine#gef	4_VENDING_MACHINE2
-yuno,177,182,3	duplicate(Carbonated Water Vending Machine#ra)	Carbonated Water Vending Machine#yu	4_VENDING_MACHINE2
-veins,218,122,3	duplicate(Carbonated Water Vending Machine#ra)	Carbonated Water Vending Machine#ve	4_VENDING_MACHINE2
-lighthalzen,173,108,3	duplicate(Carbonated Water Vending Machine#ra)	Carbonated Water Vending Machine#lig	4_VENDING_MACHINE2
+prontera,170,125,3	duplicate(CarbonatedVending)	Carbonated Water Vending Machine#prt	4_VENDING_MACHINE2
+alberta,127,59,3	duplicate(CarbonatedVending)	Carbonated Water Vending Machine#alb	4_VENDING_MACHINE2
+einbroch,249,186,3	duplicate(CarbonatedVending)	Carbonated Water Vending Machine#ein	4_VENDING_MACHINE2
+geffen,153,70,3	duplicate(CarbonatedVending)	Carbonated Water Vending Machine#gef	4_VENDING_MACHINE2
+yuno,177,182,3	duplicate(CarbonatedVending)	Carbonated Water Vending Machine#yu	4_VENDING_MACHINE2
+veins,218,122,3	duplicate(CarbonatedVending)	Carbonated Water Vending Machine#ve	4_VENDING_MACHINE2
+lighthalzen,173,108,3	duplicate(CarbonatedVending)	Carbonated Water Vending Machine#lig	4_VENDING_MACHINE2
 
 
 //[BACKPORT-UNRESOLVED:getargcount] function	script	F_Brilliant_Soda	{

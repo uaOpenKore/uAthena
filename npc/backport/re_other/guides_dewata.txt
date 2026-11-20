@@ -27,7 +27,7 @@ dewata,202,106,4	script	Dewata Guide#dewata01	4_M_DEWWOMAN,{
 	next;
 	mes "[Dewata Guide]";
 	mes "Where can I guide you?";
-	F_Navi("[Dewata Guide]");
+	// [eAthena] F_Navi: the client has no navigation window
 	while (1) {
 		next;
 		switch(select("[ Kafra Employee ]:[ Weapon Dealer ]:[ Armor Dealer ]:[ Tool Dealer ]:[ Restauranteur ]:[ Krakatau Gatekeeper ]:[ Alberta Sailor ]:Remove marks from Mini-Map:Cancel")) {
@@ -36,27 +36,27 @@ dewata,202,106,4	script	Dewata Guide#dewata01	4_M_DEWWOMAN,{
 			viewpoint 1,202,184,0,0x000FFF;
 			break;
 		case 2:
-			callsub L_Mark, F_Navi("Weapon Dealer","dewata,218,164","^008080");
+			callsub L_Mark, "Weapon Dealer";
 			viewpoint 1,218,163,1,0x008080;
 			break;
 		case 3:
-			callsub L_Mark, F_Navi("Armor Dealer","dewata,158,182","^008080");
+			callsub L_Mark, "Armor Dealer";
 			viewpoint 1,158,182,2,0x008080;
 			break;
 		case 4:
-			callsub L_Mark, F_Navi("Tool Dealer","dewata,182,164","^FF1493");
+			callsub L_Mark, "Tool Dealer";
 			viewpoint 1,182,164,3,0xFF1493;
 			break;
 		case 5:
-			callsub L_Mark, F_Navi("Restauranteur","dewata,146,109","^FF1493");
+			callsub L_Mark, "Restauranteur";
 			viewpoint 1,146,109,4,0xFF1493;
 			break;
 		case 6:
-			callsub L_Mark, F_Navi("Krakau Gatekeeper","dewata,235,56","^8A2BE2");
+			callsub L_Mark, "Krakau Gatekeeper";
 			viewpoint 1,235,56,5,0x8A2BE2;
 			break;
 		case 7:
-			callsub L_Mark, F_Navi("Alberta Sailor","dewata,229,49","^00BFFF");
+			callsub L_Mark, "Alberta Sailor";
 			viewpoint 1,229,49,6,0x00BFFF;
 			break;
 		case 8:

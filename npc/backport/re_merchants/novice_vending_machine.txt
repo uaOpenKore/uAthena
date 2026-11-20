@@ -13,7 +13,7 @@
 //= 1.1 Additionnal clean-up. [Capuche]
 //============================================================
 
--	script	novice_vending_machine#main	-1,{
+-	script	novice_vending_machine#main::NoviceVending	-1,{
 	set .@storage_ticket, 7059;	// Cargo_Free_Ticket
 	set .@storage_ticket_name$, getitemname(.@storage_ticket);
 
@@ -70,7 +70,7 @@
 		setarray .@list[0],2352,2510,2414,1243,2112,5055;
 		set .@size, getarraysize(.@list);
 		
-		for (set .@i,0, .@i < .@size; set .@i,.@i+1 ) {
+		for (set .@i,0; .@i < .@size; set .@i,.@i+1 ) {
 			set .@count, countitem(.@list[.@i]);	// note: maybe check if equipped items are skipped
 			if (.@count < 1)
 				continue;
@@ -92,15 +92,15 @@
 		close;
 	}
 }
-izlude_in,69,177,5	duplicate(novice_vending_machine#main)	Vending Machine for Nov#iz	2_VENDING_MACHINE1
-payon_in02,71,75,5	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pay	2_VENDING_MACHINE1
-prt_church,187,27,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#prt	2_VENDING_MACHINE1
+izlude_in,69,177,5	duplicate(NoviceVending)	Vending Machine for Nov#iz	2_VENDING_MACHINE1
+payon_in02,71,75,5	duplicate(NoviceVending)	Vending Machine for Nov#pay	2_VENDING_MACHINE1
+prt_church,187,27,3	duplicate(NoviceVending)	Vending Machine for Nov#prt	2_VENDING_MACHINE1
 
 // unknown facing
-alberta_in,60,52,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#alb	2_VENDING_MACHINE1
-geffen_in,158,107,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#gef	2_VENDING_MACHINE1
-moc_para01,17,37,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#para	2_VENDING_MACHINE1
-moc_prydb1,38,124,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pryd	2_VENDING_MACHINE1
-payon_in01,59,20,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#pay2	2_VENDING_MACHINE1
-que_ng,28,73,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#que_ng1	2_VENDING_MACHINE1
-que_ng,168,39,3	duplicate(novice_vending_machine#main)	Vending Machine for Nov#que_ng2	2_VENDING_MACHINE1
+alberta_in,60,52,3	duplicate(NoviceVending)	Vending Machine for Nov#alb	2_VENDING_MACHINE1
+geffen_in,158,107,3	duplicate(NoviceVending)	Vending Machine for Nov#gef	2_VENDING_MACHINE1
+moc_para01,17,37,3	duplicate(NoviceVending)	Vending Machine for Nov#para	2_VENDING_MACHINE1
+moc_prydb1,38,124,3	duplicate(NoviceVending)	Vending Machine for Nov#pryd	2_VENDING_MACHINE1
+payon_in01,59,20,3	duplicate(NoviceVending)	Vending Machine for Nov#pay2	2_VENDING_MACHINE1
+que_ng,28,73,3	duplicate(NoviceVending)	Vending Machine for Nov#que_ng1	2_VENDING_MACHINE1
+que_ng,168,39,3	duplicate(NoviceVending)	Vending Machine for Nov#que_ng2	2_VENDING_MACHINE1
