@@ -1575,6 +1575,11 @@ int guild_broken(int guild_id,int flag)
 				storage_guild_storage_quit(sd,1);
 			sd->status.guild_id=0;
 			sd->state.guild_sent=0;
+			// The guild is freed below (idb_remove). Its master kept pointing at it: every step read the freed
+			// guild (guild aura), and after joining another guild every "is master" check passed (notice,
+			// positions, emblem, alliances...).
+			if (sd->state.gmaster_flag == g)
+				sd->state.gmaster_flag = NULL;
 			clif_guild_broken(g->member[i].sd,0);
 			clif_charnameupdate(sd); // [LuzZza]
 		}
