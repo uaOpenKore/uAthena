@@ -48,8 +48,16 @@ int msg_silent = 0; //Specifies how silent the console is.
 	} buf ={"",NULL,NULL,0};	\
 //define NEWBUF
 
+// The static buffer try formats from a copy of `args`: a message that does not fit is formatted again from
+// `args` itself (vsnprintf uses up the va_list it is given; reusing it printed garbage arguments, or crashed
+// on a %s, for every message of 2048 bytes or more - e.g. a long SQL statement in a ShowDebug).
 #define BUFVPRINTF(buf,fmt,args)						\
-	buf.l_ = vsnprintf(buf.s_, SBUF_SIZE, fmt, args);	\
+	{													\
+		va_list args_try_;								\
+		va_copy(args_try_, args);						\
+		buf.l_ = vsnprintf(buf.s_, SBUF_SIZE, fmt, args_try_);	\
+		va_end(args_try_);								\
+	}													\
 	if( buf.l_ >= 0 && buf.l_ < SBUF_SIZE )				\
 	{/* static buffer */								\
 		buf.v_ = buf.s_;								\
