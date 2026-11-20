@@ -39,6 +39,12 @@ ExecStart=/opt/uathena/bin/ua-start.sh char sql
 ExecStop=/opt/uathena/bin/ua-stop.sh char
 ExecReload=/opt/uathena/bin/ua-restart.sh char sql
 TimeoutSec=5
+# After ExecStop (the server is gone) systemd signals what is left of the unit. The default (control-group)
+# SIGTERMed the supervisor's `perf report` too, which was writing the profile of the run that just ended: the
+# .perf.txt kept only its 2-line banner (log/perf/char-*.perf.txt, login-*.perf.txt, 85 bytes). Signal only the
+# supervisor, as uAmap.service does, and give the report time to finish; SIGKILL to the group on timeout.
+KillMode=mixed
+TimeoutStopSec=180
 Restart=always
 
 [Install]
