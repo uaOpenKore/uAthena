@@ -449,7 +449,46 @@ void flush_fifos(void)
 /*======================================
  *	CORE : Connection functions
  *--------------------------------------*/
-int connect_client(int listen_fd)
+// [flood] Open client connections per address. Nothing limited them (the ddos check runs only with
+// enable_ip_rules): one address could hold thousands of idle sessions -- 6000 on the map port took +200 MB and
+// stayed until the pre-auth close, and ~32k would use up the fd table (SOCKET_MAX) so nobody else got in.
+// max_connections_per_ip (packet_athena.conf, 0 = off) caps them; loopback (the servers) is not counted.
+#define IPCOUNT_BUCKETS 4096
+struct ipcount { uint32 ip; int n; struct ipcount* next; };
+static struct ipcount* ipcount_tab[IPCOUNT_BUCKETS];
+int socket_max_conn_per_ip = 64;
+
+static bool ipcount_counted(uint32 ip) { return ip != 0 && (ip >> 24) != 127; }
+
+/// The count of open connections from ip; with delta, change it first (an entry at 0 is freed).
+static int ipcount_add(uint32 ip, int delta)
+{
+	struct ipcount **pp = &ipcount_tab[(ip ^ (ip >> 12)) & (IPCOUNT_BUCKETS - 1)], *e;
+	for( e = *pp; e != NULL && e->ip != ip; pp = &e->next, e = e->next )
+		;
+	if( e == NULL ) {
+		if( delta <= 0 )
+			return 0;
+		CREATE(e, struct ipcount, 1);
+		e->ip = ip;
+		e->next = ipcount_tab[(ip ^ (ip >> 12)) & (IPCOUNT_BUCKETS - 1)];
+		ipcount_tab[(ip ^ (ip >> 12)) & (IPCOUNT_BUCKETS - 1)] = e;
+		pp = NULL;
+	}
+	e->n += delta;
+	if( e->n <= 0 ) {
+		int i = (int)((ip ^ (ip >> 12)) & (IPCOUNT_BUCKETS - 1));
+		for( pp = &ipcount_tab[i]; *pp != e; pp = &(*pp)->next )
+			;
+		*pp = e->next;
+		aFree(e);
+		return 0;
+	}
+	return e->n;
+}
+
+/// Accepts one connection: its fd, -1 when it was refused, -2 when the queue is empty (or accept failed).
+static int connect_client_one(int listen_fd)
 {
 	int fd;
 	struct sockaddr_in client_address;
@@ -459,8 +498,9 @@ int connect_client(int listen_fd)
 
 	fd = accept(listen_fd, (struct sockaddr*)&client_address, &len);
 	if ( fd == INVALID_SOCKET ) {
-		ShowError("accept failed (code %i)!\n", s_errno);
-		return -1;
+		if( s_errno != EAGAIN && s_errno != EWOULDBLOCK && s_errno != EINTR )
+			ShowError("accept failed (code %i)!\n", s_errno);
+		return -2;
 	}
 
 	if ( fd >= SOCKET_MAX ) { //Not enough capacity for this socket
@@ -479,14 +519,43 @@ int connect_client(int listen_fd)
 	}
 #endif
 
+	if( socket_max_conn_per_ip > 0 && ipcount_counted(ntohl(client_address.sin_addr.s_addr)) &&
+		ipcount_add(ntohl(client_address.sin_addr.s_addr), 0) >= socket_max_conn_per_ip ) {
+		static t_tick last_warn = 0;
+		static unsigned int refused = 0;
+		refused++;
+		if( DIFF_TICK(gettick(), last_warn) >= 10000 ) { // one line per 10 s under a flood
+			ShowWarning("connect_client: %d.%d.%d.%d already has %d connections (max_connections_per_ip), %u refused since the last note\n",
+				CONVIP(ntohl(client_address.sin_addr.s_addr)), socket_max_conn_per_ip, refused);
+			last_warn = gettick();
+			refused = 0;
+		}
+		closesocket(fd);
+		return -1;
+	}
+
 	if( fd_max <= fd ) fd_max = fd + 1;
 	epoll_add(fd);
 
 	create_session(fd, recv_to_fifo, send_from_fifo, default_func_parse);
 	session[fd]->client_addr = ntohl(client_address.sin_addr.s_addr);
+	if( ipcount_counted(session[fd]->client_addr) )
+		ipcount_add(session[fd]->client_addr, 1);
 	session[fd]->rdata_tick = last_tick;
 
 	return fd;
+}
+
+/// recv handler of a listen socket: accept everything queued, up to 256 per wake-up. One accept per main-loop
+/// round let a burst of connections (a flood from one address, the logins after a restart) fill the kernel's
+/// accept queue; the servers' own connects and real players then waited behind it or were dropped.
+int connect_client(int listen_fd)
+{
+	int i;
+	for( i = 0; i < 256; i++ )
+		if( connect_client_one(listen_fd) == -2 )
+			break;
+	return 0;
 }
 
 int make_listen_bind(uint32 ip, uint16 port)
@@ -669,6 +738,8 @@ int delete_session(int fd)
 		return -1;
 	epoll_del(fd);
 	if (session[fd]) {
+		if( ipcount_counted(session[fd]->client_addr) )
+			ipcount_add(session[fd]->client_addr, -1); // [flood]
 		aFree(session[fd]->rdata);
 		aFree(session[fd]->wdata);
 		aFree(session[fd]->session_data);
@@ -1240,7 +1311,9 @@ int socket_config_read(const char* cfgName)
 		if(sscanf(line, "%[^:]: %[^\r\n]", w1, w2) != 2)
 			continue;
 
-		if (!strcmpi(w1, "stall_time"))
+		if (!strcmpi(w1, "max_connections_per_ip"))
+			socket_max_conn_per_ip = atoi(w2);
+		else if (!strcmpi(w1, "stall_time"))
 			stall_time = atoi(w2);
 #ifndef MINICORE
 		else if (!strcmpi(w1, "enable_ip_rules")) {
