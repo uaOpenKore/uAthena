@@ -18,12 +18,16 @@
 
 #include <stddef.h>
 
+// Unsent bytes one client connection may have waiting (send worker queue, or the write buffer when sending
+// inline). More means it does not read what it is sent: the connection is closed (eAthena's WFIFO_MAX idea).
+#define SW_QUEUE_MAX (2*1024*1024)
+
 #ifdef MINICORE
 // MINICORE tools (e.g. ladmin) never send off-thread — stub everything inline so
 // they don't have to link the worker.
 static inline void sendworker_init(void) {}
 static inline void sendworker_final(void) {}
-static inline void sendworker_send(int fd, const unsigned char *buf, size_t len) { (void)fd; (void)buf; (void)len; }
+static inline int sendworker_send(int fd, const unsigned char *buf, size_t len) { (void)fd; (void)buf; (void)len; return 0; }
 static inline void sendworker_release(int fd) { (void)fd; }
 static inline void sendworker_reset(int fd) { (void)fd; }
 static inline void sendworker_set_coalesce(int ms) { (void)ms; }
@@ -35,7 +39,7 @@ void sendworker_init(void);
 void sendworker_final(void);
 
 // Hand off len bytes to be sent on fd (a private copy is made). FIFO per fd.
-void sendworker_send(int fd, const unsigned char *buf, size_t len);
+int sendworker_send(int fd, const unsigned char *buf, size_t len); // -1: over SW_QUEUE_MAX, nothing queued
 
 // Before closing fd: drop queued data, wait until the worker is not mid-send on
 // it. After this returns the caller may safely close()/reuse the fd.
