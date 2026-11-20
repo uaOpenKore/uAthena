@@ -92,11 +92,17 @@ char* search_timer_func_list(TimerFunc func)
 static unsigned int gettick_cache;
 static int gettick_count;
 
-// [clock] The tick is a MONOTONIC millisecond clock anchored to the wall clock at startup: it starts at the
-// same value the old gettimeofday() tick had (same range and wrap for every DIFF_TICK user), but a later
-// wall-clock step -- an NTP step, a VM clock catching up after a pause, a manual date change -- no longer
-// moves it. A forward step used to make every pending timer due at once (a do_timer storm); a backward
-// step froze all timers (mob AI, walking, regen, skill delays) for the length of the step.
+// [clock] The tick is a MONOTONIC millisecond clock, so a wall-clock step -- an NTP step, a VM clock catching
+// up after a pause, a manual date change -- does not move it. A forward step used to make every pending timer
+// due at once (a do_timer storm); a backward step froze all timers (mob AI, walking, regen, skill delays) for
+// the length of the step.
+// It starts at TICK_START_MS when the process starts. It used to start at the wall clock's ms mod 2^32, so a
+// server spent ~24.8 of every 49.7 days in the upper half of the 32-bit range, where DIFF_TICK against a tick
+// field still 0 is negative (the stall sweep never ran then), and the tick wrapped at a fixed wall-clock moment
+// in the middle of a run (next: 2026-11-21 21:25 UTC). From one day, the upper half is reached only after ~23.8
+// days of uptime and a stale tick field cannot be older than the uptime. Nothing compares ticks across
+// processes or restarts (inter-server packets carry none, sc_data saves the time left, scripts do not keep
+// gettimetick(0)). One day rather than 0, so that "tick - delay" taken right after the start stays positive.
 static int64 gettick_mono_offset;
 static bool gettick_mono_anchored = false;
 
@@ -114,8 +120,7 @@ unsigned int gettick_nocache(void)
 	}
 	mono = (int64)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 	if (!gettick_mono_anchored) {
-		gettimeofday(&tval, NULL);
-		gettick_mono_offset = ((int64)tval.tv_sec * 1000 + tval.tv_usec / 1000) - mono;
+		gettick_mono_offset = (int64)TICK_START_MS - mono;
 		gettick_mono_anchored = true;
 	}
 	return gettick_cache = (unsigned int)(mono + gettick_mono_offset);

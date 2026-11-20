@@ -16,6 +16,9 @@
 
 #define DIFF_TICK(a,b) ((int)((int32_t)((a)-(b))))
 
+// [clock] What gettick() returns right after the process starts (one day, in ms); see gettick_nocache.
+#define TICK_START_MS 86400000u
+
 #define INVALID_TIMER -1
 
 // Struct declaration

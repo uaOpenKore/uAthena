@@ -171,6 +171,14 @@ int main(void) {
 	}
 	printf("test5 (settick relocate): %s\n", failures==f5?"ok":"see above");
 
+	{	// test9 [clock]: the tick starts at TICK_START_MS with the process, not at the wall clock's ms mod 2^32
+		int f9 = failures;
+		unsigned int t = gettick_nocache();
+		CHECK(t >= TICK_START_MS && t < TICK_START_MS + 60000, "test9: the first tick is one day (+ under a minute)");
+		CHECK(DIFF_TICK(t, 0) > 0, "test9: a tick field still 0 lies in the past (DIFF_TICK(now, 0) > 0)");
+		printf("test9 (tick start): %s (tick %u)\n", failures==f9?"ok":"see above", t);
+	}
+
 	timer_final();
 	printf(failures==0 ? "\nALL OK\n" : "\n%d FAILURES\n", failures);
 	return failures ? 1 : 0;
