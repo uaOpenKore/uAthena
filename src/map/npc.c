@@ -620,7 +620,9 @@ int npc_timerevent(int tid, t_tick tick, intptr_t id, intptr_t data)
 	nd->u.scr.rid = sd?sd->bl.id:0;
 
 	old_tick = nd->u.scr.timertick;
-	nd->u.scr.timertick=ted->otick;
+	// timer = this event's time, so the count goes on from now (as rAthena). With the tick the sequence
+	// started (ted->otick) getnpctimer counted the time up to this event twice (2500 at 1.5 s after OnTimer1000).
+	nd->u.scr.timertick=tick;
 	te=nd->u.scr.timer_event+ ted->next;
 
 	old_timer = nd->u.scr.timer;
@@ -734,8 +736,16 @@ int npc_timerevent_stop(struct npc_data* nd)
 		ers_free(timer_event_ers, (struct event_timer_data*)td->data);
 	delete_timer(*tid,npc_timerevent);
 	*tid = -1;
-	//Set the timer tick to the time that has passed since the beginning of the timers and now.
-	nd->u.scr.timer = DIFF_TICK32(gettick(),nd->u.scr.timertick);
+	if (!sd) {
+		// NPC timer: add what ran since the last start/event and stop the count (as rAthena). It kept timertick,
+		// so getnpctimer went on running after the stop, and it saved only the time since the last start/event,
+		// so a startnpctimer after it fired events like OnTimer5000 again.
+		if (nd->u.scr.timertick) {
+			nd->u.scr.timer += DIFF_TICK32(gettick(),nd->u.scr.timertick);
+			nd->u.scr.timertick = 0;
+		}
+	} else //Player-attached timer: as before, the time that has passed since its start.
+		nd->u.scr.timer = DIFF_TICK32(gettick(),nd->u.scr.timertick);
 //	nd->u.scr.rid = 0; //Eh? why detach?
 	return 0;
 }
