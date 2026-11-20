@@ -594,7 +594,16 @@ int npc_timerevent(int tid, unsigned int tick, intptr_t id, intptr_t data)
 	struct map_session_data *sd=NULL;
 
 	if( nd==NULL ){
+		// The NPC was unloaded (@unloadnpc, @reloadscript) while this timer was attached to a player: npc_unload
+		// only deletes the NPC's own timer. Let the player go - its npc_timer_id still held this fired timer's
+		// id, so it could start no attached timer until relog, and its logout "stopped" whatever timer reused
+		// the id (deleted it, gave its data to ers_free).
 		ShowError("npc_timerevent: NPC not found??\n");
+		if (ted) {
+			if (ted->rid && (sd = map_id2sd(ted->rid)) != NULL && sd->npc_timer_id == tid)
+				sd->npc_timer_id = -1;
+			ers_free(timer_event_ers, ted);
+		}
 		return 0;
 	}
 	if (ted->rid) {
