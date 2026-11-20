@@ -224,7 +224,10 @@ prontera,184,177,6	script	Refine Master	851,{
 		mes "You switched the item while I wasn't looking! Get out of here!";
 		close;
 	}
-	successrefitem .@part, .@ticket_lv - getequiprefinerycnt(.@part);
+	// [eAthena] successrefitem takes no count: refine one level at a time up to the ticket's level
+	set .@n, .@ticket_lv - getequiprefinerycnt(.@part);
+	for (set .@k,0; .@k < .@n; set .@k,.@k+1)
+		successrefitem .@part;
 	next;
 	//[BACKPORT-GAP:ET_DELIGHT] emotion ET_DELIGHT;
 	mes "[Refine Master]";

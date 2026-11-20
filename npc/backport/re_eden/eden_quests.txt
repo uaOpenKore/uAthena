@@ -4123,7 +4123,7 @@ moc_para01,112,79,3	script	Weapons Expert BK#2nd11	4_M_REPAIR,{
 		26101;	// P_Foxtail III
 	set .@wplist_size, getarraysize(.@wplist);
 
-	.@menu$ = "Eden Group Slayer III:" +
+	set .@menu$, "Eden Group Slayer III:" +
 		"Eden Group Saber III:" +
 		"Eden Group Dagger III:" +
 		"Eden Group Katar I:" +

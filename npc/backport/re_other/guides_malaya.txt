@@ -23,7 +23,7 @@ malaya,71,72,4	script	Port Malaya Guide#01::GuideMalaya	579,{
 	mes "Welcome to ^8B4513Port Malaya^000000, the Breathing Village.";
 	mes "Where cultures and legends come to life!";
 	mes "Do you need help navigating the village?";
-	F_Navi("[Port Malaya Guide]");
+	// [eAthena] F_Navi: the client has no navigation window
 	while(1) {
 		next;
 		switch(select("[ Kafra Employees ]:[ Inn & Tavern ]:[ Weapon & Armor Shop ]:[ Tool Shop ]:[ Hospital ]:[ Park ]:[ Harbor ]:Remove marks from Mini-Map:Cancel")) {
@@ -33,27 +33,27 @@ malaya,71,72,4	script	Port Malaya Guide#01::GuideMalaya	579,{
 			viewpoint 1,234,204,1,0x0A82FF;
 			break;
 		case 2:
-			callsub L_Mark, F_Navi("Inn & Tavern","malaya,193,215","^006400");
+			callsub L_Mark, "Inn & Tavern";
 			viewpoint 1,193,215,2,0xAAFF00;
 			break;
 		case 3:
-			callsub L_Mark, F_Navi("Weapon & Armor Shop","malaya,114,212","^008080");
+			callsub L_Mark, "Weapon & Armor Shop";
 			viewpoint 1,114,212,3,0x4F543C;
 			break;
 		case 4:
-			callsub L_Mark, F_Navi("Tool Shop","malaya,297,167","^FF1493");
+			callsub L_Mark, "Tool Shop";
 			viewpoint 1,297,167,4,0xFF1493;
 			break;
 		case 5:
-			callsub L_Mark, F_Navi("Hospital","malaya,50,75","^8B4513");
+			callsub L_Mark, "Hospital";
 			viewpoint 1,50,75,5,0x8B4513;
 			break;
 		case 6:
-			callsub L_Mark, F_Navi("Park","malaya,280,371","^8B4513");
+			callsub L_Mark, "Park";
 			viewpoint 1,280,371,6,0x8B4513;
 			break;
 		case 7:
-			callsub L_Mark, F_Navi("Harbor","malaya,276,55","^8A2BE2");
+			callsub L_Mark, "Harbor";
 			viewpoint 1,276,55,7,0x8A2BE2;
 			break;
 		case 8:
