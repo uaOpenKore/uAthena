@@ -203,22 +203,6 @@ prontera,235,42,7	script	Holy Order Guard	708,{
 	}
 }
 
-	// 2. УМОВА: Гравець не має допуску (entity менше 10)
-	if (entity < 10) {
-		if (#gl_lang == 1) {
-			mes "[Охоронець]";
-			mes "Стій! Вхід суворо заборонено. Це приватна територія під охороною Святого Ордену.";
-			mes "Йди своєю дорогою, цивільний, поки я не виставив тебе силою.";
-			close;
-		}
-		if (#gl_lang < 1) {
-			mes "[Guard]";
-			mes "Halt! Entrance is strictly forbidden. This is private property under the protection of the Holy Order.";
-			mes "Be on your way, civilian, before I have to remove you by force.";
-			close;
-		}
-	}
-}
 prontera,240,42,1	duplicate(Holy Order Guard)	Holy Order Guard	708
 
 prt_in,127,16,8		script	Historian Noel	743,{
