@@ -10,6 +10,7 @@
 #include "socket.h"
 #include "send_worker.h"
 #include "stallguard.h"
+#include "core.h" // runflag
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -156,6 +157,44 @@ static void epoll_del(int fd)
 
 int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse);
 int delete_session(int fd);
+
+// [close] Lingering close of client sockets. close() on a socket that still holds unread client data (a
+// keepalive or a walk request in flight when the server kicks) makes the kernel send RST instead of FIN, and a
+// Windows client then throws away what it had not read yet -- the 0x81 with the kick reason too. So a closed
+// client socket first sends FIN after its last packet, then the data still arriving is read and dropped until
+// the client closes too (EOF) or LINGER_MS pass. The fd stays open meanwhile, so it cannot be reused.
+#define LINGER_MAX 1024
+#define LINGER_MS 2000
+static struct { int fd; t_tick until; } linger_list[LINGER_MAX];
+static int linger_num = 0;
+
+/// Reads away what the peer sent; 1 when the peer closed (EOF) or the socket failed, 0 while it is still open.
+static int linger_drain(int fd)
+{
+	char buf[4096];
+	int n;
+	while( (n = (int)recv(fd, buf, sizeof(buf), 0)) > 0 )
+		;
+	return n == 0 || (n < 0 && errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR);
+}
+
+/// Closes the lingering sockets whose peer closed or whose time ran out. Called every do_sendrecv round.
+static void linger_poll(void)
+{
+	int i;
+	t_tick now;
+	if( linger_num == 0 )
+		return;
+	now = gettick_nocache();
+	for( i = 0; i < linger_num; ) {
+		if( linger_drain(linger_list[i].fd) || DIFF_TICK(now, linger_list[i].until) >= 0 ) {
+			closesocket(linger_list[i].fd);
+			linger_list[i] = linger_list[--linger_num];
+		} else
+			i++;
+	}
+}
+
 
 #ifndef MINICORE
 	int ip_rules = 1;
@@ -795,6 +834,7 @@ int do_sendrecv(int next)
 	// PRESEND Timers run before do_sendrecv and can queue packets and/or set
 	// sessions to eof. Flush queued data and close eof sessions.
 	send_shortlist_do_sends();
+	linger_poll(); // [close] finish the lingering closes
 
 	// Wait for readable sockets (replaces select). next is the ms until the
 	// next timer (at most 1 s); epoll_wait takes its timeout directly in milliseconds.
@@ -1268,6 +1308,8 @@ void socket_final(void)
 		if(session[i])
 			delete_session(i);
 	}
+	while( linger_num > 0 ) // [close] lingering client sockets
+		closesocket(linger_list[--linger_num].fd);
 
 	// session[0] _~[f[^
 	aFree(session[0]->rdata);
@@ -1289,6 +1331,17 @@ void do_close(int fd)
 	// can never land on a closed or recycled fd.
 	if( socket_async_send )
 		sendworker_release(fd);
+	if( session[fd] && session[fd]->client_addr != 0 && runflag && linger_num < LINGER_MAX ) {
+		epoll_del(fd);
+		shutdown(fd, SHUT_WR); // FIN after the last packet; reads stay open (see linger_poll)
+		if( !linger_drain(fd) ) {
+			linger_list[linger_num].fd = fd;
+			linger_list[linger_num].until = gettick_nocache() + LINGER_MS;
+			linger_num++;
+			delete_session(fd);
+			return;
+		}
+	}
 	shutdown(fd, SHUT_RDWR); // Disallow further reads/writes
 	closesocket(fd); // We don't really care if these closing functions return an error, we are just shutting down and not reusing this socket.
 	if (session[fd]) delete_session(fd);
