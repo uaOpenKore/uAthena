@@ -24,6 +24,11 @@ ExecStart=/opt/uathena/bin/ua-start.sh char
 ExecStop=/opt/uathena/bin/ua-stop.sh char
 ExecReload=/opt/uathena/bin/ua-restart.sh char
 TimeoutSec=5
+# After ExecStop systemd signals what is left of the unit; the default (control-group) also SIGTERMed the
+# supervisor's `perf report` of the run that had just ended (.perf.txt = 2-line banner). Signal only the
+# supervisor (it stops its children gracefully) and give the report time; SIGKILL to the group on timeout.
+KillMode=mixed
+TimeoutStopSec=180
 Restart=always
 
 [Install]
