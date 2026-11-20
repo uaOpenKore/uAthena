@@ -3657,6 +3657,8 @@ int login_config_read(const char* cfgName)
 			strcpy(dnsbl_servs, w2);
 		else if(!strcmpi(w1, "ip_sync_interval"))
 			ip_sync_interval = 1000*60*atoi(w2); //w2 comes in minutes.
+		else if(!strcmpi(w1, "metrics_log"))
+			metrics_log = atoi(w2); // [metrics] LOOPMETRIC: 0 off, 1 summaries, 2 + events
 		else if(!strcmpi(w1, "import"))
 			login_config_read(w2);
 	}

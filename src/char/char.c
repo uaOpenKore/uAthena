@@ -4334,6 +4334,8 @@ int char_config_read(const char *cfgName)
 		} else if (strcmpi(w1, "guild_exp_rate") == 0) {
 			guild_exp_rate = atoi(w2);
 #endif //TXT_SQL_CONVERT
+		} else if (strcmpi(w1, "metrics_log") == 0) {
+			metrics_log = atoi(w2); // [metrics] LOOPMETRIC: 0 off, 1 summaries, 2 + events
 		} else if (strcmpi(w1, "import") == 0) {
 			char_config_read(w2);
 		}
