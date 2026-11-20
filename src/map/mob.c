@@ -632,6 +632,65 @@ static int mob_delayspawn(int tid, t_tick tick, intptr_t m, intptr_t n)
 }
 
 /*==========================================
+ * [metrics] MOBMETRIC: the mobs that froze on maps with players (no AI round for 60 s: what the 32-bit tick did
+ * after 24.8 days) and the respawn timers set far beyond their spawn's delay, plus how fast npc/mob ids are used.
+ *------------------------------------------*/
+int mobmetric_interval = 600; // seconds (map_athena.conf)
+struct mobmetric { t_tick tick; int mobs, frozen, stuck; };
+
+static int mobmetric_sub(DBKey key, void* data, va_list ap)
+{
+	struct mob_data* md = (struct mob_data*)data;
+	struct mobmetric* r = va_arg(ap, struct mobmetric*);
+	r->mobs++;
+	if (md->bl.prev != NULL && md->status.hp > 0 && map[md->bl.m].users > 0
+		&& DIFF_TICK(r->tick, md->last_thinktime) > 60000) {
+		if (++r->frozen <= 5 && metrics_log >= 2)
+			ShowWarning("[MOBMETRIC] frozen map=%s mob=%d (%s) last_think_s=%d\n", map[md->bl.m].name, md->bl.id,
+				md->name, DIFF_TICK32(r->tick, md->last_thinktime) / 1000);
+	}
+	return 0;
+}
+
+static void mobmetric_respawn(int tid, struct TimerData* td, void* arg)
+{
+	struct mobmetric* r = (struct mobmetric*)arg;
+	struct block_list* bl = map_id2bl((int)td->id);
+	struct mob_data* md = bl && bl->type == BL_MOB ? (struct mob_data*)bl : NULL;
+	t_tick limit = 60000;
+	if (md && md->spawn)
+		limit += 2 * ((t_tick)md->spawn->delay1 + md->spawn->delay2) + 5000;
+	if (DIFF_TICK(td->tick, r->tick) > limit) {
+		if (++r->stuck <= 5 && metrics_log >= 2)
+			ShowWarning("[MOBMETRIC] stuck_respawn mob=%d (%s) due_in_s=%lld\n", (int)td->id, md ? md->name : "?",
+				(long long)(DIFF_TICK(td->tick, r->tick) / 1000));
+	}
+}
+
+static int mobmetric_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	static t_tick last_tick = 0;
+	static int last_npc_id = 0;
+	struct mobmetric r;
+	int m, maps_active = 0, next_id = npc_peek_new_npc_id();
+	if (!metrics_log)
+		return 0;
+	memset(&r, 0, sizeof(r));
+	r.tick = tick;
+	for (m = 0; m < map_num; m++)
+		if (map[m].users > 0)
+			maps_active++;
+	map_foreachmob(mobmetric_sub, &r);
+	timer_foreach_func(mob_delayspawn, mobmetric_respawn, &r);
+	ShowInfo("[MOBMETRIC] maps_active=%d mobs=%d frozen_ai=%d stuck_respawn=%d next_npc_id=%d ids_per_h=%d\n",
+		maps_active, r.mobs, r.frozen, r.stuck, next_id,
+		last_tick ? (int)((int64)(next_id - last_npc_id) * 3600000 / (DIFF_TICK(tick, last_tick) > 0 ? DIFF_TICK(tick, last_tick) : 1)) : 0);
+	last_tick = tick;
+	last_npc_id = next_id;
+	return 0;
+}
+
+/*==========================================
  * spawn timing calculation
  *------------------------------------------*/
 int mob_setdelayspawn(struct mob_data *md)
@@ -4068,6 +4127,8 @@ int do_init_mob(void)
 	mob_readdb_race();
 
 	add_timer_func_list(mob_delayspawn,"mob_delayspawn");
+	add_timer_func_list(mobmetric_timer,"mobmetric_timer");
+	add_timer_interval(gettick() + mobmetric_interval*1000, mobmetric_timer, 0, 0, mobmetric_interval*1000);
 	add_timer_func_list(mob_delay_item_drop,"mob_delay_item_drop");
 	add_timer_func_list(mob_ai_hard,"mob_ai_hard");
 	add_timer_func_list(mob_ai_lazy,"mob_ai_lazy");

@@ -161,6 +161,10 @@ int make_connection(uint32 ip, uint16 port);
 int realloc_fifo(int fd, unsigned int rfifo_size, unsigned int wfifo_size);
 int realloc_writefifo(int fd, size_t addition);
 int WFIFOSET(int fd, int len);
+
+// [metrics] (core.c's LOOPMETRIC)
+extern unsigned int socket_last_wait_ms;
+void socket_metric_stats(int *sessions, size_t *send_total, size_t *send_max, int *send_max_fd);
 int RFIFOSKIP(int fd, int len);
 
 int do_sendrecv(int next);

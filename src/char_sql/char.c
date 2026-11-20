@@ -195,6 +195,42 @@ struct online_char_data {
 	t_tick confirm_tick; // (B3) last time a map-server's online-list (0x2aff) or set_char_online confirmed this char; 0 = never
 };
 
+// [metrics] SAVEMETRIC: map-server saves over 10 minutes (written, refused for an offline character, failed
+// in SQL), the pending retries, and how long a final (logout) save takes; RELOGMETRIC: the accounts that select
+// a character more than 10 times in an hour (bots in a reconnect loop).
+static unsigned int sm_ok = 0, sm_rejected = 0, sm_failed = 0;
+static int savemetric_interval = 600, relogmetric_interval = 3600; // seconds (char_athena.conf)
+#define SM_SAMPLES 512
+static int sm_final_ms[SM_SAMPLES];
+static int sm_final_n = 0;
+struct relog_count { int account_id; int n; uint32 ip; char name[NAME_LENGTH]; };
+static struct dbt* relog_db = NULL;
+
+static void savemetric_final(int ms)
+{
+	if (sm_final_n < SM_SAMPLES)
+		sm_final_ms[sm_final_n++] = ms;
+	else
+		sm_final_ms[rand() % SM_SAMPLES] = ms; // keep a sample of a busy period
+}
+
+static int savemetric_cmp(const void* a, const void* b) { return *(const int*)a - *(const int*)b; }
+
+static void relogmetric_count(int account_id, const char* name, uint32 ip)
+{
+	struct relog_count* c;
+	if (!metrics_log || relog_db == NULL)
+		return;
+	if ((c = (struct relog_count*)idb_get(relog_db, account_id)) == NULL) {
+		CREATE(c, struct relog_count, 1);
+		c->account_id = account_id;
+		idb_put(relog_db, account_id, c);
+	}
+	c->n++;
+	c->ip = ip;
+	safestrncpy(c->name, name, sizeof(c->name));
+}
+
 struct dbt *online_char_db; //Holds all online characters.
 
 static void * create_online_char_data(DBKey key, va_list args)
@@ -2884,13 +2920,27 @@ int parse_frommap(int fd)
 				(character = idb_get(online_char_db, aid)) != NULL &&
 				character->char_id == cid))
 			{
+				t_tick t0 = gettick_nocache();
 				memcpy(&char_dat, RFIFOP(fd,13), sizeof(struct mmo_charstatus));
-				if (mmo_char_tosql(cid, &char_dat))
+				if (mmo_char_tosql(cid, &char_dat)) {
 					char_pending_keep(&char_dat); // rolled back: written again by char_pending_timer
-				else
+					sm_failed++;
+				} else {
 					char_pending_drop(cid); // this newer save supersedes a failed older one
+					sm_ok++;
+				}
+				if (RFIFOB(fd,12))
+					savemetric_final(DIFF_TICK32(gettick_nocache(), t0));
 			} else {	//This may be valid on char-server reconnection, when re-sending characters that already logged off.
 				ShowError("parse_from_map (save-char): Received data for non-existant/offline character (%d:%d).\n", aid, cid);
+				sm_rejected++;
+				if (metrics_log >= 2) {
+					character = (struct online_char_data*)idb_get(online_char_db, aid);
+					ShowWarning("[SAVEMETRIC] rejected aid=%d cid=%d name='%s' from_map_server=%d online_state=%s online_cid=%d online_server=%d online_fd=%d\n",
+						aid, cid, ((struct mmo_charstatus*)RFIFOP(fd,13))->name, id,
+						character == NULL ? "offline" : character->char_id == -1 ? "charselect" : "other_char",
+						character ? character->char_id : 0, character ? character->server : -1, character ? character->fd : -1);
+				}
 				set_char_online(id, cid, aid);
 			}
 
@@ -3615,6 +3665,7 @@ static void char_load_finish_ok(struct achar_ctx* r)
 		}
 	}
 	ShowInfo("Selected char: (Account %d: %d - %s)" RETCODE, r->account_id, r->char_num, cd->name);
+	relogmetric_count(r->account_id, cd->name, r->ip);
 
 	// locate the map server for the character's last map (with major-city fallback)
 	i = search_mapserver(cd->last_point.map, -1, -1);
@@ -4582,6 +4633,12 @@ int char_config_read(const char* cfgName)
 			}
 		} else if (strcmpi(w1, "guild_exp_rate") == 0) {
 			guild_exp_rate = atoi(w2);
+		} else if (strcmpi(w1, "metrics_log") == 0) {
+			metrics_log = atoi(w2); // [metrics] LOOPMETRIC/SAVEMETRIC/RELOGMETRIC: 0 off, 1 summaries, 2 + events
+		} else if (strcmpi(w1, "savemetric_interval") == 0) {
+			savemetric_interval = max(10, atoi(w2));
+		} else if (strcmpi(w1, "relogmetric_interval") == 0) {
+			relogmetric_interval = max(10, atoi(w2));
 		} else if (strcmpi(w1, "import") == 0) {
 			char_config_read(w2);
 		}
@@ -4695,6 +4752,58 @@ static int online_data_cleanup(int tid, t_tick tick, intptr_t id, intptr_t data)
 	return 0;
 }
 
+
+// [metrics] SAVEMETRIC summary, every 10 minutes.
+static int savemetric_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	int p50 = 0, p95 = 0;
+	if (!metrics_log)
+		return 0;
+	if (sm_final_n > 0) {
+		qsort(sm_final_ms, sm_final_n, sizeof(int), savemetric_cmp);
+		p50 = sm_final_ms[sm_final_n / 2];
+		p95 = sm_final_ms[(sm_final_n * 95) / 100 < sm_final_n ? (sm_final_n * 95) / 100 : sm_final_n - 1];
+	}
+	ShowInfo("[SAVEMETRIC] saves_ok=%u rejected_offline=%u failed_sql=%u pending=%d final_saves=%d final_save_ms_p50=%d p95=%d\n",
+		sm_ok, sm_rejected, sm_failed, char_pending_db ? char_pending_db->size(char_pending_db) : 0, sm_final_n, p50, p95);
+	sm_ok = sm_rejected = sm_failed = 0;
+	sm_final_n = 0;
+	return 0;
+}
+
+static int relogmetric_top_sub(DBKey key, void* data, va_list ap)
+{
+	struct relog_count* c = (struct relog_count*)data;
+	struct relog_count** top = va_arg(ap, struct relog_count**);
+	int i, j;
+	if (c->n <= 10)
+		return 0;
+	for (i = 0; i < 10 && top[i] && top[i]->n >= c->n; i++);
+	if (i == 10)
+		return 0;
+	for (j = 9; j > i; j--)
+		top[j] = top[j-1];
+	top[i] = c;
+	return 0;
+}
+
+// [metrics] RELOGMETRIC, every hour: the 10 accounts with the most character selects (over 10) in that hour.
+static int relogmetric_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	struct relog_count* top[10];
+	int i;
+	if (!metrics_log || relog_db == NULL)
+		return 0;
+	memset(top, 0, sizeof(top));
+	relog_db->foreach(relog_db, relogmetric_top_sub, top);
+	for (i = 0; i < 10 && top[i]; i++)
+		ShowInfo("[RELOGMETRIC] top aid=%d name='%s' logins=%d in %ds ip=%d.%d.%d.%d\n",
+			top[i]->account_id, top[i]->name, top[i]->n, relogmetric_interval, CONVIP(top[i]->ip));
+	ShowInfo("[RELOGMETRIC] accounts=%d over_10_logins=%d\n", relog_db->size(relog_db), i);
+	relog_db->clear(relog_db, NULL);
+	return 0;
+}
+
 int do_init(int argc, char **argv)
 {
 	int i;
@@ -4762,6 +4871,11 @@ int do_init(int argc, char **argv)
 	// (B2) Reconcile online flags against reality every 120s (was 600s) so ghost sessions clear
 	// within ~2 min instead of lingering until a reboot. [auth-resilience]
 	add_timer_interval(gettick() + 120*1000, online_data_cleanup, 0, 0, 120 * 1000);
+	relog_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	add_timer_func_list(savemetric_timer, "savemetric_timer");
+	add_timer_func_list(relogmetric_timer, "relogmetric_timer");
+	add_timer_interval(gettick() + savemetric_interval*1000, savemetric_timer, 0, 0, savemetric_interval*1000);
+	add_timer_interval(gettick() + relogmetric_interval*1000, relogmetric_timer, 0, 0, relogmetric_interval*1000);
 	// (B3) Stale-reap per-player ghosts not confirmed by any map-server's online sync within the
 	// grace window - correct for any number of map-servers. Runs every 30s. [auth-resilience]
 	add_timer_func_list(online_stale_reap, "online_stale_reap");

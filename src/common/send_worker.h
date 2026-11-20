@@ -32,6 +32,7 @@ static inline void sendworker_release(int fd) { (void)fd; }
 static inline void sendworker_reset(int fd) { (void)fd; }
 static inline void sendworker_set_coalesce(int ms) { (void)ms; }
 static inline void sendworker_set_pool(int on) { (void)on; }
+static inline size_t sendworker_qbytes(int fd) { (void)fd; return 0; }
 #else
 
 // Start/stop the worker thread. Idempotent. Call before accepting clients.
@@ -40,6 +41,9 @@ void sendworker_final(void);
 
 // Hand off len bytes to be sent on fd (a private copy is made). FIFO per fd.
 int sendworker_send(int fd, const unsigned char *buf, size_t len); // -1: over SW_QUEUE_MAX, nothing queued
+
+// [metrics] Unsent bytes the worker holds for fd (queued or mid-send).
+size_t sendworker_qbytes(int fd);
 
 // Before closing fd: drop queued data, wait until the worker is not mid-send on
 // it. After this returns the caller may safely close()/reuse the fd.

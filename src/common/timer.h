@@ -73,6 +73,15 @@ char* search_timer_func_list(TimerFunc f);
 
 unsigned long get_uptime(void);
 
+// [metrics] LOOPMETRIC (core.c)
+extern int metrics_log;
+extern unsigned int timer_metric_run;
+extern t_tick timer_metric_slow_ms;
+extern TimerFunc timer_metric_slow_func;
+int timer_live_count(void);
+void timer_foreach_func(TimerFunc func, void (*cb)(int tid, struct TimerData* td, void* arg), void* arg);
+void timer_metric_reset_slow(void);
+
 void timer_init(void);
 void timer_final(void);
 

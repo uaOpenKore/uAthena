@@ -399,6 +399,17 @@ int sendworker_send(int fd, const unsigned char *buf, size_t len)
 	return 0;
 }
 
+size_t sendworker_qbytes(int fd)
+{
+	size_t b;
+	if( fd <= 0 || fd >= SW_MAX )
+		return 0;
+	pthread_mutex_lock(&g_mtx);
+	b = sw[fd].qbytes;
+	pthread_mutex_unlock(&g_mtx);
+	return b;
+}
+
 void sendworker_release(int fd)
 {
 	struct sw_chunk *c;
