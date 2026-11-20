@@ -157,6 +157,7 @@
 ////////////////////////////////////////////////
 
 unsigned int malloc_usage (void);
+size_t malloc_trim_unused (void); // [trim] give freed memory back to the system; bytes of manager blocks dropped
 void malloc_init (void);
 void malloc_final (void);
 
