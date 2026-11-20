@@ -279,6 +279,7 @@ static const char* socket_dc_reason_str(int reason)
 		case SDC_REJECTED:       return "rejected";
 		case SDC_SERVER_CLOSE:   return "server_close";
 		case SDC_SEND_BACKLOG:   return "send_backlog";
+		case SDC_PACKET_FLOOD:   return "packet_flood";
 		default:                 return "unknown";
 	}
 }
@@ -970,7 +971,9 @@ int do_parsepacket(void)
 				continue;
 
 			/* after parse, check client's RFIFO size to know if there is an invalid packet (too big and not parsed) */
-			if (session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size) {
+			// [flood] the UNPARSED bytes fill the buffer (one packet bigger than it): rdata_size is only where the
+			// last recv stopped, a full read of valid packets that ends in a partial one is not invalid
+			if (session[i]->rdata_size - session[i]->rdata_pos == rfifo_size && session[i]->max_rdata == rfifo_size) {
 				socket_set_disconnect_reason(i, SDC_INVALID_PACKET); // [dc-log]
 				set_eof(i);
 				continue;
@@ -997,8 +1000,10 @@ int do_parsepacket(void)
 
 			if( session[i] )
 			{
-				// invalid (oversized, unparseable) packet -> close
-				if( session[i]->rdata_size == rfifo_size && session[i]->max_rdata == rfifo_size ) {
+				// invalid (oversized, unparseable) packet -> close. The UNPARSED bytes must fill the buffer: comparing
+				// rdata_size (where the last recv stopped) dropped a client whose 16 KB of valid packets ended in a
+				// partial one -- a burst after a stalled connection ("invalid_packet") [flood]
+				if( session[i]->rdata_size - session[i]->rdata_pos == rfifo_size && session[i]->max_rdata == rfifo_size ) {
 					socket_set_disconnect_reason(i, SDC_INVALID_PACKET); // [dc-log]
 					set_eof(i);
 				} else

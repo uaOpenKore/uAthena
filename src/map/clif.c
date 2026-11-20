@@ -12123,6 +12123,25 @@ int clif_parse(int fd)
 	if ((int)RFIFOREST(fd) < packet_len)
 		return 0; // not enough data received to form the packet
 
+	// [flood] A client sends a few dozen packets a second (bots ~10). Nothing limited them: one client could make
+	// the server parse -- and broadcast to everyone around -- as many as its connection carries. Over
+	// packet_flood_limit packets in one second the session is closed.
+	if (battle_config.packet_flood_limit > 0) {
+		t_tick now = gettick();
+		if (DIFF_TICK(now, session[fd]->flood_tick) >= 1000) {
+			session[fd]->flood_tick = now;
+			session[fd]->flood_count = 0;
+		}
+		if (++session[fd]->flood_count > (unsigned int)battle_config.packet_flood_limit) {
+			ShowWarning("clif_parse: session #%d (%s, %d.%d.%d.%d) sent over %d packets in a second, disconnecting.\n",
+				fd, sd ? sd->status.name : "not logged in", CONVIP(session[fd]->client_addr), battle_config.packet_flood_limit);
+			socket_set_disconnect_reason(fd, SDC_PACKET_FLOOD);
+			set_eof(fd);
+			RFIFOSKIP(fd, RFIFOREST(fd));
+			return 0;
+		}
+	}
+
 	if (sd && sd->state.waitingdisconnect == 1) {
 		// fpPbg
 	} else if (packet_db[packet_ver][cmd].func) {
