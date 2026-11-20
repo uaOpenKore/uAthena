@@ -160,6 +160,10 @@ int RFIFOSKIP(int fd, int len);
 int do_sendrecv(int next);
 int do_parsepacket(void);
 void do_close(int fd);
+
+// [wakeup] Wake the main loop when a worker's eventfd becomes readable and run on_ready(fd) in do_parsepacket.
+int socket_watch_fd(int fd, ParseFunc on_ready);
+void socket_unwatch_fd(int fd);
 void socket_init(void);
 void socket_final(void);
 

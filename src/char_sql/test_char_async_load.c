@@ -10,6 +10,7 @@
 
 #include "char_async_load.h"
 
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -79,6 +80,29 @@ int main(void)
 
 	// 3. NULL ctx rejected.
 	CHECK(acl_submit(h, NULL) == 0, "submit rejects NULL ctx");
+
+	// 4. [wakeup] The lane signals a finished job on its wake fd, so the game loop wakes on it at once
+	// (no 20 ms poll timer). Not readable before a job finishes; readable after; quiet again once drained.
+	{
+		int wfd = acl_wake_fd(h);
+		struct pollfd pfd;
+		struct job* j = (struct job*)calloc(1, sizeof(struct job));
+		CHECK(wfd >= 0, "the lane has a wake fd");
+		pfd.fd = wfd; pfd.events = POLLIN;
+		CHECK(poll(&pfd, 1, 0) == 1, "the jobs of 1. and 2. left the wake fd readable");
+		acl_wake_drain(h);
+		CHECK(poll(&pfd, 1, 0) == 0, "wake fd quiet while nothing finished");
+		j->seq = 20;
+		done_count = 0;
+		acl_submit(h, j);
+		CHECK(poll(&pfd, 1, 0) == 0, "wake fd quiet after submit (the job did not finish)");
+		acl_test_run_worker_once(h);
+		CHECK(poll(&pfd, 1, 0) == 1 && (pfd.revents & POLLIN), "wake fd readable once the job finished");
+		acl_wake_drain(h);
+		CHECK(poll(&pfd, 1, 0) == 0, "wake fd quiet again after drain");
+		CHECK(acl_poll(h) == 1 && done_count == 1, "the finished job is still dispatched by poll");
+	}
+	CHECK(acl_wake_fd(NULL) == -1, "NULL lane has no wake fd");
 
 	acl_destroy(h);
 	printf(failures ? "\n%d FAILURE(S)\n" : "\nALL TESTS PASSED\n", failures);

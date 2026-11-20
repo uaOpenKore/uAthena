@@ -137,6 +137,8 @@ struct char_session_data{
 	unsigned int auth_wait_tick; // [auth-queue] when char_auth_ok started holding this login because the account was still online (0 = not held)
 	int auth_wait_tid;           // [auth-queue] pending re-check of a held login (char_auth_wait_timer), INVALID_TIMER if none
 	unsigned authed : 1;         // [auth-queue] char_auth_ok let this login through (char list sent)
+	unsigned char_load_pending : 1; // a char-select (0x66) load runs on the async lane: this session's next packets
+	                                // wait for it, in order, as with the old synchronous load (parse_char)
 };
 
 #define AUTH_FIFO_SIZE 256
@@ -3695,14 +3697,19 @@ static void char_load_done(void* ctx)
 	struct achar_ctx* r = (struct achar_ctx*)ctx;
 	struct char_session_data* sd;
 
-	// The client may have disconnected (or the fd been reused by another account)
-	// while the load was in flight: validate before touching anything.
+	// The client may have disconnected while the load was in flight, and its fd been reused - by another
+	// account, or by the same account logging in again (Linux hands out the lowest free fd, so usually the
+	// same one). Only the login session that asked gets the answer: the login ids are new on every login.
+	// (Checking the account alone sent the new session a 0x71 it never asked for, with an auth for the old
+	// session's ids, so its map login failed.)
 	if (!session_isValid(r->fd) || session[r->fd]->eof
 	 || (sd = (struct char_session_data*)session[r->fd]->session_data) == NULL
-	 || sd->account_id != r->account_id) {
+	 || sd->account_id != r->account_id
+	 || sd->login_id1 != r->login_id1 || sd->login_id2 != r->login_id2) {
 		aFree(r);
 		return;
 	}
+	sd->char_load_pending = 0; // its next packets are parsed again
 
 	if (r->ok)
 		char_load_finish_ok(r);
@@ -3712,10 +3719,18 @@ static void char_load_done(void* ctx)
 	aFree(r);
 }
 
-// Game-thread timer: dispatch finished char loads. Runs often so a completed
-// load turns into the map handoff with negligible added latency.
+// Game-thread timer: dispatch finished char loads. Only used when the lane has no wake fd: then it runs
+// often so a completed load turns into the map handoff with little added latency.
 static int char_load_poll_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
+	acl_poll(char_load_lane);
+	return 0;
+}
+
+// [wakeup] The lane signalled a finished load: the main loop woke at once (socket_watch_fd), dispatch it.
+static int char_load_wake(int fd)
+{
+	acl_wake_drain(char_load_lane);
 	acl_poll(char_load_lane);
 	return 0;
 }
@@ -3758,6 +3773,8 @@ int parse_char(int fd)
 
 	while(RFIFOREST(fd) >= 2)
 	{
+		if (sd != NULL && sd->char_load_pending)
+			return 0; // its char-select load runs on the async lane: the packets after it wait (char_load_done)
 		//For use in packets that depend on an sd being present [Skotlex]
 		#define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL) { RFIFOSKIP(fd,rest); return 0; } }
 
@@ -3851,6 +3868,7 @@ int parse_char(int fd)
 				r->connect_until_time = sd->connect_until_time;
 				r->ip = session[fd]->client_addr;
 				RFIFOSKIP(fd, 3);
+				sd->char_load_pending = 1; // cleared by char_load_done for this session
 
 				if (!char_load_lane || !acl_submit(char_load_lane, r)) {
 					// synchronous fallback (lane disabled or queue full)
@@ -4577,6 +4595,7 @@ int char_config_read(const char* cfgName)
 void do_final(void)
 {
 	ShowInfo("Doing final stage...\n");
+	socket_unwatch_fd(acl_wake_fd(char_load_lane)); // [wakeup] before acl_destroy closes it
 	acl_destroy(char_load_lane); // stop the async char-load worker + join
 	char_load_lane = NULL;
 	// a last try for character saves that failed (each failure is logged); needs the item db, so before it goes
@@ -4755,13 +4774,20 @@ int do_init(int argc, char **argv)
 	add_timer_interval(gettick() + 3600*1000, send_accounts_tologin, 0, 0, 3600 * 1000); //Sync online accounts every hour.
 
 	// (D1) Async character-load lane: its own DB connection on a worker thread, drained on the
-	// game thread by a frequent poll timer. If creation fails, char_load_lane stays NULL and
-	// char-select falls back to a synchronous load. [auth-resilience]
+	// game thread. If creation fails, char_load_lane stays NULL and char-select falls back to a
+	// synchronous load. [auth-resilience]
+	// [wakeup] A finished load wakes the main loop through the lane's eventfd, so the char-server sleeps
+	// until there is work (it used to wake 20 times a second for a 20 ms poll timer, even when idle) and
+	// hands a loaded character over at once instead of up to 50 ms later. The poll timer only stays as
+	// the fallback when there is no eventfd.
 	char_load_lane = acl_create("char_load", char_server_ip, char_server_id, char_server_pw,
 		char_server_db, char_server_port, default_codepage, char_load_work, char_load_done);
 	if (char_load_lane) {
 		add_timer_func_list(char_load_poll_timer, "char_load_poll_timer");
-		add_timer_interval(gettick() + 20, char_load_poll_timer, 0, 0, 20); // poll every 20ms
+		if (socket_watch_fd(acl_wake_fd(char_load_lane), char_load_wake) != 0) {
+			ShowWarning("char_async_load: no wake fd - finished loads are polled every 20 ms.\n");
+			add_timer_interval(gettick() + 20, char_load_poll_timer, 0, 0, 20);
+		}
 	} else
 		ShowWarning("Async char-load lane unavailable - char-select will load synchronously.\n");
 
