@@ -3261,6 +3261,11 @@ int map_config_read(char *cfgName)
 					ShowNotice("Console Commands are enabled.\n");
 			} else if (strcmpi(w1, "enable_spy") == 0) {
 				enable_spy = config_switch(w2);
+			} else if (strcmpi(w1, "metrics_log") == 0) {
+				metrics_log = atoi(w2); // [metrics] LOOPMETRIC/MOBMETRIC: 0 off, 1 summaries, 2 + events
+			} else if (strcmpi(w1, "mobmetric_interval") == 0) {
+				extern int mobmetric_interval;
+				mobmetric_interval = max(10, atoi(w2));
 			} else if (strcmpi(w1, "import") == 0) {
 				map_config_read(w2);
 			} else

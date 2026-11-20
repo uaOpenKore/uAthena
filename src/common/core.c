@@ -257,6 +257,51 @@ static void apply_cpu_affinity(void)
 /*======================================
  *	CORE : MAINROUTINE
  *--------------------------------------*/
+
+#ifndef MINICORE
+/// [metrics] LOOPMETRIC: one line a minute about the main loop (rounds, the longest one and what it was spent on,
+/// wake-ups, timers, client sessions and their unsent bytes, memory), and one line at once for a round that
+/// worked over 500 ms (the socket wait does not count: that is idle time).
+static void loopmetric_round(t_tick t0, t_tick t1, t_tick t2, t_tick t3)
+{
+	static t_tick since = 0;
+	static unsigned int loops = 0, run0 = 0;
+	static int max_ms = 0;
+	static const char* max_phase = "-";
+	int timers_ms = DIFF_TICK32(t1, t0);
+	int io_ms = DIFF_TICK32(t2, t1) - (int)socket_last_wait_ms;
+	int parse_ms = DIFF_TICK32(t3, t2);
+	int work, elapsed;
+	const char* phase;
+
+	if (io_ms < 0) io_ms = 0;
+	work = timers_ms + io_ms + parse_ms;
+	phase = timers_ms >= io_ms && timers_ms >= parse_ms ? "timers" : io_ms >= parse_ms ? "send/recv" : "parse";
+	if (since == 0) { since = t0; run0 = timer_metric_run; }
+	loops++;
+	if (work > max_ms) { max_ms = work; max_phase = phase; }
+	if (work > 500)
+		ShowWarning("[LOOPMETRIC] slow_loop ms=%d phase=%s timers=%d send/recv=%d parse=%d top=%s(%dms)\n",
+			work, phase, timers_ms, io_ms, parse_ms,
+			timer_metric_slow_func ? search_timer_func_list(timer_metric_slow_func) : "-", (int)timer_metric_slow_ms);
+
+	elapsed = DIFF_TICK32(t3, since);
+	if (elapsed >= 60000) {
+		int sessions, max_fd;
+		size_t send_total, send_max;
+		unsigned long up = get_uptime();
+		socket_metric_stats(&sessions, &send_total, &send_max, &max_fd);
+		ShowInfo("[LOOPMETRIC] %s up=%lud%02luh loops=%u max_loop_ms=%d (%s) wakes_s=%.1f timers_run=%u timers_live=%d"
+			" sessions=%d send_q_kb=%u send_q_max_kb=%u (fd %d) mem_mb=%u tick=%lld\n",
+			SERVER_NAME ? SERVER_NAME : "server", up / 86400, (up % 86400) / 3600, loops, max_ms, max_phase,
+			loops * 1000.0 / elapsed, timer_metric_run - run0, timer_live_count(),
+			sessions, (unsigned int)(send_total / 1024), (unsigned int)(send_max / 1024), max_fd,
+			malloc_usage() / 1024, (long long)t3);
+		since = t3; run0 = timer_metric_run; loops = 0; max_ms = 0; max_phase = "-";
+	}
+}
+#endif
+
 int main (int argc, char **argv)
 {
 
@@ -302,9 +347,15 @@ int main (int argc, char **argv)
 	{// Main runtime cycle
 		int next;
 		while (runflag) {
-			next = do_timer(gettick_nocache());
+			t_tick t0 = gettick_nocache(), t1, t2;
+			timer_metric_reset_slow();
+			next = do_timer(t0);
+			t1 = gettick_nocache();
 			do_sendrecv(next);
+			t2 = gettick_nocache();
 			do_parsepacket();
+			if (metrics_log)
+				loopmetric_round(t0, t1, t2, gettick_nocache());
 		}
 	}
 

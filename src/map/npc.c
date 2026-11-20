@@ -50,6 +50,7 @@ static int npc_delay_mob=0;
 static int npc_cache_mob=0;
 const char *current_file = NULL;
 int npc_get_new_npc_id(void){ return npc_id++; }
+int npc_peek_new_npc_id(void){ return npc_id; } // [metrics] MOBMETRIC: ids used per hour
 
 static struct dbt *ev_db;
 static struct dbt *npcname_db;

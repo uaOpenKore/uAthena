@@ -67,6 +67,7 @@ int npc_changename(const char* name, const char* newname, short look); // [Lance
 struct npc_data* npc_name2id(const char* name);
 
 int npc_get_new_npc_id(void);
+int npc_peek_new_npc_id(void);
 
 void npc_addsrcfile(const char* name);
 void npc_delsrcfile(const char* name);

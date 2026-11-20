@@ -39,6 +39,12 @@ static int free_timer_list_pos	= 0;
 // each tid's slot, so settick/delete can relocate a timer in O(log n).
 // Replaces the old O(n) insertion-sorted array (the [FlavioJS] TODO).
 static int timer_heap_num = 0;
+
+// [metrics] LOOPMETRIC (core.c): 0 off, 1 summaries, 2 summaries + events. Set from the server's main conf.
+int metrics_log = 2;
+unsigned int timer_metric_run = 0;        // timer callbacks run
+t_tick timer_metric_slow_ms = 0;           // slowest callback since timer_metric_reset_slow()
+TimerFunc timer_metric_slow_func = NULL;
 static int timer_heap_max = 0;
 static int* timer_heap = NULL;
 
@@ -356,12 +362,19 @@ int do_timer(t_tick tick)
 		pop_timer_heap(); // remove it from the heap
 		timer_data[i].type |= TIMER_REMOVE_HEAP;
 		if (timer_data[i].func) {
+			TimerFunc f = timer_data[i].func;
+			t_tick t0 = metrics_log ? gettick_nocache() : 0;
 			if (diff < -1000) {
 				// fired far too late: pass the current tick rather than the
 				// (long past) scheduled one, so the callback doesn't over-rewind
 				timer_data[i].func(i, tick, timer_data[i].id, timer_data[i].data);
 			} else {
 				timer_data[i].func(i, timer_data[i].tick, timer_data[i].id, timer_data[i].data);
+			}
+			timer_metric_run++;
+			if (metrics_log) {
+				t_tick took = DIFF_TICK(gettick_nocache(), t0);
+				if (took > timer_metric_slow_ms) { timer_metric_slow_ms = took; timer_metric_slow_func = f; }
 			}
 		}
 		if (timer_data[i].type & TIMER_REMOVE_HEAP) {
@@ -392,6 +405,28 @@ int do_timer(t_tick tick)
 	if (nextmin < TIMER_MIN_INTERVAL)
 		nextmin = TIMER_MIN_INTERVAL;
 	return nextmin;
+}
+
+/// [metrics] Call cb for every pending timer of func (MOBMETRIC: respawn timers).
+void timer_foreach_func(TimerFunc func, void (*cb)(int tid, struct TimerData* td, void* arg), void* arg)
+{
+	int k;
+	for (k = 0; k < timer_heap_num; k++) {
+		int tid = timer_heap[k];
+		if (timer_data[tid].func == func)
+			cb(tid, &timer_data[tid], arg);
+	}
+}
+
+int timer_live_count(void)
+{
+	return timer_heap_num;
+}
+
+void timer_metric_reset_slow(void)
+{
+	timer_metric_slow_ms = 0;
+	timer_metric_slow_func = NULL;
 }
 
 unsigned long get_uptime(void)

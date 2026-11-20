@@ -102,6 +102,7 @@ int socket_send_coalesce_ms = 0;
 // dedicated worker thread (see send_worker.c) instead of inline on the game loop.
 // 0 = inline (default, all servers). Set before accepting connections.
 int socket_async_send = 0;
+unsigned int socket_last_wait_ms = 0; // [metrics] how long the last round's epoll_wait took
 
 // [perf] When >0, set SO_SNDBUF (kernel send buffer) to this many bytes on each socket. A larger
 // send buffer lets WoE bursts queue in-kernel instead of hitting EAGAIN (which forces an immediate
@@ -238,6 +239,22 @@ static const char* socket_dc_reason_str(int reason)
 		case SDC_SERVER_CLOSE:   return "server_close";
 		case SDC_SEND_BACKLOG:   return "send_backlog";
 		default:                 return "unknown";
+	}
+}
+
+/// [metrics] Client sessions and their unsent bytes (write buffer + send worker queue), with the largest one.
+void socket_metric_stats(int *sessions, size_t *send_total, size_t *send_max, int *send_max_fd)
+{
+	int fd;
+	*sessions = 0; *send_total = 0; *send_max = 0; *send_max_fd = 0;
+	for( fd = 1; fd < fd_max; fd++ ) {
+		size_t b;
+		if( !session[fd] || session[fd]->client_addr == 0 )
+			continue;
+		(*sessions)++;
+		b = session[fd]->wdata_size + (socket_async_send ? sendworker_qbytes(fd) : 0);
+		*send_total += b;
+		if( b > *send_max ) { *send_max = b; *send_max_fd = fd; }
 	}
 }
 
@@ -764,6 +781,7 @@ int do_sendrecv(int next)
 		t_tick before = gettick_nocache();
 		ret = epoll_wait(epoll_fd, epoll_events, SOCKET_MAX, next);
 		prev_waited = (unsigned int)DIFF_TICK32(gettick_nocache(), before); // [stall-guard]
+		socket_last_wait_ms = prev_waited;
 	}
 	if( ret < 0 )
 	{
