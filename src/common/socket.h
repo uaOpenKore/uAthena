@@ -101,6 +101,7 @@ enum socket_dc_reason {
 	SDC_TIMEOUT,         // clif_timedout: the account timed out
 	SDC_REJECTED,        // refused at connect, before authentication (client version, bad ids)
 	SDC_SERVER_CLOSE,    // any other close decided by the server (clif_setwaitclose without a reason)
+	SDC_SEND_BACKLOG,    // the client does not read: over SW_QUEUE_MAX bytes waiting to be sent
 };
 
 struct socket_data {

@@ -122,12 +122,13 @@ static void pool_drain(void)
 
 struct sw_fd {
 	struct sw_chunk *head, *tail;   // pending FIFO
-	struct timespec due;            // when a deferred fd becomes ready (abs, CLOCK_REALTIME)
+	struct timespec due;            // when a deferred fd becomes ready (abs, CLOCK_MONOTONIC)
 	unsigned char in_ready;         // queued in g_ready (drain now); dedup
 	unsigned char in_use;           // worker is mid-send on this fd
 	unsigned char closing;          // game thread is closing it; worker must let go
 	unsigned char deferred;         // queued in g_defer awaiting .due; dedup
 	unsigned char defer_backlog;    // deferral reason: 1 = EAGAIN retry, 0 = coalesce window
+	size_t qbytes;                  // unsent bytes of this fd, queued or checked out by the worker
 };
 
 static struct sw_fd sw[SW_MAX];
@@ -148,11 +149,13 @@ void sendworker_set_coalesce(int ms)
 	pthread_mutex_unlock(&g_mtx);
 }
 
-// --- small time helpers (CLOCK_REALTIME, to match pthread_cond_timedwait) -----
+// --- small time helpers (CLOCK_MONOTONIC, the clock g_work_cv waits on) -----
+// The wall clock (CLOCK_REALTIME) can step - NTP, a VM resumed from a pause: a step back between computing a
+// deadline and waiting for it kept every deferred client packet for the size of the step.
 static struct timespec now_plus_ms(int ms)
 {
 	struct timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
+	clock_gettime(CLOCK_MONOTONIC, &ts);
 	ts.tv_nsec += (long)ms * 1000000L;
 	ts.tv_sec  += ts.tv_nsec / 1000000000L;
 	ts.tv_nsec %= 1000000000L;
@@ -240,7 +243,7 @@ static void *sw_main(void *unused)
 				for( k = 1; k < g_defer_n; k++ )
 					if( ts_lt(sw[g_defer[k]].due, ts) ) ts = sw[g_defer[k]].due;
 				pthread_cond_timedwait(&g_work_cv, &g_mtx, &ts);
-				clock_gettime(CLOCK_REALTIME, &now);
+				clock_gettime(CLOCK_MONOTONIC, &now);
 				for( r = 0; r < g_defer_n; r++ ) {
 					int dfd = g_defer[r];
 					if( ts_ge(now, sw[dfd].due) ) {
@@ -261,8 +264,9 @@ static void *sw_main(void *unused)
 
 		{
 			int fd = g_ready[--g_ready_n];
-			struct sw_chunk *list, *rem = NULL;
+			struct sw_chunk *list, *rem = NULL, *q;
 			int eagain = 0, dead = 0, coalesce;
+			size_t taken = 0, left = 0;
 			sw[fd].in_ready = 0;
 			if( sw[fd].closing || sw[fd].head == NULL )
 				continue;
@@ -270,6 +274,7 @@ static void *sw_main(void *unused)
 			// check out the whole queue and send it outside the lock
 			list = sw[fd].head;
 			sw[fd].head = sw[fd].tail = NULL;
+			for( q = list; q; q = q->next ) taken += q->len - q->off;
 			sw[fd].in_use = 1;
 			coalesce = (sw_coalesce_ms > 0);   // read under lock
 			pthread_mutex_unlock(&g_mtx);
@@ -316,6 +321,9 @@ static void *sw_main(void *unused)
 
 			pthread_mutex_lock(&g_mtx);
 			sw[fd].in_use = 0;
+			if( rem && !sw[fd].closing && !dead )
+				for( q = rem; q; q = q->next ) left += q->len - q->off;
+			sw[fd].qbytes = sw[fd].qbytes > taken - left ? sw[fd].qbytes - (taken - left) : 0;
 			if( rem && !sw[fd].closing && !dead ) {
 				// prepend the unsent remainder, schedule a delayed EAGAIN retry. The
 				// coalesce window NEVER throttles this drain -- only the 5ms retry.
@@ -342,14 +350,14 @@ static void *sw_main(void *unused)
 	return NULL;
 }
 
-void sendworker_send(int fd, const unsigned char *buf, size_t len)
+int sendworker_send(int fd, const unsigned char *buf, size_t len)
 {
 	struct sw_chunk *c;
 	if( fd <= 0 || fd >= SW_MAX || len == 0 )
-		return;
+		return 0;
 	c = chunk_alloc(len);
 	if( c == NULL )
-		return; // OOM: drop (parity with a failed send on a full buffer)
+		return 0; // OOM: drop (parity with a failed send on a full buffer)
 	c->next = NULL;
 	c->off  = 0;
 	c->len  = len;
@@ -359,8 +367,16 @@ void sendworker_send(int fd, const unsigned char *buf, size_t len)
 	if( sw[fd].closing ) {            // being torn down: drop
 		pthread_mutex_unlock(&g_mtx);
 		chunk_free(c);
-		return;
+		return 0;
 	}
+	if( sw[fd].qbytes + len > SW_QUEUE_MAX ) {
+		// A client that does not read: its socket stays full (EAGAIN) and every flush queued one more chunk, with
+		// no limit - and each 5 ms retry merged the whole queue into one buffer. Refuse; the caller closes it.
+		pthread_mutex_unlock(&g_mtx);
+		chunk_free(c);
+		return -1;
+	}
+	sw[fd].qbytes += len;
 	if( sw[fd].tail ) sw[fd].tail->next = c;
 	else              sw[fd].head = c;
 	sw[fd].tail = c;
@@ -380,6 +396,7 @@ void sendworker_send(int fd, const unsigned char *buf, size_t len)
 		sched_fd(fd);
 	}
 	pthread_mutex_unlock(&g_mtx);
+	return 0;
 }
 
 void sendworker_release(int fd)
@@ -389,6 +406,7 @@ void sendworker_release(int fd)
 		return;
 	pthread_mutex_lock(&g_mtx);
 	sw[fd].closing = 1;
+	sw[fd].qbytes = 0;
 	defer_remove(fd);                // drop any armed coalesce/retry deadline
 	c = sw[fd].head;                 // detach everything not in-flight
 	sw[fd].head = sw[fd].tail = NULL;
@@ -419,14 +437,23 @@ void sendworker_reset(int fd)
 	sw[fd].closing = 0;
 	sw[fd].in_use  = 0;
 	sw[fd].defer_backlog = 0;
+	sw[fd].qbytes = 0;
 	pthread_mutex_unlock(&g_mtx);
 	free_chain(c);
 }
 
 void sendworker_init(void)
 {
+	pthread_condattr_t ca;
 	pthread_mutex_lock(&g_mtx);
 	if( g_running ) { pthread_mutex_unlock(&g_mtx); return; }
+	// the deadlines are CLOCK_MONOTONIC: so must be the clock the worker's timed wait uses (the default is
+	// CLOCK_REALTIME). Nothing waits on g_work_cv yet.
+	pthread_condattr_init(&ca);
+	pthread_condattr_setclock(&ca, CLOCK_MONOTONIC);
+	pthread_cond_destroy(&g_work_cv);
+	pthread_cond_init(&g_work_cv, &ca);
+	pthread_condattr_destroy(&ca);
 	g_running = 1;
 	pthread_mutex_unlock(&g_mtx);
 	if( pthread_create(&g_thread, NULL, sw_main, NULL) != 0 ) {

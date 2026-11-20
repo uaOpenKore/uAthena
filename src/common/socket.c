@@ -236,6 +236,7 @@ static const char* socket_dc_reason_str(int reason)
 		case SDC_TIMEOUT:        return "timeout";
 		case SDC_REJECTED:       return "rejected";
 		case SDC_SERVER_CLOSE:   return "server_close";
+		case SDC_SEND_BACKLOG:   return "send_backlog";
 		default:                 return "unknown";
 	}
 }
@@ -335,7 +336,13 @@ int send_from_fifo(int fd)
 	// so the game loop never enters the kernel TCP stack for client traffic.
 	// Inter-server (s2s, client_addr==0) always stays on the inline path.
 	if( socket_async_send && session[fd]->client_addr != 0 ) {
-		sendworker_send(fd, session[fd]->wdata, session[fd]->wdata_size);
+		if( sendworker_send(fd, session[fd]->wdata, session[fd]->wdata_size) < 0 && !session[fd]->eof ) {
+			uint32 ip = session[fd]->client_addr;
+			ShowWarning("send_from_fifo: connection #%d (%d.%d.%d.%d) does not read what it is sent (over %d bytes waiting), closing it.\n",
+				fd, CONVIP(ip), SW_QUEUE_MAX);
+			socket_set_disconnect_reason(fd, SDC_SEND_BACKLOG);
+			set_eof(fd);
+		}
 		session[fd]->wdata_size = 0;
 		return 0;
 	}
@@ -679,6 +686,14 @@ int WFIFOSET(int fd, int len)
 	}
 
 	s->wdata_size += len;
+	if( s->client_addr != 0 && s->wdata_size > SW_QUEUE_MAX && !s->eof )
+	{	// the inline-send twin of the send worker's cap: a client that does not read must not grow this without end
+		uint32 ip = s->client_addr;
+		ShowWarning("WFIFOSET: connection #%d (%d.%d.%d.%d) does not read what it is sent (%u bytes waiting), closing it.\n",
+			fd, CONVIP(ip), (unsigned int)s->wdata_size);
+		socket_set_disconnect_reason(fd, SDC_SEND_BACKLOG);
+		set_eof(fd);
+	}
 	// always keep a wfifo_size reserve in the buffer
 	// For inter-server connections, let the reserve be 1/4th of the link size.
 	newreserve = s->wdata_size + (s->max_wdata >= FIFOSIZE_SERVERLINK ? FIFOSIZE_SERVERLINK / 4 : wfifo_size);

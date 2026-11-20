@@ -211,6 +211,60 @@ static void t_pool_mix(const char *tag)
 	fails += !ok;
 }
 
+
+// Test: the unsent backlog of one fd is capped (SW_QUEUE_MAX): a peer that never reads gets sendworker_send() = -1
+// once ~2 MB wait (the caller closes it); a peer that reads is never refused however much goes through, and a
+// released fd starts again from 0.
+static void t_cap(void)
+{
+	int sv[2]; int sndbuf = 4096; size_t pushed = 0; int refused = 0;
+	unsigned char *buf = malloc(4096);
+	memset(buf, 0x5a, 4096);
+	socketpair(AF_UNIX, SOCK_STREAM, 0, sv);
+	sendworker_reset(sv[0]);                       // as create_session does: the fd number may be a released one
+	set_nonblock(sv[0]);
+	setsockopt(sv[0], SOL_SOCKET, SO_SNDBUF, &sndbuf, sizeof(sndbuf));
+	while( pushed < 8u*1024*1024 ) {               // nobody reads sv[1]
+		if( sendworker_send(sv[0], buf, 4096) < 0 ) { refused = 1; break; }
+		pushed += 4096;
+	}
+	{ int ok = refused && pushed >= 2u*1024*1024 && pushed < 3u*1024*1024;
+	  printf("cap: a peer that never reads is refused   : %s (after %zu bytes)\n", ok?"ok":"FAIL", pushed);
+	  fails += !ok; }
+	sendworker_release(sv[0]);
+	close(sv[0]); close(sv[1]);
+	sendworker_reset(sv[0]);                       // leave the fd number clean for the next test
+
+	{   // a reading peer: 12 MB through a small buffer, read as it comes - never refused
+		int r[2]; size_t total = 0, got = 0; int bad = 0; unsigned char *rb = malloc(65536);
+		socketpair(AF_UNIX, SOCK_STREAM, 0, r);
+		set_nonblock(r[0]);
+		setsockopt(r[0], SOL_SOCKET, SO_SNDBUF, &sndbuf, sizeof(sndbuf));
+		sendworker_reset(r[0]);                    // the fd number may be the one just released
+		while( total < 12u*1024*1024 && !bad ) {
+			if( sendworker_send(r[0], buf, 4096) < 0 ) bad = 1;
+			total += 4096;
+			while( total - got > 1024*1024 ) {     // keep the backlog under 1 MB by reading
+				size_t k = read_n(r[1], rb, 65536 < total - got ? 65536 : total - got, 2000);
+				if( k == 0 ) { bad = 1; break; }
+				got += k;
+			}
+		}
+		while( !bad && got < total ) {
+			size_t k = read_n(r[1], rb, 65536 < total - got ? 65536 : total - got, 2000);
+			if( k == 0 ) break;
+			got += k;
+		}
+		{ int ok = !bad && got == total;
+		  printf("cap: a reading peer is never refused (12MB): %s (sent %zu, read %zu)\n", ok?"ok":"FAIL", total, got);
+		  fails += !ok; }
+		sendworker_release(r[0]);
+		close(r[0]); close(r[1]); free(rb);
+		sendworker_reset(r[0]);
+	}
+	free(buf);
+}
+
 int main(void)
 {
 	signal(SIGPIPE, SIG_IGN);  // a closed peer must not kill us (the server ignores it too)
@@ -225,6 +279,12 @@ int main(void)
 		t_release();
 		t_many();
 	}
+
+	printf("--- backlog cap ---\n");
+	sendworker_set_coalesce(10);
+	t_cap();
+	sendworker_set_coalesce(0);
+	t_cap();
 
 	printf("--- timing ---\n");
 	t_window();
