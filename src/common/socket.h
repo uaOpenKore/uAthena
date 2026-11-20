@@ -102,6 +102,7 @@ enum socket_dc_reason {
 	SDC_REJECTED,        // refused at connect, before authentication (client version, bad ids)
 	SDC_SERVER_CLOSE,    // any other close decided by the server (clif_setwaitclose without a reason)
 	SDC_SEND_BACKLOG,    // the client does not read: over SW_QUEUE_MAX bytes waiting to be sent
+	SDC_PACKET_FLOOD,    // the client sent more packets per second than packet_flood_limit
 };
 
 struct socket_data {
@@ -121,6 +122,7 @@ struct socket_data {
 	unsigned char in_shortlist; // already queued in the send shortlist (dedup)
 	unsigned char in_parselist; // [perf] already queued in the recv parse shortlist (dedup)
 	unsigned int last_send_tick; // [perf] gettick() of last flush, for send coalescing
+	t_tick flood_tick; unsigned int flood_count; // [flood] packets parsed in the second that began at flood_tick
 	uint32 conn_serial; // number of this connection, never 0 and not reused for ~4e9 connections (the fd and this
 	                    // block are): a delayed close keyed on it cannot hit the next connection on the same fd
 };
