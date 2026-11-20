@@ -3440,6 +3440,8 @@ int lan_subnetcheck(uint32 ip)
 	return 0;
 }
 
+static char map_server_ip_allow[256] = ""; // [s2s] more map-server addresses (char_athena.conf), besides this host
+
 int parse_char(int fd)
 {
 	int i, ch;
@@ -3846,11 +3848,17 @@ int parse_char(int fd)
 				if (server_fd[i] <= 0)
 					break;
 			}
-			if (i == MAX_MAP_SERVERS || strcmp(l_user, userid) || strcmp(l_pass, passwd)) {
+			// [s2s] only from this host or map_server_ip_allow; a refused try ends the connection (see char_sql)
+			if (i == MAX_MAP_SERVERS || strcmp(l_user, userid) || strcmp(l_pass, passwd) ||
+				!socket_s2s_ip_allowed(session[fd]->client_addr, map_server_ip_allow)) {
+				ShowWarning("parse_char: map-server login refused from %d.%d.%d.%d\n", CONVIP(session[fd]->client_addr));
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x2af9;
 				WFIFOB(fd,2) = 3;
 				WFIFOSET(fd,3);
+				RFIFOSKIP(fd,60);
+				set_eof(fd);
+				return 0;
 			} else {
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x2af9;
@@ -4334,6 +4342,8 @@ int char_config_read(const char *cfgName)
 		} else if (strcmpi(w1, "guild_exp_rate") == 0) {
 			guild_exp_rate = atoi(w2);
 #endif //TXT_SQL_CONVERT
+		} else if (strcmpi(w1, "map_server_ip_allow") == 0) {
+			safestrncpy(map_server_ip_allow, w2, sizeof(map_server_ip_allow));
 		} else if (strcmpi(w1, "metrics_log") == 0) {
 			metrics_log = atoi(w2); // [metrics] LOOPMETRIC: 0 off, 1 summaries, 2 + events
 		} else if (strcmpi(w1, "import") == 0) {
