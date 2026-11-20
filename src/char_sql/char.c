@@ -965,7 +965,8 @@ static int char_pending_final_sub(DBKey key, void* data, va_list ap)
 // [Ilpalazzo-sama]
 int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tableswitch)
 {
-	int i,j, flag, id;
+	int i,j, flag;
+	unsigned int id; // the row id: int(11) UNSIGNED, past 2^31-1 an int went negative and every UPDATE/DELETE missed its row (dupes)
 	int errors = 0; // failed statements: the caller rolls the save back
 	char* tablename;
 	char selectoption[16];
@@ -1006,7 +1007,7 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 	if (sql_res) {
 		while ((sql_row = mysql_fetch_row(sql_res))) {
 			flag = 0;
-			id = atoi(sql_row[0]);
+			id = (unsigned int)strtoul(sql_row[0], NULL, 10);
 			for(i = 0; i < count; i++) {
 				if(mapitem[i].flag == 1)
 					continue;
@@ -1032,7 +1033,7 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 #ifndef TXT_SQL_CONVERT
 					if(!itemdb_isequip(mapitem[i].nameid))
 					{	//Quick update of stackable items. Update Qty and Equip should be enough, but in case we are also updating identify
-						sprintf(tmp_sql,"UPDATE `%s` SET `equip`='%d', `identify`='%d', `amount`='%d' WHERE `id`='%d' LIMIT 1",
+						sprintf(tmp_sql,"UPDATE `%s` SET `equip`='%d', `identify`='%d', `amount`='%d' WHERE `id`='%u' LIMIT 1",
 							tablename, mapitem[i].equip, mapitem[i].identify,mapitem[i].amount, id);
 						if(mysql_query(&mysql_handle, tmp_sql))
 						{
@@ -1052,7 +1053,7 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 
 						str_p += sprintf(str_p, ", `expire_time`='%u'", mapitem[i].expire_time); // [Backport] rental
 
-						str_p += sprintf(str_p,", `amount`='%d' WHERE `id`='%d' LIMIT 1",
+						str_p += sprintf(str_p,", `amount`='%d' WHERE `id`='%u' LIMIT 1",
 							mapitem[i].amount, id);
 						
 						if(mysql_query(&mysql_handle, tmp_sql))
@@ -1067,7 +1068,7 @@ int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tab
 				}
 			}
 			if(!flag) { //Item not updated, remove it.
-				sprintf(tmp_sql,"DELETE from `%s` where `id`='%d'", tablename, id);
+				sprintf(tmp_sql,"DELETE from `%s` where `id`='%u'", tablename, id);
 				if(mysql_query(&mysql_handle, tmp_sql))
 				{
 					ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
