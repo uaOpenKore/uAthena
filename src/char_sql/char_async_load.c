@@ -12,9 +12,12 @@
 // the game loop's allocator lock, exactly like async_db.
 
 #include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/eventfd.h>
+#include <unistd.h>
 
 #include "char_async_load.h"
 
@@ -44,6 +47,7 @@ struct ACharLane {
 	struct acl_node* done_head;
 	struct acl_node* done_tail;
 	unsigned int inflight;
+	int wake_fd;            // [wakeup] eventfd the worker signals after queueing a finished job, -1 if none
 
 	int q_shutdown;
 	pthread_mutex_t mutex;
@@ -124,6 +128,13 @@ static void acl_process(ACharLane* h, struct acl_node* node)
 	else              h->done_head = node;
 	h->done_tail = node;
 	pthread_mutex_unlock(&h->mutex);
+
+	// [wakeup] After the job is queued, so the game loop that wakes on this always finds it.
+	if (h->wake_fd >= 0) {
+		uint64_t one = 1;
+		ssize_t w = write(h->wake_fd, &one, sizeof(one));
+		(void)w; // only fails when the counter is about to overflow: the fd is readable then anyway
+	}
 }
 
 static void* acl_worker(void* arg)
@@ -186,6 +197,7 @@ ACharLane* acl_create(const char* name, const char* ip, const char* user,
 	h->port = port;
 	h->work_fn = work_fn;
 	h->done_fn = done_fn;
+	h->wake_fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC); // -1: the caller polls acl_poll on a timer instead
 
 	pthread_mutex_init(&h->mutex, NULL);
 	pthread_cond_init(&h->cond, NULL);
@@ -193,6 +205,7 @@ ACharLane* acl_create(const char* name, const char* ip, const char* user,
 #ifndef CHAR_ASYNC_LOAD_TEST
 	if (pthread_create(&h->tid, NULL, acl_worker, h) != 0) {
 		ShowWarning("char_async_load[%s]: pthread_create failed.\n", h->name);
+		if (h->wake_fd >= 0) close(h->wake_fd);
 		pthread_mutex_destroy(&h->mutex);
 		pthread_cond_destroy(&h->cond);
 		free(h);
@@ -262,6 +275,20 @@ int acl_poll(ACharLane* h)
 	return dispatched;
 }
 
+int acl_wake_fd(ACharLane* h)
+{
+	return h ? h->wake_fd : -1;
+}
+
+void acl_wake_drain(ACharLane* h)
+{
+	uint64_t n;
+	if (h == NULL || h->wake_fd < 0)
+		return;
+	while (read(h->wake_fd, &n, sizeof(n)) > 0)
+		; // one read resets the counter; the next returns EAGAIN
+}
+
 unsigned int acl_pending(ACharLane* h)
 {
 	unsigned int n;
@@ -296,6 +323,8 @@ void acl_destroy(ACharLane* h)
 	n = h->done_head;
 	while (n) { struct acl_node* nx = n->next; free(n); n = nx; }
 
+	if (h->wake_fd >= 0) // the caller has stopped watching it (socket_unwatch_fd) by now
+		close(h->wake_fd);
 	pthread_mutex_destroy(&h->mutex);
 	pthread_cond_destroy(&h->cond);
 	free(h);

@@ -54,6 +54,13 @@ int acl_submit(ACharLane* h, void* ctx);
 // the number dispatched. Call once per tick; cheap when nothing is ready.
 int acl_poll(ACharLane* h);
 
+// [wakeup] An eventfd that becomes readable when a finished job is waiting for acl_poll(), so the game
+// loop can wake on it instead of polling on a timer. -1 if the lane has none (then poll on a timer).
+// The lane owns it: stop watching it before acl_destroy() closes it.
+int acl_wake_fd(ACharLane* h);
+// Make the wake fd quiet again (call before acl_poll(); a job finishing after this signals it anew).
+void acl_wake_drain(ACharLane* h);
+
 // Jobs submitted but not yet dispatched by poll(). For metrics.
 unsigned int acl_pending(ACharLane* h);
 

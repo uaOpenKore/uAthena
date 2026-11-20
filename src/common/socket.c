@@ -153,6 +153,7 @@ static void epoll_del(int fd)
 }
 
 int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse);
+int delete_session(int fd);
 
 #ifndef MINICORE
 	int ip_rules = 1;
@@ -516,6 +517,39 @@ int make_connection(uint32 ip, uint16 port)
 	session[fd]->rdata_tick = last_tick;
 
 	return fd;
+}
+
+// [wakeup] recv of a watched fd: read away what woke the loop (an eventfd's counter), then run its handler
+// in do_parsepacket like any packet handler.
+static int watch_recv(int fd)
+{
+	unsigned char buf[64];
+	while( read(fd, buf, sizeof(buf)) > 0 )
+		; // an eventfd hands out its whole counter in one read; the next one says EAGAIN
+	if( recv_parse_shortlist )
+		parse_shortlist_add_fd(fd);
+	return 0;
+}
+
+/// [wakeup] Wake the main loop at once when `fd` (an eventfd a worker thread signals) becomes readable, and
+/// call `on_ready(fd)` from do_parsepacket. Replaces polling a worker's results on a timer: the loop sleeps
+/// until there is something to do. The caller keeps owning the fd: socket_unwatch_fd() before closing it.
+/// The session has no client address, so the idle sweep and the disconnect log leave it alone.
+int socket_watch_fd(int fd, ParseFunc on_ready)
+{
+	if( fd <= 0 || fd >= SOCKET_MAX || session[fd] != NULL )
+		return -1;
+	if( fd_max <= fd ) fd_max = fd + 1;
+	epoll_add(fd);
+	create_session(fd, watch_recv, null_send, on_ready);
+	return 0;
+}
+
+/// [wakeup] Stop watching `fd` (it is not closed).
+void socket_unwatch_fd(int fd)
+{
+	if( fd > 0 && fd < SOCKET_MAX && session[fd] != NULL && session[fd]->func_recv == watch_recv )
+		delete_session(fd);
 }
 
 int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse)
