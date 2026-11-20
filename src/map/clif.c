@@ -4880,16 +4880,18 @@ int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_
 	WBUFB(buf,14)=fail;
 	clif_send(buf,packet_len(0x11a),dst,AREA);
 
+	// The disguised copies are the same 0x11a: they went out with 0x115's length (35 bytes from buf[32]), which
+	// broke the client's packet stream.
 	if (disguised(dst)) {
 		WBUFL(buf,6)=-dst->id;
-		clif_send(buf,packet_len(0x115),dst,SELF);
+		clif_send(buf,packet_len(0x11a),dst,SELF);
 	}
 
 	if(src && disguised(src)) {
 		WBUFL(buf,10)=-src->id;
 		if (disguised(dst))
 			WBUFL(buf,6)=dst->id;
-		clif_send(buf,packet_len(0x115),src,SELF);
+		clif_send(buf,packet_len(0x11a),src,SELF);
 	}
 
 	return fail;
@@ -10872,16 +10874,22 @@ void clif_parse_GuildChangeEmblem(int fd,struct map_session_data *sd)
 void clif_parse_GuildChangeNotice(int fd, struct map_session_data* sd)
 {
 	int guild_id = RFIFOL(fd,2);
-	char* msg1 = (char*)RFIFOP(fd,6);
-	char* msg2 = (char*)RFIFOP(fd,66);
+	// Zeroed copies with 3 spare bytes: on the packet itself the marker skips below moved msg2 3 bytes on, so
+	// the trailing-space cut wrote up to 3 bytes past the packet (onto the next one) and intif_guild_notice's
+	// memcpy of 60/120 bytes saved 3 bytes from behind it.
+	char text1[60+3+1] = "", text2[120+3+1] = "";
+	char* msg1 = text1;
+	char* msg2 = text2;
 
 	if(!sd->state.gmaster_flag)
 		return;
 
+	memcpy(text1, RFIFOP(fd,6), 60);
+	memcpy(text2, RFIFOP(fd,66), 120);
 	// compensate for some client defects when using multilanguage mode
 	if (msg1[0] == '|' && msg1[3] == '|') msg1+= 3; // skip duplicate marker
 	if (msg2[0] == '|' && msg2[3] == '|') msg2+= 3; // skip duplicate marker
-	if (msg2[0] == '|') msg2[strnlen(msg2, 120)-1] = '\0'; // delete extra space at the end of string
+	if (msg2[0] == '|') msg2[strlen(msg2)-1] = '\0'; // delete extra space at the end of string
 
 	guild_change_notice(sd, guild_id, msg1, msg2);
 }

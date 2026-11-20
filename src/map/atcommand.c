@@ -10507,9 +10507,9 @@ int atcommand_reject(const int fd, struct map_session_data* sd, const char* comm
 int atcommand_away(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	if(strlen(message) > 0) {
-		if(strlen(message) > 128)
+		if(strlen(message) >= sizeof(sd->away_message)) // 128 chars + NUL overran it into sd->streak
 			return -1;
-		strcpy(sd->away_message, message);
+		safestrncpy(sd->away_message, message, sizeof(sd->away_message));
 		//"Away automessage has been activated."
 		clif_displaymessage(fd, msg_txt(546));
 	} else {
