@@ -29,6 +29,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/epoll.h>
+#include <ifaddrs.h>
 #include <sys/resource.h>
 
 #ifndef SIOCGIFCONF
@@ -1349,6 +1350,45 @@ void do_close(int fd)
 
 /// Retrieve local ips in host byte order.
 /// Uses loopback is no address is found.
+bool socket_s2s_ip_allowed(uint32 ip, const char* allow)
+{
+	int i;
+	struct ifaddrs *ifs, *it;
+	if( (ip >> 24) == 127 )
+		return true;
+	for( i = 0; i < naddr_; i++ )
+		if( addr_[i] == ip )
+			return true;
+	// Every address of this host, read now (s2s logins are rare): socket_getips keeps 16 and the servers often
+	// reach each other through the host's external address (char_ip/login_ip), on a host with many interfaces.
+	if( getifaddrs(&ifs) == 0 ) {
+		bool found = false;
+		for( it = ifs; it != NULL && !found; it = it->ifa_next )
+			if( it->ifa_addr && it->ifa_addr->sa_family == AF_INET &&
+				ntohl(((struct sockaddr_in*)it->ifa_addr)->sin_addr.s_addr) == ip )
+				found = true;
+		freeifaddrs(ifs);
+		if( found )
+			return true;
+	}
+	while( allow && *allow ) {
+		unsigned int a, b, c, d, bits = 32;
+		int n = 0;
+		while( *allow == ',' || *allow == ' ' || *allow == '\t' ) allow++;
+		if( !*allow ) break;
+		if( sscanf(allow, "%u.%u.%u.%u/%u%n", &a, &b, &c, &d, &bits, &n) == 5 ||
+			(bits = 32, sscanf(allow, "%u.%u.%u.%u%n", &a, &b, &c, &d, &n) == 4) ) {
+			uint32 net = (a << 24) | (b << 16) | (c << 8) | d;
+			uint32 mask = bits == 0 ? 0 : bits >= 32 ? 0xFFFFFFFFu : ~((1u << (32 - bits)) - 1);
+			if( (ip & mask) == (net & mask) )
+				return true;
+		}
+		while( *allow && *allow != ',' && *allow != ' ' && *allow != '\t' ) allow++;
+		(void)n;
+	}
+	return false;
+}
+
 int socket_getips(uint32* ips, int max)
 {
 	int num = 0;

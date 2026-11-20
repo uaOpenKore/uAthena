@@ -195,6 +195,11 @@ int socket_getips(uint32* ips, int max);
 extern uint32 addr_[16];   // ip addresses of local host (host byte order)
 extern int naddr_;   // # of ip addresses
 
+// [s2s] May a server-to-server login (map->char 0x2af8, char->login 0x2710) come from this address? Yes for
+// loopback (127.0.0.0/8), this host's own addresses, and the entries of `allow` ("a.b.c.d" or "a.b.c.d/nn",
+// comma/space separated, "" = none). Any other host is refused even with the right userid/passwd.
+bool socket_s2s_ip_allowed(uint32 ip, const char* allow);
+
 void set_eof(int fd);
 
 /// Use a shortlist of sockets instead of iterating all sessions for sockets

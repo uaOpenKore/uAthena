@@ -1354,6 +1354,8 @@ int login_ip_ban_check(uint32 ip)
 //----------------------------------------------------------------------------------------
 // Default packet parsing (normal players or administation/char-server connection requests)
 //----------------------------------------------------------------------------------------
+static char char_server_ip_allow[256] = ""; // [s2s] more char-server addresses (login_athena.conf), besides this host
+
 int parse_login(int fd)
 {
 	char t_uid[100];
@@ -1650,7 +1652,14 @@ int parse_login(int fd)
 				}
 			}
 
-			result = mmo_auth(&account, fd);
+			// [s2s] A char-server gets every account's auth and can send players to any address: only from this
+			// host or char_server_ip_allow (a remote one took the free slot while the char-server restarted), and
+			// a refused try ends the connection (no more password guesses on it).
+			if (!socket_s2s_ip_allowed(ipl, char_server_ip_allow)) {
+				ShowWarning("parse_login: char-server login refused from %s (address not allowed)\n", ip);
+				result = 0;
+			} else
+				result = mmo_auth(&account, fd);
 			if (result == -1 && account.sex == 2 && account.account_id < MAX_SERVERS && server_fd[account.account_id] == -1) {
 				ShowStatus("Connection of the char-server '%s' accepted.\n", server_name);
 				memset(&server[account.account_id], 0, sizeof(struct mmo_char_server));
@@ -1688,6 +1697,7 @@ int parse_login(int fd)
 				WFIFOW(fd,0) = 0x2711;
 				WFIFOB(fd,2) = 3;
 				WFIFOSET(fd,3);
+				set_eof(fd);
 			}
 
 			RFIFOSKIP(fd,86);
@@ -1923,6 +1933,8 @@ int login_config_read(const char* cfgName)
 			{ strncpy(login_config.dnsbl_servs, w2, 1023); login_config.dnsbl_servs[1023] = '\0'; }
 		else if (!strcmpi(w1, "ip_sync_interval"))
 			login_config.ip_sync_interval = 1000*60*atoi(w2); //w2 comes in minutes.
+		else if (!strcmpi(w1, "char_server_ip_allow"))
+			safestrncpy(char_server_ip_allow, w2, sizeof(char_server_ip_allow));
 		else if (!strcmpi(w1, "metrics_log"))
 			metrics_log = atoi(w2); // [metrics] LOOPMETRIC: 0 off, 1 summaries, 2 + events
 		else if (!strcmpi(w1, "import"))

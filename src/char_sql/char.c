@@ -200,6 +200,7 @@ struct online_char_data {
 // a character more than 10 times in an hour (bots in a reconnect loop).
 static unsigned int sm_ok = 0, sm_rejected = 0, sm_failed = 0;
 static int savemetric_interval = 600, relogmetric_interval = 3600; // seconds (char_athena.conf)
+static char map_server_ip_allow[256] = ""; // [s2s] more map-server addresses (char_athena.conf), besides this host
 #define SM_SAMPLES 512
 static int sm_final_ms[SM_SAMPLES];
 static int sm_final_n = 0;
@@ -4080,11 +4081,19 @@ int parse_char(int fd)
 				if (server_fd[i] <= 0)
 					break;
 			}
-			if (i == MAX_MAP_SERVERS || strcmp(l_user, userid) || strcmp(l_pass, passwd)) {
+			// [s2s] A map-server writes any character and gets the players' auth data: only from this host or
+			// map_server_ip_allow, and a refused try ends the connection (no more password guesses on it).
+			if (i == MAX_MAP_SERVERS || strcmp(l_user, userid) || strcmp(l_pass, passwd) ||
+				!socket_s2s_ip_allowed(session[fd]->client_addr, map_server_ip_allow)) {
+				ShowWarning("parse_char: map-server login refused from %d.%d.%d.%d (%s)\n", CONVIP(session[fd]->client_addr),
+					i == MAX_MAP_SERVERS ? "no free slot" : !socket_s2s_ip_allowed(session[fd]->client_addr, map_server_ip_allow) ? "address not allowed" : "wrong userid/passwd");
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x2af9;
 				WFIFOB(fd,2) = 3;
 				WFIFOSET(fd,3);
+				RFIFOSKIP(fd,60);
+				set_eof(fd);
+				return 0;
 			} else {
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x2af9;
@@ -4635,6 +4644,8 @@ int char_config_read(const char* cfgName)
 			guild_exp_rate = atoi(w2);
 		} else if (strcmpi(w1, "metrics_log") == 0) {
 			metrics_log = atoi(w2); // [metrics] LOOPMETRIC/SAVEMETRIC/RELOGMETRIC: 0 off, 1 summaries, 2 + events
+		} else if (strcmpi(w1, "map_server_ip_allow") == 0) {
+			safestrncpy(map_server_ip_allow, w2, sizeof(map_server_ip_allow));
 		} else if (strcmpi(w1, "savemetric_interval") == 0) {
 			savemetric_interval = max(10, atoi(w2));
 		} else if (strcmpi(w1, "relogmetric_interval") == 0) {
