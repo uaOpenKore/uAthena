@@ -4689,6 +4689,8 @@ void do_final(void)
 		do_close(char_fd);
 	char_db_->destroy(char_db_, NULL);
 	online_char_db->destroy(online_char_db, NULL);
+	if (relog_db)
+		relog_db->destroy(relog_db, NULL);
 
 	mysql_close(&mysql_handle);
 	if(char_gm_read)
