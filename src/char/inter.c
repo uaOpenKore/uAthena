@@ -67,7 +67,7 @@ int inter_recv_packet_length[]={
 
 struct WisData {
 	int id, fd, count, len;
-	unsigned long tick;
+	t_tick tick;
 	unsigned char src[24], dst[24], msg[1024];
 };
 static struct dbt * wis_db = NULL;
@@ -448,9 +448,9 @@ int mapif_disconnectplayer(int fd, int account_id, int char_id, int reason)
 
 // Existence check of WISP data
 int check_ttl_wisdata_sub(DBKey key, void *data, va_list ap) {
-	unsigned long tick;
+	t_tick tick;
 	struct WisData *wd = (struct WisData *)data;
-	tick = va_arg(ap, unsigned long);
+	tick = va_arg(ap, t_tick);
 
 	if (DIFF_TICK(tick, wd->tick) > WISDATA_TTL && wis_delnum < WISDELLIST_MAX)
 		wis_dellist[wis_delnum++] = wd->id;
@@ -459,7 +459,7 @@ int check_ttl_wisdata_sub(DBKey key, void *data, va_list ap) {
 }
 
 int check_ttl_wisdata(void) {
-	unsigned long tick = gettick();
+	t_tick tick = gettick();
 	int i;
 
 	do {

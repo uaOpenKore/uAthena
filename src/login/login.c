@@ -65,7 +65,7 @@ int login_fd;
 
 static int online_check=1; //When set to 1, login server rejects incoming players that are already registered as online. [Skotlex]
 //Account flood protection [Kevin]
-unsigned int new_reg_tick=0;
+t_tick new_reg_tick=0;
 int allowed_regs=1;
 int num_regs=0;
 int time_allowed=10; //Init this to 10 seconds. [Skotlex]
@@ -203,7 +203,7 @@ static void* create_online_user(DBKey key, va_list args)
 	p->waiting_disconnect = -1;
 	return p;
 }
-static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, intptr_t data);
+static int waiting_disconnect_timer(int tid, t_tick tick, intptr_t id, intptr_t data);
 
 //-----------------------------------------------------
 // Online User Database [Wizputer]
@@ -234,7 +234,7 @@ void remove_online_user(int account_id)
 	idb_remove(online_db,account_id);
 }
 
-static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int waiting_disconnect_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct online_login_data *p;
 	// The stored timer id is compared, not the account id: comparing `id` never matched, so the 30 s
@@ -248,7 +248,7 @@ static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, int
 	return 0;
 }
 
-static int sync_ip_addresses(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int sync_ip_addresses(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	unsigned char buf[2];
 	ShowInfo("IP Sync in progress...\n");
@@ -953,7 +953,7 @@ void mmo_auth_sync(void)
 //       immediatly and set  the minimum of
 //       authentifications to its initialization value.
 //-----------------------------------------------------
-int check_auth_sync(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int check_auth_sync(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	// we only save if necessary:
 	// we have do some authentifications without do saving
@@ -1021,7 +1021,7 @@ void send_GM_accounts(int fd)
 //-----------------------------------------------------
 // Check if GM file account have been changed
 //-----------------------------------------------------
-int check_GM_file(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int check_GM_file(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct stat file_stat;
 	long new_time;
@@ -1307,7 +1307,7 @@ int mmo_auth(struct mmo_account* account, int fd)
 			return 0; // 0 = Unregistered ID
 		} else {
 			int new_id = mmo_auth_new(account, account->userid[len+1], "a@a.com");
-			unsigned int tick = gettick();
+			t_tick tick = gettick();
 			login_log("Account creation and authentification accepted (account %s (id: %d), pass: %s, sex: %c, connection with _F/_M, ip: %s)" RETCODE,
 			          account->userid, new_id, account->passwd, account->userid[len+1], ip);
 			auth_before_save_file = 0; // Creation of an account -> save accounts file immediatly
@@ -3405,7 +3405,7 @@ static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 	return 0;
 }
 
-static int online_data_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int online_data_cleanup(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	online_db->foreach(online_db, online_data_cleanup_sub);
 	return 0;
