@@ -23,6 +23,7 @@
 #include <net/if.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -502,6 +503,8 @@ int make_listen_bind(uint32 ip, uint16 port)
 	return fd;
 }
 
+#define CONNECT_TIMEOUT_MS 2000 // server-to-server connect; a LAN/localhost handshake takes under a millisecond
+
 int make_connection(uint32 ip, uint16 port)
 {
 	struct sockaddr_in server_address;
@@ -529,14 +532,34 @@ int make_connection(uint32 ip, uint16 port)
 
 	ShowStatus("Connecting to %d.%d.%d.%d:%i\n", CONVIP(ip), port);
 
+	// A blocking connect() to a host that drops the SYN (down, firewalled) stands in the kernel's SYN retries
+	// for about two minutes, and the whole server with it: no timers, no packets. Connect non-blocking and
+	// wait at most CONNECT_TIMEOUT_MS for the handshake; the caller's retry timer tries again later.
+	set_nonblocking(fd, 1);
 	result = connect(fd, (struct sockaddr *)(&server_address), sizeof(struct sockaddr_in));
-	if( result == SOCKET_ERROR ) {
+	if( result == SOCKET_ERROR && s_errno == EINPROGRESS ) {
+		struct pollfd pfd;
+		int err = 0;
+		socklen_t len = sizeof(err);
+		pfd.fd = fd;
+		pfd.events = POLLOUT;
+		pfd.revents = 0;
+		result = poll(&pfd, 1, CONNECT_TIMEOUT_MS);
+		if( result == 0 ) {
+			ShowError("connect timed out (socket %d, %d.%d.%d.%d:%i, %d ms)!\n", fd, CONVIP(ip), port, CONNECT_TIMEOUT_MS);
+			do_close(fd);
+			return -1;
+		}
+		if( result < 0 || getsockopt(fd, SOL_SOCKET, SO_ERROR, (char*)&err, &len) != 0 || err != 0 ) {
+			ShowError("connect failed (socket %d, code %d)!\n", fd, err ? err : s_errno);
+			do_close(fd);
+			return -1;
+		}
+	} else if( result == SOCKET_ERROR ) {
 		ShowError("connect failed (socket %d, code %d)!\n", fd, s_errno);
 		do_close(fd);
 		return -1;
 	}
-	//Now the socket can be made non-blocking. [Skotlex]
-	set_nonblocking(fd, 1);
 
 	if (fd_max <= fd) fd_max = fd + 1;
 	epoll_add(fd);
