@@ -8,6 +8,12 @@
 #include "../common/core.h"
 #include "../common/showmsg.h"
 #include <pthread.h>
+#include <stdint.h>
+#ifdef __GLIBC__
+extern int malloc_trim(size_t pad); // glibc <malloc.h>; that name here is our own malloc.h
+#endif
+#include <sys/mman.h> // madvise
+#include <unistd.h>   // sysconf
 
 #ifdef MINICORE
 	#undef LOG_MEMMGR
@@ -151,6 +157,7 @@ struct block {
 	int    unit_count;		/* jbg */
 	int    unit_used;		/* gpjbg */
 	int    unit_freehead;	/* [perf] index of first free unit (per-block free list head), -1 if full */
+	int    trimmed;		/* [trim] unused block whose data pages were handed back to the system */
 	char   data[BLOCK_DATA_SIZE];
 };
 
@@ -510,6 +517,7 @@ static struct block* block_malloc(void)
 	if(block_unused != NULL) {
 		/* ubNpm */
 		struct block* ret = block_unused;
+		ret->trimmed = 0; // [trim] its pages come back (zero-filled) as the units are written
 		do {
 			block_unused = block_unused->block_next;
 		} while(block_unused != NULL && block_unused->unit_size != 0);
@@ -578,6 +586,34 @@ static void block_free(struct block* p)
 	} else if(block_unused->block_no > p->block_no) {
 		block_unused = p;
 	}
+}
+
+/// [trim] Hand the memory of freed data back to the system. The manager takes memory in chunks of 32 blocks
+/// (80 KB each) and never frees a chunk: a block emptied after a peak (20k mobs spawned and killed: +269 MB)
+/// stayed resident until the restart. The data pages of every unused block are dropped (MADV_DONTNEED: the
+/// address range stays, a reuse gets zero-filled pages), and glibc returns its free large allocations
+/// (malloc_trim). Returns the bytes dropped. Called every minute from the main loop (core.c).
+size_t memmgr_trim(void)
+{
+	struct block* b;
+	size_t dropped = 0;
+	const uintptr_t pg = (uintptr_t)sysconf(_SC_PAGESIZE);
+	pthread_mutex_lock(&memmgr_mutex);
+	for (b = block_first; b != NULL; b = b->block_next) {
+		uintptr_t from, to;
+		if (b->unit_size != 0 || b->trimmed)
+			continue;
+		from = ((uintptr_t)b->data + pg - 1) & ~(pg - 1);
+		to = ((uintptr_t)b->data + BLOCK_DATA_SIZE) & ~(pg - 1);
+		if (to > from && madvise((void*)from, to - from, MADV_DONTNEED) == 0)
+			dropped += to - from;
+		b->trimmed = 1;
+	}
+	pthread_mutex_unlock(&memmgr_mutex);
+#ifdef __GLIBC__
+	malloc_trim(0);
+#endif
+	return dropped;
 }
 
 unsigned int memmgr_usage (void)
@@ -702,6 +738,18 @@ static void memmgr_init (void)
  * Initialise
  *--------------------------------------
  */
+
+size_t malloc_trim_unused (void)
+{
+#ifdef USE_MEMMGR
+	return memmgr_trim ();
+#else
+#ifdef __GLIBC__
+	malloc_trim(0);
+#endif
+	return 0;
+#endif
+}
 
 unsigned int malloc_usage (void)
 {

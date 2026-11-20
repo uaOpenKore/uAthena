@@ -262,6 +262,16 @@ static void apply_cpu_affinity(void)
 /// [metrics] LOOPMETRIC: one line a minute about the main loop (rounds, the longest one and what it was spent on,
 /// wake-ups, timers, client sessions and their unsent bytes, memory), and one line at once for a round that
 /// worked over 500 ms (the socket wait does not count: that is idle time).
+// [trim] Every minute: give the memory freed since (a peak of mobs, players, script reloads) back to the
+// system; the memory manager kept it until the restart (malloc.c memmgr_trim).
+static int memtrim_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	size_t dropped = malloc_trim_unused();
+	if (dropped >= 16 * 1024 * 1024)
+		ShowInfo("[LOOPMETRIC] memtrim: %u MB of freed memory returned to the system\n", (unsigned int)(dropped >> 20));
+	return 0;
+}
+
 static void loopmetric_round(t_tick t0, t_tick t1, t_tick t2, t_tick t3)
 {
 	static t_tick since = 0;
@@ -340,6 +350,8 @@ int main (int argc, char **argv)
 	timer_init();
 	socket_init();
 	plugins_init();
+	add_timer_func_list(memtrim_timer, "memtrim_timer");
+	add_timer_interval(gettick() + 60 * 1000, memtrim_timer, 0, 0, 60 * 1000);
 
 	do_init(argc,argv);
 	plugin_event_trigger(EVENT_ATHENA_INIT);
