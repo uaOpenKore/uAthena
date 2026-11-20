@@ -4310,7 +4310,7 @@ void battle_set_defaults()
 	battle_config.weapon_streak_max = 700;
 	battle_config.pad_metric = 1; // [padmetric] on: S. wants the data to test the bot-fingerprint idea
 	battle_config.recv_parse_shortlist = 1; // [perf] default on = parse only fds with new data
-	battle_config.packet_flood_limit = 1000; // [flood]
+	battle_config.packet_flood_limit = 200; // [flood]
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
 	battle_config.socket_sndbuf_size = 131072; // [perf] SO_SNDBUF bytes per socket (0 = kernel default); pairs with send coalescing
 	battle_config.hom_setting = 0xFFFF;
