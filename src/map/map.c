@@ -130,6 +130,11 @@ char *GRF_PATH_FILENAME;
 //  static?J?
 static struct dbt * id_db=NULL;
 static struct dbt * pc_db=NULL;
+// [perf] char_id -> account_id of the players on this map-server. map_charid2sd built an array of every player
+// and scanned it -- once per damage-log entry of every mob that died (mob_dead): 1.77% of the map-server's CPU
+// in the 19.11 prod profile. Holds account ids, not pointers: an entry left behind can never reach freed
+// memory, map_charid2sd confirms it through pc_db and the char_id.
+static struct dbt * charid2aid_db=NULL;
 // live-mob index is now a flat array in livemob.c (cheaper than a DBMap vforeach) [perf]
 static struct dbt * map_db=NULL;
 static struct dbt * charid_db=NULL;
@@ -1750,9 +1755,10 @@ void map_addiddb(struct block_list *bl)
 {
 	nullpo_retv(bl);
 
-	if (bl->type == BL_PC)
+	if (bl->type == BL_PC) {
 		idb_put(pc_db,bl->id,bl);
-	else if (bl->type == BL_MOB)
+		idb_put(charid2aid_db,((struct map_session_data*)bl)->status.char_id,(void*)(intptr_t)bl->id);
+	} else if (bl->type == BL_MOB)
 		livemob_add(bl);	// keep the flat mob-only index in lockstep with id_db [perf]
 	idb_put(id_db,bl->id,bl);
 }
@@ -1903,17 +1909,15 @@ char * map_charid2nick(int id)
 
 struct map_session_data * map_charid2sd(int id)
 {
-	int i, users;
-	struct map_session_data **all_sd;
+	struct map_session_data *sd;
 
 	if (id <= 0) return 0;
 
-	all_sd = map_getallusers(&users);
-	for(i = 0; i < users; i++)
-		if (all_sd[i] && all_sd[i]->status.char_id == id)
-			return all_sd[i];
-
-	return NULL;
+	// [perf] index lookup; the same players as the old scan of map_getallusers (map_getallpc_sub)
+	sd = map_id2sd((int)(intptr_t)idb_get(charid2aid_db, id));
+	if (sd == NULL || sd->status.char_id != id || !sd->state.auth || sd->state.waitingdisconnect || sd->state.finalsave)
+		return NULL;
+	return sd;
 }
 
 /*==========================================
@@ -3643,6 +3647,7 @@ void do_final(void)
 
 	id_db->destroy(id_db, NULL);
 	pc_db->destroy(pc_db, NULL);
+	charid2aid_db->destroy(charid2aid_db, NULL);
 	livemob_final();	// non-owning index: mobs themselves are freed via id_db cleanup [perf]
 	charid_db->destroy(charid_db, NULL);
 
@@ -3822,6 +3827,7 @@ int do_init(int argc, char *argv[])
 
 	id_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	pc_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));	//Added for reliable map_id2sd() use. [Skotlex]
+	charid2aid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_BASE,sizeof(int));
 	livemob_init();	//Non-owning flat mob-only index for cheap lazy-AI iteration. [perf]
 	map_db = db_alloc(__FILE__,__LINE__,DB_UINT,DB_OPT_BASE,sizeof(int));
 	charid_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
