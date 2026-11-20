@@ -10359,6 +10359,13 @@ int skill_delunitgroup (struct block_list *src, struct skill_unit_group *group, 
 			status_change_end(src,SC_WARM,-1);
 		}
 	}
+	if (group->skill_id == HW_GRAVITATION) {
+		// The caster's SC_GRAVITATION keeps this group in val4: drop it. When Ganbantein took the field, the next hit
+		// on the caster (status_damage) deleted the group that took over the freed entry - another player's skill.
+		struct status_change *sc = status_get_sc(src);
+		if (sc && sc->data[SC_GRAVITATION].timer != -1 && sc->data[SC_GRAVITATION].val4 == (intptr_t)group)
+			sc->data[SC_GRAVITATION].val4 = 0;
+	}
 
 	if (src->type==BL_PC && group->state.ammo_consume)
 		battle_consume_ammo((TBL_PC*)src, group->skill_id, group->skill_lv);
