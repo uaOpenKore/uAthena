@@ -22,7 +22,10 @@
 
 // socket I/O macros
 #define RFIFOHEAD(fd)
-#define WFIFOHEAD(fd, size) do{ if((fd) && session[fd]->wdata_size + (size) > session[fd]->max_wdata ) realloc_writefifo(fd, size); }while(0)
+// Also for fd 0, the "vacuum" of map-server players whose client is gone (prevent_logout, autotrade): what is
+// written there is never sent, but it is written, so its buffer must fit the largest packet (a storage list
+// chunk is 18 KB; it used to overrun the 16 KB buffer into the next memory block).
+#define WFIFOHEAD(fd, size) do{ if( session[fd]->wdata_size + (size) > session[fd]->max_wdata ) realloc_writefifo(fd, size); }while(0)
 #define RFIFOP(fd,pos) (session[fd]->rdata + session[fd]->rdata_pos + (pos))
 #define WFIFOP(fd,pos) (session[fd]->wdata + session[fd]->wdata_size + (pos))
 
