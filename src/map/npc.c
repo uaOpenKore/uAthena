@@ -2824,7 +2824,7 @@ static void npc_read_sprite_db(void)
 	int id, standin, n = 0;
 	memset(npc_sprite_oldclient, 0, sizeof(npc_sprite_oldclient));
 	if (npc_sprite_name_db == NULL)
-		npc_sprite_name_db = db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY|DB_OPT_RELEASE_KEY,64); // the data is an id, not a pointer
+		npc_sprite_name_db = db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY,64); // keys copied (and freed) by the db; the data is an id, not a pointer
 	sprintf(path, "%s/npc_sprite_db.txt", db_path);
 	if ((fp = fopen(path, "r")) == NULL) {
 		ShowWarning("npc_read_sprite_db: %s not found - NPC sprite names are not resolved\n", path);
