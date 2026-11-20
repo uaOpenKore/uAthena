@@ -172,7 +172,10 @@ void remove_online_user(int account_id)
 static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 {
 	struct online_login_data *p;
-	if ((p= idb_get(online_db, id)) != NULL && p->waiting_disconnect == id)
+	// The stored timer id is compared, not the account id: comparing `id` never matched, so the 30 s
+	// cleanup of a kicked session never ran and the fired timer's id stayed stored - later delete_timer
+	// calls on it hit whatever timer had reused that id (char.c's chardb_waiting_disconnect does it right).
+	if ((p= idb_get(online_db, id)) != NULL && p->waiting_disconnect == tid)
 	{
 		p->waiting_disconnect = -1;
 		remove_online_user(id);
