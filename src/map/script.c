@@ -11733,16 +11733,19 @@ BUILDIN_FUNC(message)
 BUILDIN_FUNC(npctalk)
 {
 	const char* str;
-	char message[255];
+	char name[NAME_LENGTH+1];
+	char message[256];
 
 	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
 	str = script_getstr(st,2);
 
 	if(nd) {
-		memcpy(message, nd->name, NAME_LENGTH);
-		strtok(message, "#"); // discard extra name identifier if present
-		strcat(message, " : ");
-		strncat(message, str, 254); //Prevent overflow possibility. [Skotlex]
+		// nd->name has no NUL when the name fills all NAME_LENGTH bytes: the old memcpy into the uninitialised
+		// message sent stack bytes after the name, and strncat(message, str, 254) ran past message[255].
+		memcpy(name, nd->name, NAME_LENGTH);
+		name[NAME_LENGTH] = '\0';
+		strtok(name, "#"); // discard extra name identifier if present
+		snprintf(message, sizeof(message), "%s : %s", name, str);
 		clif_message(&(nd->bl), message);
 	}
 
