@@ -127,7 +127,9 @@ struct item_drop {
 };
 struct item_drop_list {
 	int m, x, y;                       // coordinates
-	struct map_session_data *first_sd, *second_sd, *third_sd; // sd's of players with higher pickup priority
+	// block ids of the players with higher pickup priority: the drops fall up to 500 ms later, when a player may
+	// have logged out (a kept map_session_data pointer was then read after being freed)
+	int first_id, second_id, third_id;
 	struct item_drop* item;            // linked list of drops
 };
 

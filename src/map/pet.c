@@ -1025,9 +1025,9 @@ static int pet_delay_item_drop(int tid, t_tick tick,intptr_t id,intptr_t data)
 	list=(struct item_drop_list *)id;
 	ditem = list->item;
 	while (ditem) {
-		map_addflooritem(&ditem->item_data,ditem->item_data.amount,
+		map_addflooritem_id(&ditem->item_data,ditem->item_data.amount,
 			list->m,list->x,list->y,
-			list->first_sd,list->second_sd,list->third_sd,0);
+			list->first_id,list->second_id,list->third_id,0);
 		ditem_prev = ditem;
 		ditem = ditem->next;
 		ers_free(item_drop_ers, ditem_prev);
@@ -1048,9 +1048,9 @@ int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd)
 	dlist->m = pd->bl.m;
 	dlist->x = pd->bl.x;
 	dlist->y = pd->bl.y;
-	dlist->first_sd = NULL;
-	dlist->second_sd = NULL;
-	dlist->third_sd = NULL;
+	dlist->first_id = 0;
+	dlist->second_id = 0;
+	dlist->third_id = 0;
 	dlist->item = NULL;
 
 	for(i=0;i<pd->loot->count;i++) {
