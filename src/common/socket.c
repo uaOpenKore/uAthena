@@ -608,7 +608,7 @@ int realloc_writefifo(int fd, size_t addition)
 {
 	size_t newsize;
 
-	if( !session_isValid(fd) ) // might not happen
+	if( fd < 0 || fd >= SOCKET_MAX || session[fd] == NULL ) // fd 0 included: see WFIFOHEAD
 		return 0;
 
 	if( session[fd]->wdata_size + addition  > session[fd]->max_wdata )
