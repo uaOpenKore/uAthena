@@ -2993,7 +2993,10 @@ static int npc_cleanup_sub(struct block_list* bl, va_list ap)
 
 	switch(bl->type) {
 	case BL_NPC:
-		npc_unload((struct npc_data *)bl);
+		// (@reloadscript) fake_nd runs every item script (run_script with its id) and is made only once, at
+		// startup: unloading it here left the global pointing at freed memory until the next restart.
+		if ((struct npc_data *)bl != fake_nd)
+			npc_unload((struct npc_data *)bl);
 		break;
 	case BL_MOB:
 		unit_free(bl,0);
@@ -3032,6 +3035,7 @@ int npc_reload(void)
 	// Reloading npc's now
 	ev_db->clear(ev_db,NULL);
 	npcname_db->clear(npcname_db,NULL);
+	strdb_put(npcname_db, fake_nd->exname, fake_nd); // kept by npc_cleanup_sub: back under its name, as at startup
 	npc_warp = npc_shop = npc_script = 0;
 	npc_mob = npc_cache_mob = npc_delay_mob = 0;
 
