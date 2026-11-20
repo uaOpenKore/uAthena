@@ -19,7 +19,9 @@ struct view_data;
 #define MAX_NPC_CLASS 1000
 //Checks if a given id is a valid npc id. [Skotlex]
 //Since new npcs are added all the time, the max valid value is the one before the first mob (Scorpion = 1001)
-#define npcdb_checkid(id) ((id >=  46 && id <= 125) || id == 139 || (id >= 700 && id <= MAX_NPC_CLASS) || id == INVISIBLE_CLASS)
+// [npcsprite] 400-699 are the renewal NPC sprites: shown as they are to BornRok, as a look-alike classic one to
+// the original client (npc_sprite_for_oldclient), which knows only 46-125 and 700-957.
+#define npcdb_checkid(id) ((id >=  46 && id <= 125) || id == 139 || (id >= 400 && id <= MAX_NPC_CLASS) || id == INVISIBLE_CLASS)
 
 #ifdef PCRE_SUPPORT
 void npc_chat_finalize(struct npc_data* nd);
@@ -67,6 +69,7 @@ int npc_changename(const char* name, const char* newname, short look); // [Lance
 struct npc_data* npc_name2id(const char* name);
 
 int npc_get_new_npc_id(void);
+int npc_sprite_for_oldclient(int class_);
 int npc_peek_new_npc_id(void);
 
 void npc_addsrcfile(const char* name);
