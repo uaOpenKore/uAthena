@@ -1429,6 +1429,7 @@ int map_clearflooritem_timer(int, t_tick, intptr_t,intptr_t);
 int map_removemobs_timer(int, t_tick, intptr_t,intptr_t);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
 int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,struct map_session_data *,struct map_session_data *,int);
+int map_addflooritem_id(struct item *item_data,int amount,int m,int x,int y,int first_id,int second_id,int third_id,int type);
 
 // LidL A
 void map_addchariddb(int charid,char *name);

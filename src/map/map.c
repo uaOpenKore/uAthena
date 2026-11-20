@@ -1633,6 +1633,15 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
 int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,struct map_session_data *first_sd,
     struct map_session_data *second_sd,struct map_session_data *third_sd,int type)
 {
+	return map_addflooritem_id(item_data, amount, m, x, y, first_sd ? first_sd->bl.id : 0,
+		second_sd ? second_sd->bl.id : 0, third_sd ? third_sd->bl.id : 0, type);
+}
+
+/// map_addflooritem with the looters' block ids: for drops that fall later (mob/pet delayed drop lists), when the
+/// looters may have logged out - a stored map_session_data pointer was then read after being freed, and the next
+/// player who logged in got the same memory and so the loot priority.
+int map_addflooritem_id(struct item *item_data,int amount,int m,int x,int y,int first_id,int second_id,int third_id,int type)
+{
 	int r;
 	t_tick tick;
 	struct flooritem_data *fitem=NULL;
@@ -1656,22 +1665,22 @@ int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,struct 
 	}
 
 	tick = gettick();
-	if(first_sd) {
-		fitem->first_get_id = first_sd->bl.id;
+	if(first_id) {
+		fitem->first_get_id = first_id;
 		if(type&1)
 			fitem->first_get_tick = tick + battle_config.mvp_item_first_get_time;
 		else
 			fitem->first_get_tick = tick + battle_config.item_first_get_time;
 	}
-	if(second_sd) {
-		fitem->second_get_id = second_sd->bl.id;
+	if(second_id) {
+		fitem->second_get_id = second_id;
 		if(type&1)
 			fitem->second_get_tick = tick + battle_config.mvp_item_first_get_time + battle_config.mvp_item_second_get_time;
 		else
 			fitem->second_get_tick = tick + battle_config.item_first_get_time + battle_config.item_second_get_time;
 	}
-	if(third_sd) {
-		fitem->third_get_id = third_sd->bl.id;
+	if(third_id) {
+		fitem->third_get_id = third_id;
 		if(type&1)
 			fitem->third_get_tick = tick + battle_config.mvp_item_first_get_time + battle_config.mvp_item_second_get_time + battle_config.mvp_item_third_get_time;
 		else
