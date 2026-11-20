@@ -134,7 +134,7 @@ struct char_session_data{
 	int found_char[MAX_CHARS];
 	char email[40]; // e-mail (default: a@a.com) by [Yor]
 	int connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
-	unsigned int auth_wait_tick; // [auth-queue] when char_auth_ok started holding this login because the account was still online (0 = not held)
+	t_tick auth_wait_tick; // [auth-queue] when char_auth_ok started holding this login because the account was still online (0 = not held)
 	int auth_wait_tid;           // [auth-queue] pending re-check of a held login (char_auth_wait_timer), INVALID_TIMER if none
 	unsigned authed : 1;         // [auth-queue] char_auth_ok let this login through (char list sent)
 	unsigned char_load_pending : 1; // a char-select (0x66) load runs on the async lane: this session's next packets
@@ -192,7 +192,7 @@ struct online_char_data {
 	int fd;
 	int waiting_disconnect;
 	short server;
-	unsigned int confirm_tick; // (B3) last time a map-server's online-list (0x2aff) or set_char_online confirmed this char; 0 = never
+	t_tick confirm_tick; // (B3) last time a map-server's online-list (0x2aff) or set_char_online confirmed this char; 0 = never
 };
 
 struct dbt *online_char_db; //Holds all online characters.
@@ -210,7 +210,7 @@ static void * create_online_char_data(DBKey key, va_list args)
 	return character;
 }
 
-static int chardb_waiting_disconnect(int tid, unsigned int tick, intptr_t id, intptr_t data);
+static int chardb_waiting_disconnect(int tid, t_tick tick, intptr_t id, intptr_t data);
 
 //-------------------------------------------------
 // Set Character online/offline [Wizputer]
@@ -370,7 +370,7 @@ static int online_stale_reap_sub(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-static int online_stale_reap(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int online_stale_reap(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int reaped = 0;
 	online_char_db->foreach(online_char_db, online_stale_reap_sub, &reaped);
@@ -909,7 +909,7 @@ static int char_pending_timer_sub(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-static int char_pending_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int char_pending_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	char_pending_db->foreach(char_pending_db, char_pending_timer_sub);
 	return 0;
@@ -1933,7 +1933,7 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 static void char_auth_ok(int fd, struct char_session_data *sd);
 
 // [auth-queue] Re-check a held login (see char_auth_ok).
-static int char_auth_wait_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int char_auth_wait_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int fd = (int)id;
 	struct char_session_data* sd;
@@ -1990,7 +1990,7 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 			busy = "another char-select connection is open"; //There's already a connection from this account that hasn't picked a char yet.
 
 		if (busy != NULL) {
-			unsigned int now = gettick();
+			t_tick now = gettick();
 			if (sd->auth_wait_tick == 0) {
 				sd->auth_wait_tick = now ? now : 1;
 				if (character->server > -1)
@@ -2035,7 +2035,7 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 	mmo_char_send006b(fd, sd);
 }
 
-int send_accounts_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data);
+int send_accounts_tologin(int tid, t_tick tick, intptr_t id, intptr_t data);
 
 int parse_fromlogin(int fd)
 {
@@ -3721,7 +3721,7 @@ static void char_load_done(void* ctx)
 
 // Game-thread timer: dispatch finished char loads. Only used when the lane has no wake fd: then it runs
 // often so a completed load turns into the map handoff with little added latency.
-static int char_load_poll_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int char_load_poll_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	acl_poll(char_load_lane);
 	return 0;
@@ -4178,7 +4178,7 @@ int mapif_send(int fd, unsigned char *buf, unsigned int len)
 	return 0;
 }
 
-int send_users_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int send_users_tologin(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int users = count_users();
 	unsigned char buf[16];
@@ -4214,7 +4214,7 @@ static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-int send_accounts_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int send_accounts_tologin(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int users = count_users(), i=0;
 
@@ -4230,7 +4230,7 @@ int send_accounts_tologin(int tid, unsigned int tick, intptr_t id, intptr_t data
 	return 0;
 }
 
-int check_connect_login_server(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int check_connect_login_server(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	if (login_fd > 0 && session[login_fd] != NULL)
 		return 0;
@@ -4265,7 +4265,7 @@ int check_connect_login_server(int tid, unsigned int tick, intptr_t id, intptr_t
 //Invoked 15 seconds after mapif_disconnectplayer in case the map server doesn't
 //replies/disconnect the player we tried to kick. [Skotlex]
 //------------------------------------------------
-static int chardb_waiting_disconnect(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int chardb_waiting_disconnect(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct online_char_data* character;
 	if ((character = idb_get(online_char_db, id)) != NULL && character->waiting_disconnect == tid)
@@ -4681,7 +4681,7 @@ static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 	return 0;
 }
 
-static int online_data_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int online_data_cleanup(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int online_cnt = 0, ghost_cnt = 0;
 	online_char_db->foreach(online_char_db, online_data_cleanup_sub, &online_cnt, &ghost_cnt);

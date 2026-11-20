@@ -2997,7 +2997,7 @@ struct linkdb_node* script_erase_sleepdb(struct linkdb_node *n)
 /*==========================================
  * sleepp^C}[
  *------------------------------------------*/
-int run_script_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int run_script_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct script_state *st     = (struct script_state *)data;
 	struct linkdb_node *node    = (struct linkdb_node *)sleep_db;
@@ -3453,7 +3453,7 @@ static int script_save_mapreg(void)
 	return 0;
 #endif
 }
-static int script_autosave_mapreg(int tid,unsigned int tick,intptr_t id,intptr_t data)
+static int script_autosave_mapreg(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	if(mapreg_dirty)
 		if (script_save_mapreg() == -1)
@@ -8106,7 +8106,7 @@ BUILDIN_FUNC(gettimetick)	/* Asgard Version */
 	case 0:
 	default:
 		//type 0:(System Ticks)
-		script_pushint(st,gettick());
+		script_pushint(st,(int)TICK32(gettick())); // script ints are 32-bit, as before [tick64]
 		break;
 	}
 	return 0;
@@ -12003,7 +12003,7 @@ BUILDIN_FUNC(summon)
 	const char *str,*event="";
 	TBL_PC *sd;
 	struct mob_data *md;
-	int tick = gettick();
+	t_tick tick = gettick();
 
 	sd=script_rid2sd(st);
 	if (!sd) return 0;

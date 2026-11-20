@@ -147,10 +147,10 @@ int mob_once_spawn_area(struct map_session_data *sd,const char *mapname,
 int mob_spawn_guardian(const char* mapname, short x, short y, const char* mobname, int class_, const char* event, int guardian);	// Spawning Guardians [Valaris]
 int mob_guardian_guildchange(struct block_list *bl,va_list ap); //Change Guardian's ownership. [Skotlex]
 
-int mob_randomwalk(struct mob_data *md,int tick);
+int mob_randomwalk(struct mob_data *md,t_tick tick);
 
 int mob_target(struct mob_data *md,struct block_list *bl,int dist);
-int mob_unlocktarget(struct mob_data *md,int tick);
+int mob_unlocktarget(struct mob_data *md,t_tick tick);
 struct mob_data* mob_spawn_dataset(struct spawn_data *data);
 int mob_spawn(struct mob_data *md);
 int mob_setdelayspawn(struct mob_data *md);
@@ -167,7 +167,7 @@ void mob_heal(struct mob_data *md,unsigned int heal);
 int do_init_mob(void);
 int do_final_mob(void);
 
-int mob_timer_delete(int tid, unsigned int tick, intptr_t id, intptr_t data);
+int mob_timer_delete(int tid, t_tick tick, intptr_t id, intptr_t data);
 int mob_deleteslave(struct mob_data *md);
 
 int mob_random_class (int *value, size_t count);
@@ -179,10 +179,10 @@ int mob_class_change(struct mob_data *md,int class_);
 int mob_warpslave(struct block_list *bl, int range);
 int mob_linksearch(struct block_list *bl,va_list ap);
 
-int mobskill_use(struct mob_data *md,unsigned int tick,int event);
-int mobskill_event(struct mob_data *md,struct block_list *src,unsigned int tick, int flag);
-int mobskill_castend_id( int tid, unsigned int tick, int id,int data );
-int mobskill_castend_pos( int tid, unsigned int tick, int id,int data );
+int mobskill_use(struct mob_data *md,t_tick tick,int event);
+int mobskill_event(struct mob_data *md,struct block_list *src,t_tick tick, int flag);
+int mobskill_castend_id(int tid, t_tick tick, int id,int data );
+int mobskill_castend_pos(int tid, t_tick tick, int id,int data );
 int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id);
 int mob_countslave(struct block_list *bl);
 

@@ -259,7 +259,7 @@ static int storage_pending_flush_sub(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-static int storage_pending_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int storage_pending_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	storage_pending_db->foreach(storage_pending_db, storage_pending_flush_sub, storage_pending_db, 0);
 	guild_storage_pending_db->foreach(guild_storage_pending_db, storage_pending_flush_sub, guild_storage_pending_db, 0);

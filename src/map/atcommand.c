@@ -5892,7 +5892,7 @@ int atcommand_servertime(const int fd, struct map_session_data* sd, const char* 
 	} else if (battle_config.night_duration == 0)
 		if (night_flag == 1) { // we start with night
 			timer_data = get_timer(day_timer_tid);
-			sprintf(temp, msg_txt(233), txt_time(DIFF_TICK(timer_data->tick,gettick())/1000)); // Game time: The game is actualy in night for %s.
+			sprintf(temp, msg_txt(233), txt_time(DIFF_TICK32(timer_data->tick,gettick())/1000)); // Game time: The game is actualy in night for %s.
 			clif_displaymessage(fd, temp);
 			clif_displaymessage(fd, msg_txt(234)); // Game time: After, the game will be in permanent daylight.
 		} else
@@ -5900,7 +5900,7 @@ int atcommand_servertime(const int fd, struct map_session_data* sd, const char* 
 	else if (battle_config.day_duration == 0)
 		if (night_flag == 0) { // we start with day
 			timer_data = get_timer(night_timer_tid);
-			sprintf(temp, msg_txt(235), txt_time(DIFF_TICK(timer_data->tick,gettick())/1000)); // Game time: The game is actualy in daylight for %s.
+			sprintf(temp, msg_txt(235), txt_time(DIFF_TICK32(timer_data->tick,gettick())/1000)); // Game time: The game is actualy in daylight for %s.
 			clif_displaymessage(fd, temp);
 			clif_displaymessage(fd, msg_txt(236)); // Game time: After, the game will be in permanent night.
 		} else
@@ -5909,24 +5909,24 @@ int atcommand_servertime(const int fd, struct map_session_data* sd, const char* 
 		if (night_flag == 0) {
 			timer_data = get_timer(night_timer_tid);
 			timer_data2 = get_timer(day_timer_tid);
-			sprintf(temp, msg_txt(235), txt_time(DIFF_TICK(timer_data->tick,gettick())/1000)); // Game time: The game is actualy in daylight for %s.
+			sprintf(temp, msg_txt(235), txt_time(DIFF_TICK32(timer_data->tick,gettick())/1000)); // Game time: The game is actualy in daylight for %s.
 			clif_displaymessage(fd, temp);
-			if (DIFF_TICK(timer_data->tick, timer_data2->tick) > 0)
-				sprintf(temp, msg_txt(237), txt_time(DIFF_TICK(timer_data->interval,DIFF_TICK(timer_data->tick,timer_data2->tick)) / 1000)); // Game time: After, the game will be in night for %s.
+			if (DIFF_TICK32(timer_data->tick, timer_data2->tick) > 0)
+				sprintf(temp, msg_txt(237), txt_time(DIFF_TICK32(timer_data->interval,DIFF_TICK32(timer_data->tick,timer_data2->tick)) / 1000)); // Game time: After, the game will be in night for %s.
 			else
-				sprintf(temp, msg_txt(237), txt_time(DIFF_TICK(timer_data2->tick,timer_data->tick)/1000)); // Game time: After, the game will be in night for %s.
+				sprintf(temp, msg_txt(237), txt_time(DIFF_TICK32(timer_data2->tick,timer_data->tick)/1000)); // Game time: After, the game will be in night for %s.
 			clif_displaymessage(fd, temp);
 			sprintf(temp, msg_txt(238), txt_time(timer_data->interval / 1000)); // Game time: A day cycle has a normal duration of %s.
 			clif_displaymessage(fd, temp);
 		} else {
 			timer_data = get_timer(day_timer_tid);
 			timer_data2 = get_timer(night_timer_tid);
-			sprintf(temp, msg_txt(233), txt_time(DIFF_TICK(timer_data->tick,gettick()) / 1000)); // Game time: The game is actualy in night for %s.
+			sprintf(temp, msg_txt(233), txt_time(DIFF_TICK32(timer_data->tick,gettick()) / 1000)); // Game time: The game is actualy in night for %s.
 			clif_displaymessage(fd, temp);
-			if (DIFF_TICK(timer_data->tick,timer_data2->tick) > 0)
-				sprintf(temp, msg_txt(239), txt_time((timer_data->interval - DIFF_TICK(timer_data->tick, timer_data2->tick)) / 1000)); // Game time: After, the game will be in daylight for %s.
+			if (DIFF_TICK32(timer_data->tick,timer_data2->tick) > 0)
+				sprintf(temp, msg_txt(239), txt_time((timer_data->interval - DIFF_TICK32(timer_data->tick, timer_data2->tick)) / 1000)); // Game time: After, the game will be in daylight for %s.
 			else
-				sprintf(temp, msg_txt(239), txt_time(DIFF_TICK(timer_data2->tick, timer_data->tick) / 1000)); // Game time: After, the game will be in daylight for %s.
+				sprintf(temp, msg_txt(239), txt_time(DIFF_TICK32(timer_data2->tick, timer_data->tick) / 1000)); // Game time: After, the game will be in daylight for %s.
 			clif_displaymessage(fd, temp);
 			sprintf(temp, msg_txt(238), txt_time(timer_data->interval / 1000)); // Game time: A day cycle has a normal duration of %s.
 			clif_displaymessage(fd, temp);
@@ -7091,7 +7091,7 @@ int atcommand_useskill(const int fd, struct map_session_data* sd, const char* co
 int atcommand_displayskill(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	struct status_data * status;
-	unsigned int tick;
+	t_tick tick;
 	int skillnum;
 	int skilllv = 1;
 	nullpo_retr(-1, sd);
@@ -7948,7 +7948,7 @@ int atcommand_summon(const int fd, struct map_session_data* sd, const char* comm
 	int mob_id = 0;
 	int duration = 0;
 	struct mob_data *md;
-	unsigned int tick=gettick();
+	t_tick tick=gettick();
 
 	nullpo_retr(-1, sd);
 
@@ -9225,7 +9225,8 @@ int atcommand_whobot(const int fd, struct map_session_data* sd, const char* comm
 {
 	struct map_session_data *pl_sd, **pl_allsd, **found;
 	int i, users, shown = 0, count = 0, fast = 0, judged = 0, GM_level, d, verdict;
-	unsigned int now = gettick(), online, hundredths;
+	t_tick now = gettick();
+	unsigned int online, hundredths;
 	char pad[64];
 
 	nullpo_retr(-1, sd);
@@ -9238,7 +9239,7 @@ int atcommand_whobot(const int fd, struct map_session_data* sd, const char* comm
 		if ((battle_config.hide_GM_session || (pl_sd->sc.option & OPTION_INVISIBLE)) && pc_isGM(pl_sd) > GM_level)
 			continue; // as @who: a GM sees only lower or same levels
 		shown++;
-		d = DIFF_TICK(now, pl_sd->auth_tick);
+		d = DIFF_TICK32(now, pl_sd->auth_tick);
 		online = d > 0 ? (unsigned int)d : 0;
 		if (online >= TICKRATE_MIN_ONLINE_MS)
 			judged++;
@@ -9251,7 +9252,7 @@ int atcommand_whobot(const int fd, struct map_session_data* sd, const char* comm
 	qsort(found, count, sizeof(found[0]), atcommand_whobot_cmp);
 	for (i = 0; i < count; i++) {
 		pl_sd = found[i];
-		d = DIFF_TICK(now, pl_sd->auth_tick);
+		d = DIFF_TICK32(now, pl_sd->auth_tick);
 		online = d > 0 ? (unsigned int)d : 0;
 		hundredths = tickrate_hundredths(pl_sd->ticksend_count, online);
 		clif_padmetric_walk(pl_sd, pad);
@@ -9377,7 +9378,7 @@ int atcommand_whereis(const int fd, struct map_session_data* sd, const char* com
 int atcommand_status(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	int i, shown;
-	unsigned int now = gettick();
+	t_tick now = gettick();
 	nullpo_retr(-1, sd);
 
 	clif_displaymessage(fd, "--- Status (buffs/debuffs) ---");
@@ -9389,7 +9390,7 @@ int atcommand_status(const int fd, struct map_session_data* sd, const char* comm
 		if( sd->sc.data[i].timer == INVALID_TIMER )
 			continue;
 		td = get_timer(sd->sc.data[i].timer);
-		rem = td ? DIFF_TICK(td->tick, now)/1000 : 0;
+		rem = td ? DIFF_TICK32(td->tick, now)/1000 : 0;
 		if( StatusSkillChangeTable[i] > 0 )
 			snprintf(atcmd_output, sizeof(atcmd_output), "[Status] %s: %ds",
 				skill_get_name(StatusSkillChangeTable[i]), rem);
@@ -9408,7 +9409,7 @@ int atcommand_status(const int fd, struct map_session_data* sd, const char* comm
 		int rem;
 		if( sd->blockskill[i] <= 0 )
 			continue;
-		rem = DIFF_TICK(sd->blockskill_tick[i], now)/1000;
+		rem = DIFF_TICK32(sd->blockskill_tick[i], now)/1000;
 		if( rem < 0 ) rem = 0;
 		snprintf(atcmd_output, sizeof(atcmd_output), "[CD] %s: %ds", skill_get_name(i), rem);
 		clif_displaymessage(fd, atcmd_output);
@@ -9534,7 +9535,7 @@ int atcommand_mobinfo(const int fd, struct map_session_data* sd, const char* com
 * @showmobs by KarLaeda
 * => For 5 sec displays the mobs on minimap
 *------------------------------------------*/
-int atshowmobs_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int atshowmobs_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd;
 

@@ -9,6 +9,7 @@
 // correct when the callback adds/removes units mid-pass (an off-by-one would
 // silently drop a live AoE/trap from the 100ms tick).
 
+#include "../common/cbasetypes.h" // t_tick
 #include "liveskillunit.h"
 
 #include <stdio.h>
@@ -40,8 +41,8 @@ static int cb_remove(struct block_list *bl, va_list ap){
 }
 
 // checks tick is passed through varargs intact
-static unsigned int g_seen_tick;
-static int cb_tick(struct block_list *bl, va_list ap){ (void)bl; g_seen_tick = (unsigned int)va_arg(ap, unsigned int); return 0; }
+static t_tick g_seen_tick; // [tick64] skill_unit_timer passes the 64-bit tick through these varargs
+static int cb_tick(struct block_list *bl, va_list ap){ (void)bl; g_seen_tick = va_arg(ap, t_tick); return 0; }
 
 int main(void)
 {
@@ -83,8 +84,8 @@ int main(void)
 	// 5) varargs tick passthrough
 	liveskillunit_final(); liveskillunit_init();
 	liveskillunit_add(BL(0));
-	g_seen_tick = 0; liveskillunit_foreach(cb_tick, (unsigned int)123456u);
-	CHECK(g_seen_tick == 123456u, "tick must pass through varargs intact");
+	g_seen_tick = 0; liveskillunit_foreach(cb_tick, (t_tick)0x100000123LL);
+	CHECK(g_seen_tick == (t_tick)0x100000123LL, "a 64-bit tick (above 2^32) must pass through varargs intact");
 
 	liveskillunit_final();
 

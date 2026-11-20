@@ -150,7 +150,7 @@ struct delay_damage {
 	unsigned short attack_type;
 };
 
-int battle_delay_damage_sub (int tid, unsigned int tick, intptr_t id, intptr_t data)
+int battle_delay_damage_sub (int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct delay_damage *dat = (struct delay_damage *)data;
 	struct block_list *target;
@@ -172,7 +172,7 @@ int battle_delay_damage_sub (int tid, unsigned int tick, intptr_t id, intptr_t d
 	return 0;
 }
 
-int battle_delay_damage (unsigned int tick, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, int dmg_lv, int ddelay)
+int battle_delay_damage (t_tick tick, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, int dmg_lv, int ddelay)
 {
 	struct delay_damage *dat;
 	nullpo_retr(0, src);
@@ -328,7 +328,7 @@ static int battle_streak_steps(struct block_list *src, struct block_list *target
 
 	if (s == NULL)
 		return 0;
-	life = ((struct mob_data*)target)->last_spawntime;
+	life = (unsigned int)((struct mob_data*)target)->last_spawntime; // a token: which life of the mob (equality only)
 	if (s->active) // a hit of the weapon skill the player used: the streak that skill spent
 		return streak_spent_steps(s, skill_num, target->id, life);
 	return streak_passive_steps(s, target->id, life);
@@ -2965,7 +2965,7 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, 
 /*==========================================
  * ??U??
  *------------------------------------------*/
-int battle_weapon_attack(struct block_list* src, struct block_list* target, unsigned int tick, int flag)
+int battle_weapon_attack(struct block_list* src, struct block_list* target, t_tick tick, int flag)
 {
 	struct map_session_data *sd = NULL, *tsd = NULL;
 	struct status_data *sstatus, *tstatus;

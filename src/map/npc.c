@@ -188,7 +188,7 @@ int npc_event_dequeue(struct map_session_data* sd)
 /*==========================================
  * Cxgxs
  *------------------------------------------*/
-int npc_event_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int npc_event_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	char* eventname = (char *)data;
 	struct event_data* ev = strdb_get(ev_db,eventname);
@@ -239,7 +239,8 @@ int npc_timer_sub_sub(DBKey key,void *data,va_list ap)	// Added by RoVeRT
 	char *p=(char *)key;
 	struct event_data *ev=(struct event_data *)data;
 	int *c=va_arg(ap,int *);
-	int tick=0,ctick=gettick();
+	int tick=0;
+	t_tick ctick=gettick();
 	char temp[10];
 	char event[100];
 
@@ -270,7 +271,7 @@ int npc_timer_sub(DBKey key,void *data,va_list ap)	// Added by RoVeRT
 	return 0;
 }
 
-int npc_timer(int tid,unsigned int tick,int id,int data)	// Added by RoVeRT
+int npc_timer(int tid, t_tick tick,int id,int data)	// Added by RoVeRT
 {
 	npcname_db->foreach(npcname_db,npc_timer_sub);
 
@@ -400,7 +401,7 @@ int npc_event_do(const char* name)
 /*==========================================
  * vCxgs
  *------------------------------------------*/
-int npc_event_do_clock(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int npc_event_do_clock(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	time_t timer;
 	struct tm *t;
@@ -578,16 +579,16 @@ struct timer_event_data {
 	int rid; //Attached player for this timer.
 	int next; //timer index (starts with 0, then goes up to nd->u.scr.timeramount
 	int time; //holds total time elapsed for the script since time 0 (whenthe timers started)
-	unsigned int otick; //Holds tick value at which timer sequence was started (that is, it stores the tick value for which T= 0
+	t_tick otick; //Holds tick value at which timer sequence was started (that is, it stores the tick value for which T= 0
 };
 
 /*==========================================
  * ^C}[Cxgs
  *------------------------------------------*/
-int npc_timerevent(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int npc_timerevent(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int next,t,old_rid,old_timer;
-	unsigned int old_tick;
+	t_tick old_tick;
 	struct npc_data* nd=(struct npc_data *)map_id2bl(id);
 	struct npc_timerevent_list *te;
 	struct timer_event_data *ted = (struct timer_event_data*)data;
@@ -734,7 +735,7 @@ int npc_timerevent_stop(struct npc_data* nd)
 	delete_timer(*tid,npc_timerevent);
 	*tid = -1;
 	//Set the timer tick to the time that has passed since the beginning of the timers and now.
-	nd->u.scr.timer = DIFF_TICK(gettick(),nd->u.scr.timertick);
+	nd->u.scr.timer = DIFF_TICK32(gettick(),nd->u.scr.timertick);
 //	nd->u.scr.rid = 0; //Eh? why detach?
 	return 0;
 }
@@ -769,7 +770,7 @@ void npc_timerevent_quit(struct map_session_data* sd)
 		}
 		if (ev) {
 			int old_rid,old_timer;
-			unsigned int old_tick;
+			t_tick old_tick;
 			//Set timer related info.
 			old_rid = nd->u.scr.rid;
 			nd->u.scr.rid = sd->bl.id;
@@ -802,7 +803,7 @@ int npc_gettimerevent_tick(struct npc_data* nd)
 
 	tick=nd->u.scr.timer;
 	if (nd->u.scr.timertick)
-		tick+=DIFF_TICK(gettick(), nd->u.scr.timertick);
+		tick+=DIFF_TICK32(gettick(), nd->u.scr.timertick);
 	return tick;
 }
 /*==========================================

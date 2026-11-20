@@ -299,7 +299,7 @@ int map_freeblock_unlock (void)
 // Ado_timer() gbvxA
 // block_free_lock xB
 
-int map_freeblock_timer (int tid, unsigned int tick, intptr_t id, intptr_t data)
+int map_freeblock_timer (int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	if (block_free_lock > 0) {
 		ShowError("map_freeblock_timer: block_free_lock(%d) is invalid.\n", block_free_lock);
@@ -464,7 +464,7 @@ int map_delblock_sub (struct block_list *bl, int flag)
  * Pass flag as 1 to prevent doing skill_unit_move checks
  * (which are executed by default on BL_CHAR types)
  *------------------------------------------*/
-int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
+int map_moveblock(struct block_list *bl, int x1, int y1, t_tick tick)
 {
 	int x0 = bl->x, y0 = bl->y;
 	struct status_change *sc = NULL;
@@ -1489,7 +1489,7 @@ void map_foreachobject(int (*func)(struct block_list*,va_list),int type,...)
  * Amap_clearflooritem(id)
  * map.h?#define
  *------------------------------------------*/
-int map_clearflooritem_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
+int map_clearflooritem_timer(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	struct flooritem_data *fitem=NULL;
 
@@ -1634,7 +1634,7 @@ int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,struct 
     struct map_session_data *second_sd,struct map_session_data *third_sd,int type)
 {
 	int r;
-	unsigned int tick;
+	t_tick tick;
 	struct flooritem_data *fitem=NULL;
 
 	nullpo_retr(0, item_data);
@@ -2162,7 +2162,7 @@ int mob_cache_cleanup_sub(struct block_list *bl, va_list ap)
 	return 1;
 }
 
-int map_removemobs_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int map_removemobs_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int k;
 	if (id < 0 || id >= MAX_MAP_PER_SERVER)
@@ -3461,7 +3461,7 @@ int log_sql_init(void)
 /*=============================================
  * Does a mysql_ping to all connection handles
  *---------------------------------------------*/
-int map_sql_ping(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int map_sql_ping(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
 	mysql_ping(&mmysql_handle);

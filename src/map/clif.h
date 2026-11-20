@@ -97,7 +97,7 @@ int clif_clearflooritem(struct flooritem_data *,int);
 
 int clif_clearunit_single(int id, uint8 type, int fd);
 int clif_clearunit_area(struct block_list* bl, uint8 type);
-int clif_clearunit_delayed(struct block_list* bl, unsigned int tick);
+int clif_clearunit_delayed(struct block_list* bl, t_tick tick);
 int clif_spawn(struct block_list*);	//area
 int clif_walkok(struct map_session_data*);	// self
 void clif_move(struct unit_data *ud); //area
@@ -122,7 +122,7 @@ int clif_delitem(struct map_session_data*,int,int);	//self
 int clif_updatestatus(struct map_session_data*,int);	//self
 int clif_changestatus(struct block_list*,int,int);	//area
 int clif_initialstatus(struct map_session_data *sd);	// [xms] full status block (declared for the pc_loaded gate in chrif_load_scdata)
-int clif_damage(struct block_list* src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);	// area
+int clif_damage(struct block_list* src,struct block_list *dst,t_tick tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);	// area
 void clif_takeitem(struct block_list* src,struct block_list* dst);
 void clif_sitting(struct block_list* bl);
 void clif_standing(struct block_list* bl);
@@ -164,7 +164,7 @@ void clif_divorced(struct map_session_data* sd, const char* name);
 void clif_adopt_process(struct map_session_data *sd);
 void clif_soundeffect(struct map_session_data* sd, struct block_list* bl, const char* name, int type);
 int clif_soundeffectall(struct block_list* bl, const char *name, int type, enum send_target coverage);
-void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, int target_id, unsigned int tick);
+void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, int target_id, t_tick tick);
 void clif_parse_LoadEndAck(int fd,struct map_session_data *sd);
 void clif_hotkeys_send(struct map_session_data *sd);
 
@@ -204,15 +204,15 @@ int clif_skillcasting(struct block_list* bl,
 int clif_skillcastcancel(struct block_list* bl);
 int clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype);
 int clif_skill_damage(struct block_list *src,struct block_list *dst,
-	unsigned int tick,int sdelay,int ddelay,int damage,int div,
+	t_tick tick,int sdelay,int ddelay,int damage,int div,
 	int skill_id,int skill_lv,int type);
 int clif_skill_damage2(struct block_list *src,struct block_list *dst,
-	unsigned int tick,int sdelay,int ddelay,int damage,int div,
+	t_tick tick,int sdelay,int ddelay,int damage,int div,
 	int skill_id,int skill_lv,int type);
 int clif_skill_nodamage(struct block_list *src,struct block_list *dst,
 	int skill_id,int heal,int fail);
 int clif_skill_poseffect(struct block_list *src,int skill_id,
-	int val,int x,int y,int tick);
+	int val,int x,int y,t_tick tick);
 int clif_skill_estimation(struct map_session_data *sd,struct block_list *dst);
 void clif_skill_warppoint(struct map_session_data* sd, int skill_num, int skill_lv, int map1, int map2, int map3, int map4);
 int clif_skill_memo(struct map_session_data *sd,int flag);

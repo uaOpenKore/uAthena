@@ -100,7 +100,7 @@ int pc_set_gm_level(int account_id, int level)
     return 0;
 }
 
-static int pc_invincible_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
+static int pc_invincible_timer(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
 
@@ -135,7 +135,7 @@ void pc_delinvincibletimer_sub(struct map_session_data *sd)
 	skill_unit_move(&sd->bl,gettick(),1);
 }
 
-static int pc_spiritball_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
+static int pc_spiritball_timer(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
 	int i;
@@ -599,7 +599,7 @@ int pc_isequip(struct map_session_data *sd,int n)
  * [Backport] Online/playtime reward timer (recurring; fires every
  * online_reward_interval minutes while the player is online).
  *------------------------------------------*/
-int pc_online_reward_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int pc_online_reward_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd((int)id);
 	int sec, need;
@@ -640,7 +640,7 @@ int pc_online_reward_timer(int tid, unsigned int tick, intptr_t id, intptr_t dat
 /*==========================================
  * Rental System [Backport]
  *------------------------------------------*/
-static int pc_inventory_rental_end(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int pc_inventory_rental_end(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd((int)id);
 	if( sd == NULL )
@@ -723,7 +723,7 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 {
 	TBL_PC* old_sd;
 	int i;
-	unsigned long tick = gettick();
+	t_tick tick = gettick();
 
 	// [auth-queue] (ТЗ п.6) A session that already went through pc_authok is never authed again: a second
 	// pc_authok would copy another login's (or another account's) character into a live session.
@@ -1641,7 +1641,7 @@ int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short 
 	return 1;
 }
 
-int pc_endautobonus(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int pc_endautobonus(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd((int)id);
 	struct s_autobonus *autobonus = (struct s_autobonus *)data;
@@ -3333,7 +3333,7 @@ int pc_dropitem(struct map_session_data *sd,int n,int amount)
 int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 {
 	int flag=0;
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 	struct map_session_data *first_sd = NULL,*second_sd = NULL,*third_sd = NULL;
 	struct party_data *p=NULL;
 
@@ -3477,7 +3477,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
  *------------------------------------------*/
 int pc_useitem(struct map_session_data *sd,int n)
 {
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 	int amount;
 	struct script_code *script;
 
@@ -4471,7 +4471,7 @@ char* job_name(int class_)
 	}
 }
 
-int pc_follow_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
+int pc_follow_timer(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
 	struct block_list *tbl;
@@ -5355,7 +5355,7 @@ int pc_skillheal2_bonus(struct map_session_data *sd, int skill_num)
 	return bonus;
 }
 
-static int pc_respawn(int tid,unsigned int tick,intptr_t id,intptr_t data)
+static int pc_respawn(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd(id);
 	if (sd && pc_isdead(sd))
@@ -5408,7 +5408,7 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 int pc_dead(struct map_session_data *sd,struct block_list *src)
 {
 	int i=0,j=0;
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 		
 	battle_streak_reset(sd); // [streak] death resets «Натиск»
 	if(sd->vender_id)
@@ -6689,7 +6689,7 @@ int pc_setregistry_str(struct map_session_data *sd,char *reg,char *val,int type)
 /*==========================================
  * Cxg^C}??
  *------------------------------------------*/
-static int pc_eventtimer(int tid,unsigned int tick,intptr_t id,intptr_t data)
+static int pc_eventtimer(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd=map_id2sd(id);
 	char *p = (char *)data;
@@ -7201,7 +7201,7 @@ int pc_calc_pvprank(struct map_session_data *sd)
 /*==========================================
  * PVPvZ(timer)
  *------------------------------------------*/
-int pc_calc_pvprank_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
+int pc_calc_pvprank_timer(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd=NULL;
 
@@ -7489,7 +7489,7 @@ static int pc_autosave_sub(DBKey key,void * data,va_list ap)
 /*==========================================
  * Z?u (timer??)
  *------------------------------------------*/
-int pc_autosave(int tid,unsigned int tick,intptr_t id,intptr_t data)
+int pc_autosave(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	int interval;
 
@@ -7535,7 +7535,7 @@ static int pc_daynight_timer_sub(struct map_session_data *sd,va_list ap)
  * timer to do the day [Yor]
  * data: 0 = called by timer, 1 = gmcommand/script
  *------------------------------------------------*/
-int map_day_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int map_day_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	char tmp_soutput[1024];
 
@@ -7556,7 +7556,7 @@ int map_day_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
  * timer to do the night [Yor]
  * data: 0 = called by timer, 1 = gmcommand/script
  *------------------------------------------------*/
-int map_night_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int map_night_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	char tmp_soutput[1024];
 

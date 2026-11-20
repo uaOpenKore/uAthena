@@ -1625,7 +1625,7 @@ static unsigned int status_base_pc_maxsp(struct map_session_data* sd, struct sta
 // right after the equip (OnEquip/OnUnequip item scripts, the SignumCrucis check)
 // reads the not-yet-recomputed battle_status for up to ~1 tick. Gated by
 // battle_config.status_calc_defer; off = the original inline recompute.
-static int status_calc_pc_timer_cb(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int status_calc_pc_timer_cb(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd((int)id);
 	if( sd && sd->calc_pc_timer == tid ) {
@@ -6822,7 +6822,7 @@ int status_change_end( struct block_list* bl , int type,int tid )
 	return 1;
 }
 
-int kaahi_heal_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int kaahi_heal_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct block_list *bl;
 	struct status_change *sc;
@@ -6859,7 +6859,7 @@ int kaahi_heal_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
 /*==========================================
  * Xe[^XI^C}[
  *------------------------------------------*/
-int status_change_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int status_change_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int type = data;
 	struct block_list *bl;
@@ -7245,12 +7245,12 @@ int status_change_timer_sub(struct block_list *bl, va_list ap )
 	struct map_session_data* tsd=NULL;
 
 	int type;
-	unsigned int tick;
+	t_tick tick;
 
 	src=(struct block_list*)va_arg(ap, intptr_t);
 	sc=(struct status_change*)va_arg(ap, intptr_t);
 	type=(int)va_arg(ap, intptr_t);
-	tick=(unsigned int)va_arg(ap, intptr_t);
+	tick=va_arg(ap, t_tick);
 	tsc=status_get_sc(bl);
 	
 	if (status_isdead(bl))
@@ -7391,7 +7391,8 @@ int status_change_clear_buffs (struct block_list *bl, int type)
 }
 
 //Natural regen related stuff.
-static unsigned int natural_heal_prev_tick,natural_heal_diff_tick;
+static t_tick natural_heal_prev_tick;
+static int natural_heal_diff_tick;
 static int status_natural_heal(DBKey key,void * data,va_list ap)
 {
 	struct block_list *bl = (struct block_list*)data;
@@ -7594,9 +7595,9 @@ static int status_natural_heal_pc(DBKey key,void * data,va_list ap)
 }
 
 //Natural heal main timer.
-static int status_natural_heal_timer(int tid,unsigned int tick,intptr_t id,intptr_t data)
+static int status_natural_heal_timer(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
-	natural_heal_diff_tick = DIFF_TICK(tick,natural_heal_prev_tick);
+	natural_heal_diff_tick = DIFF_TICK32(tick,natural_heal_prev_tick);
 	map_foreachpc(status_natural_heal_pc);
 	natural_heal_prev_tick = tick;
 	return 0;

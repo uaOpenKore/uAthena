@@ -20,7 +20,7 @@ const char* get_svn_revision(void) { return "test"; }
 #define MAXREC 8192
 static intptr_t fire_id[MAXREC];
 static int fire_n = 0;
-static int rec_func(int tid, unsigned int tick, intptr_t id, intptr_t data) {
+static int rec_func(int tid, t_tick tick, intptr_t id, intptr_t data) {
 	if (fire_n < MAXREC) fire_id[fire_n++] = id;
 	return 0;
 }
@@ -29,7 +29,7 @@ static void reset(void) { fire_n = 0; }
 // callback that, on its first fire, schedules a follow-up timer from *inside*
 // do_timer() — exercises push-during-pop on the heap (the AI re-arm pattern)
 static int chain_added = 0;
-static int rec_chain(int tid, unsigned int tick, intptr_t id, intptr_t data) {
+static int rec_chain(int tid, t_tick tick, intptr_t id, intptr_t data) {
 	if (fire_n < MAXREC) fire_id[fire_n++] = id;
 	if (data && !chain_added) { chain_added = 1; add_timer((unsigned int)data, rec_func, 999, 0); }
 	return 0;
@@ -120,19 +120,18 @@ int main(void) {
 	}
 	printf("test6 (stress 2000): %s\n", failures==f6?"ok":"see above");
 
-	// ---- Test 7: tick wraparound (DIFF_TICK orders across the boundary) ----
+	// ---- Test 7 [tick64]: no wrap at 2^32 - ticks on both sides of it keep their order ----
 	int f7 = failures; reset();
 	{
-		// t1 just before wrap, t2 just after; DIFF_TICK(t1,t2) < 0 so t1 is earlier
-		unsigned int near = 0xFFFFFF00u, after = 0x00000010u;
+		t_tick near = (t_tick)0xFFFFFF00u, after = (t_tick)0x100000010LL;
 		add_timer(after, rec_func, 2, 0);   // add later-firing first
 		add_timer(near,  rec_func, 1, 0);
-		do_timer(0x00000020u); // current tick just past wrap: both expired
-		CHECK(fire_n == 2, "test7: both straddling timers fired");
-		CHECK(fire_n==2 && fire_id[0]==1 && fire_id[1]==2,
-		      "test7: pre-wrap timer fired before post-wrap timer");
+		do_timer((t_tick)0xFFFFFFF0u); // between the two, still below 2^32
+		CHECK(fire_n == 1 && fire_id[0] == 1, "test7: only the tick below 2^32 is due");
+		do_timer((t_tick)0x100000020LL);
+		CHECK(fire_n == 2 && fire_id[1] == 2, "test7: the tick above 2^32 fires after it, in order");
 	}
-	printf("test7 (wraparound): %s\n", failures==f7?"ok":"see above");
+	printf("test7 (past 2^32): %s\n", failures==f7?"ok":"see above");
 
 	// ---- Test 8: a callback adds a new timer mid-do_timer (heap push-during-pop) ----
 	int f8 = failures; reset(); chain_added = 0;
@@ -173,10 +172,28 @@ int main(void) {
 
 	{	// test9 [clock]: the tick starts at TICK_START_MS with the process, not at the wall clock's ms mod 2^32
 		int f9 = failures;
-		unsigned int t = gettick_nocache();
+		t_tick t = gettick_nocache();
 		CHECK(t >= TICK_START_MS && t < TICK_START_MS + 60000, "test9: the first tick is one day (+ under a minute)");
 		CHECK(DIFF_TICK(t, 0) > 0, "test9: a tick field still 0 lies in the past (DIFF_TICK(now, 0) > 0)");
-		printf("test9 (tick start): %s (tick %u)\n", failures==f9?"ok":"see above", t);
+		printf("test9 (tick start): %s (tick %lld)\n", failures==f9?"ok":"see above", (long long)t);
+	}
+
+	{	// test10 [tick64]: far-apart ticks - the 32-bit DIFF_TICK flipped its sign beyond 24.8 days
+		int f10 = failures;
+		const t_tick day = 86400000, now = TICK_START_MS;
+		reset();
+		CHECK(DIFF_TICK(now + 30 * day, now) == 30 * day, "test10: 30 days ahead is +30 days, not negative");
+		CHECK(DIFF_TICK(now, now + 30 * day) < 0, "test10: and 30 days back is negative");
+		CHECK(DIFF_TICK32(now + 30 * day, now) == INT_MAX, "test10: DIFF_TICK32 clamps it to INT_MAX");
+		CHECK(DIFF_TICK32(now, now + 30 * day) == INT_MIN, "test10: ... and the other way to INT_MIN");
+		CHECK(DIFF_TICK32(now + 1500, now) == 1500, "test10: a small difference is unchanged");
+		add_timer(now + 30 * day, rec_func, 30, 0);
+		do_timer(now); // the 32-bit heap saw it as long overdue and fired it at once
+		CHECK(fire_n == 0, "test10: a timer 30 days ahead does not fire now");
+		do_timer(now + 30 * day);
+		CHECK(fire_n == 1 && fire_id[0] == 30, "test10: it fires 30 days later");
+		CHECK(TICK32(((t_tick)1 << 32) + 5) == 5u, "test10: TICK32 keeps the low 32 bits for the client");
+		printf("test10 (far apart): %s\n", failures==f10?"ok":"see above");
 	}
 
 	timer_final();

@@ -137,6 +137,9 @@ typedef unsigned long int   ppuint32;
 typedef long long			int64;
 typedef signed long long	sint64;
 typedef unsigned long long	uint64;
+
+// [tick64] Milliseconds of the server clock (gettick, timers): 64-bit, never wraps. See timer.h.
+typedef int64 t_tick;
 #define LLCONST(a)			(a##ll)
 
 #ifndef INT64_MIN
