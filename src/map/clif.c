@@ -1262,6 +1262,34 @@ static void clif_setdisguise(struct map_session_data *sd, unsigned char *buf,int
 /*==========================================
  * NX`FW typeMob10H
  *------------------------------------------*/
+// [npcsprite] Send an NPC look packet to the players around bl, with the class field (offset `at`, `wide` = 4
+// bytes) set to the look-alike classic sprite for a client without the renewal NPC sprites (the original
+// uaRO.exe knows ids 46-125 / 700-957 only; an unknown one must never reach it).
+static int clif_npclook_sub(struct block_list* bl, va_list ap)
+{
+	struct map_session_data* sd = (struct map_session_data*)bl;
+	unsigned char* buf = va_arg(ap, unsigned char*);
+	int len = va_arg(ap, int);
+	int at = va_arg(ap, int);
+	int wide = va_arg(ap, int);
+	int real = va_arg(ap, int);
+	int fd = sd->fd;
+	if (!fd || !session[fd] || !sd->state.auth)
+		return 0;
+	WFIFOHEAD(fd, len);
+	memcpy(WFIFOP(fd,0), buf, len);
+	if (wide) WFIFOL(fd,at) = sd->state.renewal_npc ? real : npc_sprite_for_oldclient(real);
+	else      WFIFOW(fd,at) = sd->state.renewal_npc ? real : npc_sprite_for_oldclient(real);
+	WFIFOSET(fd, len);
+	return 1;
+}
+
+/// True when bl is an NPC whose class an old client must not get; then the look goes out per viewer.
+static bool clif_npclook_split(struct block_list* bl, int class_)
+{
+	return bl->type == BL_NPC && npc_sprite_for_oldclient(class_) != class_;
+}
+
 int clif_class_change(struct block_list *bl,int class_,int type)
 {
 	unsigned char buf[16];
@@ -1273,7 +1301,11 @@ int clif_class_change(struct block_list *bl,int class_,int type)
 		WBUFL(buf,2)=bl->id;
 		WBUFB(buf,6)=type;
 		WBUFL(buf,7)=class_;
-		clif_send(buf,packet_len(0x1b0),bl,AREA);
+		if (clif_npclook_split(bl, class_)) // [npcsprite]
+			map_foreachinarea(clif_npclook_sub, bl->m, bl->x-AREA_SIZE, bl->y-AREA_SIZE, bl->x+AREA_SIZE, bl->y+AREA_SIZE,
+				BL_PC, buf, packet_len(0x1b0), 7, 1, class_);
+		else
+			clif_send(buf,packet_len(0x1b0),bl,AREA);
 	}
 	return 0;
 }
@@ -1439,6 +1471,10 @@ int clif_spawn(struct block_list *bl)
 		WBUFPOS(buf,36,bl->x,bl->y,unit_getdir(bl));
 		//39B: ???
 		//40B: ???
+		if (clif_npclook_split(bl, vd->class_)) // [npcsprite]
+			map_foreachinarea(clif_npclook_sub, bl->m, bl->x-AREA_SIZE, bl->y-AREA_SIZE, bl->x+AREA_SIZE, bl->y+AREA_SIZE,
+				BL_PC, buf, packet_len(0x7c), 20, 0, vd->class_);
+		else
 		clif_send(buf,packet_len(0x7c),bl,AREA_WOS);
 		if (disguised(bl)) {
 			WBUFL(buf,2)=-bl->id;
@@ -4036,6 +4072,18 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 
 	if (!vd || vd->class_ == INVISIBLE_CLASS)
 		return;
+
+	// [npcsprite] an NPC with a renewal sprite is shown to a client without them as a look-alike classic one: the
+	// view data is shared by every NPC of that class, so its class is swapped only while this packet is built
+	if (!sd->state.renewal_npc && clif_npclook_split(bl, vd->class_)) {
+		int real = vd->class_;
+		vd->class_ = npc_sprite_for_oldclient(real);
+		sd->state.renewal_npc = 1; // the recursion below must not swap again
+		clif_getareachar_unit(sd, bl);
+		sd->state.renewal_npc = 0;
+		vd->class_ = real;
+		return;
+	}
 
 	ud = unit_bl2ud(bl);
 	if (ud && ud->walktimer != -1)
@@ -8307,6 +8355,11 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 	CREATE(sd, TBL_PC, 1);
 	sd->fd = fd;
 	sd->packet_ver = packet_ver;
+	// [npcsprite] BornRok marks its 26-byte map login (0x9b) with "BRK" + a capability byte in padding bytes 13-16
+	// the server never reads (the original client sends 37 33 36 64 there). Bit 0: draws the renewal NPC sprites.
+	if (cmd == 0x9b && packet_db[packet_ver][cmd].len == 26 && RFIFOB(fd,13) == 'B' && RFIFOB(fd,14) == 'R' &&
+		RFIFOB(fd,15) == 'K' && (RFIFOB(fd,16) & 1))
+		sd->state.renewal_npc = 1;
 	session[fd]->session_data = sd;
 
 	pc_setnewpc(sd, account_id, char_id, login_id1, client_tick, sex, fd);

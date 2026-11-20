@@ -86,7 +86,7 @@ static struct tm ev_tm_b;	// vCxgp
 static struct eri *timer_event_ers; //For the npc timer data. [Skotlex]
 
 //For holding the view data of npc classes. [Skotlex]
-static struct view_data npc_viewdb[MAX_NPC_CLASS];
+static struct view_data npc_viewdb[MAX_NPC_CLASS + 1]; // npcdb_checkid accepts MAX_NPC_CLASS itself
 
 static struct script_event_s
 {	//Holds pointers to the commonly executed scripts for speedup. [Skotlex]
@@ -2809,6 +2809,71 @@ static int npc_parse_mapcell(char* w1, char* w2, char* w3, char* w4)
 	return 0;
 }
 
+// [npcsprite] db/npc_sprite_db.txt: <id>,<NAME>,<id for an old client>. The 4th column of an NPC line may be a
+// sprite NAME (4_M_SAGE_A, as the renewal scripts write it); it was read with %d, so "4_M_SAGE_A" became 4 (an
+// Acolyte job id) and the NPC got no view data -- invisible. Names are turned into ids here. The 3rd column is the
+// look-alike sprite sent to a client without the renewal NPC sprites (the original uaRO.exe knows 46-125 and
+// 700-957 only; an unknown id must never reach it).
+static struct dbt* npc_sprite_name_db = NULL; // NAME (upper case) -> id
+static short npc_sprite_oldclient[MAX_NPC_CLASS + 1]; // id -> the id an old client gets (0 = itself)
+
+static void npc_read_sprite_db(void)
+{
+	char path[300], line[256], name[64];
+	FILE* fp;
+	int id, standin, n = 0;
+	memset(npc_sprite_oldclient, 0, sizeof(npc_sprite_oldclient));
+	if (npc_sprite_name_db == NULL)
+		npc_sprite_name_db = db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY|DB_OPT_RELEASE_KEY,64); // the data is an id, not a pointer
+	sprintf(path, "%s/npc_sprite_db.txt", db_path);
+	if ((fp = fopen(path, "r")) == NULL) {
+		ShowWarning("npc_read_sprite_db: %s not found - NPC sprite names are not resolved\n", path);
+		return;
+	}
+	while (fgets(line, sizeof(line), fp)) {
+		char* p;
+		if (line[0] == '/' || sscanf(line, "%d,%63[^,],%d", &id, name, &standin) != 3 || id < -1 || id > MAX_NPC_CLASS)
+			continue;
+		for (p = name; *p; p++) *p = TOUPPER(*p);
+		if (strdb_get(npc_sprite_name_db, name) == NULL)
+			strdb_put(npc_sprite_name_db, name, (void*)(intptr_t)(id + 2)); // +2: FAKE_NPC is -1, NULL means absent
+		if (id >= 0)
+			npc_sprite_oldclient[id] = (short)(standin == id ? 0 : standin);
+		n++;
+	}
+	fclose(fp);
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", n, path);
+}
+
+/// The sprite id an old client (no renewal NPC sprites) is sent for class_.
+int npc_sprite_for_oldclient(int class_)
+{
+	if (class_ >= 0 && class_ <= MAX_NPC_CLASS && npc_sprite_oldclient[class_])
+		return npc_sprite_oldclient[class_];
+	return class_;
+}
+
+/// Replace a sprite NAME at the start of w4 ("4_M_SAGE_A,{" / "4_M_SAGE_A,501:-1,...") with its id.
+static void npc_resolve_sprite_name(char* w4, const char* file, int line)
+{
+	char tok[64], upper[64], rest[2048];
+	size_t len = strcspn(w4, ", \t"); // a trailing "\t// comment" is not part of the sprite
+	size_t i;
+	void* v;
+	if (len == 0 || len >= sizeof(tok))
+		return;
+	memcpy(tok, w4, len); tok[len] = '\0';
+	if (tok[strspn(tok, "-0123456789")] == '\0')
+		return; // already a number
+	for (i = 0; i <= len; i++) upper[i] = TOUPPER(tok[i]);
+	if (npc_sprite_name_db == NULL || (v = strdb_get(npc_sprite_name_db, upper)) == NULL) {
+		ShowWarning("npc: unknown NPC sprite name '%s' in file '%s', line %d (add it to db/npc_sprite_db.txt)\n", tok, file, line);
+		return;
+	}
+	snprintf(rest, sizeof(rest), "%s", w4 + len);
+	snprintf(w4, 2048, "%d%s", (int)(intptr_t)v - 2, rest);
+}
+
 void npc_parsesrcfile(const char* name)
 {
 	int m, lines = 0;
@@ -2900,6 +2965,10 @@ void npc_parsesrcfile(const char* name)
 					continue;
 			}
 		}
+		if (count > 3 && strcmpi(w1,"function") != 0 &&
+			(strcmpi(w2,"script") == 0 || strcmpi(w2,"shop") == 0 || strcmpi(w2,"cashshop") == 0 || strncmpi(w2,"duplicate(",10) == 0))
+			npc_resolve_sprite_name(w4, current_file, lines); // [npcsprite]
+
 		if (strcmpi(w2,"warp") == 0 && count > 3) {
 			npc_parse_warp(w1,w2,w3,w4);
 		} else if (strcmpi(w2,"shop") == 0 && count > 3) {
@@ -3140,6 +3209,7 @@ int do_final_npc(void)
 	//There is no free function for npcname_db because at this point there shouldn't be any npcs left!
 	//So if there is anything remaining, let the memory manager catch it and report it.
 	npcname_db->destroy(npcname_db, NULL);
+	if (npc_sprite_name_db) { npc_sprite_name_db->destroy(npc_sprite_name_db, NULL); npc_sprite_name_db = NULL; }
 	ers_destroy(timer_event_ers);
 	npc_clearsrcfile();
 
@@ -3193,12 +3263,13 @@ int do_init_npc(void)
 	//Stock view data for normal npcs.
 	memset(&npc_viewdb, 0, sizeof(npc_viewdb));
 	npc_viewdb[0].class_ = INVISIBLE_CLASS; //Invisible class is stored here.
-	for( i = 1; i < MAX_NPC_CLASS; i++ )
+	for( i = 1; i <= MAX_NPC_CLASS; i++ )
 		npc_viewdb[i].class_ = i;
 
 	// comparing only the first 24 chars of labels that are 50 chars long isn't that nice
 	// will cause "duplicated" labels where actually no dup is...
 	ev_db = db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA,51);
+	npc_read_sprite_db(); // [npcsprite] before any NPC line is parsed
 	npcname_db = db_alloc(__FILE__,__LINE__,DB_STRING,DB_OPT_BASE,NAME_LENGTH);
 
 	memset(&ev_tm_b, -1, sizeof(ev_tm_b));

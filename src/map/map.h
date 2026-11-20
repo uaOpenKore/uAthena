@@ -574,6 +574,7 @@ struct map_session_data {
 		// Abracadabra bugfix by Aru
 		unsigned abra_flag : 1;
 		unsigned autotrade : 1;	//By Fantik
+		unsigned renewal_npc : 1; // [npcsprite] the client draws the renewal NPC sprites (BornRok marks its map login)
 		unsigned reg_dirty : 3; //By Skotlex (marks whether registry variables have been saved or not yet)
 		unsigned showdelay :1;
 		unsigned showexp :1;
