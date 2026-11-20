@@ -71,9 +71,12 @@ int StringBuf_Vprintf(struct StringBuf *sbuf,const char *fmt,va_list ap)
 	int n, size, off;
 
 	while (1) {
+		va_list ap_try; // every try formats from a fresh copy: vsnprintf uses up the va_list it is given
 		/* Try to print in the allocated space. */
 		size = sbuf->max_ - (sbuf->ptr_ - sbuf->buf_);
-		n = vsnprintf (sbuf->ptr_, size, fmt, ap);
+		va_copy(ap_try, ap);
+		n = vsnprintf (sbuf->ptr_, size, fmt, ap_try);
+		va_end(ap_try);
 		/* If that worked, return the length. */
 		if (n > -1 && n < size) {
 			sbuf->ptr_ += n;
