@@ -120,6 +120,8 @@ struct socket_data {
 	unsigned char in_shortlist; // already queued in the send shortlist (dedup)
 	unsigned char in_parselist; // [perf] already queued in the recv parse shortlist (dedup)
 	unsigned int last_send_tick; // [perf] gettick() of last flush, for send coalescing
+	uint32 conn_serial; // number of this connection, never 0 and not reused for ~4e9 connections (the fd and this
+	                    // block are): a delayed close keyed on it cannot hit the next connection on the same fd
 };
 
 

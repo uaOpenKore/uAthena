@@ -558,7 +558,11 @@ void socket_unwatch_fd(int fd)
 
 int create_session(int fd, RecvFunc func_recv, SendFunc func_send, ParseFunc func_parse)
 {
+	static uint32 conn_serial = 0;
 	CREATE(session[fd], struct socket_data, 1);
+	if( ++conn_serial == 0 )
+		conn_serial = 1;
+	session[fd]->conn_serial = conn_serial;
 	CREATE(session[fd]->rdata, unsigned char, rfifo_size);
 	CREATE(session[fd]->wdata, unsigned char, wfifo_size);
 	session[fd]->max_rdata  = rfifo_size;

@@ -1922,13 +1922,15 @@ static int clif_waitclose(int tid, t_tick tick, intptr_t id, intptr_t data)
 	// переходе между локациями" -- server FIN, no kick packet, no XMS-EOF logged). Compare the CURRENT
 	// player's per-connection auth_tick (set fresh in pc_setnewpc, never re-used) against the token
 	// captured when the timer was scheduled: a re-arrived session has a different auth_tick -> skip.
-	// Pre-auth rejects (no session_data yet) keep the pointer token (short 1s window, not a real player).
+	// Pre-auth rejects (no session_data yet) are keyed on the connection's serial, stored negative so it never
+	// equals an auth_tick: the session POINTER they used was the next connection's too (the socket_data block is
+	// reused with the fd), so a reject's 1 s timer closed whoever connected right after it.
 	if (session[id] && session[id]->func_parse == clif_parse) { //Avoid disconnecting non-players [Skotlex]
 		struct map_session_data* sd = (struct map_session_data*)session[id]->session_data;
 		if (sd != NULL) {
-			if ((intptr_t)sd->auth_tick == data)  // still the SAME connection -> close it
+			if (data > 0 && (intptr_t)sd->auth_tick == data)  // still the SAME connection -> close it
 				set_eof(id);
-		} else if (data == 0 || (intptr_t)session[id] == data) {
+		} else if (data == 0 || -(intptr_t)session[id]->conn_serial == data) {
 			set_eof(id);
 		}
 	}
@@ -1949,10 +1951,10 @@ void clif_setwaitclose(int fd)
 
 	// [xms] Token so clif_waitclose can tell if fd was recycled to a different connection before the
 	// timer fires (stale-close guard, see above). For an authed player use the per-connection auth_tick
-	// (survives session-pointer reuse); pre-auth uses the raw session pointer (short window).
+	// (survives session-pointer reuse); pre-auth uses the connection serial, negative (see clif_waitclose).
 	if ((sd = (struct map_session_data*)session[fd]->session_data) == NULL) {
 		// limited timer, just to send information.
-		add_timer(gettick() + 1000, clif_waitclose, fd, (intptr_t)session[fd]);
+		add_timer(gettick() + 1000, clif_waitclose, fd, -(intptr_t)session[fd]->conn_serial);
 	} else
 		add_timer(gettick() + 5000, clif_waitclose, fd, (intptr_t)sd->auth_tick);
 }
