@@ -9204,10 +9204,11 @@ int atcommand_h3(const int fd, struct map_session_data* sd, const char* command,
 }
 
 /*==========================================
- * @whobot [whobot] (S. 2026-11-19): online players who send the tick packet more than once a second. A game
- * client sends it every few seconds (BornRok every 4 s), OpenKore's default config every 0.1 s; a session is
- * judged after a minute online (tickrate.h). Only lists - does nothing to anyone. Sorted by IP, so a farm
- * shows up as one block.
+ * @whobot [whobot] (S. 2026-11-19, 20.11): online players whose client is not a game client (tickrate.h): more
+ * than 0.4 ticks a second (BornRok sends one every 4 s, the original client one every 9-12 s, OpenKore's default
+ * config ten a second), or OpenKore's walk padding with fewer than 0.15 ticks a second (BornRok sends that padding
+ * too but ticks every 4 s). A session is judged after a minute online. Only lists - does nothing to anyone.
+ * Sorted by IP, so a farm shows up as one block.
  *------------------------------------------*/
 static int atcommand_whobot_cmp(const void *a, const void *b)
 {
@@ -9223,8 +9224,8 @@ static int atcommand_whobot_cmp(const void *a, const void *b)
 int atcommand_whobot(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
 	struct map_session_data *pl_sd, **pl_allsd, **found;
-	int i, users, shown = 0, count = 0, judged = 0, GM_level, d;
-	unsigned int now = gettick(), online, tenths;
+	int i, users, shown = 0, count = 0, fast = 0, judged = 0, GM_level, d, verdict;
+	unsigned int now = gettick(), online, hundredths;
 	char pad[64];
 
 	nullpo_retr(-1, sd);
@@ -9241,23 +9242,28 @@ int atcommand_whobot(const int fd, struct map_session_data* sd, const char* comm
 		online = d > 0 ? (unsigned int)d : 0;
 		if (online >= TICKRATE_MIN_ONLINE_MS)
 			judged++;
-		if (tickrate_suspect(pl_sd->ticksend_count, online, TICKRATE_CLIENT_MAX_PER_S))
+		verdict = clif_whobot_verdict(pl_sd, online);
+		if (verdict != TICKRATE_CLIENT)
 			found[count++] = pl_sd;
+		if (verdict == TICKRATE_FAST)
+			fast++;
 	}
 	qsort(found, count, sizeof(found[0]), atcommand_whobot_cmp);
 	for (i = 0; i < count; i++) {
 		pl_sd = found[i];
 		d = DIFF_TICK(now, pl_sd->auth_tick);
 		online = d > 0 ? (unsigned int)d : 0;
-		tenths = tickrate_tenths(pl_sd->ticksend_count, online);
+		hundredths = tickrate_hundredths(pl_sd->ticksend_count, online);
 		clif_padmetric_walk(pl_sd, pad);
-		snprintf(atcmd_output, sizeof(atcmd_output), "%s (aid %d, IP %s): %u.%u ticks/s, online %u min, walk pad %s",
+		snprintf(atcmd_output, sizeof(atcmd_output), "%s (aid %d, IP %s): %u.%02u ticks/s, online %u min, walk pad %s - %s",
 			pl_sd->status.name, pl_sd->status.account_id, ip2str(session[pl_sd->fd]->client_addr, NULL),
-			tenths / 10, tenths % 10, online / 60000, pad);
+			hundredths / 100, hundredths % 100, online / 60000, pad,
+			clif_whobot_verdict(pl_sd, online) == TICKRATE_FAST ? "ticks too often" : "OpenKore walk pad, ticks too rarely");
 		clif_displaymessage(fd, atcmd_output);
 	}
-	snprintf(atcmd_output, sizeof(atcmd_output), "@whobot: %d of %d online send more than %d tick/s (%d of them online over a minute).",
-		count, shown, TICKRATE_CLIENT_MAX_PER_S, judged);
+	snprintf(atcmd_output, sizeof(atcmd_output), "@whobot: %d of %d online: %d tick more than %u.%02u/s, %d walk like OpenKore and tick under %u.%02u/s (%d online over a minute).",
+		count, shown, fast, TICKRATE_CLIENT_MAX_HUNDREDTHS / 100, TICKRATE_CLIENT_MAX_HUNDREDTHS % 100,
+		count - fast, TICKRATE_OKORE_SLOW_HUNDREDTHS / 100, TICKRATE_OKORE_SLOW_HUNDREDTHS % 100, judged);
 	clif_displaymessage(fd, atcmd_output);
 	aFree(found);
 	return 0;

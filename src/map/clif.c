@@ -8648,6 +8648,13 @@ void clif_padmetric_walk(struct map_session_data *sd, char *out)
 		strcpy(out, "-");
 }
 
+// [whobot] tickrate_verdict() of this session after `online_ms` online: its ticks and its first walk's padding.
+int clif_whobot_verdict(struct map_session_data *sd, unsigned int online_ms)
+{
+	return tickrate_verdict(sd->ticksend_count, online_ms, sd->padmetric[PADM_WALK].total,
+		sd->padmetric[PADM_WALK].first, sd->padmetric[PADM_WALK].len);
+}
+
 // [padmetric] One summary line per session (map_quit): time online and tick rate ([whobot]), then per kind
 // total/all-zero/changed and the first/last pattern.
 void clif_padmetric_log(struct map_session_data *sd)

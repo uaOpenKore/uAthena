@@ -393,6 +393,7 @@ void clif_mission_info(struct map_session_data *sd, int mob_id, unsigned char pr
 void clif_feel_hate_reset(struct map_session_data *sd);
 void clif_padmetric_log(struct map_session_data *sd); // [padmetric] per-session padding summary (map_quit)
 void clif_padmetric_walk(struct map_session_data *sd, char *out); // [whobot] first walk padding as hex, "-" if none
+int clif_whobot_verdict(struct map_session_data *sd, unsigned int online_ms); // [whobot] tickrate.h TICKRATE_*
 
 // [blackhole89]
 int clif_spawnhomun(struct homun_data *hd);
