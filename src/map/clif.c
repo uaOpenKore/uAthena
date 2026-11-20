@@ -5266,11 +5266,13 @@ void clif_GlobalMessage(struct block_list* bl, const char* message)
 		return;
 
 	len = strlen(message)+1;
+	if (len > (int)sizeof(buf) - 8) // npc_globalmessage sends up to 100 bytes: that overran buf[100]
+		len = sizeof(buf) - 8;
 
 	WBUFW(buf,0)=0x8d;
 	WBUFW(buf,2)=len+8;
 	WBUFL(buf,4)=bl->id;
-	strncpy((char *) WBUFP(buf,8),message,len);
+	safestrncpy((char *) WBUFP(buf,8),message,len);
 	clif_send((unsigned char *) buf,WBUFW(buf,2),bl,ALL_CLIENT);
 }
 
@@ -7590,10 +7592,13 @@ int clif_disp_onlyself(struct map_session_data *sd, const char *mes, int len)
 	nullpo_retr(0, sd);
 	fd = sd->fd;
 	if (!fd || !len) return 0; //Disconnected player.
+	if (len > 0xFFFF - 5) // the packet length is 16-bit
+		len = 0xFFFF - 5;
 	WFIFOHEAD(fd, len+5);
 	WFIFOW(fd, 0) = 0x17f;
 	WFIFOW(fd, 2) = len + 5;
 	memcpy(WFIFOP(fd,4), mes, len);
+	WFIFOB(fd, 4 + len) = '\0'; // the length counts it: without it the client got a stale send-buffer byte
 	WFIFOSET(fd, WFIFOW(fd,2));
 	return 1;
 }
@@ -7605,9 +7610,12 @@ void clif_disp_message(struct block_list* src, const char* mes, int len, enum se
 {
 	unsigned char buf[1024];
 	if (!len) return;
+	if (len > (int)sizeof(buf) - 5)
+		len = sizeof(buf) - 5;
 	WBUFW(buf, 0) = 0x17f;
 	WBUFW(buf, 2) = len + 5;
 	memcpy(WBUFP(buf,4), mes, len);
+	WBUFB(buf, 4 + len) = '\0'; // counted in the length: it was an uninitialised stack byte
 	clif_send(buf, WBUFW(buf,2), src, target);
 	return;
 }
@@ -9034,15 +9042,19 @@ void clif_parse_GlobalMessage(int fd, struct map_session_data* sd)
 
 int clif_message(struct block_list *bl, const char* msg)
 {
-	unsigned short msg_len = strlen(msg) + 1;
+	size_t msg_len = strlen(msg) + 1;
 	unsigned char buf[256];
 
 	nullpo_retr(0, bl);
 
+	if (msg_len > sizeof(buf) - 8) { // a longer text (npctalk, unittalk) overran buf on the stack: cut it
+		ShowWarning("clif_message: truncating a %d-byte message of %d to %d bytes.\n", (int)msg_len, bl->id, (int)(sizeof(buf) - 8));
+		msg_len = sizeof(buf) - 8;
+	}
 	WBUFW(buf, 0) = 0x8d;
-	WBUFW(buf, 2) = msg_len + 8;
+	WBUFW(buf, 2) = (unsigned short)(msg_len + 8);
 	WBUFL(buf, 4) = bl->id;
-	memcpy(WBUFP(buf, 8), msg, msg_len);
+	safestrncpy((char*)WBUFP(buf, 8), msg, msg_len);
 
 	clif_send(buf, WBUFW(buf,2), bl, AREA_CHAT_WOC);	// by Gengar
 
