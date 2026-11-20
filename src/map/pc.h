@@ -124,7 +124,7 @@ int pc_makesavestatus(struct map_session_data *);
 int pc_setnewpc(struct map_session_data*,int,int,int,unsigned int,int,int);
 int pc_authok(struct map_session_data*, int, int, struct mmo_charstatus *);
 int pc_authfail(struct map_session_data *);
-int pc_online_reward_timer(int tid, unsigned int tick, intptr_t id, intptr_t data); // [Backport]
+int pc_online_reward_timer(int tid, t_tick tick, intptr_t id, intptr_t data); // [Backport]
 int pc_reg_received(struct map_session_data *sd);
 
 int pc_isequip(struct map_session_data *sd,int n);
@@ -259,7 +259,7 @@ int pc_cleareventtimer(struct map_session_data *sd);
 int pc_addeventtimercount(struct map_session_data *sd,const char *name,int tick);
 
 int pc_calc_pvprank(struct map_session_data *sd);
-int pc_calc_pvprank_timer(int tid,unsigned int tick,intptr_t id,intptr_t data);
+int pc_calc_pvprank_timer(int tid, t_tick tick,intptr_t id,intptr_t data);
 
 int pc_ismarried(struct map_session_data *sd);
 int pc_marriage(struct map_session_data *sd,struct map_session_data *dstsd);
@@ -274,7 +274,7 @@ void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick);
 void pc_regen (struct map_session_data *sd, unsigned int diff_tick);
 int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short flag,const char *other_script,unsigned short pos,bool onskill);
 int pc_exeautobonus(struct map_session_data *sd,struct s_autobonus *bonus);
-int pc_endautobonus(int tid, unsigned int tick, intptr_t id, intptr_t data);
+int pc_endautobonus(int tid, t_tick tick, intptr_t id, intptr_t data);
 int pc_delautobonus(struct map_session_data* sd, struct s_autobonus *bonus,char max,bool restore);
 
 int pc_set_gm_level(int account_id, int level);
@@ -321,8 +321,8 @@ enum {ADDITEM_EXIST,ADDITEM_NEW,ADDITEM_OVERAMOUNT};
 // timer for night.day
 extern int day_timer_tid;
 extern int night_timer_tid;
-int map_day_timer(int,unsigned int,intptr_t,intptr_t); // by [yor]
-int map_night_timer(int,unsigned int,intptr_t,intptr_t); // by [yor]
+int map_day_timer(int, t_tick, intptr_t,intptr_t); // by [yor]
+int map_night_timer(int, t_tick, intptr_t,intptr_t); // by [yor]
 
 //Duel functions // [LuzZza]
 int duel_create(struct map_session_data* sd, const unsigned int maxpl);

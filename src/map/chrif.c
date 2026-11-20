@@ -696,7 +696,7 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 
-int auth_db_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int auth_db_cleanup(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int pending = 0, purged = 0;
 	auth_db->foreach(auth_db, auth_db_cleanup_sub, &pending, &purged);
@@ -1119,7 +1119,7 @@ int chrif_disconnectplayer(int fd)
 	// still kicked. Previously only reason 2 was guarded, so a racy reason-1 slipped through.
 	{
 		const int why = RFIFOB(fd, 6);
-		const unsigned int age = DIFF_TICK(gettick(), sd->auth_tick);
+		const unsigned int age = DIFF_TICK32(gettick(), sd->auth_tick);
 		// Skip the kick if this looks like a cross-server transfer race (reason 1/2/3 within 4s of auth).
 		if ((why == 1 || why == 2 || why == 3) && age < 4000) {
 			// [DCMETRIC] ТЗ Причина 1/3: a char-server kick (server-closed / dupe / overpop) landed on a
@@ -1136,7 +1136,7 @@ int chrif_disconnectplayer(int fd)
 	// small age on a reason 1/2/3 that slipped past the 4s guard is still suspect. Logged to attribute DCs.
 	{
 		const int why = RFIFOB(fd, 6);
-		const unsigned int age = DIFF_TICK(gettick(), sd->auth_tick);
+		const unsigned int age = DIFF_TICK32(gettick(), sd->auth_tick);
 		ShowInfo("[DCMETRIC] kick_delivered: aid=%d cid=%d reason=%d age=%ums\n",
 			sd->status.account_id, sd->status.char_id, why, age);
 	}
@@ -1272,7 +1272,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 {	//parses the sc_data of the player and sends it to the char-server for saving. [Skotlex]
 #ifdef ENABLE_SC_SAVING
 	int i, count=0;
-	unsigned int tick;
+	t_tick tick;
 	struct status_change_data data;
 	struct TimerData *timer;
 
@@ -1293,7 +1293,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 		timer = get_timer(sd->sc.data[i].timer);
 		if (timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick,tick) < 0)
 			continue;
-		data.tick = DIFF_TICK(timer->tick,tick); //Duration that is left before ending.
+		data.tick = DIFF_TICK32(timer->tick,tick); //Duration that is left before ending.
 		data.type = i;
 		data.val1 = sd->sc.data[i].val1;
 		data.val2 = sd->sc.data[i].val2;
@@ -1587,7 +1587,7 @@ int chrif_parse(int fd)
 	return 0;
 }
 
-int send_usercount_tochar(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int send_usercount_tochar(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int count;
 	static int last_count = 0;
@@ -1611,7 +1611,7 @@ int send_usercount_tochar(int tid, unsigned int tick, intptr_t id, intptr_t data
  * timer
  * mapIqNCAglcharI
  *------------------------------------------*/
-int send_users_tochar(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int send_users_tochar(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int count, users=0, i;
 	struct map_session_data **all_sd;
@@ -1637,7 +1637,7 @@ int send_users_tochar(int tid, unsigned int tick, intptr_t id, intptr_t data)
  * timer
  * charImFAx
  *------------------------------------------*/
-int check_connect_char_server(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int check_connect_char_server(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	static int displayed = 0;
 	if (char_fd <= 0 || session[char_fd] == NULL)

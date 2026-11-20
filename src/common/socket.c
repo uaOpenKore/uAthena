@@ -693,9 +693,10 @@ int WFIFOSET(int fd, int len)
 int do_sendrecv(int next)
 {
 	static bool looped = false;                  // [stall-guard] a previous round was measured
-	static unsigned int prev_start;              // gettick_nocache() at the previous round's start
+	static t_tick prev_start;                    // gettick_nocache() at the previous round's start
 	static unsigned int prev_waited, prev_asked; // the previous round's socket wait: took / allowed (ms)
-	unsigned int start, gone;
+	t_tick start;
+	unsigned int gone;
 	int ret, n, i;
 
 	last_tick = socket_clock();
@@ -709,7 +710,7 @@ int do_sendrecv(int next)
 	// data received during it is read below, before the sweep in do_parsepacket.
 	// Only the time the server was gone counts, not its sleep in the socket wait (stallguard.h): measuring the
 	// whole round flagged an idle login-server ~11 times a minute (live logs 2026-11-18).
-	gone = looped ? stallguard_gone_ms(start - prev_start, prev_waited, prev_asked) : 0;
+	gone = looped ? stallguard_gone_ms((unsigned int)DIFF_TICK32(start, prev_start), prev_waited, prev_asked) : 0;
 	if( gone >= SOCKET_STALL_GUARD_SEC * 1000 )
 	{
 		time_t credit = gone / 1000 - 1;
@@ -741,9 +742,9 @@ int do_sendrecv(int next)
 	// Level-triggered: any ready fd not fully drained this tick is reported
 	// again next time, so a fifo recv that doesn't empty the socket is safe.
 	{
-		unsigned int before = gettick_nocache();
+		t_tick before = gettick_nocache();
 		ret = epoll_wait(epoll_fd, epoll_events, SOCKET_MAX, next);
-		prev_waited = gettick_nocache() - before; // [stall-guard]
+		prev_waited = (unsigned int)DIFF_TICK32(gettick_nocache(), before); // [stall-guard]
 	}
 	if( ret < 0 )
 	{
@@ -851,9 +852,9 @@ int do_parsepacket(void)
 	// [perf 3b] Stall/idle timeout: shortlisted fds are only the active ones, so the per-fd timeout
 	// can't live in the parse loop. Sweep ALL sessions on a ~1s throttle instead of every tick.
 	{
-		static unsigned int last_stall_sweep = 0;
+		static t_tick last_stall_sweep = 0;
 		static bool stall_sweep_started = false;
-		unsigned int now = gettick();
+		t_tick now = gettick();
 		// [stall-guard] Start the 1 s throttle on the first call. It used to compare against 0, but the tick
 		// is epoch-ms mod 2^32 and DIFF_TICK is int32: whenever the tick is in the upper half (every other
 		// ~24.8 days, e.g. 2026-10-28 02:54 .. 2026-11-21 23:25) DIFF_TICK(now, 0) is negative, so
@@ -889,7 +890,7 @@ int do_parsepacket(void)
 typedef struct _connect_history {
 	struct _connect_history* next;
 	uint32 ip;
-	uint32 tick;
+	t_tick tick;
 	int count;
 	unsigned ddos : 1;
 } ConnectHistory;
@@ -1036,7 +1037,7 @@ static int connect_check_(uint32 ip)
 
 /// Timer function.
 /// Deletes old connection history records.
-static int connect_check_clear(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int connect_check_clear(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int i;
 	int clear = 0;

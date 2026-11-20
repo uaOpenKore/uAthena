@@ -41,7 +41,7 @@
 struct homunculus_db homunculus_db[MAX_HOMUNCULUS_CLASS];	//[orn]
 struct skill_tree_entry hskill_tree[MAX_HOMUNCULUS_CLASS][MAX_SKILL_TREE];
 
-static int merc_hom_hungry(int tid,unsigned int tick,intptr_t id,intptr_t data);
+static int merc_hom_hungry(int tid, t_tick tick,intptr_t id,intptr_t data);
 
 static unsigned int hexptbl[MAX_LEVEL];
 
@@ -494,7 +494,7 @@ int merc_hom_food(struct map_session_data *sd, struct homun_data *hd)
 	return 0;
 }
 
-static int merc_hom_hungry(int tid,unsigned int tick,intptr_t id,intptr_t data)
+static int merc_hom_hungry(int tid, t_tick tick,intptr_t id,intptr_t data)
 {
 	struct map_session_data *sd;
 	struct homun_data *hd;

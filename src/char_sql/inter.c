@@ -82,7 +82,7 @@ int inter_recv_packet_length[] = {
 
 struct WisData {
 	int id, fd, count, len;
-	unsigned long tick;
+	t_tick tick;
 	unsigned char src[24], dst[24], msg[512];
 };
 static struct dbt * wis_db = NULL;
@@ -227,7 +227,7 @@ static int accreg_pending_flush_sub(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-static int accreg_pending_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int accreg_pending_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	accreg_pending_db[0]->foreach(accreg_pending_db[0], accreg_pending_flush_sub, 2);
 	accreg_pending_db[1]->foreach(accreg_pending_db[1], accreg_pending_flush_sub, 3);
@@ -416,7 +416,7 @@ int inter_log(char* fmt, ...)
 /*=============================================
  * Does a mysql_ping to all connection handles
  *---------------------------------------------*/
-int inter_sql_ping(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int inter_sql_ping(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
 	mysql_ping(&mysql_handle);
@@ -726,9 +726,9 @@ int mapif_disconnectplayer(int fd, int account_id, int char_id, int reason)
 // Existence check of WISP data
 int check_ttl_wisdata_sub(DBKey key, void *data, va_list ap)
 {
-	unsigned long tick;
+	t_tick tick;
 	struct WisData *wd = (struct WisData *)data;
-	tick = (unsigned long)va_arg(ap, intptr_t);
+	tick = va_arg(ap, t_tick);
 
 	if (DIFF_TICK(tick, wd->tick) > WISDATA_TTL && wis_delnum < WISDELLIST_MAX)
 		wis_dellist[wis_delnum++] = wd->id;
@@ -738,7 +738,7 @@ int check_ttl_wisdata_sub(DBKey key, void *data, va_list ap)
 
 int check_ttl_wisdata(void)
 {
-	unsigned long tick = gettick();
+	t_tick tick = gettick();
 	int i;
 
 	do {

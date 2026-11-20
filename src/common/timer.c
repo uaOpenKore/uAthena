@@ -89,24 +89,22 @@ char* search_timer_func_list(TimerFunc func)
 /*----------------------------
  * 	Get tick time
  *----------------------------*/
-static unsigned int gettick_cache;
+static t_tick gettick_cache;
 static int gettick_count;
 
 // [clock] The tick is a MONOTONIC millisecond clock, so a wall-clock step -- an NTP step, a VM clock catching
 // up after a pause, a manual date change -- does not move it. A forward step used to make every pending timer
 // due at once (a do_timer storm); a backward step froze all timers (mob AI, walking, regen, skill delays) for
 // the length of the step.
-// It starts at TICK_START_MS when the process starts. It used to start at the wall clock's ms mod 2^32, so a
-// server spent ~24.8 of every 49.7 days in the upper half of the 32-bit range, where DIFF_TICK against a tick
-// field still 0 is negative (the stall sweep never ran then), and the tick wrapped at a fixed wall-clock moment
-// in the middle of a run (next: 2026-11-21 21:25 UTC). From one day, the upper half is reached only after ~23.8
-// days of uptime and a stale tick field cannot be older than the uptime. Nothing compares ticks across
-// processes or restarts (inter-server packets carry none, sc_data saves the time left, scripts do not keep
-// gettimetick(0)). One day rather than 0, so that "tick - delay" taken right after the start stays positive.
+// It starts at TICK_START_MS when the process starts and is 64-bit [tick64]: it never wraps (the 32-bit one,
+// anchored to the wall clock, wrapped every 49.7 days at a fixed moment and spent half of that time where
+// DIFF_TICK against a field still 0 is negative). Nothing compares ticks across processes or restarts
+// (inter-server packets carry none, sc_data saves the time left, scripts do not keep gettimetick(0)). One day
+// rather than 0, so that "tick - delay" taken right after the start stays positive.
 static int64 gettick_mono_offset;
 static bool gettick_mono_anchored = false;
 
-unsigned int gettick_nocache(void)
+t_tick gettick_nocache(void)
 {
 	struct timeval tval;
 	struct timespec ts;
@@ -116,17 +114,17 @@ unsigned int gettick_nocache(void)
 
 	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) { // never fails on Linux; keep the old clock just in case
 		gettimeofday(&tval, NULL);
-		return gettick_cache = (unsigned int)(tval.tv_sec * 1000 + tval.tv_usec / 1000);
+		return gettick_cache = (t_tick)tval.tv_sec * 1000 + tval.tv_usec / 1000;
 	}
 	mono = (int64)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 	if (!gettick_mono_anchored) {
 		gettick_mono_offset = (int64)TICK_START_MS - mono;
 		gettick_mono_anchored = true;
 	}
-	return gettick_cache = (unsigned int)(mono + gettick_mono_offset);
+	return gettick_cache = mono + gettick_mono_offset;
 }
 
-unsigned int gettick(void)
+t_tick gettick(void)
 {
 	if (--gettick_count < 0)
 		return gettick_nocache();
@@ -248,7 +246,7 @@ static int acquire_timer(void)
 	return tid;
 }
 
-int add_timer(unsigned int tick,TimerFunc func, intptr_t id, intptr_t data)
+int add_timer(t_tick tick,TimerFunc func, intptr_t id, intptr_t data)
 {
 	int tid = acquire_timer();
 
@@ -263,7 +261,7 @@ int add_timer(unsigned int tick,TimerFunc func, intptr_t id, intptr_t data)
 	return tid;
 }
 
-int add_timer_interval(unsigned int tick, TimerFunc func, intptr_t id, intptr_t data, int interval)
+int add_timer_interval(t_tick tick, TimerFunc func, intptr_t id, intptr_t data, int interval)
 {
 	int tid;
 
@@ -304,7 +302,7 @@ int delete_timer(int id, TimerFunc func)
 	return 0;
 }
 
-int addtick_timer(int tid, unsigned int tick)
+t_tick addtick_timer(int tid, t_tick tick)
 {
 	// Doesn't adjust the timer position. Might be the root of the FIXME in settick_timer. [FlavioJS]
 	//return timer_data[tid].tick += tick;
@@ -315,7 +313,7 @@ int addtick_timer(int tid, unsigned int tick)
 //Reworked for the min-heap: the timer is located in O(1) via its heap_pos
 //back-reference, then sifted up or down in O(log n). (The old sorted-array
 //version was buggy - it did not reorganize the heap correctly.)
-int settick_timer(int tid, unsigned int tick)
+t_tick settick_timer(int tid, t_tick tick)
 {
 	int pos;
 
@@ -345,52 +343,20 @@ struct TimerData* get_timer(int tid)
 	return &timer_data[tid];
 }
 
-//Correcting the heap when the tick overflows is an idea taken from jA to
-//prevent timer problems. Thanks to [End of Exam] for providing the required data. [Skotlex]
-//This funtion will rearrange the heap and assign new tick values.
-static void fix_timer_heap(unsigned int tick)
+int do_timer(t_tick tick)
 {
-	int i, any = 0;
-
-	if (timer_heap_num <= 0 || tick >= 0x00010000)
-		return;
-
-	//Pre-wrap leftovers: timers scheduled just before the tick wrapped now look
-	//like they are ~49 days in the future. Reset them to fire now.
-	//(not perfect, but works as long as no timer is genuinely expected 50+ days out)
-	for (i = 0; i < timer_heap_num; i++) {
-		if (timer_data[timer_heap[i]].tick > 0xf0000000) {
-			timer_data[timer_heap[i]].tick = 0;
-			any = 1;
-		}
-	}
-	//Many ticks changed -> rebuild the heap (build-heap, O(n); happens at most
-	//once per ~49-day tick wrap).
-	if (any)
-		for (i = timer_heap_num/2 - 1; i >= 0; i--)
-			heap_sift_down(i);
-}
-
-int do_timer(unsigned int tick)
-{
-	static int fix_heap_flag = 0; //Fix the heap only once per tick wrap. [Skotlex]
-	int nextmin = 1000;
-
-	if (tick < 0x010000 && fix_heap_flag)
-	{
-		fix_timer_heap(tick);
-		fix_heap_flag = 0;
-	}
+	t_tick diff = 1000; // ms to the next timer (the socket wait is cut to 1 s anyway: stallguard.h)
+	int nextmin;
 
 	while(timer_heap_num) {
 		int i = timer_heap[0]; // soonest-to-expire (heap root)
-		if ((nextmin = DIFF_TICK(timer_data[i].tick, tick)) > 0)
+		if ((diff = DIFF_TICK(timer_data[i].tick, tick)) > 0)
 			break;
 
 		pop_timer_heap(); // remove it from the heap
 		timer_data[i].type |= TIMER_REMOVE_HEAP;
 		if (timer_data[i].func) {
-			if (nextmin < -1000) {
+			if (diff < -1000) {
 				// fired far too late: pass the current tick rather than the
 				// (long past) scheduled one, so the callback doesn't over-rewind
 				timer_data[i].func(i, tick, timer_data[i].id, timer_data[i].data);
@@ -422,11 +388,9 @@ int do_timer(unsigned int tick)
 		}
 	}
 
+	nextmin = diff > 1000 ? 1000 : (int)diff;
 	if (nextmin < TIMER_MIN_INTERVAL)
 		nextmin = TIMER_MIN_INTERVAL;
-
-	if (UINT_MAX - nextmin < tick) //Tick will loop, rearrange the heap on the next iteration.
-		fix_heap_flag = 1;
 	return nextmin;
 }
 

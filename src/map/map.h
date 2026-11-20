@@ -294,7 +294,7 @@ struct skill_unit_group {
 	int map;
 	int target_flag; //Holds BCT_* flag for battle_check_target
 	int bl_flag;	//Holds BL_* flag for map_foreachin* functions
-	unsigned int tick;
+	t_tick tick;
 	int limit,interval;
 
 	int skill_id,skill_lv;
@@ -312,7 +312,7 @@ struct skill_unit_group {
 	} state;
 };
 struct skill_unit_group_tickset {
-	unsigned int tick;
+	t_tick tick;
 	int id;
 };
 
@@ -332,9 +332,9 @@ struct unit_data {
 	int   attacktimer;
 	int   walktimer;
 	int	chaserange;
-	unsigned int attackabletime;
-	unsigned int canact_tick;
-	unsigned int canmove_tick;
+	t_tick attackabletime;
+	t_tick canact_tick;
+	t_tick canmove_tick;
 	unsigned char dir;
 	unsigned char walk_count;
 	struct {
@@ -665,18 +665,18 @@ struct map_session_data {
 	short skillid_old,skilllv_old;
 	short skillid_dance,skilllv_dance;
 	char blockskill[MAX_SKILL];	// [celest]
-	unsigned int blockskill_tick[MAX_SKILL];	// expiry tick per skill, for @status cooldowns
+	t_tick blockskill_tick[MAX_SKILL];	// expiry tick per skill, for @status cooldowns
 	int cloneskill_id;
 	int menuskill_id, menuskill_val;
 
 	int invincible_timer;
 	int rental_timer; // [Backport] rental-item expiry timer
 	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
-	unsigned int canlog_tick;
-	unsigned int auth_tick; // [xms] tick this SESSION was set up (pc_setnewpc); never bumped by actions -> true "time since connect" for the cross-server dupe-kick race guard
+	t_tick canlog_tick;
+	t_tick auth_tick; // [xms] tick this SESSION was set up (pc_setnewpc); never bumped by actions -> true "time since connect" for the cross-server dupe-kick race guard
 	unsigned int auth_seq; // [auth-queue] unique id of this CONNECTION (pc_setnewpc, global counter, never 0/reused): ties an auth_db node to its own session, not to a recycled fd number or a re-allocated sd address
-	unsigned int canuseitem_tick;	// [Skotlex]
-	unsigned int cantalk_tick;
+	t_tick canuseitem_tick;	// [Skotlex]
+	t_tick cantalk_tick;
 
 	short weapontype1,weapontype2;
 	int weapon_mastery[2];	// [perf 6] cached weapon-type mastery bonus for weapontype1/2 (recomputed in status_calc_pc)
@@ -922,7 +922,7 @@ struct npc_data {
 	char name[NAME_LENGTH];
 	char exname[NAME_LENGTH];
 	int chat_id;
-	unsigned int next_walktime;
+	t_tick next_walktime;
 
 	char eventqueue[MAX_EVENTQUEUE][50];
 	int eventtimer[MAX_EVENTTIMER];
@@ -937,7 +937,7 @@ struct npc_data {
 			short xs,ys;
 			int guild_id;
 			int timer,timerid,timeramount,rid;
-			unsigned int timertick;
+			t_tick timertick;
 			struct npc_timerevent_list *timer_event;
 			int label_list_num;
 			struct npc_label_list *label_list;
@@ -984,7 +984,7 @@ struct spawn_data {
 struct mob_data {
 	struct block_list bl;
 	int livemob_idx;	// slot in the flat live-mob index (livemob.c); -1 if not indexed [perf]
-	unsigned int pcnear_tick;	// [perf] last tick the "PC in view" probe was refreshed (0=never)
+	t_tick pcnear_tick;	// [perf] last tick the "PC in view" probe was refreshed (0=never)
 	unsigned char pcnear;		// [perf] cached result of that probe (mob_ai_hard_skip_noplayer)
 	struct unit_data  ud;
 	struct view_data *vd;
@@ -1025,8 +1025,8 @@ struct mob_data {
 	unsigned int tdmg; //Stores total damage given to the mob, for exp calculations. [Skotlex]
 	int level;
 	int target_id,attacked_id;
-	unsigned int next_walktime;
-	unsigned int last_deadtime,last_spawntime,last_thinktime,last_linktime;
+	t_tick next_walktime;
+	t_tick last_deadtime,last_spawntime,last_thinktime,last_linktime;
 	short move_fail_count;
 	short lootitem_count;
 	short min_chase;
@@ -1035,7 +1035,7 @@ struct mob_data {
 	int master_id,master_dist;
 	
 	short skillidx;
-	unsigned int skilldelay[MAX_MOBSKILL];
+	t_tick skilldelay[MAX_MOBSKILL];
 	char npc_event[50];
 };
 
@@ -1070,7 +1070,7 @@ struct pet_data {
 		unsigned skillbonus : 1;
 	} state;
 	int move_fail_count;
-	unsigned int next_walktime,last_thinktime;
+	t_tick next_walktime,last_thinktime;
 	short rate_fix;	//Support rate as modified by intimacy (1000 = 100%) [Skotlex]
 
 	struct pet_recovery { //Stat recovery
@@ -1216,7 +1216,7 @@ struct flooritem_data {
 	unsigned char subx,suby;
 	int cleartimer;
 	int first_get_id,second_get_id,third_get_id;
-	unsigned int first_get_tick,second_get_tick,third_get_tick;
+	t_tick first_get_tick,second_get_tick,third_get_tick;
 	struct item item_data;
 };
 
@@ -1399,7 +1399,7 @@ int map_addblock_sub(struct block_list *, int);
 int map_delblock_sub(struct block_list *, int);
 #define map_addblock(bl) map_addblock_sub(bl,1)
 #define map_delblock(bl) map_delblock_sub(bl,1)
-int map_moveblock(struct block_list *, int, int, unsigned int);
+int map_moveblock(struct block_list *, int, int, t_tick);
 int map_foreachinrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int type, ...);
 int map_foreachinshootrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int type, ...);
 int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int type, ...);
@@ -1425,8 +1425,8 @@ void map_quit_ack(struct map_session_data *);
 int map_addnpc(int,struct npc_data *);
 
 // ACeA
-int map_clearflooritem_timer(int,unsigned int,intptr_t,intptr_t);
-int map_removemobs_timer(int,unsigned int,intptr_t,intptr_t);
+int map_clearflooritem_timer(int, t_tick, intptr_t,intptr_t);
+int map_removemobs_timer(int, t_tick, intptr_t,intptr_t);
 #define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
 int map_addflooritem(struct item *,int,int,int,int,struct map_session_data *,struct map_session_data *,struct map_session_data *,int);
 

@@ -74,7 +74,7 @@ unsigned int GM_num = 0; // number of gm accounts
 int allowed_regs = 1;
 int time_allowed = 10; //in seconds
 int num_regs = 0;
-unsigned int new_reg_tick = 0;
+t_tick new_reg_tick = 0;
 
 MYSQL mysql_handle;
 MYSQL_RES* 	sql_res ;
@@ -138,7 +138,7 @@ static void* create_online_user(DBKey key, va_list args)
 }
 
 int charif_sendallwos(int sfd, unsigned char *buf, unsigned int len);
-static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, intptr_t data);
+static int waiting_disconnect_timer(int tid, t_tick tick, intptr_t id, intptr_t data);
 
 //-----------------------------------------------------
 // Online User Database [Wizputer]
@@ -169,7 +169,7 @@ void remove_online_user(int account_id)
 	idb_remove(online_db,account_id);
 }
 
-static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int waiting_disconnect_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct online_login_data *p;
 	// The stored timer id is compared, not the account id: comparing `id` never matched, so the 30 s
@@ -183,7 +183,7 @@ static int waiting_disconnect_timer(int tid, unsigned int tick, intptr_t id, int
 	return 0;
 }
 
-static int sync_ip_addresses(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int sync_ip_addresses(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	unsigned char buf[2];
 	ShowInfo("IP Sync in progress...\n");
@@ -266,7 +266,7 @@ void send_GM_accounts(int fd)
 /*=============================================
  * Does a mysql_ping to all connection handles
  *---------------------------------------------*/
-int login_sql_ping(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int login_sql_ping(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
 	mysql_ping(&mysql_handle);
@@ -389,7 +389,7 @@ void mmo_db_close(void)
 //-----------------------------------------------------
 int mmo_auth_new(struct mmo_account* account, char sex)
 {
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 	char user_password[256];
 	// Escaped copies for the queries. The name and password come straight from the client's login packet, so
 	// they are escaped before any query sees them; account->userid/passwd stay as typed for the login that follows.
@@ -1768,7 +1768,7 @@ static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 	return 0;
 }
 
-static int online_data_cleanup(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int online_data_cleanup(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	online_db->foreach(online_db, online_data_cleanup_sub);
 	return 0;
@@ -1831,7 +1831,7 @@ int login_lan_config_read(const char *lancfgName)
 //-----------------------------------------------------
 // clear expired ip bans
 //-----------------------------------------------------
-int ip_ban_flush(int tid, unsigned int tick, intptr_t id, intptr_t data)
+int ip_ban_flush(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	if(mysql_query(&mysql_handle, "DELETE FROM `ipbanlist` WHERE `rtime` <= NOW()")) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));

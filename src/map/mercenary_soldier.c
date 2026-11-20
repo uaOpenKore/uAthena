@@ -99,7 +99,7 @@ int mercenary_get_lifetime(struct mercenary_data *md)
 		return 0;
 
 	td = get_timer(md->contract_timer);
-	return (td != NULL) ? DIFF_TICK(td->tick, gettick()) : 0;
+	return (td != NULL) ? DIFF_TICK32(td->tick, gettick()) : 0;
 }
 
 int mercenary_get_guild(struct mercenary_data *md)
@@ -222,7 +222,7 @@ int mercenary_save(struct mercenary_data *md)
 	return 1;
 }
 
-static int merc_contract_end(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int merc_contract_end(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data *sd;
 	struct mercenary_data *md;
@@ -756,7 +756,7 @@ static int merc_support_master(struct mercenary_data *md, struct map_session_dat
 	return 0;
 }
 
-static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *sd, unsigned int tick)
+static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *sd, t_tick tick)
 {
 	struct block_list *target = NULL;
 
@@ -837,13 +837,13 @@ static int merc_ai_sub_hard(struct mercenary_data *md, struct map_session_data *
 
 static int merc_ai_sub_foreachclient(struct map_session_data *sd, va_list ap)
 {
-	unsigned int tick = va_arg(ap, unsigned int);
+	t_tick tick = va_arg(ap, t_tick);
 	if( sd->md && sd->md->bl.prev != NULL )
 		merc_ai_sub_hard(sd->md, sd, tick);
 	return 0;
 }
 
-static int merc_ai_hard(int tid, unsigned int tick, intptr_t id, intptr_t data)
+static int merc_ai_hard(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	clif_foreachclient(merc_ai_sub_foreachclient, tick);
 	return 0;

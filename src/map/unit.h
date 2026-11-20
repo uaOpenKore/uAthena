@@ -24,7 +24,7 @@ int unit_run(struct block_list *bl);
 int unit_stop_walking(struct block_list *bl,int type);
 int unit_can_move(struct block_list *bl);
 int unit_is_walking(struct block_list *bl);
-int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int type);
+int unit_set_walkdelay(struct block_list *bl, t_tick tick, int delay, int type);
 
 int unit_escape(struct block_list *bl, struct block_list *target, int dist);
 // u()
@@ -58,7 +58,7 @@ int unit_counttargeted(struct block_list *bl,int target_lv);
 // unit_data 
 void unit_dataset(struct block_list *bl);
 
-int unit_fixdamage(struct block_list *src,struct block_list *target,unsigned int tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);
+int unit_fixdamage(struct block_list *src,struct block_list *target,t_tick tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);
 //
 struct unit_data* unit_bl2ud(struct block_list *bl);
 int unit_remove_map(struct block_list *bl, int clrtype);

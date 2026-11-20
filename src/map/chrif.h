@@ -9,7 +9,7 @@ struct auth_node{
 	int connect_until_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
 	struct map_session_data *sd;	//Data from logged on char.
 	struct mmo_charstatus *char_dat;	//Data from char server.
-	unsigned int node_created; //For node auto-deleting
+	t_tick node_created; //For node auto-deleting
 	unsigned int auth_seq; // [auth-queue] connection id (sd->auth_seq) of the waiting session; checked together with fd + sd
 	unsigned retry : 1;    // [auth-queue] marker: this login's data arrived while the same char was still on the map (stale, discarded) -> its client gets code 8 to log in again
 };
@@ -45,11 +45,11 @@ int chrif_save_scdata(struct map_session_data *sd);
 int chrif_ragsrvinfo(int base_rate,int job_rate, int drop_rate);
 int chrif_char_offline(struct map_session_data *sd);
 int chrif_char_reset_offline(void);
-int send_users_tochar(int tid, unsigned int tick, intptr_t id, intptr_t data);
+int send_users_tochar(int tid, t_tick tick, intptr_t id, intptr_t data);
 int chrif_char_online(struct map_session_data *sd);
 int chrif_changesex(int id, int sex);
 int chrif_chardisconnect(struct map_session_data *sd);
-int check_connect_char_server(int tid, unsigned int tick, intptr_t id, intptr_t data);
+int check_connect_char_server(int tid, t_tick tick, intptr_t id, intptr_t data);
 
 int do_final_chrif(void);
 int do_init_chrif(void);
