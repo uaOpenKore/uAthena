@@ -3,6 +3,7 @@
 
 #include "../common/sqlid.h"
 #include "../common/attacklog.h"
+#include "../common/authguard.h"
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/core.h"
@@ -48,6 +49,9 @@ struct Login_Config {
 	unsigned int dynamic_pass_failure_ban_interval;	// how far to scan the loginlog for password failures
 	unsigned int dynamic_pass_failure_ban_limit;	// number of failures needed to trigger the ipban
 	unsigned int dynamic_pass_failure_ban_duration;	// duration of the ipban
+	bool account_fail_ban;							// [authguard] lock an account after wrong passwords from any addresses
+	struct ag_config account_fail;					// [authguard] its limit/window/lock times (seconds)
+	bool hide_unknown_account;						// [authguard] an unknown name gets "incorrect password" (code 1)
 	bool use_dnsbl;									// dns blacklist blocking ?
 	char dnsbl_servs[1024];							// comma-separated list of dnsbl servers
 
@@ -169,6 +173,126 @@ void remove_online_user(int account_id)
 		return;
 	}
 	idb_remove(online_db,account_id);
+}
+
+//-----------------------------------------------------
+// [authguard] Account lock against password guessing from many addresses (S. 2026-11-21, rules in
+// common/authguard.h). Kept in memory: a restart forgets the counts, which only gives a guesser `limit` tries.
+//-----------------------------------------------------
+static DB authguard_db = NULL;
+#define AUTHGUARD_MAX_ENTRIES 200000 // names tried that have no state yet are not tracked beyond this (a flood of made-up names)
+
+// The entry holds its own key (the name): the db neither copies nor frees keys (DB_OPT_DUP_KEY|RELEASE_KEY freed
+// the caller's buffer on put, see the sprite name table in npc.c), and releasing the entry frees both.
+struct authguard_entry {
+	struct ag_state st; // first: the entry is the state
+	char name[NAME_LENGTH];
+};
+
+static struct ag_state* authguard_get(const char* userid, bool create)
+{
+	struct authguard_entry* e;
+	if (authguard_db == NULL)
+		return NULL;
+	if ((e = (struct authguard_entry*)strdb_get(authguard_db, userid)) == NULL && create
+	 && authguard_db->size(authguard_db) < AUTHGUARD_MAX_ENTRIES) {
+		e = (struct authguard_entry*)aCalloc(1, sizeof(struct authguard_entry));
+		safestrncpy(e->name, userid, sizeof(e->name));
+		strdb_put(authguard_db, e->name, e);
+	}
+	return e ? &e->st : NULL;
+}
+
+// The account's last login address from the DB: the owner gets in even when the server restarted since.
+static bool authguard_last_ip(const char* userid, uint32 ipl)
+{
+	char t_uid[2 * NAME_LENGTH + 1], ip[16];
+	bool same = false;
+	jstrescapecpy(t_uid, userid);
+	sprintf(ip, "%u.%u.%u.%u", CONVIP(ipl));
+	sprintf(tmpsql, "SELECT `last_ip` FROM `%s` WHERE `%s` = %s '%s'", login_db, login_db_userid,
+		login_config.case_sensitive ? "BINARY" : "", t_uid);
+	if (mysql_query(&mysql_handle, tmpsql) == 0 && (sql_res = mysql_store_result(&mysql_handle)) != NULL) {
+		if ((sql_row = mysql_fetch_row(sql_res)) != NULL && sql_row[0])
+			same = strcmp(sql_row[0], ip) == 0;
+		mysql_free_result(sql_res);
+	}
+	return same;
+}
+
+// Before the password is checked: a locked account is refused (code 6, "until <time>") unless the address is one
+// it logged in from. Returns true when refused (the reply is sent).
+static bool authguard_refuse(int fd, const char* userid, uint32 ipl)
+{
+	struct ag_state* st = authguard_get(userid, false);
+	time_t now = time(NULL);
+	char until[24], who[NAME_LENGTH + 8];
+	if (!login_config.account_fail_ban || st == NULL || !ag_locked(st, now))
+		return false;
+	if (ag_trusted(st, &login_config.account_fail, ipl, now) || authguard_last_ip(userid, ipl))
+		return false;
+	strftime(until, 20, login_config.date_format, localtime(&st->lock_until));
+	until[19] = '\0';
+	WFIFOHEAD(fd,23);
+	memset(WFIFOP(fd,0), '\0', 23);
+	WFIFOW(fd,0) = 0x6a;
+	WFIFOB(fd,2) = 6; // 6 = You are prohibited to log in until %s
+	strncpy((char*)WFIFOP(fd,3), until, 20);
+	WFIFOSET(fd,23);
+	snprintf(who, sizeof(who), "acc='%s'", userid);
+	attacklog(ipl, who, "bruteforce_refused: the account is locked until %s (password guessing)", until);
+	return true;
+}
+
+// After the password check: a wrong password (or an unknown name) counts, a success clears.
+static void authguard_result(const char* userid, uint32 ipl, int result)
+{
+	struct ag_state* st;
+	time_t now = time(NULL);
+	if (!login_config.account_fail_ban)
+		return;
+	if (result == -1) {
+		if ((st = authguard_get(userid, true)) != NULL)
+			ag_success(st, ipl, now);
+	} else if (result == 0 || result == 1) {
+		int secs;
+		if ((st = authguard_get(userid, true)) == NULL)
+			return;
+		if ((secs = ag_fail(st, &login_config.account_fail, ipl, now)) > 0) {
+			char who[NAME_LENGTH + 8];
+			snprintf(who, sizeof(who), "acc='%s'", userid);
+			attacklog(ipl, who, "bruteforce: %d wrong password(s) from %d address(es) in %d min, the account is locked %d min (lock %d today)",
+				st->lock_fails, st->lock_ips, login_config.account_fail.window / 60, secs / 60, st->locks);
+			ShowWarning("[AUTHGUARD] account '%s' locked %d min: %d wrong passwords from %d addresses (the last from %u.%u.%u.%u)\n",
+				userid, secs / 60, st->lock_fails, st->lock_ips, CONVIP(ipl));
+		}
+	}
+}
+
+static int authguard_prune_sub(DBKey key, void* data, va_list ap)
+{
+	time_t now = va_arg(ap, time_t);
+	if (ag_idle((struct ag_state*)data, &login_config.account_fail, now))
+		db_remove(authguard_db, key);
+	return 0;
+}
+
+static int authguard_prune(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	authguard_db->foreach(authguard_db, authguard_prune_sub, time(NULL));
+	return 0;
+}
+
+static void authguard_init(void)
+{
+	authguard_db = db_alloc(__FILE__, __LINE__, login_config.case_sensitive ? DB_STRING : DB_ISTRING,
+		DB_OPT_RELEASE_DATA, NAME_LENGTH);
+	add_timer_func_list(authguard_prune, "authguard_prune");
+	add_timer_interval(gettick() + 60*1000, authguard_prune, 0, 0, 60*1000);
+	if (login_config.account_fail_ban)
+		ShowStatus("[AUTHGUARD] an account is locked after %d wrong passwords in %d min (%d..%d min); its own addresses (%d days) still get in.\n",
+			login_config.account_fail.limit, login_config.account_fail.window / 60, login_config.account_fail.base / 60,
+			login_config.account_fail.max / 60, login_config.account_fail.trusted / 86400);
 }
 
 static int waiting_disconnect_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
@@ -647,8 +771,9 @@ int mmo_auth(struct mmo_account* account, int fd)
 
 	if (!check_password(session[fd]->session_data, account->passwdenc, user_password, password))
 	{
-		ShowInfo("Invalid password (account: %s, pass: %s, received pass: %s, ip: %s)" RETCODE,
-		         account->userid, password, (account->passwdenc) ? "[MD5]" : account->passwd, ip);
+		// [authguard] the account's real password is never logged (S. 2026-11-21: it was, in plain text)
+		ShowInfo("Invalid password (account: %s, received pass: %s, ip: %s)" RETCODE,
+		         account->userid, (account->passwdenc) ? "[MD5]" : account->passwd, ip);
 		return 1; // 1 = Incorrect Password
 	}
 
@@ -1374,6 +1499,8 @@ int parse_login(int fd)
 	char t_uid[100];
 	struct mmo_account account;
 	int result, i;
+	bool guarded = false; // [authguard]
+	char guard_uid[NAME_LENGTH];
 	uint32 ipl = session[fd]->client_addr;
 	char ip[16];
 
@@ -1440,7 +1567,20 @@ int parse_login(int fd)
 			account.passwdenc = (command != 0x01dd) ? 0 : PASSWORDENC;
 			jstrescapecpy(t_uid, account.userid);
 
+			{	// [authguard] a locked account is refused before its password is even looked at (not for "<name>_M/_F" registrations)
+				size_t ul = strlen(account.userid);
+				guarded = !(login_config.new_account_flag && ul > 2 && account.userid[ul - 2] == '_'
+					&& strchr("MFmf", account.userid[ul - 1]) != NULL);
+				safestrncpy(guard_uid, account.userid, sizeof(guard_uid));
+			}
+			if (guarded && authguard_refuse(fd, guard_uid, ipl)) {
+				RFIFOSKIP(fd,packet_len);
+				break;
+			}
+
 			result = mmo_auth(&account, fd);
+			if (guarded)
+				authguard_result(guard_uid, ipl, result);
 			if (result == -1) { // auth success
 				if (login_config.min_level_to_connect > account.level) {
 					WFIFOHEAD(fd,3);
@@ -1542,8 +1682,8 @@ int parse_login(int fd)
 					}
 				}
 
-				if ((result == 1) && login_config.dynamic_pass_failure_ban && login_config.log_login) {	// failed password
-					sprintf(tmpsql,"SELECT count(*) FROM `%s` WHERE `ip` = '%u' AND `rcode` = '1' AND `time` > NOW() - INTERVAL %d MINUTE",
+				if ((result == 1 || result == 0) && login_config.dynamic_pass_failure_ban && login_config.log_login) {	// failed password (or [authguard] an unknown name)
+					sprintf(tmpsql,"SELECT count(*) FROM `%s` WHERE `ip` = '%u' AND `rcode` IN ('0','1') AND `time` > NOW() - INTERVAL %d MINUTE",
 						loginlog_db, ipl, login_config.dynamic_pass_failure_ban_interval); //how many times filed account? in one ip.
 					if(mysql_query(&mysql_handle, tmpsql)) {
 						ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -1588,7 +1728,8 @@ int parse_login(int fd)
 				WFIFOHEAD(fd,23);
 				memset(WFIFOP(fd,0), '\0', 23);
 				WFIFOW(fd,0) = 0x6a;
-				WFIFOB(fd,2) = (uint8)result;
+				// [authguard] an unknown name gets "incorrect password": guessing cannot tell which names exist
+				WFIFOB(fd,2) = (uint8)(result == 0 && login_config.hide_unknown_account ? 1 : result);
 				if (result == 6) { // 6 = Your are Prohibited to log in until %s
 					char tmpstr[20];
 					time_t ban_until_time = (sql_row) ? atol(sql_row[0]) : 0;
@@ -1917,6 +2058,20 @@ int login_config_read(const char* cfgName)
 			login_config.dynamic_pass_failure_ban_interval = atoi(w2);
 		else if (!strcmpi(w1, "dynamic_pass_failure_ban_limit"))
 			login_config.dynamic_pass_failure_ban_limit = atoi(w2);
+		else if (!strcmpi(w1, "account_fail_ban"))
+			login_config.account_fail_ban = config_switch(w2);
+		else if (!strcmpi(w1, "account_fail_ban_limit"))
+			login_config.account_fail.limit = atoi(w2);
+		else if (!strcmpi(w1, "account_fail_ban_interval"))
+			login_config.account_fail.window = atoi(w2) * 60;
+		else if (!strcmpi(w1, "account_fail_ban_duration"))
+			login_config.account_fail.base = atoi(w2) * 60;
+		else if (!strcmpi(w1, "account_fail_ban_max"))
+			login_config.account_fail.max = atoi(w2) * 60;
+		else if (!strcmpi(w1, "account_fail_ban_trusted_days"))
+			login_config.account_fail.trusted = atoi(w2) * 86400;
+		else if (!strcmpi(w1, "hide_unknown_account"))
+			login_config.hide_unknown_account = config_switch(w2);
 		else if (!strcmpi(w1, "dynamic_pass_failure_ban_duration"))
 			login_config.dynamic_pass_failure_ban_duration = atoi(w2);
 
@@ -2025,6 +2180,13 @@ void login_set_defaults()
 	login_config.dynamic_pass_failure_ban_interval = 5;
 	login_config.dynamic_pass_failure_ban_limit = 7;
 	login_config.dynamic_pass_failure_ban_duration = 5;
+	login_config.account_fail_ban = true;
+	login_config.account_fail.limit = 10;
+	login_config.account_fail.window = 10 * 60;
+	login_config.account_fail.base = 5 * 60;
+	login_config.account_fail.max = 60 * 60;
+	login_config.account_fail.trusted = 30 * 86400;
+	login_config.hide_unknown_account = true;
 	login_config.ip_sync_interval = 0;
 	login_config.use_dnsbl = false;
 	strcpy(login_config.dnsbl_servs, "");
@@ -2078,6 +2240,7 @@ int do_init(int argc, char** argv)
 
 	// Online user database init
 	online_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	authguard_init(); // [authguard]
 	add_timer_func_list(waiting_disconnect_timer, "waiting_disconnect_timer");
 
 	// Auth init
