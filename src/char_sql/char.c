@@ -2892,6 +2892,11 @@ int parse_frommap(int fd)
 
 	while(RFIFOREST(fd) >= 2)
 	{
+		// [loopmetric] which map-server packet makes the char-server stall (S. 2026-11-21: parse loops up to 1.1 s)
+		t_tick slow_t0 = gettick_nocache();
+		unsigned char slow_head[12];
+		size_t slow_n = RFIFOREST(fd) < sizeof(slow_head) ? RFIFOREST(fd) : sizeof(slow_head);
+		memcpy(slow_head, RFIFOP(fd,0), slow_n);
 		switch(RFIFOW(fd, 0))
 		{
 
@@ -3594,6 +3599,20 @@ int parse_frommap(int fd)
 			return 0;
 		}
 		} // switch
+		{	// [loopmetric] one packet over 200 ms: its id and first bytes (0x2b01 save: aid at 4, cid at 8)
+			t_tick ms = DIFF_TICK(gettick_nocache(), slow_t0);
+			if (ms >= 200) {
+				char hex[3 * sizeof(slow_head) + 1];
+				size_t h;
+				for (h = 0; h < slow_n; h++)
+					sprintf(hex + 3 * h, "%02x ", slow_head[h]);
+				hex[3 * slow_n] = '\0';
+				ShowWarning("[LOOPMETRIC] slow_packet from map-server #%d: 0x%04x took %d ms (aid=%d cid=%d) head=%s\n",
+					id, slow_n >= 2 ? slow_head[0] | slow_head[1] << 8 : 0, (int)ms,
+					slow_n >= 8 ? (int)(slow_head[4] | slow_head[5] << 8 | slow_head[6] << 16 | (unsigned)slow_head[7] << 24) : 0,
+					slow_n >= 12 ? (int)(slow_head[8] | slow_head[9] << 8 | slow_head[10] << 16 | (unsigned)slow_head[11] << 24) : 0, hex);
+			}
+		}
 	} // while
 
 	return 0;
