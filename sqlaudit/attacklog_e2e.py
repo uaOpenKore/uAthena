@@ -2,7 +2,7 @@
 """attacklog_e2e.py <run dir>: abnormal packets go to log/attack-login.log, log/attack-char.log, log/attack-map1.log.
 1 login: an unknown packet; 2 char: an unknown packet; 3 map: junk instead of the map login;
 5 map: a logged-in player sends an unknown packet (named with acc/cid); 6 map: a bad length;
-7 a flood from one address is cut to 20 lines a minute plus a "... more" line; every line has the date, the
+7 a flood from one address is cut to 20 lines a minute plus a "... more" line; 8 a map flood names its packets; every line has the date, the
 server, the address and the first bytes."""
 import os, re, socket, struct, subprocess, sys, time
 sys.path.insert(0, "/tmp/claude-0/-root-uaroClient/f1b47459-6a36-42ec-9fb0-528e8a9c2531/scratchpad/c1/e2e")
@@ -48,6 +48,18 @@ check("5 map: a logged-in player's unknown packet names the account", any("unkno
 s.map_sock.sendall(struct.pack("<HH", 0x00f3, 2)); time.sleep(1)  # 0xf3 is variable length: 2 < 4
 l = lines("map1")
 check("6 map: a bad length", any("bad_length: 0x00f3" in x for x in l), l[-2:])
+# 8 a map flood names the packets of that second (S. 2026-11-21: which packets do the bots flood with)
+try: s.quit_game(wait=1)
+except Exception: pass
+time.sleep(3)
+s = enter_map("atklog", "atkpw1", "AtkLog", log=lambda *a: None)
+time.sleep(1)
+for i in range(230):
+    try: s.map_sock.sendall(struct.pack("<HI", 0x0089, i) + b"\0\0")  # 0x89 ticksend (8 bytes in v22)
+    except OSError: break
+time.sleep(1.5)
+l = lines("map1")
+check("8 a map flood names the packets of that second", any("packet_flood: over 200 packets in a second (0x0089 x" in x for x in l), l[-2:])
 try: s.quit_game(wait=1)
 except Exception: pass
 for i in range(40):
