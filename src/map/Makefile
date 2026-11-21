@@ -20,7 +20,7 @@ OBJECTS = obj/map.o obj/chrif.o obj/clif.o obj/pc.o obj/status.o obj/npc.o \
 	obj/npc_chat.o obj/chat.o obj/path.o obj/itemdb.o obj/mob.o obj/script.o \
 	obj/storage.o obj/skill.o obj/atcommand.o obj/charcommand.o obj/battle.o \
 	obj/intif.o obj/trade.o obj/party.o obj/vending.o obj/buyingstore.o obj/guild.o obj/pet.o \
-	obj/log.o obj/log_async.o obj/async_db.o obj/async_read.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o obj/discord.o \
+	obj/log.o obj/log_async.o obj/async_db.o obj/async_read.o obj/mail.o obj/date.o obj/unit.o obj/mercenary.o obj/mercenary_soldier.o obj/livemob.o obj/liveskillunit.o obj/mobgrid.o obj/quest.o obj/achievement.o obj/discord.o obj/autotrade.o \
 	$(COMMON_OBJ)
 
 ../../map-server_sql: $(OBJECTS:obj/%=sqlobj/%)

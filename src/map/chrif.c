@@ -19,6 +19,7 @@
 #include "mercenary_soldier.h"	// [Backport] hired mercenary: persist it in chrif_save like the homunculus
 #include "storage.h"			// [Multi-mapserver] evict this server's stale storage cache on terminal save
 #include "chrif.h"
+#include "autotrade.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +35,7 @@ static const int packet_len_table[0x3d] = { // U - used, F - free
 	 6,30,-1,10,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, U->2b0a, U->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
 	11,-1,10, 6,11,-1, 0,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, U->2b13, U->2b14, U->2b15, U->2b16, U->2b17
 	-1,-1,-1,-1,-1,-1, 2, 7,	// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
-	-1,10, 8,-1, 6,-1,-1,-1,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, U->2b24, F->2b25, F->2b26, F->2b27
+	-1,10, 8,-1, 6,-1,-1,-1,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, U->2b24, U->2b25, U->2b26, U->2b27
 };
 
 //Used Packets:
@@ -82,7 +83,9 @@ static const int packet_len_table[0x3d] = { // U - used, F - free
 //2b21: Incomming, chrif_save_ack. Returned after a character has been "final saved" on the char-server. [Skotlex]
 //2b22: Incomming, chrif_updatefamelist_ack. Updated one position in the fame list.
 //2b24: Incomming, pc_playlimit_setdate. The current day of the daily play-time limit (0 = off). [playlimit]
-//2b25-2b27: FREE
+//2b25: Outgoing, chrif_autotrade_load. Load a kept autotrade shop's character without a login. [autotrade]
+//2b26: Incomming, autotrade_restore_ack. That character (or a refusal). [autotrade]
+//2b27: Outgoing, chrif_autotrade_notonline. A character is an autotrader now: not online. [autotrade]
 
 int chrif_connected = 0;
 int char_fd = 0; //Using 0 instead of -1 is safer against crashes. [Skotlex]
@@ -438,6 +441,7 @@ int chrif_sendmapack(int fd)
 
 	//If there are players online, send them to the char-server. [Skotlex]
 	send_users_tochar(-1, gettick(), 0, 0);
+	autotrade_restore_start(); // [autotrade] the kept shops come back (once, at the first connection)
 	
 	//Re-save any storages that were modified in the disconnection time. [Skotlex]
 	do_reconnect_map();
@@ -1576,6 +1580,7 @@ int chrif_parse(int fd)
 		case 0x2b21: chrif_save_ack(fd); break;
 		case 0x2b22: chrif_updatefamelist_ack(fd); break;
 		case 0x2b24: pc_playlimit_setdate((int)RFIFOL(fd,2)); break; // [playlimit] the current day
+		case 0x2b26: autotrade_restore_ack(fd); break; // [autotrade] a kept shop's character
 		default:
 			if (battle_config.error_log)
 				ShowError("chrif_parse : unknown packet (session #%d): 0x%x. Disconnecting.\n", fd, cmd);
@@ -1594,9 +1599,15 @@ int send_usercount_tochar(int tid, t_tick tick, intptr_t id, intptr_t data)
 	int count;
 	static int last_count = 0;
 
+	struct map_session_data **all_sd;
+	int i;
+
 	chrif_check(-1);
 	
-	map_getallusers(&count);
+	all_sd = map_getallusers(&count);
+	for (i = 0; i < count; i++) // [autotrade] shops are not online players
+		if (all_sd[i]->state.autotrade)
+			count--;
 	
 	if (count == last_count) //No need to waste packets.
 		return 0;
@@ -1613,6 +1624,32 @@ int send_usercount_tochar(int tid, t_tick tick, intptr_t id, intptr_t data)
  * timer
  * mapIqNCAglcharI
  *------------------------------------------*/
+// [autotrade] 0x2b25 <account id>.L <char id>.L <sex>.B: load a kept autotrade shop's character without a login.
+int chrif_autotrade_load(int account_id, int char_id, int sex)
+{
+	chrif_check(-1);
+	WFIFOHEAD(char_fd, 11);
+	WFIFOW(char_fd,0) = 0x2b25;
+	WFIFOL(char_fd,2) = account_id;
+	WFIFOL(char_fd,6) = char_id;
+	WFIFOB(char_fd,10) = sex;
+	WFIFOSET(char_fd, 11);
+	return 0;
+}
+
+// [autotrade] 0x2b27 <account id>.L <char id>.L: the character is an autotrader now. The char-server keeps it
+// taken (its owner logging in removes the shop first) but not online (char.online, its counts, the login-server).
+int chrif_autotrade_notonline(struct map_session_data* sd)
+{
+	chrif_check(-1);
+	WFIFOHEAD(char_fd, 10);
+	WFIFOW(char_fd,0) = 0x2b27;
+	WFIFOL(char_fd,2) = sd->status.account_id;
+	WFIFOL(char_fd,6) = sd->status.char_id;
+	WFIFOSET(char_fd, 10);
+	return 0;
+}
+
 int send_users_tochar(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int count, users=0, i;

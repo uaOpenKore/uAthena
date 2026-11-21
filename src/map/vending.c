@@ -8,6 +8,7 @@
 #include "map.h"
 #include "chrif.h"
 #include "vending.h"
+#include "autotrade.h"
 #include "pc.h"
 #include "skill.h"
 #include "battle.h"
@@ -190,6 +191,7 @@ void vending_purchasereq(struct map_session_data *sd,int len,int id,unsigned cha
 	//check for @AUTOTRADE users [durf]
 	if (vsd->state.autotrade)
 	{
+		autotrade_sold(vsd); // [autotrade] the kept shop follows the sale
 		//Close Vending (this was automatically done by the client, we have to do it manually for autovenders) [Skotlex]
 		for(i = 0; i < vsd->vend_num && vsd->vending[i].amount < 1; i++);
 		if (i == vsd->vend_num)
