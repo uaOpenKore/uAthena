@@ -8741,6 +8741,13 @@ int clif_whobot_verdict(struct map_session_data *sd, unsigned int online_ms)
 		sd->padmetric[PADM_WALK].first, sd->padmetric[PADM_WALK].len);
 }
 
+// [playlimit] The session's first walk had OpenKore's padding (tickrate_okore_walk_pad).
+int clif_okore_walk_pad(struct map_session_data *sd)
+{
+	return sd->padmetric[PADM_WALK].total > 0 &&
+		tickrate_okore_walk_pad(sd->padmetric[PADM_WALK].first, sd->padmetric[PADM_WALK].len);
+}
+
 // [padmetric] One summary line per session (map_quit): time online and tick rate ([whobot]), then per kind
 // total/all-zero/changed and the first/last pattern.
 void clif_padmetric_log(struct map_session_data *sd)
