@@ -26,6 +26,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
+#include <poll.h>
 
 struct dbt *auth_db;
 
@@ -1429,6 +1430,47 @@ int chrif_char_offline(struct map_session_data *sd)
 /*=========================================
  * Tell char-server to reset all chars offline [Wizputer]
  *-----------------------------------------*/
+// [finalsave] do_final: wait until the char-server has acknowledged (0x2b21) every final save. The shutdown
+// used to send them all (~33 KB each) and exit at once: the acks it never read made the kernel reset the
+// connection on exit, and every save still on its way was dropped -- at the 21.11 restart 64 of 281 players
+// lost what they did since their last autosave. Reading the acks also leaves nothing unread for the close.
+static int chrif_count_finalsave_sub(DBKey key, void* data, va_list ap)
+{
+	int* n = va_arg(ap, int*);
+	if (((struct map_session_data*)data)->state.finalsave)
+		(*n)++;
+	return 0;
+}
+
+int chrif_parse(int fd);
+
+void chrif_wait_final_saves(int timeout_ms)
+{
+	t_tick start = gettick_nocache();
+	int left = 0, sent;
+	struct pollfd pfd;
+
+	map_foreachpc(chrif_count_finalsave_sub, &left);
+	sent = left;
+	while (left > 0 && char_fd > 0 && session[char_fd] != NULL && !session[char_fd]->eof &&
+		DIFF_TICK(gettick_nocache(), start) < timeout_ms)
+	{
+		flush_fifo(char_fd);
+		pfd.fd = char_fd;
+		pfd.events = POLLIN;
+		pfd.revents = 0;
+		if (poll(&pfd, 1, 100) > 0) {
+			session[char_fd]->func_recv(char_fd);
+			chrif_parse(char_fd); // 0x2b21 -> chrif_save_ack -> map_quit_ack frees the character
+		}
+		left = 0;
+		map_foreachpc(chrif_count_finalsave_sub, &left);
+	}
+	if (sent > 0)
+		ShowStatus("do_final: %d of %d final save(s) acknowledged by the char-server in %d ms%s\n", sent - left, sent,
+			(int)DIFF_TICK(gettick_nocache(), start), left ? " -- THE REST MAY BE LOST" : "");
+}
+
 int chrif_flush_fifo(void)
 {
 	chrif_check(-1);
