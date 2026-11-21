@@ -12,6 +12,7 @@
 #include "../common/mmo.h"
 #include "../common/showmsg.h"
 #include "../common/version.h"
+#include "../common/attacklog.h"
 #include "../common/md5calc.h"
 #include "login.h"
 
@@ -1978,6 +1979,7 @@ int parse_fromchar(int fd)
 			}
 
 			ShowError("parse_fromchar: Unknown packet 0x%x from a char-server! Disconnecting!\n", command);
+			attacklog_packet(fd, "char-server", "unknown_packet: 0x%04x from a char-server, disconnected", command); // [attack]
 			set_eof(fd);
 			return 0;
 		}
@@ -3207,6 +3209,7 @@ int parse_login(int fd)
 				// [s2s] only from this host or char_server_ip_allow; a refused try ends the connection (see login_sql)
 				if (!socket_s2s_ip_allowed(session[fd]->client_addr, char_server_ip_allow)) {
 					ShowWarning("parse_login: char-server login refused from %s (address not allowed)\n", ip);
+					attacklog(session[fd]->client_addr, "-", "s2s_login_refused: char-server login (0x2710) from an address not allowed"); // [attack]
 					result = 0;
 				} else
 					result = mmo_auth(&account, fd);
@@ -3370,6 +3373,7 @@ int parse_login(int fd)
 				}
 			}
 			login_log("Abnormal end of connection (ip: %s): Unknown packet 0x%x " RETCODE, ip, command);
+			attacklog_packet(fd, "-", "unknown_packet: 0x%04x, disconnected", command); // [attack]
 			set_eof(fd);
 			return 0;
 		}
@@ -3984,6 +3988,7 @@ int do_init(int argc, char **argv)
 
 	// read login-server configuration
 	login_config_read((argc > 1) ? argv[1] : LOGIN_CONF_NAME);
+	attacklog_init("login"); // [attack] log/attack-login.log
 	display_conf_warnings(); // not in login_config_read, because we can use 'import' option, and display same message twice or more
 	save_config_in_log(); // not before, because log file name can be changed
 	login_lan_config_read((argc > 2) ? argv[2] : LAN_CONF_NAME);

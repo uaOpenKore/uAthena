@@ -13,6 +13,7 @@
 #include "../common/timer.h"
 #include "../common/version.h"
 #include "../common/playlimit.h"
+#include "../common/attacklog.h"
 
 #include "inter.h"
 #include "int_guild.h"
@@ -3575,6 +3576,7 @@ int parse_frommap(int fd)
 
 			// no inter server packet. no char server packet -> disconnect
 			ShowError("Unknown packet 0x%04x from map server, disconnecting.\n", RFIFOW(fd,0));
+			attacklog_packet(fd, "map-server", "unknown_packet: 0x%04x from a map-server, disconnected", RFIFOW(fd,0)); // [attack]
 			set_eof(fd);
 			return 0;
 		}
@@ -4046,6 +4048,7 @@ int parse_char(int fd)
 			if (i == MAX_MAP_SERVERS || strcmp(l_user, userid) || strcmp(l_pass, passwd) ||
 				!socket_s2s_ip_allowed(session[fd]->client_addr, map_server_ip_allow)) {
 				ShowWarning("parse_char: map-server login refused from %d.%d.%d.%d\n", CONVIP(session[fd]->client_addr));
+				attacklog(session[fd]->client_addr, "-", "s2s_login_refused: map-server login (0x2af8)"); // [attack]
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x2af9;
 				WFIFOB(fd,2) = 3;
@@ -4104,6 +4107,7 @@ int parse_char(int fd)
 
 		default: // unknown packet received
 			ShowError("parse_char: Received unknown packet "CL_WHITE"0x%x"CL_RESET" from ip '"CL_WHITE"%s"CL_RESET"'! Disconnecting!\n", RFIFOW(fd,0), ip2str(ipl, NULL));
+			attacklog_packet(fd, "-", "unknown_packet: 0x%04x, disconnected", RFIFOW(fd,0)); // [attack]
 			set_eof(fd);
 			return 0;
 		}
@@ -4619,6 +4623,7 @@ int do_init(int argc, char **argv)
 {
 	int i;
 
+	attacklog_init("char"); // [attack] log/attack-char.log
 	mapindex_init(); //Needed here for the start-point reading.
 	start_point.map = mapindex_name2id("new_zone01");
 
