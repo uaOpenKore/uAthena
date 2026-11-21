@@ -116,6 +116,13 @@ enum {
 #define pcdb_checkid(class_) (class_ <= JOB_XMAS || (class_ >= JOB_NOVICE_HIGH && class_ <= JOB_SOUL_LINKER))
 
 int pc_isGM(struct map_session_data *sd);
+// [playlimit] daily play-time limit
+bool pc_playlimit_on(struct map_session_data* sd);
+int pc_playlimit_minutes(struct map_session_data* sd);
+void pc_playlimit_fold(struct map_session_data* sd);
+void pc_playlimit_check(struct map_session_data* sd);
+void pc_playlimit_setdate(int date);
+int pc_playlimit_describe(struct map_session_data* sd, char* out, size_t size);
 int pc_getrefinebonus(int lv,int type);
 int pc_can_give_items(int level); //[Lupus]
 

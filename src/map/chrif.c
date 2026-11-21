@@ -34,7 +34,7 @@ static const int packet_len_table[0x3d] = { // U - used, F - free
 	 6,30,-1,10,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, U->2b0a, U->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
 	11,-1,10, 6,11,-1, 0,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, U->2b13, U->2b14, U->2b15, U->2b16, U->2b17
 	-1,-1,-1,-1,-1,-1, 2, 7,	// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
-	-1,10, 8,-1,-1,-1,-1,-1,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, F->2b24, F->2b25, F->2b26, F->2b27
+	-1,10, 8,-1, 6,-1,-1,-1,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, U->2b24, F->2b25, F->2b26, F->2b27
 };
 
 //Used Packets:
@@ -81,7 +81,8 @@ static const int packet_len_table[0x3d] = { // U - used, F - free
 //2b20: Incomming, chrif_removemap -> 'remove maps of a server (sample: its going offline)' [Sirius]
 //2b21: Incomming, chrif_save_ack. Returned after a character has been "final saved" on the char-server. [Skotlex]
 //2b22: Incomming, chrif_updatefamelist_ack. Updated one position in the fame list.
-//2b24-2b27: FREE
+//2b24: Incomming, pc_playlimit_setdate. The current day of the daily play-time limit (0 = off). [playlimit]
+//2b25-2b27: FREE
 
 int chrif_connected = 0;
 int char_fd = 0; //Using 0 instead of -1 is safer against crashes. [Skotlex]
@@ -1574,6 +1575,7 @@ int chrif_parse(int fd)
 		case 0x2b20: chrif_removemap(fd); break;
 		case 0x2b21: chrif_save_ack(fd); break;
 		case 0x2b22: chrif_updatefamelist_ack(fd); break;
+		case 0x2b24: pc_playlimit_setdate((int)RFIFOL(fd,2)); break; // [playlimit] the current day
 		default:
 			if (battle_config.error_log)
 				ShowError("chrif_parse : unknown packet (session #%d): 0x%x. Disconnecting.\n", fd, cmd);

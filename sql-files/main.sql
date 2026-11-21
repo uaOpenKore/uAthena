@@ -75,6 +75,8 @@ CREATE TABLE `char` (
   `mother` int(11) unsigned NOT NULL default '0',
   `child` int(11) unsigned NOT NULL default '0',
   `fame` int(11) unsigned NOT NULL default '0',
+  `play_minutes` int(10) unsigned NOT NULL default '0',
+  `play_date` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`char_id`),
   KEY `account_id` (`account_id`),
   KEY `party_id` (`party_id`),
@@ -478,6 +480,18 @@ CREATE TABLE `memo` (
   `y` smallint(4) unsigned NOT NULL default '0',
   PRIMARY KEY  (`memo_id`),
   KEY `char_id` (`char_id`)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table `play_reset`
+--
+
+DROP TABLE IF EXISTS `play_reset`;
+CREATE TABLE `play_reset` (
+  `id` tinyint(3) unsigned NOT NULL default '0',
+  `reset_date` int(10) unsigned NOT NULL default '0',
+  `reset_at` datetime NOT NULL default '2000-01-01 00:00:00',
+  PRIMARY KEY  (`id`)
 ) TYPE=MyISAM;
 
 --

@@ -32,6 +32,7 @@
 #include "vending.h" // vending_closevending()
 #include "buyingstore.h" // [Backport] buyingstore_close()
 #include "pc.h"
+#include "../common/playlimit.h"
 
 #include "mail.h" // mail system [Valaris]
 
@@ -322,12 +323,153 @@ int pc_can_give_items(int level)
 /*==========================================
  * prepares character for saving.
  *------------------------------------------*/
+/*==========================================
+ * [playlimit] Daily play-time limit (S. 2026-11-21, rules in common/playlimit.h). A character may stay on the
+ * map-server battle_config.daily_play_limit hours a day; GM accounts above level 1 are exempt. The minutes go
+ * to the char-server with every save (stamped with the date they belong to); a check every minute warns at
+ * 30/10/1 minutes left and, at the limit, shows the reason and disconnects 40 s later. The char-server resets
+ * the day (0x2b24) at 00:00 server time or 24 h after the last reset.
+ *------------------------------------------*/
+int playlimit_map_date = 0; // the current day from the char-server; 0 = it has not sent one / the limit is off
+#define PLAYLIMIT_KICK_MS 40000
+
+bool pc_playlimit_on(struct map_session_data* sd)
+{
+	return playlimit_map_date != 0 && playlimit_applies(battle_config.daily_play_limit, pc_isGM(sd));
+}
+
+// Minutes played today. In autotrade there is no socket, so no time passes.
+int pc_playlimit_minutes(struct map_session_data* sd)
+{
+	if (sd->state.autotrade)
+		return sd->status.play_minutes;
+	return playlimit_minutes(sd->status.play_minutes, sd->play_login_tick, gettick());
+}
+
+// Move the whole minutes played into status.play_minutes (the save carries them); the seconds keep counting.
+void pc_playlimit_fold(struct map_session_data* sd)
+{
+	int m;
+	if (sd->state.autotrade) {
+		sd->play_login_tick = gettick();
+		return;
+	}
+	m = playlimit_minutes(0, sd->play_login_tick, gettick());
+	sd->status.play_minutes += m;
+	sd->play_login_tick += (t_tick)m * 60000;
+}
+
+static int playlimit_secs_left_today(void)
+{
+	time_t now = time(NULL);
+	struct tm tm;
+	localtime_r(&now, &tm);
+	return 86400 - (tm.tm_hour * 3600 + tm.tm_min * 60 + tm.tm_sec);
+}
+
+static int pc_playlimit_kick(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	struct map_session_data* sd = map_id2sd((int)id);
+	if (sd == NULL || sd->play_kick_tid != tid)
+		return 0;
+	sd->play_kick_tid = INVALID_TIMER;
+	if (!pc_playlimit_on(sd) || playlimit_left(battle_config.daily_play_limit, pc_playlimit_minutes(sd)) > 0)
+		return 0; // the day was reset meanwhile
+	ShowInfo("[PLAYLIMIT] kick aid=%d cid=%d name='%s' minutes=%d\n", sd->status.account_id, sd->status.char_id,
+		sd->status.name, pc_playlimit_minutes(sd));
+	// BornRok shows its own text for 10; uaRO.exe gets the plain "server closed" (the reason is in its chat)
+	clif_authfail_fd(sd->fd, sd->state.renewal_npc ? 10 : 1);
+	return 0;
+}
+
+// Warn, or at the limit tell the reason and disconnect 40 s later. At the map login and every minute.
+void pc_playlimit_check(struct map_session_data* sd)
+{
+	char output[256];
+	int left, w, secs;
+	if (!pc_playlimit_on(sd) || sd->state.autotrade || !sd->fd || sd->play_kick_tid != INVALID_TIMER)
+		return;
+	left = playlimit_left(battle_config.daily_play_limit, pc_playlimit_minutes(sd));
+	if (left == 0) {
+		secs = playlimit_secs_left_today();
+		snprintf(output, sizeof(output), "Daily play-time limit (%d h) reached. You will be disconnected in %d seconds. "
+			"The limit resets at 00:00 server time (in %d h %02d min).", battle_config.daily_play_limit,
+			PLAYLIMIT_KICK_MS / 1000, secs / 3600, secs % 3600 / 60);
+		clif_displaymessage(sd->fd, output);
+		ShowInfo("[PLAYLIMIT] limit reached aid=%d cid=%d name='%s' minutes=%d\n", sd->status.account_id,
+			sd->status.char_id, sd->status.name, pc_playlimit_minutes(sd));
+		sd->play_kick_tid = add_timer(gettick() + PLAYLIMIT_KICK_MS, pc_playlimit_kick, sd->bl.id, 0);
+		return;
+	}
+	if ((w = playlimit_warning(left, &sd->play_warned)) != 0) {
+		snprintf(output, sizeof(output), "Daily play time: %d minute(s) left today.", left);
+		clif_displaymessage(sd->fd, output);
+	}
+}
+
+static int pc_playlimit_check_sub(DBKey key, void* data, va_list ap)
+{
+	pc_playlimit_check((struct map_session_data*)data);
+	return 0;
+}
+
+static int pc_playlimit_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	map_foreachpc(pc_playlimit_check_sub);
+	return 0;
+}
+
+static int pc_playlimit_reset_sub(DBKey key, void* data, va_list ap)
+{
+	struct map_session_data* sd = (struct map_session_data*)data;
+	sd->status.play_minutes = 0;
+	sd->status.play_date = playlimit_map_date;
+	sd->play_login_tick = gettick();
+	sd->play_warned = 0;
+	if (sd->play_kick_tid != INVALID_TIMER) {
+		delete_timer(sd->play_kick_tid, pc_playlimit_kick);
+		sd->play_kick_tid = INVALID_TIMER;
+	}
+	return 0;
+}
+
+// 0x2b24 from the char-server: the current day. A new one (not the first we hear of) starts every online
+// character's day at 0.
+void pc_playlimit_setdate(int date)
+{
+	int old = playlimit_map_date;
+	if (date == old)
+		return;
+	playlimit_map_date = date;
+	if (date == 0) {
+		ShowWarning("[PLAYLIMIT] the char-server has the daily play-time limit off.\n");
+		return;
+	}
+	if (old != 0) {
+		map_foreachpc(pc_playlimit_reset_sub);
+		ShowInfo("[PLAYLIMIT] new day %d: online characters start at 0.\n", date);
+	}
+}
+
+// @playtime: the minutes played today and the time left.
+int pc_playlimit_describe(struct map_session_data* sd, char* out, size_t size)
+{
+	int m = pc_playlimit_minutes(sd), secs = playlimit_secs_left_today(), left;
+	if (!pc_playlimit_on(sd))
+		return snprintf(out, size, "Played today: %d h %02d min. No daily play-time limit for your account.", m / 60, m % 60);
+	left = playlimit_left(battle_config.daily_play_limit, m);
+	return snprintf(out, size, "Played today: %d h %02d min. Left: %d h %02d min. Resets at 00:00 server time (in %d h %02d min).",
+		m / 60, m % 60, left / 60, left % 60, secs / 3600, secs % 3600 / 60);
+}
+
 int pc_makesavestatus(struct map_session_data *sd)
 {
 	nullpo_retr(0, sd);
 
 	if (sd->state.finalsave)
 		return 0; //Nothing to change.
+
+	pc_playlimit_fold(sd); // [playlimit] the whole minutes played go into status.play_minutes
 	
 	if(!battle_config.save_clothcolor)
 		sd->status.clothes_color=0;
@@ -396,6 +538,7 @@ int pc_setnewpc(struct map_session_data *sd, int account_id, int char_id, int lo
 	sd->state.auth   = 0;
 	sd->bl.type      = BL_PC;
 	sd->calc_pc_timer = INVALID_TIMER;	// [perf 7] no deferred recompute pending (set at creation: 0 is a valid tid)
+	sd->play_kick_tid = INVALID_TIMER;	// [playlimit]
 	sd->canlog_tick  = gettick();
 	sd->auth_tick    = gettick(); // [xms] fixed connect tick (canlog_tick gets bumped by actions; this one doesn't)
 	sd->state.waitingdisconnect = 0;
@@ -738,6 +881,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 
 	sd->login_id2 = login_id2;
 	memcpy(&sd->status, st, sizeof(*st));
+	sd->play_login_tick = gettick(); // [playlimit] the minutes of this session count from the map login
+	sd->play_warned = 0;
 
 	if (st->sex != sd->status.sex) {
 		clif_authfail_fd(sd->fd, 0);
@@ -8088,6 +8233,9 @@ int do_init_pc(void)
 	add_timer_func_list(pc_inventory_rental_end, "pc_inventory_rental_end"); // [Backport] rental
 
 	add_timer(gettick() + autosave_interval, pc_autosave, 0, 0);
+	add_timer_func_list(pc_playlimit_timer, "pc_playlimit_timer");
+	add_timer_func_list(pc_playlimit_kick, "pc_playlimit_kick");
+	add_timer_interval(gettick() + 60*1000, pc_playlimit_timer, 0, 0, 60*1000); // [playlimit]
 
 	if (battle_config.day_duration > 0 && battle_config.night_duration > 0) {
 		int day_duration = battle_config.day_duration;

@@ -295,6 +295,7 @@ enum AtCommandType {
 	AtCommand_Merc, // mercenary status chat UI
 	AtCommand_H3, // help page listing our custom chat commands
 	AtCommand_WhoBot, // [whobot] online players sending more ticks than a game client
+	AtCommand_PlayTime, // [playlimit] minutes played today and the time left
 	// end <- Ahem, guys, don't place AtCommands after AtCommand_Unknown! [Skotlex]
 	AtCommand_Unknown,
 	AtCommand_MAX
