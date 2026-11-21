@@ -1692,6 +1692,21 @@ int chrif_autotrade_notonline(struct map_session_data* sd)
 	return 0;
 }
 
+// [onlinestat] 0x2b28 <account id>.L <char id>.L <minutes>.L <kind>.B: minutes paid for play time (kind 0 =
+// @buyplaytime, 1 = @autopay), for the char-server's online statistics.
+int chrif_onlinestat_paid(struct map_session_data* sd, int minutes, int kind)
+{
+	chrif_check(-1);
+	WFIFOHEAD(char_fd, 15);
+	WFIFOW(char_fd,0) = 0x2b28;
+	WFIFOL(char_fd,2) = sd->status.account_id;
+	WFIFOL(char_fd,6) = sd->status.char_id;
+	WFIFOL(char_fd,10) = minutes;
+	WFIFOB(char_fd,14) = kind;
+	WFIFOSET(char_fd, 15);
+	return 0;
+}
+
 int send_users_tochar(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	int count, users=0, i;

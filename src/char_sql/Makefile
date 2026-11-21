@@ -21,8 +21,20 @@ CHAR_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h) $(wildcard ../../Makefile
 %.o: %.c $(CHAR_ALL_H)
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-../../char-server_sql: char.o char_async_load.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
-	$(CC) -o $@ $^ $(LIB_S)
+# [onlinestat] MongoDB through libmongoc (Debian: apt install libmongoc-dev) when pkg-config finds it; without it
+# the char-server still builds and keeps the online statistics in its spool file only. MONGOC_CFLAGS /
+# MONGOC_LIBS on the make command line override pkg-config.
+MONGOC_CFLAGS ?= $(shell pkg-config --cflags libmongoc-1.0 2>/dev/null)
+MONGOC_LIBS ?= $(shell pkg-config --libs libmongoc-1.0 2>/dev/null)
+ifneq ($(strip $(MONGOC_LIBS)),)
+ONLINESTAT_DEF = -DONLINESTAT_MONGO $(MONGOC_CFLAGS)
+endif
+# (its own rule: the top Makefile passes CFLAGS on the command line, which a target-specific += cannot extend)
+onlinestat.o: onlinestat.c $(CHAR_ALL_H)
+	$(COMPILE.c) $(ONLINESTAT_DEF) $(OUTPUT_OPTION) $<
+
+../../char-server_sql: char.o char_async_load.o onlinestat.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
+	$(CC) -o $@ $^ $(LIB_S) $(MONGOC_LIBS)
 
 clean:
 	rm -f *.o ../../char-server_sql GNUmakefile

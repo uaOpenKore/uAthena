@@ -366,6 +366,7 @@ void pc_playlimit_fold(struct map_session_data* sd)
 		if (cost > 0 && cost <= sd->status.zeny) {
 			pc_payzeny(sd, (int)cost);
 			sd->autopay_paid += (int)cost;
+			chrif_onlinestat_paid(sd, m, 1); // [onlinestat]
 			pc_playlimit_autopay_log(sd, false);
 			return;
 		}
@@ -563,6 +564,7 @@ int pc_playlimit_buy(struct map_session_data* sd, int minutes, char* out, size_t
 	if (log_config.zeny > 0)
 		log_zeny(sd, "N", sd, -(int)cost);
 	sd->status.play_minutes -= take;
+	chrif_onlinestat_paid(sd, take, 0); // [onlinestat]
 	left = playlimit_left(battle_config.daily_play_limit, pc_playlimit_minutes(sd));
 	sd->play_warned = 0; // the warnings come again when their marks are reached again
 	for (i = 0; i < 3; i++)

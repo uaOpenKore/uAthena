@@ -74,3 +74,6 @@ Makefile.cache
 
 # map cache the map-server builds from the GRF (conf/map_athena.conf map_cache_file)
 db/mapinfo.txt
+
+# [onlinestat] MongoDB credentials for conf/mongo_athena.conf: kept on the server only (DEPLOY.sh resets tracked files)
+conf/mongo_conf.txt

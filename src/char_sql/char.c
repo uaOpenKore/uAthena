@@ -5,6 +5,7 @@
 #include "../common/timer.h"
 #include "../common/playlimit.h"
 #include "../common/attacklog.h"
+#include "onlinestat.h"
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/db.h"
@@ -1490,6 +1491,35 @@ static void playlimit_init(void)
 	add_timer_func_list(playlimit_timer, "playlimit_timer");
 	add_timer_interval(gettick() + 60*1000, playlimit_timer, 0, 0, 60*1000);
 	ShowStatus("[PLAYLIMIT] daily play-time limit: current date %d.\n", play_reset_date);
+}
+
+// [onlinestat] Every minute, each character on a map-server (not an autotrade shop) gets one online minute of
+// today's date: no login/logout/map-change bookkeeping, what is on a map is counted (one minute either way a
+// session). A character on a map-server we lost (-2) is not counted.
+static int onlinestat_sample_sub(DBKey key, void* data, va_list ap)
+{
+	struct online_char_data* character = (struct online_char_data*)data;
+	int date = va_arg(ap, int);
+	struct mmo_charstatus* cp;
+	if (character->server < 0 || character->char_id <= 0 || character->autotrade)
+		return 0;
+	cp = (struct mmo_charstatus*)idb_get(char_db_, character->char_id);
+	onlinestat_add(date, character->char_id, character->account_id, cp ? cp->name : "", 1, 0, 0);
+	return 0;
+}
+
+static int onlinestat_sample(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	online_char_db->foreach(online_char_db, onlinestat_sample_sub, playlimit_date(time(NULL)));
+	return 0;
+}
+
+static void onlinestat_start(void)
+{
+	onlinestat_read_conf(ONLINESTAT_CONF_NAME, 0);
+	onlinestat_init();
+	add_timer_func_list(onlinestat_sample, "onlinestat_sample");
+	add_timer_interval(gettick() + 60*1000, onlinestat_sample, 0, 0, 60*1000);
 }
 
 // A loaded character: minutes of another day count as 0, and it now belongs to the current date.
@@ -3447,6 +3477,19 @@ int parse_frommap(int fd)
 		}
 		break;
 
+		case 0x2b28: // [onlinestat] <aid>.L <cid>.L <minutes>.L <kind>.B: minutes paid (0 @buyplaytime, 1 @autopay)
+			if (RFIFOREST(fd) < 15)
+				return 0;
+		{
+			int aid = RFIFOL(fd,2), cid = RFIFOL(fd,6), minutes = (int)RFIFOL(fd,10), kind = RFIFOB(fd,14);
+			struct mmo_charstatus* cp = (struct mmo_charstatus*)idb_get(char_db_, cid);
+			RFIFOSKIP(fd,15);
+			if (minutes > 0)
+				onlinestat_add(playlimit_date(time(NULL)), cid, aid, cp ? cp->name : "", 0,
+					kind == 0 ? minutes : 0, kind == 1 ? minutes : 0);
+		}
+		break;
+
 		case 0x2b27: // [autotrade] the character is an autotrader now: taken, but not online
 			if (RFIFOREST(fd) < 10)
 				return 0;
@@ -4874,6 +4917,7 @@ int char_config_read(const char* cfgName)
 void do_final(void)
 {
 	ShowInfo("Doing final stage...\n");
+	onlinestat_final(); // [onlinestat] the last minutes to the spool file (and Mongo when it answers)
 	socket_unwatch_fd(acl_wake_fd(char_load_lane)); // [wakeup] before acl_destroy closes it
 	acl_destroy(char_load_lane); // stop the async char-load worker + join
 	char_load_lane = NULL;
@@ -5065,6 +5109,7 @@ int do_init(int argc, char **argv)
 	online_char_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	mmo_char_sql_init();
 	playlimit_init();
+	onlinestat_start(); // [onlinestat]
 	ShowInfo("char server initialized.\n");
 
 	set_defaultparse(parse_char);
