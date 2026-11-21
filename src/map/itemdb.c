@@ -1088,3 +1088,49 @@ int do_init_itemdb(void)
 
 	return 0;
 }
+
+/*==========================================
+ * [shoparb] (S. 2026-11-21) Buying from one NPC and selling back to an NPC must never pay: Oridecon Arrows at 3
+ * zeny from Arrow Quivers were sold back for 15 (18 with Overcharge). Every NPC shop sets shop_sell_cap of
+ * what it sells to its price after the best discount (25%, Compulsion Discount; none for value_notdc items);
+ * an NPC pays at most that for one, whatever the skills. The shops stay as cheap as they are.
+ *------------------------------------------*/
+static int itemdb_reset_shop_caps_sub(DBKey key, void* data, va_list ap)
+{
+	((struct item_data*)data)->shop_sell_cap = 0;
+	return 0;
+}
+
+void itemdb_reset_shop_caps(void)
+{
+	item_db->foreach(item_db, itemdb_reset_shop_caps_sub);
+}
+
+int itemdb_shop_sell_value(struct item_data* id, int value)
+{
+	if (id && id->shop_sell_cap > 0 && value > id->shop_sell_cap)
+		return id->shop_sell_cap;
+	return value;
+}
+
+// [shoparb] after the shops are read: one line per item an NPC would have paid back more for than a shop asks
+static int itemdb_report_shop_caps_sub(DBKey key, void* data, va_list ap)
+{
+	struct item_data* id = (struct item_data*)data;
+	int* n = va_arg(ap, int*);
+	int most = id->flag.value_notoc ? id->value_sell : (int)((double)id->value_sell * 124 / 100);
+	if (id->shop_sell_cap > 0 && most > id->shop_sell_cap) {
+		ShowInfo("[shoparb] %s (%d): an NPC pays back at most %d (a shop sells it for %d with the best discount; it would pay up to %d)\n",
+			id->jname, id->nameid, id->shop_sell_cap, id->shop_sell_cap, most);
+		(*n)++;
+	}
+	return 0;
+}
+
+void itemdb_report_shop_caps(void)
+{
+	int n = 0;
+	item_db->foreach(item_db, itemdb_report_shop_caps_sub, &n);
+	if (n)
+		ShowStatus("[shoparb] %d item(s) sold by NPC shops cheaper than NPCs bought them back: the buy-back is capped.\n", n);
+}

@@ -1428,9 +1428,9 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 			break;
 		
 		if (sd->inventory_data[idx]->flag.value_notoc)
-			z+=(double)qty*sd->inventory_data[idx]->value_sell;
-		else
-			z+=(double)qty*pc_modifysellvalue(sd,sd->inventory_data[idx]->value_sell);
+			z+=(double)qty*itemdb_shop_sell_value(sd->inventory_data[idx], sd->inventory_data[idx]->value_sell);
+		else // [shoparb] never more than what the cheapest NPC shop asks for it
+			z+=(double)qty*itemdb_shop_sell_value(sd->inventory_data[idx], pc_modifysellvalue(sd,sd->inventory_data[idx]->value_sell));
 
 		if(sd->inventory_data[idx]->type == IT_PETEGG &&
 			sd->status.inventory[idx].card[0] == CARD0_PET)
@@ -1774,6 +1774,13 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 		if (value < 0)
 			value = id->value_buy;
 		nd->u.shop_item[pos].value = value;
+		if (value > 0) { // [shoparb] an NPC pays back at most what the cheapest shop asks with the best discount
+			int cap = id->flag.value_notdc ? value : value * 75 / 100;
+			if (cap < 1)
+				cap = 1;
+			if (id->shop_sell_cap == 0 || cap < id->shop_sell_cap)
+				id->shop_sell_cap = cap;
+		}
 		// check for bad prices that can possibly cause exploits
 		if (value/124. < id->value_sell/75.) {  //Clened up formula to prevent overflows.
 			printf("\r"); //Carriage return to clear the 'loading..' line. [Skotlex]
@@ -3124,6 +3131,7 @@ int npc_reload(void)
 
 	//Remove all npcs/mobs. [Skotlex]
 	map_foreachiddb(npc_cleanup_dbsub);
+	itemdb_reset_shop_caps(); // [shoparb] the shops are read again
 	for (m = 0; m < map_num; m++) {
 		if(battle_config.dynamic_mobs) {	//dynamic check by [random]
 			for (i = 0; i < MAX_MOB_LIST_PER_MAP; i++)
@@ -3164,6 +3172,7 @@ int npc_reload(void)
 		fflush(stdout);
 	}
 	printf("\r");
+	itemdb_report_shop_caps(); // [shoparb]
 	ShowInfo ("Done loading '"CL_WHITE"%d"CL_RESET"' NPCs:\n"
 		"\t-'"CL_WHITE"%d"CL_RESET"' Warps\n"
 		"\t-'"CL_WHITE"%d"CL_RESET"' Shops\n"
@@ -3298,6 +3307,7 @@ int do_init_npc(void)
 		fflush(stdout);
 	}
 	printf("\r");
+	itemdb_report_shop_caps(); // [shoparb]
 	ShowInfo ("Done loading '"CL_WHITE"%d"CL_RESET"' NPCs:\n"
 		"\t-'"CL_WHITE"%d"CL_RESET"' Warps\n"
 		"\t-'"CL_WHITE"%d"CL_RESET"' Shops\n"

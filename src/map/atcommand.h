@@ -296,6 +296,8 @@ enum AtCommandType {
 	AtCommand_H3, // help page listing our custom chat commands
 	AtCommand_WhoBot, // [whobot] online players sending more ticks than a game client
 	AtCommand_PlayTime, // [playlimit] minutes played today and the time left
+	AtCommand_BuyPlayTime, // [playlimit] buy back played minutes for zeny
+	AtCommand_AutoPay, // [playlimit] pay every minute played instead of counting it
 	// end <- Ahem, guys, don't place AtCommands after AtCommand_Unknown! [Skotlex]
 	AtCommand_Unknown,
 	AtCommand_MAX

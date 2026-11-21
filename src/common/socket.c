@@ -9,6 +9,9 @@
 #include "../common/strlib.h"
 #include "socket.h"
 #include "send_worker.h"
+#ifndef MINICORE
+#include "attacklog.h"
+#endif
 #include "stallguard.h"
 #include "core.h" // runflag
 
@@ -525,6 +528,10 @@ static int connect_client_one(int listen_fd)
 		static t_tick last_warn = 0;
 		static unsigned int refused = 0;
 		refused++;
+#ifndef MINICORE
+		attacklog(ntohl(client_address.sin_addr.s_addr), "-", "too_many_connections: already %d open (max_connections_per_ip), refused",
+			socket_max_conn_per_ip);
+#endif
 		if( DIFF_TICK(gettick(), last_warn) >= 10000 ) { // one line per 10 s under a flood
 			ShowWarning("connect_client: %d.%d.%d.%d already has %d connections (max_connections_per_ip), %u refused since the last note\n",
 				CONVIP(ntohl(client_address.sin_addr.s_addr)), socket_max_conn_per_ip, refused);
@@ -975,6 +982,9 @@ int do_parsepacket(void)
 			// last recv stopped, a full read of valid packets that ends in a partial one is not invalid
 			if (session[i]->rdata_size - session[i]->rdata_pos == rfifo_size && session[i]->max_rdata == rfifo_size) {
 				socket_set_disconnect_reason(i, SDC_INVALID_PACKET); // [dc-log]
+#ifndef MINICORE
+				attacklog_packet(i, "-", "unparseable_data: %d bytes that form no packet, disconnected", (int)rfifo_size);
+#endif
 				set_eof(i);
 				continue;
 			}
@@ -1005,6 +1015,9 @@ int do_parsepacket(void)
 				// partial one -- a burst after a stalled connection ("invalid_packet") [flood]
 				if( session[i]->rdata_size - session[i]->rdata_pos == rfifo_size && session[i]->max_rdata == rfifo_size ) {
 					socket_set_disconnect_reason(i, SDC_INVALID_PACKET); // [dc-log]
+#ifndef MINICORE
+					attacklog_packet(i, "-", "unparseable_data: %d bytes that form no packet, disconnected", (int)rfifo_size);
+#endif
 					set_eof(i);
 				} else
 					RFIFOFLUSH(i);

@@ -7,6 +7,8 @@
   1:@main [on|off|message] - Turns on or off global chat (@main must be on to see global chat messages)
   1:@noask - Auto rejects Deals/Invites
   1:@playtime - Time played today and the time left before the daily play-time limit.
+  1:@buyplaytime <minutes> - Buy back played minutes for zeny (the price grows with your base level).
+  1:@autopay on|off - Pay every minute you play in zeny instead of using up the daily play-time limit.
  20:@gmotd - Broadcasts the Message of The Day file to all players.
  20:@me <message> - Displays normal text as a message in this format: *name message* (like /me in mIRC)
  20:@fakename [Name] - Changes your name to your choice temporarly.

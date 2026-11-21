@@ -2,6 +2,7 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/sqlid.h"
+#include "../common/attacklog.h"
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/core.h"
@@ -1297,6 +1298,7 @@ int parse_fromchar(int fd)
 
 		default:
 			ShowError("parse_fromchar: Unknown packet 0x%x from a char-server! Disconnecting!\n", RFIFOW(fd,0));
+			attacklog_packet(fd, "char-server", "unknown_packet: 0x%04x from a char-server, disconnected", RFIFOW(fd,0)); // [attack]
 			set_eof(fd);
 			return 0;
 		} // switch
@@ -1668,6 +1670,7 @@ int parse_login(int fd)
 			// a refused try ends the connection (no more password guesses on it).
 			if (!socket_s2s_ip_allowed(ipl, char_server_ip_allow)) {
 				ShowWarning("parse_login: char-server login refused from %s (address not allowed)\n", ip);
+				attacklog(ipl, "-", "s2s_login_refused: char-server login (0x2710) from an address not allowed"); // [attack]
 				result = 0;
 			} else
 				result = mmo_auth(&account, fd);
@@ -1740,6 +1743,7 @@ int parse_login(int fd)
 
 		default:
 			ShowStatus ("Abnormal end of connection (ip: %s): Unknown packet 0x%x " RETCODE, ip, RFIFOW(fd,0));
+			attacklog_packet(fd, "-", "unknown_packet: 0x%04x, disconnected", RFIFOW(fd,0)); // [attack]
 			set_eof(fd);
 			return 0;
 		}
@@ -2057,6 +2061,7 @@ int do_init(int argc, char** argv)
 	int i;
 
 	login_set_defaults();
+	attacklog_init("login"); // [attack] log/attack-login.log
 
 	// read login-server configuration
 	login_config_read((argc > 1) ? argv[1] : LOGIN_CONF_NAME);

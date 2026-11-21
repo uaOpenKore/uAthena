@@ -83,6 +83,7 @@ struct item_data {
 		unsigned buyingstore : 1;	// [Backport] item is allowed in buying stores (db/item_buyingstore.txt)
 	} flag;
 	short gm_lv_trade_override;	//GM-level to override trade_restriction
+	int shop_sell_cap; // [shoparb] the most an NPC pays back for one: what the cheapest NPC shop asks with the best discount; 0 = no shop sells it
 };
 
 struct item_group {
@@ -94,6 +95,10 @@ struct item_data* itemdb_searchname(const char *name);
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);
 struct item_data* itemdb_load(int nameid);
 struct item_data* itemdb_search(int nameid);
+void itemdb_reset_shop_caps(void); // [shoparb] before the shops are (re)read
+void itemdb_report_shop_caps(void); // [shoparb] after: log the capped items
+int itemdb_shop_sell_value(struct item_data* id, int value); // [shoparb] a sell-to-NPC price within the cap
+
 struct item_data* itemdb_exists(int nameid);
 #define itemdb_name(n) itemdb_search(n)->name
 #define itemdb_jname(n) itemdb_search(n)->jname
