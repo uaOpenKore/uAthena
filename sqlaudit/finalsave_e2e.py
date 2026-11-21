@@ -19,7 +19,8 @@ def sqlf(text): subprocess.run(MY, input=text, text=True, check=True)
 A0 = C0 = 900000000
 MAPCONF = os.path.join(run, "conf", "import", "map_conf.txt")
 def cleanup():
-    sqlf("DELETE FROM `char` WHERE char_id>=%d AND char_id<%d; DELETE FROM login WHERE account_id>=%d AND account_id<%d;" % (C0, C0 + 100000, A0, A0 + 100000))
+    sqlf("DELETE FROM `char` WHERE char_id>=%d AND char_id<%d; DELETE FROM login WHERE account_id>=%d AND account_id<%d;"
+         " ALTER TABLE login AUTO_INCREMENT=1; ALTER TABLE `char` AUTO_INCREMENT=1;" % (C0, C0 + 100000, A0, A0 + 100000))  # the counters back
 def srv(a): subprocess.run(["bash", os.path.join(SP, "srv.sh"), a, run], stdout=subprocess.DEVNULL)
 def walk(sock, x, y):
     sock.sendall(struct.pack("<H", 0xA7) + bytes(3) + bytes([(x >> 2) & 0xFF, ((x << 6) | ((y >> 4) & 0x3F)) & 0xFF, (y << 4) & 0xFF]))
@@ -40,8 +41,9 @@ try:
     for i in range(N):
         s = rostub.Session("fsv%d" % i, "fspw1", log=lambda *a: None)
         s.login(); _, r = s.char_enter(); s.select_char(0)
-        if s.map_enter()[0] != "ok":
-            raise RuntimeError("fsv%d did not enter the map" % i)
+        r = s.map_enter()
+        if r[0] != "ok":
+            raise RuntimeError("fsv%d did not enter the map: %r" % (i, r))
         walk(s.map_sock, 152, 152)
         sessions.append(s)
     time.sleep(5)  # every walk is done; nothing was saved since the login (autosave 1 h)

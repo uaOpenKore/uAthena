@@ -15,7 +15,8 @@ A0 = C0 = 1900000000
 def cleanup():
     sqlf("""DELETE FROM autotrade_item WHERE char_id>=%d; DELETE FROM autotrade_shop WHERE char_id>=%d;
 DELETE FROM cart_inventory WHERE char_id>=%d; DELETE FROM skill WHERE char_id>=%d; DELETE FROM `char` WHERE char_id>=%d;
-DELETE FROM login WHERE account_id>=%d;""" % (C0, C0, C0, C0, C0, A0))
+DELETE FROM login WHERE account_id>=%d;
+ALTER TABLE login AUTO_INCREMENT=1; ALTER TABLE `char` AUTO_INCREMENT=1;""" % (C0, C0, C0, C0, C0, A0))  # the counters back to max+1
 subprocess.run([os.path.join(SP, "srv.sh"), "stop", run], stdout=subprocess.DEVNULL)
 cleanup()
 rows = []

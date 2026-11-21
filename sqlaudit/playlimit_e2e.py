@@ -8,6 +8,10 @@ WALL_FILE seconds), starts it and checks. Scenarios:
   midnight 6 23:59 -> 00:00: the online player's counter goes to 0, play_reset moves to the new date
   timer    7 the clock set back (same date) but 24 h since the reset: reset by the timer
   restart  8 the stand was down over midnight: reset at start
+  buy      10 @buyplaytime: 100 zeny x base level a minute takes minutes off, only what was played is charged,
+           not enough zeny is refused, buying at the limit cancels the disconnect; the warnings name the commands
+  autopay  11 @autopay on: the minutes are paid (100 x level each) and the played time does not grow; it stays on
+           over a relog; when the zeny run out it turns itself off and the minutes count again
   nocols   9 without the migration the servers run, log that the limit is off, nobody is kicked
 """
 import datetime, os, re, subprocess, sys, time, struct
@@ -16,7 +20,7 @@ import rostub  # noqa: E402
 from e2elib import Stream, chat, enter_map, load_lengths, messages  # noqa: E402
 SP = os.path.dirname(os.path.abspath(__file__))
 run = sys.argv[1]
-want = sys.argv[2:] or ["play", "midnight", "timer", "restart", "nocols"]
+want = sys.argv[2:] or ["play", "buy", "autopay", "midnight", "timer", "restart", "nocols"]
 MYSQL = ["mysql", "--no-defaults", "-h127.0.0.1", "-P13306", "-uroot", "ragnarok", "-N", "-B", "-e"]
 WALL = os.path.join(SP, "tools", "wall.txt")
 SHIM = os.path.join(SP, "tools", "wallwarp.so")
@@ -114,6 +118,62 @@ try:
         check("5 a GM over the limit stays, no limit message", e.closed_at is None and not e.said("reached"), "closed=%s" % e.closed_at)
         e.quit(); c.quit(); d.quit()
         check("  kicks logged", charlog().count("") >= 0 and open(os.path.join(run, "map.out"), errors="replace").read().count("[PLAYLIMIT] kick") >= 2)
+    if "buy" in want:
+        stop()
+        lv = 10
+        sql("UPDATE `char` SET base_level=%d, zeny=200000 WHERE name IN ('PlA','PlC')" % lv)
+        sql("UPDATE `char` SET zeny=10 WHERE name='PlB'")
+        setreset(today, now - datetime.timedelta(hours=1))
+        setrow("PlA", 100, today); setrow("PlB", 100, today); setrow("PlC", 719, today)
+        start(0)
+        a = Player("plima", "PlA"); a.cmd("@buyplaytime 60"); pump_all([a], 2); a.cmd("@playtime"); pump_all([a], 2)
+        zeny = sql("SELECT zeny FROM `char` WHERE name='PlA'")
+        pt = [m for _, m in a.msgs if "Played today" in m]
+        bought = [m for _, m in a.msgs if "Bought" in m]
+        check("10a 60 minutes bought for 60 x 100 x level zeny", bool(bought) and "%d zeny" % (60 * 100 * lv) in bought[-1], "msgs=%s" % [m for _, m in a.msgs][-3:])
+        check("10b the played minutes went down by 60", bool(pt) and re.search(r"Played today: 0 h 4[0-1] min", pt[-1]), "pt=%s" % pt[-1:])
+        a.cmd("@buyplaytime 500"); pump_all([a], 2)
+        bought = [m for _, m in a.msgs if "Bought" in m]
+        check("10c buying more than played: only the played minutes are charged", bool(bought) and re.search(r"Bought 4[0-1] minute", bought[-1]), "msgs=%s" % [m for _, m in a.msgs][-2:])
+        a.quit()
+        b = Player("plimb", "PlB"); b.cmd("@buyplaytime 30"); pump_all([b], 2)
+        check("10d not enough zeny: refused", bool([m for _, m in b.msgs if "Not enough zeny" in m]), "msgs=%s" % [m for _, m in b.msgs][-2:])
+        b.quit()
+        c = Player("plimc", "PlC")
+        pump_all([c], 125)
+        warn = [m for _, m in c.msgs if "left today" in m]
+        check("10e the warning names @playtime and @buyplaytime", bool(warn) and "@playtime" in warn[-1] and "@buyplaytime" in warn[-1], "warn=%s" % warn[-1:])
+        lim = c.said("limit (12 h) reached")
+        if lim and not c.closed_at:
+            c.cmd("@buyplaytime 30"); pump_all([c], 50)
+        check("10f buying at the limit cancels the disconnect", bool(lim) and c.closed_at is None, "lim=%s closed=%s" % (bool(lim), c.closed_at))
+        c.quit()
+    if "autopay" in want:
+        stop()
+        lv = 10
+        sql("UPDATE `char` SET base_level=%d, zeny=100000 WHERE name='PlA'" % lv)
+        sql("UPDATE `char` SET base_level=%d, zeny=500 WHERE name='PlB'" % lv)  # less than one minute: off at the first
+        sql("DELETE FROM global_reg_value WHERE str='PLAY_AUTOPAY'")
+        setreset(today, now - datetime.timedelta(hours=1))
+        setrow("PlA", 100, today); setrow("PlB", 100, today)
+        start(0)
+        a = Player("plima", "PlA"); a.cmd("@autopay on"); pump_all([a], 2)
+        b = Player("plimb", "PlB"); b.cmd("@autopay on"); pump_all([a, b], 2)
+        on = [m for _, m in a.msgs if "@autopay is on" in m]
+        check("11a @autopay on", bool(on) and "%d zeny" % (100 * lv) in on[-1], "msgs=%s" % [m for _, m in a.msgs][-2:])
+        pump_all([a, b], 130)
+        a.cmd("@playtime"); pump_all([a, b], 2)
+        pt = [m for _, m in a.msgs if "Played today" in m]
+        check("11b the played time does not grow (1 h 40 min = 100)", bool(pt) and "Played today: 1 h 40 min" in pt[-1], "pt=%s" % pt[-1:])
+        off = [m for _, m in b.msgs if "@autopay is off: not enough zeny" in m]
+        check("11c out of zeny: @autopay turns itself off", bool(off), "msgs=%s" % [m for _, m in b.msgs][-3:])
+        a.quit(); b.quit(); time.sleep(4)
+        zeny = int(sql("SELECT zeny FROM `char` WHERE name='PlA'"))
+        check("11d the minutes were paid (2 minutes at least: 2000 zeny)", 100000 - zeny >= 2 * 100 * lv and (100000 - zeny) % (100 * lv) == 0, "zeny=%d" % zeny)
+        a = Player("plima", "PlA"); a.cmd("@autopay"); pump_all([a], 2)
+        st = [m for _, m in a.msgs if m.startswith("@autopay is")]
+        check("11e @autopay stays on over a relog", bool(st) and st[-1].startswith("@autopay is on"), "st=%s" % st[-1:])
+        a.cmd("@autopay off"); pump_all([a], 2); a.quit()
     if "midnight" in want:
         stop()
         target = datetime.datetime.combine(now.date(), datetime.time(23, 59, 15))
