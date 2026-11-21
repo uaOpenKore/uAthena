@@ -7,7 +7,7 @@ obj:
 common: obj/core.o obj/socket.o obj/timer.o obj/db.o obj/plugins.o obj/lock.o \
 	obj/nullpo.o obj/malloc.o obj/showmsg.o  obj/strlib.o obj/utils.o \
 	obj/grfio.o obj/minicore.o obj/minisocket.o obj/minimalloc.o \
-	obj/mapindex.o obj/ers.o obj/md5calc.o obj/random.o obj/send_worker.o
+	obj/mapindex.o obj/ers.o obj/md5calc.o obj/random.o obj/send_worker.o obj/attacklog.o
 
 
 # [build] Rebuild on ANY header change (see src/map/Makefile): a struct change in socket.h/mmo.h must

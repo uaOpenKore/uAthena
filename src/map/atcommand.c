@@ -276,6 +276,8 @@ ACMD_FUNC(merc); // mercenary status chat UI
 ACMD_FUNC(h3); // help page for our custom chat commands
 ACMD_FUNC(whobot); // [whobot] online players sending more ticks than a game client
 ACMD_FUNC(playtime); // [playlimit] minutes played today and the time left
+ACMD_FUNC(buyplaytime); // [playlimit] buy back played minutes for zeny
+ACMD_FUNC(autopay); // [playlimit] pay every minute played instead of counting it
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -617,6 +619,8 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_H3,                 "@h3",               1, atcommand_h3 }, // help: our custom commands
 	{ AtCommand_WhoBot,             "@whobot",          60, atcommand_whobot }, // [whobot] tick rate > a client's
 	{ AtCommand_PlayTime,           "@playtime",         0, atcommand_playtime }, // [playlimit] time played today
+	{ AtCommand_BuyPlayTime,        "@buyplaytime",      0, atcommand_buyplaytime }, // [playlimit] buy back played minutes
+	{ AtCommand_AutoPay,            "@autopay",          0, atcommand_autopay }, // [playlimit] pay as you play
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -10701,6 +10705,36 @@ int atcommand_playtime(const int fd, struct map_session_data* sd, const char* co
 {
 	nullpo_retr(-1, sd);
 	pc_playlimit_describe(sd, atcmd_output, sizeof(atcmd_output));
+	clif_displaymessage(fd, atcmd_output);
+	return 0;
+}
+
+/*==========================================
+ * @buyplaytime <minutes> [playlimit] (S. 2026-11-21): takes minutes off the time played today for zeny
+ * (playtime_buy_zeny_per_level x base level a minute); only the minutes played are charged.
+ *------------------------------------------*/
+int atcommand_buyplaytime(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	int minutes = 0;
+	nullpo_retr(-1, sd);
+	if (message)
+		sscanf(message, "%d", &minutes);
+	pc_playlimit_buy(sd, minutes, atcmd_output, sizeof(atcmd_output));
+	clif_displaymessage(fd, atcmd_output);
+	return 0;
+}
+
+/*==========================================
+ * @autopay on|off [playlimit] (S. 2026-11-21): every minute played is paid in zeny (the @buyplaytime price) from
+ * the moment it is turned on, instead of counting against the daily limit; it turns itself off when the zeny run out.
+ *------------------------------------------*/
+int atcommand_autopay(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	char arg[16] = "";
+	nullpo_retr(-1, sd);
+	if (message)
+		sscanf(message, "%15s", arg);
+	pc_playlimit_autopay(sd, arg, atcmd_output, sizeof(atcmd_output));
 	clif_displaymessage(fd, atcmd_output);
 	return 0;
 }

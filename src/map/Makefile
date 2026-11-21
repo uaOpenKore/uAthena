@@ -14,7 +14,7 @@ COMMON_OBJ = ../common/obj/core.o ../common/obj/socket.o ../common/obj/send_work
 	../common/obj/db.o ../common/obj/plugins.o ../common/obj/lock.o \
 	../common/obj/nullpo.o ../common/obj/malloc.o ../common/obj/showmsg.o \
 	../common/obj/utils.o ../common/obj/strlib.o ../common/obj/grfio.o \
-	../common/obj/mapindex.o ../common/obj/ers.o ../common/obj/random.o
+	../common/obj/mapindex.o ../common/obj/ers.o ../common/obj/random.o ../common/obj/attacklog.o
 
 COMMON_H = ../common/core.h ../common/socket.h ../common/timer.h ../common/db.h \
 	../common/plugins.h ../common/lock.h ../common/nullpo.h ../common/malloc.h \

@@ -4,6 +4,7 @@
 #include "../common/sqlid.h"
 #include "../common/timer.h"
 #include "../common/playlimit.h"
+#include "../common/attacklog.h"
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/db.h"
@@ -3545,6 +3546,7 @@ int parse_frommap(int fd)
 
 			// no inter server packet. no char server packet -> disconnect
 			ShowError("Unknown packet 0x%04x from map server, disconnecting.\n", RFIFOW(fd,0));
+			attacklog_packet(fd, "map-server", "unknown_packet: 0x%04x from a map-server, disconnected", RFIFOW(fd,0)); // [attack]
 			set_eof(fd);
 			return 0;
 		}
@@ -4293,6 +4295,8 @@ int parse_char(int fd)
 				!socket_s2s_ip_allowed(session[fd]->client_addr, map_server_ip_allow)) {
 				ShowWarning("parse_char: map-server login refused from %d.%d.%d.%d (%s)\n", CONVIP(session[fd]->client_addr),
 					i == MAX_MAP_SERVERS ? "no free slot" : !socket_s2s_ip_allowed(session[fd]->client_addr, map_server_ip_allow) ? "address not allowed" : "wrong userid/passwd");
+				attacklog(session[fd]->client_addr, "-", "s2s_login_refused: map-server login (0x2af8): %s", i == MAX_MAP_SERVERS ? "no free slot" :
+					!socket_s2s_ip_allowed(session[fd]->client_addr, map_server_ip_allow) ? "address not allowed" : "wrong userid/passwd"); // [attack]
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x2af9;
 				WFIFOB(fd,2) = 3;
@@ -4351,6 +4355,7 @@ int parse_char(int fd)
 
 		default: // unknown packet received
 			ShowError("parse_char: Received unknown packet "CL_WHITE"0x%x"CL_RESET" from ip '"CL_WHITE"%s"CL_RESET"'! Disconnecting!\n", RFIFOW(fd,0), ip2str(ipl, NULL));
+			attacklog_packet(fd, "-", "unknown_packet: 0x%04x, disconnected", RFIFOW(fd,0)); // [attack]
 			set_eof(fd);
 			return 0;
 		}
@@ -5026,6 +5031,8 @@ static int relogmetric_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 int do_init(int argc, char **argv)
 {
 	int i;
+
+	attacklog_init("char"); // [attack] log/attack-char.log
 
 	for(i = 0; i < MAX_MAP_SERVERS; i++) {
 		memset(&server[i], 0, sizeof(struct mmo_map_server));

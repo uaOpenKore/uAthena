@@ -340,9 +340,13 @@ bool pc_playlimit_on(struct map_session_data* sd)
 }
 
 // Minutes played today. In autotrade there is no socket, so no time passes.
+static int pc_playlimit_price(struct map_session_data* sd);
+static void pc_playlimit_autopay_log(struct map_session_data* sd, bool force);
+static int pc_playlimit_kick(int tid, t_tick tick, intptr_t id, intptr_t data);
+
 int pc_playlimit_minutes(struct map_session_data* sd)
 {
-	if (sd->state.autotrade)
+	if (sd->state.autotrade || sd->state.autopay) // @autopay: the minutes are paid as they pass, not counted
 		return sd->status.play_minutes;
 	return playlimit_minutes(sd->status.play_minutes, sd->play_login_tick, gettick());
 }
@@ -356,8 +360,67 @@ void pc_playlimit_fold(struct map_session_data* sd)
 		return;
 	}
 	m = playlimit_minutes(0, sd->play_login_tick, gettick());
-	sd->status.play_minutes += m;
 	sd->play_login_tick += (t_tick)m * 60000;
+	if (m > 0 && sd->state.autopay) { // [playlimit] @autopay: these minutes are bought, not counted
+		int64 cost = (int64)m * pc_playlimit_price(sd);
+		if (cost > 0 && cost <= sd->status.zeny) {
+			pc_payzeny(sd, (int)cost);
+			sd->autopay_paid += (int)cost;
+			pc_playlimit_autopay_log(sd, false);
+			return;
+		}
+		sd->state.autopay = 0; // out of zeny: from now on the minutes count again
+		pc_setglobalreg(sd, "PLAY_AUTOPAY", 0);
+		pc_playlimit_autopay_log(sd, true);
+		if (sd->fd)
+			clif_displaymessage(sd->fd, "@autopay is off: not enough zeny for the next minute(s). Your play time counts again (see @playtime).");
+		ShowInfo("[PLAYLIMIT] autopay off (no zeny) aid=%d cid=%d name='%s'\n", sd->status.account_id, sd->status.char_id, sd->status.name);
+	}
+	sd->status.play_minutes += m;
+}
+
+// [playlimit] @autopay's zeny go to zenylog as one line every 10 minutes (and when it stops), not one a minute.
+static void pc_playlimit_autopay_log(struct map_session_data* sd, bool force)
+{
+	if (sd->autopay_paid <= 0)
+		return;
+	if (!force && DIFF_TICK(gettick(), sd->autopay_log_tick) < 600000)
+		return;
+	if (log_config.zeny > 0)
+		log_zeny(sd, "N", sd, -sd->autopay_paid);
+	sd->autopay_paid = 0;
+	sd->autopay_log_tick = gettick();
+}
+
+// @autopay on|off: pay every minute played instead of counting it against the daily limit.
+int pc_playlimit_autopay(struct map_session_data* sd, const char* arg, char* out, size_t size)
+{
+	int price = pc_playlimit_price(sd);
+	if (!pc_playlimit_on(sd))
+		return snprintf(out, size, "No daily play-time limit for your account.");
+	if (price <= 0)
+		return snprintf(out, size, "Paying for play time is off on this server.");
+	if (arg && strcmpi(arg, "on") == 0) {
+		pc_playlimit_fold(sd); // what was played until now is counted as before
+		sd->state.autopay = 1;
+		sd->autopay_log_tick = gettick();
+		pc_setglobalreg(sd, "PLAY_AUTOPAY", 1);
+		if (sd->play_kick_tid != INVALID_TIMER) { // at the limit: paying from now on keeps the player in
+			delete_timer(sd->play_kick_tid, pc_playlimit_kick);
+			sd->play_kick_tid = INVALID_TIMER;
+		}
+		ShowInfo("[PLAYLIMIT] autopay on aid=%d cid=%d name='%s' price=%d\n", sd->status.account_id, sd->status.char_id, sd->status.name, price);
+		return snprintf(out, size, "@autopay is on: every minute you play costs %d zeny and does not count against the daily limit.", price);
+	}
+	if (arg && strcmpi(arg, "off") == 0) {
+		pc_playlimit_fold(sd); // the minutes until now are paid
+		sd->state.autopay = 0;
+		pc_setglobalreg(sd, "PLAY_AUTOPAY", 0);
+		pc_playlimit_autopay_log(sd, true);
+		ShowInfo("[PLAYLIMIT] autopay off aid=%d cid=%d name='%s'\n", sd->status.account_id, sd->status.char_id, sd->status.name);
+		return snprintf(out, size, "@autopay is off: your play time counts against the daily limit again.");
+	}
+	return snprintf(out, size, "@autopay is %s (%d zeny a minute). Usage: @autopay on|off", sd->state.autopay ? "on" : "off", price);
 }
 
 static int playlimit_secs_left_today(void)
@@ -366,6 +429,25 @@ static int playlimit_secs_left_today(void)
 	struct tm tm;
 	localtime_r(&now, &tm);
 	return 86400 - (tm.tm_hour * 3600 + tm.tm_min * 60 + tm.tm_sec);
+}
+
+// [playlimit] zeny for one minute bought back with @buyplaytime (battle_config.playtime_buy_zeny_per_level x base
+// level, S. 2026-11-21: a zeny sink); 0 = buying is off.
+static int pc_playlimit_price(struct map_session_data* sd)
+{
+	return battle_config.playtime_buy_zeny_per_level > 0 ? battle_config.playtime_buy_zeny_per_level * (int)sd->status.base_level : 0;
+}
+
+// " See @playtime, buy more with @buyplaytime <minutes> (N zeny a minute)." for the warnings, "" when buying is off
+static const char* pc_playlimit_hint(struct map_session_data* sd, bool see)
+{
+	static char hint[224];
+	int price = pc_playlimit_price(sd);
+	if (price <= 0)
+		return see ? " See @playtime." : "";
+	snprintf(hint, sizeof(hint), "%s Buy more time with @buyplaytime <minutes>, or pay as you play with @autopay on (%d zeny a minute).",
+		see ? " See @playtime." : "", price);
+	return hint;
 }
 
 static int pc_playlimit_kick(int tid, t_tick tick, intptr_t id, intptr_t data)
@@ -386,16 +468,21 @@ static int pc_playlimit_kick(int tid, t_tick tick, intptr_t id, intptr_t data)
 // Warn, or at the limit tell the reason and disconnect 40 s later. At the map login and every minute.
 void pc_playlimit_check(struct map_session_data* sd)
 {
-	char output[256];
+	char output[512];
 	int left, w, secs;
 	if (!pc_playlimit_on(sd) || sd->state.autotrade || !sd->fd || sd->play_kick_tid != INVALID_TIMER)
 		return;
+	if (sd->state.autopay) {
+		pc_playlimit_fold(sd); // [playlimit] pay the minutes that passed; turns autopay off when the zeny run out
+		if (sd->state.autopay)
+			return;
+	}
 	left = playlimit_left(battle_config.daily_play_limit, pc_playlimit_minutes(sd));
 	if (left == 0) {
 		secs = playlimit_secs_left_today();
 		snprintf(output, sizeof(output), "Daily play-time limit (%d h) reached. You will be disconnected in %d seconds. "
-			"The limit resets at 00:00 server time (in %d h %02d min).", battle_config.daily_play_limit,
-			PLAYLIMIT_KICK_MS / 1000, secs / 3600, secs % 3600 / 60);
+			"The limit resets at 00:00 server time (in %d h %02d min).%s", battle_config.daily_play_limit,
+			PLAYLIMIT_KICK_MS / 1000, secs / 3600, secs % 3600 / 60, pc_playlimit_hint(sd, false));
 		clif_displaymessage(sd->fd, output);
 		ShowInfo("[PLAYLIMIT] limit reached aid=%d cid=%d name='%s' minutes=%d\n", sd->status.account_id,
 			sd->status.char_id, sd->status.name, pc_playlimit_minutes(sd));
@@ -403,7 +490,7 @@ void pc_playlimit_check(struct map_session_data* sd)
 		return;
 	}
 	if ((w = playlimit_warning(left, &sd->play_warned)) != 0) {
-		snprintf(output, sizeof(output), "Daily play time: %d minute(s) left today.", left);
+		snprintf(output, sizeof(output), "Daily play time: %d minute(s) left today.%s", left, pc_playlimit_hint(sd, true));
 		clif_displaymessage(sd->fd, output);
 	}
 }
@@ -450,6 +537,45 @@ void pc_playlimit_setdate(int date)
 		map_foreachpc(pc_playlimit_reset_sub);
 		ShowInfo("[PLAYLIMIT] new day %d: online characters start at 0.\n", date);
 	}
+}
+
+// @buyplaytime <minutes>: take played minutes off today's count for zeny (only the minutes played are charged).
+// Buying at the limit cancels the pending disconnect.
+int pc_playlimit_buy(struct map_session_data* sd, int minutes, char* out, size_t size)
+{
+	int price = pc_playlimit_price(sd), take, left, i;
+	static const int marks[] = { 1, 10, 30 };
+	int64 cost;
+	if (!pc_playlimit_on(sd))
+		return snprintf(out, size, "No daily play-time limit for your account.");
+	if (price <= 0)
+		return snprintf(out, size, "Buying play time is off on this server.");
+	if (minutes <= 0)
+		return snprintf(out, size, "Usage: @buyplaytime <minutes> (%d zeny a minute).", price);
+	pc_playlimit_fold(sd);
+	take = minutes < sd->status.play_minutes ? minutes : sd->status.play_minutes;
+	if (take <= 0)
+		return snprintf(out, size, "You have not played today yet: nothing to buy.");
+	cost = (int64)take * price;
+	if (cost > sd->status.zeny)
+		return snprintf(out, size, "Not enough zeny: %d minute(s) cost %lld zeny, you have %d.", take, (long long)cost, sd->status.zeny);
+	pc_payzeny(sd, (int)cost);
+	if (log_config.zeny > 0)
+		log_zeny(sd, "N", sd, -(int)cost);
+	sd->status.play_minutes -= take;
+	left = playlimit_left(battle_config.daily_play_limit, pc_playlimit_minutes(sd));
+	sd->play_warned = 0; // the warnings come again when their marks are reached again
+	for (i = 0; i < 3; i++)
+		if (left <= marks[i])
+			sd->play_warned |= 1 << i;
+	if (sd->play_kick_tid != INVALID_TIMER) {
+		delete_timer(sd->play_kick_tid, pc_playlimit_kick);
+		sd->play_kick_tid = INVALID_TIMER;
+	}
+	chrif_save(sd, 0);
+	ShowInfo("[PLAYLIMIT] buy aid=%d cid=%d name='%s' minutes=%d zeny=%lld played=%d\n", sd->status.account_id,
+		sd->status.char_id, sd->status.name, take, (long long)cost, pc_playlimit_minutes(sd));
+	return snprintf(out, size, "Bought %d minute(s) for %lld zeny. Left today: %d h %02d min.", take, (long long)cost, left / 60, left % 60);
 }
 
 // @playtime: the minutes played today and the time left.
@@ -1025,19 +1151,26 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 
 	{	//Add IP field
 		uint32 ip = session[sd->fd]->client_addr;
+		char client[40]; // [client] which client: BornRok with its version, or not BornRok (uaRO.exe, a bot...)
+		if (!sd->state.bornrok)
+			snprintf(client, sizeof(client), "other");
+		else if (sd->bornrok_build)
+			snprintf(client, sizeof(client), "BornRok 0.0.%u.0", (unsigned int)sd->bornrok_build);
+		else
+			snprintf(client, sizeof(client), "BornRok (before 0.0.64)");
 		if (pc_isGM(sd))
 			ShowInfo("GM '"CL_WHITE"%s"CL_RESET"' logged in."
 				" (AID/CID: '"CL_WHITE"%d/%d"CL_RESET"',"
 				" Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"',"
-				" GM Level '"CL_WHITE"%d"CL_RESET"').\n",
+				" GM Level '"CL_WHITE"%d"CL_RESET"', Client: '%s').\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id,
-				sd->packet_ver, CONVIP(ip), pc_isGM(sd));
+				sd->packet_ver, CONVIP(ip), pc_isGM(sd), client);
 		else
 			ShowInfo("'"CL_WHITE"%s"CL_RESET"' logged in."
 				" (AID/CID: '"CL_WHITE"%d/%d"CL_RESET"',"
-				" Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"').\n",
+				" Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%d.%d.%d.%d"CL_RESET"', Client: '%s').\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id,
-				sd->packet_ver, CONVIP(ip));
+				sd->packet_ver, CONVIP(ip), client);
 	}
 
 	// Send friends list
@@ -1238,6 +1371,11 @@ int pc_reg_received(struct map_session_data *sd)
 	}
 	if (sd->state.at_restoring)
 		autotrade_restore_loaded(sd); // [autotrade] a kept shop brought back after a restart: onto the map, open
+	if (pc_readglobalreg(sd, "PLAY_AUTOPAY") && pc_playlimit_on(sd)) { // [playlimit] @autopay stays on over a relog
+		pc_playlimit_fold(sd); // the minutes before now are counted (no autopay yet)
+		sd->state.autopay = 1;
+		sd->autopay_log_tick = gettick();
+	}
 	return 1;
 }
 

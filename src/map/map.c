@@ -58,6 +58,7 @@
 #include "mail.h"
 #include "discord.h"
 #include "autotrade.h"
+#include "../common/attacklog.h"
 
 char tmp_sql[65535]="";
 char default_codepage[32] = "";
@@ -3862,6 +3863,7 @@ int do_init(int argc, char *argv[])
 
 	do_init_atcommand();
 	do_init_battle();
+	attacklog_init("map"); // [attack] log/attack-mapN.log (N = UA_MAP_INSTANCE)
 	do_init_chrif();
 	do_init_autotrade(); // [autotrade] after map_sql_init: it checks its tables
 	do_init_clif();

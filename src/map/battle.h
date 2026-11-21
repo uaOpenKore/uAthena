@@ -403,6 +403,7 @@ extern struct Battle_Config {
 	unsigned short recv_parse_shortlist; // [perf] 1 = parse only fds that received data this tick (default); 0 = scan all
 	int packet_flood_limit; // [flood] packets a client may send per second (0 = no limit)
 	int daily_play_limit; // [playlimit] hours a character may stay on the map-server per day (0 = no limit)
+	int playtime_buy_zeny_per_level; // [playlimit] @buyplaytime: zeny a minute per base level (0 = off)
 	int socket_send_coalesce_ms; // [perf] map-only send-coalescing window in ms; <=0 = off, >0 = flush window (int: lives in battle_data_int[])
 	int socket_sndbuf_size; // [perf] SO_SNDBUF bytes per socket; 0 = kernel default (int: lives in battle_data_int[])
 	unsigned short hom_setting; //Configures various homunc settings which make them behave unlike normal characters.. [Skotlex]

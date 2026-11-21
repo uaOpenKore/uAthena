@@ -473,7 +473,8 @@ run_map_supervisor() {
 		fi
 		echo "ua-start: map#$i launch (cores=${cores:-all} conf=$confdir) -> $console ($(date -d "@$now" '+%F %T'))" \
 			| tee -a "$console"
-		"${PIN[@]}" "$BIN" "${CFG_ARGS[@]}" >> "$console" 2>&1 &
+		# UA_MAP_INSTANCE: the map-server writes its abnormal packets to log/attack-map<N>.log
+		UA_MAP_INSTANCE="$i" "${PIN[@]}" "$BIN" "${CFG_ARGS[@]}" >> "$console" 2>&1 &
 		local pid=$!
 		MAP_PID[$i]=$pid; PID_INST[$pid]=$i; START_AT[$i]=$now; PIECE_AT[$i]=$now; PIECE_TS[$i]=$stamp
 		echo "$pid" > "${BIN_DIR}/PID-map${i}.pid"

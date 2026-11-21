@@ -576,6 +576,8 @@ struct map_session_data {
 		unsigned autotrade : 1;	//By Fantik
 		unsigned at_restoring : 1; // [autotrade] a kept shop being brought back after a restart (no client)
 		unsigned renewal_npc : 1; // [npcsprite] the client draws the renewal NPC sprites (BornRok marks its map login)
+		unsigned bornrok : 1; // [client] the map login carries BornRok's BRK mark
+		unsigned autopay : 1; // [playlimit] @autopay on: every minute played is paid in zeny instead of counted
 		unsigned reg_dirty : 3; //By Skotlex (marks whether registry variables have been saved or not yet)
 		unsigned showdelay :1;
 		unsigned showexp :1;
@@ -674,6 +676,9 @@ struct map_session_data {
 	int invincible_timer;
 	int rental_timer; // [Backport] rental-item expiry timer
 	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
+	int autopay_paid; // [playlimit] zeny @autopay took since its last zenylog line
+	t_tick autopay_log_tick; // [playlimit] when that zenylog line was written
+	unsigned short bornrok_build; // [client] N of BornRok 0.0.N.0 (map login bytes 2-3); 0 = before 0.0.64 or not BornRok
 	t_tick play_login_tick; // [playlimit] minutes on the map-server count from here (status.play_minutes before it)
 	int play_warned;        // [playlimit] the 30/10/1-minute warnings given today (playlimit_warning)
 	int play_kick_tid;      // [playlimit] the 40 s disconnect after the limit message; -1 = none

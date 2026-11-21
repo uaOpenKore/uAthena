@@ -3,6 +3,7 @@
 
 #include "../common/cbasetypes.h"
 #include "../common/socket.h"
+#include "../common/attacklog.h"	// [attack] abnormal packets -> log/attack-mapN.log
 #include "../common/timer.h"
 #include "../common/malloc.h"
 #include "../common/version.h"
@@ -44,6 +45,16 @@
 #include <time.h>
 
 #define DUMP_UNKNOWN_PACKET	0
+
+// [attack] "acc=<aid> cid=<cid> name='<name>'" of a session, "-" before its login
+static const char* clif_attack_who(struct map_session_data* sd)
+{
+	static char who[96];
+	if (sd == NULL)
+		return "-";
+	snprintf(who, sizeof(who), "acc=%d cid=%d name='%s'", sd->status.account_id, sd->status.char_id, sd->status.name);
+	return who;
+}
 
 struct Clif_Config {
 	int packet_db_ver;	//Preferred packet version.
@@ -2165,10 +2176,10 @@ int clif_selllist(struct map_session_data *sd)
 			if (val < 0)
 				continue;
 			WFIFOW(fd,4+c*10)=i+2;
-			WFIFOL(fd,6+c*10)=val;
+			WFIFOL(fd,6+c*10)=itemdb_shop_sell_value(sd->inventory_data[i], val); // [shoparb]
 			if (!sd->inventory_data[i]->flag.value_notoc)
 				val=pc_modifysellvalue(sd,val);
-			WFIFOL(fd,10+c*10)=val;
+			WFIFOL(fd,10+c*10)=itemdb_shop_sell_value(sd->inventory_data[i], val); // [shoparb] what is really paid
 			c++;
 		}
 	}
@@ -8314,6 +8325,7 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 	if (sd) {
 		if (battle_config.error_log)
 			ShowError("clif_parse_WantToConnection : invalid request (character already logged in)?\n");
+		attacklog_packet(fd, clif_attack_who(sd), "second_map_login: a map login on a connection that is already logged in"); // [attack]
 		return;
 	}
 
@@ -8363,6 +8375,11 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 	if (cmd == 0x9b && packet_db[packet_ver][cmd].len == 26 && RFIFOB(fd,13) == 'B' && RFIFOB(fd,14) == 'R' &&
 		RFIFOB(fd,15) == 'K' && (RFIFOB(fd,16) & 1))
 		sd->state.renewal_npc = 1;
+	if (cmd == 0x9b && packet_db[packet_ver][cmd].len == 26 && RFIFOB(fd,13) == 'B' && RFIFOB(fd,14) == 'R' && RFIFOB(fd,15) == 'K') {
+		// [client] BornRok: bytes 2-3 carry its build N of 0.0.N.0 since 0.0.64 (before: 39 33, the original padding)
+		sd->state.bornrok = 1;
+		sd->bornrok_build = RFIFOW(fd,2) == 0x3339 ? 0 : RFIFOW(fd,2);
+	}
 	session[fd]->session_data = sd;
 
 	pc_setnewpc(sd, account_id, char_id, login_id1, client_tick, sex, fd);
@@ -8986,10 +9003,12 @@ void clif_parse_GlobalMessage(int fd, struct map_session_data* sd)
 	packetlen = RFIFOW(fd,2);
 	if (packetlen > RFIFOREST(fd)) { // there has to be enough data to read
 		ShowWarning("clif_parse_GlobalMessage: Received malformed packet from player '%s' (length is incorrect)!", sd->status.name);
+		attacklog_packet(fd, clif_attack_who(sd), "bad_chat: says %u bytes, has fewer", packetlen); // [attack]
 		return;
 	}
 	if (packetlen < 4 + 1) { // 4-byte header and at least an empty string is expected
 		ShowWarning("clif_parse_GlobalMessage: Received malformed packet from player '%s' (no message data)!", sd->status.name);
+		attacklog_packet(fd, clif_attack_who(sd), "bad_chat: no message"); // [attack]
 		return;
 	}
 
@@ -9014,6 +9033,7 @@ void clif_parse_GlobalMessage(int fd, struct map_session_data* sd)
 	}
 	if (message[messagelen-1] != '\0') { // message must be zero-terminated
 		ShowWarning("clif_parse_GlobalMessage: Player '%s' sent an unterminated string!", sd->status.name);
+		attacklog_packet(fd, clif_attack_who(sd), "bad_chat: an unterminated string"); // [attack]
 		return;
 	}
 
@@ -9022,6 +9042,7 @@ void clif_parse_GlobalMessage(int fd, struct map_session_data* sd)
 		message[namelen] != ' ' || message[namelen+1] != ':' || message[namelen+2] != ' ') // completely, not just the prefix
 	{
 		//Hacked message, or infamous "client desynch" issue where they pick one char while loading another.
+		attacklog_packet(fd, clif_attack_who(sd), "chat_as_someone_else: the message does not start with the speaker's name, kicked"); // [attack]
 		socket_set_disconnect_reason(fd, SDC_HACK_CHECK); // [dc-log] (ТЗ п.11)
 		clif_setwaitclose(fd); // Just kick them out to correct it.
 		ShowWarning("clif_parse_GlobalMessage: Player '%.*s' sent a message using an incorrect name ('%s')! Forcing a relog...", namelen, sd->status.name, message);
@@ -9369,6 +9390,7 @@ void clif_parse_Wis(int fd, struct map_session_data *sd)
 	if (len < 28)
 	{	//Invalid packet, specified size is less than minimum! [Skotlex]
 		ShowWarning("Hack on Whisper: %s (AID/CID: %d:%d)!\n", sd->status.name, sd->status.account_id, sd->status.char_id);
+		attacklog_packet(fd, clif_attack_who(sd), "bad_whisper: says %d bytes, under the 28 a whisper has, kicked", len); // [attack]
 		socket_set_disconnect_reason(fd, SDC_HACK_CHECK); // [dc-log] (ТЗ п.11)
 		clif_setwaitclose(fd);
 		return;
@@ -10380,6 +10402,7 @@ void clif_parse_NpcSelectMenu(int fd,struct map_session_data *sd)
 	select = RFIFOB(fd,6);
 	if((select > sd->npc_menu && select != 0xff) || !select){
 		ShowWarning("Hack on NPC Select Menu: %s (AID: %d)!\n",sd->status.name,sd->bl.id);
+		attacklog_packet(fd, clif_attack_who(sd), "bad_npc_menu: picked %d of a %d-item menu, kicked", select, sd->npc_menu); // [attack]
 		clif_GM_kick(sd,sd,0);
 	} else {
 		sd->npc_menu=select;
@@ -11420,6 +11443,7 @@ void clif_parse_PMIgnore(int fd, struct map_session_data *sd)
 		{	// to find possible bot users who automaticaly ignore people
 			sprintf(output, "Character '%s' (account: %d) has tried to block wisps from '%s' (wisp name of the server). Bot user?", sd->status.name, sd->status.account_id, wisp_server_name);
 			intif_wis_message_to_gm(wisp_server_name, battle_config.hack_info_GM_level, output);
+			attacklog_packet(fd, clif_attack_who(sd), "blocks_server_whispers: ignores '%s', the server's own name (a bot)", wisp_server_name); // [attack]
 			WFIFOB(fd,3) = 1; // fail
 			WFIFOSET(fd, packet_len(0x0d1));
 			return;
@@ -12140,6 +12164,8 @@ int clif_parse(int fd)
 				err == 3 ? ", possibly for having an invalid char_id." :
 				err == 6 ? ", possibly for having an invalid sex." :
 				". ERROR invalid error code"));
+			attacklog_packet(fd, "-", "bad_login_packet: 0x%04x is no map login of a known client version (err %d), disconnected",
+				cmd, err); // [attack]
 			WFIFOHEAD(fd,packet_len(0x6a));
 			WFIFOW(fd,0) = 0x6a;
 			WFIFOB(fd,2) = 3; // Rejected from Server
@@ -12159,6 +12185,7 @@ int clif_parse(int fd)
 		// kicks an in-game player; the next valid packet (from a fresh recv) parses normally. Bounded:
 		// RFIFOSKIP consumes the bytes so there's no re-parse loop.
 		ShowWarning("clif_parse: Ignored unsupported packet (packet 0x%04x, %d bytes) from session #%d (kept connection).\n", cmd, (int)RFIFOREST(fd), fd);
+		attacklog_packet(fd, clif_attack_who(sd), "unknown_packet: 0x%04x (client version %d), ignored", cmd, packet_ver); // [attack]
 		RFIFOSKIP(fd, RFIFOREST(fd));
 		return 0;
 	}
@@ -12172,6 +12199,7 @@ int clif_parse(int fd)
 		packet_len = RFIFOW(fd,2);
 		if (packet_len < 4 || packet_len > 32768) {
 			ShowWarning("clif_parse: Received packet 0x%04x specifies invalid packet_len (%d), disconnecting session #%d.\n", cmd, packet_len, fd);
+			attacklog_packet(fd, clif_attack_who(sd), "bad_length: 0x%04x says %d bytes, disconnected", cmd, packet_len); // [attack]
 			socket_set_disconnect_reason(fd, SDC_INVALID_PACKET); // [dc-log] (ТЗ п.11)
 			set_eof(fd);
 			return 0;
@@ -12192,6 +12220,7 @@ int clif_parse(int fd)
 		if (++session[fd]->flood_count > (unsigned int)battle_config.packet_flood_limit) {
 			ShowWarning("clif_parse: session #%d (%s, %d.%d.%d.%d) sent over %d packets in a second, disconnecting.\n",
 				fd, sd ? sd->status.name : "not logged in", CONVIP(session[fd]->client_addr), battle_config.packet_flood_limit);
+			attacklog_packet(fd, clif_attack_who(sd), "packet_flood: over %d packets in a second, disconnected", battle_config.packet_flood_limit); // [attack]
 			socket_set_disconnect_reason(fd, SDC_PACKET_FLOOD);
 			set_eof(fd);
 			RFIFOSKIP(fd, RFIFOREST(fd));
@@ -12211,6 +12240,8 @@ int clif_parse(int fd)
 			|| packet_db[packet_ver][cmd].func == clif_parse_debug
 		)	//Only execute the function when there's an sd (except for debug/wanttoconnect packets)
 			packet_db[packet_ver][cmd].func(fd, sd);
+		else // [attack] a game packet on a connection that has not logged in
+			attacklog_packet(fd, "-", "packet_before_login: 0x%04x, ignored", cmd);
 	}
 #if DUMP_UNKNOWN_PACKET
 	else if (battle_config.error_log)
