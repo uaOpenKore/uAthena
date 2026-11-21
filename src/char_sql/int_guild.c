@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../common/sqlid.h"
 #include "../common/mmo.h"
 #include "../common/cbasetypes.h"
 #include "../common/strlib.h"
@@ -168,13 +169,18 @@ int inter_guild_tosql(struct guild *g,int flag)
 		else
 		{
 			//New guild, catch id
-			if(mysql_field_count(&mysql_handle) == 0 &&	mysql_insert_id(&mysql_handle) != 0)
+			if(mysql_field_count(&mysql_handle) == 0 &&	sql_new_id_ok(mysql_insert_id(&mysql_handle), INT_MAX, "inter_guild_tosql")) // [counters]
 			{
 				g->guild_id = (int)mysql_insert_id(&mysql_handle);
 				new_guild = 1;
 			}
-			else
+			else {
+				if (mysql_insert_id(&mysql_handle) > 0) { // out of range: no guild row left behind
+					sprintf(tmp_sql, "DELETE FROM `%s` WHERE `guild_id`='%llu'", guild_db, (unsigned long long)mysql_insert_id(&mysql_handle));
+					mysql_query(&mysql_handle, tmp_sql);
+				}
 				return 0; //Failed to get ID??
+			}
 		}
 	}
 #else

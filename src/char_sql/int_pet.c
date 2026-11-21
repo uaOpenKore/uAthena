@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "char.h"
+#include "../common/sqlid.h"
 #include "../common/malloc.h"
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
@@ -46,9 +47,13 @@ int inter_pet_tosql(int pet_id, struct s_pet *p) {
 		return 0;
 	} else if (pet_id == -1) { //New pet inserted.
 		if(mysql_field_count(&mysql_handle) == 0 &&
-			mysql_insert_id(&mysql_handle) != 0) {
+			sql_new_id_ok(mysql_insert_id(&mysql_handle), INT_MAX, "inter_pet_tosql")) { // [counters]
 			p->pet_id = pet_id = (int)mysql_insert_id(&mysql_handle);
 		} else {
+			if (mysql_insert_id(&mysql_handle) > 0) {
+				sprintf(tmp_sql, "DELETE FROM `%s` WHERE `pet_id`='%llu'", pet_db, (unsigned long long)mysql_insert_id(&mysql_handle));
+				mysql_query(&mysql_handle, tmp_sql);
+			}
 			ShowError("inter_pet_tosql: Failed to retrieve new pet_id for '%s'. Pet creation aborted.\n", p->name);
 			return 0;
 		}

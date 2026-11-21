@@ -4,6 +4,7 @@
 // has no Sql_* API. Two tables: `mercenary` (instance) + `mercenary_owner` (per-char
 // loyalty/calls, loaded with the character).
 
+#include "../common/sqlid.h"
 #include "../common/mmo.h"
 #include "../common/db.h"
 #include "../common/malloc.h"
@@ -94,8 +95,13 @@ static bool mapif_mercenary_save(struct s_mercenary* merc)
 			ShowDebug("at %s:%d - %s\n", __FILE__, __LINE__, tmp_sql);
 			flag = false;
 		}
-		else
+		else if (sql_new_id_ok(mysql_insert_id(&mysql_handle), INT_MAX, "mercenary_save")) // [counters]
 			merc->mercenary_id = (int)mysql_insert_id(&mysql_handle);
+		else {
+			sprintf(tmp_sql, "DELETE FROM `mercenary` WHERE `mer_id`='%llu'", (unsigned long long)mysql_insert_id(&mysql_handle));
+			mysql_query(&mysql_handle, tmp_sql);
+			flag = false;
+		}
 	}
 	else
 	{ // Update DB entry

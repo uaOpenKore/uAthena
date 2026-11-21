@@ -4,7 +4,7 @@
 
 DROP TABLE IF EXISTS `cart_inventory`;
 CREATE TABLE `cart_inventory` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) unsigned NOT NULL auto_increment,
   `char_id` int(11) NOT NULL default '0',
   `nameid` int(11) NOT NULL default '0',
   `amount` int(11) NOT NULL default '0',

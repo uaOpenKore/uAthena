@@ -1,6 +1,7 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/sqlid.h"
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/core.h"
@@ -441,6 +442,16 @@ int mmo_auth_new(struct mmo_account* account, char sex)
 		return 1;
 	}
 
+	// [counters] an account id is also the player's id on the map: it must stay below END_ACCOUNT_NUM (100M; the
+	// NPC/mob ids start at 110M). Over it the registration is refused and the row removed.
+	if (mysql_field_count(&mysql_handle) == 0 &&
+		!sql_new_id_ok(mysql_insert_id(&mysql_handle), END_ACCOUNT_NUM - 1, "mmo_auth_new")) {
+		if (mysql_insert_id(&mysql_handle) > 0) {
+			sprintf(tmpsql, "DELETE FROM `%s` WHERE `%s`='%llu'", login_db, login_db_account_id, (unsigned long long)mysql_insert_id(&mysql_handle));
+			mysql_query(&mysql_handle, tmpsql);
+		}
+		return 1;
+	}
 	if(mysql_field_count(&mysql_handle) == 0 &&
 		mysql_insert_id(&mysql_handle) < START_ACCOUNT_NUM) {
 		//Invalid Account ID! Must update it.

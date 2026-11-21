@@ -5,7 +5,7 @@
 #Database: log
 #Table: picklog
 CREATE TABLE `picklog` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) unsigned NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `char_id` int(11) NOT NULL default '0',
   `type` enum('M','P','L','T','V','S','N','C','A','R','G') NOT NULL default 'P',
@@ -25,7 +25,7 @@ CREATE TABLE `picklog` (
 #Database: log
 #Table: zenylog
 CREATE TABLE `zenylog` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) unsigned NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `char_id` int(11) NOT NULL default '0',
   `src_id` int(11) NOT NULL default '0',
@@ -39,7 +39,7 @@ CREATE TABLE `zenylog` (
 #Database: log
 #Table: branchlog
 CREATE TABLE `branchlog` (
-  `branch_id` mediumint(9) unsigned NOT NULL auto_increment,
+  `branch_id` int(11) unsigned NOT NULL auto_increment,
   `branch_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `account_id` int(11) NOT NULL default '0',
   `char_id` int(11) NOT NULL default '0',
@@ -53,7 +53,7 @@ CREATE TABLE `branchlog` (
 #Database: log
 #Table: mvplog
 CREATE TABLE `mvplog` (
-  `mvp_id` mediumint(9) unsigned NOT NULL auto_increment,
+  `mvp_id` int(11) unsigned NOT NULL auto_increment,
   `mvp_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `kill_char_id` int(11) NOT NULL default '0',
   `monster_id` smallint(6) NOT NULL default '0',
@@ -66,7 +66,7 @@ CREATE TABLE `mvplog` (
 #Database: log
 #Table: atcommandlog
 CREATE TABLE `atcommandlog` (
-  `atcommand_id` mediumint(9) unsigned NOT NULL auto_increment,
+  `atcommand_id` int(11) unsigned NOT NULL auto_increment,
   `atcommand_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `account_id` int(11) unsigned NOT NULL default '0',
   `char_id` int(11) unsigned NOT NULL default '0',
@@ -81,7 +81,7 @@ CREATE TABLE `atcommandlog` (
 #Database: log
 #Table: npclog
 CREATE TABLE `npclog` (
-  `npc_id` mediumint(9) unsigned NOT NULL auto_increment,
+  `npc_id` int(11) unsigned NOT NULL auto_increment,
   `npc_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `account_id` int(11) unsigned NOT NULL default '0',
   `char_id` int(11) unsigned NOT NULL default '0',

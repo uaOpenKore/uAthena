@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../common/sqlid.h"
 #include "../common/cbasetypes.h"
 #include "../common/db.h"
 #include "../common/malloc.h"
@@ -144,10 +145,15 @@ int inter_party_tosql(struct party *p, int flag, int index)
 			return 0;
 		}
 		if(mysql_field_count(&mysql_handle) == 0 &&
-			mysql_insert_id(&mysql_handle) != 0)
+			sql_new_id_ok(mysql_insert_id(&mysql_handle), INT_MAX, "inter_party_tosql")) // [counters]
 			party_id = p->party_id = (int)mysql_insert_id(&mysql_handle);
-		else //Failed to retrieve ID??
+		else { //Failed to retrieve ID??
+			if (mysql_insert_id(&mysql_handle) > 0) {
+				sprintf(tmp_sql, "DELETE FROM `%s` WHERE `party_id`='%llu'", party_db, (unsigned long long)mysql_insert_id(&mysql_handle));
+				mysql_query(&mysql_handle, tmp_sql);
+			}
 			return 0;
+		}
 #else
 		//During conversion, you want to specify the id, and allow overwriting
 		//(in case someone is re-running the process.
