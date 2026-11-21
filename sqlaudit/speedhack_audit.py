@@ -63,6 +63,8 @@ class P:
             if src == self.gid and sid == 5: counts["bash"] = counts.get("bash", 0) + 1
         elif pid == 0xa8:  # useitemack index@2 amount@4 ok@6
             if p[6]: counts["pot"] = counts.get("pot", 0) + 1
+        elif pid == 0x1c8:  # useitemack2 index@2 nameid@4 id@6 amount@10 ok@12
+            if p[12]: counts["pot"] = counts.get("pot", 0) + 1
         elif pid == 0xb0:
             typ, val = struct.unpack_from("<Hi", p, 2)
             if typ == 53: self.amotion = val   # SP_ASPD
@@ -77,6 +79,8 @@ class P:
         elif pid in (0x78, 0x7c, 0x22a, 0x22b) and len(p) >= 22:
             if struct.unpack_from("<H", p, 20 if pid == 0x7c else 14)[0] == PUPA:
                 self.mob = struct.unpack_from("<I", p, 2)[0]; self.mob_dead = False
+                if pid == 0x7c:  # packed position at 36
+                    b = p[36:39]; self.mobpos = ((b[0] << 2) | (b[1] >> 6), ((b[1] & 0x3f) << 4) | (b[2] >> 4))
         elif pid == 0x80:
             if struct.unpack_from("<I", p, 2)[0] == self.mob and p[6] == 1: self.mob_dead = True
         elif pid == 0x91 or pid == 0x92:
@@ -87,87 +91,84 @@ class P:
         return counts
     def cmd(self, t): chat(self.sock, "SpdAudit", t); self.pump(0.6)
     def spawn(self):
-        self.mob = None
-        self.cmd("@monster %d 1" % PUPA); self.pump(1.5)
+        """a Pupa, and the character steps next to it (the server answers 0x139 'out of range' and does not
+        walk there itself)"""
+        self.mob = None; self.mobpos = None
+        self.cmd("@monster %d 1" % PUPA); self.pump(1.0)
+        if self.mobpos:
+            self.sock.sendall(walk_pkt(self.mobpos[0] + 1, self.mobpos[1])); self.pump(1.5)
         return self.mob
 
 try:
     stop()
     sql("DELETE FROM skill WHERE char_id=%d; DELETE FROM inventory WHERE char_id=%d; DELETE FROM `char` WHERE char_id=%d; DELETE FROM login WHERE account_id=%d" % (C, C, C, A))
     sql("INSERT INTO login (account_id,userid,user_pass,sex,email,level) VALUES (%d,'spdaudit','spdpw1','M','a@a.com',99)" % A)
-    sql("INSERT INTO `char` (char_id,account_id,char_num,name,class,base_level,job_level,str,agi,dex,zeny,hp,max_hp,sp,max_sp,last_map,last_x,last_y,save_map,save_x,save_y) "
-        "VALUES (%d,%d,0,'SpdAudit',1,80,40,1,1,1,1000,5000,5000,100,100,'prontera',150,180,'prontera',150,180)" % (C, A))
+    sql("INSERT INTO `char` (char_id,account_id,char_num,name,class,base_level,job_level,str,agi,dex,`int`,zeny,hp,max_hp,sp,max_sp,last_map,last_x,last_y,save_map,save_x,save_y) "
+        "VALUES (%d,%d,0,'SpdAudit',1,80,40,1,1,1,99,1000,5000,5000,800,800,'prontera',150,180,'prontera',150,180)" % (C, A))
     cid = str(C)
     sql("REPLACE INTO skill (char_id, id, lv) VALUES (%s, 5, 10)" % cid)
     sql("DELETE FROM inventory WHERE char_id=%s" % cid)
-    sql("INSERT INTO inventory (char_id, nameid, amount, identify) VALUES (%s, %d, 1000, 1)" % (cid, REDPOT))
+    sql("INSERT INTO inventory (char_id, nameid, amount, identify) VALUES (%s, %d, 100, 1)" % (cid, REDPOT))  # 1000 made the character overweight: no attacks, no items
     start()
     p = P(); c = p.pump(3); p.gid = int(cid) if False else None
     p.gid = int(sql("SELECT account_id FROM `char` WHERE char_id=%s" % cid))  # a player's block id is its account id
-    p.cmd("@heal")
+    p.cmd("@heal"); p.cmd("@allskill")
     print("ASPD amotion %s ms, walk speed %s ms/cell" % (p.amotion, p.speed), flush=True)
     amotion = p.amotion or 1000; speed = p.speed or 150
+    sx0, sy0 = 150, 180
 
-    # A attacks
-    p.spawn(); hits = 0; t0 = time.time(); c = {}
-    while time.time() - t0 < 10:
-        if p.mob_dead or p.mob is None: p.spawn()
-        p.sock.sendall(attack_pkt(p.mob)); p.pump(0.05, c)
-    p.pump(1, c); hits = c.get("hit", 0); allowed = int(10000 / amotion) + 2
-    check("A attacks 20/s for 10 s: the server hit %d times, the attack delay allows %d" % (hits, allowed), hits <= allowed)
-    rows.append(("A attack 0x190", 200, hits, allowed))
-
-    # B Bash spam
-    p.cmd("@heal"); p.spawn(); c = {}; t0 = time.time()
-    while time.time() - t0 < 10:
-        if p.mob_dead or p.mob is None: p.spawn()
-        p.sock.sendall(skill_pkt(5, 10, p.mob)); p.pump(0.05, c)
-    p.pump(1, c); bash = c.get("bash", 0); allowed = int(10000 / amotion) + 2
-    check("B Bash 20/s for 10 s: %d Bash hits, the attack delay allows %d" % (bash, allowed), bash <= allowed)
-    rows.append(("B Bash 0x72", 200, bash, allowed))
-
-    # C potions
-    p.cmd("@heal"); c = {}; t0 = time.time()
-    idx = 2  # the first inventory slot (index 2 in the client protocol)
-    while time.time() - t0 < 10:
-        p.sock.sendall(useitem_pkt(idx, p.gid)); p.pump(0.05, c)
-    p.pump(1, c); pots = c.get("pot", 0)
-    print("    C potions 20/s for 10 s: %d used (pre-renewal has no item delay by default: this is the client's limit only)" % pots, flush=True)
-    rows.append(("C Red Potion 0x9f", 200, pots, "no limit"))
-
-    # D walking speed
-    p.pump(1); c = {}; t0 = time.time(); start_pos = p.pos
-    sx, sy = 150, 180
-    while time.time() - t0 < 6:
-        p.sock.sendall(walk_pkt(sx + 30, sy)); p.pump(0.1, c)
-    p.pump(0.5, c)
-    p.cmd("@where"); stop_t = time.time()
-    # the server's own position: from the DB after a save-on-quit
-    p.s.quit_game(wait=2); time.sleep(2)
-    x, y = map(int, sql("SELECT last_x, last_y FROM `char` WHERE char_id=%s" % cid).split("\t"))
-    moved = abs(x - sx) + abs(y - sy); allowed = int(6600 / speed) + 2
-    check("D walk requests 10/s for 6 s: moved %d cells, the walk speed (%d ms a cell) allows %d" % (moved, speed, allowed), moved <= allowed)
-    rows.append(("D walk 0xa7", 60, moved, allowed))
-
-    # E far walk
-    p = P(); p.gid = int(sql("SELECT account_id FROM `char` WHERE char_id=%s" % cid)); p.pump(2)
-    x0, y0 = map(int, sql("SELECT last_x, last_y FROM `char` WHERE char_id=%s" % cid).split("\t"))
-    p.sock.sendall(walk_pkt(x0 - 60 if x0 > 80 else x0 + 60, y0)); p.pump(4)
-    p.s.quit_game(wait=2); time.sleep(2)
-    x1, y1 = map(int, sql("SELECT last_x, last_y FROM `char` WHERE char_id=%s" % cid).split("\t"))
-    far = abs(x1 - x0) + abs(y1 - y0)
-    print("    E one walk request 60 cells away: moved %d cells in 4 s" % far, flush=True)
-    rows.append(("E far walk 60 cells", 1, far, "path limit"))
-
-    # F walk + attack interleaved
-    p = P(); p.gid = int(sql("SELECT account_id FROM `char` WHERE char_id=%s" % cid)); p.pump(2); p.cmd("@heal")
-    p.spawn(); c = {}; t0 = time.time(); i = 0
-    while time.time() - t0 < 10:
-        if p.mob_dead or p.mob is None: p.spawn()
-        p.sock.sendall(attack_pkt(p.mob) if i % 2 == 0 else walk_pkt(150 + (i % 4), 180)); i += 1; p.pump(0.05, c)
-    p.pump(1, c); hits = c.get("hit", 0); allowed = int(10000 / amotion) + 2
-    check("F walking between attacks 20/s: %d hits, the attack delay allows %d" % (hits, allowed), hits <= allowed)
-    rows.append(("F walk+attack", 200, hits, allowed))
+    def measure(send, every, secs, key, respawn=True):
+        """send() every `every` s for `secs` s; the count of `key` the server answered with"""
+        c = {}; t0 = time.time(); nxt = t0
+        if respawn: p.spawn()
+        while time.time() - t0 < secs:
+            if respawn and (p.mob_dead or p.mob is None): p.spawn()
+            if time.time() >= nxt:
+                send(); nxt += every
+            p.pump(0.02, c)
+        p.pump(1, c)
+        return c.get(key, 0) if key else c
+    allowed = int(10000 / amotion) + 2
+    # A attacks: at the attack delay (what a client may do) and 20 a second
+    pa = measure(lambda: p.sock.sendall(attack_pkt(p.mob)), amotion / 1000.0 + 0.05, 10, "hit")
+    sa = measure(lambda: p.sock.sendall(attack_pkt(p.mob)), 0.05, 10, "hit")
+    check("A attacks 20/s for 10 s: %d hits (paced at the attack delay: %d), the delay allows %d" % (sa, pa, allowed), sa <= allowed and pa > 0)
+    rows.append(("A attack 0x190", "paced %d / 20/s" % pa, sa, allowed))
+    # B Bash
+    p.cmd("@heal")
+    pb = measure(lambda: p.sock.sendall(skill_pkt(5, 1, p.mob)), amotion / 1000.0 + 0.05, 10, "bash")
+    p.cmd("@heal")
+    sb = measure(lambda: p.sock.sendall(skill_pkt(5, 1, p.mob)), 0.05, 10, "bash")
+    check("B Bash 20/s for 10 s: %d hits (paced: %d), the delay allows %d" % (sb, pb, allowed), sb <= allowed and pb > 0)
+    rows.append(("B Bash 0x72", "paced %d / 20/s" % pb, sb, allowed))
+    # C potions: 20 a second (pre-renewal has no item-use delay of its own)
+    p.cmd("@heal")
+    pots = measure(lambda: p.sock.sendall(useitem_pkt(2, p.gid)), 0.05, 10, "pot", respawn=False)
+    print("    C potions 20/s for 10 s: %d used" % pots, flush=True)
+    rows.append(("C Red Potion 0x9f", "20/s", pots, "-"))
+    # D walking: requests 10 a second toward a cell 30 east; the server's own positions (0x87 src) over 6 s
+    p.cmd("@heal")
+    p.sock.sendall(walk_pkt(sx0, sy0)); p.pump(3)  # back to the start cell
+    c = measure(lambda: p.sock.sendall(walk_pkt(sx0 + 12, sy0)), 0.1, 6, None, respawn=False)
+    w = c.get("walks", [])
+    moved = abs(w[-1][1][0] - w[0][1][0]) + abs(w[-1][1][1] - w[0][1][1]) if len(w) > 1 else 0
+    secs = (w[-1][0] - w[0][0]) if len(w) > 1 else 0
+    allow_w = int(secs * 1000 / speed) + 2
+    check("D walk requests 10/s: moved %d cells in %.1f s, the walk speed (%d ms a cell) allows %d" % (moved, secs, speed, allow_w),
+          moved <= allow_w and len(w) > 1, "walk acks=%d" % len(w))
+    rows.append(("D walk 0xa7", "10/s", moved, allow_w))
+    # E one request far away (the server's path search limit)
+    c = measure(lambda: p.sock.sendall(walk_pkt(sx0 - 60, sy0)), 99, 3, None, respawn=False)
+    w = c.get("walks", [])
+    print("    E one walk request ~85 cells away: %s" % ("walked (dst %s)" % (w[-1][2:],) if w else "refused (no walk ack)"), flush=True)
+    rows.append(("E far walk", 1, len(w), "path limit"))
+    # F walk between attacks (cancelling the attack delay)
+    p.cmd("@heal"); i = [0]
+    def alt():
+        p.sock.sendall(attack_pkt(p.mob) if i[0] % 2 == 0 else walk_pkt(sx0 + (i[0] % 4), sy0)); i[0] += 1
+    sf = measure(alt, 0.05, 10, "hit")
+    check("F walking between attacks 20/s: %d hits, the delay allows %d" % (sf, allowed), sf <= allowed)
+    rows.append(("F walk+attack", "20/s", sf, allowed))
     p.s.quit_game(wait=2)
 finally:
     stop()
