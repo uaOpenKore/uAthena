@@ -1084,6 +1084,13 @@ int mmo_auth_new(struct mmo_account* account, char sex, char* email)
 	struct tm *tmtime;
 	int i = auth_num;
 
+	// [counters] an account id is also the player's map id: below END_ACCOUNT_NUM (NPC/mob ids start at 110M)
+	if (account_id_count >= END_ACCOUNT_NUM) {
+		ShowError("mmo_auth_new: the next account id %u reaches END_ACCOUNT_NUM (%d): registration of '%s' refused.\n",
+			account_id_count, END_ACCOUNT_NUM, account->userid);
+		return -1;
+	}
+
 	if (auth_num >= auth_max) {
 		auth_max += 256;
 		auth_dat = (struct auth_data*)aRealloc(auth_dat, sizeof(struct auth_data) * auth_max);
@@ -1308,6 +1315,8 @@ int mmo_auth(struct mmo_account* account, int fd)
 		} else {
 			int new_id = mmo_auth_new(account, account->userid[len+1], "a@a.com");
 			t_tick tick = gettick();
+			if (new_id < 0)
+				return 0; // [counters] no account id left: refused like an unregistered id
 			login_log("Account creation and authentification accepted (account %s (id: %d), pass: %s, sex: %c, connection with _F/_M, ip: %s)" RETCODE,
 			          account->userid, new_id, account->passwd, account->userid[len+1], ip);
 			auth_before_save_file = 0; // Creation of an account -> save accounts file immediatly

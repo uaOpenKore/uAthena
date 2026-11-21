@@ -1241,6 +1241,11 @@ int make_new_char(int fd, unsigned char *dat)
 	
 	sd = (struct char_session_data*)session[fd]->session_data;
 
+	if (char_id_count < 0 || char_id_count == INT_MAX) { // [counters] no character id left
+		ShowError("make_new_char: the next character id %d is out of range: creation refused.\n", char_id_count);
+		return -2;
+	}
+
 	// remove control characters from the name
 	strncpy(name, dat, NAME_LENGTH);
 	name[NAME_LENGTH-1] = '\0'; //Trunc name to max possible value (23)
