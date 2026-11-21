@@ -37,6 +37,9 @@ struct at_item {
 	int nameid;
 	unsigned short amount;
 	unsigned int price;
+	unsigned char refine;  // the item itself, for a search on the web site (S. 2026-11-21): refine, broken, cards
+	signed char attribute;
+	int card[MAX_SLOTS];
 };
 
 struct at_shop {
@@ -55,6 +58,7 @@ struct at_shop {
 
 static struct dbt* at_db = NULL;     // char_id -> struct at_shop
 static bool at_on = false;      // the storage is there (SQL: the tables exist)
+static bool at_itemcols = false; // [SQL] autotrade_item has refine/attribute/card0-3 (upgrade_2026-11-21_autotrade_cards.sql)
 static bool at_final = false;   // shutting down: leaving autotraders keep their shop
 static int at_inflight = 0;     // restore requests waiting for their 0x2b26
 #define AT_RESTORE_MS 10        // the restore pipeline is topped up every 10 ms...
@@ -106,10 +110,15 @@ static void at_write_rows(struct at_shop* s)
 	at_query(tmp_sql);
 	if (s->count <= 0)
 		return;
-	p = tmp_sql + sprintf(tmp_sql, "INSERT INTO `autotrade_item` (`char_id`,`cart_slot`,`nameid`,`amount`,`price`) VALUES ");
-	for (i = 0; i < s->count; i++)
-		p += sprintf(p, "%s('%d','%d','%d','%u','%u')", i ? "," : "", s->char_id, s->items[i].slot, s->items[i].nameid,
-			s->items[i].amount, s->items[i].price);
+	p = tmp_sql + sprintf(tmp_sql, "INSERT INTO `autotrade_item` (`char_id`,`cart_slot`,`nameid`,`amount`,`price`%s) VALUES ",
+		at_itemcols ? ",`refine`,`attribute`,`card0`,`card1`,`card2`,`card3`" : "");
+	for (i = 0; i < s->count; i++) {
+		const struct at_item* it = &s->items[i];
+		p += sprintf(p, "%s('%d','%d','%d','%u','%u'", i ? "," : "", s->char_id, it->slot, it->nameid, it->amount, it->price);
+		if (at_itemcols)
+			p += sprintf(p, ",'%u','%d','%d','%d','%d','%d'", it->refine, it->attribute, it->card[0], it->card[1], it->card[2], it->card[3]);
+		p += sprintf(p, ")");
+	}
 	at_query(tmp_sql);
 }
 #else
@@ -209,16 +218,27 @@ static int at_load(void)
 		n++;
 	}
 	mysql_free_result(res);
-	if (!at_query("SELECT `char_id`,`cart_slot`,`nameid`,`amount`,`price` FROM `autotrade_item` ORDER BY `char_id`,`cart_slot`") ||
+	if (!at_query(at_itemcols
+			? "SELECT `char_id`,`cart_slot`,`nameid`,`amount`,`price`,`refine`,`attribute`,`card0`,`card1`,`card2`,`card3` FROM `autotrade_item` ORDER BY `char_id`,`cart_slot`"
+			: "SELECT `char_id`,`cart_slot`,`nameid`,`amount`,`price` FROM `autotrade_item` ORDER BY `char_id`,`cart_slot`") ||
 		(res = mysql_store_result(&mmysql_handle)) == NULL)
 		return n;
 	while ((row = mysql_fetch_row(res)) != NULL) {
+		struct at_item* it;
+		int k;
 		if ((s = at_get(atoi(row[0]))) == NULL || s->count >= MAX_VENDING)
 			continue;
-		s->items[s->count].slot = atoi(row[1]);
-		s->items[s->count].nameid = atoi(row[2]);
-		s->items[s->count].amount = (unsigned short)atoi(row[3]);
-		s->items[s->count].price = (unsigned int)strtoul(row[4], NULL, 10);
+		it = &s->items[s->count];
+		it->slot = atoi(row[1]);
+		it->nameid = atoi(row[2]);
+		it->amount = (unsigned short)atoi(row[3]);
+		it->price = (unsigned int)strtoul(row[4], NULL, 10);
+		if (at_itemcols) {
+			it->refine = (unsigned char)atoi(row[5]);
+			it->attribute = (signed char)atoi(row[6]);
+			for (k = 0; k < MAX_SLOTS && k < 4; k++)
+				it->card[k] = atoi(row[7 + k]);
+		}
 		s->count++;
 	}
 	mysql_free_result(res);
@@ -272,6 +292,13 @@ static void at_from_sd(struct at_shop* s, struct map_session_data* sd)
 		s->items[n].nameid = sd->status.cart[slot].nameid;
 		s->items[n].amount = sd->vending[i].amount;
 		s->items[n].price = sd->vending[i].value;
+		s->items[n].refine = (unsigned char)sd->status.cart[slot].refine;
+		s->items[n].attribute = (signed char)sd->status.cart[slot].attribute;
+		{
+			int k;
+			for (k = 0; k < MAX_SLOTS; k++)
+				s->items[n].card[k] = sd->status.cart[slot].card[k]; // short in struct item
+		}
 		n++;
 	}
 	s->count = n;
@@ -485,6 +512,16 @@ void do_init_autotrade(void)
 	at_db = db_alloc(__FILE__, __LINE__, DB_INT, DB_OPT_RELEASE_DATA, sizeof(int));
 #ifndef TXT_ONLY
 	at_on = at_table_exists("autotrade_shop") && at_table_exists("autotrade_item");
+	if (at_on) {	// the item's refine/cards for the web site: written only when the columns are there
+		MYSQL_RES* res;
+		if (at_query("SHOW COLUMNS FROM `autotrade_item` LIKE 'card3'") && (res = mysql_store_result(&mmysql_handle)) != NULL) {
+			at_itemcols = mysql_fetch_row(res) != NULL;
+			mysql_free_result(res);
+		}
+		if (!at_itemcols)
+			ShowStatus("[AUTOTRADE] autotrade_item has no refine/card columns: shops are kept without them "
+				"(sql-files/upgrade_2026-11-21_autotrade_cards.sql adds them for the web site).\n");
+	}
 	if (!at_on)
 		ShowWarning("[AUTOTRADE] keeping autotrade shops over a restart is OFF: the tables `autotrade_shop`/`autotrade_item` "
 			"are missing (run sql-files/upgrade_2026-11-21_autotrade.sql).\n");

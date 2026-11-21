@@ -28,6 +28,12 @@ Map-сервер хранит лавки автотрейда в двух таб
 | `nameid` | INT UNSIGNED | ID предмета (как в `item_db`) |
 | `amount` | SMALLINT | сколько **осталось** в продаже |
 | `price` | INT UNSIGNED | цена **за штуку**, зени |
+| `refine` | TINYINT UNSIGNED | заточка (`+7` → 7) |
+| `attribute` | TINYINT | 1 = предмет сломан |
+| `card0`..`card3` | INT | карты в слотах (ID карт как в `item_db`, 0 = пусто) |
+
+Поля `refine`, `attribute`, `card0..3` добавляет `sql-files/upgrade_2026-11-21_autotrade_cards.sql`. Если их
+нет, сервер хранит лавки как раньше, без них.
 
 ## Когда данные меняются
 
@@ -72,9 +78,8 @@ SELECT * FROM autotrade_shop WHERE title LIKE CONCAT('%', ?, '%');
 - **Названия предметов** в базе не хранятся: `use_sql_db: no`, item_db читается сервером из файла
   `db/item_db.txt`. Сайту нужен свой справочник `nameid → имя`: из `db/item_db.txt` или из `iteminfo`
   клиента.
-- **Заточка и карты в предмете** (`+7`, карты в слотах) в `autotrade_item` **не хранятся**, только `nameid`.
-  Они лежат в `cart_inventory` торговца, но надёжной связи «строка товара ↔ строка тележки» в базе нет:
-  `cart_slot` — это порядок загрузки тележки, а не ключ. Если нужен поиск с заточкой/картами, добавлю в
-  `autotrade_item` поля `refine`, `card0..card3`. Нужна будет маленькая миграция.
+- **Заточка и карты** берутся из `refine` и `card0..card3` самой строки товара. С `cart_inventory` строку не
+  связывай: `cart_slot` — это порядок загрузки тележки, а не ключ.
+  Например, «+7 и выше с картой 4001»: `WHERE nameid = ? AND refine >= 7 AND 4001 IN (card0, card1, card2, card3)`.
 - **Доступ:** сайту хватит пользователя MariaDB с правом `SELECT` на `autotrade_shop`, `autotrade_item`
   и `char` (для имени продавца).

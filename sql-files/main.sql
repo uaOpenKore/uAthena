@@ -507,6 +507,12 @@ CREATE TABLE `autotrade_item` (
   `nameid` int(10) unsigned NOT NULL,
   `amount` smallint(5) unsigned NOT NULL,
   `price` int(10) unsigned NOT NULL,
+  `refine` tinyint(3) unsigned NOT NULL default '0',
+  `attribute` tinyint(4) NOT NULL default '0',
+  `card0` int(11) NOT NULL default '0',
+  `card1` int(11) NOT NULL default '0',
+  `card2` int(11) NOT NULL default '0',
+  `card3` int(11) NOT NULL default '0',
   PRIMARY KEY  (`char_id`,`cart_slot`)
 ) TYPE=MyISAM;
 
