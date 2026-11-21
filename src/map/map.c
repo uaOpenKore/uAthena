@@ -3589,6 +3589,7 @@ void do_final(void)
 	id_db->foreach(id_db,cleanup_db_sub);
 	chrif_char_reset_offline();
 	chrif_flush_fifo();
+	chrif_wait_final_saves(90000); // [finalsave] every final save written before the connection closes
   	//Online players were sent to save, but the ack will not arrive on time!
 	//They have to be removed from memory, and assume the char-server saved them.
 	pc_db->foreach(pc_db,cleanup_db_subpc);
