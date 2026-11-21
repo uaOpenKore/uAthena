@@ -172,6 +172,7 @@ struct online_char_data {
 	int fd;
 	int waiting_disconnect;
 	short server;
+	bool autotrade; // [autotrade] an autotrade shop: taken (its owner's login removes it first) but not online
 };
 
 struct dbt *online_char_db; //Holds all online characters.
@@ -347,6 +348,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 
 	character->char_id = (char_id==99)?-1:char_id;
 	character->server = (char_id==99)?-1:map_id;
+	character->autotrade = false; // [autotrade]
 
 	if(character->waiting_disconnect != -1) {
 		delete_timer(character->waiting_disconnect, chardb_waiting_disconnect);
@@ -369,6 +371,7 @@ void set_char_offline(int char_id, int account_id)
 	{	//We don't free yet to avoid aCalloc/aFree spamming during char change. [Skotlex]
 		character->char_id = -1;
 		character->server = -1;
+		character->autotrade = false; // [autotrade]
 		if(character->waiting_disconnect != -1){
 			delete_timer(character->waiting_disconnect, chardb_waiting_disconnect);
 			character->waiting_disconnect = -1;
@@ -391,6 +394,7 @@ static int char_db_setoffline(DBKey key, void* data, va_list ap)
 	if (server == -1) {
 		character->char_id = -1;
 		character->server = -1;
+		character->autotrade = false; // [autotrade]
 		if(character->waiting_disconnect != -1){
 			delete_timer(character->waiting_disconnect, chardb_waiting_disconnect);
 			character->waiting_disconnect = -1;
@@ -1619,7 +1623,7 @@ static int create_online_files_sub(DBKey key, void* data, va_list va)
 	id = va_arg(va, int*);
 	
 	// check if map-server is online
-	if (character->server == -1 || character->char_id == -1) { //Character not currently online.
+	if (character->server == -1 || character->char_id == -1 || character->autotrade) { //Character not currently online. [autotrade] shops neither
 		return -1;
 	}
 	
@@ -3101,11 +3105,10 @@ int parse_frommap(int fd)
 			if (RFIFOREST(fd) < 6 || RFIFOREST(fd) < RFIFOW(fd,2))
 				return 0;
 			//TODO: When data mismatches memory, update guild/party online/offline states.
-			server[id].users = RFIFOW(fd,4);
 			// add online players in the list by [Yor], adapted to use dbs by [Skotlex]
-			j = 0;
+			j = 0; // [autotrade] counts the shops listed: kept taken, not counted as users
 			online_char_db->foreach(online_char_db,char_db_setoffline,id); //Set all chars from this server as 'unknown'
-			for(i = 0; i < server[id].users; i++) {
+			for(i = 0; i < RFIFOW(fd,4); i++) {
 				int aid, cid;
 				struct online_char_data* character;
 				aid = RFIFOL(fd,6+i*8);
@@ -3119,7 +3122,10 @@ int parse_frommap(int fd)
 				}
 				character->char_id = cid;
 				character->server = id;
+				if (character->autotrade)
+					j++;
 			}
+			server[id].users = i - j;
 			if (update_online < time(NULL)) { // Time is done
 				update_online = time(NULL) + 8;
 				create_online_files(); // only every 8 sec. (normally, 1 server send users every 5 sec.) Don't update every time, because that takes time, but only every 2 connection.
@@ -3447,6 +3453,58 @@ int parse_frommap(int fd)
 				return 0;
 			// Txt doesn't need this packet, so just skip it
 			RFIFOSKIP(fd,RFIFOW(fd,8));
+		break;
+
+		case 0x2b25: // [autotrade] load a kept autotrade shop's character without a login (map-server restart)
+			if (RFIFOREST(fd) < 11)
+				return 0;
+		{
+			int aid = RFIFOL(fd,2), cid = RFIFOL(fd,6), sex = RFIFOB(fd,10);
+			struct online_char_data* character = (struct online_char_data*)idb_get(online_char_db, aid);
+			struct mmo_charstatus* cd = NULL;
+			RFIFOSKIP(fd,11);
+			// the account must be free: its owner logged in (or selecting a character) wins over the shop
+			if (character != NULL && (character->server > -1 || character->char_id != -1 || character->fd > 0))
+				ShowInfo("[AUTOTRADE] cid=%d not loaded: account %d is in use\n", cid, aid);
+			else if ((cd = search_character(aid, cid)) == NULL)
+				ShowInfo("[AUTOTRADE] cid=%d not loaded: no such character of account %d\n", cid, aid);
+			if (cd != NULL) {
+				cd->sex = sex;
+				playlimit_stamp(cd); // [playlimit]
+				character = idb_ensure(online_char_db, aid, create_online_char_data);
+				character->char_id = cid;
+				character->server = id;
+				character->autotrade = true; // taken, not online: no login-server notice
+			}
+			WFIFOHEAD(fd, 13 + sizeof(struct mmo_charstatus));
+			WFIFOW(fd,0) = 0x2b26;
+			WFIFOW(fd,2) = 13 + (cd ? sizeof(struct mmo_charstatus) : 0);
+			WFIFOL(fd,4) = aid;
+			WFIFOL(fd,8) = cid;
+			WFIFOB(fd,12) = cd != NULL;
+			if (cd)
+				memcpy(WFIFOP(fd,13), cd, sizeof(struct mmo_charstatus));
+			WFIFOSET(fd, WFIFOW(fd,2));
+		}
+		break;
+
+		case 0x2b27: // [autotrade] the character is an autotrader now: taken, but not online
+			if (RFIFOREST(fd) < 10)
+				return 0;
+		{
+			int aid = RFIFOL(fd,2), cid = RFIFOL(fd,6);
+			struct online_char_data* character = (struct online_char_data*)idb_get(online_char_db, aid);
+			RFIFOSKIP(fd,10);
+			if (character == NULL || character->char_id != cid)
+				break;
+			character->autotrade = true;
+			if (login_fd > 0 && !session[login_fd]->eof) { // the login-server: the account is not online
+				WFIFOHEAD(login_fd,6);
+				WFIFOW(login_fd,0) = 0x272c;
+				WFIFOL(login_fd,2) = aid;
+				WFIFOSET(login_fd,6);
+			}
+		}
 		break;
 
 		case 0x2b17: // Character disconnected set online 0 [Wizputer]
@@ -4167,7 +4225,7 @@ static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
 	int count = va_arg(ap, int);
 	if ((*i) >= count)
 		return 0; //This is an error that shouldn't happen....
-	if(character->server > -1) {
+	if(character->server > -1 && !character->autotrade) { // [autotrade] a shop is not an online account
 		WFIFOHEAD(login_fd,8+count*4);
 		WFIFOL(login_fd,8+(*i)*4) = character->account_id;
 		(*i)++;
