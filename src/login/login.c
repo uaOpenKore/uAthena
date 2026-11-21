@@ -13,6 +13,7 @@
 #include "../common/showmsg.h"
 #include "../common/version.h"
 #include "../common/attacklog.h"
+#include "../common/authguard.h"
 #include "../common/md5calc.h"
 #include "login.h"
 
@@ -47,6 +48,10 @@ char login_log_filename[1024] = "log/login.log";
 FILE *log_fp = NULL;
 char login_log_unknown_packets_filename[1024] = "log/login_unknown_packets.log";
 char date_format[32] = "%Y-%m-%d %H:%M:%S";
+// [authguard] account lock against password guessing (see common/authguard.h; the TXT server has no IP ban for it)
+bool account_fail_ban = true;
+struct ag_config account_fail = { 10, 10 * 60, 5 * 60, 60 * 60, 30 * 86400 };
+bool hide_unknown_account = true;
 int save_unknown_packets = 0;
 long creation_time_GM_account_file;
 int gm_account_filename_check_timer = 15; // Timer to check if GM_account file has been changed and reload GM account automaticaly (in seconds; default: 15)
@@ -1223,8 +1228,8 @@ int mmo_auth(struct mmo_account* account, int fd)
 
 	if (i != auth_num) {
 		if (newaccount) {
-			login_log("Attempt of creation of an already existant account (account: %s_%c, pass: %s, received pass: %s, ip: %s)" RETCODE,
-			          account->userid, account->userid[len+1], auth_dat[i].pass, account->passwd, ip);
+			login_log("Attempt of creation of an already existant account (account: %s_%c, received pass: %s, ip: %s)" RETCODE,
+			          account->userid, account->userid[len+1], account->passwd, ip); // [authguard] not the real password
 			return 1; // 1 = Incorrect Password
 		}
 
@@ -1235,14 +1240,14 @@ int mmo_auth(struct mmo_account* account, int fd)
 
 		if (!check_password(session[fd]->session_data, account->passwdenc, user_password, auth_dat[i].pass))
 		{
-			login_log("Invalid password (account: %s, pass: %s, received pass: %s, ip: %s)" RETCODE,
-			          account->userid, auth_dat[i].pass, (account->passwdenc) ? "[MD5]" : account->passwd, ip);
+			login_log("Invalid password (account: %s, received pass: %s, ip: %s)" RETCODE, // [authguard] not the real one
+			          account->userid, (account->passwdenc) ? "[MD5]" : account->passwd, ip);
 			return 1; // 1 = Incorrect Password
 		}
 
 		if (auth_dat[i].state) {
-			login_log("Connection refused (account: %s, pass: %s, state: %d, ip: %s)" RETCODE,
-			          account->userid, account->passwd, auth_dat[i].state, ip);
+			login_log("Connection refused (account: %s, state: %d, ip: %s)" RETCODE, // [authguard] the password was right: not logged
+			          account->userid, auth_dat[i].state, ip);
 			switch(auth_dat[i].state) { // packet 0x006a value + 1
 			case 1: // 0 = Unregistered ID
 			case 2: // 1 = Incorrect Password
@@ -1291,19 +1296,19 @@ int mmo_auth(struct mmo_account* account, int fd)
 			strftime(tmpstr, 20, date_format, localtime(&auth_dat[i].ban_until_time));
 			tmpstr[19] = '\0';
 			if (auth_dat[i].ban_until_time > time(NULL)) { // always banned
-				login_log("Connection refused (account: %s, pass: %s, banned until %s, ip: %s)" RETCODE,
-				          account->userid, account->passwd, tmpstr, ip);
+				login_log("Connection refused (account: %s, banned until %s, ip: %s)" RETCODE,
+				          account->userid, tmpstr, ip);
 				return 6; // 6 = Your are Prohibited to log in until %s
 			} else { // ban is finished
-				login_log("End of ban (account: %s, pass: %s, previously banned until %s -> not more banned, ip: %s)" RETCODE,
-				          account->userid, account->passwd, tmpstr, ip);
+				login_log("End of ban (account: %s, previously banned until %s -> not more banned, ip: %s)" RETCODE,
+				          account->userid, tmpstr, ip);
 				auth_dat[i].ban_until_time = 0; // reset the ban time
 			}
 		}
 
 		if (auth_dat[i].connect_until_time != 0 && auth_dat[i].connect_until_time < time(NULL)) {
-			login_log("Connection refused (account: %s, pass: %s, expired ID, ip: %s)" RETCODE,
-			          account->userid, account->passwd, ip);
+			login_log("Connection refused (account: %s, expired ID, ip: %s)" RETCODE,
+			          account->userid, ip);
 			return 2; // 2 = This ID is expired
 		}
 
@@ -1318,8 +1323,8 @@ int mmo_auth(struct mmo_account* account, int fd)
 			t_tick tick = gettick();
 			if (new_id < 0)
 				return 0; // [counters] no account id left: refused like an unregistered id
-			login_log("Account creation and authentification accepted (account %s (id: %d), pass: %s, sex: %c, connection with _F/_M, ip: %s)" RETCODE,
-			          account->userid, new_id, account->passwd, account->userid[len+1], ip);
+			login_log("Account creation and authentification accepted (account %s (id: %d), sex: %c, connection with _F/_M, ip: %s)" RETCODE,
+			          account->userid, new_id, account->userid[len+1], ip); // [authguard] not the new password
 			auth_before_save_file = 0; // Creation of an account -> save accounts file immediatly
 
 			if(DIFF_TICK(tick, new_reg_tick) > 0)
@@ -2981,10 +2986,122 @@ int lan_subnetcheck(uint32 ip)
 //----------------------------------------------------------------------------------------
 static char char_server_ip_allow[256] = ""; // [s2s] more char-server addresses (login_athena.conf), besides this host
 
+//-----------------------------------------------------
+// [authguard] Account lock against password guessing from many addresses (S. 2026-11-21, rules in
+// common/authguard.h; the same as login_sql). In memory: a restart forgets the counts.
+//-----------------------------------------------------
+static DB authguard_db = NULL;
+#define AUTHGUARD_MAX_ENTRIES 200000
+
+// The entry holds its own key (the name): the db neither copies nor frees keys (DB_OPT_DUP_KEY|RELEASE_KEY freed
+// the caller's buffer on put, see the sprite name table in npc.c), and releasing the entry frees both.
+struct authguard_entry {
+	struct ag_state st; // first: the entry is the state
+	char name[NAME_LENGTH];
+};
+
+static struct ag_state* authguard_get(const char* userid, bool create)
+{
+	struct authguard_entry* e;
+	if (authguard_db == NULL)
+		return NULL;
+	if ((e = (struct authguard_entry*)strdb_get(authguard_db, userid)) == NULL && create
+	 && authguard_db->size(authguard_db) < AUTHGUARD_MAX_ENTRIES) {
+		e = (struct authguard_entry*)aCalloc(1, sizeof(struct authguard_entry));
+		safestrncpy(e->name, userid, sizeof(e->name));
+		strdb_put(authguard_db, e->name, e);
+	}
+	return e ? &e->st : NULL;
+}
+
+// The account's last login address (auth_dat): the owner gets in even after a restart.
+static bool authguard_last_ip(const char* userid, uint32 ipl)
+{
+	char ip[16], name[NAME_LENGTH];
+	int i;
+	safestrncpy(name, userid, sizeof(name));
+	if ((i = search_account_index(name)) < 0)
+		return false;
+	sprintf(ip, "%u.%u.%u.%u", CONVIP(ipl));
+	return strcmp(auth_dat[i].last_ip, ip) == 0;
+}
+
+static bool authguard_refuse(int fd, const char* userid, uint32 ipl)
+{
+	struct ag_state* st = authguard_get(userid, false);
+	time_t now = time(NULL);
+	char until[24], who[NAME_LENGTH + 8];
+	if (!account_fail_ban || st == NULL || !ag_locked(st, now))
+		return false;
+	if (ag_trusted(st, &account_fail, ipl, now) || authguard_last_ip(userid, ipl))
+		return false;
+	strftime(until, 20, date_format, localtime(&st->lock_until));
+	until[19] = '\0';
+	WFIFOHEAD(fd,23);
+	memset(WFIFOP(fd,0), '\0', 23);
+	WFIFOW(fd,0) = 0x6a;
+	WFIFOB(fd,2) = 6; // 6 = You are prohibited to log in until %s
+	strncpy((char*)WFIFOP(fd,3), until, 20);
+	WFIFOSET(fd,23);
+	snprintf(who, sizeof(who), "acc='%s'", userid);
+	attacklog(ipl, who, "bruteforce_refused: the account is locked until %s (password guessing)", until);
+	return true;
+}
+
+static void authguard_result(const char* userid, uint32 ipl, int result)
+{
+	struct ag_state* st;
+	time_t now = time(NULL);
+	if (!account_fail_ban)
+		return;
+	if (result == -1) {
+		if ((st = authguard_get(userid, true)) != NULL)
+			ag_success(st, ipl, now);
+	} else if (result == 0 || result == 1) {
+		int secs;
+		if ((st = authguard_get(userid, true)) == NULL)
+			return;
+		if ((secs = ag_fail(st, &account_fail, ipl, now)) > 0) {
+			char who[NAME_LENGTH + 8];
+			snprintf(who, sizeof(who), "acc='%s'", userid);
+			attacklog(ipl, who, "bruteforce: %d wrong password(s) from %d address(es) in %d min, the account is locked %d min (lock %d today)",
+				st->lock_fails, st->lock_ips, account_fail.window / 60, secs / 60, st->locks);
+			ShowWarning("[AUTHGUARD] account '%s' locked %d min: %d wrong passwords from %d addresses (the last from %u.%u.%u.%u)\n",
+				userid, secs / 60, st->lock_fails, st->lock_ips, CONVIP(ipl));
+		}
+	}
+}
+
+static int authguard_prune_sub(DBKey key, void* data, va_list ap)
+{
+	time_t now = va_arg(ap, time_t);
+	if (ag_idle((struct ag_state*)data, &account_fail, now))
+		db_remove(authguard_db, key);
+	return 0;
+}
+
+static int authguard_prune(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	authguard_db->foreach(authguard_db, authguard_prune_sub, time(NULL));
+	return 0;
+}
+
+static void authguard_init(void)
+{
+	authguard_db = db_alloc(__FILE__, __LINE__, DB_ISTRING, DB_OPT_RELEASE_DATA, NAME_LENGTH);
+	add_timer_func_list(authguard_prune, "authguard_prune");
+	add_timer_interval(gettick() + 60*1000, authguard_prune, 0, 0, 60*1000);
+	if (account_fail_ban)
+		ShowStatus("[AUTHGUARD] an account is locked after %d wrong passwords in %d min (%d..%d min); its own addresses (%d days) still get in.\n",
+			account_fail.limit, account_fail.window / 60, account_fail.base / 60, account_fail.max / 60, account_fail.trusted / 86400);
+}
+
 int parse_login(int fd)
 {
 	struct mmo_account account;
 	int result, j;
+	bool guarded = false; // [authguard]
+	char guard_uid[NAME_LENGTH];
 	unsigned int i;
 	uint32 ipl = session[fd]->client_addr;
 	char ip[16];
@@ -3076,7 +3193,20 @@ int parse_login(int fd)
 			}
 			account.passwdenc = (command != 0x01dd) ? 0 : PASSWORDENC;
 
+			{	// [authguard] a locked account is refused before its password is even looked at (not for "<name>_M/_F" registrations)
+				size_t ul = strlen(account.userid);
+				guarded = !(new_account_flag && ul > 2 && account.userid[ul - 2] == '_'
+					&& strchr("MFmf", account.userid[ul - 1]) != NULL);
+				safestrncpy(guard_uid, account.userid, sizeof(guard_uid));
+			}
+			if (guarded && authguard_refuse(fd, guard_uid, ipl)) {
+				RFIFOSKIP(fd,packet_len);
+				break;
+			}
+
 			result = mmo_auth(&account, fd);
+			if (guarded)
+				authguard_result(guard_uid, ipl, result);
 			if (result == -1) { // auth success
 				int gm_level = isGM(account.account_id);
 				if (min_level_to_connect > gm_level) {
@@ -3139,7 +3269,8 @@ int parse_login(int fd)
 				WFIFOHEAD(fd,23);
 				memset(WFIFOP(fd,0), '\0', 23);
 				WFIFOW(fd,0) = 0x6a;
-				WFIFOB(fd,2) = (uint8)result;
+				// [authguard] an unknown name gets "incorrect password": guessing cannot tell which names exist
+				WFIFOB(fd,2) = (uint8)(result == 0 && hide_unknown_account ? 1 : result);
 				if (result == 6) { // 6 = Your are Prohibited to log in until %s
 					char tmpstr[20];
 					time_t ban_until_time;
@@ -3654,6 +3785,20 @@ int login_config_read(const char* cfgName)
 		}
 		else if(!strcmpi(w1, "new_account"))
 			new_account_flag = (bool)config_switch(w2);
+		else if (!strcmpi(w1, "account_fail_ban"))
+			account_fail_ban = (bool)config_switch(w2);
+		else if (!strcmpi(w1, "account_fail_ban_limit"))
+			account_fail.limit = atoi(w2);
+		else if (!strcmpi(w1, "account_fail_ban_interval"))
+			account_fail.window = atoi(w2) * 60;
+		else if (!strcmpi(w1, "account_fail_ban_duration"))
+			account_fail.base = atoi(w2) * 60;
+		else if (!strcmpi(w1, "account_fail_ban_max"))
+			account_fail.max = atoi(w2) * 60;
+		else if (!strcmpi(w1, "account_fail_ban_trusted_days"))
+			account_fail.trusted = atoi(w2) * 86400;
+		else if (!strcmpi(w1, "hide_unknown_account"))
+			hide_unknown_account = (bool)config_switch(w2);
 		else if(!strcmpi(w1, "check_client_version"))
 			check_client_version = config_switch(w2);
 		else if(!strcmpi(w1, "client_version_to_connect"))
@@ -4007,6 +4152,7 @@ int do_init(int argc, char **argv)
 
 	// Online user database init
 	online_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));	// reinitialise
+	authguard_init(); // [authguard]
 	add_timer_func_list(waiting_disconnect_timer, "waiting_disconnect_timer");
 
 	add_timer_func_list(check_auth_sync, "check_auth_sync");
