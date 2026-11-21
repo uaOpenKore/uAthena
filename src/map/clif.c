@@ -12213,14 +12213,35 @@ int clif_parse(int fd)
 	// packet_flood_limit packets in one second the session is closed.
 	if (battle_config.packet_flood_limit > 0) {
 		t_tick now = gettick();
-		if (DIFF_TICK(now, session[fd]->flood_tick) >= 1000) {
-			session[fd]->flood_tick = now;
-			session[fd]->flood_count = 0;
+		struct socket_data* sk = session[fd];
+		int k;
+		if (DIFF_TICK(now, sk->flood_tick) >= 1000) {
+			sk->flood_tick = now;
+			sk->flood_count = 0;
+			memset(sk->flood_n, 0, sizeof(sk->flood_n));
 		}
-		if (++session[fd]->flood_count > (unsigned int)battle_config.packet_flood_limit) {
-			ShowWarning("clif_parse: session #%d (%s, %d.%d.%d.%d) sent over %d packets in a second, disconnecting.\n",
-				fd, sd ? sd->status.name : "not logged in", CONVIP(session[fd]->client_addr), battle_config.packet_flood_limit);
-			attacklog_packet(fd, clif_attack_who(sd), "packet_flood: over %d packets in a second, disconnected", battle_config.packet_flood_limit); // [attack]
+		for (k = 0; k < 8; k++) { // which packets: the first 8 different ids of the second (the rest count as "other")
+			if (sk->flood_n[k] == 0)
+				sk->flood_id[k] = (unsigned short)cmd;
+			if (sk->flood_id[k] == cmd) {
+				if (sk->flood_n[k] < 0xffff)
+					sk->flood_n[k]++;
+				break;
+			}
+		}
+		if (++sk->flood_count > (unsigned int)battle_config.packet_flood_limit) {
+			char ids[160];
+			int n = 0, known = 0;
+			ids[0] = '\0';
+			for (k = 0; k < 8 && sk->flood_n[k]; k++) {
+				n += snprintf(ids + n, sizeof(ids) - n, " 0x%04x x%u", sk->flood_id[k], sk->flood_n[k]);
+				known += sk->flood_n[k];
+			}
+			if ((unsigned int)known < sk->flood_count)
+				snprintf(ids + n, sizeof(ids) - n, " other x%u", sk->flood_count - known);
+			ShowWarning("clif_parse: session #%d (%s, %d.%d.%d.%d) sent over %d packets in a second, disconnecting (packets:%s).\n",
+				fd, sd ? sd->status.name : "not logged in", CONVIP(session[fd]->client_addr), battle_config.packet_flood_limit, ids);
+			attacklog_packet(fd, clif_attack_who(sd), "packet_flood: over %d packets in a second (%s), disconnected", battle_config.packet_flood_limit, ids + 1); // [attack]
 			socket_set_disconnect_reason(fd, SDC_PACKET_FLOOD);
 			set_eof(fd);
 			RFIFOSKIP(fd, RFIFOREST(fd));
