@@ -4097,6 +4097,9 @@ void do_final(void)
 	fflush(stdout);
 	mmo_auth_sync();
 	online_db->destroy(online_db, NULL);
+	if (authguard_db) // [authguard] the lock entries (RELEASE_DATA frees them)
+		authguard_db->destroy(authguard_db, NULL);
+	authguard_db = NULL;
 
 	if(auth_dat) aFree(auth_dat);
 	if(gm_account_db) aFree(gm_account_db);
