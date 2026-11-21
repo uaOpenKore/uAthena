@@ -34,6 +34,7 @@
 #include "pc.h"
 #include "../common/playlimit.h"
 #include "autotrade.h"
+#include "tickrate.h" // [playlimit] OpenKore pays more for play time
 
 #include "mail.h" // mail system [Valaris]
 
@@ -434,9 +435,29 @@ static int playlimit_secs_left_today(void)
 
 // [playlimit] zeny for one minute bought back with @buyplaytime (battle_config.playtime_buy_zeny_per_level x base
 // level, S. 2026-11-21: a zeny sink); 0 = buying is off.
+// [playlimit] Is this session OpenKore rather than a game client (S. 2026-11-21: it pays playtime_buy_bot_percent)?
+// The @whobot rule (tickrate.h) once it has a minute of ticks to judge; before that the OpenKore walk padding
+// alone. BornRok (its login mark) never is; the original client walks with other padding.
+static bool pc_playlimit_is_bot(struct map_session_data* sd)
+{
+	t_tick d = DIFF_TICK(gettick(), sd->auth_tick);
+	unsigned int online = d > 0 ? (unsigned int)d : 0;
+	if (sd->state.bornrok || sd->state.autotrade)
+		return false;
+	if (clif_whobot_verdict(sd, online) != TICKRATE_CLIENT)
+		return true;
+	return online < TICKRATE_MIN_ONLINE_MS && clif_okore_walk_pad(sd);
+}
+
 static int pc_playlimit_price(struct map_session_data* sd)
 {
-	return battle_config.playtime_buy_zeny_per_level > 0 ? battle_config.playtime_buy_zeny_per_level * (int)sd->status.base_level : 0;
+	int64 price;
+	if (battle_config.playtime_buy_zeny_per_level <= 0)
+		return 0;
+	price = (int64)battle_config.playtime_buy_zeny_per_level * sd->status.base_level;
+	if (battle_config.playtime_buy_bot_percent > 0 && battle_config.playtime_buy_bot_percent != 100 && pc_playlimit_is_bot(sd))
+		price = price * battle_config.playtime_buy_bot_percent / 100;
+	return price > INT_MAX ? INT_MAX : (int)price;
 }
 
 // " See @playtime, buy more with @buyplaytime <minutes> (N zeny a minute)." for the warnings, "" when buying is off
