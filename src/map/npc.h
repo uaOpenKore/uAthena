@@ -9,7 +9,8 @@ struct block_list;
 struct npc_data;
 struct view_data;
 
-#define START_NPC_NUM 110000000
+// npc/mob/pet/homunculus/mercenary ids: above every account id (END_ACCOUNT_NUM 1,000,000,000), up to MAX_NPC_ID.
+#define START_NPC_NUM 1100000000
 
 #define WARP_CLASS 45
 #define WARP_DEBUG_CLASS 722
