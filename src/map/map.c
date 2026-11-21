@@ -57,6 +57,7 @@
 
 #include "mail.h"
 #include "discord.h"
+#include "autotrade.h"
 
 char tmp_sql[65535]="";
 char default_codepage[32] = "";
@@ -1784,6 +1785,8 @@ void map_deliddb(struct block_list *bl)
  *------------------------------------------*/
 int map_quit(struct map_session_data *sd)
 {
+	if (sd->state.autotrade)
+		autotrade_quit(sd); // [autotrade] sold out / owner login: the kept shop goes (not at a shutdown)
 	if (sd->state.auth)
 		clif_padmetric_log(sd); // [padmetric] bot fingerprint experiment: one summary line per session
 	if(!sd->state.auth) { //Removing a player that hasn't even finished loading
@@ -3589,6 +3592,7 @@ void do_final(void)
 	ShowStatus("Terminating...\n");
 
 	discord_final();  // stop the Discord relay worker thread
+	do_final_autotrade(); // [autotrade] the kept shops as they are now, before the autotraders are removed
 
 	for (i = 0; i < map_num; i++)
 		if (map[i].m >= 0)
@@ -3621,6 +3625,7 @@ void do_final(void)
 	do_final_msg();
 	do_final_skill();
 	do_final_unit();
+	do_final_autotrade_db();
 
 	map_getallusers(NULL); //Clear the memory allocated for this array.
 	
@@ -3857,6 +3862,7 @@ int do_init(int argc, char *argv[])
 	do_init_atcommand();
 	do_init_battle();
 	do_init_chrif();
+	do_init_autotrade(); // [autotrade] after map_sql_init: it checks its tables
 	do_init_clif();
 	do_init_script();
 	do_init_itemdb();

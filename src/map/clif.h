@@ -89,6 +89,7 @@ void clif_setwaitclose(int);
 
 int clif_authok(struct map_session_data *);
 int clif_authfail_fd(int,int);
+int clif_default_packet_ver(void); // [autotrade] the packet version of a session without a client
 void clif_updatemaxid(int, int);
 int clif_charselectok(int);
 void check_fake_id(int fd, struct map_session_data *sd, int target_id);

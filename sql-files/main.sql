@@ -483,6 +483,34 @@ CREATE TABLE `memo` (
 ) TYPE=MyISAM;
 
 --
+-- Table structure for table `autotrade_shop` / `autotrade_item` (autotrade shops kept over a restart)
+--
+
+DROP TABLE IF EXISTS `autotrade_shop`;
+CREATE TABLE `autotrade_shop` (
+  `char_id` int(10) unsigned NOT NULL,
+  `account_id` int(10) unsigned NOT NULL,
+  `sex` tinyint(3) unsigned NOT NULL default '0',
+  `map` varchar(16) NOT NULL,
+  `x` smallint(5) unsigned NOT NULL,
+  `y` smallint(5) unsigned NOT NULL,
+  `dir` tinyint(3) unsigned NOT NULL default '0',
+  `title` varchar(80) NOT NULL default '',
+  `opened` datetime NOT NULL default '2000-01-01 00:00:00',
+  PRIMARY KEY  (`char_id`)
+) TYPE=MyISAM;
+
+DROP TABLE IF EXISTS `autotrade_item`;
+CREATE TABLE `autotrade_item` (
+  `char_id` int(10) unsigned NOT NULL,
+  `cart_slot` smallint(5) unsigned NOT NULL,
+  `nameid` int(10) unsigned NOT NULL,
+  `amount` smallint(5) unsigned NOT NULL,
+  `price` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`char_id`,`cart_slot`)
+) TYPE=MyISAM;
+
+--
 -- Table structure for table `play_reset`
 --
 

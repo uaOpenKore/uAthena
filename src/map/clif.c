@@ -672,6 +672,9 @@ int clif_authfail_fd(int fd, int type)
 	return 0;
 }
 
+// [autotrade] the packet version of a session without a client (a restored autotrade shop)
+int clif_default_packet_ver(void) { return clif_config.packet_db_ver; }
+
 /*==========================================
  * Used to know which is the max valid account/char id [Skotlex]
  *------------------------------------------*/

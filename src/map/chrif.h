@@ -21,6 +21,8 @@ int chrif_setip(const char* ip);
 void chrif_setport(uint16 port);
 
 int chrif_isconnected(void);
+int chrif_autotrade_load(int account_id, int char_id, int sex); // [autotrade]
+int chrif_autotrade_notonline(struct map_session_data* sd); // [autotrade]
 
 extern int chrif_connected;
 extern int other_mapserver_count;

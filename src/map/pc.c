@@ -33,6 +33,7 @@
 #include "buyingstore.h" // [Backport] buyingstore_close()
 #include "pc.h"
 #include "../common/playlimit.h"
+#include "autotrade.h"
 
 #include "mail.h" // mail system [Valaris]
 
@@ -1009,6 +1010,8 @@ int pc_authok(struct map_session_data *sd, int login_id2, int connect_until_time
 
 	clif_authok(sd);
 	map_addiddb(&sd->bl);
+	if (!sd->state.autotrade)
+		autotrade_owner_login(sd); // [autotrade] the owner plays: a kept shop of it not back yet is dropped
 	if (map_charid2nick(sd->status.char_id) == NULL)
 		map_addchariddb(sd->status.char_id, sd->status.name);
 
@@ -1233,6 +1236,8 @@ int pc_reg_received(struct map_session_data *sd)
 		sd->state.connect_new = 1;
 		clif_parse_LoadEndAck(sd->fd, sd);
 	}
+	if (sd->state.at_restoring)
+		autotrade_restore_loaded(sd); // [autotrade] a kept shop brought back after a restart: onto the map, open
 	return 1;
 }
 

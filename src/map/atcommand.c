@@ -29,6 +29,7 @@
 #include "mercenary.h" //[orn]
 #include "mercenary_soldier.h"	// [Backport] hired mercenary soldier (@merc)
 #include "buyingstore.h"	// [Backport] buying store (@buystore/@buymarket/@sellto)
+#include "autotrade.h"	// [autotrade] shops kept over a restart
 #include "tickrate.h"	// [whobot] tick rate of a session (@whobot)
 #include "battle.h"
 #include "party.h"
@@ -1459,7 +1460,7 @@ int atcommand_who3(const int fd, struct map_session_data* sd, const char* comman
 	GM_level = pc_isGM(sd);
 	pl_allsd = map_getallusers(&users);
 	for (i = 0; i < users; i++) {
-		if ((pl_sd = pl_allsd[i])) {
+		if ((pl_sd = pl_allsd[i]) && !pl_sd->state.autotrade) { // [autotrade] shops are not online players
 			pl_GM_level = pc_isGM(pl_sd);
 			if (!((battle_config.hide_GM_session || (pl_sd->sc.option & OPTION_INVISIBLE)) && (pl_GM_level > GM_level))) { // you can look only lower or same level
 				memcpy(player_name, pl_sd->status.name, NAME_LENGTH);
@@ -1531,7 +1532,7 @@ int atcommand_who2(const int fd, struct map_session_data* sd, const char* comman
 	GM_level = pc_isGM(sd);
 	pl_allsd = map_getallusers(&users);
 	for (i = 0; i < users; i++) {
-		if ((pl_sd = pl_allsd[i])) {
+		if ((pl_sd = pl_allsd[i]) && !pl_sd->state.autotrade) { // [autotrade] shops are not online players
 			pl_GM_level = pc_isGM(pl_sd);
 			if (!((battle_config.hide_GM_session || (pl_sd->sc.option & OPTION_INVISIBLE)) && (pl_GM_level > GM_level))) { // you can look only lower or same level
 				memcpy(player_name, pl_sd->status.name, NAME_LENGTH);
@@ -1601,7 +1602,7 @@ int atcommand_who(const int fd, struct map_session_data* sd, const char* command
 	GM_level = pc_isGM(sd);
 	pl_allsd = map_getallusers(&users);
 	for (i = 0; i < users; i++) {
-		if ((pl_sd = pl_allsd[i])) {
+		if ((pl_sd = pl_allsd[i]) && !pl_sd->state.autotrade) { // [autotrade] shops are not online players
 			pl_GM_level = pc_isGM(pl_sd);
 			if (!((battle_config.hide_GM_session || (pl_sd->sc.option & OPTION_INVISIBLE)) && (pl_GM_level > GM_level))) { // you can look only lower or same level
 				memcpy(player_name, pl_sd->status.name, NAME_LENGTH);
@@ -1678,7 +1679,7 @@ int atcommand_whomap3(const int fd, struct map_session_data* sd, const char* com
 	GM_level = pc_isGM(sd);
 	pl_allsd = map_getallusers(&users);
 	for (i = 0; i < users; i++) {
-		if ((pl_sd = pl_allsd[i])) {
+		if ((pl_sd = pl_allsd[i]) && !pl_sd->state.autotrade) { // [autotrade] shops are not online players
 			pl_GM_level = pc_isGM(pl_sd);
 			if (!((battle_config.hide_GM_session || (pl_sd->sc.option & OPTION_INVISIBLE)) && (pl_GM_level > GM_level))) { // you can look only lower or same level
 				if (pl_sd->bl.m == map_id) {
@@ -1735,7 +1736,7 @@ int atcommand_whomap2(const int fd, struct map_session_data* sd, const char* com
 	GM_level = pc_isGM(sd);
 	pl_allsd = map_getallusers(&users);
 	for (i = 0; i < users; i++) {
-		if ((pl_sd = pl_allsd[i])) {
+		if ((pl_sd = pl_allsd[i]) && !pl_sd->state.autotrade) { // [autotrade] shops are not online players
 			pl_GM_level = pc_isGM(pl_sd);
 			if (!((battle_config.hide_GM_session || (pl_sd->sc.option & OPTION_INVISIBLE)) && (pl_GM_level > GM_level))) { // you can look only lower or same level
 				if (pl_sd->bl.m == map_id) {
@@ -1799,7 +1800,7 @@ int atcommand_whomap(const int fd, struct map_session_data* sd, const char* comm
 
 	pl_allsd = map_getallusers(&users);
 	for (i = 0; i < users; i++) {
-		if ((pl_sd = pl_allsd[i])) {
+		if ((pl_sd = pl_allsd[i]) && !pl_sd->state.autotrade) { // [autotrade] shops are not online players
 			pl_GM_level = pc_isGM(pl_sd);
 			if (!((battle_config.hide_GM_session || (pl_sd->sc.option & OPTION_INVISIBLE)) && (pl_GM_level > GM_level))) { // you can look only lower or same level
 				if (pl_sd->bl.m == map_id) {
@@ -7386,6 +7387,7 @@ int atcommand_autotrade(const int fd, struct map_session_data* sd, const char* c
 	{
 		pc_playlimit_fold(sd); // [playlimit] no socket in autotrade: its time does not count
 		sd->state.autotrade = 1;
+		autotrade_open(sd); // [autotrade] the shop is kept over a restart; not online any more
 		clif_authfail_fd(fd, 15);
 	}
 	else 
