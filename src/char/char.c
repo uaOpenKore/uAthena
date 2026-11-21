@@ -12,6 +12,7 @@
 #include "../common/showmsg.h"
 #include "../common/timer.h"
 #include "../common/version.h"
+#include "../common/playlimit.h"
 
 #include "inter.h"
 #include "int_guild.h"
@@ -51,6 +52,8 @@ char char_txt[1024] = "save/athena.txt";
 char friends_txt[1024] = "save/friends.txt";
 char hotkeys_txt[1024] = "save/hotkeys.txt";
 char mercenary_owner_txt[1024] = "save/mercenary_owner.txt";
+char playtime_txt[1024] = "save/playtime.txt";      // [playlimit] <char_id>,<minutes>,<date> of the characters that played today
+char play_reset_txt[1024] = "save/play_reset.txt";  // [playlimit] <date>,<unix time> of the last reset
 char char_log_filename[1024] = "log/char.log";
 
 int save_log = 1;	// show loading/saving messages
@@ -1038,6 +1041,122 @@ static void mmo_char_mercenary_owner_sync(void)
 	lock_fclose(fp, mercenary_owner_txt, &lock);
 }
 
+//---------------------------------------------------------------------------------------------------
+// [playlimit] Daily play-time limit (S. 2026-11-21, rules in common/playlimit.h; the SQL char-server does the
+// same with char.play_minutes/play_date and the play_reset table). The char-server owns the reset: at 00:00
+// server time, or 24 h after the last reset by the monotonic clock, whichever comes first, it moves the date
+// in play_reset.txt and tells the map-servers (0x2b24) to zero their online players. The minutes are not part
+// of the athena.txt line (that would change its format): playtime.txt keeps them, one line per character that
+// played on the current date; minutes stamped with an older date count as 0 when the character is sent.
+//---------------------------------------------------------------------------------------------------
+static int play_reset_date = 0;	// the date the current minutes belong to
+static t_tick play_reset_tick = 0;	// monotonic time of the last reset
+
+static void mmo_char_playtime_init(void)
+{
+	char line[256];
+	int id, minutes, date, i;
+	FILE *fp;
+
+	if ((fp = fopen(playtime_txt, "r")) == NULL)
+		return;
+	while (fgets(line, sizeof(line), fp)) {
+		if (sscanf(line, "%d,%d,%d", &id, &minutes, &date) != 3)
+			continue;
+		ARR_FIND(0, char_num, i, char_dat[i].status.char_id == id);
+		if (i == char_num)
+			continue;
+		char_dat[i].status.play_minutes = minutes;
+		char_dat[i].status.play_date = date;
+	}
+	fclose(fp);
+}
+
+static void mmo_char_playtime_sync(void)
+{
+	struct mmo_charstatus *p;
+	int i, lock;
+	FILE *fp;
+
+	if ((fp = lock_fopen(playtime_txt, &lock)) == NULL) {
+		ShowWarning("Server cannot save the play time [%s].\n", playtime_txt);
+		return;
+	}
+	for (i = 0; i < char_num; i++) {
+		p = &char_dat[i].status;
+		if (p->play_minutes > 0 && p->play_date == play_reset_date)
+			fprintf(fp, "%d,%d,%d" RETCODE, p->char_id, p->play_minutes, p->play_date);
+	}
+	lock_fclose(fp, playtime_txt, &lock);
+}
+
+// Tell one map-server (fd) or all of them (fd < 0) the current reset date.
+void playlimit_send_date(int fd)
+{
+	unsigned char buf[6];
+	WBUFW(buf,0) = 0x2b24;
+	WBUFL(buf,2) = play_reset_date;
+	if (fd < 0)
+		mapif_sendall(buf, 6);
+	else {
+		WFIFOHEAD(fd,6);
+		memcpy(WFIFOP(fd,0), buf, 6);
+		WFIFOSET(fd,6);
+	}
+}
+
+static void playlimit_reset(enum playlimit_reset why)
+{
+	time_t now = time(NULL);
+	int lock;
+	FILE *fp;
+	play_reset_date = playlimit_date(now);
+	play_reset_tick = gettick();
+	if ((fp = lock_fopen(play_reset_txt, &lock)) != NULL) {
+		fprintf(fp, "%d,%ld" RETCODE, play_reset_date, (long)now);
+		lock_fclose(fp, play_reset_txt, &lock);
+	} else
+		ShowWarning("Server cannot save the play-time reset [%s].\n", play_reset_txt);
+	playlimit_send_date(-1);
+	ShowInfo("[PLAYLIMIT] reset (%s) date=%d\n", why == PLAYLIMIT_RESET_24H ? "24h timer" : "midnight", play_reset_date);
+}
+
+static int playlimit_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	enum playlimit_reset why = playlimit_reset_reason(play_reset_date, playlimit_date(time(NULL)),
+		DIFF_TICK(gettick(), play_reset_tick));
+	if (why != PLAYLIMIT_RESET_NONE)
+		playlimit_reset(why);
+	return 0;
+}
+
+static void playlimit_init(void)
+{
+	long reset_at = 0;
+	FILE *fp;
+	if ((fp = fopen(play_reset_txt, "r")) != NULL) {
+		if (fscanf(fp, "%d,%ld", &play_reset_date, &reset_at) != 2)
+			play_reset_date = 0;
+		fclose(fp);
+	}
+	// the 24 h timer goes on from the stored reset; a restart does not give it a new day
+	play_reset_tick = gettick() - playlimit_since_reset((time_t)reset_at, time(NULL));
+	if (play_reset_date == 0)
+		playlimit_reset(PLAYLIMIT_RESET_MIDNIGHT); // first start: today's counting begins now
+	else
+		playlimit_timer(INVALID_TIMER, gettick(), 0, 0); // down over midnight: reset at once
+	add_timer_func_list(playlimit_timer, "playlimit_timer");
+	add_timer_interval(gettick() + 60*1000, playlimit_timer, 0, 0, 60*1000);
+	ShowStatus("[PLAYLIMIT] daily play-time limit: current date %d.\n", play_reset_date);
+}
+
+// A character sent to a map-server: minutes of another day count as 0, and it now belongs to the current date.
+static void playlimit_stamp(struct mmo_charstatus* p)
+{
+	p->play_minutes = playlimit_loaded_minutes(p->play_date, play_reset_date, p->play_minutes);
+	p->play_date = play_reset_date;
+}
+
 //---------------------------------
 // Function to read characters file
 //---------------------------------
@@ -1132,6 +1251,7 @@ int mmo_char_init(void)
 	fclose(fp);
 
 	mmo_char_mercenary_owner_init();
+	mmo_char_playtime_init(); // [playlimit]
 
 	if (char_num == 0) {
 		ShowNotice("mmo_char_init: No character found in %s.\n", char_txt);
@@ -1212,6 +1332,7 @@ void mmo_char_sync(void)
 #endif
 
 	mmo_char_mercenary_owner_sync();
+	mmo_char_playtime_sync(); // [playlimit]
 
 	DELETE_BUFFER(id);
 
@@ -2898,6 +3019,7 @@ int parse_frommap(int fd)
 			WFIFOSET(fd,3+NAME_LENGTH);
 
 			char_send_fame_list(fd); //Send fame list.
+			playlimit_send_date(fd); // [playlimit] the current day
 
 			{
 			unsigned char buf[16384];
@@ -3015,8 +3137,15 @@ int parse_frommap(int fd)
 				    char_dat[i].status.char_id == RFIFOL(fd,8))
 					break;
 			}
-			if (i != char_num)
-				memcpy(&char_dat[i].status, RFIFOP(fd,13), sizeof(struct mmo_charstatus));
+			if (i != char_num) {
+				// [playlimit] a save of an older day (sent before a reset, arriving after it) keeps the
+				// minutes the current day already has instead of bringing yesterday's back
+				struct mmo_charstatus* cs = &char_dat[i].status;
+				int cur = playlimit_loaded_minutes(cs->play_date, play_reset_date, cs->play_minutes);
+				memcpy(cs, RFIFOP(fd,13), sizeof(struct mmo_charstatus));
+				cs->play_minutes = playlimit_saved_minutes(cs->play_date, play_reset_date, cs->play_minutes, cur);
+				cs->play_date = play_reset_date;
+			}
 			if (RFIFOB(fd,12))
 			{	//Flag, set character offline. [Skotlex]
 				set_char_offline(RFIFOL(fd,8),RFIFOL(fd,4));
@@ -3078,6 +3207,7 @@ int parse_frommap(int fd)
 				char_data->last_point.x = RFIFOW(fd,20);
 				char_data->last_point.y = RFIFOW(fd,22);
 				char_data->sex = RFIFOB(fd,30);
+				playlimit_stamp(char_data); // [playlimit]
 
 				WFIFOHEAD(map_fd, 20 + sizeof(struct mmo_charstatus));
 				WFIFOW(map_fd,0) = 0x2afd;
@@ -3672,6 +3802,7 @@ int parse_char(int fd)
 			WFIFOL(map_fd,8) = auth_fifo[auth_fifo_pos].login_id1;
 			WFIFOL(map_fd,16) = auth_fifo[auth_fifo_pos].login_id2;
 			WFIFOL(map_fd,12) = (unsigned long)auth_fifo[auth_fifo_pos].connect_until_time;
+			playlimit_stamp(cd); // [playlimit]
 			memcpy(WFIFOP(map_fd,20), cd, sizeof(struct mmo_charstatus));
 			WFIFOSET(map_fd, WFIFOW(map_fd,2));
 
@@ -4249,6 +4380,10 @@ int char_config_read(const char *cfgName)
 			strcpy(hotkeys_txt, w2);
 		} else if (strcmpi(w1, "mercenary_owner_txt") == 0) {
 			strcpy(mercenary_owner_txt, w2);
+		} else if (strcmpi(w1, "playtime_txt") == 0) {
+			strcpy(playtime_txt, w2);
+		} else if (strcmpi(w1, "play_reset_txt") == 0) {
+			strcpy(play_reset_txt, w2);
 #ifndef TXT_SQL_CONVERT
 		} else if (strcmpi(w1, "max_connect_user") == 0) {
 			max_connect_user = atoi(w2);
@@ -4470,6 +4605,7 @@ int do_init(int argc, char **argv)
 	online_char_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 
 	mmo_char_init();
+	playlimit_init(); // [playlimit]
 #ifdef ENABLE_SC_SAVING
 	status_init();
 #endif
