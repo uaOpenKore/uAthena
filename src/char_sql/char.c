@@ -1,6 +1,7 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/sqlid.h"
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/db.h"
@@ -1573,7 +1574,7 @@ int make_new_char_sql(int fd, unsigned char *dat)
 	}
 	//Now we need the charid from sql!
 	if(mysql_field_count(&mysql_handle) == 0 &&
-		mysql_insert_id(&mysql_handle) > 0)
+		sql_new_id_ok(mysql_insert_id(&mysql_handle), INT_MAX, "make_new_char_sql")) // [counters]
 		char_id = (int)mysql_insert_id(&mysql_handle);
 	else {
 		//delete the char ..(no trash in DB!) but how is this possible?

@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "char.h"
+#include "../common/sqlid.h"
 #include "../common/malloc.h"
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
@@ -118,8 +119,16 @@ int mapif_save_homunculus(int fd, int account_id, struct s_homunculus *hd)
 		flag =  0;
 	}
 
-	if(hd->hom_id==0 && flag!=0)
-		hd->hom_id = (int)mysql_insert_id(&mysql_handle); // new homunculus
+	if(hd->hom_id==0 && flag!=0) {
+		unsigned long long nid = mysql_insert_id(&mysql_handle);
+		if (sql_new_id_ok(nid, INT_MAX, "mapif_save_homunculus")) // [counters]
+			hd->hom_id = (int)nid; // new homunculus
+		else {
+			sprintf(tmp_sql, "DELETE FROM `homunculus` WHERE `homun_id`='%llu'", nid);
+			mysql_query(&mysql_handle, tmp_sql);
+			flag = 0;
+		}
+	}
 	else
 	{
 		flag = mapif_save_homunculus_skills(hd);
