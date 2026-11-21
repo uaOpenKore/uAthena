@@ -2,6 +2,8 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/sqlid.h"
+#include "../common/timer.h"
+#include "../common/playlimit.h"
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
 #include "../common/db.h"
@@ -37,6 +39,11 @@
 #define SQL_CONF_NAME	"conf/inter_athena.conf"
 
 char char_db[256] = "char";
+// daily play-time limit (playlimit_init and the functions after it, below mmo_char_fromsql)
+bool playlimit_on = false;
+static int play_reset_date = 0;	// the date the current minutes belong to; 0 = limit off
+static t_tick play_reset_tick = 0;	// monotonic time of the last reset
+void playlimit_stamp(struct mmo_charstatus* p);
 char scdata_db[256] = "sc_data";
 char cart_db[256] = "cart_inventory";
 char inventory_db[256] = "inventory";
@@ -693,7 +700,24 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 		} else
 			strcat(save_status, " status2");
 	}
-	
+
+	if (playlimit_on) {
+		// daily play-time limit: a save of an older day (sent before a reset, arriving after it) keeps the
+		// minutes the current day already has instead of bringing yesterday's back
+		p->play_minutes = playlimit_saved_minutes(p->play_date, play_reset_date, p->play_minutes, cp->play_minutes);
+		p->play_date = play_reset_date;
+		if (p->play_minutes != cp->play_minutes || p->play_date != cp->play_date) {
+			sprintf(tmp_sql, "UPDATE `%s` SET `play_minutes`='%d', `play_date`='%d' WHERE `char_id`='%d'",
+				char_db, p->play_minutes, p->play_date, p->char_id);
+			if (mysql_query(&mysql_handle, tmp_sql)) {
+				ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+				ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+				errors++;
+			} else
+				strcat(save_status, " playtime");
+		}
+	}
+
 
 	diff = 0;
 
@@ -1130,8 +1154,8 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`homun_id`,`hair`,"
 		"`hair_color`,`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
-		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`"
-		" FROM `%s` WHERE `char_id` = '%d'", char_db, char_id);
+		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`%s"
+		" FROM `%s` WHERE `char_id` = '%d'", playlimit_on ? ",`play_minutes`,`play_date`" : "", char_db, char_id);
 
 	if (mysql_query(&mysql_handle, tmp_sql)) {
 		ShowSQL("DB error - %s\n",mysql_error(&mysql_handle));
@@ -1196,6 +1220,11 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	p->mother = atoi(sql_row[45]);
 	p->child = atoi(sql_row[46]);
 	p->fame = atoi(sql_row[47]);
+	if (playlimit_on) {
+		p->play_minutes = atoi(sql_row[48]);
+		p->play_date = atoi(sql_row[49]);
+	}
+	playlimit_stamp(p);
 
 	//free mysql result.
 	mysql_free_result(sql_res);
@@ -1362,6 +1391,112 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	cp = idb_ensure(char_db_, char_id, create_charstatus);
 	memcpy(cp, p, sizeof(struct mmo_charstatus));
 	return 1;
+}
+
+//==========================================================================================================
+// Daily play-time limit (S. 2026-11-21, see common/playlimit.h). The char-server owns the reset: at 00:00 server
+// time, or 24 h after the last reset by the monotonic clock, whichever comes first, it moves play_reset to the
+// new date and tells the map-servers (0x2b24) to zero their online players. Character rows are not rewritten:
+// minutes stamped with an older date count as 0 when the character loads. Without the columns (migration
+// sql-files/upgrade_2026-11-21_playlimit.sql not run) the limit is off and nothing reads or writes them.
+static bool playlimit_has(const char* q)
+{
+	bool found = false;
+	if (mysql_query(&mysql_handle, q) == 0 && (sql_res = mysql_store_result(&mysql_handle)) != NULL) {
+		found = mysql_fetch_row(sql_res) != NULL;
+		mysql_free_result(sql_res);
+	} else
+		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+	return found;
+}
+
+// Tell one map-server (fd) or all of them (fd < 0) the current reset date; 0 = the limit is off.
+void playlimit_send_date(int fd)
+{
+	unsigned char buf[6];
+	WBUFW(buf,0) = 0x2b24;
+	WBUFL(buf,2) = playlimit_on ? play_reset_date : 0;
+	if (fd < 0)
+		mapif_sendall(buf, 6);
+	else {
+		WFIFOHEAD(fd,6);
+		memcpy(WFIFOP(fd,0), buf, 6);
+		WFIFOSET(fd,6);
+	}
+}
+
+static int playlimit_zero_cached(DBKey key, void* data, va_list ap)
+{
+	struct mmo_charstatus* cp = (struct mmo_charstatus*)data;
+	cp->play_minutes = 0;
+	cp->play_date = va_arg(ap, int);
+	return 0;
+}
+
+static void playlimit_reset(enum playlimit_reset why)
+{
+	time_t now = time(NULL);
+	play_reset_date = playlimit_date(now);
+	play_reset_tick = gettick();
+	sprintf(tmp_sql, "REPLACE INTO `play_reset` (`id`,`reset_date`,`reset_at`) VALUES (0,'%d',FROM_UNIXTIME(%ld))",
+		play_reset_date, (long)now);
+	if (mysql_query(&mysql_handle, tmp_sql))
+		ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+	// the cached copies are what the next save is compared with: zero them so it writes the new day's minutes
+	char_db_->foreach(char_db_, playlimit_zero_cached, play_reset_date);
+	playlimit_send_date(-1);
+	ShowInfo("[PLAYLIMIT] reset (%s) date=%d\n", why == PLAYLIMIT_RESET_24H ? "24h timer" : "midnight", play_reset_date);
+}
+
+static int playlimit_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
+{
+	enum playlimit_reset why;
+	if (!playlimit_on)
+		return 0;
+	why = playlimit_reset_reason(play_reset_date, playlimit_date(time(NULL)), DIFF_TICK(gettick(), play_reset_tick));
+	if (why != PLAYLIMIT_RESET_NONE)
+		playlimit_reset(why);
+	return 0;
+}
+
+static void playlimit_init(void)
+{
+	time_t reset_at = 0;
+	sprintf(tmp_sql, "SHOW COLUMNS FROM `%s` LIKE 'play_date'", char_db);
+	if (!playlimit_has(tmp_sql) || !playlimit_has("SHOW TABLES LIKE 'play_reset'")) {
+		ShowWarning("[PLAYLIMIT] the daily play-time limit is OFF: the columns `play_minutes`/`play_date` or the table "
+			"`play_reset` are missing (run sql-files/upgrade_2026-11-21_playlimit.sql).\n");
+		return;
+	}
+	playlimit_on = true;
+	if (mysql_query(&mysql_handle, "SELECT `reset_date`, UNIX_TIMESTAMP(`reset_at`) FROM `play_reset` WHERE `id`=0") == 0 &&
+		(sql_res = mysql_store_result(&mysql_handle)) != NULL) {
+		if ((sql_row = mysql_fetch_row(sql_res)) != NULL) {
+			play_reset_date = atoi(sql_row[0]);
+			reset_at = (time_t)strtoll(sql_row[1] ? sql_row[1] : "0", NULL, 10);
+		}
+		mysql_free_result(sql_res);
+	}
+	// the 24 h timer goes on from the stored reset; a restart does not give it a new day
+	play_reset_tick = gettick() - playlimit_since_reset(reset_at, time(NULL));
+	if (play_reset_date == 0)
+		playlimit_reset(PLAYLIMIT_RESET_MIDNIGHT); // first start: today's counting begins now
+	else
+		playlimit_timer(INVALID_TIMER, gettick(), 0, 0); // down over midnight: reset at once
+	add_timer_func_list(playlimit_timer, "playlimit_timer");
+	add_timer_interval(gettick() + 60*1000, playlimit_timer, 0, 0, 60*1000);
+	ShowStatus("[PLAYLIMIT] daily play-time limit: current date %d.\n", play_reset_date);
+}
+
+// A loaded character: minutes of another day count as 0, and it now belongs to the current date.
+void playlimit_stamp(struct mmo_charstatus* p)
+{
+	if (!playlimit_on) {
+		p->play_minutes = p->play_date = 0;
+		return;
+	}
+	p->play_minutes = playlimit_loaded_minutes(p->play_date, play_reset_date, p->play_minutes);
+	p->play_date = play_reset_date;
 }
 
 //==========================================================================================================
@@ -2767,6 +2902,7 @@ int parse_frommap(int fd)
 			WFIFOSET(fd,3+NAME_LENGTH);
 
 			char_send_fame_list(fd); //Send fame list.
+			playlimit_send_date(fd); // daily play-time limit: the current date (0 = off)
 
 			{
 			unsigned char buf[16384];
@@ -3469,8 +3605,8 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`homun_id`,`hair`,"
 		"`hair_color`,`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
-		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`"
-		" FROM `%s` WHERE `char_id` = '%d'", char_db, char_id);
+		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`%s"
+		" FROM `%s` WHERE `char_id` = '%d'", playlimit_on ? ",`play_minutes`,`play_date`" : "", char_db, char_id);
 	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "char");
 	row = mysql_fetch_row(res);
 	if (!row) { mysql_free_result(res); return 0; }
@@ -3518,6 +3654,10 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 	cs->mother = atoi(row[45]);
 	cs->child = atoi(row[46]);
 	cs->fame = atoi(row[47]);
+	if (playlimit_on) { // raw: playlimit_stamp runs on the game thread (char_load_finish_ok)
+		cs->play_minutes = atoi(row[48]);
+		cs->play_date = atoi(row[49]);
+	}
 	mysql_free_result(res);
 
 	// 3. memo
@@ -3653,6 +3793,7 @@ static void char_load_finish_ok(struct achar_ctx* r)
 	int i, map_fd;
 
 	cd->sex = r->sex;
+	playlimit_stamp(cd);
 
 	// char_db_ cache (the shared-state write that mmo_char_fromsql does at its end)
 	cp = idb_ensure(char_db_, cd->char_id, create_charstatus);
@@ -4853,6 +4994,7 @@ int do_init(int argc, char **argv)
 	ShowInfo("Initializing char server.\n");
 	online_char_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	mmo_char_sql_init();
+	playlimit_init();
 	ShowInfo("char server initialized.\n");
 
 	set_defaultparse(parse_char);

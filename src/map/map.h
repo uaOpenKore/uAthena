@@ -673,6 +673,9 @@ struct map_session_data {
 	int invincible_timer;
 	int rental_timer; // [Backport] rental-item expiry timer
 	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
+	t_tick play_login_tick; // [playlimit] minutes on the map-server count from here (status.play_minutes before it)
+	int play_warned;        // [playlimit] the 30/10/1-minute warnings given today (playlimit_warning)
+	int play_kick_tid;      // [playlimit] the 40 s disconnect after the limit message; -1 = none
 	t_tick canlog_tick;
 	t_tick auth_tick; // [xms] tick this SESSION was set up (pc_setnewpc); never bumped by actions -> true "time since connect" for the cross-server dupe-kick race guard
 	unsigned int auth_seq; // [auth-queue] unique id of this CONNECTION (pc_setnewpc, global counter, never 0/reused): ties an auth_db node to its own session, not to a recycled fd number or a re-allocated sd address

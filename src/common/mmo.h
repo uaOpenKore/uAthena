@@ -281,6 +281,7 @@ struct mmo_charstatus {
 	int arch_faith, arch_calls;		// [Backport] mercenary loyalty/calls (mercenary_owner table)
 	int spear_faith, spear_calls;
 	int sword_faith, sword_calls;
+	int play_minutes, play_date;	// daily play-time limit: minutes on the map-server on day play_date (YYYYMMDD)
 
 	short weapon,shield;
 	short head_top,head_mid,head_bottom;

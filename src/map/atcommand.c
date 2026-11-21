@@ -274,6 +274,7 @@ ACMD_FUNC(title); // active title
 ACMD_FUNC(merc); // mercenary status chat UI
 ACMD_FUNC(h3); // help page for our custom chat commands
 ACMD_FUNC(whobot); // [whobot] online players sending more ticks than a game client
+ACMD_FUNC(playtime); // [playlimit] minutes played today and the time left
 ACMD_FUNC(exp); // by Skotlex
 ACMD_FUNC(adopt); // by Veider
 
@@ -614,6 +615,7 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_Merc,               "@mercenary",        1, atcommand_merc }, // alias
 	{ AtCommand_H3,                 "@h3",               1, atcommand_h3 }, // help: our custom commands
 	{ AtCommand_WhoBot,             "@whobot",          60, atcommand_whobot }, // [whobot] tick rate > a client's
+	{ AtCommand_PlayTime,           "@playtime",         0, atcommand_playtime }, // [playlimit] time played today
 	{ AtCommand_MapFlag,            "@mapflag",         99, atcommand_mapflag }, // [Lupus]
 
 	{ AtCommand_Me,                 "@me",              20, atcommand_me }, //added by massdriller, code by lordalfa
@@ -7382,6 +7384,7 @@ int atcommand_autotrade(const int fd, struct map_session_data* sd, const char* c
 	nullpo_retr(-1, sd);
 	if (sd->vender_id) //check if player's vending
 	{
+		pc_playlimit_fold(sd); // [playlimit] no socket in autotrade: its time does not count
 		sd->state.autotrade = 1;
 		clif_authfail_fd(fd, 15);
 	}
@@ -10686,4 +10689,16 @@ void do_init_atcommand()
 void do_final_atcommand()
 {
 	users_db->destroy(users_db,NULL);
+}
+
+/*==========================================
+ * @playtime [playlimit] (S. 2026-11-21): the minutes the player spent in the game today, the time left before
+ * the daily play-time limit and the time until it resets.
+ *------------------------------------------*/
+int atcommand_playtime(const int fd, struct map_session_data* sd, const char* command, const char* message)
+{
+	nullpo_retr(-1, sd);
+	pc_playlimit_describe(sd, atcmd_output, sizeof(atcmd_output));
+	clif_displaymessage(fd, atcmd_output);
+	return 0;
 }

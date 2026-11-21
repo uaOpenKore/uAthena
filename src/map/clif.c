@@ -8527,6 +8527,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	if(sd->state.connect_new) {
 		int lv;
 		sd->state.connect_new = 0;
+		pc_playlimit_check(sd); // [playlimit] at the limit already: the reason now, disconnected 40 s later
 		clif_skillinfoblock(sd);
 		clif_hotkeys_send(sd);
 		clif_updatestatus(sd,SP_NEXTBASEEXP);
