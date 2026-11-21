@@ -49,7 +49,7 @@ static int npc_mob=0;
 static int npc_delay_mob=0;
 static int npc_cache_mob=0;
 const char *current_file = NULL;
-// The id of a new npc/mob/pet/homunculus/mercenary. Ids are never handed back, so after ~2 billion (years of
+// The id of a new npc/mob/pet/homunculus/mercenary. Ids are never handed back, so after ~1 billion (years of
 // uptime, a respawn takes a new id) the counter wraps to START_NPC_NUM instead of overflowing into negative ids,
 // and from then on skips the ids still in use (the permanent NPCs and mobs at the bottom of the range).
 #define MAX_NPC_ID 2100000000

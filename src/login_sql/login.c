@@ -442,8 +442,8 @@ int mmo_auth_new(struct mmo_account* account, char sex)
 		return 1;
 	}
 
-	// [counters] an account id is also the player's id on the map: it must stay below END_ACCOUNT_NUM (100M; the
-	// NPC/mob ids start at 110M). Over it the registration is refused and the row removed.
+	// [counters] an account id is also the player's id on the map: it must stay below END_ACCOUNT_NUM (1,000M; the
+	// NPC/mob ids start at 1,100M). Over it the registration is refused and the row removed.
 	if (mysql_field_count(&mysql_handle) == 0 &&
 		!sql_new_id_ok(mysql_insert_id(&mysql_handle), END_ACCOUNT_NUM - 1, "mmo_auth_new")) {
 		if (mysql_insert_id(&mysql_handle) > 0) {

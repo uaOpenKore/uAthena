@@ -1084,7 +1084,7 @@ int mmo_auth_new(struct mmo_account* account, char sex, char* email)
 	struct tm *tmtime;
 	int i = auth_num;
 
-	// [counters] an account id is also the player's map id: below END_ACCOUNT_NUM (NPC/mob ids start at 110M)
+	// [counters] an account id is also the player's map id: below END_ACCOUNT_NUM (NPC/mob ids start at 1,100M)
 	if (account_id_count >= END_ACCOUNT_NUM) {
 		ShowError("mmo_auth_new: the next account id %u reaches END_ACCOUNT_NUM (%d): registration of '%s' refused.\n",
 			account_id_count, END_ACCOUNT_NUM, account->userid);

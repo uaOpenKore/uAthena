@@ -108,7 +108,9 @@
 #define DEFAULT_MAX_ACCOUNT_ID 2010000
 
 #define START_ACCOUNT_NUM 2000000
-#define END_ACCOUNT_NUM 100000000
+// Account ids are also the players' ids on the map, below the npc/mob ids (START_NPC_NUM 1,100,000,000):
+// the two ranges must not meet. Old clients and the packets carry them as 32-bit, so both stay below 2^31.
+#define END_ACCOUNT_NUM 1000000000
 
 //Room for initial 100k characters
 #define DEFAULT_MAX_CHAR_ID 250000
