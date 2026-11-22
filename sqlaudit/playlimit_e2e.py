@@ -12,6 +12,8 @@ WALL_FILE seconds), starts it and checks. Scenarios:
            not enough zeny is refused, buying at the limit cancels the disconnect; the warnings name the commands
   autopay  11 @autopay on: the minutes are paid (100 x level each) and the played time does not grow; it stays on
            over a relog; when the zeny run out it turns itself off and the minutes count again
+  bot      12 OpenKore (ticks 10 a second, the @whobot rule) pays playtime_buy_bot_percent (150) of the price,
+           a game client the price (the stand's battle_conf import sets 100 x level and 150 %)
   nocols   9 without the migration the servers run, log that the limit is off, nobody is kicked
 """
 import datetime, os, re, subprocess, sys, time, struct
@@ -20,7 +22,7 @@ import rostub  # noqa: E402
 from e2elib import Stream, chat, enter_map, load_lengths, messages  # noqa: E402
 SP = os.path.dirname(os.path.abspath(__file__))
 run = sys.argv[1]
-want = sys.argv[2:] or ["play", "buy", "autopay", "midnight", "timer", "restart", "nocols"]
+want = sys.argv[2:] or ["play", "buy", "autopay", "bot", "midnight", "timer", "restart", "nocols"]
 MYSQL = ["mysql", "--no-defaults", "-h127.0.0.1", "-P13306", "-uroot", "ragnarok", "-N", "-B", "-e"]
 WALL = os.path.join(SP, "tools", "wall.txt")
 SHIM = os.path.join(SP, "tools", "wallwarp.so")
@@ -174,6 +176,25 @@ try:
         st = [m for _, m in a.msgs if m.startswith("@autopay is")]
         check("11e @autopay stays on over a relog", bool(st) and st[-1].startswith("@autopay is on"), "st=%s" % st[-1:])
         a.cmd("@autopay off"); pump_all([a], 2); a.quit()
+    if "bot" in want:
+        stop()
+        sql("UPDATE `char` SET base_level=10, zeny=100000 WHERE name IN ('PlA','PlB')")
+        sql("DELETE FROM global_reg_value WHERE str='PLAY_AUTOPAY'")
+        setreset(today, now - datetime.timedelta(hours=1))
+        setrow("PlA", 100, today); setrow("PlB", 100, today)
+        start(0)
+        a = Player("plima", "PlA"); b = Player("plimb", "PlB")
+        t0 = time.time()
+        while time.time() - t0 < 65:  # PlB ticks like OpenKore's default config
+            try: b.s.map_sock.sendall(struct.pack("<HI", 0x0089, int(time.time() * 1000) & 0xffffffff) + b"\0\0")
+            except OSError: break
+            pump_all([a, b], 0.1)
+        a.cmd("@autopay"); b.cmd("@autopay"); pump_all([a, b], 2)
+        pa = [m for _, m in a.msgs if m.startswith("@autopay is")]
+        pb = [m for _, m in b.msgs if m.startswith("@autopay is")]
+        check("12a a game client pays the price (100 x 10 = 1000 a minute)", bool(pa) and "(1000 zeny a minute)" in pa[-1], "msgs=%s" % pa[-1:])
+        check("12b OpenKore pays 150 % of it (1500 a minute)", bool(pb) and "(1500 zeny a minute)" in pb[-1], "msgs=%s" % pb[-1:])
+        a.quit(); b.quit()
     if "midnight" in want:
         stop()
         target = datetime.datetime.combine(now.date(), datetime.time(23, 59, 15))

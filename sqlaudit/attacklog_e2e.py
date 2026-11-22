@@ -48,6 +48,31 @@ check("5 map: a logged-in player's unknown packet names the account", any("unkno
 s.map_sock.sendall(struct.pack("<HH", 0x00f3, 2)); time.sleep(1)  # 0xf3 is variable length: 2 < 4
 l = lines("map1")
 check("6 map: a bad length", any("bad_length: 0x00f3" in x for x in l), l[-2:])
+# 9 ticks never make a flood (S. 22.11: OpenKore bursts 150-200 ticks): 230 in a second, still online, at most 10 answered
+try: s.quit_game(wait=1)
+except Exception: pass
+time.sleep(3)
+s = enter_map("atklog", "atkpw1", "AtkLog", log=lambda *a: None)
+time.sleep(1)
+s.map_sock.settimeout(0.2)
+try:
+    while s.map_sock.recv(65536): pass
+except Exception: pass
+for i in range(230):
+    s.map_sock.sendall(struct.pack("<HI", 0x0089, i) + b"\0\0")
+time.sleep(1.5)
+data = b""
+try:
+    while True:
+        d = s.map_sock.recv(65536)
+        if not d: break
+        data += d
+except Exception: pass
+replies = data.count(b"\x7f\x00")
+alive = True
+try: s.map_sock.sendall(struct.pack("<HI", 0x0089, 1) + b"\0\0"); time.sleep(0.5); s.map_sock.recv(10)
+except Exception: alive = False
+check("9 230 ticks in a second: no flood kick, at most 10 answered", alive and 1 <= replies <= 12, "alive=%s replies=%d" % (alive, replies))
 # 8 a map flood names the packets of that second (S. 2026-11-21: which packets do the bots flood with)
 try: s.quit_game(wait=1)
 except Exception: pass
@@ -55,11 +80,11 @@ time.sleep(3)
 s = enter_map("atklog", "atkpw1", "AtkLog", log=lambda *a: None)
 time.sleep(1)
 for i in range(230):
-    try: s.map_sock.sendall(struct.pack("<HI", 0x0089, i) + b"\0\0")  # 0x89 ticksend (8 bytes in v22)
+    try: s.map_sock.sendall(struct.pack("<H5sI", 0x008c, bytes(5), 150000 + i))  # getcharnamerequest
     except OSError: break
 time.sleep(1.5)
 l = lines("map1")
-check("8 a map flood names the packets of that second", any("packet_flood: over 200 packets in a second (0x0089 x" in x for x in l), l[-2:])
+check("8 a map flood names the packets of that second", any("packet_flood: over 200 packets in a second (0x008c x" in x for x in l), l[-2:])
 try: s.quit_game(wait=1)
 except Exception: pass
 for i in range(40):
