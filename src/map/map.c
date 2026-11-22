@@ -3282,6 +3282,9 @@ int map_config_read(char *cfgName)
 			} else if (strcmpi(w1, "mobmetric_interval") == 0) {
 				extern int mobmetric_interval;
 				mobmetric_interval = max(10, atoi(w2));
+			} else if (strcmpi(w1, "mapreg_txt") == 0) {
+				extern char mapreg_txt[256]; // the map-register save file (also read from inter_athena.conf)
+				safestrncpy(mapreg_txt, w2, sizeof(mapreg_txt));
 			} else if (strcmpi(w1, "import") == 0) {
 				map_config_read(w2);
 			} else
