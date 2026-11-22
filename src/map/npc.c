@@ -1761,6 +1761,10 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 
 	nd = (struct npc_data *) aCalloc (1, sizeof(struct npc_data) + sizeof(nd->u.shop_item[0]) * (MAX_SHOPITEM + 1));
 	p = strchr(w4, ',');
+	// rAthena's shop line has a discount flag after the sprite (SPRITE,yes|no,id:price,...): skip it, the discount
+	// skill works on every shop here. Without this the backported Runes_Seller/Shard_Seller had no items (S. 22.11).
+	if (p && (strncmpi(p + 1, "yes,", 4) == 0 || strncmpi(p + 1, "no,", 3) == 0))
+		p = strchr(p + 1, ',');
 
 	while (p && pos < MAX_SHOPITEM)
 	{
