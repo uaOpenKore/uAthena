@@ -8780,6 +8780,7 @@ void clif_padmetric_log(struct map_session_data *sd)
 /*==========================================
  *
  *------------------------------------------*/
+#define TICK_REPLY_MAX 10 // [flood] ticks a second answered (a game client sends one every few seconds)
 void clif_parse_TickSend(int fd, struct map_session_data *sd)
 {
 	static const int padm_sizes[] = { 4 }; // client tick
@@ -8787,6 +8788,18 @@ void clif_parse_TickSend(int fd, struct map_session_data *sd)
 	clif_padmetric(fd, sd, PADM_TICK, padm_sizes, 1);
 
 	sd->client_tick = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]);
+
+	// [flood] OpenKore sends bursts of ticks (22.11: 150-200 in one second): they are counted above (@whobot) but
+	// only the first TICK_REPLY_MAX of a second are answered; ticks never count towards packet_flood_limit.
+	{
+		t_tick now = gettick();
+		if (DIFF_TICK(now, sd->tick_reply_start) >= 1000) {
+			sd->tick_reply_start = now;
+			sd->tick_reply_count = 0;
+		}
+		if (++sd->tick_reply_count > TICK_REPLY_MAX)
+			return;
+	}
 
 	WFIFOHEAD(fd, packet_len(0x7f));
 	WFIFOW(fd,0)=0x7f;
@@ -12218,7 +12231,7 @@ int clif_parse(int fd)
 	// [flood] A client sends a few dozen packets a second (bots ~10). Nothing limited them: one client could make
 	// the server parse -- and broadcast to everyone around -- as many as its connection carries. Over
 	// packet_flood_limit packets in one second the session is closed.
-	if (battle_config.packet_flood_limit > 0) {
+	if (battle_config.packet_flood_limit > 0 && packet_db[packet_ver][cmd].func != clif_parse_TickSend) { // [flood] ticks: see clif_parse_TickSend
 		t_tick now = gettick();
 		struct socket_data* sk = session[fd];
 		int k;
