@@ -75,6 +75,28 @@ static void archive_table_names(void)
 	char_tables[4] = memo_db; char_tables[5] = hotkey_db; char_tables[6] = friend_db; char_tables[7] = quest_db;
 }
 
+// The connection to the login database (made on the first call); NULL = none.
+MYSQL* char_archive_login_db(void)
+{
+	char q[64];
+	my_bool reconnect = 1;
+	if (LH)
+		return LH;
+	if (char_gm_read)
+		return LH = &lmysql_handle;
+	mysql_init(&arc_login_mysql);
+	mysql_options(&arc_login_mysql, MYSQL_OPT_RECONNECT, &reconnect);
+	if (!mysql_real_connect(&arc_login_mysql, login_server_ip, login_server_id, login_server_pw, login_server_db, login_server_port, NULL, 0)) {
+		ShowError("[ARCHIVE] no connection to the login database: %s\n", mysql_error(&arc_login_mysql));
+		return NULL;
+	}
+	if (default_codepage[0]) {
+		snprintf(q, sizeof(q), "SET NAMES %s", default_codepage);
+		sqlarc_query(&arc_login_mysql, q);
+	}
+	return LH = &arc_login_mysql;
+}
+
 int char_archive_config(const char* w1, const char* w2)
 {
 	if (strcmpi(w1, "account_archive_mode") == 0) archive_mode = atoi(w2);
@@ -132,21 +154,9 @@ void char_archive_init(void)
 	static const char* other[] = { NULL, NULL, NULL, "homunculus", "skill_homunculus" };
 
 	archive_table_names();
-	if (char_gm_read)
-		LH = &lmysql_handle;
-	else {
-		my_bool reconnect = 1;
-		mysql_init(&arc_login_mysql);
-		mysql_options(&arc_login_mysql, MYSQL_OPT_RECONNECT, &reconnect);
-		if (!mysql_real_connect(&arc_login_mysql, login_server_ip, login_server_id, login_server_pw, login_server_db, login_server_port, NULL, 0)) {
-			ShowError("[ARCHIVE] no connection to the login database (%s): archiving and restoring are off.\n", mysql_error(&arc_login_mysql));
-			return;
-		}
-		LH = &arc_login_mysql;
-		if (default_codepage[0]) {
-			snprintf(q, sizeof(q), "SET NAMES %s", default_codepage);
-			sqlarc_query(LH, q);
-		}
+	if (char_archive_login_db() == NULL) {
+		ShowError("[ARCHIVE] no connection to the login database: archiving and restoring are off.\n");
+		return;
 	}
 	other[0] = storage_db; other[1] = reg_db; other[2] = pet_db;
 	login_has_created = sqlarc_get_cols(LH, login_db, &c) > 0 && sqlarc_has_col(&c, "created");

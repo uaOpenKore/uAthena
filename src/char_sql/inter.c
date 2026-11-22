@@ -9,6 +9,7 @@
 #include "../common/malloc.h"
 #include "../common/strlib.h"
 #include "../common/showmsg.h"
+#include "char_idcompact.h"
 #include "inter.h"
 #include "int_party.h"
 #include "int_guild.h"
@@ -508,6 +509,7 @@ int inter_init_sql(const char *file)
 
 #ifndef TXT_SQL_CONVERT
 	wis_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
+	char_idcompact_run(); // [idcompact] dense ids, before any guild/party/pet... is loaded and before anyone connects
 	inter_guild_sql_init();
 	inter_storage_sql_init();
 	inter_party_sql_init();

@@ -21,6 +21,7 @@
 #include "int_storage.h"
 #include "itemdb.h"
 #include "char_archive.h"
+#include "char_idcompact.h"
 #include "char.h"
 #include "char_async_load.h"	// async character-load lane (auth-resilience)
 
@@ -4948,6 +4949,8 @@ int char_config_read(const char* cfgName)
 			relogmetric_interval = max(10, atoi(w2));
 		} else if (char_archive_config(w1, w2)) {
 			; // [archive] account_archive_*
+		} else if (char_idcompact_config(w1, w2)) {
+			; // [idcompact] id_compact_*
 		} else if (strcmpi(w1, "import") == 0) {
 			char_config_read(w2);
 		}
