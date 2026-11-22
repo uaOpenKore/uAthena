@@ -900,6 +900,7 @@ struct map_session_data {
 		unsigned char first[24], last[24]; // padding of the first and of the latest packet
 		unsigned char len;                 // padding length (bytes)
 	} padmetric[4];
+	t_tick tick_reply_start; int tick_reply_count; // [flood] ticks answered in the second that began at tick_reply_start
 	unsigned int ticksend_count; // [whobot] tick packets this session sent (clif_parse_TickSend): @whobot, logout line
 };
 
