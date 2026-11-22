@@ -5,7 +5,7 @@
 Bowls, Red Herbs and Empty Bottles only:
  1 Prepare Potion offers Red Potion (0x18d lists it once)
  2 brewing until one succeeds: Red Potions are made, Empty Bottles are spent, no Empty Potion Bottle needed
- 3 Prepare Potion costs 1 SP and no Medicine Bowl (db/skill_require_db.txt)
+ 3 Prepare Potion costs 0 SP (S. 22.11: 5 -> 1 -> 0) and no Medicine Bowl (db/skill_require_db.txt)
  4 combat bottles still need a Medicine Bowl: no bowl -> Acid Bottle is not offered (S. 2026-11-22)"""
 import os, struct, subprocess, sys, time
 SCR = "/tmp/claude-0/-root-uaroClient/f1b47459-6a36-42ec-9fb0-528e8a9c2531/scratchpad"
@@ -66,7 +66,7 @@ try:
     red, bottles, herbs = count(REDPOT), count(BOTTLE), count(HERB)
     check("2 Red Potions brewed with Empty Bottles (no Empty Potion Bottle)", red >= 1 and bottles < 30 and herbs < 30 and count(POTBOTTLE) == 0,
           "red=%d bottles=%d herbs=%d tries=%d" % (red, bottles, herbs, tries))
-    check("3 Prepare Potion costs 1 SP", sp0 is not None and sp_first is not None and sp0 - sp_first == 1, "sp %s -> %s" % (sp0, sp_first))
+    check("3 Prepare Potion costs 0 SP", sp0 is not None and (sp_first is None or sp_first == sp0), "sp %s -> %s" % (sp0, sp_first))
 finally:
     srv("stop")
     sql("DELETE FROM skill WHERE char_id=%d; DELETE FROM inventory WHERE char_id=%d; DELETE FROM `char` WHERE char_id=%d; DELETE FROM login WHERE account_id=%d;"
