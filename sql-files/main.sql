@@ -413,8 +413,10 @@ CREATE TABLE `login` (
   `memo` smallint(11) unsigned NOT NULL default '0',
   `ban_until` int(11) unsigned NOT NULL default '0',
   `state` int(11) unsigned NOT NULL default '0',
+  `created` datetime NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`account_id`),
-  KEY `name` (`userid`)
+  KEY `name` (`userid`),
+  KEY `lastlogin` (`lastlogin`)
 ) TYPE=MyISAM AUTO_INCREMENT=2000000;
 
 -- added standard accounts for servers, VERY INSECURE!!!
