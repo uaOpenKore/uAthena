@@ -198,7 +198,7 @@ erase:
 update:
 	cp --remove-destination *_sql /opt/uathena/bin/
 	cp -rf db npc /opt/uathena/
-	for f in login_athena.conf char_athena.conf map_athena.conf subnet_athena.conf packet_athena.conf discord.conf; do \
+	for f in login_athena.conf char_athena.conf map_athena.conf subnet_athena.conf packet_athena.conf discord.conf inter_athena.conf; do \
 		if [ -f /opt/uathena/$$f ]; then cp -f /opt/uathena/$$f /opt/uathena/conf/ || exit 1; \
 		else echo "update: no saved /opt/uathena/$$f - keeping the repo's conf/$$f"; fi; \
 	done
