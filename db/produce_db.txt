@@ -350,15 +350,15 @@
 //-- Deadly Poison Bottle <-- ASC_CDP & 1 Venom Canine, 1 Cactus Needle, 1 Bee Sting, 1 Poison Spore, 1 Karvodailnirol, 1 Berserk Potion, 1 Empty Bottle
 678,22,407,1,937,1,952,1,939,1,7033,1,972,1,657,1,713,1
 //-- Bottle Grenade <-- AM_PHARMACY & Bottle Grenade Creation Guide & 1 Alcohol, 1 Fabric, 1 Empty Bottle
-7135,22,228,1,7128,0,970,1,1059,1,713,1
+7135,22,228,1,7128,0,970,1,1059,1,713,1,7134,1	// + a Medicine Bowl: only the combat bottles need one (S. 2026-11-22)
 //-- Acid Bottle <-- AM_PHARMACY & Acid Bottle Creation Guide & 1 Empty Bottle, 1 Immortal Heart
-7136,22,228,1,7129,0,713,1,929,1
+7136,22,228,1,7129,0,713,1,929,1,7134,1	// + a Medicine Bowl: only the combat bottles need one (S. 2026-11-22)
 //-- Plant Bottle <-- AM_PHARMACY & Plant Bottle Creation Guide & 1 Empty Bottle, 2 Maneater Blossom
-7137,22,228,1,7130,0,713,1,1032,2
+7137,22,228,1,7130,0,713,1,1032,2,7134,1	// + a Medicine Bowl: only the combat bottles need one (S. 2026-11-22)
 //-- Marine Sphere Bottle <-- AM_PHARMACY & Marine Sphere Creation Guide & 1 Empty Bottle, 1 Tendon, 1 Detonator
-7138,22,228,1,7131,0,713,1,1050,1,1051,1
+7138,22,228,1,7131,0,713,1,1050,1,1051,1,7134,1	// + a Medicine Bowl: only the combat bottles need one (S. 2026-11-22)
 //-- Glistening Coat <-- AM_PHARMACY & Glistening Coat Creation Guide & 1 Alcohol, 1 Heart of Mermaid, 1 Zenorcs Fang, 1 Empty Bottle
-7139,22,228,1,7132,0,970,1,950,1,1044,1,713,1
+7139,22,228,1,7132,0,970,1,950,1,1044,1,713,1,7134,1	// + a Medicine Bowl: only the combat bottles need one (S. 2026-11-22)
 //----------------------------------------------
 
 //---- Elemental-resist Potions ----------------
