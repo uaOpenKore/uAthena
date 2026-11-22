@@ -26,6 +26,14 @@ CHAR_ALL_H = $(wildcard *.h) $(wildcard ../common/*.h) $(wildcard ../../Makefile
 # MONGOC_LIBS on the make command line override pkg-config.
 MONGOC_CFLAGS ?= $(shell pkg-config --cflags libmongoc-1.0 2>/dev/null)
 MONGOC_LIBS ?= $(shell pkg-config --libs libmongoc-1.0 2>/dev/null)
+# no pkg-config on the box (22.11 prod: libmongoc-dev installed, the char-server built without it): the Debian paths
+MONGOC_PREFIX ?= /usr
+ifeq ($(strip $(MONGOC_LIBS)),)
+ifneq ($(wildcard $(MONGOC_PREFIX)/include/libmongoc-1.0/mongoc/mongoc.h),)
+MONGOC_CFLAGS = -I$(MONGOC_PREFIX)/include/libmongoc-1.0 -I$(MONGOC_PREFIX)/include/libbson-1.0
+MONGOC_LIBS = -L$(MONGOC_PREFIX)/lib/x86_64-linux-gnu -lmongoc-1.0 -lbson-1.0
+endif
+endif
 ifneq ($(strip $(MONGOC_LIBS)),)
 ONLINESTAT_DEF = -DONLINESTAT_MONGO $(MONGOC_CFLAGS)
 endif
