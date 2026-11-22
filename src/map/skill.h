@@ -7,7 +7,7 @@
 #include "map.h" // MAX_SKILL_LEVEL, ...
 
 #define MAX_SKILL_DB			1100
-#define MAX_SKILL_PRODUCE_DB	150
+#define MAX_SKILL_PRODUCE_DB	200 // [produce] 145 rows + alternative recipes
 #define MAX_PRODUCE_RESOURCE	12
 #define MAX_SKILL_ARROW_DB		150
 #define MAX_SKILL_ABRA_DB		350

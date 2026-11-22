@@ -10843,22 +10843,10 @@ int skill_unit_move_unit_group (struct skill_unit_group *group, int m, int dx, i
 /*==========================================
  *
  *------------------------------------------*/
-int skill_can_produce_mix (struct map_session_data *sd, int nameid, int trigger, int qty)
+// Can recipe row i be made now (skill, item level, materials)?
+static bool skill_produce_row_ok(struct map_session_data *sd, int i, int trigger, int qty)
 {
-	int i,j;
-
-	nullpo_retr(0, sd);
-
-	if(nameid<=0)
-		return 0;
-
-	for(i=0;i<MAX_SKILL_PRODUCE_DB;i++){
-		if(skill_produce_db[i].nameid == nameid )
-			break;
-	}
-	if( i >= MAX_SKILL_PRODUCE_DB )
-		return 0;
-
+	int j;
 	if(trigger>=0){
 		if(trigger>20) { // Non-weapon, non-food item (itemlv must match)
 			if(skill_produce_db[i].itemlv!=trigger)
@@ -10891,7 +10879,24 @@ int skill_can_produce_mix (struct map_session_data *sd, int nameid, int trigger,
 				return 0;
 		}
 	}
-	return i+1;
+	return true;
+}
+
+// An item may have more than one recipe row (S. 2026-11-22: Red/Yellow/White Potion with an Empty Potion Bottle
+// OR an Empty Bottle): the first row the player can make now is used. Returns its index + 1, 0 = none.
+int skill_can_produce_mix (struct map_session_data *sd, int nameid, int trigger, int qty)
+{
+	int i;
+
+	nullpo_retr(0, sd);
+
+	if(nameid<=0)
+		return 0;
+
+	for(i=0;i<MAX_SKILL_PRODUCE_DB;i++)
+		if(skill_produce_db[i].nameid == nameid && skill_produce_row_ok(sd, i, trigger, qty))
+			return i+1;
+	return 0;
 }
 
 /*==========================================

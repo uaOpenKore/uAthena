@@ -327,10 +327,13 @@
 //---- Health Potions --------------------------
 //-- Red Potion <-- AM_PHARMACY & Potion Creation Guide & 1 Red Herb, 1 Empty Potion Bottle
 501,22,228,1,7144,0,507,1,1093,1
+501,22,228,1,7144,0,507,1,713,1	// ...or with an Empty Bottle instead (S. 2026-11-22)
 //-- Yellow Potion <-- AM_PHARMACY & Potion Creation Guide & 1 Yellow Herb, 1 Empty Potion Bottle
 503,22,228,1,7144,0,508,1,1093,1
+503,22,228,1,7144,0,508,1,713,1	// ...or with an Empty Bottle instead (S. 2026-11-22)
 //-- White Potion <-- AM_PHARMACY & Potion Creation Guide & 1 White Herb, 1 Empty Potion Bottle
 504,22,228,1,7144,0,509,1,1093,1
+504,22,228,1,7144,0,509,1,713,1	// ...or with an Empty Bottle instead (S. 2026-11-22)
 //-- Blue Potion <-- AM_PHARMACY & Potion Creation Guide & 1 Blue Herb, 1 Scell, 1 Empty Potion Bottle
 505,22,228,1,7144,0,510,1,911,1,1093,1
 //-- Condensed Red Potion <-- AM_PHARMACY & Condensed Potion Creation Guide & 1 Red Potion, 1 Empty Testtube, 1 Cactus Needle
