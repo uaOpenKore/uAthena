@@ -2,6 +2,7 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/sqlid.h"
+#include "../common/sqlarchive.h"
 #include "../common/attacklog.h"
 #include "../common/authguard.h"
 #include "../common/cbasetypes.h"
@@ -513,6 +514,66 @@ void mmo_db_close(void)
 //-----------------------------------------------------
 // Make new account
 //-----------------------------------------------------
+bool check_password(struct login_session_data* ld, int passwdenc, const char* passwd, const char* refpass);
+
+// [archive] An archived account's login name stays taken (char_archive.c makes arc_<login>).
+static int archive_userid_taken(const char* esc_userid)
+{
+	char q[1024];
+	MYSQL_RES* res;
+	int n = 0;
+	snprintf(q, sizeof(q), "SELECT 1 FROM `arc_%s` WHERE `%s` = '%s' LIMIT 1", login_db, login_db_userid, esc_userid);
+	if (mysql_query(&mysql_handle, q)) // no archive table yet: nothing archived
+		return 0;
+	if ((res = mysql_store_result(&mysql_handle)) != NULL) {
+		n = (int)mysql_num_rows(res);
+		mysql_free_result(res);
+	}
+	return n > 0;
+}
+
+// [archive] A login name that is not in `login`: an archived account with it and this password comes back under a
+// new account id (S. 2026-11-22); the char-server brings its characters back when it reaches the character select.
+// 1 = restored (look the account up again), 0 = no such archived account, -1 = archived, wrong password.
+static int archive_try_restore(int fd, struct mmo_account* account, const char* t_uid)
+{
+	char q[1280], arc[300], pass[256], user_password[256], w[64];
+	MYSQL_RES* res;
+	MYSQL_ROW row;
+	int arc_no = 0, aid;
+
+	snprintf(arc, sizeof(arc), "arc_%s", login_db);
+	snprintf(q, sizeof(q), "SELECT `arc_no`,`%s` FROM `%s` WHERE `%s` = %s '%s' AND `arc_new_aid` = '0' ORDER BY `arc_no` DESC LIMIT 1",
+		login_db_user_pass, arc, login_db_userid, login_config.case_sensitive ? "BINARY" : "", t_uid);
+	if (mysql_query(&mysql_handle, q)) // no archive table yet
+		return 0;
+	if ((res = mysql_store_result(&mysql_handle)) == NULL)
+		return 0;
+	if ((row = mysql_fetch_row(res)) != NULL) {
+		arc_no = atoi(row[0]);
+		snprintf(pass, sizeof(pass), "%s", row[1] ? row[1] : "");
+	}
+	mysql_free_result(res);
+	if (arc_no <= 0)
+		return 0;
+	if (login_config.use_md5_passwds)
+		MD5_String(account->passwd, user_password);
+	else
+		memcpy(user_password, account->passwd, NAME_LENGTH);
+	if (!check_password(session[fd]->session_data, account->passwdenc, user_password, pass))
+		return -1;
+	snprintf(w, sizeof(w), "`arc_no` = '%d'", arc_no);
+	if (sqlarc_copy(&mysql_handle, login_db, arc, w, NULL, 1) != 1) {
+		ShowError("[ARCHIVE] the archived account '%s' (arc_no %d) could not be restored.\n", account->userid, arc_no);
+		return 0;
+	}
+	aid = (int)mysql_insert_id(&mysql_handle);
+	snprintf(q, sizeof(q), "UPDATE `%s` SET `arc_new_aid` = '%d' WHERE `arc_no` = '%d'", arc, aid, arc_no);
+	sqlarc_query(&mysql_handle, q);
+	ShowInfo("[ARCHIVE] account '%s' restored from the archive (arc_no %d): new account id %d.\n", account->userid, arc_no, aid);
+	return 1;
+}
+
 int mmo_auth_new(struct mmo_account* account, char sex)
 {
 	t_tick tick = gettick();
@@ -548,6 +609,10 @@ int mmo_auth_new(struct mmo_account* account, char sex)
 		return 1; //Already exists, return incorrect user/pass.
 	}
 	mysql_free_result(sql_res); //Only needed for the already-exists check...
+	if (archive_userid_taken(esc_userid)) {
+		ShowNotice("Account registration denied: the name '%s' belongs to an archived account.\n", account->userid);
+		return 1; // [archive] taken: its owner gets it back by logging in
+	}
 
 	sex = TOUPPER(sex);
 
@@ -716,6 +781,8 @@ int mmo_auth(struct mmo_account* account, int fd)
 
 	jstrescapecpy(t_uid,account->userid);
 
+	{ int archive_tried = 0;
+retry_lookup:
 	// retrieve login entry for the specified username
 	sprintf(tmpsql, "SELECT `%s`,`%s`,`lastlogin`,`sex`,`connect_until`,`ban_until`,`state`,`%s`"
 		" FROM `%s` WHERE `%s`= %s '%s'", login_db_account_id, login_db_user_pass, login_db_level, login_db, login_db_userid, login_config.case_sensitive ? "BINARY" : "", t_uid);
@@ -733,10 +800,22 @@ int mmo_auth(struct mmo_account* account, int fd)
 	}
 	sql_row = mysql_fetch_row(sql_res);
 	if (!sql_row) {
+		int r;
+		mysql_free_result(sql_res);
+		if (!archive_tried) { // [archive] an archived account: the right password brings it back
+			archive_tried = 1;
+			r = archive_try_restore(fd, account, t_uid);
+			if (r > 0)
+				goto retry_lookup;
+			if (r < 0) {
+				ShowInfo("Invalid password (archived account: %s, ip: %s)" RETCODE, account->userid, ip);
+				return 1; // 1 = Incorrect Password
+			}
+		}
 		//there's no id.
 		ShowNotice("auth failed: no such account %s\n", account->userid);
-		mysql_free_result(sql_res);
 		return 0;
+	}
 	}
 
 	account->account_id = atoi(sql_row[0]);

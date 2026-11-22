@@ -20,6 +20,7 @@
 #include "int_mercenary.h"	// [Backport] hired mercenary soldier
 #include "int_storage.h"
 #include "itemdb.h"
+#include "char_archive.h"
 #include "char.h"
 #include "char_async_load.h"	// async character-load lane (auth-resilience)
 
@@ -934,6 +935,20 @@ static void char_pending_drop(int char_id)
 		aFree(copy);
 }
 
+// [archive] An account on this server now: in game, at the character select or an autotrade shop.
+int char_archive_account_busy(int account_id)
+{
+	return idb_get(online_char_db, account_id) != NULL;
+}
+
+// [archive] An archived character leaves the memory too: no failed save of it may write it back.
+void char_archive_forget_char(int char_id)
+{
+	char_pending_drop(char_id);
+	if (idb_get(char_db_, char_id))
+		idb_remove(char_db_, char_id);
+}
+
 // The newest state of a character whose last save failed, or NULL.
 static struct mmo_charstatus* char_pending_get(int char_id)
 {
@@ -1710,6 +1725,10 @@ int make_new_char_sql(int fd, unsigned char *dat)
 			return -1;
 		}
 	}
+	if (char_archive_name_taken(t_name)) { // [archive] the name of an archived character: it comes back on a login
+		ShowInfo("Create char failed: charname '%s' belongs to an archived character\n", name);
+		return -1;
+	}
 
 	// check char slot.
 	sprintf(tmp_sql, "SELECT `account_id`, `char_num` FROM `%s` WHERE `account_id` = '%d' AND `char_num` = '%d'",char_db, sd->account_id, dat[30]);
@@ -2239,6 +2258,7 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 		WFIFOL(login_fd,2) = sd->account_id;
 		WFIFOSET(login_fd,6);
 	}
+	char_archive_restore(sd->account_id); // [archive] an account just brought back from the archive gets its characters
 	// send characters to player
 	mmo_char_send006b(fd, sd);
 }
@@ -4926,6 +4946,8 @@ int char_config_read(const char* cfgName)
 			savemetric_interval = max(10, atoi(w2));
 		} else if (strcmpi(w1, "relogmetric_interval") == 0) {
 			relogmetric_interval = max(10, atoi(w2));
+		} else if (char_archive_config(w1, w2)) {
+			; // [archive] account_archive_*
 		} else if (strcmpi(w1, "import") == 0) {
 			char_config_read(w2);
 		}
@@ -5131,6 +5153,7 @@ int do_init(int argc, char **argv)
 	online_char_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	mmo_char_sql_init();
 	playlimit_init();
+	char_archive_init(); // [archive]
 	onlinestat_start(); // [onlinestat]
 	ShowInfo("char server initialized.\n");
 
