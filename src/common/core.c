@@ -6,6 +6,7 @@
 #endif
 
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
@@ -290,10 +291,14 @@ static void loopmetric_round(t_tick t0, t_tick t1, t_tick t2, t_tick t3)
 	if (since == 0) { since = t0; run0 = timer_metric_run; }
 	loops++;
 	if (work > max_ms) { max_ms = work; max_phase = phase; }
-	if (work > 500)
-		ShowWarning("[LOOPMETRIC] slow_loop ms=%d phase=%s timers=%d send/recv=%d parse=%d top=%s(%dms)\n",
-			work, phase, timers_ms, io_ms, parse_ms,
+	if (work > 500) {
+		char at[16]; // [loopmetric] the wall-clock time, to match the stall with the DB's slow query log (S. 22.11)
+		time_t now = time(NULL);
+		strftime(at, sizeof(at), "%H:%M:%S", localtime(&now));
+		ShowWarning("[LOOPMETRIC] slow_loop at=%s ms=%d phase=%s timers=%d send/recv=%d parse=%d top=%s(%dms)\n",
+			at, work, phase, timers_ms, io_ms, parse_ms,
 			timer_metric_slow_func ? search_timer_func_list(timer_metric_slow_func) : "-", (int)timer_metric_slow_ms);
+	}
 
 	elapsed = DIFF_TICK32(t3, since);
 	if (elapsed >= 60000) {

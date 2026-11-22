@@ -3606,9 +3606,12 @@ int parse_frommap(int fd)
 				size_t h;
 				for (h = 0; h < slow_n; h++)
 					sprintf(hex + 3 * h, "%02x ", slow_head[h]);
+				char at[16];
+				time_t now = time(NULL);
 				hex[3 * slow_n] = '\0';
-				ShowWarning("[LOOPMETRIC] slow_packet from map-server #%d: 0x%04x took %d ms (aid=%d cid=%d) head=%s\n",
-					id, slow_n >= 2 ? slow_head[0] | slow_head[1] << 8 : 0, (int)ms,
+				strftime(at, sizeof(at), "%H:%M:%S", localtime(&now));
+				ShowWarning("[LOOPMETRIC] slow_packet at=%s from map-server #%d: 0x%04x took %d ms (aid=%d cid=%d) head=%s\n",
+					at, id, slow_n >= 2 ? slow_head[0] | slow_head[1] << 8 : 0, (int)ms,
 					slow_n >= 8 ? (int)(slow_head[4] | slow_head[5] << 8 | slow_head[6] << 16 | (unsigned)slow_head[7] << 24) : 0,
 					slow_n >= 12 ? (int)(slow_head[8] | slow_head[9] << 8 | slow_head[10] << 16 | (unsigned)slow_head[11] << 24) : 0, hex);
 			}
