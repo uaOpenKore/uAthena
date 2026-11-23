@@ -454,7 +454,10 @@ static int pc_playlimit_price(struct map_session_data* sd)
 	int64 price;
 	if (battle_config.playtime_buy_zeny_per_level <= 0)
 		return 0;
-	price = (int64)battle_config.playtime_buy_zeny_per_level * sd->status.base_level;
+	// per base level in thousandths of a zeny (S. 2026-11-23: 2500 = 2.5 zeny a level), at least 1 zeny a minute
+	price = (int64)battle_config.playtime_buy_zeny_per_level * sd->status.base_level / 1000;
+	if (price < 1)
+		price = 1;
 	if (battle_config.playtime_buy_bot_percent > 0 && battle_config.playtime_buy_bot_percent != 100 && pc_playlimit_is_bot(sd))
 		price = price * battle_config.playtime_buy_bot_percent / 100;
 	return price > INT_MAX ? INT_MAX : (int)price;

@@ -15,7 +15,7 @@
 
 **Команды**
 - `@playtime`: сколько сыграно сегодня, сколько осталось и когда обнулится.
-- `@buyplaytime <минуты>`: выкупить сыгранные минуты за зени. Цена **5 зени × базовый уровень** за минуту: персонажу 50 уровня одна минута стоит 250 зени, час стоит 15 000. Выкупить можно только уже сыгранные минуты. Если лимит уже вышел, покупка отменяет отключение.
+- `@buyplaytime <минуты>`: выкупить сыгранные минуты за зени. Цена **2,5 зени × базовый уровень** за минуту (не меньше 1 зени): персонажу 50 уровня одна минута стоит 125 зени, час стоит 7 500. Выкупить можно только уже сыгранные минуты. Если лимит уже вышел, покупка отменяет отключение.
 - `@autopay on`: дальше каждая сыгранная минута сразу оплачивается зени по той же цене и **не тратит лимит**. Оплата идёт с первой же минуты, так что следи за зени.
   - `@autopay off` выключает оплату, `@autopay` показывает, включена ли она и цену.
   - Настройка сохраняется после выхода из игры.
@@ -36,7 +36,7 @@
 
 **Commands**
 - `@playtime`: how long you played today, how much is left and when it resets.
-- `@buyplaytime <minutes>`: buy back played minutes for zeny. The price is **5 zeny × base level** a minute: for a level 50 character one minute costs 250 zeny, an hour 15,000. You can only buy back minutes you have already played. If your time is already up, buying cancels the disconnect.
+- `@buyplaytime <minutes>`: buy back played minutes for zeny. The price is **2.5 zeny × base level** a minute (at least 1 zeny): for a level 50 character one minute costs 125 zeny, an hour 7,500. You can only buy back minutes you have already played. If your time is already up, buying cancels the disconnect.
 - `@autopay on`: from then on, every minute you play is paid in zeny at the same price and **does not use up the limit**. Payment starts with the very first minute, so watch your zeny.
   - `@autopay off` turns it off, and `@autopay` shows whether it is on and the price.
   - The setting is kept when you log out.
