@@ -10711,7 +10711,7 @@ int atcommand_playtime(const int fd, struct map_session_data* sd, const char* co
 
 /*==========================================
  * @buyplaytime <minutes> [playlimit] (S. 2026-11-21): takes minutes off the time played today for zeny
- * (playtime_buy_zeny_per_level x base level a minute); only the minutes played are charged.
+ * (playtime_buy_zeny_per_level / 1000 x base level a minute); only the minutes played are charged.
  *------------------------------------------*/
 int atcommand_buyplaytime(const int fd, struct map_session_data* sd, const char* command, const char* message)
 {
