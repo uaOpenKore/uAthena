@@ -64,7 +64,8 @@
 		mes "begin an entirely new life.";
 		mes "Honor to the warriors!";
 		next;
-		if (Weight > 0 || Zeny > 0 || checkcart() != 0 || checkfalcon() != 0 || checkriding() != 0) {
+		// [S. 2026-11-23] the zeny stay with the character through the rebirth (items, cart, falcon, peco still not)
+		if (Weight > 0 || checkcart() != 0 || checkfalcon() != 0 || checkriding() != 0) {
 			mes "[Valkyrie]";
 			mes "There are a few things you must";
 			mes "do before we start. You must";
@@ -73,7 +74,7 @@
 			mes "all your selfish desires...";
 			next;
 			mes "[Valkyrie]";
-			mes "You cannot take anything with you to the next life. Your items, zeny, pets and Pushcart all have to be left behind.";
+			mes "You cannot take anything with you to the next life. Your items, pets and Pushcart all have to be left behind. Your zeny you may keep.";
 			next;
 			mes "[Valkyrie]";
 			mes "When you are ready";
@@ -229,7 +230,7 @@ yuno_in02,88,164,5	script	Metheus Sylphe#Library	742,{
 			mes "1,285,000 zeny.";
 			next;
 			if (select("Donate.:Cancel.") == 1) {
-				if (Zeny > 1284449) {
+				if (Zeny >= 1285000) { // [S. 2026-11-23] exactly the donation is taken (was > 1284449: a negative balance)
 					set zeny,zeny-1285000;
 					set valkyrie_Q,1;
 					mes "[Metheus Sylphe]";
