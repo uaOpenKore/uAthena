@@ -33,6 +33,7 @@
 // char.c / int_storage.c
 int char_archive_account_busy(int account_id);
 int char_webstorage_account_flush(int account_id);
+int char_webstorage_char_free(int account_id, int char_id);
 int inter_guild_storage_ready(int guild_id);
 int inter_storage_ready(int account_id);
 
@@ -248,7 +249,7 @@ static int ws_run(struct ws_req* r)
 	MYSQL_RES* res;
 	MYSQL_ROW row;
 	int acc = 0, guild = 0, option = 0, i;
-	bool stack, touch_acc = false, touch_guild = false;
+	bool stack, touch_acc = false, touch_guild = false, touch_stor = false;
 	struct item_data* id;
 
 	if (r->op < 0) { ws_finish(r, 2, "unknown op (move, add, remove)"); return 1; }
@@ -274,6 +275,7 @@ static int ws_run(struct ws_req* r)
 		int c = i == 0 ? r->src : r->dst;
 		if (c < 0) continue;
 		if (c == C_GSTOR) touch_guild = true; else touch_acc = true;
+		if (c == C_STOR) touch_stor = true;
 		if (c == C_GSTOR && guild <= 0) { ws_finish(r, 2, "the character is in no guild"); return 1; }
 		if (c == C_CART && !(option & (0x08|0x80|0x100|0x200|0x400))) { ws_finish(r, 2, "the character has no cart"); return 1; }
 	}
@@ -282,8 +284,15 @@ static int ws_run(struct ws_req* r)
 		if (ws_ll(q, 0) != 1) { ws_finish(r, 2, "the character is not a member of its guild"); return 1; }
 	}
 	// busy: the game holds these items in memory
-	if (touch_acc && (char_archive_account_busy(r->account_id) || !char_webstorage_account_flush(r->account_id) || !inter_storage_ready(r->account_id))) {
-		snprintf(why, sizeof(why), "busy: the account is on the server (in game, at the character select or an autotrade shop)");
+	// the account is on the server: only another character of it in game leaves this offline character's
+	// inventory/cart free (the Kafra storage is the account's: never while it is on)
+	if (touch_acc && char_archive_account_busy(r->account_id) && (touch_stor || !char_webstorage_char_free(r->account_id, r->char_id))) {
+		snprintf(why, sizeof(why), touch_stor ? "busy: the account is on the server (the Kafra storage is in use)"
+			: "busy: this character is in game, or the account is at the character select or an autotrade shop");
+		goto busy;
+	}
+	if (touch_acc && (!char_webstorage_account_flush(r->account_id) || (touch_stor && !inter_storage_ready(r->account_id)))) {
+		snprintf(why, sizeof(why), "busy: a failed save of the account is not written yet");
 		goto busy;
 	}
 	// a kept autotrade shop sells from the cart even while it is not on the server (between a map-server's start and

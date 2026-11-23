@@ -943,6 +943,24 @@ int char_archive_account_busy(int account_id)
 	return idb_get(online_char_db, account_id) != NULL;
 }
 
+// [webstorage] May the site's request touch this OFFLINE character's inventory/cart while another character of its
+// account plays? Only when that other one is in game on a map-server (not at the character select, where a load
+// of any character of the account may start on the async lane at any moment), this one is not in the memory here
+// and no failed save of it is pending. 1 = safe.
+static int char_pending_flush(int char_id);
+int char_webstorage_char_free(int account_id, int char_id)
+{
+	struct online_char_data* c = (struct online_char_data*)idb_get(online_char_db, account_id);
+	if (c == NULL || c->autotrade || c->server < 0 || c->char_id <= 0 || c->char_id == char_id)
+		return 0;
+	if (c->fd >= 0 && session_isActive(c->fd) && session[c->fd]->session_data
+	 && ((struct char_session_data*)session[c->fd]->session_data)->account_id == account_id)
+		return 0; // a character-select connection of the account is open
+	if (idb_get(char_db_, char_id) != NULL)
+		return 0;
+	return char_pending_flush(char_id);
+}
+
 // [archive] An archived character leaves the memory too: no failed save of it may write it back.
 void char_archive_forget_char(int char_id)
 {
