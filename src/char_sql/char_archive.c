@@ -179,7 +179,7 @@ void char_archive_init(void)
 	ok &= sqlarc_ensure(LH, login_db);
 	snprintf(t, sizeof(t), "arc_%s", login_db);
 	if (ok && sqlarc_get_cols(LH, t, &c) > 0 && !sqlarc_has_col(&c, "arc_new_aid")) {
-		snprintf(q, sizeof(q), "ALTER TABLE `%s` ADD COLUMN `arc_new_aid` INT UNSIGNED NOT NULL DEFAULT '0', ADD KEY `arc_new_aid` (`arc_new_aid`), ADD KEY `arc_userid` (`userid`)", t);
+		snprintf(q, sizeof(q), "ALTER TABLE `%s` ADD COLUMN `arc_new_aid` INT UNSIGNED NOT NULL DEFAULT '0', ADD KEY `arc_new_aid` (`arc_new_aid`)", t); // (userid: CREATE ... LIKE copied login's index)
 		ok &= sqlarc_query(LH, q);
 	}
 	archive_ready = ok != 0;
