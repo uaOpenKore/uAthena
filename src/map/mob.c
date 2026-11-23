@@ -693,6 +693,9 @@ static int mobmetric_timer(int tid, t_tick tick, intptr_t id, intptr_t data)
 /*==========================================
  * spawn timing calculation
  *------------------------------------------*/
+// The player credited with the MVP of the mob mob_dead is finishing ("" = none), for the respawn announce.
+static char mvp_announce_killer[NAME_LENGTH];
+
 int mob_setdelayspawn(struct mob_data *md)
 {
 	t_tick spawntime, spawntime1, spawntime2, spawntime3;
@@ -714,13 +717,17 @@ int mob_setdelayspawn(struct mob_data *md)
 
 	// MVP respawn announce (S. 2026-11-23): every player learns when a spawned MVP is back. The text is for
 	// people (the old client shows it as a broadcast); BornRok also reads it into its MVP timers panel, so keep
-	// the format: "[MVP] <name> was defeated on <map>. Back in H:MM:SS."
+	// the format: "[MVP] <name> was defeated [by <player> ]on <map>. Back in H:MM:SS."
 	if (battle_config.mvp_respawn_announce && md->db->mexp > 0 && md->spawn->m >= 0) {
 		char message[160];
 		long left = (long)(DIFF_TICK(spawntime, gettick()) / 1000);
 		if (left < 0) left = 0;
-		snprintf(message, sizeof(message), "[MVP] %s was defeated on %s. Back in %ld:%02ld:%02ld.",
-			md->name, map[md->spawn->m].name, left / 3600, left / 60 % 60, left % 60);
+		if (mvp_announce_killer[0])
+			snprintf(message, sizeof(message), "[MVP] %s was defeated by %s on %s. Back in %ld:%02ld:%02ld.",
+				md->name, mvp_announce_killer, map[md->spawn->m].name, left / 3600, left / 60 % 60, left % 60);
+		else
+			snprintf(message, sizeof(message), "[MVP] %s was defeated on %s. Back in %ld:%02ld:%02ld.",
+				md->name, map[md->spawn->m].name, left / 3600, left / 60 % 60, left % 60);
 		intif_GMmessage(message, (int)strlen(message) + 1, 0);
 	}
 
@@ -2360,7 +2367,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	if(!md->spawn) //Tell status_damage to remove it from memory.
 		return 5; // Note: Actually, it's 4. Oh well...
 	
+	if (mvp_sd) safestrncpy(mvp_announce_killer, mvp_sd->status.name, NAME_LENGTH);
+	else mvp_announce_killer[0] = '\0';
 	mob_setdelayspawn(md); //Set respawning.
+	mvp_announce_killer[0] = '\0';
 	return 3; //Remove from map.
 }
 
