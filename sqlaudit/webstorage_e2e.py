@@ -9,7 +9,8 @@ Guild G: master MASTER (account M, in game during part of the test), member MEMB
  4 add into MEMBER's inventory (a site shop): done; remove from the cart without a cart: refused;
    an unknown item: refused; a char of another account: refused; more than there is: refused, nothing taken
  5 an equipped item is not moved
- 6 an autotrade shop kept in autotrade_shop: the account's requests wait until it is gone"""
+ 6 an autotrade shop kept in autotrade_shop: the account's requests wait until it is gone
+ 7 another character of the account in game: this offline one's inventory is free, the Kafra storage waits"""
 import os, struct, subprocess, sys, time
 SCR = "/tmp/claude-0/-root-uaroClient/f1b47459-6a36-42ec-9fb0-528e8a9c2531/scratchpad"
 sys.path.insert(0, SCR + "/e2e/tools")
@@ -147,6 +148,24 @@ try:
     r9 = req(AA, CA, "move", "inventory", "storage", 1201, 1)
     wait_status(r9, "2", 15)
     check("5 an equipped item is not moved", status(r9).startswith("2") and one("SELECT equip FROM inventory WHERE char_id=%d AND nameid=1201" % CA) == "2", status(r9))
+    # 7 the account plays another character: this offline one's inventory is free, the Kafra storage is not
+    sql("INSERT INTO `char` (char_id,account_id,char_num,name,class,base_level,hp,max_hp,sp,max_sp,last_map,last_x,last_y,save_map,save_x,save_y) "
+        "VALUES (900600004,%d,1,'WsMember2',1,10,100,100,10,10,'prontera',150,150,'prontera',150,150)" % AA)
+    p2 = rostub.Session("wsmember", "wspw2", log=lambda *x: None); p2.login(); p2.char_enter(); p2.select_char(1)
+    assert p2.map_enter()[0] == "ok"
+    time.sleep(2)
+    r11 = req(AA, CA, "add", "", "inventory", 503, 2)
+    r12 = req(AA, CA, "move", "storage", "inventory", RED, 1)
+    d11 = wait_status(r11, "1", 20)
+    time.sleep(4)
+    w12 = status(r12)
+    try: p2.quit_game(wait=2)
+    except Exception: pass
+    check("7 another char of the account in game: the offline char's inventory done, the Kafra storage waits",
+          d11 and one("SELECT SUM(amount) FROM inventory WHERE char_id=%d AND nameid=503" % CA) == "2" and w12.startswith("0") and "Kafra" in w12,
+          "%s / %r" % (status(r11), w12))
+    sql("DELETE FROM web_storage_request WHERE id=%d" % r12)
+    sql("DELETE FROM `char` WHERE char_id=900600004")
 finally:
     srv("stop")
     print(subprocess.run("sed 's/\\x1b\\[[0-9;]*m//g' %s/char.out | grep -a 'WEBSTORAGE' | tail -12" % run, shell=True, stdout=subprocess.PIPE, text=True).stdout)
