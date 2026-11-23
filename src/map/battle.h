@@ -404,6 +404,7 @@ extern struct Battle_Config {
 	int packet_flood_limit; // [flood] packets a client may send per second (0 = no limit)
 	int daily_play_limit; // [playlimit] hours a character may stay on the map-server per day (0 = no limit)
 	int playtime_buy_zeny_per_level; // [playlimit] @buyplaytime: zeny a minute per base level (0 = off)
+	int playtime_price_hour_bp; // [playlimit] an hour costs this many hundredths of a % of the character's zeny (100 = 1 %), 0 = buying off
 	int playtime_buy_bot_percent; // [playlimit] the price for a client that is not a game client (OpenKore), in % (150)
 	int socket_send_coalesce_ms; // [perf] map-only send-coalescing window in ms; <=0 = off, >0 = flush window (int: lives in battle_data_int[])
 	int socket_sndbuf_size; // [perf] SO_SNDBUF bytes per socket; 0 = kernel default (int: lives in battle_data_int[])
