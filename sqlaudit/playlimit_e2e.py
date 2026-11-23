@@ -13,7 +13,7 @@ WALL_FILE seconds), starts it and checks. Scenarios:
   autopay  11 @autopay on: the minutes are paid (100 x level each) and the played time does not grow; it stays on
            over a relog; when the zeny run out it turns itself off and the minutes count again
   bot      12 OpenKore (ticks 10 a second, the @whobot rule) pays playtime_buy_bot_percent (150) of the price,
-           a game client the price (the stand's battle_conf import sets 100 x level and 150 %)
+           a game client the price (the stand's battle_conf import sets 100000 = 100 x level and 150 %)
   nocols   9 without the migration the servers run, log that the limit is off, nobody is kicked
 """
 import datetime, os, re, subprocess, sys, time, struct
