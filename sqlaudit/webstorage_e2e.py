@@ -8,7 +8,8 @@ Guild G: master MASTER (account M, in game during part of the test), member MEMB
    MASTER opens and closes the guild storage again: the moved potions do not come back (guild + A totals = start)
  4 add into MEMBER's inventory (a site shop): done; remove from the cart without a cart: refused;
    an unknown item: refused; a char of another account: refused; more than there is: refused, nothing taken
- 5 an equipped item is not moved"""
+ 5 an equipped item is not moved
+ 6 an autotrade shop kept in autotrade_shop: the account's requests wait until it is gone"""
 import os, struct, subprocess, sys, time
 SCR = "/tmp/claude-0/-root-uaroClient/f1b47459-6a36-42ec-9fb0-528e8a9c2531/scratchpad"
 sys.path.insert(0, SCR + "/e2e/tools")
@@ -56,10 +57,12 @@ def cleanup():
     for t in ("guild", "guild_member", "guild_position", "guild_storage"):
         sql("DELETE FROM %s WHERE guild_id=%d" % (t, G))
     sql("DROP TABLE IF EXISTS web_storage_request")
+    sql("DELETE FROM autotrade_shop WHERE account_id IN (%d,%d,%d)" % (AM, AA, AX))
     if os.path.exists(ICONF + ".wsbak"):
         os.replace(ICONF + ".wsbak", ICONF)
 
 srv("stop")
+subprocess.run(MY[:-2], stdin=open(SCR + "/tick64/sql-files/upgrade_2026-11-21_autotrade.sql"), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # the stand DB may not have the tables
 cleanup()
 s = open(ICONF).read()
 open(ICONF + ".wsbak", "w").write(s)
@@ -133,6 +136,14 @@ try:
           res[r4].startswith("1") and one("SELECT SUM(amount) FROM inventory WHERE char_id=%d AND nameid=502" % CA) == "3"
           and res[r5].startswith("2") and "cart" in res[r5] and res[r6].startswith("2") and "no such item" in res[r6]
           and res[r7].startswith("2") and "account" in res[r7] and res[r8].startswith("2") and total(RED)[1] == 55, str(res))
+    # 6 an autotrade shop kept in the table (even while not on the server): the account's requests wait
+    sql("INSERT INTO autotrade_shop (char_id,account_id,sex,map,x,y,dir,title,opened) VALUES (%d,%d,1,'prontera',150,150,0,'ws',NOW())" % (CA, AA))
+    r10 = req(AA, CA, "move", "storage", "inventory", RED, 1)
+    time.sleep(8)
+    w10 = status(r10)
+    sql("DELETE FROM autotrade_shop WHERE char_id=%d" % CA)
+    d10 = wait_status(r10, "1", 20)
+    check("6 an autotrade shop in the table: waits; shop gone: done", w10.startswith("0") and "autotrade" in w10 and d10, "%r %s" % (w10, status(r10)))
     r9 = req(AA, CA, "move", "inventory", "storage", 1201, 1)
     wait_status(r9, "2", 15)
     check("5 an equipped item is not moved", status(r9).startswith("2") and one("SELECT equip FROM inventory WHERE char_id=%d AND nameid=1201" % CA) == "2", status(r9))
