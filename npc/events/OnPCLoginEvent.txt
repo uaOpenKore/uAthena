@@ -2,7 +2,7 @@ prontera,1,1,1	script	OnPCLoginEvent	-1,{
 
 OnPCLoginEvent:
 	// ��� ���������� ������� ��� ����
-	atcommand "@autoloot";
+	//atcommand "@autoloot"; // [S. 2026-11-23] autoloot off at login
 	atcommand "@showexp";
 	atcommand "@showzeny";
 	atcommand "/noctrl";
