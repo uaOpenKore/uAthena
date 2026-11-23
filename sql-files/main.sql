@@ -173,7 +173,8 @@ CREATE TABLE `guild` (
   `emblem_data` blob,
   PRIMARY KEY  (`guild_id`,`char_id`),
   UNIQUE KEY `guild_id` (`guild_id`),
-  KEY `char_id` (`char_id`)
+  KEY `char_id` (`char_id`),
+  KEY `name` (`name`)
 ) TYPE=MyISAM;
 
 --
@@ -345,7 +346,8 @@ CREATE TABLE `homunculus` (
   `alive` tinyint(2) NOT NULL default '1',
   `rename_flag` tinyint(2) NOT NULL default '0',
   `vaporize` tinyint(2) NOT NULL default '0',
-  PRIMARY KEY  (`homun_id`)
+  PRIMARY KEY  (`homun_id`),
+  KEY `char_id` (`char_id`)
 ) TYPE=MyISAM;
 
 --
@@ -542,7 +544,8 @@ CREATE TABLE `party` (
   `item` tinyint(11) unsigned NOT NULL default '0',
   `leader_id` int(11) unsigned NOT NULL default '0',
   `leader_char` int(11) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`party_id`)
+  PRIMARY KEY  (`party_id`),
+  KEY `name` (`name`)
 ) TYPE=MyISAM;
 
 --
@@ -563,7 +566,8 @@ CREATE TABLE `pet` (
   `hungry` smallint(9) unsigned NOT NULL default '0',
   `rename_flag` tinyint(4) unsigned NOT NULL default '0',
   `incuvate` int(11) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`pet_id`)
+  PRIMARY KEY  (`pet_id`),
+  KEY `char_id` (`char_id`)
 ) TYPE=MyISAM;
 
 --
