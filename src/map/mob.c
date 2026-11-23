@@ -712,6 +712,18 @@ int mob_setdelayspawn(struct mob_data *md)
 	if (DIFF_TICK(spawntime3, spawntime) > 0)
 		spawntime = spawntime3;
 
+	// MVP respawn announce (S. 2026-11-23): every player learns when a spawned MVP is back. The text is for
+	// people (the old client shows it as a broadcast); BornRok also reads it into its MVP timers panel, so keep
+	// the format: "[MVP] <name> was defeated on <map>. Back in H:MM:SS."
+	if (battle_config.mvp_respawn_announce && md->db->mexp > 0 && md->spawn->m >= 0) {
+		char message[160];
+		long left = (long)(DIFF_TICK(spawntime, gettick()) / 1000);
+		if (left < 0) left = 0;
+		snprintf(message, sizeof(message), "[MVP] %s was defeated on %s. Back in %ld:%02ld:%02ld.",
+			md->name, map[md->spawn->m].name, left / 3600, left / 60 % 60, left % 60);
+		intif_GMmessage(message, (int)strlen(message) + 1, 0);
+	}
+
 	add_timer(spawntime, mob_delayspawn, md->bl.id, 0);
 	return 0;
 }

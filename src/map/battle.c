@@ -3824,6 +3824,7 @@ static const struct battle_data_short {
 	{ "mob_max_skilllvl",				&battle_config.mob_max_skilllvl}, // [Lupus]
 	{ "retaliate_to_master",			&battle_config.retaliate_to_master}, // [Skotlex]
 	{ "rare_drop_announce",				&battle_config.rare_drop_announce}, // [Lupus]
+	{ "mvp_respawn_announce",			&battle_config.mvp_respawn_announce},
 	{ "firewall_hits_on_undead",			&battle_config.firewall_hits_on_undead}, // [Skotlex]
 	{ "title_lvl1",				&battle_config.title_lvl1}, // [Lupus]
 	{ "title_lvl2",				&battle_config.title_lvl2}, // [Lupus]
@@ -4333,6 +4334,7 @@ void battle_set_defaults()
 	battle_config.mob_max_skilllvl = MAX_SKILL_LEVEL; //max possible level of monsters skills [Lupus]
 	battle_config.retaliate_to_master = 1; //Make mobs retaliate against the master rather than the mob that attacked them. [Skotlex]
 	battle_config.rare_drop_announce = 1; //show global announces for rare items drops (<= 0.01% chance) [Lupus]
+	battle_config.mvp_respawn_announce = 1; // "[MVP] X was defeated on map. Back in H:MM:SS." to everyone
 	battle_config.firewall_hits_on_undead = 1;
 	battle_config.title_lvl1 = 1;	//Players Titles for @who, etc commands [Lupus]
 	battle_config.title_lvl2 = 10;
