@@ -15,8 +15,8 @@
 
 **Команды**
 - `@playtime`: сколько сыграно сегодня, сколько осталось и когда обнулится.
-- `@buyplaytime <минуты>`: выкупить сыгранные минуты за зени. Цена **2,5 зени × базовый уровень** за минуту (не меньше 1 зени): персонажу 50 уровня одна минута стоит 125 зени, час стоит 7 500. Выкупить можно только уже сыгранные минуты. Если лимит уже вышел, покупка отменяет отключение.
-- `@autopay on`: дальше каждая сыгранная минута сразу оплачивается зени по той же цене и **не тратит лимит**. Оплата идёт с первой же минуты, так что следи за зени.
+- `@buyplaytime <минуты>`: выкупить сыгранные минуты за зени. Цена — **мягкая**, с **динамическим расчётом**: она зависит от твоего кошелька и пересчитывается каждую минуту. Текущую цену минуты показывают `@autopay` и `@buyplaytime` без числа. Выкупить можно только уже сыгранные минуты. Если лимит уже вышел, покупка отменяет отключение.
+- `@autopay on`: дальше каждая сыгранная минута сразу оплачивается зени по текущей цене (она пересчитывается каждую минуту) и **не тратит лимит**. Оплата идёт с первой же минуты, так что следи за зени.
   - `@autopay off` выключает оплату, `@autopay` показывает, включена ли она и цену.
   - Настройка сохраняется после выхода из игры.
   - Если зени не хватает на следующую минуту, оплата выключается сама с сообщением в чате, и минуты снова идут в лимит.
@@ -36,8 +36,8 @@
 
 **Commands**
 - `@playtime`: how long you played today, how much is left and when it resets.
-- `@buyplaytime <minutes>`: buy back played minutes for zeny. The price is **2.5 zeny × base level** a minute (at least 1 zeny): for a level 50 character one minute costs 125 zeny, an hour 7,500. You can only buy back minutes you have already played. If your time is already up, buying cancels the disconnect.
-- `@autopay on`: from then on, every minute you play is paid in zeny at the same price and **does not use up the limit**. Payment starts with the very first minute, so watch your zeny.
+- `@buyplaytime <minutes>`: buy back played minutes for zeny. The price is **soft** and **dynamically calculated**: it depends on your wallet and is recalculated every minute. `@autopay` and `@buyplaytime` without a number show the current price of a minute. You can only buy back minutes you have already played. If your time is already up, buying cancels the disconnect.
+- `@autopay on`: from then on, every minute you play is paid in zeny at the current price (recalculated every minute) and **does not use up the limit**. Payment starts with the very first minute, so watch your zeny.
   - `@autopay off` turns it off, and `@autopay` shows whether it is on and the price.
   - The setting is kept when you log out.
   - If you don't have enough zeny for the next minute, it turns itself off with a chat message, and your minutes count against the limit again.

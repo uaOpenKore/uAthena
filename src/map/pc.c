@@ -452,10 +452,12 @@ static bool pc_playlimit_is_bot(struct map_session_data* sd)
 static int pc_playlimit_price(struct map_session_data* sd)
 {
 	int64 price;
-	if (battle_config.playtime_buy_zeny_per_level <= 0)
+	if (battle_config.playtime_price_hour_bp <= 0)
 		return 0;
-	// per base level in thousandths of a zeny (S. 2026-11-23: 2500 = 2.5 zeny a level), at least 1 zeny a minute
-	price = (int64)battle_config.playtime_buy_zeny_per_level * sd->status.base_level / 1000;
+	// S. 2026-11-23: a soft, dynamic price -- an hour costs playtime_price_hour_bp hundredths of a percent of the
+	// zeny the character carries now (100 = 1 %), a minute 1/60 of that, at least 1 zeny; read again every minute
+	// (@autopay) and on every purchase. Zeny elsewhere (mail, other characters) does not count.
+	price = (int64)sd->status.zeny * battle_config.playtime_price_hour_bp / 600000;
 	if (price < 1)
 		price = 1;
 	if (battle_config.playtime_buy_bot_percent > 0 && battle_config.playtime_buy_bot_percent != 100 && pc_playlimit_is_bot(sd))
