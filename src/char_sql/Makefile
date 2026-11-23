@@ -41,7 +41,7 @@ endif
 onlinestat.o: onlinestat.c $(CHAR_ALL_H)
 	$(COMPILE.c) $(ONLINESTAT_DEF) $(OUTPUT_OPTION) $<
 
-../../char-server_sql: char.o char_archive.o char_idcompact.o char_async_load.o onlinestat.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
+../../char-server_sql: char.o char_archive.o char_idcompact.o char_webstorage.o char_async_load.o onlinestat.o inter.o int_party.o int_guild.o int_storage.o int_pet.o int_homun.o int_quest.o int_achievement.o int_mercenary.o itemdb.o $(COMMON_OBJ)
 	$(CC) -o $@ $^ $(LIB_S) $(MONGOC_LIBS)
 
 clean:

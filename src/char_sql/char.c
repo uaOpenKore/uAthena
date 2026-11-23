@@ -22,6 +22,7 @@
 #include "itemdb.h"
 #include "char_archive.h"
 #include "char_idcompact.h"
+#include "char_webstorage.h"
 #include "char.h"
 #include "char_async_load.h"	// async character-load lane (auth-resilience)
 
@@ -984,6 +985,12 @@ static int char_pending_flush_account(int account_id)
 	int failed = 0;
 	char_pending_db->foreach(char_pending_db, char_pending_flush_account_sub, account_id, &failed);
 	return failed == 0;
+}
+
+// [webstorage] 1 when no failed save of the account's characters is left (written now if it can be).
+int char_webstorage_account_flush(int account_id)
+{
+	return char_pending_flush_account(account_id);
 }
 
 static int char_pending_timer_sub(DBKey key, void* data, va_list ap)
@@ -4951,6 +4958,8 @@ int char_config_read(const char* cfgName)
 			; // [archive] account_archive_*
 		} else if (char_idcompact_config(w1, w2)) {
 			; // [idcompact] id_compact_*
+		} else if (char_webstorage_config(w1, w2)) {
+			; // [webstorage] web_storage_*
 		} else if (strcmpi(w1, "import") == 0) {
 			char_config_read(w2);
 		}
@@ -5157,6 +5166,7 @@ int do_init(int argc, char **argv)
 	mmo_char_sql_init();
 	playlimit_init();
 	char_archive_init(); // [archive]
+	char_webstorage_init(); // [webstorage]
 	onlinestat_start(); // [onlinestat]
 	ShowInfo("char server initialized.\n");
 

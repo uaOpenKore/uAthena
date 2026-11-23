@@ -308,6 +308,23 @@ int inter_storage_delete(int account_id)
 	}
 	return 0;
 }
+// [webstorage] 1 = nobody has the guild storage open and no failed save of it is pending (written now if it can
+// be), 0 = busy, -1 = guild_storage_lock is off (the char-server cannot know whether it is open).
+int inter_guild_storage_ready(int guild_id)
+{
+	if (!guild_storage_lock)
+		return -1;
+	if (idb_get(guild_storage_lock_db, guild_id) != NULL)
+		return 0;
+	return storage_pending_flush(guild_storage_pending_db, guild_id);
+}
+
+// [webstorage] 1 = no failed save of the account's storage is pending (written now if it can be).
+int inter_storage_ready(int account_id)
+{
+	return storage_pending_flush(storage_pending_db, account_id);
+}
+
 int inter_guild_storage_delete(int guild_id)
 {
 	storage_pending_drop(guild_storage_pending_db, guild_id); // the guild is gone: so is its failed save
