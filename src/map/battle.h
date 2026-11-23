@@ -421,6 +421,7 @@ extern struct Battle_Config {
 	unsigned short character_size; // if riders have size=2, and baby class riders size=1 [Lupus]
 	unsigned short mob_max_skilllvl; // Max possible skill level [Lupus]
 	unsigned short rare_drop_announce; // chance <= to show rare drops global announces
+	unsigned short mvp_respawn_announce; // 1: announce a spawned MVP's death and respawn time to everyone
 
 	unsigned short retaliate_to_master;	//Whether when a mob is attacked by another mob, it will retaliate versus the mob or the mob's master. [Skotlex]
 	unsigned short firewall_hits_on_undead; //Number of hits firewall does at a time on undead. [Skotlex]
