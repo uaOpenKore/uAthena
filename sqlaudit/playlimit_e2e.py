@@ -8,12 +8,13 @@ WALL_FILE seconds), starts it and checks. Scenarios:
   midnight 6 23:59 -> 00:00: the online player's counter goes to 0, play_reset moves to the new date
   timer    7 the clock set back (same date) but 24 h since the reset: reset by the timer
   restart  8 the stand was down over midnight: reset at start
-  buy      10 @buyplaytime: 100 zeny x base level a minute takes minutes off, only what was played is charged,
+  buy      10 @buyplaytime: the current price (1/60 % of the zeny on the character, at least 1) a minute takes
+           minutes off, only what was played is charged,
            not enough zeny is refused, buying at the limit cancels the disconnect; the warnings name the commands
   autopay  11 @autopay on: the minutes are paid (100 x level each) and the played time does not grow; it stays on
            over a relog; when the zeny run out it turns itself off and the minutes count again
-  bot      12 OpenKore (ticks 10 a second, the @whobot rule) pays playtime_buy_bot_percent (150) of the price,
-           a game client the price (the stand's battle_conf import sets 100000 = 100 x level and 150 %)
+  bot      12 OpenKore (ticks 10 a second, the @whobot rule) pays playtime_buy_bot_percent (200) of the price,
+           a game client the price (the stand's battle_conf import: playtime_price_hour_bp 100, 200 %)
   nocols   9 without the migration the servers run, log that the limit is off, nobody is kicked
 """
 import datetime, os, re, subprocess, sys, time, struct
@@ -132,7 +133,7 @@ try:
         zeny = sql("SELECT zeny FROM `char` WHERE name='PlA'")
         pt = [m for _, m in a.msgs if "Played today" in m]
         bought = [m for _, m in a.msgs if "Bought" in m]
-        check("10a 60 minutes bought for 60 x 100 x level zeny", bool(bought) and "%d zeny" % (60 * 100 * lv) in bought[-1], "msgs=%s" % [m for _, m in a.msgs][-3:])
+        check("10a 60 minutes bought for 60 x the price (200000 zeny: 33 a minute)", bool(bought) and "%d zeny" % (60 * 33) in bought[-1], "msgs=%s" % [m for _, m in a.msgs][-3:])
         check("10b the played minutes went down by 60", bool(pt) and re.search(r"Played today: 0 h 4[0-1] min", pt[-1]), "pt=%s" % pt[-1:])
         a.cmd("@buyplaytime 500"); pump_all([a], 2)
         bought = [m for _, m in a.msgs if "Bought" in m]
@@ -154,7 +155,7 @@ try:
         stop()
         lv = 10
         sql("UPDATE `char` SET base_level=%d, zeny=100000 WHERE name='PlA'" % lv)
-        sql("UPDATE `char` SET base_level=%d, zeny=500 WHERE name='PlB'" % lv)  # less than one minute: off at the first
+        sql("UPDATE `char` SET base_level=%d, zeny=0 WHERE name='PlB'" % lv)  # not even the 1-zeny minimum: off at the first
         sql("DELETE FROM global_reg_value WHERE str='PLAY_AUTOPAY'")
         setreset(today, now - datetime.timedelta(hours=1))
         setrow("PlA", 100, today); setrow("PlB", 100, today)
@@ -162,7 +163,7 @@ try:
         a = Player("plima", "PlA"); a.cmd("@autopay on"); pump_all([a], 2)
         b = Player("plimb", "PlB"); b.cmd("@autopay on"); pump_all([a, b], 2)
         on = [m for _, m in a.msgs if "@autopay is on" in m]
-        check("11a @autopay on", bool(on) and "%d zeny" % (100 * lv) in on[-1], "msgs=%s" % [m for _, m in a.msgs][-2:])
+        check("11a @autopay on (100000 zeny: 16 a minute)", bool(on) and "16 zeny" in on[-1], "msgs=%s" % [m for _, m in a.msgs][-2:])
         pump_all([a, b], 130)
         a.cmd("@playtime"); pump_all([a, b], 2)
         pt = [m for _, m in a.msgs if "Played today" in m]
@@ -171,7 +172,7 @@ try:
         check("11c out of zeny: @autopay turns itself off", bool(off), "msgs=%s" % [m for _, m in b.msgs][-3:])
         a.quit(); b.quit(); time.sleep(4)
         zeny = int(sql("SELECT zeny FROM `char` WHERE name='PlA'"))
-        check("11d the minutes were paid (2 minutes at least: 2000 zeny)", 100000 - zeny >= 2 * 100 * lv and (100000 - zeny) % (100 * lv) == 0, "zeny=%d" % zeny)
+        check("11d the minutes were paid, each at the price of its own minute (16 while over 96000)", 2 * 16 <= 100000 - zeny <= 10 * 16 and (100000 - zeny) % 16 == 0, "zeny=%d" % zeny)
         a = Player("plima", "PlA"); a.cmd("@autopay"); pump_all([a], 2)
         st = [m for _, m in a.msgs if m.startswith("@autopay is")]
         check("11e @autopay stays on over a relog", bool(st) and st[-1].startswith("@autopay is on"), "st=%s" % st[-1:])
@@ -192,8 +193,8 @@ try:
         a.cmd("@autopay"); b.cmd("@autopay"); pump_all([a, b], 2)
         pa = [m for _, m in a.msgs if m.startswith("@autopay is")]
         pb = [m for _, m in b.msgs if m.startswith("@autopay is")]
-        check("12a a game client pays the price (100 x 10 = 1000 a minute)", bool(pa) and "(1000 zeny a minute)" in pa[-1], "msgs=%s" % pa[-1:])
-        check("12b OpenKore pays 150 % of it (1500 a minute)", bool(pb) and "(1500 zeny a minute)" in pb[-1], "msgs=%s" % pb[-1:])
+        check("12a a game client pays the price (100000 zeny: 16 a minute)", bool(pa) and "(16 zeny a minute)" in pa[-1], "msgs=%s" % pa[-1:])
+        check("12b OpenKore pays 200 % of it (32 a minute)", bool(pb) and "(32 zeny a minute)" in pb[-1], "msgs=%s" % pb[-1:])
         a.quit(); b.quit()
     if "midnight" in want:
         stop()
