@@ -41,6 +41,7 @@ static int ws_interval = 3;    // seconds between runs
 static int ws_batch = 20;      // requests per run
 static int ws_wait = 600;      // seconds a busy request waits before it is refused
 static bool ws_table = false;
+static bool ws_autotrade = false; // the autotrade_shop table is there
 
 int char_webstorage_config(const char* w1, const char* w2)
 {
@@ -111,6 +112,7 @@ void char_webstorage_init(void)
 		ShowError("[WEBSTORAGE] the table web_storage_request could not be made: web requests are off.\n");
 		return;
 	}
+	ws_autotrade = sqlarc_table_exists(&mysql_handle, "autotrade_shop") != 0;
 	add_timer_func_list(char_webstorage_timer, "char_webstorage_timer");
 	add_timer_interval(gettick() + 10*1000, char_webstorage_timer, 0, 0, (ws_interval > 0 ? ws_interval : 3) * 1000);
 	ShowStatus("[WEBSTORAGE] web item requests: every %d s, up to %d, busy ones wait %d s.\n", ws_interval, ws_batch, ws_wait);
@@ -283,6 +285,15 @@ static int ws_run(struct ws_req* r)
 	if (touch_acc && (char_archive_account_busy(r->account_id) || !char_webstorage_account_flush(r->account_id) || !inter_storage_ready(r->account_id))) {
 		snprintf(why, sizeof(why), "busy: the account is on the server (in game, at the character select or an autotrade shop)");
 		goto busy;
+	}
+	// a kept autotrade shop sells from the cart even while it is not on the server (between a map-server's start and
+	// the shop's restore): its account waits until the shop is closed
+	if (touch_acc && ws_autotrade) {
+		snprintf(q, sizeof(q), "SELECT COUNT(*) FROM `autotrade_shop` WHERE `account_id` = '%d'", r->account_id);
+		if (ws_ll(q, 1) != 0) {
+			snprintf(why, sizeof(why), "busy: the account has an autotrade shop open");
+			goto busy;
+		}
 	}
 	if (touch_guild) {
 		int g = inter_guild_storage_ready(guild);
