@@ -394,6 +394,13 @@ void char_idcompact_run(void)
 		return;
 	}
 
+	// steps 1-3 in one transaction per database (the tables are InnoDB on the live server): any failed statement
+	// rolls all of it back. AUTO_INCREMENT (an ALTER, which commits) comes after.
+	{
+	int failed = 0;
+	sqlarc_query(&mysql_handle, "START TRANSACTION");
+	if (!same)
+		sqlarc_query(lh, "START TRANSACTION");
 	// 1. dangling ids: 0 or the row goes
 	for (i = 0; i < ncols; i++) {
 		struct idcol* c = &cols[i];
@@ -404,7 +411,8 @@ void char_idcompact_run(void)
 			snprintf(q, sizeof(q), "UPDATE `%s` SET `%s` = 0 WHERE `%s` <> 0 AND `%s` NOT IN (SELECT `o` FROM `idc_%s`)", c->table, c->col, c->col, c->col, kinds[c->kind].name);
 		else
 			snprintf(q, sizeof(q), "DELETE FROM `%s` WHERE `%s` <> 0 AND `%s` NOT IN (SELECT `o` FROM `idc_%s`)", c->table, c->col, c->col, kinds[c->kind].name);
-		sqlarc_query(h, q);
+		if (!sqlarc_query(h, q))
+			failed++;
 	}
 	// 2. the ids, in ascending order (new <= old: no row ever takes an id another still has)
 	for (i = 0; i < ncols; i++) {
@@ -416,8 +424,10 @@ void char_idcompact_run(void)
 		snprintf(q, sizeof(q), "UPDATE `%s` SET `%s` = (SELECT `n` FROM `idc_%s` WHERE `o` = `%s`.`%s`)"
 			" WHERE `%s` IN (SELECT `o` FROM `idc_%s` WHERE `n` <> `o`) ORDER BY `%s`",
 			c->table, c->col, kn, c->table, c->col, c->col, kn, c->col);
-		if (!sqlarc_query(h, q))
+		if (!sqlarc_query(h, q)) {
 			ShowError("[IDCOMPACT] %s.%s could not be rewritten (see the SQL error above).\n", c->table, c->col);
+			failed++;
+		}
 	}
 	// 3. ids inside items: the maker of forged/brewed items, the pet of an egg
 	for (i = 0; i < ncardtabs; i++) {
@@ -427,12 +437,26 @@ void char_idcompact_run(void)
 #define HI(x) "IF(((" x ") >> 16 & 0xFFFF) > 32767, ((" x ") >> 16 & 0xFFFF) - 65536, (" x ") >> 16 & 0xFFFF)"
 		snprintf(q, sizeof(q), "UPDATE `%s` t JOIN `idc_chr` m ON m.`o` = ((t.`card2` & 0xFFFF) | ((t.`card3` & 0xFFFF) << 16))"
 			" SET t.`card2` = " LO("m.`n`") ", t.`card3` = " HI("m.`n`") " WHERE t.`card0` IN (255,254) AND m.`n` <> m.`o`", t);
-		sqlarc_query(h, q);
+		if (!sqlarc_query(h, q))
+			failed++;
 		snprintf(q, sizeof(q), "UPDATE `%s` t JOIN `idc_pet` m ON m.`o` = ((t.`card1` & 0xFFFF) | ((t.`card2` & 0xFFFF) << 16))"
 			" SET t.`card1` = " LO("m.`n`") ", t.`card2` = " HI("m.`n`") " WHERE t.`card0` = -256 AND m.`n` <> m.`o`", t);
-		sqlarc_query(h, q);
+		if (!sqlarc_query(h, q))
+			failed++;
 #undef LO
 #undef HI
+	}
+	if (failed) {
+		sqlarc_query(&mysql_handle, "ROLLBACK");
+		if (!same)
+			sqlarc_query(lh, "ROLLBACK");
+		drop_maps(lh, same);
+		ShowError("[IDCOMPACT] %d statements failed: everything rolled back (on InnoDB tables), the ids stay as they were.\n", failed);
+		return;
+	}
+	sqlarc_query(&mysql_handle, "COMMIT");
+	if (!same)
+		sqlarc_query(lh, "COMMIT");
 	}
 	// 4. AUTO_INCREMENT = MAX+1 in every table that has one
 	drop_maps(lh, same);
