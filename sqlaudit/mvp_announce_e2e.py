@@ -3,7 +3,8 @@
 (S. 2026-11-23: "серверная рассылка, и чтобы клиент подхватывал таймер"). On the e2e stand (ports 6900.., the local
 `ragnarok` DB). A GM stands in prt_maze03 (Baphomet's spawn), a second player in prontera:
  1 @killmonster in prt_maze03 -> the player in ANOTHER map gets the 0x9a broadcast
-   "[MVP] Baphomet was defeated on prt_maze03. Back in H:MM:SS."
+   "[MVP] Baphomet was defeated on prt_maze03. Back in H:MM:SS." (no killer: a GM command)
+   (a player's kill adds "by <player> " before "on"; not covered here: it needs a real MVP kill)
  2 the time is the server's respawn timer: Baphomet 1039,1,7200000,3600000 -> max(spawn+2h, death+1h) = ~2:00:00
  3 the Baby Baphomets (no MVP exp) killed with it are not announced"""
 import re, struct, subprocess, sys, time
@@ -45,7 +46,8 @@ try:
         if pid == 0x9a: bc.append(p[4:].split(b"\0")[0].decode("latin-1"))
     mvp = [x for x in bc if x.startswith("[MVP]")]
     m = re.match(r"\[MVP\] (.+) was defeated on (\S+)\. Back in (\d+):(\d\d):(\d\d)\.$", mvp[0]) if mvp else None
-    check("1 the player in another map gets the MVP broadcast", bool(m) and m.group(1) == "Baphomet" and m.group(2) == "prt_maze03",
+    check("1 the player in another map gets the MVP broadcast (no killer named for a GM command)",
+          bool(m) and m.group(1) == "Baphomet" and m.group(2) == "prt_maze03",
           "broadcasts=%s" % bc)
     left = int(m.group(3)) * 3600 + int(m.group(4)) * 60 + int(m.group(5)) if m else -1
     check("2 the respawn time is the server's (~2:00:00 for a boss killed right after spawn)", 7100 <= left <= 7200, "left=%d s" % left)
