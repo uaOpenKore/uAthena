@@ -3499,15 +3499,20 @@ int parse_frommap(int fd)
 		{
 			int aid = RFIFOL(fd,2), cid = RFIFOL(fd,6), sex = RFIFOB(fd,10);
 			struct online_char_data* character = (struct online_char_data*)idb_get(online_char_db, aid);
-			bool ok = false;
+			int ok = 0; // 1 loaded, 0 no such character (the map-server drops the shop), 2 busy (it asks again later)
 			RFIFOSKIP(fd,11);
+			// Left over from a map-server that went down (S. 2026-11-24: map1 crashed, the restarted one asked for
+			// its shops 3 s later and was refused "in use" -- the accounts were still marked on the dead server,
+			// server -2): nobody is on such an account, so it is free.
+			const bool stale = character != NULL && character->server == -2 && character->fd <= 0;
 			// the account must be free: its owner logged in (or selecting a character) wins over the shop
-			if (character != NULL && (character->server > -1 || character->char_id != -1 || character->fd > 0))
-				ShowInfo("[AUTOTRADE] cid=%d not loaded: account %d is in use\n", cid, aid);
-			else if (!mmo_char_fromsql(cid, &char_dat, true) || char_dat.account_id != aid)
+			if (character != NULL && !stale && (character->server > -1 || character->char_id != -1 || character->fd > 0)) {
+				ShowInfo("[AUTOTRADE] cid=%d not loaded yet: account %d is in use\n", cid, aid);
+				ok = 2;
+			} else if (!mmo_char_fromsql(cid, &char_dat, true) || char_dat.account_id != aid)
 				ShowInfo("[AUTOTRADE] cid=%d not loaded: no such character of account %d\n", cid, aid);
 			else
-				ok = true;
+				ok = 1;
 			if (ok) {
 				char_dat.sex = sex;
 				character = idb_ensure(online_char_db, aid, create_online_char_data);
@@ -3518,11 +3523,11 @@ int parse_frommap(int fd)
 			}
 			WFIFOHEAD(fd, 13 + sizeof(struct mmo_charstatus));
 			WFIFOW(fd,0) = 0x2b26;
-			WFIFOW(fd,2) = 13 + (ok ? sizeof(struct mmo_charstatus) : 0);
+			WFIFOW(fd,2) = 13 + (ok == 1 ? sizeof(struct mmo_charstatus) : 0);
 			WFIFOL(fd,4) = aid;
 			WFIFOL(fd,8) = cid;
 			WFIFOB(fd,12) = ok;
-			if (ok)
+			if (ok == 1)
 				memcpy(WFIFOP(fd,13), &char_dat, sizeof(struct mmo_charstatus));
 			WFIFOSET(fd, WFIFOW(fd,2));
 		}
