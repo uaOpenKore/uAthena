@@ -30,7 +30,7 @@ reboot
 4.
 ~ Install libs for making uAthena
 
-apt -y install zlib1g zlib1g-dev libc6-dev libmariadb-dev libmariadb-dev-compat ccache libpcre2-dev
+apt -y install zlib1g zlib1g-dev libc6-dev libmariadb-dev libmariadb-dev-compat ccache libpcre2-dev dbg
 
 5.
 ~  Instal SQL server if it needed in VM guest
