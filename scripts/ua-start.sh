@@ -144,8 +144,15 @@ capture_crash() {
 	core=$(find_core "$pid")
 	if [ -n "$core" ] && [ -r "$core" ]; then
 		echo >> "$report"
-		"$SELF_DIR/ua-crashdump.sh" "$BIN" "$core" >> "$report" 2>&1
-		prune_keep "$CORE_DIR" "core.*" "$UA_CORE_KEEP"
+		if "$SELF_DIR/ua-crashdump.sh" "$BIN" "$core" >> "$report" 2>&1 && command -v gdb >/dev/null 2>&1; then
+			prune_keep "$CORE_DIR" "core.*" "$UA_CORE_KEEP"
+		else
+			# not decoded (no gdb, or gdb failed): keep the core -- with the binary it is the only way to the crash
+			# later (S. 2026-11-24: map1's core was deleted undecoded, gdb was not installed). A copy of the binary
+			# goes next to it, since the next deploy replaces the binary the core belongs to.
+			cp -p "$BIN" "$core.bin" 2>/dev/null
+			echo "!! core NOT decoded - kept with its binary: $core (+ .bin). Install gdb and run scripts/ua-crashdump.sh $core.bin $core" >> "$report"
+		fi
 		if [ -e "$core" ]; then
 			echo "ua-start: CRASH $tag $name -> $report   [core kept: $core]" >&2
 		else
