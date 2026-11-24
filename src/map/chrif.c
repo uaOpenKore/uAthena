@@ -1667,6 +1667,19 @@ int send_usercount_tochar(int tid, t_tick tick, intptr_t id, intptr_t data)
  * mapIqNCAglcharI
  *------------------------------------------*/
 // [autotrade] 0x2b25 <account id>.L <char id>.L <sex>.B: load a kept autotrade shop's character without a login.
+// [playlimit] 0x2b29 <account id>.L <seconds>.L: the account keeps coming back after its play-limit kick; the
+// char-server passes it to the login-server, which refuses the account for that long (in memory).
+int chrif_playlimit_block(int account_id, int seconds)
+{
+	chrif_check(-1);
+	WFIFOHEAD(char_fd, 10);
+	WFIFOW(char_fd,0) = 0x2b29;
+	WFIFOL(char_fd,2) = account_id;
+	WFIFOL(char_fd,6) = seconds;
+	WFIFOSET(char_fd, 10);
+	return 0;
+}
+
 int chrif_autotrade_load(int account_id, int char_id, int sex)
 {
 	chrif_check(-1);

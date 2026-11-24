@@ -3494,6 +3494,19 @@ int parse_frommap(int fd)
 		}
 		break;
 
+		case 0x2b29: // [playlimit] <aid>.L <seconds>.L: refuse the account at the login-server for a while
+			if (RFIFOREST(fd) < 10)
+				return 0;
+			if (login_fd > 0 && session[login_fd]) {
+				WFIFOHEAD(login_fd, 10);
+				WFIFOW(login_fd,0) = 0x2738;
+				WFIFOL(login_fd,2) = RFIFOL(fd,2);
+				WFIFOL(login_fd,6) = RFIFOL(fd,6);
+				WFIFOSET(login_fd, 10);
+			}
+			RFIFOSKIP(fd,10);
+		break;
+
 		case 0x2b27: // [autotrade] the character is an autotrader now: taken, but not online
 			if (RFIFOREST(fd) < 10)
 				return 0;

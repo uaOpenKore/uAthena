@@ -23,6 +23,7 @@ void chrif_setport(uint16 port);
 int chrif_isconnected(void);
 void chrif_wait_final_saves(int timeout_ms); // [finalsave] do_final
 int chrif_autotrade_load(int account_id, int char_id, int sex); // [autotrade]
+int chrif_playlimit_block(int account_id, int seconds); // [playlimit] the login-server refuses the account for a while
 int chrif_autotrade_notonline(struct map_session_data* sd); // [autotrade]
 
 extern int chrif_connected;

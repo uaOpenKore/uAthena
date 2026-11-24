@@ -52,6 +52,23 @@ char date_format[32] = "%Y-%m-%d %H:%M:%S";
 bool account_fail_ban = true;
 struct ag_config account_fail = { 10, 10 * 60, 5 * 60, 60 * 60, 30 * 86400 };
 bool hide_unknown_account = true;
+
+// [playlimit] accounts refused for a while after they kept coming back past their play-limit kick (S. 2026-11-24:
+// 10 kicks -> 1 hour). In memory only, not the ban list: a restart forgets them. account_id -> until (time_t).
+static struct dbt* playlimit_block_db = NULL;
+static time_t playlimit_block_shown = 0; // the time the last refusal named (the reply's "prohibited until")
+static time_t playlimit_blocked_until(int account_id)
+{
+	time_t until;
+	if (playlimit_block_db == NULL)
+		return 0;
+	until = (time_t)(intptr_t)idb_get(playlimit_block_db, account_id);
+	if (until != 0 && until <= time(NULL)) {
+		idb_remove(playlimit_block_db, account_id);
+		return 0;
+	}
+	return until;
+}
 int save_unknown_packets = 0;
 long creation_time_GM_account_file;
 int gm_account_filename_check_timer = 15; // Timer to check if GM_account file has been changed and reload GM account automaticaly (in seconds; default: 15)
@@ -1292,6 +1309,13 @@ int mmo_auth(struct mmo_account* account, int fd)
 			}
 		}
 
+		playlimit_block_shown = playlimit_blocked_until(auth_dat[i].account_id);
+		if (playlimit_block_shown != 0) { // [playlimit] kicked again and again for the day's limit
+			ShowInfo("[PLAYLIMIT] login refused for '%s' (aid %d) until %ld (kicked too often for the play limit)\n",
+				account->userid, auth_dat[i].account_id, (long)playlimit_block_shown);
+			return 6;
+		}
+
 		if (auth_dat[i].ban_until_time != 0) { // if account is banned
 			strftime(tmpstr, 20, date_format, localtime(&auth_dat[i].ban_until_time));
 			tmpstr[19] = '\0';
@@ -1934,6 +1958,21 @@ int parse_fromchar(int fd)
 			server[id].ip = ntohl(RFIFOL(fd,2));
 			ShowInfo("Updated IP of Server #%d to %d.%d.%d.%d.\n",id, CONVIP(server[id].ip));
 			RFIFOSKIP(fd,6);
+		break;
+
+		case 0x2738: // [playlimit] <aid>.L <seconds>.L: refuse the account for a while (in memory)
+			if (RFIFOREST(fd) < 10)
+				return 0;
+		{
+			int aid = RFIFOL(fd,2), secs = RFIFOL(fd,6);
+			RFIFOSKIP(fd,10);
+			if (playlimit_block_db == NULL)
+				playlimit_block_db = db_alloc(__FILE__, __LINE__, DB_INT, DB_OPT_BASE, sizeof(int));
+			if (aid > 0 && secs > 0) {
+				idb_put(playlimit_block_db, aid, (void*)(intptr_t)(time(NULL) + secs));
+				ShowInfo("[PLAYLIMIT] account %d: logins refused for %d min (kicked too often for the play limit)\n", aid, secs / 60);
+			}
+		}
 		break;
 
 		case 0x2737: //Request to set all offline.
@@ -3276,6 +3315,9 @@ int parse_login(int fd)
 					time_t ban_until_time;
 					i = search_account_index(account.userid);
 					ban_until_time = (i) ? auth_dat[i].ban_until_time : 0;
+					if (playlimit_block_shown > ban_until_time) // [playlimit] the in-memory refusal
+						ban_until_time = playlimit_block_shown;
+					playlimit_block_shown = 0;
 					strftime(tmpstr, 20, date_format, localtime(&ban_until_time)); tmpstr[19] = '\0';
 					strncpy((char*)WFIFOP(fd,3), tmpstr, 20); // ban timestamp goes here
 				}
