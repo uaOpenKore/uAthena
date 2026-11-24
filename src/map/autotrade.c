@@ -51,6 +51,8 @@ struct at_shop {
 	bool pending;          // loaded at start-up, not brought back yet
 	t_tick asked;          // when its character was asked from the char-server; 0 = not yet
 	bool loading;          // its character came and is logging in (the shop opens in autotrade_restore_loaded)
+	t_tick retry_at;       // the char-server said "busy": not asked again before this tick; 0 = no wait
+	int busy;              // how many times it said so
 };
 
 static struct dbt* at_db = NULL;     // char_id -> struct at_shop
@@ -60,6 +62,8 @@ static int at_inflight = 0;     // restore requests waiting for their 0x2b26
 #define AT_RESTORE_MS 10        // the restore pipeline is topped up every 10 ms...
 #define AT_WINDOW 20            // ...to this many requests at once (the char-server loads one character per request)
 #define AT_REPLY_MS 15000       // a request without an answer for this long is given up (the shop stays kept)
+#define AT_BUSY_MS 30000        // the account still in use (a map-server that went down): asked again this much later,
+#define AT_BUSY_TRIES 30        // ...this many times (15 minutes); then the shop stays kept for the next start
 
 #ifdef TXT_ONLY
 static char autotrade_txt[] = "save/autotrade.txt";
@@ -344,6 +348,8 @@ static int at_restore_sub(DBKey key, void* data, va_list ap)
 		return 0;
 	}
 	r->pending++;
+	if (s->retry_at && DIFF_TICK(s->retry_at, r->tick) > 0)
+		return 0; // waiting for the account to be free
 	if (r->n < AT_WINDOW)
 		r->ids[r->n++] = s->char_id;
 	return 0;
@@ -404,9 +410,21 @@ void autotrade_restore_ack(int fd)
 	if (s == NULL || !s->pending || !s->asked)
 		return;
 	s->asked = 0;
+	if (ok == 2) { // the account is still in use (S. 2026-11-24: removed outright after a map-server crash before)
+		if (++s->busy > AT_BUSY_TRIES) {
+			ShowWarning("[AUTOTRADE] shop of cid=%d: account %d still in use after %d tries -- kept for the next start\n",
+				cid, aid, AT_BUSY_TRIES);
+			s->pending = false; // not this run; it stays in the storage
+			return;
+		}
+		s->retry_at = gettick() + AT_BUSY_MS;
+		ShowInfo("[AUTOTRADE] shop of cid=%d: account %d in use, asking again in %d s (try %d)\n", cid, aid,
+			AT_BUSY_MS / 1000, s->busy);
+		return;
+	}
 	s->loading = true;
-	if (!ok || RFIFOW(fd,2) != 13 + sizeof(struct mmo_charstatus)) {
-		at_remove(cid, ok ? "bad answer" : "the char-server refused it (account in use, or no such character)");
+	if (ok != 1 || RFIFOW(fd,2) != 13 + sizeof(struct mmo_charstatus)) {
+		at_remove(cid, ok == 1 ? "bad answer" : "the char-server has no such character");
 		return;
 	}
 	if (map_id2sd(aid) != NULL) {

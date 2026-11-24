@@ -3463,11 +3463,16 @@ int parse_frommap(int fd)
 			int aid = RFIFOL(fd,2), cid = RFIFOL(fd,6), sex = RFIFOB(fd,10);
 			struct online_char_data* character = (struct online_char_data*)idb_get(online_char_db, aid);
 			struct mmo_charstatus* cd = NULL;
+			int busy = 0; // 2 in the reply: the map-server asks again later instead of dropping the shop
 			RFIFOSKIP(fd,11);
+			// Left over from a map-server that went down (S. 2026-11-24: the accounts stayed marked on the dead
+			// server, -2, and the restarted one's restore was refused): nobody is on such an account, so it is free.
+			const bool stale = character != NULL && character->server == -2 && character->fd <= 0;
 			// the account must be free: its owner logged in (or selecting a character) wins over the shop
-			if (character != NULL && (character->server > -1 || character->char_id != -1 || character->fd > 0))
-				ShowInfo("[AUTOTRADE] cid=%d not loaded: account %d is in use\n", cid, aid);
-			else if ((cd = search_character(aid, cid)) == NULL)
+			if (character != NULL && !stale && (character->server > -1 || character->char_id != -1 || character->fd > 0)) {
+				ShowInfo("[AUTOTRADE] cid=%d not loaded yet: account %d is in use\n", cid, aid);
+				busy = 1;
+			} else if ((cd = search_character(aid, cid)) == NULL)
 				ShowInfo("[AUTOTRADE] cid=%d not loaded: no such character of account %d\n", cid, aid);
 			if (cd != NULL) {
 				cd->sex = sex;
@@ -3482,7 +3487,7 @@ int parse_frommap(int fd)
 			WFIFOW(fd,2) = 13 + (cd ? sizeof(struct mmo_charstatus) : 0);
 			WFIFOL(fd,4) = aid;
 			WFIFOL(fd,8) = cid;
-			WFIFOB(fd,12) = cd != NULL;
+			WFIFOB(fd,12) = cd != NULL ? 1 : busy ? 2 : 0;
 			if (cd)
 				memcpy(WFIFOP(fd,13), cd, sizeof(struct mmo_charstatus));
 			WFIFOSET(fd, WFIFOW(fd,2));
