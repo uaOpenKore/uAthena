@@ -3882,6 +3882,8 @@ static const struct battle_data_int {
 	{ "playtime_buy_zeny_per_level",       &battle_config.playtime_buy_zeny_per_level	}, // [playlimit] @buyplaytime price, 0 = off
 	{ "playtime_price_hour_bp",            &battle_config.playtime_price_hour_bp	}, // [playlimit] % of the zeny an hour, in hundredths
 	{ "playtime_buy_bot_percent",          &battle_config.playtime_buy_bot_percent	}, // [playlimit] OpenKore pays this % of it
+	{ "playtime_kick_block_after",         &battle_config.playtime_kick_block_after	}, // [playlimit] kicks a day before the login is refused
+	{ "playtime_kick_block_minutes",       &battle_config.playtime_kick_block_minutes	}, // [playlimit] ...for this long
 	{ "socket_send_coalesce_ms",           &battle_config.socket_send_coalesce_ms	}, // [perf] map-only send-coalescing window ms (<=0 off)
 	{ "socket_sndbuf_size",                &battle_config.socket_sndbuf_size		}, // [perf] SO_SNDBUF bytes per socket (0 = kernel default)
 	{ "flooritem_lifetime",                &battle_config.flooritem_lifetime		},
@@ -4319,6 +4321,8 @@ void battle_set_defaults()
 	battle_config.daily_play_limit = 0; // [playlimit]
 	battle_config.playtime_buy_zeny_per_level = 0; // [playlimit]
 	battle_config.playtime_buy_bot_percent = 100; // [playlimit]
+	battle_config.playtime_kick_block_after = 10; // [playlimit]
+	battle_config.playtime_kick_block_minutes = 60; // [playlimit]
 	battle_config.playtime_price_hour_bp = 0; // [playlimit]
 	battle_config.socket_send_coalesce_ms = 0; // [perf] <=0 = off (default); >0 = send-coalescing window in ms (needs socket_async_send: 1)
 	battle_config.socket_sndbuf_size = 131072; // [perf] SO_SNDBUF bytes per socket (0 = kernel default); pairs with send coalescing

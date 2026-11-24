@@ -477,6 +477,28 @@ static const char* pc_playlimit_hint(struct map_session_data* sd, bool see)
 	return hint;
 }
 
+// [playlimit] kicks per account since the map-server started (S. 2026-11-24: OpenKore relogs every ~40 s after
+// the kick, ~500 times a day per account); at playtime_kick_block_after the login-server refuses the account for
+// playtime_kick_block_minutes. In memory only: a restart forgets it.
+static struct dbt* playlimit_kicks_db = NULL;
+static void pc_playlimit_count_kick(struct map_session_data* sd)
+{
+	int n;
+	if (battle_config.playtime_kick_block_after <= 0 || battle_config.playtime_kick_block_minutes <= 0)
+		return;
+	if (playlimit_kicks_db == NULL)
+		playlimit_kicks_db = db_alloc(__FILE__, __LINE__, DB_INT, DB_OPT_BASE, sizeof(int));
+	n = (int)(intptr_t)idb_get(playlimit_kicks_db, sd->status.account_id) + 1;
+	if (n < battle_config.playtime_kick_block_after) {
+		idb_put(playlimit_kicks_db, sd->status.account_id, (void*)(intptr_t)n);
+		return;
+	}
+	idb_remove(playlimit_kicks_db, sd->status.account_id);
+	ShowInfo("[PLAYLIMIT] block aid=%d name='%s': kicked %d times for the limit -> the login is refused for %d min\n",
+		sd->status.account_id, sd->status.name, n, battle_config.playtime_kick_block_minutes);
+	chrif_playlimit_block(sd->status.account_id, battle_config.playtime_kick_block_minutes * 60);
+}
+
 static int pc_playlimit_kick(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	struct map_session_data* sd = map_id2sd((int)id);
@@ -487,6 +509,7 @@ static int pc_playlimit_kick(int tid, t_tick tick, intptr_t id, intptr_t data)
 		return 0; // the day was reset meanwhile
 	ShowInfo("[PLAYLIMIT] kick aid=%d cid=%d name='%s' minutes=%d\n", sd->status.account_id, sd->status.char_id,
 		sd->status.name, pc_playlimit_minutes(sd));
+	pc_playlimit_count_kick(sd);
 	// BornRok shows its own text for 10; uaRO.exe gets the plain "server closed" (the reason is in its chat)
 	clif_authfail_fd(sd->fd, sd->state.renewal_npc ? 10 : 1);
 	return 0;

@@ -181,6 +181,23 @@ void remove_online_user(int account_id)
 // common/authguard.h). Kept in memory: a restart forgets the counts, which only gives a guesser `limit` tries.
 //-----------------------------------------------------
 static DB authguard_db = NULL;
+
+// [playlimit] accounts refused for a while after they kept coming back past their play-limit kick (S. 2026-11-24:
+// 10 kicks -> 1 hour). In memory only, not the ban list: a restart forgets them. account_id -> until (time_t).
+static DB playlimit_block_db = NULL;
+static time_t playlimit_block_shown = 0; // the time the last refusal named (the reply's "prohibited until")
+static time_t playlimit_blocked_until(int account_id)
+{
+	time_t until;
+	if (playlimit_block_db == NULL)
+		return 0;
+	until = (time_t)(intptr_t)idb_get(playlimit_block_db, account_id);
+	if (until != 0 && until <= time(NULL)) {
+		idb_remove(playlimit_block_db, account_id);
+		return 0;
+	}
+	return until;
+}
 #define AUTHGUARD_MAX_ENTRIES 200000 // names tried that have no state yet are not tracked beyond this (a flood of made-up names)
 
 // The entry holds its own key (the name): the db neither copies nor frees keys (DB_OPT_DUP_KEY|RELEASE_KEY freed
@@ -856,6 +873,13 @@ retry_lookup:
 		return 1; // 1 = Incorrect Password
 	}
 
+	playlimit_block_shown = playlimit_blocked_until(account->account_id);
+	if (playlimit_block_shown != 0) { // [playlimit] kicked again and again for the day's limit
+		ShowInfo("[PLAYLIMIT] login refused for '%s' (aid %d) until %ld (kicked too often for the play limit)\n",
+			account->userid, account->account_id, (long)playlimit_block_shown);
+		return 6;
+	}
+
 	if (ban_until_time != 0) { // if account is banned
 		if (ban_until_time > time(NULL)) // always banned
 			return 6; // 6 = Your are Prohibited to log in until %s
@@ -1494,6 +1518,21 @@ int parse_fromchar(int fd)
 			RFIFOSKIP(fd,6);
 		break;
 
+		case 0x2738: // [playlimit] <aid>.L <seconds>.L: refuse the account for a while (in memory)
+			if (RFIFOREST(fd) < 10)
+				return 0;
+		{
+			int aid = RFIFOL(fd,2), secs = RFIFOL(fd,6);
+			RFIFOSKIP(fd,10);
+			if (playlimit_block_db == NULL)
+				playlimit_block_db = db_alloc(__FILE__, __LINE__, DB_INT, DB_OPT_BASE, sizeof(int));
+			if (aid > 0 && secs > 0) {
+				idb_put(playlimit_block_db, aid, (void*)(intptr_t)(time(NULL) + secs));
+				ShowInfo("[PLAYLIMIT] account %d: logins refused for %d min (kicked too often for the play limit)\n", aid, secs / 60);
+			}
+		}
+		break;
+
 		case 0x2737: //Request to set all offline.
 			ShowInfo("Setting accounts from char-server %d offline.\n", id);
 			online_db->foreach(online_db,online_db_setoffline,id);
@@ -1812,6 +1851,9 @@ int parse_login(int fd)
 				if (result == 6) { // 6 = Your are Prohibited to log in until %s
 					char tmpstr[20];
 					time_t ban_until_time = (sql_row) ? atol(sql_row[0]) : 0;
+					if (playlimit_block_shown > ban_until_time) // [playlimit] the in-memory refusal
+						ban_until_time = playlimit_block_shown;
+					playlimit_block_shown = 0;
 					strftime(tmpstr, 20, login_config.date_format, localtime(&ban_until_time)); tmpstr[19] = '\0';
 					strncpy(WFIFOP(fd,3), tmpstr, 20); // ban timestamp goes here
 				}
