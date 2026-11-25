@@ -1517,7 +1517,4 @@
 22508,Para_Team_Mark_,Eden Group Mark,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
 22980,InfinityD_ReturnScroll,Return of Infinite Dungeon,2,0,,10,,,,,0xFFFFFFFF,,,,,,,,{ warp "cmd_fild07",83,270; },{},{}
 26101,P_Foxtail3,Eden Group Foxtail Staff III,4,20,,0,150,,1,,0xFFFFFFFF,,,2,3,60,,,{ bonus bDex,5; bonus bInt,5; bonus bLongAtkRate,7; },{},{}
-100072,WL_MB_CL,Spell Book(Chain Lightning),3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
-100073,WL_MB_CM,Spell Book(Comet),3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
-100074,WL_MB_TV,Spell Book(Tetra Vortex),3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
 // ===== end renewal script-items =====
