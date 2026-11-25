@@ -64,7 +64,7 @@ int storage_tosql(int account_id,struct storage *p){
 
 // DB -> storage data conversion
 int storage_fromsql(int account_id, struct storage *p){
-	int i=0,j;
+	int i=0,j,split;
 	char * str_p = tmp_sql;
 
 	memset(p,0,sizeof(struct storage)); //clean up memory
@@ -96,10 +96,11 @@ int storage_fromsql(int account_id, struct storage *p){
 	}
 
 	if (sql_res) {
+		struct item_excess ex = { 0 };
 		while((sql_row = mysql_fetch_row(sql_res)) && i<MAX_STORAGE) {	//start to fetch
 			p->storage_[i].id= atoi(sql_row[0]);
 			p->storage_[i].nameid= atoi(sql_row[1]);
-			p->storage_[i].amount= atoi(sql_row[2]);
+			p->storage_[i].amount= item_amount_load(sql_row[2], i, &ex);
 			p->storage_[i].equip= atoi(sql_row[3]);
 			p->storage_[i].identify= atoi(sql_row[4]);
 			p->storage_[i].refine= atoi(sql_row[5]);
@@ -109,8 +110,11 @@ int storage_fromsql(int account_id, struct storage *p){
 			p->storage_[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 			i++;
 		}
-		p->storage_amount = i;
+		split = ex.n;
+		p->storage_amount = i = item_excess_split(p->storage_, i, MAX_STORAGE, &ex, "storage of account", account_id);
 		mysql_free_result(sql_res);
+		if (split) // write the split stacks now: the map-server saves a storage only when it changes
+			storage_tosql(account_id, p);
 	}
 
 	ShowInfo ("storage load complete from DB - id: %d (total: %d)\n", account_id, p->storage_amount);
@@ -153,7 +157,7 @@ int guild_storage_tosql(int guild_id, struct guild_storage *p){
 #ifndef TXT_SQL_CONVERT
 // Load guild_storage data to mem
 int guild_storage_fromsql(int guild_id, struct guild_storage *p){
-	int i=0,j;
+	int i=0,j,split;
 	struct guild_storage *gs=guild_storage_pt;
 	char * str_p = tmp_sql;
 	p=gs;
@@ -186,10 +190,11 @@ int guild_storage_fromsql(int guild_id, struct guild_storage *p){
 	}
 
 	if (sql_res) {
+		struct item_excess ex = { 0 };
 		while((sql_row = mysql_fetch_row(sql_res)) && i < MAX_GUILD_STORAGE) {	//start to fetch
 			p->storage_[i].id= atoi(sql_row[0]);
 			p->storage_[i].nameid= atoi(sql_row[1]);
-			p->storage_[i].amount= atoi(sql_row[2]);
+			p->storage_[i].amount= item_amount_load(sql_row[2], i, &ex);
 			p->storage_[i].equip= atoi(sql_row[3]);
 			p->storage_[i].identify= atoi(sql_row[4]);
 			p->storage_[i].refine= atoi(sql_row[5]);
@@ -199,8 +204,11 @@ int guild_storage_fromsql(int guild_id, struct guild_storage *p){
 			p->storage_[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 			i++;
 		}
-		p->storage_amount = i;
+		split = ex.n;
+		p->storage_amount = i = item_excess_split(p->storage_, i, MAX_GUILD_STORAGE, &ex, "guild storage of guild", guild_id);
 		mysql_free_result(sql_res);
+		if (split)
+			guild_storage_tosql(guild_id, p);
 	}
 	ShowInfo ("guild storage load complete from DB - id: %d (total: %d)\n", guild_id, p->storage_amount);
 	return 1;
