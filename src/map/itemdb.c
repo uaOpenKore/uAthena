@@ -219,6 +219,12 @@ static void* create_item_data(DBKey key, va_list args)
 /*==========================================
  * Loads (and creates if not found) an item from the db.
  *------------------------------------------*/
+// S. 2026-11-25: item ids above 32767 are left out of the item DB. struct item keeps nameid in a short and
+// packetver 22 sends it in 2 bytes, so such an item wraps into a garbage id the moment it is created; without
+// an entry, getitem/drops/shops refuse it as a nonexistent item instead.
+#define ITEMDB_MAX_NAMEID 32767
+static int itemdb_skipped_big = 0;
+
 struct item_data* itemdb_load(int nameid)
 {
 	struct item_data *id = idb_ensure(item_db,nameid,create_item_data);
@@ -708,6 +714,7 @@ static int itemdb_read_sqldb(void)
 					// If the identifier is not within the valid range, process the next row
 					if (nameid == 0)
 						continue;
+					if (nameid > ITEMDB_MAX_NAMEID) { itemdb_skipped_big++; continue; }
 
 					ln++;
 
@@ -816,6 +823,11 @@ static int itemdb_read_sqldb(void)
 				}
 
 				ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", ln, item_db_name[i]);
+				if (itemdb_skipped_big > 0) {
+					ShowWarning("%s: %d items with an id above %d left out (the item id is 16-bit in the server and in packetver 22).\n",
+						item_db_name[i], itemdb_skipped_big, ITEMDB_MAX_NAMEID);
+					itemdb_skipped_big = 0;
+				}
 				ln = 0;
 			} else {
 				ShowSQL("DB error (%s) - %s\n",item_db_name[i], mysql_error(&mmysql_handle));
@@ -876,6 +888,7 @@ static int itemdb_readdb(void)
 			nameid=atoi(str[0]);
 			if(nameid<=0)
 				continue;
+			if (nameid > ITEMDB_MAX_NAMEID) { itemdb_skipped_big++; continue; }
 			if (j < 19)
 			{	//Crash-fix on broken item lines. [Skotlex]
 				ShowWarning("Reading %s: Insufficient fields for item with id %d, skipping.\n", filename[i], nameid);
@@ -1005,6 +1018,11 @@ static int itemdb_readdb(void)
 		fclose(fp);
 		if (ln > 0) {
 			ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n",ln,filename[i]);
+		}
+		if (itemdb_skipped_big > 0) {
+			ShowWarning("%s: %d items with an id above %d left out (the item id is 16-bit in the server and in packetver 22).\n",
+				filename[i], itemdb_skipped_big, ITEMDB_MAX_NAMEID);
+			itemdb_skipped_big = 0;
 		}
 		ln=0;	// reset to 0
 	}

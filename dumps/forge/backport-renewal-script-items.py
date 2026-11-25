@@ -80,9 +80,13 @@ def no_consume_ids(ids):
             out.add(int(m.group(1)))
     return out
 
+# struct item's nameid is a short: an id above it wraps in an inventory (getitem 100072 -> a garbage item), so such
+# items are left out and the script keeps failing safely with "Nonexistant item".
+MAX_NAMEID = 32767
+
 def build():
     maps = map_names()
-    missing = collect_missing()
+    missing = {i for i in collect_missing() if i <= MAX_NAMEID}
     items = si.parse_items(missing)
     keep = no_consume_ids(set(items))
     rows, dropped_log = [], []

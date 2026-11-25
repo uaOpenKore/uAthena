@@ -14,6 +14,3 @@
 18520	Jaty_C	bonus2 bSubRace,RC_Plant,5; bonus2 bSubRace,RC_Brute,5; bonus2 bSubRace,RC_Player_Doram,5; bonus2 bAddRace,RC_Plant,5; bonus2 bAddRace,RC_Brute,5; bonus2 bAddRace,RC_Player_Doram,5;
 18755	Feather_Beret_	bonus bMdef,1; bonus2 bSubRace,RC_DemiHuman,10; bonus2 bSubRace,RC_Player_Human,10;
 22508	Para_Team_Mark_	NoConsume -> etc item, script dropped: warp "moc_para01",171,115;
-100072	WL_MB_CL	NoConsume -> etc item, script dropped: itemskill "WL_READING_SB_READING",8;
-100073	WL_MB_CM	NoConsume -> etc item, script dropped: itemskill "WL_READING_SB_READING",9;
-100074	WL_MB_TV	NoConsume -> etc item, script dropped: itemskill "WL_READING_SB_READING",10;
