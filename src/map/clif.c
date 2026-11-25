@@ -1287,8 +1287,11 @@ static int clif_npclook_sub(struct block_list* bl, va_list ap)
 	int at = va_arg(ap, int);
 	int wide = va_arg(ap, int);
 	int real = va_arg(ap, int);
+	int hide = va_arg(ap, int); // [rnpc] a Renewal NPC: nothing at all for a client without the renewal NPCs
 	int fd = sd->fd;
 	if (!fd || !session[fd] || !sd->state.auth)
+		return 0;
+	if (hide && !sd->state.renewal_npc)
 		return 0;
 	WFIFOHEAD(fd, len);
 	memcpy(WFIFOP(fd,0), buf, len);
@@ -1301,7 +1304,14 @@ static int clif_npclook_sub(struct block_list* bl, va_list ap)
 /// True when bl is an NPC whose class an old client must not get; then the look goes out per viewer.
 static bool clif_npclook_split(struct block_list* bl, int class_)
 {
-	return bl->type == BL_NPC && npc_sprite_for_oldclient(class_) != class_;
+	return bl->type == BL_NPC && (npc_sprite_for_oldclient(class_) != class_ || ((TBL_NPC*)bl)->renewal);
+}
+
+/// [rnpc] An NPC loaded from npc/backport (Renewal): an old client (uaRO.exe) is not shown it at all (S. 2026-11-25:
+/// old clients crash, the Renewal NPCs are suspected). BornRok marks its map login and sees them.
+static int clif_npc_hidden(struct block_list* bl)
+{
+	return bl->type == BL_NPC && ((TBL_NPC*)bl)->renewal ? 1 : 0;
 }
 
 int clif_class_change(struct block_list *bl,int class_,int type)
@@ -1317,7 +1327,7 @@ int clif_class_change(struct block_list *bl,int class_,int type)
 		WBUFL(buf,7)=class_;
 		if (clif_npclook_split(bl, class_)) // [npcsprite]
 			map_foreachinarea(clif_npclook_sub, bl->m, bl->x-AREA_SIZE, bl->y-AREA_SIZE, bl->x+AREA_SIZE, bl->y+AREA_SIZE,
-				BL_PC, buf, packet_len(0x1b0), 7, 1, class_);
+				BL_PC, buf, packet_len(0x1b0), 7, 1, class_, clif_npc_hidden(bl));
 		else
 			clif_send(buf,packet_len(0x1b0),bl,AREA);
 	}
@@ -1487,7 +1497,7 @@ int clif_spawn(struct block_list *bl)
 		//40B: ???
 		if (clif_npclook_split(bl, vd->class_)) // [npcsprite]
 			map_foreachinarea(clif_npclook_sub, bl->m, bl->x-AREA_SIZE, bl->y-AREA_SIZE, bl->x+AREA_SIZE, bl->y+AREA_SIZE,
-				BL_PC, buf, packet_len(0x7c), 20, 0, vd->class_);
+				BL_PC, buf, packet_len(0x7c), 20, 0, vd->class_, clif_npc_hidden(bl));
 		else
 		clif_send(buf,packet_len(0x7c),bl,AREA_WOS);
 		if (disguised(bl)) {
@@ -4085,6 +4095,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 	vd = status_get_viewdata(bl);
 
 	if (!vd || vd->class_ == INVISIBLE_CLASS)
+		return;
+	if (clif_npc_hidden(bl) && !sd->state.renewal_npc) // [rnpc] a Renewal NPC: not shown to an old client
 		return;
 
 	// [npcsprite] an NPC with a renewal sprite is shown to a client without them as a look-alike classic one: the

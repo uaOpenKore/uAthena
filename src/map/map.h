@@ -932,6 +932,7 @@ struct npc_data {
 	short speed;
 	char name[NAME_LENGTH];
 	char exname[NAME_LENGTH];
+	unsigned char renewal; // [rnpc] loaded from npc/backport (a Renewal NPC): a client without the renewal NPCs never sees it
 	int chat_id;
 	t_tick next_walktime;
 
