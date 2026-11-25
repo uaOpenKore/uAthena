@@ -45,6 +45,12 @@ enum {
 
 int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id,int tableswitch);
 
+// Loading item rows: a stack above MAX_AMOUNT is split (see char.c).
+struct item_excess { int n; int idx[32]; int rest[32]; };
+short item_amount_load(const char* raw, int idx, struct item_excess* ex);
+int item_excess_split(struct item* list, int count, int max, struct item_excess* ex, const char* what, int owner);
+void item_cache_mark_split(struct mmo_charstatus* cp, const struct mmo_charstatus* p);
+
 int mapif_sendall(unsigned char *buf,unsigned int len);
 int mapif_sendallwos(int fd,unsigned char *buf,unsigned int len);
 int mapif_send(int fd,unsigned char *buf,unsigned int len);

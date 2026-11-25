@@ -1034,6 +1034,61 @@ static int char_pending_final_sub(DBKey key, void* data, va_list ap)
 #endif //TXT_SQL_CONVERT
 
 // [Ilpalazzo-sama]
+/*==========================================
+ * A row with more than MAX_AMOUNT (32766) of one item does not fit struct item's short amount: 34148 loaded as
+ * -31388, and every save of that container then failed with "Out of range value for column 'amount'" and was
+ * rolled back (prod 23-25.11: one storage, 2237 rollbacks a day). On load such a stack keeps MAX_AMOUNT and the
+ * rest goes into new stacks while the container has room; what does not fit is logged. The save then updates the
+ * row and inserts the new stacks. [S. 2026-11-25]
+ *------------------------------------------*/
+short item_amount_load(const char* raw, int idx, struct item_excess* ex)
+{
+	long v = strtol(raw ? raw : "0", NULL, 10);
+	if (v <= MAX_AMOUNT)
+		return (short)v;
+	if (ex->n < (int)(sizeof(ex->idx) / sizeof(ex->idx[0]))) {
+		ex->idx[ex->n] = idx;
+		ex->rest[ex->n] = (int)(v - MAX_AMOUNT);
+		ex->n++;
+	} else
+		ShowError("[ITEMAMOUNT] too many oversized stacks: %ld of the item at slot %d kept as %d\n", v, idx, MAX_AMOUNT);
+	return MAX_AMOUNT;
+}
+
+// Appends the rest of each oversized stack after the `count` loaded items; returns the new count.
+int item_excess_split(struct item* list, int count, int max, struct item_excess* ex, const char* what, int owner)
+{
+	int k;
+	for (k = 0; k < ex->n; k++) {
+		const struct item* src = &list[ex->idx[k]];
+		int rest = ex->rest[k], added = 0;
+		while (rest > 0 && count < max) {
+			int a = rest > MAX_AMOUNT ? MAX_AMOUNT : rest;
+			list[count] = *src;
+			list[count].id = 0;
+			list[count].amount = a;
+			count++; rest -= a; added += a;
+		}
+		ShowWarning("[ITEMAMOUNT] %s %d: item %d had %d in one stack -> %d kept, %d moved to new stacks, %d lost (no room)\n",
+			what, owner, src->nameid, MAX_AMOUNT + ex->rest[k], MAX_AMOUNT, added, rest);
+	}
+	ex->n = 0;
+	return count;
+}
+
+// The char cache is the "already in the DB" copy the next save diffs against: stacks made by a split on load
+// (id 0 -- every loaded row has its id) are left out of it, so that save writes them and the trimmed row.
+void item_cache_mark_split(struct mmo_charstatus* cp, const struct mmo_charstatus* p)
+{
+	int i;
+	for (i = 0; i < MAX_INVENTORY; i++)
+		if (p->inventory[i].nameid > 0 && p->inventory[i].id == 0)
+			memset(&cp->inventory[i], 0, sizeof(cp->inventory[i]));
+	for (i = 0; i < MAX_CART; i++)
+		if (p->cart[i].nameid > 0 && p->cart[i].id == 0)
+			memset(&cp->cart[i], 0, sizeof(cp->cart[i]));
+}
+
 int memitemdata_to_sql(struct itemtmp mapitem[], int count, int char_id, int tableswitch)
 {
 	int i,j, flag;
@@ -1315,10 +1370,11 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	}
 	sql_res = mysql_store_result(&mysql_handle);
 	if (sql_res) {
+		struct item_excess ex = { 0 };
 		for(i=0;(sql_row = mysql_fetch_row(sql_res));i++){
 			p->inventory[i].id = atoi(sql_row[0]);
 			p->inventory[i].nameid = atoi(sql_row[1]);
-			p->inventory[i].amount = atoi(sql_row[2]);
+			p->inventory[i].amount = item_amount_load(sql_row[2], i, &ex);
 			p->inventory[i].equip = atoi(sql_row[3]);
 			p->inventory[i].identify = atoi(sql_row[4]);
 			p->inventory[i].refine = atoi(sql_row[5]);
@@ -1327,6 +1383,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 				p->inventory[i].card[j] = atoi(sql_row[7+j]);
 			p->inventory[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 		}
+		item_excess_split(p->inventory, i, MAX_INVENTORY, &ex, "inventory of char", char_id);
 		mysql_free_result(sql_res);
 		strcat (t_msg, " inventory");
 	}
@@ -1345,10 +1402,11 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	}
 	sql_res = mysql_store_result(&mysql_handle);
 	if (sql_res) {
+		struct item_excess ex = { 0 };
 		for(i=0;(sql_row = mysql_fetch_row(sql_res));i++){
 			p->cart[i].id = atoi(sql_row[0]);
 			p->cart[i].nameid = atoi(sql_row[1]);
-			p->cart[i].amount = atoi(sql_row[2]);
+			p->cart[i].amount = item_amount_load(sql_row[2], i, &ex);
 			p->cart[i].equip = atoi(sql_row[3]);
 			p->cart[i].identify = atoi(sql_row[4]);
 			p->cart[i].refine = atoi(sql_row[5]);
@@ -1357,6 +1415,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 				p->cart[i].card[j] = atoi(sql_row[7+j]);
 			p->cart[i].expire_time = (unsigned int)strtoul(sql_row[7+MAX_SLOTS],NULL,10); // [Backport] rental
 		}
+		item_excess_split(p->cart, i, MAX_CART, &ex, "cart of char", char_id);
 		mysql_free_result(sql_res);
 		strcat (t_msg, " cart");
 	}
@@ -1436,6 +1495,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 
 	cp = idb_ensure(char_db_, char_id, create_charstatus);
 	memcpy(cp, p, sizeof(struct mmo_charstatus));
+	item_cache_mark_split(cp, p);
 	return 1;
 }
 
@@ -3874,10 +3934,11 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 	p += sprintf(p, " FROM `%s` WHERE `char_id`='%d'", inventory_db, char_id);
 	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "inventory");
 	{
+		struct item_excess ex = { 0 };
 		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_INVENTORY; i++) {
 			cs->inventory[i].id = atoi(row[0]);
 			cs->inventory[i].nameid = atoi(row[1]);
-			cs->inventory[i].amount = atoi(row[2]);
+			cs->inventory[i].amount = item_amount_load(row[2], i, &ex);
 			cs->inventory[i].equip = atoi(row[3]);
 			cs->inventory[i].identify = atoi(row[4]);
 			cs->inventory[i].refine = atoi(row[5]);
@@ -3885,6 +3946,7 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 			for (j = 0; j < MAX_SLOTS; j++) cs->inventory[i].card[j] = atoi(row[7+j]);
 			cs->inventory[i].expire_time = (unsigned int)strtoul(row[7+MAX_SLOTS], NULL, 10);
 		}
+		item_excess_split(cs->inventory, i, MAX_INVENTORY, &ex, "inventory of char", char_id);
 		mysql_free_result(res);
 	}
 
@@ -3896,10 +3958,11 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 	p += sprintf(p, " FROM `%s` WHERE `char_id`='%d'", cart_db, char_id);
 	if (mysql_query(conn, q) || !(res = mysql_store_result(conn))) return achar_fail(conn, r, "cart");
 	{
+		struct item_excess ex = { 0 };
 		for (i = 0; (row = mysql_fetch_row(res)) && i < MAX_CART; i++) {
 			cs->cart[i].id = atoi(row[0]);
 			cs->cart[i].nameid = atoi(row[1]);
-			cs->cart[i].amount = atoi(row[2]);
+			cs->cart[i].amount = item_amount_load(row[2], i, &ex);
 			cs->cart[i].equip = atoi(row[3]);
 			cs->cart[i].identify = atoi(row[4]);
 			cs->cart[i].refine = atoi(row[5]);
@@ -3907,6 +3970,7 @@ static int achar_fetch(MYSQL* conn, struct achar_ctx* r)
 			for (j = 0; j < MAX_SLOTS; j++) cs->cart[i].card[j] = atoi(row[7+j]);
 			cs->cart[i].expire_time = (unsigned int)strtoul(row[7+MAX_SLOTS], NULL, 10);
 		}
+		item_excess_split(cs->cart, i, MAX_CART, &ex, "cart of char", char_id);
 		mysql_free_result(res);
 	}
 
@@ -3992,6 +4056,7 @@ static void char_load_finish_ok(struct achar_ctx* r)
 	// char_db_ cache (the shared-state write that mmo_char_fromsql does at its end)
 	cp = idb_ensure(char_db_, cd->char_id, create_charstatus);
 	memcpy(cp, cd, sizeof(struct mmo_charstatus));
+	item_cache_mark_split(cp, cd);
 
 	if (log_char) {
 		char escaped_name[NAME_LENGTH*2];
