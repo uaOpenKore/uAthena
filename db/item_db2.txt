@@ -1435,3 +1435,89 @@
 1220003,Kunai_Of_Shadow,Kunai Of Shadow,10,30,,1,30,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Dark; },{},{}
 1220004,Kunai_Of_Hamaya,Kunai Of Hamaya,10,30,,1,30,,,,0xFFFFFFFF,,,,,1,,,{ bonus bAtkEle,Ele_Holy; },{},{}
 // ===== end renewal shop-items =====
+// ===== Backport renewal script-items (GENERATED) =====
+1583,P_Dic1,Eden Book I,4,0,,0,135,,1,,0xFFFFFFFF,,,2,3,60,,,{},{},{}
+1658,P_Staff3,Eden Staff III,4,0,,0,60,,1,,0xFFFFFFFF,,,2,3,60,,,{ bonus bInt,4; },{},{}
+2172,Wolf_Armguard,Wolf Wrist Guard,5,45000,,250,,70,,1,0xFFFFFFFF,,,32,,99,,1,{},{},{}
+2173,Crescent_Armguard,Crescent Wrist Guard,5,45000,,250,,45,,1,0xFFFFFFFF,,,32,,99,,1,{ bonus bDelayrate,-(getrefine()*2); },{},{}
+2473,Para_Team_Boots4,Eden Team Boots IV,5,0,,0,,20,,,0xFFFFFFFF,,,64,,60,,,{ bonus bAgiVit,1; bonus bHPrecovRate,28; bonus bSPrecovRate,12; },{},{}
+2571,Para_Team_Manteau2,Eden Team Manteau II,5,0,,0,,18,,,0xFFFFFFFF,,,4,,60,,,{ bonus bFlee,12; bonus2 bSubEle,Ele_Neutral,10; },{},{}
+2872,G_Honor_Certificate,G Honor Certificate,5,0,,0,,,,,0xFFFFFFFF,,,136,,1,,,{},{},{}
+2951,Kvasir_Ring_Blue,Kvasir Ring Blue,5,0,,100,,,,,0xFFFFFFFF,,,136,,1,,,{},{},{}
+6401,Palm_O,Palm Oil,3,0,,500,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6402,Oil_Palm_F,Palm Oil Fruit,3,0,,50,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6403,Comodo_L,Comodo Leather,3,5,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6404,Caress_H,Keris Hilt,3,0,,100,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6405,Cendrawasih_F,Cendrawasih Feather,3,3,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6406,Cendrawasih_SF,Shining Cendrawasih Feather,3,10,,100,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6420,Cgrade_Coin,C Grade Coin,3,20,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6422,Egrade_Coin,E Grade Coin,3,20,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6426,Bad_Can,Bad Canned Food,3,20,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6427,Bad_Can_Sack,Bad Canned Food Sack,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6428,Bravery_Card_A,Adventure Card A,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6429,Bravery_Card_B,Adventure Card B,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6430,Picture_Piece,Picture Fragment,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6431,Bucket,Pail,3,0,,100,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6432,Full_Bucket,Full Pail,3,0,,3000,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6433,Clean_Brush,Cleaning Brush,3,0,,300,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6434,Fix_Kit,Fix Kit,3,0,,1000,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6435,Fresh_Fruit,Fresh Fruit,3,0,,100,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6437,Scaraba_Perfume,Scaraba Perfume,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6451,Unknown_Fish,Unknown Fish,3,20,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6489,Cats_Invest_Certif,Cats Invest Certificate,3,0,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6496,Tikbalang_Thick_Spine,Tikbalang's Thick Spine,3,300,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6497,Lesser_Agimat,Lesser Agimat,3,20,,50,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6499,Ancient_Grudge,Ancient Grudge,3,500,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6500,Sharp_Bamboo,Sharpened Bamboo,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6501,Salt_Bag,Salt Bag,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6503,Soul_Protection,Spiritual Protection,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6504,Cast_Iron_Caldron,Cast-Iron Caldron,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6505,Purified_Bone,Purified Spirit Bone,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6506,Offering_Bouquet,Offering Bouquet,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6507,Evil_Bone,Evil Spirit Bone,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6509,Mysterious_Flower,Mysterious Flower,3,500,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6510,Elegant_Flower,Elegant Flower,3,300,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6511,Beautiful_Flower,Beautiful Flower,3,300,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6519,Collected_Sample,Collected Sample,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6520,Lost_Belongings,Lost Belongings,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6553,Leaf_Made_Wood,Leaf Made Wood,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6555,Birthday_Candle,Birthday Candle,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6558,Pile_Of_Acorn,Pile Of Acorn,3,1500,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6561,Dustball,Dustball,3,2000,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6593,Cryptura_Hair_Coupon,Cryptura Hair Coupon,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6615,Siege_Guild_Coin,Siege Guild Coin,3,0,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+6820,Particles_Of_Energy,Energy Fragment,3,0,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+11533,Satay,Satay,0,15,,20,,,,,0xFFFFFFFF,,,,,,,,{ itemheal rand(17,23),0; },{},{}
+11534,Coco_Juice,Coconut Juice,0,20,,50,,,,,0xFFFFFFFF,,,,,,,,{ itemheal rand(17,23),0; },{},{}
+11536,Cat_Hard_Biscuit,Cat Biscuit,0,0,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+12621,Egrade_Pocket,E Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+12633,Malang_Cat_Can,Malangdo Cat Can,2,20,,50,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+12636,Malang_Sp_Can,Malangdo Canned Specialties,2,20,,0,,,,,0xFFFFFFFF,,,,,,,,{ warp "malangdo",140,114; },{},{}
+12699,Tikbalang_Belt,Tikbalang Harness,2,20,,50,,,,,0xFFFFFFFF,,,,,,,,{ pet; },{},{}
+12700,Insideout_Shirt,Inside-out Shirt,2,20,,10,,,,,0xFFFFFFFF,,,,,,,,{ warp "malaya",242,211; },{},{}
+12775,Ancient_Spirit_Agimat,Greater Agimat of Ancient Spirit,2,20,,600,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+12848,Falcon_Pipe,Falcon Flute,11,0,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+12874,Frost_Giant_Blood,Frost Giant Blood,2,0,,100,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+12875,Golem_Stone,Golem Stone,2,0,,10,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+13066,P_Dagger3,Eden Dagger III,4,0,,0,165,,1,,0xFFFFFFFF,,,2,3,60,,,{},{},{}
+13067,Caress,Keris,4,20,,700,107,,1,1,0xFFFFFFFF,,,2,3,30,,,{ bonus2 bHPDrainRate,20,10; },{},{}
+13076,Raksasa_Dagger,Nachal Sword,4,40000,,600,120,,1,1,0xFFFFFFFF,,,2,3,99,,,{ bonus bInt,3; },{},{}
+13114,P_Revolver3,Eden Revolver III,4,0,,0,76,,7,,0xFFFFFFFF,,,34,3,60,,,{ bonus bHit,-5; },{},{}
+13313,Huuma_Swirling_Petal,Flower Huuma Shuriken,4,100000,,1500,150,,1,2,0xFFFFFFFF,,,34,3,99,,,{},{},{}
+15031,Para_Team_Armor,Paradise Uniform IV,5,0,,0,,70,,,0xFFFFFFFF,,,16,,60,,,{ bonus bMdef,5; bonus bMaxHP,500; bonus bMaxSP,50; bonus bStr,1; bonus bInt,1; bonus bDex,1; },{},{}
+15054,Ninja_Scale_Armor,Ninja Scale Armor,5,10000,,1800,,90,,1,0xFFFFFFFF,,,16,,99,,,{ bonus bMaxHPrate,15; bonus bMaxSPrate,-30; },{},{}
+15055,Tenebris_Latitantes,Tenebris Latitantes,5,10000,,1500,,60,,1,0xFFFFFFFF,,,16,,99,,,{},{},{}
+15056,Special_Ninja_Suit_,Special Ninja Suit,5,10000,,1200,,70,,1,0xFFFFFFFF,,,16,,99,,,{ bonus bAgi,1+(getrefine()/3); },{},{}
+18106,P_Bow3,Eden Bow III,4,0,,0,140,,5,,0xFFFFFFFF,,,34,3,60,,,{},{},{}
+18514,Para_Team_Hat2,Eden Team Hat II,5,0,,0,,5,,1,0xFFFFFFFF,,,256,,60,,682,{},{},{}
+18520,Jaty_C,Jaty Crown,5,20,,100,,1,,,0xFFFFFFFF,,,256,,1,,686,{},{},{}
+18755,Feather_Beret_,Feather Beret,5,0,,600,,1,,1,0xFFFFFFFF,,,256,,1,,224,{},{},{}
+19585,C_Feather_Beret,Costume Feather Beret,5,0,,0,,,,,0xFFFFFFFF,,,,,1,,224,{},{},{}
+19619,C_Corsair,Costume Corsair,5,0,,0,,,,,0xFFFFFFFF,,,,,,,105,{ bonus bVit,1; },{},{}
+22508,Para_Team_Mark_,Eden Group Mark,3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+22980,InfinityD_ReturnScroll,Return of Infinite Dungeon,2,0,,10,,,,,0xFFFFFFFF,,,,,,,,{ warp "cmd_fild07",83,270; },{},{}
+26101,P_Foxtail3,Eden Group Foxtail Staff III,4,20,,0,150,,1,,0xFFFFFFFF,,,2,3,60,,,{ bonus bDex,5; bonus bInt,5; bonus bLongAtkRate,7; },{},{}
+100072,WL_MB_CL,Spell Book(Chain Lightning),3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+100073,WL_MB_CM,Spell Book(Comet),3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+100074,WL_MB_TV,Spell Book(Tetra Vortex),3,0,,0,,,,,0xFFFFFFFF,,,,,,,,{},{},{}
+// ===== end renewal script-items =====

@@ -1,0 +1,19 @@
+# Dropped renewal script-item scripts (manual port). id<TAB>aegis<TAB>orig
+2172	Wolf_Armguard	autobonus "{ bonus bBaseAtk,100; bonus bFlee,-50; }",20,5000,BF_WEAPON,"{ specialeffect2 EF_TEIHIT1; }";
+2951	Kvasir_Ring_Blue	bonus bMaxSP,30; skill "ECL_SNOWFLIP",1;
+11536	Cat_Hard_Biscuit	itemheal rand(70,110),0; callfunc "F_Cat_Hard_Biscuit";
+12621	Egrade_Pocket	getgroupitem(IG_Egrade_Pocket);
+12633	Malang_Cat_Can	specialeffect2 EF_MAGICALATTHIT; bonus_script "{ bonus2 bExpAddRace,RC_All,10; bonus2 bDropAddRace,RC_All,20; }",1200,1,0,EFST_OVERLAPEXPUP;
+12775	Ancient_Spirit_Agimat	specialeffect2 EF_PROVIDENCE; bonus_script "{ bonus2 bAddRace,RC_Demon,10; bonus2 bMagicAddRace,RC_Demon,10; }",1200;
+12848	Falcon_Pipe	if (getskilllv("HT_FALCON")) { if (!checkoption(Option_Wug) && !checkoption(Option_Wugrider)) setfalcon (!checkfalcon()); }
+12874	Frost_Giant_Blood	specialeffect2 EF_POTION_CON; sc_start4 SC_GVG_GIANT,10000,3000,0,100,100;
+12875	Golem_Stone	specialeffect2 EF_POTION_CON; sc_start4 SC_GVG_GOLEM,10000,0,200,50,50;
+13313	Huuma_Swirling_Petal	bonus2 bSkillAtk,"KO_HUUMARANKA",20;
+15055	Tenebris_Latitantes	bonus bAgi,1; bonus4 bAutoSpellWhenHit,"KO_ZANZOU",1,50,1;
+18514	Para_Team_Hat2	autobonus "{ bonus bBaseAtk,10; }",70,5000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; autobonus "{ bonus bMatk,10; }",50,5000,BF_MAGIC,"{ specialeffect2 EF_SPELLBREAKER; }";
+18520	Jaty_C	bonus2 bSubRace,RC_Plant,5; bonus2 bSubRace,RC_Brute,5; bonus2 bSubRace,RC_Player_Doram,5; bonus2 bAddRace,RC_Plant,5; bonus2 bAddRace,RC_Brute,5; bonus2 bAddRace,RC_Player_Doram,5;
+18755	Feather_Beret_	bonus bMdef,1; bonus2 bSubRace,RC_DemiHuman,10; bonus2 bSubRace,RC_Player_Human,10;
+22508	Para_Team_Mark_	NoConsume -> etc item, script dropped: warp "moc_para01",171,115;
+100072	WL_MB_CL	NoConsume -> etc item, script dropped: itemskill "WL_READING_SB_READING",8;
+100073	WL_MB_CM	NoConsume -> etc item, script dropped: itemskill "WL_READING_SB_READING",9;
+100074	WL_MB_TV	NoConsume -> etc item, script dropped: itemskill "WL_READING_SB_READING",10;

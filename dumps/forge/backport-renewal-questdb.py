@@ -37,7 +37,9 @@ def mob_aegis2id():
 
 def ua_quest_ids():
     ids = set()
-    for ln in rd(os.path.join(UA, "db", "quest_db.txt")).splitlines():
+    # the base rows only: emit() rewrites the GENERATED block, so the ids already in it must come out again
+    base = re.sub(re.escape(GEN_HDR) + r".*?" + re.escape(GEN_END), "", rd(os.path.join(UA, "db", "quest_db.txt")), flags=re.S)
+    for ln in base.splitlines():
         mm = re.match(r'\s*(\d+),', ln)
         if mm and not ln.lstrip().startswith("//"):
             ids.add(int(mm.group(1)))
@@ -57,6 +59,19 @@ def used_quest_ids():
         for mm in re.finditer(r'\b(?:setquest|completequest|checkquest|erasequest|getquest'
                               r'|isbegin_quest|questprogress)\s*[ (]\s*(\d+)', ra_show(f)):
             ids.add(int(mm.group(1)))
+    # 2026-11-25: also every quest the generated npc/backport scripts use (cities, merchants, Eden...), not only
+    # npc/re/quests -- prod logged "quest_add: quest 5091 not found in DB" from re_cities/malangdo.txt.
+    for root, _, files in os.walk(os.path.join(UA, "npc", "backport")):
+        for fn in files:
+            if not fn.endswith(".txt"):
+                continue
+            for ln in rd(os.path.join(root, fn)).splitlines():
+                code = ln.split("//")[0]
+                for mm in re.finditer(r'\b(setquest|completequest|checkquest|erasequest|changequest|getquest'
+                                      r'|isbegin_quest|questprogress)\s*[ (]\s*(\d+)(?:\s*,\s*(\d+))?', code):
+                    ids.add(int(mm.group(2)))
+                    if mm.group(1) == "changequest" and mm.group(3):
+                        ids.add(int(mm.group(3)))
     return ids
 
 def parse_questdb_yml(missing):
