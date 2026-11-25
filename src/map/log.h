@@ -57,4 +57,9 @@ extern struct Log_Config {
 	char log_branch_db[32], log_pick_db[32], log_zeny_db[32], log_mvpdrop_db[32], log_gm_db[32], log_npc_db[32], log_chat_db[32];
 } log_config;
 
+// S. 2026-11-25: the zeny log (log_zeny > 0) goes to SQL by itself, even with sql_logs: 0 -- the other logs
+// keep writing where they did. The log DB connection is opened when either of them needs it.
+#define log_zeny_sql() (log_config.enable_logs && log_config.zeny > 0)
+#define log_sql_used() (log_config.sql_logs > 0 || log_zeny_sql())
+
 #endif /* _LOG_H_ */

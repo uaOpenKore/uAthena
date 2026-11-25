@@ -135,7 +135,7 @@ int log_zeny(struct map_session_data *sd, char *type, struct map_session_data *s
 		return 0;
 
 	nullpo_retr(0, sd);
-	if(log_config.sql_logs > 0)
+	if(log_sql_used()) // written to SQL even with sql_logs: 0 [S. 2026-11-25]
 	{
 		sprintf(tmp_sql, "INSERT INTO `%s` (`time`, `char_id`, `src_id`, `type`, `amount`, `map`) VALUES (NOW(), '%d', '%d', '%s', '%d', '%s')",
 			 log_config.log_zeny_db, sd->status.char_id, src_sd->status.char_id, type, amount, mapindex_id2name(sd->mapindex));
