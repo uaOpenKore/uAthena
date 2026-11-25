@@ -986,6 +986,8 @@ int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y)
 			f=0;
 			continue;
 		}
+		if (map[m].npc[i]->renewal && !sd->state.renewal_npc) // [rnpc] hidden from this client: no touch either
+			continue;
 
 		switch(map[m].npc[i]->bl.subtype) {
 		case WARP:
@@ -1702,6 +1704,7 @@ int npc_parse_warp(char* w1, char* w2, char* w3, char* w4)
 
 	nd->bl.id = npc_get_new_npc_id();
 	nd->n = map_addnpc(m, nd);
+	nd->renewal = (current_file && strstr(current_file, "backport") != NULL); // [rnpc]
 	nd->bl.prev = nd->bl.next = NULL;
 	nd->bl.m = m;
 	nd->bl.x = x;
@@ -1825,6 +1828,7 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 	nd->bl.subtype = SHOP;
 	if (m >= 0) {
 		nd->n = map_addnpc(m,nd);
+		nd->renewal = (current_file && strstr(current_file, "backport") != NULL); // [rnpc]
 		map_addblock(&nd->bl);
 		status_set_viewdata(&nd->bl, nd->class_);
 		status_change_init(&nd->bl);
@@ -2131,6 +2135,7 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 		nd->eventtimer[i] = -1;
 	if (m >= 0) {
 		nd->n = map_addnpc(m, nd);
+		nd->renewal = (current_file && strstr(current_file, "backport") != NULL); // [rnpc]
 		status_change_init(&nd->bl);
 		unit_dataset(&nd->bl);
 		nd->ud.dir = dir;
