@@ -3449,13 +3449,52 @@ int map_sql_close(void)
 	mysql_close(&mmysql_handle);
 	ShowStatus("Close Map DB Connection....\n");
 
-	if (log_config.sql_logs)
+	if (log_sql_used())
 	{
 		mysql_close(&logmysql_handle);
 		ShowStatus("Close Log DB Connection....\n");
 	}
 
 	return 0;
+}
+
+/*==========================================
+ * The zeny log table: create it when it is missing, and add the 'B' (buying store) type that the old
+ * logs.sql enum lacks -- buyingstore.c logs "B" and such rows would fail. [S. 2026-11-25]
+ *------------------------------------------*/
+static void log_zeny_table_check(void)
+{
+	MYSQL_RES* res;
+	MYSQL_ROW row;
+
+	sprintf(tmp_sql, "CREATE TABLE IF NOT EXISTS `%s` ("
+		"`id` int(11) unsigned NOT NULL auto_increment,"
+		"`time` datetime NOT NULL default '2000-01-01 00:00:00',"
+		"`char_id` int(11) NOT NULL default '0',"
+		"`src_id` int(11) NOT NULL default '0',"
+		"`type` enum('M','T','V','S','N','A','B') NOT NULL default 'S',"
+		"`amount` int(11) NOT NULL default '0',"
+		"`map` varchar(11) NOT NULL default '',"
+		"PRIMARY KEY (`id`), INDEX (`type`), INDEX (`time`), INDEX (`char_id`)"
+		") ENGINE=MyISAM", log_config.log_zeny_db);
+	if (mysql_query(&logmysql_handle, tmp_sql)) {
+		ShowSQL("DB error - %s\n", mysql_error(&logmysql_handle));
+		return;
+	}
+	sprintf(tmp_sql, "SHOW COLUMNS FROM `%s` LIKE 'type'", log_config.log_zeny_db);
+	if (mysql_query(&logmysql_handle, tmp_sql) || (res = mysql_store_result(&logmysql_handle)) == NULL) {
+		ShowSQL("DB error - %s\n", mysql_error(&logmysql_handle));
+		return;
+	}
+	row = mysql_fetch_row(res);
+	if (row && row[1] && strstr(row[1], "'B'") == NULL) {
+		sprintf(tmp_sql, "ALTER TABLE `%s` MODIFY `type` enum('M','T','V','S','N','A','B') NOT NULL default 'S'", log_config.log_zeny_db);
+		if (mysql_query(&logmysql_handle, tmp_sql))
+			ShowSQL("DB error - %s\n", mysql_error(&logmysql_handle));
+		else
+			ShowStatus("Zeny log table '%s': added the 'B' (buying store) type.\n", log_config.log_zeny_db);
+	}
+	mysql_free_result(res);
 }
 
 int log_sql_init(void)
@@ -3469,7 +3508,12 @@ int log_sql_init(void)
 		log_db ,log_db_port, (char *)NULL, 0)) {
 			//pointer check
 			ShowSQL("DB error - %s\n",mysql_error(&logmysql_handle));
-			exit(1);
+			if (log_config.sql_logs > 0)
+				exit(1);
+			// only the zeny log wanted the log DB: run without it rather than refuse to start
+			ShowError("Log DB '%s' is not reachable: the zeny log (log_zeny) is turned off.\n", log_db);
+			log_config.zeny = 0;
+			return 0;
 	}
   
 	ShowStatus(""CL_WHITE"[SQL]"CL_RESET": Successfully '"CL_GREEN"connected"CL_RESET"' to Database '"CL_WHITE"%s"CL_RESET"'.\n", log_db);
@@ -3480,6 +3524,8 @@ int log_sql_init(void)
 			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
 		}
 	}
+	if (log_zeny_sql())
+		log_zeny_table_check();
 	return 0;
 }
 
@@ -3490,7 +3536,7 @@ int map_sql_ping(int tid, t_tick tick, intptr_t id, intptr_t data)
 {
 	ShowInfo("Pinging SQL server to keep connection alive...\n");
 	mysql_ping(&mmysql_handle);
-	if (log_config.sql_logs)
+	if (log_sql_used())
 		mysql_ping(&logmysql_handle);
 	if(mail_server_enable)
 		mysql_ping(&mail_handle);
@@ -3890,9 +3936,10 @@ int do_init(int argc, char *argv[])
 		do_init_mail();
 
 #ifndef TXT_ONLY
-	if (log_config.sql_logs) {
+	if (log_sql_used()) {
 		log_sql_init();
-		log_async_init();
+		if (log_sql_used()) // still on: the zeny-only connection may have failed
+			log_async_init();
 	}
 
 	sql_ping_init();
