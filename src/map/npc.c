@@ -969,6 +969,23 @@ int npc_command(struct map_session_data* sd, const char* npcname, const char* co
 	return 0;
 }
 /*==========================================
+ * [rnpc] An NPC hidden from the old client (S. 2026-11-26: "only the Renewal ones, not all"): from npc/backport
+ * and its sprite is one uaRO.exe cannot draw, even through its db/npc_sprite_db.txt stand-in. Ports of classic
+ * quests (npc/backport/quests: Umbala's #Skulldoor, Utan Shaman, ...) keep classic sprites and stay for everyone.
+ * The old client draws: no sprite (-1), job sprites, NPC sprites 45-125, 139 and 700-957, the classic monsters
+ * (1001-1700), the transcendent jobs (4001-4049) and the invisible class.
+ *------------------------------------------*/
+static bool npc_renewal_only(int class_)
+{
+	int c;
+	if (!current_file || strstr(current_file, "backport") == NULL)
+		return false;
+	c = npc_sprite_for_oldclient(class_);
+	return !(c < 0 || c <= 125 || c == 139 || (c >= 700 && c <= 957) || (c >= 1001 && c <= 1700)
+		|| (c >= 4001 && c <= 4049) || c == INVISIBLE_CLASS);
+}
+
+/*==========================================
  * G^NPC
  *------------------------------------------*/
 int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y)
@@ -1706,7 +1723,7 @@ int npc_parse_warp(char* w1, char* w2, char* w3, char* w4)
 
 	nd->bl.id = npc_get_new_npc_id();
 	nd->n = map_addnpc(m, nd);
-	nd->renewal = (current_file && strstr(current_file, "backport") != NULL); // [rnpc]
+	nd->renewal = 0; // [rnpc] a warp is drawn by every client (S. 26.11: only Renewal-sprite NPCs are hidden)
 	nd->bl.prev = nd->bl.next = NULL;
 	nd->bl.m = m;
 	nd->bl.x = x;
@@ -1835,7 +1852,7 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 	nd->bl.subtype = SHOP;
 	if (m >= 0) {
 		nd->n = map_addnpc(m,nd);
-		nd->renewal = (current_file && strstr(current_file, "backport") != NULL); // [rnpc]
+		nd->renewal = npc_renewal_only(nd->class_); // [rnpc]
 		map_addblock(&nd->bl);
 		status_set_viewdata(&nd->bl, nd->class_);
 		status_change_init(&nd->bl);
@@ -2142,7 +2159,7 @@ static int npc_parse_script(char* w1, char* w2, char* w3, char* w4, char* first_
 		nd->eventtimer[i] = -1;
 	if (m >= 0) {
 		nd->n = map_addnpc(m, nd);
-		nd->renewal = (current_file && strstr(current_file, "backport") != NULL); // [rnpc]
+		nd->renewal = npc_renewal_only(nd->class_); // [rnpc]
 		status_change_init(&nd->bl);
 		unit_dataset(&nd->bl);
 		nd->ud.dir = dir;
