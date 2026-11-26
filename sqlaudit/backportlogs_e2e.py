@@ -3,7 +3,7 @@
 Prod 26.11: 2056 x "npc_touch_areanpc : some bug" -- the cell is an NPC cell, but the NPC is hidden from the old
 client ([rnpc], 2efea4b9), so the search found nothing and reported it as a bug. On the isolated SQL stand:
  1 the old client's char walks onto ein_fild01 28,261 (npc/backport warp cave_in1): map.out has no "some bug"
- 2 it is not warped by the hidden NPC (still on its cell after the login)
+ 2 S. 26.11: only Renewal-sprite NPCs are hidden, a warp is not -- so the old client is warped by it
 Prod 26.11: backport shops (Extended_Ammunition, pet_groomer) listed items with ids above 32767, which the item db
 now leaves out: "Item UNKNOWN_ITEM [1000291] buying price (0) ...", a dummy entry in the shop.
  3 at the start no shop holds an UNKNOWN_ITEM; the left-out items are reported instead"""
@@ -53,9 +53,9 @@ try:
     s.map_sock.sendall(struct.pack("<H", 0xA7) + bytes(3) + bytes([(x >> 2) & 0xFF, ((x << 6) | ((y >> 4) & 0x3F)) & 0xFF, (y << 4) & 0xFF]))
     pk = list(st.packets(4))
     out = since("map.out", mm)
-    check("1 no 'some bug' for the hidden Renewal warp", "npc_touch_areanpc : some bug" not in out,
+    check("1 no 'some bug' on the backport warp", "npc_touch_areanpc : some bug" not in out,
           out.count("npc_touch_areanpc : some bug"))
-    check("2 no map change by the hidden warp", not any(pid in (0x91, 0x92) for pid, _ in pk), [hex(p) for p, _ in pk][:20])
+    check("2 the backport warp works for the old client (map change)", any(pid in (0x91, 0x92) for pid, _ in pk), [hex(p) for p, _ in pk][:20])
     check("3 no UNKNOWN_ITEM in the shops, the left-out items reported", "UNKNOWN_ITEM" not in boot
           and "left out of the shop" in boot, [l for l in boot.splitlines() if "UNKNOWN_ITEM" in l][:2])
     try: s.quit_game(wait=2)

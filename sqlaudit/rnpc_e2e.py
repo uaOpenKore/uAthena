@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""rnpc_e2e.py <run dir>: NPCs loaded from npc/backport (Renewal) are not shown to an old client (S. 2026-11-25:
-"old clients crash, the Renewal NPCs are suspected"); BornRok (its marked map login) still sees them.
-Two characters stand in prt_in by the Tool Dealer (npc/merchants, classic) and the Trap Specialist (npc/backport):
- 1 the old client sees the Tool Dealer, not the Trap Specialist
- 2 BornRok sees both"""
+"""rnpc_e2e.py <run dir>: NPCs with a Renewal sprite the old client cannot draw are not shown to it (S. 2026-11-25:
+"old clients crash, the Renewal NPCs are suspected"); BornRok (its marked map login) still sees them. S. 2026-11-26:
+"only the Renewal ones, not all" -- npc/backport also holds ports of classic quests (Umbala's #Skulldoor) and
+classic-sprite NPCs, which every client must see.
+ 1 prt_in: the old client sees the Tool Dealer (npc/merchants) and the Trap Specialist (npc/backport, sprite 66)
+ 2 BornRok sees both
+ 3 umbala: the old client sees #Skulldoor (npc/backport/quests, sprite 111) at 221,193
+ 4 nameless_in: the old client does not see Creature#Aru (sprite 1864, no stand-in) at 13,53, BornRok does"""
 import os, struct, subprocess, sys, time, socket
 SCR = "/tmp/claude-0/-root-uaroClient/f1b47459-6a36-42ec-9fb0-528e8a9c2531/scratchpad"
 sys.path.insert(0, SCR + "/c1/e2e")
@@ -16,7 +19,7 @@ def sql(q): return subprocess.run(MYSQL + [q], stdout=subprocess.PIPE, stderr=su
 ok = True
 def check(n, c, d=""):
     global ok
-    print("%s  %s%s" % ("ok  " if c else "FAIL", n, ("  [%s]" % d) if d and not c else ""), flush=True); ok = ok and c
+    print("%s  %s%s" % ("ok  " if c else "FAIL", n, ("  [%s]" % (d,)) if d and not c else ""), flush=True); ok = ok and c
 def srv(a): subprocess.run([os.path.join(SP, "srv.sh"), a, run], stdout=subprocess.DEVNULL)
 L = load_lengths()
 UNIT = (0x78, 0x7c, 0x22a, 0x22b, 0x22c, 0x1d7, 0x1d8, 0x1d9, 0x1da, 0x2ee, 0x2ef)
@@ -55,14 +58,27 @@ try:
             from e2elib import enter_map
             s = enter_map(u, "rnpcpw1", n, log=lambda *a: None); s.quit_game(wait=2); time.sleep(3)
     srv("stop")
-    for u, n in USERS:
-        sql("UPDATE `char` SET last_map='prt_in', last_x=122, last_y=79 WHERE name='%s'" % n)
-    srv("start"); time.sleep(5)
-    so, old = enter("rnpcold", "RnpcOld", False)
-    sb, brk = enter("rnpcbrk", "RnpcBrk", True)
+    def place(m, x, y):
+        srv("stop")
+        for u, n in USERS:
+            sql("UPDATE `char` SET last_map='%s', last_x=%d, last_y=%d WHERE name='%s'" % (m, x, y, n))
+        srv("start"); time.sleep(5)
+        so, old = enter("rnpcold", "RnpcOld", False)
+        sb, brk = enter("rnpcbrk", "RnpcBrk", True)
+        for s in (so, sb):
+            try: s.quit_game(wait=1)
+            except Exception: pass
+        time.sleep(2)
+        return old, brk
+    old, brk = place("prt_in", 122, 79)
     TOOL, BAG = (126, 76), (109, 68)  # npc/merchants/shops.txt Tool Dealer, npc/backport/re_merchants/shops.txt Trap Specialist
-    check("1 the old client sees the Tool Dealer but not the Trap Specialist (backport)", TOOL in old and BAG not in old, sorted(old))
+    check("1 the old client sees the Tool Dealer and the Trap Specialist (backport, classic sprite)", TOOL in old and BAG in old, sorted(old))
     check("2 BornRok sees both", TOOL in brk and BAG in brk, sorted(brk))
+    old, brk = place("umbala", 218, 193)
+    check("3 the old client sees #Skulldoor (backport quest, sprite 111)", (221, 193) in old, sorted(old))
+    old, brk = place("nameless_in", 12, 53)
+    check("4 Creature#Aru (sprite 1864): hidden from the old client, BornRok sees it", (13, 53) not in old and (13, 53) in brk,
+          (sorted(old), sorted(brk)))
 finally:
     srv("stop")
 print("ALL PASSED" if ok else "FAILED")
