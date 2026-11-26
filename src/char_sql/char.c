@@ -5081,7 +5081,6 @@ void do_final(void)
 	// a last try for character saves that failed (each failure is logged); needs the item db, so before it goes
 	char_pending_db->foreach(char_pending_db, char_pending_final_sub);
 	char_pending_db->destroy(char_pending_db, NULL);
-	do_final_itemdb();
 	//check SQL save progress.
 	//wait until save char complete
 
@@ -5089,6 +5088,9 @@ void do_final(void)
 	set_all_offline_sql();
 
 	inter_final();
+	// after inter_final: its last try of the failed storage saves needs the item db too (prod 26.11: SIGSEGV here,
+	// the item db was freed first and storage_tosql -> itemdb_isequip used it)
+	do_final_itemdb();
 
 	flush_fifos();
 
