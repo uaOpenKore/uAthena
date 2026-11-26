@@ -986,8 +986,10 @@ int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y)
 			f=0;
 			continue;
 		}
-		if (map[m].npc[i]->renewal && !sd->state.renewal_npc) // [rnpc] hidden from this client: no touch either
+		if (map[m].npc[i]->renewal && !sd->state.renewal_npc) { // [rnpc] hidden from this client: no touch either
+			f=0; // nothing found here is expected, not "some bug" (prod 26.11: 2056 of them)
 			continue;
+		}
 
 		switch(map[m].npc[i]->bl.subtype) {
 		case WARP:
@@ -1776,6 +1778,11 @@ static int npc_parse_shop(char* w1, char* w2, char* w3, char* w4)
 		p++;
 		if (sscanf(p, "%d:%d", &nameid, &value) != 2)
 			break;
+		if (!itemdb_exists(nameid)) { // not in the item db (an id above 32767 is left out, prod 26.11): not sold
+			ShowWarning("npc_parse_shop: item %d is not in the item db, left out of the shop '%s' (%s)\n", nameid, w3, current_file);
+			p = strchr(p, ',');
+			continue;
+		}
 		nd->u.shop_item[pos].nameid = nameid;
 		id = itemdb_search(nameid);
 		if (value < 0)
