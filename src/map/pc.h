@@ -125,6 +125,8 @@ void pc_playlimit_setdate(int date);
 int pc_playlimit_describe(struct map_session_data* sd, char* out, size_t size);
 int pc_playlimit_buy(struct map_session_data* sd, int minutes, char* out, size_t size);
 int pc_playlimit_autopay(struct map_session_data* sd, const char* arg, char* out, size_t size);
+bool pc_autoloot_free(struct map_session_data* sd);
+int pc_autoloot_paid(struct map_session_data* sd, const char* arg, char* out, size_t size);
 int pc_getrefinebonus(int lv,int type);
 int pc_can_give_items(int level); //[Lupus]
 

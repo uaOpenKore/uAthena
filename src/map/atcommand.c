@@ -585,7 +585,7 @@ static AtCommandInfo atcommand_info[] = {
 	{ AtCommand_UndisguiseAll,      "@undisguiseall",   99, atcommand_undisguiseall },
 	{ AtCommand_DisguiseAll,        "@disguiseall",     99, atcommand_disguiseall },
 	{ AtCommand_ChangeLook,         "@changelook",      60, atcommand_changelook },
-	{ AtCommand_AutoLoot,           "@autoloot",        10, atcommand_autoloot }, // Upa-Kun
+	{ AtCommand_AutoLoot,           "@autoloot",         0, atcommand_autoloot }, // Upa-Kun; [autoloot] paid below autoloot_free_gm_level
 	{ AtCommand_MobInfo,            "@mobinfo",          1, atcommand_mobinfo }, // [Lupus]
 	{ AtCommand_MobInfo,            "@monsterinfo",      1, atcommand_mobinfo }, // [Lupus]
 	{ AtCommand_MobInfo,            "@mi",               1, atcommand_mobinfo }, // [Lupus]
@@ -7546,14 +7546,24 @@ int atcommand_autoloot(const int fd, struct map_session_data* sd, const char* co
 	int rate;
 	double drate;
 	nullpo_retr(-1, sd);
-	// autoloot command without value
-	if(!message || !*message)
-	{
+	if (!pc_autoloot_free(sd)) { // [autoloot] players pay for it in zeny, like @autopay (S. 2026-11-26)
+		pc_autoloot_paid(sd, message, atcmd_output, sizeof(atcmd_output));
+		clif_displaymessage(fd, atcmd_output);
+		return 0;
+	}
+	// without a value: the state (S. 2026-11-26), as for the players who pay
+	if (!message || !*message || strcmpi(message, "status") == 0) {
 		if (sd->state.autoloot)
-			rate = 0;
+			snprintf(atcmd_output, sizeof atcmd_output, "Autoloot is on: items with drop rates of %0.02f%% and below, free for your account. Usage: @autoloot on|off|<drop rate %%>",
+				sd->state.autoloot / 100.);
 		else
-			rate = 10000;
-	} else {
+			snprintf(atcmd_output, sizeof atcmd_output, "Autoloot is off (free for your account). Usage: @autoloot on|off|<drop rate %%>");
+		clif_displaymessage(fd, atcmd_output);
+		return 0;
+	}
+	if (strcmpi(message, "on") == 0 || strcmpi(message, "off") == 0)
+		rate = strcmpi(message, "on") == 0 ? 10000 : 0;
+	else {
 		drate = atof(message);
 		rate = (int)(drate*100);
 	}
