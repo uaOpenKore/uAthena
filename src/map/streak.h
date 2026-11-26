@@ -1,6 +1,6 @@
 // Copyright (c) uAthena / bornrok.com
 // «Натиск» weapon streak (S. 2026-11-17). Every weapon hit a player lands on the same monster adds a step to the
-// base attack (+25% each: 100, 125, 150 ... up to the cap, 700% by default); a miss takes one step back; another
+// base attack (+15% each: 100, 115, 130 ... up to the cap, 200% by default); a miss takes one step back; another
 // monster - or the same id after a respawn - restarts the streak; a weapon skill the player uses spends it (that
 // skill's hits on the streak monster get the steps, then the streak restarts at 0). Pure rules only, so
 // test_streak.c needs nothing else; battle.c / skill.c / pc.c apply them.

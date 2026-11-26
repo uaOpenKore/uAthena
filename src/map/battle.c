@@ -4315,8 +4315,8 @@ void battle_set_defaults()
 	battle_config.element_mark_emotion = 0;
 	// [streak] «Натиск» on by default (S. asked for it): +25% base attack per step, capped at 700% (S.)
 	battle_config.weapon_streak = 1;
-	battle_config.weapon_streak_step = 25;
-	battle_config.weapon_streak_max = 700;
+	battle_config.weapon_streak_step = 15; // S. 2026-11-26 (was 25)
+	battle_config.weapon_streak_max = 200; // S. 2026-11-26 (was 700)
 	battle_config.pad_metric = 1; // [padmetric] on: S. wants the data to test the bot-fingerprint idea
 	battle_config.recv_parse_shortlist = 1; // [perf] default on = parse only fds with new data
 	battle_config.packet_flood_limit = 200; // [flood]
