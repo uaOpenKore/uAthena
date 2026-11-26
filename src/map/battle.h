@@ -408,6 +408,8 @@ extern struct Battle_Config {
 	int playtime_buy_bot_percent; // [playlimit] the price for a client that is not a game client (OpenKore), in % (150)
 	int playtime_kick_block_after; // [playlimit] an account kicked this many times for the limit (since the start) ...
 	int playtime_kick_block_minutes; // [playlimit] ... is refused at the login-server for this long (in memory; 0 = off)
+	int autoloot_price_hour_bp; // [autoloot] @autoloot for players: an hour costs this many hundredths of a % of the zeny carried (0 = not for sale)
+	int autoloot_free_gm_level; // [autoloot] accounts of this GM level and above use @autoloot free
 	int socket_send_coalesce_ms; // [perf] map-only send-coalescing window in ms; <=0 = off, >0 = flush window (int: lives in battle_data_int[])
 	int socket_sndbuf_size; // [perf] SO_SNDBUF bytes per socket; 0 = kernel default (int: lives in battle_data_int[])
 	unsigned short hom_setting; //Configures various homunc settings which make them behave unlike normal characters.. [Skotlex]

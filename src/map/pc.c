@@ -448,20 +448,118 @@ static bool pc_playlimit_is_bot(struct map_session_data* sd)
 	return online < TICKRATE_MIN_ONLINE_MS && clif_okore_walk_pad(sd);
 }
 
-static int pc_playlimit_price(struct map_session_data* sd)
+// The zeny a minute costs at hour_bp hundredths of a % of the wallet an hour (@autopay, @buyplaytime, @autoloot).
+static int pc_zeny_minute_price(struct map_session_data* sd, int hour_bp)
 {
 	int64 price;
-	if (battle_config.playtime_price_hour_bp <= 0)
+	if (hour_bp <= 0)
 		return 0;
-	// S. 2026-11-23: a soft, dynamic price -- an hour costs playtime_price_hour_bp hundredths of a percent of the
+	// S. 2026-11-23: a soft, dynamic price -- an hour costs hour_bp hundredths of a percent of the
 	// zeny the character carries now (100 = 1 %), a minute 1/60 of that, at least 1 zeny; read again every minute
 	// (@autopay) and on every purchase. Zeny elsewhere (mail, other characters) does not count.
-	price = (int64)sd->status.zeny * battle_config.playtime_price_hour_bp / 600000;
+	price = (int64)sd->status.zeny * hour_bp / 600000;
 	if (price < 1)
 		price = 1;
 	if (battle_config.playtime_buy_bot_percent > 0 && battle_config.playtime_buy_bot_percent != 100 && pc_playlimit_is_bot(sd))
 		price = price * battle_config.playtime_buy_bot_percent / 100;
 	return price > INT_MAX ? INT_MAX : (int)price;
+}
+
+static int pc_playlimit_price(struct map_session_data* sd)
+{
+	return pc_zeny_minute_price(sd, battle_config.playtime_price_hour_bp);
+}
+
+/*==========================================
+ * [autoloot] @autoloot for players, paid like @autopay (S. 2026-11-26): every minute with it on costs
+ * pc_zeny_minute_price(autoloot_price_hour_bp), paid ahead when the minute starts -- so switching it off and on
+ * does not dodge it. Account regs: AUTOLOOT = the rate (it stays on over a relog), AUTOLOOT_UNTIL = the unix time
+ * the paid minute ends. No charge while offline or in autotrade.
+ *------------------------------------------*/
+bool pc_autoloot_free(struct map_session_data* sd)
+{
+	return battle_config.item_auto_get || pc_isGM(sd) >= battle_config.autoloot_free_gm_level;
+}
+
+static void pc_autoloot_log(struct map_session_data* sd, bool force)
+{
+	if (sd->autoloot_paid <= 0)
+		return;
+	if (!force && DIFF_TICK(gettick(), sd->autoloot_log_tick) < 600000)
+		return;
+	if (log_config.zeny > 0)
+		log_zeny(sd, "N", sd, -sd->autoloot_paid);
+	sd->autoloot_paid = 0;
+	sd->autoloot_log_tick = gettick();
+}
+
+static void pc_autoloot_stop(struct map_session_data* sd)
+{
+	sd->state.autoloot = 0;
+	pc_setglobalreg(sd, "AUTOLOOT", 0);
+	pc_autoloot_log(sd, true);
+}
+
+// Pay the minute that starts now unless it is paid already. false = not enough zeny: autoloot is turned off.
+// Called on @autoloot, at the login and every minute (pc_playlimit_timer).
+static bool pc_autoloot_charge(struct map_session_data* sd)
+{
+	int price, now = (int)time(NULL);
+	if (!sd->state.autoloot || sd->state.autotrade || pc_autoloot_free(sd))
+		return true;
+	if (now + 5 < pc_readglobalreg(sd, "AUTOLOOT_UNTIL")) // paid (5 s slack for the minute timer's phase)
+		return true;
+	price = pc_zeny_minute_price(sd, battle_config.autoloot_price_hour_bp);
+	if (price <= 0 || price > sd->status.zeny) {
+		pc_autoloot_stop(sd);
+		if (sd->fd)
+			clif_displaymessage(sd->fd, price <= 0 ? "Autoloot is off: it is not for sale on this server."
+				: "Autoloot is off: not enough zeny for the next minute.");
+		ShowInfo("[AUTOLOOT] off (no zeny) aid=%d cid=%d name='%s' price=%d\n", sd->status.account_id, sd->status.char_id, sd->status.name, price);
+		return false;
+	}
+	pc_payzeny(sd, price);
+	sd->autoloot_paid += price;
+	pc_setglobalreg(sd, "AUTOLOOT_UNTIL", now + 60);
+	pc_autoloot_log(sd, false);
+	return true;
+}
+
+// @autoloot on|off|<drop rate %> for an account that pays (S. 2026-11-26: "@autoloot on|off", like @autopay);
+// without an argument it tells the state and the price.
+int pc_autoloot_paid(struct map_session_data* sd, const char* arg, char* out, size_t size)
+{
+	int price = pc_zeny_minute_price(sd, battle_config.autoloot_price_hour_bp), rate;
+	if (price <= 0)
+		return snprintf(out, size, "Autoloot is not for sale on this server.");
+	if (!arg || !*arg || strcmpi(arg, "status") == 0) {
+		if (sd->state.autoloot)
+			return snprintf(out, size, "Autoloot is on: items with drop rates of %0.02f%% and below, %d zeny a minute. Usage: @autoloot on|off|<drop rate %%>",
+				sd->state.autoloot / 100., price);
+		return snprintf(out, size, "Autoloot is off (%d zeny a minute). Usage: @autoloot on|off|<drop rate %%>", price);
+	}
+	if (strcmpi(arg, "on") == 0)
+		rate = 10000;
+	else if (strcmpi(arg, "off") == 0)
+		rate = 0;
+	else
+		rate = (int)(atof(arg) * 100);
+	rate = cap_value(rate, 0, 10000);
+	if (rate == 0) {
+		if (sd->state.autoloot)
+			ShowInfo("[AUTOLOOT] off aid=%d cid=%d name='%s'\n", sd->status.account_id, sd->status.char_id, sd->status.name);
+		pc_autoloot_stop(sd);
+		return snprintf(out, size, "Autoloot is now off.");
+	}
+	if (!sd->state.autoloot)
+		sd->autoloot_log_tick = gettick();
+	sd->state.autoloot = rate;
+	if (!pc_autoloot_charge(sd))
+		return snprintf(out, size, "Not enough zeny: autoloot costs %d zeny a minute.", price);
+	pc_setglobalreg(sd, "AUTOLOOT", rate);
+	ShowInfo("[AUTOLOOT] on aid=%d cid=%d name='%s' rate=%d price=%d\n", sd->status.account_id, sd->status.char_id, sd->status.name, rate, price);
+	return snprintf(out, size, "Autolooting items with drop rates of %0.02f%% and below, %d zeny a minute (paid ahead for each minute). Off with @autoloot off.",
+		rate / 100., price);
 }
 
 // " See @playtime, buy more with @buyplaytime <minutes> (N zeny a minute)." for the warnings, "" when buying is off
@@ -546,6 +644,7 @@ void pc_playlimit_check(struct map_session_data* sd)
 
 static int pc_playlimit_check_sub(DBKey key, void* data, va_list ap)
 {
+	pc_autoloot_charge((struct map_session_data*)data); // [autoloot] the next paid minute
 	pc_playlimit_check((struct map_session_data*)data);
 	return 0;
 }
@@ -1424,6 +1523,11 @@ int pc_reg_received(struct map_session_data *sd)
 		pc_playlimit_fold(sd); // the minutes before now are counted (no autopay yet)
 		sd->state.autopay = 1;
 		sd->autopay_log_tick = gettick();
+	}
+	if (!sd->state.autoloot && pc_readglobalreg(sd, "AUTOLOOT") > 0 && !pc_autoloot_free(sd)) { // [autoloot] stays on over a relog
+		sd->state.autoloot = cap_value(pc_readglobalreg(sd, "AUTOLOOT"), 1, 10000);
+		sd->autoloot_log_tick = gettick();
+		pc_autoloot_charge(sd); // a new minute is paid now; inside a paid one nothing
 	}
 	return 1;
 }

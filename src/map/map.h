@@ -678,6 +678,8 @@ struct map_session_data {
 	int calc_pc_timer; // [perf 7] pending deferred status_calc_pc (equip-swap coalescing); -1 = none
 	int autopay_paid; // [playlimit] zeny @autopay took since its last zenylog line
 	t_tick autopay_log_tick; // [playlimit] when that zenylog line was written
+	int autoloot_paid; // [autoloot] zeny paid @autoloot took since its last zenylog line
+	t_tick autoloot_log_tick; // [autoloot] when that zenylog line was written
 	unsigned short bornrok_build; // [client] N of BornRok 0.0.N.0 (map login bytes 2-3); 0 = before 0.0.64 or not BornRok
 	t_tick play_login_tick; // [playlimit] minutes on the map-server count from here (status.play_minutes before it)
 	int play_warned;        // [playlimit] the 30/10/1-minute warnings given today (playlimit_warning)
