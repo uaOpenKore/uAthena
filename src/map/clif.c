@@ -11705,10 +11705,11 @@ void clif_friendslist_reqack(struct map_session_data *sd, struct map_session_dat
 	WFIFOHEAD(fd,packet_len(0x209));
 	WFIFOW(fd,0) = 0x209;
 	WFIFOW(fd,2) = type;
+	memset(WFIFOP(fd,4), 0, packet_len(0x209) - 4); // [friendack] no stale buffer bytes when there is no f_sd
 	if (f_sd)
 	{
-		WFIFOW(fd,4) = f_sd->status.account_id;
-		WFIFOW(fd,8) = f_sd->status.char_id;
+		WFIFOL(fd,4) = f_sd->status.account_id; // [friendack] 4-byte fields: WFIFOW cut the ids to 16 bits
+		WFIFOL(fd,8) = f_sd->status.char_id;
 		memcpy(WFIFOP(fd, 12), f_sd->status.name,NAME_LENGTH);
 	}
 	WFIFOSET(fd, packet_len(0x209));
