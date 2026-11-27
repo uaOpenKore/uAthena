@@ -975,6 +975,7 @@ int npc_command(struct map_session_data* sd, const char* npcname, const char* co
  * The old client draws: no sprite (-1), job sprites, NPC sprites 45-125, 139 and 700-957, the classic monsters
  * (1001-1700), the transcendent jobs (4001-4049) and the invisible class.
  *------------------------------------------*/
+static void npc_spread_stacked(void);
 static bool npc_renewal_only(int class_)
 {
 	int c;
@@ -3205,6 +3206,7 @@ int npc_reload(void)
 		fflush(stdout);
 	}
 	printf("\r");
+	npc_spread_stacked(); // [npcspread]
 	itemdb_report_shop_caps(); // [shoparb]
 	ShowInfo ("Done loading '"CL_WHITE"%d"CL_RESET"' NPCs:\n"
 		"\t-'"CL_WHITE"%d"CL_RESET"' Warps\n"
@@ -3294,6 +3296,72 @@ static void npc_debug_warps(void)
 /*==========================================
  * npc initialization
  *------------------------------------------*/
+/*==========================================
+ * [npcspread] NPCs standing on one cell are moved apart (S. 2026-11-27: the npc/backport ports put some on the cell of
+ * a classic one, the client drew them one on top of the other). The first one loaded keeps its cell, each other one
+ * goes to the first free walkable cell 3-5 cells away. Invisible NPCs, warp sprites and NPCs with a touch area
+ * (warps, OnTouch) never move: their cell is what they do.
+ *------------------------------------------*/
+static bool npc_spread_movable(struct npc_data* nd)
+{
+	if (nd->bl.subtype != SCRIPT && nd->bl.subtype != SHOP)
+		return false;
+	if (nd->class_ < 0 || nd->class_ == INVISIBLE_CLASS || nd->class_ == 111 || nd->class_ == 139 || nd->class_ == 45)
+		return false;
+	return !(nd->bl.subtype == SCRIPT && (nd->u.scr.xs > 0 || nd->u.scr.ys > 0));
+}
+
+static bool npc_spread_taken(int m, int x, int y)
+{
+	int i;
+	for (i = 0; i < map[m].npc_num; i++)
+		if (map[m].npc[i]->bl.x == x && map[m].npc[i]->bl.y == y)
+			return true;
+	return false;
+}
+
+static void npc_spread_stacked(void)
+{
+	int m, i, j, n = 0;
+	for (m = 0; m < map_num; m++)
+		for (i = 1; i < map[m].npc_num; i++) {
+			struct npc_data* nd = map[m].npc[i];
+			int d, x, y, ox = nd->bl.x, oy = nd->bl.y;
+			bool stacked = false, moved = false;
+			if (!npc_spread_movable(nd))
+				continue;
+			for (j = 0; j < i && !stacked; j++) {
+				struct npc_data* od = map[m].npc[j];
+				stacked = od->bl.x == ox && od->bl.y == oy && od->class_ >= 0 && od->class_ != INVISIBLE_CLASS
+					&& od->class_ != 111 && od->class_ != 139;
+			}
+			if (!stacked)
+				continue;
+			for (d = 3; d <= 5 && !moved; d++)
+				for (y = oy - d; y <= oy + d && !moved; y++)
+					for (x = ox - d; x <= ox + d && !moved; x++) {
+						if (max(abs(x - ox), abs(y - oy)) != d || x < 0 || y < 0 || x >= map[m].xs || y >= map[m].ys)
+							continue;
+						if (!map_getcell(m, x, y, CELL_CHKPASS) || map_getcell(m, x, y, CELL_CHKNPC) || npc_spread_taken(m, x, y))
+							continue;
+						if (nd->bl.prev != NULL) {
+							clif_clearunit_area(&nd->bl, 0);
+							map_moveblock(&nd->bl, x, y, gettick());
+							clif_spawn(&nd->bl);
+						} else
+							nd->bl.x = x, nd->bl.y = y;
+						moved = true;
+					}
+			if (moved) {
+				n++;
+				ShowInfo("npc '%s' moved off %s %d,%d (another NPC stands there) to %d,%d\n", nd->exname, map[m].name, ox, oy, nd->bl.x, nd->bl.y);
+			} else
+				ShowWarning("npc '%s' on %s %d,%d shares the cell with another NPC: no free cell 3-5 away\n", nd->exname, map[m].name, ox, oy);
+		}
+	if (n)
+		ShowInfo("'"CL_WHITE"%d"CL_RESET"' NPCs moved off a cell another NPC stands on.\n", n);
+}
+
 int do_init_npc(void)
 {
 	struct npc_src_list *file;
@@ -3340,6 +3408,7 @@ int do_init_npc(void)
 		fflush(stdout);
 	}
 	printf("\r");
+	npc_spread_stacked(); // [npcspread]
 	itemdb_report_shop_caps(); // [shoparb]
 	ShowInfo ("Done loading '"CL_WHITE"%d"CL_RESET"' NPCs:\n"
 		"\t-'"CL_WHITE"%d"CL_RESET"' Warps\n"
