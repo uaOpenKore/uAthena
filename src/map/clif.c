@@ -10767,6 +10767,60 @@ void clif_parse_ReplyPartyInvite(int fd,struct map_session_data *sd)
 }
 
 /*==========================================
+ * [partyname] 0x2c4 <name>.24B: invite a player by name (S. 2026-11-27: BornRok, uaRO-HD; the old client sends
+ * 0xfc with an account id). The invitee still gets 0xfe <inviter's account id> <party name>, so any client answers.
+ *------------------------------------------*/
+void clif_parse_PartyInvite2(int fd, struct map_session_data *sd)
+{
+	struct map_session_data *t_sd;
+	char name[NAME_LENGTH];
+
+	if(map[sd->bl.m].flag.partylock)
+	{	//Guild locked.
+		clif_displaymessage(fd, msg_txt(227));
+		return;
+	}
+
+	safestrncpy(name, (char*)RFIFOP(fd,2), NAME_LENGTH);
+	t_sd = map_nick2sd(name);
+	if (t_sd && pc_isinvisible(t_sd) && pc_isGM(t_sd) > pc_isGM(sd))
+		t_sd = NULL; // a hidden GM is not there for the inviter
+	if (t_sd == NULL) {
+		char output[128];
+		sprintf(output, "Character '%s' is not online.", name);
+		clif_displaymessage(fd, output);
+		return;
+	}
+
+	// @noask [LuzZza]
+	if(t_sd->state.noask) {
+		clif_noask_sub(sd, t_sd, 1);
+		return;
+	}
+
+	party_invite(sd, t_sd);
+}
+
+/*==========================================
+ * [partyname] 0x2c7 <id>.L <flag>.B: the answer to an invite. rAthena sends the party id there (its 0x2c6 carries
+ * it); our invite is 0xfe with the inviter's account id, which a client may echo too: both are taken.
+ *------------------------------------------*/
+void clif_parse_ReplyPartyInvite2(int fd,struct map_session_data *sd)
+{
+	int id = RFIFOL(fd,2);
+	int flag = RFIFOB(fd,6) ? 1 : 0;
+
+	if (sd->party_invite > 0 && id == sd->party_invite)
+		id = sd->party_invite_account;
+	if(battle_config.basic_skill_check == 0 || pc_checkskill(sd,NV_BASIC) >= 5){
+		party_reply_invite(sd,id,flag);
+	} else {
+		party_reply_invite(sd,id,-1);
+		clif_skill_fail(sd,1,0,4);
+	}
+}
+
+/*==========================================
  * p[eBEv
  *------------------------------------------*/
 void clif_parse_LeaveParty(int fd, struct map_session_data *sd)
@@ -12521,6 +12575,8 @@ static int packetdb_readdb(void)
 		{clif_parse_CreateParty2,"createparty2"},
 		{clif_parse_PartyInvite,"partyinvite"},
 		{clif_parse_ReplyPartyInvite,"replypartyinvite"},
+		{clif_parse_PartyInvite2,"partyinvite2"},
+		{clif_parse_ReplyPartyInvite2,"replypartyinvite2"},
 		{clif_parse_LeaveParty,"leaveparty"},
 		{clif_parse_RemovePartyMember,"removepartymember"},
 		{clif_parse_PartyChangeOption,"partychangeoption"},
