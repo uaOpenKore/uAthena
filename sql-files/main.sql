@@ -77,6 +77,8 @@ CREATE TABLE `char` (
   `fame` int(11) unsigned NOT NULL default '0',
   `play_minutes` int(10) unsigned NOT NULL default '0',
   `play_date` int(10) unsigned NOT NULL default '0',
+  `created` datetime NULL default CURRENT_TIMESTAMP,
+  `maxed` datetime NULL default NULL,
   PRIMARY KEY  (`char_id`),
   KEY `account_id` (`account_id`),
   KEY `party_id` (`party_id`),

@@ -44,6 +44,10 @@ char char_db[256] = "char";
 bool playlimit_on = false;
 static int play_reset_date = 0;	// the date the current minutes belong to; 0 = limit off
 static t_tick play_reset_tick = 0;	// monotonic time of the last reset
+// [chardates] char.created / char.maxed (sql-files/upgrade_2026-11-28_char_dates.sql); off without the columns
+static bool chardates_on = false;
+#define CHARDATES_MAX_BASE 99
+#define CHARDATES_MAX_JOB 70
 void playlimit_stamp(struct mmo_charstatus* p);
 char scdata_db[256] = "sc_data";
 char cart_db[256] = "cart_inventory";
@@ -703,6 +707,18 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus *p){
 			errors++;
 		} else
 			strcat(save_status, " status2");
+	}
+
+	// [chardates] the save that first brings the character to 99/70 stamps char.maxed; a stamp is never moved
+	if (chardates_on && p->base_level >= CHARDATES_MAX_BASE && p->job_level >= CHARDATES_MAX_JOB &&
+		(cp->base_level < CHARDATES_MAX_BASE || cp->job_level < CHARDATES_MAX_JOB)) {
+		sprintf(tmp_sql, "UPDATE `%s` SET `maxed`=NOW() WHERE `char_id`='%d' AND `maxed` IS NULL", char_db, p->char_id);
+		if (mysql_query(&mysql_handle, tmp_sql)) {
+			ShowSQL("DB error - %s\n", mysql_error(&mysql_handle));
+			ShowDebug("at %s:%d - %s\n", __FILE__,__LINE__,tmp_sql);
+			errors++;
+		} else
+			strcat(save_status, " maxed");
 	}
 
 	if (playlimit_on) {
@@ -5132,6 +5148,11 @@ int do_init(int argc, char **argv)
 	online_char_db = db_alloc(__FILE__,__LINE__,DB_INT,DB_OPT_RELEASE_DATA,sizeof(int));
 	mmo_char_sql_init();
 	playlimit_init();
+	sprintf(tmp_sql, "SHOW COLUMNS FROM `%s` LIKE 'maxed'", char_db);
+	chardates_on = playlimit_has(tmp_sql);
+	if (!chardates_on)
+		ShowWarning("[CHARDATES] the character dates are OFF: the columns `created`/`maxed` are missing in `%s` "
+			"(run sql-files/upgrade_2026-11-28_char_dates.sql).\n", char_db);
 	ShowInfo("char server initialized.\n");
 
 	set_defaultparse(parse_char);
